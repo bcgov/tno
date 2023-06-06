@@ -49,7 +49,7 @@ import {
 import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
 import { ContentClipForm, ContentLabelsForm, ContentStoryForm, ContentTranscriptForm } from '.';
-import { ContentFormToolBar, TimeLogSection } from './components';
+import { ContentFormToolBar, Tags, TimeLogSection, ToningGroup } from './components';
 import { defaultFormValues } from './constants';
 import { ImageSection } from './ImageSection';
 import { IContentForm } from './interfaces';
@@ -671,132 +671,140 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     />
                   </Show>
                 </Row>
-                <Row className="submit-buttons">
-                  <Row
-                    flex="1 1 0"
-                    className={contentType !== ContentTypeName.Image ? 'multi-section' : ''}
-                  >
-                    <Show visible={contentType === ContentTypeName.Snippet}>
-                      <Row className="multi-group">
-                        <TimeLogSection prepTimeRequired={true} />
-                      </Row>
-                    </Show>
-                  </Row>
-                  <Show
-                    visible={
-                      contentType === ContentTypeName.Snippet &&
-                      props.values.fileReferences.length === 0 &&
-                      !props.values.file
-                    }
-                  >
-                    <FormikCheckbox
-                      name="allowPublishWithoutFile"
-                      label="Allow publish without file"
-                      className="allow-no-file"
-                      value={allowPublishWithoutFile}
-                      checked={allowPublishWithoutFile}
-                      onChange={(e: any) => {
-                        setAllowPublishWithoutFile(e.target.checked);
-                      }}
-                    />
-                  </Show>
-                  <Button
-                    type="submit"
-                    disabled={
-                      props.isSubmitting ||
-                      ([ContentTypeName.Snippet, ContentTypeName.Image].includes(contentType) &&
-                        !allowPublishWithoutFile &&
-                        props.values.fileReferences.length === 0 &&
-                        !props.values.file)
-                    }
-                    onClick={() => {
-                      setSavePressed(true);
-                    }}
-                  >
-                    Publish
-                  </Button>
-                  <Show
-                    visible={
-                      props.values.status === ContentStatusName.Publish ||
-                      props.values.status === ContentStatusName.Published
-                    }
-                  >
-                    <Button
-                      variant={ButtonVariant.secondary}
-                      disabled={
-                        props.isSubmitting ||
-                        (contentType === ContentTypeName.Snippet &&
-                          props.values.fileReferences.length === 0 &&
-                          !props.values.file)
-                      }
-                      onClick={() => {
-                        setSavePressed(true);
-                        handleUnpublish(props);
-                      }}
-                    >
-                      Unpublish
-                    </Button>
-                  </Show>
-                  <Show
-                    visible={
-                      ![ContentStatusName.Publish, ContentStatusName.Published].some(
-                        (s) => s === props.values.status,
-                      )
-                    }
-                  >
-                    <Button
-                      variant={ButtonVariant.warning}
-                      disabled={props.isSubmitting}
-                      onClick={() => {
-                        setSavePressed(true);
-                        handleSave(props);
-                      }}
-                    >
-                      Save without publishing
-                    </Button>
-                  </Show>
-                  <Show visible={!!props.values.id}>
+                <Row gap="0.5rem">
+                  <Tags />
+                  <Show visible={contentType !== ContentTypeName.Image}>
+                    <ToningGroup fieldName="tonePools" />
                     <Show
                       visible={
-                        !!props.values.id && props.values.contentType === ContentTypeName.Snippet
+                        contentType === ContentTypeName.Snippet ||
+                        contentType === ContentTypeName.PrintContent
                       }
                     >
+                      <TimeLogSection prepTimeRequired={contentType === ContentTypeName.Snippet} />
+                    </Show>
+                  </Show>
+
+                  <Row className="submit-buttons">
+                    <Show
+                      visible={
+                        contentType === ContentTypeName.Snippet &&
+                        props.values.fileReferences.length === 0 &&
+                        !props.values.file
+                      }
+                    >
+                      <FormikCheckbox
+                        name="allowPublishWithoutFile"
+                        label="Allow publish without file"
+                        className="allow-no-file"
+                        value={allowPublishWithoutFile}
+                        checked={allowPublishWithoutFile}
+                        onChange={(e: any) => {
+                          setAllowPublishWithoutFile(e.target.checked);
+                        }}
+                      />
+                    </Show>
+                    <Row>
                       <Button
-                        onClick={() =>
-                          isWorkOrderStatus(form.workOrders, WorkOrderTypeName.Transcription, [
-                            WorkOrderStatusName.Completed,
-                          ])
-                            ? toggleTranscribe()
-                            : handleTranscribe(props.values)
-                        }
-                        variant={ButtonVariant.action}
+                        type="submit"
                         disabled={
                           props.isSubmitting ||
-                          !props.values.fileReferences.length ||
-                          (props.values.fileReferences.length > 0 &&
-                            !props.values.fileReferences[0].isUploaded)
+                          ([ContentTypeName.Snippet, ContentTypeName.Image].includes(contentType) &&
+                            !allowPublishWithoutFile &&
+                            props.values.fileReferences.length === 0 &&
+                            !props.values.file)
+                        }
+                        onClick={() => {
+                          setSavePressed(true);
+                        }}
+                      >
+                        Publish
+                      </Button>
+                      <Show
+                        visible={
+                          props.values.status === ContentStatusName.Publish ||
+                          props.values.status === ContentStatusName.Published
                         }
                       >
-                        Transcribe
-                      </Button>
-                    </Show>
-
-                    <Show
-                      visible={
-                        props.values.status === ContentStatusName.Draft ||
-                        (props.values.status === ContentStatusName.Unpublished &&
-                          userInfo?.roles.includes(Claim.administrator))
-                      }
-                    >
-                      <Button
-                        onClick={toggleDelete}
-                        variant={ButtonVariant.danger}
-                        disabled={props.isSubmitting}
+                        <Button
+                          variant={ButtonVariant.secondary}
+                          disabled={
+                            props.isSubmitting ||
+                            (contentType === ContentTypeName.Snippet &&
+                              props.values.fileReferences.length === 0 &&
+                              !props.values.file)
+                          }
+                          onClick={() => {
+                            setSavePressed(true);
+                            handleUnpublish(props);
+                          }}
+                        >
+                          Unpublish
+                        </Button>
+                      </Show>
+                      <Show
+                        visible={
+                          ![ContentStatusName.Publish, ContentStatusName.Published].some(
+                            (s) => s === props.values.status,
+                          )
+                        }
                       >
-                        Delete
-                      </Button>
-                    </Show>
-                  </Show>
+                        <Button
+                          variant={ButtonVariant.warning}
+                          disabled={props.isSubmitting}
+                          onClick={() => {
+                            setSavePressed(true);
+                            handleSave(props);
+                          }}
+                        >
+                          Save without publishing
+                        </Button>
+                      </Show>
+                      <Show visible={!!props.values.id}>
+                        <Show
+                          visible={
+                            !!props.values.id &&
+                            props.values.contentType === ContentTypeName.Snippet
+                          }
+                        >
+                          <Button
+                            onClick={() =>
+                              isWorkOrderStatus(form.workOrders, WorkOrderTypeName.Transcription, [
+                                WorkOrderStatusName.Completed,
+                              ])
+                                ? toggleTranscribe()
+                                : handleTranscribe(props.values)
+                            }
+                            variant={ButtonVariant.action}
+                            disabled={
+                              props.isSubmitting ||
+                              !props.values.fileReferences.length ||
+                              (props.values.fileReferences.length > 0 &&
+                                !props.values.fileReferences[0].isUploaded)
+                            }
+                          >
+                            Transcribe
+                          </Button>
+                        </Show>
+
+                        <Show
+                          visible={
+                            props.values.status === ContentStatusName.Draft ||
+                            (props.values.status === ContentStatusName.Unpublished &&
+                              userInfo?.roles.includes(Claim.administrator))
+                          }
+                        >
+                          <Button
+                            onClick={toggleDelete}
+                            variant={ButtonVariant.danger}
+                            disabled={props.isSubmitting}
+                          >
+                            Delete
+                          </Button>
+                        </Show>
+                      </Show>
+                    </Row>
+                  </Row>
                 </Row>
                 <Modal
                   headerText="Confirm Removal"

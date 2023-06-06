@@ -109,8 +109,18 @@ export const ContentForm = styled.div`
   }
 
   .submit-buttons {
+    flex: 1;
     justify-content: flex-end;
     align-items: center;
+    padding: 0.5rem;
+
+    .allow-no-file {
+      min-width: 100px;
+    }
+
+    > div {
+      flex-wrap: nowrap;
+    }
   }
 
   .content-status {
@@ -142,5 +152,15 @@ export const ContentForm = styled.div`
 
   .type-Proactive {
     color: green;
+  }
+
+  .multi-group {
+    align-items: center;
+    justify-content: center;
+    background-color: #faf9f7;
+    min-height: 4em;
+    min-width: fit-content;
+    padding: 0.5em;
+    border-radius: 0.25em;
   }
 `;

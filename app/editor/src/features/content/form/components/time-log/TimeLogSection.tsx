@@ -43,7 +43,7 @@ export const TimeLogSection: React.FC<ITimeLogSectionProps> = ({ prepTimeRequire
   }, [setFieldValue, values.timeTrackings]);
 
   return (
-    <styled.TimeLogSection>
+    <styled.TimeLogSection className="multi-group">
       <FormikText
         width={FieldSize.Small}
         name="prep"

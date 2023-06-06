@@ -1,8 +1,6 @@
 import styled from 'styled-components';
 
 export const ContentStoryForm = styled.div`
-  height: 90%;
-
   .row-margins {
     margin-top: 2%;
   }
@@ -41,28 +39,10 @@ export const ContentStoryForm = styled.div`
     max-width: fit-content;
   }
 
-  .media {
-    margin-top: 1%;
-    align-items: center;
-    justify-content: center;
-    padding-right: 0.5em;
-  }
-
   .toning {
     height: 0.5em;
     margin-top: 1.5em;
     padding: 0 0.5em 0 0.5em;
-  }
-
-  .multi-group {
-    align-items: center;
-    justify-content: center;
-    background-color: #faf9f7;
-    min-height: 4em;
-    min-width: fit-content;
-    padding: 0.5em;
-    border-radius: 0.25em;
-    margin: 0 0.5em 0 0.5em;
   }
 
   .textarea {
@@ -85,12 +65,18 @@ export const ContentStoryForm = styled.div`
     object-fit: contain;
   }
 
+  .content-body {
+    display: flex;
+    flex-flow: column;
+    max-height: 300px;
+    overflow: hidden;
+  }
+
   .quill {
     max-height: 20em;
     overflow: scroll;
 
     .ql-container {
-      height: 100%;
     }
   }
 `;
