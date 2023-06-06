@@ -41,5 +41,11 @@ public interface IServiceActionManager
     /// </summary>
     /// <returns></returns>
     public Task RecordFailureAsync();
+
+    /// <summary>
+    /// Updates service config/state.
+    /// </summary>
+    /// <returns></returns>
+    public Task UpdateIngestConfigAsync(string propName, object propValue);
     #endregion
 }

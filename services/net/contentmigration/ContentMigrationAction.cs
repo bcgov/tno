@@ -66,34 +66,74 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 
         var skip = 0;
         var count = 20;
+        DateTime? importDateStart = manager.Ingest.GetConfigurationValue<DateTime>("importDateStart");
+        DateTime? importDateEnd = manager.Ingest.GetConfigurationValue<DateTime>("importDateEnd");
+        DateTime? creationDateOfNewsItem = manager.Ingest.GetConfigurationValue<DateTime>("creationDateOfLastImport");
 
         while (count > 0)
         {
             try
             {
-                var items = _sourceContext.NewsItems
-                    .Where(ni => ni.CreatedOn >= manager.Ingest.LastRanOn)
-                    .OrderByDescending(ni => ni.UpdatedOn)
-                    .OrderByDescending(ni => ni.RSN).Skip(skip).Take(count);
-
+                IQueryable<NewsItem> items = GetFilteredNewsItems(manager, skip, count, importDateStart, importDateEnd, creationDateOfNewsItem);
+                var lastNewsItem = items.Last();
                 count = items.Count();
                 skip += count;
-
-                // KGM: do nothing for now, fine tune this code next
-                // await items.ForEachAsync(async newsItem =>
-                // {
-                //     await MigrateNewsItemAsync(manager, newsItem);
-                // });
+                await items.ForEachAsync(async newsItem =>
+                {
+                    // await MigrateNewsItemAsync(manager, newsItem);
+                    // creationDateOfNewsItem = newsItem.ItemDateTime;
+                    // if (newsItem.Equals(lastNewsItem))
+                    // {
+                    //     await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfNewsItem);
+                    // }
+                });
 
             }
             catch (Exception)
             {
                 Logger.LogError("Migration Failed on {skip}:{count}", skip, count);
+                // only update the DateTime.MinValue value if it was set
+                if (creationDateOfNewsItem != DateTime.MinValue)
+                    await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfNewsItem);
                 throw;
             }
         }
 
         Logger.LogInformation("Migration Complete");
+    }
+
+    private IQueryable<NewsItem> GetFilteredNewsItems(IIngestServiceActionManager manager, int skip, int count, DateTime? importDateStart, DateTime? importDateEnd, DateTime? creationDateOfNewsItem)
+    {
+        // if no import filter dates are set
+        if (!importDateStart.HasValue && !importDateEnd.HasValue) {
+            // if the ingest has previously run, use the creationDateOfNewsItem as the dateFilter
+            // if creationDateOfNewsItem is not set, use the LastRanOn
+            // if LastRanOn is not set which means the service has NEVER run before, use DateTime.MinValue
+            DateTime dateFilter = creationDateOfNewsItem.HasValue
+                ? creationDateOfNewsItem.Value
+                : manager.Ingest.LastRanOn.HasValue
+                    ? manager.Ingest.LastRanOn.Value
+                    : DateTime.MinValue;
+            return _sourceContext.NewsItems
+                .Where(ni => ni.CreatedOn >= dateFilter)
+                .OrderByDescending(ni => ni.UpdatedOn)
+                .OrderByDescending(ni => ni.RSN).Skip(skip).Take(count);
+        } else {
+            DateTime dateFilterStart = (importDateStart.HasValue) ? importDateStart.Value : DateTime.MinValue;
+            DateTime dateFilterEnd = (importDateEnd.HasValue) ? importDateEnd.Value : DateTime.MaxValue;
+            if(creationDateOfNewsItem.HasValue
+                && (dateFilterStart <= creationDateOfNewsItem.Value)
+                && (dateFilterEnd >= creationDateOfNewsItem.Value)) {
+                    // if a date filter is set AND the creationDateOfNewsItem is set
+                    // use the creationDateOfNewsItem as the start date ONLY if it's
+                    // between the targeted start and end dates
+                    dateFilterStart = new []{creationDateOfNewsItem.Value, dateFilterStart}.Max();
+                }
+            return _sourceContext.NewsItems
+                .Where(ni => ((ni.CreatedOn >= dateFilterStart) && (ni.CreatedOn <= dateFilterEnd)))
+                .OrderByDescending(ni => ni.UpdatedOn)
+                .OrderByDescending(ni => ni.RSN).Skip(skip).Take(count);
+        }
     }
 
     /// <summary>
