@@ -8,6 +8,7 @@ import { ViewContent } from 'features/content/view-content';
 import { Home } from 'features/home';
 import { MyMinister } from 'features/my-minister/MyMinister';
 import { MyMinisterSettings } from 'features/settings';
+import { TodaysCommentary } from 'features/todays-commentary';
 import React from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -64,6 +65,9 @@ export const Landing: React.FC = () => {
             </Show>
             <Show visible={activeItem === SidebarMenuItems.myMinister.label}>
               <MyMinister />
+            </Show>
+            <Show visible={activeItem === SidebarMenuItems.todaysCommentary.label}>
+              <TodaysCommentary />
             </Show>
           </div>
         </Col>
