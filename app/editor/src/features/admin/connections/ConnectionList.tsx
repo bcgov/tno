@@ -64,6 +64,7 @@ export const ConnectionList: React.FC = () => {
         columns={columns}
         showSort={true}
         onRowClick={(row) => navigate(`${row.original.id}`)}
+        pagingEnabled={false}
       />
     </styled.ConnectionList>
   );

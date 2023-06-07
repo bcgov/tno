@@ -63,6 +63,7 @@ export const IngestList: React.FC<IIngestListProps> = (props) => {
         columns={columns}
         showSort={true}
         onRowClick={(row) => navigate(`${row.original.id}`)}
+        pagingEnabled={false}
       />
     </styled.IngestList>
   );

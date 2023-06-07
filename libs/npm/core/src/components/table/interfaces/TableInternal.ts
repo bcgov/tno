@@ -131,10 +131,12 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
 
   // Paging
   page: ITableInternalRow<T>[];
+  pagingEnabled: boolean;
   pageIndex: number;
   pageSize: number;
   pageNumber = () => this.pageIndex + 1;
   pageCount: number;
+  totalItems?: number;
   calcPageCount = () =>
     this.data.length < this.pageSize ? 1 : Math.ceil(this.data.length / this.pageSize);
   manualPaging: boolean;
@@ -261,11 +263,13 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
     table.onSelectedChanged = options.onSelectedChanged ? options.onSelectedChanged : () => {};
 
     // Paging
+    table.pagingEnabled = paging.pagingEnabled ?? true;
     table.manualPaging = paging.manualPaging ?? false;
     table.pageIndex = paging.pageIndex ?? 0;
-    table.pageSize = paging.pageSize ?? 10;
+    table.pageSize = table.pagingEnabled ? paging.pageSize ?? 10 : table.data.length;
+    table.totalItems = paging.totalItems;
     table.pageButtons = paging.pageButtons ?? 5;
-    table.showPaging = paging.showPaging ?? true;
+    table.showPaging = table.pagingEnabled ? paging.showPaging ?? true : false;
     table.scrollSize = paging.scrollSize ?? 0;
     table.onPageChange = paging.onPageChange ? paging.onPageChange : () => {};
 
@@ -347,6 +351,7 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
 
     // Paging
     this.page = [];
+    this.pagingEnabled = true;
     this.pageIndex = 0;
     this.pageSize = 0;
     this.pageCount = 0;

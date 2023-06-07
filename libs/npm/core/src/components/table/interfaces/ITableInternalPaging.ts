@@ -1,10 +1,12 @@
 import { ITableHookPaging, ITableInternal, ITableInternalRow, ITablePage } from '.';
 
 export interface ITableInternalPaging<T extends object> extends ITableHookPaging<T> {
+  pagingEnabled?: boolean;
   page: ITableInternalRow<T>[];
   pageIndex: number;
   pageSize: number;
   pageCount: number;
+  totalItems?: number;
   pageNumber: () => number;
   manualPaging: boolean;
   pageButtons: number;

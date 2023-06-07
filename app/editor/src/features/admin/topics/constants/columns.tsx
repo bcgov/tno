@@ -16,13 +16,21 @@ export const columns: ITableHookColumn<ITopicModel>[] = [
   {
     label: 'Type',
     name: 'topicType',
-    width: 2,
+    width: 1,
     cell: (cell) => <CellEllipsis>{cell.original.topicType}</CellEllipsis>,
+  },
+  {
+    label: 'Order',
+    name: 'sortOrder',
+    width: 1,
+    hAlign: 'center',
+    cell: (cell) => cell.original.sortOrder,
   },
   {
     label: 'Enabled',
     name: 'isEnabled',
     width: 1,
+    hAlign: 'center',
     cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,
   },
 ];

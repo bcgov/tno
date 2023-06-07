@@ -30,4 +30,9 @@ export const WorkOrderList = styled(FormPage)`
       overflow: hidden;
     }
   }
+
+  .table {
+    max-height: calc(100% - 120px);
+    min-height: 200px;
+  }
 `;

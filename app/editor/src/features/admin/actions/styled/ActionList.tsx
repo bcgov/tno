@@ -25,4 +25,9 @@ export const ActionList = styled.div`
       overflow: hidden;
     }
   }
+
+  .table {
+    max-height: calc(100% - 120px);
+    min-height: 200px;
+  }
 `;

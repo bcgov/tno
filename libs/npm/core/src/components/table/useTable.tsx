@@ -55,9 +55,11 @@ export const useTable = <T extends object>({
   // When parent paging properties changes we need to update state.
   React.useEffect(() => {
     if (
+      initPaging.pagingEnabled !== paging.pagingEnabled ||
       initPaging.pageIndex !== paging.pageIndex ||
       initPaging.pageSize !== paging.pageSize ||
       initPaging.pageCount !== paging.pageCount ||
+      initPaging.totalItems !== paging.totalItems ||
       initPaging.showPaging !== paging.showPaging ||
       initPaging.onPageChange !== paging.onPageChange
     ) {
@@ -89,15 +91,19 @@ export const useTable = <T extends object>({
       pageIndex: initPaging.pageIndex !== paging.pageIndex ? initPaging.pageIndex : table.pageIndex,
       pageSize: initPaging.pageSize !== paging.pageSize ? initPaging.pageSize : table.pageSize,
       pageCount: initPaging.pageCount !== paging.pageCount ? initPaging.pageCount : table.pageCount,
+      totalItems:
+        initPaging.totalItems !== paging.totalItems ? initPaging.totalItems : table.totalItems,
     }),
     [
       paging,
       initPaging.pageIndex,
       initPaging.pageSize,
       initPaging.pageCount,
+      initPaging.totalItems,
       table.pageIndex,
       table.pageSize,
       table.pageCount,
+      table.totalItems,
     ],
   );
 

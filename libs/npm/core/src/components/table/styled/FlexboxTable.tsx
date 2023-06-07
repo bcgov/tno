@@ -5,7 +5,7 @@ import { ITableStyleProps } from '..';
 export const FlexboxTable = styled.div<ITableStyleProps>`
   display: flex;
   flex-flow: column;
-  padding: 0.25em;
+  padding: 0.25rem;
 
   .filter {
     display: flex;
@@ -17,7 +17,7 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
     display: flex;
     flex-flow: row;
     flex-wrap: nowrap;
-    gap: 0.25em;
+    gap: 0.25rem;
     border-top: solid 2px #000;
     border-bottom: solid 2px #000;
     margin-bottom: 0.25em;
@@ -29,7 +29,7 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
 
       &:hover {
         filter: brightness(90%);
-        border-radius: 0.25em;
+        border-radius: 0.25rem;
       }
 
       & span {
@@ -57,9 +57,9 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
       display: flex;
       flex-flow: row;
       flex-wrap: nowrap;
-      gap: 0.25em;
+      gap: 0.25rem;
       background-color: #fff;
-      padding: 0.25em 0;
+      padding: 0.25rem 0;
 
       &:nth-child(even) {
         background-color: rgb(233, 236, 239);
@@ -67,18 +67,18 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
 
       &:hover {
         filter: brightness(75%);
-        border-radius: 0.25em;
+        border-radius: 0.25rem;
       }
 
       &.selected {
         background-color: rgb(66, 139, 202);
-        border-radius: 0.25em;
+        border-radius: 0.25rem;
         color: #fff;
       }
 
       &.active {
         background-color: rgb(56, 89, 138);
-        border-radius: 0.25em;
+        border-radius: 0.25rem;
         color: #fff;
       }
     }
@@ -86,10 +86,10 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
     & .groups {
       & .group {
         background-color: rgb(119, 173, 223);
-        padding: 0.25em;
+        padding: 0.25rem;
         font-weight: bold;
-        border-top-left-radius: 0.5em;
-        border-top-right-radius: 0.5em;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
       }
     }
   }
@@ -98,7 +98,7 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
     display: flex;
     flex-flow: row;
     flex-wrap: nowrap;
-    gap: 0.25em;
+    gap: 0.25rem;
     justify-content: center;
 
     & .column {
@@ -109,10 +109,10 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
   .pager {
     display: flex;
     flex-flow: row;
-    gap: 1em;
+    gap: 1rem;
     align-items: center;
     justify-content: center;
-    padding: 0.25em;
+    padding: 0.25rem;
 
     & .pages {
       display: flex;
@@ -128,8 +128,8 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
 
       & .page-size {
         text-align: right;
-        width: 3.5em;
-        margin-left: 0.25em;
+        width: 4rem;
+        margin-left: 0.25rem;
       }
 
       & .frm-in {
@@ -141,8 +141,8 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
   & .column {
     display: flex;
     flex-flow: row;
-    gap: 0.5em;
-    padding: 0.25em;
+    gap: 0.5rem;
+    padding: 0.25rem;
     box-sizing: border-box;
 
     &.col-0 {
