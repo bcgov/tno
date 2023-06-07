@@ -137,7 +137,8 @@ export const ViewContent: React.FC = () => {
         </Row>
       </Show>
       <Row id="summary" className="summary">
-        <Show visible={!!content?.summary}>
+        {/* only show summary if there is no body */}
+        <Show visible={!!content?.summary && !content.body}>
           <p>{parse(content?.summary ?? '')}</p>
         </Show>
         <Show visible={!!content?.body}>
