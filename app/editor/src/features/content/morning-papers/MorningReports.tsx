@@ -17,6 +17,7 @@ import {
   useCombinedView,
 } from 'tno-core';
 
+import { useTab } from '..';
 import { ContentForm } from '../form';
 import { defaultPage } from '../list-view/constants';
 import { IContentListAdvancedFilter } from '../list-view/interfaces';
@@ -35,35 +36,42 @@ export interface IMorningReportsProps extends React.HTMLAttributes<HTMLDivElemen
  * @returns Component.
  */
 export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
-  const { id: contentId = '' } = useParams();
+  const { id = '' } = useParams();
   const navigate = useNavigate();
-  const { combined } = useCombinedView();
+  const { combined, formType } = useCombinedView();
   const [
     { filterMorningReports: filter, filterMorningReportAdvanced: filterAdvanced, content },
     { findContent, storeFilterMorningReport },
   ] = useContent();
+  const [, { addContent, updateContent }] = useContentStore();
+  const initTab = useTab();
 
-  const [, setLoading] = React.useState(false);
-  const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const [contentId, setContentId] = React.useState(id);
+  const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.Snippet);
 
-  const [, { updateContent }] = useContentStore();
   const channel = useChannel<any>({
     onMessage: (ev) => {
       switch (ev.data.type) {
         case 'content':
-          updateContent([ev.data.message]);
+          if (content?.items.some((i) => i.id === ev.data.message.id))
+            updateContent([ev.data.message]);
+          else addContent([ev.data.message]);
+          break;
+        case 'page':
+          channel('page', content);
+          break;
+        case 'load':
+          setContentId(ev.data.message.id.toString());
+          break;
       }
     },
   });
 
-  const [tab, setTab] = React.useState<Window | null>(null);
-  const columns = getColumns((id) => {
-    if (!tab || tab.closed) setTab(window.open(`/contents/${id}`, '_blank'));
-    else {
-      channel('fetch', id);
-      tab.focus();
-    }
-  });
+  const [, setLoading] = React.useState(false);
+  const [selected, setSelected] = React.useState<IContentModel[]>([]);
+
+  const openTab = true; // TODO: Change to user preference and responsive in future.
+  const columns = getColumns(openTab, initTab);
 
   const page = React.useMemo(
     () =>
@@ -100,7 +108,10 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
   }, [filter, fetch]);
 
   const handleRowClick = (row: ITableInternalRow<IContentModel>) => {
-    navigate(`/morning/papers/combined/${row.original.id}${window.location.search}`);
+    setContentType(row.original.contentType);
+    setContentId(row.original.id.toString());
+    if (openTab) initTab(row.original.id);
+    else navigate(`/morning/papers/combined/${row.original.id}${window.location.search}`);
   };
 
   const handleChangePage = React.useCallback(
@@ -161,7 +172,7 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
           <hr />
           <Row className="bottom-pane" id="bottom-pane">
             <ContentForm
-              contentType={ContentTypeName.PrintContent}
+              contentType={contentType}
               scrollToContent={false}
               combinedPath="/morning/papers/combined"
             />

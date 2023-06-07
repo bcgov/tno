@@ -100,6 +100,7 @@ export const getColumns = (
   {
     name: 'status',
     label: 'Use',
+    hAlign: 'center',
     cell: (cell) => (
       <div className="center">
         <CellCheckbox

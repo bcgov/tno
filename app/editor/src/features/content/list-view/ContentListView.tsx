@@ -185,6 +185,7 @@ export const ContentListView: React.FC = () => {
               pageIndex={filter.pageIndex}
               pageSize={filter.pageSize}
               pageCount={page.pageCount}
+              totalItems={page.total}
               showSort={true}
               activeRowId={contentId}
               onPageChange={handleChangePage}

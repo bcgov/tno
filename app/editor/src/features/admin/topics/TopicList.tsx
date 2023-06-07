@@ -113,9 +113,7 @@ export const TopicList: React.FC = () => {
               showSort={true}
               activeRowId={id}
               onRowClick={(row) => navigate(`/admin/topics/${row.original.id}`)}
-              showPaging={false}
-              manualPaging={true}
-              pageSize={items.length}
+              pagingEnabled={false}
             />
           </Col>
         </Col>

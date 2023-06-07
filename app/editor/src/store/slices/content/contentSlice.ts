@@ -13,7 +13,7 @@ import { IContentState } from './interfaces';
 export const initialContentState: IContentState = {
   filter: {
     pageIndex: 0,
-    pageSize: 100,
+    pageSize: 500,
     hasTopic: false,
     includeHidden: false,
     onlyHidden: false,
