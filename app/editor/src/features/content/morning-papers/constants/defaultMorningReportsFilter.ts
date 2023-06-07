@@ -22,6 +22,7 @@ export const defaultMorningReportsFilter = (
     onlyPublished: false,
     otherSource: '',
     productIds: [],
+    excludeSourceIds: [],
     sourceIds: defaultSources(sources).map((s) => s.id),
     ownerId: 0,
     userId: '',

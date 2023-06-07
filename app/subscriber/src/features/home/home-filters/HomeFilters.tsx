@@ -24,8 +24,6 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
     return type === active ? 'active' : 'inactive';
   };
 
-  console.log(filter);
-
   React.useEffect(() => {
     switch (active) {
       case HomeFilterType.Papers:
