@@ -8,7 +8,7 @@ import * as styled from './styled';
 export interface IHomeFilterProps {}
 
 /**
- * Component for displaying the home filters
+ * Component for displaying the home filters, gives functionality to change content type on the home screen
  * @param fetch performs the api call to gather the appropriate content
  * @returns Home filter component
  */
