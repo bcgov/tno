@@ -36,6 +36,7 @@ export const AppRouter: React.FC<IAppRouter> = () => {
         <Route path="access/request" element={<AccessRequest />} />
         <Route path="/landing/:id" element={<Landing />} />
         <Route path="/view/:id" element={<Landing />} />
+        <Route path="/view/my-minister/:id" element={<Landing />} />
         <Route path="error" element={<InternalServerError />} />
         <Route path="*" element={<NotFound />} />
       </Route>

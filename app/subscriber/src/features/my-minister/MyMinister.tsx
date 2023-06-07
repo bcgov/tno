@@ -57,7 +57,7 @@ export const MyMinister: React.FC = () => {
           isMulti
           groupBy={(item) => item.original.source?.name ?? ''}
           onRowClick={(e: any) => {
-            navigate(`/view/${e.original.id}`);
+            navigate(`/view/my-minister/${e.original.id}`);
           }}
           data={homeItems || []}
           pageButtons={5}
