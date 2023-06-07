@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 export const TopicList = styled.div`
   width: 100%;
-  min-height: 100%;
   display: flex;
   justify-content: center;
 
@@ -32,6 +31,11 @@ export const TopicList = styled.div`
     padding: 0.25em 0.5em 0.25em 0.5em;
     border-top: solid 2px black;
     border-bottom: solid 2px black;
+  }
+
+  .table {
+    max-height: calc(100% - 400px);
+    min-height: 200px;
   }
 
   .row {

@@ -58,6 +58,7 @@ export const ContributorList: React.FC = () => {
           columns={columns}
           showSort={true}
           onRowClick={(row) => navigate(`${row.original.id}`)}
+          pagingEnabled={false}
         />
       </FormPage>
     </styled.ContributorList>

@@ -43,6 +43,7 @@ export const TablePager = <T extends object>({ table }: ITablePagerProps<T>) => 
       <div className="pages">
         Page {table.pageNumber()} of {pageCount}{' '}
         {!table.manualPaging && `(${table.rows.length} items)`}
+        {table.manualPaging && !!table.totalItems && `(${table.totalItems} items)`}
       </div>
       <div className="buttons">
         <Button
@@ -105,7 +106,7 @@ export const TablePager = <T extends object>({ table }: ITablePagerProps<T>) => 
         <Text
           name="pageSize"
           className="page-size"
-          maxLength={3}
+          maxLength={4}
           value={pageSize}
           onChange={(e) => {
             const value = Number(e.currentTarget.value);

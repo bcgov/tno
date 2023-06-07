@@ -9,6 +9,36 @@ import * as styled from './styled';
 
 interface ISourceListProps {}
 
+/**
+ * Creates a new array and sorts based on the predicate.
+ * @param items Array of items.
+ * @param predicate Predicate function or property name(s) that will be used for sorting.
+ * @returns A new array sorted.
+ */
+const sortArray = <T,>(items: T[], predicate: keyof T | (keyof T)[] | ((item: T) => any)): T[] => {
+  return [...items].sort((a, b) => {
+    let valueA: any;
+    let valueB: any;
+    if (typeof predicate === 'function') {
+      valueA = predicate(a);
+      valueB = predicate(b);
+    } else if (Array.isArray(predicate)) {
+      var sort: number = 0;
+      for (let i = 0; i < predicate.length; i++) {
+        valueA = a[predicate[i]];
+        valueB = b[predicate[i]];
+        sort = valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
+        if (sort !== 0) break;
+      }
+      return sort;
+    } else {
+      valueA = a[predicate];
+      valueB = b[predicate];
+    }
+    return valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
+  });
+};
+
 export const SourceList: React.FC<ISourceListProps> = (props) => {
   const navigate = useNavigate();
   const [{ sources }, api] = useSources();
@@ -17,10 +47,10 @@ export const SourceList: React.FC<ISourceListProps> = (props) => {
 
   React.useEffect(() => {
     if (sources.length) {
-      setItems(sources);
+      setItems(sortArray(sources, ['sortOrder', 'name', 'code']));
     } else {
       api.findAllSources().then((data) => {
-        setItems(data);
+        setItems(sortArray(data, ['sortOrder', 'name', 'code']));
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -62,6 +92,7 @@ export const SourceList: React.FC<ISourceListProps> = (props) => {
         columns={columns}
         showSort={true}
         onRowClick={(row) => navigate(`${row.original.id}`)}
+        pagingEnabled={false}
       />
     </styled.SourceList>
   );

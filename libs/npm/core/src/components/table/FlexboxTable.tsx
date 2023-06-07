@@ -27,10 +27,12 @@ export const FlexboxTable = <T extends object>({
       activeRowId: rest.activeRowId,
     },
     paging: {
+      pagingEnabled: rest.pagingEnabled,
       manualPaging: rest.manualPaging,
       pageIndex: rest.pageIndex,
       pageSize: rest.pageSize,
       pageCount: rest.pageCount,
+      totalItems: rest.totalItems,
       pageButtons: rest.pageButtons,
       showPaging: rest.showPaging,
       scrollSize: rest.scrollSize,

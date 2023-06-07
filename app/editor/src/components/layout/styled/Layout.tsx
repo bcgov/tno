@@ -25,7 +25,6 @@ export const Layout = styled.div`
     padding: 10px;
     position: relative;
     overflow-y: auto;
-    height: calc(100% - 100px);
     margin: 0px;
     padding: 0;
     display: flex;
