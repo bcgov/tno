@@ -40,7 +40,6 @@ import {
   Tabs,
   useCombinedView,
   useModal,
-  useScrollTo,
   useTabValidationToasts,
   WorkOrderStatusName,
   WorkOrderTypeName,
@@ -73,7 +72,6 @@ export interface IContentFormProps {
  */
 export const ContentForm: React.FC<IContentFormProps> = ({
   contentType: initContentType = ContentTypeName.Snippet,
-  scrollToContent = true,
   combinedPath,
 }) => {
   const hub = useApiHub();
@@ -89,7 +87,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const [{ contributorOptions, sources, series, sourceOptions, productOptions }, { getSeries }] =
     useLookupOptions();
   const { combined, formType } = useCombinedView(initContentType);
-  useScrollTo(id, scrollToContent ? 'bottom-pane' : '');
   const { setShowValidationToast } = useTabValidationToasts();
 
   const channel = useChannel<any>({
@@ -225,9 +222,12 @@ export const ContentForm: React.FC<IContentFormProps> = ({
         channel('content', result);
 
         if (!originalId) {
-          // Reset form for next record.
-          setForm({ ...defaultFormValues(contentType) });
-          // navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
+          if (result.status === ContentStatusName.Draft)
+            navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
+          else {
+            // Reset form for next record.
+            setForm({ ...defaultFormValues(contentType) });
+          }
         }
         if (!!contentResult?.seriesId) {
           // A dynamically added series has been added, fetch the latests series.
@@ -568,7 +568,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 <Row flex="1 1 100%" wrap="nowrap">
                   <Show visible={contentType === ContentTypeName.Image}>
                     <ContentStoryForm
-                      setContent={setForm}
                       contentType={ContentTypeName.Image}
                       isSummaryRequired={isSummaryRequired}
                     />
@@ -643,7 +642,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     >
                       <Show visible={active === 'properties'}>
                         <ContentStoryForm
-                          setContent={setForm}
                           contentType={contentType}
                           isSummaryRequired={isSummaryRequired}
                         />
@@ -665,7 +663,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                   </Show>
                   <Show visible={contentType === ContentTypeName.PrintContent}>
                     <ContentStoryForm
-                      setContent={setForm}
                       contentType={contentType}
                       isSummaryRequired={isSummaryRequired}
                     />

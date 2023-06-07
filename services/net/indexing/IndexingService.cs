@@ -45,7 +45,7 @@ public class IndexingService : KafkaConsumerService
             .AddTransient<IKafkaAdmin, KafkaAdmin>()
             .AddTransient<IKafkaListener<string, IndexRequestModel>, KafkaListener<string, IndexRequestModel>>()
             .AddTransient<IKafkaMessenger, KafkaMessenger>()
-            .AddSingleton<IServiceManager, IndexingManager>();
+            .AddScoped<IServiceManager, IndexingManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<IndexingOptions>()

@@ -12,7 +12,7 @@ export interface IMediaSummaryProps {
   file?: IFile;
   fileReference?: IFileReferenceModel;
   setStream: (stream: any) => void;
-  stream: any;
+  stream?: { url: string };
   contentType?: ContentTypeName;
   setShowExpandModal?: (show: boolean) => void;
   isSummaryRequired: boolean;

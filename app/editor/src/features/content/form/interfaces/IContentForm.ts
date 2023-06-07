@@ -55,4 +55,6 @@ export interface IContentForm {
   edition: string;
   byline: string;
   showOther?: boolean;
+
+  createdOn?: string | Date;
 }

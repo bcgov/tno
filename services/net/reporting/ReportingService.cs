@@ -5,8 +5,9 @@ using TNO.Kafka.Models;
 using TNO.Kafka;
 using TNO.Ches;
 using System.Security.Claims;
-using RazorLight;
 using System.Reflection;
+using TNO.TemplateEngine;
+using TNO.Services.Reporting.Models;
 
 namespace TNO.Services.Reporting;
 
@@ -46,12 +47,8 @@ public class ReportingService : KafkaConsumerService
             .AddTransient<IKafkaListener<string, ReportRequestModel>, KafkaListener<string, ReportRequestModel>>()
             .AddChesSingletonService(this.Configuration.GetSection("CHES"))
             .AddSingleton(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Email, "") })))
-            .AddSingleton<IServiceManager, ReportingManager>()
-            .AddSingleton<IRazorLightEngine>(
-                new RazorLightEngineBuilder()
-                    .UseEmbeddedResourcesProject(Assembly.GetEntryAssembly())
-                    .UseMemoryCachingProvider()
-                    .Build());
+            .AddScoped<IServiceManager, ReportingManager>()
+            .AddTemplateEngine<TemplateModel>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<ReportingOptions>()

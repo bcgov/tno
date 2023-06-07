@@ -1,9 +1,7 @@
-import { faTableColumns, faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FaChevronLeft, FaChevronRight, FaSpinner } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { Button, ButtonVariant, IconButton, Row, Show, useCombinedView } from 'tno-core';
+import { Button, ButtonVariant, Row, Show, useCombinedView } from 'tno-core';
 
 import { IContentForm } from './interfaces/IContentForm';
 import { getContentPath } from './utils';
@@ -37,35 +35,6 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
 
   return (
     <Row>
-      <Show visible={!combined}>
-        <IconButton label="List View" onClick={() => navigate('/contents')} iconType="back" />
-      </Show>
-      <Show visible={!combined}>
-        <Button
-          variant={ButtonVariant.secondary}
-          tooltip="Combined View"
-          onClick={() => {
-            navigate(
-              `${getContentPath(true, values.id, values.contentType, combinedPath)}?form=${
-                values.contentType
-              }`,
-            );
-          }}
-        >
-          <FontAwesomeIcon icon={faTableColumns} />
-        </Button>
-      </Show>
-      <Show visible={combined}>
-        <Button
-          variant={ButtonVariant.secondary}
-          tooltip="Full Page View"
-          onClick={() => {
-            navigate(getContentPath(false, values.id, values.contentType, combinedPath));
-          }}
-        >
-          <FontAwesomeIcon icon={faUpRightFromSquare} />
-        </Button>
-      </Show>
       <Show visible={!!values.id}>
         <Button
           variant={ButtonVariant.secondary}

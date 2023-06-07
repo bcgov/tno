@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { ContentStatusName, ContentTypeName } from 'tno-core';
 
 import { IContentForm } from '../interfaces';
@@ -40,5 +41,6 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     section: '',
     edition: '',
     byline: '',
+    createdOn: moment().toString(),
   };
 };

@@ -117,10 +117,6 @@ export const ContentForm = styled.div`
     .allow-no-file {
       min-width: 100px;
     }
-
-    > div {
-      flex-wrap: nowrap;
-    }
   }
 
   .content-status {

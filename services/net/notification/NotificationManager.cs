@@ -15,9 +15,7 @@ using TNO.Ches.Models;
 using TNO.Ches.Configuration;
 using TNO.Entities.Validation;
 using TNO.Services.Notification.Models;
-using TNO.API.Areas.Services.Models.Notification;
-using TNO.API.Areas.Services.Models.Content;
-using RazorLight;
+using TNO.TemplateEngine;
 
 namespace TNO.Services.Notification;
 
@@ -44,7 +42,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <summary>
     /// get - Razor template engine.
     /// </summary>
-    protected IRazorLightEngine RazorEngine { get; }
+    protected ITemplateEngine<TemplateModel> TemplateEngine { get; }
 
     /// <summary>
     /// get - CHES service.
@@ -69,6 +67,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <param name="listener"></param>
     /// <param name="api"></param>
     /// <param name="user"></param>
+    /// <param name="templateEngine"></param>
     /// <param name="chesService"></param>
     /// <param name="chesOptions"></param>
     /// <param name="serializationOptions"></param>
@@ -79,16 +78,17 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         IKafkaListener<string, NotificationRequestModel> listener,
         IApiService api,
         ClaimsPrincipal user,
+        ITemplateEngine<TemplateModel> templateEngine,
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
         IOptions<NotificationOptions> notificationOptions,
         INotificationValidator notificationValidator,
-        IRazorLightEngine engine,
         ILogger<NotificationManager> logger)
         : base(api, notificationOptions, logger)
     {
         _user = user;
+        this.TemplateEngine = templateEngine;
         this.Ches = chesService;
         this.ChesOptions = chesOptions.Value;
         _serializationOptions = serializationOptions.Value;
@@ -97,7 +97,6 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         this.Listener.IsLongRunningJob = true;
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
-        this.RazorEngine = engine;
     }
     #endregion
 
@@ -329,7 +328,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <param name="content"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    private async Task SendNotificationAsync(NotificationRequestModel request, NotificationModel notification, ContentModel content)
+    private async Task SendNotificationAsync(NotificationRequestModel request, API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content)
     {
         await HandleChesEmailOverrideAsync(request);
 
@@ -397,18 +396,22 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <param name="content"></param>
     /// <param name="updateCache"></param>
     /// <returns></returns>
-    private async Task<string> GenerateNotificationSubjectAsync(NotificationModel notification, ContentModel content, bool updateCache = false)
+    private async Task<string> GenerateNotificationSubjectAsync(API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content, bool updateCache = false)
     {
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
-        var key = $"notification_{notification.Id}-{notification.Version}_subject";
+        var key = $"notification_{notification.Id}_subject";
         var model = new TemplateModel(content, this.Options);
-        var cache = this.RazorEngine.Handler.Cache?.RetrieveTemplate(key);
-        if (!updateCache && cache?.Success == true)
-            return await this.RazorEngine.RenderTemplateAsync(cache.Template.TemplatePageFactory(), model);
-        else
+        var templateText = notification.Settings.GetDictionaryJsonValue<string>("subject") ?? "";
+        var template = (!updateCache ?
+            this.TemplateEngine.GetOrAddTemplateInMemory(key, templateText) :
+            this.TemplateEngine.AddOrUpdateTemplateInMemory(key, templateText))
+            ?? throw new InvalidOperationException("Template does not exist");
+        return await template.RunAsync(instance =>
         {
-            return await this.RazorEngine.CompileRenderStringAsync(key, notification.Settings.GetDictionaryJsonValue<string>("subject") ?? "", model);
-        }
+            instance.Model = model;
+            instance.Content = model.Content;
+            instance.NotificationOptions = model.NotificationOptions;
+        });
     }
 
     /// <summary>
@@ -418,18 +421,21 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <param name="content"></param>
     /// <param name="updateCache"></param>
     /// <returns></returns>
-    private async Task<string> GenerateNotificationBodyAsync(NotificationModel notification, ContentModel content, bool updateCache = false)
+    private async Task<string> GenerateNotificationBodyAsync(API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content, bool updateCache = false)
     {
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
-        var key = $"notification_{notification.Id}-{notification.Version}";
+        var key = $"notification_{notification.Id}";
         var model = new TemplateModel(content, this.Options);
-        var cache = this.RazorEngine.Handler.Cache?.RetrieveTemplate(key);
-        if (!updateCache && cache?.Success == true)
-            return await this.RazorEngine.RenderTemplateAsync(cache.Template.TemplatePageFactory(), model);
-        else
+        var template = (!updateCache ?
+            this.TemplateEngine.GetOrAddTemplateInMemory(key, notification.Template) :
+            this.TemplateEngine.AddOrUpdateTemplateInMemory(key, notification.Template))
+            ?? throw new InvalidOperationException("Template does not exist");
+        return await template.RunAsync(instance =>
         {
-            return await this.RazorEngine.CompileRenderStringAsync(key, notification.Template, model);
-        }
+            instance.Model = model;
+            instance.Content = model.Content;
+            instance.NotificationOptions = model.NotificationOptions;
+        });
     }
     #endregion
 }

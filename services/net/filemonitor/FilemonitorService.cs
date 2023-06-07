@@ -38,7 +38,7 @@ public class FileMonitorService : IngestService
             .Configure<FileMonitorOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IIngestAction<FileMonitorOptions>, FileMonitorAction>()
             .AddTransient<IngestManagerFactory<FileMonitorIngestActionManager, FileMonitorOptions>>()
-            .AddSingleton<IServiceManager, FileMonitorManager>();
+            .AddScoped<IServiceManager, FileMonitorManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<SyndicationOptions>()

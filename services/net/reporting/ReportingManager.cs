@@ -13,8 +13,8 @@ using TNO.Ches.Models;
 using TNO.Ches.Configuration;
 using System.Text.Json;
 using System.Security.Claims;
-using RazorLight;
 using TNO.Services.Reporting.Models;
+using TNO.TemplateEngine;
 
 namespace TNO.Services.Reporting;
 
@@ -41,7 +41,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <summary>
     /// get - Razor template engine.
     /// </summary>
-    protected IRazorLightEngine RazorEngine { get; }
+    protected ITemplateEngine<TemplateModel> TemplateEngine { get; }
 
     /// <summary>
     /// get - CHES service.
@@ -61,7 +61,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <param name="listener"></param>
     /// <param name="api"></param>
     /// <param name="user"></param>
-    /// <param name="razorEngine"></param>
+    /// <param name="templateEngine"></param>
     /// <param name="chesService"></param>
     /// <param name="chesOptions"></param>
     /// <param name="serializationOptions"></param>
@@ -71,7 +71,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         IKafkaListener<string, ReportRequestModel> listener,
         IApiService api,
         ClaimsPrincipal user,
-        IRazorLightEngine razorEngine,
+        ITemplateEngine<TemplateModel> templateEngine,
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
@@ -80,7 +80,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         : base(api, reportOptions, logger)
     {
         _user = user;
-        this.RazorEngine = razorEngine;
+        this.TemplateEngine = templateEngine;
         this.Ches = chesService;
         this.ChesOptions = chesOptions.Value;
         _serializationOptions = serializationOptions.Value;
@@ -349,8 +349,6 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         if (reportInstance.PublishedOn == null) reportInstance.PublishedOn = DateTime.UtcNow;
         reportInstance.Response = JsonSerializer.Deserialize<Dictionary<string, object>>(json, _serializationOptions) ?? new Dictionary<string, object>();
         await this.Api.UpdateReportInstanceAsync(reportInstance);
-
-
     }
 
     /// <summary>
@@ -363,15 +361,19 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     private async Task<string> GenerateReportSubjectAsync(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content, bool updateCache = false)
     {
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
-        var key = $"report_{report.Id}-{report.Version}_subject";
+        var key = $"report_{report.Id}_subject";
         var model = new TemplateModel(content, this.Options);
-        var cache = this.RazorEngine.Handler.Cache?.RetrieveTemplate(key);
-        if (!updateCache && cache?.Success == true)
-            return await this.RazorEngine.RenderTemplateAsync(cache.Template.TemplatePageFactory(), model);
-        else
+        var templateText = report.Settings.GetDictionaryJsonValue<string>("subject") ?? "";
+        var template = (!updateCache ?
+            this.TemplateEngine.GetOrAddTemplateInMemory(key, templateText) :
+            this.TemplateEngine.AddOrUpdateTemplateInMemory(key, templateText))
+            ?? throw new InvalidOperationException("Template does not exist");
+        return await template.RunAsync(instance =>
         {
-            return await this.RazorEngine.CompileRenderStringAsync(key, report.Settings.GetDictionaryJsonValue<string>("subject") ?? "", model);
-        }
+            instance.Model = model;
+            instance.Content = model.Content;
+            instance.ReportingOptions = model.ReportingOptions;
+        });
     }
 
     /// <summary>
@@ -383,15 +385,18 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     private async Task<string> GenerateReportBodyAsync(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content, bool updateCache = false)
     {
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
-        var key = $"report_{report.Id}-{report.Version}";
+        var key = $"report_{report.Id}";
         var model = new TemplateModel(content, this.Options);
-        var cache = this.RazorEngine.Handler.Cache?.RetrieveTemplate(key);
-        if (!updateCache && cache?.Success == true)
-            return await this.RazorEngine.RenderTemplateAsync(cache.Template.TemplatePageFactory(), model);
-        else
+        var template = (!updateCache ?
+            this.TemplateEngine.GetOrAddTemplateInMemory(key, report.Template) :
+            this.TemplateEngine.AddOrUpdateTemplateInMemory(key, report.Template))
+            ?? throw new InvalidOperationException("Template does not exist");
+        return await template.RunAsync(instance =>
         {
-            return await this.RazorEngine.CompileRenderStringAsync(key, report.Template, model);
-        }
+            instance.Model = model;
+            instance.Content = model.Content;
+            instance.ReportingOptions = model.ReportingOptions;
+        });
     }
 
     /// <summary>

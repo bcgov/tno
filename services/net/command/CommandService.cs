@@ -38,7 +38,7 @@ public class CommandService : IngestService
             .Configure<CommandOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IIngestAction<CommandOptions>, CommandAction>()
             .AddTransient<IngestManagerFactory<CommandIngestActionManager, CommandOptions>>()
-            .AddSingleton<IServiceManager, CommandManager>();
+            .AddScoped<IServiceManager, CommandManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<CommandOptions>()
