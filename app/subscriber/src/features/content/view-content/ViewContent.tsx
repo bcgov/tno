@@ -26,6 +26,13 @@ export const ViewContent: React.FC = () => {
   const { width } = useWindowSize();
   const path = content?.fileReferences ? content?.fileReferences[0]?.path : '';
 
+  const myMinister = localStorage.getItem('myMinister');
+  const regex = new RegExp(myMinister ?? '', 'gi');
+
+  // this will bold the ministers name in the summary and body depending on what piece of content it is
+  if (content?.summary) content.summary = content.summary.replace(regex, `<b>${myMinister}</b>`);
+  if (content?.body) content.body = content.body.replace(regex, `<b>${myMinister}</b>`);
+
   React.useEffect(() => {
     if (!!path)
       stream(path).then((result) => {
