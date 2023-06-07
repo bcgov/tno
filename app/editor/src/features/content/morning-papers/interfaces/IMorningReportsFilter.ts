@@ -16,6 +16,7 @@ export interface IMorningReportsFilter {
   ownerId: number | '';
   userId: number | '';
   timeFrame: number | '';
+  excludeSourceIds: number[];
   // Actions
   onTicker: boolean;
   commentary: boolean;

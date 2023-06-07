@@ -29,6 +29,7 @@ export const queryToFilter = (
       ownerId: convertTo(search.ownerId, 'number', filter.ownerId),
       userId: convertTo(search.userId, 'number', filter.userId),
       timeFrame: convertTo(search.timeFrame, 'number', filter.timeFrame),
+      excludeSourceIds: search.excludeSourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
       contentTypes: search.contentTypes,
       productIds: search.productIds?.map((v: any) => convertTo(v, 'number', undefined)),
       sourceIds: search.sourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
