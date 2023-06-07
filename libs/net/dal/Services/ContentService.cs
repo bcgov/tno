@@ -176,6 +176,23 @@ public class ContentService : BaseService<Content, long>, IContentService
     }
 
     /// <summary>
+    /// Find today's front pages
+    /// </summary>
+    /// <returns>The 5 front pages for today's date.</returns>
+    public IPaged<Content> FindFrontPages(bool asNoTracking = true)
+     {
+        var query = this.Context.Contents
+            .Include(c => c.FileReferences)
+            .Where(c => c.ProductId == 10)
+            .Where(c => c.PublishedOn >= DateTime.Today.ToUniversalTime())
+            .AsQueryable();
+        if (asNoTracking)
+            query = query.AsNoTracking();
+        var total = query.Count();
+        var items = query?.ToArray() ?? Array.Empty<Content>();
+        return new Paged<Content>(items, 1, 5, total);
+    }
+    /// <summary>
     /// Find content that matches the specified 'filter'.
     /// TODO: Change to a raw JSON query.
     /// </summary>
