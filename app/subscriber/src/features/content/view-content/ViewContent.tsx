@@ -27,10 +27,10 @@ export const ViewContent: React.FC = () => {
   const path = content?.fileReferences ? content?.fileReferences[0]?.path : '';
 
   const myMinister = localStorage.getItem('myMinister');
-  const regex = new RegExp(myMinister ?? '', 'gi');
 
   React.useEffect(() => {
     // this will bold the ministers name in the summary or body, only when viewing from the my minister list
+    const regex = new RegExp(myMinister ?? '', 'gi');
     if (window.location.href.includes('my-minister')) {
       if (content?.summary && !content.summary.includes(`<b>${myMinister}</b>`))
         setContent({ ...content, body: content.summary.replace(regex, `<b>${myMinister}</b>`) });
@@ -39,7 +39,7 @@ export const ViewContent: React.FC = () => {
         setContent({ ...content, body: content.body.replace(regex, `<b>${myMinister}</b>`) });
       }
     }
-  }, [content, myMinister, regex]);
+  }, [content, myMinister]);
 
   React.useEffect(() => {
     if (!!path)
