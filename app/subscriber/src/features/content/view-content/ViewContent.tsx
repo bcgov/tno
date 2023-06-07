@@ -29,9 +29,17 @@ export const ViewContent: React.FC = () => {
   const myMinister = localStorage.getItem('myMinister');
   const regex = new RegExp(myMinister ?? '', 'gi');
 
-  // this will bold the ministers name in the summary and body depending on what piece of content it is
-  if (content?.summary) content.summary = content.summary.replace(regex, `<b>${myMinister}</b>`);
-  if (content?.body) content.body = content.body.replace(regex, `<b>${myMinister}</b>`);
+  React.useEffect(() => {
+    // this will bold the ministers name in the summary or body, only when viewing from the my minister list
+    if (window.location.href.includes('my-minister')) {
+      if (content?.summary && !content.summary.includes(`<b>${myMinister}</b>`))
+        setContent({ ...content, body: content.summary.replace(regex, `<b>${myMinister}</b>`) });
+
+      if (content?.body && !content.body.includes(`<b>${myMinister}</b>`)) {
+        setContent({ ...content, body: content.body.replace(regex, `<b>${myMinister}</b>`) });
+      }
+    }
+  }, [content, myMinister, regex]);
 
   React.useEffect(() => {
     if (!!path)
