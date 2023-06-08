@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Core.Extensions;
@@ -112,14 +113,41 @@ public class ReportService : BaseService<Report, int>, IReportService
 
     /// <summary>
     /// Make a request to Elasticsearch to find content for the specified 'report'.
+    /// Makes a request for each section.
     /// </summary>
     /// <param name="index"></param>
     /// <param name="report"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindContentWithElasticsearchAsync(string index, Report report)
+    public async Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(string index, Report report)
     {
-        return await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, report.Filter);
+        var results = new Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>();
+
+        // Only make a request if the filter has been configured.
+        var mainFilter = report.Filter.ToJson();
+        if (mainFilter != "{}")
+        {
+            var main = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, report.Filter);
+            results.Add("", main);
+        }
+
+        if (report.Settings.RootElement.TryGetProperty("sections", out JsonElement sections))
+        {
+            foreach (var jElement in sections.EnumerateArray())
+            {
+                // For each section request content based on the specified filter.
+                var nameElement = jElement.GetProperty("name");
+                var name = nameElement.GetString();
+                if (!String.IsNullOrEmpty(name))
+                {
+                    var filterElement = jElement.GetProperty("filter");
+                    var section = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, filterElement);
+                    results.Add(name, section);
+                }
+            }
+        }
+
+        return results;
     }
     #endregion
 }

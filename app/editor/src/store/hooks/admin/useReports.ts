@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
-import { IReportModel, useApiAdminReports } from 'tno-core';
+import { IReportModel, IReportPreviewModel, useApiAdminReports } from 'tno-core';
 
 interface IReportController {
   findAllReports: () => Promise<IReportModel[]>;
@@ -11,6 +11,7 @@ interface IReportController {
   deleteReport: (model: IReportModel) => Promise<IReportModel>;
   sendReport: (model: IReportModel, to: string) => Promise<IReportModel>;
   publishReport: (model: IReportModel) => Promise<IReportModel>;
+  previewReport: (model: IReportModel) => Promise<IReportPreviewModel>;
 }
 
 export const useReports = (): [IAdminState, IReportController] => {
@@ -76,6 +77,12 @@ export const useReports = (): [IAdminState, IReportController] => {
       publishReport: async (model: IReportModel) => {
         const response = await dispatch<IReportModel>('publish-report', () =>
           api.publishReport(model),
+        );
+        return response.data;
+      },
+      previewReport: async (model: IReportModel) => {
+        const response = await dispatch<IReportPreviewModel>('preview-report', () =>
+          api.previewReport(model),
         );
         return response.data;
       },

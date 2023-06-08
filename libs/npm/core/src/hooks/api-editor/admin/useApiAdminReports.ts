@@ -2,7 +2,7 @@ import { AxiosResponse } from 'axios';
 import React from 'react';
 
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IReportModel, useApi } from '..';
+import { IReportModel, IReportPreviewModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -52,6 +52,12 @@ export const useApiAdminReports = (
     publishReport: (model: IReportModel) => {
       return api.post<IReportModel, AxiosResponse<IReportModel>, any>(
         `/admin/reports/${model.id}/publish`,
+      );
+    },
+    previewReport: (model: IReportModel) => {
+      return api.post<IReportModel, AxiosResponse<IReportPreviewModel>, any>(
+        `/admin/reports/preview`,
+        model,
       );
     },
   }).current;

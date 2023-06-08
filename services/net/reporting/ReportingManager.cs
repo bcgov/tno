@@ -13,8 +13,9 @@ using TNO.Ches.Models;
 using TNO.Ches.Configuration;
 using System.Text.Json;
 using System.Security.Claims;
-using TNO.Services.Reporting.Models;
 using TNO.TemplateEngine;
+using TNO.TemplateEngine.Models.Reports;
+using TNO.TemplateEngine.Extensions;
 
 namespace TNO.Services.Reporting;
 
@@ -305,8 +306,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.Report.ReportModel report)
     {
         // TODO: Control when a report is sent through configuration.
-        var result = await this.Api.FindContentForReportIdAsync(report.Id);
-        var content = result.Hits.Hits.Select(h => h.Source);
+        var sections = report.ParseSections();
+        var results = await this.Api.FindContentForReportIdAsync(report.Id);
+        var content = results.ToDictionary(r => r.Key, r =>
+        {
+            var section = sections[r.Key];
+            section.Content = r.Value.Hits.Hits.Select(h => h.Source);
+            return section;
+        });
 
         var to = report.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email)).Select(s => s.User!.Email).ToArray();
         var subject = await GenerateReportSubjectAsync(report, content, request.UpdateCache);
@@ -315,7 +322,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
 
         // Save the report instance.
-        var instance = new ReportInstance(report.Id, content.Select(c => c.Id))
+        // Group content by the section name.
+        var instance = new ReportInstance(report.Id, content.SelectMany(s => s.Value.Content.Select(c => new KeyValuePair<string, long>(s.Key, c.Id))))
         {
             PublishedOn = DateTime.UtcNow,
             Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions))
@@ -336,7 +344,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     {
         // TODO: Control when a report is sent through configuration.
         var report = reportInstance.Report ?? throw new ArgumentException("Report instance must include the report model.");
-        var content = await this.Api.GetContentForReportInstanceIdAsync(reportInstance.Id);
+        var sections = report.ParseSections();
+        var results = await this.Api.GetContentForReportInstanceIdAsync(reportInstance.Id);
+        var content = results.ToDictionary(r => r.Key, r =>
+        {
+            var section = sections[r.Key];
+            section.Content = r.Value;
+            return section;
+        });
 
         var to = report.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email)).Select(s => s.User!.Email).ToArray();
         var subject = await GenerateReportSubjectAsync(reportInstance.Report, content, request.UpdateCache);
@@ -358,11 +373,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <param name="content"></param>
     /// <param name="updateCache"></param>
     /// <returns></returns>
-    private async Task<string> GenerateReportSubjectAsync(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content, bool updateCache = false)
+    private async Task<string> GenerateReportSubjectAsync(API.Areas.Services.Models.Report.ReportModel report, Dictionary<string, ReportSectionModel> content, bool updateCache = false)
     {
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
         var key = $"report_{report.Id}_subject";
-        var model = new TemplateModel(content, this.Options);
+        var model = new TemplateModel(content);
         var templateText = report.Settings.GetDictionaryJsonValue<string>("subject") ?? "";
         var template = (!updateCache ?
             this.TemplateEngine.GetOrAddTemplateInMemory(key, templateText) :
@@ -372,7 +387,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         {
             instance.Model = model;
             instance.Content = model.Content;
-            instance.ReportingOptions = model.ReportingOptions;
+            instance.Sections = model.Sections;
         });
     }
 
@@ -382,11 +397,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <param name="report"></param>
     /// <param name="content"></param>
     /// <returns></returns>
-    private async Task<string> GenerateReportBodyAsync(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content, bool updateCache = false)
+    private async Task<string> GenerateReportBodyAsync(API.Areas.Services.Models.Report.ReportModel report, Dictionary<string, ReportSectionModel> content, bool updateCache = false)
     {
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
         var key = $"report_{report.Id}";
-        var model = new TemplateModel(content, this.Options);
+        var model = new TemplateModel(content);
         var template = (!updateCache ?
             this.TemplateEngine.GetOrAddTemplateInMemory(key, report.Template) :
             this.TemplateEngine.AddOrUpdateTemplateInMemory(key, report.Template))
@@ -395,7 +410,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         {
             instance.Model = model;
             instance.Content = model.Content;
-            instance.ReportingOptions = model.ReportingOptions;
+            instance.Sections = model.Sections;
         });
     }
 

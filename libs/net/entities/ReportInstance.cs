@@ -80,5 +80,17 @@ public class ReportInstance : AuditColumns
         this.ReportId = reportId;
         this.ContentManyToMany.AddRange(contentIds.Select(c => new ReportInstanceContent(0, c)));
     }
+
+    /// <summary>
+    /// Creates a new instance of a ReportInstance object, initializes with specified parameters.
+    /// This constructor provides a way to group content into sections.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="contentIds"></param>
+    public ReportInstance(int reportId, IEnumerable<KeyValuePair<string, long>> contentIds)
+    {
+        this.ReportId = reportId;
+        this.ContentManyToMany.AddRange(contentIds.Select(c => new ReportInstanceContent(0, c.Value, c.Key)));
+    }
     #endregion
 }

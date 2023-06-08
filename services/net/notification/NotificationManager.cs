@@ -14,8 +14,8 @@ using TNO.Ches;
 using TNO.Ches.Models;
 using TNO.Ches.Configuration;
 using TNO.Entities.Validation;
-using TNO.Services.Notification.Models;
 using TNO.TemplateEngine;
+using TNO.TemplateEngine.Models.Notifications;
 
 namespace TNO.Services.Notification;
 
@@ -400,7 +400,12 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     {
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
         var key = $"notification_{notification.Id}_subject";
-        var model = new TemplateModel(content, this.Options);
+        var model = new TemplateModel(content)
+        {
+            AddToReportUrl = this.Options.AddToReportUrl,
+            MmiaUrl = this.Options.MmiaUrl,
+            RequestTranscriptUrl = this.Options.RequestTranscriptUrl
+        };
         var templateText = notification.Settings.GetDictionaryJsonValue<string>("subject") ?? "";
         var template = (!updateCache ?
             this.TemplateEngine.GetOrAddTemplateInMemory(key, templateText) :
@@ -410,7 +415,9 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         {
             instance.Model = model;
             instance.Content = model.Content;
-            instance.NotificationOptions = model.NotificationOptions;
+            instance.AddToReportUrl = model.AddToReportUrl;
+            instance.MmiaUrl = model.MmiaUrl;
+            instance.RequestTranscriptUrl = model.RequestTranscriptUrl;
         });
     }
 
@@ -425,7 +432,12 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     {
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
         var key = $"notification_{notification.Id}";
-        var model = new TemplateModel(content, this.Options);
+        var model = new TemplateModel(content)
+        {
+            AddToReportUrl = this.Options.AddToReportUrl,
+            MmiaUrl = this.Options.MmiaUrl,
+            RequestTranscriptUrl = this.Options.RequestTranscriptUrl
+        };
         var template = (!updateCache ?
             this.TemplateEngine.GetOrAddTemplateInMemory(key, notification.Template) :
             this.TemplateEngine.AddOrUpdateTemplateInMemory(key, notification.Template))
@@ -434,7 +446,9 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         {
             instance.Model = model;
             instance.Content = model.Content;
-            instance.NotificationOptions = model.NotificationOptions;
+            instance.AddToReportUrl = model.AddToReportUrl;
+            instance.MmiaUrl = model.MmiaUrl;
+            instance.RequestTranscriptUrl = model.RequestTranscriptUrl;
         });
     }
     #endregion
