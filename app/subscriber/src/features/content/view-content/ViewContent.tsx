@@ -33,7 +33,7 @@ export const ViewContent: React.FC = () => {
     const regex = new RegExp(myMinister ?? '', 'gi');
     if (window.location.href.includes('my-minister')) {
       if (content?.summary && !content.summary.includes(`<b>${myMinister}</b>`))
-        setContent({ ...content, body: content.summary.replace(regex, `<b>${myMinister}</b>`) });
+        setContent({ ...content, summary: content.summary.replace(regex, `<b>${myMinister}</b>`) });
 
       if (content?.body && !content.body.includes(`<b>${myMinister}</b>`)) {
         setContent({ ...content, body: content.body.replace(regex, `<b>${myMinister}</b>`) });
