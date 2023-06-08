@@ -15,16 +15,18 @@
     <ProjectReference Include="..\..\..\libs\net\ches\TNO.Ches.csproj" />
     <ProjectReference Include="..\..\..\libs\net\services\TNO.Services.csproj" />
     <ProjectReference Include="..\..\..\libs\net\kafka\TNO.Kafka.csproj" />
+    <ProjectReference Include="..\..\..\libs\net\template\TNO.TemplateEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RazorEngineCore" Version="2022.8.1" />
+    <PackageReference Include="RazorEngineCore.Extensions" Version="0.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="RazorLight" Version="2.3.1" />
   </ItemGroup>
 
 </Project>

@@ -40,7 +40,7 @@ public class TranscriptionService : KafkaConsumerService
         services
             .Configure<TranscriptionOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IKafkaListener<string, TranscriptRequestModel>, KafkaListener<string, TranscriptRequestModel>>()
-            .AddSingleton<IServiceManager, TranscriptionManager>();
+            .AddScoped<IServiceManager, TranscriptionManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<TranscriptionOptions>()

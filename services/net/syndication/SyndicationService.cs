@@ -38,7 +38,7 @@ public class SyndicationService : IngestService
             .Configure<SyndicationOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IIngestAction<SyndicationOptions>, SyndicationAction>()
             .AddTransient<IngestManagerFactory<SyndicationIngestActionManager, SyndicationOptions>>()
-            .AddSingleton<IServiceManager, SyndicationManager>();
+            .AddScoped<IServiceManager, SyndicationManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<SyndicationOptions>()

@@ -17,7 +17,7 @@ export interface IUploadProps
   file?: IFile;
   verifyDelete?: boolean;
   downloadable?: boolean;
-  stream: any;
+  stream?: { url: string };
   contentType?: ContentTypeName;
 }
 
@@ -44,6 +44,7 @@ export const Upload: React.FC<IUploadProps> = ({
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [file, setFile] = React.useState<IFile>();
   const fileName = generateName(file) ?? generateName(initFile);
+
   React.useEffect(() => {
     if (!!initFile) {
       setFile(undefined);

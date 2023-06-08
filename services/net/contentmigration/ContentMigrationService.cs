@@ -40,11 +40,11 @@ public class ContentMigrationService : KafkaProducerService
         base.ConfigureServices(services);
 
         services
-            .Configure<ContentMigrationOptions>(this.Configuration.GetSection("Service") )
+            .Configure<ContentMigrationOptions>(this.Configuration.GetSection("Service"))
             .AddMigrationSourceContext(this.Configuration.GetSection("Service:OracleConnection").Get<OracleConnectionSettings>())
             .AddTransient<IIngestAction<ContentMigrationOptions>, ContentMigrationAction>()
             .AddTransient<IngestManagerFactory<ContentMigrationIngestActionManager, ContentMigrationOptions>>()
-            .AddSingleton<IServiceManager, ContentMigrationManager>();
+            .AddScoped<IServiceManager, ContentMigrationManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<ContentMigrationOptions>()

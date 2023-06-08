@@ -2,7 +2,6 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using DotNetEnv.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -164,7 +163,7 @@ public abstract class BaseService
             _logger.LogInformation("Service started");
             var tasks = new[] { RunApiAsync(), RunServiceAsync() };
             var task = await Task.WhenAny(tasks);
-            if (task.Status == TaskStatus.Faulted) throw task.Exception ?? new Exception("An unhandled exception has occured.");
+            if (task.Status == TaskStatus.Faulted) throw task.Exception ?? new Exception("An unhandled exception has occurred.");
             return 0;
         }
         catch (Exception ex)
@@ -184,7 +183,8 @@ public abstract class BaseService
     /// <returns></returns>
     private async Task RunServiceAsync()
     {
-        var service = this.App.Services.GetRequiredService<IServiceManager>();
+        using var scope = this.App.Services.CreateScope();
+        var service = scope.ServiceProvider.GetRequiredService<IServiceManager>();
         await service.RunAsync();
     }
 
