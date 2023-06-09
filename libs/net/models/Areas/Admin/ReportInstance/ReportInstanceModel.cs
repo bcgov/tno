@@ -75,7 +75,7 @@ public class ReportInstanceModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.ReportInstance(ReportInstanceModel model)
     {
-        var entity = new Entities.ReportInstance(model.ReportId, model.Content.Select(c => c.ContentId))
+        var entity = new Entities.ReportInstance(model.ReportId, model.Content.Select(c => new KeyValuePair<string, long>(c.SectionName, c.ContentId)))
         {
             Id = model.Id,
             PublishedOn = model.PublishedOn,

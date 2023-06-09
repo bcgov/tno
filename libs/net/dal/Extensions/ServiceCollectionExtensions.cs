@@ -85,7 +85,8 @@ public static class ServiceCollectionExtensions
 
         services.AddTNOContext(config, env)
             .AddStorageConfig(config)
-            .AddElastic(config, env);
+            .AddElastic(config, env)
+            .AddScoped<IElasticsearchService, ElasticsearchService>();
 
         // Find all the configuration classes.
         var assembly = typeof(BaseService).Assembly;

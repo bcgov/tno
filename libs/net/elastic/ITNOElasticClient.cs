@@ -8,4 +8,7 @@ public interface ITNOElasticClient : IElasticClient
 {
     Task<SearchResultModel<T>> SearchAsync<T>(string index, JsonDocument query)
         where T : class;
+
+    Task<SearchResultModel<T>> SearchAsync<T>(string index, JsonElement query)
+        where T : class;
 }

@@ -2231,6 +2231,12 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("content_id");
 
+                    b.Property<string>("SectionName")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValueSql("''");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -2262,7 +2268,7 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("version")
                         .HasDefaultValueSql("0");
 
-                    b.HasKey("InstanceId", "ContentId");
+                    b.HasKey("InstanceId", "ContentId", "SectionName");
 
                     b.HasIndex("ContentId");
 

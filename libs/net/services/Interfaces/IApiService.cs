@@ -259,7 +259,7 @@ public interface IApiService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindContentForReportIdAsync(int id);
+    Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentForReportIdAsync(int id);
 
     /// <summary>
     /// Make a request to the API to fetch the report instance with the specified 'id'.
@@ -273,7 +273,7 @@ public interface IApiService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    Task<IEnumerable<API.Areas.Services.Models.Content.ContentModel>> GetContentForReportInstanceIdAsync(long id);
+    Task<Dictionary<string, IEnumerable<API.Areas.Services.Models.Content.ContentModel>>> GetContentForReportInstanceIdAsync(long id);
 
     /// <summary>
     /// Make a request to the API and add a new notification instance.

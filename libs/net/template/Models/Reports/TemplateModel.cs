@@ -1,8 +1,7 @@
 ﻿using RazorEngineCore;
 using TNO.API.Areas.Services.Models.Content;
-using TNO.Services.Reporting.Config;
 
-namespace TNO.Services.Reporting.Models;
+namespace TNO.TemplateEngine.Models.Reports;
 
 /// <summary>
 /// TemplateModel class, provides a model to pass to the razor engine.
@@ -16,9 +15,9 @@ public class TemplateModel : RazorEngineTemplateBase
     public IEnumerable<ContentModel> Content { get; set; }
 
     /// <summary>
-    /// get - Notification options.
+    /// get/set - A dictionary with each section.
     /// </summary>
-    public ReportingOptions ReportingOptions { get; set; }
+    public Dictionary<string, ReportSectionModel> Sections { get; set; } = new();
     #endregion
 
     #region Constructors
@@ -28,18 +27,25 @@ public class TemplateModel : RazorEngineTemplateBase
     public TemplateModel()
     {
         this.Content = Array.Empty<ContentModel>();
-        this.ReportingOptions = new();
     }
 
     /// <summary>
     /// Creates a new instance of a TemplateModel, initializes with specified parameters.
     /// </summary>
     /// <param name="content"></param>
-    /// <param name="options"></param>
-    public TemplateModel(IEnumerable<ContentModel> content, ReportingOptions options)
+    public TemplateModel(IEnumerable<ContentModel> content)
     {
         this.Content = content;
-        this.ReportingOptions = options;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a TemplateModel, initializes with specified parameters.
+    /// </summary>
+    /// <param name="sections"></param>
+    public TemplateModel(Dictionary<string, ReportSectionModel> sections)
+    {
+        this.Content = sections[""]?.Content ?? Array.Empty<ContentModel>();
+        this.Sections = sections;
     }
     #endregion
 }

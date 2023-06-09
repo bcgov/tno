@@ -17,6 +17,11 @@ public class ReportInstanceContentModel : AuditColumnsModel
     /// get/set - Foreign key to the report definition.
     /// </summary>
     public long ContentId { get; set; }
+
+    /// <summary>
+    /// get/set - The section to group content in.
+    /// </summary>
+    public string SectionName { get; set; } = "";
     #endregion
 
     #region Constructors
@@ -33,6 +38,7 @@ public class ReportInstanceContentModel : AuditColumnsModel
     {
         this.InstanceId = entity.InstanceId;
         this.ContentId = entity.ContentId;
+        this.SectionName = entity.SectionName ?? "";
     }
     #endregion
 
@@ -43,7 +49,7 @@ public class ReportInstanceContentModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.ReportInstanceContent(ReportInstanceContentModel model)
     {
-        return new Entities.ReportInstanceContent(model.InstanceId, model.ContentId)
+        return new Entities.ReportInstanceContent(model.InstanceId, model.ContentId, model.SectionName)
         {
             Version = model.Version ?? 0
         };

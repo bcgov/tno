@@ -88,15 +88,15 @@ public class ReportController : ControllerBase
     /// <returns></returns>
     [HttpGet("{id}/content")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> FindContentForReportIdAsync(int id)
     {
         var report = _service.FindById(id);
         if (report == null) return new BadRequestResult();
-        var result = await _service.FindContentWithElasticsearchAsync(_elasticOptions.PublishedIndex, report);
-        return new JsonResult(result);
+        var results = await _service.FindContentWithElasticsearchAsync(_elasticOptions.PublishedIndex, report);
+        return new JsonResult(results);
     }
     #endregion
 }
