@@ -136,20 +136,10 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <returns></returns>
     private DateTimeOffset ParseDateTime(string value, string? format = null)
     {
-        try
-        {
-            if (String.IsNullOrWhiteSpace(format))
-                return DateTimeOffset.Parse(value);
-            else
-                return DateTimeOffset.ParseExact(value, format, CultureInfo.InvariantCulture);
-        }
-        catch
-        {
-            if (String.IsNullOrWhiteSpace(format))
-                return ParseDateTime(value, "MMM dd HH:mm");
-            else
-                throw;
-        }
+        if (String.IsNullOrWhiteSpace(format))
+            return value.Length == 12 ? ParseDateTime(value, "MMM dd HH:mm") : DateTimeOffset.Parse(value);
+        else
+            return DateTimeOffset.ParseExact(value, format, CultureInfo.InvariantCulture);
     }
 
     /// <summary>
