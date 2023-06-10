@@ -19,6 +19,7 @@ using TNO.Models.Extensions;
 using TNO.TemplateEngine;
 using TNO.TemplateEngine.Models.Reports;
 using TNO.TemplateEngine.Extensions;
+using TNO.Elastic.Models;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -235,7 +236,8 @@ public class ReportController : ControllerBase
         var results = await _reportService.FindContentWithElasticsearchAsync(_elasticOptions.PublishedIndex, model.ToEntity(_serializerOptions));
         var sections = model.ParseSections().ToDictionary(s => s.Key, s =>
         {
-            s.Value.Content = results[s.Key].Hits.Hits.Select(h => h.Source);
+            results.TryGetValue(s.Key, out SearchResultModel<Services.Models.Content.ContentModel>? value);
+            s.Value.Content = value?.Hits.Hits.Select(h => h.Source) ?? Array.Empty<Services.Models.Content.ContentModel>();
             return s.Value;
         });
 
