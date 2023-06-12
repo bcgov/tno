@@ -37,6 +37,7 @@ public class ReportInstanceContent : AuditColumns
     /// <summary>
     /// get/set - The name of the section this content belongs.
     /// </summary>
+    [Column("section_name")]
     public string? SectionName { get; set; } = "";
     #endregion
 

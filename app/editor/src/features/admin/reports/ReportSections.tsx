@@ -24,6 +24,43 @@ export const ReportSections = () => {
   const sections: IReportSection[] = values.settings.sections ?? [];
   const [section, setSection] = React.useState<IReportSection>();
 
+  const handleMoveUp = (section: IReportSection, index: number) => {
+    var results = [...sections];
+    var above = results[index - 1];
+    results.splice(index, 1);
+    results.splice(index - 1, 0, {
+      ...section,
+      sortOrder: above.sortOrder,
+    });
+    setFieldValue(
+      'settings.sections',
+      results.map((r, i) => ({ ...r, sortOrder: i })),
+    );
+  };
+
+  const handleMoveDown = (section: IReportSection, index: number) => {
+    var results = [...sections];
+    var below = results[index + 1];
+    results.splice(index, 1);
+    results.splice(index + 1, 0, {
+      ...section,
+      sortOrder: below.sortOrder,
+    });
+    below.sortOrder--;
+    setFieldValue(
+      'settings.sections',
+      results.map((r, i) => ({ ...r, sortOrder: i })),
+    );
+  };
+
+  const handleDelete = (index: number) => {
+    var results = [...sections];
+    results.splice(index, 1);
+    if (index === section?.sortOrder) setSection(undefined);
+    const values = results.map((s, i) => ({ ...s, sortOrder: i }));
+    setFieldValue(`settings.sections`, values);
+  };
+
   return (
     <styled.ReportSections>
       <p>
@@ -68,17 +105,7 @@ export const ReportSections = () => {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        var results = [...sections];
-                        var above = results[index - 1];
-                        results.splice(index, 1);
-                        results.splice(index - 1, 0, {
-                          ...row,
-                          sortOrder: above.sortOrder,
-                        });
-                        setFieldValue(
-                          'settings.sections',
-                          results.map((r, i) => ({ ...r, sortOrder: i })),
-                        );
+                        handleMoveUp(row, index);
                       }}
                     >
                       <FaArrowUp />
@@ -90,18 +117,7 @@ export const ReportSections = () => {
                       onClick={async (e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        var results = [...sections];
-                        var below = results[index + 1];
-                        results.splice(index, 1);
-                        results.splice(index + 1, 0, {
-                          ...row,
-                          sortOrder: below.sortOrder,
-                        });
-                        below.sortOrder--;
-                        setFieldValue(
-                          'settings.sections',
-                          results.map((r, i) => ({ ...r, sortOrder: i })),
-                        );
+                        handleMoveDown(row, index);
                       }}
                     >
                       <FaArrowDown />
@@ -112,10 +128,7 @@ export const ReportSections = () => {
                     onClick={async (e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      sections.splice(index, 1);
-                      if (index === section?.sortOrder) setSection(undefined);
-                      const values = sections.map((s, i) => ({ ...s, sortOrder: i }));
-                      setFieldValue(`settings.sections`, values);
+                      handleDelete(index);
                     }}
                   >
                     <FaTrash />

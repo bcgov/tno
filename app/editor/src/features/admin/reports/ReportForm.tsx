@@ -468,7 +468,7 @@ export const ReportForm: React.FC = () => {
                 <Row>
                   <Col flex="1" alignItems="center" justifyContent="center">
                     <p>
-                      Before saving the report generate a preview, to ensure it is working and
+                      Before saving the report, generate a preview to ensure it is working and
                       returning the correct content. Previewed reports must have a filter. When
                       testing a custom report change it temporarily to a filter.
                     </p>
@@ -512,7 +512,7 @@ export const ReportForm: React.FC = () => {
                   Save
                 </Button>
                 <Button variant={ButtonVariant.secondary} onClick={() => handlePublish(values)}>
-                  Publish
+                  Send
                 </Button>
                 <Show visible={!!values.id}>
                   <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
