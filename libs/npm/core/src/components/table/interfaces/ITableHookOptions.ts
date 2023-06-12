@@ -4,6 +4,7 @@ export interface ITableHookOptions<T extends object> {
   onRowClick?: (row: ITableInternalRow<T>, event: React.MouseEvent) => void;
   onColumnClick?: (column: ITableInternalColumn<T>, event: React.MouseEvent) => void;
   onCellClick?: (cell: ITableInternalCell<T>, event: React.MouseEvent) => void;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
   onSelectedChanged?: (
     row: ITableInternalRow<T>,
     event: React.ChangeEvent<HTMLInputElement>,

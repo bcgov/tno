@@ -20,6 +20,7 @@ export const FlexboxTable = <T extends object>({
       onCellClick: rest.onCellClick,
       onColumnClick: rest.onColumnClick,
       onSelectedChanged: rest.onSelectedChanged,
+      onKeyDown: rest.onKeyDown,
       stopPropagation: rest.stopPropagation,
       showHeader: rest.showHeader,
       showFooter: rest.showFooter,
@@ -133,6 +134,11 @@ export const FlexboxTable = <T extends object>({
                             if (table.options.stopPropagation) e.stopPropagation();
                             table.options.onRowClick?.(row, e);
                           }}
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (table.options.stopPropagation) e.stopPropagation();
+                            table.options.onKeyDown?.(e);
+                          }}
                         >
                           {row.cells
                             .filter((col) => col.isVisible)
@@ -168,6 +174,11 @@ export const FlexboxTable = <T extends object>({
                 onClick={(e) => {
                   if (table.options.stopPropagation) e.stopPropagation();
                   table.options.onRowClick?.(row, e);
+                }}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (table.options.stopPropagation) e.stopPropagation();
+                  table.options.onKeyDown?.(e);
                 }}
               >
                 {row.cells
