@@ -1,4 +1,3 @@
-using System.Text.Json;
 using TNO.Entities.Models;
 
 namespace TNO.Entities.Validation;
@@ -113,12 +112,12 @@ public class NotificationValidator : INotificationValidator
     /// <summary>
     /// Validate the notification filter to determine whether it should generate anything.
     /// </summary>
+    /// <param name="filter"></param>
     /// <returns>True if the notification filter has been matched.</returns>
-    protected virtual bool ValidateFilter()
+    protected virtual bool ValidateFilter(NotificationFilter filter)
     {
         if (Notification == null || Content == null) throw new InvalidOperationException("Notification and Content properties cannot be null");
 
-        var filter = JsonSerializer.Deserialize<NotificationFilter>(Notification.Filter);
         if (filter == null) return true; // No filter will always send.
 
         var result =
@@ -134,7 +133,6 @@ public class NotificationValidator : INotificationValidator
             (!filter.ContentIds.Any() || filter.ContentIds.Contains(Content.Id)) &&
             (!filter.ContentTypes.Any() || filter.ContentTypes.Contains(Content.ContentType)) &&
             (!filter.Status.HasValue || filter.Status == Content.Status) &&
-            (!filter.ProductId.HasValue || filter.ProductId == Content.ProductId) &&
             (!filter.OwnerId.HasValue || filter.OwnerId == Content.OwnerId) &&
             (!filter.UserId.HasValue || filter.UserId == Content.OwnerId) &&
             (!filter.CreatedOn.HasValue || Content.CreatedOn == filter.CreatedOn.Value.ToUniversalTime()) &&
@@ -173,10 +171,11 @@ public class NotificationValidator : INotificationValidator
     /// <summary>
     /// Determine if the specified 'notification' should be sent for the specified 'content'.
     /// </summary>
+    /// <param name="filter"></param>
     /// <returns></returns>
-    public bool ConfirmSend()
+    public bool ConfirmSend(NotificationFilter filter)
     {
-        return ValidateNotification() && ValidateContent() && ValidateFilter();
+        return ValidateNotification() && ValidateContent() && ValidateFilter(filter);
     }
     #endregion
 }
