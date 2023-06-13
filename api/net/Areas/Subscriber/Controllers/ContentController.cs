@@ -155,10 +155,15 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult FindFrontPages()
+    public async Task<IActionResult> FindFrontPages()
     {
-        var result = _contentService.FindFrontPages();
-        var page = new Paged<ContentModel>(result.Items.Select(i => new ContentModel(i)), result.Page, result.Quantity, result.Total);
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var result = await _contentService.FindFrontPages(_elasticOptions.UnpublishedIndex);
+        var page = new Paged<Services.Models.Content.ContentModel>(
+            result.Items,
+            result.Page,
+            result.Quantity,
+            result.Total);
         return new JsonResult(page);
     }
 
