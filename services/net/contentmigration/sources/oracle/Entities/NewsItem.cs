@@ -19,13 +19,13 @@ public class NewsItem
     /// get/set.
     /// </summary>
     [Column("ITEM_DATE")]
-    public DateTime ItemDateTime { get; set; }
+    public DateTime? ItemDateTime { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
     [Column("ITEM_TIME")]
-    public DateTime ItemTime { get; set; }
+    public DateTime? ItemTime { get; set; }
 
     /// <summary>
     /// get/set.
@@ -113,6 +113,7 @@ public class NewsItem
 
     /// <summary>
     /// get/set.
+    /// Appears to map to [Columnist/Pundit]
     /// </summary>
     [Column("STRING5")]
     public string? string5 { get; set; }
@@ -167,6 +168,7 @@ public class NewsItem
 
     /// <summary>
     /// get/set.
+    /// appears to be only a few file extensions used [.mp4, .m4a, .jpg, .pdf, .mov]
     /// </summary>
     [Column("FILENAME")]
     public string? FileName { get; set; }
@@ -221,6 +223,7 @@ public class NewsItem
 
     /// <summary>
     /// get/set.
+    /// Can be NULL or one of [video/quicktime, image/jpeg, application/pdf]
     /// </summary>
     [Column("CONTENTTYPE")]
     public string? ContentType { get; set; }

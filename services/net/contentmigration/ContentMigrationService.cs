@@ -5,6 +5,7 @@ using TNO.Services.ContentMigration.Sources.Oracle.Services;
 using TNO.Services.ContentMigration.Sources.Oracle;
 using Oracle.ManagedDataAccess.Client;
 using Microsoft.Extensions.Configuration;
+using TNO.Services.ContentMigration.Migrators;
 
 namespace TNO.Services.ContentMigration;
 
@@ -45,6 +46,8 @@ public class ContentMigrationService : KafkaProducerService
             .AddTransient<IIngestAction<ContentMigrationOptions>, ContentMigrationAction>()
             .AddTransient<IngestManagerFactory<ContentMigrationIngestActionManager, ContentMigrationOptions>>()
             .AddScoped<IServiceManager, ContentMigrationManager>();
+
+        services.AddSourceMigrators(this.Configuration);
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<ContentMigrationOptions>()
