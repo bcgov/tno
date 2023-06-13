@@ -158,7 +158,7 @@ public class ContentController : ControllerBase
     public async Task<IActionResult> FindFrontPages()
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
-        var result = await _contentService.FindFrontPages(_elasticOptions.UnpublishedIndex);
+        var result = await _contentService.FindFrontPages(_elasticOptions.PublishedIndex);
         var page = new Paged<Services.Models.Content.ContentModel>(
             result.Items,
             result.Page,
