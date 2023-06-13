@@ -15,13 +15,15 @@ public static class ReportModelExtensions
     /// <returns></returns>
     private static Dictionary<string, ReportSectionModel> ParseSections(this JsonDocument settings)
     {
-        var sectionsElement = settings.RootElement.GetProperty("sections");
         var sections = new Dictionary<string, ReportSectionModel>();
-        foreach (var sectionElement in sectionsElement.EnumerateArray())
+        if (settings.RootElement.TryGetProperty("sections", out JsonElement sectionsElement))
         {
-            var name = sectionElement.GetProperty("name").GetString() ?? "";
-            var label = sectionElement.GetProperty("label").GetString() ?? "";
-            sections.Add(name, new ReportSectionModel(name, label));
+            foreach (var sectionElement in sectionsElement.EnumerateArray())
+            {
+                var name = sectionElement.GetProperty("name").GetString() ?? "";
+                var label = sectionElement.GetProperty("label").GetString() ?? "";
+                sections.Add(name, new ReportSectionModel(name, label));
+            }
         }
         return sections;
     }

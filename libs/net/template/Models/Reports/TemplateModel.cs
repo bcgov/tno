@@ -44,7 +44,14 @@ public class TemplateModel : RazorEngineTemplateBase
     /// <param name="sections"></param>
     public TemplateModel(Dictionary<string, ReportSectionModel> sections)
     {
-        this.Content = sections[""]?.Content ?? Array.Empty<ContentModel>();
+        if (sections.TryGetValue("", out ReportSectionModel? value))
+        {
+            this.Content = value?.Content ?? Array.Empty<ContentModel>();
+        }
+        else
+        {
+            this.Content = Array.Empty<ContentModel>();
+        }
         this.Sections = sections;
     }
     #endregion

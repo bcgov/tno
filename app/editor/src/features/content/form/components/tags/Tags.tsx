@@ -55,6 +55,7 @@ export const Tags: React.FC<ITagsProps> = () => {
             name="tags"
             options={tagOptions}
             maxMenuHeight={120}
+            menuPlacement="top"
             value={tagOptions.filter((option) =>
               values.tags.find((tag) => tag.id === option.value),
             )}
