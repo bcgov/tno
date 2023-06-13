@@ -1,16 +1,14 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Extensions;
-using TNO.Entities;
 using TNO.Models.Extensions;
-using TNO.Kafka.Models;
 using TNO.Services.Actions;
 using TNO.Services.ContentMigration.Config;
 using TNO.Core.Exceptions;
-using System.Text.RegularExpressions;
 using TNO.Services.ContentMigration.Sources.Oracle;
+using TNO.Services.ContentMigration.Migrators;
+using LinqKit;
 
 namespace TNO.Services.ContentMigration;
 
@@ -26,6 +24,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 {
     #region Variables
     private readonly MigrationSourceContext _sourceContext;
+    private readonly ContentMigratorFactory _migratorFactory;
     #endregion
 
     #region Properties
@@ -36,16 +35,67 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// Creates a new instance of a ContentMigrationAction, initializes with specified parameters.
     /// </summary>
     /// <param name="sourceContext"></param>
+    /// <param name="migratorFactory"></param>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public ContentMigrationAction(MigrationSourceContext sourceContext, IApiService api, IOptions<ContentMigrationOptions> options, ILogger<ContentMigrationAction> logger) : base(api, options, logger)
+    public ContentMigrationAction(MigrationSourceContext sourceContext, ContentMigratorFactory migratorFactory, IApiService api, IOptions<ContentMigrationOptions> options, ILogger<ContentMigrationAction> logger) : base(api, options, logger)
     {
         _sourceContext = sourceContext;
+        _migratorFactory = migratorFactory;
     }
     #endregion
 
     #region Methods
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="newsItems"></param>
+    /// <param name="predicate"></param>
+    /// <param name="skip"></param>
+    /// <param name="count"></param>
+    /// <param name="lastRanOn"></param>
+    /// <param name="importDateStart"></param>
+    /// <param name="importDateEnd"></param>
+    /// <param name="creationDateOfNewsItem"></param>
+    /// <returns></returns>
+    private IQueryable<NewsItem> GetFilteredNewsItems(IQueryable<NewsItem> newsItems,
+        System.Linq.Expressions.Expression<Func<NewsItem, bool>> predicate,
+        int skip, int count, DateTime? lastRanOn, DateTime? importDateStart, DateTime? importDateEnd, DateTime? creationDateOfNewsItem)
+    {
+        // KGM : Do NOT remove the ItemDate null filter.  This excludes bad data
+        predicate.And(ni => ni.ItemDateTime != null);
+
+        // if no import filter dates are set
+        if (!importDateStart.HasValue && !importDateEnd.HasValue) {
+            // if the ingest has previously run, use the creationDateOfNewsItem as the dateFilter
+            // if creationDateOfNewsItem is not set, use use DateTime.MinValue
+            DateTime dateFilter = creationDateOfNewsItem ?? DateTime.MinValue;
+            if(lastRanOn.HasValue) {
+                dateFilter = new []{lastRanOn.Value, dateFilter}.Min();
+            }
+            predicate.And(ni => ni.ItemDateTime >= dateFilter);
+        } else {
+            DateTime dateFilterStart = importDateStart ?? DateTime.MinValue;
+            DateTime dateFilterEnd = importDateEnd ?? DateTime.MaxValue;
+            if(creationDateOfNewsItem.HasValue
+                && (dateFilterStart <= creationDateOfNewsItem.Value)
+                && (dateFilterEnd >= creationDateOfNewsItem.Value)) {
+                    // if a date filter is set AND the creationDateOfNewsItem is set
+                    // use the creationDateOfNewsItem as the start date ONLY if it's
+                    // between the targeted start and end dates
+                    dateFilterStart = new []{creationDateOfNewsItem.Value, dateFilterStart}.Max();
+                }
+            predicate.And(ni => (ni.ItemDateTime >= dateFilterStart) && (ni.ItemDateTime <= dateFilterEnd));
+        }
+
+        return newsItems.Where(predicate)
+                .OrderBy(ni => ni.ItemDateTime) // oldest first
+                .OrderByDescending(ni => ni.RSN)
+                .Skip(skip).Take(count);
+    }
+
     /// <summary>
     /// Perform the ingestion service action.
     /// Checks if a content reference has already been created for each migration item before deciding whether to migrate it or not.
@@ -61,31 +111,34 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
+        IContentMigrator contentMigrator = _migratorFactory.GetContentMigrator(manager.Ingest.Name);
 
-        // var lookups = await this.Api.GetLookupsAsync();
+        var lookups = await this.Api.GetLookupsAsync();
+        IEnumerable<IngestModel> ingests = await this.Api.GetIngestsAsync();
 
         var skip = 0;
-        var count = 20;
-        DateTime? importDateStart = manager.Ingest.GetConfigurationValue<DateTime>("importDateStart");
-        DateTime? importDateEnd = manager.Ingest.GetConfigurationValue<DateTime>("importDateEnd");
-        DateTime? creationDateOfNewsItem = manager.Ingest.GetConfigurationValue<DateTime>("creationDateOfLastImport");
+        var count = 50;
+        DateTime? importDateStart = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateStart")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateStart") : null;
+        DateTime? importDateEnd = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateEnd")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateEnd") : null;
+        DateTime? creationDateOfLastImport = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("creationDateOfLastImport")) ? manager.Ingest.GetConfigurationValue<DateTime>("creationDateOfLastImport") : null;
 
         while (count > 0)
         {
             try
             {
-                IQueryable<NewsItem> items = GetFilteredNewsItems(manager, skip, count, importDateStart, importDateEnd, creationDateOfNewsItem);
+                var baseFilter = contentMigrator.GetBaseFilter();
+                IQueryable<NewsItem> items = GetFilteredNewsItems(_sourceContext.NewsItems, baseFilter, skip, count, manager.Ingest.LastRanOn, importDateStart, importDateEnd, creationDateOfLastImport);
                 var lastNewsItem = items.Last();
                 count = items.Count();
                 skip += count;
                 await items.ForEachAsync(async newsItem =>
                 {
-                    // await MigrateNewsItemAsync(manager, newsItem);
-                    // creationDateOfNewsItem = newsItem.ItemDateTime;
-                    // if (newsItem.Equals(lastNewsItem))
-                    // {
-                    //     await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfNewsItem);
-                    // }
+                    await contentMigrator.MigrateNewsItemAsync(manager, lookups, ingests, newsItem);
+                    creationDateOfLastImport = newsItem.ItemDateTime;
+                    if (newsItem.Equals(lastNewsItem) && (creationDateOfLastImport != null))
+                    {
+                        await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport);
+                    }
                 });
 
             }
@@ -93,8 +146,8 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             {
                 Logger.LogError("Migration Failed on {skip}:{count}", skip, count);
                 // only update the DateTime.MinValue value if it was set
-                if (creationDateOfNewsItem != DateTime.MinValue)
-                    await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfNewsItem);
+                if (creationDateOfLastImport != null)
+                    await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport);
                 throw;
             }
         }
@@ -102,166 +155,8 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         Logger.LogInformation("Migration Complete");
     }
 
-    private IQueryable<NewsItem> GetFilteredNewsItems(IIngestServiceActionManager manager, int skip, int count, DateTime? importDateStart, DateTime? importDateEnd, DateTime? creationDateOfNewsItem)
-    {
-        // if no import filter dates are set
-        if (!importDateStart.HasValue && !importDateEnd.HasValue) {
-            // if the ingest has previously run, use the creationDateOfNewsItem as the dateFilter
-            // if creationDateOfNewsItem is not set, use the LastRanOn
-            // if LastRanOn is not set which means the service has NEVER run before, use DateTime.MinValue
-            DateTime dateFilter = creationDateOfNewsItem.HasValue
-                ? creationDateOfNewsItem.Value
-                : manager.Ingest.LastRanOn.HasValue
-                    ? manager.Ingest.LastRanOn.Value
-                    : DateTime.MinValue;
-            return _sourceContext.NewsItems
-                .Where(ni => ni.CreatedOn >= dateFilter)
-                .OrderByDescending(ni => ni.UpdatedOn)
-                .OrderByDescending(ni => ni.RSN).Skip(skip).Take(count);
-        } else {
-            DateTime dateFilterStart = (importDateStart.HasValue) ? importDateStart.Value : DateTime.MinValue;
-            DateTime dateFilterEnd = (importDateEnd.HasValue) ? importDateEnd.Value : DateTime.MaxValue;
-            if(creationDateOfNewsItem.HasValue
-                && (dateFilterStart <= creationDateOfNewsItem.Value)
-                && (dateFilterEnd >= creationDateOfNewsItem.Value)) {
-                    // if a date filter is set AND the creationDateOfNewsItem is set
-                    // use the creationDateOfNewsItem as the start date ONLY if it's
-                    // between the targeted start and end dates
-                    dateFilterStart = new []{creationDateOfNewsItem.Value, dateFilterStart}.Max();
-                }
-            return _sourceContext.NewsItems
-                .Where(ni => ((ni.CreatedOn >= dateFilterStart) && (ni.CreatedOn <= dateFilterEnd)))
-                .OrderByDescending(ni => ni.UpdatedOn)
-                .OrderByDescending(ni => ni.RSN).Skip(skip).Take(count);
-        }
-    }
-
-    /// <summary>
-    /// Attempt to migrate a single item from the historic system via api.
-    /// Checks if a content reference has already been created for each item before deciding whether to migrate it or not.
-    /// Sends message to kafka if content has been added or updated.
-    /// Informs API of content reference status.
-    /// </summary>
-    /// <param name="manager"></param>
-    /// <param name="newsItem"></param>
-    /// <returns></returns>
-    private async Task MigrateNewsItemAsync(IIngestServiceActionManager manager, NewsItem newsItem)
-    {
-        try
-        {
-            // KGM: does uid exist for all newsItem types in old system and does this correlate to new system?
-            // KGM: for soft-launch - how do we avoid duplication if MMIA is ingest from source *AND* historic?
-            var uid = newsItem.WebPath ?? $"{newsItem.RSN}";
-            var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, uid);
-            if (reference == null)
-            {
-                reference = await this.Api.AddContentReferenceAsync(CreateContentReference(manager.Ingest, uid));
-                Logger.LogInformation("Migrating content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
-            }
-            else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
-            {
-                // If another process has it in progress only attempt to do an Migration if it's
-                // more than an 5 minutes old. Assumption is that it is stuck.
-                reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
-                Logger.LogInformation("Updating migrated content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
-            }
-
-            reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
-            if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference));
-        }
-        catch (Exception ex)
-        {
-            // Reached limit return to ingest manager.
-            if (manager.Ingest.FailedAttempts + 1 >= manager.Ingest.RetryLimit)
-                throw;
-
-            this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}'", manager.Ingest.Name);
-            await manager.RecordFailureAsync();
-        }
-    }
-
-    /// <summary>
-    /// Create a content reference for this clip.
-    /// </summary>
-    /// <param name="ingest"></param>
-    /// <param name="filename"></param>
-    /// <returns></returns>
-    private ContentReferenceModel CreateContentReference(IngestModel ingest, string filename)
-    {
-        var publishedOnExpression = ingest.GetConfigurationValue("publishedOnExpression");
-
-        var today = GetDateTimeForTimeZone(ingest);
-        DateTime publishedOn;
-        if (!String.IsNullOrWhiteSpace(publishedOnExpression))
-        {
-            try
-            {
-                var match = Regex.Match(filename, publishedOnExpression, RegexOptions.Singleline);
-                var year = String.IsNullOrWhiteSpace(match.Groups["year"].Value) ? today.Year : int.Parse(match.Groups["year"].Value);
-                var month = String.IsNullOrWhiteSpace(match.Groups["month"].Value) ? today.Month : int.Parse(match.Groups["month"].Value);
-                var day = String.IsNullOrWhiteSpace(match.Groups["day"].Value) ? today.Day : int.Parse(match.Groups["day"].Value);
-                var hour = String.IsNullOrWhiteSpace(match.Groups["hour"].Value) ? today.Hour : int.Parse(match.Groups["hour"].Value);
-                var minute = String.IsNullOrWhiteSpace(match.Groups["minute"].Value) ? today.Minute : int.Parse(match.Groups["minute"].Value);
-                var second = String.IsNullOrWhiteSpace(match.Groups["second"].Value) ? today.Second : int.Parse(match.Groups["second"].Value);
-                publishedOn = new DateTime(year, month, day, hour, minute, second, today.Kind);
-
-                // If the published on date is greater than today we will assume it's in the morning.
-                if (today < publishedOn) publishedOn = publishedOn.Add(new TimeSpan(0));
-            }
-            catch (Exception ex)
-            {
-                // Essentially ignore the error and set the published on date to today.
-                this.Logger.LogError(ex, "Regex failed for 'publishedOnExpression': {regex}", publishedOnExpression);
-                publishedOn = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, today.Kind);
-            }
-        }
-        else
-            publishedOn = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, today.Kind);
-
-        return new ContentReferenceModel()
-        {
-            Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code."),
-            Uid = $"{filename}",
-            PublishedOn = this.ToTimeZone(publishedOn, ingest).ToUniversalTime(),
-            Topic = ingest.Topic,
-            Status = (int)WorkflowStatus.InProgress
-        };
-    }
-
-    /// <summary>
-    /// Send message to kafka with new source content.
-    /// </summary>
-    /// <param name="ingest"></param>
-    /// <param name="reference"></param>
-    /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    private SourceContent? CreateSourceContent(IngestModel ingest, ContentReferenceModel reference)
-    {
-        var publishedOn = reference.PublishedOn ?? DateTime.UtcNow;
-        var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
-        var content = new SourceContent(
-            this.Options.DataLocation,
-            reference.Source,
-            contentType,
-            ingest.ProductId,
-            reference.Uid,
-            $"{ingest.Name} Frontpage",
-            "",
-            "",
-            publishedOn.ToUniversalTime(),
-            ingest.GetConfigurationValue<bool>("publish"))
-        {
-            StreamUrl = ingest.GetConfigurationValue("url"),
-            FilePath = (ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "")
-                .CombineWith($"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}/", reference.Uid),
-            Language = ingest.GetConfigurationValue("language")
-        };
-        return content;
-    }
-
     #endregion
 
     #region Support Methods
-
     #endregion
 }
