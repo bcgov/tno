@@ -16,8 +16,6 @@ export const Player: React.FC<IPlayerProps> = ({ content }) => {
   const { width } = useWindowSize();
   const path = content?.fileReferences ? content.fileReferences[0]?.path : '';
 
-  console.log(content);
-
   React.useEffect(() => {
     if (!!path)
       stream(path).then((result) => {
