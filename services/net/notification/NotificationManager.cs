@@ -16,7 +16,6 @@ using TNO.Ches.Configuration;
 using TNO.Entities.Validation;
 using TNO.TemplateEngine;
 using TNO.TemplateEngine.Models.Notifications;
-using TNO.Entities.Models;
 
 namespace TNO.Services.Notification;
 
