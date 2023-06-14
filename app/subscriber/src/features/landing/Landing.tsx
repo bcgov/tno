@@ -5,6 +5,7 @@ import {
 import { SearchWithLogout } from 'components/search-with-logout';
 import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
+import { FrontPages } from 'features/front-pages';
 import { Home } from 'features/home';
 import { MyMinister } from 'features/my-minister/MyMinister';
 import { MyMinisterSettings } from 'features/settings';
@@ -74,10 +75,7 @@ export const Landing: React.FC = () => {
         {/* unsure of whether these items will change depedning on selected item */}
         <Col className="right-panel">
           <Commentary />
-          <div className="front-pages">
-            <div className="title">Front Pages</div>
-            <div className="content"></div>
-          </div>
+          <FrontPages />
         </Col>
       </Row>
     </styled.Landing>
