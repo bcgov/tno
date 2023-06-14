@@ -1,14 +1,15 @@
 import { SearchWithLogout } from 'components/search-with-logout';
-import * as styled from './styled';
-import React from 'react';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
 import { DetermineToneIcon, makeFilter } from 'features/home/utils';
+import React from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { Col, IContentModel, Page, Row } from 'tno-core';
-import { useNavigate, useParams } from 'react-router-dom';
+
+import * as styled from './styled';
 import { trimWords } from './utils';
 
 // Simple component to display users search results
