@@ -1,9 +1,47 @@
 import styled from 'styled-components';
 
 export const SearchPage = styled.div`
-  .search-items {
+  .search-with-logout {
+    margin-bottom: 0.5%;
+  }
+  .scroll {
+    overflow-y: scroll;
+    max-height: calc(100vh - 6.5em);
     padding-left: 1em;
     padding-right: 1em;
+  }
+
+  .media-button {
+    max-width: 14em;
+    font-size: 0.6em;
+    margin-left: auto;
+    cursor: pointer;
+    border-radius: 0.25em;
+    border-width: 0.5px;
+    svg {
+      margin-top: 0.65em;
+      margin-left: 0.5em;
+    }
+  }
+
+  .minimized {
+    max-width: 59%;
+  }
+
+  .player {
+    width: 39%;
+  }
+
+  .show {
+    color: #178d6a;
+    background-color: #20c9971a;
+    border-color: #178d6a;
+  }
+
+  .playing {
+    background-color: white;
+    color: #e2616e;
+    border-color: #e2616e;
   }
 
   .tone-date {
