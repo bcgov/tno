@@ -19,5 +19,10 @@ public class ContentMigrationOptions : IngestServiceOptions
     /// </summary>
     public OracleConnectionSettings? OracleConnection { get; set; } = null;
 
+    /// <summary>
+    /// get/set - The maximum number of records to retrieve from the TNO 1.0 db at a time
+    /// </summary>
+    public int MaxRecordsPerRetrieval { get; set; } = 20;
+
     #endregion
 }
