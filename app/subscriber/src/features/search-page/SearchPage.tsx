@@ -5,7 +5,7 @@ import {
 } from 'features/content/list-view/interfaces';
 import { DetermineToneIcon, makeFilter } from 'features/home/utils';
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { Col, IContentModel, Page, Row } from 'tno-core';
 
@@ -17,7 +17,8 @@ export const SearchPage: React.FC = () => {
   const [{ filter, filterAdvanced }, { findContent }] = useContent();
   const [searchItems, setSearchItems] = React.useState<IContentModel[]>([]);
   const navigate = useNavigate();
-  const { id } = useParams();
+  const urlParams = new URLSearchParams(window.location.search);
+  const queryText = urlParams.get('queryText');
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
       try {
@@ -44,9 +45,9 @@ export const SearchPage: React.FC = () => {
     fetch({
       ...filter,
       ...filterAdvanced,
-      keyword: id ?? '',
+      keyword: queryText ?? '',
     });
-  }, [filter, filterAdvanced, fetch, id]);
+  }, [filter, filterAdvanced, fetch, queryText]);
 
   return (
     <styled.SearchPage>

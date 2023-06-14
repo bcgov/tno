@@ -1,7 +1,7 @@
 import React from 'react';
 import { BiLogOut } from 'react-icons/bi';
 import { FaSearch, FaUserCircle } from 'react-icons/fa';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button, Row, Show, Text, useKeycloakWrapper, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
@@ -12,14 +12,15 @@ export const SearchWithLogout: React.FC = () => {
   const [searchItem, setSearchItem] = React.useState<string>('');
   const navigate = useNavigate();
   const { width } = useWindowSize();
-  const { id } = useParams();
+  const urlParams = new URLSearchParams(window.location.search);
+  const queryText = urlParams.get('queryText');
 
   // update search item when id changes on search page
   React.useEffect(() => {
     if (window.location.pathname.includes('search')) {
-      if (!!id) setSearchItem(id ?? '');
+      if (!!queryText) setSearchItem(queryText ?? '');
     }
-  }, [id]);
+  }, [queryText]);
   return (
     <styled.SearchWithLogout>
       <Row>
@@ -34,7 +35,10 @@ export const SearchWithLogout: React.FC = () => {
             setSearchItem(e.target.value);
           }}
         />
-        <Button className="search-button" onClick={() => navigate(`/search/${searchItem}`)}>
+        <Button
+          className="search-button"
+          onClick={() => navigate(`/search?queryText=${searchItem}`)}
+        >
           <FaSearch />
         </Button>
       </Row>
