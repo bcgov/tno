@@ -1,32 +1,47 @@
 import React from 'react';
 import { BiLogOut } from 'react-icons/bi';
-import { FaUserCircle } from 'react-icons/fa';
-import { useContent } from 'store/hooks';
-import { LogicalOperator, Show, Text, useKeycloakWrapper, useWindowSize } from 'tno-core';
+import { FaSearch, FaUserCircle } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { Button, Row, Show, Text, useKeycloakWrapper, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
 
 /** The component containing the search bar and the logout button for the subscriber application. Responsive and adjusts to the viewing device*/
 export const SearchWithLogout: React.FC = () => {
   const keycloak = useKeycloakWrapper();
-  const [, { storeFilterAdvanced }] = useContent();
+  const [searchItem, setSearchItem] = React.useState<string>('');
+  const navigate = useNavigate();
   const { width } = useWindowSize();
+  const urlParams = new URLSearchParams(window.location.search);
+  const queryText = urlParams.get('queryText');
+
+  // update search item when id changes on search page
+  React.useEffect(() => {
+    if (window.location.pathname.includes('search')) {
+      if (!!queryText) setSearchItem(queryText ?? '');
+    }
+  }, [queryText]);
   return (
     <styled.SearchWithLogout>
-      <Text
-        placeholder="Search news"
-        className="search"
-        width={'30em'}
-        name="search"
-        // TODO: Implement search properly, talk with Bobbi
-        onChange={(e) => {
-          storeFilterAdvanced({
-            searchTerm: e.target.value,
-            fieldType: 'headline',
-            logicalOperator: LogicalOperator.Contains,
-          });
-        }}
-      />
+      <Row>
+        <Text
+          placeholder="Search news"
+          className="search"
+          width={'30em'}
+          autoComplete="off"
+          name="search"
+          value={searchItem}
+          onChange={(e) => {
+            setSearchItem(e.target.value);
+          }}
+        />
+        <Button
+          className="search-button"
+          onClick={() => navigate(`/search?queryText=${searchItem}`)}
+        >
+          <FaSearch />
+        </Button>
+      </Row>
       <div onClick={() => keycloak.instance.logout()} className="logout">
         <Show visible={!!width && width > 500}>
           <FaUserCircle />
