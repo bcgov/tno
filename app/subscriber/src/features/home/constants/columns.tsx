@@ -8,6 +8,7 @@ export const determinecolumns = (contentType: ContentTypeName | 'all') => {
     {
       name: 'tone',
       label: 'TONE',
+      width: 0.25,
       cell: (cell) => (
         <DetermineToneIcon tone={cell.original.tonePools ? cell.original.tonePools[0]?.value : 0} />
       ),
@@ -16,7 +17,7 @@ export const determinecolumns = (contentType: ContentTypeName | 'all') => {
       name: 'headline',
       label: 'HEADLINE',
       cell: (cell) => <div className="headline">{cell.original.headline}</div>,
-      width: 5,
+      width: 4,
     },
   ];
   // columns specific to print content

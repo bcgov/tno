@@ -35,6 +35,11 @@ export const useSubscriberApiContents = (
         `/subscriber/contents?${toQueryString(params)}`,
       );
     },
+    getFrontPages: () => {
+      return api.get<IPaged<IContentModel>, AxiosResponse<IPaged<IContentModel>>, any>(
+        `/subscriber/contents/frontpages`,
+      );
+    },
     getContent: (id: number) => {
       return api.get<IContentModel | undefined, AxiosResponse<IContentModel | undefined>, any>(
         `/subscriber/contents/${id}`,

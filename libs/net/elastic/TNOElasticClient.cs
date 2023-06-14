@@ -80,6 +80,22 @@ namespace TNO.Elastic
             var response = await this.Client.PostAsync<SearchResultModel<T>>(url, content);
             return response ?? new SearchResultModel<T>();
         }
+
+        /// <summary>
+        /// Make a request to Elasticsearch 'index' with the specified 'query'.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="index"></param>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public async Task<SearchResultModel<T>> SearchAsync<T>(string index, JsonElement query)
+            where T : class
+        {
+            var url = this.Options.Url!.Append($"/{index}/_search?pretty=true&typed_keys=true");
+            var content = JsonContent.Create(query);
+            var response = await this.Client.PostAsync<SearchResultModel<T>>(url, content);
+            return response ?? new SearchResultModel<T>();
+        }
         #endregion
     }
 }

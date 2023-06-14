@@ -10,10 +10,16 @@ using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Services;
+using TNO.Elastic;
 using TNO.Entities.Models;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Keycloak;
+using TNO.Models.Extensions;
+using TNO.TemplateEngine;
+using TNO.TemplateEngine.Models.Reports;
+using TNO.TemplateEngine.Extensions;
+using TNO.Elastic.Models;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -35,8 +41,10 @@ public class ReportController : ControllerBase
     #region Variables
     private readonly IReportService _reportService;
     private readonly IUserService _userService;
+    private readonly ITemplateEngine<TemplateModel> _templateEngine;
     private readonly IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
+    private readonly ElasticOptions _elasticOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -46,15 +54,26 @@ public class ReportController : ControllerBase
     /// </summary>
     /// <param name="reportService"></param>
     /// <param name="userService"></param>
+    /// <param name="templateEngine"></param>
     /// <param name="kafkaProducer"></param>
     /// <param name="kafkaOptions"></param>
+    /// <param name="elasticOptions"></param>
     /// <param name="serializerOptions"></param>
-    public ReportController(IReportService reportService, IUserService userService, IKafkaMessenger kafkaProducer, IOptions<KafkaOptions> kafkaOptions, IOptions<JsonSerializerOptions> serializerOptions)
+    public ReportController(
+        IReportService reportService,
+        IUserService userService,
+        ITemplateEngine<TemplateModel> templateEngine,
+        IKafkaMessenger kafkaProducer,
+        IOptions<KafkaOptions> kafkaOptions,
+        IOptions<ElasticOptions> elasticOptions,
+        IOptions<JsonSerializerOptions> serializerOptions)
     {
         _reportService = reportService;
         _userService = userService;
+        _templateEngine = templateEngine;
         _kafkaProducer = kafkaProducer;
         _kafkaOptions = kafkaOptions.Value;
+        _elasticOptions = elasticOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -196,6 +215,48 @@ public class ReportController : ControllerBase
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{report.Id}", request);
         return new JsonResult(new ReportModel(report, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Preview report.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost("preview")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportPreviewModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public async Task<IActionResult> Preview(ReportModel model)
+    {
+        var subjectTemplateText = model.Settings.GetDictionaryJsonValue<string>("subject") ?? "";
+        var subjectTemplate = _templateEngine.AddOrUpdateTemplateInMemory($"report-{model.Id}-subject", subjectTemplateText);
+        var bodyTemplate = _templateEngine.AddOrUpdateTemplateInMemory($"report-{model.Id}", model.Template);
+
+        var results = await _reportService.FindContentWithElasticsearchAsync(_elasticOptions.PublishedIndex, model.ToEntity(_serializerOptions));
+        var sections = model.ParseSections().ToDictionary(s => s.Key, s =>
+        {
+            results.TryGetValue(s.Key, out SearchResultModel<Services.Models.Content.ContentModel>? value);
+            s.Value.Content = value?.Hits.Hits.Select(h => h.Source) ?? Array.Empty<Services.Models.Content.ContentModel>();
+            return s.Value;
+        });
+
+        var templateModel = new TemplateModel(sections);
+
+        var subject = await subjectTemplate.RunAsync(instance =>
+        {
+            instance.Model = templateModel;
+            instance.Content = templateModel.Content;
+            instance.Sections = templateModel.Sections;
+        });
+        var body = await bodyTemplate.RunAsync(instance =>
+        {
+            instance.Model = templateModel;
+            instance.Content = templateModel.Content;
+            instance.Sections = templateModel.Sections;
+        });
+
+        return new JsonResult(new ReportPreviewModel(subject, body, results));
     }
     #endregion
 }

@@ -10,8 +10,4 @@ export const WorkOrderForm = styled(FormPage)`
     align-self: start;
     margin-bottom: 3%;
   }
-
-  .form-inputs {
-    margin-top: 3%;
-  }
 `;

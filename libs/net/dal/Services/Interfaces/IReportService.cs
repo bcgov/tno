@@ -6,5 +6,5 @@ public interface IReportService : IBaseService<Report, int>
 {
     IEnumerable<Report> FindAll();
     Report? FindById(int id, bool includeInstances);
-    Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindContentWithElasticsearchAsync(string index, Report report);
+    Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(string index, Report report);
 }

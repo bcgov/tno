@@ -3,6 +3,7 @@ import 'prismjs/components/prism-csharp';
 import 'prismjs/components/prism-cshtml';
 import 'prismjs/components/prism-json';
 
+import { AxiosError } from 'axios';
 import { FormikForm } from 'components/formik';
 import { noop } from 'lodash';
 import moment from 'moment';
@@ -28,11 +29,11 @@ import {
   IconButton,
   IOptionItem,
   IReportModel,
+  IReportPreviewModel,
   ITableInternal,
   ITablePage,
   ITableSort,
   IUserModel,
-  LabelPosition,
   Modal,
   ReportTypeName,
   Row,
@@ -45,6 +46,7 @@ import {
 
 import { defaultReport, instanceColumns, subscriberColumns } from './constants';
 import { ReportFilter } from './ReportFilter';
+import { ReportSections } from './ReportSections';
 import * as styled from './styled';
 
 /**
@@ -67,6 +69,7 @@ export const ReportForm: React.FC = () => {
   const [filter, setFilter] = React.useState(JSON.stringify(report.filter, null, 2));
   const [sendTo, setSendTo] = React.useState('');
   const [active, setActive] = React.useState('report');
+  const [preview, setPreview] = React.useState<IReportPreviewModel>();
 
   const reportId = Number(id);
   const reportTypeOptions = getEnumStringOptions(ReportTypeName);
@@ -131,6 +134,30 @@ export const ReportForm: React.FC = () => {
     [findUsers, users.quantity],
   );
 
+  const previewReport = React.useCallback(
+    async (model: IReportModel) => {
+      try {
+        const response = await api.previewReport({
+          ...model,
+          instances: [],
+          subscribers: [],
+          owner: undefined,
+        });
+        setPreview(response);
+      } catch (ex) {
+        const error = ex as AxiosError;
+        const response = error.response;
+        const data = response?.data as any;
+        setPreview({
+          subject: data.error,
+          body: `${data.details}<div>${data.stackTrace}</div>`,
+          results: {},
+        });
+      }
+    },
+    [api],
+  );
+
   return (
     <styled.ReportForm>
       <IconButton
@@ -159,7 +186,7 @@ export const ReportForm: React.FC = () => {
                 />
                 <Show visible={values.reportType === ReportTypeName.Filter}>
                   <Tab
-                    label="Filter"
+                    label="Primary Filter"
                     onClick={() => {
                       setActive('filter');
                     }}
@@ -167,11 +194,25 @@ export const ReportForm: React.FC = () => {
                   />
                 </Show>
                 <Tab
+                  label="Sections"
+                  onClick={() => {
+                    setActive('sections');
+                  }}
+                  active={active === 'sections'}
+                />
+                <Tab
                   label="Template"
                   onClick={() => {
                     setActive('template');
                   }}
                   active={active === 'template'}
+                />
+                <Tab
+                  label="Preview"
+                  onClick={() => {
+                    setActive('preview');
+                  }}
+                  active={active === 'preview'}
                 />
                 <Tab
                   label="Subscribers"
@@ -195,40 +236,40 @@ export const ReportForm: React.FC = () => {
                 <Col className="form-inputs">
                   <FormikText name="name" label="Name" />
                   <FormikTextArea name="description" label="Description" />
-                  <FormikSelect
-                    name="reportType"
-                    label="Report Type"
-                    options={reportTypeOptions}
-                    width="20ch"
-                    value={reportTypeOptions.filter((rt) =>
-                      values.reportType.includes(rt.value as ReportTypeName),
-                    )}
-                    onChange={(newValue) => {
-                      const option = newValue as IOptionItem;
-                      setFieldValue('reportType', option.value);
-                    }}
-                  />
+                  <p>
+                    A filtered report will make a request for content each time it runs. A custom
+                    report is populated manually be the user.
+                  </p>
+                  <Row>
+                    <FormikSelect
+                      name="reportType"
+                      label="Report Type"
+                      options={reportTypeOptions}
+                      width="20ch"
+                      value={reportTypeOptions.filter((rt) =>
+                        values.reportType.includes(rt.value as ReportTypeName),
+                      )}
+                      onChange={(newValue) => {
+                        const option = newValue as IOptionItem;
+                        setFieldValue('reportType', option.value);
+                      }}
+                    />
+                    <FormikText
+                      width={FieldSize.Tiny}
+                      name="sortOrder"
+                      label="Sort Order"
+                      type="number"
+                      className="sort-order"
+                    />
+                  </Row>
                   <Row>
                     <Col flex="2">
-                      <Row gap="1rem">
-                        <FormikCheckbox
-                          labelPosition={LabelPosition.Top}
-                          label="Is Enabled"
-                          name="isEnabled"
-                        />
-                        <FormikCheckbox
-                          labelPosition={LabelPosition.Top}
-                          label="Is Public"
-                          name="isPublic"
-                        />
-                        <FormikText
-                          width={FieldSize.Tiny}
-                          name="sortOrder"
-                          label="Sort Order"
-                          type="number"
-                          className="sort-order"
-                        />
-                      </Row>
+                      <FormikCheckbox label="Is Enabled" name="isEnabled" />
+                      <p>
+                        A public report is available for all users. If they subscribe to the report
+                        they will receive a copy every time it is run.
+                      </p>
+                      <FormikCheckbox label="Is Public" name="isPublic" />
                       <Show visible={!!values.id}>
                         <Row>
                           <FormikText
@@ -268,75 +309,87 @@ export const ReportForm: React.FC = () => {
                         </Row>
                       </Show>
                     </Col>
-                    {values.id && (
-                      <Col flex="1">
-                        <h2>Test Report</h2>
-                        <p>You can test this report and send it to the following email address.</p>
-                        <Text
-                          name="to"
-                          label="Email To"
-                          value={sendTo}
-                          onChange={(e) => setSendTo(e.target.value)}
-                        >
-                          <Button
-                            variant={ButtonVariant.secondary}
-                            disabled={!sendTo}
-                            onClick={async () => await handleSend(values, sendTo)}
-                          >
-                            Send
-                          </Button>
-                        </Text>
-                      </Col>
-                    )}
                   </Row>
                 </Col>
               </Show>
               <Show visible={active === 'filter'}>
                 <Col>
-                  <FormikText
-                    name="filter.size"
-                    label="Number of Stories"
-                    type="number"
-                    width="10ch"
-                    onChange={(e) => {
-                      if (!!e.target.value) {
-                        const value = parseInt(e.target.value);
-                        setFieldValue('filter.size', value);
-                        setFilter(JSON.stringify({ ...values.filter, size: value }, null, 2));
+                  <p>
+                    A primary filter can be used to find content to include in the report. If a
+                    report has sections, you can add filters to each section instead.
+                  </p>
+                  <div>
+                    <Button
+                      variant={ButtonVariant.secondary}
+                      onClick={() => {
+                        setFieldValue('filter', {});
+                        setFilter('{}');
+                      }}
+                    >
+                      Clear Filter
+                    </Button>
+                  </div>
+                  <Row>
+                    <FormikText
+                      name="filter.size"
+                      label="Number of Stories"
+                      type="number"
+                      width="10ch"
+                      onChange={(e) => {
+                        if (!!e.target.value) {
+                          const value = parseInt(e.target.value);
+                          setFieldValue('filter.size', value);
+                          setFilter(JSON.stringify({ ...values.filter, size: value }, null, 2));
+                        }
+                      }}
+                    />
+                    <p>
+                      All filters must have a upward limit of content returned in a single request.
+                      The default limit is 10.
+                    </p>
+                  </Row>
+                  <FormikSelect
+                    name="productId"
+                    value={
+                      productOptions.find(
+                        (mt) => mt.value === values.filter?.query?.match?.productId,
+                      ) ?? ''
+                    }
+                    onChange={(newValue: any) => {
+                      if (!!newValue) {
+                        const filter = {
+                          ...values.filter,
+                          query: {
+                            ...values.filter?.query,
+                            match: { ...values.filter?.query?.match, productId: newValue.value },
+                          },
+                        };
+                        setFieldValue('filter', filter);
+                        setFilter(JSON.stringify(filter, null, 2));
+                      } else {
+                        setFieldValue('filter.query', {});
+                        setFilter(JSON.stringify({ ...values.filter, query: {} }, null, 2));
                       }
                     }}
+                    label="Product"
+                    width={FieldSize.Small}
+                    options={productOptions}
                   />
                 </Col>
-
-                <FormikSelect
-                  name="productId"
-                  value={
-                    productOptions.find(
-                      (mt) => mt.value === values.filter?.query?.match?.productId,
-                    ) ?? ''
-                  }
-                  onChange={(newValue: any) => {
-                    if (!!newValue) {
-                      const filter = {
-                        ...values.filter,
-                        query: {
-                          ...values.filter?.query,
-                          match: { ...values.filter?.query?.match, productId: newValue.value },
-                        },
-                      };
-                      setFieldValue('filter', filter);
-                      setFilter(JSON.stringify(filter, null, 2));
-                    } else {
-                      setFieldValue('filter.query', {});
-                      setFilter(JSON.stringify({ ...values.filter, query: {} }, null, 2));
-                    }
-                  }}
-                  label="Product"
-                  width={FieldSize.Small}
-                  options={productOptions}
-                />
                 <Col className="code frm-in">
-                  <label htmlFor="txa-filter">Elasticsearch Filter</label>
+                  <label htmlFor="txa-filter">Elasticsearch Query</label>
+                  <p>
+                    The query is the expression that is sent to Elasticsearch to find content. Read
+                    up on how to create a query on the official page{' '}
+                    <a
+                      href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-your-data.html"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      here
+                    </a>
+                    .
+                  </p>
                   <Col className="editor">
                     <Editor
                       id="txa-filter"
@@ -357,6 +410,9 @@ export const ReportForm: React.FC = () => {
                     />
                   </Col>
                 </Col>
+              </Show>
+              <Show visible={active === 'sections'}>
+                <ReportSections />
               </Show>
               <Show visible={active === 'template'}>
                 <Col className="code frm-in">
@@ -408,12 +464,55 @@ export const ReportForm: React.FC = () => {
               <Show visible={active === 'sent'}>
                 <FlexboxTable rowId="id" data={values.instances} columns={instanceColumns()} />
               </Show>
+              <Show visible={active === 'preview'}>
+                <Row>
+                  <Col flex="1" alignItems="center" justifyContent="center">
+                    <p>
+                      Before saving the report, generate a preview to ensure it is working and
+                      returning the correct content. Previewed reports must have a filter. When
+                      testing a custom report change it temporarily to a filter.
+                    </p>
+                    <Button variant={ButtonVariant.success} onClick={() => previewReport(values)}>
+                      Generate Preview
+                    </Button>
+                  </Col>
+                  {values.id && (
+                    <Col flex="1">
+                      <p>After you save the report, send a test email to the following address.</p>
+                      <Text
+                        name="to"
+                        label="Email To"
+                        value={sendTo}
+                        onChange={(e) => setSendTo(e.target.value)}
+                      >
+                        <Button
+                          variant={ButtonVariant.secondary}
+                          disabled={!sendTo}
+                          onClick={async () => await handleSend(values, sendTo)}
+                        >
+                          Send
+                        </Button>
+                      </Text>
+                    </Col>
+                  )}
+                </Row>
+                <Col className="preview-report">
+                  <div
+                    className="preview-subject"
+                    dangerouslySetInnerHTML={{ __html: preview?.subject ?? '' }}
+                  ></div>
+                  <div
+                    className="preview-body"
+                    dangerouslySetInnerHTML={{ __html: preview?.body ?? '' }}
+                  ></div>
+                </Col>
+              </Show>
               <Row justifyContent="center" className="form-inputs">
                 <Button type="submit" disabled={isSubmitting}>
                   Save
                 </Button>
                 <Button variant={ButtonVariant.secondary} onClick={() => handlePublish(values)}>
-                  Publish
+                  Send
                 </Button>
                 <Show visible={!!values.id}>
                   <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>

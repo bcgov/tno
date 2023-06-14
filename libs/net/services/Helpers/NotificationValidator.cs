@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Options;
+using System.Text.Json;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Areas.Services.Models.Notification;
 
@@ -20,7 +22,7 @@ public class NotificationValidator : Entities.Validation.NotificationValidator
     /// Creates a new instance of a NotificationValidator object, initializes with specified parameters.
     /// </summary>
     /// <param name="api"></param>
-    public NotificationValidator(IApiService api)
+    public NotificationValidator(IApiService api, IOptions<JsonSerializerOptions> serializationOptions): base(serializationOptions)
     {
         this.Api = api;
     }

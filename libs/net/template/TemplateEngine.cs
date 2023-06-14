@@ -11,6 +11,14 @@ public class TemplateEngine<T> : ITemplateEngine<T>
     where T : IRazorEngineTemplate
 {
     #region Variables
+    private readonly static string[] DEFAULT_ASSEMBLIES = new[] {
+            "System",
+            "System.Collections",
+            "System.Private.Uri",
+            "TNO.Core",
+            "TNO.Models",
+            "TNO.Entities"
+        };
     private readonly string[] _assemblyNames;
     private readonly static ConcurrentDictionary<string, IRazorEngineCompiledTemplate<T>> _cache = new();
     #endregion
@@ -31,7 +39,7 @@ public class TemplateEngine<T> : ITemplateEngine<T>
     public TemplateEngine(IRazorEngine razorEngine)
     {
         this.RazorEngine = razorEngine;
-        _assemblyNames = new[] { "System", "TNO.Core", "TNO.Models", "TNO.Entities", "System.Private.Uri" };
+        _assemblyNames = DEFAULT_ASSEMBLIES;
     }
 
     /// <summary>

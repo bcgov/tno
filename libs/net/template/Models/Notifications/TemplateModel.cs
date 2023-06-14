@@ -1,8 +1,7 @@
 ﻿using RazorEngineCore;
 using TNO.API.Areas.Services.Models.Content;
-using TNO.Services.Notification.Config;
 
-namespace TNO.Services.Notification.Models;
+namespace TNO.TemplateEngine.Models.Notifications;
 
 /// <summary>
 /// TemplateModel class, provides a model to pass to the razor engine.
@@ -16,9 +15,19 @@ public class TemplateModel : RazorEngineTemplateBase
     public ContentModel Content { get; set; }
 
     /// <summary>
-    /// get - Notification options.
+    /// get/set - The MMIA URL.
     /// </summary>
-    public NotificationOptions NotificationOptions { get; set; }
+    public Uri? MmiaUrl { get; set; }
+
+    /// <summary>
+    /// get/set - The request transcript URL.
+    /// </summary>
+    public Uri? RequestTranscriptUrl { get; set; }
+
+    /// <summary>
+    /// get/set - The add to report URL.
+    /// </summary>
+    public Uri? AddToReportUrl { get; set; }
     #endregion
 
     #region Constructors
@@ -28,18 +37,15 @@ public class TemplateModel : RazorEngineTemplateBase
     public TemplateModel()
     {
         this.Content = new();
-        this.NotificationOptions = new();
     }
 
     /// <summary>
     /// Creates a new instance of a TemplateModel, initializes with specified parameters.
     /// </summary>
     /// <param name="content"></param>
-    /// <param name="options"></param>
-    public TemplateModel(ContentModel content, NotificationOptions options)
+    public TemplateModel(ContentModel content)
     {
         this.Content = content;
-        this.NotificationOptions = options;
     }
     #endregion
 }

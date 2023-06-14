@@ -13,7 +13,7 @@
     <PackageReference Include="DotNetEnv" Version="2.5.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="7.0.0" />
     <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
@@ -28,5 +28,6 @@
     <ProjectReference Include="..\..\libs\net\keycloak\TNO.Keycloak.csproj" />
     <ProjectReference Include="..\..\libs\net\models\TNO.Models.csproj" />
     <ProjectReference Include="..\..\libs\net\reports\TNO.Reports.csproj" />
+    <ProjectReference Include="..\..\libs\net\template\TNO.TemplateEngine.csproj" />
   </ItemGroup>
 </Project>

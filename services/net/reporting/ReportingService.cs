@@ -7,7 +7,6 @@ using TNO.Ches;
 using System.Security.Claims;
 using System.Reflection;
 using TNO.TemplateEngine;
-using TNO.Services.Reporting.Models;
 
 namespace TNO.Services.Reporting;
 
@@ -48,7 +47,7 @@ public class ReportingService : KafkaConsumerService
             .AddChesSingletonService(this.Configuration.GetSection("CHES"))
             .AddSingleton(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Email, "") })))
             .AddScoped<IServiceManager, ReportingManager>()
-            .AddTemplateEngine<TemplateModel>();
+            .AddTemplateEngine<TemplateEngine.Models.Reports.TemplateModel>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<ReportingOptions>()

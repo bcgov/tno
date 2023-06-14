@@ -29,6 +29,7 @@ using TNO.API.CSS;
 using TNO.API.SignalR;
 using TNO.API.Helpers;
 using TNO.Core.Extensions;
+using TNO.TemplateEngine;
 
 DotNetEnv.Env.Load();
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -191,6 +192,8 @@ builder.Services
     .Configure<ApiOptions>(config.GetSection("API"))
     .AddScoped<IConnectionHelper, ConnectionHelper>()
     .AddTNOServices(config, env)
+    .AddTemplateEngine<TNO.TemplateEngine.Models.Notifications.TemplateModel>()
+    .AddTemplateEngine<TNO.TemplateEngine.Models.Reports.TemplateModel>()
     .AddKafkaMessenger(config)
     .AddHttpClient()
     .AddTransient<JwtSecurityTokenHandler>()

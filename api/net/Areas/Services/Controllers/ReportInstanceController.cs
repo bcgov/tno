@@ -102,14 +102,19 @@ public class ReportInstanceController : ControllerBase
     /// <returns></returns>
     [HttpGet("{id}/content")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IEnumerable<Models.Content.ContentModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(Dictionary<string, IEnumerable<Models.Content.ContentModel>>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult GetContentForReportInstanceIdAsync(int id)
     {
         var instance = _service.FindById(id);
         if (instance == null) return new BadRequestResult();
-        return new JsonResult(instance.Content.Select(c => new Models.Content.ContentModel(c)));
+        return new JsonResult(
+            instance.ContentManyToMany
+                .GroupBy(c => c.SectionName ?? "")
+                    .ToDictionary(
+                        c => c.Key ?? "",
+                        c => c.Where(c => c.Content != null).Select(c => new Models.Content.ContentModel(c.Content!))));
     }
     #endregion
 }

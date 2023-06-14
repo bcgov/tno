@@ -2,6 +2,7 @@ import { DefaultLayout } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
 import { Landing } from 'features/landing';
 import { Login } from 'features/login';
+import { SearchPage } from 'features/search-page/SearchPage';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
@@ -35,6 +36,7 @@ export const AppRouter: React.FC<IAppRouter> = () => {
         <Route path="welcome" element={<AccessRequest />} />
         <Route path="access/request" element={<AccessRequest />} />
         <Route path="/landing/:id" element={<Landing />} />
+        <Route path="/search" element={<SearchPage />} />
         <Route path="/view/:id" element={<Landing />} />
         <Route path="/view/my-minister/:id" element={<Landing />} />
         <Route path="error" element={<InternalServerError />} />

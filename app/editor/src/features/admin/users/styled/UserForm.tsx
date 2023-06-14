@@ -11,10 +11,6 @@ export const UserForm = styled(FormPage)`
     margin-bottom: 3%;
   }
 
-  .form-inputs {
-    margin-top: 3%;
-  }
-
   .roles {
     border: solid 1px grey;
     border-radius: 0.25em;

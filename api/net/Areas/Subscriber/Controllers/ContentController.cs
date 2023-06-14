@@ -147,6 +147,27 @@ public class ContentController : ControllerBase
     }
 
     /// <summary>
+    /// Find todays front pages.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("frontpages")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> FindFrontPages()
+    {
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var result = await _contentService.FindFrontPages(_elasticOptions.PublishedIndex);
+        var page = new Paged<Services.Models.Content.ContentModel>(
+            result.Items,
+            result.Page,
+            result.Quantity,
+            result.Total);
+        return new JsonResult(page);
+    }
+
+    /// <summary>
     /// Find content for the specified 'id' and download the file it references.
     /// </summary>
     /// <param name="id"></param>

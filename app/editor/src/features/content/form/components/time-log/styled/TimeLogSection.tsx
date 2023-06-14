@@ -6,13 +6,14 @@ export const TimeLogSection = styled(Row)`
     align-self: center;
     padding-right: 0.25em;
     padding-top: 0.5em;
+    height: 1.75em;
+    width: 2em;
     color: ${(props) => props.theme.css.actionButtonColor};
+    cursor: pointer;
+
     :hover {
       color: ${(props) => props.theme.css.lightVariantColor};
     }
-    height: 1.75em;
-    width: 2em;
-    cursor: pointer;
   }
   .disabled-section {
     label {

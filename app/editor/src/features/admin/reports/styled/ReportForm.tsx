@@ -4,14 +4,11 @@ import { FormPage } from 'tno-core';
 export const ReportForm = styled(FormPage)`
   display: flex;
   flex-direction: column;
+  align-items: center;
 
   .back-button {
     align-self: start;
     margin-bottom: 3%;
-  }
-  align-items: center;
-  .form-inputs {
-    margin-top: 3%;
   }
 
   .code {
@@ -36,5 +33,27 @@ export const ReportForm = styled(FormPage)`
 
   .form {
     width: 100%;
+  }
+
+  .preview-report {
+    height: 100%;
+    border: solid 2px ${(props) => props.theme.css.primaryColor};
+    border-radius: 0.5rem;
+    display: flex;
+    flex-flow: column;
+    box-shadow: 0 3px 15px rgb(0 0 0 / 0.5);
+    margin-top: 1rem;
+
+    .preview-subject {
+      padding: 1rem;
+      background-color: ${(props) => props.theme.css.primaryLightColor};
+      color: #fff;
+    }
+
+    .preview-body {
+      padding: 1rem;
+      max-height: calc(100vh - 600px);
+      overflow-y: auto;
+    }
   }
 `;
