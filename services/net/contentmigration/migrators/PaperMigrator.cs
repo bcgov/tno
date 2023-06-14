@@ -19,24 +19,35 @@ namespace TNO.Services.ContentMigration.Migrators;
 /// <summary>
 /// manages Ingestion of TNO 1.0 'Paper'
 /// </summary>
-public class PaperMigrator : IngestAction<PaperMigrationOptions>, IContentMigrator
+public class PaperMigrator : IngestAction<ContentMigrationOptions>, IContentMigrator
 {
+    #region Variables
+
     /// <summary>
-    ///
+    /// stores options specific to this ContentMigrator
     /// </summary>
-    public IEnumerable<string> SupportedIngests => new []{
-        "TNO 1.0 - Story Content",
-        "TNO 1.0 - Print Content"
-    };
+    readonly MigratorOptions migratorOptions;
+
+    #endregion
+
+    /// <summary>
+    /// which Ingests this Migrator supports
+    /// </summary>
+    public IEnumerable<string> SupportedIngests { get {
+        return this.migratorOptions.SupportedIngests;
+        }
+    }
 
     /// <summary>
     ///
     /// </summary>
     /// <param name="api"></param>
+    /// <param name="migratorOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public PaperMigrator(IApiService api, IOptions<PaperMigrationOptions> options, ILogger<IngestAction<PaperMigrationOptions>> logger) : base(api, options, logger)
+    public PaperMigrator(IApiService api, IOptionsSnapshot<MigratorOptions> migratorOptions, IOptionsSnapshot<ContentMigrationOptions> options, ILogger<IngestAction<ContentMigrationOptions>> logger) : base(api, options, logger)
     {
+        this.migratorOptions = migratorOptions.Get("PaperMigrator");
     }
 
     /// <summary>
@@ -225,7 +236,7 @@ public class PaperMigrator : IngestAction<PaperMigrationOptions>, IContentMigrat
         // if the Name doesnt match one of our sources, use the extra mappings from the config
         if (source == null)
         {
-            this.Options.IngestSourceMappings.TryGetValue(newsItemSource, out string? customMapping);
+            this.migratorOptions.IngestSourceMappings.TryGetValue(newsItemSource, out string? customMapping);
             source = lookup.Where(s => s.Code == customMapping).FirstOrDefault();
         }
 
@@ -246,7 +257,7 @@ public class PaperMigrator : IngestAction<PaperMigrationOptions>, IContentMigrat
         // if the Name doesnt match one of our products, use the extra mappings from the config
         if (product == null)
         {
-            this.Options.ProductMappings.TryGetValue(newsItem.Type, out string? customMapping);
+            this.migratorOptions.ProductMappings.TryGetValue(newsItem.Type, out string? customMapping);
             product = lookup.Where(s => s.Name == customMapping).FirstOrDefault();
         }
 

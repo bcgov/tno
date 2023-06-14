@@ -17,18 +17,17 @@ public static class ContentMigratorFactoryExtensions
     /// <returns></returns>
     public static IServiceCollection AddSourceMigrators(this IServiceCollection services, IConfiguration configuration)
     {
-
-        services.Configure<ClipMigrationOptions>(configuration.GetSection("Service:ClipMigrator"));
+        services.Configure<MigratorOptions>("ClipMigrator", configuration.GetSection("Service:ClipMigrator"));
         services.AddScoped<ClipMigrator>()
                         .AddScoped<IContentMigrator, ClipMigrator>(s => s.GetService<ClipMigrator>());
 
-        services.Configure<ImageMigrationOptions>(configuration.GetSection("Service:ImageMigrator"));
+        services.Configure<MigratorOptions>("ImageMigrator", configuration.GetSection("Service:ImageMigrator"));
         services.AddScoped<ImageMigrator>()
                         .AddScoped<IContentMigrator, ImageMigrator>(s => s.GetService<ImageMigrator>());
 
-        services.Configure<PaperMigrationOptions>(configuration.GetSection("Service:PaperMigrator"));
+        services.Configure<MigratorOptions>("PaperMigrator", configuration.GetSection("Service:PaperMigrator"));
         services.AddScoped<PaperMigrator>()
-                        .AddScoped<IContentMigrator, PaperMigrator>(s => s.GetService<PaperMigrator>());
+                        .AddScoped<IContentMigrator, PaperMigrator>(s => s.GetService<PaperMigrator>()).AddOptions();
 
         services.AddScoped<ContentMigratorFactory>();
 

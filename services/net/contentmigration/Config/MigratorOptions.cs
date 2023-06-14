@@ -1,18 +1,13 @@
-using TNO.Services.Config;
-
 namespace TNO.Services.ContentMigration.Config;
 
 /// <summary>
-/// ContentMigrationOptions class, configuration options for Import
+/// Stores options specific to an IContentMigrator implementation
 /// </summary>
-public class ClipMigrationOptions : IngestServiceOptions
-{
-    #region Properties
-
+public class MigratorOptions {
     /// <summary>
-    /// get/set - The path to the local mapped volume.
+    /// List of supported Ingest Types
     /// </summary>
-    public string VolumePath { get; set; } = "";
+    public string[] SupportedIngests { get; set; } = Array.Empty<string>();
 
     /// <summary>
     /// Stores a mapping to be used where the TNO 1.0 database 'Source' field value
@@ -28,10 +23,5 @@ public class ClipMigrationOptions : IngestServiceOptions
     /// The Key should be the "TNO 1.0 Type"
     /// The Value should be the "MMIA Product Name"
     /// </summary>
-    public Dictionary<string,string> ProductMappings {get; set; } = new Dictionary<string,string>()
-        {
-            { "TV", "TV / Video News" },
-        };
-
-    #endregion
+    public Dictionary<string,string> ProductMappings {get; set; } = new Dictionary<string,string>();
 }
