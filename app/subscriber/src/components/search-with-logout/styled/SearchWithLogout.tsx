@@ -3,7 +3,7 @@ import { Row } from 'tno-core';
 
 export const SearchWithLogout = styled(Row)`
   max-height: 4em;
-  margin-bottom: 2.5%;
+  margin-bottom: 2%;
   width: 100%;
   justify-content: space-between;
   background-color: #ddd6c8;
@@ -15,12 +15,17 @@ export const SearchWithLogout = styled(Row)`
     width: 1.5em;
     margin-bottom: 0.5em;
   }
-
   .frm-in {
-    max-width: 10em;
+    padding-right: 0;
   }
   .search {
-    max-width: fit-content;
+    max-width: 20em;
+  }
+  .search-button {
+    background-color: ${(props) => props.theme.css.defaultRed};
+    /* needed for unique use case */
+    border: none !important;
+    height: 2.45em;
   }
   .logout {
     padding: 0.5em;
