@@ -22,7 +22,7 @@ export const SearchWithLogout: React.FC = () => {
     }
   }, [queryText]);
   return (
-    <styled.SearchWithLogout>
+    <styled.SearchWithLogout className="search-with-logout">
       <Row>
         <Text
           placeholder="Search news"
