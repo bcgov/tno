@@ -434,18 +434,6 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "watch-notification",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "watch",
-        "run",
-        "--project",
-        "${workspaceFolder}/notification/TNO.Services.Notification.csproj"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
       "label": "build-notification",
       "command": "dotnet",
       "type": "process",
@@ -482,18 +470,6 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "watch-reporting",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "watch",
-        "run",
-        "--project",
-        "${workspaceFolder}/reporting/TNO.Services.Reporting.csproj"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
       "label": "build-reporting",
       "command": "dotnet",
       "type": "process",
@@ -526,6 +502,42 @@
         "run",
         "--project",
         "${workspaceFolder}/reporting/TNO.Services.Reporting.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-scheduler",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/scheduler/TNO.Services.Scheduler.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-scheduler",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/scheduler/TNO.Services.Scheduler.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-scheduler",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/scheduler/TNO.Services.Scheduler.csproj"
       ],
       "problemMatcher": "$msCompile"
     }

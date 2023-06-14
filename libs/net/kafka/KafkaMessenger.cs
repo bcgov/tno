@@ -143,5 +143,31 @@ public class KafkaMessenger : IKafkaMessenger
 
         return await SendMessageAsync(topic, $"{request.HubEvent}-${DateTime.Now.Ticks}", request);
     }
+
+    /// <summary>
+    /// Send a message to to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<DeliveryResult<string, NotificationRequestModel>?> SendMessageAsync(string topic, NotificationRequestModel request)
+    {
+        if (request == null) throw new ArgumentNullException(nameof(request));
+
+        return await SendMessageAsync(topic, $"notification-{request.NotificationId}", request);
+    }
+
+    /// <summary>
+    /// Send a message to to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<DeliveryResult<string, ReportRequestModel>?> SendMessageAsync(string topic, ReportRequestModel request)
+    {
+        if (request == null) throw new ArgumentNullException(nameof(request));
+
+        return await SendMessageAsync(topic, $"report-{request.ReportId}", request);
+    }
     #endregion
 }

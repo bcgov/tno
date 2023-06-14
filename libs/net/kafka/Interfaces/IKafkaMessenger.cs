@@ -67,4 +67,20 @@ public interface IKafkaMessenger
     /// <param name="request"></param>
     /// <returns></returns>
     public Task<DeliveryResult<string, KafkaHubMessage>?> SendMessageAsync(string topic, KafkaHubMessage request);
+
+    /// <summary>
+    /// Send a message to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public Task<DeliveryResult<string, ReportRequestModel>?> SendMessageAsync(string topic, ReportRequestModel request);
+
+    /// <summary>
+    /// Send a message to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public Task<DeliveryResult<string, NotificationRequestModel>?> SendMessageAsync(string topic, NotificationRequestModel request);
 }

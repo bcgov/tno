@@ -31,7 +31,7 @@ INSERT INTO public.schedule (
   , '' -- description
   , true -- is_enabled
   , 1 -- schedule_type
-  , 1000 -- delay_ms
+  , 30000 -- delay_ms
   , NULL -- run_on
   , '00:00:00' -- start_at
   , '23:59:59' -- stop_at
@@ -47,7 +47,7 @@ INSERT INTO public.schedule (
   , 'CBC RSS Feed' -- description
   , true -- is_enabled
   , 1 -- schedule_type
-  , 5000 -- delay_ms
+  , 30000 -- delay_ms
   , NULL -- run_on
   , '00:00:00' -- start_at
   , '23:59:59' -- stop_at
@@ -63,7 +63,7 @@ INSERT INTO public.schedule (
   , 'Link RSS Feed' -- description
   , true -- is_enabled
   , 1 -- schedule_type
-  , 5000 -- delay_ms
+  , 30000 -- delay_ms
   , NULL -- run_on
   , '00:00:00' -- start_at
   , '23:59:59' -- stop_at

@@ -19,32 +19,24 @@ import {
 import { defaultSchedule } from '../constants';
 import * as styled from './styled';
 
-interface IScheduleContinuousProps {
-  index: number;
-}
+interface IScheduleContinuousProps {}
 
-export const ScheduleContinuous: React.FC<IScheduleContinuousProps> = ({ index }) => {
+export const ScheduleContinuous: React.FC<IScheduleContinuousProps> = () => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
-  const { field } = useNamespace('schedules', index);
+  const { field } = useNamespace('schedules', 0);
   const delayMS = getIn(values, field('delayMS'), '');
 
   React.useEffect(() => {
-    if (index >= values.schedules.length)
-      setFieldValue(`schedules[${index}]`, {
-        ...defaultSchedule(ScheduleTypeName.Continuous),
-        startAt: '00:00:00',
-        stopAt: '23:59:59',
-      });
-    else if (values.schedules[index].scheduleType !== ScheduleTypeName.Continuous) {
-      setFieldValue(`schedules[${index}]`, {
-        ...values.schedules[index],
-        scheduleType: ScheduleTypeName.Continuous,
-        startAt: '00:00:00',
-        stopAt: '23:59:59',
-        delayMS: '',
-      });
-    }
-  }, [field, index, setFieldValue, values]);
+    if (values.schedules.length === 0 || values.schedules.length > 1)
+      setFieldValue(`schedules`, [
+        {
+          ...defaultSchedule(),
+          startAt: '00:00:00',
+          stopAt: '23:59:59',
+          delayMS: '',
+        },
+      ]);
+  }, [setFieldValue, values.schedules.length]);
 
   return (
     <styled.ScheduleForm className="schedule">

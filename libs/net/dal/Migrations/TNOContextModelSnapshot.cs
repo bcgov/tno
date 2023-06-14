@@ -1179,6 +1179,88 @@ namespace TNO.DAL.Migrations
                     b.ToTable("data_location");
                 });
 
+            modelBuilder.Entity("TNO.Entities.EventSchedule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description");
+
+                    b.Property<int>("EventType")
+                        .HasColumnType("integer")
+                        .HasColumnName("event_type");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTime?>("LastRanOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_ran_on");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("ScheduleId")
+                        .HasColumnType("integer")
+                        .HasColumnName("schedule_id");
+
+                    b.Property<JsonDocument>("Settings")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("settings")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ScheduleId");
+
+                    b.ToTable("event_schedule");
+                });
+
             modelBuilder.Entity("TNO.Entities.FileReference", b =>
                 {
                     b.Property<long>("Id")
@@ -2321,8 +2403,8 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("name");
 
-                    b.Property<int>("Repeat")
-                        .HasColumnType("integer")
+                    b.Property<bool>("Repeat")
+                        .HasColumnType("boolean")
                         .HasColumnName("repeat");
 
                     b.Property<int?>("RequestedById")
@@ -2344,10 +2426,6 @@ namespace TNO.DAL.Migrations
                     b.Property<bool>("RunOnlyOnce")
                         .HasColumnType("boolean")
                         .HasColumnName("run_only_once");
-
-                    b.Property<int>("ScheduleType")
-                        .HasColumnType("integer")
-                        .HasColumnName("schedule_type");
 
                     b.Property<TimeSpan?>("StartAt")
                         .HasColumnType("interval")
@@ -2380,7 +2458,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("RequestedById");
 
-                    b.HasIndex(new[] { "Name", "IsEnabled", "ScheduleType" }, "IX_schedule");
+                    b.HasIndex(new[] { "Name", "IsEnabled" }, "IX_schedule");
 
                     b.ToTable("schedule");
                 });
@@ -3624,6 +3702,17 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Connection");
                 });
 
+            modelBuilder.Entity("TNO.Entities.EventSchedule", b =>
+                {
+                    b.HasOne("TNO.Entities.Schedule", "Schedule")
+                        .WithMany("Events")
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Schedule");
+                });
+
             modelBuilder.Entity("TNO.Entities.FileReference", b =>
                 {
                     b.HasOne("TNO.Entities.Content", "Content")
@@ -4074,6 +4163,8 @@ namespace TNO.DAL.Migrations
 
             modelBuilder.Entity("TNO.Entities.Schedule", b =>
                 {
+                    b.Navigation("Events");
+
                     b.Navigation("IngestsManyToMany");
                 });
 

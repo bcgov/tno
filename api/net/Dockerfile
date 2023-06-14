@@ -1,7 +1,7 @@
 ARG BUILD_CONFIGURATION=Release
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 
-RUN apt-get update && apt-get -y upgrade
+RUN apt-get update --fix-missing && apt-get -y upgrade
 RUN apt -y install curl libc6-dev libgdiplus ffmpeg
 RUN apt-get clean
 

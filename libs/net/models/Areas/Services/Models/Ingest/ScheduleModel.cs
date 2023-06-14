@@ -33,11 +33,6 @@ public class ScheduleModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public int ScheduleType { get; set; }
-
-    /// <summary>
-    /// get/set -
-    /// </summary>
     public int DelayMS { get; set; }
 
     /// <summary>
@@ -63,7 +58,7 @@ public class ScheduleModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public int Repeat { get; set; }
+    public bool Repeat { get; set; }
 
     /// <summary>
     /// get/set -
@@ -104,7 +99,6 @@ public class ScheduleModel : AuditColumnsModel
             this.Name = entity.Name;
             this.Description = entity.Description;
             this.IsEnabled = entity.IsEnabled;
-            this.ScheduleType = (int)entity.ScheduleType;
             this.DelayMS = entity.DelayMS;
             this.RunOn = entity.RunOn;
             this.StartAt = entity.StartAt;
@@ -138,7 +132,7 @@ public class ScheduleModel : AuditColumnsModel
     {
         if (model == null) throw new ArgumentNullException(nameof(model));
 
-        return new Schedule(model.Name, (ScheduleType)model.ScheduleType, model.DelayMS)
+        return new Schedule(model.Name, model.DelayMS)
         {
             Id = model.Id,
             Description = model.Description,

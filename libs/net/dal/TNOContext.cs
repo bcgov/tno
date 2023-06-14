@@ -47,6 +47,7 @@ public class TNOContext : DbContext
     public DbSet<IngestState> IngestStates => Set<IngestState>();
     public DbSet<IngestSchedule> IngestSchedules => Set<IngestSchedule>();
     public DbSet<Schedule> Schedules => Set<Schedule>();
+    public DbSet<EventSchedule> EventSchedules => Set<EventSchedule>();
     public DbSet<Connection> Connections => Set<Connection>();
     public DbSet<DataLocation> DataLocations => Set<DataLocation>();
     public DbSet<IngestDataLocation> IngestDataLocations => Set<IngestDataLocation>();

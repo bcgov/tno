@@ -13,7 +13,6 @@ public class ScheduleConfiguration : AuditColumnsConfiguration<Schedule>
         builder.Property(m => m.Name).IsRequired().HasMaxLength(50);
         builder.Property(m => m.Description).IsRequired().HasMaxLength(2000);
         builder.Property(m => m.IsEnabled).IsRequired();
-        builder.Property(m => m.ScheduleType);
         builder.Property(m => m.DelayMS);
         builder.Property(m => m.RunOn);
         builder.Property(m => m.StartAt);
@@ -27,7 +26,7 @@ public class ScheduleConfiguration : AuditColumnsConfiguration<Schedule>
 
         builder.HasOne(m => m.RequestedBy).WithMany().HasForeignKey(m => m.RequestedById).OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasIndex(m => new { m.Name, m.IsEnabled, m.ScheduleType }, "IX_schedule");
+        builder.HasIndex(m => new { m.Name, m.IsEnabled }, "IX_schedule");
 
         base.Configure(builder);
     }

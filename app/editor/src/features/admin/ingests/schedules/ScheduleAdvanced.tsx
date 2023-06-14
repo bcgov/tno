@@ -19,24 +19,15 @@ import * as styled from './styled';
 
 interface IScheduleAdvancedProps {}
 
-export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = (props) => {
+export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = () => {
   const { values, setFieldValue, validateForm, setTouched } = useFormikContext<IIngestModel>();
   const { field } = useNamespace('schedules');
 
   const [index, setIndex] = React.useState<number>();
   const [schedule, setSchedule] = React.useState<IScheduleModel>();
 
-  React.useEffect(() => {
-    if (values.schedules.some((s) => s.scheduleType !== ScheduleTypeName.Advanced)) {
-      setFieldValue(
-        'schedules',
-        values.schedules.filter((s) => s.scheduleType === ScheduleTypeName.Advanced),
-      );
-    }
-  }, [setFieldValue, values.schedules]);
-
   const handleAdd = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    setFieldValue('schedules', [...values.schedules, defaultSchedule(ScheduleTypeName.Advanced)]);
+    setFieldValue('schedules', [...values.schedules, defaultSchedule()]);
     setIndex(values.schedules.length);
   };
 
@@ -48,6 +39,7 @@ export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = (props) => {
         if (Object.keys(errors).length === 0) {
           setIndex(undefined);
         } else {
+          console.debug(errors);
           setTouched(setNestedObjectValues<FormikTouched<IIngestModel>>(errors, true));
         }
       } catch (error) {
@@ -84,7 +76,7 @@ export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = (props) => {
           setSchedule(values.schedules[row.index]);
         }}
         paging={{ pageSizeOptions: { show: false } }}
-      ></GridTable>
+      />
       <Col className="actions">
         {index !== undefined && (
           <ScheduleDaily index={index} scheduleType={ScheduleTypeName.Advanced} />

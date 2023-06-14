@@ -1,8 +1,10 @@
 using System.Net;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Kafka.Models;
+using TNO.API.Config;
 using TNO.API.Models;
 using TNO.Kafka;
 using TNO.Kafka.Models;
@@ -27,6 +29,7 @@ public class ProducerController : ControllerBase
 {
     #region Variables
     private readonly IKafkaMessenger _producer;
+    private readonly KafkaOptions _kafkaOptions;
     #endregion
 
     #region Constructors
@@ -34,9 +37,11 @@ public class ProducerController : ControllerBase
     /// Creates a new instance of a ProducerController object, initializes with specified parameters.
     /// </summary>
     /// <param name="producer"></param>
-    public ProducerController(IKafkaMessenger producer)
+    /// <param name="kafkaOptions"></param>
+    public ProducerController(IKafkaMessenger producer, IOptions<KafkaOptions> kafkaOptions)
     {
         _producer = producer;
+        _kafkaOptions = kafkaOptions.Value;
     }
     #endregion
 
@@ -51,12 +56,43 @@ public class ProducerController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(DeliveryResultModel<SourceContent>), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Action" })]
-    public async Task<IActionResult> SendAsync(string topic, SourceContent model)
+    [SwaggerOperation(Tags = new[] { "Kafka" })]
+    public async Task<IActionResult> SendContentAsync(string topic, SourceContent model)
     {
-        var result = await _producer.SendMessageAsync(topic, model);
-        if (result == null) throw new InvalidOperationException("An unknown error occurred when publishing message to Kafka");
+        var result = (await _producer.SendMessageAsync(topic, model)) ?? throw new InvalidOperationException("An unknown error occurred when publishing message to Kafka");
         return new JsonResult(new DeliveryResultModel<SourceContent>(result));
+    }
+
+    /// <summary>
+    /// Publish a notification request message to Kafka.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost("notification")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(DeliveryResultModel<NotificationRequestModel>), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Kafka" })]
+    public async Task<IActionResult> SendNotificationAsync(NotificationRequestModel model)
+    {
+        var result = (await _producer.SendMessageAsync(_kafkaOptions.NotificationTopic, model)) ?? throw new InvalidOperationException("An unknown error occurred when publishing message to Kafka");
+        return new JsonResult(new DeliveryResultModel<NotificationRequestModel>(result));
+    }
+
+    /// <summary>
+    /// Publish a notification request message to Kafka.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost("report")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(DeliveryResultModel<ReportRequestModel>), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Kafka" })]
+    public async Task<IActionResult> SendReportAsync(ReportRequestModel model)
+    {
+        var result = (await _producer.SendMessageAsync(_kafkaOptions.ReportingTopic, model)) ?? throw new InvalidOperationException("An unknown error occurred when publishing message to Kafka");
+        return new JsonResult(new DeliveryResultModel<ReportRequestModel>(result));
     }
     #endregion
 }

@@ -19,6 +19,20 @@ public interface IApiService
     /// <param name="content"></param>
     /// <returns></returns>
     Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.SourceContent>?> SendMessageAsync(string topic, TNO.Kafka.Models.SourceContent content);
+
+    /// <summary>
+    /// Publish notification request to Kafka.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.NotificationRequestModel>?> SendMessageAsync(TNO.Kafka.Models.NotificationRequestModel request);
+
+    /// <summary>
+    /// Publish report request to Kafka.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.ReportRequestModel>?> SendMessageAsync(TNO.Kafka.Models.ReportRequestModel request);
     #endregion
 
     #region Lookups
@@ -288,5 +302,27 @@ public interface IApiService
     /// <param name="instance"></param>
     /// <returns></returns>
     Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> UpdateReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance);
+    #endregion
+
+    #region Event Schedules
+    /// <summary>
+    /// Make a request to the API to fetch all event schedules.
+    /// </summary>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.EventSchedule.EventScheduleModel>> GetEventSchedulesAsync();
+
+    /// <summary>
+    /// Make a request to the API for the event schedule for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.EventSchedule.EventScheduleModel?> GetEventScheduleAsync(int id);
+
+    /// <summary>
+    /// Make a request to the API to update the event schedule for the specified 'model'.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.EventSchedule.EventScheduleModel?> UpdateEventScheduleAsync(API.Areas.Services.Models.EventSchedule.EventScheduleModel model);
     #endregion
 }

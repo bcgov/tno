@@ -33,18 +33,14 @@ export const IngestSchedule: React.FC<IIngestScheduleProps> = () => {
             label="Schedule Type"
             name="scheduleType"
             tooltip="Choose how the service will be run"
+            isClearable={false}
             options={scheduleTypeOptions}
             value={scheduleTypeOptions.find((o) => o.value === values.scheduleType)}
             width={FieldSize.Medium}
             onChange={(newValue: any) => {
-              if (
-                newValue.value === ScheduleTypeName.None &&
-                values.schedules.some((s) => s.id === 0)
-              ) {
-                setFieldValue(
-                  'schedules',
-                  values.schedules.filter((s) => s.id !== 0),
-                );
+              if (values.scheduleType !== newValue.value) {
+                // Clear values when type changes.
+                setFieldValue('schedules', []);
               }
             }}
           />
@@ -55,7 +51,7 @@ export const IngestSchedule: React.FC<IIngestScheduleProps> = () => {
         <ScheduleDaily index={0} />
       </Show>
       <Show visible={values.scheduleType === ScheduleTypeName.Continuous}>
-        <ScheduleContinuous index={0} />
+        <ScheduleContinuous />
       </Show>
       <Show visible={values.scheduleType === ScheduleTypeName.Advanced}>
         <ScheduleAdvanced />
