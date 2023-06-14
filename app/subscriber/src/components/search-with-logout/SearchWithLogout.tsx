@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Row, Show, Text, useKeycloakWrapper, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
+import { useNavigate, useParams } from 'react-router-dom';
 
 /** The component containing the search bar and the logout button for the subscriber application. Responsive and adjusts to the viewing device*/
 export const SearchWithLogout: React.FC = () => {
