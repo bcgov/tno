@@ -19,23 +19,35 @@ namespace TNO.Services.ContentMigration.Migrators;
 /// <summary>
 /// manages Ingestion of TNO 1.0 'Snippet'
 /// </summary>
-public class ClipMigrator : IngestAction<ClipMigrationOptions>, IContentMigrator
+public class ClipMigrator : IngestAction<ContentMigrationOptions>, IContentMigrator
 {
+    #region Variables
+
     /// <summary>
-    ///
+    /// stores options specific to this ContentMigrator
     /// </summary>
-    public IEnumerable<string> SupportedIngests => new []{
-        "TNO 1.0 - Snippet Content"
-    };
+    readonly MigratorOptions migratorOptions;
+
+    #endregion
+
+    /// <summary>
+    /// which Ingests this Migrator supports
+    /// </summary>
+    public IEnumerable<string> SupportedIngests { get {
+        return this.migratorOptions.SupportedIngests;
+        }
+    }
 
     /// <summary>
     ///
     /// </summary>
     /// <param name="api"></param>
+    /// <param name="migratorOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public ClipMigrator(IApiService api, IOptions<ClipMigrationOptions> options, ILogger<IngestAction<ClipMigrationOptions>> logger) : base(api, options, logger)
+    public ClipMigrator(IApiService api, IOptionsSnapshot<MigratorOptions> migratorOptions, IOptions<ContentMigrationOptions> options, ILogger<IngestAction<ContentMigrationOptions>> logger) : base(api, options, logger)
     {
+        this.migratorOptions = migratorOptions.Get("ClipMigrator");
     }
 
     /// <summary>
@@ -220,7 +232,7 @@ public class ClipMigrator : IngestAction<ClipMigrationOptions>, IContentMigrator
         // if the Name doesnt match one of our sources, use the extra mappings from the config
         if (source == null)
         {
-            this.Options.IngestSourceMappings.TryGetValue(newsItemSource, out string? customMapping);
+            this.migratorOptions.IngestSourceMappings.TryGetValue(newsItemSource, out string? customMapping);
             source = lookup.Where(s => s.Code == customMapping).FirstOrDefault();
         }
 
@@ -241,7 +253,7 @@ public class ClipMigrator : IngestAction<ClipMigrationOptions>, IContentMigrator
         // if the Name doesnt match one of our products, use the extra mappings from the config
         if (product == null)
         {
-            this.Options.ProductMappings.TryGetValue(newsItem.Type, out string? customMapping);
+            this.migratorOptions.ProductMappings.TryGetValue(newsItem.Type, out string? customMapping);
             product = lookup.Where(s => s.Name == customMapping).FirstOrDefault();
         }
 
