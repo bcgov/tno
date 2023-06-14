@@ -282,11 +282,6 @@ public class ContentModel : AuditColumnsModel
             entity.Series = new Entities.Series(model.OtherSeries, model.SourceId);
         }
 
-        if (model.Product != null)
-        {
-            entity.Product = new Product(model.Product.Name) { Id = model.Product.Id };
-        }
-
         entity.ActionsManyToMany.AddRange(model.Actions.Select(a => a.ToEntity(entity.Id)));
         entity.TopicsManyToMany.AddRange(model.Topics.Select(c => c.ToEntity(entity.Id)));
         entity.TagsManyToMany.AddRange(model.Tags.Select(t => t.ToEntity(entity.Id)));

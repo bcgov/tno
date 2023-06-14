@@ -291,8 +291,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                     if (notification != null)
                     {
                         await this.NotificationValidator.InitializeAsync(notification, content, this.Options.AlertId);
-                        var filter = JsonSerializer.Deserialize<NotificationFilter>(((Entities.Notification)notification).Filter, _serializationOptions);
-                        if (request.IgnoreValidation || this.NotificationValidator.ConfirmSend(filter!))
+                        if (request.IgnoreValidation || this.NotificationValidator.ConfirmSend())
                             await SendNotificationAsync(request, notification, content);
                         else
                             this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
@@ -306,8 +305,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                     foreach (var notification in notifications)
                     {
                         await this.NotificationValidator.InitializeAsync(notification, content, this.Options.AlertId);
-                        var filter = JsonSerializer.Deserialize<NotificationFilter>(((Entities.Notification)notification).Filter, _serializationOptions);
-                        if (request.IgnoreValidation || this.NotificationValidator.ConfirmSend(filter!))
+                        if (request.IgnoreValidation || this.NotificationValidator.ConfirmSend())
                             await SendNotificationAsync(request, notification, content);
                         else
                             this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);

@@ -1,5 +1,3 @@
-using TNO.Entities.Models;
-
 namespace TNO.Entities.Validation;
 
 /// <summary>
@@ -35,8 +33,7 @@ public interface INotificationValidator
     /// <summary>
     /// Determine if the specified 'notification' should be sent for the specified 'content'.
     /// </summary>
-    /// <param name="filter"></param>
     /// <returns></returns>
-    bool ConfirmSend(NotificationFilter filter);
+    bool ConfirmSend();
     #endregion
 }

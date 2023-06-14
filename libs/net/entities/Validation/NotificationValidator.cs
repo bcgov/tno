@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Options;
+using System.Text.Json;
 using TNO.Entities.Models;
 
 namespace TNO.Entities.Validation;
@@ -9,6 +11,7 @@ public class NotificationValidator : INotificationValidator
 {
     #region Variables
     private static readonly ContentStatus[] _onlyPublished = new[] { ContentStatus.Publish, ContentStatus.Published };
+    private readonly JsonSerializerOptions _serializationOptions;
     #endregion
 
     #region Properties
@@ -32,14 +35,20 @@ public class NotificationValidator : INotificationValidator
     /// <summary>
     /// Creates a new instance of a NotificationValidator object.
     /// </summary>
-    protected NotificationValidator() { }
+    protected NotificationValidator(IOptions<JsonSerializerOptions> serializationOptions)
+    {
+        _serializationOptions = serializationOptions.Value;
+    }
 
     /// <summary>
     /// Creates a new instance of a NotificationValidator object, initializes with specified parameters.
     /// </summary>
     /// <param name="notification"></param>
     /// <param name="content"></param>
-    public NotificationValidator(Entities.Notification notification, Entities.Content content)
+    public NotificationValidator(
+        Notification notification,
+        Content content,
+        IOptions<JsonSerializerOptions> serializationOptions): this(serializationOptions)
     {
         this.Notification = notification;
         this.Content = content;
@@ -112,12 +121,12 @@ public class NotificationValidator : INotificationValidator
     /// <summary>
     /// Validate the notification filter to determine whether it should generate anything.
     /// </summary>
-    /// <param name="filter"></param>
     /// <returns>True if the notification filter has been matched.</returns>
-    protected virtual bool ValidateFilter(NotificationFilter filter)
+    protected virtual bool ValidateFilter()
     {
         if (Notification == null || Content == null) throw new InvalidOperationException("Notification and Content properties cannot be null");
 
+        var filter = JsonSerializer.Deserialize<NotificationFilter>(Notification.Filter, _serializationOptions);
         if (filter == null) return true; // No filter will always send.
 
         var result =
@@ -125,11 +134,12 @@ public class NotificationValidator : INotificationValidator
             (string.IsNullOrWhiteSpace(filter.Headline) || Content.Headline.ToLower().Contains(filter.Headline.ToLower())) &&
             (string.IsNullOrWhiteSpace(filter.Page) || Content.Page.ToLower().Contains(filter.Page.ToLower())) &&
             (string.IsNullOrWhiteSpace(filter.Section) || Content.Section.ToLower().Contains(filter.Section.ToLower())) &&
-            (string.IsNullOrWhiteSpace(filter.Product) || (Content.Product != null && Content.Product.Name.ToLower().Contains(filter.Product.ToLower()))) &&
             (string.IsNullOrWhiteSpace(filter.Edition) || Content.Edition.ToLower().Contains(filter.Edition.ToLower())) &&
             (string.IsNullOrWhiteSpace(filter.Byline) || Content.Byline.ToLower().Contains(filter.Byline.ToLower())) &&
-            (!filter.SourceIds.Any() || (Content.SourceId.HasValue && filter.SourceIds.Contains(Content.SourceId.Value))) &&
+            // The filter should work with the primary key ProductId but not Product for the moment
+            //(string.IsNullOrWhiteSpace(filter.Product) || (Content.Product != null && Content.Product.Name.ToLower().Contains(filter.Product.ToLower()))) &&
             (!filter.ProductIds.Any() || filter.ProductIds.Contains(Content.ProductId)) &&
+            (!filter.SourceIds.Any() || (Content.SourceId.HasValue && filter.SourceIds.Contains(Content.SourceId.Value))) &&
             (!filter.ContentIds.Any() || filter.ContentIds.Contains(Content.Id)) &&
             (!filter.ContentTypes.Any() || filter.ContentTypes.Contains(Content.ContentType)) &&
             (!filter.Status.HasValue || filter.Status == Content.Status) &&
@@ -171,11 +181,10 @@ public class NotificationValidator : INotificationValidator
     /// <summary>
     /// Determine if the specified 'notification' should be sent for the specified 'content'.
     /// </summary>
-    /// <param name="filter"></param>
     /// <returns></returns>
-    public bool ConfirmSend(NotificationFilter filter)
+    public bool ConfirmSend()
     {
-        return ValidateNotification() && ValidateContent() && ValidateFilter(filter);
+        return ValidateNotification() && ValidateContent() && ValidateFilter();
     }
     #endregion
 }
