@@ -8,13 +8,14 @@ import {
 import { DetermineToneIcon, makeFilter } from 'features/home/utils';
 import { useContent } from 'store/hooks';
 import { Col, IContentModel, Page, Row } from 'tno-core';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { trimWords } from './utils';
 
 // Simple component to display users search results
 export const SearchPage: React.FC = () => {
   const [{ filter, filterAdvanced }, { findContent }] = useContent();
   const [searchItems, setSearchItems] = React.useState<IContentModel[]>([]);
+  const navigate = useNavigate();
   const { id } = useParams();
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
@@ -58,7 +59,9 @@ export const SearchPage: React.FC = () => {
                   <DetermineToneIcon tone={item.tonePools?.length ? item.tonePools[0].value : 0} />
                   <p className="date text-content">{new Date(item.publishedOn).toDateString()}</p>
                 </Row>
-                <p className="headline text-content">{item.headline}</p>
+                <p className="headline text-content" onClick={() => navigate(`/view/${item.id}`)}>
+                  {item.headline}
+                </p>
                 {/* TODO: Extract text around keyword searched and preview that text rather than the first 50 words */}
                 <p className="summary text-content">
                   {item.body ? trimWords(item.body, 50) : trimWords(item.summary, 50)}
