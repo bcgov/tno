@@ -57,9 +57,9 @@ export const SearchPage: React.FC = () => {
   return (
     <styled.SearchPage>
       <SearchWithLogout />
-      <Col>
-        <div className="scroll">
-          <Col className={playerOpen ? 'search-items minimized' : 'search-items'}>
+      <Row>
+        <div className={playerOpen ? 'scroll minimized' : 'scroll'}>
+          <Col className={'search-items'}>
             {searchItems.map((item) => {
               return (
                 <Row key={item.id} className="rows">
@@ -116,7 +116,7 @@ export const SearchPage: React.FC = () => {
             <Player content={activeContent} />
           </Col>
         </Show>
-      </Col>
+      </Row>
     </styled.SearchPage>
   );
 };

@@ -5,10 +5,14 @@ export const SearchPage = styled.div`
     margin-bottom: 0.5%;
   }
   .scroll {
-    overflow-y: scroll;
+    overflow-y: auto;
     max-height: calc(100vh - 6.5em);
     padding-left: 1em;
     padding-right: 1em;
+  }
+
+  .minimized {
+    max-width: 59%;
   }
 
   .media-button {
@@ -22,10 +26,6 @@ export const SearchPage = styled.div`
       margin-top: 0.65em;
       margin-left: 0.5em;
     }
-  }
-
-  .minimized {
-    max-width: 59%;
   }
 
   .player {
