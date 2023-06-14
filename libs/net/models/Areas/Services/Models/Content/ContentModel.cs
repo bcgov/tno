@@ -284,12 +284,7 @@ public class ContentModel : AuditColumnsModel
 
         if (model.Product != null)
         {
-            entity.Product = new Product(model.Product.Name);
-        }
-
-        if (model.Source != null)
-        {
-            entity.Source = new Source(model.Source.Name, model.Source.Code, model.Source.LicenseId);
+            entity.Product = new Product(model.Product.Name) { Id = model.Product.Id };
         }
 
         entity.ActionsManyToMany.AddRange(model.Actions.Select(a => a.ToEntity(entity.Id)));
