@@ -1,8 +1,9 @@
-import { Col, IContentModel, IFileReferenceModel, Row, useWindowSize } from 'tno-core';
-import * as styled from './styled';
-import React from 'react';
 import { IStream } from 'features/content/view-content';
+import React from 'react';
 import { useContent } from 'store/hooks';
+import { Col, IContentModel, Row, useWindowSize } from 'tno-core';
+
+import * as styled from './styled';
 
 export interface IPlayerProps {
   content: IContentModel | null;
@@ -11,7 +12,7 @@ export interface IPlayerProps {
 /** Component used to play media on the search results screen */
 export const Player: React.FC<IPlayerProps> = ({ content }) => {
   const [avStream, setAVStream] = React.useState<IStream>();
-  const [, { getContent, stream }] = useContent();
+  const [, { stream }] = useContent();
   const { width } = useWindowSize();
   const path = content?.fileReferences ? content.fileReferences[0]?.path : '';
 

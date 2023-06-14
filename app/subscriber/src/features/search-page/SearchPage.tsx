@@ -5,14 +5,14 @@ import {
 } from 'features/content/list-view/interfaces';
 import { DetermineToneIcon, makeFilter } from 'features/home/utils';
 import React from 'react';
+import { FaPlay, FaStop } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { Col, IContentModel, Page, Row, Show } from 'tno-core';
 
+import { Player } from './player/Player';
 import * as styled from './styled';
 import { trimWords } from './utils';
-import { FaPlay, FaStop } from 'react-icons/fa';
-import { Player } from './player/Player';
 
 // Simple component to display users search results
 export const SearchPage: React.FC = () => {
