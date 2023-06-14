@@ -171,6 +171,22 @@ export const ContentListView: React.FC = () => {
     else navigate(`/contents/combined/${row.original.id}${window.location.search}`);
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      const index = !!contentId ? page?.items.findIndex((c: any) => c.id === +contentId) ?? -1 : -1;
+      const newIndex = event.key === 'ArrowUp' ? index - 1 : index + 1;
+      const newContent = page.items[newIndex];
+      if (newContent) {
+        setContentType(newContent.contentType);
+        setContentId(newContent.id.toString());
+        const currentRow = document.querySelector('div.active');
+        event.key === 'ArrowUp'
+          ? (currentRow?.previousSibling as any)?.focus()
+          : (currentRow?.nextSibling as any)?.focus();
+      }
+    }
+  };
+
   return (
     <styled.ContentListView>
       <Col wrap="nowrap">
@@ -191,6 +207,7 @@ export const ContentListView: React.FC = () => {
               onPageChange={handleChangePage}
               onSortChange={handleChangeSort}
               onRowClick={handleRowClick}
+              onKeyDown={handleKeyDown}
             />
           </Row>
         </Row>
