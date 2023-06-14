@@ -26,18 +26,19 @@ export const SelectableMenuItems: React.FC<ISelectableMenuItemProps> = () => {
             className={selected === item.label ? 'selected' : ''}
             key={item.label}
             icon={item.icon}
+            onClick={() => {
+              navigate(`landing/${item.path}` ?? '');
+              setSelected(item.label);
+            }}
           >
             <Row className="label-container">
+              <div>{item.label}</div>
               <div
-                onClick={() => {
-                  navigate(`landing/${item.path}` ?? '');
+                onClick={(e) => {
+                  e.stopPropagation();
                   setSelected(item.label);
+                  navigate(item.secondaryIconRoute ?? '');
                 }}
-              >
-                {item.label}
-              </div>
-              <div
-                onClick={() => navigate(item.secondaryIconRoute ?? '')}
                 className="secondary-icon"
               >
                 {item.secondaryIcon}
