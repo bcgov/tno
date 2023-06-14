@@ -1,7 +1,6 @@
 ﻿using LinqKit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.API.Areas.Editor.Models.Contributor;
 using TNO.API.Areas.Editor.Models.Lookup;
 using TNO.API.Areas.Editor.Models.Product;
 using TNO.API.Areas.Editor.Models.Source;
