@@ -3,8 +3,8 @@ import React from 'react';
 import { useContent } from 'store/hooks';
 import { Col, IContentModel, Row, useWindowSize } from 'tno-core';
 
-import * as styled from './styled';
 import { stripHtml } from '../utils';
+import * as styled from './styled';
 
 export interface IPlayerProps {
   content: IContentModel | null;

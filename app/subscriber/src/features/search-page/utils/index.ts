@@ -1,2 +1,2 @@
-export * from './trimWords';
 export * from './stripHtml';
+export * from './trimWords';
