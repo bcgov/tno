@@ -1,10 +1,6 @@
 import styled from 'styled-components';
 
 export const SearchPage = styled.div`
-  .search-with-logout {
-    /* margin-bottom: 0.5%; */
-  }
-
   .save-bar {
     input {
       height: 1.5em;

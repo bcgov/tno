@@ -13,10 +13,10 @@ import { TodaysCommentary } from 'features/todays-commentary';
 import React from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useApp } from 'store/hooks';
 import { Col, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
-import { useApp } from 'store/hooks';
 
 /**
  * Main landing page for the subscriber app.

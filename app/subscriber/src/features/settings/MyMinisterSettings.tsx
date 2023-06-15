@@ -2,15 +2,15 @@ import { FormikForm } from 'components/formik';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useApp, useLookup, useUsers } from 'store/hooks';
+import { useAppStore } from 'store/slices';
 import { Button, IUserInfoModel, IUserModel, OptionItem, RadioGroup, Row } from 'tno-core';
 
 import * as styled from './styled';
-import { useAppStore } from 'store/slices';
 
 export const MyMinisterSettings: React.FC = () => {
   const [{ ministers }] = useLookup();
   const [{ userInfo }] = useApp();
-  const [state, store] = useAppStore();
+  const [, store] = useAppStore();
   const api = useUsers();
 
   const options = ministers.map((m) => new OptionItem(`${m.name} | ${m.description}`, m.name));

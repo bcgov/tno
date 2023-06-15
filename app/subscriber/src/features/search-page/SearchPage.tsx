@@ -7,14 +7,14 @@ import { DetermineToneIcon, makeFilter } from 'features/home/utils';
 import React from 'react';
 import { FaPlay, FaSave, FaStop } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useApp, useContent, useUsers } from 'store/hooks';
+import { useAppStore } from 'store/slices';
 import { Col, IContentModel, IUserInfoModel, IUserModel, Page, Row, Show, Text } from 'tno-core';
 
 import { Player } from './player/Player';
 import * as styled from './styled';
 import { trimWords } from './utils';
-import { toast } from 'react-toastify';
-import { useAppStore } from 'store/slices';
 
 // Simple component to display users search results
 export const SearchPage: React.FC = () => {
@@ -25,7 +25,7 @@ export const SearchPage: React.FC = () => {
   const [searchName, setSearchName] = React.useState<string>('');
   const navigate = useNavigate();
   const [{ userInfo }] = useApp();
-  const [state, store] = useAppStore();
+  const [, store] = useAppStore();
 
   const api = useUsers();
 
