@@ -3,6 +3,7 @@ import React from 'react';
 import { useContent } from 'store/hooks';
 import { Col, IContentModel, Row, useWindowSize } from 'tno-core';
 
+import { stripHtml } from '../utils';
 import * as styled from './styled';
 
 export interface IPlayerProps {
@@ -47,7 +48,7 @@ export const Player: React.FC<IPlayerProps> = ({ content }) => {
         <Col>
           <p className="source">{content?.source?.name}</p>
           <p className="player-headline">{content?.headline}</p>
-          <p className="summary">{content?.summary}</p>
+          <p className="summary">{stripHtml(content?.summary ?? '')}</p>
         </Col>
       </div>
     </styled.Player>
