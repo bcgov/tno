@@ -5,14 +5,16 @@ import {
 } from 'features/content/list-view/interfaces';
 import { DetermineToneIcon, makeFilter } from 'features/home/utils';
 import React from 'react';
-import { FaPlay, FaStop } from 'react-icons/fa';
+import { FaPlay, FaSave, FaStop } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { useContent } from 'store/hooks';
-import { Col, IContentModel, Page, Row, Show } from 'tno-core';
+import { useApp, useContent, useUsers } from 'store/hooks';
+import { Col, IContentModel, IUserInfoModel, IUserModel, Page, Row, Show, Text } from 'tno-core';
 
 import { Player } from './player/Player';
 import * as styled from './styled';
 import { trimWords } from './utils';
+import { toast } from 'react-toastify';
+import { useAppStore } from 'store/slices';
 
 // Simple component to display users search results
 export const SearchPage: React.FC = () => {
@@ -20,7 +22,12 @@ export const SearchPage: React.FC = () => {
   const [searchItems, setSearchItems] = React.useState<IContentModel[]>([]);
   const [activeContent, setActiveContent] = React.useState<IContentModel | null>(null);
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
+  const [searchName, setSearchName] = React.useState<string>('');
   const navigate = useNavigate();
+  const [{ userInfo }] = useApp();
+  const [state, store] = useAppStore();
+
+  const api = useUsers();
 
   const urlParams = new URLSearchParams(window.location.search);
   const queryText = urlParams.get('queryText');
@@ -45,6 +52,26 @@ export const SearchPage: React.FC = () => {
     [findContent],
   );
 
+  const updateUserSearches = async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryText = urlParams.get('queryText');
+    const user = {
+      ...userInfo,
+      preferences: {
+        myMinister: localStorage.getItem('myMinister') ?? userInfo?.preferences.myMinister,
+        searches: [
+          ...(userInfo?.preferences.searches ?? []),
+          { name: searchName, queryText: queryText },
+        ],
+      },
+      roles: userInfo?.roles ?? [],
+    } as IUserModel;
+    await api.updateUser(user, user.id ?? 0);
+    store.storeUserInfo(user as IUserInfoModel);
+
+    toast.success(`${searchName} has successfully been saved.`);
+  };
+
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
     fetch({
@@ -57,6 +84,13 @@ export const SearchPage: React.FC = () => {
   return (
     <styled.SearchPage>
       <SearchWithLogout />
+      <Row className="save-bar" justifyContent="center">
+        <p className="label">Name this search: </p>
+        <Text onChange={(e) => setSearchName(e.target.value)} name="searchName" />
+        <button onClick={() => updateUserSearches()}>
+          <FaSave />
+        </button>
+      </Row>
       <Row>
         <div className={playerOpen ? 'scroll minimized' : 'scroll'}>
           <Col className={'search-items'}>

@@ -6,6 +6,14 @@ export const Landing = styled(Col)`
   font-family: -apple-system, BlinkMacSystemFont, 'BCSans', 'Noto Sans', Arial, 'sans serif';
   display: flex;
 
+  .search-links {
+    color: #3847aa;
+    text-decoration: underline;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
   .title {
     font-family: 'Source Sans Pro', sans-serif;
   }

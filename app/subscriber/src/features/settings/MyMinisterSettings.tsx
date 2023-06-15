@@ -5,20 +5,27 @@ import { useApp, useLookup, useUsers } from 'store/hooks';
 import { Button, IUserInfoModel, IUserModel, OptionItem, RadioGroup, Row } from 'tno-core';
 
 import * as styled from './styled';
+import { useAppStore } from 'store/slices';
 
 export const MyMinisterSettings: React.FC = () => {
   const [{ ministers }] = useLookup();
   const [{ userInfo }] = useApp();
+  const [state, store] = useAppStore();
   const api = useUsers();
 
   const options = ministers.map((m) => new OptionItem(`${m.name} | ${m.description}`, m.name));
 
   const handleSubmit = async (values: IUserInfoModel) => {
     try {
-      await api.updateUser(values as IUserModel, userInfo?.id ?? 0);
+      const user = {
+        ...(values as IUserModel),
+        preferences: { ...values.preferences, searches: userInfo?.preferences.searches ?? [] },
+      };
+      await api.updateUser(user, userInfo?.id ?? 0);
       toast.success(
         `${values.preferences.myMinister} has successfully been chosen as your minister.`,
       );
+      store.storeUserInfo(user as IUserInfoModel);
     } catch {}
   };
 
@@ -32,7 +39,7 @@ export const MyMinisterSettings: React.FC = () => {
         initialValues={
           {
             ...userInfo,
-            preferences: { myMinister: '' },
+            preferences: { ...userInfo?.preferences, myMinister: '' },
             roles: userInfo?.roles ?? [],
           } as IUserInfoModel
         }
