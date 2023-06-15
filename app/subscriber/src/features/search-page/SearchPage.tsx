@@ -85,7 +85,7 @@ export const SearchPage: React.FC = () => {
                     <Show visible={!!item.fileReferences?.length}>
                       <button
                         onClick={() => {
-                          setPlayerOpen(!playerOpen);
+                          !playerOpen && setPlayerOpen(true);
                           item.fileReferences && setActiveContent(item);
                         }}
                         className={
@@ -113,7 +113,7 @@ export const SearchPage: React.FC = () => {
         </div>
         <Show visible={playerOpen}>
           <Col className="player">
-            <Player content={activeContent} />
+            <Player setPlayerOpen={setPlayerOpen} content={activeContent} />
           </Col>
         </Show>
       </Row>

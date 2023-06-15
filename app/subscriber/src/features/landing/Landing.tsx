@@ -43,7 +43,7 @@ export const Landing: React.FC = () => {
         <Col className="main-panel">
           <Show visible={activeItem === 'View'}>
             <div className="title view">
-              <FaArrowLeft onClick={() => navigate('/landing/home')} />
+              <FaArrowLeft onClick={() => navigate(-1)} />
             </div>
           </Show>
           <Show visible={activeItem !== 'View'}>
