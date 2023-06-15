@@ -19,8 +19,8 @@ export const FrontPages = styled(Col)`
     }
   }
   .front-page {
-    width: 12em;
-    height: 12em;
+    width: 8em;
+    height: 8em;
     object-fit: cover;
     object-position: 0% 0%;
   }
