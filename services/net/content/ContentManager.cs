@@ -231,6 +231,11 @@ public class ContentManager : ServiceManager<ContentOptions>
             // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
             // TODO: Handle e-tag.
             var source = await this.Api.GetSourceForCodeAsync(model.Source);
+            var lookups = await this.Api.GetLookupsAsync();
+
+            IEnumerable<API.Areas.Editor.Models.Topic.TopicModel>? topics = lookups?.Topics;
+            IEnumerable<API.Areas.Editor.Models.TonePool.TonePoolModel>? tonePools = lookups?.TonePools;
+
             if (model.ProductId == 0)
             {
                 // Messages in Kafka are missing information, replace with best guess.
@@ -259,6 +264,37 @@ public class ContentManager : ServiceManager<ContentOptions>
                 Section = model.Section,
                 Byline = string.Join(",", model.Authors.Select(a => a.Name[0..Math.Min(a.Name.Length, 200)])) // TODO: Temporary workaround to deal with regression issue in Syndication Service.
             };
+
+            // TODO: Add Tags, Topics, etc - check for
+            // if (model.Actions.Any()) {
+            // }
+
+            if (model.TonePools.Any()) {
+                var mappedTonePools = new List<ContentTonePoolModel>();
+                foreach (var tonePool in model.TonePools)   {
+                    var mapping = GetTonePoolMapping(tonePools!, (int)tonePool.Value, tonePool.UserIdentifier);
+                    if (mapping != null) {
+                        mappedTonePools.Add(mapping);
+                    }
+                }
+                if (mappedTonePools.Any()) {
+                    content.TonePools = mappedTonePools.ToArray();
+                }
+            }
+
+            if (model.Topics.Any()) {
+                var mappedContentTopicModels = new List<ContentTopicModel>();
+                foreach (var topic in model.Topics)   {
+                    var mapping = GetTopicMapping(topics!, topic.TopicType, topic.Name);
+                    if (mapping != null) {
+                        mappedContentTopicModels.Add(mapping);
+                    }
+                }
+                if (mappedContentTopicModels.Any()) {
+                    content.Topics = mappedContentTopicModels.ToArray();
+                }
+            }
+
             content = await this.Api.AddContentAsync(content) ?? throw new InvalidOperationException($"Adding content failed {content.OtherSource}:{content.Uid}");
             this.Logger.LogInformation("Content Imported.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
 
@@ -445,5 +481,48 @@ public class ContentManager : ServiceManager<ContentOptions>
         if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {content.OtherSource}:{content.Uid}");
         return result;
     }
+    #endregion
+
+    #region Helper Methods
+    private static ContentTonePoolModel? GetTonePoolMapping(IEnumerable<API.Areas.Editor.Models.TonePool.TonePoolModel> tonePools, int toneValue, string? userIdentifier)
+    {
+        // use the "Default" TonePool
+        if (string.IsNullOrEmpty(userIdentifier)) {
+            // the "Default" tone should always be present
+            var tonePoolDefault = tonePools.Where(s => s.Name.Equals("Default")).First();
+            return new ContentTonePoolModel() {
+                Value = toneValue,
+                Id = tonePoolDefault.Id,
+                ContentId = 0,
+                Name = tonePoolDefault.Name,
+                OwnerId = tonePoolDefault.OwnerId
+            };
+        } else {
+            // map a specific tone pool
+            // TODO: lookup OwnerId if UserIdentifier is set
+            return null;
+        }
+    }
+
+    private static ContentTopicModel? GetTopicMapping(IEnumerable<API.Areas.Editor.Models.Topic.TopicModel> topics, string eodCategoryGroup, string eodCategory)
+    {
+        var topicModel = new ContentTopicModel() {
+            Score = 0, // TODO: until we can dig score out of TNO 1.0
+            ContentId = 0 // for new content
+        };
+        var topic = topics.Where(s => s.Name == eodCategory && s.TopicType.ToString().Equals(eodCategoryGroup,StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+        if (topic != null) {
+            topicModel.Id = topic.Id;
+            topicModel.Name = topic.Name;
+            topicModel.TopicType = topic.TopicType;
+        } else {
+            // KGM: will this create a new Topic, if one doesnt already exist?
+            topicModel.Id = 0;
+            topicModel.Name = eodCategory;
+            topicModel.TopicType = (TopicType)Enum.Parse(typeof(TopicType), eodCategoryGroup);
+        }
+        return topicModel;
+    }
+
     #endregion
 }

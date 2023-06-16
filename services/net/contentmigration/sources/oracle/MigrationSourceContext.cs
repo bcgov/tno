@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 using TNO.Core.Extensions;
 
@@ -13,6 +14,11 @@ public class MigrationSourceContext : DbContext
     /// get/set for Set of NewsItem.
     /// </summary>
     public DbSet<NewsItem> NewsItems => Set<NewsItem>();
+
+    /// <summary>
+    /// get/set for Set of UsersTones.
+    /// </summary>
+    public DbSet<UserTone> UsersTones => Set<UserTone>();
     #endregion
 
     #region Constructors
@@ -59,6 +65,16 @@ public class MigrationSourceContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyAllConfigurations(typeof(NewsItemConfiguration), this);
+        modelBuilder.ApplyAllConfigurations(typeof(UserToneConfiguration), this);
+
+        modelBuilder.Entity<NewsItem>()
+            .HasMany(s => s.Tones)
+            .WithOne()
+            .HasForeignKey(e => e.ItemRSN);
+
+        modelBuilder.Entity<NewsItem>()
+            .Navigation(e => e.Tones)
+            .AutoInclude();
     }
     #endregion
 }

@@ -113,6 +113,16 @@ public abstract class ContentBase
     /// get/set - An array of tags to identify this content.
     /// </summary>
     public IEnumerable<Tag> Tags { get; set; } = Array.Empty<Tag>();
+
+    /// <summary>
+    /// get/set - An array of topics to associate with this content.
+    /// </summary>
+    public IEnumerable<Topic> Topics { get; set; } = Array.Empty<Topic>();
+
+    /// <summary>
+    /// get/set - An array of tones to associate with this content.
+    /// </summary>
+    public IEnumerable<TonePool> TonePools { get; set; } = Array.Empty<TonePool>();
     #endregion
 
     #region Constructors

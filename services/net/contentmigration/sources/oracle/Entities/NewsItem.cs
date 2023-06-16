@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-namespace TNO.Services.ContentMigration.Sources.Oracle;
 
+namespace TNO.Services.ContentMigration.Sources.Oracle;
 /// <summary>
 /// NewsItem class, provides an entity to store News Item records in the database.
 /// </summary>
@@ -329,4 +329,10 @@ public class NewsItem
     /// </summary>
     [Column("EOD_DATE")]
     public string? EodDateTime { get; set; }
+
+    /// <summary>
+    /// get/set
+    /// </summary>
+    public ICollection<UserTone>? Tones { get;} = new List<UserTone>();
+
 }

@@ -67,12 +67,23 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
 
         };
 
+        if ((newsItem.Tones != null) && (newsItem.Tones.Any())) {
+            // TODO: replace the USER_RSN value on UserIdentifier with something that can be mapped by the Content Service to an MMIA user
+            // TODO: remove UserRSN filter once user can be mapped
+            content.TonePools = newsItem.Tones.Where(t => t.UserRSN == 0)
+                .Select(t => new Kafka.Models.TonePool { Value = t.ToneValue, UserIdentifier = t.UserRSN.ToString() });
+        }
+
         // Extract authors from a "delimited" string.  Don't use the source name as an author.
         if (!string.IsNullOrEmpty(newsItem.string5)) {
              content.Authors = ExtractAuthors(newsItem.string5, newsItem.Source).Select(a => new Author(a));
         }
         if (newsItem.UpdatedOn != null) {
             content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ? newsItem.UpdatedOn.Value.ToUniversalTime() : null;
+        }
+
+        if (!string.IsNullOrEmpty(newsItem.EodGroup) && !string.IsNullOrEmpty(newsItem.EodCategory)) {
+            content.Topics = new[] { new Kafka.Models.Topic {Name = newsItem.EodCategory, TopicType = newsItem.EodGroup}};
         }
 
         return content;
