@@ -9,6 +9,7 @@ export const SearchPage = styled.div`
     max-height: calc(100vh - 6.5em);
     padding-left: 1em;
     padding-right: 1em;
+    width: 100%;
   }
 
   .minimized {

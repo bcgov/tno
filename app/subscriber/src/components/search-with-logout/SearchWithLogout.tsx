@@ -21,6 +21,13 @@ export const SearchWithLogout: React.FC = () => {
       if (!!queryText) setSearchItem(queryText ?? '');
     }
   }, [queryText]);
+
+  /** allow user to hit enter while searching */
+  const enterPressed = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      navigate(`/search?queryText=${searchItem}`);
+    }
+  };
   return (
     <styled.SearchWithLogout className="search-with-logout">
       <Row>
@@ -30,6 +37,7 @@ export const SearchWithLogout: React.FC = () => {
           width={'30em'}
           autoComplete="off"
           name="search"
+          onKeyDown={enterPressed}
           value={searchItem}
           onChange={(e) => {
             setSearchItem(e.target.value);

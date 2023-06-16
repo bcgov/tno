@@ -8,6 +8,11 @@ export const Player = styled(Row)`
     margin: 0;
   }
 
+  .exit-player {
+    cursor: pointer;
+    margin-left: auto;
+  }
+
   video {
     margin-bottom: 0.5em;
   }

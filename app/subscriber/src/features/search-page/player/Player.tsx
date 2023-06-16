@@ -8,10 +8,11 @@ import * as styled from './styled';
 
 export interface IPlayerProps {
   content: IContentModel | null;
+  setPlayerOpen: (open: boolean) => void;
 }
 
 /** Component used to play media on the search results screen */
-export const Player: React.FC<IPlayerProps> = ({ content }) => {
+export const Player: React.FC<IPlayerProps> = ({ content, setPlayerOpen }) => {
   const [avStream, setAVStream] = React.useState<IStream>();
   const [, { stream }] = useContent();
   const { width } = useWindowSize();
@@ -35,7 +36,12 @@ export const Player: React.FC<IPlayerProps> = ({ content }) => {
 
   return (
     <styled.Player>
-      <div className="title">News Player</div>
+      <Row className="title">
+        <p>News Player</p>
+        <p onClick={() => setPlayerOpen(false)} className="exit-player">
+          X
+        </p>
+      </Row>
       <div className="body">
         <Row justifyContent="center">
           <video
