@@ -3,8 +3,8 @@ namespace TNO.Kafka.Models;
 public class Topic
 {
     #region Properties
-    public string TopicType { get; set; }
-    public string Name { get; set; }
+    public string TopicType { get; set; } = "";
+    public string Name { get; set; } = "";
 
     #endregion
 
