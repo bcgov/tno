@@ -74,15 +74,18 @@ export const Landing: React.FC = () => {
             </Show>
             {/* TODO: Create own component when a/c defined for next iteration */}
             <Show visible={activeItem === SidebarMenuItems.mySearches.label}>
-              {userInfo?.preferences.searches.map((search: { name: string; queryText: string }) => (
-                <p
-                  onClick={() => navigate(`/search?queryText=${search.queryText}`)}
-                  className="search-links"
-                  key={search.name}
-                >
-                  {search.name}
-                </p>
-              ))}
+              {!!userInfo?.preferences?.searches?.length &&
+                userInfo?.preferences.searches.map(
+                  (search: { name: string; queryText: string }) => (
+                    <p
+                      onClick={() => navigate(`/search?queryText=${search.queryText}`)}
+                      className="search-links"
+                      key={search.name}
+                    >
+                      {search.name}
+                    </p>
+                  ),
+                )}
             </Show>
           </div>
         </Col>
