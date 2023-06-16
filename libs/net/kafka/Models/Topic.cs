@@ -1,9 +1,11 @@
+using TNO.Entities;
+
 namespace TNO.Kafka.Models;
 
 public class Topic
 {
     #region Properties
-    public string TopicType { get; set; } = "";
+    public TopicType TopicType { get; set; }
     public string Name { get; set; } = "";
 
     #endregion
@@ -11,10 +13,10 @@ public class Topic
     #region Constructors
     public Topic() { }
 
-    public Topic(string name, string topicType)
+    public Topic(string name, TopicType topicType)
     {
         this.Name = name ?? "";
-        this.TopicType = topicType ?? "";
+        this.TopicType = topicType;
     }
     #endregion
 }

@@ -293,6 +293,8 @@ public class ContentManager : ServiceManager<ContentOptions>
                 if (mappedContentTopicModels.Any()) {
                     content.Topics = mappedContentTopicModels.ToArray();
                 }
+            } else {
+                content.Topics = new[] { GetTopicMapping(topics!, TopicType.Proactive, "Salmon hat orcas")};
             }
 
             content = await this.Api.AddContentAsync(content) ?? throw new InvalidOperationException($"Adding content failed {content.OtherSource}:{content.Uid}");
@@ -504,13 +506,13 @@ public class ContentManager : ServiceManager<ContentOptions>
         }
     }
 
-    private static ContentTopicModel? GetTopicMapping(IEnumerable<API.Areas.Editor.Models.Topic.TopicModel> topics, string eodCategoryGroup, string eodCategory)
+    private static ContentTopicModel? GetTopicMapping(IEnumerable<API.Areas.Editor.Models.Topic.TopicModel> topics, TopicType topicType, string topicName)
     {
         var topicModel = new ContentTopicModel() {
             Score = 0, // TODO: until we can dig score out of TNO 1.0
             ContentId = 0 // for new content
         };
-        var topic = topics.Where(s => s.Name == eodCategory && s.TopicType.ToString().Equals(eodCategoryGroup,StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+        var topic = topics.Where(s => s.Name == topicName && s.TopicType == topicType).FirstOrDefault();
         if (topic != null) {
             topicModel.Id = topic.Id;
             topicModel.Name = topic.Name;
@@ -518,8 +520,8 @@ public class ContentManager : ServiceManager<ContentOptions>
         } else {
             // KGM: will this create a new Topic, if one doesnt already exist?
             topicModel.Id = 0;
-            topicModel.Name = eodCategory;
-            topicModel.TopicType = (TopicType)Enum.Parse(typeof(TopicType), eodCategoryGroup);
+            topicModel.Name = topicName;
+            topicModel.TopicType = topicType;
         }
         return topicModel;
     }
