@@ -62,7 +62,7 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
         this.Ingests.AddRange(await GetIngestsAsync());
 
         // Run at the shortest interval of all schedules.
-        var delay = this.Ingests.Min(ds => ds.IngestSchedules.Where(s => s.Schedule?.DelayMS != 0).Min(s => s.Schedule?.DelayMS)) ?? this.Options.DefaultDelayMS;
+        var delay = this.Ingests.Min(ds => ds.IngestSchedules.Where(s => s.Schedule?.DelayMS != 0 && s.Schedule?.IsEnabled == true).Min(s => s.Schedule?.DelayMS)) ?? this.Options.DefaultDelayMS;
         if (delay == 0) delay = this.Options.DefaultDelayMS;
 
         // Always keep looping until an unexpected failure occurs.
@@ -171,7 +171,8 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
 
     private async Task StopAllAsync(List<IngestModel> ingests)
     {
-        foreach (var ingest in ingests) {
+        foreach (var ingest in ingests)
+        {
             if (!_ingests.ContainsKey(ingest.Id)) _ingests.Add(ingest.Id, _factory.Create(ingest));
         }
         await StopAllAsync(_ingests.Values);

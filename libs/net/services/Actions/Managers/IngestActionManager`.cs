@@ -149,6 +149,7 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     {
         if (!this.Ingest.IsEnabled || !this.Ingest.IngestSchedules.Any(s => s.Schedule?.IsEnabled == true)) return false;
         return VerifyDelay(date, schedule) &&
+            VerifyRepeat(date, schedule) &&
             VerifyRunOn(date, schedule) &&
             VerifyStartAt(date, schedule) &&
             VerifyDayOfMonth(date, schedule) &&
@@ -177,6 +178,24 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     }
 
     /// <summary>
+    /// Determine if the schedule allows for the process to run repeatedly within a single day period.
+    /// If Repeat = false then it can only run once per day, unless the ingest schedule is continuous.
+    /// </summary>
+    /// <param name="date"></param>
+    /// <param name="schedule"></param>
+    /// <returns></returns>
+    public virtual bool VerifyRepeat(DateTime date, ScheduleModel schedule)
+    {
+        var lastRanOn = this.Ingest.LastRanOn;
+        if (lastRanOn == null) return true;
+        if (schedule.Repeat) return true;
+        if (this.Ingest.ScheduleType == ScheduleType.Continuous) return true;
+        if (date.Year != lastRanOn.Value.Year || date.Month != lastRanOn.Value.Month || date.Day != lastRanOn.Value.Day) return true;
+
+        return false;
+    }
+
+    /// <summary>
     /// Determine if the schedule allows for the process to run at the specified 'date'.
     /// This setting can be used to ensure a service action is only performed after this date has been reached and there-after.
     /// After the date has been reached, it will use the time of day as a limiter.
@@ -187,9 +206,6 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// <returns></returns>
     public virtual bool VerifyRunOn(DateTime date, ScheduleModel schedule)
     {
-        // Only run the configured number of times.
-        if (schedule.Repeat > 0 && this.RanCounter >= schedule.Repeat) return false;
-
         // No limitation imposed by RunON, so always run.
         if (schedule.RunOn == null) return true;
 
@@ -211,11 +227,12 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// <returns></returns>
     public virtual bool VerifyStartAt(DateTime date, ScheduleModel schedule)
     {
-        if (schedule.ScheduleType == (int)ScheduleType.Continuous && schedule.StartAt == null) return true;
+        if (schedule.StartAt == null) return true;
 
         // Current time is between start and stop.
         var time = date.TimeOfDay;
-        if (schedule.StartAt <= time && schedule.StopAt > time) return true;
+        if (schedule.StopAt != null && schedule.StartAt <= time && schedule.StopAt > time) return true;
+        else if (schedule.StartAt <= time) return true;
 
         return false;
     }

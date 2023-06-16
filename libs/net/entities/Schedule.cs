@@ -35,12 +35,6 @@ public class Schedule : AuditColumns
     public bool IsEnabled { get; set; } = true;
 
     /// <summary>
-    /// get/set - the type of schedule.
-    /// </summary>
-    [Column("schedule_type")]
-    public ScheduleType ScheduleType { get; set; } = ScheduleType.Continuous;
-
-    /// <summary>
     /// get/set - Number of milliseconds to wait between each execution of the action.
     /// </summary>
     [Column("delay_ms")]
@@ -53,13 +47,13 @@ public class Schedule : AuditColumns
     public DateTime? RunOn { get; set; }
 
     /// <summary>
-    /// get/set - The time to start the action.
+    /// get/set - The time to start the action.  Use this for a process that should keep running after it stops.
     /// </summary>
     [Column("start_at")]
     public TimeSpan? StartAt { get; set; }
 
     /// <summary>
-    /// get/set - The time to stop the action.
+    /// get/set - The time to stop the action.  Use this for a process that should stop running after a period of time.
     /// </summary>
     [Column("stop_at")]
     public TimeSpan? StopAt { get; set; }
@@ -71,10 +65,10 @@ public class Schedule : AuditColumns
     public bool RunOnlyOnce { get; set; }
 
     /// <summary>
-    /// get/set - The number of times to execute the action.  This is only relevant for continuous schedules.
+    /// get/set - Whether the schedule should repeat after each delay, or whether it should not repeat until the next StartAt.
     /// </summary>
     [Column("repeat")]
-    public int Repeat { get; set; }
+    public bool Repeat { get; set; }
 
     /// <summary>
     /// get/set - The day of the week to run on.
@@ -114,6 +108,11 @@ public class Schedule : AuditColumns
     /// get/set - Collection of ingests this schedule belongs to (many-to-many).
     /// </summary>
     public virtual List<IngestSchedule> IngestsManyToMany { get; set; } = new List<IngestSchedule>();
+
+    /// <summary>
+    /// get - Collection of events using this schedule.
+    /// </summary>
+    public virtual List<EventSchedule> Events { get; set; } = new List<EventSchedule>();
     #endregion
 
     #region Constructors
@@ -126,15 +125,13 @@ public class Schedule : AuditColumns
     /// Creates a new instance of a Schedule object, initializes with specified parameters.
     /// </summary>
     /// <param name="name"></param>
-    /// <param name="scheduleType"></param>
     /// <param name="delayMS"></param>
     /// <exception cref="ArgumentException"></exception>
-    public Schedule(string name, ScheduleType scheduleType, int delayMS)
+    public Schedule(string name, int delayMS)
     {
         if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(name));
 
         this.Name = name;
-        this.ScheduleType = scheduleType;
         this.DelayMS = delayMS;
     }
     #endregion

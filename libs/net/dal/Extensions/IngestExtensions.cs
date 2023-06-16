@@ -64,7 +64,6 @@ public static class IngestExtensions
                     current.Schedule.Name = a.Schedule.Name;
                     current.Schedule.Description = a.Schedule.Description;
                     current.Schedule.IsEnabled = a.Schedule.IsEnabled;
-                    current.Schedule.ScheduleType = a.Schedule.ScheduleType;
                     current.Schedule.Repeat = a.Schedule.Repeat;
                     current.Schedule.DelayMS = a.Schedule.DelayMS;
                     current.Schedule.StartAt = a.Schedule.StartAt;

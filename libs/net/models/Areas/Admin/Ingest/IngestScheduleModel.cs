@@ -54,7 +54,7 @@ public class IngestScheduleModel : ScheduleModel
     {
         return new Entities.IngestSchedule(model.IngestId, model.Id)
         {
-            Schedule = new Entities.Schedule(model.Name, model.ScheduleType, model.DelayMS)
+            Schedule = new Entities.Schedule(model.Name, model.DelayMS)
             {
                 Id = model.Id,
                 Description = model.Description,

@@ -62,6 +62,7 @@ export const IngestForm: React.FC<IIngestProps> = (props) => {
   const reload = async () => {
     try {
       const data = await api.getIngest(ingestId);
+      setIngest({ ...data, schedules: [] }); // Required because react state and formik are horrible.
       setIngest({ ...data });
     } catch {}
   };

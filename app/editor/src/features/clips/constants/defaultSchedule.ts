@@ -1,17 +1,16 @@
-import { IScheduleModel, ScheduleMonthName, ScheduleTypeName, ScheduleWeekDayName } from 'tno-core';
+import { IScheduleModel, ScheduleMonthName, ScheduleWeekDayName } from 'tno-core';
 
 export const defaultSchedule: IScheduleModel = {
   id: 0,
   name: '',
   description: '',
   isEnabled: true,
-  scheduleType: ScheduleTypeName.Advanced,
   delayMS: 30000,
   runOn: undefined,
   startAt: undefined,
   stopAt: undefined,
   runOnlyOnce: true,
-  repeat: 0,
+  repeat: false,
   runOnWeekDays: ScheduleWeekDayName.NA,
   runOnMonths: ScheduleMonthName.NA,
   dayOfMonth: 0,

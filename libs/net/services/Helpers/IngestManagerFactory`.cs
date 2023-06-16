@@ -15,9 +15,6 @@ public class IngestManagerFactory<TIngestServiceActionManager, TOption>
     private readonly IServiceProvider _serviceProvider;
     #endregion
 
-    #region Properties
-    #endregion
-
     #region Constructors
     /// <summary>
     /// Creates a new instance of a IngestManagerFactory object, initializes with specified parameters.
@@ -51,7 +48,8 @@ public class IngestManagerFactory<TIngestServiceActionManager, TOption>
             {
                 args.Add(serviceScope.ServiceProvider.GetRequiredService(cparam.ParameterType));
 
-            } else
+            }
+            else
                 args.Add(_serviceProvider.GetRequiredService(cparam.ParameterType));
         }
 

@@ -120,6 +120,22 @@ namespace TNO.Core.Extensions
         }
 
         /// <summary>
+        /// Determine if the nullable type is an enum.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns>True if the type/object is nullable.</returns>
+        public static bool IsNullableEnum<T>(this T obj)
+        {
+            if (obj.IsNullable())
+            {
+                var u = Nullable.GetUnderlyingType(typeof(T));
+                return (u != null) && u.IsEnum;
+            }
+            return typeof(T).IsEnum;
+        }
+
+        /// <summary>
         /// Determine if the type/object is a nullable type.
         /// </summary>
         /// <typeparam name="T"></typeparam>

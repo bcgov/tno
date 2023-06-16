@@ -60,7 +60,7 @@ public class IngestController : ControllerBase
     [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
-    public IActionResult FindByCode(int id)
+    public IActionResult FindById(int id)
     {
         var result = _serviceIngest.FindById(id);
         if (result == null) return new NoContentResult();

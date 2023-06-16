@@ -32,18 +32,12 @@ export const ScheduleDaily: React.FC<IScheduleDailyProps> = ({
   const delayMS = getIn(values, field('delayMS'), '');
 
   React.useEffect(() => {
-    if (index >= values.schedules.length)
-      setFieldValue(`schedules[${index}]`, defaultSchedule(scheduleType));
-    else if (values.schedules[index].scheduleType !== scheduleType) {
-      setFieldValue(`schedules[${index}]`, {
-        ...values.schedules[index],
-        scheduleType,
-        startAt: '',
-        stopAt: '',
-        delayMS: '',
-      });
-    }
-  }, [field, index, scheduleType, setFieldValue, values.schedules]);
+    if (
+      values.scheduleType === ScheduleTypeName.Daily &&
+      (values.schedules.length === 0 || values.schedules.length > 1)
+    )
+      setFieldValue(`schedules`, [defaultSchedule()]);
+  }, [setFieldValue, values.scheduleType, values.schedules.length]);
 
   return (
     <styled.ScheduleForm className="schedule">

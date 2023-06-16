@@ -131,6 +131,28 @@ public class ApiService : IApiService
         var url = this.Options.ApiUrl.Append($"kafka/producers/content/{topic}");
         return await RetryRequestAsync(async () => await this.Client.PostAsync<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.SourceContent>>(url, JsonContent.Create(content)));
     }
+
+    /// <summary>
+    /// Publish notification request to Kafka.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.NotificationRequestModel>?> SendMessageAsync(TNO.Kafka.Models.NotificationRequestModel request)
+    {
+        var url = this.Options.ApiUrl.Append($"kafka/producers/notification");
+        return await RetryRequestAsync(async () => await this.Client.PostAsync<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.NotificationRequestModel>>(url, JsonContent.Create(request)));
+    }
+
+    /// <summary>
+    /// Publish report request to Kafka.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.ReportRequestModel>?> SendMessageAsync(TNO.Kafka.Models.ReportRequestModel request)
+    {
+        var url = this.Options.ApiUrl.Append($"kafka/producers/report");
+        return await RetryRequestAsync(async () => await this.Client.PostAsync<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.ReportRequestModel>>(url, JsonContent.Create(request)));
+    }
     #endregion
 
     #region Lookup Methods
@@ -603,6 +625,40 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"services/users/{id}");
         return await RetryRequestAsync(async () => await this.Client.GetAsync<API.Areas.Services.Models.User.UserModel?>(url));
+    }
+    #endregion
+
+    #region Event Schedules
+    /// <summary>
+    /// Make a request to the API to fetch all event schedules.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.EventSchedule.EventScheduleModel>> GetEventSchedulesAsync()
+    {
+        var url = this.Options.ApiUrl.Append($"services/events/schedules");
+        return await RetryRequestAsync(async () => await this.Client.GetAsync<IEnumerable<API.Areas.Services.Models.EventSchedule.EventScheduleModel>>(url)) ?? Array.Empty<API.Areas.Services.Models.EventSchedule.EventScheduleModel>();
+    }
+
+    /// <summary>
+    /// Make a request to the API for the event schedule for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.EventSchedule.EventScheduleModel?> GetEventScheduleAsync(int id)
+    {
+        var url = this.Options.ApiUrl.Append($"services/events/schedules/{id}");
+        return await RetryRequestAsync(async () => await this.Client.GetAsync<API.Areas.Services.Models.EventSchedule.EventScheduleModel?>(url));
+    }
+
+    /// <summary>
+    /// Make a request to the API to update the event schedule for the specified 'model'.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.EventSchedule.EventScheduleModel?> UpdateEventScheduleAsync(API.Areas.Services.Models.EventSchedule.EventScheduleModel model)
+    {
+        var url = this.Options.ApiUrl.Append($"services/events/schedules/{model.Id}");
+        return await RetryRequestAsync(async () => await this.Client.PutAsync<API.Areas.Services.Models.EventSchedule.EventScheduleModel?>(url, JsonContent.Create(model)));
     }
     #endregion
     #endregion

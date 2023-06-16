@@ -1,4 +1,3 @@
-import { ScheduleTypeName } from '../constants';
 import { IAuditColumnsModel } from '.';
 
 export interface IScheduleModel extends IAuditColumnsModel {
@@ -6,13 +5,12 @@ export interface IScheduleModel extends IAuditColumnsModel {
   name: string;
   description: string;
   isEnabled: boolean;
-  scheduleType: ScheduleTypeName;
   delayMS: number;
   runOn?: Date;
   startAt?: string;
   stopAt?: string;
   runOnlyOnce: boolean;
-  repeat: number;
+  repeat: boolean;
   runOnWeekDays: string;
   runOnMonths: string;
   dayOfMonth: number;
