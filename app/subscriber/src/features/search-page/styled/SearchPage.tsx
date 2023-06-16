@@ -1,8 +1,24 @@
 import styled from 'styled-components';
 
 export const SearchPage = styled.div`
-  .search-with-logout {
-    margin-bottom: 0.5%;
+  .save-bar {
+    input {
+      height: 1.5em;
+    }
+    button {
+      height: 1.5em;
+      justify-content: center;
+      color: #178d6a;
+      background-color: #20c9971a;
+      border-color: #178d6a;
+      border-width: 0.05em;
+      border-radius: 0.25em;
+    }
+    .label {
+      /* margin: 0; */
+      margin-right: 0.25em;
+      margin-top: auto;
+    }
   }
   .scroll {
     overflow-y: auto;

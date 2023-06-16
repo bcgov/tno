@@ -2,6 +2,7 @@ import { FormikForm } from 'components/formik';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useApp, useLookup, useUsers } from 'store/hooks';
+import { useAppStore } from 'store/slices';
 import { Button, IUserInfoModel, IUserModel, OptionItem, RadioGroup, Row } from 'tno-core';
 
 import * as styled from './styled';
@@ -9,16 +10,22 @@ import * as styled from './styled';
 export const MyMinisterSettings: React.FC = () => {
   const [{ ministers }] = useLookup();
   const [{ userInfo }] = useApp();
+  const [, store] = useAppStore();
   const api = useUsers();
 
   const options = ministers.map((m) => new OptionItem(`${m.name} | ${m.description}`, m.name));
 
   const handleSubmit = async (values: IUserInfoModel) => {
     try {
-      await api.updateUser(values as IUserModel, userInfo?.id ?? 0);
+      const user = {
+        ...(values as IUserModel),
+        preferences: { ...values.preferences, searches: userInfo?.preferences.searches ?? [] },
+      };
+      await api.updateUser(user, userInfo?.id ?? 0);
       toast.success(
         `${values.preferences.myMinister} has successfully been chosen as your minister.`,
       );
+      store.storeUserInfo(user as IUserInfoModel);
     } catch {}
   };
 
@@ -32,7 +39,7 @@ export const MyMinisterSettings: React.FC = () => {
         initialValues={
           {
             ...userInfo,
-            preferences: { myMinister: '' },
+            preferences: { ...userInfo?.preferences, myMinister: '' },
             roles: userInfo?.roles ?? [],
           } as IUserInfoModel
         }

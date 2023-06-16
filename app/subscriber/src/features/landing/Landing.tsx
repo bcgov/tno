@@ -13,6 +13,7 @@ import { TodaysCommentary } from 'features/todays-commentary';
 import React from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useApp } from 'store/hooks';
 import { Col, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
@@ -24,6 +25,7 @@ import * as styled from './styled';
 export const Landing: React.FC = () => {
   const { id } = useParams();
   const [activeItem, setActiveItem] = React.useState<string>(SidebarMenuItems.home.label);
+  const [{ userInfo }] = useApp();
   const navigate = useNavigate();
 
   /* keep active item in sync with url */
@@ -69,6 +71,18 @@ export const Landing: React.FC = () => {
             </Show>
             <Show visible={activeItem === SidebarMenuItems.todaysCommentary.label}>
               <TodaysCommentary />
+            </Show>
+            {/* TODO: Create own component when a/c defined for next iteration */}
+            <Show visible={activeItem === SidebarMenuItems.mySearches.label}>
+              {userInfo?.preferences.searches.map((search: { name: string; queryText: string }) => (
+                <p
+                  onClick={() => navigate(`/search?queryText=${search.queryText}`)}
+                  className="search-links"
+                  key={search.name}
+                >
+                  {search.name}
+                </p>
+              ))}
             </Show>
           </div>
         </Col>
