@@ -9,7 +9,6 @@ using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Http;
-using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Models.Extensions;
@@ -17,7 +16,6 @@ using TNO.Services.Actions;
 using TNO.Services.Syndication.Config;
 using TNO.Services.Syndication.Xml;
 using HtmlAgilityPack;
-using System;
 
 namespace TNO.Services.Syndication;
 
@@ -131,15 +129,26 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <summary>
     /// Parse the date time value and handle a common formatting issues.
     /// </summary>
+    /// <param name="ingest"></param>
     /// <param name="value"></param>
     /// <param name="format"></param>
     /// <returns></returns>
-    private DateTimeOffset ParseDateTime(string value, string? format = null)
+    private DateTimeOffset ParseDateTime(IngestModel ingest, string value, string? format = null)
     {
         if (String.IsNullOrWhiteSpace(format))
-            return value.Length == 12 ? ParseDateTime(value, "MMM dd HH:mm") : DateTimeOffset.Parse(value);
+            return value.Length == 12 ? ParseDateTime(ingest, value, "MMM dd HH:mm") : DateTimeOffset.Parse(value);
         else
+        {
+            if (DateTime.TryParseExact(value, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime sourcePublishDate))
+            {
+                var sourceTimeZoneId = ingest.GetConfigurationValue("timeZone");
+                return !string.IsNullOrEmpty(sourceTimeZoneId) ?
+                    TimeZoneInfo.ConvertTimeBySystemTimeZoneId(sourcePublishDate, sourceTimeZoneId, TimeZoneInfo.Local.Id) :
+                    sourcePublishDate;
+            }
+
             return DateTimeOffset.ParseExact(value, format, CultureInfo.InvariantCulture);
+        }
     }
 
     /// <summary>
@@ -164,7 +173,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 html.LoadHtml(text);
                 var dateNode = html.DocumentNode.SelectSingleNode("//html/p/date");
                 if (dateNode != null)
-                    item.PublishDate = ParseDateTime(dateNode.InnerText);
+                    item.PublishDate = ParseDateTime(ingest, dateNode.InnerText);
 
                 var articleNode = html.DocumentNode.SelectSingleNode("//html/article");
                 if (articleNode != null)
