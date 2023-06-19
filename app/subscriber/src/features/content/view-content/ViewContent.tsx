@@ -2,11 +2,24 @@ import { DetermineToneIcon } from 'features/home/utils';
 import parse from 'html-react-parser';
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { useContent } from 'store/hooks';
-import { ContentTypeName, IContentModel, Row, Show, useWindowSize } from 'tno-core';
+import { toast } from 'react-toastify';
+import { useContent, useWorkOrders } from 'store/hooks';
+import {
+  Button,
+  ButtonVariant,
+  ContentTypeName,
+  IContentModel,
+  IWorkOrderModel,
+  Row,
+  Show,
+  useWindowSize,
+  WorkOrderStatusName,
+  WorkOrderTypeName,
+} from 'tno-core';
 
 import * as styled from './styled';
-import { formatTime } from './utils';
+import { formatTime, isWorkOrderStatus } from './utils';
+import { WorkOrderStatus } from './utils/WorkOrderStatus';
 import { ViewContentToolbar } from './ViewContentToolbar';
 
 export interface IStream {
@@ -24,6 +37,28 @@ export const ViewContent: React.FC = () => {
   const [, { getContent, stream }] = useContent();
   const [avStream, setAVStream] = React.useState<IStream>();
   const { width } = useWindowSize();
+  const [, { transcribe }] = useWorkOrders();
+  const [workOrders, setWorkOrders] = React.useState<IWorkOrderModel[]>([]);
+  const handleTranscribe = React.useCallback(async () => {
+    try {
+      // TODO: Only save when required.
+      // Save before submitting request.
+      if (!!content) {
+        const response = await transcribe(content);
+        setWorkOrders([response.data, ...workOrders]);
+
+        if (response.status === 200) toast.success('A transcript has been requested');
+        else if (response.status === 208) {
+          if (response.data.status === WorkOrderStatusName.Completed)
+            toast.warn('Content has already been transcribed');
+          else toast.warn(`An active request for transcription already exists`);
+        }
+      }
+    } catch {
+      // Ignore this failure it is handled by our global ajax requests.
+    }
+  }, [workOrders, transcribe, content]);
+
   const path = content?.fileReferences ? content?.fileReferences[0]?.path : '';
 
   const myMinister = localStorage.getItem('myMinister');
@@ -153,7 +188,33 @@ export const ViewContent: React.FC = () => {
         >
           <p>{parse(content?.summary ?? '')}</p>
         </Show>
+        <Show visible={content?.contentType === ContentTypeName.Snippet}>
+          <Button
+            onClick={() => handleTranscribe()}
+            variant={ButtonVariant.action}
+            className="transcribe-button"
+            disabled={
+              (!!content?.fileReferences && !content?.fileReferences.length) ||
+              (!!content?.fileReferences &&
+                content?.fileReferences.length > 0 &&
+                !content?.fileReferences[0].isUploaded) ||
+              isWorkOrderStatus(workOrders, WorkOrderTypeName.Transcription, [
+                WorkOrderStatusName.Completed,
+              ])
+            }
+          >
+            <div className="text">Transcribe</div>
+            <WorkOrderStatus workOrders={workOrders} type={WorkOrderTypeName.Transcription} />
+          </Button>
+        </Show>
       </Row>
+      <Show visible={content?.contentType === ContentTypeName.Snippet && !!content.body?.length}>
+        <hr />
+        <h3>Transcription:</h3>
+        <Row>
+          <p>{content?.body}</p>
+        </Row>
+      </Show>
     </styled.ViewContent>
   );
 };
