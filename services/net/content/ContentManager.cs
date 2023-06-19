@@ -293,8 +293,6 @@ public class ContentManager : ServiceManager<ContentOptions>
                 if (mappedContentTopicModels.Any()) {
                     content.Topics = mappedContentTopicModels.ToArray();
                 }
-            } else {
-                content.Topics = new[] { GetTopicMapping(topics!, TopicType.Proactive, "Salmon hat orcas")};
             }
 
             content = await this.Api.AddContentAsync(content) ?? throw new InvalidOperationException($"Adding content failed {content.OtherSource}:{content.Uid}");
