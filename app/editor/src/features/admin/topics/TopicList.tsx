@@ -17,10 +17,8 @@ import {
   getEnumStringOptions,
   ITopicModel,
   LabelPosition,
-  Modal,
   Row,
   TopicTypeName,
-  useModal,
 } from 'tno-core';
 
 import { columns, defaultTopic } from './constants';
@@ -36,7 +34,6 @@ import { TopicSchema } from './validation/TopicSchema';
 export const TopicList: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { toggle, isShowing } = useModal();
   const [, api] = useTopics();
 
   const [loading, setLoading] = React.useState(false);
@@ -54,7 +51,7 @@ export const TopicList: React.FC = () => {
         .findAllTopics()
         .then((data) => {
           setTopics(data.filter((t) => t.id !== 1));
-          setItems(data.filter((t) => t.id !== 1));
+          setItems(data.filter((t) => t.id !== 1 && t.isEnabled));
         })
         .finally(() => {
           setLoading(false);
@@ -71,13 +68,25 @@ export const TopicList: React.FC = () => {
     try {
       var results = [...items];
       if (values.id === 0) {
-        const result = await api.addTopic(values);
-        results = [...items, result];
+        const topic = topics.find((x) => x.name === values.name);
+        if (!topic) {
+          const result = await api.addTopic(values);
+          results = [...items, result];
+        } else {
+          const result = await api.updateTopic({
+            ...topic,
+            isEnabled: values.isEnabled,
+            description: values.description,
+            topicType: values.topicType,
+          });
+          if (topic.isEnabled) results = items.map((i) => (i.id === result.id ? result : i));
+          else if (values.isEnabled) results = [...items, result];
+        }
       } else {
         const result = await api.updateTopic(values);
         results = items.map((i) => (i.id === values.id ? result : i));
       }
-      setItems(results);
+      setItems(results.filter((x) => x.isEnabled));
       toast.success(`${values.name} has successfully been saved.`);
     } catch {
       // Ignore error as it's handled globally.
@@ -96,13 +105,14 @@ export const TopicList: React.FC = () => {
                   setItems(
                     topics.filter(
                       (i) =>
-                        i.name.toLocaleLowerCase().includes(value) ||
-                        i.description.toLocaleLowerCase().includes(value) ||
-                        i.topicType.toLocaleLowerCase().includes(value),
+                        i.isEnabled &&
+                        (i.name.toLocaleLowerCase().includes(value) ||
+                          i.description.toLocaleLowerCase().includes(value) ||
+                          i.topicType.toLocaleLowerCase().includes(value)),
                     ),
                   );
                 } else {
-                  setItems(topics);
+                  setItems(topics.filter((x) => x.isEnabled));
                 }
               }}
             />
@@ -157,7 +167,12 @@ export const TopicList: React.FC = () => {
                   <Button
                     variant={ButtonVariant.danger}
                     disabled={isSubmitting || !values.id}
-                    onClick={toggle}
+                    onClick={async () => {
+                      await api.updateTopic({ ...topic, isEnabled: false });
+                      setItems(items.filter((t) => t.id !== topic.id));
+                      toast.success(`${topic.name} has successfully been deleted.`);
+                      navigate('/admin/topics');
+                    }}
                   >
                     Delete
                   </Button>
@@ -179,24 +194,6 @@ export const TopicList: React.FC = () => {
                     </Button>
                   </Row>
                 </Row>
-                <Modal
-                  headerText="Confirm Removal"
-                  body="Are you sure you wish to remove this topic?"
-                  isShowing={isShowing}
-                  hide={toggle}
-                  type="delete"
-                  confirmText="Yes, Remove It"
-                  onConfirm={async () => {
-                    try {
-                      await api.deleteTopic(topic);
-                      setItems(items.filter((t) => t.id !== topic.id));
-                      toast.success(`${topic.name} has successfully been deleted.`);
-                      navigate('/admin/topics');
-                    } finally {
-                      toggle();
-                    }
-                  }}
-                />
               </>
             )}
           </FormikForm>
