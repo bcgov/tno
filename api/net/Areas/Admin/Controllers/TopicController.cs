@@ -54,7 +54,7 @@ public class TopicController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Topic" })]
     public IActionResult FindAll()
     {
-        return new JsonResult(_service.FindAll().Select(ds => new TopicModel(ds)));
+        return new JsonResult(_service.FindAll().Where(t => t.IsEnabled).Select(ds => new TopicModel(ds)));
     }
 
     /// <summary>
@@ -132,12 +132,17 @@ public class TopicController : ControllerBase
     [HttpDelete("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(TopicModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Topic" })]
     public IActionResult Delete(TopicModel model)
     {
-        _service.DeleteAndSave((Topic)model);
-        return new JsonResult(model);
+        var result = _service.FindById(model.Id);
+        if (result == null || !result.IsEnabled) return new NoContentResult();
+
+        if (model.IsEnabled) model.IsEnabled = false;
+        result = _service.UpdateAndSave((Topic)model);
+        return new JsonResult(new TopicModel(result));
     }
     #endregion
 }
