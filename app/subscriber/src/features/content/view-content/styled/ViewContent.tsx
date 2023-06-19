@@ -30,4 +30,7 @@ export const ViewContent = styled.div`
   .source-section {
     font-size: 0.875rem;
   }
+  .transcribe-button {
+    margin-left: auto;
+  }
 `;
