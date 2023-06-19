@@ -73,6 +73,17 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
             content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ? newsItem.UpdatedOn.Value.ToUniversalTime() : null;
         }
 
+        if (newsItem.Tones != null) {
+            // TODO: replace the USER_RSN value on UserIdentifier with something that can be mapped by the Content Service to an MMIA user
+            // TODO: remove UserRSN filter once user can be mapped
+            content.TonePools = newsItem.Tones.Where(t => t.UserRSN == 0)
+                .Select(t => new Kafka.Models.TonePool { Value = (int)t.ToneValue, UserIdentifier = t.UserRSN.ToString() });
+        }
+
+        if (!string.IsNullOrEmpty(newsItem.EodGroup) && !string.IsNullOrEmpty(newsItem.EodCategory)) {
+            content.Topics = new[] { new Kafka.Models.Topic {Name = newsItem.EodCategory, TopicType = (TopicType)Enum.Parse(typeof(TopicType), newsItem.EodGroup)}};
+        }
+
         return content;
     }
 
