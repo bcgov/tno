@@ -19,6 +19,14 @@ services:
     container_name: tno-database
     build:
       context: ${DB_CONTEXT:-db/postgres/docker}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 500M
+        reservations:
+          cpus: '0.10'
+          memory: 50M
     env_file:
       - ${DB_CONTEXT:-db/postgres/docker}/.env
     ports:
@@ -44,6 +52,14 @@ services:
     container_name: tno-keycloak
     build:
       context: ./auth/keycloak
+    deploy:
+      resources:
+        limits:
+          cpus: '0.15'
+          memory: 500M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
     env_file:
       - auth/keycloak/.env
     volumes:
@@ -79,6 +95,14 @@ services:
     container_name: tno-elastic
     build:
       context: db/elasticsearch
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 1G
+        reservations:
+          cpus: '0.10'
+          memory: 250M
     env_file:
       - db/elasticsearch/.env
     ulimits:
@@ -157,6 +181,14 @@ services:
     build:
       context: ./
       dockerfile: api/net/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 250M
     env_file: api/net/.env
     ports:
       - ${API_HTTP_PORT:-40010}:8080
@@ -193,6 +225,14 @@ services:
     build:
       context: app/editor
       dockerfile: Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '0.10'
+          memory: 500M
     env_file: ./app/editor/.env
     volumes:
       - ./app/editor/src:/usr/app/src
@@ -222,6 +262,14 @@ services:
     build:
       context: app/subscriber
       dockerfile: Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '0.10'
+          memory: 500M
     env_file: ./app/subscriber/.env
     volumes:
       - ./app/subscriber/src:/usr/app/src
