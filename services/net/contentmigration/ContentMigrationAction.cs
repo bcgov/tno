@@ -217,7 +217,6 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 
             if (reference != null)
             {
-                // TopicModel? topic = GetTopicMapping(lookups.Topics, newsItem.EodCategory);
                 await ContentReceivedAsync(manager, reference, contentMigrator.CreateSourceContent(lookups,
                                                                                    source!,
                                                                                    product,

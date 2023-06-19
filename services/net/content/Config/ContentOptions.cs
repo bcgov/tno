@@ -35,6 +35,11 @@ public class ContentOptions : ServiceOptions
     /// get/set - The path to private key files
     /// </summary>
     public string PrivateKeysPath { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Settings around content coming from the Content Migration service
+    /// </summary>
+    public ContentMigrationOptions? MigrationOptions { get; set; }
     #endregion
 
     #region Methods

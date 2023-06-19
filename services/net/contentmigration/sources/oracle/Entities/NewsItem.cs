@@ -333,6 +333,6 @@ public class NewsItem
     /// <summary>
     /// get/set
     /// </summary>
-    public ICollection<UserTone>? Tones { get;} = new List<UserTone>();
+    public ICollection<UserTone> Tones { get;} = new List<UserTone>();
 
 }
