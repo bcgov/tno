@@ -7,7 +7,7 @@ export const mockIngestTypes: IIngestTypeModel[] = [
     description: '',
     sortOrder: 0,
     isEnabled: true,
-    contentType: ContentTypeName.Snippet,
+    contentType: ContentTypeName.AudioVideo,
     autoTranscribe: false,
     disableTranscribe: false,
   },

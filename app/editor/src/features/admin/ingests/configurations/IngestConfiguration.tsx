@@ -60,7 +60,7 @@ export const IngestConfiguration: React.FC = (props) => {
       <Show visible={values.ingestType?.name === 'TNO-PrintContent'}>
         <DbMigration />
       </Show>
-      <Show visible={values.ingestType?.name === 'TNO-Snippet'}>
+      <Show visible={values.ingestType?.name === 'TNO-AudioVideo'}>
         <DbMigration />
       </Show>
       <Show visible={values.ingestType?.name === 'TNO-Story'}>

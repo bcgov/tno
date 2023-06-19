@@ -500,7 +500,7 @@ public class ContentController : ControllerBase
     }
 
     /// <summary>
-    /// Attach an existing video/audio clip as the content of this snippet.
+    /// Attach an existing video/audio clip as the file.
     /// Only a single file can be linked to content, each new attachment will overwrite.
     /// </summary>
     /// <param name="contentId"></param>

@@ -1,6 +1,6 @@
 export enum ContentTypeName {
-  /** Snippet content contains audio/video. */
-  Snippet = 'Snippet',
+  /** Content contains audio/video. */
+  AudioVideo = 'AudioVideo',
   /** Print content is stories published by newspapers in traditional media. */
   PrintContent = 'PrintContent',
   /** Image files and front page images of newspapers. */

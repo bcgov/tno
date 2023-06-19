@@ -66,7 +66,7 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
           element={
             <PrivateRoute
               claims={Claim.editor}
-              element={<ContentForm contentType={ContentTypeName.Snippet} />}
+              element={<ContentForm contentType={ContentTypeName.AudioVideo} />}
             ></PrivateRoute>
           }
         />

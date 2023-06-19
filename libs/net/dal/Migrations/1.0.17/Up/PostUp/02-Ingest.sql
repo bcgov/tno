@@ -23,10 +23,10 @@ INSERT INTO public.ingest (
   , "updated_by"
 ) VALUES
 (
-  'TNO 1.0 - Snippet Content'
-  , 'Ingest TNO 1.0 - Snippet Content' -- description
+  'TNO 1.0 - AudioVideo Content'
+  , 'Ingest TNO 1.0 - AudioVideo Content' -- description
   , true -- is_enabled
-  , (SELECT id FROM public.ingest_type WHERE name = 'TNO-Snippet') -- ingest_type_id
+  , (SELECT id FROM public.ingest_type WHERE name = 'TNO-AudioVideo') -- ingest_type_id
   , srcTNOId -- source_id
   , 'TNO' -- topic
   , (SELECT id FROM public.product WHERE name = 'News Radio') -- product_id

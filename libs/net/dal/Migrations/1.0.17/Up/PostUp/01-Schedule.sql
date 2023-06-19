@@ -19,7 +19,7 @@ INSERT INTO public.schedule (
     , "version"
 ) VALUES
 (
-  'TNO 1.0 - Snippet Content' -- name
+  'TNO 1.0 - AudioVideo Content' -- name
   , '' -- description
   , true -- is_enabled
   , 1 -- schedule_type

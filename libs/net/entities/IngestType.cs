@@ -43,7 +43,7 @@ public class IngestType : BaseType<int>
     #region Constructors
     protected IngestType() { }
 
-    public IngestType(string name, ContentType contentType = ContentType.Snippet) : base(name)
+    public IngestType(string name, ContentType contentType = ContentType.AudioVideo) : base(name)
     {
         this.ContentType = contentType;
     }

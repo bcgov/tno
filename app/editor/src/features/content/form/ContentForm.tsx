@@ -66,12 +66,12 @@ export interface IContentFormProps {
 }
 
 /**
- * Snippet Form edit and create form for default view. Path will be appended with content id.
+ * Content Form edit and create form for default view. Path will be appended with content id.
  * @param param0 Component properties.
  * @returns Edit/Create Form for Content
  */
 export const ContentForm: React.FC<IContentFormProps> = ({
-  contentType: initContentType = ContentTypeName.Snippet,
+  contentType: initContentType = ContentTypeName.AudioVideo,
   combinedPath,
 }) => {
   const hub = useApiHub();
@@ -403,7 +403,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                           />
                         </Col>
                         <Col>
-                          {/* Snippet form */}
+                          {/* AudioVideo form */}
                           <Show visible={contentType !== ContentTypeName.Image}>
                             <Row>
                               <FormikSelect
@@ -502,7 +502,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       </Show>
                       <Show
                         visible={
-                          contentType === ContentTypeName.Snippet ||
+                          contentType === ContentTypeName.AudioVideo ||
                           contentType === ContentTypeName.Story
                         }
                       >
@@ -597,7 +597,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                             showErrorOnSave={{ value: true, savePressed: savePressed }}
                             setShowValidationToast={setShowValidationToast}
                           />
-                          <Show visible={props.values.contentType === ContentTypeName.Snippet}>
+                          <Show visible={props.values.contentType === ContentTypeName.AudioVideo}>
                             <Tab
                               onClick={() => setActive('transcript')}
                               active={active === 'transcript'}
@@ -674,18 +674,20 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     <ToningGroup fieldName="tonePools" />
                     <Show
                       visible={
-                        contentType === ContentTypeName.Snippet ||
+                        contentType === ContentTypeName.AudioVideo ||
                         contentType === ContentTypeName.PrintContent
                       }
                     >
-                      <TimeLogSection prepTimeRequired={contentType === ContentTypeName.Snippet} />
+                      <TimeLogSection
+                        prepTimeRequired={contentType === ContentTypeName.AudioVideo}
+                      />
                     </Show>
                   </Show>
 
                   <Row className="submit-buttons">
                     <Show
                       visible={
-                        contentType === ContentTypeName.Snippet &&
+                        contentType === ContentTypeName.AudioVideo &&
                         props.values.fileReferences.length === 0 &&
                         !props.values.file
                       }
@@ -706,7 +708,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                         type="submit"
                         disabled={
                           props.isSubmitting ||
-                          ([ContentTypeName.Snippet, ContentTypeName.Image].includes(contentType) &&
+                          ([ContentTypeName.AudioVideo, ContentTypeName.Image].includes(
+                            contentType,
+                          ) &&
                             !allowPublishWithoutFile &&
                             props.values.fileReferences.length === 0 &&
                             !props.values.file)
@@ -727,7 +731,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                           variant={ButtonVariant.secondary}
                           disabled={
                             props.isSubmitting ||
-                            (contentType === ContentTypeName.Snippet &&
+                            (contentType === ContentTypeName.AudioVideo &&
                               props.values.fileReferences.length === 0 &&
                               !props.values.file)
                           }
@@ -761,7 +765,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                         <Show
                           visible={
                             !!props.values.id &&
-                            props.values.contentType === ContentTypeName.Snippet
+                            props.values.contentType === ContentTypeName.AudioVideo
                           }
                         >
                           <Button

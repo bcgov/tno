@@ -17,7 +17,7 @@ export const getContentPath = (
   if (combined) return `${combinedPath}/${id}${window.location.search}`;
 
   switch (contentType) {
-    case ContentTypeName.Snippet:
+    case ContentTypeName.AudioVideo:
       return `/snippets/${id}${window.location.search}`;
     case ContentTypeName.PrintContent:
       return `/papers/${id}${window.location.search}`;

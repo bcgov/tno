@@ -23,7 +23,7 @@ INSERT INTO public.ingest_type (
   'Audio' -- 2
   , 'Audio streams, or files such as talk shows/commentary focused on #BCPolicy'
   , true -- is_enabled
-  , 0 -- content_type - Snippet
+  , 0 -- content_type - AudioVideo
   , false -- auto_transcribe
   , false -- disable_transcribe
   , ''
@@ -32,7 +32,7 @@ INSERT INTO public.ingest_type (
   'Video' -- 3
   , 'Video streams, or files including 15 television stations'
   , true -- is_enabled
-  , 0 -- content_type - Snippet
+  , 0 -- content_type - AudioVideo
   , false -- auto_transcribe
   , false -- disable_transcribe
   , ''

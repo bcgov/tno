@@ -37,7 +37,7 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
       case HomeFilterType.RadioTV:
         storeFilter({
           ...filter,
-          contentTypes: [ContentTypeName.Snippet],
+          contentTypes: [ContentTypeName.AudioVideo],
           sourceIds: [],
           excludeSourceIds: [],
         });

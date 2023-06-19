@@ -63,7 +63,7 @@ export const ContentListView: React.FC = () => {
   });
 
   const [contentId, setContentId] = React.useState(id);
-  const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.Snippet);
+  const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
 
   const openTab = true; // TODO: Change to user preference and responsive in future.
   const columns = getColumns(openTab, initTab);

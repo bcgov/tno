@@ -183,18 +183,18 @@ public class ContentService : BaseService<Content, long>, IContentService
         var productQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
         var today = DateTime.Today.ToUniversalTime();
         productQueries.Add(q => q.Raw(@"{""match"": {""productId"": 11}}"));
-         var response = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(s =>
-        {
-            var result = s
-                .Pretty()
-                .Index(index)
-                .Size(5);
-            result = result.Query(q => 
-                (productQueries.Any() ? q.Bool(b => b.Should(productQueries)) : new QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>()) 
-            );
-            result = result.Sort(s => s.Descending(p => p.PublishedOn).Descending(p => p.Id));
-            return result;
-        });
+        var response = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(s =>
+       {
+           var result = s
+               .Pretty()
+               .Index(index)
+               .Size(5);
+           result = result.Query(q =>
+               productQueries.Any() ? q.Bool(b => b.Should(productQueries)) : new QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>()
+           );
+           result = result.Sort(s => s.Descending(p => p.PublishedOn).Descending(p => p.Id));
+           return result;
+       });
 
         var items = response.IsValid ?
             response.Documents :

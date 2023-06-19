@@ -1,6 +1,6 @@
 export enum HomeFilterType {
   Papers = 'PrintContent',
-  RadioTV = 'Snippet',
+  RadioTV = 'AudioVideo',
   Internet = 'internet',
   CPNews = 'cpNews',
 }

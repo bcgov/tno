@@ -13,7 +13,7 @@ using TNO.Services.ContentMigration.Sources.Oracle;
 namespace TNO.Services.ContentMigration.Migrators;
 
 /// <summary>
-/// manages Ingestion of TNO 1.0 'Snippet'
+/// manages Ingestion of TNO 1.0 'AudioVideo'
 /// </summary>
 public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMigrator
 {
@@ -69,19 +69,22 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
 
         // newsItem.string5 & newsItem.string5 seem to be the "Show/Program"
 
-        if (newsItem.UpdatedOn != null) {
+        if (newsItem.UpdatedOn != null)
+        {
             content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ? newsItem.UpdatedOn.Value.ToUniversalTime() : null;
         }
 
-        if (newsItem.Tones != null) {
+        if (newsItem.Tones != null)
+        {
             // TODO: replace the USER_RSN value on UserIdentifier with something that can be mapped by the Content Service to an MMIA user
             // TODO: remove UserRSN filter once user can be mapped
             content.TonePools = newsItem.Tones.Where(t => t.UserRSN == 0)
                 .Select(t => new Kafka.Models.TonePool { Value = (int)t.ToneValue, UserIdentifier = t.UserRSN.ToString() });
         }
 
-        if (!string.IsNullOrEmpty(newsItem.EodGroup) && !string.IsNullOrEmpty(newsItem.EodCategory)) {
-            content.Topics = new[] { new Kafka.Models.Topic {Name = newsItem.EodCategory, TopicType = (TopicType)Enum.Parse(typeof(TopicType), newsItem.EodGroup)}};
+        if (!string.IsNullOrEmpty(newsItem.EodGroup) && !string.IsNullOrEmpty(newsItem.EodCategory))
+        {
+            content.Topics = new[] { new Kafka.Models.Topic { Name = newsItem.EodCategory, TopicType = (TopicType)Enum.Parse(typeof(TopicType), newsItem.EodGroup) } };
         }
 
         return content;
@@ -91,7 +94,8 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
     ///
     /// </summary>
     /// <returns></returns>
-    public override System.Linq.Expressions.Expression<Func<NewsItem, bool>> GetBaseFilter() {
+    public override System.Linq.Expressions.Expression<Func<NewsItem, bool>> GetBaseFilter()
+    {
         return PredicateBuilder.New<NewsItem>()
             .And(ni => ni.ContentType!.Equals("video/quicktime"));
     }

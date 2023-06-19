@@ -42,7 +42,7 @@ const mockUseContent = [
           owner: { displayName: 'user@idir', username: 'test@idir' },
           otherSource: 'TEST',
           createdOn: '2022-05-12T16:11:15.756251Z',
-          contentType: ContentTypeName.Snippet,
+          contentType: ContentTypeName.AudioVideo,
           status: ContentStatusName.Publish,
           product: {
             name: 'News',

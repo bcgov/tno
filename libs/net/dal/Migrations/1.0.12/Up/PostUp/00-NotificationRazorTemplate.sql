@@ -5,10 +5,10 @@ UPDATE public."notification"
 SET
 	settings=to_json(regexp_replace('{ "subject": "
 		@{
-			var isTranscriptAvailable = Model.Content.ContentType == ContentType.Snippet &&
+			var isTranscriptAvailable = Model.Content.ContentType == ContentType.AudioVideo &&
 				!string.IsNullOrWhiteSpace(Model.Content.Body) && Model.Content.IsApproved;
 
-            var transcriptIcon = isTranscriptAvailable ? "check_mark.svg" : ""; 
+            var transcriptIcon = isTranscriptAvailable ? "check_mark.svg" : "";
 
             var toneIcon = "face-meh.svg";
             switch (Model.Content.TonePools.FirstOrDefault()?.Value)
@@ -37,7 +37,7 @@ SET
         {
             <img src=@transcriptIcon alt="transcript available">
         }
-	" }', '\t', '', 'g')), 
+	" }', '\t', '', 'g')),
 	template='
         @{
             var mmiaUrl = Model.NotificationOptions.Value.MmiaUrl?.AbsoluteUri;
@@ -60,7 +60,7 @@ SET
             <div><a href="@mmiaUrl" target="_blank">MMIA...</a></div>
             <br />
         }
-        @if (Model.Content.ContentType == ContentType.Snippet && !string.IsNullOrEmpty(requestTranscriptUrl))
+        @if (Model.Content.ContentType == ContentType.AudioVideo && !string.IsNullOrEmpty(requestTranscriptUrl))
         {
             <div><a href="@requestTranscriptUrl" target="_blank">Request Transcript...</a></div>
             <br />

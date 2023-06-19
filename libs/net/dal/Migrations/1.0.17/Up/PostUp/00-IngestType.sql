@@ -11,10 +11,10 @@ INSERT INTO public.ingest_type (
   , "created_by"
   , "updated_by"
 ) VALUES (
-  'TNO-Snippet' -- 10
-  , 'Snippet migration from TNO 1.0'
+  'TNO-AudioVideo' -- 10
+  , 'AudioVideo migration from TNO 1.0'
   , true -- is_enabled
-  , 0 -- content_type - Snippet
+  , 0 -- content_type - AudioVideo
   , false -- auto_transcribe
   , false -- disable_transcribe
   , ''
