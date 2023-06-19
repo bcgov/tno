@@ -2,6 +2,7 @@ import { DetermineToneIcon } from 'features/home/utils';
 import parse from 'html-react-parser';
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useContent, useWorkOrders } from 'store/hooks';
 import {
   Button,
@@ -11,16 +12,15 @@ import {
   IWorkOrderModel,
   Row,
   Show,
+  useWindowSize,
   WorkOrderStatusName,
   WorkOrderTypeName,
-  useWindowSize,
 } from 'tno-core';
 
 import * as styled from './styled';
 import { formatTime, isWorkOrderStatus } from './utils';
-import { ViewContentToolbar } from './ViewContentToolbar';
-import { toast } from 'react-toastify';
 import { WorkOrderStatus } from './utils/WorkOrderStatus';
+import { ViewContentToolbar } from './ViewContentToolbar';
 
 export interface IStream {
   url: string;
