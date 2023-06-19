@@ -11,14 +11,8 @@ using TNO.DAL.Services;
 using TNO.DAL.Config;
 using TNO.Entities.Models;
 using TNO.Core.Extensions;
-using TNO.Kafka;
-using TNO.API.Config;
 using System.Net.Mime;
-using TNO.API.Helpers;
 using System.Web;
-using System.Text.Json;
-using TNO.API.SignalR;
-using Microsoft.AspNetCore.SignalR;
 using TNO.Keycloak;
 using TNO.Elastic;
 
@@ -42,16 +36,7 @@ public class ContentController : ControllerBase
     #region Variables
     private readonly IContentService _contentService;
     private readonly IFileReferenceService _fileReferenceService;
-    private readonly IWorkOrderService _workOrderService;
-    private readonly IUserService _userService;
-    private readonly IActionService _actionService;
     private readonly StorageOptions _storageOptions;
-    private readonly IConnectionHelper _connection;
-    private readonly IHubContext<MessageHub> _hub;
-    private readonly IKafkaMessenger _kafkaMessenger;
-    private readonly KafkaOptions _kafkaOptions;
-    private readonly JsonSerializerOptions _serializerOptions;
-    private readonly ILogger _logger;
     private readonly ElasticOptions _elasticOptions;
 
     #endregion
@@ -62,45 +47,18 @@ public class ContentController : ControllerBase
     /// </summary>
     /// <param name="contentService"></param>
     /// <param name="fileReferenceService"></param>
-    /// <param name="workOrderService"></param>
-    /// <param name="userService"></param>
-    /// <param name="actionService"></param>
-    /// <param name="hub"></param>
-    /// <param name="connection"></param>
     /// <param name="storageOptions"></param>
-    /// <param name="kafkaMessenger"></param>
-    /// <param name="kafkaOptions"></param>
-    /// <param name="serializerOptions"></param>
     /// <param name="elasticOptions"></param>
-    /// <param name="logger"></param>
     public ContentController(
         IContentService contentService,
         IFileReferenceService fileReferenceService,
-        IWorkOrderService workOrderService,
-        IUserService userService,
-        IActionService actionService,
-        IHubContext<MessageHub> hub,
-        IConnectionHelper connection,
         IOptions<StorageOptions> storageOptions,
-        IKafkaMessenger kafkaMessenger,
-        IOptions<KafkaOptions> kafkaOptions,
-        IOptions<JsonSerializerOptions> serializerOptions,
-        IOptions<ElasticOptions> elasticOptions,
-        ILogger<ContentController> logger)
+        IOptions<ElasticOptions> elasticOptions)
     {
         _contentService = contentService;
         _fileReferenceService = fileReferenceService;
-        _workOrderService = workOrderService;
-        _userService = userService;
-        _actionService = actionService;
         _storageOptions = storageOptions.Value;
-        _hub = hub;
-        _connection = connection;
-        _kafkaMessenger = kafkaMessenger;
-        _kafkaOptions = kafkaOptions.Value;
-        _serializerOptions = serializerOptions.Value;
         _elasticOptions = elasticOptions.Value;
-        _logger = logger;
     }
     #endregion
 
@@ -157,7 +115,6 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> FindFrontPages()
     {
-        var uri = new Uri(this.Request.GetDisplayUrl());
         var result = await _contentService.FindFrontPages(_elasticOptions.PublishedIndex);
         var page = new Paged<Services.Models.Content.ContentModel>(
             result.Items,

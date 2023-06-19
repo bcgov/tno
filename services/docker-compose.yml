@@ -12,6 +12,14 @@ services:
     build:
       context: ./
       dockerfile: services/net/syndication/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
     env_file:
       - services/net/syndication/.env
     ports:
@@ -38,6 +46,14 @@ services:
     build:
       context: ./
       dockerfile: services/net/capture/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
     env_file:
       - services/net/capture/.env
     ports:
@@ -66,6 +82,14 @@ services:
     build:
       context: ./
       dockerfile: services/net/clip/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
     env_file:
       - services/net/clip/.env
     ports:
@@ -94,6 +118,14 @@ services:
     build:
       context: ./
       dockerfile: services/net/image/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
     env_file:
       - services/net/image/.env
     ports:
@@ -122,6 +154,14 @@ services:
     build:
       context: ./
       dockerfile: services/net/filemonitor/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
     env_file:
       - services/net/filemonitor/.env
     ports:
@@ -150,6 +190,14 @@ services:
     build:
       context: ./
       dockerfile: services/net/content/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
     env_file:
       - services/net/content/.env
     ports:
@@ -178,6 +226,14 @@ services:
     build:
       context: ./
       dockerfile: services/net/contentmigration/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
     env_file:
       - services/net/contentmigration/.env
     ports:
@@ -207,6 +263,14 @@ services:
     build:
       context: ./
       dockerfile: services/net/indexing/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
     env_file:
       - services/net/indexing/.env
     ports:
@@ -234,6 +298,14 @@ services:
     build:
       context: ./
       dockerfile: services/net/transcription/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
     env_file:
       - services/net/transcription/.env
     ports:
@@ -262,6 +334,14 @@ services:
     build:
       context: ./
       dockerfile: services/net/nlp/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
     env_file:
       - services/net/nlp/.env
     ports:
@@ -288,6 +368,14 @@ services:
     build:
       context: ./
       dockerfile: services/net/filecopy/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
     env_file:
       - services/net/filecopy/.env
     ports:
@@ -316,6 +404,14 @@ services:
     build:
       context: ./
       dockerfile: services/net/notification/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
     env_file:
       - services/net/notification/.env
     ports:
@@ -342,6 +438,14 @@ services:
     build:
       context: ./
       dockerfile: services/net/reporting/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
     env_file:
       - services/net/reporting/.env
     ports:
