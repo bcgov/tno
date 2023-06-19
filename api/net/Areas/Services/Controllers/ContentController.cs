@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
+using TNO.API.Areas.Admin.Models.Topic;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Config;
 using TNO.API.Models;
@@ -43,6 +44,7 @@ public class ContentController : ControllerBase
     private readonly IContentService _contentService;
     private readonly IFileReferenceService _fileReferenceService;
     private readonly IUserService _userService;
+    private readonly ITopicService _topicService;
     private readonly StorageOptions _storageOptions;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
@@ -59,6 +61,7 @@ public class ContentController : ControllerBase
     /// <param name="contentService"></param>
     /// <param name="fileReferenceService"></param>
     /// <param name="userService"></param>
+    /// <param name="topicService"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
     /// <param name="kafkaHubOptions"></param>
@@ -70,6 +73,7 @@ public class ContentController : ControllerBase
         IContentService contentService,
         IFileReferenceService fileReferenceService,
         IUserService userService,
+        ITopicService topicService,
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<KafkaHubConfig> kafkaHubOptions,
@@ -81,6 +85,7 @@ public class ContentController : ControllerBase
         _contentService = contentService;
         _fileReferenceService = fileReferenceService;
         _userService = userService;
+        _topicService = topicService;
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
         _kafkaHubOptions = kafkaHubOptions.Value;
@@ -140,6 +145,19 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> AddAsync(ContentModel model, int? requestorId = null)
     {
+        var newTopics = model.Topics.Where(t => t.Id == 0);
+        foreach (var topic in newTopics)
+        {
+            var topicModel = new TopicModel
+            {
+                IsEnabled = false,
+                Name = topic.Name,
+                TopicType = topic.TopicType
+            };
+            var result = _topicService.AddAndSave((TNO.Entities.Topic)topicModel);
+            topic.Id = result.Id;
+        }
+
         var content = _contentService.AddAndSave((Content)model);
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))

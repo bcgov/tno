@@ -293,6 +293,8 @@ public class ContentManager : ServiceManager<ContentOptions>
                 if (mappedContentTopicModels.Any()) {
                     content.Topics = mappedContentTopicModels.ToArray();
                 }
+            } else {
+                content.Topics = new[] { GetTopicMapping(topics!, TopicType.Proactive, "Salmon hat orcas")};
             }
 
             content = await this.Api.AddContentAsync(content) ?? throw new InvalidOperationException($"Adding content failed {content.OtherSource}:{content.Uid}");
@@ -484,12 +486,16 @@ public class ContentManager : ServiceManager<ContentOptions>
     #endregion
 
     #region Helper Methods
-    private static ContentTonePoolModel? GetTonePoolMapping(IEnumerable<API.Areas.Editor.Models.TonePool.TonePoolModel> tonePools, int toneValue, string? userIdentifier)
+    private ContentTonePoolModel? GetTonePoolMapping(IEnumerable<API.Areas.Editor.Models.TonePool.TonePoolModel> tonePools, int toneValue, string? userIdentifier)
     {
         // use the "Default" TonePool
         if (string.IsNullOrEmpty(userIdentifier)) {
             // the "Default" tone should always be present
-            var tonePoolDefault = tonePools.Where(s => s.Name.Equals("Default")).First();
+            if (string.IsNullOrEmpty(this.Options.MigrationOptions.DefaultTonePool))
+                throw new ArgumentException("Default Tone Pool Name cannot be empty");
+            var tonePoolDefault = tonePools.Where(s => s.Name.Equals(this.Options.MigrationOptions.DefaultTonePool)).FirstOrDefault()
+                ?? throw new ArgumentException($"Cannot find Tone Pool with Name [{this.Options.MigrationOptions.DefaultTonePool}]");
+
             return new ContentTonePoolModel() {
                 Value = toneValue,
                 Id = tonePoolDefault.Id,
@@ -507,8 +513,8 @@ public class ContentManager : ServiceManager<ContentOptions>
     private static ContentTopicModel? GetTopicMapping(IEnumerable<API.Areas.Editor.Models.Topic.TopicModel> topics, TopicType topicType, string topicName)
     {
         var topicModel = new ContentTopicModel() {
-            Score = 0, // TODO: until we can dig score out of TNO 1.0
-            ContentId = 0 // for new content
+            ContentId = 0, // for new content
+            Score = 0 // TODO: dig score out of TNO 1.0
         };
         var topic = topics.Where(s => s.Name == topicName && s.TopicType == topicType).FirstOrDefault();
         if (topic != null) {
@@ -516,7 +522,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             topicModel.Name = topic.Name;
             topicModel.TopicType = topic.TopicType;
         } else {
-            // KGM: will this create a new Topic, if one doesnt already exist?
+            // build a new placeholder which will be added at the same time as the Content
             topicModel.Id = 0;
             topicModel.Name = topicName;
             topicModel.TopicType = topicType;
