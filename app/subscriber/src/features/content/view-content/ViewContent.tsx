@@ -203,7 +203,7 @@ export const ViewContent: React.FC = () => {
               ])
             }
           >
-            Transcribe
+            <div className="text">Transcribe</div>
             <WorkOrderStatus workOrders={workOrders} type={WorkOrderTypeName.Transcription} />
           </Button>
         </Show>

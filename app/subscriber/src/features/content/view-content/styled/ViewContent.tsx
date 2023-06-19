@@ -32,5 +32,14 @@ export const ViewContent = styled.div`
   }
   .transcribe-button {
     margin-left: auto;
+    .text {
+      color: black;
+    }
+    svg,
+    .spinner {
+      color: ${(props) => props.theme.css.itemActiveColor};
+      align-self: center;
+      margin-left: 0.5em;
+    }
   }
 `;
