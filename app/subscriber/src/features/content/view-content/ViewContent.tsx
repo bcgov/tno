@@ -152,7 +152,7 @@ export const ViewContent: React.FC = () => {
         </p>
         <p className="source-section">
           <Show visible={content?.contentType === ContentTypeName.PrintContent}>
-            {content?.source?.name} - {content?.section}
+            {content?.source?.name} - {`${content?.section}: ${content?.page}`}
           </Show>
           <Show visible={content?.contentType !== ContentTypeName.PrintContent}>
             {!!content?.series && `${content?.source?.name} / ${content?.series?.name}`}
