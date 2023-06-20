@@ -233,8 +233,9 @@ public class ContentManager : ServiceManager<ContentOptions>
             var source = await this.Api.GetSourceForCodeAsync(model.Source);
             var lookups = await this.Api.GetLookupsAsync();
 
-            IEnumerable<API.Areas.Editor.Models.Topic.TopicModel>? topics = lookups?.Topics;
+            IEnumerable<API.Areas.Editor.Models.Tag.TagModel>? tags = lookups?.Tags;
             IEnumerable<API.Areas.Editor.Models.TonePool.TonePoolModel>? tonePools = lookups?.TonePools;
+            IEnumerable<API.Areas.Editor.Models.Topic.TopicModel>? topics = lookups?.Topics;
 
             if (model.ProductId == 0)
             {
@@ -269,8 +270,20 @@ public class ContentManager : ServiceManager<ContentOptions>
             // if (model.Actions.Any()) {
             // }
 
-            if (model.TonePools.Any())
-            {
+            if (model.Tags.Any()) {
+                var mappedContentTagModels = new List<ContentTagModel>();
+                foreach (var tag in model.Tags)   {
+                    var mapping = GetTagMapping(tags!, tag.Key, tag.Value);
+                    if (mapping != null) {
+                        mappedContentTagModels.Add(mapping);
+                    }
+                }
+                if (mappedContentTagModels.Any()) {
+                    content.Tags = mappedContentTagModels.ToArray();
+                }
+            }
+
+            if (model.TonePools.Any()) {
                 var mappedTonePools = new List<ContentTonePoolModel>();
                 foreach (var tonePool in model.TonePools)
                 {
@@ -286,8 +299,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 }
             }
 
-            if (model.Topics.Any())
-            {
+            if (model.Topics.Any()) {
                 var mappedContentTopicModels = new List<ContentTopicModel>();
                 foreach (var topic in model.Topics)
                 {
@@ -527,9 +539,8 @@ public class ContentManager : ServiceManager<ContentOptions>
             ContentId = 0, // for new content
             Score = 0 // TODO: dig score out of TNO 1.0
         };
-        var topic = topics.Where(s => s.Name == topicName && s.TopicType == topicType).FirstOrDefault();
-        if (topic != null)
-        {
+        var topic = topics.Where(s => s.Name.Equals(topicName, StringComparison.InvariantCultureIgnoreCase) && s.TopicType == topicType).FirstOrDefault();
+        if (topic != null) {
             topicModel.Id = topic.Id;
             topicModel.Name = topic.Name;
             topicModel.TopicType = topic.TopicType;
@@ -542,6 +553,26 @@ public class ContentManager : ServiceManager<ContentOptions>
             topicModel.TopicType = topicType;
         }
         return topicModel;
+    }
+
+    private ContentTagModel? GetTagMapping(IEnumerable<API.Areas.Editor.Models.Tag.TagModel> tags, string code, string topicName)
+    {
+        var tagModel = new ContentTagModel() {
+            ContentId = 0, // for new content
+        };
+        // Tags come in from the Content Migrator with no name, so we can only match on Code
+        var tag = tags.Where(s => s.Code.Equals(code, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+        if (tag != null) {
+            tagModel.Id = tag.Id;
+            tagModel.Code = tag.Code;
+            tagModel.Name = tag.Name;
+        } else {
+            // build a new placeholder which will be added at the same time as the Content
+            tagModel.Id = 0;
+            tagModel.Code = code;
+            tagModel.Name = this.Options.MigrationOptions.DefaultTagName ?? string.Empty;
+        }
+        return tagModel;
     }
 
     #endregion

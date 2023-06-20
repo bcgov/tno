@@ -94,7 +94,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 
         return newsItems.Where(predicate)
                 .OrderBy(ni => ni.ItemDateTime) // oldest first
-                .OrderByDescending(ni => ni.RSN)
+                .ThenBy(ni => ni.RSN)
                 .Skip(skip).Take(count);
     }
 
