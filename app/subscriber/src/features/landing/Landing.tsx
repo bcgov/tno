@@ -10,6 +10,7 @@ import { Home } from 'features/home';
 import { MyMinister } from 'features/my-minister/MyMinister';
 import { MyMinisterSettings } from 'features/settings';
 import { TodaysCommentary } from 'features/todays-commentary';
+import { TopStories } from 'features/top-stories';
 import React from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -17,7 +18,6 @@ import { useApp } from 'store/hooks';
 import { Col, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
-import { TopStories } from 'features/top-stories';
 
 /**
  * Main landing page for the subscriber app.
