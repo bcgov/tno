@@ -202,6 +202,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         return new Paged<API.Areas.Services.Models.Content.ContentModel>(items, 1, 5, response.Total);
 
     }
+
     /// <summary>
     /// Find content that matches the specified 'filter'.
     /// TODO: Change to a raw JSON query.
@@ -210,47 +211,42 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// <returns>A page of content items that match the filter.</returns>
     public async Task<IPaged<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(string index, ContentFilter filter)
     {
-        var sourceQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
-        foreach (var sourceId in filter.SourceIds)
-            sourceQueries.Add(s => s.Term(t => t.SourceId, sourceId));
-
-        foreach (var sourceId in filter.ExcludeSourceIds)
-            sourceQueries.Add(s => !s.Term(t => t.SourceId, sourceId));
-
-        var productQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
-        foreach (var productId in filter.ProductIds)
-            productQueries.Add(s => s.Term(t => t.ProductId, productId));
-
         var contentQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
-        foreach (var contentId in filter.ContentIds)
-            contentQueries.Add(s => s.Term(t => t.Id, contentId));
+        if (filter.ContentIds.Any())
+            contentQueries.Add(s => s.Terms(t => t.Field(f => f.Id).Terms(filter.ContentIds)));
+
+        var filterQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
+        if (filter.SourceIds.Any())
+            filterQueries.Add(s => s.Terms(t => t.Field(f => f.SourceId).Terms(filter.SourceIds)));
+        if (filter.ExcludeSourceIds.Any())
+            filterQueries.Add(s => !s.Terms(t => t.Field(f => f.SourceId).Terms(filter.ExcludeSourceIds)));
+
+        if (filter.ProductIds.Any())
+            filterQueries.Add(s => s.Terms(t => t.Field(f => f.ProductId).Terms(filter.ProductIds)));
+
+        if (filter.ContentTypes.Any())
+            filterQueries.Add(s => s.Terms(t => t.Field(f => f.ContentType).Terms(filter.ContentTypes.Select(ct => ct.GetName()))));
+
+        filterQueries.Add(s => s.Bool(b => b.Should(contentQueries)));
 
         var actionQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
         foreach (var action in filter.Actions)
-            actionQueries.Add(s => s
-                .Nested(n => n
-                    .Path(p => p.Actions)
-                    .Query(y => y
-                        .Match(m => m
-                            .Field("actions.name")
-                            .Query(action)
+            actionQueries.Add(s => s.Nested(n =>
+                    n.Path(p => p.Actions)
+                    .Query(y =>
+                        y.Match(m => m.Field("actions.name").Query(action)
                         ) && (
                             (
-                                y.Match(m => m
-                                    .Field("actions.valueType").Query("Boolean")
-                                    .Field("actions.value").Query("true"))
+                                y.Match(m => m.Field("actions.valueType").Query("Boolean").Field("actions.value").Query("true"))
                             ) || (
-                                !y.Match(m => m
-                                    .Field("actions.valueType").Query("Boolean")) &&
-                                y.Wildcard(m => m
-                                    .Field("actions.value").Value("*"))
+                                !y.Match(m => m.Field("actions.valueType").Query("Boolean")) &&
+                                y.Wildcard(m => m.Field("actions.value").Value("*"))
                             )
                         )
                     )
-                )
-            );
-
-        var filterQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
+                ));
+        if (actionQueries.Any())
+            filterQueries.Add(s => s.Bool(b => b.Should(actionQueries)));
 
         if (!string.IsNullOrWhiteSpace(filter.Headline))
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Headline).Value($"*{filter.Headline.ToLower()}*")));
@@ -277,9 +273,6 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         if (!string.IsNullOrWhiteSpace(filter.Byline))
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Byline).Value($"*{filter.Byline.ToLower()}*")));
-
-        foreach (var type in filter.ContentTypes)
-            filterQueries.Add(s => s.Terms(t => t.Field(f => f.ContentType).Terms(filter.ContentTypes.Select(ct => ct.GetName()))));
 
         if (filter.OwnerId.HasValue)
             filterQueries.Add(s => s.Term(t => t.OwnerId, filter.OwnerId.Value));
@@ -355,20 +348,16 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         var response = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(s =>
         {
-
-
             var result = s
                 .Pretty()
                 .Index(index)
                 .From((filter.Page - 1) * filter.Quantity)
                 .Size(filter.Quantity);
 
-            result = result.Query(q => (filterQueries.Any() ? q.Bool(b => b.Must(filterQueries)) : new QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>()) &&
-                (sourceQueries.Any() ? q.Bool(b => b.Should(sourceQueries)) : new QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>()) &&
-                (productQueries.Any() ? q.Bool(b => b.Should(productQueries)) : new QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>()) &&
-                (contentQueries.Any() ? q.Bool(b => b.Should(contentQueries)) : new QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>()) &&
-                (actionQueries.Any() ? q.Bool(b => b.Should(actionQueries)) : new QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>())
-            );
+            if (contentQueries.Any())
+                result = result.Query(q => q.Bool(b => b.Must(contentQueries)));
+            else if (filterQueries.Any())
+                result = result.Query(q => q.Bool(b => b.Must(filterQueries)));
 
             if (filter.Sort.Any())
             {

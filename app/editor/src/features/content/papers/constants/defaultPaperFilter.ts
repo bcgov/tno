@@ -1,17 +1,15 @@
 import { defaultPage } from 'features/content/list-view/constants';
 import { ContentTypeName, ISourceModel } from 'tno-core';
 
-import { IMorningReportsFilter } from '../interfaces';
+import { IPaperFilter } from '../interfaces';
 import { defaultSources } from '.';
 
 /**
- * Creates a default morning report filter.
+ * Creates a default paper filter.
  * @param sources An array of sources.
- * @returns Morning report filter.
+ * @returns Paper filter.
  */
-export const defaultMorningReportsFilter = (
-  sources: ISourceModel[] = [],
-): IMorningReportsFilter => {
+export const defaultPaperFilter = (sources: ISourceModel[] = []): IPaperFilter => {
   return {
     pageIndex: defaultPage.pageIndex,
     pageSize: defaultPage.pageSize,
@@ -30,6 +28,7 @@ export const defaultMorningReportsFilter = (
     onTicker: false,
     commentary: false,
     topStory: false,
+    homepage: false,
     sort: [],
   };
 };

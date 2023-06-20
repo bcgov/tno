@@ -43,6 +43,11 @@ public class IndexingOptions : ServiceOptions
     /// get/set - The topic to publish notifications to.
     /// </summary>
     public string NotificationTopic { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The topic to publish hub notifications to.
+    /// </summary>
+    public string HubTopic { get; set; } = "";
     #endregion
 
     #region Methods

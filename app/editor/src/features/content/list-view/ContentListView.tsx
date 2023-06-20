@@ -6,6 +6,7 @@ import {
   Col,
   ContentTypeName,
   FlexboxTable,
+  IContentMessageModel,
   IContentModel,
   ITableInternalRow,
   ITablePage,
@@ -108,6 +109,18 @@ export const ContentListView: React.FC = () => {
   React.useEffect(() => {
     return hub.listen(HubMethodName.WorkOrder, onWorkOrder);
   }, [onWorkOrder, hub]);
+
+  const onContentUpdated = React.useCallback(
+    async (message: IContentMessageModel) => {
+      const content = await getContent(message.id);
+      if (!!content) updateContent([content]);
+    },
+    [getContent, updateContent],
+  );
+
+  React.useEffect(() => {
+    return hub.listen(HubMethodName.Content, onContentUpdated);
+  }, [onContentUpdated, hub]);
 
   React.useEffect(() => {
     // Required because the first time this page is loaded directly the user has not been set.

@@ -4,7 +4,6 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { IMorningReportFilter } from 'features/content/morning-papers/interfaces';
 import { IContentModel, IPaged, LogicalOperator } from 'tno-core';
 
 import { IContentState } from './interfaces';
@@ -34,23 +33,6 @@ export const initialContentState: IContentState = {
     logicalOperator: LogicalOperator.Contains,
     searchTerm: '',
   },
-  morningReportFilter: {
-    pageIndex: 0,
-    pageSize: 100,
-    hasTopic: false,
-    includeHidden: false,
-    sourceId: 0,
-    otherSource: '',
-    productIds: [],
-    sourceIds: [],
-    ownerId: '',
-    userId: '',
-    timeFrame: 0,
-    onTicker: '',
-    commentary: '',
-    topStory: '',
-    sort: [],
-  },
 };
 
 export const contentSlice = createSlice({
@@ -62,9 +44,6 @@ export const contentSlice = createSlice({
     },
     storeFilterAdvanced(state: IContentState, action: PayloadAction<IContentListAdvancedFilter>) {
       state.filterAdvanced = action.payload;
-    },
-    storeMorningReportFilter(state: IContentState, action: PayloadAction<IMorningReportFilter>) {
-      state.morningReportFilter = action.payload;
     },
     storeContent(state: IContentState, action: PayloadAction<IPaged<IContentModel> | undefined>) {
       state.content = action.payload;
@@ -93,7 +72,6 @@ export const contentSlice = createSlice({
 export const {
   storeFilter,
   storeFilterAdvanced,
-  storeMorningReportFilter,
   addContent,
   storeContent,
   updateContent,

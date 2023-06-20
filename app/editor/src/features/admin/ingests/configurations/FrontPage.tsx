@@ -20,7 +20,7 @@ export const FrontPage: React.FC = (props) => {
         value={values.configuration.fileName}
       />
       <p>
-        Front pages are often delivered the evening before the publish date. Use a regular
+        Front page images are often delivered the evening before the publish date. Use a regular
         expression to parse the file name to determine the published on date. Use regex group names
         to identify each part of the date, (?&lt;year&gt;) (?&lt;month&gt;) (?&lt;day&gt;)
         (?&lt;hour&gt;) (?&lt;minute&gt;) (?&lt;second&gt;)

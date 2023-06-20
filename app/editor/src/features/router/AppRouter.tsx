@@ -2,7 +2,7 @@ import { DefaultLayout } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
 import { AdminRouter, WorkOrderForm, WorkOrderList } from 'features/admin';
 import { RequestClip } from 'features/clips';
-import { ContentForm, ContentListView, MorningReports } from 'features/content';
+import { ContentForm, ContentListView, Papers } from 'features/content';
 import { DemoPage } from 'features/demo';
 import { Login } from 'features/login';
 import { ReportsRouter } from 'features/reports';
@@ -98,12 +98,12 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
           }
         />
         <Route
-          path="morning/papers"
-          element={<PrivateRoute claims={Claim.editor} element={<MorningReports />}></PrivateRoute>}
+          path="papers"
+          element={<PrivateRoute claims={Claim.editor} element={<Papers />}></PrivateRoute>}
         />
         <Route
-          path="/morning/papers/combined/:id"
-          element={<PrivateRoute claims={Claim.editor} element={<MorningReports />}></PrivateRoute>}
+          path="/papers/combined/:id"
+          element={<PrivateRoute claims={Claim.editor} element={<Papers />}></PrivateRoute>}
         />
         <Route
           path="storage/locations/:id"

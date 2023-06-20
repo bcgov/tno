@@ -52,5 +52,18 @@ public class ContentMessageModel
         this.OwnerId = entity.OwnerId;
         this.Headline = entity.Headline;
     }
+
+    /// <summary>
+    /// Creates a new instance of an ContentMessageModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
+    public ContentMessageModel(TNO.API.Areas.Services.Models.Content.ContentModel model)
+    {
+        this.Id = model.Id;
+        this.ContentType = model.ContentType;
+        this.Status = model.Status;
+        this.OwnerId = model.OwnerId;
+        this.Headline = model.Headline;
+    }
     #endregion
 }

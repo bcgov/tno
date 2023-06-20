@@ -1,12 +1,15 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { useChannel, useContent } from 'store/hooks';
+import { toast } from 'react-toastify';
+import { HubMethodName, useApiHub, useChannel, useContent } from 'store/hooks';
 import { useContentStore } from 'store/slices';
 import {
   Col,
   ContentTypeName,
   FlexboxTable,
+  IContentMessageModel,
   IContentModel,
+  ITableInternalCell,
   ITableInternalRow,
   ITablePage,
   ITableSort,
@@ -23,34 +26,36 @@ import { defaultPage } from '../list-view/constants';
 import { IContentListAdvancedFilter } from '../list-view/interfaces';
 import { ReportActions } from './components';
 import { getColumns } from './constants';
-import { IMorningReportsFilter } from './interfaces';
-import { MorningReportsFilter } from './MorningReportsFilter';
+import { IPaperFilter } from './interfaces';
+import { PaperFilter } from './PaperFilter';
 import * as styled from './styled';
 import { makeFilter } from './utils';
 
-export interface IMorningReportsProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface IPapersProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 /**
- * Provides a list view of print content to help select stories for the morning report.
+ * Provides a list view of print content to help select stories for the papers.
  * @param props Component props.
  * @returns Component.
  */
-export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
+export const Papers: React.FC<IPapersProps> = (props) => {
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const { combined, formType } = useCombinedView();
   const [
-    { filterMorningReports: filter, filterMorningReportAdvanced: filterAdvanced, content },
-    { findContent, storeFilterMorningReport },
+    { filterPaper: filter, filterPaperAdvanced: filterAdvanced, content },
+    { findContent, storeFilterPaper, updateContent: updateStatus, getContent },
   ] = useContent();
   const [, { addContent, updateContent }] = useContentStore();
   const initTab = useTab();
+  var hub = useApiHub();
 
   const [contentId, setContentId] = React.useState(id);
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
 
   const channel = useChannel<any>({
     onMessage: (ev) => {
+      console.debug(ev);
       switch (ev.data.type) {
         case 'content':
           if (content?.items.some((i) => i.id === ev.data.message.id))
@@ -62,6 +67,9 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
           break;
         case 'load':
           setContentId(ev.data.message.id.toString());
+          if (content?.items.some((i) => i.id === ev.data.message.id))
+            updateContent([ev.data.message]);
+          else addContent([ev.data.message]);
           break;
       }
     },
@@ -70,8 +78,37 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
   const [, setLoading] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
+  const onContentUpdated = React.useCallback(
+    async (message: IContentMessageModel) => {
+      const item = await getContent(message.id);
+      if (!!item) {
+        if (content?.items.some((i) => i.id === item.id)) updateContent([item]);
+        else addContent([item]);
+      }
+    },
+    [addContent, content?.items, getContent, updateContent],
+  );
+
+  React.useEffect(() => {
+    return hub.listen(HubMethodName.Content, onContentUpdated);
+  }, [onContentUpdated, hub]);
+
+  const handleClickUse = React.useCallback(
+    (content: IContentModel) => {
+      updateStatus(content)
+        .then((response) => {
+          updateContent([response]);
+          toast.success(
+            `"${content.headline}" has been updated.  A request has been sent to update the index.`,
+          );
+        })
+        .catch((error) => {});
+    },
+    [updateContent, updateStatus],
+  );
+
   const openTab = true; // TODO: Change to user preference and responsive in future.
-  const columns = getColumns(openTab, initTab);
+  const columns = getColumns(openTab, initTab, handleClickUse);
 
   const page = React.useMemo(
     () =>
@@ -82,7 +119,7 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
   );
 
   const fetch = React.useCallback(
-    async (filter: IMorningReportsFilter & Partial<IContentListAdvancedFilter>) => {
+    async (filter: IPaperFilter & Partial<IContentListAdvancedFilter>) => {
       try {
         setLoading(true);
         const data = await findContent(
@@ -107,11 +144,16 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, fetch]);
 
-  const handleRowClick = (row: ITableInternalRow<IContentModel>) => {
-    setContentType(row.original.contentType);
-    setContentId(row.original.id.toString());
-    if (openTab) initTab(row.original.id);
-    else navigate(`/morning/papers/combined/${row.original.id}${window.location.search}`);
+  const handleRowClick = (
+    cell: ITableInternalCell<IContentModel>,
+    row: ITableInternalRow<IContentModel>,
+  ) => {
+    if (cell.index > 0 && cell.index !== 6) {
+      setContentType(row.original.contentType);
+      setContentId(row.original.id.toString());
+      if (openTab) initTab(row.original.id);
+      else navigate(`/papers/combined/${row.original.id}${window.location.search}`);
+    }
   };
 
   const handleChangePage = React.useCallback(
@@ -122,19 +164,19 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
           pageIndex: page.pageIndex,
           pageSize: page.pageSize ?? filter.pageSize,
         };
-        storeFilterMorningReport(newFilter);
+        storeFilterPaper(newFilter);
         replaceQueryParams(newFilter, { includeEmpty: false });
       }
     },
-    [filter, storeFilterMorningReport],
+    [filter, storeFilterPaper],
   );
 
   const handleChangeSort = React.useCallback(
     (sort: ITableSort<IContentModel>[]) => {
       const sorts = sort.filter((s) => s.isSorted).map((s) => ({ id: s.id, desc: s.isSortedDesc }));
-      storeFilterMorningReport({ ...filter, sort: sorts });
+      storeFilterPaper({ ...filter, sort: sorts });
     },
-    [filter, storeFilterMorningReport],
+    [filter, storeFilterPaper],
   );
 
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
@@ -146,9 +188,9 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
   };
 
   return (
-    <styled.MorningReports>
+    <styled.Papers>
       <Col wrap="nowrap">
-        <MorningReportsFilter onSearch={fetch} />
+        <PaperFilter onSearch={fetch} />
         <Row className="content-list">
           <FlexboxTable
             rowId="id"
@@ -163,7 +205,7 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
             activeRowId={contentId}
             onPageChange={handleChangePage}
             onSortChange={handleChangeSort}
-            onRowClick={handleRowClick}
+            onCellClick={handleRowClick}
             onSelectedChanged={handleSelectedRowsChanged}
           />
         </Row>
@@ -174,11 +216,11 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
             <ContentForm
               contentType={contentType}
               scrollToContent={false}
-              combinedPath="/morning/papers/combined"
+              combinedPath="/papers/combined"
             />
           </Row>
         </Show>
       </Col>
-    </styled.MorningReports>
+    </styled.Papers>
   );
 };

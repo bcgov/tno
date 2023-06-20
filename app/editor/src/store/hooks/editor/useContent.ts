@@ -2,7 +2,7 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { IMorningReportsFilter } from 'features/content/morning-papers/interfaces';
+import { IPaperFilter } from 'features/content/papers/interfaces';
 import React from 'react';
 import { ActionDelegate } from 'store';
 import { useContentStore } from 'store/slices';
@@ -35,10 +35,8 @@ interface IContentController {
   storeFilterAdvanced: (
     filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
-  storeFilterMorningReport: (
-    filter: IMorningReportsFilter | ActionDelegate<IMorningReportsFilter>,
-  ) => void;
-  storeFilterMorningReportAdvanced: (
+  storeFilterPaper: (filter: IPaperFilter | ActionDelegate<IPaperFilter>) => void;
+  storeFilterPaperAdvanced: (
     filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
 }
@@ -136,8 +134,8 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       },
       storeFilter: actions.storeFilter,
       storeFilterAdvanced: actions.storeFilterAdvanced,
-      storeFilterMorningReport: actions.storeFilterMorningReport,
-      storeFilterMorningReportAdvanced: actions.storeFilterMorningReportAdvanced,
+      storeFilterPaper: actions.storeFilterPaper,
+      storeFilterPaperAdvanced: actions.storeFilterPaperAdvanced,
     }),
     [actions, api, dispatch],
   );

@@ -222,6 +222,8 @@ public class ContentController : ControllerBase
     {
         var content = _contentService.UpdateAndSave((Content)model);
 
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
+
         if (index && !String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
             Entities.User? user = null;
@@ -243,8 +245,6 @@ public class ContentController : ControllerBase
                 await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user?.Id, IndexAction.Publish));
             else
                 await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user?.Id, IndexAction.Index));
-
-            await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
         }
         else if (index)
             _logger.LogWarning("Kafka indexing topic not configured.");

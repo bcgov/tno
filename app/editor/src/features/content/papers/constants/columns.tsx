@@ -1,8 +1,7 @@
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import {
-  CellCheckbox,
-  CellDate,
   CellEllipsis,
+  Checkbox,
   ContentStatusName,
   IContentModel,
   ITableHookColumn,
@@ -10,9 +9,17 @@ import {
 
 import { getStatusText } from '../../list-view/utils';
 
+const published = [ContentStatusName.Publish, ContentStatusName.Published];
+
+const changeStatus = (status: ContentStatusName) => {
+  if (published.includes(status)) return ContentStatusName.Unpublish;
+  return ContentStatusName.Publish;
+};
+
 export const getColumns = (
   openTab: boolean,
   onClickOpen: (contentId: number) => void,
+  onClickUse: (content: IContentModel) => void,
 ): ITableHookColumn<IContentModel>[] => [
   {
     name: 'headline',
@@ -22,7 +29,7 @@ export const getColumns = (
         {cell.original.headline}
       </CellEllipsis>
     ),
-    width: 5,
+    width: 6,
   },
   {
     name: 'otherSource',
@@ -44,11 +51,9 @@ export const getColumns = (
   },
   {
     name: 'section',
-    label: 'Section:Page',
+    label: 'Page:Section',
     cell: (cell) => {
-      const value = `${cell.original.section ? `${cell.original.section}:` : ''}${
-        cell.original.page
-      }`;
+      const value = `${cell.original.page ? `${cell.original.page}:` : ''}${cell.original.section}`;
       return (
         <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={value}>
           {value}
@@ -64,21 +69,17 @@ export const getColumns = (
     cell: (cell) => getStatusText(cell.original.status),
   },
   {
-    name: 'publishedOn',
-    label: 'Pub Date',
-    cell: (cell) => <CellDate value={cell.original.publishedOn} />,
-    width: 3,
-    hAlign: 'center',
-  },
-  {
     name: 'status',
     label: 'Use',
     cell: (cell) => (
       <div className="center">
-        <CellCheckbox
-          checked={
-            cell.original.status === ContentStatusName.Publish ||
-            cell.original.status === ContentStatusName.Published
+        <Checkbox
+          name="publish"
+          id={`publish-${cell.original.id}`}
+          value={true}
+          checked={published.includes(cell.original.status)}
+          onChange={() =>
+            onClickUse?.({ ...cell.original, status: changeStatus(cell.original.status) })
           }
         />
       </div>
