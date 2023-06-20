@@ -63,6 +63,7 @@ public class ContentController : ControllerBase
     /// <param name="contentService"></param>
     /// <param name="fileReferenceService"></param>
     /// <param name="userService"></param>
+    /// <param name="tagService"></param>
     /// <param name="topicService"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
