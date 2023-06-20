@@ -109,9 +109,9 @@ export const ViewContent: React.FC = () => {
 
   // add classname for colouring as well as formatting the tone value (+ sign for positive)
   const showToneValue = (tone: number) => {
-    if (tone > 0) return <p className="pos">+{tone}</p>;
-    if (tone < 0) return <p className="neg">{tone}</p>;
-    if (tone === 0) return <p className="neut">{tone}</p>;
+    if (tone > 0) return <span className="pos">+{tone}</span>;
+    if (tone < 0) return <span className="neg">{tone}</span>;
+    if (tone === 0) return <span className="neut">{tone}</span>;
   };
 
   const formatDate = (date: string) => {
@@ -189,7 +189,7 @@ export const ViewContent: React.FC = () => {
             content?.contentType === ContentTypeName.Image
           }
         >
-          <p>{parse(content?.summary ?? '')}</p>
+          <span>{parse(content?.summary ?? '')}</span>
         </Show>
         <Show visible={content?.contentType === ContentTypeName.AudioVideo}>
           <Button
@@ -215,7 +215,7 @@ export const ViewContent: React.FC = () => {
         <hr />
         <h3>Transcription:</h3>
         <Row>
-          <p>{parse(content?.body ?? '')}</p>
+          <span>{parse(content?.body ?? '')}</span>
         </Row>
       </Show>
     </styled.ViewContent>
