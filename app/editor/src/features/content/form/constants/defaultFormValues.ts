@@ -27,7 +27,7 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     publishedOn: '',
     publishedOnTime: '',
     isHidden: false,
-    isApproved: contentType !== ContentTypeName.Snippet,
+    isApproved: contentType !== ContentTypeName.AudioVideo,
     actions: [],
     topics: [],
     tags: [],

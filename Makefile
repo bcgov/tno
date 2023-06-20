@@ -142,11 +142,10 @@ renew: ## Refresh all relevant services that were impacted by prior Pull Request
 	@make refresh n=api
 	@make refresh n=editor
 	@make refresh n=subscriber
-	@make refresh n=indexing
-	@make refresh n=content
 	@make db-update
-	@make refresh n=content
+	@make elastic-update
 	@make refresh n=indexing
+	@make rebuild n=content
 
 ##############################################################################
 # Database Commands

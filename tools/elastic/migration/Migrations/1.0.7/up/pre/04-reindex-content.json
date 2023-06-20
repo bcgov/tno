@@ -1,0 +1,14 @@
+{
+  "action": "reindex",
+  "settings": {},
+  "data": {
+    "source": {
+      "index": "content"
+    },
+    "dest": {
+      "index": "content_v1.0.7",
+      "op_type": "create",
+      "pipeline": "snippet-contentType"
+    }
+  }
+}

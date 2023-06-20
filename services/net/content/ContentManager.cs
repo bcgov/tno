@@ -258,7 +258,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 Uid = model.Uid,
                 Page = model.Page[0..Math.Min(model.Page.Length, 10)], // TODO: Temporary workaround to deal FileMonitor Service.
                 Summary = String.IsNullOrWhiteSpace(model.Summary) ? "[TBD]" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
-                Body = !String.IsNullOrWhiteSpace(model.Body) ? StringExtensions.SanitizeContent(model.Body, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine) : model.ContentType == ContentType.Snippet ? "" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
+                Body = !String.IsNullOrWhiteSpace(model.Body) ? StringExtensions.SanitizeContent(model.Body, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine) : model.ContentType == ContentType.AudioVideo ? "" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
                 SourceUrl = model.Link,
                 PublishedOn = model.PublishedOn,
                 Section = model.Section,
@@ -269,28 +269,36 @@ public class ContentManager : ServiceManager<ContentOptions>
             // if (model.Actions.Any()) {
             // }
 
-            if (model.TonePools.Any()) {
+            if (model.TonePools.Any())
+            {
                 var mappedTonePools = new List<ContentTonePoolModel>();
-                foreach (var tonePool in model.TonePools)   {
+                foreach (var tonePool in model.TonePools)
+                {
                     var mapping = GetTonePoolMapping(tonePools!, (int)tonePool.Value, tonePool.UserIdentifier);
-                    if (mapping != null) {
+                    if (mapping != null)
+                    {
                         mappedTonePools.Add(mapping);
                     }
                 }
-                if (mappedTonePools.Any()) {
+                if (mappedTonePools.Any())
+                {
                     content.TonePools = mappedTonePools.ToArray();
                 }
             }
 
-            if (model.Topics.Any()) {
+            if (model.Topics.Any())
+            {
                 var mappedContentTopicModels = new List<ContentTopicModel>();
-                foreach (var topic in model.Topics)   {
+                foreach (var topic in model.Topics)
+                {
                     var mapping = GetTopicMapping(topics!, topic.TopicType, topic.Name);
-                    if (mapping != null) {
+                    if (mapping != null)
+                    {
                         mappedContentTopicModels.Add(mapping);
                     }
                 }
-                if (mappedContentTopicModels.Any()) {
+                if (mappedContentTopicModels.Any())
+                {
                     content.Topics = mappedContentTopicModels.ToArray();
                 }
             }
@@ -487,21 +495,25 @@ public class ContentManager : ServiceManager<ContentOptions>
     private ContentTonePoolModel? GetTonePoolMapping(IEnumerable<API.Areas.Editor.Models.TonePool.TonePoolModel> tonePools, int toneValue, string? userIdentifier)
     {
         // use the "Default" TonePool
-        if (string.IsNullOrEmpty(userIdentifier)) {
+        if (string.IsNullOrEmpty(userIdentifier))
+        {
             // the "Default" tone should always be present
             if (string.IsNullOrEmpty(this.Options.MigrationOptions.DefaultTonePool))
                 throw new ArgumentException("Default Tone Pool Name cannot be empty");
             var tonePoolDefault = tonePools.Where(s => s.Name.Equals(this.Options.MigrationOptions.DefaultTonePool)).FirstOrDefault()
                 ?? throw new ArgumentException($"Cannot find Tone Pool with Name [{this.Options.MigrationOptions.DefaultTonePool}]");
 
-            return new ContentTonePoolModel() {
+            return new ContentTonePoolModel()
+            {
                 Value = toneValue,
                 Id = tonePoolDefault.Id,
                 ContentId = 0,
                 Name = tonePoolDefault.Name,
                 OwnerId = tonePoolDefault.OwnerId
             };
-        } else {
+        }
+        else
+        {
             // map a specific tone pool
             // TODO: lookup OwnerId if UserIdentifier is set
             return null;
@@ -510,16 +522,20 @@ public class ContentManager : ServiceManager<ContentOptions>
 
     private static ContentTopicModel? GetTopicMapping(IEnumerable<API.Areas.Editor.Models.Topic.TopicModel> topics, TopicType topicType, string topicName)
     {
-        var topicModel = new ContentTopicModel() {
+        var topicModel = new ContentTopicModel()
+        {
             ContentId = 0, // for new content
             Score = 0 // TODO: dig score out of TNO 1.0
         };
         var topic = topics.Where(s => s.Name == topicName && s.TopicType == topicType).FirstOrDefault();
-        if (topic != null) {
+        if (topic != null)
+        {
             topicModel.Id = topic.Id;
             topicModel.Name = topic.Name;
             topicModel.TopicType = topic.TopicType;
-        } else {
+        }
+        else
+        {
             // build a new placeholder which will be added at the same time as the Content
             topicModel.Id = 0;
             topicModel.Name = topicName;

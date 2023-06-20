@@ -24,7 +24,7 @@ export const getColumns = (
       <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={cell.original.headline}>
         <Show
           visible={
-            cell.row.original.contentType === ContentTypeName.Snippet && !!cell.row.original.body
+            cell.row.original.contentType === ContentTypeName.AudioVideo && !!cell.row.original.body
           }
         >
           <FaFeather />

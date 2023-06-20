@@ -7,8 +7,8 @@ INSERT INTO public.ingest_schedule (
   , "created_by"
   , "updated_by"
 ) VALUES (
-  (SELECT id FROM public.ingest WHERE name = 'TNO 1.0 - Snippet Content')  -- ingest_id
-  , (SELECT id FROM public.schedule WHERE name = 'TNO 1.0 - Snippet Content') -- schedule_id
+  (SELECT id FROM public.ingest WHERE name = 'TNO 1.0 - AudioVideo Content')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'TNO 1.0 - AudioVideo Content') -- schedule_id
   , ''
   , ''
 ),(

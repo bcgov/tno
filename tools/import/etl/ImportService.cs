@@ -71,7 +71,7 @@ public class ImportService
         _tonePools = _destinationContext.TonePools.ToList();
         _users = _destinationContext.Users.ToList();
 
-        _defaultContentType = _contentTypes.First(ct => ct.Name == "Snippet");
+        _defaultContentType = _contentTypes.First(ct => ct.Name == "AudioVideo");
         _defaultUser = _users.First();
         _defaultLicense = _licenses.First();
     }

@@ -9,7 +9,7 @@ public class ContentMessageModel
 {
     #region Properties
     /// <summary>
-    /// get/set - Primary key to snippet.
+    /// get/set - Primary key to content.
     /// </summary>
     public long Id { get; set; }
 

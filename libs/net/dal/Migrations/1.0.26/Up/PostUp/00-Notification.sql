@@ -5,7 +5,7 @@ UPDATE public."notification" SET
   "settings" = regexp_replace(regexp_replace('{ "subject": "@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Notification.Models.TemplateModel>
 @using System.Linq
 @{
-  var isAV = @Content.ContentType == TNO.Entities.ContentType.Snippet;
+  var isAV = @Content.ContentType == TNO.Entities.ContentType.AudioVideo;
   var isTranscriptAvailable = isAV && !string.IsNullOrWhiteSpace(@Content.Body) && @Content.IsApproved;
   var sourceCode = !string.IsNullOrEmpty(@Content.Source?.Code) ? @Content.Source.Code : @Content.OtherSource;
   var body = isTranscriptAvailable ? @Content.Body : (isAV ? @Content.Summary : @Content.Body);
@@ -33,7 +33,7 @@ UPDATE public."notification" SET
   var mmiaUrl = @NotificationOptions.MmiaUrl?.AbsoluteUri;
   var requestTranscriptUrl = @NotificationOptions.RequestTranscriptUrl?.AbsoluteUri;
   var addToReportUrl = @NotificationOptions.AddToReportUrl?.AbsoluteUri;
-  var isAV = @Content.ContentType == TNO.Entities.ContentType.Snippet;
+  var isAV = @Content.ContentType == TNO.Entities.ContentType.AudioVideo;
   var isTranscriptAvailable = isAV && !string.IsNullOrWhiteSpace(@Content.Body) && @Content.IsApproved;
   var sourceCode = !string.IsNullOrEmpty(@Content.Source?.Code) ? @Content.Source.Code : @Content.OtherSource;
   var body = isTranscriptAvailable ? @Content.Body : (isAV ? @Content.Summary : @Content.Body);

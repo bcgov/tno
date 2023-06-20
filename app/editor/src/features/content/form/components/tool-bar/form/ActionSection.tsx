@@ -29,7 +29,7 @@ export const ActionSection: React.FC<IActionSectionProps> = ({ values }) => {
           a.valueType === ValueType.Boolean && a.name !== ActionName.NonQualified;
       case ContentTypeName.Image:
         return (a: IActionModel) => a.name === ActionName.FrontPage;
-      case ContentTypeName.Snippet:
+      case ContentTypeName.AudioVideo:
       // TODO: Determine actions for remaining content types
       // eslint-disable-next-line no-fallthrough
       default:

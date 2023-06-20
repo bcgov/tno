@@ -20,7 +20,7 @@ export interface ICreateNewSectionProps {
  */
 export const CreateNewSection: React.FC<ICreateNewSectionProps> = ({
   contentTypes = [
-    ContentTypeName.Snippet,
+    ContentTypeName.AudioVideo,
     ContentTypeName.PrintContent,
     ContentTypeName.Image,
     ContentTypeName.Story,
@@ -33,7 +33,7 @@ export const CreateNewSection: React.FC<ICreateNewSectionProps> = ({
   const getIcon = React.useCallback(
     (contentType: ContentTypeName) => {
       switch (contentType) {
-        case ContentTypeName.Snippet:
+        case ContentTypeName.AudioVideo:
           return (
             <FaFileAudio
               key={contentType}

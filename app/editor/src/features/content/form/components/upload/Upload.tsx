@@ -117,7 +117,7 @@ export const Upload: React.FC<IUploadProps> = ({
           </Col>
         </Show>
 
-        <Show visible={!!stream && contentType === ContentTypeName.Snippet}>
+        <Show visible={!!stream && contentType === ContentTypeName.AudioVideo}>
           <video height="400" width="500" src={stream?.url} controls>
             HTML5 Video is required for this example
           </video>

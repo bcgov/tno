@@ -5,7 +5,7 @@ export const mockContents: IContentModel[] = [
   {
     id: 1,
     status: ContentStatusName.Draft,
-    contentType: ContentTypeName.Snippet,
+    contentType: ContentTypeName.AudioVideo,
     productId: mockProducts[0].id,
     product: mockProducts[0],
     licenseId: mockLicenses[0].id,
@@ -26,7 +26,7 @@ export const mockContents: IContentModel[] = [
   {
     id: 2,
     status: ContentStatusName.Draft,
-    contentType: ContentTypeName.Snippet,
+    contentType: ContentTypeName.AudioVideo,
     productId: mockProducts[0].id,
     product: mockProducts[0],
     licenseId: mockLicenses[0].id,
@@ -47,7 +47,7 @@ export const mockContents: IContentModel[] = [
   {
     id: 3,
     status: ContentStatusName.Draft,
-    contentType: ContentTypeName.Snippet,
+    contentType: ContentTypeName.AudioVideo,
     productId: mockProducts[0].id,
     product: mockProducts[0],
     licenseId: mockLicenses[0].id,
@@ -68,7 +68,7 @@ export const mockContents: IContentModel[] = [
   {
     id: 4,
     status: ContentStatusName.Draft,
-    contentType: ContentTypeName.Snippet,
+    contentType: ContentTypeName.AudioVideo,
     productId: mockProducts[0].id,
     product: mockProducts[0],
     licenseId: mockLicenses[0].id,
@@ -89,7 +89,7 @@ export const mockContents: IContentModel[] = [
   {
     id: 5,
     status: ContentStatusName.Draft,
-    contentType: ContentTypeName.Snippet,
+    contentType: ContentTypeName.AudioVideo,
     productId: mockProducts[0].id,
     product: mockProducts[0],
     licenseId: mockLicenses[0].id,
@@ -110,7 +110,7 @@ export const mockContents: IContentModel[] = [
   {
     id: 6,
     status: ContentStatusName.Draft,
-    contentType: ContentTypeName.Snippet,
+    contentType: ContentTypeName.AudioVideo,
     productId: mockProducts[0].id,
     product: mockProducts[0],
     licenseId: mockLicenses[0].id,

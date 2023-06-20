@@ -6,9 +6,9 @@ namespace TNO.Entities;
 public enum ContentType
 {
     /// <summary>
-    /// Snippet content contains audio/video.
+    /// Content contains audio/video.
     /// </summary>
-    Snippet = 0,
+    AudioVideo = 0,
     /// <summary>
     /// Print content is stories published by newspapers in traditional media.
     /// </summary>

@@ -37,7 +37,7 @@ public class IngestTypeModel : AuditColumnsModel
     /// <summary>
     /// get/set - The content type of this ingest and the form to use.
     /// </summary>
-    public ContentType ContentType { get; set; } = ContentType.Snippet;
+    public ContentType ContentType { get; set; } = ContentType.AudioVideo;
 
     /// <summary>
     /// get/set - Whether content should be automatically transcribed.

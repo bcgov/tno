@@ -26,7 +26,7 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - The type of content and form to use.
     /// </summary>
-    public ContentType ContentType { get; set; } = ContentType.Snippet;
+    public ContentType ContentType { get; set; } = ContentType.AudioVideo;
 
     /// <summary>
     /// get/set - Foreign key to product.

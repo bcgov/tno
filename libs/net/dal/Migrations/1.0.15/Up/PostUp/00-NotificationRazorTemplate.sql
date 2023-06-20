@@ -6,7 +6,7 @@ SET
 	settings=regexp_replace('{ "subject": "@model TNO.Services.Notification.Models.TemplateModel\n
 @using System.Linq\n
 @{\n
-  var isAV = Model.Content.ContentType == TNO.Entities.ContentType.Snippet;\n
+  var isAV = Model.Content.ContentType == TNO.Entities.ContentType.AudioVideo;\n
   var isTranscriptAvailable = isAV && !string.IsNullOrWhiteSpace(Model.Content.Body) && Model.Content.IsApproved;\n
   var sourceCode = !string.IsNullOrEmpty(Model.Content.Source?.Code) ? Model.Content.Source.Code : Model.Content.OtherSource;\n
   var body = isTranscriptAvailable ? Model.Content.Body : (isAV ? Model.Content.Summary : Model.Content.Body);\n
@@ -39,7 +39,7 @@ SET
   var mmiaUrl = Model.NotificationOptions.Value.MmiaUrl?.AbsoluteUri;
   var requestTranscriptUrl = Model.NotificationOptions.Value.RequestTranscriptUrl?.AbsoluteUri;
   var addToReportUrl = Model.NotificationOptions.Value.AddToReportUrl?.AbsoluteUri;
-  var isAV = Model.Content.ContentType == TNO.Entities.ContentType.Snippet;
+  var isAV = Model.Content.ContentType == TNO.Entities.ContentType.AudioVideo;
   var isTranscriptAvailable = isAV && !string.IsNullOrWhiteSpace(Model.Content.Body) && Model.Content.IsApproved;
   var sourceCode = !string.IsNullOrEmpty(Model.Content.Source?.Code) ? Model.Content.Source.Code : Model.Content.OtherSource;
   var body = isTranscriptAvailable ? Model.Content.Body : (isAV ? Model.Content.Summary : Model.Content.Body);

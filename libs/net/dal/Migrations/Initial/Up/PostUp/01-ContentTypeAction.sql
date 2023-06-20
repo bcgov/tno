@@ -12,37 +12,37 @@ INSERT INTO public.content_type_action (
 -- PrintContent
 -- *************
 (
-  0 -- Snippet
+  0 -- AudioVideo
   , 1 -- Alert
   , ''
   , ''
 ), (
-  0 -- Snippet
+  0 -- AudioVideo
   , 2 -- Just In
   , ''
   , ''
 ), (
-  0 -- Snippet
+  0 -- AudioVideo
   , 3 -- Front Page
   , ''
   , ''
 ), (
-  0 -- Snippet
+  0 -- AudioVideo
   , 4 -- Top Story
   , ''
   , ''
 ), (
-  0 -- Snippet
+  0 -- AudioVideo
   , 5 -- On Ticker
   , ''
   , ''
 ), (
-  0 -- Snippet
+  0 -- AudioVideo
   , 6 -- Non Qualified Subject
   , ''
   , ''
 ), (
-  0 -- Snippet
+  0 -- AudioVideo
   , 7 -- Commentary
   , ''
   , ''

@@ -15,7 +15,7 @@ export const DetermineContentIcon: React.FC<IDetermineContentIconProps> = ({ con
         return <FaNewspaper />;
       case ContentTypeName.Story:
         return <FaTv />;
-      case ContentTypeName.Snippet:
+      case ContentTypeName.AudioVideo:
         return <FaPlayCircle />;
       default:
         return <FaCamera />;

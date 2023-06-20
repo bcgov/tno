@@ -107,7 +107,7 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest 
   }, [onWorkOrderMessage, hub]);
 
   const onContentMessage = React.useCallback((content: IContentMessageModel) => {
-    if (content.contentType === ContentTypeName.Snippet) {
+    if (content.contentType === ContentTypeName.AudioVideo) {
       toast.success(() => (
         <div>
           Clip created "

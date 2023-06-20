@@ -47,7 +47,7 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
   const initTab = useTab();
 
   const [contentId, setContentId] = React.useState(id);
-  const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.Snippet);
+  const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
 
   const channel = useChannel<any>({
     onMessage: (ev) => {

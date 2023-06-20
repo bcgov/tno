@@ -3,8 +3,8 @@ BEGIN
 
 delete from public.ingest_type
 where
-  name = 'TNO-Snippet' -- 10
-  and "description" = 'Snippet migration from TNO 1.0';
+  name = 'TNO-AudioVideo' -- 10
+  and "description" = 'AudioVideo migration from TNO 1.0';
 
 delete from public.ingest_type
 where

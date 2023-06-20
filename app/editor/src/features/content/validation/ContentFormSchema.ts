@@ -10,7 +10,7 @@ export const ContentFormSchema = object().shape(
       return number();
     }),
     prep: string().when('contentType', (value: string[]) => {
-      if (value[0] === ContentTypeName.Snippet) {
+      if (value[0] === ContentTypeName.AudioVideo) {
         return number().when('efforts', (efforts: number[]) => {
           if (!efforts[0] || efforts[0] <= 0) {
             return number().required('Prep time is required.');
@@ -21,7 +21,7 @@ export const ContentFormSchema = object().shape(
       return number();
     }),
     total: string().when('contentType', (value: string[]) => {
-      if (value[0] === ContentTypeName.Snippet) {
+      if (value[0] === ContentTypeName.AudioVideo) {
         return number().when('efforts', (efforts: number[]) => {
           if (!efforts[0] || efforts[0] <= 0) {
             return number().required('Total minutes are required.');
@@ -39,7 +39,7 @@ export const ContentFormSchema = object().shape(
     publishedOn: date().required('Published On is a required field.'),
     // TODO: Summary should not be empty.
     summary: string().when('contentType', (value: string[]) => {
-      if (value[0] === ContentTypeName.Snippet || value[0] === ContentTypeName.Image) {
+      if (value[0] === ContentTypeName.AudioVideo || value[0] === ContentTypeName.Image) {
         return number().when('productId', (value: number[]) => {
           // Summary is not a required field when content is tagged as News Radio or Events product
           if (value[0] !== 4 && value[0] !== 9)
@@ -50,7 +50,7 @@ export const ContentFormSchema = object().shape(
       return string();
     }),
     body: string().when('contentType', (value: string[]) => {
-      if (value[0] !== ContentTypeName.Snippet && value[0] !== ContentTypeName.Image)
+      if (value[0] !== ContentTypeName.AudioVideo && value[0] !== ContentTypeName.Image)
         return string().trim().required('Summary is a required field.');
       return string();
     }),

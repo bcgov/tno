@@ -284,7 +284,7 @@ public class Content : AuditColumns
         this.Product = product;
         this.OwnerId = owner?.Id;
         this.Owner = owner;
-        this.IsApproved = contentType != ContentType.Snippet;
+        this.IsApproved = contentType != ContentType.AudioVideo;
     }
 
     /// <summary>
@@ -328,7 +328,7 @@ public class Content : AuditColumns
         this.LicenseId = licenseId;
         this.ProductId = productId;
         this.OwnerId = ownerId;
-        this.IsApproved = contentType != ContentType.Snippet;
+        this.IsApproved = contentType != ContentType.AudioVideo;
     }
 
     /// <summary>

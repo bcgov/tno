@@ -1,0 +1,19 @@
+{
+  "action": "createPipeline",
+  "settings": {
+    "pipelineName": "snippet-contentType"
+  },
+  "data": {
+    "description": "Convert content contentType 'Snippet' to 'AudioVideo'",
+    "processors": [
+      {
+        "set": {
+          "description": "Snippet -> AudioVideo",
+          "field": "contentType",
+          "value": "AudioVideo",
+          "if": "ctx.contentType == 'Snippet'"
+        }
+      }
+    ]
+  }
+}

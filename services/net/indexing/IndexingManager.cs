@@ -288,7 +288,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     {
         // Remove the transcript body if it hasn't been approved.
         var body = content.Body;
-        if (!content.IsApproved && content.ContentType == ContentType.Snippet) content.Body = "";
+        if (!content.IsApproved && content.ContentType == ContentType.AudioVideo) content.Body = "";
         content.Status = ContentStatus.Published;
         var document = new IndexRequest<ContentModel>(content, this.Options.PublishedIndex, content.Id);
         var response = await this.Client.IndexAsync(document);

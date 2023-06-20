@@ -156,7 +156,7 @@ export const ViewContent: React.FC = () => {
           </Show>
         </p>
       </Row>
-      <Show visible={!!avStream && content?.contentType === ContentTypeName.Snippet}>
+      <Show visible={!!avStream && content?.contentType === ContentTypeName.AudioVideo}>
         <Row justifyContent="center">
           <video
             controls
@@ -182,13 +182,13 @@ export const ViewContent: React.FC = () => {
         </Show>
         <Show
           visible={
-            content?.contentType === ContentTypeName.Snippet ||
+            content?.contentType === ContentTypeName.AudioVideo ||
             content?.contentType === ContentTypeName.Image
           }
         >
           <p>{parse(content?.summary ?? '')}</p>
         </Show>
-        <Show visible={content?.contentType === ContentTypeName.Snippet}>
+        <Show visible={content?.contentType === ContentTypeName.AudioVideo}>
           <Button
             onClick={() => handleTranscribe()}
             variant={ButtonVariant.action}
@@ -208,7 +208,7 @@ export const ViewContent: React.FC = () => {
           </Button>
         </Show>
       </Row>
-      <Show visible={content?.contentType === ContentTypeName.Snippet && !!content.body?.length}>
+      <Show visible={content?.contentType === ContentTypeName.AudioVideo && !!content.body?.length}>
         <hr />
         <h3>Transcription:</h3>
         <Row>

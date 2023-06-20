@@ -934,7 +934,7 @@ exports[`renders correctly... 1`] = `
             type="button"
           >
             <div>
-              Create Snippet
+              Create Audio/Video
             </div>
           </button>
           <button

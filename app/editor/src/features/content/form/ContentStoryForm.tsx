@@ -169,7 +169,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
                 }}
               />
             </Show>
-            <Show visible={contentType === ContentTypeName.Snippet}>
+            <Show visible={contentType === ContentTypeName.AudioVideo}>
               <FormikSelect
                 name="seriesId"
                 label="Show/Program"
@@ -215,7 +215,9 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
         </Show>
       </Row>
       <Show
-        visible={contentType === ContentTypeName.Image || contentType === ContentTypeName.Snippet}
+        visible={
+          contentType === ContentTypeName.Image || contentType === ContentTypeName.AudioVideo
+        }
       >
         <MediaSummary
           file={file}
@@ -228,7 +230,9 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
         />
       </Show>
       <Show
-        visible={contentType !== ContentTypeName.Snippet && contentType !== ContentTypeName.Image}
+        visible={
+          contentType !== ContentTypeName.AudioVideo && contentType !== ContentTypeName.Image
+        }
       >
         <Wysiwyg
           className="content-body"
