@@ -37,7 +37,7 @@ export const ViewContent: React.FC = () => {
   const [, { getContent, stream }] = useContent();
   const [avStream, setAVStream] = React.useState<IStream>();
   const { width } = useWindowSize();
-  const [, { transcribe }] = useWorkOrders();
+  const [, { transcribe, findWorkOrders }] = useWorkOrders();
   const [workOrders, setWorkOrders] = React.useState<IWorkOrderModel[]>([]);
   const handleTranscribe = React.useCallback(async () => {
     try {
@@ -100,8 +100,11 @@ export const ViewContent: React.FC = () => {
         } else {
         }
       });
+      findWorkOrders({ contentId: id }).then((res) => {
+        setWorkOrders(res.data.items);
+      });
     },
-    [getContent],
+    [getContent, findWorkOrders],
   );
 
   // add classname for colouring as well as formatting the tone value (+ sign for positive)
@@ -212,7 +215,7 @@ export const ViewContent: React.FC = () => {
         <hr />
         <h3>Transcription:</h3>
         <Row>
-          <p>{content?.body}</p>
+          <p>{parse(content?.body ?? '')}</p>
         </Row>
       </Show>
     </styled.ViewContent>
