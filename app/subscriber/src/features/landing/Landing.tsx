@@ -17,6 +17,7 @@ import { useApp } from 'store/hooks';
 import { Col, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
+import { TopStories } from 'features/top-stories';
 
 /**
  * Main landing page for the subscriber app.
@@ -71,6 +72,9 @@ export const Landing: React.FC = () => {
             </Show>
             <Show visible={activeItem === SidebarMenuItems.todaysCommentary.label}>
               <TodaysCommentary />
+            </Show>
+            <Show visible={activeItem === SidebarMenuItems.topStories.label}>
+              <TopStories />
             </Show>
             {/* TODO: Create own component when a/c defined for next iteration */}
             <Show visible={activeItem === SidebarMenuItems.mySearches.label}>
