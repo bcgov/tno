@@ -13,6 +13,7 @@ metadata:
     managed-by: kustomize
     created-by: jeremy.foster
 spec:
+  ttlSecondsAfterFinished: 100
   schedule: "0 0 * * *" # Midnight
   # schedule: "* * * * *" # Immediately
   jobTemplate:
