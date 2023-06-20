@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
+using TNO.API.Areas.Admin.Models.Tag;
 using TNO.API.Areas.Admin.Models.Topic;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Config;
@@ -44,6 +45,7 @@ public class ContentController : ControllerBase
     private readonly IContentService _contentService;
     private readonly IFileReferenceService _fileReferenceService;
     private readonly IUserService _userService;
+    private readonly ITagService _tagService;
     private readonly ITopicService _topicService;
     private readonly StorageOptions _storageOptions;
     private readonly IKafkaMessenger _kafkaMessenger;
@@ -73,6 +75,7 @@ public class ContentController : ControllerBase
         IContentService contentService,
         IFileReferenceService fileReferenceService,
         IUserService userService,
+        ITagService tagService,
         ITopicService topicService,
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaOptions> kafkaOptions,
@@ -85,6 +88,7 @@ public class ContentController : ControllerBase
         _contentService = contentService;
         _fileReferenceService = fileReferenceService;
         _userService = userService;
+        _tagService = tagService;
         _topicService = topicService;
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
@@ -156,6 +160,17 @@ public class ContentController : ControllerBase
             };
             var result = _topicService.AddAndSave((TNO.Entities.Topic)topicModel);
             topic.Id = result.Id;
+        }
+
+        var newTags = model.Tags.Where(t => t.Id == 0);
+        foreach (var tag in newTags) {
+            var tagModel = new TagModel
+            {
+                Code = tag.Code,
+                Name = tag.Name
+            };
+            var result = _tagService.AddAndSave((TNO.Entities.Tag)tagModel);
+            tag.Id = result.Id;
         }
 
         var content = _contentService.AddAndSave((Content)model);
