@@ -105,6 +105,11 @@ public abstract class ContentBase
     public DateTime? UpdatedOn { get; set; }
 
     /// <summary>
+    /// get/set - An array of actions.
+    /// </summary>
+    public IEnumerable<Action> Actions { get; set; } = Array.Empty<Action>();
+
+    /// <summary>
     /// get/set - An array of author information.
     /// </summary>
     public IEnumerable<Author> Authors { get; set; } = Array.Empty<Author>();

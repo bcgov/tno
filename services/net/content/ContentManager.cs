@@ -233,6 +233,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             var source = await this.Api.GetSourceForCodeAsync(model.Source);
             var lookups = await this.Api.GetLookupsAsync();
 
+            IEnumerable<API.Areas.Editor.Models.Action.ActionModel>? actions = lookups?.Actions;
             IEnumerable<API.Areas.Editor.Models.Tag.TagModel>? tags = lookups?.Tags;
             IEnumerable<API.Areas.Editor.Models.TonePool.TonePoolModel>? tonePools = lookups?.TonePools;
             IEnumerable<API.Areas.Editor.Models.Topic.TopicModel>? topics = lookups?.Topics;
@@ -266,9 +267,12 @@ public class ContentManager : ServiceManager<ContentOptions>
                 Byline = string.Join(",", model.Authors.Select(a => a.Name[0..Math.Min(a.Name.Length, 200)])) // TODO: Temporary workaround to deal with regression issue in Syndication Service.
             };
 
-            // TODO: Add Tags, Topics, etc - check for
-            // if (model.Actions.Any()) {
-            // }
+            if (model.Actions.Any()) {
+                IEnumerable<ContentActionModel> mappedContentActionModels = GetActionMappings(actions!, model.Actions);
+                if (mappedContentActionModels.Any()) {
+                    content.Actions = mappedContentActionModels.ToArray();
+                }
+            }
 
             if (model.Tags.Any()) {
                 var mappedContentTagModels = new List<ContentTagModel>();
@@ -504,22 +508,22 @@ public class ContentManager : ServiceManager<ContentOptions>
     #endregion
 
     #region Helper Methods
-    private ContentTonePoolModel? GetTonePoolMapping(IEnumerable<API.Areas.Editor.Models.TonePool.TonePoolModel> tonePools, int toneValue, string? userIdentifier)
+    private ContentTonePoolModel? GetTonePoolMapping(IEnumerable<API.Areas.Editor.Models.TonePool.TonePoolModel> tonePoolsLookup, int toneValue, string? userIdentifier)
     {
         // use the "Default" TonePool
         if (string.IsNullOrEmpty(userIdentifier))
         {
             // the "Default" tone should always be present
-            if (string.IsNullOrEmpty(this.Options.MigrationOptions.DefaultTonePool))
+            if (string.IsNullOrEmpty(this.Options.MigrationOptions!.DefaultTonePool))
                 throw new ArgumentException("Default Tone Pool Name cannot be empty");
-            var tonePoolDefault = tonePools.Where(s => s.Name.Equals(this.Options.MigrationOptions.DefaultTonePool)).FirstOrDefault()
+            var tonePoolDefault = tonePoolsLookup.Where(s => s.Name.Equals(this.Options.MigrationOptions.DefaultTonePool)).FirstOrDefault()
                 ?? throw new ArgumentException($"Cannot find Tone Pool with Name [{this.Options.MigrationOptions.DefaultTonePool}]");
 
             return new ContentTonePoolModel()
             {
+                ContentId = 0,
                 Value = toneValue,
                 Id = tonePoolDefault.Id,
-                ContentId = 0,
                 Name = tonePoolDefault.Name,
                 OwnerId = tonePoolDefault.OwnerId
             };
@@ -532,14 +536,14 @@ public class ContentManager : ServiceManager<ContentOptions>
         }
     }
 
-    private static ContentTopicModel? GetTopicMapping(IEnumerable<API.Areas.Editor.Models.Topic.TopicModel> topics, TopicType topicType, string topicName)
+    private static ContentTopicModel? GetTopicMapping(IEnumerable<API.Areas.Editor.Models.Topic.TopicModel> topicsLookup, TopicType topicType, string topicName)
     {
         var topicModel = new ContentTopicModel()
         {
             ContentId = 0, // for new content
             Score = 0 // TODO: dig score out of TNO 1.0
         };
-        var topic = topics.Where(s => s.Name.Equals(topicName, StringComparison.InvariantCultureIgnoreCase) && s.TopicType == topicType).FirstOrDefault();
+        var topic = topicsLookup.Where(s => s.Name.Equals(topicName, StringComparison.InvariantCultureIgnoreCase) && s.TopicType == topicType).FirstOrDefault();
         if (topic != null) {
             topicModel.Id = topic.Id;
             topicModel.Name = topic.Name;
@@ -555,13 +559,13 @@ public class ContentManager : ServiceManager<ContentOptions>
         return topicModel;
     }
 
-    private ContentTagModel? GetTagMapping(IEnumerable<API.Areas.Editor.Models.Tag.TagModel> tags, string code, string topicName)
+    private ContentTagModel? GetTagMapping(IEnumerable<API.Areas.Editor.Models.Tag.TagModel> tagsLookup, string code, string topicName)
     {
         var tagModel = new ContentTagModel() {
             ContentId = 0, // for new content
         };
         // Tags come in from the Content Migrator with no name, so we can only match on Code
-        var tag = tags.Where(s => s.Code.Equals(code, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+        var tag = tagsLookup.Where(s => s.Code.Equals(code, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
         if (tag != null) {
             tagModel.Id = tag.Id;
             tagModel.Code = tag.Code;
@@ -573,6 +577,25 @@ public class ContentManager : ServiceManager<ContentOptions>
             tagModel.Name = this.Options.MigrationOptions.DefaultTagName ?? string.Empty;
         }
         return tagModel;
+    }
+
+    private static IEnumerable<ContentActionModel> GetActionMappings(IEnumerable<API.Areas.Editor.Models.Action.ActionModel> actionsLookup,
+        IEnumerable<Kafka.Models.Action> actions)
+    {
+        List<ContentActionModel> mappedActions = new();
+        foreach (var action in actions) {
+            var targetAction = actionsLookup.Where(a => a.Name.Equals(action.ActionLabel, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+            if (targetAction != null) {
+                mappedActions.Add(new ContentActionModel {
+                    ContentId = 0,
+                    Id = targetAction.Id,
+                    Name = targetAction.Name,
+                    Value = action.ActionValue,
+                    ValueType = targetAction.ValueType
+                });
+            }
+        }
+        return mappedActions;
     }
 
     #endregion
