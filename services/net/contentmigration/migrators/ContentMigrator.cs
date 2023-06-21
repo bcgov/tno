@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Editor.Models.Lookup;
@@ -129,10 +130,35 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
         return topics.Where(s => s.Name == newsItemTopic).FirstOrDefault();
     }
 
+    /// <summary>
+    /// Extracts Authors from a source string, using any combination of delimters plus the word " and "
+    /// </summary>
+    /// <param name="authors"></param>
+    /// <param name="source"></param>
+    /// <returns></returns>
     internal static IEnumerable<string> ExtractAuthors(string authors, string source) {
         string[] delimiters = new [] { ",", ";", " ,", " & ", " and " };
         var splitArray = authors.Split(delimiters, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         return splitArray.Where(s => !s.Equals(source));
+    }
+
+    /// <summary>
+    /// extracts Tags from a source string
+    /// </summary>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    internal IEnumerable<string> ExtractTags(string source) {
+        Regex tagsBetweenBracketsRegex = new(@"\[([^\]]*)\]", RegexOptions.RightToLeft);
+        string[] tags = Array.Empty<string>();
+        var tagMatches = tagsBetweenBracketsRegex.Matches(source);
+        if (tagMatches.Count > 0) {
+            var rawTags = tagMatches[0].Groups[1].Value.Split(',',StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            // KGM : Fail on tags extract if any of the tags are not between 3 and 4 chars long
+            // Do we need to make this validation better?
+            if (rawTags.All(s => s.Length >= 3 && s.Length <= 4))
+                tags = rawTags;
+        }
+        return tags;
     }
 
     /// <summary>
