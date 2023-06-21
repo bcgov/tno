@@ -87,6 +87,13 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
             content.Topics = new[] { new Kafka.Models.Topic { Name = newsItem.EodCategory, TopicType = (TopicType)Enum.Parse(typeof(TopicType), newsItem.EodGroup) } };
         }
 
+        // Tags are in the Summary as they are added by an Editor
+        if (!string.IsNullOrEmpty(newsItem.Summary)) {
+            // if Tags are found, let the ContentManagement service decide if they are new or not
+            content.Tags = this.ExtractTags(newsItem.Summary)
+                .Select(c => new TNO.Kafka.Models.Tag(c.ToUpperInvariant(),""));
+        }
+
         return content;
     }
 
