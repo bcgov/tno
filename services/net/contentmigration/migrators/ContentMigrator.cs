@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Editor.Models.Lookup;
+using TNO.API.Areas.Editor.Models.Action;
 using TNO.API.Areas.Editor.Models.Topic;
 using TNO.API.Areas.Editor.Models.Source;
 using TNO.API.Areas.Editor.Models.Product;
@@ -11,6 +12,7 @@ using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Services.ContentMigration.Config;
 using TNO.Services.ContentMigration.Sources.Oracle;
+using ValueType = TNO.Entities.ValueType;
 
 namespace TNO.Services.ContentMigration.Migrators;
 
@@ -201,6 +203,55 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
         }
 
         return product;
+    }
+
+    /// <summary>
+    /// map possible Action values to Actions
+    /// </summary>
+    /// <param name="frontPageStory"></param>
+    /// <param name="wapTopStory"></param>
+    /// <param name="alert"></param>
+    /// <param name="commentary"></param>
+    /// <param name="commentaryTimeout"></param>
+    /// <returns></returns>
+    public IEnumerable<Kafka.Models.Action> GetActionMappings(bool frontPageStory, bool wapTopStory, bool alert, bool commentary, double? commentaryTimeout) {
+        List<Kafka.Models.Action> mappedActions = new();
+        string actionName;
+        ActionType actionType;
+
+        if (frontPageStory) {
+            actionType = ActionType.Homepage;
+            actionName = this.Options.ActionNameMappings.ContainsKey(actionType)
+                ? this.Options.ActionNameMappings[actionType]
+                : actionType.ToString();
+            mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString));
+        }
+
+        if (wapTopStory) {
+            actionType = ActionType.TopStory;
+            actionName = this.Options.ActionNameMappings.ContainsKey(actionType)
+                ? this.Options.ActionNameMappings[actionType]
+                : actionType.ToString();
+            mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString));
+        }
+
+        if (alert) {
+            actionType = ActionType.Alert;
+            actionName = this.Options.ActionNameMappings.ContainsKey(actionType)
+                ? this.Options.ActionNameMappings[actionType]
+                : actionType.ToString();
+            mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString));
+        }
+
+        if (commentary && commentaryTimeout.HasValue) {
+            actionType = ActionType.Commentary;
+            actionName = this.Options.ActionNameMappings.ContainsKey(actionType)
+                ? this.Options.ActionNameMappings[actionType]
+                : actionType.ToString();
+            mappedActions.Add(new Kafka.Models.Action(actionName, commentaryTimeout.Value.ToString()));
+        }
+
+        return mappedActions;
     }
 
     #endregion

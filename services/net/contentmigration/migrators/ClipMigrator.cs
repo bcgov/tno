@@ -94,6 +94,10 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
                 .Select(c => new TNO.Kafka.Models.Tag(c.ToUpperInvariant(),""));
         }
 
+        // map relevant news item properties to actions
+        content.Actions = GetActionMappings(newsItem.FrontPageStory, newsItem.WapTopStory, newsItem.Alert,
+            newsItem.Commentary, newsItem.CommentaryTimeout);
+
         return content;
     }
 

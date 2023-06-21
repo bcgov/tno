@@ -24,5 +24,11 @@ public class ContentMigrationOptions : IngestServiceOptions
     /// </summary>
     public int MaxRecordsPerRetrieval { get; set; } = 20;
 
+    /// <summary>
+    /// Mapping for "action type" to Name in the db
+    /// Only need to add a mapping here, if the name in the db is different to the Action Type enum string
+    /// </summary>
+    public Dictionary<ActionType,string> ActionNameMappings {get; set; } = new Dictionary<ActionType,string>();
+
     #endregion
 }
