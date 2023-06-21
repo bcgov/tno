@@ -10,6 +10,7 @@ import { Home } from 'features/home';
 import { MyMinister } from 'features/my-minister/MyMinister';
 import { MyMinisterSettings } from 'features/settings';
 import { TodaysCommentary } from 'features/todays-commentary';
+import { TopStories } from 'features/top-stories';
 import React from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -71,6 +72,9 @@ export const Landing: React.FC = () => {
             </Show>
             <Show visible={activeItem === SidebarMenuItems.todaysCommentary.label}>
               <TodaysCommentary />
+            </Show>
+            <Show visible={activeItem === SidebarMenuItems.topStories.label}>
+              <TopStories />
             </Show>
             {/* TODO: Create own component when a/c defined for next iteration */}
             <Show visible={activeItem === SidebarMenuItems.mySearches.label}>
