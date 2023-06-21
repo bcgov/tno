@@ -35,7 +35,7 @@ export const TopStories: React.FC = () => {
           onRowClick={(e: any) => {
             navigate(`/view/${e.original.id}`);
           }}
-          data={topStories || []}
+          data={topStories}
           pageButtons={5}
           showPaging={false}
         />
