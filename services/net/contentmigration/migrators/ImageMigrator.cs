@@ -67,6 +67,10 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ? newsItem.UpdatedOn.Value.ToUniversalTime() : null;
         }
 
+        // map relevant news item properties to actions
+        content.Actions = GetActionMappings(newsItem.FrontPageStory, newsItem.WapTopStory, newsItem.Alert,
+            newsItem.Commentary, newsItem.CommentaryTimeout);
+
         return content;
     }
 

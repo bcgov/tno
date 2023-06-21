@@ -86,6 +86,10 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             content.Topics = new[] { new Kafka.Models.Topic {Name = newsItem.EodCategory, TopicType = (TopicType)Enum.Parse(typeof(TopicType), newsItem.EodGroup)}};
         }
 
+        // map relevant news item properties to actions
+        content.Actions = GetActionMappings(newsItem.FrontPageStory, newsItem.WapTopStory, newsItem.Alert,
+            newsItem.Commentary, newsItem.CommentaryTimeout);
+
         return content;
     }
 
