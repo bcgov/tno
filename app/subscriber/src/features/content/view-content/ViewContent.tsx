@@ -3,7 +3,7 @@ import parse from 'html-react-parser';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useContent, useWorkOrders } from 'store/hooks';
+import { useApp, useContent, useWorkOrders } from 'store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -36,7 +36,10 @@ export const ViewContent: React.FC = () => {
   const [content, setContent] = React.useState<IContentModel>();
   const [, { getContent, stream }] = useContent();
   const [avStream, setAVStream] = React.useState<IStream>();
+  // flag to keep track of the bolding completion in my minister view
+  const [boldingComplete, setBoldingComplete] = React.useState(false);
   const { width } = useWindowSize();
+  const [{ userInfo }] = useApp();
   const [, { transcribe, findWorkOrders }] = useWorkOrders();
   const [workOrders, setWorkOrders] = React.useState<IWorkOrderModel[]>([]);
   const handleTranscribe = React.useCallback(async () => {
@@ -61,20 +64,36 @@ export const ViewContent: React.FC = () => {
 
   const path = content?.fileReferences ? content?.fileReferences[0]?.path : '';
 
-  const myMinister = localStorage.getItem('myMinister');
+  const myMinisters = userInfo?.preferences?.myMinisters;
 
   React.useEffect(() => {
-    // this will bold the ministers name in the summary or body, only when viewing from the my minister list
-    const regex = new RegExp(myMinister ?? '', 'gi');
-    if (window.location.href.includes('my-minister')) {
-      if (content?.summary && !content.summary.includes(`<b>${myMinister}</b>`))
-        setContent({ ...content, summary: content.summary.replace(regex, `<b>${myMinister}</b>`) });
+    // this will bold the ministers name in the summary or body, only when viewing from the my minister list when the content has been received
+    if (window.location.href.includes('my-minister') && !boldingComplete && !!content) {
+      let tempBody = content?.body;
+      let tempSummary = content?.summary;
+      myMinisters.length &&
+        myMinisters.forEach((minister: string, index: number) => {
+          const regex = new RegExp(minister ?? '', 'gi');
+          console.log(minister);
+          if (content?.summary && !content.summary.includes(`<b>${minister}</b>`)) {
+            tempSummary = tempSummary?.replace(regex, `<b>${minister}</b>`);
+          }
 
-      if (content?.body && !content.body.includes(`<b>${myMinister}</b>`)) {
-        setContent({ ...content, body: content.body.replace(regex, `<b>${myMinister}</b>`) });
-      }
+          if (
+            content?.body &&
+            !content.body.includes(`<b>${minister}</b>`) &&
+            content.body.includes(minister)
+          ) {
+            tempBody = tempBody?.replace(regex, `<b>${minister}</b>`);
+          }
+
+          if (index === myMinisters.length - 1) {
+            setContent({ ...content, body: tempBody, summary: tempSummary });
+            setBoldingComplete(true);
+          }
+        });
     }
-  }, [content, myMinister]);
+  }, [content, myMinisters, boldingComplete]);
 
   React.useEffect(() => {
     if (!!path)
@@ -182,7 +201,7 @@ export const ViewContent: React.FC = () => {
             content?.contentType === ContentTypeName.Story
           }
         >
-          <p>{parse(content?.body ?? '')}</p>
+          <span>{parse(content?.body ?? '')}</span>
         </Show>
         <Show
           visible={
