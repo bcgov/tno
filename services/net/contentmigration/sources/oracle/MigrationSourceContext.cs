@@ -54,6 +54,8 @@ public class MigrationSourceContext : DbContext
             optionsBuilder.EnableSensitiveDataLogging();
         }
 
+        optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+
         base.OnConfiguring(optionsBuilder);
     }
 
