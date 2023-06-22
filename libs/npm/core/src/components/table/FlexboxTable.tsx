@@ -89,7 +89,7 @@ export const FlexboxTable = <T extends object>({
                 className={`column col-${index}`}
                 onClick={(e) => {
                   if (table.options.stopPropagation) e.stopPropagation();
-                  // table.options.onColumnClick?.(col, e);
+                  table.options.onColumnClick?.(table.columns[index], e);
                 }}
               >
                 {col.label && <span className="label">{col.label}</span>}
@@ -141,17 +141,17 @@ export const FlexboxTable = <T extends object>({
                           }}
                         >
                           {row.cells
-                            .filter((col) => col.isVisible)
-                            .map((col, index) => (
+                            .filter((cell) => cell.isVisible)
+                            .map((cell, index) => (
                               <div
                                 className={`column col-${index}`}
                                 key={`${index}`}
                                 onClick={(e) => {
                                   if (table.options.stopPropagation) e.stopPropagation();
-                                  table.options.onCellClick?.(col, e);
+                                  table.options.onCellClick?.(cell, row, e);
                                 }}
                               >
-                                {col.cell(col)}
+                                {cell.cell(cell)}
                               </div>
                             ))}
                         </div>
@@ -182,17 +182,17 @@ export const FlexboxTable = <T extends object>({
                 }}
               >
                 {row.cells
-                  .filter((col) => col.isVisible)
-                  .map((col, index) => (
+                  .filter((cell) => cell.isVisible)
+                  .map((cell, index) => (
                     <div
                       className={`column col-${index}`}
                       key={`${index}`}
                       onClick={(e) => {
                         if (table.options.stopPropagation) e.stopPropagation();
-                        table.options.onCellClick?.(col, e);
+                        table.options.onCellClick?.(cell, row, e);
                       }}
                     >
-                      {col.cell(col)}
+                      {cell.cell(cell)}
                     </div>
                   ))}
               </div>

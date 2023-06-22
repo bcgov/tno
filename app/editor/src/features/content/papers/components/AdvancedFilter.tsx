@@ -2,7 +2,7 @@ import { advancedSearchKeys, advancedSearchOptions } from 'features/content/list
 import { IContentListAdvancedFilter } from 'features/content/list-view/interfaces';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
-import { useContent, useLookupOptions } from 'store/hooks';
+import { useContent } from 'store/hooks';
 import {
   Checkbox,
   Col,
@@ -21,15 +21,15 @@ import {
   ToolBarSection,
 } from 'tno-core';
 
-import { IMorningReportsFilter } from '../interfaces';
+import { IPaperFilter } from '../interfaces';
 
 export interface IAdvancedFilterProps {
   /** The current filter values. */
-  filter: IMorningReportsFilter;
+  filter: IPaperFilter;
   /** Event when filter changes. */
-  onFilterChange: (filter: IMorningReportsFilter) => void;
+  onFilterChange: (filter: IPaperFilter) => void;
   /** Event fire when user executes search. */
-  onSearch: (filter: IMorningReportsFilter & IContentListAdvancedFilter) => void;
+  onSearch: (filter: IPaperFilter & IContentListAdvancedFilter) => void;
 }
 
 /**
@@ -42,11 +42,8 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
   onFilterChange,
   onSearch,
 }) => {
-  const [
-    { filterMorningReports, filterMorningReportAdvanced: filterAdvanced },
-    { storeFilterMorningReportAdvanced },
-  ] = useContent();
-  const [{ products }] = useLookupOptions();
+  const [{ filterPaper, filterPaperAdvanced: filterAdvanced }, { storeFilterPaperAdvanced }] =
+    useContent();
 
   const [statusOptions] = React.useState(getEnumStringOptions(ContentStatusName));
 
@@ -55,15 +52,10 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
     numbers: ['sourceIds', 'productIds'],
   });
 
-  const frontPageProduct = React.useMemo(
-    () => products.find((p) => p.name === 'Front Page'),
-    [products],
-  );
-
   /** initialize advanced search section with query values or new */
   React.useEffect(() => {
     if (!!window.location.search) {
-      storeFilterMorningReportAdvanced({
+      storeFilterPaperAdvanced({
         ...filterAdvanced,
         fieldType: search.fieldType ?? advancedSearchKeys.Source,
         searchTerm: search.searchTerm ?? '',
@@ -96,20 +88,12 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
             }}
           />
           <Checkbox
-            id="chk-frontpage"
-            label="Front Page"
-            checked={
-              !!frontPageProduct && filter.productIds?.includes(frontPageProduct.id) === true
-            }
-            tooltip="Content identified as a Front Page"
+            id="chk-homepage"
+            label="Homepage"
+            checked={filter.homepage}
+            tooltip="Content identified as a Homepage"
             onChange={(e) => {
-              if (!!frontPageProduct)
-                onFilterChange({
-                  ...filter,
-                  productIds: e.target.checked
-                    ? [...(filter.productIds ?? []), frontPageProduct.id]
-                    : filter.productIds?.filter((v) => v !== frontPageProduct.id) ?? [],
-                });
+              onFilterChange({ ...filter, homepage: e.target.checked });
             }}
           />
         </Row>
@@ -126,7 +110,7 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
                   newValue instanceof OptionItem
                     ? newValue.toInterface()
                     : (newValue as IOptionItem);
-                storeFilterMorningReportAdvanced({
+                storeFilterPaperAdvanced({
                   ...filterAdvanced,
                   fieldType: value.value,
                   searchTerm: '',
@@ -139,10 +123,10 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
                 value={filterAdvanced.searchTerm}
                 onKeyUpCapture={(e) => {
                   if (e.key === 'Enter')
-                    onSearch({ ...filterMorningReports, pageIndex: 0, ...filterAdvanced });
+                    onSearch({ ...filterPaper, pageIndex: 0, ...filterAdvanced });
                 }}
                 onChange={(e) => {
-                  storeFilterMorningReportAdvanced({
+                  storeFilterPaperAdvanced({
                     ...filterAdvanced,
                     searchTerm: e.target.value,
                   });
@@ -155,14 +139,13 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
                 width={FieldSize.Medium}
                 onKeyUpCapture={(e) => {
                   if (e.key === 'Enter')
-                    onSearch({ ...filterMorningReports, pageIndex: 0, ...filterAdvanced });
+                    onSearch({ ...filterPaper, pageIndex: 0, ...filterAdvanced });
                 }}
                 onChange={(newValue: any) => {
-                  if (!newValue)
-                    storeFilterMorningReportAdvanced({ ...filterAdvanced, searchTerm: '' });
+                  if (!newValue) storeFilterPaperAdvanced({ ...filterAdvanced, searchTerm: '' });
                   else {
                     const optionItem = statusOptions.find((ds) => ds.value === newValue.value);
-                    storeFilterMorningReportAdvanced({
+                    storeFilterPaperAdvanced({
                       ...filterAdvanced,
                       searchTerm: optionItem?.value?.toString() ?? '',
                     });
@@ -178,9 +161,9 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
           <Row alignContent="center">
             <FaArrowAltCircleRight
               onClick={() => {
-                onSearch({ ...filterMorningReports, pageIndex: 0, ...filterAdvanced });
+                onSearch({ ...filterPaper, pageIndex: 0, ...filterAdvanced });
                 replaceQueryParams(
-                  { ...filterMorningReports, ...filterAdvanced },
+                  { ...filterPaper, ...filterAdvanced },
                   {
                     includeEmpty: false,
                     convertObject: (value) => {

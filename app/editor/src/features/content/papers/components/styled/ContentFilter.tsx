@@ -14,4 +14,9 @@ export const ContentFilter = styled(ToolBarSection)`
       max-width: 40em;
     }
   }
+
+  .rs__value-container {
+    max-height: 33.6px;
+    overflow-y: auto;
+  }
 `;

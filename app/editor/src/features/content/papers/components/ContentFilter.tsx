@@ -13,18 +13,18 @@ import {
 } from 'tno-core';
 
 import { defaultSources } from '../constants';
-import { IMorningReportsFilter } from '../interfaces';
+import { IPaperFilter } from '../interfaces';
 import * as styled from './styled';
 
 export interface IContentFilter {
   /** The current filter values. */
-  filter: IMorningReportsFilter;
+  filter: IPaperFilter;
   /** Event when filter changes. */
-  onFilterChange: (filter: IMorningReportsFilter) => void;
+  onFilterChange: (filter: IPaperFilter) => void;
 }
 
 /**
- * Provides a component to filter content on the morning reports.
+ * Provides a component to filter content on the papers.
  * @param param0 Component properties.
  * @returns Component.
  */
@@ -48,20 +48,26 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
                       onlyPublished: false,
                       includeHidden: false,
                       onlyHidden: false,
+                      topStory: false,
+                      commentary: false,
+                      homepage: false,
                     }),
                 },
                 {
-                  label: 'PREVIEW A.M. REPORT',
+                  label: 'SEE SHORTLIST',
                   onClick: () =>
                     onFilterChange({
                       ...filter,
-                      onlyPublished: true,
+                      onlyPublished: false,
                       includeHidden: false,
                       onlyHidden: false,
+                      topStory: true,
+                      commentary: true,
+                      homepage: true,
                     }),
                 },
                 {
-                  label: 'SHOW HIDDEN ONLY',
+                  label: 'SEE HIDDEN ONLY',
                   onClick: (e) => {
                     onFilterChange({
                       ...filter,
@@ -69,6 +75,9 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
                       onlyPublished: false,
                       includeHidden: true,
                       onlyHidden: true,
+                      topStory: false,
+                      commentary: false,
+                      homepage: false,
                     });
                   },
                 },

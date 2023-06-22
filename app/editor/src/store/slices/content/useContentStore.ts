@@ -3,7 +3,7 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { IMorningReportsFilter } from 'features/content/morning-papers/interfaces';
+import { IPaperFilter } from 'features/content/papers/interfaces';
 import React from 'react';
 import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
 import { IContentModel, IPaged } from 'tno-core';
@@ -14,8 +14,8 @@ import {
   storeContent,
   storeFilter,
   storeFilterAdvanced,
-  storeFilterMorningReport,
-  storeFilterMorningReportAdvanced,
+  storeFilterPaper,
+  storeFilterPaperAdvanced,
   updateContent,
 } from '.';
 import { IContentState } from './interfaces';
@@ -29,10 +29,8 @@ export interface IContentStore {
   storeFilterAdvanced: (
     filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
-  storeFilterMorningReport: (
-    filter: IMorningReportsFilter | ActionDelegate<IMorningReportsFilter>,
-  ) => void;
-  storeFilterMorningReportAdvanced: (
+  storeFilterPaper: (filter: IPaperFilter | ActionDelegate<IPaperFilter>) => void;
+  storeFilterPaperAdvanced: (
     filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
   storeContent: (content: IPaged<IContentModel>) => void;
@@ -67,19 +65,16 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
         if (typeof filter === 'function') dispatch(storeFilterAdvanced(filter(filterAdvanced)));
         else dispatch(storeFilterAdvanced(filter));
       },
-      storeFilterMorningReport: (
-        filter: IMorningReportsFilter | ActionDelegate<IMorningReportsFilter>,
-      ) => {
-        if (typeof filter === 'function')
-          dispatch(storeFilterMorningReport(filter(state.filterMorningReports)));
-        else dispatch(storeFilterMorningReport(filter));
+      storeFilterPaper: (filter: IPaperFilter | ActionDelegate<IPaperFilter>) => {
+        if (typeof filter === 'function') dispatch(storeFilterPaper(filter(state.filterPaper)));
+        else dispatch(storeFilterPaper(filter));
       },
-      storeFilterMorningReportAdvanced: (
+      storeFilterPaperAdvanced: (
         filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
       ) => {
         if (typeof filter === 'function')
-          dispatch(storeFilterMorningReportAdvanced(filter(filterAdvanced)));
-        else dispatch(storeFilterMorningReportAdvanced(filter));
+          dispatch(storeFilterPaperAdvanced(filter(filterAdvanced)));
+        else dispatch(storeFilterPaperAdvanced(filter));
       },
       storeContent: (content: IPaged<IContentModel>) => {
         dispatch(storeContent(content));
@@ -94,7 +89,7 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
         dispatch(removeContent(content));
       },
     }),
-    [dispatch, state.filter, state.filterMorningReports],
+    [dispatch, state.filter, state.filterPaper],
   );
 
   return [state, controller];

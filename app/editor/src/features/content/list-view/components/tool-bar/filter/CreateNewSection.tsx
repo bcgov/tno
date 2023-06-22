@@ -8,6 +8,8 @@ import { ContentTypeName, Row } from 'tno-core';
 import * as styled from './styled';
 
 export interface ICreateNewSectionProps {
+  /** The title of the section */
+  title?: string;
   /** What types of content will be displayed. */
   contentTypes?: ContentTypeName[];
   /** Whether to open form in tab. */
@@ -19,6 +21,7 @@ export interface ICreateNewSectionProps {
  * @returns Section with three separate create content buttons
  */
 export const CreateNewSection: React.FC<ICreateNewSectionProps> = ({
+  title,
   contentTypes = [
     ContentTypeName.AudioVideo,
     ContentTypeName.PrintContent,
@@ -79,7 +82,7 @@ export const CreateNewSection: React.FC<ICreateNewSectionProps> = ({
   );
 
   return (
-    <styled.CreateNewSection label="CREATE SNIPPET" icon={<GiFairyWand />}>
+    <styled.CreateNewSection title={title} label="CREATE SNIPPET" icon={<GiFairyWand />}>
       <Row className="create-new">{contentTypes.map((ct) => getIcon(ct))}</Row>
     </styled.CreateNewSection>
   );

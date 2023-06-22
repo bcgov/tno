@@ -2,7 +2,7 @@ import { ContentTypeName } from 'tno-core';
 
 import { ISortBy } from '../../list-view/interfaces';
 
-export interface IMorningReportsFilter {
+export interface IPaperFilter {
   pageIndex: number;
   pageSize: number;
   hasTopic: boolean;
@@ -21,5 +21,6 @@ export interface IMorningReportsFilter {
   onTicker: boolean;
   commentary: boolean;
   topStory: boolean;
+  homepage: boolean;
   sort: ISortBy[];
 }
