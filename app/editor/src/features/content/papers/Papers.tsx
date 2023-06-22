@@ -55,7 +55,6 @@ export const Papers: React.FC<IPapersProps> = (props) => {
 
   const channel = useChannel<any>({
     onMessage: (ev) => {
-      console.debug(ev);
       switch (ev.data.type) {
         case 'content':
           if (content?.items.some((i) => i.id === ev.data.message.id))

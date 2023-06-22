@@ -4,6 +4,7 @@ import { getDefaultCommentaryExpiryValue } from 'features/content/form/utils';
 import * as React from 'react';
 import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
+import { useContentStore } from 'store/slices';
 import {
   ActionName,
   Button,
@@ -38,30 +39,35 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
   setLoading,
   selected,
 }) => {
-  const [, { updateContentList }] = useContent();
+  const [{ content }, { updateContentList }] = useContent();
+  const [, { removeContent }] = useContentStore();
   const [{ holidays }] = useLookup();
+
   const [commentary] = React.useState(`${getDefaultCommentaryExpiryValue(new Date(), holidays)}`);
 
   const handleAction = React.useCallback(
     async (action: ContentListActionName, name?: string, value?: string) => {
       try {
         setLoading(true);
-        await updateContentList({
+        const items = await updateContentList({
           action,
           actionName: name,
           actionValue: value,
-          contentIds: selected.map((s) => s.id),
+          contentIds: selected.length
+            ? selected.map((s) => s.id)
+            : content?.items.map((c) => c.id) ?? [],
         });
-        toast.success(
-          `${selected.length} item${selected.length > 1 ? 's' : ''} marked with "${name}".`,
-        );
+        if (value === 'false' || !value) {
+          removeContent(items);
+        }
+        toast.success(`${items.length} item${items.length > 1 ? 's' : ''} updated.`);
       } catch (ex: any | AxiosError) {
         toast.error(ex.message);
       } finally {
         setLoading(false);
       }
     },
-    [selected, setLoading, updateContentList],
+    [setLoading, updateContentList, selected, content?.items, removeContent],
   );
 
   return (
@@ -92,25 +98,41 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
       <Button
         variant={ButtonVariant.secondary}
         disabled={!selected.length}
-        onClick={() => handleAction(ContentListActionName.Action, ActionName.TopStory, 'true')}
+        onClick={() =>
+          handleAction(
+            ContentListActionName.Action,
+            ActionName.TopStory,
+            filter.topStory ? 'false' : 'true',
+          )
+        }
       >
-        Top Story
-      </Button>
-      <Button
-        variant={ButtonVariant.secondary}
-        disabled={!selected.length}
-        onClick={() => handleAction(ContentListActionName.Action, ActionName.Homepage, 'true')}
-      >
-        Homepage
+        {filter.topStory ? `Remove from` : `Add to`} Top Story
       </Button>
       <Button
         variant={ButtonVariant.secondary}
         disabled={!selected.length}
         onClick={() =>
-          handleAction(ContentListActionName.Action, ActionName.Commentary, commentary)
+          handleAction(
+            ContentListActionName.Action,
+            ActionName.Homepage,
+            filter.homepage ? 'false' : 'true',
+          )
         }
       >
-        Commentary
+        {filter.homepage ? `Remove from` : `Add to`} Homepage
+      </Button>
+      <Button
+        variant={ButtonVariant.secondary}
+        disabled={!selected.length}
+        onClick={() =>
+          handleAction(
+            ContentListActionName.Action,
+            ActionName.Commentary,
+            filter.commentary ? `` : commentary,
+          )
+        }
+      >
+        {filter.commentary ? `Remove from` : `Add to`} Commentary
       </Button>
       <Row flex="1 1 0" justifyContent="flex-end">
         <Button
@@ -118,8 +140,16 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
           disabled={!selected.length}
           onClick={() => handleAction(ContentListActionName.Publish)}
         >
-          Publish
+          Publish Selected
         </Button>
+        <Show visible={filter.commentary || filter.topStory || filter.homepage}>
+          <Button
+            variant={ButtonVariant.success}
+            onClick={() => handleAction(ContentListActionName.Publish)}
+          >
+            Publish All
+          </Button>
+        </Show>
       </Row>
     </styled.ReportActions>
   );
