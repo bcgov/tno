@@ -372,6 +372,7 @@ public class ContentService : BaseService<Content, long>, IContentService
                 if (sort == "otherSource") objPath = p => p.OtherSource;
                 if (sort == "page") objPath = p => p.Page;
                 if (sort == "status") objPath = p => p.Status;
+                if (sort == "sourceSort") objPath = p => p.Source!.SortOrder;
 
                 if (objPath != null) result = result.Sort(s => sorts.EndsWith(" desc") ? s.Descending(objPath) : s.Ascending(objPath));
             }
