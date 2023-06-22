@@ -20,6 +20,9 @@ using TNO.TemplateEngine;
 using TNO.TemplateEngine.Models.Reports;
 using TNO.TemplateEngine.Extensions;
 using TNO.Elastic.Models;
+using TNO.API.Areas.Services.Models.Content;
+using TNO.DAL.Config;
+using System.Web;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -45,6 +48,7 @@ public class ReportController : ControllerBase
     private readonly IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
     private readonly ElasticOptions _elasticOptions;
+    private readonly StorageOptions _storageOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -58,6 +62,7 @@ public class ReportController : ControllerBase
     /// <param name="kafkaProducer"></param>
     /// <param name="kafkaOptions"></param>
     /// <param name="elasticOptions"></param>
+    /// <param name="storageOptions"></param>
     /// <param name="serializerOptions"></param>
     public ReportController(
         IReportService reportService,
@@ -66,6 +71,7 @@ public class ReportController : ControllerBase
         IKafkaMessenger kafkaProducer,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<ElasticOptions> elasticOptions,
+        IOptions<StorageOptions> storageOptions,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _reportService = reportService;
@@ -74,6 +80,7 @@ public class ReportController : ControllerBase
         _kafkaProducer = kafkaProducer;
         _kafkaOptions = kafkaOptions.Value;
         _elasticOptions = elasticOptions.Value;
+        _storageOptions = storageOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -236,12 +243,17 @@ public class ReportController : ControllerBase
         var results = await _reportService.FindContentWithElasticsearchAsync(_elasticOptions.PublishedIndex, model.ToEntity(_serializerOptions));
         var sections = model.ParseSections().ToDictionary(s => s.Key, s =>
         {
-            results.TryGetValue(s.Key, out SearchResultModel<Services.Models.Content.ContentModel>? value);
-            s.Value.Content = value?.Hits.Hits.Select(h => h.Source) ?? Array.Empty<Services.Models.Content.ContentModel>();
+            results.TryGetValue(s.Key, out SearchResultModel<ContentModel>? value);
+            s.Value.Content = value?.Hits.Hits.Select(h => h.Source) ?? Array.Empty<ContentModel>();
             return s.Value;
         });
 
         var templateModel = new TemplateModel(sections);
+
+        foreach (var frontPage in templateModel.Content.Where(x => x.ContentType == Entities.ContentType.Image))
+        {
+            frontPage.ImageContent = GetImageContent(frontPage.FileReferences.FirstOrDefault()?.Path);
+        }
 
         var subject = await subjectTemplate.RunAsync(instance =>
         {
@@ -257,6 +269,18 @@ public class ReportController : ControllerBase
         });
 
         return new JsonResult(new ReportPreviewModel(subject, body, results));
+    }
+
+    private string? GetImageContent(string? path)
+    {
+        path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
+        var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
+        if (!safePath.FileExists()) return null;
+
+        using FileStream fileStream = new(safePath, FileMode.Open, FileAccess.Read);
+        var imageBytes = new byte[fileStream.Length];
+        fileStream.Read(imageBytes, 0, (int)fileStream.Length);
+        return Convert.ToBase64String(imageBytes);
     }
     #endregion
 }

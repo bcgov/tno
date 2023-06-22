@@ -200,6 +200,11 @@ public class ContentModel : AuditColumnsModel
     /// get/set - An array of notification instances.
     /// </summary>
     public IEnumerable<NotificationInstanceModel> Notifications { get; set; } = Array.Empty<NotificationInstanceModel>();
+
+    /// <summary>
+    /// get/set - The first file reference's image content if available.
+    /// </summary>
+    public string? ImageContent { get; set; }
     #endregion
 
     #region Constructors
