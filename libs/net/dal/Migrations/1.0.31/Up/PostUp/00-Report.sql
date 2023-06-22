@@ -16,11 +16,8 @@ UPDATE public.report SET
               }
             },
             {
-              "terms": {
-                "status": [
-                  "Publish",
-                  "Published"
-                ]
+              "term": {
+                "status": "Published"
               }
             },
             {
@@ -65,7 +62,7 @@ UPDATE public.report SET
 @using TNO.Entities
 @{
     var groups = Content.GroupBy(
-      c => $"{c.Source?.Name}",
+      c => $"{c.Source?.SortOrder}-{c.Source?.Name}",
       c => c,
       (k, c) => new { Key = k, Content = c }).OrderBy(c => c.Key);
 
@@ -85,7 +82,7 @@ UPDATE public.report SET
 @foreach (var group in groups)
 {
     <ul>
-        <li><b>@group.Key</b></li>
+        <li><b>@group.Key.Split("-").LastOrDefault()</b></li>
         @foreach (var c in group.Content)
         {
             var byline = !System.String.IsNullOrWhiteSpace(c.Byline) ? $" - {c.Byline}" : "";
