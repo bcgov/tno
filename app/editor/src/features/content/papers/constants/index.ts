@@ -1,3 +1,3 @@
 export * from './columns';
-export * from './defaultMorningReportsFilter';
+export * from './defaultPaperFilter';
 export * from './defaultSources';

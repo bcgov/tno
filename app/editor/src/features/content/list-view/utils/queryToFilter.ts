@@ -37,6 +37,7 @@ export const queryToFilter = (
       onTicker: convertTo(search.onTicker, 'boolean', filter.onTicker),
       commentary: convertTo(search.commentary, 'boolean', filter.commentary),
       topStory: convertTo(search.topStory, 'boolean', filter.topStory),
+      homepage: convertTo(search.homepage, 'boolean', filter.homepage),
       sort: convertTo(search.sort, 'string', filter.sort),
     };
   }

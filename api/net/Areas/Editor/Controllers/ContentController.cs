@@ -25,6 +25,9 @@ using Microsoft.AspNetCore.SignalR;
 using TNO.Keycloak;
 using TNO.Core.Exceptions;
 using TNO.Elastic;
+using TNO.Kafka.SignalR;
+using Microsoft.AspNetCore.SignalR.Protocol;
+using TNO.API.Models.SignalR;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -54,6 +57,7 @@ public class ContentController : ControllerBase
     private readonly IHubContext<MessageHub> _hub;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
+    private readonly KafkaHubConfig _kafkaHubOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly ILogger _logger;
     private readonly ElasticOptions _elasticOptions;
@@ -74,6 +78,7 @@ public class ContentController : ControllerBase
     /// <param name="storageOptions"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
+    /// <param name="kafkaHubOptions"></param>
     /// <param name="elasticOptions"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
@@ -89,6 +94,7 @@ public class ContentController : ControllerBase
         IOptions<ElasticOptions> elasticOptions,
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaOptions> kafkaOptions,
+        IOptions<KafkaHubConfig> kafkaHubOptions,
         IOptions<JsonSerializerOptions> serializerOptions,
         ILogger<ContentController> logger)
     {
@@ -102,6 +108,7 @@ public class ContentController : ControllerBase
         _connection = connection;
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
+        _kafkaHubOptions = kafkaHubOptions.Value;
         _elasticOptions = elasticOptions.Value;
         _serializerOptions = serializerOptions.Value;
         _logger = logger;
@@ -220,6 +227,8 @@ public class ContentController : ControllerBase
         updateContent.OwnerId ??= user.Id;
 
         var content = _contentService.UpdateAndSave(updateContent);
+
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {

@@ -22,5 +22,6 @@ export interface IContentListFilter {
   onTicker: boolean;
   commentary: boolean;
   topStory: boolean;
+  homepage: boolean;
   sort: ISortBy[];
 }

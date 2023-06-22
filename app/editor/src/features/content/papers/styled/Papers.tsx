@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { FormPage } from 'tno-core';
 
-export const MorningReports = styled(FormPage)`
+export const Papers = styled(FormPage)`
   min-height: fit-content;
 
   .filter-select {

@@ -2,7 +2,7 @@ import { IContentListAdvancedFilter } from 'features/content/list-view/interface
 import { applySortBy, setTimeFrame } from 'features/content/list-view/utils';
 import { IContentFilter } from 'tno-core';
 
-import { IMorningReportsFilter } from '../interfaces';
+import { IPaperFilter } from '../interfaces';
 
 /**
  * Creates a IContentFilter that can be passed to the API hook endpoint.
@@ -11,7 +11,7 @@ import { IMorningReportsFilter } from '../interfaces';
  * @returns new IContentFilter object.
  */
 export const makeFilter = (
-  filter: IMorningReportsFilter & Partial<IContentListAdvancedFilter>,
+  filter: IPaperFilter & Partial<IContentListAdvancedFilter>,
 ): IContentFilter => {
   const result: IContentFilter & Partial<IContentListAdvancedFilter> = {
     page: filter.pageIndex + 1,
@@ -40,10 +40,11 @@ export const makeFilter = (
  * @param filter Filter object
  * @returns An array of actions.
  */
-const applyActions = (filter: IMorningReportsFilter) => {
+const applyActions = (filter: IPaperFilter) => {
   const actions = [];
   if (filter.onTicker) actions.push('On Ticker');
   if (filter.commentary) actions.push('Commentary');
   if (filter.topStory) actions.push('Top Story');
+  if (filter.homepage) actions.push('Homepage');
   return actions;
 };

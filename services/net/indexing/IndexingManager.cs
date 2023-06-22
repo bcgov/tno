@@ -232,12 +232,12 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 if (content != null)
                 {
                     if (model.Action == IndexAction.Publish)
-                        await PublishContentAsync(result.Message.Value, content);
+                        content = await PublishContentAsync(content);
                     else if (model.Action == IndexAction.Unpublish)
-                        await UnpublishContentAsync(result.Message.Value, content);
+                        content = await UnpublishContentAsync(content);
 
                     // Update the unpublished content with the latest data and status.
-                    await IndexContentAsync(content);
+                    await IndexContentAsync(result.Message.Value, content);
                 }
                 else
                 {
@@ -260,47 +260,13 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// </summary>
     /// <param name="content"></param>
     /// <returns></returns>
-    private async Task IndexContentAsync(ContentModel content)
+    private async Task IndexContentAsync(IndexRequestModel request, ContentModel content)
     {
         var document = new IndexRequest<ContentModel>(content, this.Options.UnpublishedIndex, content.Id);
         var response = await this.Client.IndexAsync(document);
         if (response.IsSuccess())
         {
-            this.Logger.LogInformation("Content indexed.  Content ID: {id}, Index: {index}", content?.Id, this.Options.UnpublishedIndex);
-        }
-        else
-        {
-            // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            if (response.TryGetOriginalException(out Exception? ex))
-                this.Logger.LogError(ex, "Content failed to index.  Content ID: {id}, Index: {index}", content?.Id, this.Options.UnpublishedIndex);
-        }
-    }
-
-    /// <summary>
-    /// Send content to published index.
-    /// Ensure content status is updated to reflect being published.
-    /// Send notifications.
-    /// </summary>
-    /// <param name="request"></param>
-    /// <param name="content"></param>
-    /// <returns></returns>
-    private async Task PublishContentAsync(IndexRequestModel request, ContentModel content)
-    {
-        // Remove the transcript body if it hasn't been approved.
-        var body = content.Body;
-        if (!content.IsApproved && content.ContentType == ContentType.AudioVideo) content.Body = "";
-        content.Status = ContentStatus.Published;
-        var document = new IndexRequest<ContentModel>(content, this.Options.PublishedIndex, content.Id);
-        var response = await this.Client.IndexAsync(document);
-        if (response.IsSuccess())
-        {
-            content.Body = body;
-            // Update the status of the content to indicate it has been published.
-            if (content.Status != ContentStatus.Published)
-            {
-                await this.Api.UpdateContentAsync(content, Headers);
-            }
-            this.Logger.LogInformation("Content published.  Content ID: {id}, Index: {index}", content.Id, this.Options.PublishedIndex);
+            this.Logger.LogInformation("Content indexed.  Content ID: {id}, Index: {index}, Version: {version}", content.Id, this.Options.UnpublishedIndex, content.Version);
 
             // Tell the API to inform users of published content.
             await SendNotifications(request, content);
@@ -309,8 +275,46 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
             if (response.TryGetOriginalException(out Exception? ex))
+                this.Logger.LogError(ex, "Content failed to index.  Content ID: {id}, Index: {index}", content.Id, this.Options.UnpublishedIndex);
+        }
+    }
+
+    /// <summary>
+    /// Having two copies of content regrettably can result in synchronization issues.
+    /// Update status of content to 'Published'.
+    /// Send update to database.
+    /// Send content to published index.
+    /// Send notifications.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    private async Task<ContentModel> PublishContentAsync(ContentModel content)
+    {
+        // Update the status of the content to indicate it has been published.
+        if (content.Status != ContentStatus.Published)
+        {
+            content.Status = ContentStatus.Published;
+            content = await this.Api.UpdateContentAsync(content, Headers) ?? throw new InvalidOperationException($"Content failed to update. ID:{content.Id}");
+        }
+
+        // Remove the transcript body if it hasn't been approved.
+        var body = content.Body;
+        if (!content.IsApproved && content.ContentType == ContentType.AudioVideo) content.Body = "";
+        var document = new IndexRequest<ContentModel>(content, this.Options.PublishedIndex, content.Id);
+        var response = await this.Client.IndexAsync(document);
+        content.Body = body;
+        if (response.IsSuccess())
+        {
+            this.Logger.LogInformation("Content published.  Content ID: {id}, Index: {index}, Version: {version}", content.Id, this.Options.PublishedIndex, content.Version);
+        }
+        else
+        {
+            // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
+            if (response.TryGetOriginalException(out Exception? ex))
                 this.Logger.LogError(ex, "Content failed to publish.  Content ID: {id}, Index: {index}", content.Id, this.Options.PublishedIndex);
         }
+
+        return content;
     }
 
     /// <summary>
@@ -318,31 +322,30 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// Ensure content status is updated to reflect being published.
     /// Send notifications.
     /// </summary>
-    /// <param name="request"></param>
     /// <param name="content"></param>
     /// <returns></returns>
-    private async Task UnpublishContentAsync(IndexRequestModel request, ContentModel content)
+    private async Task<ContentModel> UnpublishContentAsync(ContentModel content)
     {
+        // Update the status of the content to indicate it has been unpublished.
+        if (content.Status != ContentStatus.Unpublished)
+        {
+            content.Status = ContentStatus.Unpublished;
+            content = await this.Api.UpdateContentAsync(content, Headers) ?? throw new InvalidOperationException($"Content failed to update. ID:{content.Id}");
+        }
+
         var document = new DeleteRequest<ContentModel>(content, this.Options.PublishedIndex, content.Uid);
         var response = await this.Client.DeleteAsync(document);
         if (response.IsSuccess())
         {
-            // Update the status of the content to indicate it has been unpublished.
-            if (content.Status != ContentStatus.Unpublished)
-            {
-                content.Status = ContentStatus.Unpublished;
-                await this.Api.UpdateContentAsync(content, Headers);
-            }
-            this.Logger.LogInformation("Content unpublished.  Content ID: {id}, Index: {index}", content?.Id, this.Options.PublishedIndex);
-
-            await SendNotifications(request, content!);
+            this.Logger.LogInformation("Content unpublished.  Content ID: {id}, Index: {index}, Version: {version}", content.Id, this.Options.PublishedIndex, content.Version);
         }
         else
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
             if (response.TryGetOriginalException(out Exception? ex))
-                this.Logger.LogError(ex, "Content failed to publish.  Content ID: {id}, Index: {index}", content?.Id, this.Options.PublishedIndex);
+                this.Logger.LogError(ex, "Content failed to unpublish.  Content ID: {id}, Index: {index}", content.Id, this.Options.PublishedIndex);
         }
+        return content;
     }
 
     /// <summary>

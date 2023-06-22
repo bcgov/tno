@@ -4,8 +4,8 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { defaultMorningReportsFilter } from 'features/content/morning-papers/constants';
-import { IMorningReportsFilter } from 'features/content/morning-papers/interfaces';
+import { defaultPaperFilter } from 'features/content/papers/constants';
+import { IPaperFilter } from 'features/content/papers/interfaces';
 import { IContentModel, IPaged, LogicalOperator } from 'tno-core';
 
 import { IContentState } from './interfaces';
@@ -29,6 +29,7 @@ export const initialContentState: IContentState = {
     onTicker: false,
     commentary: false,
     topStory: false,
+    homepage: false,
     sort: [],
   },
   filterAdvanced: {
@@ -36,8 +37,8 @@ export const initialContentState: IContentState = {
     logicalOperator: LogicalOperator.Contains,
     searchTerm: '',
   },
-  filterMorningReports: defaultMorningReportsFilter(),
-  filterMorningReportAdvanced: {
+  filterPaper: defaultPaperFilter(),
+  filterPaperAdvanced: {
     fieldType: advancedSearchKeys.Headline,
     logicalOperator: LogicalOperator.Contains,
     searchTerm: '',
@@ -54,14 +55,14 @@ export const contentSlice = createSlice({
     storeFilterAdvanced(state: IContentState, action: PayloadAction<IContentListAdvancedFilter>) {
       state.filterAdvanced = action.payload;
     },
-    storeFilterMorningReport(state: IContentState, action: PayloadAction<IMorningReportsFilter>) {
-      state.filterMorningReports = action.payload;
+    storeFilterPaper(state: IContentState, action: PayloadAction<IPaperFilter>) {
+      state.filterPaper = action.payload;
     },
-    storeFilterMorningReportAdvanced(
+    storeFilterPaperAdvanced(
       state: IContentState,
       action: PayloadAction<IContentListAdvancedFilter>,
     ) {
-      state.filterMorningReportAdvanced = action.payload;
+      state.filterPaperAdvanced = action.payload;
     },
     storeContent(state: IContentState, action: PayloadAction<IPaged<IContentModel> | undefined>) {
       state.content = action.payload;
@@ -90,8 +91,8 @@ export const contentSlice = createSlice({
 export const {
   storeFilter,
   storeFilterAdvanced,
-  storeFilterMorningReport,
-  storeFilterMorningReportAdvanced,
+  storeFilterPaper,
+  storeFilterPaperAdvanced,
   addContent,
   storeContent,
   updateContent,

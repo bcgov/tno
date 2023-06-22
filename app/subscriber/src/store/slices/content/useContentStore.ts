@@ -2,7 +2,6 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { IMorningReportFilter } from 'features/content/morning-papers/interfaces';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
 import { IContentModel, IPaged } from 'tno-core';
@@ -13,7 +12,6 @@ import {
   storeContent,
   storeFilter,
   storeFilterAdvanced,
-  storeMorningReportFilter,
   updateContent,
 } from '.';
 import { IContentState } from './interfaces';
@@ -25,7 +23,6 @@ export interface IContentProps {
 export interface IContentStore {
   storeFilter: (filter: IContentListFilter) => void;
   storeFilterAdvanced: (filter: IContentListAdvancedFilter) => void;
-  storeMorningReportFilter: (filter: IMorningReportFilter) => void;
   storeContent: (content: IPaged<IContentModel>) => void;
   addContent: (content: IContentModel[]) => void;
   updateContent: (content: IContentModel[]) => void;
@@ -43,9 +40,6 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
       },
       storeFilterAdvanced: (filter: IContentListAdvancedFilter) => {
         dispatch(storeFilterAdvanced(filter));
-      },
-      storeMorningReportFilter: (filter: IMorningReportFilter) => {
-        dispatch(storeMorningReportFilter(filter));
       },
       storeContent: (content: IPaged<IContentModel>) => {
         dispatch(storeContent(content));

@@ -2,28 +2,26 @@
 import { AxiosError } from 'axios';
 import { getDefaultCommentaryExpiryValue } from 'features/content/form/utils';
 import * as React from 'react';
-import { FaHourglassHalf } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
 import {
+  ActionName,
   Button,
   ButtonVariant,
   Col,
   ContentListActionName,
   ContentStatusName,
-  FieldSize,
   IContentModel,
   Row,
   Show,
-  Text,
 } from 'tno-core';
 
-import { IMorningReportsFilter } from '../interfaces';
+import { IPaperFilter } from '../interfaces';
 import * as styled from './styled';
 
 interface IReportActionProps {
   /** The current filter. */
-  filter: IMorningReportsFilter;
+  filter: IPaperFilter;
   /** Whether content is loading. */
   setLoading: (loading: boolean) => void;
   /** An array of selected content. */
@@ -42,9 +40,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
 }) => {
   const [, { updateContentList }] = useContent();
   const [{ holidays }] = useLookup();
-  const [commentary, setCommentary] = React.useState(
-    `${getDefaultCommentaryExpiryValue(new Date(), holidays)}`,
-  );
+  const [commentary] = React.useState(`${getDefaultCommentaryExpiryValue(new Date(), holidays)}`);
 
   const handleAction = React.useCallback(
     async (action: ContentListActionName, name?: string, value?: string) => {
@@ -56,6 +52,9 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
           actionValue: value,
           contentIds: selected.map((s) => s.id),
         });
+        toast.success(
+          `${selected.length} item${selected.length > 1 ? 's' : ''} marked with "${name}".`,
+        );
       } catch (ex: any | AxiosError) {
         toast.error(ex.message);
       } finally {
@@ -93,33 +92,26 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
       <Button
         variant={ButtonVariant.secondary}
         disabled={!selected.length}
-        onClick={() => handleAction(ContentListActionName.Action, 'Top Story', 'true')}
+        onClick={() => handleAction(ContentListActionName.Action, ActionName.TopStory, 'true')}
       >
-        Mark as Top Story
+        Top Story
       </Button>
-      <Col className="separate-buttons">
-        <hr />
-      </Col>
-      <Row>
-        <Col>
-          <FaHourglassHalf className="icon" />
-        </Col>
-        <Text
-          name="commentary"
-          width={FieldSize.Tiny}
-          type="number"
-          value={commentary}
-          onChange={(e) => setCommentary(e.currentTarget.value)}
-        >
-          <Button
-            variant={ButtonVariant.secondary}
-            disabled={!selected.length}
-            onClick={() => handleAction(ContentListActionName.Action, 'Commentary', commentary)}
-          >
-            Mark as Commentary
-          </Button>
-        </Text>
-      </Row>
+      <Button
+        variant={ButtonVariant.secondary}
+        disabled={!selected.length}
+        onClick={() => handleAction(ContentListActionName.Action, ActionName.Homepage, 'true')}
+      >
+        Homepage
+      </Button>
+      <Button
+        variant={ButtonVariant.secondary}
+        disabled={!selected.length}
+        onClick={() =>
+          handleAction(ContentListActionName.Action, ActionName.Commentary, commentary)
+        }
+      >
+        Commentary
+      </Button>
       <Row flex="1 1 0" justifyContent="flex-end">
         <Button
           variant={ButtonVariant.success}

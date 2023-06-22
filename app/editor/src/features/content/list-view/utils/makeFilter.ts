@@ -48,5 +48,6 @@ const applyActions = (filter: IContentListFilter) => {
   if (filter.onTicker) actions.push('On Ticker');
   if (filter.commentary) actions.push('Commentary');
   if (filter.topStory) actions.push('Top Story');
+  if (filter.homepage) actions.push('Homepage');
   return actions;
 };
