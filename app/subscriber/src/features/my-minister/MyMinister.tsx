@@ -6,7 +6,7 @@ import { determinecolumns } from 'features/home/constants';
 import { makeFilter } from 'features/home/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useContent } from 'store/hooks';
+import { useApp, useContent } from 'store/hooks';
 import { FlexboxTable, IContentModel, Page, Row } from 'tno-core';
 
 import * as styled from './styled';
@@ -14,6 +14,7 @@ import * as styled from './styled';
 export const MyMinister: React.FC = () => {
   const [{ filter, filterAdvanced }, { findContent }] = useContent();
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
+  const [{ userInfo }] = useApp();
   const navigate = useNavigate();
 
   const [, setLoading] = React.useState(false);
@@ -25,10 +26,12 @@ export const MyMinister: React.FC = () => {
           makeFilter({
             ...filter,
             startDate: '',
+            contentTypes: [],
             endDate: '',
           }),
         );
-        setHomeItems(data.items);
+        // don't want to keyword fetch when there is nothing to fetch
+        setHomeItems(userInfo?.preferences?.myMinisters.length > 0 ? data.items : []);
         return new Page(data.page - 1, data.quantity, data?.items, data.total);
       } catch (error) {
         // TODO: Handle error
@@ -37,7 +40,7 @@ export const MyMinister: React.FC = () => {
         setLoading(false);
       }
     },
-    [findContent],
+    [findContent, userInfo?.preferences?.myMinisters],
   );
 
   /** retrigger content fetch when change is applied */
@@ -45,9 +48,9 @@ export const MyMinister: React.FC = () => {
     fetch({
       ...filter,
       ...filterAdvanced,
-      keyword: localStorage.getItem('myMinister') ?? '',
+      keyword: userInfo?.preferences.myMinisters.toString() ?? '',
     });
-  }, [filter, filterAdvanced, fetch]);
+  }, [filter, filterAdvanced, fetch, userInfo?.preferences.myMinisters]);
   return (
     <styled.MyMinister>
       <Row className="table-container">
