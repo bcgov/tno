@@ -29,6 +29,7 @@ export const makeFilter = (
     includeHidden: filter.includeHidden ? true : undefined,
     publishedStartOn: filter.startDate ? moment(filter.startDate).toISOString() : undefined,
     publishedEndOn: filter.endDate ? filter.endDate : undefined,
+    sort: filter.sort.length > 0 ? filter.sort.map((x) => x.id) : undefined,
     logicalOperator:
       filter.searchTerm !== '' && filter.logicalOperator !== ''
         ? filter.logicalOperator
