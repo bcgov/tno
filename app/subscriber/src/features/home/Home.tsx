@@ -32,7 +32,7 @@ export const Home: React.FC = () => {
             contentTypes:
               filter.contentTypes.length > 0 ? filter.contentTypes : [ContentTypeName.PrintContent],
             startDate: filter.startDate ? filter.startDate : new Date().toDateString(),
-            sort: [{ id: 'sourceSort' }],
+            sort: [{ id: 'source.sortOrder' }],
             status: ContentStatus.Published,
           }),
         );
