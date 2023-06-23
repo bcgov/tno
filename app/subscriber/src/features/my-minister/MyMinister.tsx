@@ -48,9 +48,9 @@ export const MyMinister: React.FC = () => {
     fetch({
       ...filter,
       ...filterAdvanced,
-      keyword: userInfo?.preferences.myMinisters.toString() ?? '',
+      keyword: userInfo?.preferences?.myMinisters.toString() ?? '',
     });
-  }, [filter, filterAdvanced, fetch, userInfo?.preferences.myMinisters]);
+  }, [filter, filterAdvanced, fetch, userInfo?.preferences?.myMinisters]);
   return (
     <styled.MyMinister>
       <Row className="table-container">
