@@ -28,7 +28,7 @@ INSERT INTO public."report" (
             {
               "range": {
                 "publishedOn": {
-                  "gte": "now-1d/d"
+                  "gte": "now/d"
                 }
               }
             },
