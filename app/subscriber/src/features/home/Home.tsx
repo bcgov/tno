@@ -32,6 +32,7 @@ export const Home: React.FC = () => {
             contentTypes:
               filter.contentTypes.length > 0 ? filter.contentTypes : [ContentTypeName.PrintContent],
             startDate: filter.startDate ? filter.startDate : new Date().toDateString(),
+            sort: [{ id: 'source.sortOrder' }],
             status: ContentStatus.Published,
           }),
         );
@@ -68,7 +69,7 @@ export const Home: React.FC = () => {
           onRowClick={(e: any) => {
             navigate(`/view/${e.original.id}`);
           }}
-          data={homeItems || []}
+          data={homeItems}
           pageButtons={5}
           showPaging={false}
         />
