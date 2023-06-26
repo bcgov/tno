@@ -19,7 +19,12 @@ export const SearchWithLogout = styled(Row)`
     padding-right: 0;
   }
   .search {
-    max-width: 20em;
+    @media (max-width: 500px) {
+      max-width: 13em;
+    }
+    @media (min-width: 500px) {
+      max-width: 20em;
+    }
   }
   .search-button {
     background-color: ${(props) => props.theme.css.defaultRed};

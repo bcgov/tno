@@ -6,7 +6,15 @@ import {
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { ContentStatus, ContentTypeName, FlexboxTable, IContentModel, Page, Row } from 'tno-core';
+import {
+  ContentStatus,
+  ContentTypeName,
+  FlexboxTable,
+  IContentModel,
+  Page,
+  Row,
+  useWindowSize,
+} from 'tno-core';
 
 import { determinecolumns } from './constants';
 import { HomeFilters } from './home-filters';
@@ -20,6 +28,7 @@ export const Home: React.FC = () => {
   const [{ filter, filterAdvanced }, { findContent }] = useContent();
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
   const navigate = useNavigate();
+  const { width } = useWindowSize();
 
   const [, setLoading] = React.useState(false);
   const fetch = React.useCallback(
@@ -63,7 +72,7 @@ export const Home: React.FC = () => {
       <Row className="table-container">
         <FlexboxTable
           rowId="id"
-          columns={determinecolumns(filter.contentTypes[0])}
+          columns={determinecolumns(filter.contentTypes[0], width)}
           isMulti
           groupBy={(item) => item.original.source?.name ?? ''}
           onRowClick={(e: any) => {

@@ -2,8 +2,11 @@ import styled from 'styled-components';
 import { Col } from 'tno-core';
 
 export const FrontPages = styled(Col)`
-  max-width: fit-content;
-  min-width: 35em;
+  @media (min-width: 1702px) {
+    max-width: fit-content;
+    min-width: 35em;
+  }
+
   background-color: ${(props) => props.theme.css.lightGray};
   img {
     padding: 0.5em;
@@ -19,8 +22,16 @@ export const FrontPages = styled(Col)`
     }
   }
   .front-page {
-    width: 8em;
-    height: 8em;
+    @media (min-width: 1702px) {
+      width: 8em;
+      height: 8em;
+    }
+
+    @media (max-width: 1702px) {
+      height: 10em;
+      width: 10em;
+    }
+
     object-fit: cover;
     object-position: 0% 0%;
   }
