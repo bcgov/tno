@@ -16,6 +16,7 @@ using System.Security.Claims;
 using TNO.TemplateEngine;
 using TNO.TemplateEngine.Models.Reports;
 using TNO.TemplateEngine.Extensions;
+using TNO.DAL.Config;
 
 namespace TNO.Services.Reporting;
 
@@ -30,6 +31,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     private int _retries = 0;
     private readonly JsonSerializerOptions _serializationOptions;
+    private readonly StorageOptions _storageOptions;
     private readonly ClaimsPrincipal _user;
     #endregion
 
@@ -77,6 +79,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         IOptions<ChesOptions> chesOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
         IOptions<ReportingOptions> reportOptions,
+        IOptions<StorageOptions> storageOptions,
         ILogger<ReportingManager> logger)
         : base(api, reportOptions, logger)
     {
@@ -85,6 +88,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         this.Ches = chesService;
         this.ChesOptions = chesOptions.Value;
         _serializationOptions = serializationOptions.Value;
+        _storageOptions = storageOptions.Value;
         this.Listener = listener;
         this.Listener.IsLongRunningJob = true;
         this.Listener.OnError += ListenerErrorHandler;
@@ -401,7 +405,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     {
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
         var key = $"report_{report.Id}";
-        var model = new TemplateModel(content);
+        var model = new TemplateModel(content, _storageOptions.GetUploadPath());
         var template = (!updateCache ?
             this.TemplateEngine.GetOrAddTemplateInMemory(key, report.Template) :
             this.TemplateEngine.AddOrUpdateTemplateInMemory(key, report.Template))

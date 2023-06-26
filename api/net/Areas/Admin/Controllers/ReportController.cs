@@ -248,12 +248,7 @@ public class ReportController : ControllerBase
             return s.Value;
         });
 
-        var templateModel = new TemplateModel(sections);
-
-        foreach (var frontPage in templateModel.Content.Where(x => x.ContentType == Entities.ContentType.Image))
-        {
-            frontPage.ImageContent = GetImageContent(frontPage.FileReferences.FirstOrDefault()?.Path);
-        }
+        var templateModel = new TemplateModel(sections, _storageOptions.GetUploadPath());
 
         var subject = await subjectTemplate.RunAsync(instance =>
         {
@@ -269,18 +264,6 @@ public class ReportController : ControllerBase
         });
 
         return new JsonResult(new ReportPreviewModel(subject, body, results));
-    }
-
-    private string? GetImageContent(string? path)
-    {
-        path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
-        var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
-        if (!safePath.FileExists()) return null;
-
-        using FileStream fileStream = new(safePath, FileMode.Open, FileAccess.Read);
-        var imageBytes = new byte[fileStream.Length];
-        fileStream.Read(imageBytes, 0, (int)fileStream.Length);
-        return Convert.ToBase64String(imageBytes);
     }
     #endregion
 }
