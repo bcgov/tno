@@ -11,7 +11,7 @@ UPDATE public.report SET
             {
               "range": {
                 "publishedOn": {
-                  "gte": "now-1d/d"
+                  "gte": "now/d"
                 }
               }
             },
