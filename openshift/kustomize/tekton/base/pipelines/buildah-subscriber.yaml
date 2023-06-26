@@ -118,6 +118,8 @@ spec:
           workspace: source
         - name: conditions
           workspace: conditions
+        - name: build
+          workspace: build
 
     - name: maintenance-on
       runAfter:

@@ -249,6 +249,7 @@ export const ReportForm: React.FC = () => {
                       value={reportTypeOptions.filter((rt) =>
                         values.reportType.includes(rt.value as ReportTypeName),
                       )}
+                      isClearable={false}
                       onChange={(newValue) => {
                         const option = newValue as IOptionItem;
                         setFieldValue('reportType', option.value);

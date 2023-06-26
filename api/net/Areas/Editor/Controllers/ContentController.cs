@@ -504,7 +504,10 @@ public class ContentController : ControllerBase
         using var memoryStream = new MemoryStream();
         await fileStreamResult.FileStream.CopyToAsync(memoryStream);
         var result = Convert.ToBase64String(memoryStream.ToArray());
-
+        // TODO: Out of Memory issues with this implementation.
+        // Example - https://www.c-sharpcorner.com/article/asynchronous-videos-live-streaming-with-asp-net-web-apis-2-0/
+        // Example - https://github.com/arsanjani/Video-Stream/blob/master/src/Controllers/StreamController.cs
+        // Example - https://devblogs.microsoft.com/dotnet/asp-net-web-api-and-http-byte-range-support/
         return Ok(result);
     }
 
