@@ -58,7 +58,7 @@ export const SearchPage: React.FC = () => {
     const user = {
       ...userInfo,
       preferences: {
-        myMinister: localStorage.getItem('myMinister') ?? userInfo?.preferences.myMinister,
+        ...userInfo?.preferences,
         searches: [
           ...(userInfo?.preferences.searches ?? []),
           { name: searchName, queryText: queryText },
