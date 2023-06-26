@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { ContentTypeName, IContentModel, Row } from 'tno-core';
+import { IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
