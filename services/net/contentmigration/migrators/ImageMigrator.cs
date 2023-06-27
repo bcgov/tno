@@ -58,6 +58,7 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             newsItem.Published)
         {
             // StreamUrl = ingest.GetConfigurationValue("url"),
+            FilePath = newsItem.FilePath ?? string.Empty,
             // FilePath = (ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "")
             //     .CombineWith($"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}/", reference.Uid),
             Language = "", // TODO: Need to extract this from the ingest, or determine it after transcription.
@@ -70,7 +71,7 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         // Tags are in the Summary as they are added by an Editor
         if (!string.IsNullOrEmpty(newsItem.Summary)) {
             // if Tags are found, let the ContentManagement service decide if they are new or not
-            content.Tags = this.ExtractTags(newsItem.Summary)
+            content.Tags = ExtractTags(newsItem.Summary)
                 .Select(c => new TNO.Kafka.Models.Tag(c.ToUpperInvariant(),""));
         }
 

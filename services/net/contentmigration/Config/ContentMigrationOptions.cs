@@ -15,6 +15,24 @@ public class ContentMigrationOptions : IngestServiceOptions
     public string VolumePath { get; set; } = "";
 
     /// <summary>
+    /// get/set - The folder inside the mapped volume where migrated files will be staged.
+    /// </summary>
+    public string ContentStagingFolder { get; set; } = "_tmp";
+
+    /// <summary>
+    /// get/set - the web prefix to use for all files to import
+    /// </summary>
+    public string MediaHostScheme { get; set; } = "";
+    /// <summary>
+    /// get/set - the web prefix to use for all files to import
+    /// </summary>
+    public string MediaHostName { get; set; } = "";
+    /// <summary>
+    /// get/set - the web prefix to use for all files to import
+    /// </summary>
+    public string MediaRootPath { get; set; } = "";
+
+    /// <summary>
     /// get/set - Settings to connect to the TNO 1.0 database.
     /// </summary>
     public OracleConnectionSettings? OracleConnection { get; set; } = null;
