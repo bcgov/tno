@@ -34,7 +34,7 @@ export const SearchWithLogout: React.FC = () => {
         <Text
           placeholder="Search news"
           className="search"
-          width={'30em'}
+          width={width && width > 500 ? '30em' : '15em'}
           autoComplete="off"
           name="search"
           onKeyDown={enterPressed}
