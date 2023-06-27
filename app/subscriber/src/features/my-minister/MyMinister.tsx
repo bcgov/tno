@@ -31,7 +31,7 @@ export const MyMinister: React.FC = () => {
           }),
         );
         // don't want to keyword fetch when there is nothing to fetch
-        setHomeItems(userInfo?.preferences?.myMinisters.length > 0 ? data.items : []);
+        setHomeItems(userInfo?.preferences?.myMinisters?.length > 0 ? data.items : []);
         return new Page(data.page - 1, data.quantity, data?.items, data.total);
       } catch (error) {
         // TODO: Handle error
@@ -48,7 +48,7 @@ export const MyMinister: React.FC = () => {
     fetch({
       ...filter,
       ...filterAdvanced,
-      keyword: userInfo?.preferences?.myMinisters.toString() ?? '',
+      keyword: userInfo?.preferences?.myMinisters?.toString() ?? '',
     });
   }, [filter, filterAdvanced, fetch, userInfo?.preferences?.myMinisters]);
   return (
