@@ -136,7 +136,7 @@ public interface IApiService
     /// <param name="ingest"></param>
     /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestConfigurationAsync(API.Areas.Services.Models.Ingest.IngestModel ingest, HttpRequestHeaders? headers = null);
+    public Task<API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestConfigAsync(API.Areas.Services.Models.Ingest.IngestModel ingest, HttpRequestHeaders? headers = null);
 
     /// <summary>
     /// Make a request to the API to find the content reference for the specified key.

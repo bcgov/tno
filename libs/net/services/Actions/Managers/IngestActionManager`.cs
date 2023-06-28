@@ -110,12 +110,12 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// <param name="propName"></param>
     /// <param name="propValue"></param>
     /// <returns></returns>
-    public override async Task UpdateIngestConfigurationAsync(string propName, object propValue)
+    public override async Task UpdateIngestConfigAsync(string propName, object propValue)
     {
         this.Ingest.Configuration[propName] = propValue;
         var headers = new HttpRequestMessage().Headers;
         headers.Add("User-Agent", GetType().FullName);
-        this.Ingest = await this.Api.UpdateIngestConfigurationAsync(Ingest, headers) ?? Ingest;
+        this.Ingest = await this.Api.UpdateIngestConfigAsync(Ingest, headers) ?? Ingest;
     }
 
     /// <summary>

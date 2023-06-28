@@ -329,7 +329,7 @@ public class ApiService : IApiService
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    public async Task<TNO.API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestConfigurationAsync(
+    public async Task<TNO.API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestConfigAsync(
         TNO.API.Areas.Services.Models.Ingest.IngestModel ingest,
         HttpRequestHeaders? headers = null)
     {
