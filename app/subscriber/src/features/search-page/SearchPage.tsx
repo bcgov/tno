@@ -3,8 +3,8 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import parse from 'html-react-parser';
 import { DetermineToneIcon, makeFilter } from 'features/home/utils';
+import parse from 'html-react-parser';
 import React from 'react';
 import { FaPlay, FaSave, FaStop } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
