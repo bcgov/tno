@@ -39,7 +39,7 @@ export const SearchPage: React.FC = () => {
     queryText?.split(' ').forEach((word) => {
       const regex = new RegExp(word ?? '', 'gi');
       // remove duplicates found only want unique matches, this will be varying capitalization
-      const matches = text.match(regex)?.filter((v, i, a) => a.indexOf(v) == i) ?? [];
+      const matches = text.match(regex)?.filter((v, i, a) => a.indexOf(v) === i) ?? [];
       // text.match included in replace in order to keep the proper capitalization
       // When there is more than one match, this indicates there will be varying capitalization. In this case we
       // have to iterate through the matches and do a more specific replace in order to keep the words capitalization
