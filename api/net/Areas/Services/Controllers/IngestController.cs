@@ -114,15 +114,38 @@ public class IngestController : ControllerBase
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    [HttpPut("{id:int}")]
+    [HttpPut("{id:int}/state")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
-    public IActionResult Update(IngestModel model)
+    public IActionResult UpdateState(IngestModel model)
     {
         _serviceIngestState.AddOrUpdate(model.ToEntity(_serializerOptions).State!);
+
+        var result = _serviceIngest.FindById(model.Id);
+        if (result == null) return new NoContentResult();
+        return new JsonResult(new IngestModel(result, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Update data-service associated with the specified ingest in database.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut("{id:int}/configuration")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Ingest" })]
+    public IActionResult UpdateConfiguration(IngestModel model)
+    {
+        var convertedEntity = model.ToEntity(_serializerOptions);
+        var target = _serviceIngest.FindById(model.Id);
+        target.Configuration = convertedEntity.Configuration;
+        _serviceIngest.UpdateAndSave(target);
 
         var result = _serviceIngest.FindById(model.Id);
         if (result == null) return new NoContentResult();

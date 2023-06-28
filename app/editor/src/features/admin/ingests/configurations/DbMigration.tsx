@@ -115,7 +115,7 @@ export const DbMigration: React.FC = (props) => {
               }
               setFieldValue(
                 'configuration.importDateStart',
-                moment(date).format('MMM D, yyyy HH:mm:ss'),
+                moment(date).format('YYYY-MM-DD h:mm:ss a'),
               );
             }}
           />
@@ -143,7 +143,7 @@ export const DbMigration: React.FC = (props) => {
                 date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
                 setFieldValue(
                   'configuration.importDateStart',
-                  moment(date.toISOString()).format('MMM D, yyyy HH:mm:ss'),
+                  moment(date.toISOString()).format('YYYY-MM-DD h:mm:ss a'),
                 );
               }
             }}
@@ -178,7 +178,7 @@ export const DbMigration: React.FC = (props) => {
               }
               setFieldValue(
                 'configuration.importDateEnd',
-                moment(date).format('MMM D, yyyy HH:mm:ss'),
+                moment(date).format('YYYY-MM-DD h:mm:ss a'),
               );
             }}
           />
@@ -206,7 +206,7 @@ export const DbMigration: React.FC = (props) => {
                 date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
                 setFieldValue(
                   'configuration.importDateEnd',
-                  moment(date.toISOString()).format('MMM D, yyyy HH:mm:ss'),
+                  moment(date.toISOString()).format('YYYY-MM-DD h:mm:ss a'),
                 );
               }
             }}

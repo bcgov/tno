@@ -78,7 +78,7 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// <returns></returns>
     public override async Task RecordSuccessAsync()
     {
-        this.Ingest = await UpdateIngestAsync();
+        this.Ingest = await UpdateIngestStateAsync();
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// <returns></returns>
     public override async Task RecordFailureAsync()
     {
-        this.Ingest = await UpdateIngestAsync(this.Ingest.FailedAttempts + 1);
+        this.Ingest = await UpdateIngestStateAsync(this.Ingest.FailedAttempts + 1);
         this.IsRunning = false;
     }
 
@@ -95,13 +95,13 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// Make AJAX request and update the ingest.
     /// </summary>
     /// <returns></returns>
-    private async Task<IngestModel> UpdateIngestAsync(int failedAttempts = 0)
+    private async Task<IngestModel> UpdateIngestStateAsync(int failedAttempts = 0)
     {
         this.Ingest.LastRanOn = DateTime.UtcNow;
         this.Ingest.FailedAttempts = failedAttempts;
         var headers = new HttpRequestMessage().Headers;
         headers.Add("User-Agent", GetType().FullName);
-        return await this.Api.UpdateIngestAsync(Ingest, headers) ?? Ingest;
+        return await this.Api.UpdateIngestStateAsync(Ingest, headers) ?? Ingest;
     }
 
     /// <summary>
@@ -115,7 +115,7 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
         this.Ingest.Configuration[propName] = propValue;
         var headers = new HttpRequestMessage().Headers;
         headers.Add("User-Agent", GetType().FullName);
-        this.Ingest = await this.Api.UpdateIngestAsync(Ingest, headers) ?? Ingest;
+        this.Ingest = await this.Api.UpdateIngestConfigAsync(Ingest, headers) ?? Ingest;
     }
 
     /// <summary>
