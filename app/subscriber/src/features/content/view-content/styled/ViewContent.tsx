@@ -23,9 +23,14 @@ export const ViewContent = styled.div`
   .neut {
     color: #ffc107;
   }
-  .name-date {
+  .name-date,
+  .source-name {
     font-size: 0.875rem;
     font-weight: 600;
+  }
+
+  .source-name {
+    margin-top: 0;
   }
   .source-section {
     font-size: 0.875rem;
