@@ -218,7 +218,7 @@ export const ViewContent: React.FC = () => {
             <span>{parse(content?.summary ?? '')}</span>
           </Show>
           <Show visible={!!content?.sourceUrl}>
-            <a target="_blank" href={content?.sourceUrl}>
+            <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
               More...
             </a>
           </Show>
