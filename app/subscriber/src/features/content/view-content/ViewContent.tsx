@@ -200,22 +200,29 @@ export const ViewContent: React.FC = () => {
         </Row>
       </Show>
       <Row id="summary" className="summary">
-        <Show
-          visible={
-            content?.contentType === ContentTypeName.PrintContent ||
-            content?.contentType === ContentTypeName.Story
-          }
-        >
-          <span>{parse(content?.body ?? '')}</span>
-        </Show>
-        <Show
-          visible={
-            content?.contentType === ContentTypeName.AudioVideo ||
-            content?.contentType === ContentTypeName.Image
-          }
-        >
-          <span>{parse(content?.summary ?? '')}</span>
-        </Show>
+        <Col>
+          <Show
+            visible={
+              content?.contentType === ContentTypeName.PrintContent ||
+              content?.contentType === ContentTypeName.Story
+            }
+          >
+            <span>{parse(content?.body ?? '')}</span>
+          </Show>
+          <Show
+            visible={
+              content?.contentType === ContentTypeName.AudioVideo ||
+              content?.contentType === ContentTypeName.Image
+            }
+          >
+            <span>{parse(content?.summary ?? '')}</span>
+          </Show>
+          <Show visible={!!content?.sourceUrl}>
+            <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
+              More...
+            </a>
+          </Show>
+        </Col>
         <Show visible={content?.contentType === ContentTypeName.AudioVideo}>
           <Button
             onClick={() => handleTranscribe()}
