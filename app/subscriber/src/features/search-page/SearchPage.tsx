@@ -33,9 +33,13 @@ export const SearchPage: React.FC = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const queryText = urlParams.get('queryText');
   const formatSearch = (text: string) => {
-    const regex = new RegExp(queryText ?? '', 'gi');
-    // need text.match(regex) to keep the case of the keyword
-    return parse(text.replace(regex, `<b>${text.match(regex)}</b>`));
+    let tempText = text;
+    queryText?.split(' ').forEach((word) => {
+      const regex = new RegExp(word ?? '', 'gi');
+      // text.match included in replace in order to keep the proper capitalization
+      tempText = tempText.replace(regex, `<b>${text.match(regex)}</b>`);
+    });
+    return parse(tempText);
   };
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
