@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
+using System.Web;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -317,6 +318,36 @@ public class ContentController : ControllerBase
 
         var stream = _fileReferenceService.Download(fileReference, _storageOptions.GetUploadPath());
         return File(stream, fileReference.ContentType);
+    }
+
+    /// <summary>
+    /// Find content for the specified 'id' and get the file content it references.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/get-image")]
+    [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> GetImageFile(long id)
+    {
+        var result = new JsonResult(new { Error = "File does not exist" })
+        {
+            StatusCode = StatusCodes.Status400BadRequest
+        };
+
+        var fileReference = _fileReferenceService.FindByContentId(id).FirstOrDefault();
+        if (fileReference == null) return result;
+
+        var safePath = Path.Combine(
+            _storageOptions.GetUploadPath(),
+            HttpUtility.UrlDecode(fileReference.Path).MakeRelativePath());
+        if (!safePath.FileExists()) return result;
+
+        using var fileStream = new FileStream(safePath, FileMode.Open, FileAccess.Read);
+        var imageBytes = new byte[fileStream.Length];
+        await fileStream.ReadAsync(imageBytes.AsMemory(0, (int)fileStream.Length));
+        return Ok(Convert.ToBase64String(imageBytes));
     }
 
     /// <summary>
