@@ -3,6 +3,7 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
+import parse from 'html-react-parser';
 import { DetermineToneIcon, makeFilter } from 'features/home/utils';
 import React from 'react';
 import { FaPlay, FaSave, FaStop } from 'react-icons/fa';
@@ -31,6 +32,11 @@ export const SearchPage: React.FC = () => {
 
   const urlParams = new URLSearchParams(window.location.search);
   const queryText = urlParams.get('queryText');
+  const formatSearch = (text: string) => {
+    const regex = new RegExp(queryText ?? '', 'gi');
+    // need text.match(regex) to keep the case of the keyword
+    return parse(text.replace(regex, `<b>${text.match(regex)}</b>`));
+  };
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
       try {
@@ -110,11 +116,13 @@ export const SearchPage: React.FC = () => {
                       className="headline text-content"
                       onClick={() => navigate(`/view/${item.id}`)}
                     >
-                      {item.headline}
+                      {formatSearch(item.headline)}
                     </p>
                     {/* TODO: Extract text around keyword searched and preview that text rather than the first 50 words */}
                     <p className="summary text-content">
-                      {item.body ? trimWords(item.body, 50) : trimWords(item.summary, 50)}
+                      {item.body
+                        ? formatSearch(trimWords(item.body, 50))
+                        : formatSearch(trimWords(item.summary, 50))}
                     </p>
                     <Show visible={!!item.fileReferences?.length}>
                       <button
