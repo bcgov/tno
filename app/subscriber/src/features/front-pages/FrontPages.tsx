@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { IContentModel } from 'tno-core';
+import { IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -36,7 +36,7 @@ export const FrontPages = () => {
   return (
     <styled.FrontPages>
       <div className="title">Front Pages</div>
-      <div className="content">
+      <Row justifyContent="center" className="content">
         {srcUrls.map((s) => (
           <img
             key={s.url}
@@ -46,7 +46,7 @@ export const FrontPages = () => {
             onClick={() => navigate(`/view/${s.id}`)}
           />
         ))}
-      </div>
+      </Row>
     </styled.FrontPages>
   );
 };

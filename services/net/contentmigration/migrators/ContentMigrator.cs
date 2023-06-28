@@ -3,16 +3,16 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Editor.Models.Lookup;
-using TNO.API.Areas.Editor.Models.Action;
 using TNO.API.Areas.Editor.Models.Topic;
 using TNO.API.Areas.Editor.Models.Source;
 using TNO.API.Areas.Editor.Models.Product;
 using TNO.API.Areas.Services.Models.ContentReference;
+using TNO.Core.Exceptions;
 using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Services.ContentMigration.Config;
 using TNO.Services.ContentMigration.Sources.Oracle;
-using ValueType = TNO.Entities.ValueType;
+using TNO.Services.ContentMigration.Models;
 
 namespace TNO.Services.ContentMigration.Migrators;
 
@@ -47,8 +47,11 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <summary>
     /// which Ingests this Migrator supports
     /// </summary>
-    public IEnumerable<string> SupportedIngests { get {
-        return this.MigratorOptions.SupportedIngests;
+    public IEnumerable<string> SupportedIngests
+    {
+        get
+        {
+            return this.MigratorOptions.SupportedIngests;
         }
     }
 
@@ -108,8 +111,8 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <returns></returns>
     public ContentReferenceModel CreateContentReference(SourceModel source, string topic, NewsItem newsItem, string uid)
     {
-        DateTime publishedOn = newsItem.ItemDateTime != null ?  newsItem.ItemDateTime.Value : DateTime.MinValue;
-        DateTime publishedOnAsUTC = new DateTime(publishedOn.Ticks, DateTimeKind.Utc);
+        DateTime publishedOn = newsItem.ItemDateTime != null ? newsItem.ItemDateTime.Value : DateTime.MinValue;
+        DateTime publishedOnAsUTC = new(publishedOn.Ticks, DateTimeKind.Utc);
 
         return new ContentReferenceModel()
         {
@@ -138,8 +141,9 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <param name="authors"></param>
     /// <param name="source"></param>
     /// <returns></returns>
-    internal static IEnumerable<string> ExtractAuthors(string authors, string source) {
-        string[] delimiters = new [] { ",", ";", " ,", " & ", " and " };
+    internal static IEnumerable<string> ExtractAuthors(string authors, string source)
+    {
+        string[] delimiters = new[] { ",", ";", " ,", " & ", " and " };
         var splitArray = authors.Split(delimiters, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         return splitArray.Where(s => !s.Equals(source));
     }
@@ -149,18 +153,20 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// </summary>
     /// <param name="source"></param>
     /// <returns></returns>
-    internal IEnumerable<string> ExtractTags(string source) {
+    internal static IEnumerable<string> ExtractTags(string source)
+    {
         Regex tagsBetweenBracketsRegex = new(@"\[([^\]]*)\]", RegexOptions.RightToLeft);
         string[] tags = Array.Empty<string>();
         var tagMatches = tagsBetweenBracketsRegex.Matches(source);
-        if (tagMatches.Count > 0) {
-            var rawTags = tagMatches[0].Groups[1].Value.Split(',',StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (tagMatches.Count > 0)
+        {
+            var rawTags = tagMatches[0].Groups[1].Value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             // KGM : Fail on tags extract if any of the tags are not between 3 and 4 chars long
             // Do we need to make this validation better?
             if (rawTags.All(s => s.Length >= 3 && s.Length <= 4))
                 tags = rawTags;
         }
-        return tags;
+        return tags.Distinct();
     }
 
     /// <summary>
@@ -188,17 +194,17 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     ///
     /// </summary>
     /// <param name="lookup"></param>
-    /// <param name="newsItem"></param>
+    /// <param name="newsItemProduct"></param>
     /// <returns></returns>
-    public ProductModel? GetProductMapping(IEnumerable<ProductModel> lookup, NewsItem newsItem)
+    public ProductModel? GetProductMapping(IEnumerable<ProductModel> lookup, string newsItemProduct)
     {
         // TODO: KGM - what to do if we have no mapping - make nullable so we can skip it on migration
-        ProductModel? product = lookup.Where(s => s.Name == newsItem.Type).FirstOrDefault();
+        ProductModel? product = lookup.Where(s => s.Name == newsItemProduct).FirstOrDefault();
 
         // if the Name doesnt match one of our products, use the extra mappings from the config
         if (product == null)
         {
-            this.MigratorOptions.ProductMappings.TryGetValue(newsItem.Type, out string? customMapping);
+            this.MigratorOptions.ProductMappings.TryGetValue(newsItemProduct, out string? customMapping);
             product = lookup.Where(s => s.Name == customMapping).FirstOrDefault();
         }
 
@@ -214,12 +220,14 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <param name="commentary"></param>
     /// <param name="commentaryTimeout"></param>
     /// <returns></returns>
-    public IEnumerable<Kafka.Models.Action> GetActionMappings(bool frontPageStory, bool wapTopStory, bool alert, bool commentary, double? commentaryTimeout) {
+    public IEnumerable<Kafka.Models.Action> GetActionMappings(bool frontPageStory, bool wapTopStory, bool alert, bool commentary, double? commentaryTimeout)
+    {
         List<Kafka.Models.Action> mappedActions = new();
         string actionName;
         ActionType actionType;
 
-        if (frontPageStory) {
+        if (frontPageStory)
+        {
             actionType = ActionType.Homepage;
             actionName = this.Options.ActionNameMappings.ContainsKey(actionType)
                 ? this.Options.ActionNameMappings[actionType]
@@ -227,7 +235,8 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
             mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString));
         }
 
-        if (wapTopStory) {
+        if (wapTopStory)
+        {
             actionType = ActionType.TopStory;
             actionName = this.Options.ActionNameMappings.ContainsKey(actionType)
                 ? this.Options.ActionNameMappings[actionType]
@@ -235,7 +244,8 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
             mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString));
         }
 
-        if (alert) {
+        if (alert)
+        {
             actionType = ActionType.Alert;
             actionName = this.Options.ActionNameMappings.ContainsKey(actionType)
                 ? this.Options.ActionNameMappings[actionType]
@@ -243,7 +253,8 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
             mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString));
         }
 
-        if (commentary && commentaryTimeout.HasValue) {
+        if (commentary && commentaryTimeout.HasValue)
+        {
             actionType = ActionType.Commentary;
             actionName = this.Options.ActionNameMappings.ContainsKey(actionType)
                 ? this.Options.ActionNameMappings[actionType]
@@ -252,6 +263,51 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
         }
 
         return mappedActions;
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="contentStagingFolderName"></param>
+    /// <returns></returns>
+    /// <exception cref="ConfigurationException"></exception>
+    /// <exception cref="FileNotFoundException"></exception>
+    public async Task CopyFileAsync(FileMigrationModel request, string contentStagingFolderName)
+    {
+        var localPath = Path.Combine(this.Options.VolumePath, contentStagingFolderName, request.Path, request.Filename);
+        var localDirectory = Path.GetDirectoryName(localPath) ?? throw new ConfigurationException("Local path for Content Migration is invalid");
+
+        if (!Directory.Exists(localDirectory)) Directory.CreateDirectory(localDirectory);
+
+        // we only need to download the file if it's not already staged.
+        if (!File.Exists(localPath))
+        {
+            UriBuilder uriBuilder = new()
+            {
+                Scheme = this.Options.MediaHostScheme,
+                Host = this.Options.MediaHostName,
+                Path = Path.Combine(this.Options.MediaRootPath, request.Path, request.Filename)
+            };
+
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Accept.Clear();
+            // client.DefaultRequestHeaders.Add("authorization", access_token); //if any
+            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(request.ContentType));
+            HttpResponseMessage response = await client.GetAsync(uriBuilder.ToString());
+
+            if (response.IsSuccessStatusCode)
+            {
+                HttpContent content = response.Content;
+                var contentStream = await content.ReadAsStreamAsync();
+                using var fs = new FileStream(localPath, FileMode.OpenOrCreate);
+                await response.Content.CopyToAsync(fs);
+            }
+            else
+            {
+                throw new FileNotFoundException();
+            }
+        }
     }
 
     #endregion

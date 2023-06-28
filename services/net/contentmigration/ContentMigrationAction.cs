@@ -116,7 +116,6 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         IContentMigrator contentMigrator = _migratorFactory.GetContentMigrator(manager.Ingest.Name);
 
         API.Areas.Editor.Models.Lookup.LookupModel? lookups = await this.Api.GetLookupsAsync();
-        IEnumerable<TNO.API.Areas.Services.Models.Ingest.IngestModel> ingests = await this.Api.GetIngestsAsync();
 
         var skip = 0;
         var count = this.Options.MaxRecordsPerRetrieval;
@@ -138,9 +137,9 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 {
                     await MigrateNewsItemAsync(manager, contentMigrator, lookups, newsItem);
                     creationDateOfLastImport = newsItem.ItemDateTime;
-                    if (newsItem.Equals(lastNewsItem) && (creationDateOfLastImport != null))
+                    if ((newsItem.RSN == lastNewsItem.RSN) && (creationDateOfLastImport != null))
                     {
-                        await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport);
+                        await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport!.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
                     }
                 });
 
@@ -150,7 +149,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 Logger.LogError("Migration Failed on {skip}:{count}", skip, count);
                 // only update the DateTime.MinValue value if it was set
                 if (creationDateOfLastImport != null)
-                    await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport);
+                    await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport!.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
                 throw;
             }
         }
@@ -192,7 +191,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                     return;
                 }
             }
-            ProductModel? product = contentMigrator.GetProductMapping(lookups.Products, newsItem);
+            ProductModel? product = contentMigrator.GetProductMapping(lookups.Products, newsItem.Type);
             if (product == null) {
                 this.Logger.LogWarning("Couldn't map to Product for NewsItem with type '{sourceName}'", newsItem.Type);
                 return;
@@ -217,6 +216,17 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 
             if (reference != null)
             {
+                try {
+                    if (newsItem.FilePath != null) {
+                        string contentStagingFolderName = GetOutputPathPrefix(manager.Ingest);
+                        await contentMigrator.CopyFileAsync(new Models.FileMigrationModel(newsItem.RSN, Path.GetDirectoryName(newsItem.FilePath)!, Path.GetFileName(newsItem.FilePath), newsItem.ContentType!), contentStagingFolderName);
+                        newsItem.FilePath = Path.Combine(contentStagingFolderName, newsItem.FilePath);
+                    }
+                } catch(FileNotFoundException) {
+                    // nothing we can do about it if the source content is archived/gone...
+                    Logger.LogWarning("Migration source file content for RSN:{RSN} Path:{filePath} is missing", newsItem.RSN, newsItem.FilePath);
+                }
+
                 await ContentReceivedAsync(manager, reference, contentMigrator.CreateSourceContent(lookups,
                                                                                    source!,
                                                                                    product,
@@ -239,5 +249,15 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     #endregion
 
     #region Support Methods
+    /// <summary>
+    /// Get the output path to store the file.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <returns></returns>
+    protected static string GetOutputPathPrefix(API.Areas.Services.Models.Ingest.IngestModel ingest)
+    {
+        return ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "";
+    }
+
     #endregion
 }

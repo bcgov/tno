@@ -5,6 +5,7 @@ using TNO.API.Areas.Editor.Models.Product;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.Entities;
 using TNO.Kafka.Models;
+using TNO.Services.ContentMigration.Models;
 using TNO.Services.ContentMigration.Sources.Oracle;
 
 namespace TNO.Services.ContentMigration.Migrators;
@@ -37,9 +38,9 @@ public interface IContentMigrator
     ///
     /// </summary>
     /// <param name="lookup"></param>
-    /// <param name="newsItem"></param>
+    /// <param name="newsItemType"></param>
     /// <returns></returns>
-    ProductModel? GetProductMapping(IEnumerable<ProductModel> lookup, NewsItem newsItem);
+    ProductModel? GetProductMapping(IEnumerable<ProductModel> lookup, string newsItemType);
 
     /// <summary>
     /// Creates an Clip ContentReferenceModel from a NewsItem
@@ -62,4 +63,12 @@ public interface IContentMigrator
     /// <param name="referenceUid"></param>
     /// <returns></returns>
     SourceContent? CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string referenceUid);
+
+    /// <summary>
+    /// Copies a file from the TNO store to a location where it can be picked up by MMIA Content service
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="contentStagingRoot"></param>
+    /// <returns></returns>
+    Task CopyFileAsync(FileMigrationModel request, string contentStagingRoot);
 }

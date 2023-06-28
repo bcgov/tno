@@ -5,8 +5,20 @@ namespace TNO.Services.ContentMigration.Config;
 /// </summary>
 public enum ActionType
 {
+    /// <summary>
+    ///
+    /// </summary>
     Homepage,
+    /// <summary>
+    ///
+    /// </summary>
     TopStory,
+    /// <summary>
+    ///
+    /// </summary>
     Alert,
+    /// <summary>
+    ///
+    /// </summary>
     Commentary
 }

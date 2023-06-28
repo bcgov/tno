@@ -1,9 +1,16 @@
 import styled from 'styled-components';
 
 export const Commentary = styled.div`
-  max-width: 100%;
-  min-width: 35em;
-  margin-bottom: 5%;
+  @media (max-width: 1702px) {
+    margin-top: 0.5em;
+    min-width: 100%;
+    margin-bottom: 0.5em;
+  }
+
+  @media (min-width: 1702px) {
+    min-width: 35em;
+    margin-bottom: 5%;
+  }
 
   .headline {
     color: #3847aa;

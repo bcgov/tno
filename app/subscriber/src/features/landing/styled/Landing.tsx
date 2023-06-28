@@ -28,7 +28,9 @@ export const Landing = styled(Col)`
 
   /* The panel containing Commentary and front pages */
   .right-panel {
-    max-width: fit-content;
+    @media (min-width: 1702px) {
+      max-width: fit-content;
+    }
     margin-left: auto;
     flex-grow: 1;
     margin-right: auto;
@@ -57,15 +59,13 @@ export const Landing = styled(Col)`
   /* The panel containing the media list */
   .main-panel {
     /* switch between max width and min width depending on screen size in order to maximize screen realestate */
-    @media (max-width: 1000px) {
-      min-width: 49%;
+    @media (max-width: 1702px) {
+      min-width: 100%;
     }
     @media (min-width: 1000px) {
-      max-width: 49%;
+      max-width: 55%;
     }
     flex-grow: 1;
-    margin-left: auto;
-    margin-right: auto;
 
     .title {
       background-color: ${(props) => props.theme.css.darkHeaderColor};
