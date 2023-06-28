@@ -326,7 +326,7 @@ public class ContentController : ControllerBase
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet("{id}/get-image")]
-    [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(OkObjectResult), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> GetImageFile(long id)
