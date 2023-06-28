@@ -89,7 +89,7 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         // Tags are in the Summary as they are added by an Editor
         if (!string.IsNullOrEmpty(newsItem.Summary)) {
             // if Tags are found, let the ContentManagement service decide if they are new or not
-            content.Tags = this.ExtractTags(newsItem.Summary)
+            content.Tags = ExtractTags(newsItem.Summary)
                 .Select(c => new TNO.Kafka.Models.Tag(c.ToUpperInvariant(),""));
         }
 
