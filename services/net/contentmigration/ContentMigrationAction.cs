@@ -137,9 +137,9 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 {
                     await MigrateNewsItemAsync(manager, contentMigrator, lookups, newsItem);
                     creationDateOfLastImport = newsItem.ItemDateTime;
-                    if (newsItem.Equals(lastNewsItem) && (creationDateOfLastImport != null))
+                    if ((newsItem.RSN == lastNewsItem.RSN) && (creationDateOfLastImport != null))
                     {
-                        await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport);
+                        await manager.UpdateIngestConfigurationAsync("creationDateOfLastImport", creationDateOfLastImport!.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
                     }
                 });
 
@@ -149,7 +149,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 Logger.LogError("Migration Failed on {skip}:{count}", skip, count);
                 // only update the DateTime.MinValue value if it was set
                 if (creationDateOfLastImport != null)
-                    await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport);
+                    await manager.UpdateIngestConfigurationAsync("creationDateOfLastImport", creationDateOfLastImport!.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
                 throw;
             }
         }

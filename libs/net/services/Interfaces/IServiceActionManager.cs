@@ -46,6 +46,6 @@ public interface IServiceActionManager
     /// Updates service config/state.
     /// </summary>
     /// <returns></returns>
-    public Task UpdateIngestConfigAsync(string propName, object propValue);
+    public Task UpdateIngestConfigurationAsync(string propName, object propValue);
     #endregion
 }

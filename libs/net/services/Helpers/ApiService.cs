@@ -311,15 +311,30 @@ public class ApiService : IApiService
     }
 
     /// <summary>
-    /// Make an HTTP request to the api to update the ingest.
+    /// Make an HTTP request to the api to update the ingest state.
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    public async Task<TNO.API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestAsync(
+    public async Task<TNO.API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestStateAsync(
         TNO.API.Areas.Services.Models.Ingest.IngestModel ingest,
         HttpRequestHeaders? headers = null)
     {
-        var url = this.Options.ApiUrl.Append($"services/ingests/{ingest.Id}");
+        var url = this.Options.ApiUrl.Append($"services/ingests/{ingest.Id}/state");
+        var jsonString = JsonSerializer.Serialize(ingest);
+        return await RetryRequestAsync(async () => await Client.SendAsync<TNO.API.Areas.Services.Models.Ingest.IngestModel>(url, HttpMethod.Put, headers, JsonContent.Create(ingest)));
+    }
+
+    /// <summary>
+    /// Make an HTTP request to the api to update the ingest configuration.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <returns></returns>
+    public async Task<TNO.API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestConfigurationAsync(
+        TNO.API.Areas.Services.Models.Ingest.IngestModel ingest,
+        HttpRequestHeaders? headers = null)
+    {
+        var url = this.Options.ApiUrl.Append($"services/ingests/{ingest.Id}/configuration");
+        var jsonString = JsonSerializer.Serialize(ingest);
         return await RetryRequestAsync(async () => await Client.SendAsync<TNO.API.Areas.Services.Models.Ingest.IngestModel>(url, HttpMethod.Put, headers, JsonContent.Create(ingest)));
     }
     #endregion

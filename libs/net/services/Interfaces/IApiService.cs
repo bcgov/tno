@@ -123,12 +123,20 @@ public interface IApiService
 
     #region Contents
     /// <summary>
-    /// Make a request to the API to update the ingest.
+    /// Make a request to the API to update the ingest state.
     /// </summary>
     /// <param name="ingest"></param>
     /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestAsync(API.Areas.Services.Models.Ingest.IngestModel ingest, HttpRequestHeaders? headers = null);
+    public Task<API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestStateAsync(API.Areas.Services.Models.Ingest.IngestModel ingest, HttpRequestHeaders? headers = null);
+
+    /// <summary>
+    /// Make a request to the API to update the ingest configuration.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <param name="headers"></param>
+    /// <returns></returns>
+    public Task<API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestConfigurationAsync(API.Areas.Services.Models.Ingest.IngestModel ingest, HttpRequestHeaders? headers = null);
 
     /// <summary>
     /// Make a request to the API to find the content reference for the specified key.
