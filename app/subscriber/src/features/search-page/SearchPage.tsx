@@ -36,8 +36,10 @@ export const SearchPage: React.FC = () => {
     let tempText = text;
     queryText?.split(' ').forEach((word) => {
       const regex = new RegExp(word ?? '', 'gi');
+      const matches = text.match(regex) ?? [];
       // text.match included in replace in order to keep the proper capitalization
-      tempText = tempText.replace(regex, `<b>${text.match(regex)}</b>`);
+      // TODO: Small capitlization bug when searching for a word that appears multiple times and has lower and upercase instances.
+      tempText = tempText.replace(regex, `<b>${matches.length > 1 ? word : text.match(regex)}</b>`);
     });
     return parse(tempText);
   };
