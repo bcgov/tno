@@ -1,35 +1,35 @@
 namespace TNO.Kafka.Models;
 
 /// <summary>
-/// Tag class, provides a model that represents a tag to identify content information.
-/// TODO: Change name to TagModel for consistent naming convention
+/// Label class, provides a model that represents a Label to identify content information.
+/// TODO: Change name to LabelModel for consistent naming convention
 /// </summary>
-public class Tag
+public class LabelModel
 {
     #region Properties
     /// <summary>
-    /// get/set - The tag key or a way to group related information.
+    /// get/set - The Label key or a way to group related information.
     /// </summary>
     public string Key { get; set; } = "";
 
     /// <summary>
-    /// get/set - The tag value to identify unique information about content.
+    /// get/set - The Label value to identify unique information about content.
     /// </summary>
     public string Value { get; set; } = "";
     #endregion
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a Tag object.
+    /// Creates a new instance of a Label object.
     /// </summary>
-    public Tag() { }
+    public LabelModel() { }
 
     /// <summary>
-    /// Creates a new instance of a Tag object, initializes with specified parameters.
+    /// Creates a new instance of a Label object, initializes with specified parameters.
     /// </summary>
     /// <param name="key"></param>
     /// <param name="value"></param>
-    public Tag(string key, string value)
+    public LabelModel(string key, string value)
     {
         this.Key = key ?? "";
         this.Value = value ?? "";
