@@ -325,7 +325,7 @@ public class ContentController : ControllerBase
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    [HttpGet("{id}/get-image")]
+    [HttpGet("{id}/image")]
     [ProducesResponseType(typeof(OkObjectResult), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]

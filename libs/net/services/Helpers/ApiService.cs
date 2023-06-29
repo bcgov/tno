@@ -444,7 +444,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<string?> GetImageFile(long id)
     {
-        var url = Options.ApiUrl.Append($"services/contents/{id}/get-image");
+        var url = Options.ApiUrl.Append($"services/contents/{id}/image");
         return await RetryRequestAsync(async () => await Client.GetAsync<string>(url));
     }
 
