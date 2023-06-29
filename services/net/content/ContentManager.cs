@@ -274,6 +274,10 @@ public class ContentManager : ServiceManager<ContentOptions>
                 }
             }
 
+            if (model.Labels.Any()) {
+                content.Labels = model.Labels.Select(c => new ContentLabelModel(c.Key, c.Value));
+            }
+
             if (model.Tags.Any()) {
                 var mappedContentTagModels = new List<ContentTagModel>();
                 foreach (var tag in model.Tags)   {

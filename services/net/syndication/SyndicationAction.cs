@@ -275,7 +275,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             Language = "", // TODO: Need to extract this from the ingest, or determine it after transcription.
             Authors = item.Authors.Select(a => new Author(a.Name, a.Email, a.Uri)),
             UpdatedOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null,
-            Tags = item.Categories.Select(c => new TNO.Kafka.Models.Tag(c.Name, c.Label))
+            Labels = item.Categories.Select(c => new LabelModel(c.Name, c.Label))
         };
     }
 
