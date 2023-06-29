@@ -32,12 +32,25 @@ export const SearchPage: React.FC = () => {
 
   const urlParams = new URLSearchParams(window.location.search);
   const queryText = urlParams.get('queryText');
+
+  // function that bolds the searched text
   const formatSearch = (text: string) => {
     let tempText = text;
     queryText?.split(' ').forEach((word) => {
       const regex = new RegExp(word ?? '', 'gi');
+      // remove duplicates found only want unique matches, this will be varying capitalization
+      const matches = text.match(regex)?.filter((v, i, a) => a.indexOf(v) === i) ?? [];
       // text.match included in replace in order to keep the proper capitalization
-      tempText = tempText.replace(regex, `<b>${text.match(regex)}</b>`);
+      // When there is more than one match, this indicates there will be varying capitalization. In this case we
+      // have to iterate through the matches and do a more specific replace in order to keep the words capitalization
+      if (matches.length > 1) {
+        matches.forEach((match, i) => {
+          let multiMatch = new RegExp(`${matches[i]}`);
+          tempText = tempText.replace(multiMatch, `<b>${match}</b>`);
+        });
+      } else {
+        tempText = tempText.replace(regex, `<b>${text.match(regex)}</b>`);
+      }
     });
     return parse(tempText);
   };
