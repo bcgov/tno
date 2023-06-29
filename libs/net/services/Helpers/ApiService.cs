@@ -438,6 +438,17 @@ public class ApiService : IApiService
     }
 
     /// <summary>
+    /// Make an HTTP request to the api to get the specified image content.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<string?> GetImageFile(long id)
+    {
+        var url = Options.ApiUrl.Append($"services/contents/{id}/image");
+        return await RetryRequestAsync(async () => await Client.GetAsync<string>(url));
+    }
+
+    /// <summary>
     /// Make an HTTP request to the api to add the specified content.
     /// </summary>
     /// <param name="content"></param>

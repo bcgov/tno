@@ -218,6 +218,13 @@ public interface IApiService
     /// <param name="contentId"></param>
     /// <returns></returns>
     Task<IEnumerable<API.Areas.Services.Models.Content.NotificationInstanceModel>> GetNotificationsForAsync(long contentId);
+
+    /// <summary>
+    /// Make an HTTP request to the api to get the specified image content.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<string?> GetImageFile(long id);
     #endregion
 
     #region Work Orders

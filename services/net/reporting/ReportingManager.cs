@@ -402,6 +402,15 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
         var key = $"report_{report.Id}";
         var model = new TemplateModel(content);
+
+        if (content.TryGetValue("", out ReportSectionModel? value) && value != null && value.Content.Any())
+        {
+            foreach (var frontPage in value.Content.Where(x => x.ContentType == ContentType.Image))
+            {
+                frontPage.ImageContent = await Api.GetImageFile(frontPage.Id);
+            }
+        }
+
         var template = (!updateCache ?
             this.TemplateEngine.GetOrAddTemplateInMemory(key, report.Template) :
             this.TemplateEngine.AddOrUpdateTemplateInMemory(key, report.Template))

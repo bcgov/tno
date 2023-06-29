@@ -1,5 +1,7 @@
 ﻿using RazorEngineCore;
+using System.Web;
 using TNO.API.Areas.Services.Models.Content;
+using TNO.Core.Extensions;
 
 namespace TNO.TemplateEngine.Models.Reports;
 
@@ -42,7 +44,7 @@ public class TemplateModel : RazorEngineTemplateBase
     /// Creates a new instance of a TemplateModel, initializes with specified parameters.
     /// </summary>
     /// <param name="sections"></param>
-    public TemplateModel(Dictionary<string, ReportSectionModel> sections)
+    public TemplateModel(Dictionary<string, ReportSectionModel> sections, string? uploadPath = null)
     {
         if (sections.TryGetValue("", out ReportSectionModel? value))
         {
@@ -53,6 +55,26 @@ public class TemplateModel : RazorEngineTemplateBase
             this.Content = Array.Empty<ContentModel>();
         }
         this.Sections = sections;
+
+        if (!string.IsNullOrWhiteSpace(uploadPath) && Content.Any())
+        {
+            foreach (var frontPage in Content.Where(x => x.ContentType == Entities.ContentType.Image))
+            {
+                frontPage.ImageContent = GetImageContent(uploadPath, frontPage.FileReferences.FirstOrDefault()?.Path);
+            }
+        }
+    }
+
+    private static string? GetImageContent(string uploadPath, string? path)
+    {
+        path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
+        var safePath = Path.Combine(uploadPath, path);
+        if (!safePath.FileExists()) return null;
+
+        using FileStream fileStream = new(safePath, FileMode.Open, FileAccess.Read);
+        var imageBytes = new byte[fileStream.Length];
+        fileStream.Read(imageBytes, 0, (int)fileStream.Length);
+        return Convert.ToBase64String(imageBytes);
     }
     #endregion
 }
