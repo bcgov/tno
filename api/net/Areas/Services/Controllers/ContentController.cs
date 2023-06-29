@@ -326,7 +326,7 @@ public class ContentController : ControllerBase
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet("{id}/image")]
-    [ProducesResponseType(typeof(OkObjectResult), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> GetImageFile(long id)
@@ -347,7 +347,7 @@ public class ContentController : ControllerBase
         using var fileStream = new FileStream(safePath, FileMode.Open, FileAccess.Read);
         var imageBytes = new byte[fileStream.Length];
         await fileStream.ReadAsync(imageBytes.AsMemory(0, (int)fileStream.Length));
-        return Ok(Convert.ToBase64String(imageBytes));
+        return new JsonResult(Convert.ToBase64String(imageBytes));
     }
 
     /// <summary>
