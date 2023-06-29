@@ -49,7 +49,8 @@ export const SearchPage: React.FC = () => {
           tempText = tempText.replace(multiMatch, `<b>${match}</b>`);
         });
       } else {
-        tempText = tempText.replace(regex, `<b>${text.match(regex)}</b>`);
+        // in this case there will only be one match, so we can just insert the first match
+        tempText = tempText.replace(regex, `<b>${matches[0]}</b>`);
       }
     });
     return parse(tempText);
