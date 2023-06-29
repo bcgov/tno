@@ -28,6 +28,7 @@ export const ReportForm = styled(FormPage)`
       transition: color 0.15s ease-in-out 0s, background-color 0.15s ease-in-out 0s,
         border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
       resize: both;
+      max-width: calc(100vw - 140px);
     }
   }
 
