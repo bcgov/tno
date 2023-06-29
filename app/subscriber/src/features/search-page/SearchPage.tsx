@@ -4,6 +4,7 @@ import {
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
 import { DetermineToneIcon, makeFilter } from 'features/home/utils';
+import parse from 'html-react-parser';
 import React from 'react';
 import { FaPlay, FaSave, FaStop } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +32,15 @@ export const SearchPage: React.FC = () => {
 
   const urlParams = new URLSearchParams(window.location.search);
   const queryText = urlParams.get('queryText');
+  const formatSearch = (text: string) => {
+    let tempText = text;
+    queryText?.split(' ').forEach((word) => {
+      const regex = new RegExp(word ?? '', 'gi');
+      // text.match included in replace in order to keep the proper capitalization
+      tempText = tempText.replace(regex, `<b>${text.match(regex)}</b>`);
+    });
+    return parse(tempText);
+  };
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
       try {
@@ -110,11 +120,13 @@ export const SearchPage: React.FC = () => {
                       className="headline text-content"
                       onClick={() => navigate(`/view/${item.id}`)}
                     >
-                      {item.headline}
+                      {formatSearch(item.headline)}
                     </p>
                     {/* TODO: Extract text around keyword searched and preview that text rather than the first 50 words */}
                     <p className="summary text-content">
-                      {item.body ? trimWords(item.body, 50) : trimWords(item.summary, 50)}
+                      {item.body
+                        ? formatSearch(trimWords(item.body, 50))
+                        : formatSearch(trimWords(item.summary, 50))}
                     </p>
                     <Show visible={!!item.fileReferences?.length}>
                       <button

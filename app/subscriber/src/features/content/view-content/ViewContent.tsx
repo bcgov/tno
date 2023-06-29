@@ -7,6 +7,7 @@ import { useApp, useContent, useWorkOrders } from 'store/hooks';
 import {
   Button,
   ButtonVariant,
+  Col,
   ContentTypeName,
   IContentModel,
   IWorkOrderModel,
@@ -74,7 +75,6 @@ export const ViewContent: React.FC = () => {
       myMinisters.length &&
         myMinisters.forEach((minister: string, index: number) => {
           const regex = new RegExp(minister ?? '', 'gi');
-          console.log(minister);
           if (content?.summary && !content.summary.includes(`<b>${minister}</b>`)) {
             tempSummary = tempSummary?.replace(regex, `<b>${minister}</b>`);
           }
@@ -165,10 +165,15 @@ export const ViewContent: React.FC = () => {
         </Row>
       </Row>
       <Row justifyContent="space-between">
-        <p className="name-date">
-          {content?.byline ? `by ${content?.byline} - ` : ''}
-          {formatDate(content?.publishedOn ?? '')}
-        </p>
+        <Col>
+          <p className="name-date">
+            {content?.byline ? `by ${content?.byline} - ` : ''}
+            {formatDate(content?.publishedOn ?? '')}
+          </p>
+          <Show visible={!!content?.source?.name && content?.contentType === ContentTypeName.Story}>
+            <p className="source-name">{content?.source?.name}</p>
+          </Show>
+        </Col>
         <p className="source-section">
           <Show visible={content?.contentType === ContentTypeName.PrintContent}>
             {content?.source?.name} -{' '}
@@ -195,22 +200,29 @@ export const ViewContent: React.FC = () => {
         </Row>
       </Show>
       <Row id="summary" className="summary">
-        <Show
-          visible={
-            content?.contentType === ContentTypeName.PrintContent ||
-            content?.contentType === ContentTypeName.Story
-          }
-        >
-          <span>{parse(content?.body ?? '')}</span>
-        </Show>
-        <Show
-          visible={
-            content?.contentType === ContentTypeName.AudioVideo ||
-            content?.contentType === ContentTypeName.Image
-          }
-        >
-          <span>{parse(content?.summary ?? '')}</span>
-        </Show>
+        <Col>
+          <Show
+            visible={
+              content?.contentType === ContentTypeName.PrintContent ||
+              content?.contentType === ContentTypeName.Story
+            }
+          >
+            <span>{parse(content?.body ?? '')}</span>
+          </Show>
+          <Show
+            visible={
+              content?.contentType === ContentTypeName.AudioVideo ||
+              content?.contentType === ContentTypeName.Image
+            }
+          >
+            <span>{parse(content?.summary ?? '')}</span>
+          </Show>
+          <Show visible={!!content?.sourceUrl}>
+            <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
+              More...
+            </a>
+          </Show>
+        </Col>
         <Show visible={content?.contentType === ContentTypeName.AudioVideo}>
           <Button
             onClick={() => handleTranscribe()}
