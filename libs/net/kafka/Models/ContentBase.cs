@@ -120,6 +120,11 @@ public abstract class ContentBase
     public IEnumerable<Tag> Tags { get; set; } = Array.Empty<Tag>();
 
     /// <summary>
+    /// get/set - An array of labels to identify this content.
+    /// </summary>
+    public IEnumerable<LabelModel> Labels { get; set; } = Array.Empty<LabelModel>();
+
+    /// <summary>
     /// get/set - An array of topics to associate with this content.
     /// </summary>
     public IEnumerable<Topic> Topics { get; set; } = Array.Empty<Topic>();
