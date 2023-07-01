@@ -115,6 +115,11 @@ public class Source : BaseType<int>
     /// get - List of metrics (many-to-many) linked to this source.
     /// </summary>
     public virtual List<SourceMetric> MetricsManyToMany { get; } = new List<SourceMetric>();
+
+    /// <summary>
+    /// get - List of earned media formula configuration for this source.
+    /// </summary>
+    public virtual List<EarnedMedia> EarnedMedia { get; } = new List<EarnedMedia>();
     #endregion
 
     #region Constructors

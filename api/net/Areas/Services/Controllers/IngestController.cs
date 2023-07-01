@@ -143,7 +143,7 @@ public class IngestController : ControllerBase
     public IActionResult UpdateConfiguration(IngestModel model)
     {
         var convertedEntity = model.ToEntity(_serializerOptions);
-        var target = _serviceIngest.FindById(model.Id);
+        var target = _serviceIngest.FindById(model.Id) ?? throw new InvalidOperationException("Ingest does not exist");
         target.Configuration = convertedEntity.Configuration;
         _serviceIngest.UpdateAndSave(target);
 
