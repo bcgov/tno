@@ -323,6 +323,10 @@ public class ContentManager : ServiceManager<ContentOptions>
                 }
             }
 
+            if (model.TimeTrackings.Any()) {
+                content.TimeTrackings = model.TimeTrackings.Select(t => new ContentTimeTrackingModel(t.UserId, t.Effort, t.Activity)).ToArray();
+            }
+
             content = await this.Api.AddContentAsync(content) ?? throw new InvalidOperationException($"Adding content failed {content.OtherSource}:{content.Uid}");
             this.Logger.LogInformation("Content Imported.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
 

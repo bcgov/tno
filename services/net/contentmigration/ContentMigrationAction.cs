@@ -11,6 +11,7 @@ using TNO.Services.Actions;
 using TNO.Services.ContentMigration.Config;
 using TNO.Services.ContentMigration.Sources.Oracle;
 using TNO.Services.ContentMigration.Migrators;
+using TNO.Services.ContentMigration.Extensions;
 
 namespace TNO.Services.ContentMigration;
 
@@ -118,35 +119,32 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         API.Areas.Editor.Models.Lookup.LookupModel? lookups = await this.Api.GetLookupsAsync();
 
         var skip = 0;
-        var count = this.Options.MaxRecordsPerRetrieval;
+        var countOfRecordsRetrieved = this.Options.MaxRecordsPerRetrieval;
+        var maxIngestedRecords = Math.Max(this.Options.MaxRecordsPerIngest, this.Options.MaxRecordsPerRetrieval);
 
         DateTime? importDateStart = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateStart")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateStart") : null;
         DateTime? importDateEnd = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateEnd")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateEnd") : null;
         DateTime? creationDateOfLastImport = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("creationDateOfLastImport")) ? manager.Ingest.GetConfigurationValue<DateTime>("creationDateOfLastImport") : null;
 
-        while (count > 0)
+        while ((countOfRecordsRetrieved > 0) && (skip < maxIngestedRecords))
         {
             try
             {
                 var baseFilter = contentMigrator.GetBaseFilter();
-                IQueryable<NewsItem> items = GetFilteredNewsItems(_sourceContext.NewsItems, baseFilter, skip, count, manager.Ingest.LastRanOn, importDateStart, importDateEnd, creationDateOfLastImport);
-                var lastNewsItem = items.Last();
-                count = items.Count();
-                skip += count;
+                IQueryable<NewsItem> items = GetFilteredNewsItems(_sourceContext.NewsItems, baseFilter, skip, this.Options.MaxRecordsPerRetrieval, manager.Ingest.LastRanOn, importDateStart, importDateEnd, creationDateOfLastImport);
+                countOfRecordsRetrieved = items.Count();
+
                 await items.ForEachAsync(async newsItem =>
                 {
                     await MigrateNewsItemAsync(manager, contentMigrator, lookups, newsItem);
-                    creationDateOfLastImport = newsItem.ItemDateTime;
-                    if ((newsItem.RSN == lastNewsItem.RSN) && (creationDateOfLastImport != null))
-                    {
-                        await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport!.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
-                    }
+                    creationDateOfLastImport = newsItem.GetPublishedDateTime();
                 });
-
+                await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport!.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
+                skip += countOfRecordsRetrieved;
             }
             catch (Exception)
             {
-                Logger.LogError("Migration Failed on {skip}:{count}", skip, count);
+                Logger.LogError("Migration Failed on {skip}:{count}", skip, countOfRecordsRetrieved);
                 // only update the DateTime.MinValue value if it was set
                 if (creationDateOfLastImport != null)
                     await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport!.Value.ToString("yyyy-MM-dd h:mm:ss tt"));

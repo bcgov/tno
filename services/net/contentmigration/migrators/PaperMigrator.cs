@@ -8,6 +8,7 @@ using TNO.API.Areas.Editor.Models.Source;
 using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Services.ContentMigration.Config;
+using TNO.Services.ContentMigration.Extensions;
 using TNO.Services.ContentMigration.Sources.Oracle;
 
 namespace TNO.Services.ContentMigration.Migrators;
@@ -42,7 +43,7 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     public override SourceContent? CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string referenceUid)
     {
         // var authors = GetAuthors(lookups.Contributors)
-        var publishedOn = newsItem.ItemDateTime ?? DateTime.UtcNow;
+        DateTime publishedOn = newsItem.GetPublishedDateTime();
 
         var newsItemTitle = newsItem.Title != null ? WebUtility.HtmlDecode(newsItem.Title) : string.Empty;
 
@@ -63,21 +64,25 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             FilePath = newsItem.FilePath ?? string.Empty,
             Link = newsItem.WebPath ?? string.Empty,
             Language = "", // TODO: Need to extract this from the ingest, or determine it after transcription.
-            //Tags = item.Categories.Select(c => new TNO.Kafka.Models.Tag(c.Name, c.Label))
-
         };
 
-        if ((newsItem.Tones != null) && (newsItem.Tones.Any())) {
+        var auditUser = lookups.Users.FirstOrDefault(u => u.Username == this.Options.DefaultUserNameForAudit);
+
+        if (newsItem.Tones?.Any() == true) {
             // TODO: replace the USER_RSN value on UserIdentifier with something that can be mapped by the Content Service to an MMIA user
             // TODO: remove UserRSN filter once user can be mapped
             content.TonePools = newsItem.Tones.Where(t => t.UserRSN == 0)
-                .Select(t => new Kafka.Models.TonePool { Value = (int)t.ToneValue, UserIdentifier = t.UserRSN.ToString() });
+                .Select(t => new Kafka.Models.TonePool((int)t.ToneValue, t.UserRSN.ToString()));
         }
 
         // Extract authors from a "delimited" string.  Don't use the source name as an author.
-        if (!string.IsNullOrEmpty(newsItem.string5)) {
-             content.Authors = ExtractAuthors(newsItem.string5, newsItem.Source).Select(a => new Author(a));
+        if (!string.IsNullOrEmpty(newsItem.string5) || !string.IsNullOrEmpty(newsItem.string6)) {
+            var authors = new List<string>();
+            if (!string.IsNullOrEmpty(newsItem.string5)) authors.AddRange(ExtractAuthors(newsItem.string5, newsItem.Source));
+            if (!string.IsNullOrEmpty(newsItem.string6)) authors.AddRange(ExtractAuthors(newsItem.string6, newsItem.Source));
+            content.Authors = authors.Distinct().Select(a => new Author(a));
         }
+
         if (newsItem.UpdatedOn != null) {
             content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ? newsItem.UpdatedOn.Value.ToUniversalTime() : null;
         }
@@ -97,6 +102,14 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         content.Actions = GetActionMappings(newsItem.FrontPageStory, newsItem.WapTopStory, newsItem.Alert,
             newsItem.Commentary, newsItem.CommentaryTimeout);
 
+        // the total "Effort" is stored in the Number2 field as seconds
+        if (newsItem.Number2.HasValue && newsItem.Number2 > 0) {
+            content.TimeTrackings = new[] { new Kafka.Models.TimeTrackingModel {
+                Activity = this.Options.DefaultTimeTrackingActivity,
+                Effort = (float)Math.Round(Convert.ToDecimal(newsItem.Number2) / 60, 2),
+                UserId = auditUser.Id }};
+        }
+
         return content;
     }
 
@@ -104,7 +117,8 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     ///
     /// </summary>
     /// <returns></returns>
-    public override System.Linq.Expressions.Expression<Func<NewsItem, bool>> GetBaseFilter() {
+    public override System.Linq.Expressions.Expression<Func<NewsItem, bool>> GetBaseFilter()
+    {
         return PredicateBuilder.New<NewsItem>()
                                .And(ni => !ni.ContentType!.Equals("video/quicktime"))
                                .And(ni => !ni.ContentType!.Equals("image/jpeg"));

@@ -1,3 +1,4 @@
+using System.Configuration;
 using System.Net;
 using LinqKit;
 using Microsoft.Extensions.Logging;
@@ -8,6 +9,7 @@ using TNO.API.Areas.Editor.Models.Source;
 using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Services.ContentMigration.Config;
+using TNO.Services.ContentMigration.Extensions;
 using TNO.Services.ContentMigration.Sources.Oracle;
 
 namespace TNO.Services.ContentMigration.Migrators;
@@ -43,7 +45,7 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
     public override SourceContent? CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string referenceUid)
     {
         // var authors = GetAuthors(lookups.Contributors)
-        var publishedOn = newsItem.ItemDateTime ?? DateTime.UtcNow;
+        DateTime publishedOn = newsItem.GetPublishedDateTime();
 
         var newsItemTitle = newsItem.Title != null ? WebUtility.HtmlDecode(newsItem.Title) : string.Empty;
 
@@ -64,9 +66,10 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
             // FilePath = (ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "")
             //     .CombineWith($"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}/", reference.Uid),
             Language = "", // TODO: Need to extract this from the ingest, or determine it after transcription.
-            //Tags = item.Categories.Select(c => new TNO.Kafka.Models.Tag(c.Name, c.Label))
-
         };
+
+        if (string.IsNullOrEmpty(this.Options.DefaultUserNameForAudit)) throw new ConfigurationException("Default Username for ContentMigration has not been configured");
+        var auditUser = lookups.Users.FirstOrDefault(u => u.Username == this.Options.DefaultUserNameForAudit);
 
         // newsItem.string5 & newsItem.string5 seem to be the "Show/Program"
 
@@ -75,7 +78,7 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
             content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ? newsItem.UpdatedOn.Value.ToUniversalTime() : null;
         }
 
-        if (newsItem.Tones != null)
+        if (newsItem.Tones?.Any() == true)
         {
             // TODO: replace the USER_RSN value on UserIdentifier with something that can be mapped by the Content Service to an MMIA user
             // TODO: remove UserRSN filter once user can be mapped
@@ -98,6 +101,14 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
         // map relevant news item properties to actions
         content.Actions = GetActionMappings(newsItem.FrontPageStory, newsItem.WapTopStory, newsItem.Alert,
             newsItem.Commentary, newsItem.CommentaryTimeout);
+
+        // the total "Effort" is stored in the Number2 field as seconds
+        if (newsItem.Number2.HasValue && newsItem.Number2 > 0) {
+            content.TimeTrackings = new[] { new Kafka.Models.TimeTrackingModel {
+                Activity = this.Options.DefaultTimeTrackingActivity,
+                Effort = (float)Math.Round(Convert.ToDecimal(newsItem.Number2 / 60), 2),
+                UserId = auditUser.Id }};
+        }
 
         return content;
     }

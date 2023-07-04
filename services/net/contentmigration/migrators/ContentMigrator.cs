@@ -232,7 +232,7 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
             actionName = this.Options.ActionNameMappings.ContainsKey(actionType)
                 ? this.Options.ActionNameMappings[actionType]
                 : actionType.ToString();
-            mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString));
+            mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString.ToLower()));
         }
 
         if (wapTopStory)
@@ -241,7 +241,7 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
             actionName = this.Options.ActionNameMappings.ContainsKey(actionType)
                 ? this.Options.ActionNameMappings[actionType]
                 : actionType.ToString();
-            mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString));
+            mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString.ToLower()));
         }
 
         if (alert)
@@ -250,7 +250,7 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
             actionName = this.Options.ActionNameMappings.ContainsKey(actionType)
                 ? this.Options.ActionNameMappings[actionType]
                 : actionType.ToString();
-            mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString));
+            mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString.ToLower()));
         }
 
         if (commentary && commentaryTimeout.HasValue)

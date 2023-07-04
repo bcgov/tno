@@ -8,6 +8,7 @@ using TNO.API.Areas.Editor.Models.Source;
 using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Services.ContentMigration.Config;
+using TNO.Services.ContentMigration.Extensions;
 using TNO.Services.ContentMigration.Sources.Oracle;
 
 namespace TNO.Services.ContentMigration.Migrators;
@@ -41,7 +42,7 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     public override SourceContent? CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string referenceUid)
     {
         // var authors = GetAuthors(lookups.Contributors)
-        var publishedOn = newsItem.ItemDateTime ?? DateTime.UtcNow;
+        DateTime publishedOn = newsItem.GetPublishedDateTime();
 
         var newsItemTitle = newsItem.Title != null ? WebUtility.HtmlDecode(newsItem.Title) : string.Empty;
 

@@ -43,10 +43,35 @@ public class ContentMigrationOptions : IngestServiceOptions
     public int MaxRecordsPerRetrieval { get; set; } = 20;
 
     /// <summary>
+    /// get/set - The maximum number of records to migrate in a single ingest event
+    /// </summary>
+    public int MaxRecordsPerIngest { get; set; } = Int32.MaxValue;
+
+    /// <summary>
     /// Mapping for "action type" to Name in the db
     /// Only need to add a mapping here, if the name in the db is different to the Action Type enum string
     /// </summary>
     public Dictionary<ActionType,string> ActionNameMappings {get; set; } = new Dictionary<ActionType,string>();
+
+    /// <summary>
+    /// get/set - The default number of minutes that it took a migrated article to be ready for publishing
+    /// </summary>
+    public float DefaultTimeTrackingValueInMinutes { get; set; } = 10F;
+
+    /// <summary>
+    /// get/set - The default activity for migrated articles
+    /// </summary>
+    public string DefaultTimeTrackingActivity { get; set; } = "Updated";
+
+    /// <summary>
+    /// get/set - The default username for any audit, ownership on migrated items
+    /// </summary>
+    public string DefaultUserNameForAudit { get; set; } = "admin";
+
+    /// <summary>
+    /// get/set - The default Tone value if none is set
+    /// </summary>
+    public int DefaultTone { get; set; } = 0;
 
     #endregion
 }
