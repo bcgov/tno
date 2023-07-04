@@ -13,6 +13,7 @@ import {
   IPaged,
   IProductModel,
   IReportModel,
+  IReportTemplateModel,
   ISeriesModel,
   ISourceModel,
   ITagModel,
@@ -42,5 +43,6 @@ export interface IAdminState {
   workOrderFilter: IWorkOrderListFilter;
   workOrders: IPaged<IWorkOrderModel>;
   reports: IReportModel[];
+  reportTemplates: IReportTemplateModel[];
   notifications: INotificationModel[];
 }

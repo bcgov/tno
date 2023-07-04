@@ -21,7 +21,7 @@ public class ReportInstanceContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - The section to group content in.
     /// </summary>
-    public string SectionName { get; set; } = "";
+    public string? SectionName { get; set; }
     #endregion
 
     #region Constructors
@@ -38,7 +38,7 @@ public class ReportInstanceContentModel : AuditColumnsModel
     {
         this.InstanceId = entity.InstanceId;
         this.ContentId = entity.ContentId;
-        this.SectionName = entity.SectionName ?? "";
+        this.SectionName = entity.SectionName;
     }
 
     /// <summary>
@@ -62,7 +62,7 @@ public class ReportInstanceContentModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.ReportInstanceContent(ReportInstanceContentModel model)
     {
-        return new Entities.ReportInstanceContent(model.InstanceId, model.ContentId, model.SectionName)
+        return new Entities.ReportInstanceContent(model.InstanceId, model.ContentId, model.SectionName ?? "")
         {
             Version = model.Version ?? 0
         };

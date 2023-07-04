@@ -21,9 +21,14 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     public Dictionary<string, object> Filter { get; set; } = new Dictionary<string, object>();
 
     /// <summary>
-    /// get/set - The Razor template to generate the report.
+    /// get/set - Foreign key to the report template.
     /// </summary>
-    public string Template { get; set; } = "";
+    public int TemplateId { get; set; }
+
+    /// <summary>
+    /// get/set - The report template.
+    /// </summary>
+    public ReportTemplateModel? Template { get; set; }
 
     /// <summary>
     /// get/set - Foreign key to user who owns this report.
@@ -60,9 +65,10 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     public ReportModel(Entities.Report entity, JsonSerializerOptions options) : base(entity)
     {
         this.ReportType = entity.ReportType;
-        this.Template = entity.Template;
         this.OwnerId = entity.OwnerId;
         this.IsPublic = entity.IsPublic;
+        this.TemplateId = entity.TemplateId;
+        this.Template = entity.Template != null ? new ReportTemplateModel(entity.Template) : null;
         this.Filter = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Filter, options) ?? new Dictionary<string, object>();
         this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
 
@@ -89,14 +95,13 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     /// <param name="model"></param>
     public static explicit operator Entities.Report(ReportModel model)
     {
-        var entity = new Entities.Report(model.Id, model.Name, model.ReportType, model.OwnerId)
+        var entity = new Entities.Report(model.Id, model.Name, model.ReportType, model.OwnerId, model.TemplateId)
         {
             Id = model.Id,
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             OwnerId = model.OwnerId,
             SortOrder = model.SortOrder,
-            Template = model.Template,
             IsPublic = model.IsPublic,
             Filter = JsonDocument.Parse(JsonSerializer.Serialize(model.Filter)),
             Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),

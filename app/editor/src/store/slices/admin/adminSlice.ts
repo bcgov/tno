@@ -14,6 +14,7 @@ import {
   IPaged,
   IProductModel,
   IReportModel,
+  IReportTemplateModel,
   ISeriesModel,
   ISourceModel,
   ITagModel,
@@ -56,6 +57,7 @@ export const initialAdminState: IAdminState = {
   },
   workOrders: { page: 1, quantity: 10, items: [], total: 0 },
   reports: [],
+  reportTemplates: [],
   notifications: [],
 };
 
@@ -120,6 +122,9 @@ export const adminSlice = createSlice({
     storeReports(state: IAdminState, action: PayloadAction<IReportModel[]>) {
       state.reports = action.payload;
     },
+    storeReportTemplates(state: IAdminState, action: PayloadAction<IReportTemplateModel[]>) {
+      state.reportTemplates = action.payload;
+    },
     storeNotifications(state: IAdminState, action: PayloadAction<INotificationModel[]>) {
       state.notifications = action.payload;
     },
@@ -146,5 +151,6 @@ export const {
   storeWorkOrderFilter: storeAdminWorkOrderFilter,
   storeWorkOrders: storeAdminWorkOrders,
   storeReports: storeAdminReports,
+  storeReportTemplates: storeAdminReportTemplates,
   storeNotifications: storeAdminNotifications,
 } = adminSlice.actions;

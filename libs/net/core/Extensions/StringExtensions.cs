@@ -254,10 +254,12 @@ public static class StringExtensions
     /// <returns></returns>
     public static bool DirectoryExists(this string path, bool ignoreCase = false)
     {
-        var parent = Directory.GetParent(path.GetDirectoryPath() ?? "")?.FullName ?? "";
-        if (String.IsNullOrWhiteSpace(parent)) parent = $"{Path.DirectorySeparatorChar}";
-        else if (!parent.StartsWith(Path.DirectorySeparatorChar) && path.StartsWith(Path.DirectorySeparatorChar)) parent = $"{Path.DirectorySeparatorChar}{parent}";
-        return Directory.Exists(path) || Directory.GetFileSystemEntries(parent).Any(f => String.Compare(f, path, ignoreCase) == 0);
+        var directory = new DirectoryInfo(path.GetDirectoryPath() ?? "");
+        if (directory == null || !directory.Exists) return false;
+
+        var parent = directory.Parent?.FullName ?? "";
+
+        return Directory.GetFileSystemEntries(parent).Any(f => String.Compare(f, path, ignoreCase) == 0);
     }
 
     /// <summary>

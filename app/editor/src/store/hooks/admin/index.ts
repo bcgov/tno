@@ -10,6 +10,7 @@ export * from './useLicenses';
 export * from './useNotifications';
 export * from './useProducts';
 export * from './useReports';
+export * from './useReportTemplates';
 export * from './useSeries';
 export * from './useSources';
 export * from './useTags';

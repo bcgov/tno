@@ -13,7 +13,8 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
 import { useApp, useLookupOptions } from 'store/hooks';
-import { useReports, useUsers } from 'store/hooks/admin';
+import { useReports, useReportTemplates, useUsers } from 'store/hooks/admin';
+import { useAdminStore } from 'store/slices';
 import {
   Button,
   ButtonVariant,
@@ -26,6 +27,7 @@ import {
   FormikText,
   FormikTextArea,
   getEnumStringOptions,
+  getSortableOptions,
   IconButton,
   IOptionItem,
   IReportModel,
@@ -35,6 +37,7 @@ import {
   ITableSort,
   IUserModel,
   Modal,
+  OptionItem,
   ReportTypeName,
   Row,
   Show,
@@ -44,7 +47,12 @@ import {
   useModal,
 } from 'tno-core';
 
-import { defaultReport, instanceColumns, subscriberColumns } from './constants';
+import {
+  defaultReport,
+  defaultReportTemplate,
+  instanceColumns,
+  subscriberColumns,
+} from './constants';
 import { ReportFilter } from './ReportFilter';
 import { ReportSections } from './ReportSections';
 import * as styled from './styled';
@@ -57,7 +65,12 @@ export const ReportForm: React.FC = () => {
   const navigate = useNavigate();
   const [{ userInfo }] = useApp();
   const { id } = useParams();
-  const [, api] = useReports();
+  const [
+    ,
+    { addReport, deleteReport, getReport, updateReport, sendReport, previewReport, publishReport },
+  ] = useReports();
+  const [{ reportTemplates }, { storeReportTemplates }] = useAdminStore();
+  const [, { findAllReportTemplates }] = useReportTemplates();
   const { state } = useLocation();
   const { toggle, isShowing } = useModal();
   const [{ users }, { findUsers }] = useUsers();
@@ -70,14 +83,25 @@ export const ReportForm: React.FC = () => {
   const [sendTo, setSendTo] = React.useState('');
   const [active, setActive] = React.useState('report');
   const [preview, setPreview] = React.useState<IReportPreviewModel>();
+  const [templateOptions, setTemplateOptions] = React.useState<IOptionItem[]>(
+    getSortableOptions(reportTemplates, [new OptionItem('[New Template]', 0)]),
+  );
 
   const reportId = Number(id);
   const reportTypeOptions = getEnumStringOptions(ReportTypeName);
 
   React.useEffect(() => {
-    findUsers({}).catch(() => {
-      // Handled already.
-    });
+    if (!users.items.length)
+      findUsers({}).catch(() => {
+        // Handled already.
+      });
+    findAllReportTemplates()
+      .then((templates) =>
+        setTemplateOptions(getSortableOptions(templates, [new OptionItem('[New Template]', 0)])),
+      )
+      .catch(() => {
+        // Handled already.
+      });
     // Fetch users on initial load only.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -85,19 +109,25 @@ export const ReportForm: React.FC = () => {
   React.useEffect(() => {
     if (!!reportId && report?.id !== reportId) {
       setReport({ ...defaultReport, id: reportId }); // Do this to stop double fetch.
-      api.getReport(reportId, true).then((data) => {
+      getReport(reportId, true).then((data) => {
         setReport(data);
         setFilter(JSON.stringify(data.filter, null, 2));
       });
     }
-  }, [api, report?.id, reportId]);
+  }, [getReport, report?.id, reportId]);
 
   const handleSubmit = async (values: IReportModel) => {
     try {
       const originalId = values.id;
-      const result = !report.id ? await api.addReport(values) : await api.updateReport(values);
+      const result = !report.id ? await addReport(values) : await updateReport(values);
       setReport(result);
       setFilter(JSON.stringify(result.filter, null, 2));
+
+      if (!reportTemplates.some((rt) => rt.id === result.templateId)) {
+        const templates = [...reportTemplates, result.template];
+        storeReportTemplates(templates);
+        setTemplateOptions(getSortableOptions(templates, [new OptionItem('[New Template]', 0)]));
+      }
       toast.success(`${result.name} has successfully been saved.`);
       if (!originalId) navigate(`/admin/reports/${result.id}`);
     } catch {}
@@ -105,14 +135,14 @@ export const ReportForm: React.FC = () => {
 
   const handleSend = async (values: IReportModel, to: string) => {
     try {
-      await api.sendReport(values, to);
+      await sendReport(values, to);
       toast.success('Report has been successfully requested');
     } catch {}
   };
 
   const handlePublish = async (values: IReportModel) => {
     try {
-      await api.publishReport(values);
+      await publishReport(values);
       toast.success('Report has been successfully requested');
     } catch {}
   };
@@ -134,10 +164,10 @@ export const ReportForm: React.FC = () => {
     [findUsers, users.quantity],
   );
 
-  const previewReport = React.useCallback(
+  const handlePreviewReport = React.useCallback(
     async (model: IReportModel) => {
       try {
-        const response = await api.previewReport({
+        const response = await previewReport({
           ...model,
           instances: [],
           subscribers: [],
@@ -155,7 +185,7 @@ export const ReportForm: React.FC = () => {
         });
       }
     },
-    [api],
+    [previewReport],
   );
 
   return (
@@ -234,7 +264,18 @@ export const ReportForm: React.FC = () => {
             <div className="form-container">
               <Show visible={active === 'report'}>
                 <Col className="form-inputs">
-                  <FormikText name="name" label="Name" />
+                  <FormikText
+                    name="name"
+                    label="Name"
+                    onChange={(e) => {
+                      setFieldValue('name', e.target.value);
+                      if (values.templateId === 0)
+                        setFieldValue(
+                          'template.name',
+                          `${e.target.value}-${Date.now().toString()}`,
+                        );
+                    }}
+                  />
                   <FormikTextArea name="description" label="Description" />
                   <p>
                     A filtered report will make a request for content each time it runs. A custom
@@ -315,6 +356,7 @@ export const ReportForm: React.FC = () => {
               </Show>
               <Show visible={active === 'filter'}>
                 <Col>
+                  <h2>{values.name}</h2>
                   <p>
                     A primary filter can be used to find content to include in the report. If a
                     report has sections, you can add filters to each section instead.
@@ -413,16 +455,48 @@ export const ReportForm: React.FC = () => {
                 </Col>
               </Show>
               <Show visible={active === 'sections'}>
+                <h2>{values.name}</h2>
                 <ReportSections />
               </Show>
               <Show visible={active === 'template'}>
+                <h2>{values.name}</h2>
+                <p>Select a template to build this report with.</p>
+                <Row>
+                  <FormikSelect
+                    name="templateId"
+                    label="Template"
+                    tooltip="Select a template to base this report on"
+                    options={templateOptions}
+                    value={templateOptions.filter(
+                      (rt) => values.templateId === (rt.value === undefined ? 0 : +rt.value),
+                    )}
+                    isClearable={false}
+                    onChange={(newValue) => {
+                      const option = newValue as IOptionItem;
+                      const templateId = option.value !== undefined ? +option.value : 0;
+                      if (templateId) {
+                        const template = reportTemplates.find((rt) => rt.id === templateId);
+                        if (template) {
+                          setFieldValue('templateId', template.id);
+                          setFieldValue('template', template);
+                        }
+                      } else {
+                        setFieldValue('templateId', defaultReportTemplate.id);
+                        setFieldValue('template', {
+                          ...defaultReportTemplate,
+                          name: `${report.name}-${Date.now().toString()}`,
+                        });
+                      }
+                    }}
+                  />
+                </Row>
                 <Col className="code frm-in">
                   <label htmlFor="txa-subject">Subject Template</label>
                   <Col className="editor">
                     <Editor
-                      id="txa-subject"
-                      value={values.settings.subject ?? ''}
-                      onValueChange={(code) => setFieldValue('settings.subject', code)}
+                      id="txa-subject-template"
+                      value={values.template.subject}
+                      onValueChange={(code) => setFieldValue('template.subject', code)}
                       highlight={(code) => {
                         return highlight(code, languages.cshtml, 'razor');
                       }}
@@ -431,11 +505,12 @@ export const ReportForm: React.FC = () => {
                 </Col>
                 <Col className="code frm-in">
                   <label htmlFor="txa-template">Report Template</label>
+                  <p>Editing this template will change all reports that use this template.</p>
                   <Col className="editor">
                     <Editor
-                      id="txa-template"
-                      value={values.template}
-                      onValueChange={(code) => setFieldValue('template', code)}
+                      id="txa-body-template"
+                      value={values.template.body}
+                      onValueChange={(code) => setFieldValue('template.body', code)}
                       highlight={(code) => {
                         return highlight(code, languages.cshtml, 'razor');
                       }}
@@ -443,29 +518,8 @@ export const ReportForm: React.FC = () => {
                   </Col>
                 </Col>
               </Show>
-              <Show visible={active === 'subscribers'}>
-                <ReportFilter
-                  onSearch={async (value: string) => {
-                    await findUsers({ page: 1, quantity: users.quantity, keyword: value });
-                  }}
-                />
-                <FlexboxTable
-                  rowId="id"
-                  columns={subscriberColumns(values, setFieldValue)}
-                  data={users.items}
-                  manualPaging
-                  pageIndex={users.page}
-                  pageSize={users.quantity}
-                  pageCount={Math.ceil(users.total / users.quantity)}
-                  onPageChange={handlePageChange}
-                  onSortChange={handleSortChange}
-                  showSort
-                />
-              </Show>
-              <Show visible={active === 'sent'}>
-                <FlexboxTable rowId="id" data={values.instances} columns={instanceColumns()} />
-              </Show>
               <Show visible={active === 'preview'}>
+                <h2>{values.name}</h2>
                 <Row>
                   <Col flex="1" alignItems="center" justifyContent="center">
                     <p>
@@ -473,7 +527,10 @@ export const ReportForm: React.FC = () => {
                       returning the correct content. Previewed reports must have a filter. When
                       testing a custom report change it temporarily to a filter.
                     </p>
-                    <Button variant={ButtonVariant.success} onClick={() => previewReport(values)}>
+                    <Button
+                      variant={ButtonVariant.success}
+                      onClick={() => handlePreviewReport(values)}
+                    >
                       Generate Preview
                     </Button>
                   </Col>
@@ -508,6 +565,30 @@ export const ReportForm: React.FC = () => {
                   ></div>
                 </Col>
               </Show>
+              <Show visible={active === 'subscribers'}>
+                <h2>{values.name}</h2>
+                <ReportFilter
+                  onSearch={async (value: string) => {
+                    await findUsers({ page: 1, quantity: users.quantity, keyword: value });
+                  }}
+                />
+                <FlexboxTable
+                  rowId="id"
+                  columns={subscriberColumns(values, setFieldValue)}
+                  data={users.items}
+                  manualPaging
+                  pageIndex={users.page}
+                  pageSize={users.quantity}
+                  pageCount={Math.ceil(users.total / users.quantity)}
+                  onPageChange={handlePageChange}
+                  onSortChange={handleSortChange}
+                  showSort
+                />
+              </Show>
+              <Show visible={active === 'sent'}>
+                <h2>{values.name}</h2>
+                <FlexboxTable rowId="id" data={values.instances} columns={instanceColumns()} />
+              </Show>
               <Row justifyContent="center" className="form-inputs">
                 <Button type="submit" disabled={isSubmitting}>
                   Save
@@ -530,7 +611,7 @@ export const ReportForm: React.FC = () => {
                 confirmText="Yes, Remove It"
                 onConfirm={async () => {
                   try {
-                    await api.deleteReport(report);
+                    await deleteReport(report);
                     toast.success(`${report.name} has successfully been deleted.`);
                     navigate('/admin/reports');
                   } finally {
