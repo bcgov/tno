@@ -113,12 +113,12 @@ export const Upload: React.FC<IUploadProps> = ({
         </Show>
         <Show visible={!!stream && contentType === ContentTypeName.Image}>
           <Col>
-            <img height="400" width="500" alt="" className="object-fit" src={stream?.url}></img>
+            <img height="300" width="500" alt="" className="object-fit" src={stream?.url}></img>
           </Col>
         </Show>
 
         <Show visible={!!stream && contentType === ContentTypeName.AudioVideo}>
-          <video height="400" width="500" src={stream?.url} controls>
+          <video height="300" width="500" src={stream?.url} controls>
             HTML5 Video is required for this example
           </video>
         </Show>
