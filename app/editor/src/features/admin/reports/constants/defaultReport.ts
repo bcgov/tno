@@ -1,12 +1,15 @@
 import { IReportModel, ReportTypeName } from 'tno-core';
 
+import { defaultReportTemplate } from './defaultReportTemplate';
+
 export const defaultReport: IReportModel = {
   id: 0,
   name: '',
   description: '',
   reportType: ReportTypeName.Custom,
   ownerId: 0,
-  template: '',
+  templateId: 0,
+  template: defaultReportTemplate,
   filter: {},
   settings: {},
   isEnabled: false,

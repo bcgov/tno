@@ -11,11 +11,11 @@ public class ReportConfiguration : BaseTypeConfiguration<Report, int>
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Property(m => m.ReportType).IsRequired();
         builder.Property(m => m.Filter).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
-        builder.Property(m => m.Template).IsRequired().HasColumnType("text");
         builder.Property(m => m.OwnerId).IsRequired();
         builder.Property(m => m.IsPublic).IsRequired();
         builder.Property(m => m.Settings).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
 
+        builder.HasOne(m => m.Template).WithMany(m => m.Reports).HasForeignKey(m => m.TemplateId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.Owner).WithMany(m => m.Reports).HasForeignKey(m => m.OwnerId).OnDelete(DeleteBehavior.Cascade);
         builder.HasMany(m => m.Subscribers).WithMany(m => m.ReportSubscriptions).UsingEntity<UserReport>();
 

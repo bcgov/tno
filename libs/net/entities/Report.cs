@@ -38,10 +38,15 @@ public class Report : BaseType<int>
     public JsonDocument Filter { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
-    /// get/set - The Razor template to generate the report.
+    /// get/set - Foreign key to the Razor template to generate the report.
     /// </summary>
-    [Column("template")]
-    public string Template { get; set; } = "";
+    [Column("report_template_id")]
+    public int TemplateId { get; set; }
+
+    /// <summary>
+    /// get/set - The report razor template.
+    /// </summary>
+    public ReportTemplate? Template { get; set; }
 
     /// <summary>
     /// get/set - Whether this report is public to all users.
@@ -83,10 +88,12 @@ public class Report : BaseType<int>
     /// <param name="name"></param>
     /// <param name="type"></param>
     /// <param name="owner"></param>
-    public Report(string name, ReportType type, User owner)
-        : this(0, name, type, owner?.Id ?? throw new ArgumentNullException(nameof(owner)))
+    /// <param name="template"></param>
+    public Report(string name, ReportType type, User owner, ReportTemplate template)
+        : this(0, name, type, owner?.Id ?? throw new ArgumentNullException(nameof(owner)), template?.Id ?? throw new ArgumentNullException(nameof(template)))
     {
         this.Owner = owner;
+        this.Template = template;
     }
 
     /// <summary>
@@ -96,10 +103,12 @@ public class Report : BaseType<int>
     /// <param name="name"></param>
     /// <param name="type"></param>
     /// <param name="ownerId"></param>
-    public Report(int id, string name, ReportType type, int ownerId) : base(id, name)
+    /// <param name="ownerId"></param>
+    public Report(int id, string name, ReportType type, int ownerId, int templateId) : base(id, name)
     {
         this.ReportType = type;
         this.OwnerId = ownerId;
+        this.TemplateId = templateId;
     }
     #endregion
 }

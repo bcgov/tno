@@ -15,6 +15,7 @@ import {
   IPaged,
   IProductModel,
   IReportModel,
+  IReportTemplateModel,
   ISeriesModel,
   ISourceModel,
   ITagModel,
@@ -36,6 +37,7 @@ import {
   storeAdminNotifications,
   storeAdminProducts,
   storeAdminReports,
+  storeAdminReportTemplates,
   storeAdminSeries,
   storeAdminSources,
   storeAdminTags,
@@ -78,6 +80,9 @@ export interface IAdminStore {
     workOrders: IPaged<IWorkOrderModel> | ActionDelegate<IPaged<IWorkOrderModel>>,
   ) => void;
   storeReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => void;
+  storeReportTemplates: (
+    reports: IReportTemplateModel[] | ActionDelegate<IReportTemplateModel[]>,
+  ) => void;
   storeNotifications: (
     notifications: INotificationModel[] | ActionDelegate<INotificationModel[]>,
   ) => void;
@@ -194,6 +199,13 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminReports(reports(state.reports)));
         } else dispatch(storeAdminReports(reports));
       },
+      storeReportTemplates: (
+        reportTemplates: IReportTemplateModel[] | ActionDelegate<IReportTemplateModel[]>,
+      ) => {
+        if (typeof reportTemplates === 'function') {
+          dispatch(storeAdminReportTemplates(reportTemplates(state.reportTemplates)));
+        } else dispatch(storeAdminReportTemplates(reportTemplates));
+      },
       storeNotifications: (
         notifications: INotificationModel[] | ActionDelegate<INotificationModel[]>,
       ) => {
@@ -223,6 +235,7 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       state.workOrderFilter,
       state.workOrders,
       state.reports,
+      state.reportTemplates,
       state.notifications,
     ],
   );

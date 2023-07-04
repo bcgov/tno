@@ -7,15 +7,14 @@ using Confluent.Kafka;
 using TNO.Kafka;
 using TNO.Core.Exceptions;
 using TNO.Entities;
-using TNO.Models.Extensions;
 using TNO.Ches;
 using TNO.Ches.Models;
 using TNO.Ches.Configuration;
 using System.Text.Json;
 using System.Security.Claims;
 using TNO.TemplateEngine;
-using TNO.TemplateEngine.Models.Reports;
 using TNO.TemplateEngine.Extensions;
+using TNO.TemplateEngine.Models.Reports;
 
 namespace TNO.Services.Reporting;
 
@@ -378,10 +377,10 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
         var key = $"report_{report.Id}_subject";
         var model = new TemplateModel(content);
-        var templateText = report.Settings.GetDictionaryJsonValue<string>("subject") ?? "";
+        if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
         var template = (!updateCache ?
-            this.TemplateEngine.GetOrAddTemplateInMemory(key, templateText) :
-            this.TemplateEngine.AddOrUpdateTemplateInMemory(key, templateText))
+            this.TemplateEngine.GetOrAddTemplateInMemory(key, report.Template.Subject) :
+            this.TemplateEngine.AddOrUpdateTemplateInMemory(key, report.Template.Subject))
             ?? throw new InvalidOperationException("Template does not exist");
         return await template.RunAsync(instance =>
         {
@@ -402,6 +401,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
         var key = $"report_{report.Id}";
         var model = new TemplateModel(content);
+        if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
 
         if (content.TryGetValue("", out ReportSectionModel? value) && value != null && value.Content.Any())
         {
@@ -412,8 +412,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         }
 
         var template = (!updateCache ?
-            this.TemplateEngine.GetOrAddTemplateInMemory(key, report.Template) :
-            this.TemplateEngine.AddOrUpdateTemplateInMemory(key, report.Template))
+            this.TemplateEngine.GetOrAddTemplateInMemory(key, report.Template.Body) :
+            this.TemplateEngine.AddOrUpdateTemplateInMemory(key, report.Template.Body))
             ?? throw new InvalidOperationException("Template does not exist");
         return await template.RunAsync(instance =>
         {

@@ -30,6 +30,17 @@ public class ReportInstance : AuditColumns
     public Report? Report { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to user who owns this report instance.
+    /// </summary>
+    [Column("owner_id")]
+    public int? OwnerId { get; set; }
+
+    /// <summary>
+    /// get/set - The user who owns this report.
+    /// </summary>
+    public virtual User? Owner { get; set; }
+
+    /// <summary>
     /// get/set - The date and time the report was published on.
     /// </summary>
     [Column("published_on")]
@@ -73,12 +84,37 @@ public class ReportInstance : AuditColumns
     /// <summary>
     /// Creates a new instance of a ReportInstance object, initializes with specified parameters.
     /// </summary>
+    /// <param name="report"></param>
+    /// <param name="owner"></param>
+    /// <param name="content"></param>
+    public ReportInstance(Report report, User owner, IEnumerable<Content> content)
+        : this(report, content)
+    {
+        this.Owner = owner;
+        this.OwnerId = owner?.Id;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a ReportInstance object, initializes with specified parameters.
+    /// </summary>
     /// <param name="reportId"></param>
     /// <param name="contentIds"></param>
     public ReportInstance(int reportId, IEnumerable<long> contentIds)
     {
         this.ReportId = reportId;
         this.ContentManyToMany.AddRange(contentIds.Select(c => new ReportInstanceContent(0, c)));
+    }
+
+    /// <summary>
+    /// Creates a new instance of a ReportInstance object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="contentIds"></param>
+    public ReportInstance(int reportId, int? ownerId, IEnumerable<long> contentIds)
+        : this(reportId, contentIds)
+    {
+        this.OwnerId = ownerId;
     }
 
     /// <summary>
@@ -91,6 +127,19 @@ public class ReportInstance : AuditColumns
     {
         this.ReportId = reportId;
         this.ContentManyToMany.AddRange(contentIds.Select(c => new ReportInstanceContent(0, c.Value, c.Key)));
+    }
+
+    /// <summary>
+    /// Creates a new instance of a ReportInstance object, initializes with specified parameters.
+    /// This constructor provides a way to group content into sections.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="contentIds"></param>
+    public ReportInstance(int reportId, int? ownerId, IEnumerable<KeyValuePair<string, long>> contentIds)
+        : this(reportId, contentIds)
+    {
+        this.OwnerId = ownerId;
     }
     #endregion
 }

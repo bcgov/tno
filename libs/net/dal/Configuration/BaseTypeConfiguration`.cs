@@ -17,7 +17,7 @@ public abstract class BaseTypeConfiguration<TBaseEntity, TKey> : AuditColumnsCon
         builder.Property(m => m.IsEnabled);
         builder.Property(m => m.SortOrder).HasDefaultValue(0);
 
-        builder.HasIndex(m => new { m.IsEnabled, m.Name }, "IX_is_enabled");
+        builder.HasIndex(m => new { m.IsEnabled, m.Name }, $"IX_{typeof(TBaseEntity).Name.ToLower()}_is_enabled");
 
         base.Configure(builder);
     }

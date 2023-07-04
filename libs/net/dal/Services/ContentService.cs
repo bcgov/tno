@@ -479,7 +479,6 @@ public class ContentService : BaseService<Content, long>, IContentService
         return base.UpdateAndSave(original);
     }
 
-
     /// <summary>
     /// Get all the notification instances for the specified 'contentId'.
     /// </summary>

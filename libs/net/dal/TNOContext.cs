@@ -60,6 +60,11 @@ public class TNOContext : DbContext
     public DbSet<Minister> Ministers => Set<Minister>();
 
     #region Reports
+    public DbSet<Sentiment> Sentiments => Set<Sentiment>();
+    public DbSet<EarnedMedia> EarnedMedias => Set<EarnedMedia>();
+    public DbSet<ChartTemplate> ChartTemplates => Set<ChartTemplate>();
+    public DbSet<ReportTemplate> ReportTemplates => Set<ReportTemplate>();
+    public DbSet<ReportTemplateChartTemplate> ReportTemplateChartTemplates => Set<ReportTemplateChartTemplate>();
     public DbSet<Report> Reports => Set<Report>();
     public DbSet<ReportInstance> ReportInstances => Set<ReportInstance>();
     public DbSet<ReportInstanceContent> ReportInstanceContent => Set<ReportInstanceContent>();

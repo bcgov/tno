@@ -17,12 +17,11 @@ using TNO.Kafka.Models;
 using TNO.Keycloak;
 using TNO.Models.Extensions;
 using TNO.TemplateEngine;
-using TNO.TemplateEngine.Models.Reports;
 using TNO.TemplateEngine.Extensions;
+using TNO.TemplateEngine.Models.Reports;
 using TNO.Elastic.Models;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.DAL.Config;
-using System.Web;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -92,7 +91,7 @@ public class ReportController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IPaged<ReportModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<ReportModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult FindAll()
     {
@@ -130,8 +129,8 @@ public class ReportController : ControllerBase
     public IActionResult Add(ReportModel model)
     {
         var result = _reportService.AddAndSave(model.ToEntity(_serializerOptions));
-        var report = _reportService.FindById(result.Id);
-        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportModel(report!, _serializerOptions));
+        var report = _reportService.FindById(result.Id) ?? throw new InvalidOperationException("Report does not exist");
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportModel(report, _serializerOptions));
     }
 
     /// <summary>
@@ -147,8 +146,8 @@ public class ReportController : ControllerBase
     public IActionResult Update(ReportModel model)
     {
         var result = _reportService.UpdateAndSave(model.ToEntity(_serializerOptions));
-        var report = _reportService.FindById(result.Id, true);
-        return new JsonResult(new ReportModel(report!, _serializerOptions));
+        var report = _reportService.FindById(result.Id, true) ?? throw new InvalidOperationException("Report does not exist");
+        return new JsonResult(new ReportModel(report, _serializerOptions));
     }
 
     /// <summary>
@@ -236,11 +235,13 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> Preview(ReportModel model)
     {
-        var subjectTemplateText = model.Settings.GetDictionaryJsonValue<string>("subject") ?? "";
-        var subjectTemplate = _templateEngine.AddOrUpdateTemplateInMemory($"report-{model.Id}-subject", subjectTemplateText);
-        var bodyTemplate = _templateEngine.AddOrUpdateTemplateInMemory($"report-{model.Id}", model.Template);
+        if (model.Template == null) throw new InvalidOperationException("Report template is missing from model");
+        var subjectTemplate = _templateEngine.AddOrUpdateTemplateInMemory($"report-{model.Id}-subject", model.Template?.Subject ?? throw new InvalidOperationException("Report subject template must be provided."));
+        var bodyTemplate = _templateEngine.AddOrUpdateTemplateInMemory($"report-{model.Id}", model.Template?.Body ?? throw new InvalidOperationException("Report body template must be provided."));
 
         var results = await _reportService.FindContentWithElasticsearchAsync(_elasticOptions.PublishedIndex, model.ToEntity(_serializerOptions));
+
+        // Link each result with the section name.
         var sections = model.ParseSections().ToDictionary(s => s.Key, s =>
         {
             results.TryGetValue(s.Key, out SearchResultModel<ContentModel>? value);

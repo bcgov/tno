@@ -170,6 +170,11 @@ public class User : AuditColumns
     /// get - Collection of reports owned by this user.
     /// </summary>
     public virtual List<Report> Reports { get; } = new List<Report>();
+
+    /// <summary>
+    /// get - Collection of report instances owned by this user.
+    /// </summary>
+    public virtual List<ReportInstance> ReportInstances { get; } = new List<ReportInstance>();
     #endregion
 
     #region Constructors
