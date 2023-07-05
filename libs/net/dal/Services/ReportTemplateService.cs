@@ -85,5 +85,15 @@ public class ReportTemplateService : BaseService<ReportTemplate, int>, IReportTe
 
         return base.Update(original);
     }
+
+    /// <summary>
+    /// Determine if this report template is being used by any reports.
+    /// </summary>
+    /// <param name="templateId"></param>
+    /// <returns></returns>
+    public bool IsInUse(int templateId)
+    {
+        return this.Context.Reports.Any(rt => rt.TemplateId == templateId);
+    }
     #endregion
 }

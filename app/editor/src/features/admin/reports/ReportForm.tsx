@@ -9,7 +9,7 @@ import { noop } from 'lodash';
 import moment from 'moment';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
 import { useApp, useLookupOptions } from 'store/hooks';
@@ -71,14 +71,14 @@ export const ReportForm: React.FC = () => {
   ] = useReports();
   const [{ reportTemplates }, { storeReportTemplates }] = useAdminStore();
   const [, { findAllReportTemplates }] = useReportTemplates();
-  const { state } = useLocation();
   const { toggle, isShowing } = useModal();
   const [{ users }, { findUsers }] = useUsers();
   const [{ productOptions }] = useLookupOptions();
 
-  const [report, setReport] = React.useState<IReportModel>(
-    (state as any)?.report ?? { ...defaultReport, ownerId: userInfo?.id ?? 0 },
-  );
+  const [report, setReport] = React.useState<IReportModel>({
+    ...defaultReport,
+    ownerId: userInfo?.id ?? 0,
+  });
   const [filter, setFilter] = React.useState(JSON.stringify(report.filter, null, 2));
   const [sendTo, setSendTo] = React.useState('');
   const [active, setActive] = React.useState('report');
@@ -614,6 +614,8 @@ export const ReportForm: React.FC = () => {
                     await deleteReport(report);
                     toast.success(`${report.name} has successfully been deleted.`);
                     navigate('/admin/reports');
+                  } catch {
+                    // Globally handled
                   } finally {
                     toggle();
                   }

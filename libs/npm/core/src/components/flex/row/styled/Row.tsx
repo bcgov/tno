@@ -2,7 +2,9 @@ import styled from 'styled-components';
 
 import { IRowProps } from '..';
 
-export const Row = styled.div<IRowProps>`
+export const Row = styled.div.attrs<IRowProps>(({ className }) => ({
+  className,
+}))<IRowProps>`
   display: flex;
   width: ${(props) => props.width ?? 'auto'};
   flex-wrap: ${(props) => (props.nowrap ? 'nowrap' : props.wrap ?? 'wrap')};

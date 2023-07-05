@@ -4,6 +4,7 @@ import React from 'react';
 import {
   Button,
   ButtonVariant,
+  Col,
   FieldSize,
   formatDate,
   FormikText,
@@ -12,8 +13,6 @@ import {
   Row,
   Text,
 } from 'tno-core';
-
-import * as styled from './styled';
 
 export interface IIngestStatusProps extends IColProps {}
 
@@ -38,7 +37,7 @@ export const IngestStatus: React.FC<IIngestStatusProps> = (props) => {
   };
 
   return (
-    <styled.IngestStatus {...props}>
+    <Col {...props}>
       <Row justifyContent="center">
         <Text label="Status" name="status" disabled value={getStatus()} />
         <FormikText
@@ -71,6 +70,6 @@ export const IngestStatus: React.FC<IIngestStatusProps> = (props) => {
           </Button>
         </FormikText>
       </Row>
-    </styled.IngestStatus>
+    </Col>
   );
 };

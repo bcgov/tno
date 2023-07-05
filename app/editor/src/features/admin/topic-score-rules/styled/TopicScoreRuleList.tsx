@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 export const TopicScoreRuleList = styled.div`
   width: auto;
+  height: 100%;
   min-height: 100%;
   display: flex;
   justify-content: center;
