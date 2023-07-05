@@ -57,4 +57,14 @@ export const ReportForm = styled(FormPage)`
       overflow-y: auto;
     }
   }
+
+  .enable-options {
+    & .chk {
+      margin-right: 1em;
+    }
+  }
+
+  hr {
+    width: 100%;
+  }
 `;

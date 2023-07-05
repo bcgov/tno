@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useReports } from 'store/hooks/admin';
 import { Col, FlexboxTable, FormPage, IconButton, IReportModel, Row } from 'tno-core';
 
-import { columns } from './constants';
+import { reportColumns } from './constants';
 import { ReportFilter } from './ReportFilter';
 import * as styled from './styled';
 
@@ -60,7 +60,7 @@ export const ReportList: React.FC = () => {
         <FlexboxTable
           rowId="id"
           data={items}
-          columns={columns}
+          columns={reportColumns}
           showSort={true}
           onRowClick={(row) => navigate(`${row.original.id}`)}
           pagingEnabled={false}

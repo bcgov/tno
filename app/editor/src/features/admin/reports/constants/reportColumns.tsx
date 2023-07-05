@@ -1,6 +1,6 @@
 import { CellCheckbox, CellEllipsis, IReportModel, ITableHookColumn } from 'tno-core';
 
-export const columns: ITableHookColumn<IReportModel>[] = [
+export const reportColumns: ITableHookColumn<IReportModel>[] = [
   {
     label: 'Name',
     name: 'name',

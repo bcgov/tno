@@ -19,4 +19,7 @@ export const IngestForm = styled(FormPage)`
   .status {
     padding: 0 1em 0 1em;
   }
+  .tabs {
+    flex: 1;
+  }
 `;

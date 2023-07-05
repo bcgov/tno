@@ -118,6 +118,8 @@ public class ReportTemplateController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult Delete(ReportTemplateModel model)
     {
+        // Do not allow deleting a report template that is used by a report.
+        if (_reportTemplateService.IsInUse(model.Id)) throw new InvalidOperationException("Cannot delete a template in use by a report.");
         _reportTemplateService.DeleteAndSave((ReportTemplate)model);
         return new JsonResult(model);
     }

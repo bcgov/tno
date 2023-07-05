@@ -25,8 +25,9 @@ import {
   ProductForm,
   ProductList,
   ReachEarnedMedia,
+  ReportAdmin,
   ReportForm,
-  ReportList,
+  ReportTemplateForm,
   SeriesForm,
   SeriesList,
   SourceDetails,
@@ -103,8 +104,10 @@ export const AdminRouter: React.FC = () => {
       <Route path="work/orders" element={<WorkOrderList />} />
       <Route path="work/orders/:id" element={<WorkOrderForm />} />
 
-      <Route path="reports" element={<ReportList />} />
+      <Route path="reports" element={<ReportAdmin />} />
       <Route path="reports/:id" element={<ReportForm />} />
+      <Route path="report/templates/:id" element={<ReportTemplateForm />} />
+      <Route path="report/:path" element={<ReportAdmin />} />
 
       <Route path="notifications" element={<NotificationList />} />
       <Route path="notifications/:id" element={<NotificationForm />} />

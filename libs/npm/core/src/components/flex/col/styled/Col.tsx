@@ -2,7 +2,9 @@ import styled from 'styled-components';
 
 import { IColProps } from '..';
 
-export const Col = styled.div<IColProps>`
+export const Col = styled.div.attrs<IColProps>(({ className }) => ({
+  className,
+}))<IColProps>`
   display: flex;
   flex-wrap: ${(props) => (props.nowrap ? 'nowrap' : props.wrap ?? 'wrap')};
   ${(props) => props.direction !== undefined && `flex-direction: ${props.direction};`}
