@@ -534,7 +534,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                                 Section = GetFmsData(entry, Fields.Section, ingest),
                                 Language = ingest.GetConfigurationValue("language"),
 
-                                Tags = GetTagList(entry, ingest),
+                                Labels = GetLabelList(entry, ingest),
                                 Authors = GetAuthorList(GetFmsData(entry, Fields.Author, ingest))
                             };
 
@@ -826,22 +826,22 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     }
 
     /// <summary>
-    /// Get the list of tags for this story. Currently only supported for FMS files.
+    /// Get the list of labels for this story. Currently only supported for FMS files.
     /// </summary>
     /// <param name="filtered"></param>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    private static List<TNO.Kafka.Models.Tag> GetTagList(string filtered, IngestModel ingest)
+    private static List<TNO.Kafka.Models.LabelModel> GetLabelList(string filtered, IngestModel ingest)
     {
         var tags = GetFmsData(filtered, Fields.Tags, ingest);
-        var tagArray = tags.Split(',');
-        var tagList = new List<TNO.Kafka.Models.Tag>();
-        foreach (string tag in tagArray)
+        var labelArray = tags.Split(',');
+        var labelList = new List<TNO.Kafka.Models.LabelModel>();
+        foreach (string tag in labelArray)
         {
-            tagList.Add(new TNO.Kafka.Models.Tag(tag, ""));
+            labelList.Add(new TNO.Kafka.Models.LabelModel(tag, ""));
         }
 
-        return tagList;
+        return labelList;
     }
     #endregion
 }
