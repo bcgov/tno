@@ -1,8 +1,8 @@
 DO $$
 BEGIN
 
-UPDATE public.report SET
-    "template" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.TemplateModel>
+UPDATE public.report_template SET
+    "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.TemplateModel>
 @using System
 @using System.Linq
 @using TNO.Entities
@@ -89,8 +89,8 @@ UPDATE public.report SET
 }'
 WHERE "name" = 'Morning Report';
 
-UPDATE public.report SET
-    "template" = '
+UPDATE public.report_template SET
+    "body" = '
         @using System.Linq
         @inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.TemplateModel>
         @{
