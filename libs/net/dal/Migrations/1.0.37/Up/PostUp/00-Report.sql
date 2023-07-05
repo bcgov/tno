@@ -91,6 +91,7 @@ WHERE "name" = 'Morning Report';
 
 UPDATE public.report_template SET
     "body" = '
+        @using System
         @using System.Linq
         @inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.TemplateModel>
         @{
