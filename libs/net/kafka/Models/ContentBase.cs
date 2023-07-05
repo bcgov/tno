@@ -124,6 +124,10 @@ public abstract class ContentBase
     /// </summary>
     public IEnumerable<LabelModel> Labels { get; set; } = Array.Empty<LabelModel>();
 
+    /// get/set - An array of times to identify how much effort was involved in editing this content.
+    /// </summary>
+    public IEnumerable<TimeTrackingModel> TimeTrackings { get; set; } = Array.Empty<TimeTrackingModel>();
+
     /// <summary>
     /// get/set - An array of topics to associate with this content.
     /// </summary>
