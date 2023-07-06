@@ -302,7 +302,7 @@ public interface IApiService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    Task<Dictionary<string, IEnumerable<API.Areas.Services.Models.Content.ContentModel>>> GetContentForReportInstanceIdAsync(long id);
+    Task<IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>> GetContentForReportInstanceIdAsync(long id);
 
     /// <summary>
     /// Make a request to the API and add a new notification instance.

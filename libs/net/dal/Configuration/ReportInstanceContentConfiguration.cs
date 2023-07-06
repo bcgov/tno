@@ -12,6 +12,7 @@ public class ReportInstanceContentConfiguration : AuditColumnsConfiguration<Repo
         builder.Property(m => m.InstanceId).IsRequired().ValueGeneratedNever();
         builder.Property(m => m.ContentId).IsRequired().ValueGeneratedNever();
         builder.Property(m => m.SectionName).HasMaxLength(100).HasDefaultValueSql("''");
+        builder.Property(m => m.SortOrder).IsRequired();
 
         builder.HasOne(m => m.Instance).WithMany(m => m.ContentManyToMany).HasForeignKey(m => m.InstanceId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.Content).WithMany(m => m.ReportsManyToMany).HasForeignKey(m => m.ContentId).OnDelete(DeleteBehavior.Cascade);

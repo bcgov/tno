@@ -42,6 +42,7 @@ public class ReportController : ControllerBase
 {
     #region Variables
     private readonly IReportService _reportService;
+    private readonly IReportInstanceService _reportInstanceService;
     private readonly IUserService _userService;
     private readonly ITemplateEngine<TemplateModel> _templateEngine;
     private readonly IKafkaMessenger _kafkaProducer;
@@ -56,6 +57,7 @@ public class ReportController : ControllerBase
     /// Creates a new instance of a ReportController object, initializes with specified parameters.
     /// </summary>
     /// <param name="reportService"></param>
+    /// <param name="reportInstanceService"></param>
     /// <param name="userService"></param>
     /// <param name="templateEngine"></param>
     /// <param name="kafkaProducer"></param>
@@ -65,6 +67,7 @@ public class ReportController : ControllerBase
     /// <param name="serializerOptions"></param>
     public ReportController(
         IReportService reportService,
+        IReportInstanceService reportInstanceService,
         IUserService userService,
         ITemplateEngine<TemplateModel> templateEngine,
         IKafkaMessenger kafkaProducer,
@@ -74,6 +77,7 @@ public class ReportController : ControllerBase
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _reportService = reportService;
+        _reportInstanceService = reportInstanceService;
         _userService = userService;
         _templateEngine = templateEngine;
         _kafkaProducer = kafkaProducer;
@@ -86,7 +90,7 @@ public class ReportController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Find a page of content for the specified query filter.
+    /// Find all reports.
     /// </summary>
     /// <returns></returns>
     [HttpGet]
@@ -99,25 +103,41 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
-    /// Find content for the specified 'id'.
+    /// Find report for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
-    /// <param name="includeInstances"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult FindById(int id, bool includeInstances)
+    public IActionResult FindById(int id)
     {
-        var result = _reportService.FindById(id, includeInstances);
+        var result = _reportService.FindById(id);
         if (result == null) return new NoContentResult();
         return new JsonResult(new ReportModel(result, _serializerOptions));
     }
 
     /// <summary>
-    /// Add content for the specified 'id'.
+    /// Find all report instances for the specified report 'id' and 'ownerId'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
+    /// <returns></returns>
+    [HttpGet("{reportId}/instances")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<ReportInstanceModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult FindInstancesForReportId(int reportId, int? ownerId)
+    {
+        var result = _reportInstanceService.FindInstancesForReportId(reportId, ownerId);
+        return new JsonResult(result.Select(ri => new ReportInstanceModel(ri, _serializerOptions)));
+    }
+
+    /// <summary>
+    /// Add report for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -134,7 +154,7 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
-    /// Update content for the specified 'id'.
+    /// Update report for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -146,12 +166,12 @@ public class ReportController : ControllerBase
     public IActionResult Update(ReportModel model)
     {
         var result = _reportService.UpdateAndSave(model.ToEntity(_serializerOptions));
-        var report = _reportService.FindById(result.Id, true) ?? throw new InvalidOperationException("Report does not exist");
+        var report = _reportService.FindById(result.Id) ?? throw new InvalidOperationException("Report does not exist");
         return new JsonResult(new ReportModel(report, _serializerOptions));
     }
 
     /// <summary>
-    /// Delete content for the specified 'id'.
+    /// Delete report for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -244,8 +264,9 @@ public class ReportController : ControllerBase
         // Link each result with the section name.
         var sections = model.ParseSections().ToDictionary(s => s.Key, s =>
         {
-            results.TryGetValue(s.Key, out SearchResultModel<ContentModel>? value);
-            s.Value.Content = value?.Hits.Hits.Select(h => h.Source) ?? Array.Empty<ContentModel>();
+            results.TryGetValue(s.Key, out SearchResultModel<Services.Models.Content.ContentModel>? value);
+            s.Value.Content = value?.Hits.Hits.Select(h => new TNO.TemplateEngine.Models.Reports.ContentModel(h.Source))
+                ?? Array.Empty<TNO.TemplateEngine.Models.Reports.ContentModel>();
             return s.Value;
         });
 

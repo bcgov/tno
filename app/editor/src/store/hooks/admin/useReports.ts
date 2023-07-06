@@ -1,11 +1,17 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
-import { IReportModel, IReportPreviewModel, useApiAdminReports } from 'tno-core';
+import {
+  IReportInstanceModel,
+  IReportModel,
+  IReportPreviewModel,
+  useApiAdminReports,
+} from 'tno-core';
 
 interface IReportController {
   findAllReports: () => Promise<IReportModel[]>;
-  getReport: (id: number, includeInstances: boolean) => Promise<IReportModel>;
+  findInstancesForReportId: (id: number, ownerId?: number) => Promise<IReportInstanceModel[]>;
+  getReport: (id: number) => Promise<IReportModel>;
   addReport: (model: IReportModel) => Promise<IReportModel>;
   updateReport: (model: IReportModel) => Promise<IReportModel>;
   deleteReport: (model: IReportModel) => Promise<IReportModel>;
@@ -29,10 +35,14 @@ export const useReports = (): [IAdminState, IReportController] => {
         store.storeReports(response.data);
         return response.data;
       },
-      getReport: async (id: number, includeInstances: boolean) => {
-        const response = await dispatch<IReportModel>('get-report', () =>
-          api.getReport(id, includeInstances),
+      findInstancesForReportId: async (id: number, ownerId: number | undefined = undefined) => {
+        const response = await dispatch<IReportInstanceModel[]>('get-report-instances', () =>
+          api.findInstancesForReportId(id, ownerId),
         );
+        return response.data;
+      },
+      getReport: async (id: number) => {
+        const response = await dispatch<IReportModel>('get-report', () => api.getReport(id));
         store.storeReports((reports) =>
           reports.map((ds) => {
             if (ds.id === response.data.id) return response.data;

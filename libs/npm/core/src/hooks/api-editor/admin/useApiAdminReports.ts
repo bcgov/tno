@@ -2,7 +2,7 @@ import { AxiosResponse } from 'axios';
 import React from 'react';
 
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IReportModel, IReportPreviewModel, useApi } from '..';
+import { IReportInstanceModel, IReportModel, IReportPreviewModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -22,10 +22,13 @@ export const useApiAdminReports = (
     findAllReports: () => {
       return api.get<IReportModel[], AxiosResponse<IReportModel[]>, any>(`/admin/reports`);
     },
-    getReport: (id: number, includeInstances: boolean) => {
-      return api.get<IReportModel, AxiosResponse<IReportModel>, any>(
-        `/admin/reports/${id}?includeInstances=${includeInstances}`,
+    findInstancesForReportId: (id: number, ownerId: number | undefined = undefined) => {
+      return api.get<IReportInstanceModel[], AxiosResponse<IReportInstanceModel[]>, any>(
+        `/admin/reports/${id}/instances?ownerId=${ownerId ? ownerId : ''}`,
       );
+    },
+    getReport: (id: number) => {
+      return api.get<IReportModel, AxiosResponse<IReportModel>, any>(`/admin/reports/${id}`);
     },
     addReport: (model: IReportModel) => {
       return api.post<IReportModel, AxiosResponse<IReportModel>, any>(`/admin/reports`, model);

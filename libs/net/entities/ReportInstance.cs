@@ -71,62 +71,14 @@ public class ReportInstance : AuditColumns
 
     /// <summary>
     /// Creates a new instance of a ReportInstance object, initializes with specified parameters.
-    /// </summary>
-    /// <param name="report"></param>
-    /// <param name="content"></param>
-    public ReportInstance(Report report, IEnumerable<Content> content)
-    {
-        this.Report = report ?? throw new ArgumentNullException(nameof(report));
-        this.ReportId = report.Id;
-        this.ContentManyToMany.AddRange(content.Select(c => new ReportInstanceContent(0, c.Id)));
-    }
-
-    /// <summary>
-    /// Creates a new instance of a ReportInstance object, initializes with specified parameters.
-    /// </summary>
-    /// <param name="report"></param>
-    /// <param name="owner"></param>
-    /// <param name="content"></param>
-    public ReportInstance(Report report, User owner, IEnumerable<Content> content)
-        : this(report, content)
-    {
-        this.Owner = owner;
-        this.OwnerId = owner?.Id;
-    }
-
-    /// <summary>
-    /// Creates a new instance of a ReportInstance object, initializes with specified parameters.
-    /// </summary>
-    /// <param name="reportId"></param>
-    /// <param name="contentIds"></param>
-    public ReportInstance(int reportId, IEnumerable<long> contentIds)
-    {
-        this.ReportId = reportId;
-        this.ContentManyToMany.AddRange(contentIds.Select(c => new ReportInstanceContent(0, c)));
-    }
-
-    /// <summary>
-    /// Creates a new instance of a ReportInstance object, initializes with specified parameters.
-    /// </summary>
-    /// <param name="reportId"></param>
-    /// <param name="ownerId"></param>
-    /// <param name="contentIds"></param>
-    public ReportInstance(int reportId, int? ownerId, IEnumerable<long> contentIds)
-        : this(reportId, contentIds)
-    {
-        this.OwnerId = ownerId;
-    }
-
-    /// <summary>
-    /// Creates a new instance of a ReportInstance object, initializes with specified parameters.
     /// This constructor provides a way to group content into sections.
     /// </summary>
     /// <param name="reportId"></param>
-    /// <param name="contentIds"></param>
-    public ReportInstance(int reportId, IEnumerable<KeyValuePair<string, long>> contentIds)
+    /// <param name="content"></param>
+    public ReportInstance(int reportId, IEnumerable<ReportInstanceContent> content)
     {
         this.ReportId = reportId;
-        this.ContentManyToMany.AddRange(contentIds.Select(c => new ReportInstanceContent(0, c.Value, c.Key)));
+        this.ContentManyToMany.AddRange(content);
     }
 
     /// <summary>
@@ -135,9 +87,9 @@ public class ReportInstance : AuditColumns
     /// </summary>
     /// <param name="reportId"></param>
     /// <param name="ownerId"></param>
-    /// <param name="contentIds"></param>
-    public ReportInstance(int reportId, int? ownerId, IEnumerable<KeyValuePair<string, long>> contentIds)
-        : this(reportId, contentIds)
+    /// <param name="content"></param>
+    public ReportInstance(int reportId, int? ownerId, IEnumerable<ReportInstanceContent> content)
+        : this(reportId, content)
     {
         this.OwnerId = ownerId;
     }

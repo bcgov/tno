@@ -310,7 +310,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var content = results.ToDictionary(r => r.Key, r =>
         {
             var section = sections[r.Key];
-            section.Content = r.Value.Hits.Hits.Select(h => h.Source);
+            section.Content = r.Value.Hits.Hits.Select(h => new ContentModel(h.Source));
             return section;
         });
 
@@ -318,16 +318,25 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var subject = await GenerateReportSubjectAsync(report, content, request.UpdateCache);
         var body = await GenerateReportBodyAsync(report, content, request.UpdateCache);
 
+        // Save the report instance.
+        // Group content by the section name.
+        var instance = new ReportInstance(report.Id, content.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder))))
+        {
+            OwnerId = request.RequestorId,
+            PublishedOn = DateTime.UtcNow
+        };
+        var instanceModel = await this.Api.AddReportInstanceAsync(new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions))
+            ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+
+        // Send the email.
         var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
 
         // Save the report instance.
         // Group content by the section name.
-        var instance = new ReportInstance(report.Id, content.SelectMany(s => s.Value.Content.Select(c => new KeyValuePair<string, long>(s.Key, c.Id))))
-        {
-            PublishedOn = DateTime.UtcNow,
-            Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions))
-        };
-        await this.Api.AddReportInstanceAsync(new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions));
+        instance.Id = instanceModel.Id;
+        instance.Version = instanceModel.Version ?? 0;
+        instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+        await this.Api.UpdateReportInstanceAsync(new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions));
     }
 
     /// <summary>
@@ -345,10 +354,10 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var report = reportInstance.Report ?? throw new ArgumentException("Report instance must include the report model.");
         var sections = report.ParseSections();
         var results = await this.Api.GetContentForReportInstanceIdAsync(reportInstance.Id);
-        var content = results.ToDictionary(r => r.Key, r =>
+        var content = results.GroupBy(r => r.SectionName).ToDictionary(r => r.Key, r =>
         {
             var section = sections[r.Key];
-            section.Content = r.Value;
+            section.Content = r.Where(ri => ri.Content != null).Select(ri => new ContentModel(ri.Content!, ri.SortOrder));
             return section;
         });
 
@@ -356,6 +365,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var subject = await GenerateReportSubjectAsync(reportInstance.Report, content, request.UpdateCache);
         var body = await GenerateReportBodyAsync(reportInstance.Report, content, request.UpdateCache);
 
+        // Send the email.
         var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
 
         // Update the report instance.

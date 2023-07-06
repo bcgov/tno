@@ -27,7 +27,7 @@ namespace TNO.API.Areas.Services.Controllers;
 public class ReportInstanceController : ControllerBase
 {
     #region Variables
-    private readonly IReportInstanceService _service;
+    private readonly IReportInstanceService _reportInstanceService;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -35,11 +35,11 @@ public class ReportInstanceController : ControllerBase
     /// <summary>
     /// Creates a new instance of a ReportInstanceController object, initializes with specified parameters.
     /// </summary>
-    /// <param name="service"></param>
+    /// <param name="reportInstanceService"></param>
     /// <param name="serializerOptions"></param>
-    public ReportInstanceController(IReportInstanceService service, IOptions<JsonSerializerOptions> serializerOptions)
+    public ReportInstanceController(IReportInstanceService reportInstanceService, IOptions<JsonSerializerOptions> serializerOptions)
     {
-        _service = service;
+        _reportInstanceService = reportInstanceService;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -57,7 +57,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult FindById(long id)
     {
-        var result = _service.FindById(id);
+        var result = _reportInstanceService.FindById(id);
 
         if (result == null) return new NoContentResult();
         return new JsonResult(new ReportInstanceModel(result, _serializerOptions));
@@ -75,7 +75,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult Add(ReportInstanceModel model)
     {
-        var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
+        var result = _reportInstanceService.AddAndSave(model.ToEntity(_serializerOptions));
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportInstanceModel(result, _serializerOptions));
     }
 
@@ -91,30 +91,25 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult Update(ReportInstanceModel model)
     {
-        var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions));
+        var result = _reportInstanceService.UpdateAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(new ReportInstanceModel(result, _serializerOptions));
     }
 
     /// <summary>
-    /// Make a request to Elasticsearch for content that matches the specified report 'id' filter.
+    /// Make a request to the database for all content assigned to the specified report instance 'id'.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet("{id}/content")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(Dictionary<string, IEnumerable<Models.Content.ContentModel>>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<ReportInstanceContentModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult GetContentForReportInstanceIdAsync(int id)
+    public IActionResult GetContentForReportInstanceIdAsync(long id)
     {
-        var instance = _service.FindById(id);
+        var instance = _reportInstanceService.FindById(id);
         if (instance == null) return new BadRequestResult();
-        return new JsonResult(
-            instance.ContentManyToMany
-                .GroupBy(c => c.SectionName ?? "")
-                    .ToDictionary(
-                        c => c.Key ?? "",
-                        c => c.Where(c => c.Content != null).Select(c => new Models.Content.ContentModel(c.Content!))));
+        return new JsonResult(instance.ContentManyToMany.Select(c => new ReportInstanceContentModel(c)));
     }
     #endregion
 }
