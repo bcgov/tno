@@ -1,4 +1,7 @@
-FROM node:18-bullseye AS build
+FROM node:18-bullseye
+
+RUN apt-get update && apt-get install -qq -y --no-install-recommends \
+  nano build-essential libpq-dev yarn
 
 WORKDIR /usr/app
 COPY .yarn ./.yarn
@@ -10,13 +13,7 @@ RUN yarn
 COPY . .
 RUN yarn run build
 
-FROM node:18-bullseye AS final
-
-WORKDIR /usr/app
-COPY --from=build /usr/app/node_modules ./node_modules
-COPY --from=build /usr/app/build/ .
-
 EXPOSE 8080
 
-CMD ["node", "dist/server.js"]
+CMD ["yarn", "start:dev"]
 # ENTRYPOINT ["tail", "-f", "/dev/null"]

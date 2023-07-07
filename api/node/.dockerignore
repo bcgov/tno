@@ -2,10 +2,11 @@
 ./log
 ./tmp
 .git
-*Dockerfile*
+Dockerfile*
 *docker-compose*
 dist/
 build/
 node_modules/
 .vscode/
 .devcontainer
+.yarn/cache

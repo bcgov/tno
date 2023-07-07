@@ -1,0 +1,30 @@
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: charts-api
+  namespace: default
+  annotations:
+    description: Route for charts-api application.
+  labels:
+    name: charts-api
+    part-of: tno
+    version: 1.0.0
+    component: charts-api
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  host: tno-charts-api-dev.apps.silver.devops.gov.bc.ca
+  path: ""
+  port:
+    targetPort: 8080-tcp
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+    # caCertificate: ""
+    # certificate: ""
+    # key: ""
+  to:
+    kind: Service
+    name: charts-api
+    weight: 100
