@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using TNO.API.Areas.Editor.Models.Lookup;
 using TNO.API.Areas.Editor.Models.Product;
 using TNO.API.Areas.Editor.Models.Source;
+using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Services.ContentMigration.Config;
@@ -40,36 +41,34 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
     /// <param name="product"></param>
     /// <param name="contentType"></param>
     /// <param name="newsItem"></param>
-    /// <param name="referenceUid"></param>
     /// <returns></returns>
-    public override SourceContent? CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string referenceUid)
+    public override SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem)
     {
         // var authors = GetAuthors(lookups.Contributors)
-        DateTime publishedOn = newsItem.GetPublishedDateTime();
 
-        var newsItemTitle = newsItem.Title != null ? WebUtility.HtmlDecode(newsItem.Title) : string.Empty;
+        // KGM: Would be nice to do this, but I don't think we could map a clip back to a schedule so there may be duplicates here
+        // var referenceUid = $"{schedule.Name}:{schedule.Id}-{publishedOn:yyyy-MM-dd-hh-mm-ss}";
+        var publishedOn = newsItem.GetPublishedDateTime().ToUniversalTime();
 
         var content = new SourceContent(
             this.Options.DataLocation,
             source.Code,
             contentType,
             product.Id,
-            referenceUid,
-            newsItemTitle,
+            GetContentHash(source.Code, newsItem.GetTitle(), publishedOn),
+            newsItem.GetTitle(),
             newsItem.Summary! ?? string.Empty,
             newsItem.Transcript ?? string.Empty,
-            publishedOn.ToUniversalTime(),
+            publishedOn,
             newsItem.Published)
         {
-            // StreamUrl = ingest.GetConfigurationValue("url"),
             FilePath = newsItem.FilePath ?? string.Empty,
-            // FilePath = (ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "")
-            //     .CombineWith($"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}/", reference.Uid),
             Language = "", // TODO: Need to extract this from the ingest, or determine it after transcription.
         };
 
-        if (string.IsNullOrEmpty(this.Options.DefaultUserNameForAudit)) throw new ConfigurationException("Default Username for ContentMigration has not been configured");
+        if (string.IsNullOrEmpty(this.Options.DefaultUserNameForAudit)) throw new System.Configuration.ConfigurationErrorsException("Default Username for ContentMigration has not been configured");
         var auditUser = lookups.Users.FirstOrDefault(u => u.Username == this.Options.DefaultUserNameForAudit);
+        if (auditUser == null) throw new System.Configuration.ConfigurationErrorsException($"Default User for ContentMigration not found : {this.Options.DefaultUserNameForAudit}");
 
         // newsItem.string5 & newsItem.string5 seem to be the "Show/Program"
 

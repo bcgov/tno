@@ -16,6 +16,7 @@ using TNO.Services.Actions;
 using TNO.Services.Syndication.Config;
 using TNO.Services.Syndication.Xml;
 using HtmlAgilityPack;
+using TNO.Core.Extensions;
 
 namespace TNO.Services.Syndication;
 
@@ -86,16 +87,16 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 var link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri;
                 if (String.IsNullOrWhiteSpace(item.Id)) item.Id = link?.ToString() ?? throw new InvalidOperationException("Feed item requires a valid 'Id' or 'Link'.");
 
+                var sourceContent = CreateSourceContent(manager.Ingest, item);
+
                 // Fetch content reference.
-                var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, item.Id);
+                var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, sourceContent.Uid);
                 if (reference == null)
                 {
-                    reference = await AddContentReferenceAsync(manager.Ingest, item);
+                    reference = await AddContentReferenceAsync(manager.Ingest, item, sourceContent);
                     await FetchContent(manager.Ingest, item, link);
-                }
-                else if ((reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddHours(1) < DateTime.UtcNow) ||
-                        (reference.Status != (int)WorkflowStatus.InProgress &&
-                         reference.Status != (int)WorkflowStatus.Received
+                } else if ((reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddHours(1) < DateTime.UtcNow) ||
+                        (!reference.Status.In((int)WorkflowStatus.InProgress, (int)WorkflowStatus.Received)
                             && item.PublishDate.UtcDateTime != DateTime.MinValue
                             && (reference.PublishedOn != item.PublishDate.UtcDateTime
                                 || (item.LastUpdatedTime.UtcDateTime != DateTime.MinValue
@@ -112,7 +113,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 }
                 else continue;
 
-                await ContentReceivedAsync(manager, reference, item);
+                await ContentReceivedAsync(manager, reference, item, sourceContent);
             }
             catch (Exception ex)
             {
@@ -220,35 +221,6 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     }
 
     /// <summary>
-    /// Takes a CP News article and extracts the published date/time.
-    /// If no date is found it will default to now.  This isn't ideal, but it's better than a min date.
-    /// </summary>
-    /// <param name="content"></param>
-    /// <param name="ingest"></param>
-    /// <returns>A DateTime object representing the published date/time for the article</returns>
-    private static DateTime GetPubDateTime(string content, IngestModel ingest)
-    {
-        var matches = Regex.Matches(content, "<DATE>(.+?)</DATE>");
-        if (matches.Any())
-        {
-            var pubDate = matches[0].Groups[1].Value;
-            var comps = pubDate.Split(' ');
-            if (comps.Length == 3)
-            {
-                var timeZoneStr = ingest.GetConfigurationValue("timeZone");
-                var timeZone = !string.IsNullOrEmpty(timeZoneStr) ?
-                    TimeZoneInfo.FindSystemTimeZoneById(timeZoneStr) :
-                    TimeZoneInfo.Local;
-                var offset = timeZone.GetUtcOffset(DateTime.Now).Hours; // Handles daylight saving time
-                var dateStr = $"{comps[1]} {comps[0]} {DateTime.Now.Year} {comps[2]} {offset}";
-                return DateTime.ParseExact(dateStr, "dd MMM yyyy HH:mm z", CultureInfo.InvariantCulture);
-            }
-        }
-
-        return DateTime.UtcNow;
-    }
-
-    /// <summary>
     /// Create a SourceContent object that can be sent to Kafka.
     /// </summary>
     /// <param name="ingest"></param>
@@ -259,23 +231,27 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         var (title, summary, body) = HandleInvalidEncoding(item);
         var source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
+        var uid = GetContentHash(source, title, item.PublishDate.UtcDateTime);
+        var publishedOn = item.PublishDate.UtcDateTime != DateTime.MinValue ? item.PublishDate.UtcDateTime : DateTime.UtcNow;
+
         return new SourceContent(
             this.Options.DataLocation,
             source,
             contentType,
             ingest.ProductId,
-            item.Id,
+            uid,
             title,
             summary,
             body,
-            item.PublishDate.UtcDateTime)
+            publishedOn)
         {
             Link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri.ToString() ?? "",
             Copyright = item.Copyright?.Text ?? "",
             Language = "", // TODO: Need to extract this from the ingest, or determine it after transcription.
             Authors = item.Authors.Select(a => new Author(a.Name, a.Email, a.Uri)),
             UpdatedOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null,
-            Labels = item.Categories.Select(c => new LabelModel(c.Name, c.Label))
+            Labels = item.Categories.Select(c => new LabelModel(c.Name, c.Label)),
+            ExternalUid = item.Id
         };
     }
 
@@ -313,19 +289,32 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// </summary>
     /// <param name="ingest"></param>
     /// <param name="item"></param>
+    /// <param name="sourceContent"></param>
     /// <returns></returns>
-    private async Task<ContentReferenceModel?> AddContentReferenceAsync(IngestModel ingest, SyndicationItem item)
+    private async Task<ContentReferenceModel?> AddContentReferenceAsync(IngestModel ingest, SyndicationItem item, SourceContent sourceContent)
     {
         // Add a content reference record.
-        return await this.Api.AddContentReferenceAsync(new ContentReferenceModel()
+        return await this.Api.AddContentReferenceAsync(CreateContentReference(ingest, item, sourceContent));
+    }
+
+    /// <summary>
+    /// Creates a ContentReferenceModel for a syndication item
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <param name="item"></param>
+    /// <param name="sourceContent"></param>
+    /// <returns></returns>
+    private static ContentReferenceModel CreateContentReference(IngestModel ingest, SyndicationItem item, SourceContent sourceContent) {
+
+        return new ContentReferenceModel()
         {
-            Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code."),
-            Uid = item.Id,
+            Source = sourceContent.Source,
+            Uid = sourceContent.Uid,
             Topic = ingest.Topic,
             Status = (int)WorkflowStatus.InProgress,
-            PublishedOn = item.PublishDate.UtcDateTime != DateTime.MinValue ? item.PublishDate.UtcDateTime : null,
+            PublishedOn = sourceContent.PublishedOn,
             SourceUpdateOn = item.LastUpdatedTime.UtcDateTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null,
-        });
+        };
     }
 
     /// <summary>
@@ -347,14 +336,15 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <param name="manager"></param>
     /// <param name="reference"></param>
     /// <param name="item"></param>
+    /// <param name="sourceContent"></param>
     /// <returns></returns>
-    private async Task<ContentReferenceModel?> ContentReceivedAsync(IIngestServiceActionManager manager, ContentReferenceModel? reference, SyndicationItem item)
+    private async Task<ContentReferenceModel?> ContentReceivedAsync(IIngestServiceActionManager manager, ContentReferenceModel? reference, SyndicationItem item, SourceContent sourceContent)
     {
         if (reference != null)
         {
             reference.PublishedOn = item.PublishDate.UtcDateTime != DateTime.MinValue ? item.PublishDate.UtcDateTime : null;
             reference.SourceUpdateOn = item.LastUpdatedTime.UtcDateTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null;
-            return await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, item));
+            return await ContentReceivedAsync(manager, reference, sourceContent);
         }
         return reference;
     }

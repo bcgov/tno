@@ -114,10 +114,16 @@ public class Content : AuditColumns
     public string Byline { get; set; } = "";
 
     /// <summary>
-    /// get/set - Unique identifier from the source if possible.
+    /// get/set - Unique identifier within MMIA based on a hash of values.
     /// </summary>
     [Column("uid")]
     public string Uid { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Unique identifier from the external source if provided.
+    /// </summary>
+    [Column("external_uid")]
+    public string ExternalUid { get; set; } = "";
 
     /// <summary>
     /// get/set - The print content edition.

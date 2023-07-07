@@ -91,10 +91,11 @@ public class ImageAction : IngestAction<ImageOptions>
 
             foreach (var file in files)
             {
-                var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, file.Name);
+                var newReference =  CreateContentReference(manager.Ingest, file.Name);
+                var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, newReference.Uid);
                 if (reference == null)
                 {
-                    reference = await this.Api.AddContentReferenceAsync(CreateContentReference(manager.Ingest, file.Name));
+                    reference = await this.Api.AddContentReferenceAsync(newReference);
                 }
                 else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
                 {
@@ -231,11 +232,13 @@ public class ImageAction : IngestAction<ImageOptions>
         else
             publishedOn = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, today.Kind);
 
+        publishedOn = this.ToTimeZone(publishedOn, ingest).ToUniversalTime();
+
         return new ContentReferenceModel()
         {
             Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code."),
-            Uid = $"{filename}",
-            PublishedOn = this.ToTimeZone(publishedOn, ingest).ToUniversalTime(),
+            Uid = GetContentHash(ingest.Source.Code, filename, publishedOn),
+            PublishedOn = publishedOn,
             Topic = ingest.Topic,
             Status = (int)WorkflowStatus.InProgress
         };

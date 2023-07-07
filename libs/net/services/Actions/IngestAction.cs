@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Text;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Extensions;
@@ -165,6 +167,16 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     protected DateTime GetDateTimeForTimeZone(IngestModel ingest, DateTime date)
     {
         return date.ToTimeZone(IngestActionManager<TOptions>.GetTimeZone(ingest, this.Options.TimeZone));
+    }
+
+    protected string GetContentHash(string source, string headline, DateTime? publishedOn)
+    {
+        string hashInput = publishedOn.HasValue
+            ? $"{source}:{headline}:{publishedOn:yyyy-MM-dd-hh-mm-ss}"
+            : $"{source}:{headline}";
+        var inputBytes = Encoding.UTF8.GetBytes(hashInput);
+        var inputHash = SHA256.HashData(inputBytes);
+        return Convert.ToHexString(inputHash);
     }
     #endregion
 }

@@ -43,7 +43,7 @@ public interface IContentMigrator
     ProductModel? GetProductMapping(IEnumerable<ProductModel> lookup, string newsItemType);
 
     /// <summary>
-    /// Creates an Clip ContentReferenceModel from a NewsItem
+    /// Creates an ContentReferenceModel from a NewsItem
     /// </summary>
     /// <param name="source"></param>
     /// <param name="topic"></param>
@@ -60,9 +60,9 @@ public interface IContentMigrator
     /// <param name="product"></param>
     /// <param name="contentType"></param>
     /// <param name="newsItem"></param>
-    /// <param name="referenceUid"></param>
     /// <returns></returns>
-    SourceContent? CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string referenceUid);
+    SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem);
+
 
     /// <summary>
     /// Copies a file from the TNO store to a location where it can be picked up by MMIA Content service

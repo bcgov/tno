@@ -137,7 +137,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 await items.ForEachAsync(async newsItem =>
                 {
                     await MigrateNewsItemAsync(manager, contentMigrator, lookups, newsItem);
-                    creationDateOfLastImport = newsItem.GetPublishedDateTime();
+                    creationDateOfLastImport = newsItem.GetPublishedDateTime();  // Don't convert to UTC as this compares back to a timestamp in the Oracle DB
                 });
                 await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport!.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
                 skip += countOfRecordsRetrieved;
@@ -195,25 +195,13 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 return;
             }
 
-            // KGM: does uid exist for all newsItem types in old system and does this correlate to new system?
-            // KGM: for soft-launch - how do we avoid duplication if MMIA is ingest from source *AND* historic?
-            var uid = newsItem.WebPath ?? $"{newsItem.RSN}";
-            var reference = await this.FindContentReferenceAsync(source?.Code, uid);
+            var sourceContent = contentMigrator.CreateSourceContent(lookups, source!, product, manager.Ingest.IngestType!.ContentType, newsItem);
+
+            var reference = await this.FindContentReferenceAsync(source?.Code, sourceContent.Uid);
             if (reference == null)
             {
-                reference = await this.Api.AddContentReferenceAsync(contentMigrator.CreateContentReference(source!, manager.Ingest.Topic, newsItem, uid));
+                reference = await this.Api.AddContentReferenceAsync(contentMigrator.CreateContentReference(source!, manager.Ingest.Topic, newsItem, sourceContent.Uid));
                 Logger.LogInformation("Migrating content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
-            }
-            else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
-            {
-                // If another process has it in progress only attempt to do an Migration if it's
-                // more than an 5 minutes old. Assumption is that it is stuck.
-                reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
-                Logger.LogInformation("Updating migrated content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
-            }
-
-            if (reference != null)
-            {
                 try {
                     if (newsItem.FilePath != null) {
                         string contentStagingFolderName = GetOutputPathPrefix(manager.Ingest);
@@ -225,12 +213,19 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                     Logger.LogWarning("Migration source file content for RSN:{RSN} Path:{filePath} is missing", newsItem.RSN, newsItem.FilePath);
                 }
 
-                await ContentReceivedAsync(manager, reference, contentMigrator.CreateSourceContent(lookups,
-                                                                                   source!,
-                                                                                   product,
-                                                                                   manager.Ingest.IngestType!.ContentType,
-                                                                                   newsItem,
-                                                                                   reference.Uid));
+                await ContentReceivedAsync(manager, reference, sourceContent);
+            }
+            else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
+            {
+                // If another process has it in progress only attempt to do an Migration if it's
+                // more than an 5 minutes old. Assumption is that it is stuck.
+                reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
+                Logger.LogInformation("Updating migrated content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
+            }
+            else
+            {
+                // KGM - Found a ContentReference, but we are not stuck. Just skip???
+                Logger.LogInformation("Item is pre-existing - skipping : {RSN}:{Title}", newsItem.RSN, newsItem.Title);
             }
         }
         catch (Exception ex)
