@@ -2,6 +2,7 @@ import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import React from 'react';
 import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
+import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import {
   IActionModel,
   IAlertModel,
@@ -29,6 +30,7 @@ import {
   storeAdminIngests,
   storeAdminIngestTypes,
   storeAdminLicenses,
+  storeAdminMinisters,
   storeAdminProducts,
   storeAdminSeries,
   storeAdminSources,
@@ -62,6 +64,7 @@ export interface IAdminStore {
   storeSeries: (series: ISeriesModel[]) => void;
   storeWorkOrderFilter: (filter: IWorkOrderListFilter) => void;
   storeWorkOrders: (users: IPaged<IWorkOrderModel>) => void;
+  storeMinisters: (ministers: IMinisterModel[]) => void;
 }
 
 export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] => {
@@ -110,6 +113,9 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       },
       storeTags: (tags: ITagModel[]) => {
         dispatch(storeAdminTags(tags));
+      },
+      storeMinisters: (ministers: IMinisterModel[]) => {
+        dispatch(storeAdminMinisters(ministers));
       },
       storeActions: (actions: IActionModel[]) => {
         dispatch(storeAdminActions(actions));

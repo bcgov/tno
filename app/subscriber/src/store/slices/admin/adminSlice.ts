@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
+import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import {
   IActionModel,
   IAlertModel,
@@ -25,6 +26,7 @@ import { IAdminState } from './interfaces';
 export const initialAdminState: IAdminState = {
   sources: [],
   connections: [],
+  ministers: [],
   dataLocations: [],
   products: [],
   ingests: [],
@@ -93,6 +95,9 @@ export const adminSlice = createSlice({
     storeTags(state: IAdminState, action: PayloadAction<ITagModel[]>) {
       state.tags = action.payload;
     },
+    storeMinisters(state: IAdminState, action: PayloadAction<IMinisterModel[]>) {
+      state.ministers = action.payload;
+    },
     storeActions(state: IAdminState, action: PayloadAction<IActionModel[]>) {
       state.actions = action.payload;
     },
@@ -125,6 +130,7 @@ export const {
   storeTopics: storeAdminTopics,
   storeTopicScoreRules: storeAdminTopicScoreRules,
   storeTags: storeAdminTags,
+  storeMinisters: storeAdminMinisters,
   storeActions: storeAdminActions,
   storeSeries: storeAdminSeries,
   storeWorkOrderFilter: storeAdminWorkOrderFilter,
