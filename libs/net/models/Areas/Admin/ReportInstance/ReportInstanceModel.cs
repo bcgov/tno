@@ -20,6 +20,11 @@ public class ReportInstanceModel : AuditColumnsModel
     public int ReportId { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to the owner of this report instance.
+    /// </summary>
+    public int? OwnerId { get; set; }
+
+    /// <summary>
     /// get/set - The date and time the report was published on.
     /// </summary>
     public DateTime? PublishedOn { get; set; }
@@ -75,7 +80,7 @@ public class ReportInstanceModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.ReportInstance(ReportInstanceModel model)
     {
-        var entity = new Entities.ReportInstance(model.ReportId, model.Content.Select(c => new KeyValuePair<string, long>(c.SectionName, c.ContentId)))
+        var entity = new Entities.ReportInstance(model.ReportId, model.Content.Select(c => (Entities.ReportInstanceContent)c))
         {
             Id = model.Id,
             PublishedOn = model.PublishedOn,

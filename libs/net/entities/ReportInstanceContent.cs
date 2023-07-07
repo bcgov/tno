@@ -7,7 +7,7 @@ namespace TNO.Entities;
 /// ReportInstanceContent class, provides a DB model to associate content with a instance of a report.
 /// </summary>
 [Table("report_instance_content")]
-public class ReportInstanceContent : AuditColumns
+public class ReportInstanceContent : AuditColumns, IEquatable<ReportInstanceContent>
 {
     #region Properties
     /// <summary>
@@ -39,6 +39,12 @@ public class ReportInstanceContent : AuditColumns
     /// </summary>
     [Column("section_name")]
     public string? SectionName { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The order the content is returned.
+    /// </summary>
+    [Column("sort_order")]
+    public int SortOrder { get; set; }
     #endregion
 
     #region Constructors
@@ -53,14 +59,16 @@ public class ReportInstanceContent : AuditColumns
     /// <param name="instance"></param>
     /// <param name="content"></param>
     /// <param name="section"></param>
+    /// <param name="sortOrder"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ReportInstanceContent(ReportInstance instance, Content content, string section = "")
+    public ReportInstanceContent(ReportInstance instance, Content content, string section = "", int sortOrder = 0)
     {
         this.Instance = instance ?? throw new ArgumentNullException(nameof(instance));
         this.InstanceId = instance.Id;
         this.Content = content ?? throw new ArgumentNullException(nameof(content));
         this.ContentId = content.Id;
         this.SectionName = section;
+        this.SortOrder = sortOrder;
     }
 
     /// <summary>
@@ -69,12 +77,27 @@ public class ReportInstanceContent : AuditColumns
     /// <param name="instanceId"></param>
     /// <param name="contentId"></param>
     /// <param name="section"></param>
+    /// <param name="sortOrder"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ReportInstanceContent(long instanceId, long contentId, string section = "")
+    public ReportInstanceContent(long instanceId, long contentId, string section = "", int sortOrder = 0)
     {
         this.InstanceId = instanceId;
         this.ContentId = contentId;
         this.SectionName = section;
+        this.SortOrder = sortOrder;
     }
+    #endregion
+
+    #region Methods
+    public bool Equals(ReportInstanceContent? other)
+    {
+        if (other == null) return false;
+        return this.InstanceId == other.InstanceId
+            && this.ContentId == other.ContentId
+            && this.SectionName == other.SectionName;
+    }
+
+    public override bool Equals(object? obj) => Equals(obj as ContentAction);
+    public override int GetHashCode() => (this.InstanceId, this.ContentId, this.SectionName).GetHashCode();
     #endregion
 }

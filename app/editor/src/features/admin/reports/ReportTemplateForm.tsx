@@ -115,10 +115,6 @@ export const ReportTemplateForm: React.FC = () => {
                 <Col className="form-inputs">
                   <FormikText name="name" label="Name" />
                   <FormikTextArea name="description" label="Description" />
-                  <p>
-                    A filtered report will make a request for content each time it runs. A custom
-                    report is populated manually be the user.
-                  </p>
                   <Row gap="1em">
                     <FormikCheckbox label="Is Enabled" name="isEnabled" />
                     <FormikText
@@ -134,7 +130,8 @@ export const ReportTemplateForm: React.FC = () => {
                       <p>
                         Enable the following options to provide sections, summaries, and charts.
                         These are used to control which options are available to users when they are
-                        configuring their report.
+                        configuring their report. Only enable the options that are implemented in
+                        the template.
                       </p>
                       <Row className="enable-options">
                         <FormikCheckbox label="Enable Sections" name="enableSections" />

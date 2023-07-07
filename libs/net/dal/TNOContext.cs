@@ -67,7 +67,7 @@ public class TNOContext : DbContext
     public DbSet<ReportTemplateChartTemplate> ReportTemplateChartTemplates => Set<ReportTemplateChartTemplate>();
     public DbSet<Report> Reports => Set<Report>();
     public DbSet<ReportInstance> ReportInstances => Set<ReportInstance>();
-    public DbSet<ReportInstanceContent> ReportInstanceContent => Set<ReportInstanceContent>();
+    public DbSet<ReportInstanceContent> ReportInstanceContents => Set<ReportInstanceContent>();
     public DbSet<UserReport> UserReports => Set<UserReport>();
     #endregion
 

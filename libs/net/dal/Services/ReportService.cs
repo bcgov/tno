@@ -56,23 +56,6 @@ public class ReportService : BaseService<Report, int>, IReportService
     }
 
     /// <summary>
-    /// Find the report for the specified 'id'.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="includeInstances"></param>
-    /// <returns></returns>
-    public Report? FindById(int id, bool includeInstances)
-    {
-        var query = this.Context.Reports
-            .Include(r => r.Owner)
-            .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
-            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
-            .AsQueryable();
-        if (includeInstances) query = query.Include(r => r.Instances);
-        return query.FirstOrDefault(n => n.Id == id);
-    }
-
-    /// <summary>
     /// Add the new report to the database.
     /// Add subscribers to the report.
     /// </summary>
@@ -210,8 +193,8 @@ public class ReportService : BaseService<Report, int>, IReportService
                 if (!String.IsNullOrEmpty(name))
                 {
                     var filterElement = jElement.GetProperty("filter");
-                    var section = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, filterElement);
-                    results.Add(name, section);
+                    var content = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, filterElement);
+                    results.Add(name, content);
                 }
             }
         }

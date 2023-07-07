@@ -612,10 +612,11 @@ public class ApiService : IApiService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<Dictionary<string, IEnumerable<API.Areas.Services.Models.Content.ContentModel>>> GetContentForReportInstanceIdAsync(long id)
+    public async Task<IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>> GetContentForReportInstanceIdAsync(long id)
     {
         var url = this.Options.ApiUrl.Append($"services/report/instances/{id}/content");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<Dictionary<string, IEnumerable<API.Areas.Services.Models.Content.ContentModel>>>(url)) ?? new Dictionary<string, IEnumerable<API.Areas.Services.Models.Content.ContentModel>>();
+        return await RetryRequestAsync(async () => await this.Client.GetAsync<IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>>(url))
+            ?? Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>();
     }
 
     /// <summary>
