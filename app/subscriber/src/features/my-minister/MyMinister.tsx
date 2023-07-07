@@ -45,7 +45,6 @@ export const MyMinister: React.FC = () => {
           }),
         );
         // don't want to keyword fetch when there is nothing to fetch
-        // setHomeItems(data.items);
         return new Page(data.page - 1, data.quantity, data?.items, data.total);
       } catch (error) {
         // TODO: Handle error
@@ -74,7 +73,7 @@ export const MyMinister: React.FC = () => {
       ...filterAdvanced,
       keyword: aliases.toString(),
     }).then((data) => {
-      setHomeItems(data.items);
+      setHomeItems(!!aliases.length ? data.items : []);
     });
   }, [filter, filterAdvanced, fetch, aliases]);
   return (
