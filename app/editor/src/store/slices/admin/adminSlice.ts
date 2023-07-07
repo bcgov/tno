@@ -3,6 +3,7 @@ import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import {
   IActionModel,
+  IChartTemplateModel,
   IConnectionModel,
   IContributorModel,
   IDataLocationModel,
@@ -58,6 +59,7 @@ export const initialAdminState: IAdminState = {
   workOrders: { page: 1, quantity: 10, items: [], total: 0 },
   reports: [],
   reportTemplates: [],
+  chartTemplates: [],
   notifications: [],
 };
 
@@ -125,6 +127,9 @@ export const adminSlice = createSlice({
     storeReportTemplates(state: IAdminState, action: PayloadAction<IReportTemplateModel[]>) {
       state.reportTemplates = action.payload;
     },
+    storeChartTemplates(state: IAdminState, action: PayloadAction<IChartTemplateModel[]>) {
+      state.chartTemplates = action.payload;
+    },
     storeNotifications(state: IAdminState, action: PayloadAction<INotificationModel[]>) {
       state.notifications = action.payload;
     },
@@ -152,5 +157,6 @@ export const {
   storeWorkOrders: storeAdminWorkOrders,
   storeReports: storeAdminReports,
   storeReportTemplates: storeAdminReportTemplates,
+  storeChartTemplates: storeAdminChartTemplates,
   storeNotifications: storeAdminNotifications,
 } = adminSlice.actions;

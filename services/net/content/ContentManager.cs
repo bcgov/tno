@@ -1,7 +1,6 @@
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.API.Areas.Services.Models.Content;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Models.Extensions;
@@ -10,9 +9,10 @@ using TNO.Services.Content.Config;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
-using TNO.API.Areas.Services.Models.DataLocation;
 using Renci.SshNet;
 using Renci.SshNet.Common;
+using TNO.API.Areas.Services.Models.Content;
+using TNO.API.Areas.Services.Models.DataLocation;
 
 namespace TNO.Services.Content;
 
@@ -267,31 +267,39 @@ public class ContentManager : ServiceManager<ContentOptions>
                 Byline = string.Join(",", model.Authors.Select(a => a.Name[0..Math.Min(a.Name.Length, 200)])) // TODO: Temporary workaround to deal with regression issue in Syndication Service.
             };
 
-            if (model.Actions.Any()) {
+            if (model.Actions.Any())
+            {
                 IEnumerable<ContentActionModel> mappedContentActionModels = GetActionMappings(actions!, model.Actions);
-                if (mappedContentActionModels.Any()) {
+                if (mappedContentActionModels.Any())
+                {
                     content.Actions = mappedContentActionModels.ToArray();
                 }
             }
 
-            if (model.Labels.Any()) {
+            if (model.Labels.Any())
+            {
                 content.Labels = model.Labels.Select(c => new ContentLabelModel(c.Key, c.Value));
             }
 
-            if (model.Tags.Any()) {
+            if (model.Tags.Any())
+            {
                 var mappedContentTagModels = new List<ContentTagModel>();
-                foreach (var tag in model.Tags)   {
+                foreach (var tag in model.Tags)
+                {
                     var mapping = GetTagMapping(tags!, tag.Key, tag.Value);
-                    if (mapping != null) {
+                    if (mapping != null)
+                    {
                         mappedContentTagModels.Add(mapping);
                     }
                 }
-                if (mappedContentTagModels.Any()) {
+                if (mappedContentTagModels.Any())
+                {
                     content.Tags = mappedContentTagModels.ToArray();
                 }
             }
 
-            if (model.TonePools.Any()) {
+            if (model.TonePools.Any())
+            {
                 var mappedTonePools = new List<ContentTonePoolModel>();
                 foreach (var tonePool in model.TonePools)
                 {
@@ -307,7 +315,8 @@ public class ContentManager : ServiceManager<ContentOptions>
                 }
             }
 
-            if (model.Topics.Any()) {
+            if (model.Topics.Any())
+            {
                 var mappedContentTopicModels = new List<ContentTopicModel>();
                 foreach (var topic in model.Topics)
                 {
@@ -323,8 +332,9 @@ public class ContentManager : ServiceManager<ContentOptions>
                 }
             }
 
-            if (model.TimeTrackings.Any()) {
-                content.TimeTrackings = model.TimeTrackings.Select(t => new ContentTimeTrackingModel(t.UserId, t.Effort, t.Activity)).ToArray();
+            if (model.TimeTrackings.Any())
+            {
+                content.TimeTrackings = model.TimeTrackings.Select(t => new API.Areas.Services.Models.Content.TimeTrackingModel(t.UserId, t.Effort, t.Activity)).ToArray();
             }
 
             content = await this.Api.AddContentAsync(content) ?? throw new InvalidOperationException($"Adding content failed {content.OtherSource}:{content.Uid}");
@@ -552,7 +562,8 @@ public class ContentManager : ServiceManager<ContentOptions>
             Score = 0 // TODO: dig score out of TNO 1.0
         };
         var topic = topicsLookup.Where(s => s.Name.Equals(topicName, StringComparison.InvariantCultureIgnoreCase) && s.TopicType == topicType).FirstOrDefault();
-        if (topic != null) {
+        if (topic != null)
+        {
             topicModel.Id = topic.Id;
             topicModel.Name = topic.Name;
             topicModel.TopicType = topic.TopicType;
@@ -569,16 +580,20 @@ public class ContentManager : ServiceManager<ContentOptions>
 
     private ContentTagModel? GetTagMapping(IEnumerable<API.Areas.Editor.Models.Tag.TagModel> tagsLookup, string code, string topicName)
     {
-        var tagModel = new ContentTagModel() {
+        var tagModel = new ContentTagModel()
+        {
             ContentId = 0, // for new content
         };
         // Tags come in from the Content Migrator with no name, so we can only match on Code
         var tag = tagsLookup.Where(s => s.Code.Equals(code, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-        if (tag != null) {
+        if (tag != null)
+        {
             tagModel.Id = tag.Id;
             tagModel.Code = tag.Code;
             tagModel.Name = tag.Name;
-        } else {
+        }
+        else
+        {
             // build a new placeholder which will be added at the same time as the Content
             tagModel.Id = 0;
             tagModel.Code = code;
@@ -591,10 +606,13 @@ public class ContentManager : ServiceManager<ContentOptions>
         IEnumerable<Kafka.Models.Action> actions)
     {
         List<ContentActionModel> mappedActions = new();
-        foreach (var action in actions) {
+        foreach (var action in actions)
+        {
             var targetAction = actionsLookup.Where(a => a.Name.Equals(action.ActionLabel, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-            if (targetAction != null) {
-                mappedActions.Add(new ContentActionModel {
+            if (targetAction != null)
+            {
+                mappedActions.Add(new ContentActionModel
+                {
                     ContentId = 0,
                     Id = targetAction.Id,
                     Name = targetAction.Name,

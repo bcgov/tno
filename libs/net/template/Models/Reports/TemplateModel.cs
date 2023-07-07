@@ -64,6 +64,12 @@ public class TemplateModel : RazorEngineTemplateBase
         }
     }
 
+    /// <summary>
+    /// Fetch the image from the specified 'path' and convert it into a base64 string.
+    /// </summary>
+    /// <param name="uploadPath"></param>
+    /// <param name="path"></param>
+    /// <returns></returns>
     private static string? GetImageContent(string uploadPath, string? path)
     {
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();

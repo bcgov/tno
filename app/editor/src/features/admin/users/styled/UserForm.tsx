@@ -8,7 +8,6 @@ export const UserForm = styled(FormPage)`
 
   .back-button {
     align-self: start;
-    margin-bottom: 3%;
   }
 
   .roles {

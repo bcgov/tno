@@ -22,7 +22,7 @@ public class ChartTemplateService : BaseService<ChartTemplate, int>, IChartTempl
 
     #region Methods
     /// <summary>
-    /// Find all the report templates.
+    /// Find all the chart templates.
     /// </summary>
     /// <returns></returns>
     public IEnumerable<ChartTemplate> FindAll()
@@ -30,6 +30,16 @@ public class ChartTemplateService : BaseService<ChartTemplate, int>, IChartTempl
         return this.Context.ChartTemplates
             .AsNoTracking()
             .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
+    }
+
+    /// <summary>
+    /// Determine if this chart template is being used by any reports.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public bool IsInUse(int id)
+    {
+        return this.Context.ReportTemplateChartTemplates.Any(rt => rt.ChartTemplateId == id);
     }
     #endregion
 }

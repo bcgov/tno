@@ -71,6 +71,7 @@ builder.Services.AddOptions<KestrelServerOptions>().Bind(config.GetSection("Kest
 builder.Services.AddOptions<FormOptions>().Bind(config.GetSection("Form"));
 builder.Services.AddOptions<KafkaOptions>().Bind(config.GetSection("Kafka"));
 builder.Services.AddOptions<SignalROptions>().Bind(config.GetSection("SignalR"));
+builder.Services.AddOptions<ChartsOptions>().Bind(config.GetSection("Charts"));
 var signalROptions = new SignalROptions();
 config.GetSection("SignalR").Bind(signalROptions);
 

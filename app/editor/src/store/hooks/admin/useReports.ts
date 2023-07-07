@@ -20,11 +20,12 @@ interface IReportController {
   previewReport: (model: IReportModel) => Promise<IReportPreviewModel>;
 }
 
-export const useReports = (): [IAdminState, IReportController] => {
+export const useReports = (): [IAdminState & { initialized: boolean }, IReportController] => {
   const api = useApiAdminReports();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
   const [, lookup] = useLookup();
+  const [initialized, setInitialized] = React.useState(false);
 
   const controller = React.useMemo(
     () => ({
@@ -33,6 +34,7 @@ export const useReports = (): [IAdminState, IReportController] => {
           api.findAllReports(),
         );
         store.storeReports(response.data);
+        setInitialized(true);
         return response.data;
       },
       findInstancesForReportId: async (id: number, ownerId: number | undefined = undefined) => {
@@ -100,5 +102,5 @@ export const useReports = (): [IAdminState, IReportController] => {
     [api, dispatch, lookup, store],
   );
 
-  return [state, controller];
+  return [{ ...state, initialized }, controller];
 };

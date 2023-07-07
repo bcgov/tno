@@ -8,6 +8,5 @@ export const SeriesForm = styled(FormPage)`
 
   .back-button {
     align-self: start;
-    margin-bottom: 3%;
   }
 `;

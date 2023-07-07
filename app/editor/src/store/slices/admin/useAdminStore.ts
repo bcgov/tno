@@ -4,6 +4,7 @@ import React from 'react';
 import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
 import {
   IActionModel,
+  IChartTemplateModel,
   IConnectionModel,
   IContributorModel,
   IDataLocationModel,
@@ -27,6 +28,7 @@ import {
 
 import {
   storeAdminActions,
+  storeAdminChartTemplates,
   storeAdminConnections,
   storeAdminContributors,
   storeAdminDataLocations,
@@ -83,7 +85,10 @@ export interface IAdminStore {
   ) => void;
   storeReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => void;
   storeReportTemplates: (
-    reports: IReportTemplateModel[] | ActionDelegate<IReportTemplateModel[]>,
+    reportTemplates: IReportTemplateModel[] | ActionDelegate<IReportTemplateModel[]>,
+  ) => void;
+  storeChartTemplates: (
+    chartTemplates: IChartTemplateModel[] | ActionDelegate<IChartTemplateModel[]>,
   ) => void;
   storeNotifications: (
     notifications: INotificationModel[] | ActionDelegate<INotificationModel[]>,
@@ -210,6 +215,13 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminReportTemplates(reportTemplates(state.reportTemplates)));
         } else dispatch(storeAdminReportTemplates(reportTemplates));
       },
+      storeChartTemplates: (
+        chartTemplates: IChartTemplateModel[] | ActionDelegate<IChartTemplateModel[]>,
+      ) => {
+        if (typeof chartTemplates === 'function') {
+          dispatch(storeAdminChartTemplates(chartTemplates(state.chartTemplates)));
+        } else dispatch(storeAdminChartTemplates(chartTemplates));
+      },
       storeNotifications: (
         notifications: INotificationModel[] | ActionDelegate<INotificationModel[]>,
       ) => {
@@ -240,6 +252,7 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       state.workOrders,
       state.reports,
       state.reportTemplates,
+      state.chartTemplates,
       state.notifications,
     ],
   );

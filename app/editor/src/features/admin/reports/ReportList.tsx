@@ -4,32 +4,33 @@ import { useReports } from 'store/hooks/admin';
 import { Col, FlexboxTable, FormPage, IconButton, IReportModel, Row } from 'tno-core';
 
 import { reportColumns } from './constants';
-import { ReportFilter } from './ReportFilter';
+import { ListFilter } from './ListFilter';
 import * as styled from './styled';
 
 export const ReportList: React.FC = () => {
   const navigate = useNavigate();
-  const [{ reports }, api] = useReports();
+  const [{ initialized, reports }, api] = useReports();
 
-  const [items, setItems] = React.useState<IReportModel[]>([]);
+  const [items, setItems] = React.useState<IReportModel[]>(reports);
 
   React.useEffect(() => {
-    if (!reports.length) {
+    if (!initialized) {
       api.findAllReports().then((data) => {
         setItems(data);
       });
-    } else {
-      setItems(reports);
     }
-  }, [api, reports]);
+    // The api will cause a double render because findAllReports(...) updates the store.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialized]);
 
   return (
     <styled.ReportList>
       <FormPage>
         <Row className="add-media" justifyContent="flex-end">
           <Col flex="1 1 0">
-            Reports provide a way to generate output (i.e. email) based on a filter or manually
-            selecting content to be included.
+            A report generates output based on one ore more filter. A report can be shared by making
+            it public, which will allow users to subscribe to it. A template controls how the output
+            is presented.
           </Col>
           <IconButton
             iconType="plus"
@@ -37,7 +38,7 @@ export const ReportList: React.FC = () => {
             onClick={() => navigate(`/admin/reports/0`)}
           />
         </Row>
-        <ReportFilter
+        <ListFilter
           onFilterChange={(filter) => {
             if (filter && filter.length) {
               const value = filter.toLocaleLowerCase();

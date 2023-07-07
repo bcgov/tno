@@ -8,7 +8,6 @@ export const ReportForm = styled(FormPage)`
 
   .back-button {
     align-self: start;
-    margin-bottom: 3%;
   }
 
   .code {
@@ -34,6 +33,11 @@ export const ReportForm = styled(FormPage)`
 
   .form {
     width: 100%;
+
+    .required::after {
+      content: ' *';
+      color: rgb(216, 41, 47);
+    }
   }
 
   .preview-report {

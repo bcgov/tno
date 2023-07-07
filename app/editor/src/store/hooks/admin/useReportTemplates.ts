@@ -11,11 +11,15 @@ interface IReportTemplateController {
   deleteReportTemplate: (model: IReportTemplateModel) => Promise<IReportTemplateModel>;
 }
 
-export const useReportTemplates = (): [IAdminState, IReportTemplateController] => {
+export const useReportTemplates = (): [
+  IAdminState & { initialized: boolean },
+  IReportTemplateController,
+] => {
   const api = useApiAdminReportTemplates();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
   const [, lookup] = useLookup();
+  const [initialized, setInitialized] = React.useState(false);
 
   const controller = React.useMemo(
     () => ({
@@ -24,6 +28,7 @@ export const useReportTemplates = (): [IAdminState, IReportTemplateController] =
           api.findAllReportTemplates(),
         );
         store.storeReportTemplates(response.data);
+        setInitialized(true);
         return response.data;
       },
       getReportTemplate: async (id: number) => {
@@ -73,5 +78,5 @@ export const useReportTemplates = (): [IAdminState, IReportTemplateController] =
     [api, dispatch, lookup, store],
   );
 
-  return [state, controller];
+  return [{ ...state, initialized }, controller];
 };

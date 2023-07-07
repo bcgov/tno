@@ -82,6 +82,12 @@ export const ReportTemplateForm: React.FC = () => {
         className="back-button"
         onClick={() => navigate('/admin/report/templates')}
       />
+      <Row alignSelf="flex-start">
+        <p>
+          A report template uses Razor syntax to dynamically generate HTML from a collection of
+          content.
+        </p>
+      </Row>
       <FormikForm
         initialValues={reportTemplate}
         onSubmit={(values, { setSubmitting }) => {
@@ -113,7 +119,7 @@ export const ReportTemplateForm: React.FC = () => {
             <div className="form-container">
               <Show visible={active === 'report'}>
                 <Col className="form-inputs">
-                  <FormikText name="name" label="Name" />
+                  <FormikText name="name" label="Name" required />
                   <FormikTextArea name="description" label="Description" />
                   <Row gap="1em">
                     <FormikCheckbox label="Is Enabled" name="isEnabled" />
@@ -192,10 +198,13 @@ export const ReportTemplateForm: React.FC = () => {
               <Show visible={active === 'template'}>
                 <h2>{values.name}</h2>
                 <Col className="code frm-in">
-                  <label htmlFor="txa-subject">Subject Template</label>
+                  <label htmlFor="txa-subject" className="required">
+                    Subject Template
+                  </label>
                   <Col className="editor">
                     <Editor
                       id="txa-subject-template"
+                      required
                       value={values.subject}
                       onValueChange={(code) => setFieldValue('subject', code)}
                       highlight={(code) => {
@@ -205,11 +214,14 @@ export const ReportTemplateForm: React.FC = () => {
                   </Col>
                 </Col>
                 <Col className="code frm-in">
-                  <label htmlFor="txa-template">Report Template</label>
+                  <label htmlFor="txa-template" className="required">
+                    Report Template
+                  </label>
                   <p>Editing this template will change all reports that use this template.</p>
                   <Col className="editor">
                     <Editor
                       id="txa-body-template"
+                      required
                       value={values.body}
                       onValueChange={(code) => setFieldValue('body', code)}
                       highlight={(code) => {

@@ -57,6 +57,19 @@ public class ContentTopicModel
     /// Creates a new instance of an ContentTopicModel, initializes with specified parameter.
     /// </summary>
     /// <param name="model"></param>
+    public ContentTopicModel(TNO.API.Areas.Editor.Models.Content.ContentTopicModel model)
+    {
+        this.ContentId = model.ContentId;
+        this.Id = model.Id;
+        this.Name = model.Name ?? "";
+        this.TopicType = model.TopicType;
+        this.Score = model.Score;
+    }
+
+    /// <summary>
+    /// Creates a new instance of an ContentTopicModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
     public ContentTopicModel(TNO.API.Areas.Services.Models.Content.ContentTopicModel model)
     {
         this.ContentId = model.ContentId;

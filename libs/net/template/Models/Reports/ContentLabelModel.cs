@@ -58,6 +58,18 @@ public class ContentLabelModel
     /// Creates a new instance of an ContentLabelModel, initializes with specified parameter.
     /// </summary>
     /// <param name="model"></param>
+    public ContentLabelModel(TNO.API.Areas.Editor.Models.Content.ContentLabelModel model)
+    {
+        this.Id = model.Id;
+        this.ContentId = model.ContentId;
+        this.Key = model.Key;
+        this.Value = model.Value;
+    }
+
+    /// <summary>
+    /// Creates a new instance of an ContentLabelModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
     public ContentLabelModel(TNO.API.Areas.Services.Models.Content.ContentLabelModel model)
     {
         this.Id = model.Id;

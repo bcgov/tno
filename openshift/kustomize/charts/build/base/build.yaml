@@ -40,16 +40,16 @@ spec:
     git:
       uri: https://github.com/bcgov/tno.git
       ref: dev
-    contextDir: ./
+    contextDir: ./api/node
   strategy:
     type: Docker
     dockerStrategy:
       imageOptimizationPolicy: SkipLayers
-      dockerfilePath: api/node/Dockerfile
+      dockerfilePath: Dockerfile
   output:
     to:
       kind: ImageStreamTag
-      name: api:latest
+      name: charts-api:latest
   resources:
     requests:
       cpu: 250m

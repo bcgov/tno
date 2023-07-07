@@ -176,7 +176,7 @@ public class ContentModel
     /// <summary>
     /// get/set - An array of time tracking entries.
     /// </summary>
-    public IEnumerable<ContentTimeTrackingModel> TimeTrackings { get; set; } = Array.Empty<ContentTimeTrackingModel>();
+    public IEnumerable<TimeTrackingModel> TimeTrackings { get; set; } = Array.Empty<TimeTrackingModel>();
 
     /// <summary>
     /// get/set - An array of labels.
@@ -239,10 +239,55 @@ public class ContentModel
         this.Actions = entity.ActionsManyToMany.Select(e => new ContentActionModel(e));
         this.Topics = entity.TopicsManyToMany.Select(e => new ContentTopicModel(e));
         this.Tags = entity.TagsManyToMany.Select(e => new ContentTagModel(e));
-        this.TimeTrackings = entity.TimeTrackings.Select(e => new ContentTimeTrackingModel(e));
+        this.TimeTrackings = entity.TimeTrackings.Select(e => new TimeTrackingModel(e));
         this.Labels = entity.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = entity.TonePoolsManyToMany.Select(e => new ContentTonePoolModel(e));
         this.FileReferences = entity.FileReferences.Select(e => new FileReferenceModel(e));
+    }
+
+    /// <summary>
+    /// Creates a new instance of an ContentModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="sortOrder"></param>
+    public ContentModel(TNO.API.Areas.Editor.Models.Content.ContentModel model, int sortOrder = 0)
+    {
+        this.Id = model?.Id ?? throw new ArgumentNullException(nameof(model));
+        this.Status = model.Status;
+        this.ContentType = model.ContentType;
+        this.SourceId = model.SourceId;
+        this.Source = model.Source != null ? new SourceModel(model.Source) : null;
+        this.OtherSource = model.OtherSource;
+        this.ProductId = model.ProductId;
+        this.Product = model.Product != null ? new ProductModel(model.Product) : null;
+        this.LicenseId = model.LicenseId;
+        this.SeriesId = model.SeriesId;
+        this.Series = model.Series != null ? new SeriesModel(model.Series) : null;
+        this.ContributorId = model.ContributorId;
+        this.Contributor = model.Contributor != null ? new ContributorModel(model.Contributor) : null;
+        this.OwnerId = model.OwnerId;
+        this.Owner = model.Owner != null ? new UserModel(model.Owner) : null;
+        this.Headline = model.Headline;
+        this.Byline = model.Byline;
+        this.Uid = model.Uid;
+        this.Edition = model.Edition;
+        this.Section = model.Section;
+        this.Page = model.Page;
+        this.Summary = model.Summary;
+        this.Body = model.Body;
+        this.SourceUrl = model.SourceUrl;
+        this.PublishedOn = model.PublishedOn;
+        this.IsHidden = model.IsHidden;
+        this.IsApproved = model.IsApproved;
+        this.SortOrder = sortOrder;
+
+        this.Actions = model.Actions.Select(e => new ContentActionModel(e));
+        this.Topics = model.Topics.Select(e => new ContentTopicModel(e));
+        this.Tags = model.Tags.Select(e => new ContentTagModel(e));
+        this.TimeTrackings = model.TimeTrackings.Select(e => new TimeTrackingModel(e));
+        this.Labels = model.Labels.Select(e => new ContentLabelModel(e));
+        this.TonePools = model.TonePools.Select(e => new ContentTonePoolModel(e));
+        this.FileReferences = model.FileReferences.Select(e => new FileReferenceModel(e));
     }
 
     /// <summary>
@@ -284,7 +329,7 @@ public class ContentModel
         this.Actions = model.Actions.Select(e => new ContentActionModel(e));
         this.Topics = model.Topics.Select(e => new ContentTopicModel(e));
         this.Tags = model.Tags.Select(e => new ContentTagModel(e));
-        this.TimeTrackings = model.TimeTrackings.Select(e => new ContentTimeTrackingModel(e));
+        this.TimeTrackings = model.TimeTrackings.Select(e => new TimeTrackingModel(e));
         this.Labels = model.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = model.TonePools.Select(e => new ContentTonePoolModel(e));
         this.FileReferences = model.FileReferences.Select(e => new FileReferenceModel(e));
@@ -329,7 +374,7 @@ public class ContentModel
         this.Actions = model.Actions.Select(e => new ContentActionModel(e));
         this.Topics = model.Topics.Select(e => new ContentTopicModel(e));
         this.Tags = model.Tags.Select(e => new ContentTagModel(e));
-        this.TimeTrackings = model.TimeTrackings.Select(e => new ContentTimeTrackingModel(e));
+        this.TimeTrackings = model.TimeTrackings.Select(e => new TimeTrackingModel(e));
         this.Labels = model.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = model.TonePools.Select(e => new ContentTonePoolModel(e));
         this.FileReferences = model.FileReferences.Select(e => new FileReferenceModel(e));
