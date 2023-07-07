@@ -53,6 +53,9 @@ API_HTTPS_PORT=$portApiHttps
 CSS_HTTP_PORT=$portCssApi
 CSS_HTTPS_PORT=$portCssApiHttps
 
+CHARTS_HTTP_PORT=$portChartsApi
+CHARTS_HTTPS_PORT=$portChartsApiHttps
+
 APP_EDITOR_HTTP_PORT=$portAppEditor
 APP_EDITOR_HTTPS_PORT=$portAppEditorHttps
 
@@ -275,6 +278,15 @@ Keycloak__Secret={GET KEYCLOAK SERVICE ACCOUNT}" >> ./tools/css-api/.env
     echo "./tools/css-api/.env created"
 fi
 
+# API - Charts
+if test -f "./api/node/.env"; then
+    echo "./api/node/.env exists"
+else
+echo \
+"PORT=8080" >> ./api/node/.env
+    echo "./api/node/.env created"
+fi
+
 # APP - Editor
 if test -f "./app/editor/.env"; then
     echo "./app/editor/.env exists"
@@ -295,6 +307,7 @@ else
 echo \
 "NODE_ENV=development
 CHOKIDAR_USEPOLLING=true
+WDS_SOCKET_PORT=$portNginxEditor
 #API_URL=http://api:80/
 REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth" >> ./app/subscriber/.env
     echo "./app/subscriber/.env created"

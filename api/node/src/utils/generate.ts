@@ -18,8 +18,13 @@ export function generateCanvas(type: ChartTypes, req: Request) {
   const width = getInt(req, 'width') ?? 600;
   const height = getInt(req, 'height') ?? 400;
 
-  const base64Data = getString(req, 'data') ?? convertChartJsConfigToBase64String({});
-  const data = convertBase64ConfigToChartJsConfig(base64Data);
+  let data: any;
+  if (req.method === 'GET') {
+    const base64Data = getString(req, 'data') ?? convertChartJsConfigToBase64String({});
+    data = convertBase64ConfigToChartJsConfig(base64Data);
+  } else if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+    data = req.body;
+  }
 
   const base64Options = getString(req, 'options') ?? convertChartJsConfigToBase64String({});
   const options = convertBase64ConfigToChartJsConfig(base64Options);

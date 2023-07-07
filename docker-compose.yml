@@ -210,6 +210,42 @@ services:
       retries: 3
       start_period: 2m
 
+
+  ####################### Charts API #######################
+  charts:
+    image: tno:charts
+    profiles:
+      - all
+      - api
+      - editor
+      - subscriber
+      - service
+      - main
+    restart: "no"
+    container_name: tno-charts
+    build:
+      context: api/node
+      dockerfile: Dockerfile.local
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 1G
+        reservations:
+          cpus: '0.10'
+          memory: 250M
+    env_file: api/node/.env
+    ports:
+      - ${CHARTS_HTTP_PORT:-40014}:8080
+      - ${CHARTS_HTTPS_PORT:-40015}:443
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - ./api/node/public:/usr/app/public
+      - ./api/node/src:/usr/app/src
+    networks:
+      - tno
+
   ####################### App - Editor #######################
   editor:
     image: tno:editor
@@ -233,7 +269,7 @@ services:
         reservations:
           cpus: '0.10'
           memory: 500M
-    env_file: ./app/editor/.env
+    env_file: app/editor/.env
     volumes:
       - ./app/editor/src:/usr/app/src
       - ./app/editor/public:/usr/app/public
