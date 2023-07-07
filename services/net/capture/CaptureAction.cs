@@ -193,7 +193,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
         return new ContentReferenceModel()
         {
             Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code."),
-            Uid = $"{schedule.Name}:{schedule.Id}-{publishedOn:yyyy-MM-dd-hh-mm-ss}",
+            Uid = GetContentHash(ingest.Source.Code, $"{schedule.Name}:{schedule.Id}", publishedOn),
             PublishedOn = this.ToTimeZone(publishedOn, ingest).ToUniversalTime(),
             Topic = ingest.Topic,
             Status = (int)WorkflowStatus.InProgress

@@ -111,10 +111,16 @@ public class ContentModel : AuditColumnsModel
     public string Byline { get; set; } = "";
 
     /// <summary>
-    /// get/set - A unique identifier for the content from the source.
+    /// get/set - Unique identifier within MMIA based on a hash of values.
     /// </summary>
     [MaxLength(500)]
     public string Uid { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Unique identifier from the external source if provided.
+    /// </summary>
+    [MaxLength(500)]
+    public string ExternalUid { get; set; } = "";
 
     /// <summary>
     /// get/set - The print content edition.
@@ -243,6 +249,7 @@ public class ContentModel : AuditColumnsModel
         this.Headline = entity.Headline;
         this.Byline = entity.Byline;
         this.Uid = entity.Uid;
+        this.ExternalUid = entity.ExternalUid;
         this.Edition = entity.Edition;
         this.Section = entity.Section;
         this.Page = entity.Page;

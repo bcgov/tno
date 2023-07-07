@@ -440,13 +440,17 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                         var paperName = GetXmlData(story, Fields.PaperName, ingest);
                         var code = GetItemSourceCode(ingest, paperName, sources);
                         var productId = await GetProductIdAsync(ingest, code, sources);
+                        var headline = GetXmlData(story, Fields.Headline, ingest);
+                        var publishedOn = GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest, this.Options);
+                        var contentHash = GetContentHash(code, headline, publishedOn);
+
                         var item = new SourceContent(
                             this.Options.DataLocation,
                             code,
                             ContentType.PrintContent,
                             productId,
-                            GetXmlData(story, Fields.Id, ingest),
-                            GetXmlData(story, Fields.Headline, ingest),
+                            contentHash,
+                            headline,
                             GetXmlData(story, Fields.Summary, ingest),
                             GetXmlData(story, Fields.Story, ingest),
                             GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest, this.Options))
@@ -455,6 +459,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                             Section = GetXmlData(story, Fields.Section, ingest),
                             Language = ingest.GetConfigurationValue("language"),
                             Authors = GetAuthorList(GetXmlData(story, Fields.Author, ingest)),
+                            ExternalUid = GetXmlData(story, Fields.Id, ingest)
                         };
 
                         await ImportArticleAsync(manager, item);

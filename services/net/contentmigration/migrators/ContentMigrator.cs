@@ -1,5 +1,7 @@
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Editor.Models.Lookup;
@@ -13,6 +15,7 @@ using TNO.Kafka.Models;
 using TNO.Services.ContentMigration.Config;
 using TNO.Services.ContentMigration.Sources.Oracle;
 using TNO.Services.ContentMigration.Models;
+using TNO.Services.ContentMigration.Extensions;
 
 namespace TNO.Services.ContentMigration.Migrators;
 
@@ -93,16 +96,15 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <param name="product"></param>
     /// <param name="contentType"></param>
     /// <param name="newsItem"></param>
-    /// <param name="referenceUid"></param>
     /// <returns></returns>
-    public virtual SourceContent? CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string referenceUid) => throw new NotImplementedException();
+    public virtual SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem) => throw new NotImplementedException();
 
     #endregion
 
     #region Helper Methods
 
     /// <summary>
-    /// Creates an Clip ContentReferenceModel from a NewsItem
+    /// Creates an ContentReferenceModel from a NewsItem
     /// </summary>
     /// <param name="source"></param>
     /// <param name="topic"></param>
@@ -111,14 +113,11 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <returns></returns>
     public ContentReferenceModel CreateContentReference(SourceModel source, string topic, NewsItem newsItem, string uid)
     {
-        DateTime publishedOn = newsItem.ItemDateTime != null ? newsItem.ItemDateTime.Value : DateTime.MinValue;
-        DateTime publishedOnAsUTC = new(publishedOn.Ticks, DateTimeKind.Utc);
-
         return new ContentReferenceModel()
         {
             Source = source.Code,
             Uid = uid,
-            PublishedOn = publishedOnAsUTC, // this.ToTimeZone(publishedOn, ingest).ToUniversalTime(),
+            PublishedOn = newsItem.GetPublishedDateTime().ToUniversalTime(),
             Topic = topic,
             Status = (int)WorkflowStatus.InProgress
         };
@@ -308,6 +307,20 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
                 throw new FileNotFoundException();
             }
         }
+    }
+
+    /// <summary>
+    /// Generate a unique identifier for content
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="headline"></param>
+    /// <param name="publishedOn"></param>
+    /// <returns></returns>
+    protected string GetContentHash(string source, string headline, DateTime publishedOn)
+    {
+        var inputBytes = Encoding.UTF8.GetBytes($"{source}:{headline}:{publishedOn:yyyy-MM-dd-hh-mm-ss}");
+        var inputHash = SHA256.HashData(inputBytes);
+        return Convert.ToHexString(inputHash);
     }
 
     #endregion
