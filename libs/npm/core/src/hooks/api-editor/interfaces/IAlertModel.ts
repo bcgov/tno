@@ -1,5 +1,5 @@
 import { ISortableModel } from '.';
 
-export interface IAlertModel extends ISortableModel<number> {
+export interface ISystemMessageModel extends ISortableModel<number> {
   message: string;
 }

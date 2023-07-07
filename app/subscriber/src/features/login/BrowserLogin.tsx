@@ -1,7 +1,7 @@
 import parse from 'html-react-parser';
 import React from 'react';
-import { useAlerts } from 'store/hooks';
-import { Button, Col, IAlertModel, Row, Show, useKeycloakWrapper } from 'tno-core';
+import { useSystemMessages } from 'store/hooks';
+import { Button, Col, ISystemMessageModel, Row, Show, useKeycloakWrapper } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -21,12 +21,12 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
     new URL(authority).host.startsWith('localhost') ||
     new URL(authority).host.startsWith('host.docker.internal');
 
-  const [, api] = useAlerts();
-  const [alert, setAlert] = React.useState<IAlertModel>();
+  const [, api] = useSystemMessages();
+  const [systemMessage, setSystemMessage] = React.useState<ISystemMessageModel>();
 
   React.useEffect(() => {
-    api.findAlert().then((data) => {
-      if (!!data) setAlert(data);
+    api.findSystemMessage().then((data) => {
+      if (!!data) setSystemMessage(data);
     });
     // only want to run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,10 +85,10 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
               </Col>
             </div>
           </Col>
-          <Col className="alert-box">
-            <div className="alert-containing-box">
-              <Show visible={!!alert?.message && alert.isEnabled}>
-                <p>{parse(alert?.message ?? '')}</p>
+          <Col className="system-message-box">
+            <div className="system-message-containing-box">
+              <Show visible={!!systemMessage?.message && systemMessage.isEnabled}>
+                <p>{parse(systemMessage?.message ?? '')}</p>
               </Show>
             </div>
           </Col>

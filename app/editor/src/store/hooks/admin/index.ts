@@ -1,5 +1,4 @@
 export * from './useActions';
-export * from './useAlerts';
 export * from './useConnections';
 export * from './useContentReferences';
 export * from './useContributors';
@@ -13,6 +12,7 @@ export * from './useReports';
 export * from './useReportTemplates';
 export * from './useSeries';
 export * from './useSources';
+export * from './useSystemMessages';
 export * from './useTags';
 export * from './useTopics';
 export * from './useTopicScoreRules';

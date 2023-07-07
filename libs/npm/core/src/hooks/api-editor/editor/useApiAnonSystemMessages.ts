@@ -1,13 +1,13 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
-import { defaultEnvelope, IAlertModel, ILifecycleToasts, useApi } from '../..';
+import { defaultEnvelope, ILifecycleToasts, ISystemMessageModel, useApi } from '../..';
 
 /**
  * Common hook to make requests to the API.
  * @returns CustomAxios object setup for the API.
  */
-export const useApiAlerts = (
+export const useApiAnonSystemMessages = (
   options: {
     lifecycleToasts?: ILifecycleToasts;
     selector?: Function;
@@ -18,8 +18,10 @@ export const useApiAlerts = (
   const api = useApi(options);
 
   return React.useRef({
-    findAlert: () => {
-      return api.get<IAlertModel, AxiosResponse<IAlertModel>, any>(`/subscriber/alerts`);
+    findSystemMessage: () => {
+      return api.get<ISystemMessageModel, AxiosResponse<ISystemMessageModel>, any>(
+        `/editor/system-message`,
+      );
     },
   }).current;
 };

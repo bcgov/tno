@@ -1,6 +1,6 @@
 export * from './api-editor';
 export * from './api-subscriber';
-export * from './api-subscriber/useApiAlerts';
+export * from './api-subscriber/useApiSystemMessages';
 export * from './formik';
 export * from './keycloak';
 export * from './modal';

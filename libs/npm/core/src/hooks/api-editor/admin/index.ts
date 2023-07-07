@@ -1,5 +1,5 @@
 export * from './useApiAdminActions';
-export * from './useApiAdminAlerts';
+export * from './useApiAdminSystemMessages';
 export * from './useApiAdminConnections';
 export * from './useApiAdminContentReferences';
 export * from './useApiAdminContributors';

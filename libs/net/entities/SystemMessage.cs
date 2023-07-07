@@ -1,11 +1,10 @@
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TNO.Entities;
 
-[Table("alert")]
+[Table("system_message")]
 
-public class Alert : BaseType<int>
+public class SystemMessage : BaseType<int>
 {
     #region Properties
     /// <summary>
@@ -15,9 +14,9 @@ public class Alert : BaseType<int>
     public string Message { get; set; } = "";
     #endregion
     #region Constructors
-    protected Alert() { }
+    protected SystemMessage() { }
 
-    public Alert(string message, string name) : base(name)
+    public SystemMessage(string message, string name) : base(name)
     {
         if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(name));
         if (String.IsNullOrWhiteSpace(message)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(message));

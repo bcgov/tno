@@ -29,7 +29,7 @@ public class TNOContext : DbContext
     public DbSet<License> Licenses => Set<License>();
     public DbSet<Series> Series => Set<Series>();
     public DbSet<Contributor> Contributors => Set<Contributor>();
-    public DbSet<Alert> Alerts => Set<Alert>();
+    public DbSet<SystemMessage> SystemMessages => Set<SystemMessage>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ContentTypeAction> ContentTypeActions => Set<ContentTypeAction>();
     public DbSet<ContentAction> ContentActions => Set<ContentAction>();

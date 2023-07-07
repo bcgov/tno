@@ -53,11 +53,11 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
     padding: 2%;
   }
 
-  .alert-containing-box {
+  .system-message-containing-box {
     padding: 1%;
   }
 
-  .alert-box {
+  .system-message-box {
     b {
       color: red;
     }

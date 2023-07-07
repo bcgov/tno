@@ -1,13 +1,11 @@
-using System.Text.Json;
 using TNO.API.Models;
-using TNO.Entities;
 
-namespace TNO.API.Areas.Admin.Models.Alert;
+namespace TNO.API.Areas.Admin.Models.SystemMessage;
 
 /// <summary>
-/// AlertModel class, provides a model that represents an product.
+/// SystemMessageModel class, provides a model that represents an product.
 /// </summary>
-public class AlertModel : BaseTypeWithAuditColumnsModel<int>
+public class SystemMessageModel : BaseTypeWithAuditColumnsModel<int>
 {
     #region Properties
     /// <summary>
@@ -18,11 +16,11 @@ public class AlertModel : BaseTypeWithAuditColumnsModel<int>
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of an AlertModel.
+    /// Creates a new instance of an SystemMessageModel.
     /// </summary>
-    public AlertModel() { }
+    public SystemMessageModel() { }
 
-    public AlertModel(Entities.Alert entity) : base(entity)
+    public SystemMessageModel(Entities.SystemMessage entity) : base(entity)
     {
         this.Id = entity.Id;
         this.Name = entity.Name;
@@ -39,9 +37,9 @@ public class AlertModel : BaseTypeWithAuditColumnsModel<int>
     /// Explicit conversion to entity.
     /// </summary>
     /// <param name="model"></param>
-    public static explicit operator Entities.Alert(AlertModel model)
+    public static explicit operator Entities.SystemMessage(SystemMessageModel model)
     {
-        var entity = new Entities.Alert(model.Message, model.Name)
+        var entity = new Entities.SystemMessage(model.Message, model.Name)
         {
             Id = model.Id,
             Description = model.Description,

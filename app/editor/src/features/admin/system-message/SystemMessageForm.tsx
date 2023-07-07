@@ -5,7 +5,7 @@ import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useAlerts } from 'store/hooks/admin';
+import { useSystemMessages } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -15,8 +15,8 @@ import {
   FormikDatePicker,
   FormikText,
   FormikTextArea,
-  IAlertModel,
   IconButton,
+  ISystemMessageModel,
   LabelPosition,
   Modal,
   Row,
@@ -24,38 +24,42 @@ import {
   useModal,
 } from 'tno-core';
 
-import { defaultAlert } from './constants';
+import { defaultSystemMessage } from './constants';
 import * as styled from './styled';
 
 /** The page used to view and edit tags in the administrative section. */
-export const AlertForm: React.FC = () => {
-  const [, api] = useAlerts();
+export const SystemMessageForm: React.FC = () => {
+  const [, api] = useSystemMessages();
   const navigate = useNavigate();
-  const [alert, setAlert] = React.useState<IAlertModel>(defaultAlert);
+  const [systemMessage, setSystemMessage] =
+    React.useState<ISystemMessageModel>(defaultSystemMessage);
   const { toggle, isShowing } = useModal();
 
-  const alertId = !!alert.id ? alert.id : 0;
+  const systemMessageId = !!systemMessage.id ? systemMessage.id : 0;
 
   React.useEffect(() => {
-    api.findAlert().then((data) => {
-      if (!!data) setAlert(data);
+    api.findSystemMessage().then((data) => {
+      if (!!data) setSystemMessage(data);
     });
     // only want to run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSubmit = async (values: IAlertModel) => {
+  const handleSubmit = async (values: ISystemMessageModel) => {
     try {
       const originalId = values.id;
-      const result = alertId === 0 ? await api.addAlert(values) : await api.updateAlert(values);
-      setAlert(result);
+      const result =
+        systemMessageId === 0
+          ? await api.addSystemMessage(values)
+          : await api.updateSystemMessage(values);
+      setSystemMessage(result);
       toast.success(`${result.name} has successfully been saved.`);
       if (originalId !== values.id) navigate(`/admin/tags/${result.id}`);
     } catch {}
   };
 
   return (
-    <styled.AlertForm>
+    <styled.SystemMessageForm>
       <IconButton
         iconType="back"
         label="Back to Home"
@@ -63,7 +67,7 @@ export const AlertForm: React.FC = () => {
         onClick={() => navigate('/admin/tags')}
       />
       <FormikForm
-        initialValues={alert}
+        initialValues={systemMessage}
         onSubmit={(values, { setSubmitting }) => {
           handleSubmit(values);
           setSubmitting(false);
@@ -72,13 +76,13 @@ export const AlertForm: React.FC = () => {
         {({ isSubmitting, values, errors }) => (
           <div className="form-container">
             <Col className="form-inputs">
-              <FormikText name="name" label="Alert Name" width={FieldSize.Medium} />
+              <FormikText name="name" label="System Message Name" width={FieldSize.Medium} />
               <FormikTextArea
                 name="description"
                 disabled
                 label="Description"
                 width={FieldSize.Large}
-                value={defaultAlert.description}
+                value={defaultSystemMessage.description}
               />
               <Wysiwyg label="Message" fieldName="message" />
 
@@ -138,15 +142,15 @@ export const AlertForm: React.FC = () => {
             </Row>
             <Modal
               headerText="Confirm Removal"
-              body="Are you sure you wish to remove this alert?"
+              body="Are you sure you wish to remove this system message?"
               isShowing={isShowing}
               hide={toggle}
               type="delete"
               confirmText="Yes, Remove It"
               onConfirm={async () => {
                 try {
-                  await api.deleteAlert(alert);
-                  toast.success(`${alert.name} has successfully been deleted.`);
+                  await api.deleteSystemMessage(systemMessage);
+                  toast.success(`${systemMessage.name} has successfully been deleted.`);
                   navigate('/admin/tags');
                 } finally {
                   toggle();
@@ -156,6 +160,6 @@ export const AlertForm: React.FC = () => {
           </div>
         )}
       </FormikForm>
-    </styled.AlertForm>
+    </styled.SystemMessageForm>
   );
 };

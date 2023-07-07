@@ -31,7 +31,7 @@ export interface IAdminState {
   topics: ITopicModel[];
   rules: ITopicScoreRuleModel[];
   tags: ITagModel[];
-  alerts: IAlertModel[];
+  systemMessages: IAlertModel[];
   actions: IActionModel[];
   series: ISeriesModel[];
   licenses: ILicenseModel[];
