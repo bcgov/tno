@@ -310,7 +310,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var content = results.ToDictionary(r => r.Key, r =>
         {
             var section = sections[r.Key];
-            section.Content = r.Value.Hits.Hits.Select(h => new ContentModel(h.Source));
+            section.Content = r.Value.Hits.Hits.Select(h => new ContentModel(h.Source)).ToArray();
             return section;
         });
 
@@ -357,7 +357,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var content = results.GroupBy(r => r.SectionName).ToDictionary(r => r.Key, r =>
         {
             var section = sections[r.Key];
-            section.Content = r.Where(ri => ri.Content != null).Select(ri => new ContentModel(ri.Content!, ri.SortOrder));
+            section.Content = r.Where(ri => ri.Content != null).Select(ri => new ContentModel(ri.Content!, ri.SortOrder)).ToArray();
             return section;
         });
 

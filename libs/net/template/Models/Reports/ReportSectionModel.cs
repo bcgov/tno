@@ -21,7 +21,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
     /// <summary>
     /// get/set - An array of content.
     /// </summary>
-    public IEnumerable<ContentModel> Content { get; set; }
+    public ContentModel[] Content { get; set; }
     #endregion
 
     #region Constructors
@@ -43,7 +43,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
     {
         this.Name = name;
         this.Label = label;
-        this.Content = content ?? Array.Empty<ContentModel>();
+        this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
     }
     #endregion
 }

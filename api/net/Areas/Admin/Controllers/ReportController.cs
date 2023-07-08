@@ -265,7 +265,7 @@ public class ReportController : ControllerBase
         var sections = model.ParseSections().ToDictionary(s => s.Key, s =>
         {
             results.TryGetValue(s.Key, out SearchResultModel<Services.Models.Content.ContentModel>? value);
-            s.Value.Content = value?.Hits.Hits.Select(h => new TNO.TemplateEngine.Models.Reports.ContentModel(h.Source))
+            s.Value.Content = value?.Hits.Hits.Select(h => new TNO.TemplateEngine.Models.Reports.ContentModel(h.Source)).ToArray()
                 ?? Array.Empty<TNO.TemplateEngine.Models.Reports.ContentModel>();
             return s.Value;
         });
