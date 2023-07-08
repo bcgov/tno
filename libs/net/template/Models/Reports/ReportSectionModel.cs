@@ -21,7 +21,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
     /// <summary>
     /// get/set - An array of content.
     /// </summary>
-    public ContentModel[] Content { get; set; }
+    public IEnumerable<ContentModel> Content { get; set; }
     #endregion
 
     #region Constructors

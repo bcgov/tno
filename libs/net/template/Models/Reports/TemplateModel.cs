@@ -13,7 +13,7 @@ public class TemplateModel : RazorEngineTemplateBase
     /// <summary>
     /// get/set - An array of content.
     /// </summary>
-    public ContentModel[] Content { get; set; }
+    public IEnumerable<ContentModel> Content { get; set; }
 
     /// <summary>
     /// get/set - A dictionary with each section.
