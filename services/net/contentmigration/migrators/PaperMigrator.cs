@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using TNO.API.Areas.Editor.Models.Lookup;
 using TNO.API.Areas.Editor.Models.Product;
 using TNO.API.Areas.Editor.Models.Source;
+using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Services.ContentMigration.Config;
@@ -38,25 +39,23 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     /// <param name="product"></param>
     /// <param name="contentType"></param>
     /// <param name="newsItem"></param>
-    /// <param name="referenceUid"></param>
     /// <returns></returns>
-    public override SourceContent? CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string referenceUid)
+    public override SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem)
     {
         // var authors = GetAuthors(lookups.Contributors)
-        DateTime publishedOn = newsItem.GetPublishedDateTime();
-
-        var newsItemTitle = newsItem.Title != null ? WebUtility.HtmlDecode(newsItem.Title) : string.Empty;
+        DateTime publishedOn = newsItem.GetPublishedDateTime().ToUniversalTime();
+        var newsItemTitle = newsItem.GetTitle();
 
         var content = new SourceContent(
             this.Options.DataLocation,
             source.Code,
             contentType,
             product.Id,
-            referenceUid,
+            GetContentHash(source.Code, newsItemTitle, publishedOn),
             newsItemTitle,
             newsItem.Summary! ?? string.Empty,
             newsItem.Text ?? (newsItem.Summary! ?? string.Empty), // KGM - This *should* work in TEST/PROD - CLOB tables are not part of a db export
-            publishedOn.ToUniversalTime(),
+            publishedOn,
             newsItem.Published)
         {
             Section = newsItem.string2 ?? string.Empty,
@@ -64,9 +63,12 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             FilePath = newsItem.FilePath ?? string.Empty,
             Link = newsItem.WebPath ?? string.Empty,
             Language = "", // TODO: Need to extract this from the ingest, or determine it after transcription.
+            ExternalUid = newsItem.WebPath ?? string.Empty
         };
 
+        if (string.IsNullOrEmpty(this.Options.DefaultUserNameForAudit)) throw new System.Configuration.ConfigurationErrorsException("Default Username for ContentMigration has not been configured");
         var auditUser = lookups.Users.FirstOrDefault(u => u.Username == this.Options.DefaultUserNameForAudit);
+        if (auditUser == null) throw new System.Configuration.ConfigurationErrorsException($"Default User for ContentMigration not found : {this.Options.DefaultUserNameForAudit}");
 
         if (newsItem.Tones?.Any() == true) {
             // TODO: replace the USER_RSN value on UserIdentifier with something that can be mapped by the Content Service to an MMIA user

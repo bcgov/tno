@@ -1,0 +1,19 @@
+FROM node:18-bullseye
+
+RUN apt-get update && apt-get install -qq -y --no-install-recommends \
+  nano build-essential libpq-dev yarn
+
+WORKDIR /usr/app
+COPY .yarn ./.yarn
+COPY package*.json yarn.lock .yarnrc.yml ./
+
+RUN yarn set version berry
+RUN npx browserslist@latest --update-db
+RUN yarn
+COPY . .
+RUN yarn run build
+
+EXPOSE 8080
+
+CMD ["yarn", "start:dev"]
+# ENTRYPOINT ["tail", "-f", "/dev/null"]

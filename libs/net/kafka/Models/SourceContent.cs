@@ -12,6 +12,11 @@ public class SourceContent : ContentBase
     /// get/set - Foreign key to the user who requested the content to be created.
     /// </summary>
     public int? RequestedById { get; set; }
+
+    /// <summary>
+    /// get/set - A unique key to identify this content - comes from external source.
+    /// </summary>
+    public string ExternalUid { get; set; } = "";
     #endregion
 
     #region Constructors

@@ -11,6 +11,7 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.HasKey(m => m.Id);
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Property(m => m.Uid).IsRequired().HasMaxLength(500);
+        builder.Property(m => m.ExternalUid).HasMaxLength(500).HasDefaultValue(string.Empty);
         builder.Property(m => m.Status).IsRequired();
         builder.Property(m => m.ContentType).IsRequired();
         builder.Property(m => m.SourceId);

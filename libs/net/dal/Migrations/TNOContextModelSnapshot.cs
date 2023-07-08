@@ -401,6 +401,14 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("edition");
 
+                    b.Property<string>("ExternalUid")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasDefaultValue("")
+                        .HasColumnName("external_uid");
+
                     b.Property<string>("Headline")
                         .IsRequired()
                         .HasMaxLength(500)

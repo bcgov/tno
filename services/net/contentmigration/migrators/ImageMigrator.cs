@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using TNO.API.Areas.Editor.Models.Lookup;
 using TNO.API.Areas.Editor.Models.Product;
 using TNO.API.Areas.Editor.Models.Source;
+using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Services.ContentMigration.Config;
@@ -37,31 +38,30 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     /// <param name="product"></param>
     /// <param name="contentType"></param>
     /// <param name="newsItem"></param>
-    /// <param name="referenceUid"></param>
     /// <returns></returns>
-    public override SourceContent? CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string referenceUid)
+    public override SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem)
     {
         // var authors = GetAuthors(lookups.Contributors)
-        DateTime publishedOn = newsItem.GetPublishedDateTime();
+        DateTime publishedOn = newsItem.GetPublishedDateTime().ToUniversalTime();
 
         var newsItemTitle = newsItem.Title != null ? WebUtility.HtmlDecode(newsItem.Title) : string.Empty;
+
+        // KGM: will the TNO filename match the MMIA filename? Also, we don't want to risk having null or empty here...
+        var referenceUid = newsItem.FileName ?? newsItem.RSN.ToString();
 
         var content = new SourceContent(
             this.Options.DataLocation,
             source.Code,
             contentType,
             product.Id,
-            referenceUid,
+            GetContentHash(source.Code, newsItem.GetTitle(), publishedOn),
             newsItemTitle,
             "",
             "",
-            publishedOn.ToUniversalTime(),
+            publishedOn,
             newsItem.Published)
         {
-            // StreamUrl = ingest.GetConfigurationValue("url"),
             FilePath = newsItem.FilePath ?? string.Empty,
-            // FilePath = (ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "")
-            //     .CombineWith($"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}/", reference.Uid),
             Language = "", // TODO: Need to extract this from the ingest, or determine it after transcription.
         };
 

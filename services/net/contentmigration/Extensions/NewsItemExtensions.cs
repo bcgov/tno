@@ -1,3 +1,4 @@
+using System.Net;
 using TNO.Services.ContentMigration.Sources.Oracle;
 
 namespace TNO.Services.ContentMigration.Extensions;
@@ -14,7 +15,7 @@ public static class DictionaryExtensions
     /// <returns></returns>
     public static DateTime GetPublishedDateTime(this NewsItem newsItem)
     {
-        var amalgamatedPublishedDateTime = newsItem.ItemDateTime ?? DateTime.UtcNow;
+        var amalgamatedPublishedDateTime = newsItem.ItemDateTime ?? DateTime.Now;
         if (newsItem.ItemDateTime != null)
         {
             amalgamatedPublishedDateTime = new DateTime(amalgamatedPublishedDateTime.Year, amalgamatedPublishedDateTime.Month, amalgamatedPublishedDateTime.Day,
@@ -22,6 +23,16 @@ public static class DictionaryExtensions
         }
 
         return amalgamatedPublishedDateTime;
+    }
+
+    /// <summary>
+    /// Extract the Title for the NewsItem
+    /// </summary>
+    /// <param name="newsItem"></param>
+    /// <returns></returns>
+    public static string GetTitle(this NewsItem newsItem)
+    {
+        return newsItem.Title != null ? WebUtility.HtmlDecode(newsItem.Title) : string.Empty;
     }
 
 }

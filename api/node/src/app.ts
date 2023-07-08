@@ -18,7 +18,7 @@ class App {
   }
 
   routes() {
-    this.server.use(favicon(path.join(__dirname, 'public/images', 'favicon.ico')));
+    this.server.use(favicon(path.join(__dirname, '../public/images', 'favicon.ico')));
     this.server.use(routes);
   }
 }
