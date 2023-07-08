@@ -13,7 +13,7 @@ public class TemplateModel : RazorEngineTemplateBase
     /// <summary>
     /// get/set - An array of content.
     /// </summary>
-    public IEnumerable<ContentModel> Content { get; set; }
+    public ContentModel[] Content { get; set; }
 
     /// <summary>
     /// get/set - A dictionary with each section.
@@ -36,7 +36,7 @@ public class TemplateModel : RazorEngineTemplateBase
     /// <param name="content"></param>
     public TemplateModel(IEnumerable<ContentModel> content)
     {
-        this.Content = content;
+        this.Content = content.ToArray();
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public class TemplateModel : RazorEngineTemplateBase
     {
         if (sections.TryGetValue("", out ReportSectionModel? value))
         {
-            this.Content = value?.Content ?? Array.Empty<ContentModel>();
+            this.Content = value?.Content.ToArray() ?? Array.Empty<ContentModel>();
         }
         else
         {
