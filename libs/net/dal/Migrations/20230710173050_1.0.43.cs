@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TNO.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class _1042 : SeedMigration
+    public partial class _1043 : SeedMigration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -89,7 +89,8 @@ namespace TNO.DAL.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "aliases",
                 table: "minister",
-                type: "text",
+                type: "character varying(250)",
+                maxLength: 250,
                 nullable: true,
                 defaultValueSql: "''");
 

@@ -13,8 +13,8 @@ using TNO.DAL;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20230707212704_1.0.42")]
-    partial class _1042
+    [Migration("20230710173050_1.0.43")]
+    partial class _1043
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -462,6 +462,14 @@ namespace TNO.DAL.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("edition");
+
+                    b.Property<string>("ExternalUid")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasDefaultValue("")
+                        .HasColumnName("external_uid");
 
                     b.Property<string>("Headline")
                         .IsRequired()
@@ -1970,7 +1978,8 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("Aliases")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("aliases")
                         .HasDefaultValueSql("''");
 

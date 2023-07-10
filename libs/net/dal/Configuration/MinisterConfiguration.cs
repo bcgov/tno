@@ -8,7 +8,7 @@ public class MinisterConfiguration : BaseTypeConfiguration<Minister, int>
 {
     public override void Configure(EntityTypeBuilder<Minister> builder)
     {
-        builder.Property(m => m.Aliases).HasDefaultValueSql("''");
+        builder.Property(m => m.Aliases).HasDefaultValueSql("''").HasMaxLength(250);
         base.Configure(builder);
     }
 }

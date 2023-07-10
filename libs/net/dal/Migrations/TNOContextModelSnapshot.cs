@@ -1975,7 +1975,8 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("Aliases")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("aliases")
                         .HasDefaultValueSql("''");
 
