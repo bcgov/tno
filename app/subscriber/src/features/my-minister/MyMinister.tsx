@@ -75,7 +75,7 @@ export const MyMinister: React.FC = () => {
     }).then((data) => {
       setHomeItems(!!ministers.length ? data.items : []);
     });
-  }, [filter, filterAdvanced, fetch, aliases]);
+  }, [filter, filterAdvanced, fetch, aliases, ministers.length]);
   return (
     <styled.MyMinister>
       <Row className="table-container">
