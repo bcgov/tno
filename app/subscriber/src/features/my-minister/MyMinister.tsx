@@ -7,6 +7,8 @@ import { makeFilter } from 'features/home/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp, useContent } from 'store/hooks';
+import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
+import { useMinisters } from 'store/hooks/subscriber/useMinisters';
 import { FlexboxTable, IContentModel, Page, Row } from 'tno-core';
 
 import * as styled from './styled';
@@ -14,10 +16,22 @@ import * as styled from './styled';
 export const MyMinister: React.FC = () => {
   const [{ filter, filterAdvanced }, { findContent }] = useContent();
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
+  const [aliases, setAliases] = React.useState<string[]>([]);
   const [{ userInfo }] = useApp();
+  const [, api] = useMinisters();
+  const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
   const navigate = useNavigate();
 
+  React.useEffect(() => {
+    if (!ministers.length) {
+      api.getMinisters().then((data) => {
+        setMinisters(data);
+      });
+    }
+  }, [api, ministers.length]);
+
   const [, setLoading] = React.useState(false);
+
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
       try {
@@ -31,7 +45,6 @@ export const MyMinister: React.FC = () => {
           }),
         );
         // don't want to keyword fetch when there is nothing to fetch
-        setHomeItems(userInfo?.preferences?.myMinisters?.length > 0 ? data.items : []);
         return new Page(data.page - 1, data.quantity, data?.items, data.total);
       } catch (error) {
         // TODO: Handle error
@@ -40,17 +53,29 @@ export const MyMinister: React.FC = () => {
         setLoading(false);
       }
     },
-    [findContent, userInfo?.preferences?.myMinisters],
+    [findContent],
   );
+
+  React.useEffect(() => {
+    if (userInfo?.preferences?.myMinisters?.length > 0 && ministers.length > 0) {
+      let selectedAliases: string[] = [];
+      selectedAliases = ministers
+        .filter((m) => userInfo?.preferences?.myMinisters?.includes(m.name))
+        .map((x) => x.aliases);
+      setAliases(selectedAliases);
+    }
+  }, [ministers, userInfo?.preferences?.myMinisters]);
 
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
     fetch({
       ...filter,
       ...filterAdvanced,
-      keyword: userInfo?.preferences?.myMinisters?.toString() ?? '',
+      keyword: aliases.toString(),
+    }).then((data) => {
+      setHomeItems(!!aliases.length ? data.items : []);
     });
-  }, [filter, filterAdvanced, fetch, userInfo?.preferences?.myMinisters]);
+  }, [filter, filterAdvanced, fetch, aliases]);
   return (
     <styled.MyMinister>
       <Row className="table-container">
@@ -62,7 +87,7 @@ export const MyMinister: React.FC = () => {
           onRowClick={(e: any) => {
             navigate(`/view/my-minister/${e.original.id}`);
           }}
-          data={homeItems || []}
+          data={homeItems}
           pageButtons={5}
           showPaging={false}
         />
