@@ -1,6 +1,5 @@
 export * from './IActionFilter';
 export * from './IActionModel';
-export * from './IAlertModel';
 export * from './IAuditColumnsModel';
 export * from './ICacheModel';
 export * from './IChartTemplateModel';
@@ -55,6 +54,7 @@ export * from './ISortableModel';
 export * from './ISortPageFilter';
 export * from './ISourceActionModel';
 export * from './ISourceModel';
+export * from './ISystemMessageModel';
 export * from './ITagFilter';
 export * from './ITagModel';
 export * from './ITimeTrackingModel';
