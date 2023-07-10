@@ -5,7 +5,6 @@ import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
 import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import {
   IActionModel,
-  IAlertModel,
   IConnectionModel,
   IDataLocationModel,
   IIngestModel,
@@ -15,6 +14,7 @@ import {
   IProductModel,
   ISeriesModel,
   ISourceModel,
+  ISystemMessageModel,
   ITagModel,
   ITopicModel,
   ITopicScoreRuleModel,
@@ -24,7 +24,6 @@ import {
 
 import {
   storeAdminActions,
-  storeAdminAlerts,
   storeAdminConnections,
   storeAdminDataLocations,
   storeAdminIngests,
@@ -34,6 +33,7 @@ import {
   storeAdminProducts,
   storeAdminSeries,
   storeAdminSources,
+  storeAdminSystemMessages,
   storeAdminTags,
   storeAdminTopics,
   storeAdminTopicScoreRules,
@@ -59,7 +59,9 @@ export interface IAdminStore {
   storeUserFilter: (filter: IUserListFilter) => void;
   storeUsers: (users: IPaged<IUserModel>) => void;
   storeTags: (tags: ITagModel[]) => void;
-  storeAlerts: (alerts: IAlertModel[] | ActionDelegate<IAlertModel[]>) => void;
+  storeSystemMessages: (
+    systemMessages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
+  ) => void;
   storeActions: (actions: IActionModel[]) => void;
   storeSeries: (series: ISeriesModel[]) => void;
   storeWorkOrderFilter: (filter: IWorkOrderListFilter) => void;
@@ -97,10 +99,12 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       storeUserFilter: (filter: IUserListFilter) => {
         dispatch(storeAdminUserFilter(filter));
       },
-      storeAlerts: (alerts: IAlertModel[] | ActionDelegate<IAlertModel[]>) => {
-        if (typeof alerts === 'function') {
-          dispatch(storeAdminAlerts(alerts(state.alerts)));
-        } else dispatch(storeAdminAlerts(alerts));
+      storeSystemMessages: (
+        systemMessages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
+      ) => {
+        if (typeof systemMessages === 'function') {
+          dispatch(storeAdminSystemMessages(systemMessages(state.systemMessages)));
+        } else dispatch(storeAdminSystemMessages(systemMessages));
       },
       storeUsers: (users: IPaged<IUserModel>) => {
         dispatch(storeAdminUsers(users));
@@ -130,7 +134,7 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
         dispatch(storeAdminWorkOrders(workOrders));
       },
     }),
-    [dispatch, state.alerts],
+    [dispatch, state.systemMessages],
   );
 
   return [state, controller];

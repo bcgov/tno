@@ -1,5 +1,5 @@
 export * from './useApiActions';
-export * from './useApiAnonAlerts';
+export * from './useApiAnonSystemMessages';
 export * from './useApiCache';
 export * from './useApiContents';
 export * from './useApiContributors';

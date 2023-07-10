@@ -4,7 +4,6 @@ import React from 'react';
 import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
 import {
   IActionModel,
-  IAlertModel,
   IConnectionModel,
   IContributorModel,
   IDataLocationModel,
@@ -18,6 +17,7 @@ import {
   IReportTemplateModel,
   ISeriesModel,
   ISourceModel,
+  ISystemMessageModel,
   ITagModel,
   ITopicModel,
   ITopicScoreRuleModel,
@@ -27,7 +27,6 @@ import {
 
 import {
   storeAdminActions,
-  storeAdminAlerts,
   storeAdminConnections,
   storeAdminContributors,
   storeAdminDataLocations,
@@ -40,6 +39,7 @@ import {
   storeAdminReportTemplates,
   storeAdminSeries,
   storeAdminSources,
+  storeAdminSystemMessages,
   storeAdminTags,
   storeAdminTopics,
   storeAdminTopicScoreRules,
@@ -69,7 +69,9 @@ export interface IAdminStore {
   storeUserFilter: (filter: IUserListFilter | ActionDelegate<IUserListFilter>) => void;
   storeUsers: (users: IPaged<IUserModel> | ActionDelegate<IPaged<IUserModel>>) => void;
   storeTags: (tags: ITagModel[] | ActionDelegate<ITagModel[]>) => void;
-  storeAlerts: (alerts: IAlertModel[] | ActionDelegate<IAlertModel[]>) => void;
+  storeSystemMessages: (
+    systemMessages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
+  ) => void;
   storeActions: (actions: IActionModel[] | ActionDelegate<IActionModel[]>) => void;
   storeSeries: (series: ISeriesModel[] | ActionDelegate<ISeriesModel[]>) => void;
   storeContributors: (series: IContributorModel[] | ActionDelegate<IContributorModel[]>) => void;
@@ -158,10 +160,12 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminTags(tags(state.tags)));
         } else dispatch(storeAdminTags(tags));
       },
-      storeAlerts: (alerts: IAlertModel[] | ActionDelegate<IAlertModel[]>) => {
-        if (typeof alerts === 'function') {
-          dispatch(storeAdminAlerts(alerts(state.alerts)));
-        } else dispatch(storeAdminAlerts(alerts));
+      storeSystemMessages: (
+        systemMessages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
+      ) => {
+        if (typeof systemMessages === 'function') {
+          dispatch(storeAdminSystemMessages(systemMessages(state.systemMessages)));
+        } else dispatch(storeAdminSystemMessages(systemMessages));
       },
       storeActions: (actions: IActionModel[] | ActionDelegate<IActionModel[]>) => {
         if (typeof actions === 'function') {
@@ -228,7 +232,7 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       state.topics,
       state.rules,
       state.tags,
-      state.alerts,
+      state.systemMessages,
       state.actions,
       state.series,
       state.contributors,

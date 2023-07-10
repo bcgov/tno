@@ -1,16 +1,17 @@
-import { defaultAlert } from 'features/admin/alerts/constants';
+import { defaultSystemMessage } from 'features/admin/system-message/constants';
 import parse from 'html-react-parser';
 import React from 'react';
-import { useAnonAlerts } from 'store/hooks';
-import { IAlertModel, Show } from 'tno-core';
+import { useAnonSystemMessages } from 'store/hooks';
+import { ISystemMessageModel, Show } from 'tno-core';
 
 export const InfoText: React.FC = () => {
-  const [, api] = useAnonAlerts();
-  const [alert, setAlert] = React.useState<IAlertModel>(defaultAlert);
+  const [, api] = useAnonSystemMessages();
+  const [systemMessage, setSystemMessage] =
+    React.useState<ISystemMessageModel>(defaultSystemMessage);
 
   React.useEffect(() => {
-    api.findAlert().then((data) => {
-      if (!!data) setAlert(data);
+    api.findSystemMessage().then((data) => {
+      if (!!data) setSystemMessage(data);
     });
     // only want to run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -27,8 +28,8 @@ export const InfoText: React.FC = () => {
         <li>BC’s top stories as they break.</li>
         <li>Articles related to major stories.</li>
       </ul>
-      <Show visible={alert.isEnabled}>
-        <p className="alert-message">{parse(alert.message) ?? ''}</p>
+      <Show visible={systemMessage.isEnabled}>
+        <p className="system-message">{parse(systemMessage.message) ?? ''}</p>
       </Show>
       <div className="email">
         <a style={{ marginTop: 25 }} href="mailto:tnonews-help@gov.bc.ca">

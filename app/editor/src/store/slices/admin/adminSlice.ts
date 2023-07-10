@@ -3,7 +3,6 @@ import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import {
   IActionModel,
-  IAlertModel,
   IConnectionModel,
   IContributorModel,
   IDataLocationModel,
@@ -17,6 +16,7 @@ import {
   IReportTemplateModel,
   ISeriesModel,
   ISourceModel,
+  ISystemMessageModel,
   ITagModel,
   ITopicModel,
   ITopicScoreRuleModel,
@@ -42,7 +42,7 @@ export const initialAdminState: IAdminState = {
   topics: [],
   rules: [],
   tags: [],
-  alerts: [],
+  systemMessages: [],
   actions: [],
   series: [],
   contributors: [],
@@ -101,8 +101,8 @@ export const adminSlice = createSlice({
     storeTags(state: IAdminState, action: PayloadAction<ITagModel[]>) {
       state.tags = action.payload;
     },
-    storeAlerts(state: IAdminState, action: PayloadAction<IAlertModel[]>) {
-      state.alerts = action.payload;
+    storeSystemMessages(state: IAdminState, action: PayloadAction<ISystemMessageModel[]>) {
+      state.systemMessages = action.payload;
     },
     storeActions(state: IAdminState, action: PayloadAction<IActionModel[]>) {
       state.actions = action.payload;
@@ -144,7 +144,7 @@ export const {
   storeTopics: storeAdminTopics,
   storeTopicScoreRules: storeAdminTopicScoreRules,
   storeTags: storeAdminTags,
-  storeAlerts: storeAdminAlerts,
+  storeSystemMessages: storeAdminSystemMessages,
   storeActions: storeAdminActions,
   storeSeries: storeAdminSeries,
   storeContributors: storeAdminContributors,

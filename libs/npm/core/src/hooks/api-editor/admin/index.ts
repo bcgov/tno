@@ -1,5 +1,4 @@
 export * from './useApiAdminActions';
-export * from './useApiAdminAlerts';
 export * from './useApiAdminConnections';
 export * from './useApiAdminContentReferences';
 export * from './useApiAdminContributors';
@@ -14,6 +13,7 @@ export * from './useApiAdminReports';
 export * from './useApiAdminReportTemplates';
 export * from './useApiAdminSeries';
 export * from './useApiAdminSources';
+export * from './useApiAdminSystemMessages';
 export * from './useApiAdminTags';
 export * from './useApiAdminTopics';
 export * from './useApiAdminTopicScoreRules';

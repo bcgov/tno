@@ -3,7 +3,6 @@ import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWor
 import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import {
   IActionModel,
-  IAlertModel,
   IConnectionModel,
   IDataLocationModel,
   IIngestModel,
@@ -13,6 +12,7 @@ import {
   IProductModel,
   ISeriesModel,
   ISourceModel,
+  ISystemMessageModel,
   ITagModel,
   ITopicModel,
   ITopicScoreRuleModel,
@@ -33,7 +33,7 @@ export interface IAdminState {
   topics: ITopicModel[];
   rules: ITopicScoreRuleModel[];
   tags: ITagModel[];
-  alerts: IAlertModel[];
+  systemMessages: ISystemMessageModel[];
   actions: IActionModel[];
   series: ISeriesModel[];
   licenses: ILicenseModel[];

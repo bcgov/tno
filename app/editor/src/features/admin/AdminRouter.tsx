@@ -42,7 +42,7 @@ import {
   WorkOrderForm,
   WorkOrderList,
 } from '.';
-import { AlertForm } from './alerts/AlertForm';
+import { SystemMessageForm } from './system-message/SystemMessageForm';
 
 export const AdminRouter: React.FC = () => {
   return (
@@ -59,7 +59,7 @@ export const AdminRouter: React.FC = () => {
       <Route path="tags" element={<TagList />} />
       <Route path="tags/:id" element={<TagsForm />} />
 
-      <Route path="alerts" element={<AlertForm />} />
+      <Route path="system-message" element={<SystemMessageForm />} />
 
       <Route path="programs" element={<SeriesList />} />
       <Route path="programs/:id" element={<SeriesForm />} />
