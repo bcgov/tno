@@ -43,7 +43,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
     {
         this.Name = name;
         this.Label = label;
-        this.Content = content ?? Array.Empty<ContentModel>();
+        this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
     }
     #endregion
 }
