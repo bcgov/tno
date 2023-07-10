@@ -16,13 +16,16 @@ public class MinisterModel : BaseTypeModel<int>
     /// </summary>
     public MinisterModel() { }
 
+    public string? Aliases { get; set; } = "";
+
+
     /// <summary>
     /// Creates a new instance of an MinisterModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
     public MinisterModel(Entities.Minister entity) : base(entity)
     {
-
+        this.Aliases = entity.Aliases;
     }
     #endregion
 }

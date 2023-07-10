@@ -13,6 +13,10 @@ public class Minister : BaseType<int>
     #region Constructors
     protected Minister() { }
 
+    /// <summary>
+    [Column("aliases")]
+    public string? Aliases { get; set; }
+
     public Minister(string name) : base(name)
     {
     }

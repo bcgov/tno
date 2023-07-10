@@ -1,5 +1,6 @@
 import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
+import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import {
   IActionModel,
   IConnectionModel,
@@ -25,6 +26,7 @@ export interface IAdminState {
   dataLocations: IDataLocationModel[];
   products: IProductModel[];
   ingests: IIngestModel[];
+  ministers: IMinisterModel[];
   ingestTypes: IIngestTypeModel[];
   userFilter: IUserListFilter;
   users: IPaged<IUserModel>;

@@ -145,6 +145,9 @@ public class ContentFilter : PageFilter
     /// </summary>
     public string? Keyword { get; set; }
 
+    // get/set - Get/set the aliases to search for (tied to ministers).
+    public string? Aliases { get; set; }
+
     /// <summary>
     /// get/set - Get/set the source ids to exlude from the search.
     /// </summary>
