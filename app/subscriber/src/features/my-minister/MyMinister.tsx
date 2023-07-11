@@ -68,12 +68,13 @@ export const MyMinister: React.FC = () => {
 
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
+    if (!aliases.length) return;
     fetch({
       ...filter,
       ...filterAdvanced,
       keyword: aliases.toString(),
     }).then((data) => {
-      setHomeItems(!!aliases.length ? data.items : []);
+      setHomeItems(data.items);
     });
     // only want the effect to trigger when aliases is populated, not every time the filter changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
