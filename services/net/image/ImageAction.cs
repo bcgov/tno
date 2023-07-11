@@ -83,34 +83,42 @@ public class ImageAction : IngestAction<ImageOptions>
                                                 username,
                                                 new PrivateKeyAuthenticationMethod(username, keyFiles));
             using var client = new SftpClient(connectionInfo);
-            client.Connect();
-            remotePath = remotePath.Replace("~/", $"{client.WorkingDirectory}/");
-            var files = await FetchImagesAsync(client, remotePath);
-            files = files.Where(f => f.Name.Contains(inputFileName));
-            this.Logger.LogDebug("{count} files were discovered that match the filter '{filter}'.", files.Count(), inputFileName);
-
-            foreach (var file in files)
+            try
             {
-                var newReference = CreateContentReference(manager.Ingest, file.Name);
-                var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, newReference.Uid);
-                if (reference == null)
-                {
-                    reference = await this.Api.AddContentReferenceAsync(newReference);
-                }
-                else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
-                {
-                    // If another process has it in progress only attempt to do an import if it's
-                    // more than an 5 minutes old. Assumption is that it is stuck.
-                    reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
-                }
-                else continue;
+                client.Connect();
+                remotePath = remotePath.Replace("~/", $"{client.WorkingDirectory}/");
+                var files = await FetchImagesAsync(client, remotePath);
+                files = files.Where(f => f.Name.Contains(inputFileName));
+                this.Logger.LogDebug("{count} files were discovered that match the filter '{filter}'.", files.Count(), inputFileName);
 
-                await CopyImageAsync(client, manager.Ingest, remotePath.CombineWith(file.Name));
-                reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
-                if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, file.Name));
+                foreach (var file in files)
+                {
+                    var newReference = CreateContentReference(manager.Ingest, file.Name);
+                    var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, newReference.Uid);
+                    if (reference == null)
+                    {
+                        reference = await this.Api.AddContentReferenceAsync(newReference);
+                    }
+                    else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
+                    {
+                        // If another process has it in progress only attempt to do an import if it's
+                        // more than an 5 minutes old. Assumption is that it is stuck.
+                        reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
+                    }
+                    else continue;
+
+                    await CopyImageAsync(client, manager.Ingest, remotePath.CombineWith(file.Name));
+                    reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
+                    if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, file.Name));
+                }
             }
-
-            client.Disconnect();
+            catch
+            {
+                // Any failure needs to disconnect.
+                if (client.IsConnected)
+                    client.Disconnect();
+                throw;
+            }
         }
         else
         {
@@ -214,9 +222,9 @@ public class ImageAction : IngestAction<ImageOptions>
                 var year = String.IsNullOrWhiteSpace(match.Groups["year"].Value) ? today.Year : int.Parse(match.Groups["year"].Value);
                 var month = String.IsNullOrWhiteSpace(match.Groups["month"].Value) ? today.Month : int.Parse(match.Groups["month"].Value);
                 var day = String.IsNullOrWhiteSpace(match.Groups["day"].Value) ? today.Day : int.Parse(match.Groups["day"].Value);
-                var hour = String.IsNullOrWhiteSpace(match.Groups["hour"].Value) ? today.Hour : int.Parse(match.Groups["hour"].Value);
-                var minute = String.IsNullOrWhiteSpace(match.Groups["minute"].Value) ? today.Minute : int.Parse(match.Groups["minute"].Value);
-                var second = String.IsNullOrWhiteSpace(match.Groups["second"].Value) ? today.Second : int.Parse(match.Groups["second"].Value);
+                var hour = String.IsNullOrWhiteSpace(match.Groups["hour"].Value) ? 0 : int.Parse(match.Groups["hour"].Value);
+                var minute = String.IsNullOrWhiteSpace(match.Groups["minute"].Value) ? 0 : int.Parse(match.Groups["minute"].Value);
+                var second = String.IsNullOrWhiteSpace(match.Groups["second"].Value) ? 0 : int.Parse(match.Groups["second"].Value);
                 publishedOn = new DateTime(year, month, day, hour, minute, second, today.Kind);
 
                 // If the published on date is greater than today we will assume it's in the morning.
