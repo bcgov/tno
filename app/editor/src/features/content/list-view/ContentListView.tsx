@@ -12,7 +12,6 @@ import {
   ITablePage,
   ITableSort,
   IWorkOrderModel,
-  Loader,
   Page,
   Row,
   Show,
@@ -215,7 +214,6 @@ export const ContentListView: React.FC = () => {
         <ContentToolBar onSearch={fetch} />
         <Row className="top-pane">
           <Row className="content-list">
-            <Loader visible={isLoading}></Loader>
             <FlexboxTable
               rowId="id"
               columns={columns}
@@ -227,6 +225,7 @@ export const ContentListView: React.FC = () => {
               totalItems={page.total}
               showSort={true}
               activeRowId={contentId}
+              isLoading={isLoading}
               onPageChange={handleChangePage}
               onSortChange={handleChangeSort}
               onRowClick={handleRowClick}

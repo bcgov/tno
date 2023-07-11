@@ -21,4 +21,5 @@ export interface ITableProps<T extends object>
   data: T[];
   /** An array of columns to control the output */
   columns: ITableHookColumn<T>[];
+  isLoading?: boolean;
 }
