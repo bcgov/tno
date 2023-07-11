@@ -17,3 +17,6 @@ secretGenerator:
   - name: api
     envs:
       - .env
+  - name: services
+    envs:
+      - keycloak.env

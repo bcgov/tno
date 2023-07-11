@@ -34,7 +34,7 @@ fi
 eval set -- "$PARSED"
 
 # Default values.
-environment=local bootstrap=${BOOTSTRAP:-tno-kafka-broker:29094} partitions=3 replication=3 index=0
+environment=local bootstrap=${BOOTSTRAP:-kafka-broker-0:29094} partitions=3 replication=3 index=0
 
 # now enjoy the options in order and nicely split until we see --
 while true; do
@@ -105,5 +105,5 @@ export index
 if [ "$environment" = "local" ]; then
   docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic $topic --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
 else
-  oc rsh -n 9b301c-$environment tno-kafka-broker-$index bash -c "/bin/kafka-topics --create --topic $topic --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
+  oc rsh -n 9b301c-$environment kafka-broker-$index bash -c "/bin/kafka-topics --create --topic $topic --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
 fi

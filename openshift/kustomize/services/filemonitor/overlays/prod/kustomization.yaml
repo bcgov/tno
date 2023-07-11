@@ -11,31 +11,24 @@ generatorOptions:
 
 patches:
   - target:
-      kind: ConfigMap
-      name: services
-    patch: |-
-      - op: replace
-        path: /data/KEYCLOAK_AUTHORITY
-        value: https://loginproxy.gov.bc.ca/auth
-  - target:
       kind: DeploymentConfig
       name: filemonitor-service
     patch: |-
       - op: replace
         path: /spec/replicas
-        value: 1
+        value: 2
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
-        value: 50m
+        value: 100m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
         value: 100Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
-        value: 75m
+        value: 200m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 150Mi
+        value: 3000Mi
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: filemonitor-service:prod
