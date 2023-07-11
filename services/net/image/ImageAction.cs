@@ -1,5 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Renci.SshNet;
+using Renci.SshNet.Sftp;
+using System.Text.RegularExpressions;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Extensions;
@@ -8,10 +11,7 @@ using TNO.Models.Extensions;
 using TNO.Kafka.Models;
 using TNO.Services.Actions;
 using TNO.Services.Image.Config;
-using Renci.SshNet;
-using Renci.SshNet.Sftp;
 using TNO.Core.Exceptions;
-using System.Text.RegularExpressions;
 
 namespace TNO.Services.Image;
 
@@ -91,7 +91,7 @@ public class ImageAction : IngestAction<ImageOptions>
 
             foreach (var file in files)
             {
-                var newReference =  CreateContentReference(manager.Ingest, file.Name);
+                var newReference = CreateContentReference(manager.Ingest, file.Name);
                 var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, newReference.Uid);
                 if (reference == null)
                 {
@@ -107,7 +107,7 @@ public class ImageAction : IngestAction<ImageOptions>
 
                 await CopyImageAsync(client, manager.Ingest, remotePath.CombineWith(file.Name));
                 reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
-                if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference));
+                if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, file.Name));
             }
 
             client.Disconnect();
@@ -249,9 +249,10 @@ public class ImageAction : IngestAction<ImageOptions>
     /// </summary>
     /// <param name="ingest"></param>
     /// <param name="reference"></param>
+    /// <param name="fileName"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private SourceContent? CreateSourceContent(IngestModel ingest, ContentReferenceModel reference)
+    private SourceContent? CreateSourceContent(IngestModel ingest, ContentReferenceModel reference, string fileName)
     {
         var publishedOn = reference.PublishedOn ?? DateTime.UtcNow;
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
@@ -269,7 +270,7 @@ public class ImageAction : IngestAction<ImageOptions>
         {
             StreamUrl = ingest.GetConfigurationValue("url"),
             FilePath = (ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "")
-                .CombineWith($"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}/", reference.Uid),
+                .CombineWith($"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}/", fileName),
             Language = ingest.GetConfigurationValue("language")
         };
         return content;

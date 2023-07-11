@@ -197,9 +197,6 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
         {
             try
             {
-                // If the service isn't running, don't make additional requests.
-                if (this.State.Status == ServiceStatus.Paused || this.State.Status == ServiceStatus.Sleeping) continue;
-
                 var results = await this.Api.HandleRequestFailure<IEnumerable<IngestModel>>(
                     async () => await this.Api.GetIngestsForIngestTypeAsync(ingestType),
                     this.Options.ReuseIngests,

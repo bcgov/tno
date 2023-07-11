@@ -178,7 +178,7 @@ public abstract class ContentBase
     /// <param name="title"></param>
     /// <param name="summary"></param>
     /// <param name="publishedOn"></param>
-    public ContentBase(string dataLocation, string source, ContentType contentType, int productId, string uid, string title, string summary, DateTime publishedOn)
+    public ContentBase(string dataLocation, string source, ContentType contentType, int productId, string uid, string title, string summary, DateTime? publishedOn)
         : this(dataLocation, source, contentType, productId, uid, title, summary)
     {
         this.PublishedOn = publishedOn;
