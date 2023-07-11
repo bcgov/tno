@@ -11,7 +11,7 @@ import {
 } from 'tno-core';
 
 import { subscriberColumns } from './constants';
-import { ReportFilter } from './ReportFilter';
+import { ListFilter } from './ListFilter';
 
 /**
  * The page used to view and edit reports.
@@ -41,7 +41,7 @@ export const ReportFormSubscribers: React.FC = () => {
   return (
     <>
       <h2>{values.name}</h2>
-      <ReportFilter
+      <ListFilter
         onSearch={async (value: string) => {
           await findUsers({ page: 1, quantity: users.quantity, keyword: value });
         }}

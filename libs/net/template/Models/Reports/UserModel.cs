@@ -61,6 +61,20 @@ public class UserModel
     /// Creates a new instance of an UserModel, initializes with specified parameter.
     /// </summary>
     /// <param name="model"></param>
+    public UserModel(TNO.API.Areas.Editor.Models.Content.UserModel model)
+    {
+        this.Id = model.Id;
+        this.Username = model.Username;
+        this.Email = model.Email;
+        this.DisplayName = model.DisplayName;
+        this.FirstName = model.FirstName;
+        this.LastName = model.LastName;
+    }
+
+    /// <summary>
+    /// Creates a new instance of an UserModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
     public UserModel(TNO.API.Areas.Services.Models.Content.UserModel model)
     {
         this.Id = model.Id;

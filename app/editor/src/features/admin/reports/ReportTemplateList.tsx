@@ -3,32 +3,33 @@ import { useNavigate } from 'react-router-dom';
 import { useReportTemplates } from 'store/hooks/admin';
 import { Col, FlexboxTable, FormPage, IconButton, IReportTemplateModel, Row } from 'tno-core';
 
-import { templateColumns } from './constants';
-import { ReportFilter } from './ReportFilter';
+import { reportTemplateColumns } from './constants';
+import { ListFilter } from './ListFilter';
 import * as styled from './styled';
 
 export const ReportTemplateList: React.FC = () => {
   const navigate = useNavigate();
-  const [{ reportTemplates }, api] = useReportTemplates();
+  const [{ initialized, reportTemplates }, api] = useReportTemplates();
 
-  const [items, setItems] = React.useState<IReportTemplateModel[]>([]);
+  const [items, setItems] = React.useState<IReportTemplateModel[]>(reportTemplates);
 
   React.useEffect(() => {
-    if (!reportTemplates.length) {
+    if (!initialized) {
       api.findAllReportTemplates().then((data) => {
         setItems(data);
       });
-    } else {
-      setItems(reportTemplates);
     }
-  }, [api, reportTemplates]);
+    // The api will cause a double render because findAllReportTemplates(...) updates the store.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialized]);
 
   return (
     <styled.ReportList>
       <FormPage>
         <Row className="add-media" justifyContent="flex-end">
           <Col flex="1 1 0">
-            Report Templates provide a way to generate output (i.e. email) through a Razor syntax.
+            Templates use the Razor syntax to generate the report. Each template controls what
+            configuration options are available.
           </Col>
           <IconButton
             iconType="plus"
@@ -36,7 +37,7 @@ export const ReportTemplateList: React.FC = () => {
             onClick={() => navigate(`/admin/report/templates/0`)}
           />
         </Row>
-        <ReportFilter
+        <ListFilter
           onFilterChange={(filter) => {
             if (filter && filter.length) {
               const value = filter.toLocaleLowerCase();
@@ -55,7 +56,7 @@ export const ReportTemplateList: React.FC = () => {
         <FlexboxTable
           rowId="id"
           data={items}
-          columns={templateColumns}
+          columns={reportTemplateColumns}
           showSort={true}
           onRowClick={(row) => navigate(`/admin/report/templates/${row.original.id}`)}
           pagingEnabled={false}

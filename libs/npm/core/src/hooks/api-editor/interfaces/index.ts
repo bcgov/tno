@@ -2,6 +2,8 @@ export * from './IActionFilter';
 export * from './IActionModel';
 export * from './IAuditColumnsModel';
 export * from './ICacheModel';
+export * from './IChartPreviewRequestModel';
+export * from './IChartPreviewResultModel';
 export * from './IChartTemplateModel';
 export * from './IClipModel';
 export * from './IConnectionModel';

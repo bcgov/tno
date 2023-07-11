@@ -55,6 +55,7 @@ export const ReportFormTemplate: React.FC = () => {
           name="templateId"
           label="Template"
           tooltip="Select a template to base this report on"
+          required
           options={templateOptions}
           value={templateOptions.filter(
             (rt) => values.templateId === (rt.value === undefined ? 0 : +rt.value),
@@ -89,6 +90,7 @@ export const ReportFormTemplate: React.FC = () => {
         <Col className="editor">
           <Editor
             id="txa-subject-template"
+            required
             value={values.template.subject}
             onValueChange={(code) => setFieldValue('template.subject', code)}
             highlight={(code) => {
@@ -102,6 +104,7 @@ export const ReportFormTemplate: React.FC = () => {
         <Col className="editor">
           <Editor
             id="txa-body-template"
+            required
             value={values.template.body}
             onValueChange={(code) => setFieldValue('template.body', code)}
             highlight={(code) => {

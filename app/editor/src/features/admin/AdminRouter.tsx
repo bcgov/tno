@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import {
   ActionForm,
   ActionList,
+  ChartTemplateForm,
   ConnectionForm,
   ConnectionList,
   ContentReferenceList,
@@ -108,6 +109,8 @@ export const AdminRouter: React.FC = () => {
       <Route path="reports/:id" element={<ReportForm />} />
       <Route path="report/templates/:id" element={<ReportTemplateForm />} />
       <Route path="report/:path" element={<ReportAdmin />} />
+      <Route path="chart/templates" element={<ReportAdmin path="charts" />} />
+      <Route path="chart/templates/:id" element={<ChartTemplateForm />} />
 
       <Route path="notifications" element={<NotificationList />} />
       <Route path="notifications/:id" element={<NotificationForm />} />

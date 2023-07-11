@@ -59,6 +59,24 @@ public class SourceModel : BaseTypeModel<int>
     /// Creates a new instance of an SourceModel, initializes with specified parameter.
     /// </summary>
     /// <param name="model"></param>
+    public SourceModel(TNO.API.Areas.Editor.Models.Content.SourceModel model)
+    {
+        this.Id = model.Id;
+        this.Name = model.Name;
+        this.Description = model.Description;
+        this.IsEnabled = model.IsEnabled;
+        this.SortOrder = model.SortOrder;
+        this.Code = model.Code;
+        this.ShortName = model.ShortName;
+        this.LicenseId = model.LicenseId;
+        this.OwnerId = model.OwnerId;
+        this.ProductId = model.ProductId;
+    }
+
+    /// <summary>
+    /// Creates a new instance of an SourceModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
     public SourceModel(TNO.API.Areas.Services.Models.Content.SourceModel model)
     {
         this.Id = model.Id;

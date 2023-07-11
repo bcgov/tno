@@ -11,16 +11,13 @@ using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Elastic;
-using TNO.Entities.Models;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Keycloak;
-using TNO.Models.Extensions;
 using TNO.TemplateEngine;
 using TNO.TemplateEngine.Extensions;
 using TNO.TemplateEngine.Models.Reports;
 using TNO.Elastic.Models;
-using TNO.API.Areas.Services.Models.Content;
 using TNO.DAL.Config;
 
 namespace TNO.API.Areas.Admin.Controllers;

@@ -61,6 +61,18 @@ public class ContentTagModel
     /// Creates a new instance of an ContentTagModel, initializes with specified parameter.
     /// </summary>
     /// <param name="model"></param>
+    public ContentTagModel(TNO.API.Areas.Editor.Models.Content.ContentTagModel model)
+    {
+        this.ContentId = model.ContentId;
+        this.Id = model.Id;
+        this.Code = model.Code;
+        this.Name = model.Name;
+    }
+
+    /// <summary>
+    /// Creates a new instance of an ContentTagModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
     public ContentTagModel(TNO.API.Areas.Services.Models.Content.ContentTagModel model)
     {
         this.ContentId = model.ContentId;

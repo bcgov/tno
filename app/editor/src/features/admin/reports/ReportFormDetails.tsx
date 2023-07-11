@@ -33,6 +33,7 @@ export const ReportFormDetails: React.FC = () => {
         <FormikText
           name="name"
           label="Name"
+          required
           onChange={(e) => {
             setFieldValue('name', e.target.value);
             if (values.templateId === 0)
@@ -48,6 +49,7 @@ export const ReportFormDetails: React.FC = () => {
           <FormikSelect
             name="reportType"
             label="Report Type"
+            required
             options={reportTypeOptions}
             width="20ch"
             value={reportTypeOptions.filter((rt) =>

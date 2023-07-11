@@ -190,7 +190,7 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - An array of time tracking entries.
     /// </summary>
-    public IEnumerable<ContentTimeTrackingModel> TimeTrackings { get; set; } = Array.Empty<ContentTimeTrackingModel>();
+    public IEnumerable<TimeTrackingModel> TimeTrackings { get; set; } = Array.Empty<TimeTrackingModel>();
 
     /// <summary>
     /// get/set - An array of labels.
@@ -262,7 +262,7 @@ public class ContentModel : AuditColumnsModel
         this.Actions = entity.ActionsManyToMany.Select(e => new ContentActionModel(e));
         this.Topics = entity.TopicsManyToMany.Select(e => new ContentTopicModel(e));
         this.Tags = entity.TagsManyToMany.Select(e => new ContentTagModel(e));
-        this.TimeTrackings = entity.TimeTrackings.Select(e => new ContentTimeTrackingModel(e));
+        this.TimeTrackings = entity.TimeTrackings.Select(e => new TimeTrackingModel(e));
         this.Labels = entity.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = entity.TonePoolsManyToMany.Select(e => new ContentTonePoolModel(e));
         this.FileReferences = entity.FileReferences.Select(e => new FileReferenceModel(e));

@@ -8,6 +8,5 @@ export const WorkOrderForm = styled(FormPage)`
 
   .back-button {
     align-self: start;
-    margin-bottom: 3%;
   }
 `;

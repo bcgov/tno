@@ -67,6 +67,21 @@ public class ContentActionModel
     /// Creates a new instance of an ContentActionModel, initializes with specified parameter.
     /// </summary>
     /// <param name="model"></param>
+    public ContentActionModel(TNO.API.Areas.Editor.Models.Content.ContentActionModel model)
+    {
+        this.ContentId = model.ContentId;
+        this.Id = model.Id;
+        this.Name = model.Name ?? "";
+        this.ValueLabel = model.ValueLabel ?? "";
+        this.ValueType = model.ValueType;
+        this.Value = model.Value;
+        this.DefaultValue = model.DefaultValue ?? "";
+    }
+
+    /// <summary>
+    /// Creates a new instance of an ContentActionModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
     public ContentActionModel(TNO.API.Areas.Services.Models.Content.ContentActionModel model)
     {
         this.ContentId = model.ContentId;

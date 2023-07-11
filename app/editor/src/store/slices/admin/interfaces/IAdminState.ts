@@ -2,6 +2,7 @@ import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import {
   IActionModel,
+  IChartTemplateModel,
   IConnectionModel,
   IContributorModel,
   IDataLocationModel,
@@ -44,5 +45,6 @@ export interface IAdminState {
   workOrders: IPaged<IWorkOrderModel>;
   reports: IReportModel[];
   reportTemplates: IReportTemplateModel[];
+  chartTemplates: IChartTemplateModel[];
   notifications: INotificationModel[];
 }

@@ -1,5 +1,6 @@
 export * from './actions';
 export * from './AdminRouter';
+export * from './charts';
 export * from './connections';
 export * from './contributors';
 export * from './data-locations';

@@ -33,6 +33,20 @@ public class ContributorModel : BaseTypeModel<int>
     /// Creates a new instance of an ContributorModel, initializes with specified parameter.
     /// </summary>
     /// <param name="model"></param>
+    public ContributorModel(TNO.API.Areas.Editor.Models.Content.ContributorModel model)
+    {
+        this.Id = model.Id;
+        this.Name = model.Name;
+        this.Description = model.Description;
+        this.IsEnabled = model.IsEnabled;
+        this.SortOrder = model.SortOrder;
+        this.SourceId = model.SourceId;
+    }
+
+    /// <summary>
+    /// Creates a new instance of an ContributorModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
     public ContributorModel(TNO.API.Areas.Services.Models.Content.ContributorModel model)
     {
         this.Id = model.Id;

@@ -1,4 +1,5 @@
 export * from './useApiAdminActions';
+export * from './useApiAdminChartTemplates';
 export * from './useApiAdminConnections';
 export * from './useApiAdminContentReferences';
 export * from './useApiAdminContributors';
