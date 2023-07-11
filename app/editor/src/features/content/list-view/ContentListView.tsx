@@ -12,6 +12,7 @@ import {
   ITablePage,
   ITableSort,
   IWorkOrderModel,
+  Loader,
   Page,
   Row,
   Show,
@@ -65,6 +66,8 @@ export const ContentListView: React.FC = () => {
 
   const [contentId, setContentId] = React.useState(id);
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
+
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const openTab = true; // TODO: Change to user preference and responsive in future.
   const columns = getColumns(openTab, initTab);
@@ -133,17 +136,22 @@ export const ContentListView: React.FC = () => {
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
       try {
-        const data = await findContent(
-          makeFilter({
-            ...filter,
-          }),
-        );
-        const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
-        channel('page', page);
-        return page;
+        if (!isLoading) {
+          setIsLoading(true);
+          const data = await findContent(
+            makeFilter({
+              ...filter,
+            }),
+          );
+          const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
+          channel('page', page);
+          return page;
+        }
       } catch (error) {
         // TODO: Handle error
         throw error;
+      } finally {
+        setIsLoading(false);
       }
     },
     [channel, findContent],
@@ -206,6 +214,7 @@ export const ContentListView: React.FC = () => {
         <ContentToolBar onSearch={fetch} />
         <Row className="top-pane">
           <Row className="content-list">
+            <Loader visible={isLoading}></Loader>
             <FlexboxTable
               rowId="id"
               columns={columns}
