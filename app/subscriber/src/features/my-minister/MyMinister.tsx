@@ -73,9 +73,11 @@ export const MyMinister: React.FC = () => {
       ...filterAdvanced,
       keyword: aliases.toString(),
     }).then((data) => {
-      setHomeItems(!!ministers.length ? data.items : []);
+      setHomeItems(!!aliases.length ? data.items : []);
     });
-  }, [filter, filterAdvanced, fetch, aliases, ministers.length]);
+    // only want the effect to trigger when aliases is populated, not every time the filter changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aliases]);
   return (
     <styled.MyMinister>
       <Row className="table-container">
