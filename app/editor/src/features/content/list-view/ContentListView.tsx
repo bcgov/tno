@@ -154,6 +154,7 @@ export const ContentListView: React.FC = () => {
         setIsLoading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [channel, findContent],
   );
 
