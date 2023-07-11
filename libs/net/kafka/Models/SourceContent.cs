@@ -40,7 +40,7 @@ public class SourceContent : ContentBase
     /// <param name="publish"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public SourceContent(string dataLocation, string source, ContentType contentType, int productId,
-        string uid, string title, string summary, string body, DateTime publishedOn, bool publish = false)
+        string uid, string title, string summary, string body, DateTime? publishedOn, bool publish = false)
         : base(dataLocation, source, contentType, productId, uid, title, summary, publishedOn)
     {
         this.Body = body ?? throw new ArgumentNullException(nameof(body));

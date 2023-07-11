@@ -169,11 +169,17 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
         return date.ToTimeZone(IngestActionManager<TOptions>.GetTimeZone(ingest, this.Options.TimeZone));
     }
 
+    /// <summary>
+    /// Create a unique hash for the specified 'source', 'headline', and 'publishedOn'
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="headline"></param>
+    /// <param name="publishedOn"></param>
+    /// <returns></returns>
     protected string GetContentHash(string source, string headline, DateTime? publishedOn)
     {
-        string hashInput = publishedOn.HasValue
-            ? $"{source}:{headline}:{publishedOn:yyyy-MM-dd-hh-mm-ss}"
-            : $"{source}:{headline}";
+        var date = publishedOn.HasValue ? $"{publishedOn:yyyy-MM-dd-hh-mm-ss}" : "";
+        string hashInput = $"{source}:{headline}:{date}";
         var inputBytes = Encoding.UTF8.GetBytes(hashInput);
         var inputHash = SHA256.HashData(inputBytes);
         return Convert.ToHexString(inputHash);

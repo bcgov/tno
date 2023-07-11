@@ -87,6 +87,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 var link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri;
                 if (String.IsNullOrWhiteSpace(item.Id)) item.Id = link?.ToString() ?? throw new InvalidOperationException("Feed item requires a valid 'Id' or 'Link'.");
 
+                // Some feeds require a separate request to fetch relevant meta-data.
+                await FetchContent(manager.Ingest, item, link);
                 var sourceContent = CreateSourceContent(manager.Ingest, item);
 
                 // Fetch content reference.
@@ -94,9 +96,9 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 if (reference == null)
                 {
                     reference = await AddContentReferenceAsync(manager.Ingest, item, sourceContent);
-                    await FetchContent(manager.Ingest, item, link);
-                } else if ((reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddHours(1) < DateTime.UtcNow) ||
-                        (!reference.Status.In((int)WorkflowStatus.InProgress, (int)WorkflowStatus.Received)
+                }
+                else if ((reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddHours(1) < DateTime.UtcNow) ||
+                        (!reference.Status.In((int)WorkflowStatus.InProgress, (int)WorkflowStatus.Received, (int)WorkflowStatus.Imported)
                             && item.PublishDate.UtcDateTime != DateTime.MinValue
                             && (reference.PublishedOn != item.PublishDate.UtcDateTime
                                 || (item.LastUpdatedTime.UtcDateTime != DateTime.MinValue
@@ -109,7 +111,6 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                     // more than an hour old. Assumption is that it is stuck.
                     this.Logger.LogWarning("Updating content {source}:{uid}", reference.Source, reference.Uid);
                     reference = await this.UpdateContentReferenceAsync(reference, item);
-                    await FetchContent(manager.Ingest, item, link);
                 }
                 else continue;
 
@@ -231,8 +232,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         var (title, summary, body) = HandleInvalidEncoding(item);
         var source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
-        var uid = GetContentHash(source, title, item.PublishDate.UtcDateTime);
-        var publishedOn = item.PublishDate.UtcDateTime != DateTime.MinValue ? item.PublishDate.UtcDateTime : DateTime.UtcNow;
+        var publishedOn = item.PublishDate.UtcDateTime != DateTime.MinValue ? item.PublishDate.UtcDateTime : (DateTime?)null;
+        var uid = GetContentHash(source, title, publishedOn);
 
         return new SourceContent(
             this.Options.DataLocation,
@@ -262,8 +263,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <returns>updated title, summary, body</returns>
     private (string title, string summary, string body) HandleInvalidEncoding(SyndicationItem item)
     {
-        var title = item.Title.Text;
-        var summary = item.Summary.Text;
+        var title = item.Title.Text ?? "";
+        var summary = item.Summary.Text ?? "";
         var content = item.Content as TextSyndicationContent;
         var body = content?.Text ?? item.Content?.ToString() ?? "";
         if (!string.IsNullOrEmpty(this.Options.InvalidEncodings) && this.Options.EncodingSets != null)
@@ -275,9 +276,9 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 {
                     var oldValue = keyValue[0];
                     var newValue = keyValue[1];
-                    if (title.Contains(oldValue)) title = title.Replace(oldValue, newValue);
-                    if (summary.Contains(oldValue)) summary = summary.Replace(oldValue, newValue);
-                    if (body.Contains(oldValue)) body = body.Replace(oldValue, newValue);
+                    if (title?.Contains(oldValue) == true) title = title.Replace(oldValue, newValue);
+                    if (summary?.Contains(oldValue) == true) summary = summary.Replace(oldValue, newValue);
+                    if (body?.Contains(oldValue) == true) body = body.Replace(oldValue, newValue);
                 }
             }
         }
@@ -304,7 +305,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <param name="item"></param>
     /// <param name="sourceContent"></param>
     /// <returns></returns>
-    private static ContentReferenceModel CreateContentReference(IngestModel ingest, SyndicationItem item, SourceContent sourceContent) {
+    private static ContentReferenceModel CreateContentReference(IngestModel ingest, SyndicationItem item, SourceContent sourceContent)
+    {
 
         return new ContentReferenceModel()
         {
