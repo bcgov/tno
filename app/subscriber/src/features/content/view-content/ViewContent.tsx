@@ -207,7 +207,7 @@ export const ViewContent: React.FC = () => {
               content?.contentType === ContentTypeName.Story
             }
           >
-            <span>{parse(content?.body ?? '')}</span>
+            <span>{parse(content?.body?.replace(/\n+/g, '<br><br>') ?? '')}</span>
           </Show>
           <Show
             visible={
@@ -215,7 +215,7 @@ export const ViewContent: React.FC = () => {
               content?.contentType === ContentTypeName.Image
             }
           >
-            <span>{parse(content?.summary ?? '')}</span>
+            <span>{parse(content?.summary?.replace(/\n+/g, '<br><br>') ?? '')}</span>
           </Show>
           <Show visible={!!content?.sourceUrl}>
             <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
