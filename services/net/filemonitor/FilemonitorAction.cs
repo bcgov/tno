@@ -841,9 +841,9 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         var tags = GetFmsData(filtered, Fields.Tags, ingest);
         var labelArray = tags.Split(',');
         var labelList = new List<TNO.Kafka.Models.LabelModel>();
-        foreach (string tag in labelArray)
+        foreach (string labelValue in labelArray)
         {
-            labelList.Add(new TNO.Kafka.Models.LabelModel(tag, ""));
+            labelList.Add(new TNO.Kafka.Models.LabelModel("", labelValue));
         }
 
         return labelList;
