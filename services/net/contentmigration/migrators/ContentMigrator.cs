@@ -282,18 +282,14 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
         // we only need to download the file if it's not already staged.
         if (!File.Exists(localPath))
         {
-            UriBuilder uriBuilder = new()
-            {
-                Scheme = this.Options.MediaHostScheme,
-                Host = this.Options.MediaHostName,
-                Path = Path.Combine(this.Options.MediaRootPath, request.Path, request.Filename)
-            };
+            UriBuilder uriBuilder = new(this.Options.MediaHostRootUri);
+            var contentPath = Path.Combine(uriBuilder.ToString(), request.Path, request.Filename).Replace("\\", "/");
 
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             // client.DefaultRequestHeaders.Add("authorization", access_token); //if any
             client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(request.ContentType));
-            HttpResponseMessage response = await client.GetAsync(uriBuilder.ToString());
+            HttpResponseMessage response = await client.GetAsync(contentPath);
 
             if (response.IsSuccessStatusCode)
             {

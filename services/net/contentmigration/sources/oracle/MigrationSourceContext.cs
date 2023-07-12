@@ -1,4 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 using TNO.Core.Extensions;
 
@@ -28,6 +27,15 @@ public class MigrationSourceContext : DbContext
     public MigrationSourceContext()
     {
 
+    }
+
+    /// <summary>
+    ///  Updates the connection string used to connect to the underlying database
+    /// </summary>
+    /// <param name="connectionString"></param>
+    public void ChangeDatabaseConnectionString(string connectionString)
+    {
+        this.Database.SetConnectionString(connectionString);
     }
 
     /// <summary>

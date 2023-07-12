@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Oracle.ManagedDataAccess.Client;
 using TNO.Services.ContentMigration.Config;
 
 namespace TNO.Services.ContentMigration.Sources.Oracle.Services;
@@ -46,14 +45,6 @@ public static class ServiceCollectionExtensions
     {
         if (config == null) throw new ArgumentException("Argument is required and cannot be null, empty or whitespace.", nameof(config));
 
-        var connectionStringPartial = config.DataSource;
-        var userId = config.UserId;
-        var pwd = config.Password;
-
-        var oracleBuilder = new OracleConnectionStringBuilder(connectionStringPartial);
-        oracleBuilder.UserID = userId;
-        oracleBuilder.Password = pwd;
-
-        return services.AddMigrationSourceContext(oracleBuilder.ConnectionString);
+        return services.AddMigrationSourceContext(OracleConnectionStringHelper.GetConnectionString(config.UserId, config.Password, config.DataSource));
     }
 }
