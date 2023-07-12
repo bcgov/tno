@@ -1,0 +1,61 @@
+---
+# The final build image.
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: contentmigration-service
+  annotations:
+    description: Destination for built images.
+    created-by: kyle.morris
+  labels:
+    name: contentmigration-service
+    part-of: tno
+    version: 1.0.0
+    component: contentmigration
+    managed-by: kustomize
+
+---
+# The build config that will be created will be named for the branch you created it for.
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: contentmigration-service.dev
+  annotations:
+    description: Build image from Dockerfile in git repo.
+    created-by: kyle.morris
+  labels:
+    name: contentmigration-service
+    part-of: tno
+    version: 1.0.0
+    component: contentmigration
+    managed-by: kustomize
+    branch: dev
+spec:
+  completionDeadlineSeconds: 1800
+  triggers:
+    - type: ImageChange
+    - type: ConfigChange
+  runPolicy: Serial
+  source:
+    git:
+#      uri: https://github.com/bcgov/tno.git
+#      ref: dev
+      uri: https://github.com/kylgarmor/tno.git
+      ref: tno-1490
+    contextDir: ./
+  strategy:
+    type: Docker
+    dockerStrategy:
+      imageOptimizationPolicy: SkipLayers
+      dockerfilePath: services/net/contentmigration/Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: contentmigration-service:dev
+  resources:
+    requests:
+      cpu: 20m
+      memory: 250Mi
+    limits:
+      cpu: 500m
+      memory: 2Gi

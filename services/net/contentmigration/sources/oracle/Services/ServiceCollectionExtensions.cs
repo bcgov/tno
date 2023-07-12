@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Oracle.ManagedDataAccess.Client;
 using TNO.Services.ContentMigration.Config;
 
 namespace TNO.Services.ContentMigration.Sources.Oracle.Services;
@@ -15,12 +14,11 @@ public static class ServiceCollectionExtensions
     /// Add a Oracle DbContext to the service collection.
     /// </summary>
     /// <param name="services"></param>
-    /// <param name="connectionString"></param>
+    /// <param name="config"></param>
     /// <returns></returns>
-    /// <exception cref="ArgumentException"></exception>
-    public static IServiceCollection AddMigrationSourceContext(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddMigrationSourceContext(this IServiceCollection services, OracleConnectionSettings? config)
     {
-        if (String.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Argument is required and cannot be null, empty or whitespace.", nameof(connectionString));
+        var connectionString = OracleConnectionStringHelper.GetConnectionString(config);
 
         services.AddDbContext<MigrationSourceContext>(options =>
         {
@@ -34,26 +32,5 @@ public static class ServiceCollectionExtensions
         });
 
         return services;
-    }
-
-    /// <summary>
-    /// Add a Oracle DbContext to the service collection.
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="config"></param>
-    /// <returns></returns>
-    public static IServiceCollection AddMigrationSourceContext(this IServiceCollection services, OracleConnectionSettings? config)
-    {
-        if (config == null) throw new ArgumentException("Argument is required and cannot be null, empty or whitespace.", nameof(config));
-
-        var connectionStringPartial = config.DataSource;
-        var userId = config.UserId;
-        var pwd = config.Password;
-
-        var oracleBuilder = new OracleConnectionStringBuilder(connectionStringPartial);
-        oracleBuilder.UserID = userId;
-        oracleBuilder.Password = pwd;
-
-        return services.AddMigrationSourceContext(oracleBuilder.ConnectionString);
     }
 }

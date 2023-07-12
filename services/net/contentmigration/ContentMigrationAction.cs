@@ -12,6 +12,7 @@ using TNO.Services.ContentMigration.Config;
 using TNO.Services.ContentMigration.Sources.Oracle;
 using TNO.Services.ContentMigration.Migrators;
 using TNO.Services.ContentMigration.Extensions;
+using TNO.Services.ContentMigration.Sources.Oracle.Services;
 
 namespace TNO.Services.ContentMigration;
 
@@ -42,7 +43,11 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public ContentMigrationAction(MigrationSourceContext sourceContext, ContentMigratorFactory migratorFactory, IApiService api, IOptions<ContentMigrationOptions> options, ILogger<ContentMigrationAction> logger) : base(api, options, logger)
+    public ContentMigrationAction(MigrationSourceContext sourceContext,
+        ContentMigratorFactory migratorFactory,
+        IApiService api,
+        IOptions<ContentMigrationOptions> options,
+        ILogger<ContentMigrationAction> logger) : base(api, options, logger)
     {
         _sourceContext = sourceContext;
         _migratorFactory = migratorFactory;
@@ -125,6 +130,16 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         DateTime? importDateStart = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateStart")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateStart") : null;
         DateTime? importDateEnd = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateEnd")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateEnd") : null;
         DateTime? creationDateOfLastImport = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("creationDateOfLastImport")) ? manager.Ingest.GetConfigurationValue<DateTime>("creationDateOfLastImport") : null;
+
+        string? sourceDbHostName = !string.IsNullOrEmpty(manager.Ingest.SourceConnection.GetConfigurationValue("hostname")) ? manager.Ingest.SourceConnection.GetConfigurationValue<string>("hostname") : null;
+        int? sourceDbHostPort = !string.IsNullOrEmpty(manager.Ingest.SourceConnection.GetConfigurationValue("port")) ? manager.Ingest.SourceConnection.GetConfigurationValue<int>("port") : null;
+        string? sourceDbSID = !string.IsNullOrEmpty(manager.Ingest.SourceConnection.GetConfigurationValue("sid")) ? manager.Ingest.SourceConnection.GetConfigurationValue<string>("sid") : null;
+        string? sourceDbUserName = !string.IsNullOrEmpty(manager.Ingest.SourceConnection.GetConfigurationValue("username")) ? manager.Ingest.SourceConnection.GetConfigurationValue<string>("username") : null;
+        string? sourceDbPassword = !string.IsNullOrEmpty(manager.Ingest.SourceConnection.GetConfigurationValue("password")) ? manager.Ingest.SourceConnection.GetConfigurationValue<string>("password") : null;
+
+        if (sourceDbHostName != null && sourceDbHostPort != null && sourceDbSID != null && sourceDbUserName != null && sourceDbPassword != null) {
+            _sourceContext.ChangeDatabaseConnectionString(OracleConnectionStringHelper.GetConnectionString(sourceDbUserName, sourceDbPassword, sourceDbHostName, sourceDbHostPort.Value, sourceDbSID));
+        }
 
         while ((countOfRecordsRetrieved > 0) && (skip < maxIngestedRecords))
         {

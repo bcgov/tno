@@ -9,15 +9,29 @@ public class OracleConnectionSettings
 {
     #region Properties
     /// <summary>
-    /// get/set - Should only contain the 'Data Source' section of the connection string. For example "Data Source=localhost:41521/freepdb1"
+    /// get/set - The Host name of the db server
     /// </summary>
     [Required]
-    public string DataSource { get; set; } = "";
+    public string HostName { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The Port of the db server
+    /// </summary>
+    [Required]
+    public int? Port { get; set; }
+
+    /// <summary>
+    /// get/set - The SID (db name)
+    /// </summary>
+    [Required]
+    public string Sid { get; set; } = "";
+
     /// <summary>
     /// get/set - The user id to use to connect to the database.
     /// </summary>
     [Required]
-    public string UserId { get; set; } = "";
+    public string UserName { get; set; } = "";
+
     /// <summary>
     /// get/set - The password to use to connect to the database.
     /// </summary>
