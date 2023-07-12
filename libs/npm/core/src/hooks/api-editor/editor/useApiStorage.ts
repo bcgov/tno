@@ -3,7 +3,7 @@ import React from 'react';
 
 import { extractFileName, toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IFolderModel, IItemModel, useApi } from '..';
+import { IDirectoryModel, IItemModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -20,7 +20,7 @@ export const useApiStorage = (
   const api = useApi(options);
 
   return React.useRef({
-    folderExists: (locationId?: number, path?: string) => {
+    directoryExists: (locationId?: number, path?: string) => {
       const params = {
         path,
       };
@@ -28,11 +28,11 @@ export const useApiStorage = (
         `/editor/storage${locationId ? `/${locationId}` : ''}/exists?${toQueryString(params)}`,
       );
     },
-    getFolder: (locationId?: number, path?: string) => {
+    getDirectory: (locationId?: number, path?: string) => {
       const params = {
         path,
       };
-      return api.get<IFolderModel, AxiosResponse<IFolderModel>, any>(
+      return api.get<IDirectoryModel, AxiosResponse<IDirectoryModel>, any>(
         `/editor/storage${locationId ? `/${locationId}` : ''}?${toQueryString(params)}`,
       );
     },

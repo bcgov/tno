@@ -63,11 +63,11 @@ public class StorageController : ControllerBase
     [HttpGet]
     [HttpGet("{locationId:int}")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(DirectoryModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
-    public IActionResult GetFolder([FromRoute] int? locationId, [FromQuery] string? path)
+    public IActionResult GetDirectory([FromRoute] int? locationId, [FromQuery] string? path)
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var dataLocation = locationId.HasValue ? _connection.GetDataLocation(locationId.Value) : null;
@@ -86,7 +86,7 @@ public class StorageController : ControllerBase
                     if (!client.Exists(Path.Combine(locationPath, path))) return new NoContentResult();
 
                     var files = client.ListDirectory(Path.Combine(locationPath, path));
-                    return new JsonResult(new FolderModel(files, _apiOptions.DataLocation == dataLocation?.Name));
+                    return new JsonResult(new DirectoryModel(files, _apiOptions.DataLocation == dataLocation?.Name));
                 }
                 finally
                 {
@@ -96,13 +96,13 @@ public class StorageController : ControllerBase
             }
             else if (dataLocation.Connection == null || dataLocation.Connection?.ConnectionType == ConnectionType.LocalVolume)
             {
-                return new JsonResult(new FolderModel(_storageOptions.GetCapturePath(), path, true));
+                return new JsonResult(new DirectoryModel(_storageOptions.GetCapturePath(), path, true));
             }
             else throw new NotImplementedException($"Location connection type '{dataLocation.Connection?.ConnectionType}' not implemented yet.");
         }
         else
         {
-            return new JsonResult(new FolderModel(_storageOptions.GetUploadPath(), path, true));
+            return new JsonResult(new DirectoryModel(_storageOptions.GetUploadPath(), path, true));
         }
     }
 
@@ -119,7 +119,7 @@ public class StorageController : ControllerBase
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
-    public IActionResult FolderExists([FromRoute] int? locationId, [FromQuery] string? path)
+    public IActionResult DirectoryExists([FromRoute] int? locationId, [FromQuery] string? path)
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var dataLocation = locationId.HasValue ? _connection.GetDataLocation(locationId.Value) : null;

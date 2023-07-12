@@ -20,51 +20,71 @@ public class TNOContext : DbContext
     #endregion
 
     #region Properties
+    #region Admin
+    public DbSet<SystemMessage> SystemMessages => Set<SystemMessage>();
+    public DbSet<Cache> Cache => Set<Cache>();
+    public DbSet<TopicScoreRule> TopicScoreRules => Set<TopicScoreRule>();
+    public DbSet<SourceMetric> SourceMetrics => Set<SourceMetric>();
+    public DbSet<Metric> Metrics => Set<Metric>();
+    public DbSet<Sentiment> Sentiments => Set<Sentiment>();
+    public DbSet<EarnedMedia> EarnedMedias => Set<EarnedMedia>();
+    public DbSet<Minister> Ministers => Set<Minister>();
+    public DbSet<WorkOrder> WorkOrders => Set<WorkOrder>();
+    #endregion
+
+    #region Ingest
+    public DbSet<IngestType> IngestTypes => Set<IngestType>();
+    public DbSet<Ingest> Ingests => Set<Ingest>();
+    public DbSet<IngestState> IngestStates => Set<IngestState>();
+    public DbSet<IngestSchedule> IngestSchedules => Set<IngestSchedule>();
+    public DbSet<Connection> Connections => Set<Connection>();
+    public DbSet<DataLocation> DataLocations => Set<DataLocation>();
+    public DbSet<IngestDataLocation> IngestDataLocations => Set<IngestDataLocation>();
+    public DbSet<Schedule> Schedules => Set<Schedule>();
+    #endregion
+
+    #region Content
     public DbSet<Content> Contents => Set<Content>();
     public DbSet<ContentLog> ContentLogs => Set<ContentLog>();
     public DbSet<ContentReference> ContentReferences => Set<ContentReference>();
     public DbSet<ContentLink> ContentLinks => Set<ContentLink>();
     public DbSet<FileReference> FileReferences => Set<FileReference>();
-    public DbSet<TimeTracking> TimeTrackings => Set<TimeTracking>();
+    public DbSet<ContentTag> ContentTags => Set<ContentTag>();
+    public DbSet<ContentTopic> ContentTopics => Set<ContentTopic>();
+    public DbSet<ContentLabel> ContentLabels => Set<ContentLabel>();
+    public DbSet<ContentTonePool> ContentTonePools => Set<ContentTonePool>();
+    public DbSet<ContentAction> ContentActions => Set<ContentAction>();
+    #endregion
+
+    #region Content Metadata
+    public DbSet<Source> Sources => Set<Source>();
     public DbSet<License> Licenses => Set<License>();
     public DbSet<Series> Series => Set<Series>();
     public DbSet<Contributor> Contributors => Set<Contributor>();
-    public DbSet<SystemMessage> SystemMessages => Set<SystemMessage>();
-    public DbSet<Product> Products => Set<Product>();
     public DbSet<ContentTypeAction> ContentTypeActions => Set<ContentTypeAction>();
-    public DbSet<ContentAction> ContentActions => Set<ContentAction>();
-    public DbSet<Entities.Action> Actions => Set<Entities.Action>();
-    public DbSet<ContentLabel> ContentLabels => Set<ContentLabel>();
-    public DbSet<ContentTonePool> ContentTonePools => Set<ContentTonePool>();
-    public DbSet<TonePool> TonePools => Set<TonePool>();
-    public DbSet<ContentTopic> ContentTopics => Set<ContentTopic>();
-    public DbSet<Topic> Topics => Set<Topic>();
-    public DbSet<TopicScoreRule> TopicScoreRules => Set<TopicScoreRule>();
-    public DbSet<ContentTag> ContentTags => Set<ContentTag>();
     public DbSet<Tag> Tags => Set<Tag>();
-    public DbSet<IngestType> IngestTypes => Set<IngestType>();
-    public DbSet<Ingest> Ingests => Set<Ingest>();
-    public DbSet<IngestState> IngestStates => Set<IngestState>();
-    public DbSet<IngestSchedule> IngestSchedules => Set<IngestSchedule>();
-    public DbSet<Schedule> Schedules => Set<Schedule>();
-    public DbSet<EventSchedule> EventSchedules => Set<EventSchedule>();
-    public DbSet<Connection> Connections => Set<Connection>();
-    public DbSet<DataLocation> DataLocations => Set<DataLocation>();
-    public DbSet<IngestDataLocation> IngestDataLocations => Set<IngestDataLocation>();
-    public DbSet<Source> Sources => Set<Source>();
-    public DbSet<SourceMetric> SourceMetrics => Set<SourceMetric>();
-    public DbSet<Metric> Metrics => Set<Metric>();
-    public DbSet<Cache> Cache => Set<Cache>();
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<Entities.Action> Actions => Set<Entities.Action>();
+    public DbSet<TonePool> TonePools => Set<TonePool>();
+    public DbSet<Topic> Topics => Set<Topic>();
+    #endregion
+
+    #region Accounts
+    public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<User> Users => Set<User>();
-    public DbSet<WorkOrder> WorkOrders => Set<WorkOrder>();
-    public DbSet<Minister> Ministers => Set<Minister>();
+    public DbSet<UserOrganization> UserOrganizations => Set<UserOrganization>();
+    public DbSet<TimeTracking> TimeTrackings => Set<TimeTracking>();
+    #endregion
 
     #region Reports
-    public DbSet<Sentiment> Sentiments => Set<Sentiment>();
-    public DbSet<EarnedMedia> EarnedMedias => Set<EarnedMedia>();
+    public DbSet<Folder> Folders => Set<Folder>();
+    public DbSet<FolderContent> FolderContents => Set<FolderContent>();
+    public DbSet<Filter> Filters => Set<Filter>();
     public DbSet<ChartTemplate> ChartTemplates => Set<ChartTemplate>();
     public DbSet<ReportTemplate> ReportTemplates => Set<ReportTemplate>();
     public DbSet<ReportTemplateChartTemplate> ReportTemplateChartTemplates => Set<ReportTemplateChartTemplate>();
+    public DbSet<ReportSection> ReportSections => Set<ReportSection>();
+    public DbSet<ReportSectionChartTemplate> ReportSectionChartTemplates => Set<ReportSectionChartTemplate>();
     public DbSet<Report> Reports => Set<Report>();
     public DbSet<ReportInstance> ReportInstances => Set<ReportInstance>();
     public DbSet<ReportInstanceContent> ReportInstanceContents => Set<ReportInstanceContent>();
@@ -74,6 +94,7 @@ public class TNOContext : DbContext
     public DbSet<AVOverviewInstance> AVOverviewInstances => Set<AVOverviewInstance>();
 
     public DbSet<UserReport> UserReports => Set<UserReport>();
+    public DbSet<EventSchedule> EventSchedules => Set<EventSchedule>();
     #endregion
 
     #region Notifications

@@ -2,6 +2,7 @@ import { useFormikContext } from 'formik';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
+import { useReports } from 'store/hooks/admin';
 import {
   Col,
   FieldSize,
@@ -10,10 +11,9 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
-  getEnumStringOptions,
-  IOptionItem,
+  getSortableOptions,
   IReportModel,
-  ReportTypeName,
+  OptionItem,
   Row,
   Show,
 } from 'tno-core';
@@ -24,8 +24,20 @@ import {
  */
 export const ReportFormDetails: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IReportModel>();
+  const [{ reports }, { findAllReports }] = useReports();
 
-  const reportTypeOptions = getEnumStringOptions(ReportTypeName);
+  const [reportOptions, setReportOptions] = React.useState(getSortableOptions(reports));
+
+  React.useEffect(() => {
+    if (!reports.length)
+      findAllReports()
+        .then((reports) => {
+          setReportOptions(getSortableOptions(reports));
+        })
+        .catch();
+    // Only run on initialize.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -45,22 +57,7 @@ export const ReportFormDetails: React.FC = () => {
           A filtered report will make a request for content each time it runs. A custom report is
           populated manually be the user.
         </p>
-        <Row>
-          <FormikSelect
-            name="reportType"
-            label="Report Type"
-            required
-            options={reportTypeOptions}
-            width="20ch"
-            value={reportTypeOptions.filter((rt) =>
-              values.reportType.includes(rt.value as ReportTypeName),
-            )}
-            isClearable={false}
-            onChange={(newValue) => {
-              const option = newValue as IOptionItem;
-              setFieldValue('reportType', option.value);
-            }}
-          />
+        <Row alignItems="center">
           <FormikText
             width={FieldSize.Tiny}
             name="sortOrder"
@@ -68,15 +65,69 @@ export const ReportFormDetails: React.FC = () => {
             type="number"
             className="sort-order"
           />
+          <FormikCheckbox label="Is Enabled" name="isEnabled" />
         </Row>
-        <Row>
-          <Col flex="2">
-            <FormikCheckbox label="Is Enabled" name="isEnabled" />
+        <Col className="frm-in">
+          <label>Report Options</label>
+          <Row alignItems="center">
+            <FormikCheckbox label="Is Public" name="isPublic" />
             <p>
               A public report is available for all users. If they subscribe to the report they will
               receive a copy every time it is run.
             </p>
-            <FormikCheckbox label="Is Public" name="isPublic" />
+          </Row>
+          <Row>
+            <FormikCheckbox
+              label="View On Web Only"
+              name="settings.viewOnWebOnly"
+              tooltip="Email will only contain a link to view the report on the website"
+            />
+            <FormikCheckbox
+              label="Exclude Historical Content"
+              name="settings.instance.excludeHistorical"
+            />
+          </Row>
+          <Row>
+            <FormikSelect
+              name="settings.instance.excludeReports"
+              label="Exclude Related Report Content"
+              tooltip="Excludes content already reported on in the selected reports"
+              options={reportOptions}
+              isMulti
+              value={reportOptions.filter((ro) =>
+                values.settings.instance.excludeReports.some((reportId) => reportId === ro.value),
+              )}
+              onChange={(newValue) => {
+                if (Array.isArray(newValue))
+                  setFieldValue(
+                    'settings.instance.excludeReports',
+                    newValue.map((v: OptionItem) => v.value),
+                  );
+              }}
+            />
+          </Row>
+        </Col>
+        <Col className="frm-in">
+          <label>Headline Options</label>
+          <Row>
+            <FormikCheckbox label="Show Source" name="settings.headline.showSource" />
+            <FormikCheckbox label="Show Common Call" name="settings.headline.showShortName" />
+            <FormikCheckbox label="Show Published On" name="settings.headline.showPublishedOn" />
+            <FormikCheckbox label="Show Sentiment" name="settings.headline.showSentiment" />
+          </Row>
+        </Col>
+        <Col className="frm-in">
+          <label>Content Options</label>
+          <Row>
+            <FormikCheckbox label="Include Story" name="settings.content.includeStory" />
+            <FormikCheckbox label="Show Images" name="settings.content.showImage" />
+            <FormikCheckbox label="Use Thumbnails" name="settings.content.useThumbnail" />
+            <FormikCheckbox label="Highlight Keywords" name="settings.content.highlightKeywords" />
+          </Row>
+        </Col>
+        <hr />
+        <Row>
+          <Col>
             <Show visible={!!values.id}>
               <Row>
                 <FormikText width={FieldSize.Small} disabled name="updatedBy" label="Updated By" />

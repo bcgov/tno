@@ -34,38 +34,40 @@ public class UserService : BaseService<User, int>, IUserService
             .AsNoTracking()
             .AsQueryable();
 
+        var predicate = PredicateBuilder.New<User>();
+
         if (!String.IsNullOrWhiteSpace(filter.Username))
-            query = query.Where(c => EF.Functions.Like(c.Username.ToLower(), $"{filter.Username.ToLower()}%"));
+            predicate = predicate.And(c => EF.Functions.Like(c.Username.ToLower(), $"{filter.Username.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Email))
-            query = query.Where(c => EF.Functions.Like(c.Email.ToLower(), $"{filter.Email.ToLower()}%"));
+            predicate = predicate.And(c => EF.Functions.Like(c.Email.ToLower(), $"{filter.Email.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Name))
-            query = query.Where(c => EF.Functions.Like(c.FirstName.ToLower(), $"{filter.Name.ToLower()}%") || EF.Functions.Like(c.LastName.ToLower(), $"{filter.Name.ToLower()}%"));
+            predicate = predicate.And(c => EF.Functions.Like(c.FirstName.ToLower(), $"{filter.Name.ToLower()}%") || EF.Functions.Like(c.LastName.ToLower(), $"{filter.Name.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.FirstName))
-            query = query.Where(c => EF.Functions.Like(c.FirstName.ToLower(), $"{filter.FirstName.ToLower()}%"));
+            predicate = predicate.And(c => EF.Functions.Like(c.FirstName.ToLower(), $"{filter.FirstName.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.LastName))
-            query = query.Where(c => EF.Functions.Like(c.LastName.ToLower(), $"{filter.LastName.ToLower()}%"));
+            predicate = predicate.And(c => EF.Functions.Like(c.LastName.ToLower(), $"{filter.LastName.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Keyword))
         {
             var keyword = filter.Keyword.ToLower();
-            query = query.Where(c => EF.Functions.Like(c.Username.ToLower(), $"{keyword}%") || EF.Functions.Like(c.Email.ToLower(), $"{keyword}%") || EF.Functions.Like(c.FirstName.ToLower(),
+            predicate = predicate.And(c => EF.Functions.Like(c.Username.ToLower(), $"{keyword}%") || EF.Functions.Like(c.Email.ToLower(), $"{keyword}%") || EF.Functions.Like(c.FirstName.ToLower(),
             $"{keyword}%") || EF.Functions.Like(c.LastName.ToLower(), $"{keyword}%"));
         }
         if (!String.IsNullOrWhiteSpace(filter.RoleName))
-            query = query.Where(c => EF.Functions.Like(c.Roles.ToLower(), $"%[{filter.RoleName.ToLower()}]%"));
+            predicate = predicate.And(c => EF.Functions.Like(c.Roles.ToLower(), $"%[{filter.RoleName.ToLower()}]%"));
 
         if (filter.Status != null)
-            query = query.Where(c => c.Status == filter.Status);
+            predicate = predicate.And(c => c.Status == filter.Status);
         if (filter.IsEnabled != null)
-            query = query.Where(c => c.IsEnabled == filter.IsEnabled);
+            predicate = predicate.And(c => c.IsEnabled == filter.IsEnabled);
         if (filter.IsSystemAccount != null)
-        {
-            query = query.Where(c => c.IsSystemAccount == filter.IsSystemAccount);
-        }
+            predicate = predicate.And(c => c.IsSystemAccount == filter.IsSystemAccount);
         else
-        {
-            query = query.Where(c => !c.IsSystemAccount);
-        }
+            predicate = predicate.And(c => !c.IsSystemAccount);
 
+        if (filter.IncludeUserId.HasValue)
+            predicate = PredicateBuilder.Or<User>(u => u.Id == filter.IncludeUserId, predicate);
+
+        query = query.Where(predicate);
         var total = query.Count();
 
         if (filter.Sort?.Any() == true)

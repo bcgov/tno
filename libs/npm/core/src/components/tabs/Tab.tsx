@@ -63,6 +63,7 @@ export const Tab: React.FC<ITabProps> = ({
   activePaths = [],
   exact = false,
   hasErrors = false,
+  disabled = false,
   onClick,
   showErrorOnSave = {
     value: false,
@@ -85,15 +86,26 @@ export const Tab: React.FC<ITabProps> = ({
     hasError && !!setShowValidationToast && setShowValidationToast(true);
   }, [hasError, setShowValidationToast]);
 
-  return hasClaim ? (
-    <styled.Tab
-      onClick={(e) => (onClick ? onClick(e as any) : navigate(navigateTo!!))}
-      active={!!navigateTo ? isActive : active}
-      className={`${className ?? 'tab'}`}
-      hasErrors={hasError}
-    >
-      <span>{label}</span>
-      {children}
-    </styled.Tab>
-  ) : null;
+  if (hasClaim)
+    return !disabled ? (
+      <styled.Tab
+        onClick={(e) => (onClick ? onClick(e as any) : navigate(navigateTo!!))}
+        active={!!navigateTo ? isActive : active}
+        className={`tab${className ? ` ${className}` : ''}`}
+        hasErrors={hasError}
+      >
+        <span>{label}</span>
+        {children}
+      </styled.Tab>
+    ) : (
+      <styled.Tab
+        className={`tab disabled${className ? ` ${className}` : ''}`}
+        hasErrors={hasError}
+      >
+        <span>{label}</span>
+        {children}
+      </styled.Tab>
+    );
+
+  return null;
 };

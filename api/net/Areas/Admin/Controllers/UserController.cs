@@ -1,7 +1,9 @@
 using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.User;
 using TNO.API.CSS;
@@ -31,6 +33,7 @@ public class UserController : ControllerBase
     #region Variables
     private readonly IUserService _userService;
     private readonly ICssHelper _cssHelper;
+    private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
     #region Constructors
@@ -39,10 +42,12 @@ public class UserController : ControllerBase
     /// </summary>
     /// <param name="userService"></param>
     /// <param name="cssHelper"></param>
-    public UserController(IUserService userService, ICssHelper cssHelper)
+    /// <param name="serializerOptions"></param>
+    public UserController(IUserService userService, ICssHelper cssHelper, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _userService = userService;
         _cssHelper = cssHelper;
+        _serializerOptions = serializerOptions.Value;
     }
     #endregion
 
@@ -60,7 +65,7 @@ public class UserController : ControllerBase
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var result = _userService.Find(new DAL.Models.UserFilter(query));
-        var page = new Paged<UserModel>(result.Items.Select(ds => new UserModel(ds)), result.Page, result.Quantity, result.Total);
+        var page = new Paged<UserModel>(result.Items.Select(u => new UserModel(u, _serializerOptions)), result.Page, result.Quantity, result.Total);
         return new JsonResult(page);
     }
 
@@ -79,7 +84,7 @@ public class UserController : ControllerBase
         var result = _userService.FindById(id);
 
         if (result == null) return new NoContentResult();
-        return new JsonResult(new UserModel(result));
+        return new JsonResult(new UserModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -97,7 +102,7 @@ public class UserController : ControllerBase
         var user = (User)model;
         if (String.IsNullOrWhiteSpace(user.Key) || user.Key == Guid.Empty.ToString()) user.Key = Guid.NewGuid().ToString();
         var result = _userService.AddAndSave(user);
-        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new UserModel(result));
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new UserModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -115,7 +120,7 @@ public class UserController : ControllerBase
     {
         await _cssHelper.UpdateUserRolesAsync(model.Key, model.Roles.ToArray());
         var user = _userService.UpdateAndSave((Entities.User)model);
-        return new JsonResult(new UserModel(user));
+        return new JsonResult(new UserModel(user, _serializerOptions));
     }
 
     /// <summary>

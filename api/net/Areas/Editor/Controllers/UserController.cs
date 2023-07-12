@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.User;
 using TNO.API.Filters;
@@ -24,6 +26,7 @@ public class UserController : ControllerBase
 {
     #region Variables
     private readonly IUserService _userService;
+    private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
     #region Constructors
@@ -31,9 +34,11 @@ public class UserController : ControllerBase
     /// Creates a new instance of a UserController object, initializes with specified parameters.
     /// </summary>
     /// <param name="userService"></param>
-    public UserController(IUserService userService)
+    /// <param name="serializerOptions"></param>
+    public UserController(IUserService userService, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _userService = userService;
+        _serializerOptions = serializerOptions.Value;
     }
     #endregion
 
@@ -72,7 +77,7 @@ public class UserController : ControllerBase
         var result = _userService.FindById(id);
 
         if (result == null) return new NoContentResult();
-        return new JsonResult(new Admin.Models.User.UserModel(result));
+        return new JsonResult(new Admin.Models.User.UserModel(result, _serializerOptions));
     }
     #endregion
 }

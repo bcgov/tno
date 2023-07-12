@@ -1,3 +1,4 @@
+using System.Text.Json;
 using TNO.API.Models;
 
 namespace TNO.API.Areas.Admin.Models.User;
@@ -77,6 +78,21 @@ public class UserModel : AuditColumnsModel
     /// get/set - An array of roles this user belongs to.
     /// </summary>
     public IEnumerable<string> Roles { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// get/set - An array of organization this user belongs to.
+    /// </summary>
+    public IEnumerable<OrganizationModel> Organizations { get; set; } = Array.Empty<OrganizationModel>();
+
+    /// <summary>
+    /// get/set - An array of folders owned by this user.
+    /// </summary>
+    public IEnumerable<FolderModel> Folders { get; set; } = Array.Empty<FolderModel>();
+
+    /// <summary>
+    /// get/set - An array of filters owned by this user.
+    /// </summary>
+    public IEnumerable<FilterModel> Filters { get; set; } = Array.Empty<FilterModel>();
     #endregion
 
     #region Constructors
@@ -89,7 +105,8 @@ public class UserModel : AuditColumnsModel
     /// Creates a new instance of an UserModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public UserModel(Entities.User entity) : base(entity)
+    /// <param name="serializerOptions"></param>
+    public UserModel(Entities.User entity, JsonSerializerOptions? serializerOptions = null) : base(entity)
     {
         this.Id = entity.Id;
         this.Key = entity.Key;
@@ -105,6 +122,11 @@ public class UserModel : AuditColumnsModel
         this.LastLoginOn = entity.LastLoginOn;
         this.Note = entity.Note;
         this.Roles = entity.Roles.Split(",").Where(s => !String.IsNullOrWhiteSpace(s)).Select(r => r[1..^1]);
+        this.Organizations = entity.OrganizationsManyToMany.Where(o => o.Organization != null).Select(o => new OrganizationModel(o.Organization!));
+        if (entity.Organizations.Any())
+            this.Organizations = entity.Organizations.Select(o => new OrganizationModel(o));
+        this.Folders = entity.Folders.Select(f => new FolderModel(f, serializerOptions ?? JsonSerializerOptions.Default));
+        this.Filters = entity.Filters.Select(f => new FilterModel(f, serializerOptions ?? JsonSerializerOptions.Default));
     }
     #endregion
 
@@ -112,10 +134,18 @@ public class UserModel : AuditColumnsModel
     /// <summary>
     /// Creates a new instance of a User object.
     /// </summary>
+    /// <param name="options"></param>
     /// <returns></returns>
-    public Entities.User ToEntity()
+    public Entities.User ToEntity(JsonSerializerOptions options)
     {
-        return (Entities.User)this;
+        var entity = (Entities.User)this;
+        entity.Folders.ForEach(s => s.Settings = JsonDocument.Parse(JsonSerializer.Serialize(s.Settings, options)));
+        entity.Filters.ForEach(s =>
+        {
+            s.Query = JsonDocument.Parse(JsonSerializer.Serialize(s.Query, options));
+            s.Settings = JsonDocument.Parse(JsonSerializer.Serialize(s.Settings, options));
+        });
+        return entity;
     }
 
     /// <summary>
@@ -139,6 +169,25 @@ public class UserModel : AuditColumnsModel
             Roles = String.Join(",", model.Roles.Select(r => $"[{r.ToLower()}]")),
             Version = model.Version ?? 0
         };
+
+        entity.Folders.AddRange(model.Folders.Select(f => new Entities.Folder(f.Id, f.Name, f.OwnerId)
+        {
+            Description = f.Description,
+            IsEnabled = f.IsEnabled,
+            SortOrder = f.SortOrder,
+            Settings = JsonDocument.Parse(JsonSerializer.Serialize(f.Settings)),
+        }));
+
+        entity.Filters.AddRange(model.Filters.Select(f => new Entities.Filter(f.Id, f.Name, f.OwnerId)
+        {
+            Description = f.Description,
+            IsEnabled = f.IsEnabled,
+            SortOrder = f.SortOrder,
+            Query = JsonDocument.Parse(JsonSerializer.Serialize(f.Query)),
+            Settings = JsonDocument.Parse(JsonSerializer.Serialize(f.Settings)),
+        }));
+
+        entity.OrganizationsManyToMany.AddRange(model.Organizations.Select(o => new Entities.UserOrganization(entity.Id, o.Id)));
 
         return entity;
     }

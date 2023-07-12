@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using TNO.Core.Data;
 
 namespace TNO.Entities;
@@ -24,34 +25,10 @@ public class ReportTemplate : BaseType<int>
     public string Body { get; set; } = "";
 
     /// <summary>
-    /// get/set - Whether this report template has sections enabled.
+    /// get/set - The report template settings.
     /// </summary>
-    [Column("enable_sections")]
-    public bool EnableSections { get; set; } = false;
-
-    /// <summary>
-    /// get/set - Whether this report template includes the ability to display section summaries.
-    /// </summary>
-    [Column("enable_section_summary")]
-    public bool EnableSectionSummary { get; set; } = false;
-
-    /// <summary>
-    /// get/set - Whether this report template includes the ability to display a summary.
-    /// </summary>
-    [Column("enable_summary")]
-    public bool EnableSummary { get; set; } = false;
-
-    /// <summary>
-    /// get/set - Whether this report template includes the ability to include charts.
-    /// </summary>
-    [Column("enable_charts")]
-    public bool EnableCharts { get; set; } = false;
-
-    /// <summary>
-    /// get/set - Whether this report template includes the ability to include charts that show data over time.
-    /// </summary>
-    [Column("enable_charts_over_time")]
-    public bool EnableChartsOverTime { get; set; } = false;
+    [Column("settings")]
+    public JsonDocument Settings { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get - Collection of reports that use this template.

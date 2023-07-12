@@ -5,16 +5,20 @@ import { toast } from 'react-toastify';
 import { useReports } from 'store/hooks/admin';
 import { Button, ButtonVariant, Col, IReportModel, IReportPreviewModel, Row, Text } from 'tno-core';
 
+export interface IReportFormPreviewProps {
+  preview?: IReportPreviewModel;
+  setPreview: React.Dispatch<React.SetStateAction<IReportPreviewModel | undefined>>;
+}
+
 /**
  * The page used to view and edit reports.
  * @returns Component.
  */
-export const ReportFormPreview: React.FC = () => {
+export const ReportFormPreview: React.FC<IReportFormPreviewProps> = ({ preview, setPreview }) => {
   const { values } = useFormikContext<IReportModel>();
   const [, { sendReport, previewReport }] = useReports();
 
   const [sendTo, setSendTo] = React.useState('');
-  const [preview, setPreview] = React.useState<IReportPreviewModel>();
 
   const handleSend = async (values: IReportModel, to: string) => {
     try {
@@ -44,7 +48,7 @@ export const ReportFormPreview: React.FC = () => {
         });
       }
     },
-    [previewReport],
+    [previewReport, setPreview],
   );
 
   return (

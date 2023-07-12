@@ -1,5 +1,4 @@
 using TNO.API.Models;
-using TNO.Entities;
 
 namespace TNO.API.Areas.Services.Models.Report;
 
@@ -23,12 +22,6 @@ public class UserReportModel : AuditColumnsModel
     /// get/set - Primary key and foreign key to the report.
     /// </summary>
     public int ReportId { get; set; }
-
-    /// <summary>
-    /// get/set - When to resend the report.
-    /// This overrides the report Resend rule.
-    /// </summary>
-    public ResendOption? Resend { get; set; }
     #endregion
 
     #region Constructors

@@ -1,6 +1,7 @@
 import { UserStatusName } from '../constants';
 
 export interface IUserFilter {
+  includeUserId?: number;
   username?: string;
   email?: string;
   name?: string;

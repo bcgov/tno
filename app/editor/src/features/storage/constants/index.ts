@@ -1,2 +1,2 @@
-export * from './defaultFolder';
+export * from './defaultDirectory';
 export * from './fileExplorerColumns';

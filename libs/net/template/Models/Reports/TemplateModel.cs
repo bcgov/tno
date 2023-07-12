@@ -1,5 +1,6 @@
 ﻿using RazorEngineCore;
 using System.Web;
+using TNO.API.Models.Settings;
 using TNO.Core.Extensions;
 
 namespace TNO.TemplateEngine.Models.Reports;
@@ -19,6 +20,11 @@ public class TemplateModel : RazorEngineTemplateBase
     /// get/set - A dictionary with each section.
     /// </summary>
     public Dictionary<string, ReportSectionModel> Sections { get; set; } = new();
+
+    /// <summary>
+    /// get/set - The report settings.
+    /// </summary>
+    public ReportSettingsModel Settings { get; set; } = new();
     #endregion
 
     #region Constructors
@@ -34,34 +40,34 @@ public class TemplateModel : RazorEngineTemplateBase
     /// Creates a new instance of a TemplateModel, initializes with specified parameters.
     /// </summary>
     /// <param name="content"></param>
-    public TemplateModel(IEnumerable<ContentModel> content)
+    /// <param name="settings"></param>
+    public TemplateModel(IEnumerable<ContentModel> content, ReportSettingsModel settings)
     {
         this.Content = content.ToArray();
+        this.Settings = settings;
     }
 
     /// <summary>
     /// Creates a new instance of a TemplateModel, initializes with specified parameters.
     /// </summary>
     /// <param name="sections"></param>
-    public TemplateModel(Dictionary<string, ReportSectionModel> sections, string? uploadPath = null)
+    /// <param name="settings"></param>
+    /// <param name="uploadPath"></param>
+    public TemplateModel(Dictionary<string, ReportSectionModel> sections, ReportSettingsModel settings, string? uploadPath = null)
     {
-        if (sections.TryGetValue("", out ReportSectionModel? value))
-        {
-            this.Content = value?.Content.ToArray() ?? Array.Empty<ContentModel>();
-        }
-        else
-        {
-            this.Content = Array.Empty<ContentModel>();
-        }
         this.Sections = sections;
+        this.Settings = settings;
 
-        if (!string.IsNullOrWhiteSpace(uploadPath) && Content.Any())
-        {
-            foreach (var frontPage in Content.Where(x => x.ContentType == Entities.ContentType.Image))
+        // Reference all section content in the root Content collection.
+        this.Content = sections.SelectMany(s => s.Value.Content).GroupBy(c => c.Id).Select(c => c.First());
+
+        // Convert any images to base64 and include them in the email.
+        if (!string.IsNullOrWhiteSpace(uploadPath) && this.Content.Any())
+            this.Content.ForEach(c =>
             {
-                frontPage.ImageContent = GetImageContent(uploadPath, frontPage.FileReferences.FirstOrDefault()?.Path);
-            }
-        }
+                if (c.ContentType == Entities.ContentType.Image)
+                    c.ImageContent = GetImageContent(uploadPath, c.FileReferences.FirstOrDefault()?.Path);
+            });
     }
 
     /// <summary>

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using TNO.API.Models;
 
 namespace TNO.API.Areas.Services.Models.Report;
@@ -19,29 +20,9 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
     public string Body { get; set; } = "";
 
     /// <summary>
-    /// get/set - Whether this report template supports sections.
+    /// get/set - The settings for this report.
     /// </summary>
-    public bool EnableSections { get; set; } = false;
-
-    /// <summary>
-    /// get/set - Whether this report template supports section summaries.
-    /// </summary>
-    public bool EnableSectionSummary { get; set; } = false;
-
-    /// <summary>
-    /// get/set - Whether this report template supports full summary.
-    /// </summary>
-    public bool EnableSummary { get; set; } = false;
-
-    /// <summary>
-    /// get/set - Whether this report template supports charts.
-    /// </summary>
-    public bool EnableCharts { get; set; } = false;
-
-    /// <summary>
-    /// get/set - Whether this report template supports charts over time.
-    /// </summary>
-    public bool EnableChartsOverTime { get; set; } = false;
+    public Dictionary<string, object> Settings { get; set; } = new Dictionary<string, object>();
 
     /// <summary>
     /// get/set - An array of chart templates.
@@ -59,20 +40,49 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of an ReportTemplateModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public ReportTemplateModel(Entities.ReportTemplate entity) : base(entity)
+    /// <param name="options"></param>
+    public ReportTemplateModel(Entities.ReportTemplate entity, JsonSerializerOptions options) : base(entity)
     {
         this.Subject = entity.Subject;
         this.Body = entity.Body;
-        this.EnableSections = entity.EnableSections;
-        this.EnableSectionSummary = entity.EnableSectionSummary;
-        this.EnableSummary = entity.EnableSummary;
-        this.EnableCharts = entity.EnableCharts;
-        this.EnableChartsOverTime = entity.EnableChartsOverTime;
+        this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
 
         if (entity.ChartTemplates.Any())
-            this.ChartTemplates = entity.ChartTemplates.Select(ct => new ChartTemplateModel(ct));
+            this.ChartTemplates = entity.ChartTemplates.Select(ct => new ChartTemplateModel(ct, options));
         else if (entity.ChartTemplatesManyToMany.Any())
-            this.ChartTemplates = entity.ChartTemplatesManyToMany.Where(ct => ct.ChartTemplate != null).Select(ct => new ChartTemplateModel(ct.ChartTemplate!));
+            this.ChartTemplates = entity.ChartTemplatesManyToMany.Where(ct => ct.ChartTemplate != null).Select(ct => new ChartTemplateModel(ct.ChartTemplate!, options));
+    }
+    #endregion
+
+    #region Methods
+    /// <summary>
+    /// Creates a new instance of a Report object.
+    /// </summary>
+    /// <returns></returns>
+    public Entities.ReportTemplate ToEntity(JsonSerializerOptions options)
+    {
+        var entity = (Entities.ReportTemplate)this;
+        entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
+        return entity;
+    }
+
+    /// <summary>
+    /// Explicit conversion to entity.
+    /// </summary>
+    /// <param name="model"></param>
+    public static explicit operator Entities.ReportTemplate(ReportTemplateModel model)
+    {
+        var entity = new Entities.ReportTemplate(model.Id, model.Name, model.Subject, model.Body)
+        {
+            Description = model.Description,
+            IsEnabled = model.IsEnabled,
+            SortOrder = model.SortOrder,
+            Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
+            Version = model.Version ?? 0
+        };
+        entity.ChartTemplatesManyToMany.AddRange(model.ChartTemplates.Select(ct => new Entities.ReportTemplateChartTemplate(entity.Id, ct.Id)));
+
+        return entity;
     }
     #endregion
 }

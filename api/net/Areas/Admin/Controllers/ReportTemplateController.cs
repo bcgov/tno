@@ -7,6 +7,8 @@ using TNO.API.Models;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 using TNO.Entities;
+using System.Text.Json;
+using Microsoft.Extensions.Options;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -27,6 +29,7 @@ public class ReportTemplateController : ControllerBase
 {
     #region Variables
     private readonly IReportTemplateService _reportTemplateService;
+    private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
     #region Constructors
@@ -34,10 +37,13 @@ public class ReportTemplateController : ControllerBase
     /// Creates a new instance of a ReportTemplateController object, initializes with specified parameters.
     /// </summary>
     /// <param name="reportTemplateService"></param>
+    /// <param name="serializerOptions"></param>
     public ReportTemplateController(
-        IReportTemplateService reportTemplateService)
+        IReportTemplateService reportTemplateService,
+        IOptions<JsonSerializerOptions> serializerOptions)
     {
         _reportTemplateService = reportTemplateService;
+        _serializerOptions = serializerOptions.Value;
     }
     #endregion
 
@@ -52,7 +58,7 @@ public class ReportTemplateController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult FindAll()
     {
-        return new JsonResult(_reportTemplateService.FindAll().Select(ds => new ReportTemplateModel(ds)));
+        return new JsonResult(_reportTemplateService.FindAll().Select(ds => new ReportTemplateModel(ds, _serializerOptions)));
     }
 
     /// <summary>
@@ -69,7 +75,7 @@ public class ReportTemplateController : ControllerBase
     {
         var result = _reportTemplateService.FindById(id);
         if (result == null) return new NoContentResult();
-        return new JsonResult(new ReportTemplateModel(result));
+        return new JsonResult(new ReportTemplateModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -86,7 +92,7 @@ public class ReportTemplateController : ControllerBase
     {
         var result = _reportTemplateService.AddAndSave((ReportTemplate)model);
         var report = _reportTemplateService.FindById(result.Id) ?? throw new InvalidOperationException("Report template does not exist");
-        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportTemplateModel(report));
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportTemplateModel(report, _serializerOptions));
     }
 
     /// <summary>
@@ -103,7 +109,7 @@ public class ReportTemplateController : ControllerBase
     {
         var result = _reportTemplateService.UpdateAndSave((ReportTemplate)model);
         var report = _reportTemplateService.FindById(result.Id) ?? throw new InvalidOperationException("Report template does not exist");
-        return new JsonResult(new ReportTemplateModel(report));
+        return new JsonResult(new ReportTemplateModel(report, _serializerOptions));
     }
 
     /// <summary>

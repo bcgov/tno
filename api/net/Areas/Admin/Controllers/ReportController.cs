@@ -15,10 +15,11 @@ using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Keycloak;
 using TNO.TemplateEngine;
-using TNO.TemplateEngine.Extensions;
 using TNO.TemplateEngine.Models.Reports;
 using TNO.Elastic.Models;
 using TNO.DAL.Config;
+using TNO.API.Models.Settings;
+using TNO.Models.Extensions;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -259,25 +260,27 @@ public class ReportController : ControllerBase
         var results = await _reportService.FindContentWithElasticsearchAsync(_elasticOptions.PublishedIndex, model.ToEntity(_serializerOptions));
 
         // Link each result with the section name.
-        var sections = model.ParseSections().ToDictionary(s => s.Key, s =>
+        var sections = model.Sections.ToDictionary(s => s.Name, s =>
         {
-            results.TryGetValue(s.Key, out SearchResultModel<Services.Models.Content.ContentModel>? value);
-            s.Value.Content = value?.Hits.Hits.Select(h => new TNO.TemplateEngine.Models.Reports.ContentModel(h.Source)).ToArray()
+            results.TryGetValue(s.Name, out SearchResultModel<Services.Models.Content.ContentModel>? value);
+            var content = value?.Hits.Hits.Select(h => new TNO.TemplateEngine.Models.Reports.ContentModel(h.Source)).ToArray()
                 ?? Array.Empty<TNO.TemplateEngine.Models.Reports.ContentModel>();
-            return s.Value;
+            return new TNO.TemplateEngine.Models.Reports.ReportSectionModel(s, content);
         });
 
-        var templateModel = new TemplateModel(sections, _storageOptions.GetUploadPath());
+        var templateModel = new TemplateModel(sections, model.Settings, _storageOptions.GetUploadPath());
 
         var subject = await subjectTemplate.RunAsync(instance =>
         {
             instance.Model = templateModel;
+            instance.Settings = templateModel.Settings;
             instance.Content = templateModel.Content;
             instance.Sections = templateModel.Sections;
         });
         var body = await bodyTemplate.RunAsync(instance =>
         {
             instance.Model = templateModel;
+            instance.Settings = templateModel.Settings;
             instance.Content = templateModel.Content;
             instance.Sections = templateModel.Sections;
         });

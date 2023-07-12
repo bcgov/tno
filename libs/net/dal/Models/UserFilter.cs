@@ -5,6 +5,10 @@ namespace TNO.DAL.Models;
 public class UserFilter : PageFilter
 {
     #region Properties
+    /// <summary>
+    /// get/set - If you want to include the specific user in the results.
+    /// </summary>
+    public int? IncludeUserId { get; set; }
     public string? Username { get; set; }
     public string? Email { get; set; }
     public string? FirstName { get; set; }
@@ -26,6 +30,7 @@ public class UserFilter : PageFilter
     {
         var filter = new Dictionary<string, StringValues>(queryParams, StringComparer.OrdinalIgnoreCase);
 
+        this.IncludeUserId = filter.GetIntNullValue(nameof(this.IncludeUserId));
         this.Username = filter.GetStringValue(nameof(this.Username));
         this.Email = filter.GetStringValue(nameof(this.Email));
         this.FirstName = filter.GetStringValue(nameof(this.FirstName));

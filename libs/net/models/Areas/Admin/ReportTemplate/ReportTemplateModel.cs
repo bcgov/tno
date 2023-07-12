@@ -1,3 +1,4 @@
+using System.Text.Json;
 using TNO.API.Models;
 
 namespace TNO.API.Areas.Admin.Models.ReportTemplate;
@@ -19,29 +20,9 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
     public string Body { get; set; } = "";
 
     /// <summary>
-    /// get/set - Whether this report template supports sections.
+    /// get/set - The settings for this report.
     /// </summary>
-    public bool EnableSections { get; set; } = false;
-
-    /// <summary>
-    /// get/set - Whether this report template supports section summaries.
-    /// </summary>
-    public bool EnableSectionSummary { get; set; } = false;
-
-    /// <summary>
-    /// get/set - Whether this report template supports full summary.
-    /// </summary>
-    public bool EnableSummary { get; set; } = false;
-
-    /// <summary>
-    /// get/set - Whether this report template supports charts.
-    /// </summary>
-    public bool EnableCharts { get; set; } = false;
-
-    /// <summary>
-    /// get/set - Whether this report template supports charts over time.
-    /// </summary>
-    public bool EnableChartsOverTime { get; set; } = false;
+    public Dictionary<string, object> Settings { get; set; } = new Dictionary<string, object>();
 
     /// <summary>
     /// get/set - An array of chart templates.
@@ -59,15 +40,12 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of an ReportTemplateModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public ReportTemplateModel(Entities.ReportTemplate entity) : base(entity)
+    /// <param name="options"></param>
+    public ReportTemplateModel(Entities.ReportTemplate entity, JsonSerializerOptions options) : base(entity)
     {
         this.Subject = entity.Subject;
         this.Body = entity.Body;
-        this.EnableSections = entity.EnableSections;
-        this.EnableSectionSummary = entity.EnableSectionSummary;
-        this.EnableSummary = entity.EnableSummary;
-        this.EnableCharts = entity.EnableCharts;
-        this.EnableChartsOverTime = entity.EnableChartsOverTime;
+        this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
 
         if (entity.ChartTemplates.Any())
             this.ChartTemplates = entity.ChartTemplates.Select(ct => new ChartTemplateModel(ct));
@@ -78,6 +56,17 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
 
     #region Methods
     /// <summary>
+    /// Creates a new instance of a Report object.
+    /// </summary>
+    /// <returns></returns>
+    public Entities.ReportTemplate ToEntity(JsonSerializerOptions options)
+    {
+        var entity = (Entities.ReportTemplate)this;
+        entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
+        return entity;
+    }
+
+    /// <summary>
     /// Explicit conversion to entity.
     /// </summary>
     /// <param name="model"></param>
@@ -87,11 +76,7 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
         {
             Description = model.Description,
             IsEnabled = model.IsEnabled,
-            EnableSections = model.EnableSections,
-            EnableSectionSummary = model.EnableSectionSummary,
-            EnableSummary = model.EnableSummary,
-            EnableCharts = model.EnableCharts,
-            EnableChartsOverTime = model.EnableChartsOverTime,
+            Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
             SortOrder = model.SortOrder,
             Version = model.Version ?? 0
         };

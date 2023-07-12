@@ -6,10 +6,14 @@ import {
   IConnectionModel,
   IContributorModel,
   IDataLocationModel,
+  IFilterModel,
+  IFolderModel,
   IIngestModel,
   IIngestTypeModel,
   ILicenseModel,
+  IMinisterModel,
   INotificationModel,
+  IOrganizationModel,
   IPaged,
   IProductModel,
   IReportModel,
@@ -41,6 +45,10 @@ export interface IAdminState {
   series: ISeriesModel[];
   contributors: IContributorModel[];
   licenses: ILicenseModel[];
+  ministers: IMinisterModel[];
+  organizations: IOrganizationModel[];
+  folders: IFolderModel[];
+  filters: IFilterModel[];
   workOrderFilter: IWorkOrderListFilter;
   workOrders: IPaged<IWorkOrderModel>;
   reports: IReportModel[];

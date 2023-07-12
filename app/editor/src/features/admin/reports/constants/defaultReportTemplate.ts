@@ -7,11 +7,10 @@ export const defaultReportTemplate: IReportTemplateModel = {
   subject: '',
   body: '',
   isEnabled: true,
-  enableSections: false,
-  enableSectionSummary: false,
-  enableSummary: false,
-  enableCharts: false,
-  enableChartsOverTime: false,
   sortOrder: 0,
   chartTemplates: [],
+  settings: {
+    enableSummaryCharts: false,
+    enableSectionCharts: false,
+  },
 };

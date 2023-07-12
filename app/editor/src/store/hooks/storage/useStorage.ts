@@ -1,11 +1,11 @@
 import React from 'react';
-import { IFolderModel, IItemModel, useApiStorage } from 'tno-core';
+import { IDirectoryModel, IItemModel, useApiStorage } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
 
 interface IStorageController {
-  folderExists: (locationId: number, path?: string) => Promise<boolean>;
-  getFolder: (locationId: number, path?: string) => Promise<IFolderModel>;
+  directoryExists: (locationId: number, path?: string) => Promise<boolean>;
+  getDirectory: (locationId: number, path?: string) => Promise<IDirectoryModel>;
   upload: (
     locationId: number,
     path: string,
@@ -33,16 +33,17 @@ export const useStorage = (): IStorageController => {
 
   const controller = React.useMemo(
     () => ({
-      folderExists: async (locationId?: number, path?: string) => {
+      directoryExists: async (locationId?: number, path?: string) => {
         const response = await dispatch<string>('storage-folder-exists', () =>
-          api.folderExists(locationId, path),
+          api.directoryExists(locationId, path),
         );
 
         return response.status === 200;
       },
-      getFolder: async (locationId: number, path?: string) => {
-        return (await dispatch<IFolderModel>('get-storage', () => api.getFolder(locationId, path)))
-          .data;
+      getDirectory: async (locationId: number, path?: string) => {
+        return (
+          await dispatch<IDirectoryModel>('get-storage', () => api.getDirectory(locationId, path))
+        ).data;
       },
       upload: async (
         locationId: number,

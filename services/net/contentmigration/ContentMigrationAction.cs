@@ -76,25 +76,30 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         predicate.And(ni => ni.ItemDateTime != null);
 
         // if no import filter dates are set
-        if (!importDateStart.HasValue && !importDateEnd.HasValue) {
+        if (!importDateStart.HasValue && !importDateEnd.HasValue)
+        {
             // if the ingest has previously run, use the creationDateOfNewsItem as the dateFilter
             // if creationDateOfNewsItem is not set, use use DateTime.MinValue
             DateTime dateFilter = creationDateOfNewsItem ?? DateTime.MinValue;
-            if(lastRanOn.HasValue) {
-                dateFilter = new []{lastRanOn.Value, dateFilter}.Min();
+            if (lastRanOn.HasValue)
+            {
+                dateFilter = new[] { lastRanOn.Value, dateFilter }.Min();
             }
             predicate.And(ni => ni.ItemDateTime >= dateFilter);
-        } else {
+        }
+        else
+        {
             DateTime dateFilterStart = importDateStart ?? DateTime.MinValue;
             DateTime dateFilterEnd = importDateEnd ?? DateTime.MaxValue;
-            if(creationDateOfNewsItem.HasValue
+            if (creationDateOfNewsItem.HasValue
                 && (dateFilterStart <= creationDateOfNewsItem.Value)
-                && (dateFilterEnd >= creationDateOfNewsItem.Value)) {
-                    // if a date filter is set AND the creationDateOfNewsItem is set
-                    // use the creationDateOfNewsItem as the start date ONLY if it's
-                    // between the targeted start and end dates
-                    dateFilterStart = new []{creationDateOfNewsItem.Value, dateFilterStart}.Max();
-                }
+                && (dateFilterEnd >= creationDateOfNewsItem.Value))
+            {
+                // if a date filter is set AND the creationDateOfNewsItem is set
+                // use the creationDateOfNewsItem as the start date ONLY if it's
+                // between the targeted start and end dates
+                dateFilterStart = new[] { creationDateOfNewsItem.Value, dateFilterStart }.Max();
+            }
             predicate.And(ni => (ni.ItemDateTime >= dateFilterStart) && (ni.ItemDateTime <= dateFilterEnd));
         }
 
@@ -187,7 +192,8 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         API.Areas.Editor.Models.Lookup.LookupModel? lookups,
         NewsItem newsItem)
     {
-        if (lookups == null) {
+        if (lookups == null)
+        {
             this.Logger.LogError("Lookups cannot be null");
             throw new ArgumentNullException(nameof(lookups));
         }
@@ -195,17 +201,20 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         try
         {
             SourceModel? source = contentMigrator.GetSourceMapping(lookups.Sources, newsItem.Source);
-            if (source == null) {
+            if (source == null)
+            {
                 // if we don't have a custom mapping, fallback to our Ingest 'DEFAULT' mapping
                 // TODO: KGM - When this happens, store the TNO 1.0 "Source" in "Other Source" field
                 source = contentMigrator.GetSourceMapping(lookups.Sources, manager.Ingest.Source!.Code);
-                if (source == null) {
+                if (source == null)
+                {
                     this.Logger.LogWarning("Couldn't map to Source for NewsItem with source '{sourceName}'", newsItem.Source);
                     return;
                 }
             }
             ProductModel? product = contentMigrator.GetProductMapping(lookups.Products, newsItem.Type);
-            if (product == null) {
+            if (product == null)
+            {
                 this.Logger.LogWarning("Couldn't map to Product for NewsItem with type '{sourceName}'", newsItem.Type);
                 return;
             }
@@ -217,13 +226,17 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             {
                 reference = await this.Api.AddContentReferenceAsync(contentMigrator.CreateContentReference(source!, manager.Ingest.Topic, newsItem, sourceContent.Uid));
                 Logger.LogInformation("Migrating content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
-                try {
-                    if (newsItem.FilePath != null) {
+                try
+                {
+                    if (newsItem.FilePath != null)
+                    {
                         string contentStagingFolderName = GetOutputPathPrefix(manager.Ingest);
                         await contentMigrator.CopyFileAsync(new Models.FileMigrationModel(newsItem.RSN, Path.GetDirectoryName(newsItem.FilePath)!, Path.GetFileName(newsItem.FilePath), newsItem.ContentType!), contentStagingFolderName);
                         newsItem.FilePath = Path.Combine(contentStagingFolderName, newsItem.FilePath);
                     }
-                } catch(FileNotFoundException) {
+                }
+                catch (FileNotFoundException)
+                {
                     // nothing we can do about it if the source content is archived/gone...
                     Logger.LogWarning("Migration source file content for RSN:{RSN} Path:{filePath} is missing", newsItem.RSN, newsItem.FilePath);
                 }

@@ -7,4 +7,13 @@ export const defaultChartTemplate: IChartTemplateModel = {
   template: '',
   isEnabled: true,
   sortOrder: 0,
+  isPublic: false,
+  settings: {
+    chartTypes: [],
+    isOverTime: false,
+    graph: [],
+    groupBy: [],
+    groupBySection: [],
+    options: {},
+  },
 };

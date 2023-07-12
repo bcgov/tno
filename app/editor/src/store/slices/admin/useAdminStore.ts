@@ -8,10 +8,14 @@ import {
   IConnectionModel,
   IContributorModel,
   IDataLocationModel,
+  IFilterModel,
+  IFolderModel,
   IIngestModel,
   IIngestTypeModel,
   ILicenseModel,
+  IMinisterModel,
   INotificationModel,
+  IOrganizationModel,
   IPaged,
   IProductModel,
   IReportModel,
@@ -32,10 +36,14 @@ import {
   storeAdminConnections,
   storeAdminContributors,
   storeAdminDataLocations,
+  storeAdminFilters,
+  storeAdminFolders,
   storeAdminIngests,
   storeAdminIngestTypes,
   storeAdminLicenses,
+  storeAdminMinisters,
   storeAdminNotifications,
+  storeAdminOrganizations,
   storeAdminProducts,
   storeAdminReports,
   storeAdminReportTemplates,
@@ -76,13 +84,21 @@ export interface IAdminStore {
   ) => void;
   storeActions: (actions: IActionModel[] | ActionDelegate<IActionModel[]>) => void;
   storeSeries: (series: ISeriesModel[] | ActionDelegate<ISeriesModel[]>) => void;
-  storeContributors: (series: IContributorModel[] | ActionDelegate<IContributorModel[]>) => void;
+  storeContributors: (
+    contributors: IContributorModel[] | ActionDelegate<IContributorModel[]>,
+  ) => void;
+  storeMinisters: (ministers: IMinisterModel[] | ActionDelegate<IMinisterModel[]>) => void;
+  storeOrganizations: (
+    organizations: IOrganizationModel[] | ActionDelegate<IOrganizationModel[]>,
+  ) => void;
   storeWorkOrderFilter: (
     filter: IWorkOrderListFilter | ActionDelegate<IWorkOrderListFilter>,
   ) => void;
   storeWorkOrders: (
     workOrders: IPaged<IWorkOrderModel> | ActionDelegate<IPaged<IWorkOrderModel>>,
   ) => void;
+  storeFolders: (folders: IFolderModel[] | ActionDelegate<IFolderModel[]>) => void;
+  storeFilters: (filters: IFilterModel[] | ActionDelegate<IFilterModel[]>) => void;
   storeReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => void;
   storeReportTemplates: (
     reportTemplates: IReportTemplateModel[] | ActionDelegate<IReportTemplateModel[]>,
@@ -189,6 +205,18 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminContributors(contributors(state.contributors)));
         } else dispatch(storeAdminContributors(contributors));
       },
+      storeMinisters: (ministers: IMinisterModel[] | ActionDelegate<IMinisterModel[]>) => {
+        if (typeof ministers === 'function') {
+          dispatch(storeAdminMinisters(ministers(state.ministers)));
+        } else dispatch(storeAdminMinisters(ministers));
+      },
+      storeOrganizations: (
+        organizations: IOrganizationModel[] | ActionDelegate<IOrganizationModel[]>,
+      ) => {
+        if (typeof organizations === 'function') {
+          dispatch(storeAdminOrganizations(organizations(state.organizations)));
+        } else dispatch(storeAdminOrganizations(organizations));
+      },
       storeWorkOrderFilter: (
         filter: IWorkOrderListFilter | ActionDelegate<IWorkOrderListFilter>,
       ) => {
@@ -202,6 +230,16 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
         if (typeof workOrders === 'function') {
           dispatch(storeAdminWorkOrders(workOrders(state.workOrders)));
         } else dispatch(storeAdminWorkOrders(workOrders));
+      },
+      storeFolders: (folders: IFolderModel[] | ActionDelegate<IFolderModel[]>) => {
+        if (typeof folders === 'function') {
+          dispatch(storeAdminFolders(folders(state.folders)));
+        } else dispatch(storeAdminFolders(folders));
+      },
+      storeFilters: (filters: IFilterModel[] | ActionDelegate<IFilterModel[]>) => {
+        if (typeof filters === 'function') {
+          dispatch(storeAdminFilters(filters(state.filters)));
+        } else dispatch(storeAdminFilters(filters));
       },
       storeReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => {
         if (typeof reports === 'function') {
@@ -248,8 +286,12 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       state.actions,
       state.series,
       state.contributors,
+      state.ministers,
+      state.organizations,
       state.workOrderFilter,
       state.workOrders,
+      state.folders,
+      state.filters,
       state.reports,
       state.reportTemplates,
       state.chartTemplates,

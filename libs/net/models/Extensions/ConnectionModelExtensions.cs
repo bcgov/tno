@@ -69,22 +69,25 @@ public static class ConnectionModelExtensions
     /// If the key does not exist it will return the 'default' value for the specified 'T' type.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="configurtion"></param>
+    /// <param name="configuration"></param>
     /// <param name="key"></param>
+    /// <param name="defaultValue"></param>
+    /// <param name="options"></param>
     /// <returns></returns>
     /// <exception cref="ConfigurationException"></exception>
-    public static T? GetDictionaryJsonValue<T>(this Dictionary<string, object> configuration, string key)
+    public static T? GetDictionaryJsonValue<T>(this Dictionary<string, object> configuration, string key, T? defaultValue = default, JsonSerializerOptions? options = null)
     {
-        if (!configuration.TryGetValue(key, out object? value)) return default;
+        if (!configuration.TryGetValue(key, out object? value)) return defaultValue;
 
         if (value is JsonElement element)
         {
             return element.ValueKind switch
             {
                 JsonValueKind.String => (T)Convert.ChangeType($"{element.GetString()}".Trim(), typeof(T)),
-                JsonValueKind.Null or JsonValueKind.Undefined => default,
+                JsonValueKind.Null or JsonValueKind.Undefined => defaultValue,
                 JsonValueKind.Number => ConvertNumberTo<T>(element),
                 JsonValueKind.True or JsonValueKind.False => (T)Convert.ChangeType($"{element.GetBoolean()}", typeof(T)),
+                JsonValueKind.Object => element.Deserialize<T>(options),
                 _ => (T)Convert.ChangeType($"{element}", typeof(T)),
             };
         }
