@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Text } from '../form';
+import { Loader } from '../spinners/Loader';
 import { ITableProps, SortFlag, TablePager, useTable } from '.';
 import * as styled from './styled';
 
@@ -8,6 +9,7 @@ export const FlexboxTable = <T extends object>({
   rowId,
   columns,
   data,
+  isLoading,
   ...rest
 }: ITableProps<T>) => {
   const table = useTable({
@@ -64,6 +66,7 @@ export const FlexboxTable = <T extends object>({
 
   return (
     <styled.FlexboxTable {...style}>
+      <Loader visible={isLoading}></Loader>
       {table.showFilter && (
         <div className="filter">
           <div>
