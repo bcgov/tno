@@ -9,7 +9,7 @@ resources:
 patches:
   - target:
       kind: StatefulSet
-      name: tno-kafka-broker
+      name: kafka-broker
     patch: |-
       - op: replace
         path: /spec/replicas

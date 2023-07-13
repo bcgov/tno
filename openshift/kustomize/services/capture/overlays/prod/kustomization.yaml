@@ -11,26 +11,12 @@ generatorOptions:
 
 patches:
   - target:
-      kind: ConfigMap
-      name: services
-    patch: |-
-      - op: replace
-        path: /data/KEYCLOAK_AUTHORITY
-        value: https://loginproxy.gov.bc.ca/auth
-  - target:
-      kind: PersistentVolumeClaim
-      name: ingest-storage
-    patch: |-
-      - op: replace
-        path: /spec/resources/requests/storage
-        value: 10Gi
-  - target:
       kind: DeploymentConfig
       name: capture-service
     patch: |-
       - op: replace
         path: /spec/replicas
-        value: 1
+        value: 2
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 50m
