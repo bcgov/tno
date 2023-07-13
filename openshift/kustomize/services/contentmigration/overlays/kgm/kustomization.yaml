@@ -1,0 +1,22 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: 9b301c-tools
+
+resources:
+  - ../../base
+
+patches:
+  - target:
+      kind: BuildConfig
+      name: contentmigration-service.dev
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: contentmigration-service.kgm
+      - op: replace
+        path: /spec/source/git/uri
+        value: https://github.com/kylgarmor/tno.git
+      - op: replace
+        path: /spec/source/git/ref
+        value: tno-1490
