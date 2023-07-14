@@ -1,8 +1,9 @@
 import { useFormikContext } from 'formik';
-import { noop } from 'lodash';
+import { debounce, noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
-import { useReports } from 'store/hooks/admin';
+import { useApp } from 'store/hooks';
+import { useReports, useUsers } from 'store/hooks/admin';
 import {
   Col,
   FieldSize,
@@ -12,6 +13,7 @@ import {
   FormikText,
   FormikTextArea,
   getSortableOptions,
+  getUserOptions,
   IReportModel,
   OptionItem,
   Row,
@@ -25,7 +27,10 @@ import {
 export const ReportFormDetails: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IReportModel>();
   const [{ reports }, { findAllReports }] = useReports();
+  const [{ userInfo }] = useApp();
+  const [{ users }, { findUsers }] = useUsers();
 
+  const [userOptions, setUserOptions] = React.useState(getUserOptions(users.items));
   const [reportOptions, setReportOptions] = React.useState(getSortableOptions(reports));
 
   React.useEffect(() => {
@@ -38,6 +43,24 @@ export const ReportFormDetails: React.FC = () => {
     // Only run on initialize.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    if (userInfo?.id) {
+      findUsers({ quantity: 50, includeUserId: values.ownerId })
+        .then((results) => {
+          setUserOptions(getUserOptions(results.items));
+        })
+        .catch();
+    }
+    // Only fire on initial load.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userInfo?.id]);
+
+  const handleFindUsers = debounce(async (text: string) => {
+    const results = await findUsers({ quantity: 50, username: text }, true);
+    setUserOptions(getUserOptions(results.items));
+    return results;
+  }, 500);
 
   return (
     <>
@@ -53,10 +76,23 @@ export const ReportFormDetails: React.FC = () => {
           }}
         />
         <FormikTextArea name="description" label="Description" />
-        <p>
-          A filtered report will make a request for content each time it runs. A custom report is
-          populated manually be the user.
-        </p>
+        <FormikSelect
+          name="ownerId"
+          label="Owner"
+          options={userOptions}
+          value={userOptions.find((u) => u.value === values.ownerId) || ''}
+          onChange={(e) => {
+            const option = e as OptionItem;
+            setFieldValue(
+              'values.ownerId',
+              option?.value ? parseInt(option.value.toString()) : undefined,
+            );
+          }}
+          onInputChange={(newValue) => {
+            // TODO: Does not need to fire when an option is manually selected.
+            handleFindUsers(newValue);
+          }}
+        />
         <Row alignItems="center">
           <FormikText
             width={FieldSize.Tiny}

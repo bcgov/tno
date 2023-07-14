@@ -54,13 +54,14 @@ export const FilterFormDetails: React.FC = () => {
       <FormikTextArea name="description" label="Description" />
       <FormikSelect
         name="ownerId"
+        label="Owner"
         options={userOptions}
         value={userOptions.find((u) => u.value === values.ownerId) || ''}
         onChange={(e) => {
           const option = e as OptionItem;
           setFieldValue(
             'values.ownerId',
-            option.value ? parseInt(option.value.toString()) : undefined,
+            option?.value ? parseInt(option.value.toString()) : undefined,
           );
         }}
         onInputChange={(newValue) => {
