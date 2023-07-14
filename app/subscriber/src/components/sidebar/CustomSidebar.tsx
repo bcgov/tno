@@ -3,9 +3,9 @@ import { FaAngleDoubleLeft, FaAngleDoubleRight } from 'react-icons/fa';
 import { Menu, useProSidebar } from 'react-pro-sidebar';
 import { Row, Show } from 'tno-core';
 
+import { AdvancedSearch } from './advanced-search/AdvancedSearch';
 import { SelectableMenuItems } from './SelectableMenuItems';
 import * as styled from './styled';
-import { AdvancedSearch } from './advanced-search/AdvancedSearch';
 
 /**
  * CustomSidebar uses react-pro-sidebar to display a sidebar with a menu of selectable menu items. Incorporates the MMIA subscriber look and feel.

@@ -1,19 +1,13 @@
-import { Button, Col, FieldSize, Row, Show, Text, ToggleGroup } from 'tno-core';
-import * as styled from './styled';
-import {
-  FaArrowAltCircleRight,
-  FaCalendar,
-  FaCalendarAlt,
-  FaCog,
-  FaHamburger,
-  FaSearch,
-} from 'react-icons/fa';
+import { DateFilter } from 'components/date-filter';
+import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
+import { FaSearch } from 'react-icons/fa';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle, IoIosCog } from 'react-icons/io';
-import React from 'react';
+import { Button, Col, Row, Show, Text, ToggleGroup } from 'tno-core';
+
 import { SubMediaGroups } from './constants';
-import { DateFilter } from 'components/date-filter';
+import * as styled from './styled';
 
 export interface IAdvancedSearchProps {
   expanded: boolean;
