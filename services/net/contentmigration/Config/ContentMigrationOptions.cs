@@ -20,17 +20,9 @@ public class ContentMigrationOptions : IngestServiceOptions
     public string ContentStagingFolder { get; set; } = "_tmp";
 
     /// <summary>
-    /// get/set - the web prefix to use for all files to import
+    /// get/set - the web uri prefix to use for all files to import
     /// </summary>
-    public string MediaHostScheme { get; set; } = "";
-    /// <summary>
-    /// get/set - the web prefix to use for all files to import
-    /// </summary>
-    public string MediaHostName { get; set; } = "";
-    /// <summary>
-    /// get/set - the web prefix to use for all files to import
-    /// </summary>
-    public string MediaRootPath { get; set; } = "";
+    public string MediaHostRootUri { get; set; } = "";
 
     /// <summary>
     /// get/set - Settings to connect to the TNO 1.0 database.
