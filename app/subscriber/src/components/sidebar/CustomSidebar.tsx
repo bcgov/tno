@@ -5,6 +5,7 @@ import { Row, Show } from 'tno-core';
 
 import { SelectableMenuItems } from './SelectableMenuItems';
 import * as styled from './styled';
+import { AdvancedSearch } from './advanced-search/AdvancedSearch';
 
 /**
  * CustomSidebar uses react-pro-sidebar to display a sidebar with a menu of selectable menu items. Incorporates the MMIA subscriber look and feel.
@@ -12,6 +13,7 @@ import * as styled from './styled';
  */
 export const CustomSidebar: React.FC = () => {
   const { collapseSidebar, collapsed } = useProSidebar();
+  const [advancedSearch, setAdvancedSearch] = React.useState(false);
   return (
     <styled.CustomSidebar>
       <Menu>
@@ -21,7 +23,8 @@ export const CustomSidebar: React.FC = () => {
             src={!collapsed ? '/assets/mminsights_logo.svg' : '/assets/mm_logo.svg'}
           />
         </Row>
-        <SelectableMenuItems />
+        <AdvancedSearch expanded={advancedSearch} setExpanded={setAdvancedSearch} />
+        {!advancedSearch && <SelectableMenuItems />}
       </Menu>
       <Show visible={!collapsed}>
         <FaAngleDoubleLeft className="collapse" onClick={() => collapseSidebar()} />
