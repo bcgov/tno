@@ -15,7 +15,7 @@ public static class OracleConnectionStringHelper
     /// <returns></returns>
     public static string GetConnectionString(OracleConnectionSettings settings)
     {
-        return GetConnectionString(settings?.UserName, settings?.Password, settings?.HostName, settings.Port.Value, settings?.Sid);
+        return GetConnectionString(settings.UserName, settings.Password, settings.HostName, settings.Port, settings.Sid);
     }
 
     /// <summary>
@@ -27,10 +27,12 @@ public static class OracleConnectionStringHelper
     /// <param name="portNumber"></param>
     /// <param name="defaultDb"></param>
     /// <returns></returns>
-    public static string GetConnectionString(string userName, string password, string hostName, int portNumber, string defaultDb)
+    public static string GetConnectionString(string userName, string password, string hostName, int? portNumber, string defaultDb)
     {
-
-        var oracleBuilder = new OracleConnectionStringBuilder($"Data Source={hostName}:{portNumber}/{defaultDb}")
+        var connectionString = portNumber != null
+            ?$"Data Source={hostName}:{portNumber}/{defaultDb}"
+            : $"Data Source={hostName}/{defaultDb}";
+        var oracleBuilder = new OracleConnectionStringBuilder(connectionString)
         {
             UserID = userName,
             Password = password
