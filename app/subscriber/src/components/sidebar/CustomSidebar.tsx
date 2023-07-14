@@ -3,6 +3,7 @@ import { FaAngleDoubleLeft, FaAngleDoubleRight } from 'react-icons/fa';
 import { Menu, useProSidebar } from 'react-pro-sidebar';
 import { Row, Show } from 'tno-core';
 
+import { AdvancedSearch } from './advanced-search/AdvancedSearch';
 import { SelectableMenuItems } from './SelectableMenuItems';
 import * as styled from './styled';
 
@@ -12,6 +13,7 @@ import * as styled from './styled';
  */
 export const CustomSidebar: React.FC = () => {
   const { collapseSidebar, collapsed } = useProSidebar();
+  const [advancedSearch, setAdvancedSearch] = React.useState(false);
   return (
     <styled.CustomSidebar>
       <Menu>
@@ -21,7 +23,8 @@ export const CustomSidebar: React.FC = () => {
             src={!collapsed ? '/assets/mminsights_logo.svg' : '/assets/mm_logo.svg'}
           />
         </Row>
-        <SelectableMenuItems />
+        <AdvancedSearch expanded={advancedSearch} setExpanded={setAdvancedSearch} />
+        {!advancedSearch && <SelectableMenuItems />}
       </Menu>
       <Show visible={!collapsed}>
         <FaAngleDoubleLeft className="collapse" onClick={() => collapseSidebar()} />

@@ -54,6 +54,7 @@ export const Landing = styled(Col)`
   .contents-container {
     overflow-y: auto;
     max-height: calc(100vh - 6.5em);
+    margin-left: 0.5em;
   }
 
   /* The panel containing the media list */
