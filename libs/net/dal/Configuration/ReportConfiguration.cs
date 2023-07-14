@@ -9,9 +9,8 @@ public class ReportConfiguration : BaseTypeConfiguration<Report, int>
     public override void Configure(EntityTypeBuilder<Report> builder)
     {
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
-        builder.Property(m => m.ReportType).IsRequired();
-        builder.Property(m => m.Filter).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
-        builder.Property(m => m.OwnerId).IsRequired();
+        builder.Property(m => m.OwnerId);
+        builder.Property(m => m.TemplateId).IsRequired();
         builder.Property(m => m.IsPublic).IsRequired();
         builder.Property(m => m.Settings).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
 

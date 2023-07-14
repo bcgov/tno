@@ -688,6 +688,13 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
+                    b.Property<JsonDocument>("Settings")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("settings")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
                     b.Property<int>("SortOrder")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
@@ -1890,6 +1897,235 @@ namespace TNO.DAL.Migrations
                     b.ToTable("file_reference");
                 });
 
+            modelBuilder.Entity("TNO.Entities.Filter", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int?>("OwnerId")
+                        .HasColumnType("integer")
+                        .HasColumnName("owner_id");
+
+                    b.Property<JsonDocument>("Query")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("query")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<JsonDocument>("Settings")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("settings")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId", "Name")
+                        .IsUnique();
+
+                    b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_filter_is_enabled");
+
+                    b.ToTable("filter");
+                });
+
+            modelBuilder.Entity("TNO.Entities.Folder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int?>("OwnerId")
+                        .HasColumnType("integer")
+                        .HasColumnName("owner_id");
+
+                    b.Property<JsonDocument>("Settings")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("settings")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId", "Name")
+                        .IsUnique();
+
+                    b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_folder_is_enabled");
+
+                    b.ToTable("folder");
+                });
+
+            modelBuilder.Entity("TNO.Entities.FolderContent", b =>
+                {
+                    b.Property<int>("FolderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("folder_id");
+
+                    b.Property<long>("ContentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("content_id");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("FolderId", "ContentId");
+
+                    b.HasIndex("ContentId");
+
+                    b.ToTable("folder_content");
+                });
+
             modelBuilder.Entity("TNO.Entities.Ingest", b =>
                 {
                     b.Property<int>("Id")
@@ -2380,6 +2616,7 @@ namespace TNO.DAL.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Aliases")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)")
@@ -2416,6 +2653,18 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
+                    b.Property<int?>("OrganizationId")
+                        .HasColumnType("integer")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("Position")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("position")
+                        .HasDefaultValueSql("''");
+
                     b.Property<int>("SortOrder")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
@@ -2442,6 +2691,11 @@ namespace TNO.DAL.Migrations
                         .HasDefaultValueSql("0");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("OrganizationId");
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_minister_is_enabled");
 
@@ -2625,6 +2879,84 @@ namespace TNO.DAL.Migrations
                     b.ToTable("notification_instance");
                 });
 
+            modelBuilder.Entity("TNO.Entities.Organization", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("parent_id");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId", "Name")
+                        .IsUnique();
+
+                    b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_organization_is_enabled");
+
+                    b.ToTable("organization");
+                });
+
             modelBuilder.Entity("TNO.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -2729,13 +3061,6 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("description")
                         .HasDefaultValueSql("''");
 
-                    b.Property<JsonDocument>("Filter")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("filter")
-                        .HasDefaultValueSql("'{}'::jsonb");
-
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
@@ -2750,13 +3075,9 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
-                    b.Property<int>("OwnerId")
+                    b.Property<int?>("OwnerId")
                         .HasColumnType("integer")
                         .HasColumnName("owner_id");
-
-                    b.Property<int>("ReportType")
-                        .HasColumnType("integer")
-                        .HasColumnName("report_type");
 
                     b.Property<JsonDocument>("Settings")
                         .IsRequired()
@@ -2935,6 +3256,162 @@ namespace TNO.DAL.Migrations
                     b.ToTable("report_instance_content");
                 });
 
+            modelBuilder.Entity("TNO.Entities.ReportSection", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<int?>("FilterId")
+                        .HasColumnType("integer")
+                        .HasColumnName("filter_id");
+
+                    b.Property<int?>("FolderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("folder_id");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("ReportId")
+                        .HasColumnType("integer")
+                        .HasColumnName("report_id");
+
+                    b.Property<JsonDocument>("Settings")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("settings")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FilterId");
+
+                    b.HasIndex("FolderId");
+
+                    b.HasIndex("ReportId", "Name")
+                        .IsUnique();
+
+                    b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_reportsection_is_enabled");
+
+                    b.ToTable("report_section");
+                });
+
+            modelBuilder.Entity("TNO.Entities.ReportSectionChartTemplate", b =>
+                {
+                    b.Property<int>("ReportSectionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("report_section_id");
+
+                    b.Property<int>("ChartTemplateId")
+                        .HasColumnType("integer")
+                        .HasColumnName("chart_template_id");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<JsonDocument>("Settings")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("settings")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("ReportSectionId", "ChartTemplateId");
+
+                    b.HasIndex("ChartTemplateId");
+
+                    b.ToTable("report_section_chart_template");
+                });
+
             modelBuilder.Entity("TNO.Entities.ReportTemplate", b =>
                 {
                     b.Property<int>("Id")
@@ -2969,26 +3446,6 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("description")
                         .HasDefaultValueSql("''");
 
-                    b.Property<bool>("EnableCharts")
-                        .HasColumnType("boolean")
-                        .HasColumnName("enable_charts");
-
-                    b.Property<bool>("EnableChartsOverTime")
-                        .HasColumnType("boolean")
-                        .HasColumnName("enable_charts_over_time");
-
-                    b.Property<bool>("EnableSectionSummary")
-                        .HasColumnType("boolean")
-                        .HasColumnName("enable_section_summary");
-
-                    b.Property<bool>("EnableSections")
-                        .HasColumnType("boolean")
-                        .HasColumnName("enable_sections");
-
-                    b.Property<bool>("EnableSummary")
-                        .HasColumnType("boolean")
-                        .HasColumnName("enable_summary");
-
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
@@ -2998,6 +3455,13 @@ namespace TNO.DAL.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
+
+                    b.Property<JsonDocument>("Settings")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("settings")
+                        .HasDefaultValueSql("'{}'::jsonb");
 
                     b.Property<int>("SortOrder")
                         .ValueGeneratedOnAdd()
@@ -4235,6 +4699,54 @@ namespace TNO.DAL.Migrations
                     b.ToTable("user_notification");
                 });
 
+            modelBuilder.Entity("TNO.Entities.UserOrganization", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<int>("OrganizationId")
+                        .HasColumnType("integer")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("UserId", "OrganizationId");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.ToTable("user_organization");
+                });
+
             modelBuilder.Entity("TNO.Entities.UserReport", b =>
                 {
                     b.Property<int>("UserId")
@@ -4600,6 +5112,45 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Content");
                 });
 
+            modelBuilder.Entity("TNO.Entities.Filter", b =>
+                {
+                    b.HasOne("TNO.Entities.User", "Owner")
+                        .WithMany("Filters")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("TNO.Entities.Folder", b =>
+                {
+                    b.HasOne("TNO.Entities.User", "Owner")
+                        .WithMany("Folders")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("TNO.Entities.FolderContent", b =>
+                {
+                    b.HasOne("TNO.Entities.Content", "Content")
+                        .WithMany("FoldersManyToMany")
+                        .HasForeignKey("ContentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TNO.Entities.Folder", "Folder")
+                        .WithMany("ContentManyToMany")
+                        .HasForeignKey("FolderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Content");
+
+                    b.Navigation("Folder");
+                });
+
             modelBuilder.Entity("TNO.Entities.Ingest", b =>
                 {
                     b.HasOne("TNO.Entities.Connection", "DestinationConnection")
@@ -4692,6 +5243,16 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Ingest");
                 });
 
+            modelBuilder.Entity("TNO.Entities.Minister", b =>
+                {
+                    b.HasOne("TNO.Entities.Organization", "Organization")
+                        .WithMany("Ministers")
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Organization");
+                });
+
             modelBuilder.Entity("TNO.Entities.Notification", b =>
                 {
                     b.HasOne("TNO.Entities.User", "Owner")
@@ -4722,13 +5283,22 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Notification");
                 });
 
+            modelBuilder.Entity("TNO.Entities.Organization", b =>
+                {
+                    b.HasOne("TNO.Entities.Organization", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Parent");
+                });
+
             modelBuilder.Entity("TNO.Entities.Report", b =>
                 {
                     b.HasOne("TNO.Entities.User", "Owner")
                         .WithMany("Reports")
                         .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TNO.Entities.ReportTemplate", "Template")
                         .WithMany("Reports")
@@ -4776,6 +5346,50 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Content");
 
                     b.Navigation("Instance");
+                });
+
+            modelBuilder.Entity("TNO.Entities.ReportSection", b =>
+                {
+                    b.HasOne("TNO.Entities.Filter", "Filter")
+                        .WithMany("ReportSections")
+                        .HasForeignKey("FilterId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TNO.Entities.Folder", "Folder")
+                        .WithMany("ReportSections")
+                        .HasForeignKey("FolderId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TNO.Entities.Report", "Report")
+                        .WithMany("Sections")
+                        .HasForeignKey("ReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Filter");
+
+                    b.Navigation("Folder");
+
+                    b.Navigation("Report");
+                });
+
+            modelBuilder.Entity("TNO.Entities.ReportSectionChartTemplate", b =>
+                {
+                    b.HasOne("TNO.Entities.ChartTemplate", "ChartTemplate")
+                        .WithMany("ReportSectionsManyToMany")
+                        .HasForeignKey("ChartTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TNO.Entities.ReportSection", "ReportSection")
+                        .WithMany("ChartTemplatesManyToMany")
+                        .HasForeignKey("ReportSectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChartTemplate");
+
+                    b.Navigation("ReportSection");
                 });
 
             modelBuilder.Entity("TNO.Entities.ReportTemplateChartTemplate", b =>
@@ -4928,6 +5542,25 @@ namespace TNO.DAL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TNO.Entities.UserOrganization", b =>
+                {
+                    b.HasOne("TNO.Entities.Organization", "Organization")
+                        .WithMany("UsersManyToMany")
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TNO.Entities.User", "User")
+                        .WithMany("OrganizationsManyToMany")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TNO.Entities.UserReport", b =>
                 {
                     b.HasOne("TNO.Entities.Report", "Report")
@@ -4973,6 +5606,8 @@ namespace TNO.DAL.Migrations
 
             modelBuilder.Entity("TNO.Entities.ChartTemplate", b =>
                 {
+                    b.Navigation("ReportSectionsManyToMany");
+
                     b.Navigation("ReportTemplatesManyToMany");
                 });
 
@@ -4990,6 +5625,8 @@ namespace TNO.DAL.Migrations
                     b.Navigation("ActionsManyToMany");
 
                     b.Navigation("FileReferences");
+
+                    b.Navigation("FoldersManyToMany");
 
                     b.Navigation("Labels");
 
@@ -5018,6 +5655,18 @@ namespace TNO.DAL.Migrations
             modelBuilder.Entity("TNO.Entities.DataLocation", b =>
                 {
                     b.Navigation("IngestsManyToMany");
+                });
+
+            modelBuilder.Entity("TNO.Entities.Filter", b =>
+                {
+                    b.Navigation("ReportSections");
+                });
+
+            modelBuilder.Entity("TNO.Entities.Folder", b =>
+                {
+                    b.Navigation("ContentManyToMany");
+
+                    b.Navigation("ReportSections");
                 });
 
             modelBuilder.Entity("TNO.Entities.Ingest", b =>
@@ -5055,6 +5704,15 @@ namespace TNO.DAL.Migrations
                     b.Navigation("SubscribersManyToMany");
                 });
 
+            modelBuilder.Entity("TNO.Entities.Organization", b =>
+                {
+                    b.Navigation("Children");
+
+                    b.Navigation("Ministers");
+
+                    b.Navigation("UsersManyToMany");
+                });
+
             modelBuilder.Entity("TNO.Entities.Product", b =>
                 {
                     b.Navigation("Contents");
@@ -5068,12 +5726,19 @@ namespace TNO.DAL.Migrations
                 {
                     b.Navigation("Instances");
 
+                    b.Navigation("Sections");
+
                     b.Navigation("SubscribersManyToMany");
                 });
 
             modelBuilder.Entity("TNO.Entities.ReportInstance", b =>
                 {
                     b.Navigation("ContentManyToMany");
+                });
+
+            modelBuilder.Entity("TNO.Entities.ReportSection", b =>
+                {
+                    b.Navigation("ChartTemplatesManyToMany");
                 });
 
             modelBuilder.Entity("TNO.Entities.ReportTemplate", b =>
@@ -5133,9 +5798,15 @@ namespace TNO.DAL.Migrations
                 {
                     b.Navigation("Contents");
 
+                    b.Navigation("Filters");
+
+                    b.Navigation("Folders");
+
                     b.Navigation("NotificationSubscriptionsManyToMany");
 
                     b.Navigation("Notifications");
+
+                    b.Navigation("OrganizationsManyToMany");
 
                     b.Navigation("ReportInstances");
 

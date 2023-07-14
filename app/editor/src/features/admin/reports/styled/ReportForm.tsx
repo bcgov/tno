@@ -27,7 +27,8 @@ export const ReportForm = styled(FormPage)`
       transition: color 0.15s ease-in-out 0s, background-color 0.15s ease-in-out 0s,
         border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
       resize: both;
-      max-width: calc(100vw - 140px);
+      min-width: 100%;
+      max-width: 100%;
     }
   }
 
@@ -37,6 +38,10 @@ export const ReportForm = styled(FormPage)`
     .required::after {
       content: ' *';
       color: rgb(216, 41, 47);
+    }
+
+    .frm-in.chk {
+      margin-right: 1em;
     }
   }
 
@@ -70,5 +75,49 @@ export const ReportForm = styled(FormPage)`
 
   hr {
     width: 100%;
+  }
+
+  .add-chart {
+    .frm-in {
+      min-width: 50%;
+    }
+    button {
+      align-self: flex-end;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  .charts {
+    padding: 0.5rem;
+    border: solid 1px ${(props) => props.theme.css.tableEvenRowColor};
+    border-radius: 0.25rem;
+    gap: 0.25rem;
+
+    & div[direction='row'] {
+      border-radius: 0.25rem;
+      align-items: center;
+      padding: 0.25rem;
+    }
+
+    & div[direction='row']:nth-child(odd) {
+      background-color: ${(props) => props.theme.css.tableOddRowColor};
+    }
+    & div[direction='row']:nth-child(even) {
+      background-color: ${(props) => props.theme.css.tableEvenRowColor};
+    }
+  }
+
+  .error {
+    color: red;
+  }
+
+  .preview-body {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5 {
+      text-transform: none;
+    }
   }
 `;

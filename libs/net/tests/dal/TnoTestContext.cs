@@ -71,12 +71,42 @@ public class TnoTestContext : TNOContext
                 v => JsonDocumentToString(v),
                 v => JsonDocument.Parse(v, new JsonDocumentOptions()));
 
-        modelBuilder.Entity<Entities.Report>().Property(p => p.Filter)
+        modelBuilder.Entity<Entities.Folder>().Property(p => p.Settings)
+            .HasConversion(
+                v => JsonDocumentToString(v),
+                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<Entities.Filter>().Property(p => p.Settings)
+            .HasConversion(
+                v => JsonDocumentToString(v),
+                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<Entities.Filter>().Property(p => p.Query)
             .HasConversion(
                 v => JsonDocumentToString(v),
                 v => JsonDocument.Parse(v, new JsonDocumentOptions()));
 
         modelBuilder.Entity<Entities.Report>().Property(p => p.Settings)
+            .HasConversion(
+                v => JsonDocumentToString(v),
+                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<Entities.ReportSection>().Property(p => p.Settings)
+            .HasConversion(
+                v => JsonDocumentToString(v),
+                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<Entities.ReportTemplate>().Property(p => p.Settings)
+            .HasConversion(
+                v => JsonDocumentToString(v),
+                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<Entities.ChartTemplate>().Property(p => p.Settings)
+            .HasConversion(
+                v => JsonDocumentToString(v),
+                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<Entities.ReportSectionChartTemplate>().Property(p => p.Settings)
             .HasConversion(
                 v => JsonDocumentToString(v),
                 v => JsonDocument.Parse(v, new JsonDocumentOptions()));

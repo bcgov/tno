@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using TNO.Core.Data;
 
 namespace TNO.Entities;
@@ -25,6 +26,12 @@ public class ChartTemplate : BaseType<int>
     public bool IsPublic { get; set; } = false;
 
     /// <summary>
+    /// get/set - The chart template settings.
+    /// </summary>
+    [Column("settings")]
+    public JsonDocument Settings { get; set; } = JsonDocument.Parse("{}");
+
+    /// <summary>
     /// get - Collection of report templates that use this chart template.
     /// </summary>
     public virtual List<ReportTemplate> ReportTemplates { get; } = new List<ReportTemplate>();
@@ -33,6 +40,16 @@ public class ChartTemplate : BaseType<int>
     /// get - Collection of report templates that use this chart template (many-to-many).
     /// </summary>
     public virtual List<ReportTemplateChartTemplate> ReportTemplatesManyToMany { get; } = new List<ReportTemplateChartTemplate>();
+
+    /// <summary>
+    /// get - Collection of report sections that use this chart template.
+    /// </summary>
+    public virtual List<ReportSection> ReportSections { get; } = new List<ReportSection>();
+
+    /// <summary>
+    /// get - Collection of report sections that use this chart template (many-to-many).
+    /// </summary>
+    public virtual List<ReportSectionChartTemplate> ReportSectionsManyToMany { get; } = new List<ReportSectionChartTemplate>();
     #endregion
 
     #region Constructors

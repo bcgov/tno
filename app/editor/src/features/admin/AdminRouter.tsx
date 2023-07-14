@@ -12,6 +12,8 @@ import {
   ContributorList,
   DataLocationForm,
   DataLocationList,
+  FilterForm,
+  FilterList,
   IngestDetails,
   IngestForm,
   IngestList,
@@ -111,6 +113,9 @@ export const AdminRouter: React.FC = () => {
       <Route path="report/:path" element={<ReportAdmin />} />
       <Route path="chart/templates" element={<ReportAdmin path="charts" />} />
       <Route path="chart/templates/:id" element={<ChartTemplateForm />} />
+
+      <Route path="filters" element={<FilterList />} />
+      <Route path="filters/:id" element={<FilterForm />} />
 
       <Route path="notifications" element={<NotificationList />} />
       <Route path="notifications/:id" element={<NotificationForm />} />

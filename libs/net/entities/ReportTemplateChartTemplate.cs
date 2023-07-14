@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace TNO.Entities;
 
 /// <summary>
-/// ReportTemplateChartTemplate class, provides an entity model that links (many-to-many) content with tone pools.
+/// ReportTemplateChartTemplate class, provides an entity model that links (many-to-many) report templates and chart templates.
 /// </summary>
 [Table("report_template_chart_template")]
 public class ReportTemplateChartTemplate : AuditColumns, IEquatable<ReportTemplateChartTemplate>

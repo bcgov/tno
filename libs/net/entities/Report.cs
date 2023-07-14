@@ -18,24 +18,12 @@ public class Report : BaseType<int>
     /// Cannot have a report with the same name as another report for a single owner.
     /// </summary>
     [Column("owner_id")]
-    public int OwnerId { get; set; }
+    public int? OwnerId { get; set; }
 
     /// <summary>
     /// get/set - The user who owns this report.
     /// </summary>
     public virtual User? Owner { get; set; }
-
-    /// <summary>
-    /// get/set - The type of report.
-    /// </summary>
-    [Column("report_type")]
-    public ReportType ReportType { get; set; }
-
-    /// <summary>
-    /// get/set - The default filter for this report.
-    /// </summary>
-    [Column("filter")]
-    public JsonDocument Filter { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get/set - Foreign key to the Razor template to generate the report.
@@ -59,6 +47,11 @@ public class Report : BaseType<int>
     /// </summary>
     [Column("settings")]
     public JsonDocument Settings { get; set; } = JsonDocument.Parse("{}");
+
+    /// <summary>
+    /// get - List of sections with this report.
+    /// </summary>
+    public virtual List<ReportSection> Sections { get; } = new List<ReportSection>();
 
     /// <summary>
     /// get - List of users who are subscribed to this report (many-to-many).
@@ -86,11 +79,10 @@ public class Report : BaseType<int>
     /// Creates a new instance of a Report object, initializes with specified parameters.
     /// </summary>
     /// <param name="name"></param>
-    /// <param name="type"></param>
-    /// <param name="owner"></param>
     /// <param name="template"></param>
-    public Report(string name, ReportType type, User owner, ReportTemplate template)
-        : this(0, name, type, owner?.Id ?? throw new ArgumentNullException(nameof(owner)), template?.Id ?? throw new ArgumentNullException(nameof(template)))
+    /// <param name="owner"></param>
+    public Report(string name, ReportTemplate template, User? owner = null)
+        : this(0, name, template?.Id ?? throw new ArgumentNullException(nameof(template)), owner?.Id)
     {
         this.Owner = owner;
         this.Template = template;
@@ -99,14 +91,24 @@ public class Report : BaseType<int>
     /// <summary>
     /// Creates a new instance of a Report object, initializes with specified parameters.
     /// </summary>
+    /// <param name="name"></param>
+    /// <param name="templateId"></param>
+    /// <param name="ownerId"></param>
+    public Report(string name, int templateId, int? ownerId = null) : base(name)
+    {
+        this.OwnerId = ownerId;
+        this.TemplateId = templateId;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a Report object, initializes with specified parameters.
+    /// </summary>
     /// <param name="id"></param>
     /// <param name="name"></param>
-    /// <param name="type"></param>
+    /// <param name="templateId"></param>
     /// <param name="ownerId"></param>
-    /// <param name="ownerId"></param>
-    public Report(int id, string name, ReportType type, int ownerId, int templateId) : base(id, name)
+    public Report(int id, string name, int templateId, int? ownerId = null) : base(id, name)
     {
-        this.ReportType = type;
         this.OwnerId = ownerId;
         this.TemplateId = templateId;
     }

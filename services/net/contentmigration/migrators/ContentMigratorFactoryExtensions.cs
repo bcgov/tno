@@ -19,15 +19,15 @@ public static class ContentMigratorFactoryExtensions
     {
         services.Configure<MigratorOptions>("ClipMigrator", configuration.GetSection("Service:ClipMigrator"));
         services.AddScoped<ClipMigrator>()
-                        .AddScoped<IContentMigrator, ClipMigrator>(s => s.GetService<ClipMigrator>());
+                        .AddScoped<IContentMigrator, ClipMigrator>(s => s.GetRequiredService<ClipMigrator>());
 
         services.Configure<MigratorOptions>("ImageMigrator", configuration.GetSection("Service:ImageMigrator"));
         services.AddScoped<ImageMigrator>()
-                        .AddScoped<IContentMigrator, ImageMigrator>(s => s.GetService<ImageMigrator>());
+                        .AddScoped<IContentMigrator, ImageMigrator>(s => s.GetRequiredService<ImageMigrator>());
 
         services.Configure<MigratorOptions>("PaperMigrator", configuration.GetSection("Service:PaperMigrator"));
         services.AddScoped<PaperMigrator>()
-                        .AddScoped<IContentMigrator, PaperMigrator>(s => s.GetService<PaperMigrator>()).AddOptions();
+                        .AddScoped<IContentMigrator, PaperMigrator>(s => s.GetRequiredService<PaperMigrator>()).AddOptions();
 
         services.AddScoped<ContentMigratorFactory>();
 

@@ -3,15 +3,15 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp } from 'store/hooks';
-import { useReports, useUsers } from 'store/hooks/admin';
+import { useReports } from 'store/hooks/admin';
 import { useAdminStore } from 'store/slices';
 import {
   Button,
   ButtonVariant,
   IconButton,
   IReportModel,
+  IReportPreviewModel,
   Modal,
-  ReportTypeName,
   Row,
   Show,
   Tab,
@@ -21,7 +21,6 @@ import {
 
 import { defaultReport } from './constants';
 import { ReportFormDetails } from './ReportFormDetails';
-import { ReportFormFilter } from './ReportFormFilter';
 import { ReportFormInstance } from './ReportFormInstances';
 import { ReportFormPreview } from './ReportFormPreview';
 import { ReportFormSubscribers } from './ReportFormSubscribers';
@@ -40,24 +39,15 @@ export const ReportForm: React.FC = () => {
   const [, { addReport, deleteReport, getReport, updateReport, publishReport }] = useReports();
   const [{ reportTemplates }, { storeReportTemplates }] = useAdminStore();
   const { toggle, isShowing } = useModal();
-  const [{ users }, { findUsers }] = useUsers();
 
   const [report, setReport] = React.useState<IReportModel>({
     ...defaultReport,
     ownerId: userInfo?.id ?? 0,
   });
   const [active, setActive] = React.useState('report');
+  const [preview, setPreview] = React.useState<IReportPreviewModel>();
 
   const reportId = Number(id);
-
-  React.useEffect(() => {
-    if (!users.items.length)
-      findUsers({}).catch(() => {
-        // Handled already.
-      });
-    // Fetch users on initial load only.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   React.useEffect(() => {
     if (!!reportId && report?.id !== reportId) {
@@ -116,22 +106,6 @@ export const ReportForm: React.FC = () => {
                   }}
                   active={active === 'report'}
                 />
-                <Show visible={values.reportType === ReportTypeName.Filter}>
-                  <Tab
-                    label="Primary Filter"
-                    onClick={() => {
-                      setActive('filter');
-                    }}
-                    active={active === 'filter'}
-                  />
-                </Show>
-                <Tab
-                  label="Sections"
-                  onClick={() => {
-                    setActive('sections');
-                  }}
-                  active={active === 'sections'}
-                />
                 <Tab
                   label="Template"
                   onClick={() => {
@@ -139,27 +113,42 @@ export const ReportForm: React.FC = () => {
                   }}
                   active={active === 'template'}
                 />
-                <Tab
-                  label="Preview"
-                  onClick={() => {
-                    setActive('preview');
-                  }}
-                  active={active === 'preview'}
-                />
-                <Tab
-                  label="Subscribers"
-                  onClick={() => {
-                    setActive('subscribers');
-                  }}
-                  active={active === 'subscribers'}
-                />
-                <Tab
-                  label="Instances"
-                  onClick={() => {
-                    setActive('instances');
-                  }}
-                  active={active === 'instances'}
-                />
+                {!!values.templateId && (
+                  <Tab
+                    label="Sections"
+                    onClick={() => {
+                      setActive('sections');
+                    }}
+                    active={active === 'sections'}
+                  />
+                )}
+                {!!values.templateId && (
+                  <Tab
+                    label="Preview"
+                    onClick={() => {
+                      setActive('preview');
+                    }}
+                    active={active === 'preview'}
+                  />
+                )}
+                {!!values.templateId && (
+                  <Tab
+                    label="Subscribers"
+                    onClick={() => {
+                      setActive('subscribers');
+                    }}
+                    active={active === 'subscribers'}
+                  />
+                )}
+                {!!values.templateId && (
+                  <Tab
+                    label="Instances"
+                    onClick={() => {
+                      setActive('instances');
+                    }}
+                    active={active === 'instances'}
+                  />
+                )}
               </>
             }
           >
@@ -167,18 +156,15 @@ export const ReportForm: React.FC = () => {
               <Show visible={active === 'report'}>
                 <ReportFormDetails />
               </Show>
-              <Show visible={active === 'filter'}>
-                <ReportFormFilter />
+              <Show visible={active === 'template'}>
+                <ReportFormTemplate />
               </Show>
               <Show visible={active === 'sections'}>
                 <h2>{values.name}</h2>
                 <ReportSections />
               </Show>
-              <Show visible={active === 'template'}>
-                <ReportFormTemplate />
-              </Show>
               <Show visible={active === 'preview'}>
-                <ReportFormPreview />
+                <ReportFormPreview preview={preview} setPreview={setPreview} />
               </Show>
               <Show visible={active === 'subscribers'}>
                 <ReportFormSubscribers />

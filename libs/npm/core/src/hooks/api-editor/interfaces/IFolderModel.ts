@@ -1,7 +1,8 @@
-import { IItemModel } from '.';
+import { IFolderContentModel, IFolderSettingsModel, ISortableModel, IUserModel } from '.';
 
-export interface IFolderModel {
-  path: string;
-  items: IItemModel[];
-  isLocal: boolean;
+export interface IFolderModel extends ISortableModel<number> {
+  ownerId?: number;
+  owner?: IUserModel;
+  settings: IFolderSettingsModel;
+  content: IFolderContentModel[];
 }

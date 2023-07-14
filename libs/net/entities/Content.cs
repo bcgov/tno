@@ -258,6 +258,16 @@ public class Content : AuditColumns
     /// get - Collection of notification instances for this content (many-to-many).
     /// </summary>
     public virtual List<NotificationInstance> NotificationsManyToMany { get; } = new List<NotificationInstance>();
+
+    /// <summary>
+    /// get - Collection of folders that have this content.
+    /// </summary>
+    public virtual List<Folder> Folders { get; } = new List<Folder>();
+
+    /// <summary>
+    /// get - Collection of folders that have this content (many-to-many).
+    /// </summary>
+    public virtual List<FolderContent> FoldersManyToMany { get; } = new List<FolderContent>();
     #endregion
 
     #region Constructors

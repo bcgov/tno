@@ -5,7 +5,7 @@ import {
   Col,
   getDirectoryName,
   GridTable,
-  IFolderModel,
+  IDirectoryModel,
   IItemModel,
   Modal,
   Row,
@@ -25,7 +25,7 @@ export interface IFileExplorerProps {
   /** The initial path to load */
   path?: string;
   /** The folder to display */
-  folder: IFolderModel;
+  folder: IDirectoryModel;
   /** Whether show other locations */
   showLocations?: boolean;
   /** Event when the delete button is clicked */

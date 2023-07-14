@@ -39,7 +39,7 @@ public class ChartTemplateService : BaseService<ChartTemplate, int>, IChartTempl
     /// <returns></returns>
     public bool IsInUse(int id)
     {
-        return this.Context.ReportTemplateChartTemplates.Any(rt => rt.ChartTemplateId == id);
+        return this.Context.ReportTemplateChartTemplates.Any(rt => rt.ChartTemplateId == id) || this.Context.ReportSectionChartTemplates.Any(rs => rs.ChartTemplateId == id);
     }
     #endregion
 }

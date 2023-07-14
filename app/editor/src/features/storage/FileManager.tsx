@@ -10,14 +10,14 @@ import {
   Error,
   FieldSize,
   getDirectoryName,
-  IFolderModel,
+  IDirectoryModel,
   Row,
   Show,
   Spinner,
   Text,
 } from 'tno-core';
 
-import { defaultFolder } from './constants';
+import { defaultDirectory } from './constants';
 import { IFileItem, IStream } from './interfaces';
 import * as styled from './styled';
 
@@ -60,7 +60,7 @@ export const FileManager: React.FC<IFileManagerProps> = ({
   const creatingJoin = app.requests.some((r) => r.url === 'storage-join');
 
   // TODO: Hardcoding the folder location isn't ideal as the API may be configured differently.
-  const [folder, setFolder] = React.useState<IFolderModel>(defaultFolder);
+  const [folder, setFolder] = React.useState<IDirectoryModel>(defaultDirectory);
   const [stream, setStream] = React.useState<IStream>();
   const [item, setItem] = React.useState<IFileItem>();
   const [start, setStart] = React.useState<string>('');
@@ -82,7 +82,7 @@ export const FileManager: React.FC<IFileManagerProps> = ({
 
   React.useEffect(() => {
     // Extract any filename in the path, we only want the folder.
-    storageApi.getFolder(locationId, directory).then((folder) => {
+    storageApi.getDirectory(locationId, directory).then((folder) => {
       if (!!folder) setFolder(folder);
     });
   }, [directory, storageApi, locationId]);

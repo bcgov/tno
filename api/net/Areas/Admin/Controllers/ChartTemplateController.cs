@@ -220,11 +220,7 @@ public class ChartTemplateController : ControllerBase
             content = Array.Empty<TNO.TemplateEngine.Models.Reports.ContentModel>();
         }
 
-        var templateModel = new TNO.TemplateEngine.Models.Reports.TemplateModel(content);
-
-        var g = templateModel.Content.GroupBy(c => c.ContentType.ToString(), c => c);
-        var t = g.Select(c => c.Key);
-        var v = g.Select(c => c.ToArray().Length);
+        var templateModel = new TNO.TemplateEngine.Models.Reports.TemplateModel(content, new API.Models.Settings.ReportSettingsModel());
 
         var json = await template.RunAsync(instance =>
         {

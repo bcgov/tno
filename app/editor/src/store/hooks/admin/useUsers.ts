@@ -5,7 +5,7 @@ import { IAdminState, useAdminStore } from 'store/slices';
 import { IPaged, IUserFilter, IUserModel, useApiAdminUsers } from 'tno-core';
 
 interface IUserController {
-  findUsers: (filter: IUserFilter) => Promise<IPaged<IUserModel>>;
+  findUsers: (filter: IUserFilter, isSilent?: boolean) => Promise<IPaged<IUserModel>>;
   getUser: (id: number) => Promise<IUserModel>;
   addUser: (model: IUserModel) => Promise<IUserModel>;
   updateUser: (model: IUserModel) => Promise<IUserModel>;
@@ -21,9 +21,12 @@ export const useUsers = (): [IAdminState, IUserController] => {
 
   const controller = React.useMemo(
     () => ({
-      findUsers: async (filter: IUserFilter) => {
-        const response = await dispatch<IPaged<IUserModel>>('find-users', () =>
-          api.findUsers(filter),
+      findUsers: async (filter: IUserFilter, isSilent: boolean | undefined = false) => {
+        const response = await dispatch<IPaged<IUserModel>>(
+          'find-users',
+          () => api.findUsers(filter),
+          undefined,
+          isSilent,
         );
         store.storeUsers(response.data);
         return response.data;

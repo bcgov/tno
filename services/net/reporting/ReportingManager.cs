@@ -13,8 +13,9 @@ using TNO.Ches.Configuration;
 using System.Text.Json;
 using System.Security.Claims;
 using TNO.TemplateEngine;
-using TNO.TemplateEngine.Extensions;
 using TNO.TemplateEngine.Models.Reports;
+using TNO.Core.Extensions;
+using TNO.Elastic.Models;
 
 namespace TNO.Services.Reporting;
 
@@ -305,12 +306,15 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.Report.ReportModel report)
     {
         // TODO: Control when a report is sent through configuration.
-        var sections = report.ParseSections();
-        var results = await this.Api.FindContentForReportIdAsync(report.Id);
-        var content = results.ToDictionary(r => r.Key, r =>
+        var sections = report.Sections.Select(s => new ReportSectionModel(s));
+        var searchResults = await this.Api.FindContentForReportIdAsync(report.Id);
+        var content = sections.ToDictionary(s => s.Name, section =>
         {
-            var section = sections[r.Key];
-            section.Content = r.Value.Hits.Hits.Select(h => new ContentModel(h.Source)).ToArray();
+            if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
+            {
+                // TODO: Content sort order should be followed for content from a folder.
+                section.Content = results.Hits.Hits.Select(h => new ContentModel(h.Source)).ToArray();
+            }
             return section;
         });
 
@@ -352,11 +356,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     {
         // TODO: Control when a report is sent through configuration.
         var report = reportInstance.Report ?? throw new ArgumentException("Report instance must include the report model.");
-        var sections = report.ParseSections();
-        var results = await this.Api.GetContentForReportInstanceIdAsync(reportInstance.Id);
-        var content = results.GroupBy(r => r.SectionName).ToDictionary(r => r.Key, r =>
+        var sections = report.Sections.Select(s => new ReportSectionModel(s));
+        var searchResults = await this.Api.GetContentForReportInstanceIdAsync(reportInstance.Id);
+        var content = searchResults.GroupBy(r => r.SectionName).ToDictionary(r => r.Key, r =>
         {
-            var section = sections[r.Key];
+            var section = sections.FirstOrDefault(s => s.Name == r.Key) ?? throw new InvalidOperationException("Unable to find matching section in report");
             section.Content = r.Where(ri => ri.Content != null).Select(ri => new ContentModel(ri.Content!, ri.SortOrder)).ToArray();
             return section;
         });
@@ -386,7 +390,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     {
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
         var key = $"report_{report.Id}_subject";
-        var model = new TemplateModel(content);
+        var model = new TemplateModel(content, report.Settings);
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
         var template = (!updateCache ?
             this.TemplateEngine.GetOrAddTemplateInMemory(key, report.Template.Subject) :
@@ -395,6 +399,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         return await template.RunAsync(instance =>
         {
             instance.Model = model;
+            instance.Settings = model.Settings;
             instance.Content = model.Content;
             instance.Sections = model.Sections;
         });
@@ -410,7 +415,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     {
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
         var key = $"report_{report.Id}";
-        var model = new TemplateModel(content);
+        var model = new TemplateModel(content, report.Settings);
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
 
         if (content.TryGetValue("", out ReportSectionModel? value) && value != null && value.Content.Any())
@@ -428,6 +433,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         return await template.RunAsync(instance =>
         {
             instance.Model = model;
+            instance.Settings = model.Settings;
             instance.Content = model.Content;
             instance.Sections = model.Sections;
         });

@@ -55,6 +55,7 @@ public abstract class BaseTypeWithAuditColumnsModel<TKey> : AuditColumnsModel
             this.Description = entity.Description;
             this.IsEnabled = entity.IsEnabled;
             this.SortOrder = entity.SortOrder;
+            this.Version = entity.Version;
         }
     }
     #endregion

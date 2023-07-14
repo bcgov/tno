@@ -7,10 +7,14 @@ import {
   IConnectionModel,
   IContributorModel,
   IDataLocationModel,
+  IFilterModel,
+  IFolderModel,
   IIngestModel,
   IIngestTypeModel,
   ILicenseModel,
+  IMinisterModel,
   INotificationModel,
+  IOrganizationModel,
   IPaged,
   IProductModel,
   IReportModel,
@@ -48,6 +52,8 @@ export const initialAdminState: IAdminState = {
   series: [],
   contributors: [],
   licenses: [],
+  ministers: [],
+  organizations: [],
   workOrderFilter: {
     pageIndex: 0,
     pageSize: 10,
@@ -57,6 +63,8 @@ export const initialAdminState: IAdminState = {
     sort: [],
   },
   workOrders: { page: 1, quantity: 10, items: [], total: 0 },
+  folders: [],
+  filters: [],
   reports: [],
   reportTemplates: [],
   chartTemplates: [],
@@ -115,11 +123,23 @@ export const adminSlice = createSlice({
     storeContributors(state: IAdminState, action: PayloadAction<IContributorModel[]>) {
       state.contributors = action.payload;
     },
+    storeMinisters(state: IAdminState, action: PayloadAction<IMinisterModel[]>) {
+      state.ministers = action.payload;
+    },
+    storeOrganizations(state: IAdminState, action: PayloadAction<IOrganizationModel[]>) {
+      state.organizations = action.payload;
+    },
     storeWorkOrderFilter(state: IAdminState, action: PayloadAction<IWorkOrderListFilter>) {
       state.workOrderFilter = action.payload;
     },
     storeWorkOrders(state: IAdminState, action: PayloadAction<IPaged<IWorkOrderModel>>) {
       state.workOrders = action.payload;
+    },
+    storeFolders(state: IAdminState, action: PayloadAction<IFolderModel[]>) {
+      state.folders = action.payload;
+    },
+    storeFilters(state: IAdminState, action: PayloadAction<IFilterModel[]>) {
+      state.filters = action.payload;
     },
     storeReports(state: IAdminState, action: PayloadAction<IReportModel[]>) {
       state.reports = action.payload;
@@ -153,8 +173,12 @@ export const {
   storeActions: storeAdminActions,
   storeSeries: storeAdminSeries,
   storeContributors: storeAdminContributors,
+  storeMinisters: storeAdminMinisters,
+  storeOrganizations: storeAdminOrganizations,
   storeWorkOrderFilter: storeAdminWorkOrderFilter,
   storeWorkOrders: storeAdminWorkOrders,
+  storeFolders: storeAdminFolders,
+  storeFilters: storeAdminFilters,
   storeReports: storeAdminReports,
   storeReportTemplates: storeAdminReportTemplates,
   storeChartTemplates: storeAdminChartTemplates,

@@ -175,6 +175,26 @@ public class User : AuditColumns
     /// get - Collection of report instances owned by this user.
     /// </summary>
     public virtual List<ReportInstance> ReportInstances { get; } = new List<ReportInstance>();
+
+    /// <summary>
+    /// get - Collection of folders owned by this user.
+    /// </summary>
+    public virtual List<Folder> Folders { get; } = new List<Folder>();
+
+    /// <summary>
+    /// get - Collection of filters owned by this user.
+    /// </summary>
+    public virtual List<Filter> Filters { get; } = new List<Filter>();
+
+    /// <summary>
+    /// get - Collection of organizations this user belongs to.
+    /// </summary>
+    public virtual List<Organization> Organizations { get; } = new List<Organization>();
+
+    /// <summary>
+    /// get - Collection of organizations this user belongs to (many-to-many).
+    /// </summary>
+    public virtual List<UserOrganization> OrganizationsManyToMany { get; } = new List<UserOrganization>();
     #endregion
 
     #region Constructors

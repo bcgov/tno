@@ -1,31 +1,27 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaArrowDown, FaArrowUp, FaTrash } from 'react-icons/fa';
-import { Button, ButtonVariant, Col, IReportModel, Row } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  Col,
+  FormikCheckbox,
+  IReportModel,
+  IReportSectionModel,
+  Row,
+} from 'tno-core';
 
-import { IReportSection } from './interfaces';
+import { defaultReportSection } from './constants';
 import { ReportSection } from './ReportSection';
 import * as styled from './styled';
-
-const defaultSection = (sortOrder: number): IReportSection => {
-  return {
-    name: '',
-    label: '',
-    description: '',
-    sortOrder: sortOrder,
-    isEnabled: true,
-    filter: {},
-  };
-};
 
 export const ReportSections = () => {
   const { values, setFieldValue } = useFormikContext<IReportModel>();
 
-  const sections: IReportSection[] = values.settings.sections ?? [];
-  const [section, setSection] = React.useState<IReportSection>();
+  const [section, setSection] = React.useState<IReportSectionModel>();
 
-  const handleMoveUp = (section: IReportSection, index: number) => {
-    var results = [...sections];
+  const handleMoveUp = (section: IReportSectionModel, index: number) => {
+    var results = [...values.sections];
     var above = results[index - 1];
     results.splice(index, 1);
     results.splice(index - 1, 0, {
@@ -33,13 +29,13 @@ export const ReportSections = () => {
       sortOrder: above.sortOrder,
     });
     setFieldValue(
-      'settings.sections',
+      'sections',
       results.map((r, i) => ({ ...r, sortOrder: i })),
     );
   };
 
-  const handleMoveDown = (section: IReportSection, index: number) => {
-    var results = [...sections];
+  const handleMoveDown = (section: IReportSectionModel, index: number) => {
+    var results = [...values.sections];
     var below = results[index + 1];
     results.splice(index, 1);
     results.splice(index + 1, 0, {
@@ -48,31 +44,45 @@ export const ReportSections = () => {
     });
     below.sortOrder--;
     setFieldValue(
-      'settings.sections',
+      'sections',
       results.map((r, i) => ({ ...r, sortOrder: i })),
     );
   };
 
   const handleDelete = (index: number) => {
-    var results = [...sections];
-    results.splice(index, 1);
+    var sections = [...values.sections];
+    sections.splice(index, 1);
     if (index === section?.sortOrder) setSection(undefined);
-    const values = results.map((s, i) => ({ ...s, sortOrder: i }));
-    setFieldValue(`settings.sections`, values);
+    const results = sections.map((s, i) => ({ ...s, sortOrder: i }));
+    setFieldValue(`sections`, results);
   };
 
   return (
     <styled.ReportSections>
       <p>
-        A report can contain multiple sections, each with its own content and filter. Each section
-        name must be unique. The template will use this name to reference the section.
+        A report must contain one or more section, each with its own content and filter. Each
+        section name must be unique. The template will use this name to reference the section.
       </p>
+      <Col className="frm-in">
+        <label>Section Options</label>
+        <Row>
+          <FormikCheckbox label="Hide Empty" name="settings.sections.hideEmpty" />
+          <FormikCheckbox label="Use Page Breaks" name="settings.sections.usePageBreaks" />
+        </Row>
+      </Col>
       <Col alignItems="flex-end">
         <Button
           variant={ButtonVariant.secondary}
           onClick={() => {
-            const values = [...sections, defaultSection(sections.length)];
-            setFieldValue('settings.sections', values);
+            setFieldValue(
+              'sections',
+              [
+                ...values.sections,
+                defaultReportSection(`section-${values.sections.length + 1}`, values.id),
+              ].map((section, index) => {
+                return { ...section, sortOrder: index };
+              }),
+            );
           }}
         >
           Add New Section
@@ -85,7 +95,7 @@ export const ReportSections = () => {
             <Col className="st-2">Description</Col>
             <Col className="st-3"></Col>
           </Row>
-          {sections.map((row, index) => (
+          {values.sections.map((row, index) => (
             <React.Fragment key={index}>
               <Row
                 className={`row${row.sortOrder === section?.sortOrder ? ' active' : ''}`}
@@ -101,7 +111,7 @@ export const ReportSections = () => {
                     <Button
                       variant={ButtonVariant.link}
                       className="move"
-                      disabled={index < 1 || sections.length < index}
+                      disabled={index < 1 || values.sections.length < index}
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -113,7 +123,7 @@ export const ReportSections = () => {
                     <Button
                       variant={ButtonVariant.link}
                       className="move"
-                      disabled={index >= sections.length - 1}
+                      disabled={index >= values.sections.length - 1}
                       onClick={async (e) => {
                         e.preventDefault();
                         e.stopPropagation();

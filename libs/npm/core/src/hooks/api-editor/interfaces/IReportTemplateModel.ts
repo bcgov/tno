@@ -1,12 +1,8 @@
-import { IChartTemplateModel, ISortableModel } from '.';
+import { IChartTemplateModel, IReportTemplateSettingsModel, ISortableModel } from '.';
 
 export interface IReportTemplateModel extends ISortableModel<number> {
   subject: string;
   body: string;
-  enableSections: boolean;
-  enableSectionSummary: boolean;
-  enableSummary: boolean;
-  enableCharts: boolean;
-  enableChartsOverTime: boolean;
+  settings: IReportTemplateSettingsModel;
   chartTemplates: IChartTemplateModel[];
 }

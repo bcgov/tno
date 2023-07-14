@@ -1,5 +1,13 @@
 import { UserStatusName } from '../constants';
-import { IAuditColumnsModel } from '.';
+import {
+  IAuditColumnsModel,
+  IFilterModel,
+  IFolderModel,
+  INotificationModel,
+  IOrganizationModel,
+  IReportInstanceModel,
+  IReportModel,
+} from '.';
 
 export interface IUserModel extends IAuditColumnsModel {
   id: number;
@@ -17,4 +25,10 @@ export interface IUserModel extends IAuditColumnsModel {
   preferences?: any;
   note: string;
   roles?: string[];
+  organizations?: IOrganizationModel[];
+  folders?: IFolderModel[];
+  filters?: IFilterModel[];
+  reports?: IReportModel[];
+  reportInstances?: IReportInstanceModel[];
+  notifications?: INotificationModel[];
 }

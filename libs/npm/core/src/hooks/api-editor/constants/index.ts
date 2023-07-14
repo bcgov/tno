@@ -10,8 +10,6 @@ export * from './ContentTypeName';
 export * from './LogicalOperator';
 export * from './NotificationType';
 export * from './NotificationTypeName';
-export * from './ReportType';
-export * from './ReportTypeName';
 export * from './ResendOption';
 export * from './ResendOptionName';
 export * from './ScheduleMonth';

@@ -11,11 +11,7 @@ public class ReportTemplateConfiguration : BaseTypeConfiguration<ReportTemplate,
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Property(m => m.Subject).IsRequired().HasColumnType("text");
         builder.Property(m => m.Body).IsRequired().HasColumnType("text");
-        builder.Property(m => m.EnableSections).IsRequired();
-        builder.Property(m => m.EnableSectionSummary).IsRequired();
-        builder.Property(m => m.EnableSummary).IsRequired();
-        builder.Property(m => m.EnableCharts).IsRequired();
-        builder.Property(m => m.EnableChartsOverTime).IsRequired();
+        builder.Property(m => m.Settings).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
 
         builder.HasMany(m => m.ChartTemplates).WithMany(m => m.ReportTemplates).UsingEntity<ReportTemplateChartTemplate>();
 

@@ -1,4 +1,5 @@
 ﻿using RazorEngineCore;
+using TNO.API.Models.Settings;
 
 namespace TNO.TemplateEngine.Models.Reports;
 
@@ -14,9 +15,24 @@ public class ReportSectionModel : RazorEngineTemplateBase
     public string Name { get; set; } = "";
 
     /// <summary>
-    /// get/set - The label to display for this section.
+    /// get/set - A description of the type model.
     /// </summary>
-    public string Label { get; set; } = "";
+    public string Description { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Whether this model is enabled.
+    /// </summary>
+    public bool IsEnabled { get; set; }
+
+    /// <summary>
+    /// get/set - The sort order of the models.
+    /// </summary>
+    public int SortOrder { get; set; }
+
+    /// <summary>
+    /// get/set - The settings for the section.
+    /// </summary>
+    public ReportSectionSettingsModel Settings { get; set; } = new();
 
     /// <summary>
     /// get/set - An array of content.
@@ -36,13 +52,45 @@ public class ReportSectionModel : RazorEngineTemplateBase
     /// <summary>
     /// Creates a new instance of a TemplateModel, initializes with specified parameters.
     /// </summary>
-    /// <param name="name"></param>
-    /// <param name="label"></param>
+    /// <param name="model"></param>
     /// <param name="content"></param>
-    public ReportSectionModel(string name, string label, IEnumerable<ContentModel>? content = null)
+    public ReportSectionModel(TNO.API.Areas.Admin.Models.Report.ReportSectionModel model, IEnumerable<ContentModel>? content = null)
     {
-        this.Name = name;
-        this.Label = label;
+        this.Name = model.Name;
+        this.Description = model.Description;
+        this.IsEnabled = model.IsEnabled;
+        this.SortOrder = model.SortOrder;
+        this.Settings = model.Settings;
+        this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
+    }
+
+    /// <summary>
+    /// Creates a new instance of a TemplateModel, initializes with specified parameters.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="content"></param>
+    public ReportSectionModel(TNO.API.Areas.Editor.Models.Report.ReportSectionModel model, IEnumerable<ContentModel>? content = null)
+    {
+        this.Name = model.Name;
+        this.Description = model.Description;
+        this.IsEnabled = model.IsEnabled;
+        this.SortOrder = model.SortOrder;
+        this.Settings = model.Settings;
+        this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
+    }
+
+    /// <summary>
+    /// Creates a new instance of a TemplateModel, initializes with specified parameters.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="content"></param>
+    public ReportSectionModel(TNO.API.Areas.Services.Models.Report.ReportSectionModel model, IEnumerable<ContentModel>? content = null)
+    {
+        this.Name = model.Name;
+        this.Description = model.Description;
+        this.IsEnabled = model.IsEnabled;
+        this.SortOrder = model.SortOrder;
+        this.Settings = model.Settings;
         this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
     }
     #endregion

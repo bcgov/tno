@@ -1,3 +1,4 @@
+using System.Text.Json;
 using TNO.API.Models;
 
 namespace TNO.API.Areas.Admin.Models.Report;
@@ -12,6 +13,11 @@ public class ChartTemplateModel : BaseTypeWithAuditColumnsModel<int>
     /// get/set - The Razor template to generate the report.
     /// </summary>
     public string Template { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The settings for this report.
+    /// </summary>
+    public Dictionary<string, object> Settings { get; set; } = new Dictionary<string, object>();
     #endregion
 
     #region Constructors
@@ -25,9 +31,10 @@ public class ChartTemplateModel : BaseTypeWithAuditColumnsModel<int>
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="options"></param>
-    public ChartTemplateModel(Entities.ChartTemplate entity) : base(entity)
+    public ChartTemplateModel(Entities.ChartTemplate entity, JsonSerializerOptions options) : base(entity)
     {
         this.Template = entity.Template;
+        this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
     }
     #endregion
 }
