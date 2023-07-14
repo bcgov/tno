@@ -11,7 +11,7 @@ using TNO.Keycloak;
 namespace TNO.API.Areas.Subscriber.Controllers;
 
 /// <summary>
-/// ContributorController class, provides Minister endpoints for the api.
+/// MinisterController class, provides Minister endpoints for the api.
 /// </summary>
 [ClientRoleAuthorize(ClientRole.Subscriber, ClientRole.Administrator)]
 [ApiController]
@@ -31,7 +31,7 @@ public class MinisterController : ControllerBase
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a ContributorController object, initializes with specified parameters.
+    /// Creates a new instance of a MinisterController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
     public MinisterController(IMinisterService service)

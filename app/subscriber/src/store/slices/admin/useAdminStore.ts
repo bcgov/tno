@@ -2,7 +2,6 @@ import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import React from 'react';
 import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
-import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import {
   IActionModel,
   IConnectionModel,
@@ -10,6 +9,7 @@ import {
   IIngestModel,
   IIngestTypeModel,
   ILicenseModel,
+  IMinisterModel,
   IPaged,
   IProductModel,
   ISeriesModel,
@@ -47,26 +47,26 @@ import { IAdminState } from './interfaces';
 export interface IAdminProps {}
 
 export interface IAdminStore {
-  storeSources: (sources: ISourceModel[]) => void;
+  storeActions: (actions: IActionModel[]) => void;
   storeConnections: (connections: IConnectionModel[]) => void;
   storeDataLocations: (dataLocations: IDataLocationModel[]) => void;
-  storeProducts: (products: IProductModel[]) => void;
-  storeLicenses: (licenses: ILicenseModel[]) => void;
   storeIngests: (ingests: IIngestModel[]) => void;
   storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => void;
+  storeLicenses: (licenses: ILicenseModel[]) => void;
+  storeMinisters: (ministers: IMinisterModel[]) => void;
+  storeProducts: (products: IProductModel[]) => void;
+  storeSeries: (series: ISeriesModel[]) => void;
+  storeSources: (sources: ISourceModel[]) => void;
+  storeSystemMessages: (
+    systemMessages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
+  ) => void;
+  storeTags: (tags: ITagModel[]) => void;
   storeTopics: (topics: ITopicModel[]) => void;
   storeTopicScoreRules: (rules: ITopicScoreRuleModel[]) => void;
   storeUserFilter: (filter: IUserListFilter) => void;
   storeUsers: (users: IPaged<IUserModel>) => void;
-  storeTags: (tags: ITagModel[]) => void;
-  storeSystemMessages: (
-    systemMessages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
-  ) => void;
-  storeActions: (actions: IActionModel[]) => void;
-  storeSeries: (series: ISeriesModel[]) => void;
   storeWorkOrderFilter: (filter: IWorkOrderListFilter) => void;
   storeWorkOrders: (users: IPaged<IWorkOrderModel>) => void;
-  storeMinisters: (ministers: IMinisterModel[]) => void;
 }
 
 export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] => {
@@ -75,8 +75,8 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
 
   const controller = React.useMemo(
     () => ({
-      storeSources: (sources: ISourceModel[]) => {
-        dispatch(storeAdminSources(sources));
+      storeActions: (actions: IActionModel[]) => {
+        dispatch(storeAdminActions(actions));
       },
       storeConnections: (connections: IConnectionModel[]) => {
         dispatch(storeAdminConnections(connections));
@@ -84,20 +84,26 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       storeDataLocations: (dataLocations: IDataLocationModel[]) => {
         dispatch(storeAdminDataLocations(dataLocations));
       },
-      storeProducts: (products: IProductModel[]) => {
-        dispatch(storeAdminProducts(products));
-      },
-      storeLicenses: (licenses: ILicenseModel[]) => {
-        dispatch(storeAdminLicenses(licenses));
-      },
       storeIngests: (ingests: IIngestModel[]) => {
         dispatch(storeAdminIngests(ingests));
       },
       storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => {
         dispatch(storeAdminIngestTypes(ingestTypes));
       },
-      storeUserFilter: (filter: IUserListFilter) => {
-        dispatch(storeAdminUserFilter(filter));
+      storeLicenses: (licenses: ILicenseModel[]) => {
+        dispatch(storeAdminLicenses(licenses));
+      },
+      storeMinisters: (ministers: IMinisterModel[]) => {
+        dispatch(storeAdminMinisters(ministers));
+      },
+      storeProducts: (products: IProductModel[]) => {
+        dispatch(storeAdminProducts(products));
+      },
+      storeSeries: (series: ISeriesModel[]) => {
+        dispatch(storeAdminSeries(series));
+      },
+      storeSources: (sources: ISourceModel[]) => {
+        dispatch(storeAdminSources(sources));
       },
       storeSystemMessages: (
         systemMessages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
@@ -106,8 +112,8 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminSystemMessages(systemMessages(state.systemMessages)));
         } else dispatch(storeAdminSystemMessages(systemMessages));
       },
-      storeUsers: (users: IPaged<IUserModel>) => {
-        dispatch(storeAdminUsers(users));
+      storeTags: (tags: ITagModel[]) => {
+        dispatch(storeAdminTags(tags));
       },
       storeTopics: (topics: ITopicModel[]) => {
         dispatch(storeAdminTopics(topics));
@@ -115,17 +121,11 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       storeTopicScoreRules: (rules: ITopicScoreRuleModel[]) => {
         dispatch(storeAdminTopicScoreRules(rules));
       },
-      storeTags: (tags: ITagModel[]) => {
-        dispatch(storeAdminTags(tags));
+      storeUserFilter: (filter: IUserListFilter) => {
+        dispatch(storeAdminUserFilter(filter));
       },
-      storeMinisters: (ministers: IMinisterModel[]) => {
-        dispatch(storeAdminMinisters(ministers));
-      },
-      storeActions: (actions: IActionModel[]) => {
-        dispatch(storeAdminActions(actions));
-      },
-      storeSeries: (series: ISeriesModel[]) => {
-        dispatch(storeAdminSeries(series));
+      storeUsers: (users: IPaged<IUserModel>) => {
+        dispatch(storeAdminUsers(users));
       },
       storeWorkOrderFilter: (filter: IWorkOrderListFilter) => {
         dispatch(storeAdminWorkOrderFilter(filter));

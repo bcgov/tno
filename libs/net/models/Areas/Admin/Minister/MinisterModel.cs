@@ -3,7 +3,7 @@ using TNO.API.Models;
 namespace TNO.API.Areas.Admin.Models.Minister;
 
 /// <summary>
-/// MinisterModel class, provides a model that represents an minister.
+/// MinisterModel class, provides a model that represents a Minister.
 /// </summary>
 public class MinisterModel : BaseTypeWithAuditColumnsModel<int>
 {

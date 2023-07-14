@@ -8,6 +8,7 @@ export * from './filters';
 export * from './ingest-types';
 export * from './ingests';
 export * from './licenses';
+export * from './ministers';
 export * from './notifications';
 export * from './products';
 export * from './reports';

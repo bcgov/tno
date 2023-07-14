@@ -9,6 +9,7 @@ export * from './useFolders';
 export * from './useIngests';
 export * from './useIngestTypes';
 export * from './useLicenses';
+export * from './useMinisters';
 export * from './useNotifications';
 export * from './useOrganizations';
 export * from './useProducts';
