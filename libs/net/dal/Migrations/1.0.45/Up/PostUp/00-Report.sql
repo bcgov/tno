@@ -3,6 +3,7 @@ BEGIN
 
 UPDATE public.report_template SET
     "subject" = '
+@using System
 @{
     var now = System.DateTime.Now;
     var tz = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
