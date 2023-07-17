@@ -18,14 +18,26 @@ public static class ServiceCollectionExtensions
     /// <returns></returns>
     public static IServiceCollection AddMigrationSourceContext(this IServiceCollection services, OracleConnectionSettings? config)
     {
-        var connectionString = OracleConnectionStringHelper.GetConnectionString(config);
+        string connectionString = string.Empty;
+        if (config != null) {
+            connectionString = OracleConnectionStringHelper.GetConnectionString(config.UserName, config.Password, config.HostName, config.Port, config.Sid);
+        }
 
         services.AddDbContext<MigrationSourceContext>(options =>
         {
-            var db = options.UseOracle(connectionString, options =>
-            {
-                options.CommandTimeout((int)TimeSpan.FromMinutes(5).TotalSeconds);
-            });
+            DbContextOptionsBuilder db;
+            if (connectionString != null) {
+                db = options.UseOracle(connectionString, options =>
+                {
+                    options.CommandTimeout((int)TimeSpan.FromMinutes(5).TotalSeconds);
+                });
+            } else {
+                db = options.UseOracle(options =>
+                {
+                    options.CommandTimeout((int)TimeSpan.FromMinutes(5).TotalSeconds);
+                });
+            }
+
             var debugLoggerFactory = LoggerFactory.Create(builder => { builder.AddDebug(); }); // NOSONAR
             db.UseLoggerFactory(debugLoggerFactory);
             options.EnableSensitiveDataLogging();
