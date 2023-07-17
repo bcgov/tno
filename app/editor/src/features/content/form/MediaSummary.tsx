@@ -31,7 +31,6 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
   setShowExpandModal,
   isSummaryRequired,
 }) => {
-  const videoRef = React.useRef<HTMLVideoElement>(null);
   const { setFieldValue, values } = useFormikContext<IContentForm>();
   const [, { download }] = useContent();
 
@@ -63,9 +62,6 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
         }}
         onDelete={() => {
           setStream(undefined);
-          if (!!videoRef.current) {
-            videoRef.current.src = '';
-          }
         }}
       />
     </styled.MediaSummary>
