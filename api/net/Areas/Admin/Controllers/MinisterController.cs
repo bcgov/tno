@@ -48,10 +48,7 @@ public class MinisterController : ControllerBase
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<MinisterModel>), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotModified)]
     [SwaggerOperation(Tags = new[] { "Minister" })]
-    [ETagCacheTableFilter("minister")]
-    [ResponseCache(Duration = 5 * 60)]
     public IActionResult FindAll()
     {
         return new JsonResult(_ministerService.FindAll().Select(ds => new MinisterModel(ds)));
