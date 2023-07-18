@@ -3,6 +3,7 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Minister;
+using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.DAL.Services;
 using TNO.Keycloak;
@@ -32,9 +33,8 @@ public class MinisterController : ControllerBase
     /// <summary>
     /// Creates a new instance of a MinisterController object, initializes with specified parameters.
     /// </summary>
-    /// <param name="ministerService"></param>
-    public MinisterController(
-        IMinisterService ministerService)
+    /// <param name="service"></param>
+    public MinisterController(IMinisterService ministerService)
     {
         _ministerService = ministerService;
     }

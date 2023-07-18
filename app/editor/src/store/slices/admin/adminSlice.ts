@@ -32,28 +32,34 @@ import {
 import { IAdminState } from './interfaces';
 
 export const initialAdminState: IAdminState = {
-  sources: [],
+  actions: [],
+  chartTemplates: [],
   connections: [],
+  contributors: [],
   dataLocations: [],
-  products: [],
+  folders: [],
+  filters: [],
   ingests: [],
   ingestTypes: [],
+  licenses: [],
+  ministers: [],
+  organizations: [],
+  notifications: [],
+  products: [],
+  reports: [],
+  reportTemplates: [],
+  rules: [],
+  series: [],
+  sources: [],
+  systemMessages: [],
+  tags: [],
+  topics: [],
   userFilter: {
     pageIndex: 0,
     pageSize: 20,
     sort: [],
   },
   users: { page: 1, quantity: 20, items: [], total: 0 },
-  topics: [],
-  rules: [],
-  tags: [],
-  systemMessages: [],
-  actions: [],
-  series: [],
-  contributors: [],
-  licenses: [],
-  ministers: [],
-  organizations: [],
   workOrderFilter: {
     pageIndex: 0,
     pageSize: 10,
@@ -63,77 +69,26 @@ export const initialAdminState: IAdminState = {
     sort: [],
   },
   workOrders: { page: 1, quantity: 10, items: [], total: 0 },
-  folders: [],
-  filters: [],
-  reports: [],
-  reportTemplates: [],
-  chartTemplates: [],
-  notifications: [],
 };
 
 export const adminSlice = createSlice({
   name: 'admin',
   initialState: initialAdminState,
   reducers: {
-    storeSources(state: IAdminState, action: PayloadAction<ISourceModel[]>) {
-      state.sources = action.payload;
+    storeActions(state: IAdminState, action: PayloadAction<IActionModel[]>) {
+      state.actions = action.payload;
     },
-    storeIngests(state: IAdminState, action: PayloadAction<IIngestModel[]>) {
-      state.ingests = action.payload;
+    storeChartTemplates(state: IAdminState, action: PayloadAction<IChartTemplateModel[]>) {
+      state.chartTemplates = action.payload;
     },
     storeConnections(state: IAdminState, action: PayloadAction<IConnectionModel[]>) {
       state.connections = action.payload;
     },
-    storeDataLocations(state: IAdminState, action: PayloadAction<IDataLocationModel[]>) {
-      state.dataLocations = action.payload;
-    },
-    storeProducts(state: IAdminState, action: PayloadAction<IProductModel[]>) {
-      state.products = action.payload;
-    },
-    storeLicenses(state: IAdminState, action: PayloadAction<ILicenseModel[]>) {
-      state.licenses = action.payload;
-    },
-    storeIngestTypes(state: IAdminState, action: PayloadAction<IIngestTypeModel[]>) {
-      state.ingestTypes = action.payload;
-    },
-    storeUserFilter(state: IAdminState, action: PayloadAction<IUserListFilter>) {
-      state.userFilter = action.payload;
-    },
-    storeUsers(state: IAdminState, action: PayloadAction<IPaged<IUserModel>>) {
-      state.users = action.payload;
-    },
-    storeTopics(state: IAdminState, action: PayloadAction<ITopicModel[]>) {
-      state.topics = action.payload;
-    },
-    storeTopicScoreRules(state: IAdminState, action: PayloadAction<ITopicScoreRuleModel[]>) {
-      state.rules = action.payload;
-    },
-    storeTags(state: IAdminState, action: PayloadAction<ITagModel[]>) {
-      state.tags = action.payload;
-    },
-    storeSystemMessages(state: IAdminState, action: PayloadAction<ISystemMessageModel[]>) {
-      state.systemMessages = action.payload;
-    },
-    storeActions(state: IAdminState, action: PayloadAction<IActionModel[]>) {
-      state.actions = action.payload;
-    },
-    storeSeries(state: IAdminState, action: PayloadAction<ISeriesModel[]>) {
-      state.series = action.payload;
-    },
     storeContributors(state: IAdminState, action: PayloadAction<IContributorModel[]>) {
       state.contributors = action.payload;
     },
-    storeMinisters(state: IAdminState, action: PayloadAction<IMinisterModel[]>) {
-      state.ministers = action.payload;
-    },
-    storeOrganizations(state: IAdminState, action: PayloadAction<IOrganizationModel[]>) {
-      state.organizations = action.payload;
-    },
-    storeWorkOrderFilter(state: IAdminState, action: PayloadAction<IWorkOrderListFilter>) {
-      state.workOrderFilter = action.payload;
-    },
-    storeWorkOrders(state: IAdminState, action: PayloadAction<IPaged<IWorkOrderModel>>) {
-      state.workOrders = action.payload;
+    storeDataLocations(state: IAdminState, action: PayloadAction<IDataLocationModel[]>) {
+      state.dataLocations = action.payload;
     },
     storeFolders(state: IAdminState, action: PayloadAction<IFolderModel[]>) {
       state.folders = action.payload;
@@ -141,46 +96,91 @@ export const adminSlice = createSlice({
     storeFilters(state: IAdminState, action: PayloadAction<IFilterModel[]>) {
       state.filters = action.payload;
     },
+    storeIngests(state: IAdminState, action: PayloadAction<IIngestModel[]>) {
+      state.ingests = action.payload;
+    },
+    storeIngestTypes(state: IAdminState, action: PayloadAction<IIngestTypeModel[]>) {
+      state.ingestTypes = action.payload;
+    },
+    storeLicenses(state: IAdminState, action: PayloadAction<ILicenseModel[]>) {
+      state.licenses = action.payload;
+    },
+    storeMinisters(state: IAdminState, action: PayloadAction<IMinisterModel[]>) {
+      state.ministers = action.payload;
+    },
+    storeNotifications(state: IAdminState, action: PayloadAction<INotificationModel[]>) {
+      state.notifications = action.payload;
+    },
+    storeOrganizations(state: IAdminState, action: PayloadAction<IOrganizationModel[]>) {
+      state.organizations = action.payload;
+    },
+    storeProducts(state: IAdminState, action: PayloadAction<IProductModel[]>) {
+      state.products = action.payload;
+    },
     storeReports(state: IAdminState, action: PayloadAction<IReportModel[]>) {
       state.reports = action.payload;
     },
     storeReportTemplates(state: IAdminState, action: PayloadAction<IReportTemplateModel[]>) {
       state.reportTemplates = action.payload;
     },
-    storeChartTemplates(state: IAdminState, action: PayloadAction<IChartTemplateModel[]>) {
-      state.chartTemplates = action.payload;
+    storeSeries(state: IAdminState, action: PayloadAction<ISeriesModel[]>) {
+      state.series = action.payload;
     },
-    storeNotifications(state: IAdminState, action: PayloadAction<INotificationModel[]>) {
-      state.notifications = action.payload;
+    storeSources(state: IAdminState, action: PayloadAction<ISourceModel[]>) {
+      state.sources = action.payload;
+    },
+    storeSystemMessages(state: IAdminState, action: PayloadAction<ISystemMessageModel[]>) {
+      state.systemMessages = action.payload;
+    },
+    storeTags(state: IAdminState, action: PayloadAction<ITagModel[]>) {
+      state.tags = action.payload;
+    },
+    storeTopics(state: IAdminState, action: PayloadAction<ITopicModel[]>) {
+      state.topics = action.payload;
+    },
+    storeTopicScoreRules(state: IAdminState, action: PayloadAction<ITopicScoreRuleModel[]>) {
+      state.rules = action.payload;
+    },
+    storeUserFilter(state: IAdminState, action: PayloadAction<IUserListFilter>) {
+      state.userFilter = action.payload;
+    },
+    storeUsers(state: IAdminState, action: PayloadAction<IPaged<IUserModel>>) {
+      state.users = action.payload;
+    },
+    storeWorkOrderFilter(state: IAdminState, action: PayloadAction<IWorkOrderListFilter>) {
+      state.workOrderFilter = action.payload;
+    },
+    storeWorkOrders(state: IAdminState, action: PayloadAction<IPaged<IWorkOrderModel>>) {
+      state.workOrders = action.payload;
     },
   },
 });
 
 export const {
-  storeSources: storeAdminSources,
-  storeConnections: storeAdminConnections,
-  storeDataLocations: storeAdminDataLocations,
-  storeProducts: storeAdminProducts,
-  storeLicenses: storeAdminLicenses,
-  storeIngests: storeAdminIngests,
-  storeIngestTypes: storeAdminIngestTypes,
-  storeUserFilter: storeAdminUserFilter,
-  storeUsers: storeAdminUsers,
-  storeTopics: storeAdminTopics,
-  storeTopicScoreRules: storeAdminTopicScoreRules,
-  storeTags: storeAdminTags,
-  storeSystemMessages: storeAdminSystemMessages,
   storeActions: storeAdminActions,
-  storeSeries: storeAdminSeries,
+  storeChartTemplates: storeAdminChartTemplates,
+  storeConnections: storeAdminConnections,
   storeContributors: storeAdminContributors,
-  storeMinisters: storeAdminMinisters,
-  storeOrganizations: storeAdminOrganizations,
-  storeWorkOrderFilter: storeAdminWorkOrderFilter,
-  storeWorkOrders: storeAdminWorkOrders,
+  storeDataLocations: storeAdminDataLocations,
   storeFolders: storeAdminFolders,
   storeFilters: storeAdminFilters,
+  storeIngests: storeAdminIngests,
+  storeIngestTypes: storeAdminIngestTypes,
+  storeLicenses: storeAdminLicenses,
+  storeMinisters: storeAdminMinisters,
+  storeNotifications: storeAdminNotifications,
+  storeOrganizations: storeAdminOrganizations,
+  storeProducts: storeAdminProducts,
   storeReports: storeAdminReports,
   storeReportTemplates: storeAdminReportTemplates,
-  storeChartTemplates: storeAdminChartTemplates,
-  storeNotifications: storeAdminNotifications,
+  storeSeries: storeAdminSeries,
+  storeSources: storeAdminSources,
+  storeSystemMessages: storeAdminSystemMessages,
+  storeTags: storeAdminTags,
+  storeTopics: storeAdminTopics,
+  storeTopicScoreRules: storeAdminTopicScoreRules,
+  storeUserFilter: storeAdminUserFilter,
+  storeUsers: storeAdminUsers,
+  storeWorkOrderFilter: storeAdminWorkOrderFilter,
+  storeWorkOrders: storeAdminWorkOrders,
 } = adminSlice.actions;

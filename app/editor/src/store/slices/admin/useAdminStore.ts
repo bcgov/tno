@@ -63,51 +63,49 @@ import { IAdminState } from './interfaces';
 export interface IAdminProps {}
 
 export interface IAdminStore {
-  storeSources: (sources: ISourceModel[] | ActionDelegate<ISourceModel[]>) => void;
+  storeActions: (actions: IActionModel[] | ActionDelegate<IActionModel[]>) => void;
+  storeChartTemplates: (
+    chartTemplates: IChartTemplateModel[] | ActionDelegate<IChartTemplateModel[]>,
+  ) => void;
   storeConnections: (connections: IConnectionModel[] | ActionDelegate<IConnectionModel[]>) => void;
+  storeContributors: (series: IContributorModel[] | ActionDelegate<IContributorModel[]>) => void;
   storeDataLocations: (
     dataLocations: IDataLocationModel[] | ActionDelegate<IDataLocationModel[]>,
   ) => void;
-  storeProducts: (products: IProductModel[] | ActionDelegate<IProductModel[]>) => void;
-  storeLicenses: (licenses: ILicenseModel[] | ActionDelegate<ILicenseModel[]>) => void;
+  storeFolders: (folders: IFolderModel[] | ActionDelegate<IFolderModel[]>) => void;
+  storeFilters: (filters: IFilterModel[] | ActionDelegate<IFilterModel[]>) => void;
   storeIngests: (ingests: IIngestModel[] | ActionDelegate<IIngestModel[]>) => void;
   storeIngestTypes: (ingestTypes: IIngestTypeModel[] | ActionDelegate<IIngestTypeModel[]>) => void;
+  storeLicenses: (licenses: ILicenseModel[] | ActionDelegate<ILicenseModel[]>) => void;
+  storeMinisters: (ministers: IMinisterModel[] | ActionDelegate<IMinisterModel[]>) => void;
+  storeNotifications: (
+    notifications: INotificationModel[] | ActionDelegate<INotificationModel[]>,
+  ) => void;
+  storeOrganizations: (
+    organizations: IOrganizationModel[] | ActionDelegate<IOrganizationModel[]>,
+  ) => void;
+  storeProducts: (products: IProductModel[] | ActionDelegate<IProductModel[]>) => void;
+  storeReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => void;
+  storeReportTemplates: (
+    reportTemplates: IReportTemplateModel[] | ActionDelegate<IReportTemplateModel[]>,
+  ) => void;
+  storeSeries: (series: ISeriesModel[] | ActionDelegate<ISeriesModel[]>) => void;
+  storeSources: (sources: ISourceModel[] | ActionDelegate<ISourceModel[]>) => void;
+  storeSystemMessages: (
+    systemMessages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
+  ) => void;
+  storeTags: (tags: ITagModel[] | ActionDelegate<ITagModel[]>) => void;
   storeTopics: (topics: ITopicModel[] | ActionDelegate<ITopicModel[]>) => void;
   storeTopicScoreRules: (
     rules: ITopicScoreRuleModel[] | ActionDelegate<ITopicScoreRuleModel[]>,
   ) => void;
   storeUserFilter: (filter: IUserListFilter | ActionDelegate<IUserListFilter>) => void;
   storeUsers: (users: IPaged<IUserModel> | ActionDelegate<IPaged<IUserModel>>) => void;
-  storeTags: (tags: ITagModel[] | ActionDelegate<ITagModel[]>) => void;
-  storeSystemMessages: (
-    systemMessages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
-  ) => void;
-  storeActions: (actions: IActionModel[] | ActionDelegate<IActionModel[]>) => void;
-  storeSeries: (series: ISeriesModel[] | ActionDelegate<ISeriesModel[]>) => void;
-  storeContributors: (
-    contributors: IContributorModel[] | ActionDelegate<IContributorModel[]>,
-  ) => void;
-  storeMinisters: (ministers: IMinisterModel[] | ActionDelegate<IMinisterModel[]>) => void;
-  storeOrganizations: (
-    organizations: IOrganizationModel[] | ActionDelegate<IOrganizationModel[]>,
-  ) => void;
   storeWorkOrderFilter: (
     filter: IWorkOrderListFilter | ActionDelegate<IWorkOrderListFilter>,
   ) => void;
   storeWorkOrders: (
     workOrders: IPaged<IWorkOrderModel> | ActionDelegate<IPaged<IWorkOrderModel>>,
-  ) => void;
-  storeFolders: (folders: IFolderModel[] | ActionDelegate<IFolderModel[]>) => void;
-  storeFilters: (filters: IFilterModel[] | ActionDelegate<IFilterModel[]>) => void;
-  storeReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => void;
-  storeReportTemplates: (
-    reportTemplates: IReportTemplateModel[] | ActionDelegate<IReportTemplateModel[]>,
-  ) => void;
-  storeChartTemplates: (
-    chartTemplates: IChartTemplateModel[] | ActionDelegate<IChartTemplateModel[]>,
-  ) => void;
-  storeNotifications: (
-    notifications: INotificationModel[] | ActionDelegate<INotificationModel[]>,
   ) => void;
 }
 
@@ -117,15 +115,29 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
 
   const controller = React.useMemo(
     () => ({
-      storeSources: (sources: ISourceModel[] | ActionDelegate<ISourceModel[]>) => {
-        if (typeof sources === 'function') {
-          dispatch(storeAdminSources(sources(state.sources)));
-        } else dispatch(storeAdminSources(sources));
+      storeActions: (actions: IActionModel[] | ActionDelegate<IActionModel[]>) => {
+        if (typeof actions === 'function') {
+          dispatch(storeAdminActions(actions(state.actions)));
+        } else dispatch(storeAdminActions(actions));
+      },
+      storeChartTemplates: (
+        chartTemplates: IChartTemplateModel[] | ActionDelegate<IChartTemplateModel[]>,
+      ) => {
+        if (typeof chartTemplates === 'function') {
+          dispatch(storeAdminChartTemplates(chartTemplates(state.chartTemplates)));
+        } else dispatch(storeAdminChartTemplates(chartTemplates));
       },
       storeConnections: (connections: IConnectionModel[] | ActionDelegate<IConnectionModel[]>) => {
         if (typeof connections === 'function') {
           dispatch(storeAdminConnections(connections(state.connections)));
         } else dispatch(storeAdminConnections(connections));
+      },
+      storeContributors: (
+        contributors: IContributorModel[] | ActionDelegate<IContributorModel[]>,
+      ) => {
+        if (typeof contributors === 'function') {
+          dispatch(storeAdminContributors(contributors(state.contributors)));
+        } else dispatch(storeAdminContributors(contributors));
       },
       storeDataLocations: (
         dataLocations: IDataLocationModel[] | ActionDelegate<IDataLocationModel[]>,
@@ -134,15 +146,15 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminDataLocations(dataLocations(state.dataLocations)));
         } else dispatch(storeAdminDataLocations(dataLocations));
       },
-      storeProducts: (products: IProductModel[] | ActionDelegate<IProductModel[]>) => {
-        if (typeof products === 'function') {
-          dispatch(storeAdminProducts(products(state.products)));
-        } else dispatch(storeAdminProducts(products));
+      storeFilters: (filters: IFilterModel[] | ActionDelegate<IFilterModel[]>) => {
+        if (typeof filters === 'function') {
+          dispatch(storeAdminFilters(filters(state.filters)));
+        } else dispatch(storeAdminFilters(filters));
       },
-      storeLicenses: (licenses: ILicenseModel[] | ActionDelegate<ILicenseModel[]>) => {
-        if (typeof licenses === 'function') {
-          dispatch(storeAdminLicenses(licenses(state.licenses)));
-        } else dispatch(storeAdminLicenses(licenses));
+      storeFolders: (folders: IFolderModel[] | ActionDelegate<IFolderModel[]>) => {
+        if (typeof folders === 'function') {
+          dispatch(storeAdminFolders(folders(state.folders)));
+        } else dispatch(storeAdminFolders(folders));
       },
       storeIngests: (ingests: IIngestModel[] | ActionDelegate<IIngestModel[]>) => {
         if (typeof ingests === 'function') {
@@ -154,15 +166,68 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminIngestTypes(ingestTypes(state.ingestTypes)));
         } else dispatch(storeAdminIngestTypes(ingestTypes));
       },
-      storeUserFilter: (filter: IUserListFilter | ActionDelegate<IUserListFilter>) => {
-        if (typeof filter === 'function') {
-          dispatch(storeAdminUserFilter(filter(state.userFilter)));
-        } else dispatch(storeAdminUserFilter(filter));
+      storeLicenses: (licenses: ILicenseModel[] | ActionDelegate<ILicenseModel[]>) => {
+        if (typeof licenses === 'function') {
+          dispatch(storeAdminLicenses(licenses(state.licenses)));
+        } else dispatch(storeAdminLicenses(licenses));
       },
-      storeUsers: (users: IPaged<IUserModel> | ActionDelegate<IPaged<IUserModel>>) => {
-        if (typeof users === 'function') {
-          dispatch(storeAdminUsers(users(state.users)));
-        } else dispatch(storeAdminUsers(users));
+      storeMinisters: (ministers: IMinisterModel[] | ActionDelegate<IMinisterModel[]>) => {
+        if (typeof ministers === 'function') {
+          dispatch(storeAdminMinisters(ministers(state.ministers)));
+        } else dispatch(storeAdminMinisters(ministers));
+      },
+      storeNotifications: (
+        notifications: INotificationModel[] | ActionDelegate<INotificationModel[]>,
+      ) => {
+        if (typeof notifications === 'function') {
+          dispatch(storeAdminNotifications(notifications(state.notifications)));
+        } else dispatch(storeAdminNotifications(notifications));
+      },
+      storeOrganizations: (
+        organizations: IOrganizationModel[] | ActionDelegate<IOrganizationModel[]>,
+      ) => {
+        if (typeof organizations === 'function') {
+          dispatch(storeAdminOrganizations(organizations(state.organizations)));
+        } else dispatch(storeAdminOrganizations(organizations));
+      },
+      storeProducts: (products: IProductModel[] | ActionDelegate<IProductModel[]>) => {
+        if (typeof products === 'function') {
+          dispatch(storeAdminProducts(products(state.products)));
+        } else dispatch(storeAdminProducts(products));
+      },
+      storeReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => {
+        if (typeof reports === 'function') {
+          dispatch(storeAdminReports(reports(state.reports)));
+        } else dispatch(storeAdminReports(reports));
+      },
+      storeReportTemplates: (
+        reportTemplates: IReportTemplateModel[] | ActionDelegate<IReportTemplateModel[]>,
+      ) => {
+        if (typeof reportTemplates === 'function') {
+          dispatch(storeAdminReportTemplates(reportTemplates(state.reportTemplates)));
+        } else dispatch(storeAdminReportTemplates(reportTemplates));
+      },
+      storeSeries: (series: ISeriesModel[] | ActionDelegate<ISeriesModel[]>) => {
+        if (typeof series === 'function') {
+          dispatch(storeAdminSeries(series(state.series)));
+        } else dispatch(storeAdminSeries(series));
+      },
+      storeSources: (sources: ISourceModel[] | ActionDelegate<ISourceModel[]>) => {
+        if (typeof sources === 'function') {
+          dispatch(storeAdminSources(sources(state.sources)));
+        } else dispatch(storeAdminSources(sources));
+      },
+      storeSystemMessages: (
+        systemMessages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
+      ) => {
+        if (typeof systemMessages === 'function') {
+          dispatch(storeAdminSystemMessages(systemMessages(state.systemMessages)));
+        } else dispatch(storeAdminSystemMessages(systemMessages));
+      },
+      storeTags: (tags: ITagModel[] | ActionDelegate<ITagModel[]>) => {
+        if (typeof tags === 'function') {
+          dispatch(storeAdminTags(tags(state.tags)));
+        } else dispatch(storeAdminTags(tags));
       },
       storeTopics: (topics: ITopicModel[] | ActionDelegate<ITopicModel[]>) => {
         if (typeof topics === 'function') {
@@ -176,46 +241,15 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminTopicScoreRules(rules(state.rules)));
         } else dispatch(storeAdminTopicScoreRules(rules));
       },
-      storeTags: (tags: ITagModel[] | ActionDelegate<ITagModel[]>) => {
-        if (typeof tags === 'function') {
-          dispatch(storeAdminTags(tags(state.tags)));
-        } else dispatch(storeAdminTags(tags));
+      storeUserFilter: (filter: IUserListFilter | ActionDelegate<IUserListFilter>) => {
+        if (typeof filter === 'function') {
+          dispatch(storeAdminUserFilter(filter(state.userFilter)));
+        } else dispatch(storeAdminUserFilter(filter));
       },
-      storeSystemMessages: (
-        systemMessages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
-      ) => {
-        if (typeof systemMessages === 'function') {
-          dispatch(storeAdminSystemMessages(systemMessages(state.systemMessages)));
-        } else dispatch(storeAdminSystemMessages(systemMessages));
-      },
-      storeActions: (actions: IActionModel[] | ActionDelegate<IActionModel[]>) => {
-        if (typeof actions === 'function') {
-          dispatch(storeAdminActions(actions(state.actions)));
-        } else dispatch(storeAdminActions(actions));
-      },
-      storeSeries: (series: ISeriesModel[] | ActionDelegate<ISeriesModel[]>) => {
-        if (typeof series === 'function') {
-          dispatch(storeAdminSeries(series(state.series)));
-        } else dispatch(storeAdminSeries(series));
-      },
-      storeContributors: (
-        contributors: IContributorModel[] | ActionDelegate<IContributorModel[]>,
-      ) => {
-        if (typeof contributors === 'function') {
-          dispatch(storeAdminContributors(contributors(state.contributors)));
-        } else dispatch(storeAdminContributors(contributors));
-      },
-      storeMinisters: (ministers: IMinisterModel[] | ActionDelegate<IMinisterModel[]>) => {
-        if (typeof ministers === 'function') {
-          dispatch(storeAdminMinisters(ministers(state.ministers)));
-        } else dispatch(storeAdminMinisters(ministers));
-      },
-      storeOrganizations: (
-        organizations: IOrganizationModel[] | ActionDelegate<IOrganizationModel[]>,
-      ) => {
-        if (typeof organizations === 'function') {
-          dispatch(storeAdminOrganizations(organizations(state.organizations)));
-        } else dispatch(storeAdminOrganizations(organizations));
+      storeUsers: (users: IPaged<IUserModel> | ActionDelegate<IPaged<IUserModel>>) => {
+        if (typeof users === 'function') {
+          dispatch(storeAdminUsers(users(state.users)));
+        } else dispatch(storeAdminUsers(users));
       },
       storeWorkOrderFilter: (
         filter: IWorkOrderListFilter | ActionDelegate<IWorkOrderListFilter>,
@@ -231,71 +265,35 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminWorkOrders(workOrders(state.workOrders)));
         } else dispatch(storeAdminWorkOrders(workOrders));
       },
-      storeFolders: (folders: IFolderModel[] | ActionDelegate<IFolderModel[]>) => {
-        if (typeof folders === 'function') {
-          dispatch(storeAdminFolders(folders(state.folders)));
-        } else dispatch(storeAdminFolders(folders));
-      },
-      storeFilters: (filters: IFilterModel[] | ActionDelegate<IFilterModel[]>) => {
-        if (typeof filters === 'function') {
-          dispatch(storeAdminFilters(filters(state.filters)));
-        } else dispatch(storeAdminFilters(filters));
-      },
-      storeReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => {
-        if (typeof reports === 'function') {
-          dispatch(storeAdminReports(reports(state.reports)));
-        } else dispatch(storeAdminReports(reports));
-      },
-      storeReportTemplates: (
-        reportTemplates: IReportTemplateModel[] | ActionDelegate<IReportTemplateModel[]>,
-      ) => {
-        if (typeof reportTemplates === 'function') {
-          dispatch(storeAdminReportTemplates(reportTemplates(state.reportTemplates)));
-        } else dispatch(storeAdminReportTemplates(reportTemplates));
-      },
-      storeChartTemplates: (
-        chartTemplates: IChartTemplateModel[] | ActionDelegate<IChartTemplateModel[]>,
-      ) => {
-        if (typeof chartTemplates === 'function') {
-          dispatch(storeAdminChartTemplates(chartTemplates(state.chartTemplates)));
-        } else dispatch(storeAdminChartTemplates(chartTemplates));
-      },
-      storeNotifications: (
-        notifications: INotificationModel[] | ActionDelegate<INotificationModel[]>,
-      ) => {
-        if (typeof notifications === 'function') {
-          dispatch(storeAdminNotifications(notifications(state.notifications)));
-        } else dispatch(storeAdminNotifications(notifications));
-      },
     }),
     [
       dispatch,
-      state.sources,
-      state.connections,
-      state.dataLocations,
-      state.products,
-      state.licenses,
-      state.ingests,
-      state.ingestTypes,
-      state.userFilter,
-      state.users,
-      state.topics,
-      state.rules,
-      state.tags,
-      state.systemMessages,
       state.actions,
-      state.series,
+      state.chartTemplates,
+      state.connections,
       state.contributors,
-      state.ministers,
-      state.organizations,
-      state.workOrderFilter,
-      state.workOrders,
+      state.dataLocations,
       state.folders,
       state.filters,
+      state.ingests,
+      state.ingestTypes,
+      state.licenses,
+      state.ministers,
+      state.notifications,
+      state.organizations,
+      state.products,
       state.reports,
       state.reportTemplates,
-      state.chartTemplates,
-      state.notifications,
+      state.rules,
+      state.series,
+      state.sources,
+      state.systemMessages,
+      state.tags,
+      state.topics,
+      state.userFilter,
+      state.users,
+      state.workOrderFilter,
+      state.workOrders,
     ],
   );
 

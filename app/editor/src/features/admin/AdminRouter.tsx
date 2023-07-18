@@ -23,6 +23,8 @@ import {
   IngestTypeList,
   LicenseForm,
   LicenseList,
+  MinisterForm,
+  MinisterList,
   NotificationForm,
   NotificationList,
   ProductForm,
@@ -88,6 +90,9 @@ export const AdminRouter: React.FC = () => {
 
       <Route path="connections" element={<ConnectionList />} />
       <Route path="connections/:id" element={<ConnectionForm />} />
+
+      <Route path="ministers" element={<MinisterList />} />
+      <Route path="ministers/:id" element={<MinisterForm />} />
 
       <Route path="data/locations" element={<DataLocationList />} />
       <Route path="data/locations/:id" element={<DataLocationForm />} />
