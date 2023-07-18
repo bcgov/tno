@@ -4,6 +4,7 @@ import {
   FaCogs,
   FaComment,
   FaFire,
+  FaFolder,
   FaHeart,
   FaHome,
   FaSearch,
@@ -55,6 +56,11 @@ export const SidebarMenuItems: ISideBarMenuItems = {
     label: 'Filter media type',
     path: 'filtermedia',
     icon: <FaSlidersH />,
+  },
+  folders: {
+    label: 'Folders',
+    path: 'folders',
+    icon: <FaFolder />,
   },
   myCollections: {
     label: 'My Collections',
