@@ -61,34 +61,25 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
         size: fileReference.size,
       } as IFile)
     : undefined;
-  const [race, setRace] = React.useState(false); // Required to handle race condition when initializing the stream.
   // TODO: The stream shouldn't be reset every time the users changes the tab.
   const [stream, setStream] = React.useState<IStream>(); // TODO: Remove dependency coupling with storage component.
-  const videoRef = React.useRef<HTMLVideoElement>(null);
 
   React.useEffect(() => {
-    // This whole function is required because React useEffects are designed by 'geniuses' who create wonderful hello world apps.
-    // There is a race condition due to no way to wait for state to be updated.
-    if (race && !!path) {
+    if (!!path) {
       contentApi.stream(path).then((result) => {
-        if (race) {
-          // TODO: Get MimeType from file.
-          const mimeType = 'video/mp4';
-          setStream(
-            !!result
-              ? {
-                  url: `data:${mimeType};base64,` + result,
-                  type: mimeType,
-                }
-              : undefined,
-          );
-          setRace(false);
-        }
+        // TODO: Get MimeType from file.
+        const mimeType = 'video/mp4';
+        setStream(
+          !!result
+            ? {
+                url: `data:${mimeType};base64,` + result,
+                type: mimeType,
+              }
+            : undefined,
+        );
       });
     }
-    // Only interested in executing this when the 'race' begins.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contentApi, race]);
+  }, [contentApi, path]);
 
   React.useEffect(() => {
     setFieldValue(
@@ -107,21 +98,6 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   React.useEffect(() => {
     setSeriesOptions(series.map((m: any) => new OptionItem(m.name, m.id, m.isEnabled)));
   }, [series]);
-
-  React.useEffect(() => {
-    if (!!path && !stream) {
-      setRace(true);
-    }
-    // We don't want the 'race' dependency to interfere with this logic.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [path, stream]);
-
-  React.useEffect(() => {
-    if (!!videoRef.current) {
-      if (!!stream) videoRef.current.src = stream.url;
-      else videoRef.current.src = '';
-    }
-  }, [stream, videoRef]);
 
   return (
     <styled.ContentStoryForm className="content-properties">
