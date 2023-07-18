@@ -67,13 +67,22 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// <param name="importDateStart"></param>
     /// <param name="importDateEnd"></param>
     /// <param name="creationDateOfNewsItem"></param>
+    /// <param name="importOffsetInHours"></param>
     /// <returns></returns>
     private IQueryable<NewsItem> GetFilteredNewsItems(IQueryable<NewsItem> newsItems,
         System.Linq.Expressions.Expression<Func<NewsItem, bool>> predicate,
-        int skip, int count, DateTime? lastRanOn, DateTime? importDateStart, DateTime? importDateEnd, DateTime? creationDateOfNewsItem)
+        int skip, int count, DateTime? lastRanOn,
+        DateTime? importDateStart, DateTime? importDateEnd,
+        DateTime? creationDateOfNewsItem, double importOffsetInHours = 0)
     {
         // KGM : Do NOT remove the ItemDate null filter.  This excludes bad data
         predicate.And(ni => ni.ItemDateTime != null);
+
+        DateTime offsetFromNow = DateTime.MaxValue;
+        if (importOffsetInHours > 0) {
+            // create an artificial buffer so that the migration isnt using most recent updates
+            offsetFromNow = DateTime.Now.AddMinutes(-1 * 60 * importOffsetInHours);
+        }
 
         // if no import filter dates are set
         if (!importDateStart.HasValue && !importDateEnd.HasValue)
@@ -85,7 +94,12 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             {
                 dateFilter = new[] { lastRanOn.Value, dateFilter }.Min();
             }
-            predicate.And(ni => ni.ItemDateTime >= dateFilter);
+            if (offsetFromNow != DateTime.MaxValue) {
+                // apply an artificial buffer so that the migration isnt using most recent updates
+                predicate.And(ni => (ni.ItemDateTime >= dateFilter) && (ni.ItemDateTime <= offsetFromNow));
+            } else {
+                predicate.And(ni => ni.ItemDateTime >= dateFilter);
+            }
         }
         else
         {
@@ -100,7 +114,12 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 // between the targeted start and end dates
                 dateFilterStart = new[] { creationDateOfNewsItem.Value, dateFilterStart }.Max();
             }
-            predicate.And(ni => (ni.ItemDateTime >= dateFilterStart) && (ni.ItemDateTime <= dateFilterEnd));
+            if ((dateFilterEnd != DateTime.MaxValue) || (offsetFromNow != DateTime.MaxValue)) {
+                dateFilterEnd = new[] { dateFilterEnd, offsetFromNow }.Min();
+                predicate.And(ni => (ni.ItemDateTime >= dateFilterStart) && (ni.ItemDateTime <= dateFilterEnd));
+            } else {
+                predicate.And(ni => (ni.ItemDateTime >= dateFilterStart));
+            }
         }
 
         return newsItems.Where(predicate)
@@ -135,6 +154,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         DateTime? importDateStart = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateStart")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateStart") : null;
         DateTime? importDateEnd = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateEnd")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateEnd") : null;
         DateTime? creationDateOfLastImport = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("creationDateOfLastImport")) ? manager.Ingest.GetConfigurationValue<DateTime>("creationDateOfLastImport") : null;
+        double migrationTimeOffsetInHours = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("migrationTimeOffsetInHours")) ? manager.Ingest.GetConfigurationValue<double>("migrationTimeOffsetInHours") : 0;
 
         if (manager.Ingest.SourceConnection != null) {
             string? sourceDbHostName = !string.IsNullOrEmpty(manager.Ingest.SourceConnection.GetConfigurationValue("hostname")) ? manager.Ingest.SourceConnection.GetConfigurationValue<string>("hostname") : null;
@@ -153,7 +173,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             try
             {
                 var baseFilter = contentMigrator.GetBaseFilter();
-                IQueryable<NewsItem> items = GetFilteredNewsItems(_sourceContext.NewsItems, baseFilter, skip, this.Options.MaxRecordsPerRetrieval, manager.Ingest.LastRanOn, importDateStart, importDateEnd, creationDateOfLastImport);
+                IQueryable<NewsItem> items = GetFilteredNewsItems(_sourceContext.NewsItems, baseFilter, skip, this.Options.MaxRecordsPerRetrieval, manager.Ingest.LastRanOn, importDateStart, importDateEnd, creationDateOfLastImport, migrationTimeOffsetInHours);
                 countOfRecordsRetrieved = items.Count();
 
                 await items.ForEachAsync(async newsItem =>
