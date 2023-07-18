@@ -20,6 +20,7 @@ export const TodaysCommentary: React.FC = () => {
       contentTypes: [],
       publishedStartOn: moment(filterAdvanced.startDate).toISOString(),
       publishedEndOn: moment(filterAdvanced.endDate).toISOString(),
+      quantity: 100,
     }).then((data) => setCommentary(data.items));
   }, [findContent, filterAdvanced]);
 
