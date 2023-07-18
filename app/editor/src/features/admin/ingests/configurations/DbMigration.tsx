@@ -13,12 +13,14 @@ import {
   IIngestModel,
   Row,
   TimeInput,
+  useFormikHelpers,
 } from 'tno-core';
 
 import * as styled from './styled';
 
 export const DbMigration: React.FC = (props) => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
+  const { applyPlaceholder } = useFormikHelpers();
 
   const minMigrationIngestSpanInDays = 7;
   const maxMigrationIngestSpanInYears = 1;
@@ -236,6 +238,20 @@ export const DbMigration: React.FC = (props) => {
           >
             <FaTrash />
           </Button>
+        </Col>
+      </Row>
+      <Row>
+        <Col flex="1 1 1">
+          <FormikText
+            label="Migration offset in hours"
+            name="configuration.migrationTimeOffsetInHours"
+            value={values.configuration.migrationTimeOffsetInHours}
+            type="number"
+            placeholder="2"
+            min="0"
+            size={5}
+            onClick={applyPlaceholder}
+          />
         </Col>
       </Row>
     </styled.IngestType>
