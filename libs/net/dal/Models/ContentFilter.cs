@@ -201,6 +201,9 @@ public class ContentFilter : PageFilter
         this.OwnerId = filter.GetIntNullValue(nameof(this.OwnerId));
         this.UserId = filter.GetIntNullValue(nameof(this.UserId));
 
+        var quantity = filter.GetIntNullValue(nameof(Quantity));
+        if (quantity.HasValue) Quantity = quantity.Value;
+
         this.CreatedOn = filter.GetDateTimeNullValue(nameof(this.CreatedOn));
         this.CreatedStartOn = filter.GetDateTimeNullValue(nameof(this.CreatedStartOn));
         this.CreatedEndOn = filter.GetDateTimeNullValue(nameof(this.CreatedEndOn));

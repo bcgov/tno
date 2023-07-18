@@ -20,6 +20,7 @@ export const TopStories: React.FC = () => {
       contentTypes: [],
       publishedStartOn: moment(filterAdvanced.startDate).toISOString(),
       publishedEndOn: moment(filterAdvanced.endDate).toISOString(),
+      quantity: 100,
     }).then((data) => setTopStories(data.items));
   }, [findContent, filterAdvanced]);
 
