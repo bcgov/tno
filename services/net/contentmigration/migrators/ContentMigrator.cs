@@ -243,6 +243,10 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
             mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString.ToLower()));
         }
 
+        // KGM: 2023-07-19 - Disabled alerting on migrated content after discussion with Scott
+        // It is enough that after content is migrated, that an Editor can trigger an alert on
+        // content that has been migrated.
+        /*
         if (alert)
         {
             actionType = ActionType.Alert;
@@ -251,6 +255,7 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
                 : actionType.ToString();
             mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString.ToLower()));
         }
+        */
 
         if (commentary && commentaryTimeout.HasValue)
         {
