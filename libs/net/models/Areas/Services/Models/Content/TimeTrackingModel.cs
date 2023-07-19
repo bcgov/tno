@@ -64,7 +64,7 @@ public class TimeTrackingModel : AuditColumnsModel
         this.Id = entity.Id;
         this.Effort = entity.Effort;
         this.Activity = entity.Activity;
-        UserId = entity.UserId;
+        this.UserId = entity.UserId;
     }
     #endregion
 
