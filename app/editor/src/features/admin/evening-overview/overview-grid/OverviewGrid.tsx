@@ -4,7 +4,7 @@ import { FaTrash } from 'react-icons/fa';
 import { useEveningOverviews } from 'store/hooks/admin/useEveningOverviews';
 import { Col, FieldSize, OptionItem, Row, Select, Show, TextArea, TimeInput } from 'tno-core';
 
-import { EveningOverviewItemType, IEveningOverviewItem } from '../interfaces';
+import { eveningOverviewItemTypeOptions, IEveningOverviewItem } from '../interfaces';
 import * as styled from './styled';
 
 export interface IOverviewGridProps {
@@ -14,13 +14,7 @@ export interface IOverviewGridProps {
 
 /** OverviewGrid contains the table of items displayed for each overview section. */
 export const OverviewGrid: React.FC<IOverviewGridProps> = ({ items, setItems }) => {
-  const options: OptionItem[] = [];
   const [, api] = useEveningOverviews();
-  Object.keys(EveningOverviewItemType).forEach(function (key, index) {
-    options.push(
-      new OptionItem(EveningOverviewItemType[key].name, EveningOverviewItemType[key].id),
-    );
-  });
   const handleDrop = (droppedItem: any) => {
     if (!droppedItem.destination) {
       return;
@@ -70,13 +64,11 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ items, setItems }) 
                               <Col>
                                 <Select
                                   width={FieldSize.Small}
-                                  options={options}
+                                  options={eveningOverviewItemTypeOptions}
                                   name="item-type"
-                                  value={
-                                    typeof item.itemType === 'number'
-                                      ? options.find((o) => o.value === item.itemType)
-                                      : options.find((o) => o.label === item.itemType)
-                                  }
+                                  value={eveningOverviewItemTypeOptions.find(
+                                    (o) => o.value === item.itemType,
+                                  )}
                                   onChange={(newValue: any) => {
                                     setItems(
                                       set([...items], index, { ...item, itemType: newValue.value }),

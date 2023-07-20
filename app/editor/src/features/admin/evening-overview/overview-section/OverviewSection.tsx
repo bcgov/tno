@@ -24,19 +24,23 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({
   currentSection,
   setSections,
 }) => {
+  const [, api] = useEveningOverviews();
+  const [{ seriesOptions }] = useLookupOptions();
+
   const [items, setItems] = React.useState<IEveningOverviewItem[]>([]);
   const [editable, setEditable] = React.useState<boolean>(false);
   const [section, setSection] = React.useState<IEveningOverviewSection>();
   const [saving, setSaving] = React.useState<boolean>(false);
 
-  const [, api] = useEveningOverviews();
   React.useEffect(() => {
     if (currentSection?.id && !items.length) {
       api.findItemsBySectionId(currentSection.id).then((result) => {
         setItems(result);
       });
     }
-  }, [currentSection, api, items.length]);
+    // do not want this to fire everytime the api changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSection, items.length]);
 
   // sort items based on sortorder when ever new items are retrieved or added
   React.useEffect(() => {
@@ -51,17 +55,14 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({
     }
   }, [currentSection]);
 
-  const [{ seriesOptions }] = useLookupOptions();
-
   const handleAdd = () => {
     setItems((prev) => [
       ...prev,
       {
-        itemType: !prev.length
-          ? EveningOverviewItemType.Intro.id
-          : EveningOverviewItemType.Story.id,
+        itemType: !prev.length ? EveningOverviewItemType.Intro : EveningOverviewItemType.Story,
         time: '18:00:00',
         summary: '',
+        id: 0,
         name: section?.name ?? '',
         avOverviewSectionId: section?.id,
         sortOrder: prev.length,

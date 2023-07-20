@@ -116,15 +116,15 @@ public class AVOverviewSectionItemController : ControllerBase
     /// <summary>
     /// Find AVOverviewSectionItem for the specified section 'id'.
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="sectionId"></param>
     /// <returns></returns>
-    [HttpGet("group/{id}")]
+    [HttpGet("for/section/{sectionId}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IPaged<AVOverviewSectionItemModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
-    public IActionResult FindBySectionId(int id)
+    public IActionResult FindBySectionId(int sectionId)
     {
-        return new JsonResult(_overviewSectionItemService.FindBySectionId(id).Select(ds => new AVOverviewSectionItemModel(ds, _serializerOptions)));
+        return new JsonResult(_overviewSectionItemService.FindBySectionId(sectionId).Select(ds => new AVOverviewSectionItemModel(ds, _serializerOptions)));
     }
 
     /// <summary>

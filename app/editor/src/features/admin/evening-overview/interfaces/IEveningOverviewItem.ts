@@ -1,9 +1,9 @@
 export interface IEveningOverviewItem {
-  itemType: number | string;
+  itemType: string;
   time: string;
   sortOrder: number;
   summary: string;
   contentId?: string;
-  id?: number;
+  id: number;
   avOverviewSectionId?: number;
 }

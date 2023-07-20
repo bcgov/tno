@@ -1,11 +1,12 @@
-export interface IEveningOverviewItemType {
-  [key: string]: {
-    id: number;
-    name: string;
-  };
+import { IOptionItem, OptionItem } from 'tno-core';
+
+export enum EveningOverviewItemType {
+  Intro = 'Intro',
+  Story = 'Story',
+  Ad = 'Ad',
 }
-export const EveningOverviewItemType: IEveningOverviewItemType = {
-  Intro: { id: 0, name: 'Intro' },
-  Story: { id: 1, name: 'Story' },
-  Ad: { id: 2, name: 'Ad' },
-};
+export const eveningOverviewItemTypeOptions = [
+  new OptionItem('Intro', EveningOverviewItemType.Intro),
+  new OptionItem('Story', EveningOverviewItemType.Story),
+  new OptionItem('Ad', EveningOverviewItemType.Ad),
+];

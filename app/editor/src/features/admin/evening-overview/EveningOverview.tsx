@@ -10,6 +10,9 @@ import * as styled from './styled';
 
 /** Evening overview section, contains table of items, and list of overview sections */
 export const EveningOverview: React.FC = () => {
+  const [, api] = useEveningOverviews();
+
+  const [sections, setSections] = React.useState<IEveningOverviewSection[]>([]);
   const handleAdd = () => {
     setSections((prev) => [
       ...prev,
@@ -19,15 +22,15 @@ export const EveningOverview: React.FC = () => {
       },
     ]);
   };
-  const [sections, setSections] = React.useState<IEveningOverviewSection[]>([]);
-  const [, api] = useEveningOverviews();
   React.useEffect(() => {
     if (!sections.length) {
       api.findAllOverviewSections().then((data) => {
-        setSections([...data]);
+        setSections((prevState) => [...prevState, ...data]);
       });
     }
-  }, [api, sections]);
+    // only want to run when section length changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sections.length]);
 
   return (
     <styled.EveningOverview>
