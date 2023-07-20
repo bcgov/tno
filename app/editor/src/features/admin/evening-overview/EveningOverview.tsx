@@ -45,8 +45,8 @@ export const EveningOverview: React.FC = () => {
           </Button>
         </div>
       </Row>
-      {sections.map((section) => (
-        <OverviewSection key={section.id} currentSection={section} setSections={setSections} />
+      {sections.map((section, index) => (
+        <OverviewSection key={index} currentSection={section} setSections={setSections} />
       ))}
       <Button variant={ButtonVariant.action} className="new-section" onClick={() => handleAdd()}>
         New broadcast section <MdAdd className="icon" />

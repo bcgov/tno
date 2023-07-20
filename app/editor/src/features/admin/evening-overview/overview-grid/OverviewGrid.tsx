@@ -2,7 +2,7 @@ import { set } from 'lodash';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaTrash } from 'react-icons/fa';
 import { useEveningOverviews } from 'store/hooks/admin/useEveningOverviews';
-import { Col, FieldSize, OptionItem, Row, Select, Show, TextArea, TimeInput } from 'tno-core';
+import { Col, FieldSize, Row, Select, Show, TextArea, TimeInput } from 'tno-core';
 
 import { eveningOverviewItemTypeOptions, IEveningOverviewItem } from '../interfaces';
 import * as styled from './styled';
@@ -57,12 +57,14 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ items, setItems }) 
                           <div
                             className="item-container"
                             ref={provided.innerRef}
+                            key={index}
                             {...provided.dragHandleProps}
                             {...provided.draggableProps}
                           >
-                            <Row className="rows">
-                              <Col>
+                            <Row className="rows" key={index}>
+                              <Col key={index}>
                                 <Select
+                                  key={index}
                                   width={FieldSize.Small}
                                   options={eveningOverviewItemTypeOptions}
                                   name="item-type"
@@ -76,8 +78,9 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ items, setItems }) 
                                   }}
                                 />
                               </Col>
-                              <Col>
+                              <Col key={index}>
                                 <TimeInput
+                                  key={index}
                                   value={item.time}
                                   width={FieldSize.Small}
                                   onChange={(e) =>
@@ -87,9 +90,10 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ items, setItems }) 
                                   }
                                 />
                               </Col>
-                              <Col>
-                                <Row>
+                              <Col key={index}>
+                                <Row key={index}>
                                   <TextArea
+                                    key={index}
                                     name="summary"
                                     value={item.summary}
                                     width={FieldSize.Large}
@@ -106,6 +110,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ items, setItems }) 
                                   />
                                   <FaTrash
                                     className="clear-item"
+                                    key={index}
                                     onClick={async () => {
                                       await api.deleteOverviewSectionItem(item);
                                       setItems(items.filter((x) => x !== item));

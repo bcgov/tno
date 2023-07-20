@@ -28,7 +28,7 @@ export const useApiEveningOverviews = (
     },
     findItemsBySectionId: (sectionId: number) => {
       return api.get<IEveningOverviewItem[], AxiosResponse<IEveningOverviewItem[]>, any>(
-        `/editor/overview/section/items/group/${sectionId}`,
+        `/editor/overview/section/items/for/section/${sectionId}`,
       );
     },
     addEveningOverviewSectionItem: (model: IEveningOverviewItem) => {

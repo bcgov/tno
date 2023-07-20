@@ -1,4 +1,4 @@
-import { IOptionItem, OptionItem } from 'tno-core';
+import { OptionItem } from 'tno-core';
 
 export enum EveningOverviewItemType {
   Intro = 'Intro',
