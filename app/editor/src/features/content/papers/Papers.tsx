@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { HubMethodName, useApiHub, useChannel, useContent } from 'store/hooks';
 import { useContentStore } from 'store/slices';
@@ -39,7 +39,7 @@ export interface IPapersProps extends React.HTMLAttributes<HTMLDivElement> {}
  * @returns Component.
  */
 export const Papers: React.FC<IPapersProps> = (props) => {
-  const { id = '' } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const { combined, formType } = useCombinedView();
   const [
@@ -66,15 +66,12 @@ export const Papers: React.FC<IPapersProps> = (props) => {
           break;
         case 'load':
           setContentId(ev.data.message.id.toString());
-          if (content?.items.some((i) => i.id === ev.data.message.id))
-            updateContent([ev.data.message]);
-          else addContent([ev.data.message]);
           break;
       }
     },
   });
 
-  const [, setLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
   const onContentUpdated = React.useCallback(
@@ -120,21 +117,25 @@ export const Papers: React.FC<IPapersProps> = (props) => {
   const fetch = React.useCallback(
     async (filter: IPaperFilter & Partial<IContentListAdvancedFilter>) => {
       try {
-        setLoading(true);
-        const data = await findContent(
-          makeFilter({
-            ...filter,
-          }),
-        );
-        return new Page(data.page - 1, data.quantity, data?.items, data.total);
+        if (!isLoading) {
+          setIsLoading(true);
+          const data = await findContent(
+            makeFilter({
+              ...filter,
+            }),
+          );
+          const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
+          channel('page', page);
+          return page;
+        }
       } catch (error) {
         // TODO: Handle error
         throw error;
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     },
-    [findContent],
+    [channel, findContent],
   );
 
   React.useEffect(() => {
@@ -202,13 +203,14 @@ export const Papers: React.FC<IPapersProps> = (props) => {
             pageCount={page.pageCount}
             showSort={true}
             activeRowId={contentId}
+            isLoading={isLoading}
             onPageChange={handleChangePage}
             onSortChange={handleChangeSort}
             onCellClick={handleRowClick}
             onSelectedChanged={handleSelectedRowsChanged}
           />
         </Row>
-        <ReportActions setLoading={setLoading} selected={selected} filter={filter} />
+        <ReportActions setLoading={setIsLoading} selected={selected} filter={filter} />
         <Show visible={combined}>
           <hr />
           <Row className="bottom-pane" id="bottom-pane">
