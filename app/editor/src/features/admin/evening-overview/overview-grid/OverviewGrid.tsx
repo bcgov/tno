@@ -1,9 +1,8 @@
 import { set } from 'lodash';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaTrash } from 'react-icons/fa';
-import { MdClear } from 'react-icons/md';
 import { useEveningOverviews } from 'store/hooks/admin/useEveningOverviews';
-import { Col, FieldSize, OptionItem, Row, Select, Show, Text, TextArea, TimeInput } from 'tno-core';
+import { Col, FieldSize, OptionItem, Row, Select, Show, TextArea, TimeInput } from 'tno-core';
 
 import { EveningOverviewItemType, IEveningOverviewItem } from '../interfaces';
 import * as styled from './styled';

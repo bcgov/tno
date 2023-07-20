@@ -1,9 +1,9 @@
 import React from 'react';
-import { FaEyeSlash, FaMinus, FaSave, FaSpinner } from 'react-icons/fa';
-import { MdAdd, MdClear, MdEdit, MdMinimize, MdSave } from 'react-icons/md';
+import { FaEyeSlash, FaSpinner } from 'react-icons/fa';
+import { MdAdd, MdClear, MdEdit, MdSave } from 'react-icons/md';
 import { useLookupOptions } from 'store/hooks';
 import { useEveningOverviews } from 'store/hooks/admin/useEveningOverviews';
-import { Button, ButtonVariant, Row, Show, Spinner } from 'tno-core';
+import { Button, ButtonVariant, Row, Show } from 'tno-core';
 
 import {
   EveningOverviewItemType,
@@ -36,7 +36,7 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({
         setItems(result);
       });
     }
-  }, [currentSection]);
+  }, [currentSection, api, items.length]);
 
   // sort items based on sortorder when ever new items are retrieved or added
   React.useEffect(() => {
@@ -51,7 +51,7 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({
     }
   }, [currentSection]);
 
-  const [{ sourceOptions, seriesOptions }] = useLookupOptions();
+  const [{ seriesOptions }] = useLookupOptions();
 
   const handleAdd = () => {
     setItems((prev) => [

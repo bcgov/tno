@@ -1,10 +1,9 @@
-import { set } from 'lodash';
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useLookupOptions } from 'store/hooks';
 import { useEveningOverviews } from 'store/hooks/admin/useEveningOverviews';
-import { Button, ButtonVariant, Col, FieldSize, Row, Select, Show, Text } from 'tno-core';
+import { Button, ButtonVariant, FieldSize, Row, Select, Text } from 'tno-core';
 
 import { IEveningOverviewItem, IEveningOverviewSection } from '../interfaces';
 import * as styled from './styled';
