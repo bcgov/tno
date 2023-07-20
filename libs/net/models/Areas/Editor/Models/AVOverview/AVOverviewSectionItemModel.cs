@@ -58,6 +58,15 @@ public class AVOverviewSectionItemModel : BaseTypeWithAuditColumnsModel<int>
         this.ContentId = entity.ContentId;
         
     }
+    public AVOverviewSectionItemModel(Entities.AVOverviewSectionItem entity) : base(entity)
+    {
+        this.AVOverviewSectionId = entity.AVOverviewSectionId;
+        this.ItemType = entity.ItemType;
+        this.Time = entity.Time;
+        this.Summary = entity.Summary;
+        this.ContentId = entity.ContentId;
+        
+    }
     #endregion
 
     #region Methods
@@ -81,6 +90,11 @@ public class AVOverviewSectionItemModel : BaseTypeWithAuditColumnsModel<int>
         {
             Id = model.Id,
             Description = model.Description,
+            AVOverviewSectionId = model.AVOverviewSectionId,
+            ItemType = model.ItemType,
+            Summary = model.Summary,
+            Time = model.Time,
+            ContentId = model.ContentId,
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
             Version = model.Version ?? 0

@@ -60,7 +60,7 @@ public class AVOverviewSection : BaseType<int>
     protected AVOverviewSection() : base() { }
 
     /// <summary>
-    /// Creates a new instance of a av overview template object, initializes with specified parameters.
+    /// Creates a new instance of a av overview section object, initializes with specified parameters.
     /// </summary>
     /// <param name="name"></param>
     public AVOverviewSection(string name) : base(name)

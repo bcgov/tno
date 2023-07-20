@@ -92,6 +92,10 @@ public class AVOverviewSectionModel : BaseTypeWithAuditColumnsModel<int>
             Id = model.Id,
             Description = model.Description,
             IsEnabled = model.IsEnabled,
+            SeriesId = model.SeriesId,
+            OtherSource = model.OtherSource,
+            Anchors = model.Anchors,
+            SourceId = model.SourceId,
             SortOrder = model.SortOrder,
             Version = model.Version ?? 0
         };

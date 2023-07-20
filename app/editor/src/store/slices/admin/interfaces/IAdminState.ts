@@ -1,3 +1,7 @@
+import {
+  IEveningOverviewItem,
+  IEveningOverviewSection,
+} from 'features/admin/evening-overview/interfaces';
 import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import {
@@ -34,6 +38,8 @@ export interface IAdminState {
   connections: IConnectionModel[];
   contributors: IContributorModel[];
   dataLocations: IDataLocationModel[];
+  eveningOverviewSections: IEveningOverviewSection[];
+  eveningOverviewItems: IEveningOverviewItem[];
   folders: IFolderModel[];
   filters: IFilterModel[];
   ingests: IIngestModel[];
