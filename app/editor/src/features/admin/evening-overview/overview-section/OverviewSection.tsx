@@ -77,7 +77,6 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({
   const handleSaveItems = async () => {
     setSaving(true);
     items.forEach(async (item, index) => {
-      console.log(item);
       try {
         if (item.id) {
           await api.updateOverviewSectionItem({ ...item, sortOrder: index });

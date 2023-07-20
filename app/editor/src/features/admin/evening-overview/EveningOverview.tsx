@@ -29,7 +29,6 @@ export const EveningOverview: React.FC = () => {
     }
   }, [api, sections]);
 
-  // console.log(sec)
   return (
     <styled.EveningOverview>
       <Row className="page-header">
