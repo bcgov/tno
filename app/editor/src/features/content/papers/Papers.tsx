@@ -133,7 +133,6 @@ export const Papers: React.FC<IPapersProps> = (props) => {
         setIsLoading(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [channel, findContent],
   );
 
