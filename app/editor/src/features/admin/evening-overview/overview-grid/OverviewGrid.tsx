@@ -2,9 +2,19 @@ import { set } from 'lodash';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaTrash } from 'react-icons/fa';
 import { useEveningOverviews } from 'store/hooks/admin/useEveningOverviews';
-import { Col, FieldSize, Row, Select, Show, TextArea, TimeInput } from 'tno-core';
+import {
+  castEnumToOptions,
+  Col,
+  FieldSize,
+  Row,
+  Select,
+  Show,
+  TextArea,
+  TimeInput,
+} from 'tno-core';
 
-import { eveningOverviewItemTypeOptions, IEveningOverviewItem } from '../interfaces';
+import { EveningOverviewItemTypeName } from '../constants';
+import { IEveningOverviewItem } from '../interfaces';
 import * as styled from './styled';
 
 export interface IOverviewGridProps {
@@ -15,6 +25,8 @@ export interface IOverviewGridProps {
 /** OverviewGrid contains the table of items displayed for each overview section. */
 export const OverviewGrid: React.FC<IOverviewGridProps> = ({ items, setItems }) => {
   const [, api] = useEveningOverviews();
+
+  /** function that runs after a user drops an item in the list */
   const handleDrop = (droppedItem: any) => {
     if (!droppedItem.destination) {
       return;
@@ -27,6 +39,8 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ items, setItems }) 
     // Update State
     setItems(updatedList);
   };
+
+  const eveningOverviewItemTypeOptions = castEnumToOptions(EveningOverviewItemTypeName);
 
   return (
     <styled.OverviewGrid>
@@ -57,14 +71,14 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ items, setItems }) 
                           <div
                             className="item-container"
                             ref={provided.innerRef}
-                            key={index}
+                            key={index + `item.id`}
                             {...provided.dragHandleProps}
                             {...provided.draggableProps}
                           >
                             <Row className="rows" key={index}>
-                              <Col key={index}>
+                              <Col key={index + `col`}>
                                 <Select
-                                  key={index}
+                                  key={index + `select`}
                                   width={FieldSize.Small}
                                   options={eveningOverviewItemTypeOptions}
                                   name="item-type"
@@ -78,7 +92,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ items, setItems }) 
                                   }}
                                 />
                               </Col>
-                              <Col key={index}>
+                              <Col key={index + `time-col`}>
                                 <TimeInput
                                   key={index}
                                   value={item.time}
@@ -90,10 +104,10 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ items, setItems }) 
                                   }
                                 />
                               </Col>
-                              <Col key={index}>
-                                <Row key={index}>
+                              <Col key={index + `summary-col`}>
+                                <Row key={index + `summary-row`}>
                                   <TextArea
-                                    key={index}
+                                    key={index + `textarea`}
                                     name="summary"
                                     value={item.summary}
                                     width={FieldSize.Large}
@@ -110,7 +124,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ items, setItems }) 
                                   />
                                   <FaTrash
                                     className="clear-item"
-                                    key={index}
+                                    key={index + `trash`}
                                     onClick={async () => {
                                       await api.deleteOverviewSectionItem(item);
                                       setItems(items.filter((x) => x !== item));

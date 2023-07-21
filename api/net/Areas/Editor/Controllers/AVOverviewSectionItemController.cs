@@ -120,7 +120,7 @@ public class AVOverviewSectionItemController : ControllerBase
     /// <returns></returns>
     [HttpGet("for/section/{sectionId}")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IPaged<AVOverviewSectionItemModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<AVOverviewSectionItemModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
     public IActionResult FindBySectionId(int sectionId)
     {

@@ -5,11 +5,8 @@ import { useLookupOptions } from 'store/hooks';
 import { useEveningOverviews } from 'store/hooks/admin/useEveningOverviews';
 import { Button, ButtonVariant, Row, Show } from 'tno-core';
 
-import {
-  EveningOverviewItemType,
-  IEveningOverviewItem,
-  IEveningOverviewSection,
-} from '../interfaces';
+import { EveningOverviewItemTypeName } from '../constants';
+import { IEveningOverviewItem, IEveningOverviewSection } from '../interfaces';
 import { OverviewGrid } from '../overview-grid';
 import { EditBroadcastDetails } from './EditBroadcastDetails';
 import * as styled from './styled';
@@ -59,7 +56,9 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({
     setItems((prev) => [
       ...prev,
       {
-        itemType: !prev.length ? EveningOverviewItemType.Intro : EveningOverviewItemType.Story,
+        itemType: !prev.length
+          ? EveningOverviewItemTypeName.Intro
+          : EveningOverviewItemTypeName.Story,
         time: '18:00:00',
         summary: '',
         id: 0,
