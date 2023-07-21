@@ -18,7 +18,6 @@ export const MinisterList: React.FC = () => {
   const [items, setItems] = React.useState<IMinisterModel[]>([]);
 
   React.useEffect(() => {
-    console.log('a thing!');
     if (!ministers.length) {
       api.findAllMinisters().then((data) => {
         setItems(data);

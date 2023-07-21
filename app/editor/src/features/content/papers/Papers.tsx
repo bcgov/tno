@@ -117,17 +117,15 @@ export const Papers: React.FC<IPapersProps> = (props) => {
   const fetch = React.useCallback(
     async (filter: IPaperFilter & Partial<IContentListAdvancedFilter>) => {
       try {
-        if (!isLoading) {
-          setIsLoading(true);
-          const data = await findContent(
-            makeFilter({
-              ...filter,
-            }),
-          );
-          const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
-          channel('page', page);
-          return page;
-        }
+        setIsLoading(true);
+        const data = await findContent(
+          makeFilter({
+            ...filter,
+          }),
+        );
+        const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
+        channel('page', page);
+        return page;
       } catch (error) {
         // TODO: Handle error
         throw error;
