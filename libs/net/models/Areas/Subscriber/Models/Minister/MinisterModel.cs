@@ -17,6 +17,7 @@ public class MinisterModel : BaseTypeModel<int>
     public MinisterModel() { }
 
     public string? Aliases { get; set; } = "";
+    public string? Position { get; set; } = "";
 
 
     /// <summary>
@@ -26,6 +27,7 @@ public class MinisterModel : BaseTypeModel<int>
     public MinisterModel(Entities.Minister entity) : base(entity)
     {
         this.Aliases = entity.Aliases;
+        this.Position = entity.Position;
     }
     #endregion
 }

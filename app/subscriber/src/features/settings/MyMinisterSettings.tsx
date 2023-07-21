@@ -2,7 +2,7 @@ import React from 'react';
 import { toast } from 'react-toastify';
 import { useApp, useLookup, useUsers } from 'store/hooks';
 import { useAppStore } from 'store/slices';
-import { Button, Checkbox, IUserInfoModel, IUserModel, OptionItem, Row } from 'tno-core';
+import { Button, Checkbox, IUserInfoModel, IUserModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -13,7 +13,9 @@ export const MyMinisterSettings: React.FC = () => {
   const [, store] = useAppStore();
   const api = useUsers();
 
-  const options = ministers.map((m) => new OptionItem(`${m.name} | ${m.description}`, m.name));
+  let activeMinisters = ministers
+    .filter((m) => m.isEnabled)
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   const handleSubmit = async (values: string[]) => {
     try {
@@ -31,30 +33,58 @@ export const MyMinisterSettings: React.FC = () => {
     if (userInfo?.preferences?.myMinisters) {
       setMyMinisters(userInfo?.preferences?.myMinisters);
     }
-  }, [userInfo, ministers]);
+
+    // check if any of the users previous selections are no longer active
+    if (userInfo?.preferences?.myMinisters && activeMinisters.length > 0) {
+      let activeSelectedMinisters: string[] = [];
+      let inactiveSelectedMinisters: string[] = [];
+      userInfo?.preferences?.myMinisters.forEach((m: string) => {
+        const isActive = activeMinisters.find((element) => element.name === m);
+        if (isActive) activeSelectedMinisters.push(m);
+        else inactiveSelectedMinisters.push(m);
+      });
+      if (inactiveSelectedMinisters.length !== 0) {
+        const user = {
+          ...userInfo,
+          preferences: { ...userInfo?.preferences, myMinisters: activeSelectedMinisters },
+        } as IUserModel;
+        api.updateUser(user, userInfo?.id ?? 0);
+        toast.success(
+          `Due to the following minister(s) no longer being active, ` +
+            `your selection has been updated automatically: ` +
+            `${inactiveSelectedMinisters.join(', ')}`,
+        );
+        store.storeUserInfo(user as IUserInfoModel);
+      }
+    }
+  }, [activeMinisters, api, ministers, store, userInfo]);
 
   return (
     <styled.MyMinisterSettings>
       <p className="description">
-        Choose the Minister you'd like to follow. Stories about your selected Minister will be
+        Choose the Minister(s) you'd like to follow. Stories about your selected Minister(s) will be
         available from a quick click in the sidebar menu.
       </p>
+      <p>Please note that "Search Aliases" will also show up in your "My Minister" feed.</p>
       <div className="option-container">
-        {options.map((o) => {
+        {activeMinisters.map((o) => {
           return (
-            <Checkbox
-              key={o.value}
-              label={o.label}
-              checked={myMinisters.includes(o.value)}
-              onChange={(e) => {
-                if ((e.target as HTMLInputElement).checked) {
-                  setMyMinisters([...myMinisters, o.value]);
-                } else {
-                  // remove from prefrerences when unchecking
-                  setMyMinisters(myMinisters.filter((m: string) => m !== o.value));
-                }
-              }}
-            />
+            <div className="chk-container">
+              <Checkbox
+                key={o.name}
+                label={`${o.name} : ${o.position}`}
+                checked={myMinisters.includes(o.name)}
+                onChange={(e) => {
+                  if ((e.target as HTMLInputElement).checked) {
+                    setMyMinisters([...myMinisters, o.name]);
+                  } else {
+                    // remove from preferences when unchecking
+                    setMyMinisters(myMinisters.filter((m: string) => m !== o.name));
+                  }
+                }}
+              />
+              <div className="aliases">Search Aliases: {o.aliases}</div>
+            </div>
           );
         })}
 
