@@ -10,6 +10,8 @@ using TNO.Services.Config;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
 using Microsoft.Extensions.Logging;
+using TNO.API.Areas.Services.Models.Content;
+using TNO.Entities;
 
 namespace TNO.Services;
 
@@ -476,6 +478,21 @@ public class ApiService : IApiService
         int? requestorId = null)
     {
         var url = this.Options.ApiUrl.Append($"services/contents/{content.Id}?index={index}{(requestorId.HasValue ? $"&requestorId={requestorId.Value}" : "")}");
+        return await RetryRequestAsync(async () => await Client.SendAsync<API.Areas.Services.Models.Content.ContentModel>(url, HttpMethod.Put, headers, JsonContent.Create(content)));
+    }
+
+    /// <summary>
+    /// Make an HTTP request to the api to update the content status for the specified 'id'.
+    /// Will not trigger any re-index or audit trail update
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="newStatus"></param>
+    /// <returns></returns>
+    public async Task<ContentModel?> UpdateContentStatusAsync(
+        API.Areas.Services.Models.Content.ContentModel content,
+        HttpRequestHeaders? headers = null)
+    {
+        var url = this.Options.ApiUrl.Append($"services/contents/{content.Id}/status");
         return await RetryRequestAsync(async () => await Client.SendAsync<API.Areas.Services.Models.Content.ContentModel>(url, HttpMethod.Put, headers, JsonContent.Create(content)));
     }
 

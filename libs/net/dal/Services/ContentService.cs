@@ -501,5 +501,22 @@ public class ContentService : BaseService<Content, long>, IContentService
         return this.Context.NotificationInstances
             .Where(n => n.ContentId == contentId);
     }
+
+    /// <summary>
+    /// Update the specified 'entity' in the database.
+    /// </summary>
+    /// <param name="updated"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    /// TODO: Switch to not found exception throughout services.
+    public Content UpdateStatusOnly(Content updated)
+    {
+        var original = FindById(updated.Id) ?? throw new InvalidOperationException("Entity does not exist");
+
+        this.Context.Entry(original.Status).CurrentValues.SetValues(updated.Status);
+        this.Context.ResetVersion(original);
+
+        return base.Update(original);
+    }
     #endregion
 }

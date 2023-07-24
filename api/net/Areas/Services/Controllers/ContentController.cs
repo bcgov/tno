@@ -252,6 +252,23 @@ public class ContentController : ControllerBase
 
         return new JsonResult(new ContentModel(content));
     }
+    /// <summary>
+    /// Update content for the specified 'id'.
+    /// Will not trigger any re-index or audit trail update
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut("{id}/status")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public IActionResult UpdateStatusAsync(ContentModel model)
+    {
+        var content = _contentService.UpdateStatusOnly((Content)model);
+
+        return new JsonResult(new ContentModel(content));
+    }
 
     /// <summary>
     /// Upload a file and link it to the specified content.
