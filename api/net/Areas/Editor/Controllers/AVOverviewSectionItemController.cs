@@ -11,6 +11,10 @@ using TNO.Elastic;
 using TNO.Kafka;
 using TNO.Keycloak;
 using TNO.TemplateEngine;
+using Microsoft.AspNetCore.Http.Extensions;
+using TNO.API.Areas.Admin.Models.Tag;
+using TNO.DAL.Models;
+using TNO.Entities.Models;
 
 
 using TNO.TemplateEngine.Models.Reports;
@@ -107,6 +111,20 @@ public class AVOverviewSectionItemController : ControllerBase
         var result = _overviewSectionItemService.FindById(id);
         if (result == null) return new NoContentResult();
         return new JsonResult(new AVOverviewSectionItemModel(result, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Find AVOverviewSectionItem for the specified section 'id'.
+    /// </summary>
+    /// <param name="sectionId"></param>
+    /// <returns></returns>
+    [HttpGet("for/section/{sectionId}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<AVOverviewSectionItemModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Evening Overview" })]
+    public IActionResult FindBySectionId(int sectionId)
+    {
+        return new JsonResult(_overviewSectionItemService.FindBySectionId(sectionId).Select(ds => new AVOverviewSectionItemModel(ds, _serializerOptions)));
     }
 
     /// <summary>

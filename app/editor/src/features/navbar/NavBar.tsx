@@ -193,6 +193,12 @@ export const NavBar: React.FC = () => {
               claim={Claim.administrator}
               level={1}
             />
+            <NavBarItem
+              navigateTo="/admin/evening-overview"
+              label="Evening Overview"
+              claim={Claim.administrator}
+              level={1}
+            />
           </Show>
 
           {/* Reports */}

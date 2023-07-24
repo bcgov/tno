@@ -35,5 +35,13 @@ public class AVOverviewSectionItemService : BaseService<AVOverviewSectionItem, i
             .AsNoTracking()
             .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
     }
+
+    public IEnumerable<AVOverviewSectionItem> FindBySectionId(int sectionId)
+    {
+        return this.Context.AVOverviewSectionItems
+            .AsNoTracking()
+            .Where(r => r.AVOverviewSectionId == sectionId)
+            .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
+    }
     #endregion
 }

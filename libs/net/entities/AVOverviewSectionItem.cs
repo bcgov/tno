@@ -54,9 +54,6 @@ public class AVOverviewSectionItem : BaseType<int>
     /// Creates a new instance of a av overview template object, initializes with specified parameters.
     /// </summary>
     /// <param name="name"></param>
-    /// <param name="type"></param>
-    /// <param name="owner"></param>
-    /// <param name="template"></param>
     public AVOverviewSectionItem(string name) : base(name)
     {
 
