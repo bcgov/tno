@@ -5,6 +5,7 @@ export const defaultMinister: IMinisterModel = {
   name: '',
   description: '',
   aliases: '',
+  position: '',
   isEnabled: true,
   sortOrder: 0,
 };

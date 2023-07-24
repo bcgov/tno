@@ -98,7 +98,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
             <Show visible={mediaExpanded}>
               <Col className="expanded">
                 {SubMediaGroups.map((mediaGroup) => (
-                  <Row className="sub-group">
+                  <Row className="sub-group" key={mediaGroup.label}>
                     {mediaGroup.label} <IoIosArrowDroprightCircle className="drop-icon" />
                   </Row>
                 ))}

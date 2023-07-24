@@ -70,7 +70,6 @@ export const MyMinisterSettings: React.FC = () => {
         {activeMinisters.map((o) => {
           return (
             <div className="chk-container" key={o.name}>
-
               <Checkbox
                 label={`${o.name} : ${o.position}`}
                 checked={myMinisters.includes(o.name)}

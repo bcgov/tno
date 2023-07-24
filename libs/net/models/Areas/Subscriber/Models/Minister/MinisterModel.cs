@@ -16,8 +16,8 @@ public class MinisterModel : BaseTypeModel<int>
     /// </summary>
     public MinisterModel() { }
 
-    public string? Aliases { get; set; } = "";
-    public string? Position { get; set; } = "";
+    public string Aliases { get; set; } = "";
+    public string Position { get; set; } = "";
 
 
     /// <summary>
