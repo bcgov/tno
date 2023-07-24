@@ -33,7 +33,7 @@ public class MinisterController : ControllerBase
     /// <summary>
     /// Creates a new instance of a MinisterController object, initializes with specified parameters.
     /// </summary>
-    /// <param name="service"></param>
+    /// <param name="ministerService"></param>
     public MinisterController(IMinisterService ministerService)
     {
         _ministerService = ministerService;
