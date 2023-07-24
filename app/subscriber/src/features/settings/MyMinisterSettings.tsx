@@ -69,9 +69,9 @@ export const MyMinisterSettings: React.FC = () => {
       <div className="option-container">
         {activeMinisters.map((o) => {
           return (
-            <div className="chk-container">
+            <div className="chk-container" key={o.name}>
+
               <Checkbox
-                key={o.name}
                 label={`${o.name} : ${o.position}`}
                 checked={myMinisters.includes(o.name)}
                 onChange={(e) => {
