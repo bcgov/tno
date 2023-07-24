@@ -10,7 +10,7 @@ import * as styled from './styled';
 
 export interface IEditBroadcastDetailsProps {
   editable: boolean;
-  currentSection?: IEveningOverviewSection;
+  currentSection: IEveningOverviewSection;
   setSection: (section: IEveningOverviewSection) => void;
   setSections: React.Dispatch<React.SetStateAction<IEveningOverviewSection[]>>;
   items: IEveningOverviewItem[];

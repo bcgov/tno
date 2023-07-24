@@ -176,7 +176,7 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       ) => {
         if (typeof eveningOverviewItems === 'function') {
           dispatch(
-            storeAdminEveningOverviewSections(
+            storeAdminEveningOverviewItems(
               eveningOverviewItems(eveningOverviewItems(state.eveningOverviewItems)),
             ),
           );

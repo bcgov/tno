@@ -1,8 +1,9 @@
 export interface IEveningOverviewSection {
-  id?: number;
+  id: number;
   sourceId?: number;
   seriesId?: number;
-  anchors?: string;
-  startTime?: string;
-  name?: string;
+  otherSource?: string;
+  anchors: string;
+  startTime: string;
+  name: string;
 }

@@ -4,6 +4,7 @@ import { MdAdd } from 'react-icons/md';
 import { useEveningOverviews } from 'store/hooks/admin/useEveningOverviews';
 import { Button, ButtonVariant, Row } from 'tno-core';
 
+import { defaultSection } from './constants/defaultSection';
 import { IEveningOverviewSection } from './interfaces';
 import { OverviewSection } from './overview-section';
 import * as styled from './styled';
@@ -14,13 +15,7 @@ export const EveningOverview: React.FC = () => {
 
   const [sections, setSections] = React.useState<IEveningOverviewSection[]>([]);
   const handleAdd = () => {
-    setSections((prev) => [
-      ...prev,
-      {
-        name: 'New section',
-        items: [],
-      },
-    ]);
+    setSections((prev) => [...prev, { ...defaultSection }]);
   };
   React.useEffect(() => {
     if (!sections.length) {

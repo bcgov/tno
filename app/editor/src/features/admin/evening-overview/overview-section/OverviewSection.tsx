@@ -6,6 +6,7 @@ import { useEveningOverviews } from 'store/hooks/admin/useEveningOverviews';
 import { Button, ButtonVariant, Row, Show } from 'tno-core';
 
 import { EveningOverviewItemTypeName } from '../constants';
+import { defaultSection } from '../constants/defaultSection';
 import { IEveningOverviewItem, IEveningOverviewSection } from '../interfaces';
 import { OverviewGrid } from '../overview-grid';
 import { EditBroadcastDetails } from './EditBroadcastDetails';
@@ -63,7 +64,7 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({
         summary: '',
         id: 0,
         name: section?.name ?? '',
-        avOverviewSectionId: section?.id,
+        avOverviewSectionId: section?.id ?? 0,
         sortOrder: prev.length,
       },
     ]);
@@ -106,7 +107,7 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({
         <Show visible={editable}>
           <EditBroadcastDetails
             editable={editable}
-            currentSection={section}
+            currentSection={section ?? defaultSection}
             items={items}
             setSections={setSections}
             setSection={setSection}
