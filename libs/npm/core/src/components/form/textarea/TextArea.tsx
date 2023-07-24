@@ -73,7 +73,6 @@ export const TextArea: React.FC<ITextAreaProps> = ({
         className={`txa ${className ?? ''}`}
         data-tooltip-id="main-tooltip"
         width={width}
-        rows={rows}
         role={error ? 'alert' : 'none'}
         rows={rows}
         onInput={(e) => {
