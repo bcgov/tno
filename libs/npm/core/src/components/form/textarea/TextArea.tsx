@@ -32,6 +32,10 @@ export interface ITextAreaProps extends InputHTMLAttributes<HTMLTextAreaElement>
    * Error message.
    */
   error?: string;
+  /**
+   * The number of rows to show.
+   */
+  rows?: number;
 }
 
 export const TextArea: React.FC<ITextAreaProps> = ({
@@ -46,6 +50,7 @@ export const TextArea: React.FC<ITextAreaProps> = ({
   width,
   onInput,
   onInvalid,
+  rows,
   ...rest
 }) => {
   return (
@@ -69,6 +74,7 @@ export const TextArea: React.FC<ITextAreaProps> = ({
         data-tooltip-id="main-tooltip"
         width={width}
         role={error ? 'alert' : 'none'}
+        rows={rows}
         onInput={(e) => {
           if (onInput) onInput(e);
           else {
