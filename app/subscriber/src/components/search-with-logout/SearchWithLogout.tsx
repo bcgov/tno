@@ -31,24 +31,27 @@ export const SearchWithLogout: React.FC = () => {
   return (
     <styled.SearchWithLogout className="search-with-logout">
       <Row>
-        <Text
-          placeholder="Search news"
-          className="search"
-          width={width && width > 500 ? '30em' : '15em'}
-          autoComplete="off"
-          name="search"
-          onKeyDown={enterPressed}
-          value={searchItem}
-          onChange={(e) => {
-            setSearchItem(e.target.value);
-          }}
-        />
-        <Button
-          className="search-button"
-          onClick={() => navigate(`/search?queryText=${searchItem}`)}
-        >
-          <FaSearch />
-        </Button>
+        {/* use original search when in mobile - until mobile advanced ui provided */}
+        <Show visible={!!width && width < 760}>
+          <Text
+            placeholder="Search news"
+            className="search"
+            width={width && width > 500 ? '30em' : '15em'}
+            autoComplete="off"
+            name="search"
+            onKeyDown={enterPressed}
+            value={searchItem}
+            onChange={(e) => {
+              setSearchItem(e.target.value);
+            }}
+          />
+          <Button
+            className="search-button"
+            onClick={() => navigate(`/search?queryText=${searchItem}`)}
+          >
+            <FaSearch />
+          </Button>
+        </Show>
       </Row>
       <div onClick={() => keycloak.instance.logout()} className="logout">
         <Show visible={!!width && width > 500}>

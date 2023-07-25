@@ -82,7 +82,7 @@ export const Landing: React.FC = () => {
                 userInfo?.preferences.searches.map(
                   (search: { name: string; queryText: string }) => (
                     <p
-                      onClick={() => navigate(`/search?queryText=${search.queryText}`)}
+                      onClick={() => navigate(`/search/${search.queryText}`)}
                       className="search-links"
                       key={search.name}
                     >

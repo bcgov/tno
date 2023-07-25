@@ -172,6 +172,11 @@ public class ContentFilter : PageFilter
     /// get/set - Sort the content in the specified order.
     /// </summary>
     public string[] Sort { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// get/set - The story text to search for.
+    /// </summary>
+    public string? StoryText { get; set; }
     #endregion
 
     #region Constructors
@@ -189,6 +194,7 @@ public class ContentFilter : PageFilter
         this.PageName = filter.GetStringValue(nameof(this.PageName));
         this.Edition = filter.GetStringValue(nameof(this.Edition));
         this.Byline = filter.GetStringValue(nameof(this.Byline));
+        this.StoryText = filter.GetStringValue(nameof(this.StoryText));
 
         this.Status = filter.GetEnumNullValue<ContentStatus>(nameof(this.Status));
 

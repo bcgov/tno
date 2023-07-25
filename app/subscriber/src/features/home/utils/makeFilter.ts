@@ -3,7 +3,7 @@ import {
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
 import moment from 'moment';
-import { IContentFilter } from 'tno-core';
+import { ISubscriberContentFilter } from 'tno-core';
 
 /**
  * Creates a IContentFilter that can be passed to the API hook endpoint.
@@ -13,35 +13,21 @@ import { IContentFilter } from 'tno-core';
  */
 export const makeFilter = (
   filter: IContentListFilter & Partial<IContentListAdvancedFilter>,
-): IContentFilter => {
-  const result: IContentFilter = {
-    page: filter.pageIndex + 1,
-    quantity: filter.pageSize,
-    productIds: filter.productIds ?? undefined,
-    sourceIds: filter.sourceIds ?? undefined,
-    excludeSourceIds: filter.excludeSourceIds ?? undefined,
-    contentTypes: filter.contentTypes ?? undefined,
-    ownerId: +filter.ownerId !== 0 ? +filter.ownerId : undefined,
-    userId: +filter.userId !== 0 ? +filter.userId : undefined,
-    status: filter.status ?? undefined,
-    keyword: filter.keyword ?? undefined,
-    hasTopic: filter.hasTopic ? true : undefined,
-    includeHidden: filter.includeHidden ? true : undefined,
-    publishedStartOn: filter.startDate ? moment(filter.startDate).toISOString() : undefined,
-    publishedEndOn: filter.endDate ? filter.endDate : undefined,
-    sort: filter.sort.length > 0 ? filter.sort.map((x) => x.id) : undefined,
-    logicalOperator:
-      filter.searchTerm !== '' && filter.logicalOperator !== ''
-        ? filter.logicalOperator
-        : undefined,
+): ISubscriberContentFilter => {
+  const result: ISubscriberContentFilter = {
     actions: applyActions(filter),
+    byline: filter.byline ?? undefined,
+    contentTypes: filter.contentTypes ?? [],
+    excludeSourceIds: filter.excludeSourceIds ?? undefined,
+    headline: filter.headline ?? '',
+    keyword: filter.keyword ?? undefined,
+    productIds: filter.productIds ?? undefined,
+    publishedEndOn: filter.endDate ? filter.endDate : undefined,
+    publishedStartOn: filter.startDate ? filter.startDate : undefined,
+    sourceIds: filter.sourceIds ?? undefined,
+    status: filter.status ?? undefined,
+    storyText: filter.storyText ?? undefined,
   };
-  if (!!filter.fieldType) {
-    const searchTerm =
-      filter.fieldType === 'sourceId' ? filter.searchTerm : filter.searchTerm?.trim();
-    (result as any)[(filter?.fieldType as string) ?? 'fake'] =
-      filter.searchTerm !== '' ? searchTerm : undefined;
-  }
   return result;
 };
 

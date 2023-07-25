@@ -4,11 +4,23 @@ import { Row } from 'tno-core';
 export const AdvancedSearch = styled(Row)`
   background-color: white;
   padding: 0.5em;
+
+  .search-icon {
+    &:hover {
+      color: rgb(103 80 164);
+      cursor: pointer;
+    }
+  }
   .search-bar {
     background-color: rgb(236 231 235);
+    border-radius: 1.3em;
     padding: 0.3em;
-    border-radius: 0.8em;
+    .frm-in {
+      padding-bottom: 0;
+      margin-left: 0.2em;
+    }
     svg {
+      margin: 0.2em;
       align-self: center;
       color: rgb(73 69 78);
     }
@@ -16,6 +28,12 @@ export const AdvancedSearch = styled(Row)`
   .search-input {
     border: none;
     background-color: rgb(236 231 235);
+    margin-top: auto;
+    margin-bottom: auto;
+    padding: 0;
+    &:focus {
+      outline: none;
+    }
   }
 
   .use-text {
@@ -40,10 +58,8 @@ export const AdvancedSearch = styled(Row)`
     /* add bottom underline */
     border-bottom: 1px solid rgb(202 196 207);
     padding-bottom: 0.5em;
+    margin-top: 0.5em;
     width: 100%;
-  }
-  .expanded {
-    margin-top: 0.75em;
   }
 
   .calendar {
@@ -87,8 +103,21 @@ export const AdvancedSearch = styled(Row)`
     &:hover {
       background-color: rgb(236 231 235);
     }
+    padding: 0.1em;
     margin-left: 1.5em;
     border-bottom: 1px solid rgb(202 196 207);
+
+    .sub-options {
+      /* important tag needed as it is fighting with the sidebar library */
+      background-color: transparent !important;
+      font-size: 0.8em;
+      margin-left: 0.65em;
+      max-width: 13em;
+      white-space: nowrap;
+      &:hover {
+        cursor: pointer;
+      }
+    }
   }
 
   .section,
@@ -106,5 +135,30 @@ export const AdvancedSearch = styled(Row)`
     &:hover {
       background-color: rgb(103 80 164);
     }
+  }
+
+  .date-range {
+    margin-top: 0.5em;
+    justify-content: center;
+    p {
+      margin: 0.2em 0.35em;
+    }
+    .react-datepicker-wrapper {
+      max-width: fit-content;
+    }
+    .date-picker {
+      width: 5.5em;
+      border-radius: 0.25em;
+    }
+  }
+  .media-section {
+    margin-top: 0.5em;
+  }
+
+  .sub-container {
+    max-height: 10em;
+    max-width: 12.35em;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 `;
