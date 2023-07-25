@@ -62,6 +62,8 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
         sourceIds: advancedSearch?.sourceIds,
         endDate: advancedSearch?.endDate,
         status: ContentStatus.Published,
+        contentTypes: [],
+        sort: [],
       }),
     [advancedSearch],
   );
@@ -96,7 +98,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
     <styled.AdvancedSearch>
       <Show visible={expanded}>
         <p onClick={() => setExpanded(false)} className="back-text">
-          Back to basic search
+          {`<< Back to basic search`}
         </p>
       </Show>
       <Row className="search-bar">
@@ -117,13 +119,13 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
         </p>
       </Show>
       <Show visible={expanded}>
-        <div className="search-in-group">
+        <div className="search-in-group space-top">
           <b>Search in: </b>
           <ToggleGroup className="toggles" options={searchInOptions} />
         </div>
         <Col className="section narrow">
           <b>Narrow your results by: </b>
-          <Col className={`date-range-group ${dateExpanded ? 'expanded' : ''}`}>
+          <Col className={`date-range-group space-top ${dateExpanded ? 'expanded' : ''}`}>
             <Row>
               <BsCalendarEvent /> Date range
               {!dateExpanded ? (

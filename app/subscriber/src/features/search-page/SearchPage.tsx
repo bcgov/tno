@@ -52,7 +52,7 @@ export const SearchPage: React.FC = () => {
     [query],
   );
 
-  const advancedSubFilter: IContentListFilter & Partial<IContentListAdvancedFilter> =
+  const advancedSubscriberFilter: IContentListFilter & Partial<IContentListAdvancedFilter> =
     React.useMemo(() => {
       return {
         headline: urlParams.get('headline') ?? '',
@@ -61,6 +61,8 @@ export const SearchPage: React.FC = () => {
         startDate: urlParams.get('publishedStartOn') ?? '',
         endDate: urlParams.get('publishedEndOn') ?? '',
         sourceIds: search.sourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
+        contentTypes: [],
+        sort: [],
       };
       // only want this to udpate when the query changes
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -70,8 +72,8 @@ export const SearchPage: React.FC = () => {
   const formatSearch = (text: string) => {
     let tempText = text;
     let parseText = () => {
-      if (advancedSubFilter.storyText) return advancedSubFilter.storyText;
-      if (advancedSubFilter.keyword) return advancedSubFilter.keyword;
+      if (advancedSubscriberFilter.storyText) return advancedSubscriberFilter.storyText;
+      if (advancedSubscriberFilter.keyword) return advancedSubscriberFilter.keyword;
       else return '';
     };
     parseText()
@@ -135,9 +137,9 @@ export const SearchPage: React.FC = () => {
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
     fetch({
-      ...advancedSubFilter,
+      ...advancedSubscriberFilter,
     });
-  }, [query, fetch, advancedSubFilter]);
+  }, [query, fetch, advancedSubscriberFilter]);
 
   return (
     <styled.SearchPage>

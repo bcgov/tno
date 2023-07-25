@@ -20,6 +20,7 @@ export const queryToFilter = (
     return {
       byline: convertTo(search.byline, 'string', filter.byline),
       contentTypes: search.contentTypes,
+      sort: search.sort,
       excludeSourceIds: search.excludeSourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
       headline: convertTo(search.headline, 'string', filter.headline),
       keyword: convertTo(search.keyword, 'string', filter.keyword),

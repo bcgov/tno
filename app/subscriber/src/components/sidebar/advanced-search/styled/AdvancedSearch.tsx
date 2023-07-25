@@ -33,6 +33,7 @@ export const AdvancedSearch = styled(Row)`
     padding: 0;
     &:focus {
       outline: none;
+      box-shadow: none !important;
     }
   }
 
@@ -54,6 +55,11 @@ export const AdvancedSearch = styled(Row)`
     font-size: 0.8em;
     cursor: pointer;
   }
+
+  .space-top {
+    margin-top: 0.5em;
+  }
+
   .search-in-group {
     /* add bottom underline */
     border-bottom: 1px solid rgb(202 196 207);
@@ -82,7 +88,7 @@ export const AdvancedSearch = styled(Row)`
   .story-options-group {
     padding: 0.5em;
     width: 100%;
-    margin-bottom: 0.75em;
+    /* margin-bottom: 0.75em; */
     &:hover:not(.expanded) {
       background-color: rgb(236 231 235);
     }
@@ -104,15 +110,14 @@ export const AdvancedSearch = styled(Row)`
       background-color: rgb(236 231 235);
     }
     padding: 0.1em;
-    margin-left: 1.5em;
+    margin-left: 0.1em;
     border-bottom: 1px solid rgb(202 196 207);
 
     .sub-options {
       /* important tag needed as it is fighting with the sidebar library */
       background-color: transparent !important;
       font-size: 0.8em;
-      margin-left: 0.65em;
-      max-width: 13em;
+      max-width: 100%;
       white-space: nowrap;
       &:hover {
         cursor: pointer;
@@ -124,6 +129,10 @@ export const AdvancedSearch = styled(Row)`
   .story-options-group,
   .search-options-group {
     width: 100%;
+  }
+
+  .section {
+    margin-top: 0.5em;
   }
 
   .search-button {
@@ -151,13 +160,10 @@ export const AdvancedSearch = styled(Row)`
       border-radius: 0.25em;
     }
   }
-  .media-section {
-    margin-top: 0.5em;
-  }
 
   .sub-container {
     max-height: 10em;
-    max-width: 12.35em;
+    max-width: 13.8em;
     overflow-y: auto;
     overflow-x: hidden;
   }

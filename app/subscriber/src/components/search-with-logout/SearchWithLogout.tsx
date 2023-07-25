@@ -1,3 +1,4 @@
+import { ScreenSizes } from 'components/layout';
 import React from 'react';
 import { BiLogOut } from 'react-icons/bi';
 import { FaSearch, FaUserCircle } from 'react-icons/fa';
@@ -32,7 +33,7 @@ export const SearchWithLogout: React.FC = () => {
     <styled.SearchWithLogout className="search-with-logout">
       <Row>
         {/* use original search when in mobile - until mobile advanced ui provided */}
-        <Show visible={!!width && width < 760}>
+        <Show visible={!!width && width < ScreenSizes.LargeMobile}>
           <Text
             placeholder="Search news"
             className="search"
@@ -54,11 +55,11 @@ export const SearchWithLogout: React.FC = () => {
         </Show>
       </Row>
       <div onClick={() => keycloak.instance.logout()} className="logout">
-        <Show visible={!!width && width > 500}>
+        <Show visible={!!width && width > ScreenSizes.Mobile}>
           <FaUserCircle />
           Logout
         </Show>
-        <Show visible={!!width && width < 500}>
+        <Show visible={!!width && width < ScreenSizes.Mobile}>
           <BiLogOut className="logout-icon" />
         </Show>
       </div>

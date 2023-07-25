@@ -30,14 +30,14 @@ export const MyMinisterSettings: React.FC = () => {
   };
 
   React.useEffect(() => {
-    if (userInfo?.preferences?.myMinisters.length > 0) {
+    if (userInfo?.preferences?.myMinisters?.length > 0) {
       setMyMinisters(userInfo?.preferences?.myMinisters);
     }
   }, [userInfo]);
 
   React.useEffect(() => {
     // check if any of the users previous selections are no longer active
-    if (userInfo?.preferences?.myMinisters.length > 0 && activeMinisters.length > 0) {
+    if (userInfo?.preferences?.myMinisters?.length > 0 && activeMinisters.length > 0) {
       let activeSelectedMinisters: number[] = [];
       let inactiveSelectedMinisters: number[] = [];
       userInfo?.preferences?.myMinisters.forEach((m: number) => {

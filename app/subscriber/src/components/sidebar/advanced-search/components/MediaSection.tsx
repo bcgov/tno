@@ -29,7 +29,7 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
   const { dailyPapers, sources } = useFilterOptions();
   return (
     <Show visible={mediaExpanded}>
-      <Col className="expanded media-section">
+      <Col className="expanded media-section space-top">
         {SubMediaGroups(dailyPapers, sources, []).map((mediaGroup) => (
           <Col className="sub-group">
             <Row>
@@ -78,7 +78,7 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
                         }
                       }}
                     />
-                    {option.name.length < 20 ? option.name : option.name.slice(0, 20) + '...'}
+                    {option.name.length < 28 ? option.name : option.name.slice(0, 28) + '...'}
                   </Row>
                 ))}
               </Show>
