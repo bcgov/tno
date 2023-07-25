@@ -1,7 +1,5 @@
 import { ContentStatus, ContentTypeName } from 'tno-core';
 
-import { ISortBy } from '.';
-
 export interface IContentListFilter {
   byline?: string;
   contentTypes?: ContentTypeName[];

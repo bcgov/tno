@@ -1,7 +1,7 @@
 import ReactDatePicker from 'react-datepicker';
 import { Row, Show } from 'tno-core';
+
 import { IAdvancedSearchFilter } from '../interfaces';
-import { noop } from 'lodash';
 
 export interface IDateSectionProps {
   /** variable that keeps track of whether the sub-menu is expanded or not */

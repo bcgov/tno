@@ -1,5 +1,5 @@
 import { IContentListFilter } from 'features/content/list-view/interfaces';
-import { ISubscriberContentFilter, convertTo, fromQueryString } from 'tno-core';
+import { convertTo, fromQueryString } from 'tno-core';
 
 /**
  * Updates the specified filter with query param values.

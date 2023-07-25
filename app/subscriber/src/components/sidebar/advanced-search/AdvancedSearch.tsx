@@ -1,21 +1,20 @@
+import { makeFilter } from 'features';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
 import { FaSearch } from 'react-icons/fa';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle, IoIosCog } from 'react-icons/io';
+import { useNavigate } from 'react-router';
 import { Button, Col, ContentStatus, Row, Show, Text, ToggleGroup, toQueryString } from 'tno-core';
 
-import * as styled from './styled';
+import { DateSection, MediaSection } from './components';
+import { SearchInFieldName } from './constants';
 import {
+  defaultSubMediaGroupExpanded,
   IAdvancedSearchFilter,
   ISubMediaGroupExpanded,
-  defaultSubMediaGroupExpanded,
 } from './interfaces';
-import { DateSection, MediaSection } from './components';
-import { useContent } from 'store/hooks';
-import { makeFilter } from 'features';
-import { SearchInFieldName } from './constants';
-import { useNavigate } from 'react-router';
+import * as styled from './styled';
 
 export interface IAdvancedSearchProps {
   expanded: boolean;

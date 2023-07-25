@@ -1,4 +1,5 @@
-import { ILookupModel, IOptionItem, ISourceModel } from 'tno-core';
+import { ILookupModel, ISourceModel } from 'tno-core';
+
 import { ISubMediaGroupExpanded } from '../interfaces';
 
 export interface ISubMediaGroupItem {

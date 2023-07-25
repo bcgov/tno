@@ -55,7 +55,7 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
     if (width && width < 768 && !collapsed && !advancedSearch) {
       collapseSidebar();
     }
-  }, [width, collapseSidebar, collapsed]);
+  }, [width, collapseSidebar, collapsed, advancedSearch]);
 
   return (
     <styled.Layout collapsed={collapsed} {...rest}>

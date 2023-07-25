@@ -2,7 +2,6 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import moment from 'moment';
 import { ISubscriberContentFilter } from 'tno-core';
 
 /**

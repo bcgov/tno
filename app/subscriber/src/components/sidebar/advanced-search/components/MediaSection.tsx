@@ -1,8 +1,9 @@
-import { Col, Row, Show } from 'tno-core';
-import { SubMediaGroups } from '../constants';
 import { useFilterOptions } from 'components/sidebar/hooks';
-import { IAdvancedSearchFilter, ISubMediaGroupExpanded } from '../interfaces';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle } from 'react-icons/io';
+import { Col, Row, Show } from 'tno-core';
+
+import { SubMediaGroups } from '../constants';
+import { IAdvancedSearchFilter, ISubMediaGroupExpanded } from '../interfaces';
 
 export interface IMediaSectionProps {
   /** variable that keeps track of whether the sub-menu is expanded or not */

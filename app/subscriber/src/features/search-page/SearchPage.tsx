@@ -13,6 +13,8 @@ import { useApp, useContent, useUsers } from 'store/hooks';
 import { useAppStore } from 'store/slices';
 import {
   Col,
+  convertTo,
+  fromQueryString,
   IContentModel,
   IUserInfoModel,
   IUserModel,
@@ -20,8 +22,6 @@ import {
   Row,
   Show,
   Text,
-  convertTo,
-  fromQueryString,
 } from 'tno-core';
 
 import { Player } from './player/Player';
@@ -62,6 +62,8 @@ export const SearchPage: React.FC = () => {
         endDate: urlParams.get('publishedEndOn') ?? '',
         sourceIds: search.sourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
       };
+      // only want this to udpate when the query changes
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [query]);
 
   // function that bolds the searched text
@@ -135,7 +137,7 @@ export const SearchPage: React.FC = () => {
     fetch({
       ...advancedSubFilter,
     });
-  }, [query]);
+  }, [query, fetch, advancedSubFilter]);
 
   return (
     <styled.SearchPage>
