@@ -60,7 +60,7 @@ export const MyMinister: React.FC = () => {
     if (userInfo?.preferences?.myMinisters?.length > 0 && ministers.length > 0) {
       let selectedAliases: string[] = [];
       selectedAliases = ministers
-        .filter((m) => userInfo?.preferences?.myMinisters?.includes(m.name))
+        .filter((m) => userInfo?.preferences?.myMinisters?.includes(m.id))
         .map((x) => x.aliases);
       setAliases(selectedAliases);
     }

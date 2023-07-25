@@ -9,7 +9,7 @@ import * as styled from './styled';
 export const MyMinisterSettings: React.FC = () => {
   const [{ ministers }] = useLookup();
   const [{ userInfo }] = useApp();
-  const [myMinisters, setMyMinisters] = React.useState<string[]>([]);
+  const [myMinisters, setMyMinisters] = React.useState<number[]>([]);
   const [, store] = useAppStore();
   const api = useUsers();
 
@@ -17,7 +17,7 @@ export const MyMinisterSettings: React.FC = () => {
     .filter((m) => m.isEnabled)
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  const handleSubmit = async (values: string[]) => {
+  const handleSubmit = async (values: number[]) => {
     try {
       const user = {
         ...userInfo,
@@ -30,16 +30,18 @@ export const MyMinisterSettings: React.FC = () => {
   };
 
   React.useEffect(() => {
-    if (userInfo?.preferences?.myMinisters) {
+    if (userInfo?.preferences?.myMinisters.length > 0) {
       setMyMinisters(userInfo?.preferences?.myMinisters);
     }
+  }, [userInfo]);
 
+  React.useEffect(() => {
     // check if any of the users previous selections are no longer active
-    if (userInfo?.preferences?.myMinisters && activeMinisters.length > 0) {
-      let activeSelectedMinisters: string[] = [];
-      let inactiveSelectedMinisters: string[] = [];
-      userInfo?.preferences?.myMinisters.forEach((m: string) => {
-        const isActive = activeMinisters.find((element) => element.name === m);
+    if (userInfo?.preferences?.myMinisters.length > 0 && activeMinisters.length > 0) {
+      let activeSelectedMinisters: number[] = [];
+      let inactiveSelectedMinisters: number[] = [];
+      userInfo?.preferences?.myMinisters.forEach((m: number) => {
+        const isActive = activeMinisters.find((element) => element.id === m);
         if (isActive) activeSelectedMinisters.push(m);
         else inactiveSelectedMinisters.push(m);
       });
@@ -57,7 +59,7 @@ export const MyMinisterSettings: React.FC = () => {
         store.storeUserInfo(user as IUserInfoModel);
       }
     }
-  }, [activeMinisters, api, ministers, store, userInfo]);
+  }, [activeMinisters, api, store, userInfo]);
 
   return (
     <styled.MyMinisterSettings>
@@ -69,16 +71,16 @@ export const MyMinisterSettings: React.FC = () => {
       <div className="option-container">
         {activeMinisters.map((o) => {
           return (
-            <div className="chk-container" key={o.name}>
+            <div className="chk-container" key={o.id}>
               <Checkbox
                 label={`${o.name} : ${o.position}`}
-                checked={myMinisters.includes(o.name)}
+                checked={myMinisters.includes(o.id)}
                 onChange={(e) => {
                   if ((e.target as HTMLInputElement).checked) {
-                    setMyMinisters([...myMinisters, o.name]);
+                    setMyMinisters([...myMinisters, o.id]);
                   } else {
                     // remove from preferences when unchecking
-                    setMyMinisters(myMinisters.filter((m: string) => m !== o.name));
+                    setMyMinisters(myMinisters.filter((m: number) => m !== o.id));
                   }
                 }}
               />
