@@ -44,6 +44,7 @@ export const Upload: React.FC<IUploadProps> = ({
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [file, setFile] = React.useState<IFile>();
   const fileName = generateName(file) ?? generateName(initFile);
+  const fileReference = values.fileReferences.length ? values.fileReferences[0] : undefined;
 
   React.useEffect(() => {
     if (!!initFile) {
@@ -117,10 +118,17 @@ export const Upload: React.FC<IUploadProps> = ({
           </Col>
         </Show>
 
-        <Show visible={!!stream && contentType === ContentTypeName.AudioVideo}>
-          <video height="300" width="500" src={stream?.url} controls>
-            HTML5 Video is required for this example
-          </video>
+        <Show visible={!!stream && contentType === ContentTypeName.AudioVideo && !!fileReference}>
+          <Show visible={fileReference?.contentType === 'audio/mpeg'}>
+            <audio src={stream?.url} controls>
+              HTML5 Audio is required
+            </audio>
+          </Show>
+          <Show visible={fileReference?.contentType === 'video/mpeg'}>
+            <video src={stream?.url} controls>
+              HTML5 Video is required
+            </video>
+          </Show>
         </Show>
       </Col>
       {/* Modal to appear when removing a file */}
