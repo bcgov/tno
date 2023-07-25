@@ -55,14 +55,16 @@ export const SearchPage: React.FC = () => {
   const advancedSubscriberFilter: IContentListFilter & Partial<IContentListAdvancedFilter> =
     React.useMemo(() => {
       return {
-        headline: urlParams.get('headline') ?? '',
-        storyText: urlParams.get('storyText') ?? '',
-        keyword: urlParams.get('keyword') ?? '',
-        startDate: urlParams.get('publishedStartOn') ?? '',
-        endDate: urlParams.get('publishedEndOn') ?? '',
-        sourceIds: search.sourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
         contentTypes: [],
+        endDate: urlParams.get('publishedEndOn') ?? '',
+        headline: urlParams.get('headline') ?? '',
+        keyword: urlParams.get('keyword') ?? '',
+        pageIndex: convertTo(urlParams.get('pageIndex'), 'number', 0),
+        pageSize: convertTo(urlParams.get('pageSize'), 'number', 100),
         sort: [],
+        sourceIds: search.sourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
+        startDate: urlParams.get('publishedStartOn') ?? '',
+        storyText: urlParams.get('storyText') ?? '',
       };
       // only want this to udpate when the query changes
       // eslint-disable-next-line react-hooks/exhaustive-deps

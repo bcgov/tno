@@ -25,6 +25,8 @@ export const queryToFilter = (
       headline: convertTo(search.headline, 'string', filter.headline),
       keyword: convertTo(search.keyword, 'string', filter.keyword),
       otherSource: convertTo(search.otherSource, 'string', filter.otherSource),
+      pageIndex: convertTo(search.pageIndex, 'number', filter.pageIndex),
+      pageSize: convertTo(search.pageSize, 'number', filter.pageSize),
       productIds: search.productIds?.map((v: any) => convertTo(v, 'number', undefined)),
       sourceIds: search.sourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
       storyText: convertTo(search.storyText, 'string', filter.storyText),

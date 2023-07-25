@@ -10,11 +10,13 @@ export interface IContentListFilter {
   keyword?: string;
   otherSource?: string | '';
   ownerId?: number | '';
+  pageIndex: number;
+  pageSize: number;
   productIds?: number[];
   showOnly?: string;
+  sort: ISortBy[];
   sourceIds?: number[];
   status?: ContentStatus;
   storyText?: string;
-  sort: ISortBy[];
   userId?: number | '';
 }

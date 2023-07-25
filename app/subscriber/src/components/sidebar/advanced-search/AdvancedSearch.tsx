@@ -64,6 +64,8 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
         status: ContentStatus.Published,
         contentTypes: [],
         sort: [],
+        pageIndex: 0,
+        pageSize: 100,
       }),
     [advancedSearch],
   );
