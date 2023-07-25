@@ -7,12 +7,12 @@ export const AdvancedSearch = styled(Row)`
 
   .search-icon {
     &:hover {
-      color: rgb(103 80 164);
+      color: ${(props) => props.theme.css.subscriberPurple};
       cursor: pointer;
     }
   }
   .search-bar {
-    background-color: rgb(236 231 235);
+    background-color: ${(props) => props.theme.css.inputGrey};
     border-radius: 1.3em;
     padding: 0.3em;
     .frm-in {
@@ -22,12 +22,12 @@ export const AdvancedSearch = styled(Row)`
     svg {
       margin: 0.2em;
       align-self: center;
-      color: rgb(73 69 78);
+      color: ${(props) => props.theme.css.searchIconColor};
     }
   }
   .search-input {
     border: none;
-    background-color: rgb(236 231 235);
+    background-color: ${(props) => props.theme.css.inputGrey};
     margin-top: auto;
     margin-bottom: auto;
     padding: 0;
@@ -62,17 +62,12 @@ export const AdvancedSearch = styled(Row)`
 
   .search-in-group {
     /* add bottom underline */
-    border-bottom: 1px solid rgb(202 196 207);
+    border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
     padding-bottom: 0.5em;
     margin-top: 0.5em;
     width: 100%;
   }
 
-  .calendar {
-    cursor: pointer;
-    /* light blue */
-    color: rgb(0 123 255);
-  }
   .date-navigator {
     margin-left: auto;
     margin-right: auto;
@@ -88,9 +83,8 @@ export const AdvancedSearch = styled(Row)`
   .story-options-group {
     padding: 0.5em;
     width: 100%;
-    /* margin-bottom: 0.75em; */
     &:hover:not(.expanded) {
-      background-color: rgb(236 231 235);
+      background-color: ${(props) => props.theme.css.searchItemHover};
     }
     .drop-icon {
       margin-left: auto;
@@ -100,18 +94,18 @@ export const AdvancedSearch = styled(Row)`
       margin-right: 0.5em;
       align-self: center;
     }
-    border-bottom: 1px solid rgb(202 196 207);
+    border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
   }
   .toggles {
     margin-left: 1em;
   }
   .sub-group {
     &:hover {
-      background-color: rgb(236 231 235);
+      background-color: ${(props) => props.theme.css.searchItemHover};
     }
     padding: 0.1em;
     margin-left: 0.1em;
-    border-bottom: 1px solid rgb(202 196 207);
+    border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
 
     .sub-options {
       /* important tag needed as it is fighting with the sidebar library */
@@ -121,6 +115,7 @@ export const AdvancedSearch = styled(Row)`
       white-space: nowrap;
       &:hover {
         cursor: pointer;
+        background-color: ${(props) => props.theme.css.searchItemHover};
       }
     }
   }
@@ -138,12 +133,9 @@ export const AdvancedSearch = styled(Row)`
   .search-button {
     margin-left: auto;
     margin-top: 2em;
-    background-color: rgb(103 80 164);
+    background-color: ${(props) => props.theme.css.subscriberPurple};
     border-radius: 2em;
     border: none;
-    &:hover {
-      background-color: rgb(103 80 164);
-    }
   }
 
   .date-range {
