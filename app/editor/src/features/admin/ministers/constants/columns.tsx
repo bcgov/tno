@@ -8,10 +8,10 @@ export const columns: ITableHookColumn<IMinisterModel>[] = [
     cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
-    label: 'Description',
-    name: 'description',
+    label: 'Position',
+    name: 'position',
     width: 5,
-    cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
+    cell: (cell) => <CellEllipsis>{cell.original.position}</CellEllipsis>,
   },
   {
     label: 'Aliases',
