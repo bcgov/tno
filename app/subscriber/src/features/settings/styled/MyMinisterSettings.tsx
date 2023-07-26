@@ -17,11 +17,12 @@ export const MyMinisterSettings = styled(Col)`
       display: inline-block;
       vertical-align: text-top;
     }
-    .aliases {
-      padding-left: 1.75rem;
-      display: block;
-      font-style: italic;
-      font-size: smaller;
+    div.chk {
+      div {
+        label {
+          font-weight: bold;
+        }
+      }
     }
   }
   .ministers {

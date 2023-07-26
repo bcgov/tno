@@ -15,7 +15,7 @@ export const MyMinisterSettings: React.FC = () => {
 
   let activeMinisters = ministers
     .filter((m) => m.isEnabled)
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name));
 
   const handleSubmit = async (values: number[]) => {
     try {
@@ -67,13 +67,17 @@ export const MyMinisterSettings: React.FC = () => {
         Choose the Minister(s) you'd like to follow. Stories about your selected Minister(s) will be
         available from a quick click in the sidebar menu.
       </p>
-      <p>Please note that "Search Aliases" will also show up in your "My Minister" feed.</p>
       <div className="option-container">
+        <Row justifyContent="flex-end">
+          <Button type="submit" onClick={() => handleSubmit(myMinisters)}>
+            Save
+          </Button>
+        </Row>
         {activeMinisters.map((o) => {
           return (
             <div className="chk-container" key={o.id}>
               <Checkbox
-                label={`${o.name} : ${o.position}`}
+                label={`${o.name} : `}
                 checked={myMinisters.includes(o.id)}
                 onChange={(e) => {
                   if ((e.target as HTMLInputElement).checked) {
@@ -84,7 +88,7 @@ export const MyMinisterSettings: React.FC = () => {
                   }
                 }}
               />
-              <div className="aliases">Search Aliases: {o.aliases}</div>
+              <div className="position">{o.position}</div>
             </div>
           );
         })}
