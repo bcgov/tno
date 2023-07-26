@@ -108,8 +108,6 @@ export const AdvancedSearch = styled(Row)`
     border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
 
     .sub-options {
-      /* important tag needed as it is fighting with the sidebar library */
-      background-color: transparent !important;
       font-size: 0.8em;
       max-width: 100%;
       white-space: nowrap;

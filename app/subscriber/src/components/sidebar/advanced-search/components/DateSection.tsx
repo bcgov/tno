@@ -9,7 +9,7 @@ export interface IDateSectionProps {
   /** function that will update the startOn/endOn for the advanced filter */
   setAdvancedSearch: (advancedSearch: IAdvancedSearchFilter) => void;
   /** advanced search object, may start as undefined if nothing is set */
-  advancedSearch?: IAdvancedSearchFilter;
+  advancedSearch: IAdvancedSearchFilter;
 }
 
 export const DateSection: React.FC<IDateSectionProps> = ({
@@ -27,7 +27,7 @@ export const DateSection: React.FC<IDateSectionProps> = ({
           selectsStart
           endDate={advancedSearch?.endDate ? new Date(advancedSearch.endDate) : new Date()}
           onChange={(date) =>
-            setAdvancedSearch({ ...advancedSearch, startDate: date?.toISOString() })
+            setAdvancedSearch({ ...advancedSearch, startDate: date?.toISOString() ?? '' })
           }
         />
         <p>to</p>
@@ -38,7 +38,7 @@ export const DateSection: React.FC<IDateSectionProps> = ({
           selectsEnd
           endDate={advancedSearch?.endDate ? new Date(advancedSearch.endDate) : new Date()}
           onChange={(date) =>
-            setAdvancedSearch({ ...advancedSearch, endDate: date?.toISOString() })
+            setAdvancedSearch({ ...advancedSearch, endDate: date?.toISOString() ?? '' })
           }
         />
       </Row>

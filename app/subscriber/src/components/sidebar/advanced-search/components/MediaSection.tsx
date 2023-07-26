@@ -15,7 +15,7 @@ export interface IMediaSectionProps {
   /** change the state of the advanced search */
   setAdvancedSearch: (advancedSearch: IAdvancedSearchFilter) => void;
   /** use the current state of advanced search */
-  advancedSearch?: IAdvancedSearchFilter;
+  advancedSearch: IAdvancedSearchFilter;
 }
 
 /** Componenet that contains the media sources for various different media types. Used to filter in the advanced search bar */
@@ -30,8 +30,8 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
   return (
     <Show visible={mediaExpanded}>
       <Col className="expanded media-section space-top">
-        {SubMediaGroups(dailyPapers, sources, []).map((mediaGroup) => (
-          <Col className="sub-group">
+        {SubMediaGroups(dailyPapers, sources, []).map((mediaGroup, index) => (
+          <Col key={`${mediaGroup.key}-${index}`} className="sub-group">
             <Row>
               {`${mediaGroup.label} (${mediaGroup.options.length})`}
               {!mediaGroupExpandedStates[mediaGroup.key] ? (
@@ -60,8 +60,8 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
               <Show
                 visible={!!mediaGroup.options.length && mediaGroupExpandedStates[mediaGroup.key]}
               >
-                {mediaGroup.options.map((option) => (
-                  <Row className="sub-options">
+                {mediaGroup.options.map((option, index) => (
+                  <Row key={`${option.name}-${index}`} className="sub-options">
                     <input
                       type="checkbox"
                       onChange={(e) => {

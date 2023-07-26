@@ -4,7 +4,7 @@ import { ISubMediaGroupExpanded } from '../interfaces';
 
 export interface ISubMediaGroupItem {
   label: string;
-  options: any[];
+  options: ISourceModel[];
   key: keyof ISubMediaGroupExpanded;
 }
 /** will contain lookup options as well as labels for corresponding

@@ -37,7 +37,12 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
   const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
     React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);
   /** the object that will eventually be converted to a query and be passed to elastic search */
-  const [advancedSearch, setAdvancedSearch] = React.useState<IAdvancedSearchFilter>();
+  const [advancedSearch, setAdvancedSearch] = React.useState<IAdvancedSearchFilter>({
+    searchTerm: '',
+    searchInField: '',
+    startDate: '',
+    endDate: '',
+  });
 
   const advancedFilter = React.useMemo(
     () =>
