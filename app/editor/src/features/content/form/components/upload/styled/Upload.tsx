@@ -62,4 +62,13 @@ export const Upload = styled.div`
     color: ${(props) => props.theme.css.primaryLightColor};
     margin-bottom: 1rem;
   }
+
+  audio {
+    margin: auto;
+    width: 100%;
+  }
+  video {
+    height: 300px;
+    width: 500px;
+  }
 `;
