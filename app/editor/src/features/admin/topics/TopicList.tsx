@@ -56,6 +56,7 @@ export const TopicList: React.FC = () => {
   }, [api, items.length, loading]);
 
   React.useEffect(() => {
+    changeParentOverflow();
     window.addEventListener('resize', updateMaxHeight);
   }, []);
 
@@ -125,6 +126,11 @@ export const TopicList: React.FC = () => {
     let maxHeight = screenHeight * 0.33;
     if (maxHeight < 550 && screenHeight >= 950) maxHeight = 550;
     (element as any).style.maxHeight = `${maxHeight}px`;
+  };
+
+  const changeParentOverflow = () => {
+    let mainElement = document.querySelector('main');
+    (mainElement as any).style.overflowY = 'hidden';
   };
 
   return (
