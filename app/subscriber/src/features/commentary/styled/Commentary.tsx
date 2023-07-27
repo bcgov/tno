@@ -8,7 +8,6 @@ export const Commentary = styled.div`
   }
 
   @media (min-width: 1702px) {
-    min-width: 35em;
     margin-bottom: 5%;
   }
 

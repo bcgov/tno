@@ -29,7 +29,7 @@ export const Landing = styled(Col)`
   /* The panel containing Commentary and front pages */
   .right-panel {
     @media (min-width: 1702px) {
-      max-width: fit-content;
+      max-width: 44%;
     }
     margin-left: auto;
     flex-grow: 1;
@@ -67,6 +67,7 @@ export const Landing = styled(Col)`
       max-width: 55%;
     }
     flex-grow: 1;
+    margin-bottom: 0.5em;
 
     .title {
       background-color: ${(props) => props.theme.css.darkHeaderColor};
@@ -87,7 +88,6 @@ export const Landing = styled(Col)`
 
     /* TODO: move these to the button component as styling configuration */
     button {
-      margin-bottom: 10%;
       min-width: 5rem;
       border: none;
       display: flex;

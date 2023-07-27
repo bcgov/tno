@@ -3,7 +3,6 @@ import { Col } from 'tno-core';
 
 export const FrontPages = styled(Col)`
   @media (min-width: 1702px) {
-    max-width: fit-content;
     min-width: 35em;
   }
 
