@@ -1,27 +1,22 @@
 import { ContentStatus, ContentTypeName } from 'tno-core';
 
-import { ISortBy } from '.';
+import { ISortBy } from './ISortBy';
 
 export interface IContentListFilter {
+  byline?: string;
+  contentTypes: ContentTypeName[];
+  excludeSourceIds?: number[];
+  headline?: string;
+  keyword?: string;
+  otherSource?: string | '';
+  ownerId?: number | '';
   pageIndex: number;
   pageSize: number;
-  hasTopic: boolean;
-  includeHidden: boolean;
-  contentTypes: ContentTypeName[];
-  sourceId: number;
-  otherSource: string;
-  productIds: number[];
-  sourceIds: number[];
-  excludeSourceIds: number[];
-  ownerId: number | '';
-  status?: ContentStatus;
-  keyword?: string;
-  userId: number | '';
-  timeFrame: number | '';
-  // Actions
+  productIds?: number[];
   showOnly?: string;
-  onTicker: string;
-  commentary: string;
-  topStory: string;
   sort: ISortBy[];
+  sourceIds?: number[];
+  status?: ContentStatus;
+  storyText?: string;
+  userId?: number | '';
 }

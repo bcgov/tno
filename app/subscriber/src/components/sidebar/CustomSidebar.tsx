@@ -7,13 +7,30 @@ import { AdvancedSearch } from './advanced-search/AdvancedSearch';
 import { SelectableMenuItems } from './SelectableMenuItems';
 import * as styled from './styled';
 
+export interface ICustomSidebarProps extends React.HTMLAttributes<HTMLDivElement> {
+  /**
+   * Whether advanced search is active or not
+   * @default false
+   */
+  advancedSearch: boolean;
+  /**
+   * Event when advanced search is toggled.
+   * @param expanded Whether advanced search is expanded or not.
+   * @default false
+   * @returns void
+   */
+  setAdvancedSearch: (expanded: boolean) => void;
+}
+
 /**
  * CustomSidebar uses react-pro-sidebar to display a sidebar with a menu of selectable menu items. Incorporates the MMIA subscriber look and feel.
  * @returns Sidebar component.
  */
-export const CustomSidebar: React.FC = () => {
+export const CustomSidebar: React.FC<ICustomSidebarProps> = ({
+  advancedSearch,
+  setAdvancedSearch,
+}) => {
   const { collapseSidebar, collapsed } = useProSidebar();
-  const [advancedSearch, setAdvancedSearch] = React.useState(false);
   return (
     <styled.CustomSidebar>
       <Menu>
@@ -23,10 +40,12 @@ export const CustomSidebar: React.FC = () => {
             src={!collapsed ? '/assets/mminsights_logo.svg' : '/assets/mm_logo.svg'}
           />
         </Row>
-        <AdvancedSearch expanded={advancedSearch} setExpanded={setAdvancedSearch} />
+        <Show visible={!collapsed}>
+          <AdvancedSearch expanded={advancedSearch} setExpanded={setAdvancedSearch} />
+        </Show>
         {!advancedSearch && <SelectableMenuItems />}
       </Menu>
-      <Show visible={!collapsed}>
+      <Show visible={!collapsed && !advancedSearch}>
         <FaAngleDoubleLeft className="collapse" onClick={() => collapseSidebar()} />
       </Show>
       <Show visible={collapsed}>

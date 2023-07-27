@@ -4,18 +4,37 @@ import { Row } from 'tno-core';
 export const AdvancedSearch = styled(Row)`
   background-color: white;
   padding: 0.5em;
+
+  .search-icon {
+    &:hover {
+      color: ${(props) => props.theme.css.subscriberPurple};
+      cursor: pointer;
+    }
+  }
   .search-bar {
-    background-color: rgb(236 231 235);
+    background-color: ${(props) => props.theme.css.inputGrey};
+    border-radius: 1.3em;
     padding: 0.3em;
-    border-radius: 0.8em;
+    .frm-in {
+      padding-bottom: 0;
+      margin-left: 0.2em;
+    }
     svg {
+      margin: 0.2em;
       align-self: center;
-      color: rgb(73 69 78);
+      color: ${(props) => props.theme.css.searchIconColor};
     }
   }
   .search-input {
     border: none;
-    background-color: rgb(236 231 235);
+    background-color: ${(props) => props.theme.css.inputGrey};
+    margin-top: auto;
+    margin-bottom: auto;
+    padding: 0;
+    &:focus {
+      outline: none;
+      box-shadow: none !important;
+    }
   }
 
   .use-text {
@@ -36,21 +55,19 @@ export const AdvancedSearch = styled(Row)`
     font-size: 0.8em;
     cursor: pointer;
   }
-  .search-in-group {
-    /* add bottom underline */
-    border-bottom: 1px solid rgb(202 196 207);
-    padding-bottom: 0.5em;
-    width: 100%;
-  }
-  .expanded {
-    margin-top: 0.75em;
+
+  .space-top {
+    margin-top: 0.5em;
   }
 
-  .calendar {
-    cursor: pointer;
-    /* light blue */
-    color: rgb(0 123 255);
+  .search-in-group {
+    /* add bottom underline */
+    border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
+    padding-bottom: 0.5em;
+    margin-top: 0.5em;
+    width: 100%;
   }
+
   .date-navigator {
     margin-left: auto;
     margin-right: auto;
@@ -66,9 +83,8 @@ export const AdvancedSearch = styled(Row)`
   .story-options-group {
     padding: 0.5em;
     width: 100%;
-    margin-bottom: 0.75em;
     &:hover:not(.expanded) {
-      background-color: rgb(236 231 235);
+      background-color: ${(props) => props.theme.css.searchItemHover};
     }
     .drop-icon {
       margin-left: auto;
@@ -78,17 +94,28 @@ export const AdvancedSearch = styled(Row)`
       margin-right: 0.5em;
       align-self: center;
     }
-    border-bottom: 1px solid rgb(202 196 207);
+    border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
   }
   .toggles {
     margin-left: 1em;
   }
   .sub-group {
     &:hover {
-      background-color: rgb(236 231 235);
+      background-color: ${(props) => props.theme.css.searchItemHover};
     }
-    margin-left: 1.5em;
-    border-bottom: 1px solid rgb(202 196 207);
+    padding: 0.1em;
+    margin-left: 0.1em;
+    border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
+
+    .sub-options {
+      font-size: 0.8em;
+      max-width: 100%;
+      white-space: nowrap;
+      &:hover {
+        cursor: pointer;
+        background-color: ${(props) => props.theme.css.searchItemHover};
+      }
+    }
   }
 
   .section,
@@ -97,14 +124,37 @@ export const AdvancedSearch = styled(Row)`
     width: 100%;
   }
 
+  .section {
+    margin-top: 0.5em;
+  }
+
   .search-button {
     margin-left: auto;
     margin-top: 2em;
-    background-color: rgb(103 80 164);
+    background-color: ${(props) => props.theme.css.subscriberPurple};
     border-radius: 2em;
     border: none;
-    &:hover {
-      background-color: rgb(103 80 164);
+  }
+
+  .date-range {
+    margin-top: 0.5em;
+    justify-content: center;
+    p {
+      margin: 0.2em 0.35em;
     }
+    .react-datepicker-wrapper {
+      max-width: fit-content;
+    }
+    .date-picker {
+      width: 5.5em;
+      border-radius: 0.25em;
+    }
+  }
+
+  .sub-container {
+    max-height: 10em;
+    max-width: 13.8em;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 `;

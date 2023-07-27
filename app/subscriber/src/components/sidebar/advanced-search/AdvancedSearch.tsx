@@ -1,12 +1,19 @@
-import { DateFilter } from 'components/date-filter';
+import { makeFilter } from 'features';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
 import { FaSearch } from 'react-icons/fa';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle, IoIosCog } from 'react-icons/io';
-import { Button, Col, Row, Show, Text, ToggleGroup } from 'tno-core';
+import { useNavigate } from 'react-router';
+import { Button, Col, ContentStatus, Row, Show, Text, ToggleGroup, toQueryString } from 'tno-core';
 
-import { SubMediaGroups } from './constants';
+import { DateSection, MediaSection } from './components';
+import { SearchInFieldName } from './constants';
+import {
+  defaultSubMediaGroupExpanded,
+  IAdvancedSearchFilter,
+  ISubMediaGroupExpanded,
+} from './interfaces';
 import * as styled from './styled';
 
 export interface IAdvancedSearchProps {
@@ -16,35 +23,102 @@ export interface IAdvancedSearchProps {
 
 /***
  * AdvancedSearch is a component that displays the advanced search form in the sidebar.
+ * @param expanded - determines whether the advanced search form is expanded or not
+ * @param setExpanded - function that controls the expanded state of the advanced search form
  */
 export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setExpanded }) => {
+  const navigate = useNavigate();
+
+  /** determines whether the date filter section is shown or not */
   const [dateExpanded, setDateExpanded] = React.useState(false);
+  /** controls the parent group "Media Sources" expansion */
   const [mediaExpanded, setMediaExpanded] = React.useState(false);
+  /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
+  const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
+    React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);
+  /** the object that will eventually be converted to a query and be passed to elastic search */
+  const [advancedSearch, setAdvancedSearch] = React.useState<IAdvancedSearchFilter>({
+    searchTerm: '',
+    searchInField: '',
+    startDate: '',
+    endDate: '',
+  });
+
+  const advancedFilter = React.useMemo(
+    () =>
+      makeFilter({
+        headline:
+          advancedSearch?.searchTerm && advancedSearch.searchInField === SearchInFieldName.Headline
+            ? advancedSearch.searchTerm
+            : '',
+        byline:
+          advancedSearch?.searchTerm && advancedSearch.searchInField === SearchInFieldName.Byline
+            ? advancedSearch.searchTerm
+            : '',
+        storyText:
+          advancedSearch?.searchTerm && advancedSearch.searchInField === SearchInFieldName.StoryText
+            ? advancedSearch.searchTerm
+            : '',
+        keyword:
+          advancedSearch?.searchTerm && !advancedSearch.searchInField
+            ? advancedSearch.searchTerm
+            : '',
+        startDate: advancedSearch?.startDate,
+        sourceIds: advancedSearch?.sourceIds,
+        endDate: advancedSearch?.endDate,
+        status: ContentStatus.Published,
+        contentTypes: [],
+        sort: [],
+        pageIndex: 0,
+        pageSize: 100,
+      }),
+    [advancedSearch],
+  );
+
+  const handleSearch = async () => {
+    navigate(`/search/${toQueryString(advancedFilter, { includeEmpty: false })}`);
+  };
+
   const searchInOptions = [
     {
       label: 'Headline',
-      onClick: () => console.log('Headline'),
+      onClick: () => setAdvancedSearch({ ...advancedSearch, searchInField: 'headline' }),
     },
     {
       label: 'Byline',
-      onClick: () => console.log('Byline'),
+      onClick: () => setAdvancedSearch({ ...advancedSearch, searchInField: 'byline' }),
     },
     {
       label: 'Story text',
-      onClick: () => console.log('Story text'),
+      onClick: () => setAdvancedSearch({ ...advancedSearch, searchInField: 'storyText' }),
     },
   ];
+
+  /** allow user to hit enter while searching */
+  const enterPressed = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   return (
     <styled.AdvancedSearch>
       <Show visible={expanded}>
         <p onClick={() => setExpanded(false)} className="back-text">
-          Back to basic search
+          {`<< Back to basic search`}
         </p>
       </Show>
       <Row className="search-bar">
         <GiHamburgerMenu />
-        <Text width="11.5em" className="search-input" name="search" />
-        <FaSearch />
+        <Text
+          width="10.5em"
+          className="search-input"
+          placeholder="Search for..."
+          onKeyDown={enterPressed}
+          name="search"
+          onChange={(e) => setAdvancedSearch({ ...advancedSearch, searchTerm: e.target.value })}
+        />
+        <FaSearch onClick={() => handleSearch()} className="search-icon" />
       </Row>
       <Show visible={!expanded}>
         <p onClick={() => setExpanded(true)} className="use-text">
@@ -52,13 +126,13 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
         </p>
       </Show>
       <Show visible={expanded}>
-        <div className="search-in-group">
+        <div className="search-in-group space-top">
           <b>Search in: </b>
           <ToggleGroup className="toggles" options={searchInOptions} />
         </div>
         <Col className="section narrow">
           <b>Narrow your results by: </b>
-          <Col className={`date-range-group ${dateExpanded ? 'expanded' : ''}`}>
+          <Col className={`date-range-group space-top ${dateExpanded ? 'expanded' : ''}`}>
             <Row>
               <BsCalendarEvent /> Date range
               {!dateExpanded ? (
@@ -73,11 +147,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
                 />
               )}
             </Row>
-            <Show visible={dateExpanded}>
-              <Row className="expanded">
-                <DateFilter />
-              </Row>
-            </Show>
+            <DateSection
+              advancedSearch={advancedSearch}
+              dateExpanded={dateExpanded}
+              setAdvancedSearch={setAdvancedSearch}
+            />
           </Col>
           <Col className={`media-group ${mediaExpanded ? 'expanded' : ''}`}>
             <Row>
@@ -95,15 +169,13 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
                 />
               )}
             </Row>
-            <Show visible={mediaExpanded}>
-              <Col className="expanded">
-                {SubMediaGroups.map((mediaGroup) => (
-                  <Row className="sub-group" key={mediaGroup.label}>
-                    {mediaGroup.label} <IoIosArrowDroprightCircle className="drop-icon" />
-                  </Row>
-                ))}
-              </Col>
-            </Show>
+            <MediaSection
+              advancedSearch={advancedSearch}
+              setAdvancedSearch={setAdvancedSearch}
+              mediaExpanded={mediaExpanded}
+              setmediaGroupExpandedStates={setMediaGroupExpandedStates}
+              mediaGroupExpandedStates={mediaGroupExpandedStates}
+            />
           </Col>
         </Col>
         <Row className="section">
@@ -123,7 +195,9 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
         </Row>
       </Show>
       <Show visible={expanded}>
-        <Button className="search-button">Search</Button>
+        <Button onClick={() => handleSearch()} className="search-button">
+          Search
+        </Button>
       </Show>
     </styled.AdvancedSearch>
   );

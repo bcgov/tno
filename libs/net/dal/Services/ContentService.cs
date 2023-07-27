@@ -274,6 +274,15 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (!string.IsNullOrWhiteSpace(filter.Byline))
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Byline).Value($"*{filter.Byline.ToLower()}*")));
 
+        if (!string.IsNullOrWhiteSpace(filter.StoryText))
+            filterQueries.Add(s => s.MultiMatch(m => m
+                .Fields(f => f
+                    .Field(p => p.Body)
+                    .Field(p => p.Summary)
+                )
+                .Query(filter.StoryText.ToLower())
+            ));
+
         if (filter.OwnerId.HasValue)
             filterQueries.Add(s => s.Term(t => t.OwnerId, filter.OwnerId.Value));
 

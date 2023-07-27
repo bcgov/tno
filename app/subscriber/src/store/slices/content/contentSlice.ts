@@ -12,9 +12,6 @@ export const initialContentState: IContentState = {
   filter: {
     pageIndex: 0,
     pageSize: 100,
-    hasTopic: false,
-    includeHidden: false,
-    sourceId: 0,
     otherSource: '',
     ownerId: '',
     userId: 0,
@@ -22,10 +19,6 @@ export const initialContentState: IContentState = {
     sourceIds: [],
     excludeSourceIds: [],
     contentTypes: [],
-    timeFrame: 0,
-    onTicker: '',
-    commentary: '',
-    topStory: '',
     sort: [],
   },
   filterAdvanced: {
