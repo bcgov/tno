@@ -111,6 +111,12 @@ public class ContentFilter : PageFilter
     public string? Section { get; set; }
 
     /// <summary>
+    /// get/set - The content sentitment.
+    /// </summary>
+    public long[] Sentiment { get; set; } 
+
+
+    /// <summary>
     /// get/set - Only include content with the edition.
     /// </summary>
     public string? Edition { get; set; }
@@ -224,6 +230,7 @@ public class ContentFilter : PageFilter
         this.ContentIds = filter.GetLongArrayValue(nameof(this.ContentIds));
         this.ProductIds = filter.GetLongArrayValue(nameof(this.ProductIds));
         this.SourceIds = filter.GetLongArrayValue(nameof(this.SourceIds));
+        this.Sentiment = filter.GetLongArrayValue(nameof(this.Sentiment));
         this.ExcludeSourceIds = filter.GetIntArrayValue(nameof(this.ExcludeSourceIds));
         this.Actions = filter.GetStringArrayValue(nameof(this.Actions));
         this.Sort = filter.GetStringArrayValue(nameof(this.Sort));

@@ -6,6 +6,7 @@ import {
   IActionModel,
   IConnectionModel,
   IDataLocationModel,
+  IFolderModel,
   IIngestModel,
   IIngestTypeModel,
   ILicenseModel,
@@ -36,6 +37,7 @@ export const initialAdminState: IAdminState = {
     pageSize: 20,
     sort: [],
   },
+  folders: [],
   users: { page: 1, quantity: 20, items: [], total: 0 },
   topics: [],
   rules: [],
@@ -80,6 +82,9 @@ export const adminSlice = createSlice({
     storeIngestTypes(state: IAdminState, action: PayloadAction<IIngestTypeModel[]>) {
       state.ingestTypes = action.payload;
     },
+    storeFolders(state: IAdminState, action: PayloadAction<IFolderModel[]>) {
+      state.folders = action.payload;
+    },
     storeUserFilter(state: IAdminState, action: PayloadAction<IUserListFilter>) {
       state.userFilter = action.payload;
     },
@@ -122,6 +127,7 @@ export const {
   storeDataLocations: storeAdminDataLocations,
   storeProducts: storeAdminProducts,
   storeLicenses: storeAdminLicenses,
+  storeFolders: storeAdminFolders,
   storeIngests: storeAdminIngests,
   storeIngestTypes: storeAdminIngestTypes,
   storeUserFilter: storeAdminUserFilter,

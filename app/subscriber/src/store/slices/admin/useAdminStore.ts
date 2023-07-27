@@ -6,6 +6,7 @@ import {
   IActionModel,
   IConnectionModel,
   IDataLocationModel,
+  IFolderModel,
   IIngestModel,
   IIngestTypeModel,
   ILicenseModel,
@@ -26,6 +27,7 @@ import {
   storeAdminActions,
   storeAdminConnections,
   storeAdminDataLocations,
+  storeAdminFolders,
   storeAdminIngests,
   storeAdminIngestTypes,
   storeAdminLicenses,
@@ -50,6 +52,7 @@ export interface IAdminStore {
   storeActions: (actions: IActionModel[]) => void;
   storeConnections: (connections: IConnectionModel[]) => void;
   storeDataLocations: (dataLocations: IDataLocationModel[]) => void;
+  storeFolders: (folders: IFolderModel[] | ActionDelegate<IFolderModel[]>) => void;
   storeIngests: (ingests: IIngestModel[]) => void;
   storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => void;
   storeLicenses: (licenses: ILicenseModel[]) => void;
@@ -83,6 +86,11 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       },
       storeDataLocations: (dataLocations: IDataLocationModel[]) => {
         dispatch(storeAdminDataLocations(dataLocations));
+      },
+      storeFolders: (folders: IFolderModel[] | ActionDelegate<IFolderModel[]>) => {
+        if (typeof folders === 'function') {
+          dispatch(storeAdminFolders(folders(state.folders)));
+        } else dispatch(storeAdminFolders(folders));
       },
       storeIngests: (ingests: IIngestModel[]) => {
         dispatch(storeAdminIngests(ingests));
@@ -134,7 +142,7 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
         dispatch(storeAdminWorkOrders(workOrders));
       },
     }),
-    [dispatch, state.systemMessages],
+    [dispatch, state.systemMessages, state.folders],
   );
 
   return [state, controller];

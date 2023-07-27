@@ -46,8 +46,8 @@ export const SearchPage: React.FC = () => {
   const search = React.useMemo(
     () =>
       fromQueryString(query, {
-        arrays: ['sourceIds'],
-        numbers: ['sourceIds'],
+        arrays: ['sourceIds', 'sentiment'],
+        numbers: ['sourceIds', 'sentiment'],
       }),
     [query],
   );
@@ -63,6 +63,7 @@ export const SearchPage: React.FC = () => {
         pageSize: convertTo(urlParams.get('pageSize'), 'number', 100),
         sort: [],
         sourceIds: search.sourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
+        sentiment: search.sentiment?.map((v: any) => convertTo(v, 'number', undefined)),
         startDate: urlParams.get('publishedStartOn') ?? '',
         storyText: urlParams.get('storyText') ?? '',
       };

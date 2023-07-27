@@ -22,6 +22,7 @@ export interface ISubscriberContentFilter extends ISortPageFilter {
   publishedOn?: string;
   publishedStartOn?: string;
   section?: string;
+  sentiment?: number[];
   sourceIds?: number[];
   status?: ContentStatus;
   storyText?: string;

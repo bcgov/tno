@@ -9,4 +9,6 @@ export interface IAdvancedSearchFilter {
   startDate: string;
   /** date range end date */
   endDate: string;
+  /** sentiment min max */
+  sentiment?: number[];
 }

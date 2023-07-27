@@ -4,6 +4,11 @@ import { Col } from 'tno-core';
 export const ViewContentToolbar = styled(Col)`
   max-height: 10em;
   width: 100%;
+  .folder-menu {
+    /* boxs hadow */
+    box-shadow: 0 0 0.5rem ${(props) => props.theme.css.searchItemHover};
+    opacity: 1;
+  }
   .main-row {
     display: flex;
     /* number found manually for smoothness of resize */
@@ -22,7 +27,7 @@ export const ViewContentToolbar = styled(Col)`
     color: #5c5954;
   }
   .action-icons {
-    svg {
+    svg:not(.popout-icon) {
       &:focus {
         outline: none;
       }
@@ -31,11 +36,11 @@ export const ViewContentToolbar = styled(Col)`
       margin-left: 0.5rem;
       height: 1.85rem;
       width: 2.5rem;
-      color: #a5a4bf;
+      color: ${(props) => props.theme.css.sideBarIconColor};
       padding-bottom: 0.25em;
       &:hover {
         transform: scale(1.1);
-        color: #da6d78;
+        color: ${(props) => props.theme.css.sideBarIconHoverColor};
       }
     }
     align-content: center;

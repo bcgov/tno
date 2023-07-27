@@ -7,6 +7,7 @@ import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
 import { FrontPages } from 'features/front-pages';
 import { Home } from 'features/home';
+import { MyFolders } from 'features/my-folders';
 import { MyMinister } from 'features/my-minister/MyMinister';
 import { MyMinisterSettings } from 'features/settings';
 import { TodaysCommentary } from 'features/todays-commentary';
@@ -90,6 +91,9 @@ export const Landing: React.FC = () => {
                     </p>
                   ),
                 )}
+            </Show>
+            <Show visible={activeItem === SidebarMenuItems.folders.label}>
+              <MyFolders />
             </Show>
           </div>
         </Col>

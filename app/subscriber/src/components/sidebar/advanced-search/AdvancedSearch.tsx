@@ -1,13 +1,13 @@
 import { makeFilter } from 'features';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
-import { FaSearch } from 'react-icons/fa';
+import { FaRegSmile, FaSearch } from 'react-icons/fa';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle, IoIosCog } from 'react-icons/io';
 import { useNavigate } from 'react-router';
 import { Button, Col, ContentStatus, Row, Show, Text, ToggleGroup, toQueryString } from 'tno-core';
 
-import { DateSection, MediaSection } from './components';
+import { DateSection, MediaSection, SentimentSection } from './components';
 import { SearchInFieldName } from './constants';
 import {
   defaultSubMediaGroupExpanded,
@@ -36,6 +36,8 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
   /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
   const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
     React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);
+  /** controls the sub group statee for sentiment */
+  const [sentimentExpanded, setSentimentExpanded] = React.useState(false);
   /** the object that will eventually be converted to a query and be passed to elastic search */
   const [advancedSearch, setAdvancedSearch] = React.useState<IAdvancedSearchFilter>({
     searchTerm: '',
@@ -65,6 +67,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
             : '',
         startDate: advancedSearch?.startDate,
         sourceIds: advancedSearch?.sourceIds,
+        sentiment: advancedSearch?.sentiment,
         endDate: advancedSearch?.endDate,
         status: ContentStatus.Published,
         contentTypes: [],
@@ -74,6 +77,8 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
       }),
     [advancedSearch],
   );
+
+  console.log(advancedSearch);
 
   const handleSearch = async () => {
     navigate(`/search/${toQueryString(advancedFilter, { includeEmpty: false })}`);
@@ -175,6 +180,29 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
               mediaExpanded={mediaExpanded}
               setmediaGroupExpandedStates={setMediaGroupExpandedStates}
               mediaGroupExpandedStates={mediaGroupExpandedStates}
+            />
+          </Col>
+          {/*  */}
+          <Col className={`sentiment-group ${sentimentExpanded ? 'expanded' : ''}`}>
+            <Row>
+              <FaRegSmile />
+              Sentiment
+              {!sentimentExpanded ? (
+                <IoIosArrowDroprightCircle
+                  onClick={() => setSentimentExpanded(true)}
+                  className="drop-icon"
+                />
+              ) : (
+                <IoIosArrowDropdownCircle
+                  onClick={() => setSentimentExpanded(false)}
+                  className="drop-icon"
+                />
+              )}
+            </Row>
+            <SentimentSection
+              sentimentExpanded={sentimentExpanded}
+              advancedSearch={advancedSearch}
+              setAdvancedSearch={setAdvancedSearch}
             />
           </Col>
         </Col>

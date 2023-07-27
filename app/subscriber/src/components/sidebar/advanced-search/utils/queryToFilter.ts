@@ -29,6 +29,7 @@ export const queryToFilter = (
       pageSize: convertTo(search.pageSize, 'number', filter.pageSize),
       productIds: search.productIds?.map((v: any) => convertTo(v, 'number', undefined)),
       sourceIds: search.sourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
+      sentiment: search.sentiment?.map((v: any) => convertTo(v, 'number', undefined)),
       storyText: convertTo(search.storyText, 'string', filter.storyText),
     };
   }

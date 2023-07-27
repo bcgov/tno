@@ -1466,6 +1466,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.10.1":
+  version: 7.22.6
+  resolution: "@babel/runtime@npm:7.22.6"
+  dependencies:
+    regenerator-runtime: ^0.13.11
+  checksum: e585338287c4514a713babf4fdb8fc2a67adcebab3e7723a739fc62c79cfda875b314c90fd25f827afb150d781af97bc16c85bfdbfa2889f06053879a1ddb597
+  languageName: node
+  linkType: hard
+
 "@babel/template@npm:^7.18.10, @babel/template@npm:^7.3.3":
   version: 7.18.10
   resolution: "@babel/template@npm:7.18.10"
@@ -5168,7 +5177,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"classnames@npm:^2.2.6, classnames@npm:^2.3.2":
+"classnames@npm:^2.2.5, classnames@npm:^2.2.6, classnames@npm:^2.3.2":
   version: 2.3.2
   resolution: "classnames@npm:2.3.2"
   checksum: 2c62199789618d95545c872787137262e741f9db13328e216b093eea91c85ef2bfb152c1f9e63027204e2559a006a92eb74147d46c800a9f96297ae1d9f96f4e
@@ -10350,6 +10359,7 @@ __metadata:
     prettier: 2.8.4
     pretty: 2.0.0
     pretty-quick: 3.1.3
+    rc-slider: ^10.2.1
     react: 18.2.0
     react-datepicker: 4.10.0
     react-device-detect: 2.2.3
@@ -10374,7 +10384,7 @@ __metadata:
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
     styled-components: 5.3.9
-    tno-core: ./tno-core-0.0.280.tgz
+    tno-core: 0.0.282
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -12259,6 +12269,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rc-slider@npm:^10.2.1":
+  version: 10.2.1
+  resolution: "rc-slider@npm:10.2.1"
+  dependencies:
+    "@babel/runtime": ^7.10.1
+    classnames: ^2.2.5
+    rc-util: ^5.27.0
+  peerDependencies:
+    react: ">=16.9.0"
+    react-dom: ">=16.9.0"
+  checksum: 565eb55302c776a7a48bfbe6761f52bab6b0d3ea4f53fc10d32ae9958340708bc5072a9c254bb5ddfa822492093032b94cb03d5e52cdff774e076b90e20b9145
+  languageName: node
+  linkType: hard
+
+"rc-util@npm:^5.27.0":
+  version: 5.35.0
+  resolution: "rc-util@npm:5.35.0"
+  dependencies:
+    "@babel/runtime": ^7.18.3
+    react-is: ^16.12.0
+  peerDependencies:
+    react: ">=16.9.0"
+    react-dom: ">=16.9.0"
+  checksum: 8e99225c7d964d0be7b011e1b945822673f83437098bee5871d45d49531ac3d08128ddcaf0c0b503aad26feeced15a455082de179dd8c546be0f0281d8e7c176
+  languageName: node
+  linkType: hard
+
 "react-app-polyfill@npm:^3.0.0":
   version: 3.0.0
   resolution: "react-app-polyfill@npm:3.0.0"
@@ -12408,7 +12445,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.13.1, react-is@npm:^16.7.0":
+"react-is@npm:^16.12.0, react-is@npm:^16.13.1, react-is@npm:^16.7.0":
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
   checksum: f7a19ac3496de32ca9ae12aa030f00f14a3d45374f1ceca0af707c831b2a6098ef0d6bdae51bd437b0a306d7f01d4677fcc8de7c0d331eb47ad0f46130e53c5f
@@ -12865,7 +12902,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"regenerator-runtime@npm:^0.13.10, regenerator-runtime@npm:^0.13.9":
+"regenerator-runtime@npm:^0.13.10, regenerator-runtime@npm:^0.13.11, regenerator-runtime@npm:^0.13.9":
   version: 0.13.11
   resolution: "regenerator-runtime@npm:0.13.11"
   checksum: 27481628d22a1c4e3ff551096a683b424242a216fee44685467307f14d58020af1e19660bf2e26064de946bad7eff28950eae9f8209d55723e2d9351e632bbb4
@@ -14272,9 +14309,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@file:./tno-core-0.0.280.tgz::locator=mmia-subscriber-app%40workspace%3A.":
-  version: 0.0.280
-  resolution: "tno-core@file:./tno-core-0.0.280.tgz::locator=mmia-subscriber-app%40workspace%3A."
+"tno-core@npm:0.0.282":
+  version: 0.0.282
+  resolution: "tno-core@npm:0.0.282"
   dependencies:
     "@fortawesome/free-solid-svg-icons": ^6.3.0
     "@fortawesome/react-fontawesome": ^0.2.0
@@ -14301,7 +14338,7 @@ __metadata:
     react-tooltip: ^5.10.0
     styled-components: ^5.3.9
     yup: ^1.1.1
-  checksum: 12b9597ed7fe0c65a4f42705a2a046fd570964e1a0d6cfbfd807a8adf68daf1ee5a32f379e6019db38a77199923af3e82b67ee203ff76f47e8a7ae38aadefed9
+  checksum: 527ce496f051e1a8f8e05fd695bfb189a33018476578ae0267e4ff18d40a8a64823596d9071304002908efa84ef588109f966c9c3aa915cd420314dbcf4abb96
   languageName: node
   linkType: hard
 
