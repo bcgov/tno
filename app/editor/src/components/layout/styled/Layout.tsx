@@ -24,7 +24,6 @@ export const Layout = styled.div`
     flex-grow: 1;
     padding: 10px;
     position: relative;
-    overflow-y: auto;
     margin: 0px;
     padding: 0;
     display: flex;

@@ -29,7 +29,9 @@ export const FormikSelect = <OptionType extends IOptionItem>({
 
   const errorMessage = getIn(errors, name);
   const error = errorMessage && getIn(touched, name) && errorMessage;
-  const value = options.find((option) => option.value === (values as any)[name]);
+  const value = values
+    ? options.find((option) => option.value === (values as any)[name])
+    : undefined;
 
   return (
     <styled.FormikSelect>

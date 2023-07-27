@@ -79,7 +79,9 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
       &.active {
         background-color: rgb(56, 89, 138);
         border-radius: 0.25rem;
-        color: #fff;
+        color: black;
+        z-index: 2;
+        position: relative;
       }
     }
 

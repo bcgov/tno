@@ -95,6 +95,7 @@ export const Select = <OptionType extends IOptionItem>({
   onKeyDownCapture,
   onKeyUp,
   onKeyUpCapture,
+  onBlur,
   ...rest
 }: ISelectProps<OptionType>) => {
   const selectRef = React.useRef<any>(null);
@@ -146,6 +147,9 @@ export const Select = <OptionType extends IOptionItem>({
             onFocus={(e: any) => {
               const input = e.target as HTMLSelectElement;
               input?.setCustomValidity('');
+            }}
+            onBlur={(e: any) => {
+              onBlur?.(e);
             }}
             {...rest}
           />
