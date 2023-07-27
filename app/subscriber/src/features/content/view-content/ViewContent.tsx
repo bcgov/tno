@@ -19,11 +19,11 @@ import {
   WorkOrderTypeName,
 } from 'tno-core';
 
+import { useMinisters } from 'store/hooks/subscriber/useMinisters';
 import * as styled from './styled';
 import { formatTime, isWorkOrderStatus } from './utils';
 import { WorkOrderStatus } from './utils/WorkOrderStatus';
 import { ViewContentToolbar } from './ViewContentToolbar';
-import { useMinisters } from 'store/hooks/subscriber/useMinisters';
 
 export interface IStream {
   url: string;
@@ -95,7 +95,7 @@ export const ViewContent: React.FC = () => {
       let tempBody = content?.body;
       let tempSummary = content?.summary;
       aliases.length &&
-      aliases.forEach((ministerAlias: string, index: number) => {
+        aliases.forEach((ministerAlias: string, index: number) => {
           const regex = new RegExp(ministerAlias ?? '', 'gi');
           if (content?.summary && !content.summary.includes(`<b>${ministerAlias}</b>`)) {
             tempSummary = tempSummary?.replace(regex, `<b>${ministerAlias}</b>`);
