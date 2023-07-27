@@ -23,7 +23,7 @@ export const makeFilter = (
     productIds: filter.productIds ?? undefined,
     publishedEndOn: filter.endDate ? filter.endDate : undefined,
     publishedStartOn: filter.startDate ? filter.startDate : undefined,
-    sentiment: filter.sentiment ?? undefined,
+    sentiment: filter.sentiment,
     sourceIds: filter.sourceIds ?? undefined,
     status: filter.status ?? undefined,
     storyText: filter.storyText ?? undefined,

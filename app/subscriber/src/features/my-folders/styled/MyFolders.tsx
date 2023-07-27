@@ -33,10 +33,6 @@ export const MyFolders = styled(Col)`
         box-shadow: none;
       }
     }
-    .group {
-      background-color: #f9f9f9 !important;
-      font-family: ${(props) => props.theme.css?.bcSans};
-    }
     .header {
       background-color: #f5f6fa;
       font-family: 'Roboto', sans-serif;

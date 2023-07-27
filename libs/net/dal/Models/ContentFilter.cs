@@ -111,12 +111,6 @@ public class ContentFilter : PageFilter
     public string? Section { get; set; }
 
     /// <summary>
-    /// get/set - The content sentitment.
-    /// </summary>
-    public long[] Sentiment { get; set; } 
-
-
-    /// <summary>
     /// get/set - Only include content with the edition.
     /// </summary>
     public string? Edition { get; set; }
@@ -178,6 +172,11 @@ public class ContentFilter : PageFilter
     /// get/set - Sort the content in the specified order.
     /// </summary>
     public string[] Sort { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// get/set - The content sentitment.
+    /// </summary>
+    public long[] Sentiment { get; set; } = Array.Empty<long>();
 
     /// <summary>
     /// get/set - The story text to search for.
