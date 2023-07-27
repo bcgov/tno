@@ -63,7 +63,7 @@ export const ViewContent: React.FC = () => {
     }
   }, [workOrders, transcribe, content]);
 
-  const path = content?.fileReferences ? content?.fileReferences[0]?.path : '';
+  const fileReference = content?.fileReferences ? content?.fileReferences[0] : undefined;
 
   const myMinisters = userInfo?.preferences?.myMinisters;
 
@@ -96,20 +96,19 @@ export const ViewContent: React.FC = () => {
   }, [content, myMinisters, boldingComplete]);
 
   React.useEffect(() => {
-    if (!!path)
-      stream(path).then((result) => {
-        const mimeType = 'video/mp4';
+    if (!!fileReference)
+      stream(fileReference.path).then((result) => {
         setAVStream(
           !!result
             ? {
-                url: `data:${mimeType};base64,` + result,
-                type: mimeType,
+                url: `data:${fileReference.contentType};base64,` + result,
+                type: fileReference.contentType,
               }
             : undefined,
         );
       });
     else setAVStream(undefined);
-  }, [stream, path]);
+  }, [stream, fileReference]);
 
   const fetchContent = React.useCallback(
     (id: number) => {
@@ -186,12 +185,19 @@ export const ViewContent: React.FC = () => {
       </Row>
       <Show visible={!!avStream && content?.contentType === ContentTypeName.AudioVideo}>
         <Row justifyContent="center">
-          <video
-            controls
-            height={width! > 500 ? '270' : 135}
-            width={width! > 500 ? 480 : 240}
-            src={!!avStream?.url ? avStream?.url : ''}
-          />
+          <Show visible={fileReference?.contentType === 'audio/mpeg'}>
+            <audio src={avStream?.url} controls>
+              HTML5 Audio is required
+            </audio>
+          </Show>
+          <Show visible={fileReference?.contentType === 'video/mpeg'}>
+            <video
+              controls
+              height={width! > 500 ? '270' : 135}
+              width={width! > 500 ? 480 : 240}
+              src={!!avStream?.url ? avStream?.url : ''}
+            />
+          </Show>
         </Row>
       </Show>
       <Show visible={!!avStream && content?.contentType === ContentTypeName.Image}>
