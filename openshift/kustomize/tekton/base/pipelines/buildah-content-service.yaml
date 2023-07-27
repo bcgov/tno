@@ -56,13 +56,9 @@ spec:
     - name: source
       description: |
         Git repo source code.
-      persistentVolumeClaim:
-        claimName: pipelines
     - name: conditions
       description: |
         Pipeline configuration file.
-      persistentVolumeClaim:
-        claimName: pipelines
     - name: build
       description: |
         Pipeline build volume
