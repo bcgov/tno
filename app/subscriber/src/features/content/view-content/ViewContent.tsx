@@ -15,14 +15,15 @@ import {
   IWorkOrderModel,
   Row,
   Show,
+  useWindowSize,
   WorkOrderStatusName,
   WorkOrderTypeName,
-  useWindowSize,
 } from 'tno-core';
-import { ViewContentToolbar } from './ViewContentToolbar';
+
 import * as styled from './styled';
 import { formatTime, isWorkOrderStatus } from './utils';
 import { WorkOrderStatus } from './utils/WorkOrderStatus';
+import { ViewContentToolbar } from './ViewContentToolbar';
 
 export interface IStream {
   url: string;
