@@ -33,7 +33,7 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
         isEnabled: true,
         sortOrder: 0,
         id: 0,
-        content: [{ sortOrder: 0, contentId: content.id }],
+        content: [{ ...content, sortOrder: 0, contentId: content.id }],
       }).then((data) => {
         toast.success(`${folderName} created and "${content.headline}" added to folder.`);
         setFolderName('');
@@ -46,7 +46,7 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
     if (!!content) {
       updateFolder({
         ...folder,
-        content: [...folder.content, { sortOrder: 0, contentId: content.id }],
+        content: [...folder.content, { ...content, sortOrder: 0, contentId: content.id }],
       }).then((data) => {
         toast.success(`${content.headline} added to folder`);
       });
