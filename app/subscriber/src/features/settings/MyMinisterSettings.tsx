@@ -52,9 +52,8 @@ export const MyMinisterSettings: React.FC = () => {
         } as IUserModel;
         api.updateUser(user, userInfo?.id ?? 0);
         toast.success(
-          `Due to the following minister(s) no longer being active, ` +
-            `your selection has been updated automatically: ` +
-            `${inactiveSelectedMinisters.join(', ')}`,
+          'One of more of your selected ministers are no longer enabled. ' +
+            'Your selection has been updated automatically: ',
         );
         store.storeUserInfo(user as IUserInfoModel);
       }
