@@ -4,6 +4,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useWorkOrders } from 'store/hooks';
+import { useMinisters } from 'store/hooks/subscriber/useMinisters';
 import {
   Button,
   ButtonVariant,
@@ -14,16 +15,14 @@ import {
   IWorkOrderModel,
   Row,
   Show,
-  useWindowSize,
   WorkOrderStatusName,
   WorkOrderTypeName,
+  useWindowSize,
 } from 'tno-core';
-
-import { useMinisters } from 'store/hooks/subscriber/useMinisters';
+import { ViewContentToolbar } from './ViewContentToolbar';
 import * as styled from './styled';
 import { formatTime, isWorkOrderStatus } from './utils';
 import { WorkOrderStatus } from './utils/WorkOrderStatus';
-import { ViewContentToolbar } from './ViewContentToolbar';
 
 export interface IStream {
   url: string;
