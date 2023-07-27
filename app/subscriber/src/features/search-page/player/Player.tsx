@@ -1,7 +1,7 @@
 import { IStream } from 'features/content/view-content';
 import React from 'react';
 import { useContent } from 'store/hooks';
-import { Col, IContentModel, Row, useWindowSize } from 'tno-core';
+import { Col, IContentModel, Row, Show, useWindowSize } from 'tno-core';
 
 import { stripHtml } from '../utils';
 import * as styled from './styled';
@@ -16,23 +16,22 @@ export const Player: React.FC<IPlayerProps> = ({ content, setPlayerOpen }) => {
   const [avStream, setAVStream] = React.useState<IStream>();
   const [, { stream }] = useContent();
   const { width } = useWindowSize();
-  const path = content?.fileReferences ? content.fileReferences[0]?.path : '';
+  const fileReference = content?.fileReferences ? content?.fileReferences[0] : undefined;
 
   React.useEffect(() => {
-    if (!!path)
-      stream(path).then((result) => {
-        const mimeType = 'video/mp4';
+    if (!!fileReference)
+      stream(fileReference.path).then((result) => {
         setAVStream(
           !!result
             ? {
-                url: `data:${mimeType};base64,` + result,
-                type: mimeType,
+                url: `data:${fileReference.contentType};base64,` + result,
+                type: fileReference.contentType,
               }
             : undefined,
         );
       });
     else setAVStream(undefined);
-  }, [stream, path]);
+  }, [stream, fileReference]);
 
   return (
     <styled.Player>
@@ -44,12 +43,19 @@ export const Player: React.FC<IPlayerProps> = ({ content, setPlayerOpen }) => {
       </Row>
       <div className="body">
         <Row justifyContent="center">
-          <video
-            controls
-            height={width! > 500 ? '270' : 135}
-            width={width! > 500 ? 480 : 240}
-            src={!!avStream?.url ? avStream?.url : ''}
-          />
+          <Show visible={fileReference?.contentType === 'audio/mpeg'}>
+            <audio src={avStream?.url} controls>
+              HTML5 Audio is required
+            </audio>
+          </Show>
+          <Show visible={fileReference?.contentType === 'video/mpeg'}>
+            <video
+              controls
+              height={width! > 500 ? '270' : 135}
+              width={width! > 500 ? 480 : 240}
+              src={!!avStream?.url ? avStream?.url : ''}
+            />
+          </Show>
         </Row>
         <Col>
           <p className="source">{content?.source?.name}</p>
