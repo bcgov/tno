@@ -1,0 +1,115 @@
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: content-service-webhook
+  component: app
+spec:
+  serviceAccountName: pipeline
+  triggers: 
+    - name: content-service-listener
+      interceptors:
+        - ref:
+            name: "github"
+          params:
+            - name: "eventTypes"
+              value: ["pull_request", "push"]
+            - name: "addChangedFiles"
+              value:
+                enabled: true
+            - name: "secretRef"
+              value:
+                secretName: tno-webhook
+                secretKey: webhook
+            - name: "overlays"
+              value:
+                - key: truncated_sha
+                  expression: "body.pull_request.head.sha.truncate(7)"
+        - ref:
+            name: cel
+          params:
+          - name: filter
+            # execute only when a file within the {services/net/content/} directory has changed
+            value: extensions.changed_files.matches('services/net/content/')
+      bindings:
+        - ref: git-dev-content-service
+      template:
+        ref: git-app-content-service
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: git-dev-content-service
+spec:
+  params:
+    - name: GIT_URL
+      value: https://github.com/$(body.repository.full_name)
+    - name: GIT_REF
+      value: $(body.head_commit.id)
+    - name: VERSION
+      value: latest-$(extensions.truncated_sha)
+    - name: DEPLOY_TO
+      value: dev
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: git-app-content-service
+  component: app
+spec:
+  params:
+    - name: GIT_SOURCE
+      description: Identify the git source
+    - name: VERSION
+      description: The version to tag the image with
+    - name: DEPLOY_TO
+      description: The environment to deploy to
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: buildah-service-$(tt.params.VERSION)-
+        annotations:
+          description: >-
+            Build an docker image from a GIT repository using an existing BuildConfig.
+            Then deploy to the specified environment.
+          tags: "oc,git,docker,build,deploy"
+        labels:
+          name: buildah-service-$(tt.params.VERSION)
+          part-of: tno
+          version: $(tt.params.VERSION)
+          component: pipeline
+          managed-by: kustomize
+          tekton.dev/pipeline: buildah-service
+      spec:
+        pipelineRef:
+          name: buildah-service
+        serviceAccountName: pipeline
+        timeout: 1h45m0s
+        params:
+          - name: GIT_REF
+            value: $(tt.params.GIT_SOURCE)
+          - name: IMAGE_TAG
+            value: $(tt.params.VERSION)
+          - name: CONTEXT
+            value: tno
+          - name: DEPLOY_TO
+            value: $(tt.params.DEPLOY_TO)
+        workspaces:
+          - name: source
+            persistentVolumeClaim:
+              claimName: pipelines
+          - name: conditions
+            volumeClaimTemplate:
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 50Mi
+                storageClassName: netapp-file-standard
+                volumeMode: Filesystem
+          - name: build
+            emptyDir: {}
+          - name: owasp-settings
+            emptyDir: {}
