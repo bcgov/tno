@@ -84,27 +84,32 @@ export const TopicList: React.FC = () => {
     try {
       var results = [...items];
       let updatedTopics: ITopicModel[];
+      const existsTopic = topics.find((x) => x.name === values.name);
       if (values.id === 0) {
-        const topic = topics.find((x) => x.name === values.name);
-        if (!topic) {
+        if (!existsTopic) {
           const result = await api.addTopic(values);
           results = [...items, result];
           updatedTopics = [...topics, result];
         } else {
           const result = await api.updateTopic({
-            ...topic,
+            ...existsTopic,
             isEnabled: values.isEnabled,
             description: values.description,
             topicType: values.topicType,
           });
-          if (topic.isEnabled) results = items.map((i) => (i.id === result.id ? result : i));
+          if (existsTopic.isEnabled) results = items.map((i) => (i.id === result.id ? result : i));
           else if (values.isEnabled) results = [...items, result];
-          updatedTopics = topics.map((i) => (i.id === topic.id ? result : i));
+          updatedTopics = topics.map((i) => (i.id === existsTopic.id ? result : i));
         }
       } else {
-        const result = await api.updateTopic(values);
-        results = items.map((i) => (i.id === values.id ? result : i));
-        updatedTopics = topics.map((i) => (i.id === topic.id ? result : i));
+        if (!existsTopic) {
+          const result = await api.updateTopic(values);
+          results = items.map((i) => (i.id === values.id ? result : i));
+          updatedTopics = topics.map((i) => (i.id === topic.id ? result : i));
+        } else {
+          toast.warn(`${values.name} already exists.`);
+          return;
+        }
       }
       setItems(results.filter((x) => x.isEnabled));
       setTopics(updatedTopics);
