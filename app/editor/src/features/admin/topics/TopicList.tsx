@@ -102,7 +102,7 @@ export const TopicList: React.FC = () => {
           updatedTopics = topics.map((i) => (i.id === existsTopic.id ? result : i));
         }
       } else {
-        if (!existsTopic) {
+        if (!existsTopic || values.id === existsTopic.id) {
           const result = await api.updateTopic(values);
           results = items.map((i) => (i.id === values.id ? result : i));
           updatedTopics = topics.map((i) => (i.id === topic.id ? result : i));
