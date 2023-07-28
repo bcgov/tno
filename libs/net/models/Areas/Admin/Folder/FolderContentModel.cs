@@ -1,18 +1,18 @@
 namespace TNO.API.Areas.Admin.Models.Folder;
 
 /// <summary>
-/// FolderContentModel class, provides a model that represents an user.
+/// FolderContentModel class, provides a model that represents the folder content.
 /// </summary>
 public class FolderContentModel
 {
     #region Properties
     /// <summary>
-    /// get/set - Primary key to user.
+    /// get/set -  The content id.
     /// </summary>
     public long ContentId { get; set; }
 
     /// <summary>
-    /// get/set - Unique username to identify user.
+    /// get/set - The sort order.
     /// </summary>
     public int SortOrder { get; set; }
     #endregion

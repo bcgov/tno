@@ -221,6 +221,9 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (filter.ExcludeSourceIds.Any())
             filterQueries.Add(s => !s.Terms(t => t.Field(f => f.SourceId).Terms(filter.ExcludeSourceIds)));
 
+        if (filter.Sentiment.Any())
+            filterQueries.Add(s => s.Nested(n => n.Path(p => p.TonePools).Query(y => y.Range(m => m.Field("tonePools.value").GreaterThanOrEquals(filter.Sentiment.First()).LessThanOrEquals(filter.Sentiment.Last())))));
+        
         if (filter.ProductIds.Any())
             filterQueries.Add(s => s.Terms(t => t.Field(f => f.ProductId).Terms(filter.ProductIds)));
 

@@ -8,7 +8,6 @@ namespace TNO.DAL.Services;
 
 public class FolderService : BaseService<Folder, int>, IFolderService
 {
-
     #region Constructors
     public FolderService(TNOContext dbContext, ClaimsPrincipal principal, IServiceProvider serviceProvider, ILogger<TagService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
@@ -30,6 +29,16 @@ public class FolderService : BaseService<Folder, int>, IFolderService
             .Include(f => f.Owner)
             .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content)
             .FirstOrDefault(f => f.Id == id);
+    }
+
+    public IEnumerable<Folder> FindMyFolders(int userId)
+    {
+        return this.Context.Folders
+            .Include(f => f.Owner)
+            .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content)
+            .Include(f => f.Content)
+            .Where(f => f.OwnerId == userId)
+            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
     #endregion
 
