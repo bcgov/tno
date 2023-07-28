@@ -57,7 +57,8 @@ export const TopicList: React.FC = () => {
   }, [api, items.length, loading]);
 
   React.useEffect(() => {
-    changeParentOverflow();
+    const mainElement = document.querySelector('main');
+    (mainElement as any).style.overflowY = 'hidden';
   }, []);
 
   React.useEffect(() => {
@@ -122,11 +123,6 @@ export const TopicList: React.FC = () => {
     } catch {
       // Ignore error as it's handled globally.
     }
-  };
-
-  const changeParentOverflow = () => {
-    let mainElement = document.querySelector('main');
-    (mainElement as any).style.overflowY = 'hidden';
   };
 
   return (
