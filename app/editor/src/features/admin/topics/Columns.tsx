@@ -50,7 +50,7 @@ export const Columns = (
             }
             onBlur={async () => await handleBlur(cell)}
             onChange={async (e: any) => await handleChange(e, cell)}
-            style={{ height: 35 }}
+            style={{ height: 35, width: '100%' }}
           />
         );
       },

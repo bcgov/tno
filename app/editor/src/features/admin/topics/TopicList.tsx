@@ -57,11 +57,6 @@ export const TopicList: React.FC = () => {
   }, [api, items.length, loading]);
 
   React.useEffect(() => {
-    const mainElement = document.querySelector('main');
-    (mainElement as any).style.overflowY = 'hidden';
-  }, []);
-
-  React.useEffect(() => {
     const topic = items.find((i) => i.id === topicId) ?? defaultTopic;
     setTopic(topic);
   }, [topicId, items]);
@@ -158,47 +153,42 @@ export const TopicList: React.FC = () => {
             >
               {({ isSubmitting, values, setValues }) => (
                 <>
-                  <Row justifyContent="space-between">
-                    <Row>
-                      <FormikText name="name" label="Name" width="208px" />
-                      <FormikSelect
-                        label="Type"
-                        name="topicType"
-                        options={topicTypeOptions}
-                        value={topicTypeOptions.find((o) => o.value === values.topicType)}
-                        width={FieldSize.Medium}
-                      />
-                    </Row>
-                    <Row alignItems="self-end" style={{ paddingBottom: '7px' }}>
-                      <Button
-                        type="submit"
-                        variant={ButtonVariant.primary}
-                        disabled={
-                          isSubmitting || !values.name || !values.topicType || (!!id && id !== '0')
-                        }
-                      >
-                        Save
-                      </Button>
-                      <Button
-                        disabled={isSubmitting || id === '0'}
-                        onClick={() => {
-                          navigate('/admin/topics/0');
-                        }}
-                      >
-                        Create New Issue/Topic
-                      </Button>
-                    </Row>
+                  <Row>
+                    <h2>Create new topic (Event of the Day)</h2>
+                  </Row>
+                  <Row alignItems="center">
+                    <FormikText name="name" label="Topic" width="208px" />
+                    <FormikSelect
+                      label="Type"
+                      name="topicType"
+                      options={topicTypeOptions}
+                      value={topicTypeOptions.find((o) => o.value === values.topicType)}
+                      width={FieldSize.Medium}
+                    />
+                    <Button
+                      type="submit"
+                      variant={ButtonVariant.primary}
+                      disabled={
+                        isSubmitting || !values.name || !values.topicType || (!!id && id !== '0')
+                      }
+                      style={{ marginTop: '15px' }}
+                    >
+                      Save
+                    </Button>
                   </Row>
                 </>
               )}
             </FormikForm>
+            <br />
+            <Row>
+              <h2>Current topics</h2>
+            </Row>
             <FlexboxTable
               rowId="id"
               data={items}
               columns={Columns(handleRemove, handleSubmit)}
               showSort={true}
               activeRowId={id}
-              onRowClick={(row) => navigate(`/admin/topics/${row.original.id}`)}
               pagingEnabled={false}
             />
           </Col>
