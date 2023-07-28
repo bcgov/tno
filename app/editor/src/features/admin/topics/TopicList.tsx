@@ -18,7 +18,8 @@ import {
   TopicTypeName,
 } from 'tno-core';
 
-import { Columns, defaultTopic } from './constants';
+import { Columns } from './Columns';
+import { defaultTopic } from './constants';
 import * as styled from './styled';
 import { TopicFilter } from './TopicFilter';
 

@@ -33,7 +33,7 @@ export const Columns = (
 
   const topicTypeOptions = getEnumStringOptions(TopicTypeName);
 
-  const columns: ITableHookColumn<ITopicModel>[] = [
+  const result: ITableHookColumn<ITopicModel>[] = [
     {
       label: 'Name',
       name: 'name',
@@ -106,5 +106,5 @@ export const Columns = (
     },
   ];
 
-  return columns;
+  return result;
 };
