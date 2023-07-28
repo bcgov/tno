@@ -5,6 +5,10 @@ export const TopicList = styled.div`
   display: flex;
   justify-content: center;
 
+  .rows {
+    overflow-y: hidden;
+  }
+
   .form-page {
     display: flex;
     gap: 1em;
@@ -34,7 +38,6 @@ export const TopicList = styled.div`
   }
 
   .table {
-    max-height: calc(100% - 400px);
     min-height: 200px;
   }
 

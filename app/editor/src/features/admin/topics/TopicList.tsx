@@ -57,12 +57,7 @@ export const TopicList: React.FC = () => {
 
   React.useEffect(() => {
     changeParentOverflow();
-    window.addEventListener('resize', updateMaxHeight);
   }, []);
-
-  React.useEffect(() => {
-    if (items.length && !loading) updateMaxHeight();
-  }, [items.length, loading]);
 
   React.useEffect(() => {
     const topic = items.find((i) => i.id === topicId) ?? defaultTopic;
@@ -91,15 +86,18 @@ export const TopicList: React.FC = () => {
           results = [...items, result];
           updatedTopics = [...topics, result];
         } else {
-          const result = await api.updateTopic({
-            ...existsTopic,
-            isEnabled: values.isEnabled,
-            description: values.description,
-            topicType: values.topicType,
-          });
-          if (existsTopic.isEnabled) results = items.map((i) => (i.id === result.id ? result : i));
-          else if (values.isEnabled) results = [...items, result];
-          updatedTopics = topics.map((i) => (i.id === existsTopic.id ? result : i));
+          if (existsTopic.isEnabled) {
+            toast.warn(`${values.name} already exists.`);
+            return;
+          } else {
+            const result = await api.updateTopic({
+              ...existsTopic,
+              isEnabled: values.isEnabled,
+              topicType: values.topicType,
+            });
+            results = [...items, result];
+            updatedTopics = topics.map((i) => (i.id === existsTopic.id ? result : i));
+          }
         }
       } else {
         if (!existsTopic || values.id === existsTopic.id) {
@@ -118,19 +116,11 @@ export const TopicList: React.FC = () => {
       if (!id || id === '0') {
         values.name = defaultTopic.name;
         values.topicType = defaultTopic.topicType;
+        if (id === '0') navigate('/admin/topics');
       }
     } catch {
       // Ignore error as it's handled globally.
     }
-  };
-
-  const updateMaxHeight = () => {
-    const element = document.querySelector('.table');
-    const screenHeight = window.innerHeight;
-
-    let maxHeight = screenHeight * 0.33;
-    if (maxHeight < 550 && screenHeight >= 950) maxHeight = 550;
-    (element as any).style.maxHeight = `${maxHeight}px`;
   };
 
   const changeParentOverflow = () => {
@@ -161,16 +151,6 @@ export const TopicList: React.FC = () => {
                 }
               }}
             />
-            <FlexboxTable
-              rowId="id"
-              data={items}
-              columns={Columns(handleRemove, handleSubmit)}
-              showSort={true}
-              activeRowId={id}
-              onRowClick={(row) => navigate(`/admin/topics/${row.original.id}`)}
-              pagingEnabled={false}
-            />
-            <br />
             <FormikForm
               loading={false}
               initialValues={topic}
@@ -181,27 +161,29 @@ export const TopicList: React.FC = () => {
             >
               {({ isSubmitting, values, setValues }) => (
                 <>
-                  <FormikText name="name" label="Name" />
-                  <Row>
-                    <FormikSelect
-                      label="Type"
-                      name="topicType"
-                      options={topicTypeOptions}
-                      value={topicTypeOptions.find((o) => o.value === values.topicType)}
-                      width={FieldSize.Medium}
-                    />
-                  </Row>
-                  <Row alignContent="stretch" className="actions">
-                    <Row flex="1 1 0" justifyContent="flex-end">
+                  <Row justifyContent="space-between">
+                    <Row>
+                      <FormikText name="name" label="Name" width="208px" />
+                      <FormikSelect
+                        label="Type"
+                        name="topicType"
+                        options={topicTypeOptions}
+                        value={topicTypeOptions.find((o) => o.value === values.topicType)}
+                        width={FieldSize.Medium}
+                      />
+                    </Row>
+                    <Row alignItems="self-end" style={{ paddingBottom: '7px' }}>
                       <Button
                         type="submit"
                         variant={ButtonVariant.primary}
-                        disabled={isSubmitting || !values.name || !values.topicType}
+                        disabled={
+                          isSubmitting || !values.name || !values.topicType || (!!id && id !== '0')
+                        }
                       >
                         Save
                       </Button>
                       <Button
-                        disabled={isSubmitting || !id || id === '0'}
+                        disabled={isSubmitting || id === '0'}
                         onClick={() => {
                           navigate('/admin/topics/0');
                         }}
@@ -213,6 +195,15 @@ export const TopicList: React.FC = () => {
                 </>
               )}
             </FormikForm>
+            <FlexboxTable
+              rowId="id"
+              data={items}
+              columns={Columns(handleRemove, handleSubmit)}
+              showSort={true}
+              activeRowId={id}
+              onRowClick={(row) => navigate(`/admin/topics/${row.original.id}`)}
+              pagingEnabled={false}
+            />
           </Col>
         </Col>
       </FormPage>

@@ -37,7 +37,7 @@ export const Columns = (
     {
       label: 'Name',
       name: 'name',
-      width: 3,
+      width: 1,
       cell: (cell) => {
         return (
           <input
@@ -50,7 +50,7 @@ export const Columns = (
             }
             onBlur={async () => await handleBlur(cell)}
             onChange={async (e: any) => await handleChange(e, cell)}
-            style={{ width: '100%', height: 35 }}
+            style={{ height: 35 }}
           />
         );
       },
