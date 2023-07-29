@@ -6,9 +6,9 @@ using TNO.Core.Extensions;
 namespace TNO.TemplateEngine.Models.Reports;
 
 /// <summary>
-/// TemplateModel class, provides a model to pass to the razor engine.
+/// ReportTemplateModel class, provides a model to pass to the razor engine for reports.
 /// </summary>
-public class TemplateModel : RazorEngineTemplateBase
+public class ReportTemplateModel : RazorEngineTemplateBase
 {
     #region Properties
     /// <summary>
@@ -29,31 +29,31 @@ public class TemplateModel : RazorEngineTemplateBase
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a TemplateModel.
+    /// Creates a new instance of a ReportTemplateModel.
     /// </summary>
-    public TemplateModel()
+    public ReportTemplateModel()
     {
         this.Content = Array.Empty<ContentModel>();
     }
 
     /// <summary>
-    /// Creates a new instance of a TemplateModel, initializes with specified parameters.
+    /// Creates a new instance of a ReportTemplateModel, initializes with specified parameters.
     /// </summary>
     /// <param name="content"></param>
     /// <param name="settings"></param>
-    public TemplateModel(IEnumerable<ContentModel> content, ReportSettingsModel settings)
+    public ReportTemplateModel(IEnumerable<ContentModel> content, ReportSettingsModel settings)
     {
         this.Content = content.ToArray();
         this.Settings = settings;
     }
 
     /// <summary>
-    /// Creates a new instance of a TemplateModel, initializes with specified parameters.
+    /// Creates a new instance of a ReportTemplateModel, initializes with specified parameters.
     /// </summary>
     /// <param name="sections"></param>
     /// <param name="settings"></param>
     /// <param name="uploadPath"></param>
-    public TemplateModel(Dictionary<string, ReportSectionModel> sections, ReportSettingsModel settings, string? uploadPath = null)
+    public ReportTemplateModel(Dictionary<string, ReportSectionModel> sections, ReportSettingsModel settings, string? uploadPath = null)
     {
         this.Sections = sections;
         this.Settings = settings;

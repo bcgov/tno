@@ -13,6 +13,8 @@ using TNO.Elastic;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
 using TNO.API.Config;
+using System.Text.Json;
+using System.Text;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -34,7 +36,7 @@ public class ChartTemplateController : ControllerBase
     #region Variables
     private readonly IContentService _contentService;
     private readonly IChartTemplateService _chartTemplateService;
-    private readonly ITemplateEngine<TNO.TemplateEngine.Models.Reports.TemplateModel> _templateEngine;
+    private readonly ITemplateEngine<TNO.TemplateEngine.Models.Reports.ChartTemplateModel> _templateEngine;
     private readonly IHttpRequestClient _httpClient;
     private readonly ElasticOptions _elasticOptions;
     private readonly ChartsOptions _chartsOptions;
@@ -53,7 +55,7 @@ public class ChartTemplateController : ControllerBase
     public ChartTemplateController(
         IChartTemplateService chartTemplateService,
         IContentService contentService,
-        ITemplateEngine<TNO.TemplateEngine.Models.Reports.TemplateModel> templateEngine,
+        ITemplateEngine<TNO.TemplateEngine.Models.Reports.ChartTemplateModel> templateEngine,
         IHttpRequestClient httpClient,
         IOptions<ElasticOptions> elasticOptions,
         IOptions<ChartsOptions> chartsOptions
@@ -180,15 +182,20 @@ public class ChartTemplateController : ControllerBase
     public async Task<IActionResult> GenerateBase64Async(ChartPreviewRequestModel model)
     {
         // Get the Chart JSON data.
-        var json = model.ChartData != null ? model.ChartData.ToJson() : (await GenerateJsonAsync(model)).Json.ToJson();
-        var bytes = System.Text.Encoding.UTF8.GetBytes(json);
-        var base64 = System.Convert.ToBase64String(bytes);
+        var data = model.ChartData ?? (await GenerateJsonAsync(model)).Json;
+        var dataJson = data.ToJson();
+
+        var optionsJson = model.Settings.Options != null ? JsonSerializer.Serialize(model.Settings.Options) : "{}";
+        var optionsBytes = System.Text.Encoding.UTF8.GetBytes(optionsJson);
+        var optionsBase64 = Convert.ToBase64String(optionsBytes);
 
         // Send request to Charts API to generate base64
-        var response = await _httpClient.GetAsync(_chartsOptions.Url.Append(_chartsOptions.Base64Path, model.ChartType ?? "bar", $"?data={base64}&width={model.Width ?? 250}&height={model.Height ?? 250}"));
-        var data = await response.Content.ReadAsStringAsync();
-
-        return Ok(data);
+        var body = new StringContent(dataJson, Encoding.UTF8, MediaTypeNames.Application.Json);
+        var response = await _httpClient.PostAsync(
+            _chartsOptions.Url.Append(_chartsOptions.Base64Path, model.Settings.ChartType ?? "bar", $"?width={model.Width ?? 250}&height={model.Height ?? 250}&options={optionsBase64}"),
+            body);
+        var result = await response.Content.ReadAsStringAsync();
+        return Ok(result);
     }
     #endregion
 
@@ -208,7 +215,7 @@ public class ChartTemplateController : ControllerBase
         IEnumerable<TNO.TemplateEngine.Models.Reports.ContentModel> content;
         if (model.Filter != null)
         {
-            results = await _contentService.FindWithElasticsearchAsync(_elasticOptions.PublishedIndex, model.Filter);
+            results = await _contentService.FindWithElasticsearchAsync(model.Index ?? _elasticOptions.PublishedIndex, model.Filter);
             content = results.Hits.Hits.Select(h => new TNO.TemplateEngine.Models.Reports.ContentModel(h.Source)).ToArray();
         }
         else if (model.Content?.Any() == true)
@@ -220,13 +227,14 @@ public class ChartTemplateController : ControllerBase
             content = Array.Empty<TNO.TemplateEngine.Models.Reports.ContentModel>();
         }
 
-        var templateModel = new TNO.TemplateEngine.Models.Reports.TemplateModel(content, new API.Models.Settings.ReportSettingsModel());
+        var templateModel = new TNO.TemplateEngine.Models.Reports.ChartTemplateModel(content, model.Settings);
 
         var json = await template.RunAsync(instance =>
         {
             instance.Model = templateModel;
             instance.Content = templateModel.Content;
             instance.Sections = templateModel.Sections;
+            instance.Settings = templateModel.Settings;
         });
 
         return new ChartPreviewResultModel(json, results);

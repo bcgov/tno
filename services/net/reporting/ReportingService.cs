@@ -47,7 +47,7 @@ public class ReportingService : KafkaConsumerService
             .AddChesSingletonService(this.Configuration.GetSection("CHES"))
             .AddSingleton(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Email, "") })))
             .AddScoped<IServiceManager, ReportingManager>()
-            .AddTemplateEngine<TemplateEngine.Models.Reports.TemplateModel>();
+            .AddTemplateEngine<TemplateEngine.Models.Reports.ReportTemplateModel>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<ReportingOptions>()

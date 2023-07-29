@@ -4,6 +4,7 @@ export * from './IAuditColumnsModel';
 export * from './ICacheModel';
 export * from './IChartPreviewRequestModel';
 export * from './IChartPreviewResultModel';
+export * from './IChartSettingsModel';
 export * from './IChartTemplateModel';
 export * from './IChartTemplateSettingsModel';
 export * from './IClipModel';

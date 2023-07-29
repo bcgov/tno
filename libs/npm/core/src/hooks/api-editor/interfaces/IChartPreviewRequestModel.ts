@@ -1,10 +1,11 @@
-import { IContentModel } from '.';
+import { IChartSettingsModel, IContentModel } from '.';
 
 export interface IChartPreviewRequestModel {
-  chartType?: string;
   width?: number;
   height?: number;
+  settings: IChartSettingsModel;
   template: string;
+  index?: string;
   filter?: object;
   content?: IContentModel[];
   chartData?: object;

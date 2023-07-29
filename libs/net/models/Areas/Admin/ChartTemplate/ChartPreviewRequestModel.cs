@@ -1,4 +1,5 @@
 using System.Text.Json;
+using TNO.API.Models.Settings;
 
 namespace TNO.API.Areas.Admin.Models.ChartTemplate;
 
@@ -8,11 +9,6 @@ namespace TNO.API.Areas.Admin.Models.ChartTemplate;
 public class ChartPreviewRequestModel
 {
     #region Properties
-    /// <summary>
-    /// get/set - Select the chart type to generate [bar|line|pie|doughnut|bubble|radar|scatter].
-    /// </summary>
-    public string? ChartType { get; set; } = "bar";
-
     /// <summary>
     /// get/set - Width of generated chart.
     /// </summary>
@@ -24,9 +20,19 @@ public class ChartPreviewRequestModel
     public int? Height { get; set; }
 
     /// <summary>
+    /// get/set - Chart settings.
+    /// </summary>
+    public ChartSettingsModel Settings { get; set; } = new ChartSettingsModel();
+
+    /// <summary>
     /// get/set - The razor template to generate JSON.
     /// </summary>
     public string Template { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The Elasticsearch index to search.
+    /// </summary>
+    public string? Index { get; set; }
 
     /// <summary>
     /// get/set - The Elasticsearch filter to find content.
@@ -53,26 +59,30 @@ public class ChartPreviewRequestModel
     /// <summary>
     /// Creates a new instance of an ChartPreviewRequestModel, initializes with specified parameter.
     /// </summary>
-    /// <param name="type"></param>
+    /// <param name="settings"></param>
     /// <param name="template"></param>
+    /// <param name="index"></param>
     /// <param name="filter"></param>
-    public ChartPreviewRequestModel(string type, string template, string filter)
+    public ChartPreviewRequestModel(ChartSettingsModel settings, string template, string index, string filter)
     {
-        this.ChartType = type;
+        this.Settings = settings;
         this.Template = template;
+        this.Index = index;
         this.Filter = JsonDocument.Parse(filter);
     }
 
     /// <summary>
     /// Creates a new instance of an ChartPreviewRequestModel, initializes with specified parameter.
     /// </summary>
-    /// <param name="type"></param>
+    /// <param name="settings"></param>
     /// <param name="template"></param>
+    /// <param name="index"></param>
     /// <param name="filter"></param>
-    public ChartPreviewRequestModel(string type, string template, JsonDocument filter)
+    public ChartPreviewRequestModel(ChartSettingsModel settings, string template, string index, JsonDocument filter)
     {
-        this.ChartType = type;
+        this.Settings = settings;
         this.Template = template;
+        this.Index = index;
         this.Filter = filter;
     }
     #endregion

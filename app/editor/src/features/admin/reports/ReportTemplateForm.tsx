@@ -36,7 +36,7 @@ import {
   useModal,
 } from 'tno-core';
 
-import { defaultReportTemplate, defaultTemplate } from './constants';
+import { defaultRazorTemplate, defaultReportTemplate } from './constants';
 import * as styled from './styled';
 
 /**
@@ -204,7 +204,7 @@ export const ReportTemplateForm: React.FC = () => {
                   </Col>
                   <Button
                     variant={ButtonVariant.secondary}
-                    onClick={() => setFieldValue('body', defaultTemplate)}
+                    onClick={() => setFieldValue('body', defaultRazorTemplate)}
                   >
                     Use Default Template
                   </Button>

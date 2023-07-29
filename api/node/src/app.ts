@@ -14,7 +14,8 @@ class App {
   }
 
   middlewares() {
-    this.server.use(express.json());
+    this.server.use(express.json({ limit: '50mb' }));
+    this.server.use(express.urlencoded({ limit: '50mb' }));
   }
 
   routes() {

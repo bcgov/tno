@@ -3,12 +3,14 @@ import { CategoryScale, Colors } from 'chart.js';
 import Chart from 'chart.js/auto';
 import { getString, convertChartJsConfigToBase64String, generateBase64, sendImage } from './utils';
 import { ChartTypes } from './charts';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 Chart.register(CategoryScale);
 Chart.defaults.animation = false;
 Chart.defaults.responsive = false;
 Chart.defaults.maintainAspectRatio = true;
 Chart.register(Colors);
+Chart.register(ChartDataLabels);
 
 const routes = Router();
 

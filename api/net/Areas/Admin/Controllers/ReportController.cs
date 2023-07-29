@@ -15,11 +15,8 @@ using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Keycloak;
 using TNO.TemplateEngine;
-using TNO.TemplateEngine.Models.Reports;
 using TNO.Elastic.Models;
 using TNO.DAL.Config;
-using TNO.API.Models.Settings;
-using TNO.Models.Extensions;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -42,7 +39,7 @@ public class ReportController : ControllerBase
     private readonly IReportService _reportService;
     private readonly IReportInstanceService _reportInstanceService;
     private readonly IUserService _userService;
-    private readonly ITemplateEngine<TemplateModel> _templateEngine;
+    private readonly ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> _templateEngine;
     private readonly IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
     private readonly ElasticOptions _elasticOptions;
@@ -67,7 +64,7 @@ public class ReportController : ControllerBase
         IReportService reportService,
         IReportInstanceService reportInstanceService,
         IUserService userService,
-        ITemplateEngine<TemplateModel> templateEngine,
+        ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> templateEngine,
         IKafkaMessenger kafkaProducer,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<ElasticOptions> elasticOptions,
@@ -268,7 +265,7 @@ public class ReportController : ControllerBase
             return new TNO.TemplateEngine.Models.Reports.ReportSectionModel(s, content);
         });
 
-        var templateModel = new TemplateModel(sections, model.Settings, _storageOptions.GetUploadPath());
+        var templateModel = new TNO.TemplateEngine.Models.Reports.ReportTemplateModel(sections, model.Settings, _storageOptions.GetUploadPath());
 
         var subject = await subjectTemplate.RunAsync(instance =>
         {

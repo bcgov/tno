@@ -45,7 +45,6 @@ export const FilterFormQuery: React.FC = () => {
   const [filter, setFilter] = React.useState(JSON.stringify(values.query, null, 2));
 
   React.useEffect(() => {
-    console.debug(values.settings);
     var query = generateQuery(values.settings);
     setFilter(JSON.stringify(query, null, 2));
     setFieldValue('query', query);

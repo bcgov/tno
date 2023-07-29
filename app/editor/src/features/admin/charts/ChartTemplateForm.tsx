@@ -17,9 +17,11 @@ import {
 } from 'tno-core';
 
 import { ChartTemplateFormDetails } from './ChartTemplateFormDetails';
+import { ChartTemplateFormOptions } from './ChartTemplateFormOptions';
 import { ChartTemplateFormPreview } from './ChartTemplateFormPreview';
 import { ChartTemplateFormTemplate } from './ChartTemplateFormTemplate';
-import { defaultChartTemplate } from './constants';
+import { defaultChartPreviewRequestForm, defaultChartTemplate } from './constants';
+import { IChartPreviewRequestForm } from './interfaces';
 import * as styled from './styled';
 
 /**
@@ -38,6 +40,9 @@ export const ChartTemplateForm: React.FC = () => {
     ...defaultChartTemplate,
   });
   const [filter, setFilter] = React.useState('');
+  const [preview, setPreview] = React.useState<IChartPreviewRequestForm>(
+    defaultChartPreviewRequestForm,
+  );
 
   const chartTemplateId = Number(id);
 
@@ -46,6 +51,14 @@ export const ChartTemplateForm: React.FC = () => {
       setChartTemplate({ ...defaultChartTemplate, id: chartTemplateId }); // Do this to stop double fetch.
       getChartTemplate(chartTemplateId).then((data) => {
         setChartTemplate(data);
+        setPreview((preview) => ({
+          ...preview,
+          template: data.template,
+          settings: {
+            ...preview.settings,
+            options: data.settings.options,
+          },
+        }));
       });
     }
   }, [getChartTemplate, chartTemplate?.id, chartTemplateId]);
@@ -88,7 +101,7 @@ export const ChartTemplateForm: React.FC = () => {
           setSubmitting(false);
         }}
       >
-        {({ isSubmitting, values, setFieldValue }) => (
+        {({ isSubmitting, values }) => (
           <Tabs
             tabs={
               <>
@@ -107,6 +120,13 @@ export const ChartTemplateForm: React.FC = () => {
                   active={active === 'template'}
                 />
                 <Tab
+                  label="Chart.JS Options"
+                  onClick={() => {
+                    setActive('options');
+                  }}
+                  active={active === 'options'}
+                />
+                <Tab
                   label="Preview"
                   onClick={() => {
                     setActive('preview');
@@ -121,10 +141,18 @@ export const ChartTemplateForm: React.FC = () => {
                 <ChartTemplateFormDetails />
               </Show>
               <Show visible={active === 'template'}>
-                <ChartTemplateFormTemplate />
+                <ChartTemplateFormTemplate setPreview={setPreview} />
+              </Show>
+              <Show visible={active === 'options'}>
+                <ChartTemplateFormOptions preview={preview} setPreview={setPreview} />
               </Show>
               <Show visible={active === 'preview'}>
-                <ChartTemplateFormPreview filter={filter} setFilter={setFilter} />
+                <ChartTemplateFormPreview
+                  filter={filter}
+                  setFilter={setFilter}
+                  preview={preview}
+                  setPreview={setPreview}
+                />
               </Show>
               <Row justifyContent="center" className="form-inputs">
                 <Button type="submit" disabled={isSubmitting}>

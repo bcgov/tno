@@ -4,18 +4,15 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
+using TNO.API.Areas.Editor.Models.AvOverview;
 using TNO.API.Config;
 using TNO.API.Models;
+using TNO.DAL.Config;
 using TNO.DAL.Services;
 using TNO.Elastic;
 using TNO.Kafka;
 using TNO.Keycloak;
 using TNO.TemplateEngine;
-
-
-using TNO.TemplateEngine.Models.Reports;
-using TNO.DAL.Config;
-using TNO.API.Areas.Editor.Models.AvOverview;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -37,7 +34,7 @@ public class AVOverviewInstanceController : ControllerBase
     #region Variables
     private readonly IAVOverviewInstanceService _overviewSectionItemService;
     private readonly IUserService _userService;
-    private readonly ITemplateEngine<TemplateModel> _templateEngine;
+    private readonly ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> _templateEngine;
     private readonly IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
     private readonly ElasticOptions _elasticOptions;
@@ -60,7 +57,7 @@ public class AVOverviewInstanceController : ControllerBase
     public AVOverviewInstanceController(
         IAVOverviewInstanceService overviewSectionItemService,
         IUserService userService,
-        ITemplateEngine<TemplateModel> templateEngine,
+        ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> templateEngine,
         IKafkaMessenger kafkaProducer,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<ElasticOptions> elasticOptions,
