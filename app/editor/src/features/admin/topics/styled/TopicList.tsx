@@ -116,4 +116,25 @@ export const TopicList = styled.div`
     padding-left: 7px;
     font-size: 20px;
   }
+
+  .header {
+    & .column {
+      &.col-0 {
+        min-width: 288px;
+      }
+
+      &.col-1 {
+        min-width: 300px;
+        padding-left: 18px;
+      }
+    }
+  }
+
+  .row {
+    & .column {
+      &.col-2 {
+        padding-left: 15px;
+      }
+    }
+  }
 `;

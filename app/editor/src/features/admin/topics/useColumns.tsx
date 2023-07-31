@@ -52,7 +52,7 @@ export const useColumns = (
             }
             onBlur={async () => await handleBlur(cell)}
             onChange={async (e: any) => await handleChange(e, cell)}
-            style={{ height: 35, width: '100%' }}
+            style={{ height: 35, width: '286px' }}
           />
         );
       },

@@ -136,7 +136,7 @@ export const TopicList: React.FC = () => {
                     </p>
                   </Row>
                   <Row alignItems="center">
-                    <FormikText name="name" label="Topic Name" width="285px" />
+                    <FormikText name="name" label="Topic Name" width="295px" />
                     <FormikSelect
                       label="Type"
                       name="topicType"
