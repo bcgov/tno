@@ -5,6 +5,7 @@ import {
   IActionModel,
   IConnectionModel,
   IDataLocationModel,
+  IFolderModel,
   IIngestModel,
   IIngestTypeModel,
   ILicenseModel,
@@ -28,6 +29,7 @@ export interface IAdminState {
   ingests: IIngestModel[];
   ministers: IMinisterModel[];
   ingestTypes: IIngestTypeModel[];
+  folders: IFolderModel[];
   userFilter: IUserListFilter;
   users: IPaged<IUserModel>;
   topics: ITopicModel[];

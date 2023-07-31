@@ -58,7 +58,7 @@ export const SidebarMenuItems: ISideBarMenuItems = {
     icon: <FaSlidersH />,
   },
   folders: {
-    label: 'Folders',
+    label: 'My Folders',
     path: 'folders',
     icon: <FaFolder />,
   },

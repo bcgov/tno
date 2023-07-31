@@ -174,6 +174,11 @@ public class ContentFilter : PageFilter
     public string[] Sort { get; set; } = Array.Empty<string>();
 
     /// <summary>
+    /// get/set - The content sentitment.
+    /// </summary>
+    public int[] Sentiment { get; set; } = Array.Empty<int>();
+
+    /// <summary>
     /// get/set - The story text to search for.
     /// </summary>
     public string? StoryText { get; set; }
@@ -224,6 +229,7 @@ public class ContentFilter : PageFilter
         this.ContentIds = filter.GetLongArrayValue(nameof(this.ContentIds));
         this.ProductIds = filter.GetLongArrayValue(nameof(this.ProductIds));
         this.SourceIds = filter.GetLongArrayValue(nameof(this.SourceIds));
+        this.Sentiment = filter.GetIntArrayValue(nameof(this.Sentiment));
         this.ExcludeSourceIds = filter.GetIntArrayValue(nameof(this.ExcludeSourceIds));
         this.Actions = filter.GetStringArrayValue(nameof(this.Actions));
         this.Sort = filter.GetStringArrayValue(nameof(this.Sort));

@@ -8,22 +8,28 @@ import {
   FaQuoteLeft,
   FaShareSquare,
 } from 'react-icons/fa';
-import { ITagModel, Row } from 'tno-core';
+import { Tooltip } from 'react-tooltip';
+import { IContentModel, ITagModel, Row } from 'tno-core';
 
 import { ActionNames } from './constants';
+import { FolderMenu } from './FolderMenu';
 import * as styled from './styled';
 
 export interface IViewContentToolbarProps {
   /** The current content that is being viewed. */
   tags: ITagModel[] | [];
+  content?: IContentModel;
 }
 
 /**
  * Shows the various actions to be presented on a piece of content.
  * @returns Toolbar for the ViewContent component
  */
-export const ViewContentToolbar: React.FC<IViewContentToolbarProps> = ({ tags }) => {
+export const ViewContentToolbar: React.FC<IViewContentToolbarProps> = ({ tags, content }) => {
   const [active, setActive] = React.useState<ActionNames>(ActionNames.ReadStory);
+  const handleAddToFolder = () => {
+    setActive(ActionNames.AddToFolder);
+  };
   return (
     <styled.ViewContentToolbar>
       <Row className="main-row">
@@ -49,11 +55,32 @@ export const ViewContentToolbar: React.FC<IViewContentToolbarProps> = ({ tags })
               className={active === ActionNames.Quotes ? 'active' : ''}
             />
             <FaFolderPlus
-              data-tooltip-id="main-tooltip"
-              data-tooltip-content={ActionNames.AddToFolder}
-              onClick={() => setActive(ActionNames.AddToFolder)}
+              data-tooltip-id="folder"
+              onClick={() => handleAddToFolder()}
               className={active === ActionNames.AddToFolder ? 'active' : ''}
             />
+            <Tooltip
+              style={{
+                backgroundColor: '#FFFFCC',
+                color: 'black',
+                opacity: '1',
+                boxShadow: '0 0 8px #464545',
+              }}
+              place="top"
+              id="folder"
+            >
+              {ActionNames.AddToFolder}
+            </Tooltip>
+            <Tooltip
+              clickable
+              variant="light"
+              className="folder-menu"
+              place="bottom"
+              openOnClick
+              id="folder"
+            >
+              <FolderMenu content={content} />
+            </Tooltip>
             <FaFileAlt
               data-tooltip-id="main-tooltip"
               data-tooltip-content={ActionNames.AddToReport}

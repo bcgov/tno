@@ -4,12 +4,14 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useWorkOrders } from 'store/hooks';
+import { useMinisters } from 'store/hooks/subscriber/useMinisters';
 import {
   Button,
   ButtonVariant,
   Col,
   ContentTypeName,
   IContentModel,
+  IMinisterModel,
   IWorkOrderModel,
   Row,
   Show,
@@ -41,6 +43,8 @@ export const ViewContent: React.FC = () => {
   const [boldingComplete, setBoldingComplete] = React.useState(false);
   const { width } = useWindowSize();
   const [{ userInfo }] = useApp();
+  const [, api] = useMinisters();
+  const [aliases, setAliases] = React.useState<string[]>([]);
   const [, { transcribe, findWorkOrders }] = useWorkOrders();
   const [workOrders, setWorkOrders] = React.useState<IWorkOrderModel[]>([]);
   const handleTranscribe = React.useCallback(async () => {
@@ -63,53 +67,70 @@ export const ViewContent: React.FC = () => {
     }
   }, [workOrders, transcribe, content]);
 
-  const path = content?.fileReferences ? content?.fileReferences[0]?.path : '';
+  const fileReference = content?.fileReferences ? content?.fileReferences[0] : undefined;
 
-  const myMinisters = userInfo?.preferences?.myMinisters;
+  const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
+
+  React.useEffect(() => {
+    if (!ministers.length) {
+      api.getMinisters().then((data) => {
+        setMinisters(data);
+      });
+    }
+  }, [api, ministers.length]);
+
+  React.useEffect(() => {
+    if (userInfo?.preferences?.myMinisters?.length > 0 && ministers.length > 0) {
+      let selectedAliases: string[] = [];
+      selectedAliases = ministers
+        .filter((m) => userInfo?.preferences?.myMinisters?.includes(m.id))
+        .flatMap((x) => [x.name, ...x.aliases.split(',').map((a) => a.trim())]);
+      setAliases(selectedAliases);
+    }
+  }, [ministers, userInfo?.preferences?.myMinisters]);
 
   React.useEffect(() => {
     // this will bold the ministers name in the summary or body, only when viewing from the my minister list when the content has been received
     if (window.location.href.includes('my-minister') && !boldingComplete && !!content) {
       let tempBody = content?.body;
       let tempSummary = content?.summary;
-      myMinisters.length &&
-        myMinisters.forEach((minister: string, index: number) => {
-          const regex = new RegExp(minister ?? '', 'gi');
-          if (content?.summary && !content.summary.includes(`<b>${minister}</b>`)) {
-            tempSummary = tempSummary?.replace(regex, `<b>${minister}</b>`);
+      aliases.length &&
+        aliases.forEach((ministerAlias: string, index: number) => {
+          const regex = new RegExp(ministerAlias ?? '', 'gi');
+          if (content?.summary && !content.summary.includes(`<b>${ministerAlias}</b>`)) {
+            tempSummary = tempSummary?.replace(regex, `<b>${ministerAlias}</b>`);
           }
 
           if (
             content?.body &&
-            !content.body.includes(`<b>${minister}</b>`) &&
-            content.body.includes(minister)
+            !content.body.includes(`<b>${ministerAlias}</b>`) &&
+            content.body.includes(ministerAlias)
           ) {
-            tempBody = tempBody?.replace(regex, `<b>${minister}</b>`);
+            tempBody = tempBody?.replace(regex, `<b>${ministerAlias}</b>`);
           }
 
-          if (index === myMinisters.length - 1) {
+          if (index === aliases.length - 1) {
             setContent({ ...content, body: tempBody, summary: tempSummary });
             setBoldingComplete(true);
           }
         });
     }
-  }, [content, myMinisters, boldingComplete]);
+  }, [content, aliases, boldingComplete]);
 
   React.useEffect(() => {
-    if (!!path)
-      stream(path).then((result) => {
-        const mimeType = 'video/mp4';
+    if (!!fileReference)
+      stream(fileReference.path).then((result) => {
         setAVStream(
           !!result
             ? {
-                url: `data:${mimeType};base64,` + result,
-                type: mimeType,
+                url: `data:${fileReference.contentType};base64,` + result,
+                type: fileReference.contentType,
               }
             : undefined,
         );
       });
     else setAVStream(undefined);
-  }, [stream, path]);
+  }, [stream, fileReference]);
 
   const fetchContent = React.useCallback(
     (id: number) => {
@@ -154,7 +175,7 @@ export const ViewContent: React.FC = () => {
 
   return (
     <styled.ViewContent>
-      <ViewContentToolbar tags={content?.tags ?? []} />
+      <ViewContentToolbar content={content} tags={content?.tags ?? []} />
       <Row className="headline-container">
         <p>{content?.headline && content.headline}</p>
         <Row alignItems="center">
@@ -186,12 +207,19 @@ export const ViewContent: React.FC = () => {
       </Row>
       <Show visible={!!avStream && content?.contentType === ContentTypeName.AudioVideo}>
         <Row justifyContent="center">
-          <video
-            controls
-            height={width! > 500 ? '270' : 135}
-            width={width! > 500 ? 480 : 240}
-            src={!!avStream?.url ? avStream?.url : ''}
-          />
+          <Show visible={fileReference?.contentType === 'audio/mpeg'}>
+            <audio src={avStream?.url} controls>
+              HTML5 Audio is required
+            </audio>
+          </Show>
+          <Show visible={fileReference?.contentType === 'video/mpeg'}>
+            <video
+              controls
+              height={width! > 500 ? '270' : 135}
+              width={width! > 500 ? 480 : 240}
+              src={!!avStream?.url ? avStream?.url : ''}
+            />
+          </Show>
         </Row>
       </Show>
       <Show visible={!!avStream && content?.contentType === ContentTypeName.Image}>

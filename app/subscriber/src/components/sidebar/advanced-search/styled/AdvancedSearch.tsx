@@ -11,6 +11,15 @@ export const AdvancedSearch = styled(Row)`
       cursor: pointer;
     }
   }
+
+  .rc-slider {
+    width: 95%;
+    margin-bottom: 1.5em;
+    margin-top: 1em;
+    .tone-icon {
+      margin: 0;
+    }
+  }
   .search-bar {
     background-color: ${(props) => props.theme.css.inputGrey};
     border-radius: 1.3em;
@@ -79,6 +88,7 @@ export const AdvancedSearch = styled(Row)`
 
   .date-range-group,
   .media-group,
+  .sentiment-group,
   .search-options-group,
   .story-options-group {
     padding: 0.5em;
