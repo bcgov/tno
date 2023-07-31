@@ -18,10 +18,10 @@ import {
   TopicTypeName,
 } from 'tno-core';
 
-import { Columns } from './Columns';
 import { defaultTopic } from './constants';
 import * as styled from './styled';
 import { TopicFilter } from './TopicFilter';
+import { useColumns } from './useColumns';
 
 /**
  * Provides a list of all topics.
@@ -36,9 +36,7 @@ export const TopicList: React.FC = () => {
   const [loading, setLoading] = React.useState(false);
   const [topics, setTopics] = React.useState<ITopicModel[]>([]);
   const [items, setItems] = React.useState<ITopicModel[]>([]);
-  const [topic, setTopic] = React.useState<ITopicModel>(defaultTopic);
 
-  const topicId = Number(id);
   const topicTypeOptions = getEnumStringOptions(TopicTypeName);
 
   React.useEffect(() => {
@@ -56,19 +54,13 @@ export const TopicList: React.FC = () => {
     }
   }, [api, items.length, loading]);
 
-  React.useEffect(() => {
-    const topic = items.find((i) => i.id === topicId) ?? defaultTopic;
-    setTopic(topic);
-  }, [topicId, items]);
-
   const handleRemove = async (topicId: number) => {
     const topic = items.find((i) => i.id === topicId);
     if (!topic) return;
-    const removedTopic = { ...topic, isEnabled: false };
-    await api.updateTopic(removedTopic);
+    const removedTopic = await api.updateTopic({ ...topic, isEnabled: false });
     setItems(items.filter((t) => t.id !== topic.id));
     setTopics(topics.map((item) => (item.id === topic.id ? removedTopic : item)));
-    if (!!id) navigate('/admin/topics');
+    navigate('/admin/topics');
     toast.success(`${topic.name} has successfully been deleted.`);
   };
 
@@ -100,7 +92,7 @@ export const TopicList: React.FC = () => {
         if (!existsTopic || values.id === existsTopic.id) {
           const result = await api.updateTopic(values);
           results = items.map((i) => (i.id === values.id ? result : i));
-          updatedTopics = topics.map((i) => (i.id === topic.id ? result : i));
+          updatedTopics = topics.map((i) => (i.id === values.id ? result : i));
         } else {
           toast.warn(`${values.name} already exists.`);
           return;
@@ -110,10 +102,10 @@ export const TopicList: React.FC = () => {
       setTopics(updatedTopics);
       toast.success(`${values.name} has successfully been saved.`);
       // Do we have a better way here for the clean-up after adding a new topic?
-      if (!id || id === '0') {
-        values.name = defaultTopic.name;
-        values.topicType = defaultTopic.topicType;
-        if (id === '0') navigate('/admin/topics');
+      if (values.id === 0) {
+        if (values.name !== defaultTopic.name) values.name = defaultTopic.name;
+        if (values.topicType !== defaultTopic.topicType) values.topicType = defaultTopic.topicType;
+        if (id) navigate('/admin/topics');
       }
     } catch {
       // Ignore error as it's handled globally.
@@ -141,11 +133,14 @@ export const TopicList: React.FC = () => {
                 } else {
                   setItems(topics.filter((x) => x.isEnabled));
                 }
+                if (id) {
+                  navigate('/admin/topics');
+                }
               }}
             />
             <FormikForm
               loading={false}
-              initialValues={topic}
+              initialValues={defaultTopic}
               onSubmit={async (values, { setSubmitting }) => {
                 await handleSubmit(values);
                 setSubmitting(false);
@@ -168,9 +163,7 @@ export const TopicList: React.FC = () => {
                     <Button
                       type="submit"
                       variant={ButtonVariant.primary}
-                      disabled={
-                        isSubmitting || !values.name || !values.topicType || (!!id && id !== '0')
-                      }
+                      disabled={isSubmitting || !values.name || !values.topicType}
                       style={{ marginTop: '15px' }}
                     >
                       Save
@@ -186,9 +179,10 @@ export const TopicList: React.FC = () => {
             <FlexboxTable
               rowId="id"
               data={items}
-              columns={Columns(handleRemove, handleSubmit)}
+              columns={useColumns(handleRemove, handleSubmit)}
               showSort={true}
               activeRowId={id}
+              onRowClick={(row) => navigate(`/admin/topics/${row.original.id}`)}
               pagingEnabled={false}
             />
           </Col>

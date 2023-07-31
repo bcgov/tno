@@ -11,7 +11,7 @@ import {
   TopicTypeName,
 } from 'tno-core';
 
-export const Columns = (
+export const useColumns = (
   onClick: (event: any) => {},
   handleSubmit: (values: ITopicModel) => Promise<void>,
 ): ITableHookColumn<ITopicModel>[] => {
@@ -25,8 +25,9 @@ export const Columns = (
   };
 
   const handleBlur = async (cell: any) => {
-    if (!topicModel || cell.original.id !== topicModel.id || cell.original.name === topicModel.name)
-      return;
+    const result =
+      !topicModel || cell.original.id !== topicModel.id || cell.original.name === topicModel.name;
+    if (result) return;
 
     await handleSubmit(topicModel);
   };
