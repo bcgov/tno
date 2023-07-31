@@ -27,7 +27,6 @@ export const TopicList = styled.div`
     button {
       background-color: white;
     }
-    background-color: #f5f5f5;
   }
 
   .row-header {
@@ -102,5 +101,19 @@ export const TopicList = styled.div`
       position: sticky;
       top: 0;
     }
+  }
+
+  form {
+    background-color: lightgrey;
+    padding: 5px;
+  }
+
+  .topic-filter {
+    padding: 5px;
+  }
+
+  .topic-list-title {
+    padding-left: 7px;
+    font-size: 20px;
   }
 `;

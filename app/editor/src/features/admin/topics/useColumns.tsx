@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaTrash } from 'react-icons/fa';
 import {
   Button,
   ButtonVariant,
@@ -36,14 +37,14 @@ export const useColumns = (
 
   const result: ITableHookColumn<ITopicModel>[] = [
     {
-      label: 'Name',
+      label: 'Topic Name',
       name: 'name',
       width: 1,
       cell: (cell) => {
         return (
           <input
             type="text"
-            title="topic name"
+            title="topic Name"
             value={
               topicModel && topicModel.id === cell.original.id
                 ? topicModel.name
@@ -93,14 +94,13 @@ export const useColumns = (
       },
     },
     {
-      label: '',
+      label: 'Remove',
       name: 'Remove',
-      width: '1',
-      hAlign: 'center',
+      width: '4',
       cell: (cell) => (
         <>
           <Button variant={ButtonVariant.danger} onClick={() => onClick(cell.original.id)}>
-            Remove
+            <FaTrash className="indicator" />
           </Button>
         </>
       ),

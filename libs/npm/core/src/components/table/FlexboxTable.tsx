@@ -96,7 +96,7 @@ export const FlexboxTable = <T extends object>({
                 }}
               >
                 {col.label && <span className="label">{col.label}</span>}
-                {col.label && table.showSort && (
+                {col.label && col.label !== 'Remove' && table.showSort && (
                   <div
                     className="sort"
                     onClick={() => {
