@@ -9,22 +9,19 @@ import {
   Col,
   FieldSize,
   FlexboxTable,
-  FormikCheckbox,
   FormikSelect,
   FormikText,
-  FormikTextArea,
   FormPage,
   getEnumStringOptions,
   ITopicModel,
-  LabelPosition,
   Row,
   TopicTypeName,
 } from 'tno-core';
 
-import { columns, defaultTopic } from './constants';
+import { defaultTopic } from './constants';
 import * as styled from './styled';
 import { TopicFilter } from './TopicFilter';
-import { TopicSchema } from './validation/TopicSchema';
+import { useColumns } from './useColumns';
 
 /**
  * Provides a list of all topics.
@@ -39,9 +36,7 @@ export const TopicList: React.FC = () => {
   const [loading, setLoading] = React.useState(false);
   const [topics, setTopics] = React.useState<ITopicModel[]>([]);
   const [items, setItems] = React.useState<ITopicModel[]>([]);
-  const [topic, setTopic] = React.useState<ITopicModel>(defaultTopic);
 
-  const topicId = Number(id);
   const topicTypeOptions = getEnumStringOptions(TopicTypeName);
 
   React.useEffect(() => {
@@ -59,35 +54,59 @@ export const TopicList: React.FC = () => {
     }
   }, [api, items.length, loading]);
 
-  React.useEffect(() => {
-    const topic = items.find((i) => i.id === topicId) ?? defaultTopic;
-    setTopic(topic);
-  }, [topicId, items]);
+  const handleRemove = async (topicId: number) => {
+    const topic = items.find((i) => i.id === topicId);
+    if (!topic) return;
+    const removedTopic = await api.updateTopic({ ...topic, isEnabled: false });
+    setItems(items.filter((t) => t.id !== topic.id));
+    setTopics(topics.map((item) => (item.id === topic.id ? removedTopic : item)));
+    navigate('/admin/topics');
+    toast.success(`${topic.name} has successfully been deleted.`);
+  };
 
   const handleSubmit = async (values: ITopicModel) => {
     try {
       var results = [...items];
+      let updatedTopics: ITopicModel[];
+      const existsTopic = topics.find((x) => x.name === values.name);
       if (values.id === 0) {
-        const topic = topics.find((x) => x.name === values.name);
-        if (!topic) {
+        if (!existsTopic) {
           const result = await api.addTopic(values);
           results = [...items, result];
+          updatedTopics = [...topics, result];
         } else {
-          const result = await api.updateTopic({
-            ...topic,
-            isEnabled: values.isEnabled,
-            description: values.description,
-            topicType: values.topicType,
-          });
-          if (topic.isEnabled) results = items.map((i) => (i.id === result.id ? result : i));
-          else if (values.isEnabled) results = [...items, result];
+          if (existsTopic.isEnabled) {
+            toast.warn(`${values.name} already exists.`);
+            return;
+          } else {
+            const result = await api.updateTopic({
+              ...existsTopic,
+              isEnabled: values.isEnabled,
+              topicType: values.topicType,
+            });
+            results = [...items, result];
+            updatedTopics = topics.map((i) => (i.id === existsTopic.id ? result : i));
+          }
         }
       } else {
-        const result = await api.updateTopic(values);
-        results = items.map((i) => (i.id === values.id ? result : i));
+        if (!existsTopic || values.id === existsTopic.id) {
+          const result = await api.updateTopic(values);
+          results = items.map((i) => (i.id === values.id ? result : i));
+          updatedTopics = topics.map((i) => (i.id === values.id ? result : i));
+        } else {
+          toast.warn(`${values.name} already exists.`);
+          return;
+        }
       }
       setItems(results.filter((x) => x.isEnabled));
+      setTopics(updatedTopics);
       toast.success(`${values.name} has successfully been saved.`);
+      // Do we have a better way here for the clean-up after adding a new topic?
+      if (values.id === 0) {
+        if (values.name !== defaultTopic.name) values.name = defaultTopic.name;
+        if (values.topicType !== defaultTopic.topicType) values.topicType = defaultTopic.topicType;
+        if (id) navigate('/admin/topics');
+      }
     } catch {
       // Ignore error as it's handled globally.
     }
@@ -114,89 +133,59 @@ export const TopicList: React.FC = () => {
                 } else {
                   setItems(topics.filter((x) => x.isEnabled));
                 }
+                if (id) {
+                  navigate('/admin/topics');
+                }
               }}
             />
+            <FormikForm
+              loading={false}
+              initialValues={defaultTopic}
+              onSubmit={async (values, { setSubmitting }) => {
+                await handleSubmit(values);
+                setSubmitting(false);
+              }}
+            >
+              {({ isSubmitting, values, setValues }) => (
+                <>
+                  <Row>
+                    <h2>Create new topic (Event of the Day)</h2>
+                  </Row>
+                  <Row alignItems="center">
+                    <FormikText name="name" label="Topic" width="208px" />
+                    <FormikSelect
+                      label="Type"
+                      name="topicType"
+                      options={topicTypeOptions}
+                      value={topicTypeOptions.find((o) => o.value === values.topicType)}
+                      width={FieldSize.Medium}
+                    />
+                    <Button
+                      type="submit"
+                      variant={ButtonVariant.primary}
+                      disabled={isSubmitting || !values.name || !values.topicType}
+                      style={{ marginTop: '15px' }}
+                    >
+                      Save
+                    </Button>
+                  </Row>
+                </>
+              )}
+            </FormikForm>
+            <br />
+            <Row>
+              <h2>Current topics</h2>
+            </Row>
             <FlexboxTable
               rowId="id"
               data={items}
-              columns={columns}
+              columns={useColumns(handleRemove, handleSubmit)}
               showSort={true}
               activeRowId={id}
               onRowClick={(row) => navigate(`/admin/topics/${row.original.id}`)}
               pagingEnabled={false}
             />
           </Col>
-        </Col>
-        <Col flex="1 1 0" className="form">
-          <FormikForm
-            loading={false}
-            validationSchema={TopicSchema}
-            initialValues={topic}
-            onSubmit={async (values, { setSubmitting }) => {
-              await handleSubmit(values);
-              setSubmitting(false);
-            }}
-          >
-            {({ isSubmitting, values, setValues }) => (
-              <>
-                <Row justifyContent="flex-end">
-                  <Button
-                    variant={ButtonVariant.success}
-                    onClick={() => navigate('/admin/topics/0')}
-                  >
-                    Create New Issue/Topic
-                  </Button>
-                </Row>
-                <FormikText name="name" label="Name" />
-                <FormikTextArea name="description" label="Description" />
-                <Row>
-                  <FormikSelect
-                    label="Type"
-                    name="topicType"
-                    options={topicTypeOptions}
-                    value={topicTypeOptions.find((o) => o.value === values.topicType)}
-                    width={FieldSize.Medium}
-                  />
-                  <FormikCheckbox
-                    labelPosition={LabelPosition.Top}
-                    label="Is Enabled"
-                    name="isEnabled"
-                  />
-                </Row>
-                <Row alignContent="stretch" className="actions">
-                  <Button
-                    variant={ButtonVariant.danger}
-                    disabled={isSubmitting || !values.id}
-                    onClick={async () => {
-                      await api.updateTopic({ ...topic, isEnabled: false });
-                      setItems(items.filter((t) => t.id !== topic.id));
-                      toast.success(`${topic.name} has successfully been deleted.`);
-                      navigate('/admin/topics');
-                    }}
-                  >
-                    Delete
-                  </Button>
-                  <Row flex="1 1 0" justifyContent="flex-end">
-                    <Button
-                      variant={ButtonVariant.secondary}
-                      disabled={isSubmitting}
-                      onClick={() => {
-                        const find = items.find((t) => t.id === values.id);
-                        if (find) {
-                          setValues(find);
-                        }
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button type="submit" variant={ButtonVariant.primary} disabled={isSubmitting}>
-                      Save
-                    </Button>
-                  </Row>
-                </Row>
-              </>
-            )}
-          </FormikForm>
         </Col>
       </FormPage>
     </styled.TopicList>
