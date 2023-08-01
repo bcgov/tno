@@ -16,7 +16,7 @@ import * as styled from './styled';
 export const MyMinister: React.FC = () => {
   const [{ filter, filterAdvanced }, { findContent }] = useContent();
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
-  const [aliases, setAliases] = React.useState<string[]>([]);
+  const [ministerNames, setMinisterNames] = React.useState<string[]>([]);
   const [{ userInfo }] = useApp();
   const [, api] = useMinisters();
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
@@ -58,27 +58,27 @@ export const MyMinister: React.FC = () => {
 
   React.useEffect(() => {
     if (userInfo?.preferences?.myMinisters?.length > 0 && ministers.length > 0) {
-      let selectedAliases: string[] = [];
-      selectedAliases = ministers
+      let selectedMinisters: string[] = [];
+      selectedMinisters = ministers
         .filter((m) => userInfo?.preferences?.myMinisters?.includes(m.id))
-        .map((x) => x.aliases);
-      setAliases(selectedAliases);
+        .map((x) => x.name);
+      setMinisterNames(selectedMinisters);
     }
   }, [ministers, userInfo?.preferences?.myMinisters]);
 
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
-    if (!aliases.length) return;
+    if (!ministerNames.length) return;
     fetch({
       ...filter,
       ...filterAdvanced,
-      keyword: aliases.toString(),
+      names: ministerNames.toString(),
     }).then((data) => {
       setHomeItems(data.items);
     });
     // only want the effect to trigger when aliases is populated, not every time the filter changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [aliases]);
+  }, [ministerNames]);
   return (
     <styled.MyMinister>
       <Row className="table-container">

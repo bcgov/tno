@@ -8,6 +8,7 @@ export interface IContentListFilter {
   excludeSourceIds?: number[];
   headline?: string;
   keyword?: string;
+  names?: string;
   otherSource?: string | '';
   ownerId?: number | '';
   pageIndex: number;
