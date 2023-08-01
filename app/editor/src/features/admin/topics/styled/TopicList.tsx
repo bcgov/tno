@@ -27,7 +27,6 @@ export const TopicList = styled.div`
     button {
       background-color: white;
     }
-    background-color: #f5f5f5;
   }
 
   .row-header {
@@ -101,6 +100,41 @@ export const TopicList = styled.div`
     form {
       position: sticky;
       top: 0;
+    }
+  }
+
+  form {
+    background-color: lightgrey;
+    padding: 5px;
+  }
+
+  .topic-filter {
+    padding: 5px;
+  }
+
+  .topic-list-title {
+    padding-left: 7px;
+    font-size: 20px;
+  }
+
+  .header {
+    & .column {
+      &.col-0 {
+        min-width: 288px;
+      }
+
+      &.col-1 {
+        min-width: 300px;
+        padding-left: 18px;
+      }
+    }
+  }
+
+  .row {
+    & .column {
+      &.col-2 {
+        padding-left: 15px;
+      }
     }
   }
 `;

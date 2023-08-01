@@ -117,6 +117,45 @@ export const TopicList: React.FC = () => {
       <FormPage>
         <Col flex="2 1 0">
           <Col>
+            <p className="topic-list-title">
+              <b>Update Topics List (Event of the Day)</b>
+            </p>
+            <FormikForm
+              loading={false}
+              initialValues={defaultTopic}
+              onSubmit={async (values, { setSubmitting }) => {
+                await handleSubmit(values);
+                setSubmitting(false);
+              }}
+            >
+              {({ isSubmitting, values, setValues }) => (
+                <>
+                  <Row>
+                    <p>
+                      <b>Create a new topic</b>
+                    </p>
+                  </Row>
+                  <Row alignItems="center">
+                    <FormikText name="name" label="Topic Name" width="295px" />
+                    <FormikSelect
+                      label="Type"
+                      name="topicType"
+                      options={topicTypeOptions}
+                      value={topicTypeOptions.find((o) => o.value === values.topicType)}
+                      width={FieldSize.Medium}
+                    />
+                    <Button
+                      type="submit"
+                      variant={ButtonVariant.primary}
+                      disabled={isSubmitting || !values.name || !values.topicType}
+                      style={{ marginTop: '15px' }}
+                    >
+                      Save
+                    </Button>
+                  </Row>
+                </>
+              )}
+            </FormikForm>
             <TopicFilter
               onFilterChange={(filter) => {
                 if (filter && filter.length) {
@@ -138,44 +177,6 @@ export const TopicList: React.FC = () => {
                 }
               }}
             />
-            <FormikForm
-              loading={false}
-              initialValues={defaultTopic}
-              onSubmit={async (values, { setSubmitting }) => {
-                await handleSubmit(values);
-                setSubmitting(false);
-              }}
-            >
-              {({ isSubmitting, values, setValues }) => (
-                <>
-                  <Row>
-                    <h2>Create new topic (Event of the Day)</h2>
-                  </Row>
-                  <Row alignItems="center">
-                    <FormikText name="name" label="Topic" width="208px" />
-                    <FormikSelect
-                      label="Type"
-                      name="topicType"
-                      options={topicTypeOptions}
-                      value={topicTypeOptions.find((o) => o.value === values.topicType)}
-                      width={FieldSize.Medium}
-                    />
-                    <Button
-                      type="submit"
-                      variant={ButtonVariant.primary}
-                      disabled={isSubmitting || !values.name || !values.topicType}
-                      style={{ marginTop: '15px' }}
-                    >
-                      Save
-                    </Button>
-                  </Row>
-                </>
-              )}
-            </FormikForm>
-            <br />
-            <Row>
-              <h2>Current topics</h2>
-            </Row>
             <FlexboxTable
               rowId="id"
               data={items}
