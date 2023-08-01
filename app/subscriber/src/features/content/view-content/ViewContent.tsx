@@ -87,7 +87,7 @@ export const ViewContent: React.FC = () => {
         .flatMap((x) => [
           x.name,
           // first letter of first name whole last name seperated by a period
-          x.name.charAt(0) + '.' + x.name.split(' ').slice(-1)
+          x.name.charAt(0) + '.' + x.name.split(' ').slice(-1),
           // ...x.aliases
           //   .split(',')
           //   .filter((element) => element) // remove empty entries
@@ -105,7 +105,7 @@ export const ViewContent: React.FC = () => {
       aliases.length &&
         aliases.forEach((ministerAlias: string, index: number) => {
           // escape any special characters in the alias for the regex
-          var ministerAliasRegex = ministerAlias.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&')
+          var ministerAliasRegex = ministerAlias.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
           const regex = new RegExp(ministerAliasRegex ?? '', 'gi');
           if (content?.summary && !content.summary.includes(`<b>${ministerAlias}</b>`)) {
             tempSummary = tempSummary?.replace(regex, `<b>${ministerAlias}</b>`);
