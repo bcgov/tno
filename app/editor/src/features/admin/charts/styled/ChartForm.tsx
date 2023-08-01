@@ -28,6 +28,7 @@ export const ChartForm = styled(FormPage)`
         border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
       resize: both;
       max-width: calc(100vw - 140px);
+      max-height: 500px;
     }
   }
 

@@ -44,8 +44,11 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
     if (search) {
       return this.data.filter((item) => {
         return this.columns.some((col) => {
-          const value = item[col.name];
-          return value ? `${value}`.includes(search) : false;
+          if (item !== undefined) {
+            const value = item[col.name];
+            return value ? `${value}`.includes(search) : false;
+          }
+          return false;
         });
       });
     }

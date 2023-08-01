@@ -32,4 +32,16 @@ export const FilterForm = styled(FormPage)`
       max-height: 500px;
     }
   }
+
+  .results {
+    max-height: 200px;
+    overflow: scroll;
+    border: 1px solid rgb(96, 96, 96);
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.75rem;
+  }
+
+  hr {
+    width: 100%;
+  }
 `;

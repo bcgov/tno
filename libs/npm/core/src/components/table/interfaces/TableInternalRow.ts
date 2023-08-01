@@ -30,7 +30,7 @@ export class TableInternalRow<T extends object> implements ITableInternalRow<T> 
     this.original = original;
     this.isSelected = isSelected;
     this.isActive = table.activeRow
-      ? table.activeRow?.original[rowId] === original[rowId]
+      ? table.activeRow?.original?.[rowId] === original[rowId]
       : table.activeRowId === `${original[rowId]}`;
     this.cells = columns.map(
       (col) =>

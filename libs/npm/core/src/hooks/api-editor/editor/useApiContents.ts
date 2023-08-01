@@ -36,6 +36,12 @@ export const useApiContents = (
         `/editor/contents?${toQueryString(params)}`,
       );
     },
+    findContentWithElasticsearch: (filter: unknown, index: string | undefined = undefined) => {
+      return api.post<unknown, AxiosResponse<unknown>, any>(
+        `/editor/contents/search${index ? `?index=${index}` : ''}`,
+        filter,
+      );
+    },
     getContent: (id: number) => {
       return api.get<IContentModel | undefined, AxiosResponse<IContentModel | undefined>, any>(
         `/editor/contents/${id}`,

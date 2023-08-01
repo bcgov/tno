@@ -157,6 +157,22 @@ public class ContentController : ControllerBase
     }
 
     /// <summary>
+    /// Find a page of content for the specified query filter.
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    [HttpPost("search")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> FindWithElasticsearchAsync([FromQuery] string? index, [FromBody] JsonDocument filter)
+    {
+        var result = await _contentService.FindWithElasticsearchAsync(index ?? _elasticOptions.UnpublishedIndex, filter);
+        return new JsonResult(result);
+    }
+
+    /// <summary>
     /// Find content for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>

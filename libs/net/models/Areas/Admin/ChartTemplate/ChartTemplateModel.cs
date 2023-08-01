@@ -1,3 +1,4 @@
+using System.Text.Json;
 using TNO.API.Models;
 
 namespace TNO.API.Areas.Admin.Models.ChartTemplate;
@@ -12,6 +13,11 @@ public class ChartTemplateModel : BaseTypeWithAuditColumnsModel<int>
     /// get/set - The Razor template to generate the chart.
     /// </summary>
     public string Template { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The settings.
+    /// </summary>
+    public JsonDocument Settings { get; set; } = JsonDocument.Parse("{}");
     #endregion
 
     #region Constructors
@@ -27,6 +33,7 @@ public class ChartTemplateModel : BaseTypeWithAuditColumnsModel<int>
     public ChartTemplateModel(Entities.ChartTemplate entity) : base(entity)
     {
         this.Template = entity.Template;
+        this.Settings = entity.Settings;
     }
     #endregion
 
@@ -43,6 +50,7 @@ public class ChartTemplateModel : BaseTypeWithAuditColumnsModel<int>
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
+            Settings = model.Settings,
             Version = model.Version ?? 0
         };
 

@@ -16,7 +16,7 @@ import {
   Row,
 } from 'tno-core';
 
-import { defaultReportTemplate, defaultTemplate } from './constants';
+import { defaultRazorTemplate, defaultReportTemplate } from './constants';
 
 /**
  * The page used to view and edit reports.
@@ -92,7 +92,7 @@ export const ReportFormTemplate: React.FC = () => {
           </Col>
           <Button
             variant={ButtonVariant.secondary}
-            onClick={() => setFieldValue('template.body', defaultTemplate)}
+            onClick={() => setFieldValue('template.body', defaultRazorTemplate)}
           >
             Use Default Template
           </Button>

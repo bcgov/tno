@@ -1,4 +1,4 @@
-export const defaultTemplate = `@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.TemplateModel>
+export const defaultRazorTemplate = `@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.ReportTemplateModel>
 @using System
 @using System.Linq
 @using TNO.Entities

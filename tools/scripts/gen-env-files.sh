@@ -307,7 +307,7 @@ else
 echo \
 "NODE_ENV=development
 CHOKIDAR_USEPOLLING=true
-WDS_SOCKET_PORT=$portNginxEditor
+WDS_SOCKET_PORT=$portNginxSubscriber
 #API_URL=http://api:80/
 REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth" >> ./app/subscriber/.env
     echo "./app/subscriber/.env created"

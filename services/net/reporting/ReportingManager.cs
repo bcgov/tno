@@ -42,7 +42,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <summary>
     /// get - Razor template engine.
     /// </summary>
-    protected ITemplateEngine<TemplateModel> TemplateEngine { get; }
+    protected ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> TemplateEngine { get; }
 
     /// <summary>
     /// get - CHES service.
@@ -72,7 +72,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         IKafkaListener<string, ReportRequestModel> listener,
         IApiService api,
         ClaimsPrincipal user,
-        ITemplateEngine<TemplateModel> templateEngine,
+        ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> templateEngine,
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
@@ -390,7 +390,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     {
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
         var key = $"report_{report.Id}_subject";
-        var model = new TemplateModel(content, report.Settings);
+        var model = new TNO.TemplateEngine.Models.Reports.ReportTemplateModel(content, report.Settings);
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
         var template = (!updateCache ?
             this.TemplateEngine.GetOrAddTemplateInMemory(key, report.Template.Subject) :
@@ -415,7 +415,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     {
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
         var key = $"report_{report.Id}";
-        var model = new TemplateModel(content, report.Settings);
+        var model = new TNO.TemplateEngine.Models.Reports.ReportTemplateModel(content, report.Settings);
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
 
         if (content.TryGetValue("", out ReportSectionModel? value) && value != null && value.Content.Any())

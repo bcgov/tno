@@ -10,10 +10,7 @@ export const defaultChartTemplate: IChartTemplateModel = {
   isPublic: false,
   settings: {
     chartTypes: [],
-    isOverTime: false,
-    graph: [],
     groupBy: [],
-    groupBySection: [],
     options: {},
   },
 };

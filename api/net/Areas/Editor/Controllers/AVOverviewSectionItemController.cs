@@ -11,13 +11,6 @@ using TNO.Elastic;
 using TNO.Kafka;
 using TNO.Keycloak;
 using TNO.TemplateEngine;
-using Microsoft.AspNetCore.Http.Extensions;
-using TNO.API.Areas.Admin.Models.Tag;
-using TNO.DAL.Models;
-using TNO.Entities.Models;
-
-
-using TNO.TemplateEngine.Models.Reports;
 using TNO.DAL.Config;
 using TNO.API.Areas.Editor.Models.AvOverview;
 
@@ -41,7 +34,7 @@ public class AVOverviewSectionItemController : ControllerBase
     #region Variables
     private readonly IAVOverviewSectionItemService _overviewSectionItemService;
     private readonly IUserService _userService;
-    private readonly ITemplateEngine<TemplateModel> _templateEngine;
+    private readonly ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> _templateEngine;
     private readonly IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
     private readonly ElasticOptions _elasticOptions;
@@ -64,7 +57,7 @@ public class AVOverviewSectionItemController : ControllerBase
     public AVOverviewSectionItemController(
         IAVOverviewSectionItemService overviewSectionItemService,
         IUserService userService,
-        ITemplateEngine<TemplateModel> templateEngine,
+        ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> templateEngine,
         IKafkaMessenger kafkaProducer,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<ElasticOptions> elasticOptions,

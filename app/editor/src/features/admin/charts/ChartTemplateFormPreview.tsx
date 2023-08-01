@@ -15,13 +15,20 @@ import {
   Col,
   IChartPreviewRequestModel,
   IChartTemplateModel,
+  OptionItem,
   Row,
+  Select,
   Text,
 } from 'tno-core';
+
+import { chartTypeOptions, defaultChartTemplate, groupByOptions } from './constants';
+import { IChartPreviewRequestForm } from './interfaces';
 
 export interface IChartTemplateFormPreviewProps {
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
+  preview: IChartPreviewRequestForm;
+  setPreview: React.Dispatch<React.SetStateAction<IChartPreviewRequestForm>>;
 }
 
 /**
@@ -31,17 +38,41 @@ export interface IChartTemplateFormPreviewProps {
 export const ChartTemplateFormPreview: React.FC<IChartTemplateFormPreviewProps> = ({
   filter,
   setFilter,
+  preview,
+  setPreview,
 }) => {
-  const { values } = useFormikContext<IChartTemplateModel>();
+  const { values, setFieldValue } = useFormikContext<IChartTemplateModel>();
   const [, { previewJson, previewBase64 }] = useChartTemplates();
 
-  const [preview, setPreview] = React.useState<IChartPreviewRequestModel>({
-    chartType: 'bar',
-    template: values.template,
-    content: [],
-  });
-  const [chartData, setChartData] = React.useState('');
-  const [graph, setGraph] = React.useState('');
+  const [chartData, setChartData] = React.useState(
+    preview.chartData ? JSON.stringify(preview.chartData, null, 2) : undefined,
+  );
+  const [chartTypes] = React.useState(
+    values.settings?.chartTypes?.map((ct) => chartTypeOptions.find((o) => o.value === ct)) ?? [],
+  );
+  const [groupBys] = React.useState(
+    values.settings?.groupBy?.map((ct) => groupByOptions.find((o) => o.value === ct)) ?? [],
+  );
+  const [indexOptions] = React.useState([
+    new OptionItem('Published', 'content'),
+    new OptionItem('Unpublished', 'unpublished_content'),
+  ]);
+
+  React.useEffect(() => {
+    // Initializes settings if the DB has no value.
+    if (!values.settings) {
+      setFieldValue('settings', defaultChartTemplate.settings);
+    }
+  }, [setFieldValue, values.settings]);
+
+  React.useEffect(() => {
+    if (chartData) {
+      try {
+        const data = JSON.parse(chartData);
+        setPreview((preview) => ({ ...preview, chartData: data }));
+      } catch {}
+    }
+  }, [chartData, setPreview]);
 
   const handleGenerateJson = React.useCallback(
     async (preview: IChartPreviewRequestModel) => {
@@ -65,18 +96,19 @@ export const ChartTemplateFormPreview: React.FC<IChartTemplateFormPreviewProps> 
     async (preview: IChartPreviewRequestModel) => {
       try {
         const response = await previewBase64(preview);
-        setGraph(response);
+        setPreview((preview) => ({ ...preview, chartBase64: response }));
       } catch (ex) {
         if (ex instanceof SyntaxError) {
-          setGraph(ex.message);
+          const message = ex.message;
+          setPreview((preview) => ({ ...preview, chartBase64: message }));
         } else if (ex instanceof AxiosError) {
           const response = ex.response;
           const data = response?.data as any;
-          setGraph(JSON.stringify(data));
+          setPreview((preview) => ({ ...preview, chartBase64: JSON.stringify(data) }));
         }
       }
     },
-    [previewBase64],
+    [previewBase64, setPreview],
   );
 
   return (
@@ -87,6 +119,65 @@ export const ChartTemplateFormPreview: React.FC<IChartTemplateFormPreviewProps> 
           If you would like to dynamically find content, create a filter and click 'Generate JSON'.
           Or you can manually enter the Chart JSON data and click 'Generate Graph'.
         </p>
+
+        <Row>
+          <Select
+            label="Chart Type"
+            name="chartType"
+            options={chartTypes}
+            value={chartTypes.find((o) => o?.value === preview.settings.chartType) ?? ''}
+            isClearable={false}
+            onChange={(newValue) => {
+              const option = newValue as OptionItem;
+              setPreview({
+                ...preview,
+                settings: { ...preview.settings, chartType: option.value?.toString() ?? 'bar' },
+              });
+            }}
+          />
+          <Select
+            label="Group By"
+            name="groupBy"
+            options={groupBys}
+            value={groupByOptions.find((o) => o?.value === preview.settings.groupBy) ?? ''}
+            isClearable={false}
+            onChange={(newValue) => {
+              const option = newValue as OptionItem;
+              setPreview({
+                ...preview,
+                settings: { ...preview.settings, groupBy: option.value?.toString() ?? 'bar' },
+              });
+            }}
+          />
+          <Text
+            name="width"
+            label="Width"
+            value={preview.width ?? ''}
+            type="number"
+            onChange={(e) => setPreview({ ...preview, width: parseInt(e.target.value) })}
+          />
+          <Text
+            name="height"
+            label="Height"
+            value={preview.height ?? ''}
+            type="number"
+            onChange={(e) => setPreview({ ...preview, height: parseInt(e.target.value) })}
+          />
+        </Row>
+        <hr />
+        <Row>
+          <Select
+            label="Index"
+            name="index"
+            options={indexOptions}
+            value={indexOptions.find((o) => o.value === preview.index) ?? ''}
+            clearValue={''}
+            onChange={(newValue) => {
+              const option = newValue as OptionItem;
+              setPreview((preview) => ({ ...preview, index: option.value?.toString() }));
+            }}
+          />
+        </Row>
         <label htmlFor="txa-template">Elasticsearch Filter</label>
         <Col className="editor">
           <Editor
@@ -99,23 +190,35 @@ export const ChartTemplateFormPreview: React.FC<IChartTemplateFormPreviewProps> 
           />
         </Col>
       </Col>
-      <Button
-        variant={ButtonVariant.success}
-        onClick={() =>
-          handleGenerateJson({
-            ...preview,
-            filter: filter ? JSON.parse(filter) : JSON.parse('{}'),
-          })
-        }
-      >
-        Generate JSON
-      </Button>
+      <hr />
+      <Row>
+        <Button
+          variant={ButtonVariant.success}
+          onClick={() =>
+            handleGenerateJson({
+              ...preview,
+              filter: filter ? JSON.parse(filter) : JSON.parse('{}'),
+            })
+          }
+        >
+          Generate JSON
+        </Button>
+        <Button
+          variant={ButtonVariant.secondary}
+          onClick={() => {
+            setChartData('');
+            setPreview({ ...preview, chartData: undefined });
+          }}
+        >
+          Clear
+        </Button>
+      </Row>
       <Col className="code frm-in">
         <label htmlFor="txa-json">Chart JSON</label>
         <Col className="editor">
           <Editor
             id="txa-json"
-            value={chartData}
+            value={chartData ?? ''}
             onValueChange={(code) => setChartData(code)}
             highlight={(code) => {
               return highlight(code, languages.json, 'razor');
@@ -125,41 +228,29 @@ export const ChartTemplateFormPreview: React.FC<IChartTemplateFormPreviewProps> 
       </Col>
       <hr />
       <Row>
-        <Text
-          name="chartType"
-          label="Chart Type"
-          value={preview.chartType}
-          onChange={(e) => setPreview({ ...preview, chartType: e.target.value })}
-        />
-        <Text
-          name="width"
-          label="Width"
-          value={preview.width}
-          type="number"
-          onChange={(e) => setPreview({ ...preview, width: parseInt(e.target.value) })}
-        />
-        <Text
-          name="height"
-          label="Height"
-          value={preview.height}
-          type="number"
-          onChange={(e) => setPreview({ ...preview, height: parseInt(e.target.value) })}
-        />
+        <Button
+          variant={ButtonVariant.success}
+          onClick={() =>
+            handleGenerateBase64({
+              ...preview,
+              filter: filter ? JSON.parse(filter) : JSON.parse('{}'),
+              chartData: chartData ? JSON.parse(chartData) : undefined,
+            })
+          }
+        >
+          Generate Chart
+        </Button>
+        <Button
+          variant={ButtonVariant.secondary}
+          onClick={() => {
+            setPreview({ ...preview, chartBase64: '' });
+          }}
+        >
+          Clear
+        </Button>
       </Row>
-      <Button
-        variant={ButtonVariant.success}
-        onClick={() =>
-          handleGenerateBase64({
-            ...preview,
-            filter: filter ? JSON.parse(filter) : JSON.parse('{}'),
-            chartData: chartData ? JSON.parse(chartData) : undefined,
-          })
-        }
-      >
-        Generate Graph
-      </Button>
       <Col className="preview-image">
-        <img alt="graph" src={graph} />
+        <img alt="graph" src={preview.chartBase64 ?? ''} />
       </Col>
     </>
   );
