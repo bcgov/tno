@@ -13,25 +13,27 @@ import {
   Button,
   ButtonVariant,
   Col,
-  FormikSelect,
-  FormikText,
   IFilterModel,
   IFilterSettingsModel,
   OptionItem,
   Row,
+  Select,
+  Text,
 } from 'tno-core';
 
 /**
- * Generates an Elasticsearch query based on specified 'settings'.
- * @param settings Form values that will be used to configure the elasticsearch query.
+ * Generates an Elasticsearch query based on specified 'query'.
+ * @param values Form values that will be used to configure the elasticsearch query.
+ * @param original Original query object.
  * @returns Elasticsearch query JSON.
  */
-const generateQuery = (settings: IFilterSettingsModel) => {
-  let query: any = {};
-  if (settings.size) _.set(query, 'size', settings.size);
-  if (settings.productIds) _.set(query, 'query.terms.productIds', settings.productIds);
+const generateQuery = (values: IFilterSettingsModel, original: any = {}) => {
+  if (values.size) _.set(original, 'size', values.size);
+  if (values.productIds && values.productIds.length)
+    _.set(original, 'query.terms.productIds', values.productIds);
+  else _.set(original, 'query.terms.productIds', undefined);
 
-  return query;
+  return original;
 };
 
 /**
@@ -44,43 +46,38 @@ export const FilterFormQuery: React.FC = () => {
 
   const [filter, setFilter] = React.useState(JSON.stringify(values.query, null, 2));
 
-  React.useEffect(() => {
-    var query = generateQuery(values.settings);
-    setFilter(JSON.stringify(query, null, 2));
-    setFieldValue('query', query);
-  }, [setFieldValue, values.settings]);
-
   return (
     <>
       <Col>
         <h2>{values.name}</h2>
         <Row>
           <Col flex="1">
-            <p>
-              A primary filter can be used to find content to include in the report. If a report has
-              sections, you can add filters to each section instead.
-            </p>
+            <p>An Elasticsearch query provides a way to search for content.</p>
           </Col>
           <Button
             variant={ButtonVariant.secondary}
             onClick={() => {
-              setFieldValue('settings', {});
+              setFieldValue('query', {});
+              setFilter('');
             }}
           >
-            Clear Filter
+            Clear Query
           </Button>
         </Row>
         <Row alignItems="center">
-          <FormikText
-            name="settings.size"
+          <Text
+            name="query"
             label="Number of Stories"
             type="number"
             width="10ch"
+            value={values.query.size ?? 10}
             onChange={(e) => {
-              setFieldValue(
-                'settings.size',
-                !!e.target.value ? parseInt(e.target.value) : undefined,
+              const query = generateQuery(
+                { size: !!e.target.value ? parseInt(e.target.value) : 10 },
+                values.query,
               );
+              setFieldValue('query', query);
+              setFilter(JSON.stringify(query, null, 2));
             }}
           />
           <p>
@@ -88,23 +85,26 @@ export const FilterFormQuery: React.FC = () => {
             default limit is 10.
           </p>
         </Row>
-        <FormikSelect
-          name="productIds"
+        <Select
+          name="query.productIds"
           label="Products"
           isMulti
+          options={productOptions}
           value={
             productOptions.filter((mt) =>
-              values.settings.productIds?.some((p: number) => p === mt.value),
+              values.query?.query?.terms?.productIds?.some((p: number) => p === mt.value),
             ) ?? []
           }
           onChange={(newValue: any) => {
-            console.debug(newValue);
-            setFieldValue(
-              'settings.productIds',
-              newValue.length ? newValue.map((v: OptionItem) => v.value) : undefined,
+            const query = generateQuery(
+              {
+                productIds: newValue.map((v: OptionItem) => v.value),
+              },
+              values.query,
             );
+            setFieldValue('query', query);
+            setFilter(JSON.stringify(query, null, 2));
           }}
-          options={productOptions}
         />
       </Col>
       <Col className="code frm-in">
@@ -128,8 +128,7 @@ export const FilterFormQuery: React.FC = () => {
             onValueChange={(code) => {
               setFilter(code);
               try {
-                const json = JSON.parse(code);
-                setFieldValue('filter', json);
+                setFieldValue('query', JSON.parse(code));
               } catch {
                 // Ignore errors.
                 // TODO: Inform user of formatting issues on blur/validation.

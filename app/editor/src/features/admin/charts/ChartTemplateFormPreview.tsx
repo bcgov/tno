@@ -13,7 +13,7 @@ import {
   Button,
   ButtonVariant,
   Col,
-  IChartPreviewRequestModel,
+  IChartRequestModel,
   IChartTemplateModel,
   OptionItem,
   Row,
@@ -22,13 +22,13 @@ import {
 } from 'tno-core';
 
 import { chartTypeOptions, defaultChartTemplate, groupByOptions } from './constants';
-import { IChartPreviewRequestForm } from './interfaces';
+import { IChartRequestForm } from './interfaces';
 
 export interface IChartTemplateFormPreviewProps {
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
-  preview: IChartPreviewRequestForm;
-  setPreview: React.Dispatch<React.SetStateAction<IChartPreviewRequestForm>>;
+  preview: IChartRequestForm;
+  setPreview: React.Dispatch<React.SetStateAction<IChartRequestForm>>;
 }
 
 /**
@@ -75,7 +75,7 @@ export const ChartTemplateFormPreview: React.FC<IChartTemplateFormPreviewProps> 
   }, [chartData, setPreview]);
 
   const handleGenerateJson = React.useCallback(
-    async (preview: IChartPreviewRequestModel) => {
+    async (preview: IChartRequestModel) => {
       try {
         const response = await previewJson(preview);
         setChartData(JSON.stringify(response.json, null, 2));
@@ -93,7 +93,7 @@ export const ChartTemplateFormPreview: React.FC<IChartTemplateFormPreviewProps> 
   );
 
   const handleGenerateBase64 = React.useCallback(
-    async (preview: IChartPreviewRequestModel) => {
+    async (preview: IChartRequestModel) => {
       try {
         const response = await previewBase64(preview);
         setPreview((preview) => ({ ...preview, chartBase64: response }));

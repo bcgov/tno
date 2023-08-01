@@ -192,6 +192,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services
     .Configure<ApiOptions>(config.GetSection("API"))
     .AddScoped<IConnectionHelper, ConnectionHelper>()
+    .AddScoped<IReportHelper, ReportHelper>()
     .AddTNOServices(config, env)
     .AddTemplateEngine<TNO.TemplateEngine.Models.Notifications.TemplateModel>()
     .AddTemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel>()
