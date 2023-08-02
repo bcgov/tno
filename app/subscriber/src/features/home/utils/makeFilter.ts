@@ -20,6 +20,7 @@ export const makeFilter = (
     excludeSourceIds: filter.excludeSourceIds ?? undefined,
     headline: filter.headline ?? '',
     keyword: filter.keyword ?? undefined,
+    names: filter.names ?? undefined,
     productIds: filter.productIds ?? undefined,
     publishedEndOn: filter.endDate ? filter.endDate : undefined,
     publishedStartOn: filter.startDate ? filter.startDate : undefined,
