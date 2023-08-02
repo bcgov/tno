@@ -46,6 +46,7 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest 
     const currentUrl = window.location.href;
     if (currentUrl.includes('/admin/topics')) {
       (mainRef.current as any).style.overflowY = 'hidden';
+      (document.querySelector('body') as any).style.overflowY = 'hidden';
     }
   }, []);
 
