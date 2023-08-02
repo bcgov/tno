@@ -223,7 +223,7 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         if (filter.Sentiment.Any())
             filterQueries.Add(s => s.Nested(n => n.Path(p => p.TonePools).Query(y => y.Range(m => m.Field("tonePools.value").GreaterThanOrEquals(filter.Sentiment.First()).LessThanOrEquals(filter.Sentiment.Last())))));
-        
+
         if (filter.ProductIds.Any())
             filterQueries.Add(s => s.Terms(t => t.Field(f => f.ProductId).Terms(filter.ProductIds)));
 
@@ -500,6 +500,22 @@ public class ContentService : BaseService<Content, long>, IContentService
     {
         return this.Context.NotificationInstances
             .Where(n => n.ContentId == contentId);
+    }
+
+    /// <summary>
+    /// Update the specified 'entity' in the database.
+    /// </summary>
+    /// <param name="updated"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    /// TODO: Switch to not found exception throughout services.
+    public Content UpdateStatusOnly(Content updated)
+    {
+        var original = FindById(updated.Id) ?? throw new InvalidOperationException("Entity does not exist");
+
+        this.Context.Entry(original.Status).CurrentValues.SetValues(updated.Status);
+
+        return base.Update(original);
     }
     #endregion
 }

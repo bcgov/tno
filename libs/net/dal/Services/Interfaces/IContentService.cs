@@ -20,4 +20,13 @@ public interface IContentService : IBaseService<Content, long>
     /// <param name="contentId"></param>
     /// <returns></returns>
     IEnumerable<NotificationInstance> GetNotificationsFor(long contentId);
+
+    /// <summary>
+    /// Update the ContentStatus for the specified 'contentId'.
+    /// Will not trigger a version number change.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    Content UpdateStatusOnly(Content entity);
+
 }
