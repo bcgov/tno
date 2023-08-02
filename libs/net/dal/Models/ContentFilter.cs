@@ -145,6 +145,9 @@ public class ContentFilter : PageFilter
     /// </summary>
     public string? Keyword { get; set; }
 
+    // get/set - Get/set the names to search for (tied to ministers).
+    public string? Names { get; set; }
+
     // get/set - Get/set the aliases to search for (tied to ministers).
     public string? Aliases { get; set; }
 
@@ -196,6 +199,7 @@ public class ContentFilter : PageFilter
         this.Headline = filter.GetStringValue(nameof(this.Headline));
         this.Section = filter.GetStringValue(nameof(this.Section));
         this.Keyword = filter.GetStringValue(nameof(this.Keyword));
+        this.Names = filter.GetStringValue(nameof(this.Names));
         this.PageName = filter.GetStringValue(nameof(this.PageName));
         this.Edition = filter.GetStringValue(nameof(this.Edition));
         this.Byline = filter.GetStringValue(nameof(this.Byline));

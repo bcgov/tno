@@ -13,12 +13,13 @@ export const columns: ITableHookColumn<IMinisterModel>[] = [
     width: 5,
     cell: (cell) => <CellEllipsis>{cell.original.position}</CellEllipsis>,
   },
-  {
-    label: 'Aliases',
-    name: 'aliases',
-    width: 1,
-    cell: (cell) => <CellEllipsis>{cell.original.aliases}</CellEllipsis>,
-  },
+  // KGM : Hidden for future use with elasticsearch synonyms
+  // {
+  //   label: 'Aliases',
+  //   name: 'aliases',
+  //   width: 1,
+  //   cell: (cell) => <CellEllipsis>{cell.original.aliases}</CellEllipsis>,
+  // },
   {
     label: 'Order',
     name: 'sortOrder',

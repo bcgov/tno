@@ -84,7 +84,15 @@ export const ViewContent: React.FC = () => {
       let selectedAliases: string[] = [];
       selectedAliases = ministers
         .filter((m) => userInfo?.preferences?.myMinisters?.includes(m.id))
-        .flatMap((x) => [x.name, ...x.aliases.split(',').map((a) => a.trim())]);
+        .flatMap((x) => [
+          x.name,
+          // first letter of first name whole last name seperated by a period
+          x.name.charAt(0) + '.' + x.name.split(' ').slice(-1),
+          // ...x.aliases
+          //   .split(',')
+          //   .filter((element) => element) // remove empty entries
+          //   .map((a) => a.trim()),
+        ]);
       setAliases(selectedAliases);
     }
   }, [ministers, userInfo?.preferences?.myMinisters]);
@@ -96,7 +104,9 @@ export const ViewContent: React.FC = () => {
       let tempSummary = content?.summary;
       aliases.length &&
         aliases.forEach((ministerAlias: string, index: number) => {
-          const regex = new RegExp(ministerAlias ?? '', 'gi');
+          // escape any special characters in the alias for the regex
+          var ministerAliasRegex = ministerAlias.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
+          const regex = new RegExp(ministerAliasRegex ?? '', 'gi');
           if (content?.summary && !content.summary.includes(`<b>${ministerAlias}</b>`)) {
             tempSummary = tempSummary?.replace(regex, `<b>${ministerAlias}</b>`);
           }

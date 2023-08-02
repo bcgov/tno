@@ -174,6 +174,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         var items = query?.ToArray() ?? Array.Empty<Content>();
         return new Paged<Content>(items, filter.Page, filter.Quantity, total);
     }
+
     /// <summary>
     /// Find most recent front pages (5 of them).
     /// </summary>
@@ -264,6 +265,40 @@ public class ContentService : BaseService<Content, long>, IContentService
                 )
                 .Query(filter.Keyword.ToLower())
             ));
+
+        if (!string.IsNullOrWhiteSpace(filter.Names))
+        {
+            var names = filter.Names.Split(',').Select(a => a.Trim()).ToList();
+            List<string> nameQueries = new();
+            foreach (var name in names)
+            {
+                var nameSegments = name.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                if (nameSegments.Length == 1)
+                {
+                    //(Beyonce)
+                    nameQueries.Add($"({name})");
+                }
+                else if (nameSegments.Length > 1)
+                {
+                    var firstName = nameSegments.First();
+                    var firstInitial = firstName.Substring(0, 1);
+                    var lastName = nameSegments.Last();
+                    // search for firstName+lastName OR firstInitial.lastName
+                    // (David+Eby | D.Eby)
+                    nameQueries.Add($"({lastName}+{firstName} | {firstInitial}.{lastName})");
+                }
+            }
+            const int searchBoost = 10;
+            filterQueries.Add(s =>
+                s.SimpleQueryString(qs => qs
+                    .Fields(f => f
+                        .Field(p => p.Headline, searchBoost)
+                        .Field(p => p.Byline, searchBoost)
+                        .Field(p => p.Body)
+                        .Field(p => p.Summary)
+                    )
+                .Query(string.Join(" | ", nameQueries))));
+        }
 
         if (!string.IsNullOrWhiteSpace(filter.PageName))
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Page).Value($"*{filter.PageName.ToLower()}*")));

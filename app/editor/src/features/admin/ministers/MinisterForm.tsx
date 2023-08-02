@@ -82,7 +82,7 @@ export const MinisterForm: React.FC = () => {
               <FormikText width={FieldSize.Large} name="name" label="Name" />
               <FormikTextArea name="description" label="Description" width={FieldSize.Large} />
               <FormikTextArea name="position" label="Position" width={FieldSize.Large} />
-              <FormikText name="aliases" label="Aliases" width={FieldSize.Large} />
+              {/* <FormikText name="aliases" label="Aliases" width={FieldSize.Large} /> */}
               <FormikText
                 width={FieldSize.Tiny}
                 name="sortOrder"
