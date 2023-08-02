@@ -223,7 +223,7 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         if (filter.Sentiment.Any())
             filterQueries.Add(s => s.Nested(n => n.Path(p => p.TonePools).Query(y => y.Range(m => m.Field("tonePools.value").GreaterThanOrEquals(filter.Sentiment.First()).LessThanOrEquals(filter.Sentiment.Last())))));
-        
+
         if (filter.ProductIds.Any())
             filterQueries.Add(s => s.Terms(t => t.Field(f => f.ProductId).Terms(filter.ProductIds)));
 
@@ -514,7 +514,6 @@ public class ContentService : BaseService<Content, long>, IContentService
         var original = FindById(updated.Id) ?? throw new InvalidOperationException("Entity does not exist");
 
         this.Context.Entry(original.Status).CurrentValues.SetValues(updated.Status);
-        this.Context.ResetVersion(original);
 
         return base.Update(original);
     }
