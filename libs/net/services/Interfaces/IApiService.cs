@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using TNO.Entities;
 
 namespace TNO.Services;
 
@@ -186,6 +187,15 @@ public interface IApiService
     /// <param name="requestorId">The user ID who is requesting the update.</param>
     /// <returns></returns>
     public Task<API.Areas.Services.Models.Content.ContentModel?> UpdateContentAsync(API.Areas.Services.Models.Content.ContentModel content, HttpRequestHeaders? headers = null, bool index = false, int? requestorId = null);
+
+    /// <summary>
+    /// Make a request to the API to update the content status for the specified ContentModel.
+    /// Will not trigger any re-index or audit trail update
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="headers"></param>
+    /// <returns></returns>
+    public Task<API.Areas.Services.Models.Content.ContentModel?> UpdateContentStatusAsync(API.Areas.Services.Models.Content.ContentModel content, HttpRequestHeaders? headers = null);
 
     /// <summary>
     /// Make a request to the API to upload the file and link to specified content.
