@@ -272,17 +272,32 @@ public class ContentService : BaseService<Content, long>, IContentService
             List<string> nameQueries = new();
             foreach (var name in names)
             {
-                var nameSegments = name.Split(' ');
-                var firstName = nameSegments.First();
-                var firstInitial = firstName.Substring(0, 1);
-                var lastName = nameSegments.Last();
-                //(eby +(david | d.))
-                nameQueries.Add($"({lastName} +({firstName} | {firstInitial}.))");
+                var nameSegments = name.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                if (nameSegments.Length == 1)
+                {
+                    //(Beyonce)
+                    nameQueries.Add($"({name})");
+                }
+                else if (nameSegments.Length > 1)
+                {
+                    var firstName = nameSegments.First();
+                    var firstInitial = firstName.Substring(0, 1);
+                    var lastName = nameSegments.Last();
+                    // search for firstName+lastName OR firstInitial.lastName
+                    // (David+Eby | D.Eby)
+                    nameQueries.Add($"({lastName}+{firstName} | {firstInitial}.{lastName})");
+                }
             }
+            const int searchBoost = 10;
             filterQueries.Add(s =>
                 s.SimpleQueryString(qs => qs
-                .Fields(f => f.Field(p => p.Headline, 10).Field(p => p.Byline, 10).Field(p => p.Body).Field(p => p.Summary))
-                .Query(string.Join(" | ", nameQueries).ToLowerInvariant())));
+                    .Fields(f => f
+                        .Field(p => p.Headline, searchBoost)
+                        .Field(p => p.Byline, searchBoost)
+                        .Field(p => p.Body)
+                        .Field(p => p.Summary)
+                    )
+                .Query(string.Join(" | ", nameQueries))));
         }
 
         if (!string.IsNullOrWhiteSpace(filter.PageName))

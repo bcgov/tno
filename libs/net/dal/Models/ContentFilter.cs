@@ -145,7 +145,7 @@ public class ContentFilter : PageFilter
     /// </summary>
     public string? Keyword { get; set; }
 
-    // get/set - Get/set the namess to search for (tied to ministers).
+    // get/set - Get/set the names to search for (tied to ministers).
     public string? Names { get; set; }
 
     // get/set - Get/set the aliases to search for (tied to ministers).
