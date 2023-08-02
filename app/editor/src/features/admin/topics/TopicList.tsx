@@ -40,6 +40,24 @@ export const TopicList: React.FC = () => {
   const topicTypeOptions = getEnumStringOptions(TopicTypeName);
 
   React.useEffect(() => {
+    // It looks like we could not use useRef in this case due to the
+    // handling needs to be dealt with here instead of in parent component
+    const main = document.querySelector('main') as HTMLElement;
+    const body = document.querySelector('body') as HTMLBodyElement;
+
+    const originalMainOverflowY = main.style.overflowY;
+    const originalBodyOverflowY = body.style.overflowY;
+
+    main.style.overflowY = 'hidden';
+    body.style.overflowY = 'hidden';
+
+    return () => {
+      main.style.overflowY = originalMainOverflowY;
+      body.style.overflowY = originalBodyOverflowY;
+    };
+  }, []);
+
+  React.useEffect(() => {
     if (!items.length && !loading) {
       setLoading(true);
       api

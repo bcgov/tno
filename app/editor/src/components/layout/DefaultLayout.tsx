@@ -1,7 +1,7 @@
 import { UnauthenticatedHome } from 'features/home';
 import { UserInfo } from 'features/login';
 import { NavBar } from 'features/navbar';
-import React, { useRef } from 'react';
+import React from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { HubMethodName, IWorkOrderToast, useApiHub, useToastError } from 'store/hooks';
@@ -40,15 +40,6 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest 
   useToastError();
 
   const [toastIds, setToastIds] = React.useState<IWorkOrderToast[]>([]);
-
-  const mainRef = useRef(null);
-  React.useEffect(() => {
-    const currentUrl = window.location.href;
-    if (currentUrl.includes('/admin/topics')) {
-      (mainRef.current as any).style.overflowY = 'hidden';
-      (document.querySelector('body') as any).style.overflowY = 'hidden';
-    }
-  }, []);
 
   React.useEffect(() => {
     keycloak.instance.onTokenExpired = () => {
@@ -145,7 +136,7 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest 
         <div className="main-window">
           <LayoutErrorBoundary>
             <NavBar />
-            <main ref={mainRef}>
+            <main>
               <Outlet />
             </main>
           </LayoutErrorBoundary>
