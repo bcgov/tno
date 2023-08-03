@@ -36,9 +36,9 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({
         setItems(result);
       });
     }
-    // do not want this to fire everytime the api changes
+    // do not want this to fire everytime the api changes, run on save to account for sort order changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSection, items.length]);
+  }, [currentSection, items.length, saving]);
 
   // sort items based on sortorder when ever new items are retrieved or added
   React.useEffect(() => {

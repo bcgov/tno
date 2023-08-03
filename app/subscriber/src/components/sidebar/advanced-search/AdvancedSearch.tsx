@@ -15,6 +15,8 @@ import {
   ISubMediaGroupExpanded,
 } from './interfaces';
 import * as styled from './styled';
+import { queryToState } from './utils/queryToState';
+import { useParams } from 'react-router-dom';
 
 export interface IAdvancedSearchProps {
   expanded: boolean;
@@ -28,7 +30,7 @@ export interface IAdvancedSearchProps {
  */
 export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setExpanded }) => {
   const navigate = useNavigate();
-
+  const { query } = useParams();
   /** determines whether the date filter section is shown or not */
   const [dateExpanded, setDateExpanded] = React.useState(false);
   /** controls the parent group "Media Sources" expansion */
@@ -45,6 +47,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
     startDate: '',
     endDate: '',
   });
+
+  // update state when query changes, necessary to keep state in sync with url when navigating directly
+  React.useEffect(() => {
+    if (query) queryToState(query.toString(), setAdvancedSearch);
+  }, [query]);
 
   const advancedFilter = React.useMemo(
     () =>
@@ -104,6 +111,19 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
     }
   };
 
+  const determineActiveToggles = (): string => {
+    switch (advancedSearch.searchInField) {
+      case 'headline':
+        return 'Headline';
+      case 'byline':
+        return 'Byline';
+      case 'storyText':
+        return 'Story text';
+      default:
+        return '';
+    }
+  };
+
   return (
     <styled.AdvancedSearch>
       <Show visible={expanded}>
@@ -118,6 +138,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
           className="search-input"
           placeholder="Search for..."
           onKeyDown={enterPressed}
+          value={advancedSearch?.searchTerm}
           name="search"
           onChange={(e) => setAdvancedSearch({ ...advancedSearch, searchTerm: e.target.value })}
         />
@@ -131,7 +152,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
       <Show visible={expanded}>
         <div className="search-in-group space-top">
           <b>Search in: </b>
-          <ToggleGroup className="toggles" options={searchInOptions} />
+          <ToggleGroup
+            defaultSelected={determineActiveToggles()}
+            className="toggles"
+            options={searchInOptions}
+          />
         </div>
         <Col className="section narrow">
           <b>Narrow your results by: </b>
