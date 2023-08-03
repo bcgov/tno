@@ -1,13 +1,13 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: buildah-api
+  name: buildah-charts-api
   annotations:
     tekton.dev/displayName: Buildah API pipeline
     tekton.dev/pipelines.minVersion: 0.17.0
     tekton.dev/tags: build deploy
   labels:
-    name: buildah-api
+    name: buildah-charts-api
     part-of: tno
     version: 1.0.0
     component: pipeline
@@ -86,7 +86,7 @@ spec:
         - name: output
           workspace: conditions
 
-    - name: build-api
+    - name: build-charts-api
       taskRef:
         name: buildah
         kind: Task
@@ -96,9 +96,9 @@ spec:
         - name: CONTEXT
           value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: $(params.CONTEXT)/api/net/Dockerfile.openshift
+          value: $(params.CONTEXT)/api/node/Dockerfile.open
         - name: IMAGE
-          value: api
+          value: charts-api
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
       workspaces:
@@ -107,9 +107,9 @@ spec:
         - name: build
           workspace: build
 
-    - name: deploy-api
+    - name: deploy-charts-api
       runAfter:
-        - build-api
+        - build-charts-api
       taskRef:
         name: oc-deploy-with-tag
         kind: Task
@@ -117,7 +117,7 @@ spec:
         - name: PROJECT_SHORTNAME
           value: $(params.PROJECT_SHORTNAME)
         - name: IMAGE
-          value: api
+          value: charts-api
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
         - name: ENV

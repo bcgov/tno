@@ -24,10 +24,10 @@ import {
   defaultDateRazorTemplate,
   groupByOptions,
 } from './constants';
-import { IChartPreviewRequestForm } from './interfaces';
+import { IChartRequestForm } from './interfaces';
 
 export interface IChartTemplateFormTemplateProps {
-  setPreview: React.Dispatch<React.SetStateAction<IChartPreviewRequestForm>>;
+  setPreview: React.Dispatch<React.SetStateAction<IChartRequestForm>>;
 }
 
 /**

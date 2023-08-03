@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
@@ -81,63 +80,9 @@ public static class ConnectionModelExtensions
 
         if (value is JsonElement element)
         {
-            return element.ValueKind switch
-            {
-                JsonValueKind.String => (T)Convert.ChangeType($"{element.GetString()}".Trim(), typeof(T)),
-                JsonValueKind.Null or JsonValueKind.Undefined => defaultValue,
-                JsonValueKind.Number => ConvertNumberTo<T>(element),
-                JsonValueKind.True or JsonValueKind.False => (T)Convert.ChangeType($"{element.GetBoolean()}", typeof(T)),
-                JsonValueKind.Object => element.Deserialize<T>(options),
-                _ => (T)Convert.ChangeType($"{element}", typeof(T)),
-            };
+            return element.GetElementValue(key, defaultValue, options);
         }
 
         throw new ConfigurationException($"Dictionary key '{key}' is not a valid JSON element");
-    }
-
-    /// <summary>
-    /// Convert number to specified type.
-    /// This method handles enum values.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="element"></param>
-    /// <returns></returns>
-    private static T? ConvertNumberTo<T>(JsonElement element)
-    {
-        var value = element.ToString() ?? "";
-        var isFloat = Regex.IsMatch(value, "[-+]?[0-9]*\\.[0-9]+");
-        if (isFloat)
-        {
-            if (element.TryGetSingle(out float fvalue)) return fvalue.ChangeType<T>();
-            else if (element.TryGetDouble(out double dvalue)) return dvalue.ChangeType<T>();
-        }
-        else if (element.TryGetInt16(out short svalue))
-        {
-            var utype = Nullable.GetUnderlyingType(typeof(T));
-            if (utype?.IsEnum == true && Enum.TryParse(utype, value, true, out object? evalue))
-                return (T?)evalue;
-            else if (typeof(T).IsEnum)
-                return (T)(object)svalue;
-            return svalue.ChangeType<T>();
-        }
-        else if (element.TryGetInt32(out int ivalue))
-        {
-            var utype = Nullable.GetUnderlyingType(typeof(T));
-            if (utype?.IsEnum == true && Enum.TryParse(utype, value, true, out object? evalue))
-                return (T?)evalue;
-            else if (typeof(T).IsEnum)
-                return (T)(object)ivalue;
-            return ivalue.ChangeType<T>();
-        }
-        else if (element.TryGetInt64(out long lvalue))
-        {
-            var utype = Nullable.GetUnderlyingType(typeof(T));
-            if (utype?.IsEnum == true && Enum.TryParse(utype, value, true, out object? evalue))
-                return (T?)evalue;
-            else if (typeof(T).IsEnum)
-                return (T)(object)lvalue;
-            return lvalue.ChangeType<T>();
-        }
-        return default;
     }
 }

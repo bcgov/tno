@@ -10,6 +10,11 @@ public class ChartTemplateModel : RazorEngineTemplateBase
 {
     #region Properties
     /// <summary>
+    /// get/set - A unique name to identify the chart template.
+    /// </summary>
+    public string Name { get; set; } = "";
+
+    /// <summary>
     /// get/set - An array of content.
     /// </summary>
     public IEnumerable<ContentModel> Content { get; set; }
@@ -37,12 +42,14 @@ public class ChartTemplateModel : RazorEngineTemplateBase
     /// <summary>
     /// Creates a new instance of a ChartTemplateModel, initializes with specified parameters.
     /// </summary>
-    /// <param name="content"></param>
+    /// <param name="name"></param>
     /// <param name="settings"></param>
-    public ChartTemplateModel(IEnumerable<ContentModel> content, ChartSettingsModel settings)
+    /// <param name="content"></param>
+    public ChartTemplateModel(string name, ChartSettingsModel settings, IEnumerable<ContentModel>? content = null)
     {
-        this.Content = content.ToArray();
+        this.Name = name;
         this.Settings = settings;
+        this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
     }
 
     /// <summary>
@@ -51,10 +58,11 @@ public class ChartTemplateModel : RazorEngineTemplateBase
     /// <param name="sections"></param>
     /// <param name="settings"></param>
     /// <param name="uploadPath"></param>
-    public ChartTemplateModel(Dictionary<string, ReportSectionModel> sections, ChartSettingsModel settings)
+    public ChartTemplateModel(string name, ChartSettingsModel settings, Dictionary<string, ReportSectionModel> sections)
     {
-        this.Sections = sections;
+        this.Name = name;
         this.Settings = settings;
+        this.Sections = sections;
 
         // Reference all section content in the root Content collection.
         this.Content = sections.SelectMany(s => s.Value.Content).GroupBy(c => c.Id).Select(c => c.First());

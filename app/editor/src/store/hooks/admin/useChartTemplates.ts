@@ -2,8 +2,8 @@ import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 import {
-  IChartPreviewRequestModel,
-  IChartPreviewResultModel,
+  IChartRequestModel,
+  IChartResultModel,
   IChartTemplateModel,
   useApiAdminChartTemplates,
 } from 'tno-core';
@@ -14,9 +14,9 @@ interface IChartTemplateController {
   addChartTemplate: (model: IChartTemplateModel) => Promise<IChartTemplateModel>;
   updateChartTemplate: (model: IChartTemplateModel) => Promise<IChartTemplateModel>;
   deleteChartTemplate: (model: IChartTemplateModel) => Promise<IChartTemplateModel>;
-  previewJson: (model: IChartPreviewRequestModel) => Promise<IChartPreviewResultModel>;
-  previewBase64: (model: IChartPreviewRequestModel) => Promise<string>;
-  previewImage: (model: IChartPreviewRequestModel) => Promise<any>;
+  previewJson: (model: IChartRequestModel) => Promise<IChartResultModel>;
+  previewBase64: (model: IChartRequestModel) => Promise<string>;
+  previewImage: (model: IChartRequestModel) => Promise<any>;
 }
 
 export const useChartTemplates = (): [
@@ -82,20 +82,19 @@ export const useChartTemplates = (): [
         await lookup.getLookups();
         return response.data;
       },
-      previewJson: async (model: IChartPreviewRequestModel) => {
-        const response = await dispatch<IChartPreviewResultModel>(
-          'preview-chart-template-json',
-          () => api.previewJson(model),
+      previewJson: async (model: IChartRequestModel) => {
+        const response = await dispatch<IChartResultModel>('preview-chart-template-json', () =>
+          api.previewJson(model),
         );
         return response.data;
       },
-      previewBase64: async (model: IChartPreviewRequestModel) => {
+      previewBase64: async (model: IChartRequestModel) => {
         const response = await dispatch<string>('preview-chart-template-base64', () =>
           api.previewBase64(model),
         );
         return response.data;
       },
-      previewImage: async (model: IChartPreviewRequestModel) => {
+      previewImage: async (model: IChartRequestModel) => {
         const response = await dispatch<any>('preview-chart-template-image', () =>
           api.previewImage(model),
         );

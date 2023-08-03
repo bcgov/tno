@@ -20,8 +20,8 @@ import { ChartTemplateFormDetails } from './ChartTemplateFormDetails';
 import { ChartTemplateFormOptions } from './ChartTemplateFormOptions';
 import { ChartTemplateFormPreview } from './ChartTemplateFormPreview';
 import { ChartTemplateFormTemplate } from './ChartTemplateFormTemplate';
-import { defaultChartPreviewRequestForm, defaultChartTemplate } from './constants';
-import { IChartPreviewRequestForm } from './interfaces';
+import { defaultChartRequestForm, defaultChartTemplate } from './constants';
+import { IChartRequestForm } from './interfaces';
 import * as styled from './styled';
 
 /**
@@ -40,9 +40,7 @@ export const ChartTemplateForm: React.FC = () => {
     ...defaultChartTemplate,
   });
   const [filter, setFilter] = React.useState('');
-  const [preview, setPreview] = React.useState<IChartPreviewRequestForm>(
-    defaultChartPreviewRequestForm,
-  );
+  const [preview, setPreview] = React.useState<IChartRequestForm>(defaultChartRequestForm);
 
   const chartTemplateId = Number(id);
 
