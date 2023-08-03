@@ -78,8 +78,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
     [advancedSearch],
   );
 
-  console.log(advancedSearch);
-
   const handleSearch = async () => {
     navigate(`/search/${toQueryString(advancedFilter, { includeEmpty: false })}`);
   };

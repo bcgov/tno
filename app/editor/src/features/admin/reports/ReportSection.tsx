@@ -80,17 +80,9 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
     <styled.ReportSection className={className}>
       <Row alignItems="center">
         <FormikText
-          name={`sections.${index}.name`}
-          label="Name"
-          tooltip="Unique name to identify the section"
-          placeholder="Enter unique name"
-          required
-          maxLength={100}
-        />
-        <FormikText
           name={`sections.${index}.settings.label`}
-          label="Section Title"
-          tooltip="A title to display at the beginning of the section"
+          label="Heading"
+          tooltip="A heading label to display at the beginning of the section"
           maxLength={100}
         />
         <FormikCheckbox name={`sections.${index}.isEnabled`} label="Is Enabled" />
@@ -197,13 +189,24 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
               <Button
                 variant={ButtonVariant.secondary}
                 onClick={() => {
-                  const charts = [...values.sections[index].chartTemplates, { ...chart }].map(
-                    (ct, i) => {
-                      return { ...ct, sortOrder: i };
-                    },
-                  );
-                  setFieldValue(`sections.${index}.chartTemplates`, charts);
-                  setChart(undefined);
+                  if (chart) {
+                    const newChart = {
+                      ...chart,
+                      sectionSettings: {
+                        ...chart.sectionSettings,
+                        width: 500,
+                        height: 500,
+                        options: { ...chart.settings.options },
+                      },
+                    };
+                    const charts = [...values.sections[index].chartTemplates, newChart].map(
+                      (ct, i) => {
+                        return { ...ct, sortOrder: i };
+                      },
+                    );
+                    setFieldValue(`sections.${index}.chartTemplates`, charts);
+                    setChart(undefined);
+                  }
                 }}
                 disabled={
                   !chart || values.sections[index].chartTemplates.some((ct) => ct.id === chart.id)

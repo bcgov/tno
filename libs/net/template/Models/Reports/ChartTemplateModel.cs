@@ -10,6 +10,11 @@ public class ChartTemplateModel : RazorEngineTemplateBase
 {
     #region Properties
     /// <summary>
+    /// get/set - Unique key to identify this specific chart in a report template.
+    /// </summary>
+    public string Uid { get; set; } = "default";
+
+    /// <summary>
     /// get/set - A unique name to identify the chart template.
     /// </summary>
     public string Name { get; set; } = "";
@@ -27,7 +32,12 @@ public class ChartTemplateModel : RazorEngineTemplateBase
     /// <summary>
     /// get/set - The chart settings.
     /// </summary>
-    public ChartSettingsModel Settings { get; set; } = new();
+    public ChartTemplateSettingsModel Settings { get; set; } = new();
+
+    /// <summary>
+    /// get/set - The section chart settings.
+    /// </summary>
+    public ChartSettingsModel SectionSettings { get; set; } = new();
     #endregion
 
     #region Constructors
@@ -40,28 +50,92 @@ public class ChartTemplateModel : RazorEngineTemplateBase
     }
 
     /// <summary>
-    /// Creates a new instance of a ChartTemplateModel, initializes with specified parameters.
+    /// Creates a new instance of a ChartTemplateModel.
     /// </summary>
-    /// <param name="name"></param>
+    /// <param name="uid"></param>
     /// <param name="settings"></param>
     /// <param name="content"></param>
-    public ChartTemplateModel(string name, ChartSettingsModel settings, IEnumerable<ContentModel>? content = null)
+    public ChartTemplateModel(ChartSettingsModel settings, IEnumerable<ContentModel>? content = null)
     {
-        this.Name = name;
-        this.Settings = settings;
+        this.SectionSettings = settings;
         this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
     }
 
     /// <summary>
     /// Creates a new instance of a ChartTemplateModel, initializes with specified parameters.
     /// </summary>
-    /// <param name="sections"></param>
-    /// <param name="settings"></param>
-    /// <param name="uploadPath"></param>
-    public ChartTemplateModel(string name, ChartSettingsModel settings, Dictionary<string, ReportSectionModel> sections)
+    /// <param name="uid"></param>
+    /// <param name="model"></param>
+    /// <param name="content"></param>
+    public ChartTemplateModel(string uid, API.Areas.Admin.Models.Report.ChartTemplateModel model, IEnumerable<ContentModel>? content = null)
     {
-        this.Name = name;
-        this.Settings = settings;
+        this.Uid = uid;
+        this.Name = model.Name;
+        this.Settings = model.Settings;
+        this.SectionSettings = model.SectionSettings ?? new();
+        this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
+    }
+
+    /// <summary>
+    /// Creates a new instance of a ChartTemplateModel, initializes with specified parameters.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <param name="model"></param>
+    /// <param name="content"></param>
+    public ChartTemplateModel(string uid, API.Areas.Editor.Models.Report.ChartTemplateModel model, IEnumerable<ContentModel>? content = null)
+    {
+        this.Uid = uid;
+        this.Name = model.Name;
+        this.Settings = model.Settings;
+        this.SectionSettings = model.SectionSettings ?? new();
+        this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
+    }
+
+    /// <summary>
+    /// Creates a new instance of a ChartTemplateModel, initializes with specified parameters.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <param name="model"></param>
+    /// <param name="content"></param>
+    public ChartTemplateModel(string uid, API.Areas.Services.Models.Report.ChartTemplateModel model, IEnumerable<ContentModel>? content = null)
+    {
+        this.Uid = uid;
+        this.Name = model.Name;
+        this.Settings = model.Settings;
+        this.SectionSettings = model.SectionSettings ?? new();
+        this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
+    }
+
+    /// <summary>
+    /// Creates a new instance of a ChartTemplateModel, initializes with specified parameters.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <param name="model"></param>
+    /// <param name="sections"></param>
+    public ChartTemplateModel(string uid, API.Areas.Editor.Models.Report.ChartTemplateModel model, Dictionary<string, ReportSectionModel> sections)
+    {
+        this.Uid = uid;
+        this.Name = model.Name;
+        this.Settings = model.Settings;
+        this.SectionSettings = model.SectionSettings ?? new();
+        this.Sections = sections;
+
+        // Reference all section content in the root Content collection.
+        this.Content = sections.SelectMany(s => s.Value.Content).GroupBy(c => c.Id).Select(c => c.First());
+    }
+
+    /// <summary>
+    /// Creates a new instance of a ChartTemplateModel, initializes with specified parameters.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <param name="model"></param>
+    /// <param name="sections"></param>
+    public ChartTemplateModel(string uid, API.Areas.Services.Models.Report.ChartTemplateModel model, Dictionary<string, ReportSectionModel> sections)
+    {
+        this.Uid = uid;
+        this.Name = model.Name;
+        this.Settings = model.Settings;
+        this.SectionSettings = model.SectionSettings ?? new();
         this.Sections = sections;
 
         // Reference all section content in the root Content collection.

@@ -1,11 +1,11 @@
+using System.Reflection;
+using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
+using TNO.Ches;
+using TNO.Kafka;
+using TNO.Kafka.Models;
 using TNO.Services.Reporting.Config;
 using TNO.Services.Runners;
-using TNO.Kafka.Models;
-using TNO.Kafka;
-using TNO.Ches;
-using System.Security.Claims;
-using System.Reflection;
 using TNO.TemplateEngine;
 
 namespace TNO.Services.Reporting;
@@ -47,7 +47,7 @@ public class ReportingService : KafkaConsumerService
             .AddChesSingletonService(this.Configuration.GetSection("CHES"))
             .AddSingleton(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Email, "") })))
             .AddScoped<IServiceManager, ReportingManager>()
-            .AddTemplateEngine<TemplateEngine.Models.Reports.ReportTemplateModel>();
+            .AddTemplateEngine(this.Configuration);
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<ReportingOptions>()

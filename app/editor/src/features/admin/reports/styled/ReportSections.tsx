@@ -3,7 +3,7 @@ import styled from 'styled-components';
 export const ReportSections = styled.div`
   .section-table {
     display: grid;
-    grid-template-columns: 2fr 5fr 1fr;
+    grid-template-columns: 1fr 2fr 5fr 1fr;
     row-gap: 0.25rem;
     width: 100%;
 
@@ -17,6 +17,10 @@ export const ReportSections = styled.div`
 
     .st-3 {
       grid-column-start: 3;
+    }
+
+    .st-4 {
+      grid-column-start: 4;
       display: flex;
       flex-direction: row;
       justify-content: flex-end;
@@ -48,7 +52,7 @@ export const ReportSections = styled.div`
           border-bottom-left-radius: 0.25rem;
         }
 
-        &:nth-child(3) {
+        &:nth-child(4) {
           border-top-right-radius: 0.25rem;
           border-bottom-right-radius: 0.25rem;
         }
@@ -56,19 +60,22 @@ export const ReportSections = styled.div`
 
       &:nth-child(even) > div:nth-child(1),
       &:nth-child(even) > div:nth-child(2),
-      &:nth-child(even) > div:nth-child(3) {
+      &:nth-child(even) > div:nth-child(3),
+      &:nth-child(even) > div:nth-child(4) {
         background-color: ${(props) => props.theme.css.tableEvenRowColor};
       }
 
       &:nth-child(odd) > div:nth-child(1),
       &:nth-child(odd) > div:nth-child(2),
-      &:nth-child(odd) > div:nth-child(3) {
+      &:nth-child(odd) > div:nth-child(3),
+      &:nth-child(odd) > div:nth-child(4) {
         background-color: ${(props) => props.theme.css.tableOddRowColor};
       }
 
       &:hover > div:nth-child(1),
       &:hover > div:nth-child(2),
-      &:hover > div:nth-child(3) {
+      &:hover > div:nth-child(3),
+      &:hover > div:nth-child(4) {
         background-color: ${(props) => props.theme.css.lightAccentColor};
       }
       &:hover > div:nth-child(4) {
@@ -77,7 +84,8 @@ export const ReportSections = styled.div`
 
       &.active > div:nth-child(1),
       &.active > div:nth-child(2),
-      &.active > div:nth-child(3) {
+      &.active > div:nth-child(3),
+      &.active > div:nth-child(4) {
         background-color: ${(props) => props.theme.css.activeColor};
         color: #fff;
 

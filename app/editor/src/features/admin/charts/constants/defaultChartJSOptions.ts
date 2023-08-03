@@ -12,6 +12,12 @@ export const defaultChartJSOptions = {
     },
   },
   plugins: {
+    legend: {
+      title: {
+        display: true,
+        text: '',
+      },
+    },
     datalabels: {
       anchor: 'center',
       labels: {
@@ -37,6 +43,12 @@ export const defaultChartJSStackedOptions = {
     },
   },
   plugins: {
+    legend: {
+      title: {
+        display: true,
+        text: '',
+      },
+    },
     datalabels: {
       anchor: 'center',
       labels: {

@@ -223,13 +223,8 @@ public class ReportService : BaseService<Report, int>, IReportService
 
         foreach (var section in report.Sections)
         {
-            if (section.FilterId.HasValue)
-            {
-                if (section.Filter == null) throw new InvalidOperationException($"Section '{section.Name}' filter is missing from report object.");
-                var content = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, section.Filter.Query);
-                results.Add(section.Name, content);
-            }
-            else if (section.FolderId.HasValue)
+            // Content in a folder is added first.
+            if (section.FolderId.HasValue)
             {
                 var content = this.Context.FolderContents
                     .Include(fc => fc.Content)
@@ -253,6 +248,13 @@ public class ReportService : BaseService<Report, int>, IReportService
                     Source = new API.Areas.Services.Models.Content.ContentModel(c.Content!)
                 });
                 results.Add(section.Name, elasticContent);
+            }
+            // Content in a filter is added second.
+            if (section.FilterId.HasValue)
+            {
+                if (section.Filter == null) throw new InvalidOperationException($"Section '{section.Name}' filter is missing from report object.");
+                var content = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, section.Filter.Query);
+                results.Add(section.Name, content);
             }
         }
 

@@ -3,12 +3,12 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.ChartTemplate;
+using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.DAL.Services;
-using TNO.Keycloak;
 using TNO.Entities;
+using TNO.Keycloak;
 using TNO.TemplateEngine.Models.Charts;
-using TNO.API.Helpers;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -159,7 +159,7 @@ public class ChartTemplateController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Chart" })]
     public async Task<IActionResult> GenerateBase64Async(ChartRequestModel model)
     {
-        var base64Image = await _reportHelper.GenerateBase64Async(model);
+        var base64Image = await _reportHelper.GenerateBase64ImageAsync(model);
         return Ok(base64Image);
     }
     #endregion
