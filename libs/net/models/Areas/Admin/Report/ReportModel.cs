@@ -74,10 +74,10 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
         this.OwnerId = entity.OwnerId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.IsPublic = entity.IsPublic;
-        this.Settings = new ReportSettingsModel(JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>(), options);
-        this.Sections = entity.Sections.Select(s => new ReportSectionModel(s, options));
-        this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!));
-        this.Instances = entity.Instances.OrderByDescending(i => i.Id).Select(i => new ReportInstanceModel(i, options));
+        this.Settings = JsonSerializer.Deserialize<ReportSettingsModel>(entity.Settings, options) ?? new();
+        this.Sections = entity.Sections.Select(s => new ReportSectionModel(s, options)).ToArray();
+        this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!)).ToArray();
+        this.Instances = entity.Instances.OrderByDescending(i => i.Id).Select(i => new ReportInstanceModel(i, options)).ToArray();
     }
     #endregion
 
@@ -103,7 +103,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
             s.ChartTemplatesManyToMany.ForEach(ct =>
             {
                 var chart = section.ChartTemplates.FirstOrDefault(uct => uct.Id == ct.ChartTemplateId) ?? throw new InvalidOperationException("Unable to find matching chart template");
-                ct.Settings = JsonDocument.Parse(JsonSerializer.Serialize(chart.Settings, options));
+                ct.Settings = JsonDocument.Parse(JsonSerializer.Serialize(chart.SectionSettings, options));
             });
         });
         return entity;
@@ -161,7 +161,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
             };
             section.ChartTemplatesManyToMany.AddRange(s.ChartTemplates.Select(ct => new Entities.ReportSectionChartTemplate(s.Id, ct.Id, ct.SortOrder)
             {
-                Settings = JsonDocument.Parse(JsonSerializer.Serialize(ct.Settings)),
+                Settings = JsonDocument.Parse(JsonSerializer.Serialize(ct.SectionSettings)),
             }));
             return section;
         }));

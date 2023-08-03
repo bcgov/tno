@@ -67,15 +67,9 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
         this.Settings = new ReportSectionSettingsModel(JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>(), options);
         this.ChartTemplates = entity.ChartTemplatesManyToMany
             .OrderBy(c => c.SortOrder)
-            .Select(c => c.ChartTemplate != null ? new ChartTemplateModel(c.ChartTemplate, options)
+            .Select(c => new ChartTemplateModel(c, options)
             {
                 SortOrder = c.SortOrder,
-                Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(c.Settings, options) ?? new Dictionary<string, object>(),
-            } : new ChartTemplateModel()
-            {
-                Id = c.ChartTemplateId,
-                SortOrder = c.SortOrder,
-                Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(c.Settings, options) ?? new Dictionary<string, object>(),
             });
     }
     #endregion

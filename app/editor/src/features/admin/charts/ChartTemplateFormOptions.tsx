@@ -14,11 +14,11 @@ import {
   defaultChartJSStackedOptions,
   defaultChartTemplate,
 } from './constants';
-import { IChartPreviewRequestForm } from './interfaces';
+import { IChartRequestForm } from './interfaces';
 
 export interface IChartTemplateFormOptionsProps {
-  preview: IChartPreviewRequestForm;
-  setPreview: React.Dispatch<React.SetStateAction<IChartPreviewRequestForm>>;
+  preview: IChartRequestForm;
+  setPreview: React.Dispatch<React.SetStateAction<IChartRequestForm>>;
 }
 
 /**

@@ -1,6 +1,6 @@
-import { IChartPreviewRequestForm } from '../interfaces';
+import { IChartRequestForm } from '../interfaces';
 
-export const defaultChartPreviewRequestForm: IChartPreviewRequestForm = {
+export const defaultChartRequestForm: IChartRequestForm = {
   width: 500,
   height: 500,
   settings: {

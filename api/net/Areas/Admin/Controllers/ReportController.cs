@@ -17,6 +17,8 @@ using TNO.Keycloak;
 using TNO.TemplateEngine;
 using TNO.Elastic.Models;
 using TNO.DAL.Config;
+using TNO.API.Helpers;
+using TNO.TemplateEngine.Models.Charts;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -39,7 +41,9 @@ public class ReportController : ControllerBase
     private readonly IReportService _reportService;
     private readonly IReportInstanceService _reportInstanceService;
     private readonly IUserService _userService;
+    private readonly IFolderService _folderService;
     private readonly ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> _templateEngine;
+    private readonly IReportHelper _reportHelper;
     private readonly IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
     private readonly ElasticOptions _elasticOptions;
@@ -54,7 +58,9 @@ public class ReportController : ControllerBase
     /// <param name="reportService"></param>
     /// <param name="reportInstanceService"></param>
     /// <param name="userService"></param>
+    /// <param name="folderService"></param>
     /// <param name="templateEngine"></param>
+    /// <param name="reportHelper"></param>
     /// <param name="kafkaProducer"></param>
     /// <param name="kafkaOptions"></param>
     /// <param name="elasticOptions"></param>
@@ -64,7 +70,9 @@ public class ReportController : ControllerBase
         IReportService reportService,
         IReportInstanceService reportInstanceService,
         IUserService userService,
+        IFolderService folderService,
         ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> templateEngine,
+        IReportHelper reportHelper,
         IKafkaMessenger kafkaProducer,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<ElasticOptions> elasticOptions,
@@ -74,7 +82,9 @@ public class ReportController : ControllerBase
         _reportService = reportService;
         _reportInstanceService = reportInstanceService;
         _userService = userService;
+        _folderService = folderService;
         _templateEngine = templateEngine;
+        _reportHelper = reportHelper;
         _kafkaProducer = kafkaProducer;
         _kafkaOptions = kafkaOptions.Value;
         _elasticOptions = elasticOptions.Value;
@@ -254,15 +264,16 @@ public class ReportController : ControllerBase
         var subjectTemplate = _templateEngine.AddOrUpdateTemplateInMemory($"report-{model.Id}-subject", model.Template?.Subject ?? throw new InvalidOperationException("Report subject template must be provided."));
         var bodyTemplate = _templateEngine.AddOrUpdateTemplateInMemory($"report-{model.Id}", model.Template?.Body ?? throw new InvalidOperationException("Report body template must be provided."));
 
-        var results = await _reportService.FindContentWithElasticsearchAsync(_elasticOptions.PublishedIndex, model.ToEntity(_serializerOptions));
+        var index = _elasticOptions.PublishedIndex;
+        var elasticResults = await _reportService.FindContentWithElasticsearchAsync(index, model.ToEntity(_serializerOptions));
 
         // Link each result with the section name.
-        var sections = model.Sections.ToDictionary(s => s.Name, s =>
+        var sections = model.Sections.ToDictionary(section => section.Name, section =>
         {
-            results.TryGetValue(s.Name, out SearchResultModel<Services.Models.Content.ContentModel>? value);
-            var content = value?.Hits.Hits.Select(h => new TNO.TemplateEngine.Models.Reports.ContentModel(h.Source)).ToArray()
+            elasticResults.TryGetValue(section.Name, out SearchResultModel<Services.Models.Content.ContentModel>? value);
+            var content = value?.Hits.Hits.Select(hit => new TNO.TemplateEngine.Models.Reports.ContentModel(hit.Source)).ToArray()
                 ?? Array.Empty<TNO.TemplateEngine.Models.Reports.ContentModel>();
-            return new TNO.TemplateEngine.Models.Reports.ReportSectionModel(s, content);
+            return new TNO.TemplateEngine.Models.Reports.ReportSectionModel(section, content);
         });
 
         var templateModel = new TNO.TemplateEngine.Models.Reports.ReportTemplateModel(sections, model.Settings, _storageOptions.GetUploadPath());
@@ -282,7 +293,40 @@ public class ReportController : ControllerBase
             instance.Sections = templateModel.Sections;
         });
 
-        return new JsonResult(new ReportPreviewModel(subject, body, results));
+        // Find all charts and make a request to the Charts API to generate the image.
+        await model.Sections.ForEachAsync(async section =>
+        {
+            await section.ChartTemplates.ForEachAsync(async chart =>
+            {
+                if (chart.SectionSettings != null)
+                {
+                    var filter = section.Filter?.Query;
+                    List<TNO.API.Areas.Services.Models.Content.ContentModel> content = new();
+                    if (section.Folder != null)
+                    {
+                        // If the section references a folder then it will need to make a request for that content.
+                        var folder = _folderService.FindById(section.Folder.Id) ?? throw new InvalidOperationException($"Folder 'ID:{section.Folder.Id}' does not exist");
+                        content.AddRange(folder.ContentManyToMany
+                            .Where(c => c.Content != null)
+                            .OrderBy(c => c.SortOrder)
+                            .Select(c => new TNO.API.Areas.Services.Models.Content.ContentModel(c.Content!))
+                            .ToArray());
+                    }
+                    // If the section has a filter then pull the content for this section from the above fetch.
+                    if (elasticResults.TryGetValue(section.Name, out SearchResultModel<Services.Models.Content.ContentModel>? sectionContent))
+                    {
+                        content.AddRange(sectionContent.Hits.Hits.Select(hit => hit.Source));
+                    }
+
+                    var chartRequest = new ChartRequestModel(chart.SectionSettings, chart.Template, index, content);
+                    var base64Image = await _reportHelper.GenerateBase64Async(chartRequest);
+                    // Replace Chart Stubs with the generated image.
+                    body = body.Replace($"[[chart-{section.Id}-{chart.Id}]]", base64Image);
+                }
+            });
+        });
+
+        return new JsonResult(new ReportPreviewModel(subject, body, elasticResults));
     }
     #endregion
 }

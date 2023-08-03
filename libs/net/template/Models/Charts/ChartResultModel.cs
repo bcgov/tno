@@ -1,11 +1,11 @@
 using System.Text.Json;
 
-namespace TNO.API.Areas.Admin.Models.ChartTemplate;
+namespace TNO.TemplateEngine.Models.Charts;
 
 /// <summary>
-/// ChartPreviewResultModel class, provides a model that represents an report preview.
+/// ChartResultModel class, provides a model that represents an report preview.
 /// </summary>
-public class ChartPreviewResultModel
+public class ChartResultModel
 {
     #region Properties
     /// <summary>
@@ -16,32 +16,32 @@ public class ChartPreviewResultModel
     /// <summary>
     /// get/set - Elasticsearch results.
     /// </summary>
-    public object? Results { get; set; }
+    public JsonDocument? Results { get; set; }
     #endregion
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of an ChartPreviewResultModel.
+    /// Creates a new instance of an ChartResultModel.
     /// </summary>
-    public ChartPreviewResultModel() { }
+    public ChartResultModel() { }
 
     /// <summary>
-    /// Creates a new instance of an ChartPreviewResultModel, initializes with specified parameter.
+    /// Creates a new instance of an ChartResultModel, initializes with specified parameter.
     /// </summary>
     /// <param name="json"></param>
     /// <param name="results"></param>
-    public ChartPreviewResultModel(string json, object? results)
+    public ChartResultModel(string json, string? results)
     {
         this.Json = JsonDocument.Parse(json);
-        this.Results = results;
+        this.Results = results != null ? JsonDocument.Parse(results) : null;
     }
 
     /// <summary>
-    /// Creates a new instance of an ChartPreviewResultModel, initializes with specified parameter.
+    /// Creates a new instance of an ChartResultModel, initializes with specified parameter.
     /// </summary>
     /// <param name="json"></param>
     /// <param name="results"></param>
-    public ChartPreviewResultModel(JsonDocument json, object? results)
+    public ChartResultModel(JsonDocument json, JsonDocument? results)
     {
         this.Json = json;
         this.Results = results;

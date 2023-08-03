@@ -1,21 +1,22 @@
+using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Services.Managers;
-using TNO.Services.Reporting.Config;
-using TNO.Kafka.Models;
-using Confluent.Kafka;
-using TNO.Kafka;
-using TNO.Core.Exceptions;
-using TNO.Entities;
+using System.Security.Claims;
+using System.Text.Json;
 using TNO.Ches;
 using TNO.Ches.Models;
 using TNO.Ches.Configuration;
-using System.Text.Json;
-using System.Security.Claims;
-using TNO.TemplateEngine;
-using TNO.TemplateEngine.Models.Reports;
+using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Elastic.Models;
+using TNO.Entities;
+using TNO.Kafka.Models;
+using TNO.Kafka;
+using TNO.Services.Managers;
+using TNO.Services.Reporting.Config;
+using TNO.TemplateEngine;
+using TNO.TemplateEngine.Models.Reports;
+using System.Linq;
 
 namespace TNO.Services.Reporting;
 

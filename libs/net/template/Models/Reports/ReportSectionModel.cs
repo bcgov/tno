@@ -35,6 +35,11 @@ public class ReportSectionModel : RazorEngineTemplateBase
     public ReportSectionSettingsModel Settings { get; set; } = new();
 
     /// <summary>
+    /// get/set - An array of report instances.
+    /// </summary>
+    public IEnumerable<ChartTemplateModel> ChartTemplates { get; set; } = Array.Empty<ChartTemplateModel>();
+
+    /// <summary>
     /// get/set - An array of content.
     /// </summary>
     public IEnumerable<ContentModel> Content { get; set; }
@@ -61,6 +66,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
         this.IsEnabled = model.IsEnabled;
         this.SortOrder = model.SortOrder;
         this.Settings = model.Settings;
+        this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartTemplateModel($"chart-{model.Id}-{chart.Id}", chart.SectionSettings ?? new(), content));
         this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
     }
 
@@ -76,6 +82,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
         this.IsEnabled = model.IsEnabled;
         this.SortOrder = model.SortOrder;
         this.Settings = model.Settings;
+        this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartTemplateModel($"chart-{model.Id}-{chart.Id}", chart.SectionSettings ?? new(), content));
         this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
     }
 
@@ -91,6 +98,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
         this.IsEnabled = model.IsEnabled;
         this.SortOrder = model.SortOrder;
         this.Settings = model.Settings;
+        this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartTemplateModel($"chart-{model.Id}-{chart.Id}", chart.SectionSettings ?? new(), content));
         this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
     }
     #endregion

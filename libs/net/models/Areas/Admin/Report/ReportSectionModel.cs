@@ -61,22 +61,16 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
     {
         this.ReportId = entity.ReportId;
         this.FolderId = entity.FolderId;
-        this.Folder = entity.Folder != null ? new FolderModel(entity.Folder, options) : null;
+        this.Folder = entity.Folder != null ? new FolderModel(entity.Folder) : null;
         this.FilterId = entity.FilterId;
-        this.Filter = entity.Filter != null ? new FilterModel(entity.Filter, options) : null;
-        this.Settings = new ReportSectionSettingsModel(JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>(), options);
+        this.Filter = entity.Filter != null ? new FilterModel(entity.Filter) : null;
+        this.Settings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(entity.Settings, options) ?? new();
         this.ChartTemplates = entity.ChartTemplatesManyToMany
             .OrderBy(c => c.SortOrder)
-            .Select(c => c.ChartTemplate != null ? new ChartTemplateModel(c.ChartTemplate, options)
+            .Select(c => new ChartTemplateModel(c, options)
             {
-                SortOrder = c.SortOrder,
-                Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(c.Settings, options) ?? new Dictionary<string, object>(),
-            } : new ChartTemplateModel()
-            {
-                Id = c.ChartTemplateId,
-                SortOrder = c.SortOrder,
-                Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(c.Settings, options) ?? new Dictionary<string, object>(),
-            });
+                SortOrder = c.SortOrder
+            }).ToArray();
     }
     #endregion
 
@@ -88,7 +82,12 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
     public Entities.ReportSection ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.ReportSection)this;
-        entity.ChartTemplatesManyToMany.ForEach(c => c.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Filter, options)));
+        entity.ChartTemplatesManyToMany.ForEach(c =>
+        {
+            var chart = this.ChartTemplates.FirstOrDefault(ct => ct.Id == c.ChartTemplateId);
+            if (chart != null)
+                c.Settings = JsonDocument.Parse(JsonSerializer.Serialize(chart.SectionSettings, options));
+        });
         entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
         return entity;
     }
@@ -111,7 +110,7 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
 
         entity.ChartTemplatesManyToMany.AddRange(model.ChartTemplates.Select(c => new Entities.ReportSectionChartTemplate(model.Id, c.Id, c.SortOrder)
         {
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(c.Settings)),
+            Settings = JsonDocument.Parse(JsonSerializer.Serialize(c.SectionSettings)),
         }));
 
         return entity;
