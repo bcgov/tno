@@ -108,7 +108,7 @@ export const FileManager: React.FC<IFileManagerProps> = ({
         setStream(
           !!result
             ? {
-                url: `data:${mimeType};base64,` + result,
+                url: result,
                 type: mimeType,
               }
             : undefined,
@@ -161,7 +161,7 @@ export const FileManager: React.FC<IFileManagerProps> = ({
               setStream(
                 !!result
                   ? {
-                      url: `data:${mimeType};base64,` + result,
+                      url: result,
                       type: mimeType,
                     }
                   : undefined,

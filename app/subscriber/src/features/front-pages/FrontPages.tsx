@@ -22,11 +22,7 @@ export const FrontPages = () => {
       frontPages.forEach((x) => {
         if (x.fileReferences?.length) {
           stream(x.fileReferences[0].path).then((result) => {
-            const mimeType = 'img/png';
-            setSrcUrls((srcUrls) => [
-              ...srcUrls,
-              { url: `data:${mimeType};base64,` + result, id: x.id },
-            ]);
+            setSrcUrls((srcUrls) => [...srcUrls, { url: result, id: x.id }]);
           });
         }
       });

@@ -133,7 +133,7 @@ export const ViewContent: React.FC = () => {
         setAVStream(
           !!result
             ? {
-                url: `data:${fileReference.contentType};base64,` + result,
+                url: result,
                 type: fileReference.contentType,
               }
             : undefined,
@@ -217,12 +217,12 @@ export const ViewContent: React.FC = () => {
       </Row>
       <Show visible={!!avStream && content?.contentType === ContentTypeName.AudioVideo}>
         <Row justifyContent="center">
-          <Show visible={fileReference?.contentType === 'audio/mpeg'}>
+          <Show visible={fileReference?.contentType.startsWith('audio/')}>
             <audio src={avStream?.url} controls>
               HTML5 Audio is required
             </audio>
           </Show>
-          <Show visible={fileReference?.contentType === 'video/mpeg'}>
+          <Show visible={fileReference?.contentType.startsWith('video/')}>
             <video
               controls
               height={width! > 500 ? '270' : 135}

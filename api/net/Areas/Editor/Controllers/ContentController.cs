@@ -504,27 +504,19 @@ public class ContentController : ControllerBase
     /// <param name="path"></param>
     /// <returns></returns>
     [HttpGet("stream")]
-    [ProducesResponseType(typeof(OkObjectResult), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(OkObjectResult), (int)HttpStatusCode.PartialContent)]
+    [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> StreamAsync([FromQuery] string path)
+    public IActionResult StreamAsync([FromQuery] string path)
     {
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
         if (!safePath.FileExists()) throw new InvalidOperationException("File does not exist");
 
         var info = new ItemModel(safePath);
-        using var stream = System.IO.File.OpenRead(safePath);
-        var fileStreamResult = File(stream, contentType: info.MimeType!, fileDownloadName: info.Name, enableRangeProcessing: true);
-        using var memoryStream = new MemoryStream();
-        await fileStreamResult.FileStream.CopyToAsync(memoryStream);
-        var result = Convert.ToBase64String(memoryStream.ToArray());
-        // TODO: Out of Memory issues with this implementation.
-        // Example - https://www.c-sharpcorner.com/article/asynchronous-videos-live-streaming-with-asp-net-web-apis-2-0/
-        // Example - https://github.com/arsanjani/Video-Stream/blob/master/src/Controllers/StreamController.cs
-        // Example - https://devblogs.microsoft.com/dotnet/asp-net-web-api-and-http-byte-range-support/
-        return Ok(result);
+        var filestream = System.IO.File.OpenRead(safePath);
+        return File(filestream, info.MimeType!);
     }
 
     /// <summary>

@@ -119,12 +119,12 @@ export const Upload: React.FC<IUploadProps> = ({
         </Show>
 
         <Show visible={!!stream && contentType === ContentTypeName.AudioVideo && !!fileReference}>
-          <Show visible={fileReference?.contentType === 'audio/mpeg'}>
+          <Show visible={fileReference?.contentType.startsWith('audio/')}>
             <audio src={stream?.url} controls>
               HTML5 Audio is required
             </audio>
           </Show>
-          <Show visible={fileReference?.contentType === 'video/mpeg'}>
+          <Show visible={fileReference?.contentType.startsWith('video/')}>
             <video src={stream?.url} controls>
               HTML5 Video is required
             </video>

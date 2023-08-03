@@ -67,19 +67,17 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   React.useEffect(() => {
     if (!!path) {
       contentApi.stream(path).then((result) => {
-        // TODO: Get MimeType from file.
-        const mimeType = 'video/mp4';
         setStream(
           !!result
             ? {
-                url: `data:${mimeType};base64,` + result,
-                type: mimeType,
+                url: result,
+                type: fileReference?.contentType,
               }
             : undefined,
         );
       });
     }
-  }, [contentApi, path]);
+  }, [contentApi, fileReference?.contentType, path]);
 
   React.useEffect(() => {
     setFieldValue(
