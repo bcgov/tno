@@ -5,6 +5,7 @@ import { FaRegSmile, FaSearch } from 'react-icons/fa';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle, IoIosCog } from 'react-icons/io';
 import { useNavigate } from 'react-router';
+import { useParams } from 'react-router-dom';
 import { Button, Col, ContentStatus, Row, Show, Text, ToggleGroup, toQueryString } from 'tno-core';
 
 import { DateSection, MediaSection, SentimentSection } from './components';
@@ -16,7 +17,6 @@ import {
 } from './interfaces';
 import * as styled from './styled';
 import { queryToState } from './utils/queryToState';
-import { useParams } from 'react-router-dom';
 
 export interface IAdvancedSearchProps {
   expanded: boolean;
