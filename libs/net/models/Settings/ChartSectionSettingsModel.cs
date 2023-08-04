@@ -4,7 +4,7 @@ using TNO.Models.Extensions;
 
 namespace TNO.API.Models.Settings;
 
-public class ChartSettingsModel
+public class ChartSectionSettingsModel
 {
     #region Properties
     /// <summary>
@@ -55,16 +55,16 @@ public class ChartSettingsModel
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a ChartSettingsModel object.
+    /// Creates a new instance of a ChartSectionSettingsModel object.
     /// </summary>
-    public ChartSettingsModel() { }
+    public ChartSectionSettingsModel() { }
 
     /// <summary>
-    /// Creates a new instance of a ChartSettingsModel object, initializes with specified parameters.
+    /// Creates a new instance of a ChartSectionSettingsModel object, initializes with specified parameters.
     /// </summary>
     /// <param name="settings"></param>
     /// <param name="options"></param>
-    public ChartSettingsModel(Dictionary<string, object> settings, JsonSerializerOptions options)
+    public ChartSectionSettingsModel(Dictionary<string, object> settings, JsonSerializerOptions options)
     {
         this.Width = settings.GetDictionaryJsonValue("width", 500, options)!;
         this.Height = settings.GetDictionaryJsonValue("height", 500, options)!;
@@ -78,11 +78,11 @@ public class ChartSettingsModel
     }
 
     /// <summary>
-    /// Creates a new instance of a ChartSettingsModel object, initializes with specified parameters.
+    /// Creates a new instance of a ChartSectionSettingsModel object, initializes with specified parameters.
     /// </summary>
     /// <param name="settings"></param>
     /// <param name="options"></param>
-    public ChartSettingsModel(JsonDocument settings, JsonSerializerOptions options)
+    public ChartSectionSettingsModel(JsonDocument settings, JsonSerializerOptions options)
     {
         this.Width = settings.GetElementValue("width", 500, options)!;
         this.Height = settings.GetElementValue("height", 500, options)!;

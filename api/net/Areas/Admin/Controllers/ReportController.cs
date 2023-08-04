@@ -240,7 +240,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> Preview(ReportModel model)
     {
-        var result = await _reportHelper.GenerateReportAsync(new Areas.Services.Models.Report.ReportModel(model.ToEntity(_serializerOptions), _serializerOptions));
+        var result = await _reportHelper.GenerateReportAsync(new Areas.Services.Models.Report.ReportModel(model.ToEntity(_serializerOptions), _serializerOptions), true);
         return new JsonResult(result);
     }
     #endregion

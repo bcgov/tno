@@ -1,4 +1,4 @@
-export interface IChartSettingsModel {
+export interface IChartSectionSettingsModel {
   /** Width of the chart image. */
   width?: number;
   /** Height of the chart image. */

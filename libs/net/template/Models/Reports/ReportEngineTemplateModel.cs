@@ -1,14 +1,14 @@
-﻿using RazorEngineCore;
-using System.Web;
+﻿using System.Web;
+using RazorEngineCore;
 using TNO.API.Models.Settings;
 using TNO.Core.Extensions;
 
 namespace TNO.TemplateEngine.Models.Reports;
 
 /// <summary>
-/// ReportTemplateModel class, provides a model to pass to the razor engine for reports.
+/// ReportEngineTemplateModel class, provides a model to pass to the razor engine for reports.
 /// </summary>
-public class ReportTemplateModel : RazorEngineTemplateBase
+public class ReportEngineTemplateModel : RazorEngineTemplateBase
 {
     #region Properties
     /// <summary>
@@ -29,44 +29,43 @@ public class ReportTemplateModel : RazorEngineTemplateBase
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a ReportTemplateModel.
+    /// Creates a new instance of a ReportEngineTemplateModel.
     /// </summary>
-    public ReportTemplateModel()
+    public ReportEngineTemplateModel()
     {
         this.Content = Array.Empty<ContentModel>();
     }
 
     /// <summary>
-    /// Creates a new instance of a ReportTemplateModel, initializes with specified parameters.
+    /// Creates a new instance of a ReportEngineTemplateModel, initializes with specified parameters.
     /// </summary>
     /// <param name="content"></param>
     /// <param name="settings"></param>
-    public ReportTemplateModel(IEnumerable<ContentModel> content, ReportSettingsModel settings)
+    public ReportEngineTemplateModel(IEnumerable<ContentModel> content, ReportSettingsModel settings)
     {
         this.Content = content.ToArray();
         this.Settings = settings;
     }
 
     /// <summary>
-    /// Creates a new instance of a ReportTemplateModel, initializes with specified parameters.
+    /// Creates a new instance of a ReportEngineTemplateModel, initializes with specified parameters.
     /// </summary>
     /// <param name="sections"></param>
     /// <param name="settings"></param>
     /// <param name="uploadPath"></param>
-    public ReportTemplateModel(Dictionary<string, ReportSectionModel> sections, ReportSettingsModel settings, string? uploadPath = null)
+    public ReportEngineTemplateModel(Dictionary<string, ReportSectionModel> sections, ReportSettingsModel settings, string? uploadPath = null)
     {
         this.Sections = sections;
         this.Settings = settings;
 
         // Reference all section content in the root Content collection.
-        this.Content = sections.SelectMany(s => s.Value.Content).GroupBy(c => c.Id).Select(c => c.First());
+        this.Content = sections.SelectMany(s => s.Value.Content).DistinctBy(c => c.Id);
 
         // Convert any images to base64 and include them in the email.
         if (!string.IsNullOrWhiteSpace(uploadPath) && this.Content.Any())
-            this.Content.ForEach(c =>
+            this.Content.Where(c => c.ContentType == Entities.ContentType.Image).ForEach(c =>
             {
-                if (c.ContentType == Entities.ContentType.Image)
-                    c.ImageContent = GetImageContent(uploadPath, c.FileReferences.FirstOrDefault()?.Path);
+                c.ImageContent = GetImageContent(uploadPath, c.FileReferences.FirstOrDefault()?.Path);
             });
     }
 

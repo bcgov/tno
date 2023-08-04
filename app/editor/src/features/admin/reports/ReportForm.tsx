@@ -10,7 +10,6 @@ import {
   ButtonVariant,
   IconButton,
   IReportModel,
-  IReportPreviewModel,
   Modal,
   Row,
   Show,
@@ -23,9 +22,10 @@ import { defaultReport } from './constants';
 import { ReportFormDetails } from './ReportFormDetails';
 import { ReportFormInstance } from './ReportFormInstances';
 import { ReportFormPreview } from './ReportFormPreview';
+import { ReportFormSections } from './ReportFormSections';
 import { ReportFormSubscribers } from './ReportFormSubscribers';
 import { ReportFormTemplate } from './ReportFormTemplate';
-import { ReportSections } from './ReportSections';
+import { ReportTemplateContextProvider } from './ReportTemplateContext';
 import * as styled from './styled';
 
 /**
@@ -45,7 +45,6 @@ export const ReportForm: React.FC = () => {
     ownerId: userInfo?.id ?? 0,
   });
   const [active, setActive] = React.useState('report');
-  const [preview, setPreview] = React.useState<IReportPreviewModel>();
 
   const reportId = Number(id);
 
@@ -96,116 +95,117 @@ export const ReportForm: React.FC = () => {
         }}
       >
         {({ isSubmitting, values }) => (
-          <Tabs
-            tabs={
-              <>
-                <Tab
-                  label="Report"
-                  onClick={() => {
-                    setActive('report');
-                  }}
-                  active={active === 'report'}
-                />
-                <Tab
-                  label="Template"
-                  onClick={() => {
-                    setActive('template');
-                  }}
-                  active={active === 'template'}
-                />
-                {!!values.templateId && (
+          <ReportTemplateContextProvider>
+            <Tabs
+              tabs={
+                <>
                   <Tab
-                    label="Sections"
+                    label="Report"
                     onClick={() => {
-                      setActive('sections');
+                      setActive('report');
                     }}
-                    active={active === 'sections'}
+                    active={active === 'report'}
                   />
-                )}
-                {!!values.templateId && (
                   <Tab
-                    label="Preview"
+                    label="Template"
                     onClick={() => {
-                      setActive('preview');
+                      setActive('template');
                     }}
-                    active={active === 'preview'}
+                    active={active === 'template'}
                   />
-                )}
-                {!!values.templateId && (
-                  <Tab
-                    label="Subscribers"
-                    onClick={() => {
-                      setActive('subscribers');
-                    }}
-                    active={active === 'subscribers'}
-                  />
-                )}
-                {!!values.templateId && (
-                  <Tab
-                    label="Instances"
-                    onClick={() => {
-                      setActive('instances');
-                    }}
-                    active={active === 'instances'}
-                  />
-                )}
-              </>
-            }
-          >
-            <div className="form-container">
-              <Show visible={active === 'report'}>
-                <ReportFormDetails />
-              </Show>
-              <Show visible={active === 'template'}>
-                <ReportFormTemplate />
-              </Show>
-              <Show visible={active === 'sections'}>
-                <h2>{values.name}</h2>
-                <ReportSections />
-              </Show>
-              <Show visible={active === 'preview'}>
-                <ReportFormPreview preview={preview} setPreview={setPreview} />
-              </Show>
-              <Show visible={active === 'subscribers'}>
-                <ReportFormSubscribers />
-              </Show>
-              <Show visible={active === 'instances'}>
-                <ReportFormInstance />
-              </Show>
-              <Row justifyContent="center" className="form-inputs">
-                <Button type="submit" disabled={isSubmitting}>
-                  Save
-                </Button>
-                <Button variant={ButtonVariant.secondary} onClick={() => handlePublish(values)}>
-                  Send
-                </Button>
-                <Show visible={!!values.id}>
-                  <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
-                    Delete
-                  </Button>
+                  {!!values.templateId && (
+                    <Tab
+                      label="Sections"
+                      onClick={() => {
+                        setActive('sections');
+                      }}
+                      active={active === 'sections'}
+                    />
+                  )}
+                  {!!values.templateId && (
+                    <Tab
+                      label="Preview"
+                      onClick={() => {
+                        setActive('preview');
+                      }}
+                      active={active === 'preview'}
+                    />
+                  )}
+                  {!!values.templateId && (
+                    <Tab
+                      label="Subscribers"
+                      onClick={() => {
+                        setActive('subscribers');
+                      }}
+                      active={active === 'subscribers'}
+                    />
+                  )}
+                  {!!values.templateId && (
+                    <Tab
+                      label="Instances"
+                      onClick={() => {
+                        setActive('instances');
+                      }}
+                      active={active === 'instances'}
+                    />
+                  )}
+                </>
+              }
+            >
+              <div className="form-container">
+                <Show visible={active === 'report'}>
+                  <ReportFormDetails />
                 </Show>
-              </Row>
-              <Modal
-                headerText="Confirm Removal"
-                body="Are you sure you wish to remove this report?"
-                isShowing={isShowing}
-                hide={toggle}
-                type="delete"
-                confirmText="Yes, Remove It"
-                onConfirm={async () => {
-                  try {
-                    await deleteReport(report);
-                    toast.success(`${report.name} has successfully been deleted.`);
-                    navigate('/admin/reports');
-                  } catch {
-                    // Globally handled
-                  } finally {
-                    toggle();
-                  }
-                }}
-              />
-            </div>
-          </Tabs>
+                <Show visible={active === 'template'}>
+                  <ReportFormTemplate />
+                </Show>
+                <Show visible={active === 'sections'}>
+                  <ReportFormSections />
+                </Show>
+                <Show visible={active === 'preview'}>
+                  <ReportFormPreview />
+                </Show>
+                <Show visible={active === 'subscribers'}>
+                  <ReportFormSubscribers />
+                </Show>
+                <Show visible={active === 'instances'}>
+                  <ReportFormInstance />
+                </Show>
+                <Row justifyContent="center" className="form-inputs">
+                  <Button type="submit" disabled={isSubmitting}>
+                    Save
+                  </Button>
+                  <Button variant={ButtonVariant.secondary} onClick={() => handlePublish(values)}>
+                    Send
+                  </Button>
+                  <Show visible={!!values.id}>
+                    <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
+                      Delete
+                    </Button>
+                  </Show>
+                </Row>
+                <Modal
+                  headerText="Confirm Removal"
+                  body="Are you sure you wish to remove this report?"
+                  isShowing={isShowing}
+                  hide={toggle}
+                  type="delete"
+                  confirmText="Yes, Remove It"
+                  onConfirm={async () => {
+                    try {
+                      await deleteReport(report);
+                      toast.success(`${report.name} has successfully been deleted.`);
+                      navigate('/admin/reports');
+                    } catch {
+                      // Globally handled
+                    } finally {
+                      toggle();
+                    }
+                  }}
+                />
+              </div>
+            </Tabs>
+          </ReportTemplateContextProvider>
         )}
       </FormikForm>
     </styled.ReportForm>

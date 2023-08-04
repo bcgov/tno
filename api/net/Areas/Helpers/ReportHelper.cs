@@ -1,17 +1,11 @@
 
-using System.Net.Mime;
-using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
-using TNO.API.Config;
-using TNO.Core.Extensions;
-using TNO.Core.Http;
 using TNO.DAL.Config;
 using TNO.DAL.Services;
 using TNO.Elastic;
 using TNO.Elastic.Models;
 using TNO.TemplateEngine;
-using TNO.TemplateEngine.Config;
 using TNO.TemplateEngine.Models.Charts;
 using TNO.TemplateEngine.Models.Reports;
 
@@ -24,14 +18,10 @@ namespace TNO.API.Helpers;
 public class ReportHelper : IReportHelper
 {
     #region Variables
-    private readonly ITemplateEngine<ReportTemplateModel> _reportTemplateEngine;
-    private readonly ITemplateEngine<ChartTemplateModel> _chartTemplateEngine;
+    private readonly IReportEngine _reportEngine;
     private readonly IReportService _reportService;
     private readonly IContentService _contentService;
-    private readonly IFolderService _folderService;
-    private readonly IHttpRequestClient _httpClient;
     private readonly ElasticOptions _elasticOptions;
-    private readonly ChartsOptions _chartsOptions;
     private readonly StorageOptions _storageOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
@@ -43,36 +33,24 @@ public class ReportHelper : IReportHelper
     /// <summary>
     /// Creates a new instance of a ReportHelper object, initializes with specified parameters.
     /// </summary>
-    /// <param name="reportTemplateEngine"></param>
-    /// <param name="chartTemplateEngine"></param>
+    /// <param name="reportEngine"></param>
     /// <param name="reportService"></param>
     /// <param name="contentService"></param>
-    /// <param name="folderService"></param>
-    /// <param name="httpClient"></param>
     /// <param name="elasticOptions"></param>
-    /// <param name="chartsOptions"></param>
     /// <param name="storageOptions"></param>
     /// <param name="serializerOptions"></param>
     public ReportHelper(
-        ITemplateEngine<ReportTemplateModel> reportTemplateEngine,
-        ITemplateEngine<ChartTemplateModel> chartTemplateEngine,
+        IReportEngine reportEngine,
         IReportService reportService,
         IContentService contentService,
-        IFolderService folderService,
-        IHttpRequestClient httpClient,
         IOptions<ElasticOptions> elasticOptions,
-        IOptions<ChartsOptions> chartsOptions,
         IOptions<StorageOptions> storageOptions,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
-        _reportTemplateEngine = reportTemplateEngine;
-        _chartTemplateEngine = chartTemplateEngine;
+        _reportEngine = reportEngine;
         _reportService = reportService;
         _contentService = contentService;
-        _folderService = folderService;
-        _httpClient = httpClient;
         _elasticOptions = elasticOptions.Value;
-        _chartsOptions = chartsOptions.Value;
         _storageOptions = storageOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
@@ -85,135 +63,129 @@ public class ReportHelper : IReportHelper
     /// If the model includes a Filter it will make a request to Elasticsearch.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="index"></param>
+    /// <param name="filter"></param>
+    /// <param name="updateCache"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public async Task<ChartResultModel> GenerateJsonAsync(ChartRequestModel model)
+    public async Task<ChartResultModel> GenerateJsonAsync(
+        ChartRequestModel model,
+        string? index = null,
+        JsonDocument? filter = null,
+        bool updateCache = false)
     {
-        if (model.Template == null) throw new InvalidOperationException("Chart template is missing from model");
-        var template = _chartTemplateEngine.AddOrUpdateTemplateInMemory($"chart-template", model.Template);
-
+        var chart = model.ChartTemplate;
         SearchResultModel<Areas.Services.Models.Content.ContentModel>? searchResults = null;
-        var content = new List<ContentModel>(model.Content ?? Array.Empty<ContentModel>());
-        if (model.Filter != null)
+        var content = new List<ContentModel>(chart.Content ?? Array.Empty<ContentModel>());
+        if (filter != null)
         {
-            searchResults = await _contentService.FindWithElasticsearchAsync(model.Index ?? _elasticOptions.PublishedIndex, model.Filter);
+            searchResults = await _contentService.FindWithElasticsearchAsync(index ?? _elasticOptions.PublishedIndex, filter);
             content.AddRange(searchResults.Hits.Hits.Select(h => new ContentModel(h.Source)).ToArray());
         }
+        chart.Content = content.ToArray();
 
-        var templateModel = new ChartTemplateModel(model.Settings, content);
-
-        var json = await template.RunAsync(instance =>
-        {
-            instance.Model = templateModel;
-            instance.Content = templateModel.Content;
-            instance.Settings = templateModel.Settings;
-            instance.SectionSettings = templateModel.SectionSettings;
-            instance.Sections = templateModel.Sections;
-        });
-
-        return new ChartResultModel(json, searchResults != null ? JsonSerializer.Serialize(searchResults) : null);
+        var result = await _reportEngine.GenerateJsonAsync(model, updateCache);
+        result.Results = searchResults != null ? JsonDocument.Parse(JsonSerializer.Serialize(searchResults)) : null;
+        return result;
     }
 
     /// <summary>
-    /// Executes the chart template provided to generate JSON, which is then sent with a request to the Charts API to generate a base64 image.
+    /// Execute the chart template provided to generate JSON, which is then sent with a request to the Charts API to generate a base64 image.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="index"></param>
+    /// <param name="filter"></param>
+    /// <param name="updateCache"></param>
     /// <returns>Returns the base64 image from the Charts API.</returns>
-    public async Task<string> GenerateBase64ImageAsync(ChartRequestModel model)
+    public async Task<string> GenerateBase64ImageAsync(
+        ChartRequestModel model,
+        string? index = null,
+        JsonDocument? filter = null,
+        bool updateCache = false)
     {
         // Get the Chart JSON data.
-        var data = model.ChartData ?? (await this.GenerateJsonAsync(model)).Json;
-        var dataJson = data.ToJson();
-
-        var optionsJson = model.Settings.Options != null ? JsonSerializer.Serialize(model.Settings.Options) : "{}";
-        var optionsBytes = Encoding.UTF8.GetBytes(optionsJson);
-        var optionsBase64 = Convert.ToBase64String(optionsBytes);
-
-        // Send request to Charts API to generate base64
-        var body = new StringContent(dataJson, Encoding.UTF8, MediaTypeNames.Application.Json);
-        var response = await _httpClient.PostAsync(
-            _chartsOptions.Url.Append(_chartsOptions.Base64Path, model.Settings.ChartType ?? "bar", $"?width={model.Settings.Width ?? 250}&height={model.Settings.Height ?? 250}&options={optionsBase64}"),
-            body);
-        return await response.Content.ReadAsStringAsync();
+        model.ChartData ??= (await this.GenerateJsonAsync(model, index, filter, updateCache)).Json;
+        return await _reportEngine.GenerateBase64ImageAsync(model);
     }
 
     /// <summary>
     /// Execute the report template to generate the subject and body.
     /// If the report sections contain charts it will also generate them and include them in the results.
+    /// Uses the content already in the report instance.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="updateCache"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public async Task<object> GenerateReportAsync(Areas.Services.Models.Report.ReportModel model)
+    public async Task<ReportResultModel> GenerateReportAsync(
+        Areas.Services.Models.ReportInstance.ReportInstanceModel model,
+        bool updateCache = false)
     {
-        if (model.Template == null) throw new InvalidOperationException("Report template is missing from model");
-        var subjectTemplate = _reportTemplateEngine.AddOrUpdateTemplateInMemory($"report-{model.Id}-subject", model.Template?.Subject ?? throw new InvalidOperationException("Report subject template must be provided."));
-        var bodyTemplate = _reportTemplateEngine.AddOrUpdateTemplateInMemory($"report-{model.Id}", model.Template?.Body ?? throw new InvalidOperationException("Report body template must be provided."));
+        var reportModel = model.Report ?? throw new InvalidOperationException("Report is required");
 
+        // Link each result with the section name.
+        var sections = reportModel.Sections.ToDictionary(section => section.Name, section =>
+        {
+            var content = model.Content
+                    .Where(c => c.SectionName == section.Name)
+                    .Select(c => new ContentModel(c.Content ?? throw new InvalidOperationException("Report instance model is missing content")))
+                    .ToArray();
+
+            return new ReportSectionModel(section, content);
+        });
+
+        return await GenerateReportAsync(reportModel, sections, updateCache);
+    }
+
+    /// <summary>
+    /// Execute the report template to generate the subject and body.
+    /// If the report sections contain charts it will also generate them and include them in the results.
+    /// Fetch content from elasticsearch and folders.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="updateCache"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task<ReportResultModel> GenerateReportAsync(
+        Areas.Services.Models.Report.ReportModel model,
+        bool updateCache = false)
+    {
         var index = _elasticOptions.PublishedIndex;
         var elasticResults = await _reportService.FindContentWithElasticsearchAsync(index, model.ToEntity(_serializerOptions));
 
         // Link each result with the section name.
         var sections = model.Sections.ToDictionary(section => section.Name, section =>
         {
-            elasticResults.TryGetValue(section.Name, out SearchResultModel<Areas.Services.Models.Content.ContentModel>? value);
-            var content = value?.Hits.Hits.Select(hit => new ContentModel(hit.Source)).ToArray()
-                ?? Array.Empty<ContentModel>();
+            elasticResults.TryGetValue(section.Name, out SearchResultModel<Areas.Services.Models.Content.ContentModel>? sectionResult);
+            var content = sectionResult?.Hits.Hits.Select(hit => new ContentModel(hit.Source)).ToArray()
+                    ?? Array.Empty<ContentModel>();
+
             return new ReportSectionModel(section, content);
         });
 
-        var templateModel = new ReportTemplateModel(sections, model.Settings, _storageOptions.GetUploadPath());
+        var result = await GenerateReportAsync(model, sections, updateCache);
+        result.Results = elasticResults;
+        return result;
+    }
 
-        var subject = await subjectTemplate.RunAsync(instance =>
-        {
-            instance.Model = templateModel;
-            instance.Settings = templateModel.Settings;
-            instance.Content = templateModel.Content;
-            instance.Sections = templateModel.Sections;
-        });
-        var body = await bodyTemplate.RunAsync(instance =>
-        {
-            instance.Model = templateModel;
-            instance.Settings = templateModel.Settings;
-            instance.Content = templateModel.Content;
-            instance.Sections = templateModel.Sections;
-        });
+    /// <summary>
+    /// Use the Razor templates to generate the output.
+    /// If the report sections contain charts it will also generate them and include them in the results.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="sections"></param>
+    /// <param name="updateCache"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private async Task<ReportResultModel> GenerateReportAsync(
+        Areas.Services.Models.Report.ReportModel model,
+        Dictionary<string, ReportSectionModel> sections,
+        bool updateCache = false)
+    {
+        var subject = await _reportEngine.GenerateReportSubjectAsync(model, sections, updateCache);
+        var body = await _reportEngine.GenerateReportBodyAsync(model, sections, _storageOptions.GetUploadPath(), updateCache);
 
-        // Find all charts and make a request to the Charts API to generate the image.
-        await model.Sections.ForEachAsync(async section =>
-        {
-            await section.ChartTemplates.ForEachAsync(async chart =>
-            {
-                chart.SectionSettings ??= new();
-                var filter = section.Filter?.Query;
-                List<ContentModel> content = new();
-                if (section.Folder != null)
-                {
-                    // If the section references a folder then it will need to make a request for that content.
-                    var folder = _folderService.FindById(section.Folder.Id) ?? throw new InvalidOperationException($"Folder 'ID:{section.Folder.Id}' does not exist");
-                    content.AddRange(folder.ContentManyToMany
-                        .Where(c => c.Content != null)
-                        .OrderBy(c => c.SortOrder)
-                        .Select(c => new ContentModel(c.Content!, c.SortOrder))
-                        .ToArray());
-                }
-                // If the section has a filter then pull the content for this section from the above fetch.
-                if (elasticResults.TryGetValue(section.Name, out SearchResultModel<Areas.Services.Models.Content.ContentModel>? sectionContent))
-                {
-                    if (sectionContent != null)
-                        content.AddRange(sectionContent.Hits.Hits.Select(hit => new ContentModel(hit.Source)));
-                }
-
-                // TODO: Merge with report specific configuration options.
-                if (chart.SectionSettings.Options == null || chart.SectionSettings.Options.ToJson() == "{}")
-                    chart.SectionSettings.Options = chart.Settings.Options;
-                var base64Image = await this.GenerateBase64ImageAsync(new ChartRequestModel(chart.SectionSettings, chart.Template, content));
-                // Replace Chart Stubs with the generated image.
-                body = body.Replace(ReportSectionModel.GenerateChartUid(section.Id, chart.Id), base64Image);
-            });
-        });
-
-        return new ReportResultModel(subject, body, elasticResults);
+        return new ReportResultModel(subject, body);
     }
     #endregion
 }

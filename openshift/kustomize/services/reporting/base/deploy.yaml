@@ -154,6 +154,12 @@ spec:
                   name: ches
                   key: PASSWORD
 
+            - name: Charts__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-service
+                  key: CHARTS_URL
+
             # Notification Service Configuration
             - name: Service__MaxFailLimit
               valueFrom:

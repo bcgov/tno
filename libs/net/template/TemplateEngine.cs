@@ -16,8 +16,9 @@ public class TemplateEngine<T> : ITemplateEngine<T>
             "System.Collections",
             "System.Private.Uri",
             "TNO.Core",
+            "TNO.Entities",
             "TNO.Models",
-            "TNO.Entities"
+            "TNO.TemplateEngine"
         };
     private readonly string[] _assemblyNames;
     private readonly static ConcurrentDictionary<string, IRazorEngineCompiledTemplate<T>> _cache = new();

@@ -15,12 +15,14 @@ import {
   IFilterModel,
   IFolderModel,
   IReportModel,
+  IReportSectionChartTemplateModel,
   OptionItem,
   Row,
   Select,
   Show,
 } from 'tno-core';
 
+import { chartTypeOptions, groupByOptions } from '../charts/constants';
 import * as styled from './styled';
 
 const getSortableItems = <T extends IFolderModel | IFilterModel>(items: T[]) => {
@@ -49,6 +51,11 @@ export interface IReportSectionProps {
   index: number;
 }
 
+/**
+ * Provides a component to configure the report section.
+ * @param param0 Component properties.
+ * @returns A component.
+ */
 export const ReportSection: React.FC<IReportSectionProps> = ({ className, index }) => {
   const { values, setFieldValue } = useFormikContext<IReportModel>();
   const [{ filters }, { findAllFilters }] = useFilters();
@@ -93,60 +100,77 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
         tooltip="The summary will be displayed at the beginning of the section"
         placeholder="Describe the purpose of this section"
       />
-      <p>To automatically populate this section with content select a filter or folder.</p>
-      <Row>
-        <Col flex="1" className="description">
-          <FormikSelect
-            name={`sections.${index}.filterId`}
-            label="Filter"
-            tooltip="Select a filter to dynamically fill this section with content"
-            options={filterOptions}
-            value={filterOptions.find((o) => o.value === section.filterId) ?? ''}
-          />
-          {filter?.description && <p>{filter?.description}</p>}
-        </Col>
-        <Col flex="1" className="description">
-          <FormikSelect
-            name={`sections.${index}.folderId`}
-            label="Folder"
-            tooltip="Select a folder to fill this section with its content"
-            options={folderOptions}
-            value={folderOptions.find((o) => o.value === section.folderId) ?? ''}
-          />
-          {folder?.description && <p>{folder?.description}</p>}
-        </Col>
-      </Row>
       <Col className="frm-in">
         <label>Options</label>
         <Row>
           <FormikCheckbox
             name={`sections.${index}.settings.isSummary`}
             label="Is Summary Section"
-            tooltip="A summary section contains the content from all sections"
+            tooltip="A summary section contains the content from all the sections above this section"
             onChange={(e) => {
-              setFieldValue(`sections.${index}.settings`, {
-                ...values.sections[index].settings,
-                showContent: e.target.checked ? false : true,
-                showCharts: e.target.checked ? true : values.sections[index].settings.showCharts,
-                isSummary: e.target.checked,
-                removeDuplicates: e.target.checked,
+              setFieldValue(`sections.${index}`, {
+                ...section,
+                folderId: undefined,
+                filterId: undefined,
+                settings: {
+                  ...section.settings,
+                  showContent: e.target.checked ? false : true,
+                  showCharts: e.target.checked ? true : section.settings.showCharts,
+                  isSummary: e.target.checked,
+                  removeDuplicates: false,
+                },
               });
             }}
           />
-          <FormikCheckbox
-            name={`sections.${index}.settings.showContent`}
-            label="Show Content"
-            tooltip="Display the content in this section"
-          />
-          {!values.sections[index].settings.isSummary && (
+          <Show visible={!section.settings.isSummary}>
+            <FormikCheckbox
+              name={`sections.${index}.settings.showContent`}
+              label="Show Content"
+              tooltip="Display the content in this section"
+            />
             <FormikCheckbox
               name={`sections.${index}.settings.removeDuplicates`}
               label="Remove Duplicates"
               tooltip="Remove content from this section that is in above sections"
             />
-          )}
+          </Show>
         </Row>
       </Col>
+      <Show visible={!section.settings.isSummary}>
+        <p>To automatically populate this section with content select a filter or folder.</p>
+        <Row>
+          <Col flex="1" className="description">
+            <FormikSelect
+              name={`sections.${index}.filterId`}
+              label="Filter"
+              tooltip="Select a filter to dynamically fill this section with content"
+              options={filterOptions}
+              value={filterOptions.find((o) => o.value === section.filterId) ?? ''}
+              onChange={(newValue) => {
+                const option = newValue as OptionItem;
+                const filter = filters.find((f) => f.id === option.value);
+                if (filter) setFieldValue(`sections.${index}.filter`, filter);
+              }}
+            />
+            {filter?.description && <p>{filter?.description}</p>}
+          </Col>
+          <Col flex="1" className="description">
+            <FormikSelect
+              name={`sections.${index}.folderId`}
+              label="Folder"
+              tooltip="Select a folder to fill this section with its content"
+              options={folderOptions}
+              value={folderOptions.find((o) => o.value === section.folderId) ?? ''}
+              onChange={(newValue) => {
+                const option = newValue as OptionItem;
+                const folder = folders.find((f) => f.id === option.value);
+                if (folder) setFieldValue(`sections.${index}.folder`, folder);
+              }}
+            />
+            {folder?.description && <p>{folder?.description}</p>}
+          </Col>
+        </Row>
+      </Show>
       <hr />
       <Col className="frm-in">
         <label>Charts</label>
@@ -156,7 +180,7 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
             label="Show Charts"
             tooltip="Display charts in this section"
           />
-          {values.sections[index].settings.showCharts && (
+          {section.settings.showCharts && (
             <FormikCheckbox
               name={`sections.${index}.settings.chartsOnTop`}
               label="Show Charts on Top of Content"
@@ -165,7 +189,7 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
           )}
         </Row>
       </Col>
-      {values.sections[index].settings.showCharts && (
+      <Show visible={section.settings.showCharts}>
         <Col>
           <Show visible={!values.template.chartTemplates.length}>
             <p className="error">
@@ -190,54 +214,109 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
                 variant={ButtonVariant.secondary}
                 onClick={() => {
                   if (chart) {
-                    const newChart = {
+                    const newChart: IReportSectionChartTemplateModel = {
                       ...chart,
                       sectionSettings: {
                         ...chart.sectionSettings,
+                        title: '',
+                        chartType: chart.settings.chartTypes.length
+                          ? chart.settings.chartTypes[0]
+                          : '',
+                        groupBy: chart.settings.groupBy.length ? chart.settings.groupBy[0] : '',
+                        isHorizontal: false,
+                        showDataValues: false,
                         width: 500,
                         height: 500,
                         options: { ...chart.settings.options },
                       },
                     };
-                    const charts = [...values.sections[index].chartTemplates, newChart].map(
-                      (ct, i) => {
-                        return { ...ct, sortOrder: i };
-                      },
-                    );
+                    console.debug(chart);
+                    const charts = [...section.chartTemplates, newChart].map((ct, i) => {
+                      return { ...ct, sortOrder: i };
+                    });
                     setFieldValue(`sections.${index}.chartTemplates`, charts);
                     setChart(undefined);
                   }
                 }}
-                disabled={
-                  !chart || values.sections[index].chartTemplates.some((ct) => ct.id === chart.id)
-                }
+                disabled={!chart || section.chartTemplates.some((ct) => ct.id === chart.id)}
               >
                 Add Chart
               </Button>
             </Row>
             <Col className="charts">
-              {values.sections[index].chartTemplates.map((ct, ctIndex) => (
+              {section.chartTemplates.map((ct, ctIndex) => (
                 <Row key={ct.id}>
-                  <Col flex="1">{ct.name}</Col>
-                  <Col flex="2">{ct.description}</Col>
-                  <Col>
-                    <Button
-                      variant={ButtonVariant.danger}
-                      onClick={() => {
-                        let items = [...values.sections[index].chartTemplates];
-                        items.splice(ctIndex, 1);
-                        setFieldValue(`sections.${index}.chartTemplates`, items);
-                      }}
-                    >
-                      <FaTrash />
-                    </Button>
+                  <Col flex="1">
+                    <Row>
+                      <Col flex="1">
+                        <b>{ct.name}</b>
+                      </Col>
+                      <Col flex="2">{ct.description}</Col>
+                      <Col>
+                        <Button
+                          variant={ButtonVariant.danger}
+                          onClick={() => {
+                            let items = [...section.chartTemplates];
+                            items.splice(ctIndex, 1);
+                            setFieldValue(`sections.${index}.chartTemplates`, items);
+                          }}
+                        >
+                          <FaTrash />
+                        </Button>
+                      </Col>
+                    </Row>
+                    <Row className="chart-settings">
+                      {/* <FormikText
+                        label="Title"
+                        name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.title`}
+                        value={ct.sectionSettings.title}
+                        UPDATE VALUE IN OPTIONS
+                      /> */}
+                      <FormikSelect
+                        label="Chart Type"
+                        name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.chartType`}
+                        value={
+                          chartTypeOptions.find((o) => o.value === ct.sectionSettings.chartType) ??
+                          ''
+                        }
+                        options={chartTypeOptions.filter((o) =>
+                          ct.settings.chartTypes.includes(o.value),
+                        )}
+                        isClearable={false}
+                      />
+                      <FormikSelect
+                        label="Group By"
+                        name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.groupBy`}
+                        value={
+                          groupByOptions.find((o) => o.value === ct.sectionSettings.groupBy) ?? ''
+                        }
+                        options={groupByOptions.filter((o) =>
+                          ct.settings.groupBy.includes(o.value),
+                        )}
+                        isClearable={false}
+                      />
+                      <FormikText
+                        label="Width"
+                        name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.width`}
+                        value={ct.sectionSettings.width ?? 500}
+                        type="number"
+                        width="10ch"
+                      />
+                      <FormikText
+                        label="Height"
+                        name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.height`}
+                        value={ct.sectionSettings.height ?? 500}
+                        type="number"
+                        width="10ch"
+                      />
+                    </Row>
                   </Col>
                 </Row>
               ))}
             </Col>
           </Show>
         </Col>
-      )}
+      </Show>
     </styled.ReportSection>
   );
 };

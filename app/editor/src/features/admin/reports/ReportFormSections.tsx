@@ -1,13 +1,18 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaArrowDown, FaArrowUp, FaTrash } from 'react-icons/fa';
+import { useReports } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
   Col,
   FormikCheckbox,
+  FormikSelect,
+  FormikText,
+  getSortableOptions,
   IReportModel,
   IReportSectionModel,
+  OptionItem,
   Row,
 } from 'tno-core';
 
@@ -15,10 +20,23 @@ import { defaultReportSection } from './constants';
 import { ReportSection } from './ReportSection';
 import * as styled from './styled';
 
-export const ReportSections = () => {
+export const ReportFormSections = () => {
   const { values, setFieldValue } = useFormikContext<IReportModel>();
+  const [{ reports }, { findAllReports }] = useReports();
 
   const [section, setSection] = React.useState<IReportSectionModel>();
+  const [reportOptions, setReportOptions] = React.useState(getSortableOptions(reports));
+
+  React.useEffect(() => {
+    if (!reports.length)
+      findAllReports()
+        .then((reports) => {
+          setReportOptions(getSortableOptions(reports));
+        })
+        .catch();
+    // Only run on initialize.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleAddSection = () => {
     setFieldValue(
@@ -74,7 +92,71 @@ export const ReportSections = () => {
 
   return (
     <styled.ReportSections>
+      <h2>{values.name}</h2>
       <p>A report must contain one or more section to display content or charts.</p>
+      <Col className="frm-in">
+        <label>Subject Line Options</label>
+        <Row alignItems="center">
+          <FormikText label="Text" name="settings.subject.text" required />
+          <FormikCheckbox
+            label="Show Today's Date"
+            name="settings.subject.showTodaysDate"
+            tooltip="Whether today's date will be included in the report subject line"
+          />
+        </Row>
+      </Col>
+      <Row>
+        <Col className="frm-in">
+          <label>Report Options</label>
+          <Row alignItems="center" flex="1">
+            <FormikCheckbox
+              label="View On Web Only"
+              name="settings.viewOnWebOnly"
+              tooltip="Email will only contain a link to view the report on the website"
+            />
+            <FormikCheckbox
+              label="Exclude Historical Content"
+              name="settings.instance.excludeHistorical"
+              tooltip="Exclude content already reported on in prior instances of this report"
+            />
+          </Row>
+        </Col>
+        <FormikSelect
+          name="settings.instance.excludeReports"
+          label="Exclude Related Report Content"
+          tooltip="Excludes content already reported on in the selected reports"
+          options={reportOptions}
+          isMulti
+          value={reportOptions.filter((ro) =>
+            values.settings.instance.excludeReports.some((reportId) => reportId === ro.value),
+          )}
+          onChange={(newValue) => {
+            if (Array.isArray(newValue))
+              setFieldValue(
+                'settings.instance.excludeReports',
+                newValue.map((v: OptionItem) => v.value),
+              );
+          }}
+        />
+      </Row>
+      <Col className="frm-in">
+        <label>Headline Options</label>
+        <Row>
+          <FormikCheckbox label="Show Source" name="settings.headline.showSource" />
+          <FormikCheckbox label="Show Common Call" name="settings.headline.showShortName" />
+          <FormikCheckbox label="Show Published On" name="settings.headline.showPublishedOn" />
+          <FormikCheckbox label="Show Sentiment" name="settings.headline.showSentiment" />
+        </Row>
+      </Col>
+      <Col className="frm-in">
+        <label>Content Options</label>
+        <Row>
+          <FormikCheckbox label="Include Full Story" name="settings.content.includeStory" />
+          {/* <FormikCheckbox label="Show Images" name="settings.content.showImage" />
+          <FormikCheckbox label="Use Thumbnails" name="settings.content.useThumbnail" />
+          <FormikCheckbox label="Highlight Keywords" name="settings.content.highlightKeywords" /> */}
+        </Row>
+      </Col>
       <Col className="frm-in">
         <label>Section Options</label>
         <Row>
@@ -112,7 +194,7 @@ export const ReportSections = () => {
                   else setSection(undefined);
                 }}
               >
-                <Col className="st-1">{index + 1}</Col>
+                <Col className="st-1">{row.sortOrder + 1}</Col>
                 <Col className="st-2">{row.settings.label}</Col>
                 <Col className="st-3">{row.description}</Col>
                 <Col className="st-4">

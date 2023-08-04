@@ -1,21 +1,19 @@
 import { AxiosError } from 'axios';
-import { useFormikContext } from 'formik';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useReports } from 'store/hooks/admin';
-import { Button, ButtonVariant, Col, IReportModel, IReportPreviewModel, Row, Text } from 'tno-core';
+import { Button, ButtonVariant, Col, IReportModel, Row, Text } from 'tno-core';
 
-export interface IReportFormPreviewProps {
-  preview?: IReportPreviewModel;
-  setPreview: React.Dispatch<React.SetStateAction<IReportPreviewModel | undefined>>;
-}
+import { useReportTemplateContext } from './ReportTemplateContext';
+
+export interface IReportFormPreviewProps {}
 
 /**
  * The page used to view and edit reports.
  * @returns Component.
  */
-export const ReportFormPreview: React.FC<IReportFormPreviewProps> = ({ preview, setPreview }) => {
-  const { values } = useFormikContext<IReportModel>();
+export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
+  const { values, preview, setPreview } = useReportTemplateContext();
   const [, { sendReport, previewReport }] = useReports();
 
   const [sendTo, setSendTo] = React.useState('');

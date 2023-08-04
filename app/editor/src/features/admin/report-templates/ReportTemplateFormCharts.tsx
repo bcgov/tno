@@ -6,7 +6,6 @@ import {
   Button,
   ButtonVariant,
   Col,
-  FormikCheckbox,
   getSortableOptions,
   IChartTemplateModel,
   IReportTemplateModel,
@@ -41,7 +40,7 @@ export const ReportTemplateFormCharts: React.FC = () => {
         <h2>{values.name}</h2>
         <p>Select the charts that are supported by this template.</p>
       </Col>
-      <Row>
+      {/* <Row>
         <Col flex="2" className="frm-in">
           <label>Template Options</label>
           <p>
@@ -62,7 +61,7 @@ export const ReportTemplateFormCharts: React.FC = () => {
             />
           </Row>
         </Col>
-      </Row>
+      </Row> */}
       <Col>
         <Row className="add-chart">
           <Select

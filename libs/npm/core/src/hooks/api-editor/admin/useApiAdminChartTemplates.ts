@@ -2,7 +2,7 @@ import { AxiosResponse } from 'axios';
 import React from 'react';
 
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IChartRequestModel, IChartResultModel, IChartTemplateModel, useApi } from '..';
+import { IChartPreviewRequestModel, IChartResultModel, IChartTemplateModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -49,20 +49,20 @@ export const useApiAdminChartTemplates = (
         },
       );
     },
-    previewJson: (model: IChartRequestModel) => {
-      return api.post<IChartRequestModel, AxiosResponse<IChartResultModel>, any>(
+    previewJson: (model: IChartPreviewRequestModel) => {
+      return api.post<IChartPreviewRequestModel, AxiosResponse<IChartResultModel>, any>(
         `/admin/chart/templates/preview/json`,
         model,
       );
     },
-    previewBase64: (model: IChartRequestModel) => {
-      return api.post<IChartRequestModel, AxiosResponse<string>, any>(
+    previewBase64: (model: IChartPreviewRequestModel) => {
+      return api.post<IChartPreviewRequestModel, AxiosResponse<string>, any>(
         `/admin/chart/templates/preview/base64`,
         model,
       );
     },
-    previewImage: (model: IChartRequestModel) => {
-      return api.post<IChartRequestModel, AxiosResponse<any>, any>(
+    previewImage: (model: IChartPreviewRequestModel) => {
+      return api.post<IChartPreviewRequestModel, AxiosResponse<any>, any>(
         `/admin/chart/templates/preview/image`,
         model,
       );

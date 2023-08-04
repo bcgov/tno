@@ -21,6 +21,7 @@ data:
   CHES_FROM: Media Monitoring Insights and Analysis <mmia@gov.bc.ca>
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"
+  CHARTS_URL: http://charts-api:8080
 
 ---
 kind: ConfigMap

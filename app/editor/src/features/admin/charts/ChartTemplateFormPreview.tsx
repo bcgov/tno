@@ -12,7 +12,7 @@ import {
   Button,
   ButtonVariant,
   Col,
-  IChartRequestModel,
+  IChartPreviewRequestModel,
   OptionItem,
   Row,
   Select,
@@ -69,7 +69,7 @@ export const ChartTemplateFormPreview: React.FC<IChartTemplateFormPreviewProps> 
   }, [chartData, setPreview]);
 
   const handleGenerateJson = React.useCallback(
-    async (preview: IChartRequestModel) => {
+    async (preview: IChartPreviewRequestModel) => {
       try {
         const response = await previewJson(preview);
         setChartData(JSON.stringify(response.json, null, 2));
@@ -87,7 +87,7 @@ export const ChartTemplateFormPreview: React.FC<IChartTemplateFormPreviewProps> 
   );
 
   const handleGenerateBase64 = React.useCallback(
-    async (preview: IChartRequestModel) => {
+    async (preview: IChartPreviewRequestModel) => {
       try {
         const response = await previewBase64(preview);
         setPreview((preview) => ({ ...preview, chartBase64: response }));

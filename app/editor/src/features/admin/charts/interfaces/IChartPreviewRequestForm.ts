@@ -1,5 +1,5 @@
-import { IChartRequestModel } from 'tno-core';
+import { IChartPreviewRequestModel } from 'tno-core';
 
-export interface IChartRequestForm extends IChartRequestModel {
+export interface IChartRequestForm extends IChartPreviewRequestModel {
   chartBase64?: string;
 }

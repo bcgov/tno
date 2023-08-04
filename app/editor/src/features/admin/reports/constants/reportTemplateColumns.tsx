@@ -14,20 +14,6 @@ export const reportTemplateColumns: ITableHookColumn<IReportTemplateModel>[] = [
     cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {
-    label: 'Summary Charts',
-    name: 'enableSections',
-    width: 1,
-    hAlign: 'center',
-    cell: (cell) => <CellCheckbox checked={cell.original.settings.enableSummaryCharts} />,
-  },
-  {
-    label: 'Section Charts',
-    name: 'enableSectionSummary',
-    width: 1,
-    hAlign: 'center',
-    cell: (cell) => <CellCheckbox checked={cell.original.settings.enableSectionCharts} />,
-  },
-  {
     label: 'Enabled',
     name: 'isEnabled',
     width: 1,

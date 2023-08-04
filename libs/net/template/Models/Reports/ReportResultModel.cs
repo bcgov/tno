@@ -34,7 +34,7 @@ public class ReportResultModel
     /// <param name="subject"></param>
     /// <param name="body"></param>
     /// <param name="results"></param>
-    public ReportResultModel(string subject, string body, object results)
+    public ReportResultModel(string subject, string body, object? results = null)
     {
         this.Subject = subject;
         this.Body = body;

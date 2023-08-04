@@ -1,8 +1,8 @@
-import { IChartSettingsModel, IContentModel } from '.';
+import { IChartSectionSettingsModel, IContentModel } from '.';
 
-export interface IChartRequestModel {
+export interface IChartPreviewRequestModel {
   /** Chart configuration options. */
-  settings: IChartSettingsModel;
+  settings: IChartSectionSettingsModel;
   /** Razor template to generate Chart.JS JSON data. */
   template: string;
   /** Elasticsearch index to query if a filter is provided. */
