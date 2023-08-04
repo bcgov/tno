@@ -1,22 +1,25 @@
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Security.Claims;
-using System.Text.Json;
 using TNO.Ches;
-using TNO.Ches.Models;
 using TNO.Ches.Configuration;
+using TNO.Ches.Models;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
+using TNO.Core.Http;
 using TNO.Elastic.Models;
 using TNO.Entities;
-using TNO.Kafka.Models;
 using TNO.Kafka;
+using TNO.Kafka.Models;
 using TNO.Services.Managers;
 using TNO.Services.Reporting.Config;
 using TNO.TemplateEngine;
+using TNO.TemplateEngine.Config;
+using TNO.TemplateEngine.Models.Charts;
 using TNO.TemplateEngine.Models.Reports;
-using System.Linq;
 
 namespace TNO.Services.Reporting;
 
@@ -41,9 +44,19 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     protected IKafkaListener<string, ReportRequestModel> Listener { get; }
 
     /// <summary>
-    /// get - Razor template engine.
+    /// get - Razor report template engine.
     /// </summary>
-    protected ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> TemplateEngine { get; }
+    protected ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> ReportTemplateEngine { get; }
+
+    /// <summary>
+    /// get - Razor chart template engine.
+    /// </summary>
+    protected ITemplateEngine<TNO.TemplateEngine.Models.Reports.ChartTemplateModel> ChartTemplateEngine { get; }
+
+    /// <summary>
+    /// get - HTTP client.
+    /// </summary>
+    protected IHttpRequestClient HttpClient { get; }
 
     /// <summary>
     /// get - CHES service.
@@ -54,6 +67,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// get - CHES options.
     /// </summary>
     protected ChesOptions ChesOptions { get; }
+
+    /// <summary>
+    /// get - Charts options.
+    /// </summary>
+    protected ChartsOptions ChartsOptions { get; }
     #endregion
 
     #region Constructors
@@ -63,9 +81,12 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <param name="listener"></param>
     /// <param name="api"></param>
     /// <param name="user"></param>
-    /// <param name="templateEngine"></param>
+    /// <param name="reportTemplateEngine"></param>
+    /// <param name="chartTemplateEngine"></param>
     /// <param name="chesService"></param>
+    /// <param name="httpClient"></param>
     /// <param name="chesOptions"></param>
+    /// <param name="chartsOptions"></param>
     /// <param name="serializationOptions"></param>
     /// <param name="reportOptions"></param>
     /// <param name="logger"></param>
@@ -73,18 +94,24 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         IKafkaListener<string, ReportRequestModel> listener,
         IApiService api,
         ClaimsPrincipal user,
-        ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> templateEngine,
+        ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> reportTemplateEngine,
+        ITemplateEngine<TNO.TemplateEngine.Models.Reports.ChartTemplateModel> chartTemplateEngine,
         IChesService chesService,
+        IHttpRequestClient httpClient,
         IOptions<ChesOptions> chesOptions,
+        IOptions<ChartsOptions> chartsOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
         IOptions<ReportingOptions> reportOptions,
         ILogger<ReportingManager> logger)
         : base(api, reportOptions, logger)
     {
         _user = user;
-        this.TemplateEngine = templateEngine;
+        this.ReportTemplateEngine = reportTemplateEngine;
+        this.ChartTemplateEngine = chartTemplateEngine;
         this.Ches = chesService;
+        this.HttpClient = httpClient;
         this.ChesOptions = chesOptions.Value;
+        this.ChartsOptions = chartsOptions.Value;
         _serializationOptions = serializationOptions.Value;
         this.Listener = listener;
         this.Listener.IsLongRunningJob = true;
@@ -384,18 +411,18 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// Generate the output of the report with the Razor engine.
     /// </summary>
     /// <param name="report"></param>
-    /// <param name="content"></param>
+    /// <param name="sectionContent"></param>
     /// <param name="updateCache"></param>
     /// <returns></returns>
-    private async Task<string> GenerateReportSubjectAsync(API.Areas.Services.Models.Report.ReportModel report, Dictionary<string, ReportSectionModel> content, bool updateCache = false)
+    private async Task<string> GenerateReportSubjectAsync(API.Areas.Services.Models.Report.ReportModel report, Dictionary<string, ReportSectionModel> sectionContent, bool updateCache = false)
     {
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
         var key = $"report_{report.Id}_subject";
-        var model = new TNO.TemplateEngine.Models.Reports.ReportTemplateModel(content, report.Settings);
+        var model = new TNO.TemplateEngine.Models.Reports.ReportTemplateModel(sectionContent, report.Settings);
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
         var template = (!updateCache ?
-            this.TemplateEngine.GetOrAddTemplateInMemory(key, report.Template.Subject) :
-            this.TemplateEngine.AddOrUpdateTemplateInMemory(key, report.Template.Subject))
+            this.ReportTemplateEngine.GetOrAddTemplateInMemory(key, report.Template.Subject) :
+            this.ReportTemplateEngine.AddOrUpdateTemplateInMemory(key, report.Template.Subject))
             ?? throw new InvalidOperationException("Template does not exist");
         return await template.RunAsync(instance =>
         {
@@ -410,16 +437,16 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// Generate the output of the report with the Razor engine.
     /// </summary>
     /// <param name="report"></param>
-    /// <param name="content"></param>
+    /// <param name="sectionContent"></param>
     /// <returns></returns>
-    private async Task<string> GenerateReportBodyAsync(API.Areas.Services.Models.Report.ReportModel report, Dictionary<string, ReportSectionModel> content, bool updateCache = false)
+    private async Task<string> GenerateReportBodyAsync(API.Areas.Services.Models.Report.ReportModel report, Dictionary<string, ReportSectionModel> sectionContent, bool updateCache = false)
     {
         // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
         var key = $"report_{report.Id}";
-        var model = new TNO.TemplateEngine.Models.Reports.ReportTemplateModel(content, report.Settings);
+        var model = new TNO.TemplateEngine.Models.Reports.ReportTemplateModel(sectionContent, report.Settings);
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
 
-        if (content.TryGetValue("", out ReportSectionModel? value) && value != null && value.Content.Any())
+        if (sectionContent.TryGetValue("", out ReportSectionModel? value) && value != null && value.Content.Any())
         {
             foreach (var frontPage in value.Content.Where(x => x.ContentType == ContentType.Image))
             {
@@ -428,16 +455,90 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         }
 
         var template = (!updateCache ?
-            this.TemplateEngine.GetOrAddTemplateInMemory(key, report.Template.Body) :
-            this.TemplateEngine.AddOrUpdateTemplateInMemory(key, report.Template.Body))
+            this.ReportTemplateEngine.GetOrAddTemplateInMemory(key, report.Template.Body) :
+            this.ReportTemplateEngine.AddOrUpdateTemplateInMemory(key, report.Template.Body))
             ?? throw new InvalidOperationException("Template does not exist");
-        return await template.RunAsync(instance =>
+        var body = await template.RunAsync(instance =>
         {
             instance.Model = model;
             instance.Settings = model.Settings;
             instance.Content = model.Content;
             instance.Sections = model.Sections;
         });
+
+        // Find all charts and make a request to the Charts API to generate the image.
+        await report.Sections.ForEachAsync(async section =>
+        {
+            await section.ChartTemplates.ForEachAsync(async chart =>
+            {
+                chart.SectionSettings ??= new();
+                List<ContentModel> content = new();
+                // If the section has content add it.
+                if (sectionContent.TryGetValue(section.Name, out ReportSectionModel? sectionData) && sectionData != null)
+                    content.AddRange(sectionData.Content);
+
+                // TODO: Merge with report specific configuration options.
+                if (chart.SectionSettings.Options == null || chart.SectionSettings.Options.ToJson() == "{}")
+                    chart.SectionSettings.Options = chart.Settings.Options;
+                var base64Image = await this.GenerateBase64ImageAsync(new ChartRequestModel(chart.SectionSettings, chart.Template, content));
+                // Replace Chart Stubs with the generated image.
+                body = body.Replace(ReportSectionModel.GenerateChartUid(section.Id, chart.Id), base64Image);
+            });
+        });
+
+        return body;
+    }
+
+    /// <summary>
+    /// Makes a request to Elasticsearch if required to fetch content.
+    /// Generate the Chart JSON for the specified 'model' containing a template and content.
+    /// If the model includes a Filter it will make a request to Elasticsearch.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private async Task<ChartResultModel> GenerateJsonAsync(ChartRequestModel model)
+    {
+        if (model.Template == null) throw new InvalidOperationException("Chart template is missing from model");
+        var template = this.ChartTemplateEngine.AddOrUpdateTemplateInMemory($"chart-template", model.Template);
+
+        var content = new List<ContentModel>(model.Content ?? Array.Empty<ContentModel>());
+
+        var templateModel = new ChartTemplateModel(model.Settings, content);
+
+        var json = await template.RunAsync(instance =>
+        {
+            instance.Model = templateModel;
+            instance.Content = templateModel.Content;
+            instance.Settings = templateModel.Settings;
+            instance.SectionSettings = templateModel.SectionSettings;
+            instance.Sections = templateModel.Sections;
+        });
+
+        return new ChartResultModel(json);
+    }
+
+    /// <summary>
+    /// Executes the chart template provided to generate JSON, which is then sent with a request to the Charts API to generate a base64 image.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns>Returns the base64 image from the Charts API.</returns>
+    private async Task<string> GenerateBase64ImageAsync(ChartRequestModel model)
+    {
+        // Get the Chart JSON data.
+        var data = model.ChartData ?? (await this.GenerateJsonAsync(model)).Json;
+        var dataJson = data.ToJson();
+
+        var optionsJson = model.Settings.Options != null ? JsonSerializer.Serialize(model.Settings.Options) : "{}";
+        var optionsBytes = Encoding.UTF8.GetBytes(optionsJson);
+        var optionsBase64 = Convert.ToBase64String(optionsBytes);
+
+        // Send request to Charts API to generate base64
+        var body = new StringContent(dataJson, Encoding.UTF8, System.Net.Mime.MediaTypeNames.Application.Json);
+        var response = await this.HttpClient.PostAsync(
+            this.ChartsOptions.Url.Append(this.ChartsOptions.Base64Path, model.Settings.ChartType ?? "bar", $"?width={model.Settings.Width ?? 250}&height={model.Settings.Height ?? 250}&options={optionsBase64}"),
+            body);
+        return await response.Content.ReadAsStringAsync();
     }
 
     /// <summary>

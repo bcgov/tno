@@ -22,7 +22,7 @@ INSERT INTO public."chart_template" (
 @using System.Linq
 @using TNO.Entities
 @{
-  var group = Settings.GroupBy switch
+  var group = SectionSettings.GroupBy switch
   {
     "product" => Content.GroupBy(c => c.Product?.Name).OrderBy(group => group.Key),
     "contentType" => Content.GroupBy(c => c.ContentType.ToString()).OrderBy(group => group.Key),
@@ -65,7 +65,7 @@ INSERT INTO public."chart_template" (
   // Get all groups in data
   var groups = Content
     .GroupBy(
-      c => Settings.GroupBy switch {
+      c => SectionSettings.GroupBy switch {
         "product" => c.Product?.Name,
         "contentType" => c.ContentType.ToString(),
         "byline" => c.Byline,
@@ -109,7 +109,7 @@ INSERT INTO public."chart_template" (
   // Get all groups in data
   var groups = Content
     .GroupBy(
-      c => Settings.GroupBy switch
+      c => SectionSettings.GroupBy switch
       {
         "product" => c.Product?.Name,
         "contentType" => c.ContentType.ToString(),
@@ -156,7 +156,7 @@ INSERT INTO public."chart_template" (
 @using System.Linq
 @using TNO.Entities
 @{
-  var group = Settings.GroupBy switch
+  var group = SectionSettings.GroupBy switch
   {
     "product" => Content.GroupBy(c => c.Product?.Name).OrderBy(group => group.Key),
     "contentType" => Content.GroupBy(c => c.ContentType.ToString()).OrderBy(group => group.Key),

@@ -1,5 +1,7 @@
 import { IChartTemplateModel } from 'tno-core';
 
+import { defaultChartJSOptions } from '.';
+
 export const defaultChartTemplate: IChartTemplateModel = {
   id: 0,
   name: '',
@@ -11,6 +13,6 @@ export const defaultChartTemplate: IChartTemplateModel = {
   settings: {
     chartTypes: [],
     groupBy: [],
-    options: {},
+    options: defaultChartJSOptions,
   },
 };

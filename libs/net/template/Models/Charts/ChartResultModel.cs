@@ -30,7 +30,7 @@ public class ChartResultModel
     /// </summary>
     /// <param name="json"></param>
     /// <param name="results"></param>
-    public ChartResultModel(string json, string? results)
+    public ChartResultModel(string json, string? results = null)
     {
         this.Json = JsonDocument.Parse(json);
         this.Results = results != null ? JsonDocument.Parse(results) : null;
@@ -41,7 +41,7 @@ public class ChartResultModel
     /// </summary>
     /// <param name="json"></param>
     /// <param name="results"></param>
-    public ChartResultModel(JsonDocument json, JsonDocument? results)
+    public ChartResultModel(JsonDocument json, JsonDocument? results = null)
     {
         this.Json = json;
         this.Results = results;

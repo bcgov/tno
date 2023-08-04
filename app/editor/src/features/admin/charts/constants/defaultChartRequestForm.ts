@@ -1,12 +1,16 @@
 import { IChartRequestForm } from '../interfaces';
+import { defaultChartJSOptions } from '.';
 
 export const defaultChartRequestForm: IChartRequestForm = {
-  width: 500,
-  height: 500,
   settings: {
+    width: 500,
+    height: 500,
     chartType: 'bar',
-    groupBy: '',
-    options: {},
+    groupBy: 'product',
+    options: defaultChartJSOptions,
+    title: '',
+    isHorizontal: false,
+    showDataValues: false,
   },
   template: '',
   content: [],

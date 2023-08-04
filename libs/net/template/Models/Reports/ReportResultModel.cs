@@ -1,9 +1,9 @@
-namespace TNO.API.Areas.Admin.Models.Report;
+namespace TNO.TemplateEngine.Models.Reports;
 
 /// <summary>
-/// ReportPreviewModel class, provides a model that represents an report preview.
+/// ReportResultModel class, provides a model that represents an report preview result.
 /// </summary>
-public class ReportPreviewModel
+public class ReportResultModel
 {
     #region Properties
     /// <summary>
@@ -17,24 +17,24 @@ public class ReportPreviewModel
     public string Body { get; set; } = "";
 
     /// <summary>
-    /// get/set - Elasticsearch results.
+    /// get/set - Dictionary containing Elasticsearch results for each section.
     /// </summary>
     public object? Results { get; set; }
     #endregion
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of an ReportPreviewModel.
+    /// Creates a new instance of an ReportResultModel.
     /// </summary>
-    public ReportPreviewModel() { }
+    public ReportResultModel() { }
 
     /// <summary>
-    /// Creates a new instance of an ReportPreviewModel, initializes with specified parameter.
+    /// Creates a new instance of an ReportResultModel, initializes with specified parameter.
     /// </summary>
     /// <param name="subject"></param>
     /// <param name="body"></param>
     /// <param name="results"></param>
-    public ReportPreviewModel(string subject, string body, object results)
+    public ReportResultModel(string subject, string body, object results)
     {
         this.Subject = subject;
         this.Body = body;

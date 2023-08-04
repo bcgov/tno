@@ -1,10 +1,6 @@
 import { IChartSettingsModel, IContentModel } from '.';
 
 export interface IChartRequestModel {
-  /** Width of the chart image. */
-  width?: number;
-  /** Height of the chart image. */
-  height?: number;
   /** Chart configuration options. */
   settings: IChartSettingsModel;
   /** Razor template to generate Chart.JS JSON data. */
