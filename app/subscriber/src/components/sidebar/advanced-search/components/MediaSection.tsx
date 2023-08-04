@@ -64,6 +64,7 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
                   <Row key={`${option.name}-${index}`} className="sub-options">
                     <input
                       type="checkbox"
+                      checked={advancedSearch?.sourceIds?.includes(option.id)}
                       onChange={(e) => {
                         if (e.target.checked) {
                           setAdvancedSearch({

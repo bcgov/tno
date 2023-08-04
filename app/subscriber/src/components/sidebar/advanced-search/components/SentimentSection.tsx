@@ -43,7 +43,7 @@ export const SentimentSection: React.FC<ISentimentSectionProps> = ({
           range
           min={-5}
           max={5}
-          defaultValue={[0, 0]}
+          value={advancedSearch.sentiment}
           onChange={(e) =>
             // if e is a number then it is a single value, but backend expects an array
             setAdvancedSearch({ ...advancedSearch, sentiment: typeof e === 'number' ? [e] : e })

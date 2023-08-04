@@ -5,16 +5,18 @@ import { FaRegSmile, FaSearch } from 'react-icons/fa';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle, IoIosCog } from 'react-icons/io';
 import { useNavigate } from 'react-router';
+import { useParams } from 'react-router-dom';
 import { Button, Col, ContentStatus, Row, Show, Text, ToggleGroup, toQueryString } from 'tno-core';
 
 import { DateSection, MediaSection, SentimentSection } from './components';
-import { SearchInFieldName } from './constants';
+import { SearchInFieldName, toggleOptions } from './constants';
 import {
   defaultSubMediaGroupExpanded,
   IAdvancedSearchFilter,
   ISubMediaGroupExpanded,
 } from './interfaces';
 import * as styled from './styled';
+import { queryToState } from './utils/queryToState';
 
 export interface IAdvancedSearchProps {
   expanded: boolean;
@@ -28,7 +30,7 @@ export interface IAdvancedSearchProps {
  */
 export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setExpanded }) => {
   const navigate = useNavigate();
-
+  const { query } = useParams();
   /** determines whether the date filter section is shown or not */
   const [dateExpanded, setDateExpanded] = React.useState(false);
   /** controls the parent group "Media Sources" expansion */
@@ -45,6 +47,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
     startDate: '',
     endDate: '',
   });
+
+  // update state when query changes, necessary to keep state in sync with url when navigating directly
+  React.useEffect(() => {
+    if (query) setAdvancedSearch(queryToState(query.toString()));
+  }, [query]);
 
   const advancedFilter = React.useMemo(
     () =>
@@ -118,6 +125,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
           className="search-input"
           placeholder="Search for..."
           onKeyDown={enterPressed}
+          value={advancedSearch?.searchTerm}
           name="search"
           onChange={(e) => setAdvancedSearch({ ...advancedSearch, searchTerm: e.target.value })}
         />
@@ -131,7 +139,13 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
       <Show visible={expanded}>
         <div className="search-in-group space-top">
           <b>Search in: </b>
-          <ToggleGroup className="toggles" options={searchInOptions} />
+          <ToggleGroup
+            defaultSelected={
+              toggleOptions[advancedSearch?.searchInField as keyof typeof toggleOptions]
+            }
+            className="toggles"
+            options={searchInOptions}
+          />
         </div>
         <Col className="section narrow">
           <b>Narrow your results by: </b>
