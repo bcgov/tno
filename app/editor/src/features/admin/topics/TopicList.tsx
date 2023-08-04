@@ -40,16 +40,10 @@ export const TopicList: React.FC = () => {
   const topicTypeOptions = getEnumStringOptions(TopicTypeName);
 
   React.useEffect(() => {
-    // It looks like we could not use useRef in this case due to the
-    // handling needs to be dealt with here instead of in parent component
     document.body.style.overflowY = 'hidden';
-
-    const main = document.querySelector('main');
-    if (main) main.style.overflowY = 'hidden';
 
     return () => {
       document.body.style.overflowY = 'auto';
-      if (main) main.style.overflowY = 'auto';
     };
   }, []);
 

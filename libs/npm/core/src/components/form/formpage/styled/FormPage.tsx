@@ -6,8 +6,6 @@ export const FormPage = styled.div<IFormPageProps>`
   background-color: white;
   min-height: fit-content;
   margin: 0px auto;
-  overflow: auto;
-  overflow-x: hidden;
 
   :not(.no-padding) {
     padding: 0.5em 2em 0 2em;
