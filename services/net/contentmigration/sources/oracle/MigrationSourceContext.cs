@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using TNO.Core.Extensions;
 
 namespace TNO.Services.ContentMigration.Sources.Oracle;
@@ -8,6 +9,9 @@ namespace TNO.Services.ContentMigration.Sources.Oracle;
 /// </summary>
 public class MigrationSourceContext : DbContext
 {
+    private readonly IConfiguration configuration;
+    private string DefaultSchema => configuration.GetValue("Service:OracleConnection:DefaultSchema", "");
+
     #region Properties
     /// <summary>
     /// get/set for Set of NewsItem.
@@ -42,10 +46,11 @@ public class MigrationSourceContext : DbContext
     /// Creates a new instance of a MigrationSourceContext object, initializes with specified parameters.
     /// </summary>
     /// <param name="options"></param>
-    public MigrationSourceContext(DbContextOptions<MigrationSourceContext> options)
+    /// <param name="configuration"></param>
+    public MigrationSourceContext(DbContextOptions<MigrationSourceContext> options, IConfiguration configuration)
       : base(options)
     {
-
+        this.configuration = configuration;
     }
     #endregion
 
@@ -74,6 +79,13 @@ public class MigrationSourceContext : DbContext
     /// <param name="modelBuilder"></param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasDefaultSchema(DefaultSchema);
+
+        var schema = !String.IsNullOrEmpty(DefaultSchema) ? $"{DefaultSchema}." : "";
+
+        modelBuilder.Entity<NewsItem>()
+            .ToSqlQuery($"WITH ATN AS (SELECT * from {schema}NEWS_ITEMS UNION ALL SELECT * from {schema}HNEWS_ITEMS) SELECT * FROM ATN");
+
         modelBuilder.ApplyAllConfigurations(typeof(NewsItemConfiguration), this);
         modelBuilder.ApplyAllConfigurations(typeof(UserToneConfiguration), this);
 

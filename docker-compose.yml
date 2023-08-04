@@ -420,6 +420,19 @@ services:
     networks:
       - tno
 
+  oracleclient:
+    profiles:
+      - all
+      - utility
+    restart: "no"
+    container_name: tno-oracleclient
+    build:
+      context: tools/oracle-instantclient
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks:
+      - tno
+
 ####################### Volumes Definition #######################
 volumes:
   tno-database-data:
