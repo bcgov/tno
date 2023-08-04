@@ -508,7 +508,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult StreamAsync([FromQuery] string path)
+    public IActionResult Stream([FromQuery] string path)
     {
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);

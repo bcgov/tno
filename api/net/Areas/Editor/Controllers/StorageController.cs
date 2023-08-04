@@ -230,7 +230,7 @@ public class StorageController : ControllerBase
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
-    public IActionResult StreamAsync([FromRoute] int? locationId, [FromQuery] string path)
+    public IActionResult Stream([FromRoute] int? locationId, [FromQuery] string path)
     {
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var dataLocation = locationId.HasValue ? _connection.GetDataLocation(locationId.Value) : null;
