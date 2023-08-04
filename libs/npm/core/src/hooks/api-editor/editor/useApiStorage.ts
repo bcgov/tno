@@ -57,9 +57,16 @@ export const useApiStorage = (
     },
     stream: async (locationId: number, path: string) => {
       const params = { path };
-      return await api.get<any, AxiosResponse<any>, any>(
+      const response = await api.get<any, AxiosResponse<any>, any>(
         `/editor/storage${locationId ? `/${locationId}` : ''}/stream?${toQueryString(params)}`,
+        {
+          responseType: 'blob',
+          headers: { accept: '*.*' },
+        },
       );
+
+      response.data = window.URL.createObjectURL(new Blob([response.data]));
+      return response;
     },
     download: async (locationId: number, path: string, fileName?: string) => {
       const params = {

@@ -37,7 +37,7 @@ export const Upload = styled.div`
     padding-bottom: 0.5rem;
   }
   .body {
-    margin-top: 15%;
+    margin-top: 3%;
   }
   .file-action {
     display: grid;
