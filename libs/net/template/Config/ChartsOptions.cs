@@ -1,4 +1,4 @@
-namespace TNO.API.Config;
+namespace TNO.TemplateEngine.Config;
 
 /// <summary>
 /// ChartsOptions class, provides a way to configure Charts API.

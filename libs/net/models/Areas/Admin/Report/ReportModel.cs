@@ -85,8 +85,10 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// Creates a new instance of a Report object.
     /// </summary>
+    /// <param name="options"></param>
+    /// <param name="includeChartTemplates">Need to remove references to ChartTemplate when add/update operations occur or it will attempt to add new records.</param>
     /// <returns></returns>
-    public Entities.Report ToEntity(JsonSerializerOptions options)
+    public Entities.Report ToEntity(JsonSerializerOptions options, bool includeChartTemplates = true)
     {
         var entity = (Entities.Report)this;
         entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
@@ -104,6 +106,8 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
             {
                 var chart = section.ChartTemplates.FirstOrDefault(uct => uct.Id == ct.ChartTemplateId) ?? throw new InvalidOperationException("Unable to find matching chart template");
                 ct.Settings = JsonDocument.Parse(JsonSerializer.Serialize(chart.SectionSettings, options));
+                if (!includeChartTemplates)
+                    ct.ChartTemplate = null;
             });
         });
         return entity;
@@ -132,36 +136,43 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
             entity.Template = (Entities.ReportTemplate)model.Template;
         }
 
-        entity.Sections.AddRange(model.Sections.Select(s =>
+        entity.Sections.AddRange(model.Sections.Select(modelSection =>
         {
-            var section = new Entities.ReportSection(s.Id, s.Name, s.ReportId)
+            var section = new Entities.ReportSection(modelSection.Id, modelSection.Name, modelSection.ReportId)
             {
-                Description = s.Description,
-                IsEnabled = s.IsEnabled,
-                SortOrder = s.SortOrder,
-                FilterId = s.FilterId,
-                Filter = s.Filter != null ? new Entities.Filter(s.Filter.Id, s.Filter.Name, s.Filter.OwnerId)
+                Description = modelSection.Description,
+                IsEnabled = modelSection.IsEnabled,
+                SortOrder = modelSection.SortOrder,
+                FilterId = modelSection.FilterId,
+                Filter = modelSection.Filter != null ? new Entities.Filter(modelSection.Filter.Id, modelSection.Filter.Name, modelSection.Filter.OwnerId)
                 {
-                    Description = s.Filter.Description,
-                    IsEnabled = s.Filter.IsEnabled,
-                    SortOrder = s.Filter.SortOrder,
-                    Settings = JsonDocument.Parse(JsonSerializer.Serialize(s.Filter.Settings)),
-                    Query = JsonDocument.Parse(JsonSerializer.Serialize(s.Filter.Query))
+                    Description = modelSection.Filter.Description,
+                    IsEnabled = modelSection.Filter.IsEnabled,
+                    SortOrder = modelSection.Filter.SortOrder,
+                    Settings = JsonDocument.Parse(JsonSerializer.Serialize(modelSection.Filter.Settings)),
+                    Query = JsonDocument.Parse(JsonSerializer.Serialize(modelSection.Filter.Query))
                 } : null,
-                FolderId = s.FolderId,
-                Folder = s.Folder != null ? new Entities.Folder(s.Folder.Id, s.Folder.Name, s.Folder.OwnerId)
+                FolderId = modelSection.FolderId,
+                Folder = modelSection.Folder != null ? new Entities.Folder(modelSection.Folder.Id, modelSection.Folder.Name, modelSection.Folder.OwnerId)
                 {
-                    Description = s.Folder.Description,
-                    IsEnabled = s.Folder.IsEnabled,
-                    SortOrder = s.Folder.SortOrder,
-                    Settings = JsonDocument.Parse(JsonSerializer.Serialize(s.Folder.Settings))
+                    Description = modelSection.Folder.Description,
+                    IsEnabled = modelSection.Folder.IsEnabled,
+                    SortOrder = modelSection.Folder.SortOrder,
+                    Settings = JsonDocument.Parse(JsonSerializer.Serialize(modelSection.Folder.Settings))
                 } : null,
-                Settings = JsonDocument.Parse(JsonSerializer.Serialize(s.Settings)),
-                Version = s.Version ?? 0
+                Settings = JsonDocument.Parse(JsonSerializer.Serialize(modelSection.Settings)),
+                Version = modelSection.Version ?? 0
             };
-            section.ChartTemplatesManyToMany.AddRange(s.ChartTemplates.Select(ct => new Entities.ReportSectionChartTemplate(s.Id, ct.Id, ct.SortOrder)
+            section.ChartTemplatesManyToMany.AddRange(modelSection.ChartTemplates.Select(ct => new Entities.ReportSectionChartTemplate(modelSection.Id, ct.Id, ct.SortOrder)
             {
-                Settings = JsonDocument.Parse(JsonSerializer.Serialize(ct.SectionSettings)),
+                ChartTemplate = new Entities.ChartTemplate(ct.Id, ct.Name, ct.Template)
+                {
+                    Description = ct.Description,
+                    IsEnabled = ct.IsEnabled,
+                    SortOrder = ct.SortOrder,
+                    Settings = JsonDocument.Parse(JsonSerializer.Serialize(ct.Settings)),
+                },
+                Settings = ct.SectionSettings != null ? JsonDocument.Parse(JsonSerializer.Serialize(ct.SectionSettings)) : JsonDocument.Parse(JsonSerializer.Serialize(new ChartSettingsModel())),
             }));
             return section;
         }));

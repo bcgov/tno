@@ -4,7 +4,6 @@ import 'prismjs/components/prism-cshtml';
 import 'prismjs/components/prism-json';
 
 import { AxiosError } from 'axios';
-import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
@@ -14,21 +13,18 @@ import {
   ButtonVariant,
   Col,
   IChartRequestModel,
-  IChartTemplateModel,
   OptionItem,
   Row,
   Select,
   Text,
 } from 'tno-core';
 
+import { useChartTemplateContext } from './ChartTemplateContext';
 import { chartTypeOptions, defaultChartTemplate, groupByOptions } from './constants';
-import { IChartRequestForm } from './interfaces';
 
 export interface IChartTemplateFormPreviewProps {
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
-  preview: IChartRequestForm;
-  setPreview: React.Dispatch<React.SetStateAction<IChartRequestForm>>;
 }
 
 /**
@@ -38,10 +34,8 @@ export interface IChartTemplateFormPreviewProps {
 export const ChartTemplateFormPreview: React.FC<IChartTemplateFormPreviewProps> = ({
   filter,
   setFilter,
-  preview,
-  setPreview,
 }) => {
-  const { values, setFieldValue } = useFormikContext<IChartTemplateModel>();
+  const { values, setFieldValue, preview, setPreview } = useChartTemplateContext();
   const [, { previewJson, previewBase64 }] = useChartTemplates();
 
   const [chartData, setChartData] = React.useState(
@@ -152,16 +146,26 @@ export const ChartTemplateFormPreview: React.FC<IChartTemplateFormPreviewProps> 
           <Text
             name="width"
             label="Width"
-            value={preview.width ?? ''}
+            value={preview.settings.width ?? ''}
             type="number"
-            onChange={(e) => setPreview({ ...preview, width: parseInt(e.target.value) })}
+            onChange={(e) =>
+              setPreview({
+                ...preview,
+                settings: { ...preview.settings, width: parseInt(e.target.value) },
+              })
+            }
           />
           <Text
             name="height"
             label="Height"
-            value={preview.height ?? ''}
+            value={preview.settings.height ?? ''}
             type="number"
-            onChange={(e) => setPreview({ ...preview, height: parseInt(e.target.value) })}
+            onChange={(e) =>
+              setPreview({
+                ...preview,
+                settings: { ...preview.settings, height: parseInt(e.target.value) },
+              })
+            }
           />
         </Row>
         <hr />

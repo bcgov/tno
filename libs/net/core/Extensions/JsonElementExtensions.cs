@@ -73,7 +73,7 @@ public static class JsonElementExtensions
     /// <returns></returns>
     public static T? GetElementValue<T>(this JsonElement element, string path = "", T? defaultValue = default, JsonSerializerOptions? options = null)
     {
-        var property = GetElement(element, path);
+        var property = path.Contains('.') ? GetElement(element, path) : element;
 
         if (property == null) return defaultValue;
         var node = (JsonElement)property;

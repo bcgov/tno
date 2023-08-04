@@ -23,12 +23,12 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get/set - The Elasticsearch query.
     /// </summary>
-    public Dictionary<string, object> Query { get; set; } = new Dictionary<string, object>();
+    public JsonDocument Query { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get/set - The filter settings.
     /// </summary>
-    public Dictionary<string, object> Settings { get; set; } = new Dictionary<string, object>();
+    public JsonDocument Settings { get; set; } = JsonDocument.Parse("{}");
     #endregion
 
     #region Constructors
@@ -41,13 +41,12 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of an FilterModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    /// <param name="options"></param>
-    public FilterModel(Entities.Filter entity, JsonSerializerOptions options) : base(entity)
+    public FilterModel(Entities.Filter entity) : base(entity)
     {
         this.OwnerId = entity.OwnerId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
-        this.Query = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Query, options) ?? new Dictionary<string, object>();
-        this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
+        this.Query = entity.Query;
+        this.Settings = entity.Settings;
     }
     #endregion
 

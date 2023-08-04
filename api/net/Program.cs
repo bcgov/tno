@@ -6,30 +6,31 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using Prometheus;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using TNO.API.Config;
+using TNO.API.CSS;
+using TNO.API.Helpers;
 using TNO.API.Middleware;
+using TNO.API.SignalR;
 using TNO.Core.Converters;
+using TNO.Core.Extensions;
 using TNO.Core.Http;
 using TNO.CSS;
 using TNO.DAL;
-using TNO.Keycloak;
 using TNO.Kafka;
-using TNO.API.Config;
-using Microsoft.AspNetCore.Authorization;
-using TNO.API.CSS;
-using TNO.API.SignalR;
-using TNO.API.Helpers;
-using TNO.Core.Extensions;
+using TNO.Keycloak;
 using TNO.TemplateEngine;
+using TNO.TemplateEngine.Config;
 
 DotNetEnv.Env.Load();
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -71,7 +72,6 @@ builder.Services.AddOptions<KestrelServerOptions>().Bind(config.GetSection("Kest
 builder.Services.AddOptions<FormOptions>().Bind(config.GetSection("Form"));
 builder.Services.AddOptions<KafkaOptions>().Bind(config.GetSection("Kafka"));
 builder.Services.AddOptions<SignalROptions>().Bind(config.GetSection("SignalR"));
-builder.Services.AddOptions<ChartsOptions>().Bind(config.GetSection("Charts"));
 var signalROptions = new SignalROptions();
 config.GetSection("SignalR").Bind(signalROptions);
 
@@ -194,9 +194,7 @@ builder.Services
     .AddScoped<IConnectionHelper, ConnectionHelper>()
     .AddScoped<IReportHelper, ReportHelper>()
     .AddTNOServices(config, env)
-    .AddTemplateEngine<TNO.TemplateEngine.Models.Notifications.TemplateModel>()
-    .AddTemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel>()
-    .AddTemplateEngine<TNO.TemplateEngine.Models.Reports.ChartTemplateModel>()
+    .AddTemplateEngine(config)
     .AddKafkaMessenger(config)
     .AddHttpClient()
     .AddTransient<JwtSecurityTokenHandler>()

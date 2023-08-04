@@ -16,12 +16,12 @@ import {
   useModal,
 } from 'tno-core';
 
+import { ChartTemplateContextProvider } from './ChartTemplateContext';
 import { ChartTemplateFormDetails } from './ChartTemplateFormDetails';
 import { ChartTemplateFormOptions } from './ChartTemplateFormOptions';
 import { ChartTemplateFormPreview } from './ChartTemplateFormPreview';
 import { ChartTemplateFormTemplate } from './ChartTemplateFormTemplate';
 import { defaultChartRequestForm, defaultChartTemplate } from './constants';
-import { IChartRequestForm } from './interfaces';
 import * as styled from './styled';
 
 /**
@@ -40,7 +40,6 @@ export const ChartTemplateForm: React.FC = () => {
     ...defaultChartTemplate,
   });
   const [filter, setFilter] = React.useState('');
-  const [preview, setPreview] = React.useState<IChartRequestForm>(defaultChartRequestForm);
 
   const chartTemplateId = Number(id);
 
@@ -49,14 +48,6 @@ export const ChartTemplateForm: React.FC = () => {
       setChartTemplate({ ...defaultChartTemplate, id: chartTemplateId }); // Do this to stop double fetch.
       getChartTemplate(chartTemplateId).then((data) => {
         setChartTemplate(data);
-        setPreview((preview) => ({
-          ...preview,
-          template: data.template,
-          settings: {
-            ...preview.settings,
-            options: data.settings.options,
-          },
-        }));
       });
     }
   }, [getChartTemplate, chartTemplate?.id, chartTemplateId]);
@@ -100,89 +91,92 @@ export const ChartTemplateForm: React.FC = () => {
         }}
       >
         {({ isSubmitting, values }) => (
-          <Tabs
-            tabs={
-              <>
-                <Tab
-                  label="Details"
-                  onClick={() => {
-                    setActive('chart');
-                  }}
-                  active={active === 'chart'}
-                />
-                <Tab
-                  label="Template"
-                  onClick={() => {
-                    setActive('template');
-                  }}
-                  active={active === 'template'}
-                />
-                <Tab
-                  label="Chart.JS Options"
-                  onClick={() => {
-                    setActive('options');
-                  }}
-                  active={active === 'options'}
-                />
-                <Tab
-                  label="Preview"
-                  onClick={() => {
-                    setActive('preview');
-                  }}
-                  active={active === 'preview'}
-                />
-              </>
-            }
+          <ChartTemplateContextProvider
+            value={{
+              ...defaultChartRequestForm,
+              template: values.template,
+              settings: values.sectionSettings ?? defaultChartRequestForm.settings,
+            }}
           >
-            <div className="form-container">
-              <Show visible={active === 'chart'}>
-                <ChartTemplateFormDetails />
-              </Show>
-              <Show visible={active === 'template'}>
-                <ChartTemplateFormTemplate setPreview={setPreview} />
-              </Show>
-              <Show visible={active === 'options'}>
-                <ChartTemplateFormOptions preview={preview} setPreview={setPreview} />
-              </Show>
-              <Show visible={active === 'preview'}>
-                <ChartTemplateFormPreview
-                  filter={filter}
-                  setFilter={setFilter}
-                  preview={preview}
-                  setPreview={setPreview}
-                />
-              </Show>
-              <Row justifyContent="center" className="form-inputs">
-                <Button type="submit" disabled={isSubmitting}>
-                  Save
-                </Button>
-                <Show visible={!!values.id}>
-                  <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
-                    Delete
-                  </Button>
+            <Tabs
+              tabs={
+                <>
+                  <Tab
+                    label="Details"
+                    onClick={() => {
+                      setActive('chart');
+                    }}
+                    active={active === 'chart'}
+                  />
+                  <Tab
+                    label="Template"
+                    onClick={() => {
+                      setActive('template');
+                    }}
+                    active={active === 'template'}
+                  />
+                  <Tab
+                    label="Chart.JS Options"
+                    onClick={() => {
+                      setActive('options');
+                    }}
+                    active={active === 'options'}
+                  />
+                  <Tab
+                    label="Preview"
+                    onClick={() => {
+                      setActive('preview');
+                    }}
+                    active={active === 'preview'}
+                  />
+                </>
+              }
+            >
+              <div className="form-container">
+                <Show visible={active === 'chart'}>
+                  <ChartTemplateFormDetails />
                 </Show>
-              </Row>
-              <Modal
-                headerText="Confirm Removal"
-                body="Are you sure you wish to remove this chart template?"
-                isShowing={isShowing}
-                hide={toggle}
-                type="delete"
-                confirmText="Yes, Remove It"
-                onConfirm={async () => {
-                  try {
-                    await deleteChartTemplate(chartTemplate);
-                    toast.success(`${chartTemplate.name} has successfully been deleted.`);
-                    navigate('/admin/chart/templates');
-                  } catch {
-                    // Globally handled
-                  } finally {
-                    toggle();
-                  }
-                }}
-              />
-            </div>
-          </Tabs>
+                <Show visible={active === 'template'}>
+                  <ChartTemplateFormTemplate />
+                </Show>
+                <Show visible={active === 'options'}>
+                  <ChartTemplateFormOptions />
+                </Show>
+                <Show visible={active === 'preview'}>
+                  <ChartTemplateFormPreview filter={filter} setFilter={setFilter} />
+                </Show>
+                <Row justifyContent="center" className="form-inputs">
+                  <Button type="submit" disabled={isSubmitting}>
+                    Save
+                  </Button>
+                  <Show visible={!!values.id}>
+                    <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
+                      Delete
+                    </Button>
+                  </Show>
+                </Row>
+                <Modal
+                  headerText="Confirm Removal"
+                  body="Are you sure you wish to remove this chart template?"
+                  isShowing={isShowing}
+                  hide={toggle}
+                  type="delete"
+                  confirmText="Yes, Remove It"
+                  onConfirm={async () => {
+                    try {
+                      await deleteChartTemplate(chartTemplate);
+                      toast.success(`${chartTemplate.name} has successfully been deleted.`);
+                      navigate('/admin/chart/templates');
+                    } catch {
+                      // Globally handled
+                    } finally {
+                      toggle();
+                    }
+                  }}
+                />
+              </div>
+            </Tabs>
+          </ChartTemplateContextProvider>
         )}
       </FormikForm>
     </styled.ChartForm>

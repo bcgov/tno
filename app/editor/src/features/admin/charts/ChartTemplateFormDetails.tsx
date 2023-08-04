@@ -1,4 +1,3 @@
-import { useFormikContext } from 'formik';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -9,22 +8,31 @@ import {
   FormikDatePicker,
   FormikText,
   FormikTextArea,
-  IChartTemplateModel,
   Row,
   Show,
 } from 'tno-core';
+
+import { useChartTemplateContext } from './ChartTemplateContext';
 
 /**
  * The page used to view and edit a chart template.
  * @returns Component.
  */
 export const ChartTemplateFormDetails: React.FC = () => {
-  const { values } = useFormikContext<IChartTemplateModel>();
+  const { values, setFieldValue } = useChartTemplateContext();
 
   return (
     <>
       <Col className="form-inputs">
-        <FormikText name="name" label="Name" required />
+        <FormikText
+          name="name"
+          label="Name"
+          required
+          onChange={(e) => {
+            setFieldValue('name', e.target.value);
+            setFieldValue('settings.options.plugins.legend.title.text', e.target.value);
+          }}
+        />
         <FormikTextArea name="description" label="Description" />
         <Row gap="1em">
           <FormikCheckbox label="Is Enabled" name="isEnabled" />

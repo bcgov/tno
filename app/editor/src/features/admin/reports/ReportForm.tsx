@@ -95,7 +95,7 @@ export const ReportForm: React.FC = () => {
           setSubmitting(false);
         }}
       >
-        {({ isSubmitting, values, setFieldValue }) => (
+        {({ isSubmitting, values }) => (
           <Tabs
             tabs={
               <>

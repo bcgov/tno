@@ -3,20 +3,12 @@ import 'prismjs/components/prism-csharp';
 import 'prismjs/components/prism-cshtml';
 import 'prismjs/components/prism-json';
 
-import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
-import {
-  Button,
-  ButtonVariant,
-  Col,
-  FormikSelect,
-  IChartTemplateModel,
-  OptionItem,
-  Row,
-} from 'tno-core';
+import { Button, ButtonVariant, Col, FormikSelect, OptionItem, Row } from 'tno-core';
 
+import { useChartTemplateContext } from './ChartTemplateContext';
 import {
   chartTypeOptions,
   defaultChartTemplate,
@@ -24,20 +16,15 @@ import {
   defaultDateRazorTemplate,
   groupByOptions,
 } from './constants';
-import { IChartRequestForm } from './interfaces';
 
-export interface IChartTemplateFormTemplateProps {
-  setPreview: React.Dispatch<React.SetStateAction<IChartRequestForm>>;
-}
+export interface IChartTemplateFormTemplateProps {}
 
 /**
  * The page used to view and edit a chart template.
  * @returns Component.
  */
-export const ChartTemplateFormTemplate: React.FC<IChartTemplateFormTemplateProps> = ({
-  setPreview,
-}) => {
-  const { values, setFieldValue } = useFormikContext<IChartTemplateModel>();
+export const ChartTemplateFormTemplate: React.FC<IChartTemplateFormTemplateProps> = () => {
+  const { values, setFieldValue } = useChartTemplateContext();
 
   React.useEffect(() => {
     // Initializes settings if the DB has no value.
@@ -98,7 +85,6 @@ export const ChartTemplateFormTemplate: React.FC<IChartTemplateFormTemplateProps
             variant={ButtonVariant.secondary}
             onClick={() => {
               setFieldValue('template', defaultCountRazorTemplate);
-              setPreview((preview) => ({ ...preview, template: defaultCountRazorTemplate }));
             }}
           >
             Count Template
@@ -107,7 +93,6 @@ export const ChartTemplateFormTemplate: React.FC<IChartTemplateFormTemplateProps
             variant={ButtonVariant.secondary}
             onClick={() => {
               setFieldValue('template', defaultDateRazorTemplate);
-              setPreview((preview) => ({ ...preview, template: defaultDateRazorTemplate }));
             }}
           >
             Date Template
@@ -120,7 +105,6 @@ export const ChartTemplateFormTemplate: React.FC<IChartTemplateFormTemplateProps
             value={values.template}
             onValueChange={(code) => {
               setFieldValue('template', code);
-              setPreview((preview) => ({ ...preview, template: code }));
             }}
             highlight={(code) => {
               return highlight(code, languages.cshtml, 'razor');
