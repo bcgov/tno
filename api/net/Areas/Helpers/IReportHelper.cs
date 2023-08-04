@@ -26,6 +26,15 @@ public interface IReportHelper
     /// </summary>
     /// <param name="model"></param>
     /// <returns>Returns the base64 image from the Charts API.</returns>
-    Task<string> GenerateBase64Async(ChartRequestModel model);
+    Task<string> GenerateBase64ImageAsync(ChartRequestModel model);
+
+    /// <summary>
+    /// Execute the report template to generate the subject and body.
+    /// If the report sections contain charts it will also generate them and include them in the results.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    Task<object> GenerateReportAsync(Areas.Services.Models.Report.ReportModel model);
     #endregion
 }

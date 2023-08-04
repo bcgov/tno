@@ -10,6 +10,11 @@ public class ReportSectionModel : RazorEngineTemplateBase
 {
     #region Properties
     /// <summary>
+    /// get/set - Primary key for section.
+    /// </summary>
+    public int Id { get; set; }
+
+    /// <summary>
     /// get/set - A unique name to identify this section.
     /// </summary>
     public string Name { get; set; } = "";
@@ -28,6 +33,16 @@ public class ReportSectionModel : RazorEngineTemplateBase
     /// get/set - The sort order of the models.
     /// </summary>
     public int SortOrder { get; set; }
+
+    /// <summary>
+    /// get/set - The filter for this section.
+    /// </summary>
+    public FilterModel? Filter { get; set; }
+
+    /// <summary>
+    /// get/set - The folder for this section.
+    /// </summary>
+    public FolderModel? Folder { get; set; }
 
     /// <summary>
     /// get/set - The settings for the section.
@@ -61,12 +76,15 @@ public class ReportSectionModel : RazorEngineTemplateBase
     /// <param name="content"></param>
     public ReportSectionModel(TNO.API.Areas.Admin.Models.Report.ReportSectionModel model, IEnumerable<ContentModel>? content = null)
     {
+        this.Id = model.Id;
         this.Name = model.Name;
         this.Description = model.Description;
         this.IsEnabled = model.IsEnabled;
         this.SortOrder = model.SortOrder;
         this.Settings = model.Settings;
-        this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartTemplateModel($"chart-{model.Id}-{chart.Id}", chart.SectionSettings ?? new(), content));
+        this.Folder = model.Folder != null ? new FolderModel(model.Folder) : null;
+        this.Filter = model.Filter != null ? new FilterModel(model.Filter) : null;
+        this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartTemplateModel(GenerateChartUid(this.Id, chart.Id), chart, content));
         this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
     }
 
@@ -77,12 +95,15 @@ public class ReportSectionModel : RazorEngineTemplateBase
     /// <param name="content"></param>
     public ReportSectionModel(TNO.API.Areas.Editor.Models.Report.ReportSectionModel model, IEnumerable<ContentModel>? content = null)
     {
+        this.Id = model.Id;
         this.Name = model.Name;
         this.Description = model.Description;
         this.IsEnabled = model.IsEnabled;
         this.SortOrder = model.SortOrder;
         this.Settings = model.Settings;
-        this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartTemplateModel($"chart-{model.Id}-{chart.Id}", chart.SectionSettings ?? new(), content));
+        this.Folder = model.Folder != null ? new FolderModel(model.Folder) : null;
+        this.Filter = model.Filter != null ? new FilterModel(model.Filter) : null;
+        this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartTemplateModel(GenerateChartUid(this.Id, chart.Id), chart, content));
         this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
     }
 
@@ -93,13 +114,30 @@ public class ReportSectionModel : RazorEngineTemplateBase
     /// <param name="content"></param>
     public ReportSectionModel(TNO.API.Areas.Services.Models.Report.ReportSectionModel model, IEnumerable<ContentModel>? content = null)
     {
+        this.Id = model.Id;
         this.Name = model.Name;
         this.Description = model.Description;
         this.IsEnabled = model.IsEnabled;
         this.SortOrder = model.SortOrder;
         this.Settings = model.Settings;
-        this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartTemplateModel($"chart-{model.Id}-{chart.Id}", chart.SectionSettings ?? new(), content));
+        this.Folder = model.Folder != null ? new FolderModel(model.Folder) : null;
+        this.Filter = model.Filter != null ? new FilterModel(model.Filter) : null;
+        this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartTemplateModel(GenerateChartUid(this.Id, chart.Id), chart, content));
         this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
+    }
+    #endregion
+
+    #region Methods
+    /// <summary>
+    /// Generate a unique id that will be used to match a string keyword value in the template.
+    /// This provides a way to replace the value with the generated chart.
+    /// </summary>
+    /// <param name="sectionId"></param>
+    /// <param name="chartId"></param>
+    /// <returns></returns>
+    public static string GenerateChartUid(int sectionId, int chartId)
+    {
+        return $"[[chart-{sectionId}-{chartId}]]";
     }
     #endregion
 }

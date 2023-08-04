@@ -10,16 +10,6 @@ public class ChartRequestModel
 {
     #region Properties
     /// <summary>
-    /// get/set - Width of generated chart.
-    /// </summary>
-    public int? Width { get; set; }
-
-    /// <summary>
-    /// get/set - Height of generated chart.
-    /// </summary>
-    public int? Height { get; set; }
-
-    /// <summary>
     /// get/set - Chart settings.
     /// </summary>
     public ChartSettingsModel Settings { get; set; } = new ChartSettingsModel();
@@ -42,7 +32,7 @@ public class ChartRequestModel
     /// <summary>
     /// get/set - An array of content to be used to generate the JSON Data.
     /// </summary>
-    public IEnumerable<TNO.API.Areas.Services.Models.Content.ContentModel>? Content { get; set; } = Array.Empty<TNO.API.Areas.Services.Models.Content.ContentModel>();
+    public IEnumerable<Reports.ContentModel>? Content { get; set; } = Array.Empty<Reports.ContentModel>();
 
     /// <summary>
     /// get/set - The chart JSON data that will be sent to the Chart API.
@@ -64,7 +54,7 @@ public class ChartRequestModel
     /// <param name="index"></param>
     /// <param name="filter"></param>
     /// <param name="content"></param>
-    public ChartRequestModel(ChartSettingsModel settings, string template, string index, string? filter, IEnumerable<TNO.API.Areas.Services.Models.Content.ContentModel>? content = null)
+    public ChartRequestModel(ChartSettingsModel settings, string template, string index, string? filter, IEnumerable<Reports.ContentModel>? content = null)
     {
         this.Settings = settings;
         this.Template = template;
@@ -81,7 +71,7 @@ public class ChartRequestModel
     /// <param name="index"></param>
     /// <param name="filter"></param>
     /// <param name="content"></param>
-    public ChartRequestModel(ChartSettingsModel settings, string template, string index, JsonDocument? filter, IEnumerable<TNO.API.Areas.Services.Models.Content.ContentModel>? content = null)
+    public ChartRequestModel(ChartSettingsModel settings, string template, string index, JsonDocument? filter, IEnumerable<Reports.ContentModel>? content = null)
     {
         this.Settings = settings;
         this.Template = template;
@@ -95,13 +85,11 @@ public class ChartRequestModel
     /// </summary>
     /// <param name="settings"></param>
     /// <param name="template"></param>
-    /// <param name="index"></param>
     /// <param name="content"></param>
-    public ChartRequestModel(ChartSettingsModel settings, string template, string index, IEnumerable<TNO.API.Areas.Services.Models.Content.ContentModel>? content = null)
+    public ChartRequestModel(ChartSettingsModel settings, string template, IEnumerable<Reports.ContentModel>? content = null)
     {
         this.Settings = settings;
         this.Template = template;
-        this.Index = index;
         this.Content = content;
     }
     #endregion

@@ -39,7 +39,6 @@ export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = () => {
         if (Object.keys(errors).length === 0) {
           setIndex(undefined);
         } else {
-          console.debug(errors);
           setTouched(setNestedObjectValues<FormikTouched<IIngestModel>>(errors, true));
         }
       } catch (error) {

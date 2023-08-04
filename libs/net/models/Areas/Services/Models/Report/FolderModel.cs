@@ -23,7 +23,7 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get/set - The folder settings.
     /// </summary>
-    public Dictionary<string, object> Settings { get; set; } = new Dictionary<string, object>();
+    public JsonDocument Settings { get; set; } = JsonDocument.Parse("{}");
     #endregion
 
     #region Constructors
@@ -36,12 +36,11 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of an FolderModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    /// <param name="options"></param>
-    public FolderModel(Entities.Folder entity, JsonSerializerOptions options) : base(entity)
+    public FolderModel(Entities.Folder entity) : base(entity)
     {
         this.OwnerId = entity.OwnerId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
-        this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
+        this.Settings = entity.Settings;
     }
     #endregion
 

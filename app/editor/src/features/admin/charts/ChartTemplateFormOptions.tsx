@@ -3,33 +3,27 @@ import 'prismjs/components/prism-csharp';
 import 'prismjs/components/prism-cshtml';
 import 'prismjs/components/prism-json';
 
-import { useFormikContext } from 'formik';
+import _ from 'lodash';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
-import { Button, ButtonVariant, Checkbox, Col, IChartTemplateModel, Row } from 'tno-core';
+import { Button, ButtonVariant, Checkbox, Col, Row } from 'tno-core';
 
+import { useChartTemplateContext } from './ChartTemplateContext';
 import {
   defaultChartJSOptions,
   defaultChartJSStackedOptions,
   defaultChartTemplate,
 } from './constants';
-import { IChartRequestForm } from './interfaces';
 
-export interface IChartTemplateFormOptionsProps {
-  preview: IChartRequestForm;
-  setPreview: React.Dispatch<React.SetStateAction<IChartRequestForm>>;
-}
+export interface IChartTemplateFormOptionsProps {}
 
 /**
  * The page used to view and edit a chart template Chart.js options.
  * @returns Component.
  */
-export const ChartTemplateFormOptions: React.FC<IChartTemplateFormOptionsProps> = ({
-  preview,
-  setPreview,
-}) => {
-  const { values, setFieldValue } = useFormikContext<IChartTemplateModel>();
+export const ChartTemplateFormOptions: React.FC<IChartTemplateFormOptionsProps> = () => {
+  const { values, setFieldValue } = useChartTemplateContext();
 
   const [chartOptions, setChartOptions] = React.useState(
     JSON.stringify(values.settings?.options ?? '{}', null, 2),
@@ -58,10 +52,6 @@ export const ChartTemplateFormOptions: React.FC<IChartTemplateFormOptionsProps> 
             onClick={() => {
               setChartOptions(JSON.stringify(defaultChartJSOptions, null, 2));
               setFieldValue('settings.options', defaultChartJSOptions);
-              setPreview((preview) => ({
-                ...preview,
-                settings: { ...preview.settings, options: defaultChartJSOptions },
-              }));
             }}
           >
             Default
@@ -71,31 +61,36 @@ export const ChartTemplateFormOptions: React.FC<IChartTemplateFormOptionsProps> 
             onClick={() => {
               setChartOptions(JSON.stringify(defaultChartJSStackedOptions, null, 2));
               setFieldValue('settings.options', defaultChartJSStackedOptions);
-              setPreview((preview) => ({
-                ...preview,
-                settings: { ...preview.settings, options: defaultChartJSStackedOptions },
-              }));
             }}
           >
             Default Stacked
           </Button>
         </Row>
-        <Row>
+        <Row gap="1rem">
           <Checkbox
             name="horizontal"
-            label="Horizontal"
-            defaultChecked={preview.settings.options.indexAxis === 'y'}
+            label="Horizontal Graph"
+            defaultChecked={values.settings.options.indexAxis === 'y'}
             onChange={(e) => {
               const options = {
-                ...preview.settings.options,
+                ...values.settings.options,
                 indexAxis: e.currentTarget.checked ? 'y' : 'x',
               };
               setChartOptions(JSON.stringify(options, null, 2));
               setFieldValue('settings.options', options);
-              setPreview((preview) => ({
-                ...preview,
-                settings: { ...preview.settings, options: options },
-              }));
+            }}
+          />
+          <Checkbox
+            name="showDataValues"
+            label="Show Data Values"
+            defaultChecked={values.settings.options.plugins?.datalabels?.labels?.title?.display}
+            onChange={(e) => {
+              const options = {
+                ...values.settings.options,
+              };
+              _.set(options, 'plugins.datalabels.labels.title.display', e.currentTarget.checked);
+              setChartOptions(JSON.stringify(options, null, 2));
+              setFieldValue('settings.options', options);
             }}
           />
         </Row>
@@ -108,10 +103,6 @@ export const ChartTemplateFormOptions: React.FC<IChartTemplateFormOptionsProps> 
               try {
                 const json = JSON.parse(code);
                 setFieldValue('settings.options', json);
-                setPreview((preview) => ({
-                  ...preview,
-                  settings: { ...preview.settings, options: json },
-                }));
               } catch {}
             }}
             highlight={(code) => {

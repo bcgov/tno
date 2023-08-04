@@ -20,6 +20,19 @@ export const ReportSections = () => {
 
   const [section, setSection] = React.useState<IReportSectionModel>();
 
+  const handleAddSection = () => {
+    setFieldValue(
+      'sections',
+      [...values.sections, defaultReportSection(values.id)].map((section, index) => {
+        return {
+          ...section,
+          name: `section-${index + 1}`,
+          sortOrder: index,
+        };
+      }),
+    );
+  };
+
   const handleMoveUp = (section: IReportSectionModel, index: number) => {
     var results = [...values.sections];
     var above = results[index - 1];
@@ -53,47 +66,42 @@ export const ReportSections = () => {
     var sections = [...values.sections];
     sections.splice(index, 1);
     if (index === section?.sortOrder) setSection(undefined);
-    const results = sections.map((s, i) => ({ ...s, sortOrder: i }));
-    setFieldValue(`sections`, results);
+    setFieldValue(
+      `sections`,
+      sections.map((s, i) => ({ ...s, name: `section-${i + 1}`, sortOrder: i })),
+    );
   };
 
   return (
     <styled.ReportSections>
-      <p>
-        A report must contain one or more section, each with its own content and filter. Each
-        section name must be unique. The template will use this name to reference the section.
-      </p>
+      <p>A report must contain one or more section to display content or charts.</p>
       <Col className="frm-in">
         <label>Section Options</label>
         <Row>
-          <FormikCheckbox label="Hide Empty" name="settings.sections.hideEmpty" />
-          <FormikCheckbox label="Use Page Breaks" name="settings.sections.usePageBreaks" />
+          <FormikCheckbox
+            label="Hide Empty"
+            name="settings.sections.hideEmpty"
+            tooltip="If there is no content in the section it will not be included."
+          />
+          <FormikCheckbox
+            label="Use Page Breaks"
+            name="settings.sections.usePageBreaks"
+            tooltip="use page breaks in each section for printing."
+          />
+          <Col flex="1" alignItems="flex-end">
+            <Button variant={ButtonVariant.secondary} onClick={handleAddSection}>
+              Add New Section
+            </Button>
+          </Col>
         </Row>
-      </Col>
-      <Col alignItems="flex-end">
-        <Button
-          variant={ButtonVariant.secondary}
-          onClick={() => {
-            setFieldValue(
-              'sections',
-              [
-                ...values.sections,
-                defaultReportSection(`section-${values.sections.length + 1}`, values.id),
-              ].map((section, index) => {
-                return { ...section, sortOrder: index };
-              }),
-            );
-          }}
-        >
-          Add New Section
-        </Button>
       </Col>
       <Col>
         <div className="section-table">
           <Row className="row-header">
-            <Col className="st-1">Name</Col>
-            <Col className="st-2">Description</Col>
-            <Col className="st-3"></Col>
+            <Col className="st-1"></Col>
+            <Col className="st-2">Heading</Col>
+            <Col className="st-3">Description</Col>
+            <Col className="st-4"></Col>
           </Row>
           {values.sections.map((row, index) => (
             <React.Fragment key={index}>
@@ -104,9 +112,10 @@ export const ReportSections = () => {
                   else setSection(undefined);
                 }}
               >
-                <Col className="st-1">{row.name}</Col>
-                <Col className="st-2">{row.description}</Col>
-                <Col className="st-3">
+                <Col className="st-1">{index + 1}</Col>
+                <Col className="st-2">{row.settings.label}</Col>
+                <Col className="st-3">{row.description}</Col>
+                <Col className="st-4">
                   <Col>
                     <Button
                       variant={ButtonVariant.link}
