@@ -10,7 +10,7 @@ namespace TNO.Services.ContentMigration.Sources.Oracle;
 public class MigrationSourceContext : DbContext
 {
     private readonly IConfiguration configuration;
-    private string Schema => configuration.GetValue("Service:OracleConnection:DefaultSchema", "");
+    private string DefaultSchema => configuration.GetValue("Service:OracleConnection:DefaultSchema", "");
 
     #region Properties
     /// <summary>
@@ -79,18 +79,12 @@ public class MigrationSourceContext : DbContext
     /// <param name="modelBuilder"></param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema(Schema);
+        modelBuilder.HasDefaultSchema(DefaultSchema);
 
-        if (string.IsNullOrWhiteSpace(Schema))
-        {
-            modelBuilder.Entity<NewsItem>()
-            .ToSqlQuery("WITH ATN AS (SELECT * from NEWS_ITEMS UNION ALL SELECT * from HNEWS_ITEMS) SELECT * FROM ATN");
-        }
-        else
-        {
-            modelBuilder.Entity<NewsItem>()
-            .ToSqlQuery($"WITH ATN AS (SELECT * from {Schema}.NEWS_ITEMS UNION ALL SELECT * from {Schema}.HNEWS_ITEMS) SELECT * FROM ATN");
-        }
+        var schema = !String.IsNullOrEmpty(DefaultSchema) ? $"{DefaultSchema}." : "";
+
+        modelBuilder.Entity<NewsItem>()
+            .ToSqlQuery($"WITH ATN AS (SELECT * from {schema}NEWS_ITEMS UNION ALL SELECT * from {schema}HNEWS_ITEMS) SELECT * FROM ATN");
 
         modelBuilder.ApplyAllConfigurations(typeof(NewsItemConfiguration), this);
         modelBuilder.ApplyAllConfigurations(typeof(UserToneConfiguration), this);
