@@ -92,6 +92,10 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
 
   const searchInOptions = [
     {
+      label: 'All',
+      onClick: () => setAdvancedSearch({ ...advancedSearch, searchInField: 'keyword' }),
+    },
+    {
       label: 'Headline',
       onClick: () => setAdvancedSearch({ ...advancedSearch, searchInField: 'headline' }),
     },
@@ -125,7 +129,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
             data-tooltip-content="Reset filters"
             onClick={() => {
               setAdvancedSearch(defaultAdvancedSearch);
-              handleSearch();
             }}
           />
         </Row>
@@ -153,7 +156,9 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
           <b>Search in: </b>
           <ToggleGroup
             defaultSelected={
-              toggleOptions[advancedSearch?.searchInField as keyof typeof toggleOptions]
+              !advancedSearch?.searchInField
+                ? toggleOptions.keyword
+                : toggleOptions[advancedSearch?.searchInField as keyof typeof toggleOptions]
             }
             className="toggles"
             options={searchInOptions}
@@ -247,7 +252,12 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
         </Row>
       </Show>
       <Show visible={expanded}>
-        <Button onClick={() => handleSearch()} className="search-button">
+        <Button
+          onClick={() => {
+            handleSearch();
+          }}
+          className="search-button"
+        >
           Search
         </Button>
       </Show>

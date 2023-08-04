@@ -7,7 +7,7 @@ export const queryToState = (queryString: string) => {
   if (queryString.includes('headline')) searchInField = 'headline';
   if (queryString.includes('byline')) searchInField = 'byline';
   if (queryString.includes('storyText')) searchInField = 'storyText';
-  if (queryString.includes('keyword')) searchInField = '';
+  if (queryString.includes('keyword')) searchInField = 'keyword';
 
   const urlParams = new URLSearchParams(queryString);
   const search = fromQueryString(queryString, {

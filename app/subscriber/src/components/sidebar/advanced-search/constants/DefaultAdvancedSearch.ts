@@ -2,7 +2,7 @@ import { IAdvancedSearchFilter } from '../interfaces';
 
 export const defaultAdvancedSearch: IAdvancedSearchFilter = {
   searchTerm: '',
-  searchInField: '',
+  searchInField: 'keyword',
   startDate: '',
   endDate: '',
 };
