@@ -38,7 +38,7 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({
     }
     // do not want this to fire everytime the api changes, run on save to account for sort order changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSection, items.length, saving]);
+  }, [currentSection, items.length]);
 
   // sort items based on sortorder when ever new items are retrieved or added
   React.useEffect(() => {
@@ -88,6 +88,11 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({
       } finally {
         if (index === items.length - 1) {
           setSaving(false);
+          // re fetch items to account for sort order changes
+          currentSection?.id &&
+            api.findItemsBySectionId(currentSection.id).then((result) => {
+              setItems(result);
+            });
         }
       }
     });

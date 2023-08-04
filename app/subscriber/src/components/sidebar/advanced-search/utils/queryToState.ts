@@ -1,7 +1,7 @@
 import { fromQueryString } from 'tno-core';
 
 /** Function that returns advanced search filter state allowing the the inputs to stay in sync when the user is navigating back */
-export const queryToState = (queryString: string, setAdvancedSearch: (x: any) => void) => {
+export const queryToState = (queryString: string) => {
   let searchInField = '';
 
   if (queryString.includes('headline')) searchInField = 'headline';
@@ -15,13 +15,12 @@ export const queryToState = (queryString: string, setAdvancedSearch: (x: any) =>
     numbers: ['sourceIds', 'sentiment'],
   });
 
-  console.log(searchInField);
-  setAdvancedSearch({
+  return {
     searchInField: searchInField,
     searchTerm: urlParams.get(searchInField) || '',
     sourceIds: search.sourceIds?.map((v: any) => Number(v)),
     startDate: urlParams.get('publishedStartOn') || '',
     endDate: urlParams.get('publishedEndOn') || '',
     sentiment: search.sentiment?.map((v: any) => Number(v)),
-  });
+  };
 };

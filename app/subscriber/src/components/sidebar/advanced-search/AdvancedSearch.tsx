@@ -9,7 +9,7 @@ import { useParams } from 'react-router-dom';
 import { Button, Col, ContentStatus, Row, Show, Text, ToggleGroup, toQueryString } from 'tno-core';
 
 import { DateSection, MediaSection, SentimentSection } from './components';
-import { SearchInFieldName } from './constants';
+import { SearchInFieldName, toggleOptions } from './constants';
 import {
   defaultSubMediaGroupExpanded,
   IAdvancedSearchFilter,
@@ -50,7 +50,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
 
   // update state when query changes, necessary to keep state in sync with url when navigating directly
   React.useEffect(() => {
-    if (query) queryToState(query.toString(), setAdvancedSearch);
+    if (query) setAdvancedSearch(queryToState(query.toString()));
   }, [query]);
 
   const advancedFilter = React.useMemo(
@@ -111,19 +111,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
     }
   };
 
-  const determineActiveToggles = (): string => {
-    switch (advancedSearch.searchInField) {
-      case 'headline':
-        return 'Headline';
-      case 'byline':
-        return 'Byline';
-      case 'storyText':
-        return 'Story text';
-      default:
-        return '';
-    }
-  };
-
   return (
     <styled.AdvancedSearch>
       <Show visible={expanded}>
@@ -153,7 +140,9 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
         <div className="search-in-group space-top">
           <b>Search in: </b>
           <ToggleGroup
-            defaultSelected={determineActiveToggles()}
+            defaultSelected={
+              toggleOptions[advancedSearch?.searchInField as keyof typeof toggleOptions]
+            }
             className="toggles"
             options={searchInOptions}
           />
