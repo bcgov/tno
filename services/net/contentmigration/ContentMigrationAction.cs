@@ -13,6 +13,7 @@ using TNO.Services.ContentMigration.Sources.Oracle;
 using TNO.Services.ContentMigration.Migrators;
 using TNO.Services.ContentMigration.Extensions;
 using TNO.Services.ContentMigration.Sources.Oracle.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace TNO.Services.ContentMigration;
 
@@ -66,20 +67,21 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// <param name="lastRanOn"></param>
     /// <param name="importDateStart"></param>
     /// <param name="importDateEnd"></param>
-    /// <param name="creationDateOfNewsItem"></param>
+    /// <param name="updatedDateOfNewsItem"></param>
     /// <param name="importOffsetInHours"></param>
     /// <returns></returns>
     private IQueryable<NewsItem> GetFilteredNewsItems(IQueryable<NewsItem> newsItems,
         System.Linq.Expressions.Expression<Func<NewsItem, bool>> predicate,
         int skip, int count, DateTime? lastRanOn,
         DateTime? importDateStart, DateTime? importDateEnd,
-        DateTime? creationDateOfNewsItem, double importOffsetInHours = 0)
+        DateTime? updatedDateOfNewsItem, double importOffsetInHours = 0)
     {
         // KGM : Do NOT remove the ItemDate null filter.  This excludes bad data
-        predicate.And(ni => ni.ItemDateTime != null);
+        predicate = predicate.And(ni => ni.ItemDateTime != null);
 
         DateTime offsetFromNow = DateTime.MaxValue;
-        if (importOffsetInHours > 0) {
+        if (importOffsetInHours > 0)
+        {
             // create an artificial buffer so that the migration isnt using most recent updates
             offsetFromNow = DateTime.Now.AddMinutes(-1 * 60 * importOffsetInHours);
         }
@@ -89,41 +91,47 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         {
             // if the ingest has previously run, use the creationDateOfNewsItem as the dateFilter
             // if creationDateOfNewsItem is not set, use use DateTime.MinValue
-            DateTime dateFilter = creationDateOfNewsItem ?? DateTime.MinValue;
+            DateTime dateFilter = updatedDateOfNewsItem ?? DateTime.MinValue;
             if (lastRanOn.HasValue)
             {
                 dateFilter = new[] { lastRanOn.Value, dateFilter }.Min();
             }
-            if (offsetFromNow != DateTime.MaxValue) {
+            if (offsetFromNow != DateTime.MaxValue)
+            {
                 // apply an artificial buffer so that the migration isnt using most recent updates
-                predicate.And(ni => (ni.ItemDateTime >= dateFilter) && (ni.ItemDateTime <= offsetFromNow));
-            } else {
-                predicate.And(ni => ni.ItemDateTime >= dateFilter);
+                predicate = predicate.And(ni => (ni.UpdatedOn >= dateFilter) && (ni.UpdatedOn <= offsetFromNow));
+            }
+            else
+            {
+                predicate = predicate.And(ni => ni.UpdatedOn >= dateFilter);
             }
         }
         else
         {
             DateTime dateFilterStart = importDateStart ?? DateTime.MinValue;
             DateTime dateFilterEnd = importDateEnd ?? DateTime.MaxValue;
-            if (creationDateOfNewsItem.HasValue
-                && (dateFilterStart <= creationDateOfNewsItem.Value)
-                && (dateFilterEnd >= creationDateOfNewsItem.Value))
+            if (updatedDateOfNewsItem.HasValue
+                && (dateFilterStart <= updatedDateOfNewsItem.Value)
+                && (dateFilterEnd >= updatedDateOfNewsItem.Value))
             {
                 // if a date filter is set AND the creationDateOfNewsItem is set
                 // use the creationDateOfNewsItem as the start date ONLY if it's
                 // between the targeted start and end dates
-                dateFilterStart = new[] { creationDateOfNewsItem.Value, dateFilterStart }.Max();
+                dateFilterStart = new[] { updatedDateOfNewsItem.Value, dateFilterStart }.Max();
             }
-            if ((dateFilterEnd != DateTime.MaxValue) || (offsetFromNow != DateTime.MaxValue)) {
+            if ((dateFilterEnd != DateTime.MaxValue) || (offsetFromNow != DateTime.MaxValue))
+            {
                 dateFilterEnd = new[] { dateFilterEnd, offsetFromNow }.Min();
-                predicate.And(ni => (ni.ItemDateTime >= dateFilterStart) && (ni.ItemDateTime <= dateFilterEnd));
-            } else {
-                predicate.And(ni => (ni.ItemDateTime >= dateFilterStart));
+                predicate = predicate.And(ni => (ni.UpdatedOn >= dateFilterStart) && (ni.UpdatedOn <= dateFilterEnd));
+            }
+            else
+            {
+                predicate = predicate.And(ni => (ni.UpdatedOn >= dateFilterStart));
             }
         }
 
         return newsItems.Where(predicate)
-                .OrderBy(ni => ni.ItemDateTime) // oldest first
+                .OrderBy(ni => ni.UpdatedOn) // oldest first
                 .ThenBy(ni => ni.RSN)
                 .Skip(skip).Take(count);
     }
@@ -153,17 +161,35 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 
         DateTime? importDateStart = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateStart")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateStart") : null;
         DateTime? importDateEnd = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateEnd")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateEnd") : null;
-        DateTime? creationDateOfLastImport = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("creationDateOfLastImport")) ? manager.Ingest.GetConfigurationValue<DateTime>("creationDateOfLastImport") : null;
-        double migrationTimeOffsetInHours = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("migrationTimeOffsetInHours")) ? manager.Ingest.GetConfigurationValue<double>("migrationTimeOffsetInHours") : 0;
+        DateTime? creationDateOfLastImport = null;
+        try
+        {
+            creationDateOfLastImport = manager.Ingest.GetConfigurationValue<DateTime>("creationDateOfLastImport");
+        }
+        catch (Exception)
+        {
+            // migration has never been run before.
+        }
+        double migrationTimeOffsetInHours = 0;
+        try
+        {
+            migrationTimeOffsetInHours = manager.Ingest.GetConfigurationValue<double>("migrationTimeOffsetInHours");
+        }
+        catch (Exception)
+        {
+            // migration has never been run before.
+        }
 
-        if (manager.Ingest.SourceConnection != null) {
+        if (manager.Ingest.SourceConnection != null)
+        {
             string? sourceDbHostName = !string.IsNullOrEmpty(manager.Ingest.SourceConnection.GetConfigurationValue("hostname")) ? manager.Ingest.SourceConnection.GetConfigurationValue<string>("hostname") : null;
             int? sourceDbHostPort = !string.IsNullOrEmpty(manager.Ingest.SourceConnection.GetConfigurationValue("port")) ? manager.Ingest.SourceConnection.GetConfigurationValue<int>("port") : null;
             string? sourceDbSID = !string.IsNullOrEmpty(manager.Ingest.SourceConnection.GetConfigurationValue("sid")) ? manager.Ingest.SourceConnection.GetConfigurationValue<string>("sid") : null;
             string? sourceDbUserName = !string.IsNullOrEmpty(manager.Ingest.SourceConnection.GetConfigurationValue("username")) ? manager.Ingest.SourceConnection.GetConfigurationValue<string>("username") : null;
             string? sourceDbPassword = !string.IsNullOrEmpty(manager.Ingest.SourceConnection.GetConfigurationValue("password")) ? manager.Ingest.SourceConnection.GetConfigurationValue<string>("password") : null;
 
-            if (sourceDbHostName != null && sourceDbHostPort != null && sourceDbSID != null && sourceDbUserName != null && sourceDbPassword != null) {
+            if (sourceDbHostName != null && sourceDbHostPort != null && sourceDbSID != null && sourceDbUserName != null && sourceDbPassword != null)
+            {
                 _sourceContext.ChangeDatabaseConnectionString(OracleConnectionStringHelper.GetConnectionString(sourceDbUserName, sourceDbPassword, sourceDbHostName, sourceDbHostPort.Value, sourceDbSID));
             }
         }
@@ -174,12 +200,16 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             {
                 var baseFilter = contentMigrator.GetBaseFilter();
                 IQueryable<NewsItem> items = GetFilteredNewsItems(_sourceContext.NewsItems, baseFilter, skip, this.Options.MaxRecordsPerRetrieval, manager.Ingest.LastRanOn, importDateStart, importDateEnd, creationDateOfLastImport, migrationTimeOffsetInHours);
+                this.Logger.LogDebug(items.ToQueryString());
+
                 countOfRecordsRetrieved = items.Count();
+                this.Logger.LogDebug("Ingest [{name}] retrieved [{countOfRecordsRetrieved}] records", manager.Ingest.Name, countOfRecordsRetrieved);
 
                 await items.ForEachAsync(async newsItem =>
                 {
                     await MigrateNewsItemAsync(manager, contentMigrator, lookups, newsItem);
-                    creationDateOfLastImport = newsItem.GetPublishedDateTime();  // Don't convert to UTC as this compares back to a timestamp in the Oracle DB
+                    // creationDateOfLastImport = newsItem.GetPublishedDateTime();  // Don't convert to UTC as this compares back to a timestamp in the Oracle DB
+                    creationDateOfLastImport = newsItem.UpdatedOn;
                 });
                 await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport!.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
                 skip += countOfRecordsRetrieved;

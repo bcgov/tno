@@ -79,7 +79,7 @@ public class MigrationSourceContext : DbContext
     /// <param name="modelBuilder"></param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema(DefaultSchema);
+        if (!string.IsNullOrEmpty(DefaultSchema)) modelBuilder.HasDefaultSchema(DefaultSchema);
 
         var schema = !String.IsNullOrEmpty(DefaultSchema) ? $"{DefaultSchema}." : "";
 
