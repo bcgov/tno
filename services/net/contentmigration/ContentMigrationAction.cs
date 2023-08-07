@@ -169,6 +169,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         catch (Exception)
         {
             // migration has never been run before.
+            this.Logger.LogInformation("No creationDateOfLastImport found for ingest '{name}'", manager.Ingest.Name);
         }
         double migrationTimeOffsetInHours = 0;
         try
@@ -177,7 +178,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         }
         catch (Exception)
         {
-            // migration has never been run before.
+            this.Logger.LogInformation("No migrationTimeOffsetInHours found for ingest '{name}'", manager.Ingest.Name);
         }
 
         if (manager.Ingest.SourceConnection != null)
@@ -194,11 +195,17 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             }
         }
 
+        this.Logger.LogDebug("Total number of UsersTones = [{count}]",_sourceContext.UsersTones.Count());
+        this.Logger.LogDebug(_sourceContext.UsersTones.ToQueryString());
+        this.Logger.LogDebug("Total number of NewsItems = [{count}]",_sourceContext.NewsItems.Count());
+        this.Logger.LogDebug(_sourceContext.NewsItems.ToQueryString());
+
         while ((countOfRecordsRetrieved > 0) && (skip < maxIngestedRecords))
         {
             try
             {
                 var baseFilter = contentMigrator.GetBaseFilter();
+
                 IQueryable<NewsItem> items = GetFilteredNewsItems(_sourceContext.NewsItems, baseFilter, skip, this.Options.MaxRecordsPerRetrieval, manager.Ingest.LastRanOn, importDateStart, importDateEnd, creationDateOfLastImport, migrationTimeOffsetInHours);
                 this.Logger.LogDebug(items.ToQueryString());
 
