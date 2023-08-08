@@ -227,13 +227,13 @@ export const ContentForm: React.FC<IContentFormProps> = ({
             navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
           else {
             // Reset form for next record.
-            const currentTime = new Date();
-            currentTime.setMinutes(currentTime.getMinutes() + 1);
+            const parsedDate = moment(values.publishedOn, 'MMM D, yyyy HH:mm:ss');
+            const updatedDate = parsedDate.add(1, 'second');
             setForm({
               ...defaultFormValues(contentType),
               sourceId: values.sourceId,
               productId: values.productId,
-              publishedOn: moment(currentTime.toISOString()).format('MMM D, yyyy HH:mm:ss'),
+              publishedOn: updatedDate.format('MMM D, yyyy HH:mm:ss'),
             });
           }
         }
