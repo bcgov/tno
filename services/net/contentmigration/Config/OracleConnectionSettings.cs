@@ -38,11 +38,5 @@ public class OracleConnectionSettings
     [Required]
     public string Password { get; set; } = "";
 
-    /// <summary>
-    /// get/set - The default schema for database tables.
-    /// </summary>
-    [Required]
-    public string DefaultSchema { get; set; } = "";
-
     #endregion
 }

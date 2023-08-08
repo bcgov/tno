@@ -195,11 +195,6 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             }
         }
 
-        this.Logger.LogDebug("Total number of UsersTones = [{count}]",_sourceContext.UsersTones.Count());
-        this.Logger.LogDebug(_sourceContext.UsersTones.ToQueryString());
-        this.Logger.LogDebug("Total number of NewsItems = [{count}]",_sourceContext.NewsItems.Count());
-        this.Logger.LogDebug(_sourceContext.NewsItems.ToQueryString());
-
         while ((countOfRecordsRetrieved > 0) && (skip < maxIngestedRecords))
         {
             try
