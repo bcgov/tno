@@ -1,5 +1,6 @@
 import { FormikForm } from 'components/formik';
 import { FormikHelpers, FormikProps } from 'formik';
+import moment from 'moment';
 import React from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -226,7 +227,14 @@ export const ContentForm: React.FC<IContentFormProps> = ({
             navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
           else {
             // Reset form for next record.
-            setForm({ ...defaultFormValues(contentType) });
+            const currentTime = new Date();
+            currentTime.setMinutes(currentTime.getMinutes() + 1);
+            setForm({
+              ...defaultFormValues(contentType),
+              sourceId: values.sourceId,
+              productId: values.productId,
+              publishedOn: moment(currentTime.toISOString()).format('MMM D, yyyy HH:mm:ss'),
+            });
           }
         }
         if (!!contentResult?.seriesId) {
