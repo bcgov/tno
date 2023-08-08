@@ -2,7 +2,7 @@ import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 import {
-  IChartRequestModel,
+  IChartPreviewRequestModel,
   IChartResultModel,
   IChartTemplateModel,
   useApiAdminChartTemplates,
@@ -14,9 +14,9 @@ interface IChartTemplateController {
   addChartTemplate: (model: IChartTemplateModel) => Promise<IChartTemplateModel>;
   updateChartTemplate: (model: IChartTemplateModel) => Promise<IChartTemplateModel>;
   deleteChartTemplate: (model: IChartTemplateModel) => Promise<IChartTemplateModel>;
-  previewJson: (model: IChartRequestModel) => Promise<IChartResultModel>;
-  previewBase64: (model: IChartRequestModel) => Promise<string>;
-  previewImage: (model: IChartRequestModel) => Promise<any>;
+  previewJson: (model: IChartPreviewRequestModel) => Promise<IChartResultModel>;
+  previewBase64: (model: IChartPreviewRequestModel) => Promise<string>;
+  previewImage: (model: IChartPreviewRequestModel) => Promise<any>;
 }
 
 export const useChartTemplates = (): [
@@ -82,19 +82,19 @@ export const useChartTemplates = (): [
         await lookup.getLookups();
         return response.data;
       },
-      previewJson: async (model: IChartRequestModel) => {
+      previewJson: async (model: IChartPreviewRequestModel) => {
         const response = await dispatch<IChartResultModel>('preview-chart-template-json', () =>
           api.previewJson(model),
         );
         return response.data;
       },
-      previewBase64: async (model: IChartRequestModel) => {
+      previewBase64: async (model: IChartPreviewRequestModel) => {
         const response = await dispatch<string>('preview-chart-template-base64', () =>
           api.previewBase64(model),
         );
         return response.data;
       },
-      previewImage: async (model: IChartRequestModel) => {
+      previewImage: async (model: IChartPreviewRequestModel) => {
         const response = await dispatch<any>('preview-chart-template-image', () =>
           api.previewImage(model),
         );

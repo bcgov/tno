@@ -21,7 +21,8 @@ public static class ServiceCollectionExtensions
             .Configure<ChartsOptions>(config.GetSection("Charts"))
             .AddScoped<IRazorEngine, RazorEngine>()
             .AddScoped<ITemplateEngine<Models.Notifications.TemplateModel>, TemplateEngine<Models.Notifications.TemplateModel>>()
-            .AddScoped<ITemplateEngine<Models.Reports.ReportTemplateModel>, TemplateEngine<Models.Reports.ReportTemplateModel>>()
-            .AddScoped<ITemplateEngine<Models.Reports.ChartTemplateModel>, TemplateEngine<Models.Reports.ChartTemplateModel>>();
+            .AddScoped<ITemplateEngine<Models.Reports.ReportEngineTemplateModel>, TemplateEngine<Models.Reports.ReportEngineTemplateModel>>()
+            .AddScoped<ITemplateEngine<Models.Reports.ChartEngineTemplateModel>, TemplateEngine<Models.Reports.ChartEngineTemplateModel>>()
+            .AddScoped<IReportEngine, ReportEngine>();
     }
 }

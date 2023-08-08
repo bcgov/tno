@@ -1,4 +1,1 @@
-export interface IReportTemplateSettingsModel {
-  enableSummaryCharts: boolean;
-  enableSectionCharts: boolean;
-}
+export interface IReportTemplateSettingsModel {}

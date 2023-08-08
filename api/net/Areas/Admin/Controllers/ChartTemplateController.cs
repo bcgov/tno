@@ -8,7 +8,6 @@ using TNO.API.Models;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Keycloak;
-using TNO.TemplateEngine.Models.Charts;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -138,12 +137,18 @@ public class ChartTemplateController : ControllerBase
     /// <returns></returns>
     [HttpPost("preview/json")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ChartResultModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(TemplateEngine.Models.Charts.ChartResultModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Chart" })]
-    public async Task<IActionResult> PreviewJsonAsync(ChartRequestModel model)
+    public async Task<IActionResult> PreviewJsonAsync(ChartPreviewRequestModel model)
     {
-        var preview = await _reportHelper.GenerateJsonAsync(model);
+        var chart = new API.Areas.Admin.Models.Report.ChartTemplateModel()
+        {
+            Template = model.Template,
+            SectionSettings = model.Settings
+        };
+        var chartTemplate = new TemplateEngine.Models.Reports.ChartEngineTemplateModel("test", chart, model.Content?.Select(c => new TemplateEngine.Models.Reports.ContentModel(c)));
+        var preview = await _reportHelper.GenerateJsonAsync(new TemplateEngine.Models.Charts.ChartRequestModel(chartTemplate, model.ChartData), model.Index, model.Filter, true);
         return new JsonResult(preview);
     }
 
@@ -157,9 +162,15 @@ public class ChartTemplateController : ControllerBase
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK, MediaTypeNames.Text.Plain)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Chart" })]
-    public async Task<IActionResult> GenerateBase64Async(ChartRequestModel model)
+    public async Task<IActionResult> GenerateBase64Async(ChartPreviewRequestModel model)
     {
-        var base64Image = await _reportHelper.GenerateBase64ImageAsync(model);
+        var chart = new API.Areas.Admin.Models.Report.ChartTemplateModel()
+        {
+            Template = model.Template,
+            SectionSettings = model.Settings
+        };
+        var chartTemplate = new TemplateEngine.Models.Reports.ChartEngineTemplateModel("test", chart, model.Content?.Select(c => new TemplateEngine.Models.Reports.ContentModel(c)));
+        var base64Image = await _reportHelper.GenerateBase64ImageAsync(new TemplateEngine.Models.Charts.ChartRequestModel(chartTemplate, model.ChartData), model.Index, model.Filter, true);
         return Ok(base64Image);
     }
     #endregion

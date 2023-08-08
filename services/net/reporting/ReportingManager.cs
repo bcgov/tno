@@ -46,17 +46,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <summary>
     /// get - Razor report template engine.
     /// </summary>
-    protected ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> ReportTemplateEngine { get; }
-
-    /// <summary>
-    /// get - Razor chart template engine.
-    /// </summary>
-    protected ITemplateEngine<TNO.TemplateEngine.Models.Reports.ChartTemplateModel> ChartTemplateEngine { get; }
-
-    /// <summary>
-    /// get - HTTP client.
-    /// </summary>
-    protected IHttpRequestClient HttpClient { get; }
+    protected IReportEngine ReportEngine { get; }
 
     /// <summary>
     /// get - CHES service.
@@ -67,11 +57,6 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// get - CHES options.
     /// </summary>
     protected ChesOptions ChesOptions { get; }
-
-    /// <summary>
-    /// get - Charts options.
-    /// </summary>
-    protected ChartsOptions ChartsOptions { get; }
     #endregion
 
     #region Constructors
@@ -81,12 +66,9 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <param name="listener"></param>
     /// <param name="api"></param>
     /// <param name="user"></param>
-    /// <param name="reportTemplateEngine"></param>
-    /// <param name="chartTemplateEngine"></param>
+    /// <param name="reportEngine"></param>
     /// <param name="chesService"></param>
-    /// <param name="httpClient"></param>
     /// <param name="chesOptions"></param>
-    /// <param name="chartsOptions"></param>
     /// <param name="serializationOptions"></param>
     /// <param name="reportOptions"></param>
     /// <param name="logger"></param>
@@ -94,24 +76,18 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         IKafkaListener<string, ReportRequestModel> listener,
         IApiService api,
         ClaimsPrincipal user,
-        ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> reportTemplateEngine,
-        ITemplateEngine<TNO.TemplateEngine.Models.Reports.ChartTemplateModel> chartTemplateEngine,
+        IReportEngine reportEngine,
         IChesService chesService,
-        IHttpRequestClient httpClient,
         IOptions<ChesOptions> chesOptions,
-        IOptions<ChartsOptions> chartsOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
         IOptions<ReportingOptions> reportOptions,
         ILogger<ReportingManager> logger)
         : base(api, reportOptions, logger)
     {
         _user = user;
-        this.ReportTemplateEngine = reportTemplateEngine;
-        this.ChartTemplateEngine = chartTemplateEngine;
+        this.ReportEngine = reportEngine;
         this.Ches = chesService;
-        this.HttpClient = httpClient;
         this.ChesOptions = chesOptions.Value;
-        this.ChartsOptions = chartsOptions.Value;
         _serializationOptions = serializationOptions.Value;
         this.Listener = listener;
         this.Listener.IsLongRunningJob = true;
@@ -333,26 +309,35 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <exception cref="ArgumentException"></exception>
     private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.Report.ReportModel report)
     {
-        // TODO: Control when a report is sent through configuration.
+        // Fetch content for every section within the report.  This will include folders and filters.
         var sections = report.Sections.Select(s => new ReportSectionModel(s));
         var searchResults = await this.Api.FindContentForReportIdAsync(report.Id);
-        var content = sections.ToDictionary(s => s.Name, section =>
+        var sectionContent = sections.ToDictionary(s => s.Name, section =>
         {
             if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
             {
-                // TODO: Content sort order should be followed for content from a folder.
                 section.Content = results.Hits.Hits.Select(h => new ContentModel(h.Source)).ToArray();
             }
             return section;
         });
 
+        // Fetch all image data.  Need to do this in a separate step because of async+await.
+        // TODO: Review this implementation due to performance issues.
+        foreach (var section in sectionContent)
+        {
+            foreach (var content in section.Value.Content.Where(c => c.ContentType == Entities.ContentType.Image))
+            {
+                content.ImageContent = await this.Api.GetImageFile(content.Id);
+            }
+        }
+
         var to = report.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email)).Select(s => s.User!.Email).ToArray();
-        var subject = await GenerateReportSubjectAsync(report, content, request.UpdateCache);
-        var body = await GenerateReportBodyAsync(report, content, request.UpdateCache);
+        var subject = await this.ReportEngine.GenerateReportSubjectAsync(report, sectionContent, request.UpdateCache);
+        var body = await this.ReportEngine.GenerateReportBodyAsync(report, sectionContent, null, request.UpdateCache);
 
         // Save the report instance.
         // Group content by the section name.
-        var instance = new ReportInstance(report.Id, content.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder))))
+        var instance = new ReportInstance(report.Id, sectionContent.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder))))
         {
             OwnerId = request.RequestorId,
             PublishedOn = DateTime.UtcNow
@@ -386,16 +371,26 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var report = reportInstance.Report ?? throw new ArgumentException("Report instance must include the report model.");
         var sections = report.Sections.Select(s => new ReportSectionModel(s));
         var searchResults = await this.Api.GetContentForReportInstanceIdAsync(reportInstance.Id);
-        var content = searchResults.GroupBy(r => r.SectionName).ToDictionary(r => r.Key, r =>
+        var sectionContent = searchResults.GroupBy(r => r.SectionName).ToDictionary(r => r.Key, r =>
         {
             var section = sections.FirstOrDefault(s => s.Name == r.Key) ?? throw new InvalidOperationException("Unable to find matching section in report");
             section.Content = r.Where(ri => ri.Content != null).Select(ri => new ContentModel(ri.Content!, ri.SortOrder)).ToArray();
             return section;
         });
 
+        // Fetch all image data.  Need to do this in a separate step because of async+await.
+        // TODO: Review this implementation due to performance issues.
+        foreach (var section in sectionContent)
+        {
+            foreach (var content in section.Value.Content.Where(c => c.ContentType == Entities.ContentType.Image))
+            {
+                content.ImageContent = await this.Api.GetImageFile(content.Id);
+            }
+        }
+
         var to = report.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email)).Select(s => s.User!.Email).ToArray();
-        var subject = await GenerateReportSubjectAsync(reportInstance.Report, content, request.UpdateCache);
-        var body = await GenerateReportBodyAsync(reportInstance.Report, content, request.UpdateCache);
+        var subject = await this.ReportEngine.GenerateReportSubjectAsync(reportInstance.Report, sectionContent, request.UpdateCache);
+        var body = await this.ReportEngine.GenerateReportBodyAsync(reportInstance.Report, sectionContent, null, request.UpdateCache);
 
         // Send the email.
         var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
@@ -405,140 +400,6 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         if (reportInstance.PublishedOn == null) reportInstance.PublishedOn = DateTime.UtcNow;
         reportInstance.Response = JsonSerializer.Deserialize<Dictionary<string, object>>(json, _serializationOptions) ?? new Dictionary<string, object>();
         await this.Api.UpdateReportInstanceAsync(reportInstance);
-    }
-
-    /// <summary>
-    /// Generate the output of the report with the Razor engine.
-    /// </summary>
-    /// <param name="report"></param>
-    /// <param name="sectionContent"></param>
-    /// <param name="updateCache"></param>
-    /// <returns></returns>
-    private async Task<string> GenerateReportSubjectAsync(API.Areas.Services.Models.Report.ReportModel report, Dictionary<string, ReportSectionModel> sectionContent, bool updateCache = false)
-    {
-        // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
-        var key = $"report_{report.Id}_subject";
-        var model = new TNO.TemplateEngine.Models.Reports.ReportTemplateModel(sectionContent, report.Settings);
-        if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
-        var template = (!updateCache ?
-            this.ReportTemplateEngine.GetOrAddTemplateInMemory(key, report.Template.Subject) :
-            this.ReportTemplateEngine.AddOrUpdateTemplateInMemory(key, report.Template.Subject))
-            ?? throw new InvalidOperationException("Template does not exist");
-        return await template.RunAsync(instance =>
-        {
-            instance.Model = model;
-            instance.Settings = model.Settings;
-            instance.Content = model.Content;
-            instance.Sections = model.Sections;
-        });
-    }
-
-    /// <summary>
-    /// Generate the output of the report with the Razor engine.
-    /// </summary>
-    /// <param name="report"></param>
-    /// <param name="sectionContent"></param>
-    /// <returns></returns>
-    private async Task<string> GenerateReportBodyAsync(API.Areas.Services.Models.Report.ReportModel report, Dictionary<string, ReportSectionModel> sectionContent, bool updateCache = false)
-    {
-        // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
-        var key = $"report_{report.Id}";
-        var model = new TNO.TemplateEngine.Models.Reports.ReportTemplateModel(sectionContent, report.Settings);
-        if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
-
-        if (sectionContent.TryGetValue("", out ReportSectionModel? value) && value != null && value.Content.Any())
-        {
-            foreach (var frontPage in value.Content.Where(x => x.ContentType == ContentType.Image))
-            {
-                frontPage.ImageContent = await Api.GetImageFile(frontPage.Id);
-            }
-        }
-
-        var template = (!updateCache ?
-            this.ReportTemplateEngine.GetOrAddTemplateInMemory(key, report.Template.Body) :
-            this.ReportTemplateEngine.AddOrUpdateTemplateInMemory(key, report.Template.Body))
-            ?? throw new InvalidOperationException("Template does not exist");
-        var body = await template.RunAsync(instance =>
-        {
-            instance.Model = model;
-            instance.Settings = model.Settings;
-            instance.Content = model.Content;
-            instance.Sections = model.Sections;
-        });
-
-        // Find all charts and make a request to the Charts API to generate the image.
-        await report.Sections.ForEachAsync(async section =>
-        {
-            await section.ChartTemplates.ForEachAsync(async chart =>
-            {
-                chart.SectionSettings ??= new();
-                List<ContentModel> content = new();
-                // If the section has content add it.
-                if (sectionContent.TryGetValue(section.Name, out ReportSectionModel? sectionData) && sectionData != null)
-                    content.AddRange(sectionData.Content);
-
-                // TODO: Merge with report specific configuration options.
-                if (chart.SectionSettings.Options == null || chart.SectionSettings.Options.ToJson() == "{}")
-                    chart.SectionSettings.Options = chart.Settings.Options;
-                var base64Image = await this.GenerateBase64ImageAsync(new ChartRequestModel(chart.SectionSettings, chart.Template, content));
-                // Replace Chart Stubs with the generated image.
-                body = body.Replace(ReportSectionModel.GenerateChartUid(section.Id, chart.Id), base64Image);
-            });
-        });
-
-        return body;
-    }
-
-    /// <summary>
-    /// Makes a request to Elasticsearch if required to fetch content.
-    /// Generate the Chart JSON for the specified 'model' containing a template and content.
-    /// If the model includes a Filter it will make a request to Elasticsearch.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    private async Task<ChartResultModel> GenerateJsonAsync(ChartRequestModel model)
-    {
-        if (model.Template == null) throw new InvalidOperationException("Chart template is missing from model");
-        var template = this.ChartTemplateEngine.AddOrUpdateTemplateInMemory($"chart-template", model.Template);
-
-        var content = new List<ContentModel>(model.Content ?? Array.Empty<ContentModel>());
-
-        var templateModel = new ChartTemplateModel(model.Settings, content);
-
-        var json = await template.RunAsync(instance =>
-        {
-            instance.Model = templateModel;
-            instance.Content = templateModel.Content;
-            instance.Settings = templateModel.Settings;
-            instance.SectionSettings = templateModel.SectionSettings;
-            instance.Sections = templateModel.Sections;
-        });
-
-        return new ChartResultModel(json);
-    }
-
-    /// <summary>
-    /// Executes the chart template provided to generate JSON, which is then sent with a request to the Charts API to generate a base64 image.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <returns>Returns the base64 image from the Charts API.</returns>
-    private async Task<string> GenerateBase64ImageAsync(ChartRequestModel model)
-    {
-        // Get the Chart JSON data.
-        var data = model.ChartData ?? (await this.GenerateJsonAsync(model)).Json;
-        var dataJson = data.ToJson();
-
-        var optionsJson = model.Settings.Options != null ? JsonSerializer.Serialize(model.Settings.Options) : "{}";
-        var optionsBytes = Encoding.UTF8.GetBytes(optionsJson);
-        var optionsBase64 = Convert.ToBase64String(optionsBytes);
-
-        // Send request to Charts API to generate base64
-        var body = new StringContent(dataJson, Encoding.UTF8, System.Net.Mime.MediaTypeNames.Application.Json);
-        var response = await this.HttpClient.PostAsync(
-            this.ChartsOptions.Url.Append(this.ChartsOptions.Base64Path, model.Settings.ChartType ?? "bar", $"?width={model.Settings.Width ?? 250}&height={model.Settings.Height ?? 250}&options={optionsBase64}"),
-            body);
-        return await response.Content.ReadAsStringAsync();
     }
 
     /// <summary>

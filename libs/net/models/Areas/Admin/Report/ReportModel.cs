@@ -172,7 +172,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
                     SortOrder = ct.SortOrder,
                     Settings = JsonDocument.Parse(JsonSerializer.Serialize(ct.Settings)),
                 },
-                Settings = ct.SectionSettings != null ? JsonDocument.Parse(JsonSerializer.Serialize(ct.SectionSettings)) : JsonDocument.Parse(JsonSerializer.Serialize(new ChartSettingsModel())),
+                Settings = ct.SectionSettings != null ? JsonDocument.Parse(JsonSerializer.Serialize(ct.SectionSettings)) : JsonDocument.Parse(JsonSerializer.Serialize(new ChartSectionSettingsModel())),
             }));
             return section;
         }));

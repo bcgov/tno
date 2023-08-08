@@ -23,7 +23,7 @@ public class ChartTemplateModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get/set - The settings for this section chart.
     /// </summary>
-    public ChartSettingsModel? SectionSettings { get; set; }
+    public ChartSectionSettingsModel? SectionSettings { get; set; }
     #endregion
 
     #region Constructors
@@ -52,7 +52,7 @@ public class ChartTemplateModel : BaseTypeWithAuditColumnsModel<int>
     {
         this.Template = entity.ChartTemplate?.Template ?? throw new ArgumentNullException(nameof(entity));
         this.Settings = JsonSerializer.Deserialize<ChartTemplateSettingsModel>(entity.ChartTemplate.Settings, options) ?? new();
-        this.SectionSettings = JsonSerializer.Deserialize<ChartSettingsModel>(entity.Settings, options) ?? new();
+        this.SectionSettings = JsonSerializer.Deserialize<ChartSectionSettingsModel>(entity.Settings, options) ?? new();
     }
     #endregion
 }

@@ -52,7 +52,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
     /// <summary>
     /// get/set - An array of report instances.
     /// </summary>
-    public IEnumerable<ChartTemplateModel> ChartTemplates { get; set; } = Array.Empty<ChartTemplateModel>();
+    public IEnumerable<ChartEngineTemplateModel> ChartTemplates { get; set; } = Array.Empty<ChartEngineTemplateModel>();
 
     /// <summary>
     /// get/set - An array of content.
@@ -84,7 +84,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
         this.Settings = model.Settings;
         this.Folder = model.Folder != null ? new FolderModel(model.Folder) : null;
         this.Filter = model.Filter != null ? new FilterModel(model.Filter) : null;
-        this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartTemplateModel(GenerateChartUid(this.Id, chart.Id), chart, content));
+        this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartEngineTemplateModel(GenerateChartUid(this.Id, chart.Id), chart, content));
         this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
     }
 
@@ -103,7 +103,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
         this.Settings = model.Settings;
         this.Folder = model.Folder != null ? new FolderModel(model.Folder) : null;
         this.Filter = model.Filter != null ? new FilterModel(model.Filter) : null;
-        this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartTemplateModel(GenerateChartUid(this.Id, chart.Id), chart, content));
+        this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartEngineTemplateModel(GenerateChartUid(this.Id, chart.Id), chart, content));
         this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
     }
 
@@ -122,7 +122,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
         this.Settings = model.Settings;
         this.Folder = model.Folder != null ? new FolderModel(model.Folder) : null;
         this.Filter = model.Filter != null ? new FilterModel(model.Filter) : null;
-        this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartTemplateModel(GenerateChartUid(this.Id, chart.Id), chart, content));
+        this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartEngineTemplateModel(GenerateChartUid(this.Id, chart.Id), chart, content));
         this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
     }
     #endregion

@@ -96,9 +96,9 @@ INSERT INTO public."report" (
 
         <p style="font-size: 9pt; margin-top: 0.5rem;">
             TERMS OF USE - This e-mail is a service provided by Today''s News Online and is only intended for
-            the originaladdressee. All content is the copyrighted property of a third party creator of the
+            the original addressee. All content is the copyrighted property of a third party creator of the
             material. Copying, retransmitting,redistributing, selling, licensing, or emailing the material
-            to any third party or any employee of the Province who is notauthorized to access the material is prohibited.
+            to any third party or any employee of the Province who is not authorized to access the material is prohibited.
         </p>
     ' -- template
   , true -- is_enabled

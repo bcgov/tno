@@ -1,4 +1,4 @@
-import { IChartSettingsModel, IChartTemplateSettingsModel, ISortableModel } from '.';
+import { IChartSectionSettingsModel, IChartTemplateSettingsModel, ISortableModel } from '.';
 
 export interface IChartTemplateModel extends ISortableModel<number> {
   /** Whether this chart template is available to all users. */
@@ -8,5 +8,5 @@ export interface IChartTemplateModel extends ISortableModel<number> {
   /** Chart template default configuration settings. */
   settings: IChartTemplateSettingsModel;
   /** Configuration settings specified for the chart within this section. */
-  sectionSettings?: IChartSettingsModel;
+  sectionSettings?: IChartSectionSettingsModel;
 }

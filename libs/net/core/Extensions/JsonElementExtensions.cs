@@ -84,6 +84,7 @@ public static class JsonElementExtensions
             JsonValueKind.Number => node.ConvertNumberTo<T>(),
             JsonValueKind.True or JsonValueKind.False => (T)Convert.ChangeType($"{node.GetBoolean()}", typeof(T)),
             JsonValueKind.Object => node.Deserialize<T>(options),
+            JsonValueKind.Array => node.Deserialize<T>(options),
             _ => (T)Convert.ChangeType($"{node}", typeof(T)),
         };
     }

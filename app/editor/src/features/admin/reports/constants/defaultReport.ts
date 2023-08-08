@@ -10,6 +10,11 @@ export const defaultReport: IReportModel = {
   templateId: 0,
   template: defaultReportTemplate,
   settings: {
+    viewOnWebOnly: false,
+    subject: {
+      text: '',
+      showTodaysDate: false,
+    },
     headline: {
       showSource: false,
       showShortName: false,
@@ -30,7 +35,6 @@ export const defaultReport: IReportModel = {
       excludeHistorical: false,
       excludeReports: [],
     },
-    viewOnWebOnly: false,
   },
   isEnabled: false,
   isPublic: false,

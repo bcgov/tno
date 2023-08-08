@@ -93,16 +93,16 @@ export const ReportForm = styled(FormPage)`
     border-radius: 0.25rem;
     gap: 0.25rem;
 
-    & div[direction='row'] {
+    > div[direction='row'] {
       border-radius: 0.25rem;
       align-items: center;
       padding: 0.25rem;
     }
 
-    & div[direction='row']:nth-child(odd) {
+    > div[direction='row']:nth-child(odd) {
       background-color: ${(props) => props.theme.css.tableOddRowColor};
     }
-    & div[direction='row']:nth-child(even) {
+    > div[direction='row']:nth-child(even) {
       background-color: ${(props) => props.theme.css.tableEvenRowColor};
     }
   }

@@ -4,15 +4,10 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
-using TNO.API.Config;
+using TNO.API.Areas.Editor.Models.AvOverview;
 using TNO.API.Models;
 using TNO.DAL.Services;
-using TNO.Elastic;
-using TNO.Kafka;
 using TNO.Keycloak;
-using TNO.TemplateEngine;
-using TNO.DAL.Config;
-using TNO.API.Areas.Editor.Models.AvOverview;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -33,12 +28,6 @@ public class AVOverviewSectionController : ControllerBase
 {
     #region Variables
     private readonly IAVOverviewSectionService _overviewSectionService;
-    private readonly IUserService _userService;
-    private readonly ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> _templateEngine;
-    private readonly IKafkaMessenger _kafkaProducer;
-    private readonly KafkaOptions _kafkaOptions;
-    private readonly ElasticOptions _elasticOptions;
-    private readonly StorageOptions _storageOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -47,30 +36,12 @@ public class AVOverviewSectionController : ControllerBase
     /// Creates a new instance of a AVOverviewSectionController object, initializes with specified parameters.
     /// </summary>
     /// <param name="overviewSectionService"></param>
-    /// <param name="userService"></param>
-    /// <param name="templateEngine"></param>
-    /// <param name="kafkaProducer"></param>
-    /// <param name="kafkaOptions"></param>
-    /// <param name="elasticOptions"></param>
-    /// <param name="storageOptions"></param>
     /// <param name="serializerOptions"></param>
     public AVOverviewSectionController(
         IAVOverviewSectionService overviewSectionService,
-        IUserService userService,
-        ITemplateEngine<TNO.TemplateEngine.Models.Reports.ReportTemplateModel> templateEngine,
-        IKafkaMessenger kafkaProducer,
-        IOptions<KafkaOptions> kafkaOptions,
-        IOptions<ElasticOptions> elasticOptions,
-        IOptions<StorageOptions> storageOptions,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _overviewSectionService = overviewSectionService;
-        _userService = userService;
-        _templateEngine = templateEngine;
-        _kafkaProducer = kafkaProducer;
-        _kafkaOptions = kafkaOptions.Value;
-        _elasticOptions = elasticOptions.Value;
-        _storageOptions = storageOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
