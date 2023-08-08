@@ -87,7 +87,7 @@ export const Upload: React.FC<IUploadProps> = ({
           </Button>
         </div>
 
-        <Show visible={!stream}>
+        <Show visible={!fileName}>
           <Row className="drop-box">
             <FileUploader
               children={
