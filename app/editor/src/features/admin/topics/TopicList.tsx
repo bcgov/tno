@@ -40,14 +40,6 @@ export const TopicList: React.FC = () => {
   const topicTypeOptions = getEnumStringOptions(TopicTypeName);
 
   React.useEffect(() => {
-    document.body.style.overflowY = 'hidden';
-
-    return () => {
-      document.body.style.overflowY = 'auto';
-    };
-  }, []);
-
-  React.useEffect(() => {
     if (!items.length && !loading) {
       setLoading(true);
       api
