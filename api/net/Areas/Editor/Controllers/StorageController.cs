@@ -226,43 +226,37 @@ public class StorageController : ControllerBase
     /// <returns></returns>
     [HttpGet("stream")]
     [HttpGet("{locationId:int}/stream")]
-    [ProducesResponseType(typeof(OkObjectResult), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(OkObjectResult), (int)HttpStatusCode.PartialContent)]
+    [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
-    public async Task<IActionResult> StreamAsync([FromRoute] int? locationId, [FromQuery] string path)
+    public IActionResult Stream([FromRoute] int? locationId, [FromQuery] string path)
     {
-        string result;
-        path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
+        path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var dataLocation = locationId.HasValue ? _connection.GetDataLocation(locationId.Value) : null;
         if (dataLocation != null)
         {
             if (dataLocation.Connection == null || dataLocation.Connection?.ConnectionType == ConnectionType.LocalVolume)
             {
                 var safePath = Path.Combine(_storageOptions.GetCapturePath(), path);
-                result = await GetResult(safePath, path);
+                return GetResult(safePath, path);
             }
             else throw new NotImplementedException($"Location connection type '{dataLocation.Connection?.ConnectionType}' not implemented yet.");
         }
         else
         {
             var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
-            result = await GetResult(safePath, path);
+            return GetResult(safePath, path);
         }
-
-        return Ok(result);
     }
 
-    private async Task<string> GetResult(string safePath, string path)
+    private FileStreamResult GetResult(string safePath, string path)
     {
         if (!safePath.FileExists()) throw new InvalidOperationException($"Stream does not exist: '{path}'");
 
         var info = new ItemModel(safePath, true);
-        using var stream = System.IO.File.OpenRead(safePath);
-        var fileStreamResult = File(stream, contentType: info.MimeType!, fileDownloadName: info.Name, enableRangeProcessing: true);
-        using var memoryStream = new MemoryStream();
-        await fileStreamResult.FileStream.CopyToAsync(memoryStream);
-        return Convert.ToBase64String(memoryStream.ToArray());
+        var filestream = System.IO.File.OpenRead(safePath);
+        return File(filestream, info.MimeType!);
     }
 
     /// <summary>

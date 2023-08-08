@@ -15,6 +15,6 @@ public class NewsItemConfiguration : IEntityTypeConfiguration<NewsItem>
     /// <returns></returns>
     public virtual void Configure(EntityTypeBuilder<NewsItem> builder)
     {
-        builder.ToSqlQuery("WITH ATN AS (SELECT * from NEWS_ITEMS UNION ALL SELECT * from HNEWS_ITEMS) SELECT * FROM ATN");
+        builder.ToSqlQuery("WITH ATN AS (SELECT * from TNO.NEWS_ITEMS UNION ALL SELECT * from TNO.HNEWS_ITEMS) SELECT * FROM ATN");
     }
 }

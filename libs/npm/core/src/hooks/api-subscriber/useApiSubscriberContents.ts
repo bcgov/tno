@@ -65,9 +65,16 @@ export const useSubscriberApiContents = (
     },
     stream: async (path: string) => {
       const params = { path };
-      return await api.get<any, AxiosResponse<any>, any>(
+      const response = await api.get<any, AxiosResponse<any>, any>(
         `/subscriber/contents/stream?${toQueryString(params)}`,
+        {
+          responseType: 'blob',
+          headers: { accept: '*.*' },
+        },
       );
+
+      response.data = window.URL.createObjectURL(new Blob([response.data]));
+      return response;
     },
   }).current;
 };

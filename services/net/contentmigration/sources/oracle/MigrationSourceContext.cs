@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using TNO.Core.Extensions;
 
 namespace TNO.Services.ContentMigration.Sources.Oracle;
@@ -45,7 +46,6 @@ public class MigrationSourceContext : DbContext
     public MigrationSourceContext(DbContextOptions<MigrationSourceContext> options)
       : base(options)
     {
-
     }
     #endregion
 

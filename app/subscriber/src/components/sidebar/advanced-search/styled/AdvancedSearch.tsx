@@ -5,6 +5,19 @@ export const AdvancedSearch = styled(Row)`
   background-color: white;
   padding: 0.5em;
 
+  .top-bar {
+    width: 100%;
+    .reset {
+      margin-left: auto;
+      align-self: center;
+      cursor: pointer;
+      &:hover {
+        color: ${(props) => props.theme.css.subscriberPurple};
+        transform: scale(1, 1.1);
+      }
+    }
+  }
+
   .search-icon {
     &:hover {
       color: ${(props) => props.theme.css.subscriberPurple};
