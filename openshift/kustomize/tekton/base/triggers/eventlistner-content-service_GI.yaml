@@ -27,7 +27,7 @@ spec:
           params:
           - name: filter
             # execute only when a file within the controllers directory has changed
-            value: extensions.changed_files.matches('services/net/content/')
+            value: extensions.changed_files.matches('services/net/content')
       bindings:
         - ref: git-dev-content-service
       template:

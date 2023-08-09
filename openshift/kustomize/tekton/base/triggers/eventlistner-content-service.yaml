@@ -1,42 +1,33 @@
 ---
-apiVersion: triggers.tekton.dev/v1beta1
+apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
   name: content-service-webhook
-  component: app
 spec:
   serviceAccountName: pipeline
-  triggers: 
+  triggers:
     - name: content-service-listener
-      interceptors:
-        - ref:
-            name: "github"
-          params:
-            - name: "eventTypes"
-              value: ["pull_request", "push"]
-            - name: "addChangedFiles"
-              value:
-                enabled: true
-            - name: "secretRef"
-              value:
-                secretName: tno-webhook
-                secretKey: webhook
-        - ref:
-            name: cel
-          params:
-          - name: filter
-            value: >-
-              body.ref == 'refs/heads/dev'
-              && (body.commits.exists(c, c.added.exists(m, m.startsWith('services/net/content')))
-                || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net/content')))
-                || body.commits.exists(c, c.removed.exists(m, m.startsWith('services/net/content')))
-                || body.head_commit.added.exists(m, m.startsWith('services/net/content'))
-                || body.head_commit.modified.exists(m, m.startsWith('services/net/content'))
-                || body.head_commit.removed.exists(m, m.startsWith('services/net/content'))
       bindings:
         - ref: git-dev-content-service
       template:
         ref: git-app-content-service
+      interceptors:
+        - github:
+            secretRef:
+              secretName: tno-webhook
+              secretKey: webhook
+            eventTypes:
+              - push
+              - pull_request
+        - cel:
+            filter: >-
+              body.ref == 'refs/heads/dev'
+              && (body.commits.exists(c, c.added.exists(m, m.startsWith('services/net/content/')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net/content/')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('services/net/content/')))
+                || body.head_commit.added.exists(m, m.startsWith('services/net/content/'))
+                || body.head_commit.modified.exists(m, m.startsWith('services/net/content/'))
+                || body.head_commit.removed.exists(m, m.startsWith('services/net/content/'))
 ---
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerBinding
@@ -57,7 +48,6 @@ apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
   name: git-app-content-service
-  component: app
 spec:
   params:
     - name: GIT_SOURCE
