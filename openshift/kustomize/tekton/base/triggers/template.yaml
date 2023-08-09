@@ -2,7 +2,6 @@ apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
   name: git-app
-  component: app
 spec:
   params:
     - name: GIT_SOURCE
