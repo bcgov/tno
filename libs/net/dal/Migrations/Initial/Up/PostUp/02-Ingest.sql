@@ -21,6 +21,7 @@ DECLARE conLocalPapersId INT := (SELECT id FROM public.connection WHERE "name" =
 DECLARE conPublicInternetId INT := (SELECT id FROM public.connection WHERE "name" = 'Public Internet'); -- connection_id
 DECLARE conSSHId INT := (SELECT id FROM public.connection WHERE "name" = 'SSH - Newspaper Upload'); -- connection_id
 DECLARE conGlobeSSHId INT := (SELECT id FROM public.connection WHERE "name" = 'SSH - Globe Newspaper Upload'); -- connection_id
+DECLARE conGneisenauSFTPId INT := (SELECT id FROM public.connection WHERE "name" = 'Gneisenau'); -- connection_id
 BEGIN
 
 INSERT INTO public.ingest (
@@ -461,14 +462,16 @@ INSERT INTO public.ingest (
   , (SELECT id FROM public.source WHERE code = 'GLOBE') -- source_id
   , 'GLOBE' -- topic
   , frontPageId -- product_id
-  , '{ "path": "binaryroot",
-      "fileName": "sv-GLB",
+  , '{ "path": "gandm/papers",
+      "fileName": "sv-GLB-<date>-.+?\.jpg",
+      "dateFormat": "ddd-ddMMyyyy",
+      "uppercaseDate": true,
       "publishedOnExpression": "^sv-GLB-[A-Za-z]{3}-(?<day>[0-9]{2})(?<month>[0-9]{2})(?<year>[0-9]{4})",
       "post": true,
       "import": true }' -- configuration
   , 1 -- schedule_type
   , 3 -- retry_limit
-  , conSSHId --destination_connection_id
+  , conGneisenauSFTPId --destination_connection_id
   , conLocalImagesId -- destination_connection_id
   , ''
   , ''

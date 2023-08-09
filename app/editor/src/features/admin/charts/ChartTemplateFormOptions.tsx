@@ -3,7 +3,6 @@ import 'prismjs/components/prism-csharp';
 import 'prismjs/components/prism-cshtml';
 import 'prismjs/components/prism-json';
 
-import _ from 'lodash';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
@@ -87,8 +86,20 @@ export const ChartTemplateFormOptions: React.FC<IChartTemplateFormOptionsProps> 
             onChange={(e) => {
               const options = {
                 ...values.settings.options,
+                plugins: {
+                  ...values.settings.options.plugins,
+                  datalabels: {
+                    ...values.settings.options.plugins.datalabels,
+                    labels: {
+                      ...values.settings.options.plugins.datalabels.labels,
+                      title: {
+                        ...values.settings.options.plugins.datalabels.labels.title,
+                        display: e.currentTarget.checked,
+                      },
+                    },
+                  },
+                },
               };
-              _.set(options, 'plugins.datalabels.labels.title.display', e.currentTarget.checked);
               setChartOptions(JSON.stringify(options, null, 2));
               setFieldValue('settings.options', options);
             }}

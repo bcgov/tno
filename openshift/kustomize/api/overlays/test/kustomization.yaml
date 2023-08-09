@@ -90,6 +90,20 @@ patches:
       - op: replace
         path: /spec/host
         value: mmia-test-2.apps.silver.devops.gov.bc.ca
+  - target:
+      kind: Route
+      name: api-editor-tls
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: test.editor.mmia.gov.bc.ca
+  - target:
+      kind: Route
+      name: api-subscriber-tls
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: test.mmia.gov.bc.ca
   # - target:
   #     kind: DeploymentConfig
   #     name: api

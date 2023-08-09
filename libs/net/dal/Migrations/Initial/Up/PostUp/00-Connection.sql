@@ -101,6 +101,16 @@ INSERT INTO public.connection (
   , 0 -- sort_order
   , ''
   , ''
+), (
+  'Gneisenau' -- 7
+  , 'SFTP upload location for newspapers' -- description
+  , true -- is_enabled
+  , 4 -- connection_type - SFTP
+  , '{"path":"/home","username":"","hostname":"gneisenau.tno.gov.bc.ca","port": 22,"password": ""}' -- configuration
+  , true -- is_read_only
+  , 0 -- sort_order
+  , ''
+  , ''
 );
 
 END $$;

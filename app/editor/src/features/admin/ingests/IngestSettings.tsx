@@ -111,7 +111,13 @@ export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
                 disabled
               />
             </Show>
-            <Show visible={values.sourceConnection?.connectionType === ConnectionTypeName.SSH}>
+            <Show
+              visible={
+                values.sourceConnection?.connectionType === ConnectionTypeName.SSH ||
+                values.sourceConnection?.connectionType === ConnectionTypeName.SFTP ||
+                values.sourceConnection?.connectionType === ConnectionTypeName.FTP
+              }
+            >
               <FormikText
                 label="Hostname"
                 name="_.hostname"

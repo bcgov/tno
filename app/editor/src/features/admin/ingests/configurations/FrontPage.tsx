@@ -1,7 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { FormikCheckbox, FormikText, IIngestModel } from 'tno-core';
+import { Col, FormikCheckbox, FormikSelect, FormikText, IIngestModel, Row } from 'tno-core';
 
+import { TimeZones } from './constants';
 import * as styled from './styled';
 
 export const FrontPage: React.FC = (props) => {
@@ -15,10 +16,48 @@ export const FrontPage: React.FC = (props) => {
         value={values.configuration.path}
       />
       <FormikText
-        label="File Name Expression (i.e. Code)"
+        label="File Name Expression"
         name="configuration.fileName"
         value={values.configuration.fileName}
+        tooltip="Regular expression can include '<date>' which will be replaced with today's date"
+        placeholder="name-<date>\.jpg"
       />
+      <Row>
+        <Col flex="1">
+          <FormikText
+            label="Date Format"
+            name="configuration.dateFormat"
+            value={values.configuration.dateFormat}
+            placeholder="ddMMyyyy"
+          />
+        </Col>
+        <Col justifyContent="center">
+          <FormikCheckbox
+            label="Uppercase Date"
+            name="configuration.uppercaseDate"
+            value={values.configuration.uppercaseDate}
+          />
+        </Col>
+      </Row>
+      <Row>
+        <Col flex="1 1 0">
+          <FormikSelect
+            label="Timezone"
+            name="configuration.timeZone"
+            tooltip="Timezone of the source"
+            options={TimeZones}
+            value={values.configuration.timeZone}
+          />
+        </Col>
+        <Col flex="1 1 0">
+          <FormikText
+            label="Date Offset"
+            name="configuration.dateOffset"
+            type="number"
+            tooltip="Which day to parse (0 = today)"
+          />
+        </Col>
+      </Row>
       <p>
         Front page images are often delivered the evening before the publish date. Use a regular
         expression to parse the file name to determine the published on date. Use regex group names
