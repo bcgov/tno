@@ -275,7 +275,10 @@ public class ImageAction : IngestAction<ImageOptions>
             Uid = GetContentHash(ingest.Source.Code, filename, publishedOn),
             PublishedOn = publishedOn,
             Topic = ingest.Topic,
-            Status = (int)WorkflowStatus.InProgress
+            Status = (int)WorkflowStatus.InProgress,
+            Metadata = new Dictionary<string, object> {
+                { ContentReferenceMetaDataKeys.MetadataKeyIngestSource, ingest.Source!.Code }
+            }
         };
     }
 

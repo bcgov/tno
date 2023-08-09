@@ -13,6 +13,7 @@ using Renci.SshNet;
 using Renci.SshNet.Common;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Areas.Services.Models.DataLocation;
+using TNO.API.Areas.Services.Models.ContentReference;
 
 namespace TNO.Services.Content;
 
@@ -223,10 +224,26 @@ public class ContentManager : ServiceManager<ContentOptions>
     {
         this.Logger.LogDebug("Importing Content from Topic: {topic}, Uid: {key}", result.Topic, result.Message.Key);
         var model = result.Message.Value;
+        bool updateSourceContent = false;
+        long? existingContentId = null;
+
+        // KGM - This code should be removed/refactored post PROD deployment most likely
+        // IF we are allowing overwrites from the Content Migration Service
+        // AND if the current content was ingested by that the Content Migration Service
+        // THEN we trigger a complete overwrite of the existing content with the updated content
+        if (this.Options.MigrationOptions.AllowSourceContentOverwrite
+            && model.Source.Equals(this.Options.MigrationOptions.ContentMigrationIngestSourceCode)) {
+            // updates from the Content Migration service *ALWAYS* get applied
+            updateSourceContent = true;
+            Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMIA Content : {Source}:{Title}", model.Source, model.Title);
+        }
 
         // Only add if doesn't already exist.
-        var exists = await this.Api.FindContentByUidAsync(model.Uid, model.Source);
-        if (exists == null)
+        ContentModel? content = await this.Api.FindContentByUidAsync(model.Uid, model.Source);
+        if (content != null) {
+            existingContentId = content.Id;
+        }
+        if (content == null || updateSourceContent)
         {
             // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
             // TODO: Handle e-tag.
@@ -246,7 +263,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 model.ProductId = ingests.FirstOrDefault()?.ProductId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
             }
 
-            var content = new ContentModel()
+            content = new ContentModel()
             {
                 Status = model.Status,
                 SourceId = source?.Id,
@@ -352,8 +369,15 @@ public class ContentManager : ServiceManager<ContentOptions>
                 content.TimeTrackings = model.TimeTrackings.Select(t => new API.Areas.Services.Models.Content.TimeTrackingModel(t.UserId, t.Effort, t.Activity)).ToArray();
             }
 
-            content = await this.Api.AddContentAsync(content) ?? throw new InvalidOperationException($"Adding content failed {content.OtherSource}:{content.Uid}");
-            this.Logger.LogInformation("Content Imported.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
+            if (updateSourceContent && (existingContentId != null)) {
+                // before updating, reinstate the Id value
+                content.Id = existingContentId.Value;
+                content = await this.Api.UpdateContentAsync(content) ?? throw new InvalidOperationException($"Updating content failed {content.OtherSource}:{content.Uid}");
+                this.Logger.LogInformation("Content Updated.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
+            } else {
+                content = await this.Api.AddContentAsync(content) ?? throw new InvalidOperationException($"Adding content failed {content.OtherSource}:{content.Uid}");
+                this.Logger.LogInformation("Content Imported.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
+            }
 
             var isUploadSuccess = true;
 
@@ -394,8 +418,8 @@ public class ContentManager : ServiceManager<ContentOptions>
                 }
             }
 
-            // Update the status of the content reference.
-            var reference = await this.Api.FindContentReferenceAsync(content.OtherSource, content.Uid);
+            // Update the status of the content reference - after re-fetching it.
+            var reference = await this.Api.FindContentReferenceAsync(model.Source, model.Uid);
             if (reference != null)
             {
                 try

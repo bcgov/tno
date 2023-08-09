@@ -196,7 +196,10 @@ public class CaptureAction : CommandAction<CaptureOptions>
             Uid = GetContentHash(ingest.Source.Code, $"{schedule.Name}:{schedule.Id}", publishedOn),
             PublishedOn = this.ToTimeZone(publishedOn, ingest).ToUniversalTime(),
             Topic = ingest.Topic,
-            Status = (int)WorkflowStatus.InProgress
+            Status = (int)WorkflowStatus.InProgress,
+            Metadata = new Dictionary<string, object> {
+                { ContentReferenceMetaDataKeys.MetadataKeyIngestSource, ingest.Source!.Code }
+            }
         };
     }
 

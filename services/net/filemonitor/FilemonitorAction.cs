@@ -1,19 +1,19 @@
+using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Xml;
-using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Renci.SshNet;
+using Renci.SshNet.Sftp;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
+using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Kafka.Models;
-using Renci.SshNet;
-using Renci.SshNet.Sftp;
 using TNO.Models.Extensions;
 using TNO.Services.Actions;
 using TNO.Services.FileMonitor.Config;
-using TNO.Core.Exceptions;
 
 namespace TNO.Services.FileMonitor;
 
@@ -283,13 +283,16 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     private async Task<ContentReferenceModel?> AddContentReferenceAsync(IngestModel ingest, SourceContent content)
     {
         // Add a content reference record.
-        var model = new ContentReferenceModel()
+        var model = new ContentReferenceModel
         {
             Source = content.Source,
             Uid = content.Uid,
             Topic = ingest.Topic,
             Status = (int)WorkflowStatus.InProgress,
-            PublishedOn = content.PublishedOn
+            PublishedOn = content.PublishedOn,
+            Metadata = new Dictionary<string, object> {
+                { ContentReferenceMetaDataKeys.MetadataKeyIngestSource, ingest.Source!.Code }
+            }
         };
 
         return await this.Api.AddContentReferenceAsync(model);
