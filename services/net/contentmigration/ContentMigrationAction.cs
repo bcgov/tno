@@ -151,7 +151,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
-        IContentMigrator contentMigrator = _migratorFactory.GetContentMigrator(manager.Ingest.Name);
+        IContentMigrator contentMigrator = _migratorFactory.GetContentMigrator(manager.Ingest.IngestType.Name);
 
         API.Areas.Editor.Models.Lookup.LookupModel? lookups = await this.Api.GetLookupsAsync();
 
