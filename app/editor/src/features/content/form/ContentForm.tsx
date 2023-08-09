@@ -233,6 +233,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
               ...defaultFormValues(contentType),
               sourceId: values.sourceId,
               productId: values.productId,
+              otherSource: values.otherSource,
               publishedOn: updatedDate.format('MMM D, yyyy HH:mm:ss'),
             });
           }
