@@ -1,5 +1,5 @@
 import { FormikForm } from 'components/formik';
-import { FormikHelpers, FormikProps } from 'formik';
+import { FormikProps } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
