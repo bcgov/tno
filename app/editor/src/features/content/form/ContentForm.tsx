@@ -271,10 +271,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   );
 
   const handlePublish = React.useCallback(
-    async (
-      values: IContentForm,
-      formikHelpers: FormikHelpers<IContentForm>,
-    ): Promise<IContentForm> => {
+    async (values: IContentForm): Promise<IContentForm> => {
       if (
         [
           ContentStatusName.Draft,
