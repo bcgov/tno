@@ -17,17 +17,17 @@ spec:
               secretName: tno-webhook
               secretKey: webhook
             eventTypes:
-              - push
               - pull_request
         - cel:
             filter: >-
               body.ref == 'refs/heads/dev'
-              && (body.commits.exists(c, c.added.exists(m, m.startsWith('services/net/content/')))
-                || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net/content/')))
-                || body.commits.exists(c, c.removed.exists(m, m.startsWith('services/net/content/')))
-                || body.head_commit.added.exists(m, m.startsWith('services/net/content/'))
-                || body.head_commit.modified.exists(m, m.startsWith('services/net/content/'))
-                || body.head_commit.removed.exists(m, m.startsWith('services/net/content/'))
+              && (body.commits.exists(c, c.added.exists(m, m.startsWith('services/net/content')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net/content')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('services/net/content')))
+                || body.head_commit.added.exists(m, m.startsWith('services/net/content'))
+                || body.head_commit.modified.exists(m, m.startsWith('services/net/content'))
+                || body.head_commit.removed.exists(m, m.startsWith('services/net/content')))
+
 ---
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerBinding
@@ -105,3 +105,39 @@ spec:
             emptyDir: {}
           - name: owasp-settings
             emptyDir: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: content-service-webhook
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+    - host: tno-tekton.apps.silver.devops.gov.bc.ca
+      http:
+        paths:
+          - path: /hooks
+            pathType: Exact
+            backend:
+              service:
+                name: el-content-service-webhook
+                port:
+                  number: 8080
+
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: git-webhook
+spec:
+  host: tno-tekton.apps.silver.devops.gov.bc.ca
+  path: /hooks
+  to:
+    kind: Service
+    name: el-content-service-webhook
+    weight: 100
+  port:
+    targetPort: http-listener
+  wildcardPolicy: None
