@@ -1,0 +1,36 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: services-webhook
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+    - host: tno-tekton.apps.silver.devops.gov.bc.ca
+      http:
+        paths:
+          - path: /hooks-services
+            pathType: Exact
+            backend:
+              service:
+                name: el-content-service-webhook
+                port:
+                  number: 8080
+
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: services-webhook
+spec:
+  host: tno-tekton.apps.silver.devops.gov.bc.ca
+  path: /hooks-services
+  to:
+    kind: Service
+    name: el-content-service-webhook
+    weight: 100
+  port:
+    targetPort: http-listener
+  wildcardPolicy: None

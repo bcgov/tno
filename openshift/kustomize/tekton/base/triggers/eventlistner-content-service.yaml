@@ -2,24 +2,32 @@
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: content-service-webhook
+  name: services-webhook
 spec:
   serviceAccountName: pipeline
   triggers:
     - name: content-service-listener
       bindings:
-        - ref: git-dev-content-service
+        - ref: git-dev-service
       template:
-        ref: git-app-content-service
+        ref: git-app-service
       interceptors:
-        - github:
-            secretRef:
-              secretName: tno-webhook
-              secretKey: webhook
-            eventTypes:
-              - pull_request
-        - cel:
-            filter: >-
+        - ref:
+            name: "github"
+            kind: ClusterInterceptor
+            apiVersion: triggers.tekton.dev
+          params:
+          - name: "secretRef"
+            value:
+              secretName: tno-webhook-services
+              secretKey: WebHookSecretKey
+          - name: "eventTypes"
+            value: ["push"]
+        - ref:
+            name: cel
+          params:
+          - name: filter
+            value: >-
               body.ref == 'refs/heads/dev'
               && (body.commits.exists(c, c.added.exists(m, m.startsWith('services/net/content')))
                 || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net/content')))
@@ -27,12 +35,378 @@ spec:
                 || body.head_commit.added.exists(m, m.startsWith('services/net/content'))
                 || body.head_commit.modified.exists(m, m.startsWith('services/net/content'))
                 || body.head_commit.removed.exists(m, m.startsWith('services/net/content')))
+          - name: "overlays"
+            value:
+            - key: branch
+              expression: "body.default_branch"
+            - key: SERVICE_NAME
+              expression: "content"
 
+    - name: filecopy-service-listener
+      bindings:
+        - ref: git-dev-service
+      template:
+        ref: git-app-service
+      interceptors:
+        - ref:
+            name: "github"
+            kind: ClusterInterceptor
+            apiVersion: triggers.tekton.dev
+          params:
+          - name: "secretRef"
+            value:
+              secretName: tno-webhook
+              secretKey: webhook
+          - name: "eventTypes"
+            value: ["push"]
+        - ref:
+            name: cel
+          params:
+          - name: filter
+            value: >-
+              body.ref == 'refs/heads/dev'
+              && (body.commits.exists(c, c.added.exists(m, m.startsWith('services/net/filecopy')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net/filecopy')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('services/net/filecopy')))
+                || body.head_commit.added.exists(m, m.startsWith('services/net/filecopy'))
+                || body.head_commit.modified.exists(m, m.startsWith('services/net/filecopy'))
+                || body.head_commit.removed.exists(m, m.startsWith('services/net/filecopy')))
+          - name: "overlays"
+            value:
+            - key: branch
+              expression: "body.default_branch"
+            - key: SERVICE_NAME
+              expression: "filecopy"
+
+    - name: filemonitor-service-listener
+      bindings:
+        - ref: git-dev-service
+      template:
+        ref: git-app-service
+      interceptors:
+        - ref:
+            name: "github"
+            kind: ClusterInterceptor
+            apiVersion: triggers.tekton.dev
+          params:
+          - name: "secretRef"
+            value:
+              secretName: tno-webhook
+              secretKey: webhook
+          - name: "eventTypes"
+            value: ["push"]
+        - ref:
+            name: cel
+          params:
+          - name: filter
+            value: >-
+              body.ref == 'refs/heads/dev'
+              && (body.commits.exists(c, c.added.exists(m, m.startsWith('services/net/filemonitor')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net/filemonitor')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('services/net/filemonitor')))
+                || body.head_commit.added.exists(m, m.startsWith('services/net/filemonitor'))
+                || body.head_commit.modified.exists(m, m.startsWith('services/net/filemonitor'))
+                || body.head_commit.removed.exists(m, m.startsWith('services/net/filemonitor')))
+          - name: "overlays"
+            value:
+            - key: branch
+              expression: "body.default_branch"
+            - key: SERVICE_NAME
+              expression: "filemonitor"
+
+    - name: image-service-listener
+      bindings:
+        - ref: git-dev-service
+      template:
+        ref: git-app-service
+      interceptors:
+        - ref:
+            name: "github"
+            kind: ClusterInterceptor
+            apiVersion: triggers.tekton.dev
+          params:
+          - name: "secretRef"
+            value:
+              secretName: tno-webhook
+              secretKey: webhook
+          - name: "eventTypes"
+            value: ["push"]
+        - ref:
+            name: cel
+          params:
+          - name: filter
+            value: >-
+              body.ref == 'refs/heads/dev'
+              && (body.commits.exists(c, c.added.exists(m, m.startsWith('services/net/image')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net/image')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('services/net/image')))
+                || body.head_commit.added.exists(m, m.startsWith('services/net/image'))
+                || body.head_commit.modified.exists(m, m.startsWith('services/net/image'))
+                || body.head_commit.removed.exists(m, m.startsWith('services/net/image')))
+          - name: "overlays"
+            value:
+            - key: branch
+              expression: "body.default_branch"
+            - key: SERVICE_NAME
+              expression: "image"
+  
+    - name: indexing-service-listener
+      bindings:
+        - ref: git-dev-service
+      template:
+        ref: git-app-service
+      interceptors:
+        - ref:
+            name: "github"
+            kind: ClusterInterceptor
+            apiVersion: triggers.tekton.dev
+          params:
+          - name: "secretRef"
+            value:
+              secretName: tno-webhook
+              secretKey: webhook
+          - name: "eventTypes"
+            value: ["push"]
+        - ref:
+            name: cel
+          params:
+          - name: filter
+            value: >-
+              body.ref == 'refs/heads/dev'
+              && (body.commits.exists(c, c.added.exists(m, m.startsWith('services/net/indexing')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net/indexing')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('services/net/indexing')))
+                || body.head_commit.added.exists(m, m.startsWith('services/net/indexing'))
+                || body.head_commit.modified.exists(m, m.startsWith('services/net/indexing'))
+                || body.head_commit.removed.exists(m, m.startsWith('services/net/indexing')))
+          - name: "overlays"
+            value:
+            - key: branch
+              expression: "body.default_branch"
+            - key: SERVICE_NAME
+              expression: "indexing"
+              
+    - name: nlp-service-listener
+      bindings:
+        - ref: git-dev-service
+      template:
+        ref: git-app-service
+      interceptors:
+        - ref:
+            name: "github"
+            kind: ClusterInterceptor
+            apiVersion: triggers.tekton.dev
+          params:
+          - name: "secretRef"
+            value:
+              secretName: tno-webhook
+              secretKey: webhook
+          - name: "eventTypes"
+            value: ["push"]
+        - ref:
+            name: cel
+          params:
+          - name: filter
+            value: >-
+              body.ref == 'refs/heads/dev'
+              && (body.commits.exists(c, c.added.exists(m, m.startsWith('services/net/nlp')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net/nlp')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('services/net/nlp')))
+                || body.head_commit.added.exists(m, m.startsWith('services/net/nlp'))
+                || body.head_commit.modified.exists(m, m.startsWith('services/net/nlp'))
+                || body.head_commit.removed.exists(m, m.startsWith('services/net/nlp')))
+          - name: "overlays"
+            value:
+            - key: branch
+              expression: "body.default_branch"
+            - key: SERVICE_NAME
+              expression: "nlp"
+              
+    - name: notification-service-listener
+      bindings:
+        - ref: git-dev-service
+      template:
+        ref: git-app-service
+      interceptors:
+        - ref:
+            name: "github"
+            kind: ClusterInterceptor
+            apiVersion: triggers.tekton.dev
+          params:
+          - name: "secretRef"
+            value:
+              secretName: tno-webhook
+              secretKey: webhook
+          - name: "eventTypes"
+            value: ["push"]
+        - ref:
+            name: cel
+          params:
+          - name: filter
+            value: >-
+              body.ref == 'refs/heads/dev'
+              && (body.commits.exists(c, c.added.exists(m, m.startsWith('services/net/notification')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net/notification')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('services/net/notification')))
+                || body.head_commit.added.exists(m, m.startsWith('services/net/notification'))
+                || body.head_commit.modified.exists(m, m.startsWith('services/net/notification'))
+                || body.head_commit.removed.exists(m, m.startsWith('services/net/notification')))
+          - name: "overlays"
+            value:
+            - key: branch
+              expression: "body.default_branch"
+            - key: SERVICE_NAME
+              expression: "notification"
+  
+    - name: reporting-service-listener
+      bindings:
+        - ref: git-dev-service
+      template:
+        ref: git-app-service
+      interceptors:
+        - ref:
+            name: "github"
+            kind: ClusterInterceptor
+            apiVersion: triggers.tekton.dev
+          params:
+          - name: "secretRef"
+            value:
+              secretName: tno-webhook
+              secretKey: webhook
+          - name: "eventTypes"
+            value: ["push"]
+        - ref:
+            name: cel
+          params:
+          - name: filter
+            value: >-
+              body.ref == 'refs/heads/dev'
+              && (body.commits.exists(c, c.added.exists(m, m.startsWith('services/net/reporting')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net/reporting')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('services/net/reporting')))
+                || body.head_commit.added.exists(m, m.startsWith('services/net/reporting'))
+                || body.head_commit.modified.exists(m, m.startsWith('services/net/reporting'))
+                || body.head_commit.removed.exists(m, m.startsWith('services/net/reporting')))
+          - name: "overlays"
+            value:
+            - key: branch
+              expression: "body.default_branch"
+            - key: SERVICE_NAME
+              expression: "reporting"
+      
+    - name: scheduler-service-listener
+      bindings:
+        - ref: git-dev-service
+      template:
+        ref: git-app-service
+      interceptors:
+        - ref:
+            name: "github"
+            kind: ClusterInterceptor
+            apiVersion: triggers.tekton.dev
+          params:
+          - name: "secretRef"
+            value:
+              secretName: tno-webhook
+              secretKey: webhook
+          - name: "eventTypes"
+            value: ["push"]
+        - ref:
+            name: cel
+          params:
+          - name: filter
+            value: >-
+              body.ref == 'refs/heads/dev'
+              && (body.commits.exists(c, c.added.exists(m, m.startsWith('services/net/scheduler')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net/scheduler')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('services/net/scheduler')))
+                || body.head_commit.added.exists(m, m.startsWith('services/net/scheduler'))
+                || body.head_commit.modified.exists(m, m.startsWith('services/net/scheduler'))
+                || body.head_commit.removed.exists(m, m.startsWith('services/net/scheduler')))
+          - name: "overlays"
+            value:
+            - key: branch
+              expression: "body.default_branch"
+            - key: SERVICE_NAME
+              expression: "scheduler"
+      
+    - name: syndication-service-listener
+      bindings:
+        - ref: git-dev-service
+      template:
+        ref: git-app-service
+      interceptors:
+        - ref:
+            name: "github"
+            kind: ClusterInterceptor
+            apiVersion: triggers.tekton.dev
+          params:
+          - name: "secretRef"
+            value:
+              secretName: tno-webhook
+              secretKey: webhook
+          - name: "eventTypes"
+            value: ["push"]
+        - ref:
+            name: cel
+          params:
+          - name: filter
+            value: >-
+              body.ref == 'refs/heads/dev'
+              && (body.commits.exists(c, c.added.exists(m, m.startsWith('services/net/syndication')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net/syndication')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('services/net/syndication')))
+                || body.head_commit.added.exists(m, m.startsWith('services/net/syndication'))
+                || body.head_commit.modified.exists(m, m.startsWith('services/net/syndication'))
+                || body.head_commit.removed.exists(m, m.startsWith('services/net/syndication')))
+          - name: "overlays"
+            value:
+            - key: branch
+              expression: "body.default_branch"
+            - key: SERVICE_NAME
+              expression: "syndication"
+      
+    - name: transcription-service-listener
+      bindings:
+        - ref: git-dev-service
+      template:
+        ref: git-app-service
+      interceptors:
+        - ref:
+            name: "github"
+            kind: ClusterInterceptor
+            apiVersion: triggers.tekton.dev
+          params:
+          - name: "secretRef"
+            value:
+              secretName: tno-webhook
+              secretKey: webhook
+          - name: "eventTypes"
+            value: ["push"]
+        - ref:
+            name: cel
+          params:
+          - name: filter
+            value: >-
+              body.ref == 'refs/heads/dev'
+              && (body.commits.exists(c, c.added.exists(m, m.startsWith('services/net/transcription')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net/transcription')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('services/net/transcription')))
+                || body.head_commit.added.exists(m, m.startsWith('services/net/transcription'))
+                || body.head_commit.modified.exists(m, m.startsWith('services/net/transcription'))
+                || body.head_commit.removed.exists(m, m.startsWith('services/net/transcription')))
+          - name: "overlays"
+            value:
+            - key: branch
+              expression: "body.default_branch"
+            - key: SERVICE_NAME
+              expression: "transcription"
+      
 ---
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerBinding
 metadata:
-  name: git-dev-content-service
+  name: git-dev-service
 spec:
   params:
     - name: GIT_URL
@@ -42,12 +416,14 @@ spec:
     - name: VERSION
       value: latest-$(extensions.truncated_sha)
     - name: DEPLOY_TO
-      value: dev
+      value: $(extensions.branch)
+    - name: SERVICE_NAME
+      value: $(extensions.SERVICE_NAME)
 ---
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
-  name: git-app-content-service
+  name: git-app-service
 spec:
   params:
     - name: GIT_SOURCE
@@ -56,6 +432,7 @@ spec:
       description: The version to tag the image with
     - name: DEPLOY_TO
       description: The environment to deploy to
+    - name: SERVICE_NAME
   resourcetemplates:
     - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
@@ -87,6 +464,10 @@ spec:
             value: tno
           - name: DEPLOY_TO
             value: $(tt.params.DEPLOY_TO)
+          - name: SERVICE_NAME
+            value: $(tt.params.SERVICE_NAME)
+          - name: PROJECT_SHORTNAME
+            value: 9b301c
         workspaces:
           - name: source
             persistentVolumeClaim:
@@ -105,11 +486,12 @@ spec:
             emptyDir: {}
           - name: owasp-settings
             emptyDir: {}
+
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: content-service-webhook
+  name: services-webhook
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -118,11 +500,11 @@ spec:
     - host: tno-tekton.apps.silver.devops.gov.bc.ca
       http:
         paths:
-          - path: /hooks
+          - path: /hooks-services
             pathType: Exact
             backend:
               service:
-                name: el-content-service-webhook
+                name: el-services-webhook
                 port:
                   number: 8080
 
@@ -130,13 +512,13 @@ spec:
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
-  name: git-webhook
+  name: services-webhook
 spec:
   host: tno-tekton.apps.silver.devops.gov.bc.ca
-  path: /hooks
+  path: /hooks-services
   to:
     kind: Service
-    name: el-content-service-webhook
+    name: el-services-webhook
     weight: 100
   port:
     targetPort: http-listener
