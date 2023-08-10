@@ -22,7 +22,7 @@ export const DbMigration: React.FC = (props) => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
   const { applyPlaceholder } = useFormikHelpers();
 
-  const minMigrationIngestSpanInDays = 7;
+  const minMigrationIngestSpanInDays = 1;
   const maxMigrationIngestSpanInYears = 1;
 
   const maxEndDate = React.useMemo(() => {
