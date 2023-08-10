@@ -44,19 +44,11 @@ export const TimeLogSection: React.FC<ITimeLogSectionProps> = ({ prepTimeRequire
 
   return (
     <styled.TimeLogSection className="multi-group">
-      <FormikText
-        width={FieldSize.Small}
-        name="prep"
-        label="Prep time (minutes)"
-        type="number"
-        required={prepTimeRequired && effort <= 0}
-      />
+      <FormikText width={FieldSize.Small} name="prep" label="Prep time (minutes)" type="number" />
       <FaArrowAltCircleRight
         className="action-button"
         onClick={() => {
           if (!!values.timeTrackings) {
-            const value = effort!! + Number((values as any).prep);
-            setEffort(value);
             setFieldValue('timeTrackings', [
               ...values.timeTrackings,
               {
@@ -67,7 +59,6 @@ export const TimeLogSection: React.FC<ITimeLogSectionProps> = ({ prepTimeRequire
               },
             ]);
             setFieldValue('prep', '');
-            setFieldValue('efforts', value);
           }
         }}
       />
@@ -76,7 +67,7 @@ export const TimeLogSection: React.FC<ITimeLogSectionProps> = ({ prepTimeRequire
           disabled
           className="total-mins"
           width={FieldSize.Small}
-          name="total"
+          name="efforts"
           label="Total minutes"
           value={effort?.toString()}
           required={prepTimeRequired && effort <= 0}

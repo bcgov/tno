@@ -1,5 +1,5 @@
 import { FormikForm } from 'components/formik';
-import { FormikHelpers, FormikProps } from 'formik';
+import { FormikProps } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
@@ -271,10 +271,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   );
 
   const handlePublish = React.useCallback(
-    async (
-      values: IContentForm,
-      formikHelpers: FormikHelpers<IContentForm>,
-    ): Promise<IContentForm> => {
+    async (values: IContentForm): Promise<IContentForm> => {
       if (
         [
           ContentStatusName.Draft,

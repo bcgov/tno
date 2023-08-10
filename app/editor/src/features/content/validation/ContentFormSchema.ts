@@ -9,22 +9,11 @@ export const ContentFormSchema = object().shape(
         return number().required('Either source or other source is required.');
       return number();
     }),
-    prep: string().when('contentType', (value: string[]) => {
+    efforts: string().when('contentType', (value: string[]) => {
       if (value[0] === ContentTypeName.AudioVideo) {
         return number().when('efforts', (efforts: number[]) => {
           if (!efforts[0] || efforts[0] <= 0) {
-            return number().required('Prep time is required.');
-          }
-          return number();
-        });
-      }
-      return number();
-    }),
-    total: string().when('contentType', (value: string[]) => {
-      if (value[0] === ContentTypeName.AudioVideo) {
-        return number().when('efforts', (efforts: number[]) => {
-          if (!efforts[0] || efforts[0] <= 0) {
-            return number().required('Total minutes are required.');
+            return number().moreThan(0, 'Total minutes are required.');
           }
           return number();
         });
