@@ -286,7 +286,8 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                     {
                         string contentStagingFolderName = GetOutputPathPrefix(manager.Ingest);
                         await contentMigrator.CopyFileAsync(new Models.FileMigrationModel(newsItem.RSN, Path.GetDirectoryName(newsItem.FilePath)!, Path.GetFileName(newsItem.FilePath), newsItem.ContentType!), contentStagingFolderName);
-                        newsItem.FilePath = Path.Combine(contentStagingFolderName, newsItem.FilePath);
+                        sourceContent.FilePath = Path.Combine(contentStagingFolderName, newsItem.FilePath);
+                        Logger.LogInformation("Migrating file associated with content content {RSN}:{Title}:[{filePath}]", newsItem.RSN, newsItem.Title,sourceContent.FilePath);
                     }
                 }
                 catch (FileNotFoundException)
