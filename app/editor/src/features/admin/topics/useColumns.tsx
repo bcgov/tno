@@ -15,14 +15,13 @@ import {
 export const useColumns = (
   onClick: (event: any) => {},
   handleSubmit: (values: ITopicModel) => Promise<void>,
+  loading: boolean,
 ): ITableHookColumn<ITopicModel>[] => {
   const [topicModel, setTopicModel] = React.useState<ITopicModel>();
 
   const handleChange = async (event: any, cell: any) => {
-    if (event.target.value !== cell.original.name) {
-      const updatedTopic = { ...cell.original, name: event.target.value };
-      setTopicModel(updatedTopic);
-    }
+    const updatedTopic = { ...cell.original, name: event.target.value };
+    setTopicModel(updatedTopic);
   };
 
   const handleBlur = async (cell: any) => {
@@ -45,6 +44,7 @@ export const useColumns = (
           <input
             type="text"
             title="topic Name"
+            disabled={loading}
             value={
               topicModel && topicModel.id === cell.original.id
                 ? topicModel.name
@@ -66,6 +66,8 @@ export const useColumns = (
           <Select
             name="topicType"
             options={topicTypeOptions}
+            isDisabled={loading}
+            isClearable={false}
             value={topicTypeOptions?.find(
               (o) =>
                 o.value ===
@@ -99,7 +101,11 @@ export const useColumns = (
       width: '4',
       cell: (cell) => (
         <>
-          <Button variant={ButtonVariant.danger} onClick={() => onClick(cell.original.id)}>
+          <Button
+            variant={ButtonVariant.danger}
+            onClick={() => onClick(cell.original.id)}
+            disabled={loading}
+          >
             <FaTrash className="indicator" />
           </Button>
         </>

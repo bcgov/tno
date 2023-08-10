@@ -5,10 +5,6 @@ export const TopicList = styled.div`
   display: flex;
   justify-content: center;
 
-  .rows {
-    overflow-y: hidden;
-  }
-
   .form-page {
     display: flex;
     gap: 1em;

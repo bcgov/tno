@@ -36,11 +36,12 @@ export const TopicList: React.FC = () => {
   const [loading, setLoading] = React.useState(false);
   const [topics, setTopics] = React.useState<ITopicModel[]>([]);
   const [items, setItems] = React.useState<ITopicModel[]>([]);
+  const [topicFilter, setTopicFilter] = React.useState('');
 
   const topicTypeOptions = getEnumStringOptions(TopicTypeName);
 
   React.useEffect(() => {
-    if (!items.length && !loading) {
+    if (!items.length && !loading && !topicFilter) {
       setLoading(true);
       api
         .findAllTopics()
@@ -52,20 +53,26 @@ export const TopicList: React.FC = () => {
           setLoading(false);
         });
     }
-  }, [api, items.length, loading]);
+  }, [api, items.length, loading, topicFilter]);
 
   const handleRemove = async (topicId: number) => {
     const topic = items.find((i) => i.id === topicId);
     if (!topic) return;
-    const removedTopic = await api.updateTopic({ ...topic, isEnabled: false });
-    setItems(items.filter((t) => t.id !== topic.id));
-    setTopics(topics.map((item) => (item.id === topic.id ? removedTopic : item)));
-    navigate('/admin/topics');
-    toast.success(`${topic.name} has successfully been deleted.`);
+    try {
+      setLoading(true);
+      const removedTopic = await api.updateTopic({ ...topic, isEnabled: false });
+      setItems(items.filter((t) => t.id !== topic.id));
+      setTopics(topics.map((item) => (item.id === topic.id ? removedTopic : item)));
+      navigate('/admin/topics');
+      toast.success(`${topic.name} has successfully been deleted.`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (values: ITopicModel) => {
     try {
+      setLoading(true);
       var results = [...items];
       let updatedTopics: ITopicModel[];
       const existsTopic = topics.find((x) => x.name === values.name);
@@ -109,6 +116,8 @@ export const TopicList: React.FC = () => {
       }
     } catch {
       // Ignore error as it's handled globally.
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -140,6 +149,7 @@ export const TopicList: React.FC = () => {
                     <FormikSelect
                       label="Type"
                       name="topicType"
+                      isClearable={false}
                       options={topicTypeOptions}
                       value={topicTypeOptions.find((o) => o.value === values.topicType)}
                       width={FieldSize.Medium}
@@ -158,6 +168,7 @@ export const TopicList: React.FC = () => {
             </FormikForm>
             <TopicFilter
               onFilterChange={(filter) => {
+                setTopicFilter(filter);
                 if (filter && filter.length) {
                   const value = filter.toLocaleLowerCase();
                   setItems(
@@ -180,11 +191,12 @@ export const TopicList: React.FC = () => {
             <FlexboxTable
               rowId="id"
               data={items}
-              columns={useColumns(handleRemove, handleSubmit)}
+              columns={useColumns(handleRemove, handleSubmit, loading)}
               showSort={true}
               activeRowId={id}
               onRowClick={(row) => navigate(`/admin/topics/${row.original.id}`)}
               pagingEnabled={false}
+              isLoading={loading}
             />
           </Col>
         </Col>
