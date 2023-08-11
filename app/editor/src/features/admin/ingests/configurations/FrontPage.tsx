@@ -14,6 +14,13 @@ export const FrontPage: React.FC = (props) => {
         label="Path to Files"
         name="configuration.path"
         value={values.configuration.path}
+        tooltip="Path to files can include '<date>' which will be replaced with today's date"
+      />
+      <FormikText
+        label="Path Date Format"
+        name="configuration.pathDateFormat"
+        value={values.configuration.pathDateFormat}
+        tooltip="Format the date and replace the <date> keyword in the path (i.e. yyyy/MM/dd)"
       />
       <FormikText
         label="File Name Expression"
@@ -25,10 +32,10 @@ export const FrontPage: React.FC = (props) => {
       <Row>
         <Col flex="1">
           <FormikText
-            label="Date Format"
+            label="File Name Date Format"
             name="configuration.dateFormat"
             value={values.configuration.dateFormat}
-            placeholder="ddMMyyyy"
+            tooltip="Format the date and replace the <date> keyword in the file name expression (i.e. ddd-ddMMyyyy)"
           />
         </Col>
         <Col justifyContent="center">
