@@ -19,7 +19,7 @@ spec:
           params:
           - name: "secretRef"
             value:
-              secretName: tno-webhook-services
+              secretName: tno-webhook-services-services
               secretKey: WebHookSecretKey
           - name: "eventTypes"
             value: ["push"]
@@ -55,8 +55,8 @@ spec:
           params:
           - name: "secretRef"
             value:
-              secretName: tno-webhook
-              secretKey: webhook
+              secretName: tno-webhook-services
+              secretKey: WebHookSecretKey
           - name: "eventTypes"
             value: ["push"]
         - ref:
@@ -91,8 +91,8 @@ spec:
           params:
           - name: "secretRef"
             value:
-              secretName: tno-webhook
-              secretKey: webhook
+              secretName: tno-webhook-services
+              secretKey: WebHookSecretKey
           - name: "eventTypes"
             value: ["push"]
         - ref:
@@ -127,8 +127,8 @@ spec:
           params:
           - name: "secretRef"
             value:
-              secretName: tno-webhook
-              secretKey: webhook
+              secretName: tno-webhook-services
+              secretKey: WebHookSecretKey
           - name: "eventTypes"
             value: ["push"]
         - ref:
@@ -163,8 +163,8 @@ spec:
           params:
           - name: "secretRef"
             value:
-              secretName: tno-webhook
-              secretKey: webhook
+              secretName: tno-webhook-services
+              secretKey: WebHookSecretKey
           - name: "eventTypes"
             value: ["push"]
         - ref:
@@ -199,8 +199,8 @@ spec:
           params:
           - name: "secretRef"
             value:
-              secretName: tno-webhook
-              secretKey: webhook
+              secretName: tno-webhook-services
+              secretKey: WebHookSecretKey
           - name: "eventTypes"
             value: ["push"]
         - ref:
@@ -235,8 +235,8 @@ spec:
           params:
           - name: "secretRef"
             value:
-              secretName: tno-webhook
-              secretKey: webhook
+              secretName: tno-webhook-services
+              secretKey: WebHookSecretKey
           - name: "eventTypes"
             value: ["push"]
         - ref:
@@ -271,8 +271,8 @@ spec:
           params:
           - name: "secretRef"
             value:
-              secretName: tno-webhook
-              secretKey: webhook
+              secretName: tno-webhook-services
+              secretKey: WebHookSecretKey
           - name: "eventTypes"
             value: ["push"]
         - ref:
@@ -307,8 +307,8 @@ spec:
           params:
           - name: "secretRef"
             value:
-              secretName: tno-webhook
-              secretKey: webhook
+              secretName: tno-webhook-services
+              secretKey: WebHookSecretKey
           - name: "eventTypes"
             value: ["push"]
         - ref:
@@ -343,8 +343,8 @@ spec:
           params:
           - name: "secretRef"
             value:
-              secretName: tno-webhook
-              secretKey: webhook
+              secretName: tno-webhook-services
+              secretKey: WebHookSecretKey
           - name: "eventTypes"
             value: ["push"]
         - ref:
@@ -379,8 +379,8 @@ spec:
           params:
           - name: "secretRef"
             value:
-              secretName: tno-webhook
-              secretKey: webhook
+              secretName: tno-webhook-services
+              secretKey: WebHookSecretKey
           - name: "eventTypes"
             value: ["push"]
         - ref:
