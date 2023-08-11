@@ -46,9 +46,6 @@ export const MyFolders = styled(Col)`
         background-color: #f5f6fa;
       }
     }
-    .rows {
-      cursor: pointer;
-    }
     .elips {
       &:hover {
         color: ${(props) => props.theme.css.sidebarIconHoverColor};

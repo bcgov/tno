@@ -65,6 +65,7 @@ export const MyFolders = () => {
           columns={columns(setActive, editable, handleSave, active)}
           rowId={'id'}
           data={myFolders}
+          showActive={false}
         />
         <Tooltip
           clickable
