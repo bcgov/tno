@@ -118,3 +118,33 @@ spec:
     kind: Service
     name: subscriber
     weight: 100
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: subscriber-tls
+  namespace: default
+  annotations:
+    description: Route for subscriber application.
+  labels:
+    name: subscriber-tls
+    part-of: tno
+    version: 1.0.0
+    component: subscriber
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  host: dev.mmia.gov.bc.ca
+  path: ""
+  port:
+    targetPort: 8080-tcp
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+    # caCertificate: ""
+    # certificate: ""
+    # key: ""
+  to:
+    kind: Service
+    name: subscriber
+    weight: 100

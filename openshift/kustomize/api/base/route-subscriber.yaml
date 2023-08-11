@@ -118,3 +118,33 @@ spec:
     kind: Service
     name: api-2
     weight: 100
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: api-subscriber-tls
+  namespace: default
+  annotations:
+    haproxy.router.openshift.io/rewrite-target: /
+  labels:
+    name: api-subscriber-tls
+    part-of: tno
+    version: 1.0.0
+    component: api
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  host: dev.mmia.gov.bc.ca
+  path: /api
+  port:
+    targetPort: 8080-tcp
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+    # caCertificate: ""
+    # certificate: ""
+    # key: ""
+  to:
+    kind: Service
+    name: api
+    weight: 100

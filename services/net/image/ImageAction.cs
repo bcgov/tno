@@ -1,17 +1,17 @@
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
-using System.Text.RegularExpressions;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
+using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
-using TNO.Models.Extensions;
 using TNO.Kafka.Models;
+using TNO.Models.Extensions;
 using TNO.Services.Actions;
 using TNO.Services.Image.Config;
-using TNO.Core.Exceptions;
 
 namespace TNO.Services.Image;
 
@@ -58,71 +58,93 @@ public class ImageAction : IngestAction<ImageOptions>
         this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
 
         // Extract the ingest configuration settings.
-        var inputFileName = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("fileName")) ? manager.Ingest.Source?.Code : manager.Ingest.GetConfigurationValue("fileName");
-        if (String.IsNullOrWhiteSpace(inputFileName)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' is missing a 'fileName'.");
+        var fileName = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("fileName")) ? manager.Ingest.Source?.Code : manager.Ingest.GetConfigurationValue("fileName");
+        if (String.IsNullOrWhiteSpace(fileName)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' is missing a 'fileName'.");
 
         // TODO: Handle different remote connections.
         // TODO: create new account to access server
-        // Extract the source connection configuration settings.
-        var remotePath = GetInputPath(manager.Ingest);
+        // var remotePath = GetInputPath(manager.Ingest);
+        var remotePath = manager.Ingest.SourceConnection?.GetConfigurationValue("path");
         var username = manager.Ingest.SourceConnection?.GetConfigurationValue("username");
-        var keyFileName = manager.Ingest.SourceConnection?.GetConfigurationValue("keyFileName");
+        var keyFileName = manager.Ingest.SourceConnection?.GetConfigurationValue("keyFileName") ?? "";
         var hostname = manager.Ingest.SourceConnection?.GetConfigurationValue("hostname");
+        var password = manager.Ingest.SourceConnection?.GetConfigurationValue("password");
         if (String.IsNullOrWhiteSpace(hostname)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'hostname'.");
         if (String.IsNullOrWhiteSpace(username)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'username'.");
-        if (String.IsNullOrWhiteSpace(keyFileName)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'keyFileName'.");
+        if (String.IsNullOrWhiteSpace(keyFileName) && String.IsNullOrWhiteSpace(password)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' one of 'keyFileName' or 'password' required in source connection.");
         if (String.IsNullOrWhiteSpace(remotePath)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'path'.");
 
-        var sshKeyFile = this.Options.PrivateKeysPath.CombineWith(keyFileName);
-
-        if (File.Exists(sshKeyFile))
+        // The ingest configuration may have a different path than the root connection path.
+        remotePath = remotePath.CombineWith(manager.Ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "");
+        AuthenticationMethod? authMethod;
+        if (!String.IsNullOrWhiteSpace(password))
         {
-            var keyFile = new PrivateKeyFile(sshKeyFile);
-            var keyFiles = new[] { keyFile };
-            var connectionInfo = new ConnectionInfo(hostname,
-                                                username,
-                                                new PrivateKeyAuthenticationMethod(username, keyFiles));
-            using var client = new SftpClient(connectionInfo);
-            try
+            authMethod = new PasswordAuthenticationMethod(username, password);
+        }
+        else if (!String.IsNullOrWhiteSpace(keyFileName))
+        {
+            var sshKeyFile = this.Options.PrivateKeysPath.CombineWith(keyFileName);
+            if (File.Exists(sshKeyFile))
             {
-                client.Connect();
-                remotePath = remotePath.Replace("~/", $"{client.WorkingDirectory}/");
-                var files = await FetchImagesAsync(client, remotePath);
-                files = files.Where(f => f.Name.Contains(inputFileName));
-                this.Logger.LogDebug("{count} files were discovered that match the filter '{filter}'.", files.Count(), inputFileName);
-
-                foreach (var file in files)
-                {
-                    var newReference = CreateContentReference(manager.Ingest, file.Name);
-                    var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, newReference.Uid);
-                    if (reference == null)
-                    {
-                        reference = await this.Api.AddContentReferenceAsync(newReference);
-                    }
-                    else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
-                    {
-                        // If another process has it in progress only attempt to do an import if it's
-                        // more than an 5 minutes old. Assumption is that it is stuck.
-                        reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
-                    }
-                    else continue;
-
-                    await CopyImageAsync(client, manager.Ingest, remotePath.CombineWith(file.Name));
-                    reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
-                    if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, file.Name));
-                }
+                var keyFile = new PrivateKeyFile(sshKeyFile);
+                var keyFiles = new[] { keyFile };
+                authMethod = new PrivateKeyAuthenticationMethod(username, keyFiles);
             }
-            catch
+            else
             {
-                // Any failure needs to disconnect.
-                if (client.IsConnected)
-                    client.Disconnect();
-                throw;
+                throw new ConfigurationException($"SSH Private key file does not exist: {sshKeyFile}");
             }
         }
-        else
+        else throw new ConfigurationException("Data location connection settings are missing");
+
+        var connectionInfo = new ConnectionInfo(hostname, username, authMethod);
+        using var client = new SftpClient(connectionInfo);
+        try
         {
-            throw new ConfigurationException($"SSH Private key file does not exist: {sshKeyFile}");
+            client.Connect();
+            remotePath = remotePath.Replace("~/", $"{client.WorkingDirectory}/");
+
+            var dateFormat = manager.Ingest.GetConfigurationValue("dateFormat", "ddMMyyyy");
+            var uppercaseDate = manager.Ingest.GetConfigurationValue<bool>("uppercaseDate", false);
+            var offset = manager.Ingest.GetConfigurationValue<int>("dateOffset", 0);
+            var offsetDate = DateTime.Now.AddDays(offset);
+            var date = GetDateTimeForTimeZone(manager.Ingest, offsetDate);
+            var dateValue = date.ToString(dateFormat).Replace(".-", "-");
+            var datePattern = uppercaseDate ? dateValue.ToUpperInvariant() : dateValue.ToUpperInvariant();
+            var filePattern = fileName.Replace("<date>", datePattern);
+            var match = new Regex(filePattern);
+
+            var files = await FetchImagesAsync(client, remotePath);
+            files = files.Where(f => match.Match(f.Name).Success);
+            this.Logger.LogDebug("{count} files were discovered that match the filter '{filter}'.", files.Count(), filePattern);
+
+            foreach (var file in files)
+            {
+                var newReference = CreateContentReference(manager.Ingest, file.Name);
+                var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, newReference.Uid);
+                if (reference == null)
+                {
+                    reference = await this.Api.AddContentReferenceAsync(newReference);
+                }
+                else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
+                {
+                    // If another process has it in progress only attempt to do an import if it's
+                    // more than an 5 minutes old. Assumption is that it is stuck.
+                    reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
+                }
+                else continue;
+
+                await CopyImageAsync(client, manager.Ingest, remotePath.CombineWith(file.Name));
+                reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
+                if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, file.Name));
+            }
+        }
+        catch
+        {
+            // Any failure needs to disconnect.
+            if (client.IsConnected)
+                client.Disconnect();
+            throw;
         }
     }
 

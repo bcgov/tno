@@ -130,7 +130,6 @@ public class ReportEngine : IReportEngine
         Dictionary<string, ReportSectionModel> sectionContent,
         bool updateCache = false)
     {
-        // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
         var key = $"report-{report.Id}-subject";
         var model = new TNO.TemplateEngine.Models.Reports.ReportEngineTemplateModel(sectionContent, report.Settings);
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");

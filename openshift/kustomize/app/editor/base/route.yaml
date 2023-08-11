@@ -118,3 +118,33 @@ spec:
     kind: Service
     name: editor
     weight: 100
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: editor-tls
+  namespace: default
+  annotations:
+    description: Route for editor application.
+  labels:
+    name: editor-tls
+    part-of: tno
+    version: 1.0.0
+    component: editor
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  host: dev.editor.mmia.gov.bc.ca
+  path: ""
+  port:
+    targetPort: 8080-tcp
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+    # caCertificate: ""
+    # certificate: ""
+    # key: ""
+  to:
+    kind: Service
+    name: editor
+    weight: 100
