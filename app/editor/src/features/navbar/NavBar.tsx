@@ -62,13 +62,13 @@ export const NavBar: React.FC = () => {
           <Show visible={activeHover === 'editor'}>
             <NavBarItem navigateTo="/contents" label="Content" claim={Claim.editor} level={1} />
             <NavBarItem navigateTo="/papers" label="Papers" claim={Claim.editor} level={1} />
-            <NavBarItem
+            {/* <NavBarItem
               navigateTo="/storage/locations/1"
               label="File Explorer"
               claim={Claim.editor}
               level={1}
             />
-            <NavBarItem navigateTo="/clips" label="Request Clip" claim={Claim.editor} level={1} />
+            <NavBarItem navigateTo="/clips" label="Request Clip" claim={Claim.editor} level={1} /> */}
             <NavBarItem
               navigateTo="/work/orders"
               label="Work Orders"
