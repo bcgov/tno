@@ -34,15 +34,15 @@ export const MyFolders = () => {
     }).then((data) => {
       toast.success(`${data.name} created successfully`);
       setNewFolderName('');
-      setMyFolders([...myFolders, data]);
+      setMyFolders([data]);
     });
   };
 
   const handleSave = () => {
     if (!!active) {
-      updateFolder(active).then(() => {
+      updateFolder(active).then((data) => {
         toast.success(`${active.name} updated successfully`);
-        setMyFolders([...myFolders.filter((folder) => folder.id !== active.id), active]);
+        setMyFolders([data]);
         setEditable('');
       });
     }
@@ -55,6 +55,7 @@ export const MyFolders = () => {
           name="folderName"
           className="folder-name"
           placeholder="Enter name..."
+          value={newFolderName}
           onChange={(e) => setNewFolderName(e.target.value)}
         />
         <AiOutlineFolderAdd className="folder-add" onClick={() => handleAdd()} />
@@ -73,6 +74,7 @@ export const MyFolders = () => {
           id="options"
           variant="light"
           className="options"
+          style={{ zIndex: 1000 }}
         >
           <Col className="folder-container">
             <div className="option" onClick={() => setEditable(active?.name ?? '')}>

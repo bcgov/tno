@@ -65,7 +65,7 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
         background-color: rgb(233, 236, 239);
       }
 
-      &:hover {
+      &:hover:not(.active) {
         filter: brightness(75%);
         border-radius: 0.25rem;
       }
