@@ -42,7 +42,7 @@ export const MyFolders = () => {
     if (!!active) {
       updateFolder(active).then((data) => {
         toast.success(`${active.name} updated successfully`);
-        setMyFolders([data]);
+        setMyFolders([...myFolders.filter((folder) => folder.id !== active.id), active]);
         setEditable('');
       });
     }
