@@ -19,7 +19,7 @@ spec:
           params:
           - name: "secretRef"
             value:
-              secretName: tno-webhook-services-services
+              secretName: tno-webhook-services
               secretKey: WebHookSecretKey
           - name: "eventTypes"
             value: ["push"]
