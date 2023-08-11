@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -102,15 +103,19 @@ public class ImageAction : IngestAction<ImageOptions>
         try
         {
             client.Connect();
-            remotePath = remotePath.Replace("~/", $"{client.WorkingDirectory}/");
 
-            var dateFormat = manager.Ingest.GetConfigurationValue("dateFormat", "ddMMyyyy");
-            var uppercaseDate = manager.Ingest.GetConfigurationValue<bool>("uppercaseDate", false);
             var offset = manager.Ingest.GetConfigurationValue<int>("dateOffset", 0);
             var offsetDate = DateTime.Now.AddDays(offset);
             var date = GetDateTimeForTimeZone(manager.Ingest, offsetDate);
-            var dateValue = date.ToString(dateFormat).Replace(".-", "-");
-            var datePattern = uppercaseDate ? dateValue.ToUpperInvariant() : dateValue.ToUpperInvariant();
+            var pathDateFormat = manager.Ingest.GetConfigurationValue("pathDateFormat");
+            var dateFormat = manager.Ingest.GetConfigurationValue("dateFormat", "ddMMyyyy");
+            var uppercaseDate = manager.Ingest.GetConfigurationValue<bool>("uppercaseDate", false);
+            var pathDateValue = date.ToString(pathDateFormat, CultureInfo.InvariantCulture).Replace(".-", "-"); // Remove the odd period after ddd format.
+            var fileDateValue = date.ToString(dateFormat, CultureInfo.InvariantCulture).Replace(".-", "-"); // Remove the odd period after ddd format.
+
+            remotePath = remotePath.Replace("<date>", pathDateValue).Replace("~/", $"{client.WorkingDirectory}/");
+
+            var datePattern = uppercaseDate ? fileDateValue.ToUpperInvariant() : fileDateValue.ToUpperInvariant();
             var filePattern = fileName.Replace("<date>", datePattern);
             var match = new Regex(filePattern);
 
