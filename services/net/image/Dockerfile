@@ -40,7 +40,7 @@ RUN chmod -R 0777 /data
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends procps curl libc6-dev libgdiplus
 
-# Run container by default as user with id 1001 (default)
+# Run container by default as user with id 1001 (default) (Test)
 USER 1001
 
 ENTRYPOINT dotnet TNO.Services.Image.dll
