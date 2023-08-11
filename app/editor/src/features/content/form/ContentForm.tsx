@@ -623,15 +623,13 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                                 </Show>
                               </Row>
                             </Tab>
-                            <Tab
-                              label="Clips"
-                              onClick={() => setActive('clips')}
-                              active={active === 'clips'}
-                              hasErrors={!!clipErrors && active !== 'clips'}
-                              showErrorOnSave={{ value: true, savePressed: savePressed }}
-                            />
                           </Show>
-                          <Show visible={props.values.contentType !== ContentTypeName.Image}>
+                          <Show
+                            visible={
+                              props.values.contentType !== ContentTypeName.Image &&
+                              props.values.contentType !== ContentTypeName.AudioVideo
+                            }
+                          >
                             <Tab
                               label="Labels"
                               onClick={() => setActive('labels')}
