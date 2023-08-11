@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { IReportModel, IReportPreviewModel } from 'tno-core';
+import { IReportModel, IReportResultModel } from 'tno-core';
 
 import { defaultReport } from './constants';
 
@@ -13,9 +13,9 @@ import { defaultReport } from './constants';
  */
 export interface IReportTemplateContext {
   /** Preview state. */
-  preview?: IReportPreviewModel;
+  preview?: IReportResultModel;
   /** Mutate preview state. */
-  setPreview: React.Dispatch<React.SetStateAction<IReportPreviewModel | undefined>>;
+  setPreview: React.Dispatch<React.SetStateAction<IReportResultModel | undefined>>;
   /** Formik values. */
   values: IReportModel;
   /** Formik setFieldValue function */
@@ -27,7 +27,7 @@ export interface IReportTemplateContext {
  */
 export const ReportTemplateContext = React.createContext<IReportTemplateContext>({
   preview: undefined,
-  setPreview: (value: React.SetStateAction<IReportPreviewModel | undefined>) => {},
+  setPreview: (value: React.SetStateAction<IReportResultModel | undefined>) => {},
   values: defaultReport,
   setFieldValue: (field: string, value: any, shouldValidate?: boolean | undefined) => {},
 });
@@ -45,7 +45,7 @@ export const useReportTemplateContext = () => {
  */
 export interface IReportTemplateContextProviderProps {
   /** The initial value of state. */
-  value?: IReportPreviewModel;
+  value?: IReportResultModel;
   /** Children elements to display within this context provider. */
   children?: React.ReactNode;
 }
@@ -61,7 +61,7 @@ export const ReportTemplateContextProvider: React.FC<IReportTemplateContextProvi
 }) => {
   const { values, setFieldValue } = useFormikContext<IReportModel>();
 
-  const [preview, setPreview] = React.useState<IReportPreviewModel | undefined>(value);
+  const [preview, setPreview] = React.useState<IReportResultModel | undefined>(value);
 
   return (
     <ReportTemplateContext.Provider value={{ preview, setPreview, values, setFieldValue }}>

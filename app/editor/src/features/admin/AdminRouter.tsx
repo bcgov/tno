@@ -35,6 +35,8 @@ import {
   ReportTemplateForm,
   SeriesForm,
   SeriesList,
+  SettingForm,
+  SettingList,
   SourceDetails,
   SourceForm,
   SourceList,
@@ -122,6 +124,9 @@ export const AdminRouter: React.FC = () => {
 
       <Route path="filters" element={<FilterList />} />
       <Route path="filters/:id" element={<FilterForm />} />
+
+      <Route path="settings" element={<SettingList />} />
+      <Route path="settings/:id" element={<SettingForm />} />
 
       <Route path="notifications" element={<NotificationList />} />
       <Route path="notifications/:id" element={<NotificationForm />} />

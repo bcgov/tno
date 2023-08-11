@@ -12,9 +12,11 @@ import {
   ILicenseModel,
   ILookupModel,
   IMetricModel,
+  IMinisterModel,
   IProductModel,
   IRoleModel,
   ISeriesModel,
+  ISettingModel,
   ISourceActionModel,
   ISourceModel,
   ITagModel,
@@ -22,24 +24,26 @@ import {
   ITopicModel,
   ITopicScoreRuleModel,
   IUserModel,
-  useApiActions,
-  useApiCache,
-  useApiContributors,
-  useApiDataLocations,
-  useApiIngestTypes,
-  useApiLicenses,
-  useApiLookups,
-  useApiMetrics,
-  useApiProducts,
-  useApiRoles,
-  useApiSeries,
-  useApiSourceActions,
-  useApiSources,
-  useApiTags,
-  useApiTonePools,
-  useApiTopics,
-  useApiTopicScoreRules,
-  useApiUsers,
+  useApiEditorActions,
+  useApiEditorCache,
+  useApiEditorContributors,
+  useApiEditorDataLocations,
+  useApiEditorIngestTypes,
+  useApiEditorLicenses,
+  useApiEditorLookups,
+  useApiEditorMetrics,
+  useApiEditorMinisters,
+  useApiEditorProducts,
+  useApiEditorRoles,
+  useApiEditorSeries,
+  useApiEditorSettings,
+  useApiEditorSourceActions,
+  useApiEditorSources,
+  useApiEditorTags,
+  useApiEditorTonePools,
+  useApiEditorTopics,
+  useApiEditorTopicScoreRules,
+  useApiEditorUsers,
 } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
@@ -63,30 +67,34 @@ export interface ILookupController {
   getTonePools: (refresh?: boolean) => Promise<ITonePoolModel[]>;
   getUsers: (refresh?: boolean) => Promise<IUserModel[]>;
   getDataLocations: (refresh?: boolean) => Promise<IDataLocationModel[]>;
+  getSettings: (refresh?: boolean) => Promise<ISettingModel[]>;
+  getMinisters: (refresh?: boolean) => Promise<IMinisterModel[]>;
   init: (refresh?: boolean) => Promise<void>;
 }
 
 export const useLookup = (): [ILookupState, ILookupController] => {
   const [state, store] = useLookupStore();
   const dispatch = useAjaxWrapper();
-  const cache = useApiCache();
-  const lookups = useApiLookups();
-  const actions = useApiActions();
-  const topics = useApiTopics();
-  const rules = useApiTopicScoreRules();
-  const products = useApiProducts();
-  const sources = useApiSources();
-  const licenses = useApiLicenses();
-  const ingestTypes = useApiIngestTypes();
-  const roles = useApiRoles();
-  const series = useApiSeries();
-  const contributors = useApiContributors();
-  const sourceActions = useApiSourceActions();
-  const sourceMetrics = useApiMetrics();
-  const tags = useApiTags();
-  const tonePools = useApiTonePools();
-  const users = useApiUsers();
-  const dataLocations = useApiDataLocations();
+  const cache = useApiEditorCache();
+  const lookups = useApiEditorLookups();
+  const actions = useApiEditorActions();
+  const topics = useApiEditorTopics();
+  const rules = useApiEditorTopicScoreRules();
+  const products = useApiEditorProducts();
+  const sources = useApiEditorSources();
+  const licenses = useApiEditorLicenses();
+  const ingestTypes = useApiEditorIngestTypes();
+  const roles = useApiEditorRoles();
+  const series = useApiEditorSeries();
+  const contributors = useApiEditorContributors();
+  const sourceActions = useApiEditorSourceActions();
+  const sourceMetrics = useApiEditorMetrics();
+  const tags = useApiEditorTags();
+  const tonePools = useApiEditorTonePools();
+  const users = useApiEditorUsers();
+  const dataLocations = useApiEditorDataLocations();
+  const settings = useApiEditorSettings();
+  const ministers = useApiEditorMinisters();
 
   const controller = React.useMemo(
     () => ({
@@ -118,7 +126,9 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               saveToLocalStorage('tone_pools', results.tonePools, store.storeTonePools);
               saveToLocalStorage('users', results.users, store.storeUsers);
               saveToLocalStorage('dataLocations', results.dataLocations, store.storeDataLocations);
+              saveToLocalStorage('settings', results.settings, store.storeSettings);
               saveToLocalStorage('holidays', results.holidays, store.storeHolidays);
+              saveToLocalStorage('ministers', results.ministers, store.storeMinisters);
               return results;
             } else {
               const lookups = {
@@ -138,7 +148,9 @@ export const useLookup = (): [ILookupState, ILookupController] => {
                 tonePools: getFromLocalStorage<ITonePoolModel[]>('tone_pools', []),
                 users: getFromLocalStorage<IUserModel[]>('users', []),
                 dataLocations: getFromLocalStorage<IDataLocationModel[]>('dataLocations', []),
+                settings: getFromLocalStorage<ISettingModel[]>('settings', []),
                 holidays: getFromLocalStorage<IHolidayModel[]>('holidays', []),
+                ministers: getFromLocalStorage<IMinisterModel[]>('ministers', []),
               };
               store.storeActions(lookups.actions);
               store.storeTopics(lookups.topics);
@@ -156,7 +168,9 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               store.storeTonePools(lookups.tonePools);
               store.storeUsers(lookups.users);
               store.storeDataLocations(lookups.dataLocations);
+              store.storeSettings(lookups.settings);
               store.storeHolidays(lookups.holidays);
+              store.storeMinisters(lookups.ministers);
               return lookups;
             }
           },
@@ -388,32 +402,62 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           'lookup',
         );
       },
+      getSettings: async () => {
+        return await fetchIfNoneMatch<ISettingModel[]>(
+          'settings',
+          dispatch,
+          (etag) => settings.getSettings(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeSettings(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getMinisters: async () => {
+        return await fetchIfNoneMatch<IMinisterModel[]>(
+          'ministers',
+          dispatch,
+          (etag) => ministers.getMinisters(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeMinisters(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
       init: async () => {
         // TODO: Handle failures
         await controller.getLookups();
       },
     }),
     [
-      actions,
+      dispatch,
+      store,
       cache,
+      lookups,
+      actions,
       topics,
       rules,
       products,
       sources,
-      dispatch,
       licenses,
-      lookups,
       ingestTypes,
       roles,
       series,
       contributors,
       sourceActions,
       sourceMetrics,
-      store,
       tags,
       tonePools,
       users,
       dataLocations,
+      settings,
+      ministers,
     ],
   );
 

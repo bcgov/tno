@@ -10,4 +10,9 @@ export const PaperFilter = styled.div`
       }
     }
   }
+
+  svg.action-button.btn-preview {
+    width: 3rem;
+    height: 3rem;
+  }
 `;

@@ -13,7 +13,7 @@ import {
   IContentListModel,
   IContentModel,
   IPaged,
-  useApiContents,
+  useApiEditorContents,
 } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
@@ -45,7 +45,7 @@ interface IContentController {
 export const useContent = (props?: IContentProps): [IContentState, IContentController] => {
   const [state, actions] = useContentStore(props);
   const dispatch = useAjaxWrapper();
-  const api = useApiContents();
+  const api = useApiEditorContents();
 
   const controller = React.useMemo(
     () => ({

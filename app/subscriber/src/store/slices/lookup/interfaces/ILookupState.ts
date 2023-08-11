@@ -3,15 +3,22 @@ import {
   IActionModel,
   ICacheModel,
   IContributorModel,
+  IDataLocationModel,
   IHolidayModel,
+  IIngestTypeModel,
   ILicenseModel,
+  IMetricModel,
   IProductModel,
+  IRoleModel,
   ISeriesModel,
+  ISettingModel,
   ISourceActionModel,
   ISourceModel,
   ITagModel,
   ITonePoolModel,
   ITopicModel,
+  ITopicScoreRuleModel,
+  IUserModel,
 } from 'tno-core';
 
 export interface ILookupState {
@@ -28,4 +35,11 @@ export interface ILookupState {
   tags: ITagModel[];
   tonePools: ITonePoolModel[];
   holidays: IHolidayModel[];
+  ingestTypes: IIngestTypeModel[];
+  roles: IRoleModel[];
+  metrics: IMetricModel[];
+  users: IUserModel[];
+  dataLocations: IDataLocationModel[];
+  settings: ISettingModel[];
+  rules: ITopicScoreRuleModel[];
 }

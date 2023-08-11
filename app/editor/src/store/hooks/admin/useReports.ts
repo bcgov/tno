@@ -4,7 +4,7 @@ import { IAdminState, useAdminStore } from 'store/slices';
 import {
   IReportInstanceModel,
   IReportModel,
-  IReportPreviewModel,
+  IReportResultModel,
   useApiAdminReports,
 } from 'tno-core';
 
@@ -17,7 +17,7 @@ interface IReportController {
   deleteReport: (model: IReportModel) => Promise<IReportModel>;
   sendReport: (model: IReportModel, to: string) => Promise<IReportModel>;
   publishReport: (model: IReportModel) => Promise<IReportModel>;
-  previewReport: (model: IReportModel) => Promise<IReportPreviewModel>;
+  previewReport: (model: IReportModel) => Promise<IReportResultModel>;
 }
 
 export const useReports = (): [IAdminState & { initialized: boolean }, IReportController] => {
@@ -93,7 +93,7 @@ export const useReports = (): [IAdminState & { initialized: boolean }, IReportCo
         return response.data;
       },
       previewReport: async (model: IReportModel) => {
-        const response = await dispatch<IReportPreviewModel>('preview-report', () =>
+        const response = await dispatch<IReportResultModel>('preview-report', () =>
           api.previewReport(model),
         );
         return response.data;

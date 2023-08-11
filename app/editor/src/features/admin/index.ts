@@ -14,6 +14,7 @@ export * from './products';
 export * from './report-templates';
 export * from './reports';
 export * from './series';
+export * from './settings';
 export * from './sources';
 export * from './tags';
 export * from './topic-score-rules';

@@ -5,7 +5,7 @@ import { RequestClip } from 'features/clips';
 import { ContentForm, ContentListView, Papers } from 'features/content';
 import { DemoPage } from 'features/demo';
 import { Login } from 'features/login';
-import { ReportsRouter } from 'features/reports';
+import { ReportPreview, ReportsRouter } from 'features/reports';
 import { StorageListView } from 'features/storage';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
@@ -114,6 +114,10 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
         <Route path="clips" element={<RequestClip />} />
         <Route path="work/orders" element={<WorkOrderList />} />
         <Route path="work/orders/:id" element={<WorkOrderForm />} />
+        <Route
+          path="reports/:id/preview"
+          element={<PrivateRoute claims={Claim.editor} element={<ReportPreview />}></PrivateRoute>}
+        />
         <Route
           path="reports/*"
           element={<PrivateRoute claims={Claim.administrator} element={<ReportsRouter />} />}

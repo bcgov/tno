@@ -23,6 +23,7 @@ import {
   IReportModel,
   IReportTemplateModel,
   ISeriesModel,
+  ISettingModel,
   ISourceModel,
   ISystemMessageModel,
   ITagModel,
@@ -61,4 +62,5 @@ export interface IAdminState {
   users: IPaged<IUserModel>;
   workOrderFilter: IWorkOrderListFilter;
   workOrders: IPaged<IWorkOrderModel>;
+  settings: ISettingModel[];
 }

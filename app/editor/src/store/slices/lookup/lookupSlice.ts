@@ -8,9 +8,11 @@ import {
   IIngestTypeModel,
   ILicenseModel,
   IMetricModel,
+  IMinisterModel,
   IProductModel,
   IRoleModel,
   ISeriesModel,
+  ISettingModel,
   ISourceActionModel,
   ISourceModel,
   ITagModel,
@@ -40,7 +42,9 @@ export const initialLookupState: ILookupState = {
   tonePools: [],
   users: [],
   dataLocations: [],
+  settings: [],
   holidays: [],
+  ministers: [],
 };
 
 export const lookupSlice = createSlice({
@@ -109,8 +113,14 @@ export const lookupSlice = createSlice({
     storeDataLocations(state: ILookupState, action: PayloadAction<IDataLocationModel[]>) {
       state.dataLocations = action.payload;
     },
+    storeSettings(state: ILookupState, action: PayloadAction<ISettingModel[]>) {
+      state.settings = action.payload;
+    },
     storeHolidays(state: ILookupState, action: PayloadAction<IHolidayModel[]>) {
       state.holidays = action.payload;
+    },
+    storeMinisters(state: ILookupState, action: PayloadAction<IMinisterModel[]>) {
+      state.ministers = action.payload;
     },
   },
 });
@@ -134,5 +144,7 @@ export const {
   storeTonePools,
   storeUsers,
   storeDataLocations,
+  storeSettings,
   storeHolidays,
+  storeMinisters,
 } = lookupSlice.actions;
