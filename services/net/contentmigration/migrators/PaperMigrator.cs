@@ -138,11 +138,7 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             if (index !== -1)
             {
                 // found at least one linebreak marker
-                StringBuilder newBody = new StringBuilder();
-                newBody.Append("<p>");
-                newBody = text.Replace(marker, "</p><p>");
-                newBody.Append("</p>");
-                body = newBody.ToString();
+                body = $"<p>{text.Replace(marker, "</p><p>")}</p>";
             }
             else
             {
