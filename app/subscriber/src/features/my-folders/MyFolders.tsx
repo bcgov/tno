@@ -74,7 +74,6 @@ export const MyFolders = () => {
           id="options"
           variant="light"
           className="options"
-          style={{ zIndex: 1000 }}
         >
           <Col className="folder-container">
             <div className="option" onClick={() => setEditable(active?.name ?? '')}>
