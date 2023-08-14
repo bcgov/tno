@@ -111,7 +111,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const [active, setActive] = React.useState('properties');
   const [savePressed, setSavePressed] = React.useState(false);
   const [allowPublishWithoutFile, setAllowPublishWithoutFile] = React.useState(false);
-  const [clipErrors, setClipErrors] = React.useState<string>('');
+  const [, setClipErrors] = React.useState<string>('');
   const [textDecorationStyle, setTextDecorationStyle] = React.useState('none');
   const [cursorStyle, setCursorStyle] = React.useState('text');
   const [form, setForm] = React.useState<IContentForm>({
@@ -623,15 +623,20 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                                 </Show>
                               </Row>
                             </Tab>
-                            <Tab
+                            {/* <Tab
                               label="Clips"
                               onClick={() => setActive('clips')}
                               active={active === 'clips'}
                               hasErrors={!!clipErrors && active !== 'clips'}
                               showErrorOnSave={{ value: true, savePressed: savePressed }}
-                            />
+                            /> */}
                           </Show>
-                          <Show visible={props.values.contentType !== ContentTypeName.Image}>
+                          <Show
+                            visible={
+                              props.values.contentType !== ContentTypeName.Image &&
+                              props.values.contentType !== ContentTypeName.AudioVideo
+                            }
+                          >
                             <Tab
                               label="Labels"
                               onClick={() => setActive('labels')}
