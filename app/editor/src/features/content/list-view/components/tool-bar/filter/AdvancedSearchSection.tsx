@@ -27,14 +27,11 @@ export interface IAdvancedSearchSectionProps {}
  */
 export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () => {
   const [{ sourceOptions }] = useLookupOptions();
-  const [
-    { filter: oFilter, filterAdvanced: oFilterAdvanced },
-    { storeFilter, storeFilterAdvanced },
-  ] = useContent();
+  const [{ filter: oFilter, filterAdvanced }, { storeFilter, storeFilterAdvanced }] = useContent();
 
   const [statusOptions] = React.useState(getEnumStringOptions(ContentStatusName));
   const [filter, setFilter] = React.useState(oFilter);
-  const [filterAdvanced, setFilterAdvanced] = React.useState(oFilterAdvanced);
+  const [localFilterAdvanced, setLocalFilterAdvanced] = React.useState(filterAdvanced);
 
   // keep the filter in sync with the store
   React.useEffect(() => {
@@ -43,9 +40,12 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
 
   const onChange = React.useCallback(() => {
     storeFilter({ ...filter, pageIndex: 0 });
-    storeFilterAdvanced({ ...filterAdvanced });
-    replaceQueryParams({ ...filter, pageIndex: 0, ...filterAdvanced }, { includeEmpty: false });
-  }, [filter, filterAdvanced, storeFilter, storeFilterAdvanced]);
+    storeFilterAdvanced({ ...localFilterAdvanced });
+    replaceQueryParams(
+      { ...filter, pageIndex: 0, ...localFilterAdvanced },
+      { includeEmpty: false },
+    );
+  }, [filter, localFilterAdvanced, storeFilter, storeFilterAdvanced]);
 
   return (
     <ToolBarSection
@@ -57,14 +57,18 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
             className="select"
             width={FieldSize.Medium}
             isClearable={false}
-            value={advancedSearchOptions.find((ft) => ft.value === filterAdvanced.fieldType)}
+            value={advancedSearchOptions.find((ft) => ft.value === localFilterAdvanced.fieldType)}
             onChange={(newValue) => {
               const value =
                 newValue instanceof OptionItem ? newValue.toInterface() : (newValue as IOptionItem);
-              setFilterAdvanced({ ...filterAdvanced, fieldType: value.value, searchTerm: '' });
+              setLocalFilterAdvanced({
+                ...localFilterAdvanced,
+                fieldType: value.value,
+                searchTerm: '',
+              });
             }}
           />
-          <Show visible={filterAdvanced.fieldType === advancedSearchKeys.Source}>
+          <Show visible={localFilterAdvanced.fieldType === advancedSearchKeys.Source}>
             <Select
               name="searchTerm"
               width={FieldSize.Medium}
@@ -72,24 +76,24 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
                 if (e.key === 'Enter') setFilter({ ...filter, pageIndex: 0 });
               }}
               onChange={(newValue: any) => {
-                if (!newValue) setFilterAdvanced({ ...filterAdvanced, searchTerm: '' });
+                if (!newValue) setLocalFilterAdvanced({ ...localFilterAdvanced, searchTerm: '' });
                 else {
                   const optionItem = filterEnabledOptions(sourceOptions, newValue.value).find(
                     (ds) => ds.value === newValue.value,
                   );
-                  setFilterAdvanced({
-                    ...filterAdvanced,
+                  setLocalFilterAdvanced({
+                    ...localFilterAdvanced,
                     searchTerm: optionItem?.value?.toString() ?? '',
                   });
                 }
               }}
-              options={filterEnabledOptions(sourceOptions, filterAdvanced.searchTerm)}
+              options={filterEnabledOptions(sourceOptions, localFilterAdvanced.searchTerm)}
               value={sourceOptions.find(
-                (s) => String(s.value) === String(filterAdvanced.searchTerm),
+                (s) => String(s.value) === String(localFilterAdvanced.searchTerm),
               )}
             />
           </Show>
-          <Show visible={filterAdvanced.fieldType === advancedSearchKeys.Status}>
+          <Show visible={localFilterAdvanced.fieldType === advancedSearchKeys.Status}>
             <Select
               name="searchTerm"
               width={FieldSize.Medium}
@@ -97,39 +101,39 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
                 if (e.key === 'Enter') setFilter({ ...filter, pageIndex: 0 });
               }}
               onChange={(newValue: any) => {
-                if (!newValue) setFilterAdvanced({ ...filterAdvanced, searchTerm: '' });
+                if (!newValue) setLocalFilterAdvanced({ ...localFilterAdvanced, searchTerm: '' });
                 else {
                   const optionItem = statusOptions.find((ds) => ds.value === newValue.value);
-                  setFilterAdvanced({
-                    ...filterAdvanced,
+                  setLocalFilterAdvanced({
+                    ...localFilterAdvanced,
                     searchTerm: optionItem?.value?.toString() ?? '',
                   });
                 }
               }}
               options={statusOptions}
               value={statusOptions.find(
-                (s) => String(s.value) === String(filterAdvanced.searchTerm),
+                (s) => String(s.value) === String(localFilterAdvanced.searchTerm),
               )}
             />
           </Show>
           <Show
             visible={
               ![advancedSearchKeys.Source, advancedSearchKeys.Status].includes(
-                filterAdvanced.fieldType,
+                localFilterAdvanced.fieldType,
               )
             }
           >
             <Text
               name="searchTerm"
               width={FieldSize.Small}
-              value={filterAdvanced.searchTerm}
+              value={localFilterAdvanced.searchTerm}
               onKeyUpCapture={(e) => {
                 if (e.key === 'Enter') {
                   onChange();
                 }
               }}
               onChange={(e) => {
-                setFilterAdvanced({ ...filterAdvanced, searchTerm: e.target.value });
+                setLocalFilterAdvanced({ ...localFilterAdvanced, searchTerm: e.target.value });
               }}
             />
           </Show>
