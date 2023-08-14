@@ -54,7 +54,7 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             GetContentHash(source.Code, newsItemTitle, publishedOn),
             newsItemTitle,
             newsItem.Summary! ?? string.Empty,
-            newsItem.Text ?? (newsItem.Summary! ?? string.Empty), // KGM - This *should* work in TEST/PROD - CLOB tables are not part of a db export
+            GetNewsItemBody(newsItem.Text, newsItem.Summary),
             publishedOn,
             newsItem.Published)
         {
@@ -70,7 +70,8 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         var auditUser = lookups.Users.FirstOrDefault(u => u.Username == this.Options.DefaultUserNameForAudit);
         if (auditUser == null) throw new System.Configuration.ConfigurationErrorsException($"Default User for ContentMigration not found : {this.Options.DefaultUserNameForAudit}");
 
-        if (newsItem.Tones?.Any() == true) {
+        if (newsItem.Tones?.Any() == true)
+        {
             // TODO: replace the USER_RSN value on UserIdentifier with something that can be mapped by the Content Service to an MMIA user
             // TODO: remove UserRSN filter once user can be mapped
             content.TonePools = newsItem.Tones.Where(t => t.UserRSN == 0)
@@ -78,26 +79,30 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         }
 
         // Extract authors from a "delimited" string.  Don't use the source name as an author.
-        if (!string.IsNullOrEmpty(newsItem.string5) || !string.IsNullOrEmpty(newsItem.string6)) {
+        if (!string.IsNullOrEmpty(newsItem.string5) || !string.IsNullOrEmpty(newsItem.string6))
+        {
             var authors = new List<string>();
             if (!string.IsNullOrEmpty(newsItem.string5)) authors.AddRange(ExtractAuthors(newsItem.string5, newsItem.Source));
             if (!string.IsNullOrEmpty(newsItem.string6)) authors.AddRange(ExtractAuthors(newsItem.string6, newsItem.Source));
             content.Authors = authors.Distinct().Select(a => new Author(a));
         }
 
-        if (newsItem.UpdatedOn != null) {
+        if (newsItem.UpdatedOn != null)
+        {
             content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ? newsItem.UpdatedOn.Value.ToUniversalTime() : null;
         }
 
-        if (!string.IsNullOrEmpty(newsItem.EodGroup) && !string.IsNullOrEmpty(newsItem.EodCategory)) {
-            content.Topics = new[] { new Kafka.Models.Topic {Name = newsItem.EodCategory, TopicType = (TopicType)Enum.Parse(typeof(TopicType), newsItem.EodGroup)}};
+        if (!string.IsNullOrEmpty(newsItem.EodGroup) && !string.IsNullOrEmpty(newsItem.EodCategory))
+        {
+            content.Topics = new[] { new Kafka.Models.Topic { Name = newsItem.EodCategory, TopicType = (TopicType)Enum.Parse(typeof(TopicType), newsItem.EodGroup) } };
         }
 
         // Tags are in the Summary as they are added by an Editor
-        if (!string.IsNullOrEmpty(newsItem.Summary)) {
+        if (!string.IsNullOrEmpty(newsItem.Summary))
+        {
             // if Tags are found, let the ContentManagement service decide if they are new or not
             content.Tags = ExtractTags(newsItem.Summary)
-                .Select(c => new TNO.Kafka.Models.Tag(c.ToUpperInvariant(),""));
+                .Select(c => new TNO.Kafka.Models.Tag(c.ToUpperInvariant(), ""));
         }
 
         // map relevant news item properties to actions
@@ -105,7 +110,8 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             newsItem.Commentary, newsItem.CommentaryTimeout);
 
         // the total "Effort" is stored in the Number2 field as seconds
-        if (newsItem.Number2.HasValue && newsItem.Number2 > 0) {
+        if (newsItem.Number2.HasValue && newsItem.Number2 > 0)
+        {
             content.TimeTrackings = new[] { new Kafka.Models.TimeTrackingModel {
                 Activity = this.Options.DefaultTimeTrackingActivity,
                 Effort = (float)Math.Round(Convert.ToDecimal(newsItem.Number2) / 60, 2),
@@ -113,6 +119,42 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         }
 
         return content;
+    }
+
+    /// <summary>
+    /// fix the replace of paragraph markers with "|"
+    /// </summary>
+    /// <param name="text"></param>
+    /// <param name="summary"></param>
+    /// <returns>formatted body string</returns>
+    private string GetNewsItemBody(string text, string summary)
+    {
+        string body = string.Empty;
+
+        if (!string.IsNullOrEmpty(text))
+        {
+            string const marker = '|';
+            int index = text.IndexOf(marker);
+            if (index !== -1)
+            {
+                // found at least one linebreak marker
+                StringBuilder newBody = new StringBuilder();
+                newBody.Append("<p>");
+                newBody = text.Replace(marker, "</p><p>");
+                newBody.Append("</p>");
+                body = newBody.ToString();
+            }
+            else
+            {
+                // no line breaks apparently
+                body = text;
+            }
+        }
+        else if (!string.IsNullOrEmpty(summary))
+        {
+            body = summary;
+        }
+        return body;
     }
 
     /// <summary>
