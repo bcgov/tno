@@ -133,9 +133,9 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
 
         if (!string.IsNullOrEmpty(text))
         {
-            string const marker = '|';
+            const string marker = "|";
             int index = text.IndexOf(marker);
-            if (index !== -1)
+            if (index != -1)
             {
                 // found at least one linebreak marker
                 body = $"<p>{text.Replace(marker, "</p><p>")}</p>";
