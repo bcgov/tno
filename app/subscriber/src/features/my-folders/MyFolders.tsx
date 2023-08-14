@@ -34,15 +34,15 @@ export const MyFolders = () => {
     }).then((data) => {
       toast.success(`${data.name} created successfully`);
       setNewFolderName('');
-      setMyFolders([data]);
+      setMyFolders([...myFolders, data]);
     });
   };
 
   const handleSave = () => {
     if (!!active) {
       updateFolder(active).then((data) => {
-        toast.success(`${active.name} updated successfully`);
-        setMyFolders([...myFolders.filter((folder) => folder.id !== active.id), active]);
+        toast.success(`${data.name} updated successfully`);
+        setMyFolders([...myFolders.filter((folder) => folder.id !== data.id), data]);
         setEditable('');
       });
     }
