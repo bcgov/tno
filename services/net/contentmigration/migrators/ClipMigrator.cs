@@ -49,7 +49,7 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
 
         // KGM: Would be nice to do this, but I don't think we could map a clip back to a schedule so there may be duplicates here
         // var referenceUid = $"{schedule.Name}:{schedule.Id}-{publishedOn:yyyy-MM-dd-hh-mm-ss}";
-        var publishedOn = this.GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone).ToUniversalTime();
+        var publishedOn = this.GetSourceDateTimeInUtc(newsItem.GetPublishedDateTime(), defaultTimeZone);
 
         var content = new SourceContent(
             this.Options.DataLocation,
@@ -78,7 +78,7 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
 
         if (newsItem.UpdatedOn != null)
         {
-            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ?  this.GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone).ToUniversalTime() : null;
+            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ? this.GetSourceDateTimeInUtc(newsItem.UpdatedOn.Value, defaultTimeZone) : null;
         }
 
         if (newsItem.Tones?.Any() == true)

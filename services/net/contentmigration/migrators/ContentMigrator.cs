@@ -120,7 +120,7 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
         {
             Source = source.Code,
             Uid = uid,
-            PublishedOn = this.GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone).ToUniversalTime(),
+            PublishedOn = this.GetSourceDateTimeInUtc(newsItem.GetPublishedDateTime(), defaultTimeZone),
             Topic = topic,
             Status = (int)WorkflowStatus.InProgress
         };
@@ -333,9 +333,10 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <param name="date"></param>
     /// <param name="timeZoneId"></param>
     /// <returns></returns>
-    internal virtual DateTime GetSourceDateTime(DateTime date, string timeZoneId)
+    internal virtual DateTime GetSourceDateTimeInUtc(DateTime date, string timeZoneId)
     {
-        return date.ToTimeZone(timeZoneId);
+        TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+        return TimeZoneInfo.ConvertTimeToUtc(date, tz);
     }
 
     #endregion

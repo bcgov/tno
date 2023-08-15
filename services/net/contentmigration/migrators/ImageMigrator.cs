@@ -43,7 +43,7 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     public override SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string defaultTimeZone)
     {
         // var authors = GetAuthors(lookups.Contributors)
-        var publishedOn = this.GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone).ToUniversalTime();
+        var publishedOn = this.GetSourceDateTimeInUtc(newsItem.GetPublishedDateTime(), defaultTimeZone);
 
         var newsItemTitle = newsItem.Title != null ? WebUtility.HtmlDecode(newsItem.Title) : string.Empty;
 
@@ -67,7 +67,7 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         };
 
         if (newsItem.UpdatedOn != null) {
-            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ?  this.GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone).ToUniversalTime() : null;
+            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ? this.GetSourceDateTimeInUtc(newsItem.UpdatedOn.Value, defaultTimeZone) : null;
         }
 
         // Tags are in the Summary as they are added by an Editor

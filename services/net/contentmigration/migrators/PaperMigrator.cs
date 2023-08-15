@@ -44,7 +44,7 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     public override SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string defaultTimeZone)
     {
         // var authors = GetAuthors(lookups.Contributors)
-        var publishedOn = this.GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone).ToUniversalTime();
+        var publishedOn = this.GetSourceDateTimeInUtc(newsItem.GetPublishedDateTime(), defaultTimeZone);
 
         var newsItemTitle = newsItem.GetTitle();
 
@@ -91,7 +91,7 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
 
         if (newsItem.UpdatedOn != null)
         {
-            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ?  this.GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone).ToUniversalTime() : null;
+            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ? this.GetSourceDateTimeInUtc(newsItem.UpdatedOn.Value, defaultTimeZone) : null;
         }
 
         if (!string.IsNullOrEmpty(newsItem.EodGroup) && !string.IsNullOrEmpty(newsItem.EodCategory))
