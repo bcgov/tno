@@ -23,19 +23,21 @@ export const MyFolders = () => {
   }, [findMyFolders]);
 
   const handleAdd = () => {
-    addFolder({
-      name: newFolderName,
-      description: '',
-      settings: {},
-      isEnabled: true,
-      sortOrder: 0,
-      id: 0,
-      content: [],
-    }).then((data) => {
-      toast.success(`${data.name} created successfully`);
-      setNewFolderName('');
-      setMyFolders([...myFolders, data]);
-    });
+    if (newFolderName)
+      addFolder({
+        name: newFolderName,
+        description: '',
+        settings: {},
+        isEnabled: true,
+        sortOrder: 0,
+        id: 0,
+        content: [],
+      }).then((data) => {
+        toast.success(`${data.name} created successfully`);
+        setNewFolderName('');
+        setMyFolders([...myFolders, data]);
+      });
+    else toast.warning(`Folder name is required.`);
   };
 
   const handleSave = () => {
