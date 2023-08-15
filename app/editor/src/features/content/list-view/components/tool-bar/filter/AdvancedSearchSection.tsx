@@ -49,7 +49,8 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
       endDate: oFilterAdvanced.endDate,
     });
     replaceQueryParams({ ...filter, pageIndex: 0, ...filterAdvanced }, { includeEmpty: false });
-  }, [filter, oFilterAdvanced, filterAdvanced, storeFilter, storeFilterAdvanced]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter, filterAdvanced, storeFilter, storeFilterAdvanced]);
 
   return (
     <ToolBarSection
