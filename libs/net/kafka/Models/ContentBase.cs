@@ -89,6 +89,11 @@ public abstract class ContentBase
     public string Page { get; set; } = "";
 
     /// <summary>
+    /// get/set - The series or show name for clip content.
+    /// </summary>
+    public string Series { get; set; } = "";
+
+    /// <summary>
     /// get/set - A URL to a stream for this content.
     /// TODO: Change to a Uri type.
     /// </summary>
