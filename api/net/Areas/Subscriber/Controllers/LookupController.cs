@@ -8,11 +8,10 @@ using TNO.API.Areas.Subscriber.Models.Lookup;
 using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
-using TNO.DAL.Services;
 using TNO.CSS;
 using TNO.CSS.Config;
+using TNO.DAL.Services;
 using TNO.Keycloak;
-using TNO.Core.Http;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
 
@@ -34,7 +33,6 @@ public class LookupController : ControllerBase
 {
     #region Variables
     private readonly JsonSerializerOptions _serializerOptions;
-    private readonly IHttpRequestClient _httpClient;
     private readonly IActionService _actionService;
     private readonly ITopicService _topicService;
     private readonly IProductService _productService;
@@ -53,7 +51,6 @@ public class LookupController : ControllerBase
     /// <summary>
     /// Creates a new instance of a LookupController object, initializes with specified parameters.
     /// </summary>
-    /// <param name="httpClient"></param>
     /// <param name="actionService"></param>
     /// <param name="topicService"></param>
     /// <param name="productService"></param>
@@ -68,7 +65,6 @@ public class LookupController : ControllerBase
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
     public LookupController(
-        IHttpRequestClient httpClient,
         IActionService actionService,
         ITopicService topicService,
         IMinisterService ministerService,
@@ -83,7 +79,6 @@ public class LookupController : ControllerBase
         IOptions<JsonSerializerOptions> serializerOptions,
         ILogger<LookupController> logger)
     {
-        _httpClient = httpClient;
         _actionService = actionService;
         _topicService = topicService;
         _ministerService = ministerService;

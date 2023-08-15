@@ -17,6 +17,7 @@ export * from './useApiAdminReportInstances';
 export * from './useApiAdminReports';
 export * from './useApiAdminReportTemplates';
 export * from './useApiAdminSeries';
+export * from './useApiAdminSettings';
 export * from './useApiAdminSources';
 export * from './useApiAdminSystemMessages';
 export * from './useApiAdminTags';

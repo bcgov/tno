@@ -5,7 +5,7 @@ import {
   IPaged,
   IWorkOrderFilter,
   IWorkOrderModel,
-  useApiWorkOrders,
+  useApiEditorWorkOrders,
 } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
@@ -19,7 +19,7 @@ interface IWorkOrderController {
 
 export const useWorkOrders = (): [any, IWorkOrderController] => {
   const dispatch = useAjaxWrapper();
-  const api = useApiWorkOrders();
+  const api = useApiEditorWorkOrders();
 
   const controller = React.useMemo(
     () => ({

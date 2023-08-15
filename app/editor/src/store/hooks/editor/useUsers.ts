@@ -1,13 +1,13 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
-import { IUserModel, useApiUsers } from 'tno-core';
+import { IUserModel, useApiEditorUsers } from 'tno-core';
 
 interface IUserController {
   getUser: (id: number) => Promise<IUserModel>;
 }
 
 export const useUsers = (): IUserController => {
-  const api = useApiUsers();
+  const api = useApiEditorUsers();
   const dispatch = useAjaxWrapper();
 
   const controller = React.useMemo(

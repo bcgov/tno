@@ -25,6 +25,7 @@ import {
   IReportModel,
   IReportTemplateModel,
   ISeriesModel,
+  ISettingModel,
   ISourceModel,
   ISystemMessageModel,
   ITagModel,
@@ -54,6 +55,7 @@ import {
   storeAdminReports,
   storeAdminReportTemplates,
   storeAdminSeries,
+  storeAdminSettings,
   storeAdminSources,
   storeAdminSystemMessages,
   storeAdminTags,
@@ -119,6 +121,7 @@ export interface IAdminStore {
   storeWorkOrders: (
     workOrders: IPaged<IWorkOrderModel> | ActionDelegate<IPaged<IWorkOrderModel>>,
   ) => void;
+  storeSettings: (settings: ISettingModel[] | ActionDelegate<ISettingModel[]>) => void;
 }
 
 export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] => {
@@ -301,6 +304,11 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminWorkOrders(workOrders(state.workOrders)));
         } else dispatch(storeAdminWorkOrders(workOrders));
       },
+      storeSettings: (settings: ISettingModel[] | ActionDelegate<ISettingModel[]>) => {
+        if (typeof settings === 'function') {
+          dispatch(storeAdminSettings(settings(state.settings)));
+        } else dispatch(storeAdminSettings(settings));
+      },
     }),
     [
       dispatch,
@@ -332,6 +340,7 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       state.users,
       state.workOrderFilter,
       state.workOrders,
+      state.settings,
     ],
   );
 

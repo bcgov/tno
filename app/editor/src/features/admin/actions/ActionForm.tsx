@@ -173,7 +173,7 @@ export const ActionForm: React.FC = () => {
                 try {
                   await api.deleteAction(action);
                   toast.success(`${action.name} has successfully been deleted.`);
-                  navigate('/admin/programs');
+                  navigate('/admin/actions');
                 } finally {
                   toggle();
                 }

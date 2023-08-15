@@ -5,7 +5,7 @@ import {
 import React from 'react';
 import { useContentStore } from 'store/slices';
 import { IContentProps, IContentState } from 'store/slices/content';
-import { IContentFilter, IContentModel, IPaged, useSubscriberApiContents } from 'tno-core';
+import { IContentFilter, IContentModel, IPaged, useApiSubscriberContents } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
 
@@ -22,7 +22,7 @@ interface IContentController {
 export const useContent = (props?: IContentProps): [IContentState, IContentController] => {
   const [state, actions] = useContentStore(props);
   const dispatch = useAjaxWrapper();
-  const api = useSubscriberApiContents();
+  const api = useApiSubscriberContents();
 
   const controller = React.useMemo(
     () => ({
