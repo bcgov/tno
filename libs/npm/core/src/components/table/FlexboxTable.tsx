@@ -10,6 +10,7 @@ export const FlexboxTable = <T extends object>({
   columns,
   data,
   isLoading,
+  showActive = true,
   ...rest
 }: ITableProps<T>) => {
   const table = useTable({
@@ -130,7 +131,7 @@ export const FlexboxTable = <T extends object>({
                       return (
                         <div
                           className={`row${row.isSelected ? ' selected' : ''}${
-                            row.isActive ? ' active' : ''
+                            showActive && row.isActive ? ' active' : ''
                           }`}
                           key={`${row.original[row.rowId]}`}
                           onClick={(e) => {
@@ -171,7 +172,7 @@ export const FlexboxTable = <T extends object>({
             return (
               <div
                 className={`row${row.isSelected ? ' selected' : ''}${
-                  row.isActive ? ' active' : ''
+                  showActive && row.isActive ? ' active' : ''
                 }`}
                 key={`${row.original[row.rowId]}`}
                 onClick={(e) => {
