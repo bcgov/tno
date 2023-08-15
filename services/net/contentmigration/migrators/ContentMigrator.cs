@@ -16,6 +16,7 @@ using TNO.Services.ContentMigration.Config;
 using TNO.Services.ContentMigration.Sources.Oracle;
 using TNO.Services.ContentMigration.Models;
 using TNO.Services.ContentMigration.Extensions;
+using TNO.Core.Extensions;
 
 namespace TNO.Services.ContentMigration.Migrators;
 
@@ -96,8 +97,9 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <param name="product"></param>
     /// <param name="contentType"></param>
     /// <param name="newsItem"></param>
+    /// <param name="defaultTimeZone"></param>
     /// <returns></returns>
-    public virtual SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem) => throw new NotImplementedException();
+    public virtual SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string defaultTimeZone) => throw new NotImplementedException();
 
     #endregion
 
@@ -110,14 +112,15 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <param name="topic"></param>
     /// <param name="newsItem"></param>
     /// <param name="uid"></param>
+    /// <param name="defaultTimeZone"></param>
     /// <returns></returns>
-    public ContentReferenceModel CreateContentReference(SourceModel source, string topic, NewsItem newsItem, string uid)
+    public ContentReferenceModel CreateContentReference(SourceModel source, string topic, NewsItem newsItem, string uid, string defaultTimeZone)
     {
         return new ContentReferenceModel()
         {
             Source = source.Code,
             Uid = uid,
-            PublishedOn = newsItem.GetPublishedDateTime().ToUniversalTime(),
+            PublishedOn = this.GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone).ToUniversalTime(),
             Topic = topic,
             Status = (int)WorkflowStatus.InProgress
         };
@@ -322,6 +325,17 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
         var inputBytes = Encoding.UTF8.GetBytes($"{source}:{headline}:{publishedOn:yyyy-MM-dd-hh-mm-ss}");
         var inputHash = SHA256.HashData(inputBytes);
         return Convert.ToHexString(inputHash);
+    }
+
+    /// <summary>
+    /// Get the date and time for the source timezone.
+    /// </summary>
+    /// <param name="date"></param>
+    /// <param name="timeZoneId"></param>
+    /// <returns></returns>
+    internal virtual DateTime GetSourceDateTime(DateTime date, string timeZoneId)
+    {
+        return date.ToTimeZone(timeZoneId);
     }
 
     #endregion

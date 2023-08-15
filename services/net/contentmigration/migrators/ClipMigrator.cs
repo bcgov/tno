@@ -41,14 +41,15 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
     /// <param name="product"></param>
     /// <param name="contentType"></param>
     /// <param name="newsItem"></param>
+    /// <param name="defaultTimeZone"></param>
     /// <returns></returns>
-    public override SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem)
+    public override SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string defaultTimeZone)
     {
         // var authors = GetAuthors(lookups.Contributors)
 
         // KGM: Would be nice to do this, but I don't think we could map a clip back to a schedule so there may be duplicates here
         // var referenceUid = $"{schedule.Name}:{schedule.Id}-{publishedOn:yyyy-MM-dd-hh-mm-ss}";
-        var publishedOn = newsItem.GetPublishedDateTime().ToUniversalTime();
+        var publishedOn = this.GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone).ToUniversalTime();
 
         var content = new SourceContent(
             this.Options.DataLocation,
@@ -77,7 +78,7 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
 
         if (newsItem.UpdatedOn != null)
         {
-            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ? newsItem.UpdatedOn.Value.ToUniversalTime() : null;
+            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ?  this.GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone).ToUniversalTime() : null;
         }
 
         if (newsItem.Tones?.Any() == true)
