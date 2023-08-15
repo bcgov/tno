@@ -9,4 +9,6 @@ public interface IBaseService
     IServiceProvider Services { get; }
 
     int CommitTransaction();
+
+    void ClearChangeTracker();
 }

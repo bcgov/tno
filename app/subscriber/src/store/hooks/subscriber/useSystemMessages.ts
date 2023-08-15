@@ -1,16 +1,16 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { ISystemMessageModel, useApiSystemMessages } from 'tno-core';
+import { IProfileState, useProfileStore } from 'store/slices';
+import { ISystemMessageModel, useApiSubscriberSystemMessages } from 'tno-core';
 
 interface ISystemMessageController {
   findSystemMessage: () => Promise<ISystemMessageModel>;
 }
 
-export const useSystemMessages = (): [IAdminState, ISystemMessageController] => {
-  const api = useApiSystemMessages();
+export const useSystemMessages = (): [IProfileState, ISystemMessageController] => {
+  const api = useApiSubscriberSystemMessages();
   const dispatch = useAjaxWrapper();
-  const [state, store] = useAdminStore();
+  const [state, store] = useProfileStore();
 
   const controller = React.useMemo(
     () => ({

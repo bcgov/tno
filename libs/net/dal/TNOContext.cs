@@ -1,13 +1,13 @@
-using Microsoft.EntityFrameworkCore;
-using TNO.DAL.Configuration;
-using TNO.Entities;
-using TNO.Core.Extensions;
-using Microsoft.AspNetCore.Http;
-using System.Text.Json;
-using Microsoft.Extensions.Options;
-using TNO.DAL.Extensions;
-using Microsoft.Extensions.Logging;
 using System.Text;
+using System.Text.Json;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using TNO.Core.Extensions;
+using TNO.DAL.Configuration;
+using TNO.DAL.Extensions;
+using TNO.Entities;
 
 namespace TNO.DAL;
 
@@ -30,6 +30,7 @@ public class TNOContext : DbContext
     public DbSet<EarnedMedia> EarnedMedias => Set<EarnedMedia>();
     public DbSet<Minister> Ministers => Set<Minister>();
     public DbSet<WorkOrder> WorkOrders => Set<WorkOrder>();
+    public DbSet<Setting> Settings => Set<Setting>();
     #endregion
 
     #region Ingest

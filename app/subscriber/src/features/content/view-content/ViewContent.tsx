@@ -151,7 +151,7 @@ export const ViewContent: React.FC = () => {
         }
       });
       findWorkOrders({ contentId: id }).then((res) => {
-        setWorkOrders(res.data.items);
+        setWorkOrders(res.items);
       });
     },
     [getContent, findWorkOrders],

@@ -3823,6 +3823,88 @@ namespace TNO.DAL.Migrations
                     b.ToTable("series");
                 });
 
+            modelBuilder.Entity("TNO.Entities.Setting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("value")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_setting_is_enabled");
+
+                    b.HasIndex(new[] { "Name" }, "IX_setting_name")
+                        .IsUnique();
+
+                    b.ToTable("setting");
+                });
+
             modelBuilder.Entity("TNO.Entities.Source", b =>
                 {
                     b.Property<int>("Id")
@@ -3940,14 +4022,13 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex(new[] { "Code" }, "IX_code")
+                    b.HasIndex(new[] { "Code" }, "IX_source_code")
                         .IsUnique();
 
-                    b.HasIndex(new[] { "Name" }, "IX_name")
-                        .IsUnique()
-                        .HasDatabaseName("IX_name8");
-
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_source_is_enabled");
+
+                    b.HasIndex(new[] { "Name" }, "IX_source_name")
+                        .IsUnique();
 
                     b.ToTable("source");
                 });
@@ -4149,15 +4230,13 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Code" }, "IX_code")
-                        .IsUnique()
-                        .HasDatabaseName("IX_code1");
-
-                    b.HasIndex(new[] { "Name" }, "IX_name")
-                        .IsUnique()
-                        .HasDatabaseName("IX_name9");
+                    b.HasIndex(new[] { "Code" }, "IX_tag_code")
+                        .IsUnique();
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_tag_is_enabled");
+
+                    b.HasIndex(new[] { "Name" }, "IX_tag_name")
+                        .IsUnique();
 
                     b.ToTable("tag");
                 });
@@ -4303,9 +4382,8 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "OwnerId", "Name" }, "IX_name")
-                        .IsUnique()
-                        .HasDatabaseName("IX_name10");
+                    b.HasIndex(new[] { "OwnerId", "Name" }, "IX_tone_pool_name")
+                        .IsUnique();
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_tonepool_is_enabled");
 
@@ -4382,11 +4460,10 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Name" }, "IX_name")
-                        .IsUnique()
-                        .HasDatabaseName("IX_name11");
-
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_topic_is_enabled");
+
+                    b.HasIndex(new[] { "Name" }, "IX_topic_name")
+                        .IsUnique();
 
                     b.ToTable("topic");
                 });

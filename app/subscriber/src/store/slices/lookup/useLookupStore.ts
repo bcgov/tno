@@ -5,31 +5,44 @@ import {
   IActionModel,
   ICacheModel,
   IContributorModel,
+  IDataLocationModel,
   IHolidayModel,
+  IIngestTypeModel,
   ILicenseModel,
+  IMetricModel,
   IProductModel,
+  IRoleModel,
   ISeriesModel,
+  ISettingModel,
   ISourceActionModel,
   ISourceModel,
   ITagModel,
   ITonePoolModel,
   ITopicModel,
+  ITopicScoreRuleModel,
+  IUserModel,
 } from 'tno-core';
 
 import {
   storeActions,
   storeCache,
   storeContributors,
+  storeDataLocations,
   storeHolidays,
+  storeIngestTypes,
   storeLicenses,
+  storeMetrics,
   storeMinisters,
   storeProducts,
+  storeRoles,
   storeSeries,
+  storeSettings,
   storeSourceActions,
   storeSources,
   storeTags,
   storeTonePools,
   storeTopics,
+  storeUsers,
   updateCache,
 } from '.';
 import { ILookupState } from './interfaces';
@@ -49,6 +62,13 @@ export interface ILookupStore {
   storeTonePools: (contentTypes: ITonePoolModel[]) => void;
   storeHolidays: (users: IHolidayModel[]) => void;
   storeMinisters: (ministers: IMinisterModel[]) => void;
+  storeTopicScoreRules: (topicScores: ITopicScoreRuleModel[]) => void;
+  storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => void;
+  storeRoles: (roles: IRoleModel[]) => void;
+  storeMetrics: (metrics: IMetricModel[]) => void;
+  storeUsers: (users: IUserModel[]) => void;
+  storeDataLocations: (dataLocations: IDataLocationModel[]) => void;
+  storeSettings: (settings: ISettingModel[]) => void;
 }
 
 export const useLookupStore = (): [ILookupState, ILookupStore] => {
@@ -69,8 +89,8 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       storeTopics: (topics: ITopicModel[]) => {
         dispatch(storeTopics(topics));
       },
-      storeMinisters: (ministers: IMinisterModel[]) => {
-        dispatch(storeMinisters(ministers));
+      storeTopicScoreRules: (rules: ITopicScoreRuleModel[]) => {
+        dispatch(storeTopicScoreRules(rules));
       },
       storeProducts: (contentTypes: IProductModel[]) => {
         dispatch(storeProducts(contentTypes));
@@ -81,6 +101,12 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       storeLicenses: (licenses: ILicenseModel[]) => {
         dispatch(storeLicenses(licenses));
       },
+      storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => {
+        dispatch(storeIngestTypes(ingestTypes));
+      },
+      storeRoles: (roles: IRoleModel[]) => {
+        dispatch(storeRoles(roles));
+      },
       storeSeries: (series: ISeriesModel[]) => {
         dispatch(storeSeries(series));
       },
@@ -90,14 +116,29 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       storeSourceActions: (actions: ISourceActionModel[]) => {
         dispatch(storeSourceActions(actions));
       },
+      storeMetrics: (metrics: IMetricModel[]) => {
+        dispatch(storeMetrics(metrics));
+      },
       storeTags: (tags: ITagModel[]) => {
         dispatch(storeTags(tags));
       },
       storeTonePools: (tonePools: ITonePoolModel[]) => {
         dispatch(storeTonePools(tonePools));
       },
+      storeUsers: (users: IUserModel[]) => {
+        dispatch(storeUsers(users));
+      },
+      storeDataLocations: (dataLocations: IDataLocationModel[]) => {
+        dispatch(storeDataLocations(dataLocations));
+      },
+      storeSettings: (settings: ISettingModel[]) => {
+        dispatch(storeSettings(settings));
+      },
       storeHolidays: (holidays: IHolidayModel[]) => {
         dispatch(storeHolidays(holidays));
+      },
+      storeMinisters: (ministers: IMinisterModel[]) => {
+        dispatch(storeMinisters(ministers));
       },
     }),
     [dispatch],
@@ -105,3 +146,6 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
 
   return [state, controller];
 };
+function storeTopicScoreRules(rules: ITopicScoreRuleModel[]): any {
+  throw new Error('Function not implemented.');
+}

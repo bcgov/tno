@@ -70,7 +70,10 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
         var auditUser = lookups.Users.FirstOrDefault(u => u.Username == this.Options.DefaultUserNameForAudit);
         if (auditUser == null) throw new System.Configuration.ConfigurationErrorsException($"Default User for ContentMigration not found : {this.Options.DefaultUserNameForAudit}");
 
-        // newsItem.string5 & newsItem.string5 seem to be the "Show/Program"
+        // newsItem.string5 and newsItem.string5 both seem to be the "Show/Program"
+        if (newsItem.string5 != null) {
+            content.Series = newsItem.string5;
+        }
 
         if (newsItem.UpdatedOn != null)
         {
@@ -82,7 +85,7 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
             // TODO: replace the USER_RSN value on UserIdentifier with something that can be mapped by the Content Service to an MMIA user
             // TODO: remove UserRSN filter once user can be mapped
             content.TonePools = newsItem.Tones.Where(t => t.UserRSN == 0)
-                .Select(t => new Kafka.Models.TonePool { Value = (int)t.ToneValue, UserIdentifier = t.UserRSN.ToString() });
+                .Select(t => new Kafka.Models.TonePool { Value = (int)t.ToneValue, UserIdentifier = (t.UserRSN == 0 ? null : t.UserRSN.ToString()) });
         }
 
         if (!string.IsNullOrEmpty(newsItem.EodGroup) && !string.IsNullOrEmpty(newsItem.EodCategory))

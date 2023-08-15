@@ -1,11 +1,11 @@
 import { loadingBarReducer } from 'react-redux-loading-bar';
 
-import { adminSlice, appSlice, contentSlice, lookupSlice } from './slices';
+import { appSlice, contentSlice, lookupSlice, profileSlice } from './slices';
 
 export const reducer = {
   loadingBar: loadingBarReducer,
   [appSlice.name]: appSlice.reducer,
-  [adminSlice.name]: adminSlice.reducer,
+  [profileSlice.name]: profileSlice.reducer,
   [contentSlice.name]: contentSlice.reducer,
   [lookupSlice.name]: lookupSlice.reducer,
 };

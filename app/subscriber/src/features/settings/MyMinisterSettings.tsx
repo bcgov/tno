@@ -24,7 +24,7 @@ export const MyMinisterSettings: React.FC = () => {
         preferences: { ...userInfo?.preferences, myMinisters: values },
       } as IUserModel;
       await api.updateUser(user, userInfo?.id ?? 0);
-      toast.success(`Your minister(s) have succesfully been updated.`);
+      toast.success(`Your minister(s) have successfully been updated.`);
       store.storeUserInfo(user as IUserInfoModel);
     } catch {}
   };
@@ -76,6 +76,7 @@ export const MyMinisterSettings: React.FC = () => {
           return (
             <div className="chk-container" key={o.id}>
               <Checkbox
+                name={`minister-${o.id}`}
                 label={`${o.name} : `}
                 checked={myMinisters.includes(o.id)}
                 onChange={(e) => {

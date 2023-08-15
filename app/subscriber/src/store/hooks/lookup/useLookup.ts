@@ -3,65 +3,45 @@ import { ILookupState, useLookupStore } from 'store/slices';
 import {
   getFromLocalStorage,
   IActionModel,
-  ICacheModel,
+  IContributorModel,
+  IDataLocationModel,
+  IHolidayModel,
+  IIngestTypeModel,
   ILicenseModel,
+  ILookupModel,
+  IMetricModel,
   IProductModel,
+  IRoleModel,
   ISeriesModel,
+  ISettingModel,
   ISourceActionModel,
   ISourceModel,
   ITagModel,
   ITonePoolModel,
   ITopicModel,
-  useApiActions,
-  useApiCache,
-  useApiLicenses,
-  useApiProducts,
-  useApiSeries,
-  useApiSourceActions,
-  useApiSources,
-  useApiTags,
-  useApiTonePools,
-  useApiTopics,
+  ITopicScoreRuleModel,
+  IUserModel,
+  useApiSubscriberCache,
+  useApiSubscriberMinisters,
 } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
-import { useApiMinisters } from '../subscriber/api/useApiMinisters';
 import { IMinisterModel } from '../subscriber/interfaces/IMinisterModel';
-import { ILookupModel } from './ILookupModel';
 import { useApiLookups } from './useApiLookups';
 import { fetchIfNoneMatch, saveToLocalStorage } from './utils';
 
 export interface ILookupController {
-  getCache: () => Promise<ICacheModel[]>;
   getLookups: () => Promise<ILookupModel>;
-  getActions: (refresh?: boolean) => Promise<IActionModel[]>;
-  getSourceActions: (refresh?: boolean) => Promise<ISourceActionModel[]>;
-  getTopics: (refresh?: boolean) => Promise<ITopicModel[]>;
-  getProducts: (refresh?: boolean) => Promise<IProductModel[]>;
-  getLicenses: (refresh?: boolean) => Promise<ILicenseModel[]>;
-  getSources: (refresh?: boolean) => Promise<ISourceModel[]>;
-  getSeries: (refresh?: boolean) => Promise<ISeriesModel[]>;
   getMinisters: (refresh?: boolean) => Promise<IMinisterModel[]>;
-  getTags: (refresh?: boolean) => Promise<ITagModel[]>;
-  getTonePools: (refresh?: boolean) => Promise<ITonePoolModel[]>;
   init: (refresh?: boolean) => Promise<void>;
 }
 
 export const useLookup = (): [ILookupState, ILookupController] => {
   const [state, store] = useLookupStore();
   const dispatch = useAjaxWrapper();
-  const cache = useApiCache();
+  const cache = useApiSubscriberCache();
   const lookups = useApiLookups();
-  const actions = useApiActions();
-  const topics = useApiTopics();
-  const products = useApiProducts();
-  const sources = useApiSources();
-  const licenses = useApiLicenses();
-  const ministers = useApiMinisters();
-  const series = useApiSeries();
-  const sourceActions = useApiSourceActions();
-  const tags = useApiTags();
-  const tonePools = useApiTonePools();
+  const ministers = useApiSubscriberMinisters();
 
   const controller = React.useMemo(
     () => ({
@@ -88,7 +68,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               saveToLocalStorage('tone_pools', results.tonePools, store.storeTonePools);
               return results;
             } else {
-              const lookups = {
+              const lookups: ILookupModel = {
                 actions: getFromLocalStorage<IActionModel[]>('actions', []),
                 topics: getFromLocalStorage<ITopicModel[]>('topics', []),
                 products: getFromLocalStorage<IProductModel[]>('products', []),
@@ -98,104 +78,40 @@ export const useLookup = (): [ILookupState, ILookupController] => {
                 ministers: getFromLocalStorage<IMinisterModel[]>('ministers', []),
                 tags: getFromLocalStorage<ITagModel[]>('tags', []),
                 tonePools: getFromLocalStorage<ITonePoolModel[]>('tone_pools', []),
+                rules: getFromLocalStorage<ITopicScoreRuleModel[]>('rules', []),
+                ingestTypes: getFromLocalStorage<IIngestTypeModel[]>('ingest_types', []),
+                roles: getFromLocalStorage<IRoleModel[]>('roles', []),
+                contributors: getFromLocalStorage<IContributorModel[]>('contributors', []),
+                sourceActions: getFromLocalStorage<ISourceActionModel[]>('source_actions', []),
+                metrics: getFromLocalStorage<IMetricModel[]>('metrics', []),
+                users: getFromLocalStorage<IUserModel[]>('users', []),
+                dataLocations: getFromLocalStorage<IDataLocationModel[]>('data_locations', []),
+                settings: getFromLocalStorage<ISettingModel[]>('settings', []),
+                holidays: getFromLocalStorage<IHolidayModel[]>('holidays', []),
               };
               store.storeActions(lookups.actions);
               store.storeTopics(lookups.topics);
+              store.storeTopicScoreRules(lookups.rules);
               store.storeProducts(lookups.products);
               store.storeSources(lookups.sources);
               store.storeLicenses(lookups.licenses);
               store.storeSeries(lookups.series);
+              store.storeMinisters(lookups.ministers);
               store.storeTags(lookups.tags);
               store.storeTonePools(lookups.tonePools);
-              store.storeMinisters(lookups.ministers);
+              store.storeIngestTypes(lookups.ingestTypes);
+              store.storeRoles(lookups.roles);
+              store.storeContributors(lookups.contributors);
+              store.storeSourceActions(lookups.sourceActions);
+              store.storeMetrics(lookups.metrics);
+              store.storeUsers(lookups.users);
+              store.storeDataLocations(lookups.dataLocations);
+              store.storeSettings(lookups.settings);
+              store.storeHolidays(lookups.holidays);
               return lookups;
             }
           },
           false,
-          'lookup',
-        );
-      },
-      getActions: async () => {
-        return await fetchIfNoneMatch<IActionModel[]>(
-          'actions',
-          dispatch,
-          (etag) => actions.getActions(etag),
-          (results) => {
-            const values = results ?? [];
-            store.storeActions(values);
-            return values;
-          },
-          true,
-          'lookup',
-        );
-      },
-      getTopics: async () => {
-        return await fetchIfNoneMatch<ITopicModel[]>(
-          'topics',
-          dispatch,
-          (etag) => topics.getTopics(etag),
-          (results) => {
-            const values = results ?? [];
-            store.storeTopics(values);
-            return values;
-          },
-          true,
-          'lookup',
-        );
-      },
-      getProducts: async () => {
-        return await fetchIfNoneMatch<IProductModel[]>(
-          'products',
-          dispatch,
-          (etag) => products.getProducts(etag),
-          (results) => {
-            const values = results ?? [];
-            store.storeProducts(values);
-            return values;
-          },
-          true,
-          'lookup',
-        );
-      },
-      getSources: async () => {
-        return await fetchIfNoneMatch<ISourceModel[]>(
-          'sources',
-          dispatch,
-          (etag) => sources.getSources(etag),
-          (results) => {
-            const values = results ?? [];
-            store.storeSources(values);
-            return values;
-          },
-          true,
-          'lookup',
-        );
-      },
-      getLicenses: async () => {
-        return await fetchIfNoneMatch<ILicenseModel[]>(
-          'licenses',
-          dispatch,
-          (etag) => licenses.getLicenses(etag),
-          (results) => {
-            const values = results ?? [];
-            store.storeLicenses(values);
-            return values;
-          },
-          true,
-          'lookup',
-        );
-      },
-      getSeries: async () => {
-        return await fetchIfNoneMatch<ISeriesModel[]>(
-          'series',
-          dispatch,
-          (etag) => series.getSeries(etag),
-          (results) => {
-            const values = results ?? [];
-            store.storeSeries(values);
-            return values;
-          },
-          true,
           'lookup',
         );
       },
@@ -213,69 +129,12 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           'lookup',
         );
       },
-      getSourceActions: async () => {
-        return await fetchIfNoneMatch<ISourceActionModel[]>(
-          'source_actions',
-          dispatch,
-          (etag) => sourceActions.getActions(etag),
-          (results) => {
-            const values = results ?? [];
-            store.storeSourceActions(values);
-            return values;
-          },
-          true,
-          'lookup',
-        );
-      },
-      getTags: async () => {
-        return await fetchIfNoneMatch<ITagModel[]>(
-          'tags',
-          dispatch,
-          (etag) => tags.getTags(etag),
-          (results) => {
-            const values = results ?? [];
-            store.storeTags(values);
-            return values;
-          },
-          true,
-          'lookup',
-        );
-      },
-      getTonePools: async () => {
-        return await fetchIfNoneMatch<ITonePoolModel[]>(
-          'tone_pools',
-          dispatch,
-          (etag) => tonePools.getTonePools(etag),
-          (results) => {
-            const values = results ?? [];
-            store.storeTonePools(values);
-            return values;
-          },
-          true,
-          'lookup',
-        );
-      },
       init: async () => {
         // TODO: Handle failures
         await controller.getLookups();
       },
     }),
-    [
-      actions,
-      cache,
-      topics,
-      products,
-      sources,
-      dispatch,
-      licenses,
-      lookups,
-      series,
-      sourceActions,
-      store,
-      tags,
-      tonePools,
-      ministers,
-    ],
+    [cache, dispatch, lookups, ministers, store],
   );
 
   return [state, controller];
