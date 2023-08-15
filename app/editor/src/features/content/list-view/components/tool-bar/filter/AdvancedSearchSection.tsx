@@ -65,11 +65,7 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
             onChange={(newValue) => {
               const value =
                 newValue instanceof OptionItem ? newValue.toInterface() : (newValue as IOptionItem);
-              setFilterAdvanced({
-                ...filterAdvanced,
-                fieldType: value.value,
-                searchTerm: '',
-              });
+              setFilterAdvanced({ ...filterAdvanced, fieldType: value.value, searchTerm: '' });
             }}
           />
           <Show visible={filterAdvanced.fieldType === advancedSearchKeys.Source}>
