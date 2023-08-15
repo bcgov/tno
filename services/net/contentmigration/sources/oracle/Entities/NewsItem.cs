@@ -19,7 +19,7 @@ public class NewsItem
     /// get/set.
     /// </summary>
     [Column("ITEM_DATE")]
-    public DateTime? ItemDateTime { get; set; }
+    public DateTime? ItemDate { get; set; }
 
     /// <summary>
     /// get/set.

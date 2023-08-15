@@ -4,9 +4,9 @@ using TNO.Services.ContentMigration.Sources.Oracle;
 namespace TNO.Services.ContentMigration.Extensions;
 
 /// <summary>
-/// DictionaryExtensions static class, provides extension methods for dictionary objects.
+/// NewsItemExtensions static class, provides extension methods for dictionary objects.
 /// </summary>
-public static class DictionaryExtensions
+public static class NewsItemExtensions
 {
     /// <summary>
     /// Extract the Published Date and Time
@@ -15,11 +15,11 @@ public static class DictionaryExtensions
     /// <returns></returns>
     public static DateTime GetPublishedDateTime(this NewsItem newsItem)
     {
-        var amalgamatedPublishedDateTime = newsItem.ItemDateTime ?? DateTime.Now;
-        if (newsItem.ItemDateTime != null)
+        var amalgamatedPublishedDateTime = newsItem.ItemDate ?? DateTime.Now;
+        if (newsItem.ItemTime != null)
         {
             amalgamatedPublishedDateTime = new DateTime(amalgamatedPublishedDateTime.Year, amalgamatedPublishedDateTime.Month, amalgamatedPublishedDateTime.Day,
-                newsItem.ItemDateTime.Value.Hour, newsItem.ItemDateTime.Value.Minute, newsItem.ItemDateTime.Value.Second);
+                newsItem.ItemTime.Value.Hour, newsItem.ItemTime.Value.Minute, newsItem.ItemTime.Value.Second);
         }
 
         return amalgamatedPublishedDateTime;

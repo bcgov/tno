@@ -237,6 +237,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             IEnumerable<API.Areas.Editor.Models.Tag.TagModel>? tags = lookups?.Tags;
             IEnumerable<API.Areas.Editor.Models.TonePool.TonePoolModel>? tonePools = lookups?.TonePools;
             IEnumerable<API.Areas.Editor.Models.Topic.TopicModel>? topics = lookups?.Topics;
+            IEnumerable<API.Areas.Editor.Models.Series.SeriesModel>? series = lookups?.Series;
 
             if (model.ProductId == 0)
             {
@@ -279,6 +280,20 @@ public class ContentManager : ServiceManager<ContentOptions>
             if (model.Labels.Any())
             {
                 content.Labels = model.Labels.Select(c => new ContentLabelModel(c.Key, c.Value));
+            }
+
+            if (!string.IsNullOrEmpty(model.Series))
+            {
+                var targetSeries = GetSeriesModel(series!, model.Series);
+                if (targetSeries == null)
+                {
+                    content.OtherSeries = model.Series;
+                }
+                else
+                {
+                    content.Series = targetSeries;
+                    content.SeriesId = targetSeries.Id;
+                }
             }
 
             if (model.Tags.Any())
@@ -600,6 +615,24 @@ public class ContentManager : ServiceManager<ContentOptions>
             tagModel.Name = this.Options.MigrationOptions.DefaultTagName ?? string.Empty;
         }
         return tagModel;
+    }
+
+    private TNO.API.Areas.Services.Models.Content.SeriesModel? GetSeriesModel(IEnumerable<API.Areas.Editor.Models.Series.SeriesModel> seriesLookup, string seriesName)
+    {
+        var targetSeries = seriesLookup.FirstOrDefault(s => s.Name == seriesName);
+
+        if (targetSeries == null) return null;
+
+        return new TNO.API.Areas.Services.Models.Content.SeriesModel()
+        {
+            Id = targetSeries.Id,
+            Description = targetSeries.Description,
+            IsEnabled = targetSeries.IsEnabled,
+            Name = targetSeries.Name,
+            SortOrder = targetSeries.SortOrder,
+            UseInTopics = targetSeries.UseInTopics,
+            SourceId = targetSeries.SourceId
+        };
     }
 
     private static IEnumerable<ContentActionModel> GetActionMappings(IEnumerable<API.Areas.Editor.Models.Action.ActionModel> actionsLookup,
