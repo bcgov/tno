@@ -43,8 +43,13 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
 
   const onChange = React.useCallback(() => {
     storeFilter({ ...filter, pageIndex: 0 });
-    storeFilterAdvanced({ ...filterAdvanced });
+    storeFilterAdvanced({
+      ...filterAdvanced,
+      startDate: oFilterAdvanced.startDate,
+      endDate: oFilterAdvanced.endDate,
+    });
     replaceQueryParams({ ...filter, pageIndex: 0, ...filterAdvanced }, { includeEmpty: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, filterAdvanced, storeFilter, storeFilterAdvanced]);
 
   return (
