@@ -29,6 +29,11 @@ public class UserReportModel : AuditColumnsModel
     /// This overrides the report Resend rule.
     /// </summary>
     public ResendOption? Resend { get; set; }
+
+    /// <summary>
+    /// get/set - Whether the user is subscribed to the av evening overview report.
+    /// </summary>
+    public bool IsSubscribed { get; set; }
     #endregion
 
     #region Constructors
@@ -46,6 +51,7 @@ public class UserReportModel : AuditColumnsModel
         this.UserId = entity.UserId;
         this.User = entity.User != null ? new UserModel(entity.User) : null;
         this.ReportId = entity.ReportId;
+        this.IsSubscribed = entity.IsSubscribed;
     }
     #endregion
 
@@ -58,6 +64,7 @@ public class UserReportModel : AuditColumnsModel
     {
         return new Entities.UserReport(model.UserId, model.ReportId)
         {
+            IsSubscribed = model.IsSubscribed,
             Version = model.Version ?? 0
         };
     }

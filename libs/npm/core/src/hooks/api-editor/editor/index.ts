@@ -1,5 +1,6 @@
 export * from './useApiEditorActions';
 export * from './useApiEditorAnonSystemMessages';
+export * from './useApiEditorAVOverviews';
 export * from './useApiEditorCache';
 export * from './useApiEditorContents';
 export * from './useApiEditorContributors';

@@ -1,19 +1,27 @@
-using System.Text.Json;
 using TNO.API.Models;
-using TNO.Entities;
 
-namespace TNO.API.Areas.Editor.Models.AvOverview;
+namespace TNO.API.Areas.Editor.Models.AVOverview;
 
 /// <summary>
 /// ReportModel class, provides a model that represents an report.
 /// </summary>
-public class AVOverviewSectionModel : BaseTypeWithAuditColumnsModel<int>
+public class AVOverviewSectionModel : AuditColumnsModel
 {
     #region Properties
     /// <summary>
-    /// get/set - The template reference.
+    /// get/set - Primary key.
     /// </summary>
-    public int AVOverviewTemplateId { get; set; }
+    public int Id { get; set; }
+
+    /// <summary>
+    /// get/set - A unique name to identify this section.
+    /// </summary>
+    public string Name { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Foreign key to the instance.
+    /// </summary>
+    public int InstanceId { get; set; }
 
     /// <summary>
     /// get/set - The source reference.
@@ -38,12 +46,17 @@ public class AVOverviewSectionModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get/set - The start time for the template section
     /// </summary>
-    public string? StartTime { get; set; }
+    public string StartTime { get; set; } = "";
 
-    // <summary>
-    // get/set - The foreign key for the AVOverviewInstance
-    // </summary>
-    public int AVOverviewInstanceId { get; set; }
+    /// <summary>
+    /// get/set - The sorting order.
+    /// </summary>
+    public int SortOrder { get; set; }
+
+    /// <summary>
+    /// get/set - An array of items.
+    /// </summary>
+    public IEnumerable<AVOverviewSectionItemModel> Items { get; set; } = Array.Empty<AVOverviewSectionItemModel>();
     #endregion
 
     #region Constructors
@@ -57,49 +70,56 @@ public class AVOverviewSectionModel : BaseTypeWithAuditColumnsModel<int>
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="options"></param>
-    public AVOverviewSectionModel(Entities.AVOverviewSection entity, JsonSerializerOptions options) : base(entity)
+    public AVOverviewSectionModel(Entities.AVOverviewSection entity) : base(entity)
     {
-        this.AVOverviewTemplateId = entity.AVOverviewTemplateId;
+        this.Id = entity.Id;
+        this.Name = entity.Name;
+        this.InstanceId = entity.InstanceId;
         this.SourceId = entity.SourceId;
         this.OtherSource = entity.OtherSource;
         this.SeriesId = entity.SeriesId;
         this.Anchors = entity.Anchors;
         this.StartTime = entity.StartTime;
-        this.AVOverviewInstanceId = entity.AVOverviewInstanceId;
-        
+        this.SortOrder = entity.SortOrder;
+        this.Items = entity.Items.OrderBy(s => s.SortOrder).Select(i => new AVOverviewSectionItemModel(i)).ToArray();
+    }
+
+    /// <summary>
+    /// Creates a new instance of an AVOverviewSectionModel , initializes with specified parameter.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="options"></param>
+    public AVOverviewSectionModel(Entities.AVOverviewTemplateSection entity) : base(entity)
+    {
+        this.Name = entity.Name;
+        this.SourceId = entity.SourceId;
+        this.OtherSource = entity.OtherSource;
+        this.SeriesId = entity.SeriesId;
+        this.Anchors = entity.Anchors;
+        this.StartTime = entity.StartTime;
+        this.SortOrder = entity.SortOrder;
+        this.Items = entity.Items.OrderBy(s => s.SortOrder).Select(i => new AVOverviewSectionItemModel(i)).ToArray();
     }
     #endregion
 
     #region Methods
-    /// <summary>
-    /// Creates a new instance of a AVOverviewSectionModel object.
-    /// </summary>
-    /// <returns></returns>
-    public Entities.AVOverviewSection ToEntity(JsonSerializerOptions options)
-    {
-        var entity = (Entities.AVOverviewSection)this;
-        return entity;
-    }
-
     /// <summary>
     /// Explicit conversion to entity.
     /// </summary>
     /// <param name="model"></param>
     public static explicit operator Entities.AVOverviewSection(AVOverviewSectionModel model)
     {
-        var entity = new Entities.AVOverviewSection(model.Name)
+        var entity = new Entities.AVOverviewSection(model.Name, model.InstanceId, model.OtherSource, model.StartTime)
         {
             Id = model.Id,
-            Description = model.Description,
-            IsEnabled = model.IsEnabled,
-            SeriesId = model.SeriesId,
-            OtherSource = model.OtherSource,
-            Anchors = model.Anchors,
             SourceId = model.SourceId,
+            SeriesId = model.SeriesId,
+            Anchors = model.Anchors,
             SortOrder = model.SortOrder,
             Version = model.Version ?? 0
         };
 
+        entity.Items.AddRange(model.Items.OrderBy(s => s.SortOrder).Select(i => (Entities.AVOverviewSectionItem)i));
 
         return entity;
     }

@@ -44,7 +44,7 @@ public class UserNotificationModel : AuditColumnsModel
     public UserNotificationModel(Entities.UserNotification entity) : base(entity)
     {
         this.UserId = entity.UserId;
-        this.User = entity.User != null ? new UserModel(entity.User) : null;
+        this.User = entity.User != null ? new UserModel(entity.User, entity.IsSubscribed) : null;
         this.NotificationId = entity.NotificationId;
         this.Resend = entity.Resend;
     }

@@ -20,7 +20,9 @@ export const MyFolders = () => {
     findMyFolders().then((data) => {
       setMyFolders(data);
     });
-  }, [findMyFolders]);
+    // Only do this on init.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleAdd = () => {
     if (newFolderName)

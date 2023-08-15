@@ -12,7 +12,6 @@ using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
-using TNO.Entities.Models;
 using TNO.Keycloak;
 using TNO.TemplateEngine.Models.Reports;
 

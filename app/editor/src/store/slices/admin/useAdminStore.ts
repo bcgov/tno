@@ -1,7 +1,3 @@
-import {
-  IEveningOverviewItem,
-  IEveningOverviewSection,
-} from 'features/admin/evening-overview/interfaces';
 import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import React from 'react';
@@ -41,8 +37,6 @@ import {
   storeAdminConnections,
   storeAdminContributors,
   storeAdminDataLocations,
-  storeAdminEveningOverviewItems,
-  storeAdminEveningOverviewSections,
   storeAdminFilters,
   storeAdminFolders,
   storeAdminIngests,
@@ -79,12 +73,6 @@ export interface IAdminStore {
   storeContributors: (series: IContributorModel[] | ActionDelegate<IContributorModel[]>) => void;
   storeDataLocations: (
     dataLocations: IDataLocationModel[] | ActionDelegate<IDataLocationModel[]>,
-  ) => void;
-  storeEveningOverviewItems: (
-    items: IEveningOverviewItem[] | ActionDelegate<IEveningOverviewItem[]>,
-  ) => void;
-  storeEveningOverviewSections: (
-    sections: IEveningOverviewSection[] | ActionDelegate<IEveningOverviewSection[]>,
   ) => void;
   storeFolders: (folders: IFolderModel[] | ActionDelegate<IFolderModel[]>) => void;
   storeFilters: (filters: IFilterModel[] | ActionDelegate<IFilterModel[]>) => void;
@@ -160,30 +148,6 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
         if (typeof dataLocations === 'function') {
           dispatch(storeAdminDataLocations(dataLocations(state.dataLocations)));
         } else dispatch(storeAdminDataLocations(dataLocations));
-      },
-      storeEveningOverviewSections: (
-        eveningOverviewSections:
-          | IEveningOverviewSection[]
-          | ActionDelegate<IEveningOverviewSection[]>,
-      ) => {
-        if (typeof eveningOverviewSections === 'function') {
-          dispatch(
-            storeAdminEveningOverviewSections(
-              eveningOverviewSections(eveningOverviewSections(state.eveningOverviewSections)),
-            ),
-          );
-        } else dispatch(storeAdminEveningOverviewSections(eveningOverviewSections));
-      },
-      storeEveningOverviewItems: (
-        eveningOverviewItems: IEveningOverviewItem[] | ActionDelegate<IEveningOverviewItem[]>,
-      ) => {
-        if (typeof eveningOverviewItems === 'function') {
-          dispatch(
-            storeAdminEveningOverviewItems(
-              eveningOverviewItems(eveningOverviewItems(state.eveningOverviewItems)),
-            ),
-          );
-        } else dispatch(storeAdminEveningOverviewItems(eveningOverviewItems));
       },
       storeFilters: (filters: IFilterModel[] | ActionDelegate<IFilterModel[]>) => {
         if (typeof filters === 'function') {
@@ -317,8 +281,6 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       state.connections,
       state.contributors,
       state.dataLocations,
-      state.eveningOverviewItems,
-      state.eveningOverviewSections,
       state.folders,
       state.filters,
       state.ingests,

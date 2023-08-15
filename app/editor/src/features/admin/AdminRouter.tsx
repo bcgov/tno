@@ -49,7 +49,7 @@ import {
   WorkOrderForm,
   WorkOrderList,
 } from '.';
-import { EveningOverview } from './evening-overview';
+import { AVOverview } from './av-overviews';
 import { SystemMessageForm } from './system-message/SystemMessageForm';
 
 export const AdminRouter: React.FC = () => {
@@ -131,7 +131,7 @@ export const AdminRouter: React.FC = () => {
       <Route path="notifications" element={<NotificationList />} />
       <Route path="notifications/:id" element={<NotificationForm />} />
 
-      <Route path="evening-overview" element={<EveningOverview />} />
+      <Route path="av/overviews" element={<AVOverview />} />
     </Routes>
   );
 };

@@ -31,7 +31,10 @@ public interface IReportEngine
     /// <param name="sectionContent"></param>
     /// <param name="updateCache"></param>
     /// <returns></returns>
-    Task<string> GenerateReportSubjectAsync(API.Areas.Services.Models.Report.ReportModel report, Dictionary<string, ReportSectionModel> sectionContent, bool updateCache = false);
+    Task<string> GenerateReportSubjectAsync(
+        API.Areas.Services.Models.Report.ReportModel report,
+        Dictionary<string, ReportSectionModel> sectionContent,
+        bool updateCache = false);
 
     /// <summary>
     /// Generate the output of the report with the Razor engine.
@@ -41,5 +44,35 @@ public interface IReportEngine
     /// <param name="uploadPath"></param>
     /// <param name="updateCache"></param>
     /// <returns></returns>
-    Task<string> GenerateReportBodyAsync(API.Areas.Services.Models.Report.ReportModel report, Dictionary<string, ReportSectionModel> sectionContent, string? uploadPath = null, bool updateCache = false);
+    Task<string> GenerateReportBodyAsync(
+        API.Areas.Services.Models.Report.ReportModel report,
+        Dictionary<string, ReportSectionModel> sectionContent,
+        string? uploadPath = null,
+        bool updateCache = false);
+
+    /// <summary>
+    /// Generate the output of the report with the Razor engine.
+    /// </summary>
+    /// <param name="reportTemplate"></param>
+    /// <param name="eveningOverview"></param>
+    /// <param name="updateCache"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    Task<string> GenerateReportSubjectAsync(
+        API.Areas.Services.Models.AVOverview.ReportTemplateModel reportTemplate,
+        AVOverviewInstanceModel eveningOverview,
+        bool updateCache = false);
+
+    /// <summary>
+    /// Generate the output of the report with the Razor engine.
+    /// </summary>
+    /// <param name="reportTemplate"></param>
+    /// <param name="eveningOverview"></param>
+    /// <param name="updateCache"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    Task<string> GenerateReportBodyAsync(
+        API.Areas.Services.Models.AVOverview.ReportTemplateModel reportTemplate,
+        AVOverviewInstanceModel eveningOverview,
+        bool updateCache = false);
 }

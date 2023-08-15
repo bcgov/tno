@@ -17,9 +17,9 @@ public class ReportResultModel
     public string Body { get; set; } = "";
 
     /// <summary>
-    /// get/set - Dictionary containing Elasticsearch results for each section.
+    /// get/set - JSON data that was used to generate the report.
     /// </summary>
-    public object? Results { get; set; }
+    public object? Data { get; set; }
     #endregion
 
     #region Constructors
@@ -33,12 +33,12 @@ public class ReportResultModel
     /// </summary>
     /// <param name="subject"></param>
     /// <param name="body"></param>
-    /// <param name="results"></param>
-    public ReportResultModel(string subject, string body, object? results = null)
+    /// <param name="data"></param>
+    public ReportResultModel(string subject, string body, object? data = null)
     {
         this.Subject = subject;
         this.Body = body;
-        this.Results = results;
+        this.Data = data;
     }
     #endregion
 }

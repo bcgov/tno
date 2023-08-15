@@ -191,7 +191,7 @@ public class ReportController : ControllerBase
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
 
-        var request = new ReportRequestModel(ReportDestination.ReportingService, report.Id, new { })
+        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, report.Id, new { })
         {
             RequestorId = user.Id,
             To = to,
@@ -220,7 +220,7 @@ public class ReportController : ControllerBase
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
 
-        var request = new ReportRequestModel(ReportDestination.ReportingService, report.Id, new { })
+        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, report.Id, new { })
         {
             RequestorId = user.Id
         };

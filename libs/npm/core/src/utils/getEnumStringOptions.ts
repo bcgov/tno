@@ -7,9 +7,13 @@ import { IOptionItem, OptionItem } from '../components';
  * @returns An array of OptionItem.
  */
 export const getEnumStringOptions = (
-  enumerable: { [s: number]: string },
+  enumerable: { [s: number]: string | number },
   prepend: IOptionItem[] = [],
 ) => {
   const items = Object.values(enumerable);
-  return prepend.concat([...items].map((i) => new OptionItem(i.replace(/([A-Z])/g, ' $1'), i)));
+  return prepend.concat(
+    [...items].map(
+      (i) => new OptionItem(typeof i === 'string' ? i.replace(/([A-Z])/g, ' $1') : i.toString(), i),
+    ),
+  );
 };

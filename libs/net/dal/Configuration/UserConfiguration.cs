@@ -25,7 +25,6 @@ public class UserConfiguration : AuditColumnsConfiguration<User>
         builder.Property(m => m.Code).IsRequired().HasMaxLength(10).HasDefaultValueSql("''");
         builder.Property(m => m.Preferences).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
 
-
         builder.HasIndex(m => m.Username, "IX_username").IsUnique();
         builder.HasIndex(m => m.Key, "IX_key").IsUnique();
         builder.HasIndex(m => m.Email, "IX_email");

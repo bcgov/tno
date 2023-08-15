@@ -1,25 +1,27 @@
-using System.Text.Json;
 using TNO.API.Models;
-using TNO.Entities;
 
-namespace TNO.API.Areas.Editor.Models.AvOverview;
+namespace TNO.API.Areas.Editor.Models.AVOverview;
 
 /// <summary>
-/// AVOverviewSectionitem class, provides a model that represents an overview item.
+/// AVOverviewSectionItemModel class, provides a model that represents an overview item.
 /// </summary>
-public class AVOverviewSectionItemModel : BaseTypeWithAuditColumnsModel<int>
+public class AVOverviewSectionItemModel : AuditColumnsModel
 {
     #region Properties
-    
+    /// <summary>
+    /// get/set - Primary key.
+    /// </summary>
+    public int Id { get; set; }
+
     /// <summary>
     /// get/set - The section reference.
     /// </summary>
-    public int AVOverviewSectionId { get; set; }
+    public int SectionId { get; set; }
 
     /// <summary>
-    /// get/set - The item type.    
+    /// get/set - The item type.
     /// </summary>
-    public AVOverviewItemType ItemType { get; set; }
+    public Entities.AVOverviewItemType ItemType { get; set; }
 
     /// <summary>
     /// get/set - The item time.
@@ -36,9 +38,13 @@ public class AVOverviewSectionItemModel : BaseTypeWithAuditColumnsModel<int>
     /// </summary>
     public long? ContentId { get; set; }
 
+    /// <summary>
+    /// get/set - The sorting order.
+    /// </summary>
+    public int SortOrder { get; set; }
     #endregion
 
-     #region Constructors
+    #region Constructors
     /// <summary>
     /// Creates a new instance of an AVOverviewSectionItemModel.
     /// </summary>
@@ -48,58 +54,44 @@ public class AVOverviewSectionItemModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of an AVOverviewSectionItemModel , initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    /// <param name="options"></param>
-    public AVOverviewSectionItemModel(Entities.AVOverviewSectionItem entity, JsonSerializerOptions options) : base(entity)
-    {
-        this.AVOverviewSectionId = entity.AVOverviewSectionId;
-        this.ItemType = entity.ItemType;
-        this.Time = entity.Time;
-        this.Summary = entity.Summary;
-        this.ContentId = entity.ContentId;
-        
-    }
     public AVOverviewSectionItemModel(Entities.AVOverviewSectionItem entity) : base(entity)
     {
-        this.AVOverviewSectionId = entity.AVOverviewSectionId;
+        this.Id = entity.Id;
+        this.SectionId = entity.SectionId;
         this.ItemType = entity.ItemType;
         this.Time = entity.Time;
         this.Summary = entity.Summary;
         this.ContentId = entity.ContentId;
-        
+        this.SortOrder = entity.SortOrder;
+    }
+
+    /// <summary>
+    /// Creates a new instance of an AVOverviewSectionItemModel , initializes with specified parameter.
+    /// </summary>
+    /// <param name="entity"></param>
+    public AVOverviewSectionItemModel(Entities.AVOverviewTemplateSectionItem entity) : base(entity)
+    {
+        this.SectionId = entity.SectionId;
+        this.ItemType = entity.ItemType;
+        this.Time = entity.Time;
+        this.Summary = entity.Summary;
+        this.SortOrder = entity.SortOrder;
     }
     #endregion
 
     #region Methods
-    /// <summary>
-    /// Creates a new instance of a AVOverviewSectionModel object.
-    /// </summary>
-    /// <returns></returns>
-    public Entities.AVOverviewSectionItem ToEntity(JsonSerializerOptions options)
-    {
-        var entity = (Entities.AVOverviewSectionItem)this;
-        return entity;
-    }
-
     /// <summary>
     /// Explicit conversion to entity.
     /// </summary>
     /// <param name="model"></param>
     public static explicit operator Entities.AVOverviewSectionItem(AVOverviewSectionItemModel model)
     {
-        var entity = new Entities.AVOverviewSectionItem(model.Name)
+        var entity = new Entities.AVOverviewSectionItem(model.SectionId, model.ItemType, model.Time, model.Summary, model.ContentId)
         {
             Id = model.Id,
-            Description = model.Description,
-            AVOverviewSectionId = model.AVOverviewSectionId,
-            ItemType = model.ItemType,
-            Summary = model.Summary,
-            Time = model.Time,
-            ContentId = model.ContentId,
-            IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
             Version = model.Version ?? 0
         };
-
 
         return entity;
     }
