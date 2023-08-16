@@ -13,9 +13,9 @@ metadata:
     managed-by: kustomize
     created-by: jeremy.foster
 spec:
-  ttlSecondsAfterFinished: 100
-  schedule: "0 0 * * *" # Midnight
-  # schedule: "* * * * *" # Immediately
+  # ttlSecondsAfterFinished: 100
+  schedule: "0 */6 * * *" # Every 6 hour
+  # schedule: "*/5 * * * *" # Immediately
   jobTemplate:
     spec:
       template:
@@ -24,14 +24,17 @@ spec:
           volumes:
             - name: entrypoint
               configMap:
-                defaultMode: 0754
+                defaultMode: 0755
                 name: purge-service
             - name: ingest-storage
               persistentVolumeClaim:
                 claimName: ingest-storage
+            - name: api-storage
+              persistentVolumeClaim:
+                claimName: api-storage
           containers:
-            - name: purge-service
-              image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/alpine:3.17.1
+            - name: ingest-purge-service
+              image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/node:18-bullseye
               imagePullPolicy: IfNotPresent
               resources:
                 requests:
@@ -45,6 +48,8 @@ spec:
                   mountPath: /bin/entrypoint.sh
                   subPath: entrypoint.sh
                 - name: ingest-storage
+                  mountPath: /mnt/ingest
+                - name: api-storage
                   mountPath: /mnt/data
               command:
                 - /bin/entrypoint.sh

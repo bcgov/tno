@@ -18,36 +18,34 @@ data:
   entrypoint.sh: |-
     #!/bin/bash
 
-    # *********************************************************************************
-    # Delete folders that are older than the specified number of days.
-    # Folder convention requires folders to be named with the date (i.e. yyyy-mm-dd).
-    # arg1: Folder path to purge (i.e. /data/capture)
-    # arg2: Number of days to keep in storage (i.e 2 = Delete everything two days old)
-    # *********************************************************************************
-
-    delete_folder () {
-      FOLDER=$(basename $1)
-      DELETE_S=$(($(date +%s) - (24*60*60*${2-0})))
-      FOLDER_S=$(date -d "$FOLDER" +%s)
-
-      if [ "$FOLDER_S" -le "$DELETE_S" ]; then
-        echo "DELETE $1"
-        rm -rf $1
-      fi
-    }
-    export -f delete_folder;
-
-    purge_folders () {
+    purge_files () {
       echo "************************************"
       echo "Purging $1"
-      echo "Deleting folders older than $2 days"
+      echo "Deleting files older than 5 days"
 
-      find $1/*/*/ -type d -prune -exec bash -c 'delete_folder "$0" $1' {} $2 \;
+      filesystem=$1
+      threshold=75
 
-      echo "************************************"
+      # Get filesystem usage percentage
+      usage_percentage=$(df -h "$filesystem" | awk 'NR==2 {gsub("%","",$5); print $5}')
+
+      if [ "$usage_percentage" -gt "$threshold" ]; then
+          echo "Filesystem usage is above $threshold%."
+
+          # Clean up files older than 5 days
+          find "$filesystem" -mindepth 1 -type f -mtime +5 -exec sh -c '
+          echo "Deleting file: $0"
+          rm -f "$0"
+          '{} \;
+          echo "Cleanup complete."
+      else
+          echo "Filesystem usage is below $threshold%."
+      fi
+      echo "**********************************"
     }
 
-    purge_folders /mnt/data/capture 2;
-    purge_folders /mnt/data/clips 2;
-    purge_folders /mnt/data/images 2;
-    purge_folders /mnt/data/papers 2;
+    purge_files /mnt/data;
+    purge_files /mnt/ingest;
+
+    
+ 
