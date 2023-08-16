@@ -8,11 +8,11 @@ using TNO.API.Areas.Editor.Models.Lookup;
 using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
-using TNO.DAL.Services;
+using TNO.Core.Http;
 using TNO.CSS;
 using TNO.CSS.Config;
+using TNO.DAL.Services;
 using TNO.Keycloak;
-using TNO.Core.Http;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -49,6 +49,7 @@ public class LookupController : ControllerBase
     private readonly ITonePoolService _tonePoolService;
     private readonly IUserService _userService;
     private readonly IDataLocationService _dataLocationService;
+    private readonly ISettingService _settingService;
     private readonly ICssEnvironmentService _CssService;
     private readonly CssEnvironmentOptions _CssOptions;
     private readonly ILogger _logger;
@@ -73,6 +74,7 @@ public class LookupController : ControllerBase
     /// <param name="tonePoolService"></param>
     /// <param name="userService"></param>
     /// <param name="dataLocationService"></param>
+    /// <param name="settingService"></param>
     /// <param name="cssService"></param>
     /// <param name="cssOptions"></param>
     /// <param name="serializerOptions"></param>
@@ -93,6 +95,7 @@ public class LookupController : ControllerBase
         ITonePoolService tonePoolService,
         IUserService userService,
         IDataLocationService dataLocationService,
+        ISettingService settingService,
         ICssEnvironmentService cssService,
         IOptions<CssEnvironmentOptions> cssOptions,
         IOptions<JsonSerializerOptions> serializerOptions,
@@ -113,6 +116,7 @@ public class LookupController : ControllerBase
         _tonePoolService = tonePoolService;
         _userService = userService;
         _dataLocationService = dataLocationService;
+        _settingService = settingService;
         _CssService = cssService;
         _CssOptions = cssOptions.Value;
         _serializerOptions = serializerOptions.Value;
@@ -162,6 +166,7 @@ public class LookupController : ControllerBase
         var tonePools = _tonePoolService.FindAll();
         var users = _userService.FindByRoles(roles.Where(x => x == ClientRole.Editor.ToString().ToLower()));
         var dataLocations = _dataLocationService.FindAll();
+        var settings = _settingService.FindAll();
         return new JsonResult(new LookupModel(
             actions,
             topics,
@@ -178,6 +183,7 @@ public class LookupController : ControllerBase
             tonePools,
             users,
             dataLocations,
+            settings,
             statHolidays?.Province?.Holidays ?? Array.Empty<HolidayModel>(),
             _serializerOptions
             ));

@@ -14,7 +14,7 @@ public class TonePoolConfiguration : BaseTypeConfiguration<TonePool, int>
 
         builder.HasOne(m => m.Owner).WithMany(m => m.TonePools).HasForeignKey(m => m.OwnerId).OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasIndex(m => new { m.OwnerId, m.Name }, "IX_name").IsUnique();
+        builder.HasIndex(m => new { m.OwnerId, m.Name }, "IX_tone_pool_name").IsUnique();
 
         base.Configure(builder);
     }

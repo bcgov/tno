@@ -16,8 +16,8 @@ import {
   Row,
   Select,
   Show,
-  useApiIngests,
-  useApiIngestSchedules,
+  useApiEditorIngests,
+  useApiEditorIngestSchedules,
 } from 'tno-core';
 
 import { defaultSchedule } from './constants';
@@ -31,8 +31,8 @@ export interface IRequestClipProps extends React.HTMLAttributes<HTMLDivElement> 
  */
 export const RequestClip: React.FC<IRequestClipProps> = () => {
   const [{ userInfo }] = useApp();
-  const apiIngest = useApiIngests();
-  const apiIngestSchedule = useApiIngestSchedules();
+  const apiIngest = useApiEditorIngests();
+  const apiIngestSchedule = useApiEditorIngestSchedules();
 
   const [sourceId, setSourceId] = React.useState<number>();
   const [ingests, setIngests] = React.useState<IIngestModel[]>([]);

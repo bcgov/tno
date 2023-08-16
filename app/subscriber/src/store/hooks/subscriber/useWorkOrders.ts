@@ -5,41 +5,30 @@ import {
   IPaged,
   IWorkOrderFilter,
   IWorkOrderModel,
-  useApiWorkOrders,
+  useApiSubscriberWorkOrders,
 } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
 
 interface IWorkOrderController {
-  findWorkOrders: (filter: IWorkOrderFilter) => Promise<AxiosResponse<IPaged<IWorkOrderModel>>>;
+  findWorkOrders: (filter: IWorkOrderFilter) => Promise<IPaged<IWorkOrderModel>>;
   transcribe: (content: IContentModel) => Promise<AxiosResponse<IWorkOrderModel>>;
-  nlp: (content: IContentModel) => Promise<AxiosResponse<IWorkOrderModel>>;
-  requestFile: (locationId: number, path: string) => Promise<AxiosResponse<IWorkOrderModel>>;
 }
 
 export const useWorkOrders = (): [any, IWorkOrderController] => {
   const dispatch = useAjaxWrapper();
-  const api = useApiWorkOrders();
+  const api = useApiSubscriberWorkOrders();
 
   const controller = React.useMemo(
     () => ({
       findWorkOrders: async (filter: IWorkOrderFilter) => {
-        const response = await dispatch<IPaged<IWorkOrderModel>>(
-          'find-work-orders',
-          () => api.findWorkOrders(filter),
-          undefined,
-          true,
+        const response = await dispatch<IPaged<IWorkOrderModel>>('find-work-orders', () =>
+          api.findWorkOrders(filter),
         );
-        return response;
+        return response.data;
       },
       transcribe: async (content: IContentModel) => {
         return await dispatch('transcribe-content', () => api.transcribe(content));
-      },
-      nlp: async (content: IContentModel) => {
-        return await dispatch('nlp-content', () => api.nlp(content));
-      },
-      requestFile: async (locationId: number, path: string) => {
-        return await dispatch('request-file', () => api.requestFile(locationId, path));
       },
     }),
     [api, dispatch],

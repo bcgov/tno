@@ -41,25 +41,28 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
     /// <param name="product"></param>
     /// <param name="contentType"></param>
     /// <param name="newsItem"></param>
+    /// <param name="defaultTimeZone"></param>
     /// <returns></returns>
-    public override SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem)
+    public override SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string defaultTimeZone)
     {
         // var authors = GetAuthors(lookups.Contributors)
 
         // KGM: Would be nice to do this, but I don't think we could map a clip back to a schedule so there may be duplicates here
         // var referenceUid = $"{schedule.Name}:{schedule.Id}-{publishedOn:yyyy-MM-dd-hh-mm-ss}";
-        var publishedOn = newsItem.GetPublishedDateTime().ToUniversalTime();
+        var publishedOnInDefaultTimeZone = this.GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone);
+        var publishedOnInUtc = publishedOnInDefaultTimeZone.ToUniversalTime();
+        Logger.LogDebug("NewItem.RSN: {rsn}, PublishedDateTime: {publishedDateTime}, ToUtc: {publishedDateTimeInUtc}", newsItem.RSN, publishedOnInDefaultTimeZone, publishedOnInUtc);
 
         var content = new SourceContent(
             this.Options.DataLocation,
             source.Code,
             contentType,
             product.Id,
-            GetContentHash(source.Code, newsItem.GetTitle(), publishedOn),
+            GetContentHash(source.Code, newsItem.GetTitle(), publishedOnInUtc),
             newsItem.GetTitle(),
             newsItem.Summary! ?? string.Empty,
             newsItem.Transcript ?? string.Empty,
-            publishedOn,
+            publishedOnInUtc,
             newsItem.Published)
         {
             FilePath = newsItem.FilePath ?? string.Empty,
@@ -70,11 +73,17 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
         var auditUser = lookups.Users.FirstOrDefault(u => u.Username == this.Options.DefaultUserNameForAudit);
         if (auditUser == null) throw new System.Configuration.ConfigurationErrorsException($"Default User for ContentMigration not found : {this.Options.DefaultUserNameForAudit}");
 
-        // newsItem.string5 & newsItem.string5 seem to be the "Show/Program"
+        // newsItem.string5 and newsItem.string5 both seem to be the "Show/Program"
+        if (newsItem.string5 != null) {
+            content.Series = newsItem.string5;
+        }
 
         if (newsItem.UpdatedOn != null)
         {
-            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ? newsItem.UpdatedOn.Value.ToUniversalTime() : null;
+            var updatedOnInDefaultTimeZone = this.GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone);
+            var updatedOnInUtc = updatedOnInDefaultTimeZone.ToUniversalTime();
+            Logger.LogDebug("NewItem.RSN: {rsn}, UpdatedDateTime: {publishedDateTime}, ToUtc: {publishedDateTimeInUtc}", newsItem.RSN, updatedOnInDefaultTimeZone, updatedOnInUtc);
+            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ?  updatedOnInUtc : null;
         }
 
         if (newsItem.Tones?.Any() == true)
@@ -82,7 +91,7 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
             // TODO: replace the USER_RSN value on UserIdentifier with something that can be mapped by the Content Service to an MMIA user
             // TODO: remove UserRSN filter once user can be mapped
             content.TonePools = newsItem.Tones.Where(t => t.UserRSN == 0)
-                .Select(t => new Kafka.Models.TonePool { Value = (int)t.ToneValue, UserIdentifier = t.UserRSN.ToString() });
+                .Select(t => new Kafka.Models.TonePool { Value = (int)t.ToneValue, UserIdentifier = (t.UserRSN == 0 ? null : t.UserRSN.ToString()) });
         }
 
         if (!string.IsNullOrEmpty(newsItem.EodGroup) && !string.IsNullOrEmpty(newsItem.EodCategory))

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Models.Settings;
 using TNO.Core.Extensions;
+using TNO.DAL.Models;
 using TNO.Elastic;
 using TNO.Entities;
 
@@ -45,6 +46,30 @@ public class ReportService : BaseService<Report, int>, IReportService
             .Include(r => r.Sections)
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
             .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
+    }
+
+    /// <summary>
+    /// Find all reports that match the filter.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    public IEnumerable<Report> Find(ReportFilter filter)
+    {
+        var query = this.Context.Reports
+            .AsNoTracking();
+
+        if (filter.IsPublic.HasValue)
+            query = query.Where(r => r.IsPublic);
+
+        if (filter.OwnerId.HasValue && filter.IsPublicOrOwner == true)
+            query = query.Where(r => r.OwnerId == filter.OwnerId || r.IsPublic);
+        else if (filter.OwnerId.HasValue)
+            query = query.Where(r => r.OwnerId == filter.OwnerId);
+
+        if (!String.IsNullOrWhiteSpace(filter.Name))
+            query = query.Where(r => EF.Functions.Like(r.Name, $"%{filter.Name}%"));
+
+        return query.ToArray();
     }
 
     /// <summary>

@@ -23,26 +23,28 @@ export const MyFolders = () => {
   }, [findMyFolders]);
 
   const handleAdd = () => {
-    addFolder({
-      name: newFolderName,
-      description: '',
-      settings: {},
-      isEnabled: true,
-      sortOrder: 0,
-      id: 0,
-      content: [],
-    }).then((data) => {
-      toast.success(`${data.name} created successfully`);
-      setNewFolderName('');
-      setMyFolders([...myFolders, data]);
-    });
+    if (newFolderName)
+      addFolder({
+        name: newFolderName,
+        description: '',
+        settings: {},
+        isEnabled: true,
+        sortOrder: 0,
+        id: 0,
+        content: [],
+      }).then((data) => {
+        toast.success(`${data.name} created successfully`);
+        setNewFolderName('');
+        setMyFolders([...myFolders, data]);
+      });
+    else toast.warning(`Folder name is required.`);
   };
 
   const handleSave = () => {
     if (!!active) {
-      updateFolder(active).then(() => {
-        toast.success(`${active.name} updated successfully`);
-        setMyFolders([...myFolders.filter((folder) => folder.id !== active.id), active]);
+      updateFolder(active).then((data) => {
+        toast.success(`${data.name} updated successfully`);
+        setMyFolders([...myFolders.filter((folder) => folder.id !== data.id), data]);
         setEditable('');
       });
     }
@@ -55,6 +57,7 @@ export const MyFolders = () => {
           name="folderName"
           className="folder-name"
           placeholder="Enter name..."
+          value={newFolderName}
           onChange={(e) => setNewFolderName(e.target.value)}
         />
         <AiOutlineFolderAdd className="folder-add" onClick={() => handleAdd()} />
@@ -65,6 +68,7 @@ export const MyFolders = () => {
           columns={columns(setActive, editable, handleSave, active)}
           rowId={'id'}
           data={myFolders}
+          showActive={false}
         />
         <Tooltip
           clickable

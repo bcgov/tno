@@ -2,6 +2,9 @@ import styled from 'styled-components';
 import { Col } from 'tno-core';
 
 export const MyFolders = styled(Col)`
+  .react-tooltip {
+    z-index: 999;
+  }
   .options {
     box-shadow: 0 0 0.5rem #c7c7c7;
     opacity: 1;
@@ -45,9 +48,6 @@ export const MyFolders = styled(Col)`
       .column {
         background-color: #f5f6fa;
       }
-    }
-    .rows {
-      cursor: pointer;
     }
     .elips {
       &:hover {

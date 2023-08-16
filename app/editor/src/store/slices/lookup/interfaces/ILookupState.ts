@@ -7,9 +7,11 @@ import {
   IIngestTypeModel,
   ILicenseModel,
   IMetricModel,
+  IMinisterModel,
   IProductModel,
   IRoleModel,
   ISeriesModel,
+  ISettingModel,
   ISourceActionModel,
   ISourceModel,
   ITagModel,
@@ -37,5 +39,7 @@ export interface ILookupState {
   tonePools: ITonePoolModel[];
   users: IUserModel[];
   dataLocations: IDataLocationModel[];
+  settings: ISettingModel[];
   holidays: IHolidayModel[];
+  ministers: IMinisterModel[];
 }

@@ -9,9 +9,11 @@ import {
   IIngestTypeModel,
   ILicenseModel,
   IMetricModel,
+  IMinisterModel,
   IProductModel,
   IRoleModel,
   ISeriesModel,
+  ISettingModel,
   ISourceActionModel,
   ISourceModel,
   ITagModel,
@@ -30,9 +32,11 @@ import {
   storeIngestTypes,
   storeLicenses,
   storeMetrics,
+  storeMinisters,
   storeProducts,
   storeRoles,
   storeSeries,
+  storeSettings,
   storeSourceActions,
   storeSources,
   storeTags,
@@ -62,8 +66,10 @@ export interface ILookupStore {
   storeTags: (tags: ITagModel[]) => void;
   storeTonePools: (contentTypes: ITonePoolModel[]) => void;
   storeUsers: (users: IUserModel[]) => void;
-  storeDataLocations: (users: IDataLocationModel[]) => void;
+  storeDataLocations: (dataLocations: IDataLocationModel[]) => void;
+  storeSettings: (settings: ISettingModel[]) => void;
   storeHolidays: (users: IHolidayModel[]) => void;
+  storeMinisters: (ministers: IMinisterModel[]) => void;
 }
 
 export const useLookupStore = (): [ILookupState, ILookupStore] => {
@@ -126,8 +132,14 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       storeDataLocations: (dataLocations: IDataLocationModel[]) => {
         dispatch(storeDataLocations(dataLocations));
       },
+      storeSettings: (settings: ISettingModel[]) => {
+        dispatch(storeSettings(settings));
+      },
       storeHolidays: (holidays: IHolidayModel[]) => {
         dispatch(storeHolidays(holidays));
+      },
+      storeMinisters: (ministers: IMinisterModel[]) => {
+        dispatch(storeMinisters(ministers));
       },
     }),
     [dispatch],

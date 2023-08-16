@@ -84,6 +84,11 @@ public class LookupModel
     public IEnumerable<DataLocation.DataLocationModel> DataLocations { get; set; } = Array.Empty<DataLocation.DataLocationModel>();
 
     /// <summary>
+    /// get/set - An array of all settings.
+    /// </summary>
+    public IEnumerable<Setting.SettingModel> Settings { get; set; } = Array.Empty<Setting.SettingModel>();
+
+    /// <summary>
     /// get/set - An array of holidays for the current year.
     /// </summary>
     public IEnumerable<HolidayModel> Holidays { get; set; } = Array.Empty<HolidayModel>();
@@ -114,6 +119,8 @@ public class LookupModel
     /// <param name="tonePools"></param>
     /// <param name="users"></param>
     /// <param name="dataLocations"></param>
+    /// <param name="settings"></param>
+    /// <param name="holidays"></param>
     /// <param name="options"></param>
     public LookupModel(
         IEnumerable<Entities.Action> actions,
@@ -131,6 +138,7 @@ public class LookupModel
         IEnumerable<Entities.TonePool> tonePools,
         IEnumerable<Entities.User> users,
         IEnumerable<Entities.DataLocation> dataLocations,
+        IEnumerable<Entities.Setting> settings,
         IEnumerable<HolidayModel> holidays,
         JsonSerializerOptions options)
     {
@@ -149,6 +157,7 @@ public class LookupModel
         this.TonePools = tonePools.Select(a => new TonePool.TonePoolModel(a));
         this.Users = users.Select(a => new User.UserModel(a));
         this.DataLocations = dataLocations.Select(a => new DataLocation.DataLocationModel(a));
+        this.Settings = settings.Select(a => new Setting.SettingModel(a));
         this.Holidays = holidays;
     }
     #endregion

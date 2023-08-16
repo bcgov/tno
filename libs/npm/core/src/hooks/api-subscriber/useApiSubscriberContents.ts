@@ -15,7 +15,7 @@ import {
  * Common hook to make requests to the API.
  * @returns CustomAxios object setup for the API.
  */
-export const useSubscriberApiContents = (
+export const useApiSubscriberContents = (
   options: {
     lifecycleToasts?: ILifecycleToasts;
     selector?: Function;
@@ -31,22 +31,22 @@ export const useSubscriberApiContents = (
         ...filter,
         actions: filter?.actions?.length ? filter.actions : undefined,
       };
-      return api.get<IPaged<IContentModel>, AxiosResponse<IPaged<IContentModel>>, any>(
+      return api.get<never, AxiosResponse<IPaged<IContentModel>>, any>(
         `/subscriber/contents?${toQueryString(params)}`,
       );
     },
     getFrontPages: () => {
-      return api.get<IPaged<IContentModel>, AxiosResponse<IPaged<IContentModel>>, any>(
+      return api.get<never, AxiosResponse<IPaged<IContentModel>>, any>(
         `/subscriber/contents/frontpages`,
       );
     },
     getContent: (id: number) => {
-      return api.get<IContentModel | undefined, AxiosResponse<IContentModel | undefined>, any>(
+      return api.get<never, AxiosResponse<IContentModel | undefined>, any>(
         `/subscriber/contents/${id}`,
       );
     },
     download: async (id: number, fileName: string) => {
-      const response = await api.get<any, AxiosResponse<any>, any>(
+      const response = await api.get<never, AxiosResponse<any>, any>(
         `/subscriber/contents/${id}/download`,
         {
           responseType: 'blob',
@@ -65,7 +65,7 @@ export const useSubscriberApiContents = (
     },
     stream: async (path: string) => {
       const params = { path };
-      const response = await api.get<any, AxiosResponse<any>, any>(
+      const response = await api.get<never, AxiosResponse<any>, any>(
         `/subscriber/contents/stream?${toQueryString(params)}`,
         {
           responseType: 'blob',

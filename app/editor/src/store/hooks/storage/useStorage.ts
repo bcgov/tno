@@ -1,5 +1,5 @@
 import React from 'react';
-import { IDirectoryModel, IItemModel, useApiStorage } from 'tno-core';
+import { IDirectoryModel, IItemModel, useApiEditorStorage } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
 
@@ -29,7 +29,7 @@ interface IStorageController {
 
 export const useStorage = (): IStorageController => {
   const dispatch = useAjaxWrapper();
-  const api = useApiStorage();
+  const api = useApiEditorStorage();
 
   const controller = React.useMemo(
     () => ({

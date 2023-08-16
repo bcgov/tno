@@ -4,15 +4,22 @@ import {
   IActionModel,
   ICacheModel,
   IContributorModel,
+  IDataLocationModel,
   IHolidayModel,
+  IIngestTypeModel,
   ILicenseModel,
+  IMetricModel,
   IProductModel,
+  IRoleModel,
   ISeriesModel,
+  ISettingModel,
   ISourceActionModel,
   ISourceModel,
   ITagModel,
   ITonePoolModel,
   ITopicModel,
+  ITopicScoreRuleModel,
+  IUserModel,
 } from 'tno-core';
 
 import { ILookupState } from './interfaces';
@@ -31,6 +38,13 @@ export const initialLookupState: ILookupState = {
   tonePools: [],
   holidays: [],
   ministers: [],
+  ingestTypes: [],
+  roles: [],
+  metrics: [],
+  users: [],
+  dataLocations: [],
+  settings: [],
+  rules: [],
 };
 
 export const lookupSlice = createSlice({
@@ -56,6 +70,9 @@ export const lookupSlice = createSlice({
     },
     storeTopics(state: ILookupState, action: PayloadAction<ITopicModel[]>) {
       state.topics = action.payload;
+    },
+    storeRules(state: ILookupState, action: PayloadAction<ITopicScoreRuleModel[]>) {
+      state.rules = action.payload;
     },
     storeMinisters(state: ILookupState, action: PayloadAction<IMinisterModel[]>) {
       state.ministers = action.payload;
@@ -84,6 +101,24 @@ export const lookupSlice = createSlice({
     storeTonePools(state: ILookupState, action: PayloadAction<ITonePoolModel[]>) {
       state.tonePools = action.payload;
     },
+    storeIngestTypes(state: ILookupState, action: PayloadAction<IIngestTypeModel[]>) {
+      state.ingestTypes = action.payload;
+    },
+    storeRoles(state: ILookupState, action: PayloadAction<IRoleModel[]>) {
+      state.roles = action.payload;
+    },
+    storeMetrics(state: ILookupState, action: PayloadAction<IMetricModel[]>) {
+      state.metrics = action.payload;
+    },
+    storeUsers(state: ILookupState, action: PayloadAction<IUserModel[]>) {
+      state.users = action.payload;
+    },
+    storeDataLocations(state: ILookupState, action: PayloadAction<IDataLocationModel[]>) {
+      state.dataLocations = action.payload;
+    },
+    storeSettings(state: ILookupState, action: PayloadAction<ISettingModel[]>) {
+      state.settings = action.payload;
+    },
     storeHolidays(state: ILookupState, action: PayloadAction<IHolidayModel[]>) {
       state.holidays = action.payload;
     },
@@ -95,6 +130,7 @@ export const {
   updateCache,
   storeActions,
   storeTopics,
+  storeRules,
   storeProducts,
   storeLicenses,
   storeSeries,
@@ -105,4 +141,10 @@ export const {
   storeTonePools,
   storeMinisters,
   storeHolidays,
+  storeSettings,
+  storeUsers,
+  storeMetrics,
+  storeRoles,
+  storeDataLocations,
+  storeIngestTypes,
 } = lookupSlice.actions;

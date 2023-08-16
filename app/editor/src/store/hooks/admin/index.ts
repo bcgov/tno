@@ -16,6 +16,7 @@ export * from './useProducts';
 export * from './useReports';
 export * from './useReportTemplates';
 export * from './useSeries';
+export * from './useSettings';
 export * from './useSources';
 export * from './useSystemMessages';
 export * from './useTags';

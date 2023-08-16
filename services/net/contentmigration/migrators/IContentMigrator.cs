@@ -49,8 +49,9 @@ public interface IContentMigrator
     /// <param name="topic"></param>
     /// <param name="newsItem"></param>
     /// <param name="uid"></param>
+    /// <param name="defaultTimeZone"></param>
     /// <returns></returns>
-    ContentReferenceModel CreateContentReference(SourceModel source, string topic, NewsItem newsItem, string uid);
+    ContentReferenceModel CreateContentReference(SourceModel source, string topic, NewsItem newsItem, string uid, string defaultTimeZone);
 
     /// <summary>
     /// Creates a SourceContent item
@@ -60,9 +61,9 @@ public interface IContentMigrator
     /// <param name="product"></param>
     /// <param name="contentType"></param>
     /// <param name="newsItem"></param>
+    /// <param name="defaultTimeZone"></param>
     /// <returns></returns>
-    SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem);
-
+    SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string defaultTimeZone);
 
     /// <summary>
     /// Copies a file from the TNO store to a location where it can be picked up by MMIA Content service

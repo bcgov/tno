@@ -50,5 +50,16 @@ public abstract class BaseService : IBaseService
     {
         return this.Context.CommitTransaction();
     }
+
+    /// <summary>
+    /// Stops tracking all currently tracked entities.
+    /// Microsoft.EntityFrameworkCore.DbContext is designed to have a short lifetime where a new instance is created for each unit-of-work. This manner means all tracked entities are discarded when the context is disposed at the end of each unit-of-work. However, clearing all tracked entities using this method may be useful in situations where creating a new context instance is not practical.
+    /// This method should always be preferred over detaching every tracked entity. Detaching entities is a slow process that may have side effects. This method is much more efficient at clearing all tracked entities from the context.
+    /// Note that this method does not generate Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker.StateChanged events since entities are not individually detached.
+    /// </summary>
+    public void ClearChangeTracker()
+    {
+        this.Context.ChangeTracker.Clear();
+    }
     #endregion
 }

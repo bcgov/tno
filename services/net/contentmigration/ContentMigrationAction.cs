@@ -77,7 +77,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         DateTime? updatedDateOfNewsItem, double importOffsetInHours = 0)
     {
         // KGM : Do NOT remove the ItemDate null filter.  This excludes bad data
-        predicate = predicate.And(ni => ni.ItemDateTime != null);
+        predicate = predicate.And(ni => ni.ItemDate != null);
 
         DateTime offsetFromNow = DateTime.MaxValue;
         if (importOffsetInHours > 0)
@@ -151,13 +151,14 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
-        IContentMigrator contentMigrator = _migratorFactory.GetContentMigrator(manager.Ingest.IngestType.Name);
+        IContentMigrator contentMigrator = _migratorFactory.GetContentMigrator(manager.Ingest.IngestType!.Name);
 
         API.Areas.Editor.Models.Lookup.LookupModel? lookups = await this.Api.GetLookupsAsync();
 
         var skip = 0;
         var countOfRecordsRetrieved = this.Options.MaxRecordsPerRetrieval;
         var maxIngestedRecords = Math.Max(this.Options.MaxRecordsPerIngest, this.Options.MaxRecordsPerRetrieval);
+        var defaultTimeZone = GetTimeZone(manager.Ingest, this.Options.TimeZone);
 
         DateTime? importDateStart = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateStart")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateStart") : null;
         DateTime? importDateEnd = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateEnd")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateEnd") : null;
@@ -209,7 +210,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 
                 await items.ForEachAsync(async newsItem =>
                 {
-                    await MigrateNewsItemAsync(manager, contentMigrator, lookups, newsItem);
+                    await MigrateNewsItemAsync(manager, contentMigrator, lookups, newsItem, defaultTimeZone);
                     // creationDateOfLastImport = newsItem.GetPublishedDateTime();  // Don't convert to UTC as this compares back to a timestamp in the Oracle DB
                     creationDateOfLastImport = newsItem.UpdatedOn;
                 });
@@ -239,12 +240,14 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// <param name="contentMigrator"></param>
     /// <param name="lookups"></param>
     /// <param name="newsItem"></param>
+    /// <param name="defaultTimeZone"></param>
     /// <returns></returns>
     public async Task MigrateNewsItemAsync(
         IIngestServiceActionManager manager,
         IContentMigrator contentMigrator,
         API.Areas.Editor.Models.Lookup.LookupModel? lookups,
-        NewsItem newsItem)
+        NewsItem newsItem,
+        string defaultTimeZone)
     {
         if (lookups == null)
         {
@@ -273,12 +276,12 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 return;
             }
 
-            var sourceContent = contentMigrator.CreateSourceContent(lookups, source!, product, manager.Ingest.IngestType!.ContentType, newsItem);
+            var sourceContent = contentMigrator.CreateSourceContent(lookups, source!, product, manager.Ingest.IngestType!.ContentType, newsItem, defaultTimeZone);
 
             var reference = await this.FindContentReferenceAsync(source?.Code, sourceContent.Uid);
             if (reference == null)
             {
-                reference = await this.Api.AddContentReferenceAsync(contentMigrator.CreateContentReference(source!, manager.Ingest.Topic, newsItem, sourceContent.Uid));
+                reference = await this.Api.AddContentReferenceAsync(contentMigrator.CreateContentReference(source!, manager.Ingest.Topic, newsItem, sourceContent.Uid, defaultTimeZone));
                 Logger.LogInformation("Migrating content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
                 try
                 {
@@ -335,5 +338,17 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         return ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "";
     }
 
+    /// <summary>
+    /// Get the timezone arguments from the connection settings.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <param name="defaultTimeZone"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private static string GetTimeZone(API.Areas.Services.Models.Ingest.IngestModel ingest, string defaultTimeZone)
+    {
+        var value = ingest.GetConfigurationValue("timeZone");
+        return String.IsNullOrWhiteSpace(value) ? defaultTimeZone : value;
+    }
     #endregion
 }

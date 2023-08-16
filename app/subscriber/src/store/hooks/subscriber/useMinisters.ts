@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
+import { IProfileState, useProfileStore } from 'store/slices';
 
 import { useApiMinisters } from './api/useApiMinisters';
 import { IMinisterModel } from './interfaces/IMinisterModel';
@@ -9,10 +9,10 @@ interface IMinisterController {
   getMinisters: () => Promise<IMinisterModel[]>;
 }
 
-export const useMinisters = (): [IAdminState, IMinisterController] => {
+export const useMinisters = (): [IProfileState, IMinisterController] => {
   const api = useApiMinisters();
   const dispatch = useAjaxWrapper();
-  const [state, store] = useAdminStore();
+  const [state, store] = useProfileStore();
 
   const controller = React.useMemo(
     () => ({
@@ -20,12 +20,10 @@ export const useMinisters = (): [IAdminState, IMinisterController] => {
         const response = await dispatch<IMinisterModel[]>('find-all-ministers', () =>
           api.getMinisters(),
         );
-        store.storeMinisters(response.data);
+        store.storeMyMinisters(response.data);
         return response.data;
       },
     }),
-    // The state.mediaTypes will cause it to fire twice!
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [api, dispatch, store],
   );
 
