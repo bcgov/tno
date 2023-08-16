@@ -43,7 +43,9 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     public override SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string defaultTimeZone)
     {
         // var authors = GetAuthors(lookups.Contributors)
-        var publishedOn = this.GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone).ToUniversalTime();
+        var publishedOnInDefaultTimeZone = this.GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone);
+        var publishedOnInUtc = publishedOnInDefaultTimeZone.ToUniversalTime();
+        Logger.LogDebug("NewItem.RSN: {rsn}, PublishedDateTime: {publishedDateTime}, ToUtc: {publishedDateTimeInUtc}", newsItem.RSN, publishedOnInDefaultTimeZone, publishedOnInUtc);
 
         var newsItemTitle = newsItem.Title != null ? WebUtility.HtmlDecode(newsItem.Title) : string.Empty;
 
@@ -55,11 +57,11 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             source.Code,
             contentType,
             product.Id,
-            GetContentHash(source.Code, newsItem.GetTitle(), publishedOn),
+            GetContentHash(source.Code, newsItem.GetTitle(), publishedOnInUtc),
             newsItemTitle,
             "",
             "",
-            publishedOn,
+            publishedOnInUtc,
             newsItem.Published)
         {
             FilePath = newsItem.FilePath ?? string.Empty,
@@ -67,7 +69,10 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         };
 
         if (newsItem.UpdatedOn != null) {
-            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ?  this.GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone).ToUniversalTime() : null;
+            var updatedOnInDefaultTimeZone = this.GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone);
+            var updatedOnInUtc = updatedOnInDefaultTimeZone.ToUniversalTime();
+            Logger.LogDebug("NewItem.RSN: {rsn}, UpdatedDateTime: {publishedDateTime}, ToUtc: {publishedDateTimeInUtc}", newsItem.RSN, updatedOnInDefaultTimeZone, updatedOnInUtc);
+            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ?  updatedOnInUtc : null;
         }
 
         // Tags are in the Summary as they are added by an Editor
