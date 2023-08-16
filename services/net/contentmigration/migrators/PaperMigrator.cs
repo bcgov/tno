@@ -44,7 +44,9 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     public override SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string defaultTimeZone)
     {
         // var authors = GetAuthors(lookups.Contributors)
-        var publishedOn = this.GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone).ToUniversalTime();
+        var publishedOnInDefaultTimeZone = this.GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone);
+        var publishedOnInUtc = publishedOnInDefaultTimeZone.ToUniversalTime();
+        Logger.LogDebug("NewItem.RSN: {rsn}, PublishedDateTime: {publishedDateTime}, ToUtc: {publishedDateTimeInUtc}", newsItem.RSN, publishedOnInDefaultTimeZone, publishedOnInUtc);
 
         var newsItemTitle = newsItem.GetTitle();
 
@@ -53,11 +55,11 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             source.Code,
             contentType,
             product.Id,
-            GetContentHash(source.Code, newsItemTitle, publishedOn),
+            GetContentHash(source.Code, newsItemTitle, publishedOnInUtc),
             newsItemTitle,
             newsItem.Summary! ?? string.Empty,
             GetNewsItemBody(newsItem.Text, newsItem.Summary),
-            publishedOn,
+            publishedOnInUtc,
             newsItem.Published)
         {
             Section = newsItem.string2 ?? string.Empty,
@@ -91,7 +93,10 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
 
         if (newsItem.UpdatedOn != null)
         {
-            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ?  this.GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone).ToUniversalTime() : null;
+            var updatedOnInDefaultTimeZone = this.GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone);
+            var updatedOnInUtc = updatedOnInDefaultTimeZone.ToUniversalTime();
+            Logger.LogDebug("NewItem.RSN: {rsn}, UpdatedDateTime: {publishedDateTime}, ToUtc: {publishedDateTimeInUtc}", newsItem.RSN, updatedOnInDefaultTimeZone, updatedOnInUtc);
+            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ?  updatedOnInUtc : null;
         }
 
         if (!string.IsNullOrEmpty(newsItem.EodGroup) && !string.IsNullOrEmpty(newsItem.EodCategory))

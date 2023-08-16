@@ -49,18 +49,20 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
 
         // KGM: Would be nice to do this, but I don't think we could map a clip back to a schedule so there may be duplicates here
         // var referenceUid = $"{schedule.Name}:{schedule.Id}-{publishedOn:yyyy-MM-dd-hh-mm-ss}";
-        var publishedOn = this.GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone).ToUniversalTime();
+        var publishedOnInDefaultTimeZone = this.GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone);
+        var publishedOnInUtc = publishedOnInDefaultTimeZone.ToUniversalTime();
+        Logger.LogDebug("NewItem.RSN: {rsn}, PublishedDateTime: {publishedDateTime}, ToUtc: {publishedDateTimeInUtc}", newsItem.RSN, publishedOnInDefaultTimeZone, publishedOnInUtc);
 
         var content = new SourceContent(
             this.Options.DataLocation,
             source.Code,
             contentType,
             product.Id,
-            GetContentHash(source.Code, newsItem.GetTitle(), publishedOn),
+            GetContentHash(source.Code, newsItem.GetTitle(), publishedOnInUtc),
             newsItem.GetTitle(),
             newsItem.Summary! ?? string.Empty,
             newsItem.Transcript ?? string.Empty,
-            publishedOn,
+            publishedOnInUtc,
             newsItem.Published)
         {
             FilePath = newsItem.FilePath ?? string.Empty,
@@ -78,7 +80,10 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
 
         if (newsItem.UpdatedOn != null)
         {
-            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ?  this.GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone).ToUniversalTime() : null;
+            var updatedOnInDefaultTimeZone = this.GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone);
+            var updatedOnInUtc = updatedOnInDefaultTimeZone.ToUniversalTime();
+            Logger.LogDebug("NewItem.RSN: {rsn}, UpdatedDateTime: {publishedDateTime}, ToUtc: {publishedDateTimeInUtc}", newsItem.RSN, updatedOnInDefaultTimeZone, updatedOnInUtc);
+            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ?  updatedOnInUtc : null;
         }
 
         if (newsItem.Tones?.Any() == true)
