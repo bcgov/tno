@@ -130,9 +130,9 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
     /// <returns></returns>
     public override System.Linq.Expressions.Expression<Func<NewsItem, bool>> GetBaseFilter(ContentType contentType)
     {
-        string[] targetPrintTypes = new string[] { "Radio News", "TV News", "Talk Radio", "Scrum" };
+        string[] targetTypes = new string[] { "Radio News", "TV News", "Talk Radio", "Scrum", "CC News" };
         return PredicateBuilder.New<NewsItem>()
-                            .And(ni => targetPrintTypes.Contains(ni.Type!.ToString()))
+                            .And(ni => targetTypes.Contains(ni.Type!.ToString()))
                             .Or(ni => ni.ContentType!.Equals("video/quicktime"));
     }
 }

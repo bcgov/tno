@@ -170,12 +170,12 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         switch (contentType)
         {
             case ContentType.PrintContent:
-                string[] targetPrintTypes = new string[] { "CP News", "Newspaper", "Regional", "CC News" };
+                string[] targetPrintTypes = new string[] { "Newspaper", "Regional" };
                 return PredicateBuilder.New<NewsItem>()
                                     .And(ni => targetPrintTypes.Contains(ni.Type!.ToString()))
                                     .And(ni => !excludedContentTypes.Contains(ni.ContentType!.ToString()));
             case ContentType.Story:
-                string[] targetStoryTypes = new string[] { "Internet", "Social Media" };
+                string[] targetStoryTypes = new string[] { "CP News", "Internet", "Social Media" };
                 return PredicateBuilder.New<NewsItem>()
                                     .And(ni => targetStoryTypes.Contains(ni.Type!.ToString()))
                                     .And(ni => !excludedContentTypes.Contains(ni.ContentType!.ToString()));
