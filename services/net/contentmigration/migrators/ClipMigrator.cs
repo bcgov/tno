@@ -74,7 +74,8 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
         if (auditUser == null) throw new System.Configuration.ConfigurationErrorsException($"Default User for ContentMigration not found : {this.Options.DefaultUserNameForAudit}");
 
         // newsItem.string5 and newsItem.string5 both seem to be the "Show/Program"
-        if (newsItem.string5 != null) {
+        if (newsItem.string5 != null)
+        {
             content.Series = newsItem.string5;
         }
 
@@ -83,7 +84,7 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
             var updatedOnInDefaultTimeZone = this.GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone);
             var updatedOnInUtc = updatedOnInDefaultTimeZone.ToUniversalTime();
             Logger.LogDebug("NewItem.RSN: {rsn}, UpdatedDateTime: {publishedDateTime}, ToUtc: {publishedDateTimeInUtc}", newsItem.RSN, updatedOnInDefaultTimeZone, updatedOnInUtc);
-            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ?  updatedOnInUtc : null;
+            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ? updatedOnInUtc : null;
         }
 
         if (newsItem.Tones?.Any() == true)
@@ -100,10 +101,11 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
         }
 
         // Tags are in the Summary as they are added by an Editor
-        if (!string.IsNullOrEmpty(newsItem.Summary)) {
+        if (!string.IsNullOrEmpty(newsItem.Summary))
+        {
             // if Tags are found, let the ContentManagement service decide if they are new or not
             content.Tags = ExtractTags(newsItem.Summary)
-                .Select(c => new TNO.Kafka.Models.Tag(c.ToUpperInvariant(),""));
+                .Select(c => new TNO.Kafka.Models.Tag(c.ToUpperInvariant(), ""));
         }
 
         // map relevant news item properties to actions
@@ -111,7 +113,8 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
             newsItem.Commentary, newsItem.CommentaryTimeout);
 
         // the total "Effort" is stored in the Number2 field as seconds
-        if (newsItem.Number2.HasValue && newsItem.Number2 > 0) {
+        if (newsItem.Number2.HasValue && newsItem.Number2 > 0)
+        {
             content.TimeTrackings = new[] { new Kafka.Models.TimeTrackingModel {
                 Activity = this.Options.DefaultTimeTrackingActivity,
                 Effort = (float)Math.Round(Convert.ToDecimal(newsItem.Number2 / 60), 2),
@@ -125,9 +128,11 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
     ///
     /// </summary>
     /// <returns></returns>
-    public override System.Linq.Expressions.Expression<Func<NewsItem, bool>> GetBaseFilter()
+    public override System.Linq.Expressions.Expression<Func<NewsItem, bool>> GetBaseFilter(ContentType contentType)
     {
+        string[] targetTypes = new string[] { "Radio News", "TV News", "Talk Radio", "Scrum", "CC News" };
         return PredicateBuilder.New<NewsItem>()
-            .And(ni => ni.ContentType!.Equals("video/quicktime"));
+                            .And(ni => targetTypes.Contains(ni.Type!.ToString()))
+                            .Or(ni => ni.ContentType!.Equals("video/quicktime"));
     }
 }

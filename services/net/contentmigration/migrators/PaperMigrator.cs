@@ -96,7 +96,7 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             var updatedOnInDefaultTimeZone = this.GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone);
             var updatedOnInUtc = updatedOnInDefaultTimeZone.ToUniversalTime();
             Logger.LogDebug("NewItem.RSN: {rsn}, UpdatedDateTime: {publishedDateTime}, ToUtc: {publishedDateTimeInUtc}", newsItem.RSN, updatedOnInDefaultTimeZone, updatedOnInUtc);
-            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ?  updatedOnInUtc : null;
+            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ? updatedOnInUtc : null;
         }
 
         if (!string.IsNullOrEmpty(newsItem.EodGroup) && !string.IsNullOrEmpty(newsItem.EodCategory))
@@ -134,7 +134,7 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     /// <param name="text"></param>
     /// <param name="summary"></param>
     /// <returns>formatted body string</returns>
-    private string GetNewsItemBody(string text, string summary)
+    private string GetNewsItemBody(string? text, string? summary)
     {
         string body = string.Empty;
 
@@ -164,10 +164,23 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     ///
     /// </summary>
     /// <returns></returns>
-    public override System.Linq.Expressions.Expression<Func<NewsItem, bool>> GetBaseFilter()
+    public override System.Linq.Expressions.Expression<Func<NewsItem, bool>> GetBaseFilter(ContentType contentType)
     {
-        return PredicateBuilder.New<NewsItem>()
-                               .And(ni => !ni.ContentType!.Equals("video/quicktime"))
-                               .And(ni => !ni.ContentType!.Equals("image/jpeg"));
+        string[] excludedContentTypes = new string[] { "video/quicktime", "image/jpeg" };
+        switch (contentType)
+        {
+            case ContentType.PrintContent:
+                string[] targetPrintTypes = new string[] { "Newspaper", "Regional" };
+                return PredicateBuilder.New<NewsItem>()
+                                    .And(ni => targetPrintTypes.Contains(ni.Type!.ToString()))
+                                    .And(ni => !excludedContentTypes.Contains(ni.ContentType!.ToString()));
+            case ContentType.Story:
+                string[] targetStoryTypes = new string[] { "CP News", "Internet" };
+                return PredicateBuilder.New<NewsItem>()
+                                    .And(ni => targetStoryTypes.Contains(ni.Type!.ToString()))
+                                    .And(ni => !excludedContentTypes.Contains(ni.ContentType!.ToString()));
+            default:
+                throw new ArgumentException("ContentType must be PrintContent OR Story.");
+        }
     }
 }
