@@ -134,7 +134,7 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     /// <param name="text"></param>
     /// <param name="summary"></param>
     /// <returns>formatted body string</returns>
-    private string GetNewsItemBody(string text, string summary)
+    private string GetNewsItemBody(string? text, string? summary)
     {
         string body = string.Empty;
 

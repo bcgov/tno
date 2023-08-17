@@ -200,7 +200,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         {
             try
             {
-                var baseFilter = contentMigrator.GetBaseFilter(manager.Ingest.IngestType!.ContentType);
+               var baseFilter = contentMigrator.GetBaseFilter(manager.Ingest.IngestType.ContentType);
 
                 IQueryable<NewsItem> items = GetFilteredNewsItems(_sourceContext.NewsItems, baseFilter, skip, this.Options.MaxRecordsPerRetrieval, manager.Ingest.LastRanOn, importDateStart, importDateEnd, creationDateOfLastImport, migrationTimeOffsetInHours);
                 this.Logger.LogDebug(items.ToQueryString());
