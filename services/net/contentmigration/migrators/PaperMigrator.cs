@@ -175,7 +175,7 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
                                     .And(ni => targetPrintTypes.Contains(ni.Type!.ToString()))
                                     .And(ni => !excludedContentTypes.Contains(ni.ContentType!.ToString()));
             case ContentType.Story:
-                string[] targetStoryTypes = new string[] { "CP News", "Internet", "Social Media" };
+                string[] targetStoryTypes = new string[] { "CP News", "Internet" };
                 return PredicateBuilder.New<NewsItem>()
                                     .And(ni => targetStoryTypes.Contains(ni.Type!.ToString()))
                                     .And(ni => !excludedContentTypes.Contains(ni.ContentType!.ToString()));
