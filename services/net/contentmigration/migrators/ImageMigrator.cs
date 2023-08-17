@@ -93,7 +93,7 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     ///
     /// </summary>
     /// <returns></returns>
-    public override System.Linq.Expressions.Expression<Func<NewsItem, bool>> GetBaseFilter() {
+    public override System.Linq.Expressions.Expression<Func<NewsItem, bool>> GetBaseFilter(ContentType contentType) {
         return PredicateBuilder.New<NewsItem>()
             .And(ni => ni.ContentType!.Equals("image/jpeg"));
     }

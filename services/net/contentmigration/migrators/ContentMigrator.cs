@@ -87,7 +87,7 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// </summary>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public virtual Expression<Func<NewsItem, bool>> GetBaseFilter() => throw new NotImplementedException();
+    public virtual Expression<Func<NewsItem, bool>> GetBaseFilter(ContentType contentType) => throw new NotImplementedException();
 
     /// <summary>
     /// Creates a SourceContent item
