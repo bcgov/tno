@@ -170,7 +170,7 @@ export const SeriesForm: React.FC = () => {
             </Row>
             <Modal
               headerText="Confirm Removal"
-              body="Are you sure you wish to remove this series?"
+              body="Are you sure you wish to remove this show/program?"
               isShowing={isShowing}
               hide={toggle}
               type="delete"
