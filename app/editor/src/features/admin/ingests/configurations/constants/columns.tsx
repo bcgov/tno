@@ -1,5 +1,5 @@
 import { FaTrash } from 'react-icons/fa';
-import { Button, ButtonVariant, ITableHookColumn } from 'tno-core';
+import { Button, ButtonVariant, FormikText, ITableHookColumn } from 'tno-core';
 
 export const columns = (
   onClick: (event: any) => {},
@@ -12,8 +12,9 @@ export const columns = (
       width: 5,
       cell: (cell) => {
         return (
-          <input
+          <FormikText
             type="text"
+            name="name"
             title="name"
             value={cell.original.name}
             onChange={(e: any) => onChange(e, cell, false)}
@@ -28,8 +29,9 @@ export const columns = (
       width: 3,
       cell: (cell) => {
         return (
-          <input
+          <FormikText
             type="text"
+            name="source"
             title="source"
             value={cell.original.source}
             onChange={(e: any) => onChange(e, cell)}

@@ -18,7 +18,7 @@ import { columns } from './constants/columns';
 import * as styled from './styled';
 
 export const Newspaper: React.FC = (props) => {
-  const { values } = useFormikContext<IIngestModel>();
+  const { values, setFieldValue } = useFormikContext<IIngestModel>();
 
   const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
   const language = Languages.find((t) => t.value === values.configuration.language);
@@ -27,9 +27,7 @@ export const Newspaper: React.FC = (props) => {
   const sources = lookups.sources.map((s) => new OptionItem(s.name, s.code, s.isEnabled));
   const source = sources.find((t) => t.value === values.configuration.defaultSource);
 
-  const [items, setItems] = React.useState<any[]>([]);
-
-  React.useEffect(() => {
+  const initialItems = () => {
     const data: any[] = [];
     let id = 0;
     const keyValues = values.configuration.sources.split('&');
@@ -37,18 +35,24 @@ export const Newspaper: React.FC = (props) => {
       if (x !== '=') data.push({ id: ++id, name: x.split('=')[0], source: x.split('=')[1] });
     });
     data.push({ id: ++id, name: '', source: '' });
-    setItems(data);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return data;
+  };
+
+  const [items, setItems] = React.useState<{ id: number; name: string; source: string }[]>(
+    initialItems(),
+  );
 
   const updateItems = (updatedItems: any[]) => {
     if (updatedItems.filter((x) => !x.name && !x.source).length === 0)
       updatedItems.push({ id: updatedItems.length + 1, name: '', source: '' });
     setItems(updatedItems);
-    values.configuration.sources = updatedItems
-      .filter((t) => !!t.name)
-      .map((item) => `${item.name?.trim()}=${item.source?.trim()}`)
-      .join('&');
+    setFieldValue(
+      'configuration.sources',
+      updatedItems
+        .filter((t) => !!t.name)
+        .map((item) => `${item.name?.trim()}=${item.source?.trim()}`)
+        .join('&'),
+    );
   };
 
   const handleRemove = async (id: number) => {
