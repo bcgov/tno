@@ -8,6 +8,7 @@ export interface ISubscriberContentFilter extends ISortPageFilter {
   createdOn?: string;
   createdStartOn?: string;
   excludeSourceIds?: number[];
+  hasFile?: boolean;
   hasTopic?: boolean;
   headline?: string;
   includeHidden?: boolean;
