@@ -52,7 +52,7 @@ export const NavBar: React.FC = () => {
             <NavBarItem activeHoverTab={activeHover} label="Admin" claim={Claim.administrator} />
           </div>
           <div className="report" onClick={() => handleClick('report')}>
-            <NavBarItem activeHoverTab={activeHover} label="Reports" claim={Claim.administrator} />
+            <NavBarItem activeHoverTab={activeHover} label="Reports" claim={Claim.editor} />
           </div>
         </Row>
       </NavBarGroup>
@@ -122,6 +122,12 @@ export const NavBar: React.FC = () => {
               level={1}
             />
             <NavBarItem
+              navigateTo="/admin/ministers"
+              label="Ministers"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
               navigateTo="/admin/system-message"
               label="System Message"
               claim={Claim.administrator}
@@ -136,6 +142,12 @@ export const NavBar: React.FC = () => {
             <NavBarItem
               navigateTo="/admin/reports"
               label="Reports"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/av/overviews"
+              label="AV Overview Templates"
               claim={Claim.administrator}
               level={1}
             />
@@ -188,18 +200,6 @@ export const NavBar: React.FC = () => {
               level={1}
             />
             <NavBarItem
-              navigateTo="/admin/ministers"
-              label="Ministers"
-              claim={Claim.administrator}
-              level={1}
-            />
-            <NavBarItem
-              navigateTo="/admin/evening-overview"
-              label="Evening Overview"
-              claim={Claim.administrator}
-              level={1}
-            />
-            <NavBarItem
               navigateTo="/admin/settings"
               label="Settings"
               claim={Claim.administrator}
@@ -209,6 +209,12 @@ export const NavBar: React.FC = () => {
 
           {/* Reports */}
           <Show visible={activeHover === 'report'}>
+            <NavBarItem
+              navigateTo="/reports/av/overviews"
+              label="AV Overview"
+              claim={Claim.editor}
+              level={1}
+            />
             <NavBarItem
               navigateTo="/reports/cbra"
               label="CBRA Report"

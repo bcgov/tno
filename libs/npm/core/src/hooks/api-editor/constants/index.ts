@@ -1,4 +1,8 @@
 export * from './ActionName';
+export * from './AVOverviewItemType';
+export * from './AVOverviewItemTypeName';
+export * from './AVOverviewTemplateType';
+export * from './AVOverviewTemplateTypeName';
 export * from './ConnectionType';
 export * from './ConnectionTypeName';
 export * from './ContentListAction';
@@ -10,6 +14,8 @@ export * from './ContentTypeName';
 export * from './LogicalOperator';
 export * from './NotificationType';
 export * from './NotificationTypeName';
+export * from './ReportType';
+export * from './ReportTypeName';
 export * from './ResendOption';
 export * from './ResendOptionName';
 export * from './ScheduleMonth';

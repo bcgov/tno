@@ -44,25 +44,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("created_on")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("description")
-                        .HasDefaultValueSql("''");
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean");
 
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_enabled");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
-
-                    b.Property<DateTime?>("PublishedOn")
+                    b.Property<DateTime>("PublishedOn")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("published_on");
 
@@ -72,12 +57,6 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("response")
                         .HasDefaultValueSql("'{}'::jsonb");
-
-                    b.Property<int>("SortOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("sort_order");
 
                     b.Property<int>("TemplateType")
                         .HasColumnType("integer")
@@ -104,7 +83,10 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_avoverviewinstance_is_enabled");
+                    b.HasIndex("PublishedOn")
+                        .IsUnique();
+
+                    b.HasIndex("TemplateType", "PublishedOn");
 
                     b.ToTable("av_overview_instance");
                 });
@@ -118,18 +100,10 @@ namespace TNO.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AVOverviewInstanceId")
-                        .HasColumnType("integer")
-                        .HasColumnName("av_overview_instance_id");
-
-                    b.Property<int>("AVOverviewTemplateId")
-                        .HasColumnType("integer")
-                        .HasColumnName("av_overview_template_id");
-
                     b.Property<string>("Anchors")
                         .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("anchors");
 
                     b.Property<string>("CreatedBy")
@@ -144,28 +118,19 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("created_on")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("description")
-                        .HasDefaultValueSql("''");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_enabled");
+                    b.Property<int>("InstanceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("av_overview_instance_id");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("text")
                         .HasColumnName("name");
 
                     b.Property<string>("OtherSource")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("other_source");
 
                     b.Property<int?>("SeriesId")
@@ -173,9 +138,7 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("series_id");
 
                     b.Property<int>("SortOrder")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasDefaultValue(0)
                         .HasColumnName("sort_order");
 
                     b.Property<int?>("SourceId")
@@ -183,8 +146,9 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("source_id");
 
                     b.Property<string>("StartTime")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
                         .HasColumnName("start_time");
 
                     b.Property<string>("UpdatedBy")
@@ -208,7 +172,11 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_avoverviewsection_is_enabled");
+                    b.HasIndex("InstanceId");
+
+                    b.HasIndex("SeriesId");
+
+                    b.HasIndex("SourceId");
 
                     b.ToTable("av_overview_section");
                 });
@@ -221,10 +189,6 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AVOverviewSectionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("av_overview_section_id");
 
                     b.Property<long?>("ContentId")
                         .HasColumnType("bigint")
@@ -242,44 +206,28 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("created_on")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("description")
-                        .HasDefaultValueSql("''");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_enabled");
-
                     b.Property<int>("ItemType")
                         .HasColumnType("integer")
                         .HasColumnName("item_type");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
+                    b.Property<int>("SectionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("av_overview_section_id");
 
                     b.Property<int>("SortOrder")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasDefaultValue(0)
                         .HasColumnName("sort_order");
 
                     b.Property<string>("Summary")
                         .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
                         .HasColumnName("summary");
 
                     b.Property<string>("Time")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
                         .HasColumnName("time");
 
                     b.Property<string>("UpdatedBy")
@@ -303,19 +251,18 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_avoverviewsectionitem_is_enabled");
+                    b.HasIndex("ContentId");
+
+                    b.HasIndex("SectionId");
 
                     b.ToTable("av_overview_section_item");
                 });
 
             modelBuilder.Entity("TNO.Entities.AVOverviewTemplate", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("TemplateType")
                         .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnName("template_type");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -329,38 +276,9 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("created_on")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("description")
-                        .HasDefaultValueSql("''");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_enabled");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
-
-                    b.Property<int>("SortOrder")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("TemplateId")
                         .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("sort_order");
-
-                    b.Property<string>("Template")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("template");
-
-                    b.Property<int>("TemplateType")
-                        .HasColumnType("integer")
-                        .HasColumnName("template_type");
+                        .HasColumnName("report_template_id");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
@@ -381,12 +299,9 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("version")
                         .HasDefaultValueSql("0");
 
-                    b.HasKey("Id");
+                    b.HasKey("TemplateType");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_avoverviewtemplate_is_enabled");
+                    b.HasIndex("TemplateId");
 
                     b.ToTable("av_overview_template");
                 });
@@ -400,13 +315,10 @@ namespace TNO.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AVOverviewTemplateId")
-                        .HasColumnType("integer")
-                        .HasColumnName("av_overview_template_id");
-
                     b.Property<string>("Anchors")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("anchors");
 
                     b.Property<string>("CreatedBy")
@@ -421,27 +333,15 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("created_on")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("description")
-                        .HasDefaultValueSql("''");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_enabled");
-
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("text")
                         .HasColumnName("name");
 
                     b.Property<string>("OtherSource")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("other_source");
 
                     b.Property<int?>("SeriesId")
@@ -449,9 +349,7 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("series_id");
 
                     b.Property<int>("SortOrder")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasDefaultValue(0)
                         .HasColumnName("sort_order");
 
                     b.Property<int?>("SourceId")
@@ -459,8 +357,14 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("source_id");
 
                     b.Property<string>("StartTime")
-                        .HasColumnType("text")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
                         .HasColumnName("start_time");
+
+                    b.Property<int>("TemplateId")
+                        .HasColumnType("integer")
+                        .HasColumnName("av_overview_template_id");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
@@ -483,9 +387,84 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_avoverviewtemplatesection_is_enabled");
+                    b.HasIndex("SeriesId");
+
+                    b.HasIndex("SourceId");
+
+                    b.HasIndex("TemplateId");
 
                     b.ToTable("av_overview_template_section");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AVOverviewTemplateSectionItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("ItemType")
+                        .HasColumnType("integer")
+                        .HasColumnName("item_type");
+
+                    b.Property<int>("SectionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("av_overview_template_section_id");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("summary");
+
+                    b.Property<string>("Time")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("time");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SectionId");
+
+                    b.ToTable("av_overview_template_section_item");
                 });
 
             modelBuilder.Entity("TNO.Entities.Action", b =>
@@ -3456,6 +3435,12 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
+                    b.Property<int>("ReportType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("report_type")
+                        .HasDefaultValueSql("0");
+
                     b.Property<JsonDocument>("Settings")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -4724,6 +4709,58 @@ namespace TNO.DAL.Migrations
                     b.ToTable("user");
                 });
 
+            modelBuilder.Entity("TNO.Entities.UserAVOverview", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<int>("TemplateType")
+                        .HasColumnType("integer")
+                        .HasColumnName("av_overview_template_type");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<bool>("IsSubscribed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_subscribed");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("UserId", "TemplateType");
+
+                    b.HasIndex("TemplateType");
+
+                    b.ToTable("user_av_overview");
+                });
+
             modelBuilder.Entity("TNO.Entities.UserNotification", b =>
                 {
                     b.Property<int>("UserId")
@@ -4745,6 +4782,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_on")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<bool>("IsSubscribed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_subscribed");
 
                     b.Property<int?>("Resend")
                         .HasColumnType("integer")
@@ -4845,6 +4886,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_on")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<bool>("IsSubscribed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_subscribed");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
@@ -4955,6 +5000,107 @@ namespace TNO.DAL.Migrations
                     b.HasIndex(new[] { "WorkType", "Status", "CreatedOn", "RequestorId", "AssignedId" }, "IX_work_order");
 
                     b.ToTable("work_order");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AVOverviewInstance", b =>
+                {
+                    b.HasOne("TNO.Entities.AVOverviewTemplate", "Template")
+                        .WithMany("Instances")
+                        .HasForeignKey("TemplateType")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AVOverviewSection", b =>
+                {
+                    b.HasOne("TNO.Entities.AVOverviewInstance", "Instance")
+                        .WithMany("Sections")
+                        .HasForeignKey("InstanceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TNO.Entities.Series", "Series")
+                        .WithMany()
+                        .HasForeignKey("SeriesId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TNO.Entities.Source", "Source")
+                        .WithMany()
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Instance");
+
+                    b.Navigation("Series");
+
+                    b.Navigation("Source");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AVOverviewSectionItem", b =>
+                {
+                    b.HasOne("TNO.Entities.Content", "Content")
+                        .WithMany()
+                        .HasForeignKey("ContentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TNO.Entities.AVOverviewSection", "Section")
+                        .WithMany("Items")
+                        .HasForeignKey("SectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Content");
+
+                    b.Navigation("Section");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AVOverviewTemplate", b =>
+                {
+                    b.HasOne("TNO.Entities.ReportTemplate", "Template")
+                        .WithMany()
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AVOverviewTemplateSection", b =>
+                {
+                    b.HasOne("TNO.Entities.Series", "Series")
+                        .WithMany()
+                        .HasForeignKey("SeriesId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TNO.Entities.Source", "Source")
+                        .WithMany()
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TNO.Entities.AVOverviewTemplate", "Template")
+                        .WithMany("Sections")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Series");
+
+                    b.Navigation("Source");
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AVOverviewTemplateSectionItem", b =>
+                {
+                    b.HasOne("TNO.Entities.AVOverviewTemplateSection", "Section")
+                        .WithMany("Items")
+                        .HasForeignKey("SectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Section");
                 });
 
             modelBuilder.Entity("TNO.Entities.Content", b =>
@@ -5600,6 +5746,25 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Source");
                 });
 
+            modelBuilder.Entity("TNO.Entities.UserAVOverview", b =>
+                {
+                    b.HasOne("TNO.Entities.AVOverviewTemplate", "Template")
+                        .WithMany("SubscribersManyToMany")
+                        .HasForeignKey("TemplateType")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TNO.Entities.User", "User")
+                        .WithMany("AVOverviewSubscriptionsManyToMany")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Template");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TNO.Entities.UserNotification", b =>
                 {
                     b.HasOne("TNO.Entities.Notification", "Notification")
@@ -5672,6 +5837,30 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Assigned");
 
                     b.Navigation("Requestor");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AVOverviewInstance", b =>
+                {
+                    b.Navigation("Sections");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AVOverviewSection", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AVOverviewTemplate", b =>
+                {
+                    b.Navigation("Instances");
+
+                    b.Navigation("Sections");
+
+                    b.Navigation("SubscribersManyToMany");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AVOverviewTemplateSection", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("TNO.Entities.Action", b =>
@@ -5873,6 +6062,8 @@ namespace TNO.DAL.Migrations
 
             modelBuilder.Entity("TNO.Entities.User", b =>
                 {
+                    b.Navigation("AVOverviewSubscriptionsManyToMany");
+
                     b.Navigation("Contents");
 
                     b.Navigation("Filters");

@@ -350,4 +350,20 @@ public interface IApiService
     /// <returns></returns>
     Task<API.Areas.Services.Models.EventSchedule.EventScheduleModel?> UpdateEventScheduleAsync(API.Areas.Services.Models.EventSchedule.EventScheduleModel model);
     #endregion
+
+    #region AV Overview
+    /// <summary>
+    /// Make a request to the API for the evening overview instance for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?> GetAVOverviewInstanceAsync(int id);
+
+    /// <summary>
+    /// Make a request to the API to update the evening overview instance for the specified 'model'.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?> UpdateAVOverviewInstanceAsync(API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel model);
+    #endregion
 }

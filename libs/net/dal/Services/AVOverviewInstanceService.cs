@@ -1,7 +1,7 @@
 using System.Security.Claims;
+using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using TNO.Elastic;
 using TNO.Entities;
 
 namespace TNO.DAL.Services;
@@ -9,31 +9,98 @@ namespace TNO.DAL.Services;
 public class AVOverviewInstanceService : BaseService<AVOverviewInstance, int>, IAVOverviewInstanceService
 {
     #region Variables
-    private readonly ITNOElasticClient _client;
     #endregion
 
     #region Constructors
     public AVOverviewInstanceService(
         TNOContext dbContext,
         ClaimsPrincipal principal,
-        ITNOElasticClient client,
         IServiceProvider serviceProvider,
         ILogger<ReportService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
-        _client = client;
     }
     #endregion
 
     #region Methods
-    /// <summary>
-    /// Find all the av overview sections.
-    /// </summary>
-    /// <returns></returns>
-    public IEnumerable<AVOverviewInstance> FindAll()
+    public override AVOverviewInstance? FindById(int id)
     {
         return this.Context.AVOverviewInstances
             .AsNoTracking()
-            .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
+            .Include(i => i.Template)
+            .Include(i => i.Sections).ThenInclude(s => s.Source)
+            .Include(i => i.Sections).ThenInclude(s => s.Series)
+            .Include(i => i.Sections).ThenInclude(s => s.Items)
+            .FirstOrDefault(i => i.Id == id);
+    }
+
+    /// <summary>
+    /// Return the last evening overview instance for the specified date.
+    /// </summary>
+    /// <param name="publishedOn"></param>
+    /// <returns></returns>
+    public AVOverviewInstance? FindByDate(DateTime publishedOn)
+    {
+        var date = new DateTime(publishedOn.Year, publishedOn.Month, publishedOn.Day, 0, 0, 0, DateTimeKind.Utc);
+        return this.Context.AVOverviewInstances
+            .AsNoTracking()
+            .Include(i => i.Template)
+            .Include(i => i.Sections).ThenInclude(s => s.Source)
+            .Include(i => i.Sections).ThenInclude(s => s.Series)
+            .Include(i => i.Sections).ThenInclude(s => s.Items)
+            .OrderByDescending(r => r.PublishedOn)
+            .Where(i => i.PublishedOn == date)
+            .FirstOrDefault();
+    }
+
+    public override AVOverviewInstance Add(AVOverviewInstance entity)
+    {
+        entity.Sections.ForEach(section =>
+        {
+            section.Instance = entity;
+            this.Context.Add(section);
+            section.Items.ForEach(item =>
+            {
+                item.Section = section;
+                this.Context.Add(item);
+            });
+        });
+        return base.Add(entity);
+    }
+
+    public override AVOverviewInstance Update(AVOverviewInstance entity)
+    {
+        var originalSections = this.Context.AVOverviewSections.Where(s => s.InstanceId == entity.Id).ToArray();
+        originalSections.Except(entity.Sections).ForEach(s =>
+        {
+            this.Context.Entry(s).State = EntityState.Deleted;
+        });
+        entity.Sections.ForEach(section =>
+        {
+            section.Instance = entity;
+            if (section.Id == 0)
+            {
+                this.Context.Add(section);
+                section.Items.ForEach(item =>
+                {
+                    item.Section = section;
+                    this.Context.Add(item);
+                });
+            }
+            else
+            {
+                this.Context.Update(section);
+                section.Items.ForEach(item =>
+                {
+                    item.Section = section;
+                    if (item.Id == 0)
+                        this.Context.Add(item);
+                    else
+                        this.Context.Update(item);
+
+                });
+            }
+        });
+        return base.Update(entity);
     }
     #endregion
 }

@@ -1,8 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {
-  IEveningOverviewItem,
-  IEveningOverviewSection,
-} from 'features/admin/evening-overview/interfaces';
 import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import {
@@ -42,8 +38,6 @@ export const initialAdminState: IAdminState = {
   connections: [],
   contributors: [],
   dataLocations: [],
-  eveningOverviewSections: [],
-  eveningOverviewItems: [],
   folders: [],
   filters: [],
   ingests: [],
@@ -125,15 +119,6 @@ export const adminSlice = createSlice({
     storeProducts(state: IAdminState, action: PayloadAction<IProductModel[]>) {
       state.products = action.payload;
     },
-    storeEveningOverviewSections(
-      state: IAdminState,
-      action: PayloadAction<IEveningOverviewSection[]>,
-    ) {
-      state.eveningOverviewSections = action.payload;
-    },
-    storeEveningOverviewItems(state: IAdminState, action: PayloadAction<IEveningOverviewItem[]>) {
-      state.eveningOverviewItems = action.payload;
-    },
     storeReports(state: IAdminState, action: PayloadAction<IReportModel[]>) {
       state.reports = action.payload;
     },
@@ -182,8 +167,6 @@ export const {
   storeConnections: storeAdminConnections,
   storeContributors: storeAdminContributors,
   storeDataLocations: storeAdminDataLocations,
-  storeEveningOverviewItems: storeAdminEveningOverviewItems,
-  storeEveningOverviewSections: storeAdminEveningOverviewSections,
   storeFolders: storeAdminFolders,
   storeFilters: storeAdminFilters,
   storeIngests: storeAdminIngests,

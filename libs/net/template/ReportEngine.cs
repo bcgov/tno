@@ -17,14 +17,18 @@ public class ReportEngine : IReportEngine
 {
     #region Properties
     /// <summary>
-    /// get - Report template engine.
+    /// get - Report template engine for content.
     /// </summary>
-    protected ITemplateEngine<ReportEngineTemplateModel> ReportTemplateEngine { get; }
+    protected ITemplateEngine<ReportEngineContentModel> ReportEngineContent { get; }
+    /// <summary>
+    /// get - Report template engine for evening overview.
+    /// </summary>
+    protected ITemplateEngine<ReportEngineAVOverviewModel> ReportEngineAVOverview { get; }
 
     /// <summary>
-    /// get - Chart template engine.
+    /// get - Chart template engine for content.
     /// </summary>
-    protected ITemplateEngine<ChartEngineTemplateModel> ChartTemplateEngine { get; }
+    protected ITemplateEngine<ChartEngineContentModel> ChartEngineContent { get; }
 
     /// <summary>
     /// get - HTTP client.
@@ -41,18 +45,21 @@ public class ReportEngine : IReportEngine
     /// <summary>
     /// Creates a new instance of a ReportEngine object, initializes with specified parameters.
     /// </summary>
-    /// <param name="reportTemplateEngine"></param>
-    /// <param name="chartTemplateEngine"></param>
+    /// <param name="reportEngineContent"></param>
+    /// <param name="reportEngineAVOverview"></param>
+    /// <param name="chartEngineContent"></param>
     /// <param name="httpClient"></param>
     /// <param name="chartsOptions"></param>
     public ReportEngine(
-        ITemplateEngine<ReportEngineTemplateModel> reportTemplateEngine,
-        ITemplateEngine<ChartEngineTemplateModel> chartTemplateEngine,
+        ITemplateEngine<ReportEngineContentModel> reportEngineContent,
+        ITemplateEngine<ReportEngineAVOverviewModel> reportEngineAVOverview,
+        ITemplateEngine<ChartEngineContentModel> chartEngineContent,
         IHttpRequestClient httpClient,
         IOptions<ChartsOptions> chartsOptions)
     {
-        this.ReportTemplateEngine = reportTemplateEngine;
-        this.ChartTemplateEngine = chartTemplateEngine;
+        this.ReportEngineContent = reportEngineContent;
+        this.ReportEngineAVOverview = reportEngineAVOverview;
+        this.ChartEngineContent = chartEngineContent;
         this.HttpClient = httpClient;
         this.ChartsOptions = chartsOptions.Value;
     }
@@ -74,8 +81,8 @@ public class ReportEngine : IReportEngine
     {
         var key = $"chart-template-{model.ChartTemplate.Id}";
         var template = updateCache
-            ? this.ChartTemplateEngine.AddOrUpdateTemplateInMemory(key, model.ChartTemplate.Template)
-            : this.ChartTemplateEngine.GetOrAddTemplateInMemory(key, model.ChartTemplate.Template);
+            ? this.ChartEngineContent.AddOrUpdateTemplateInMemory(key, model.ChartTemplate.Template)
+            : this.ChartEngineContent.GetOrAddTemplateInMemory(key, model.ChartTemplate.Template);
 
         var json = await template.RunAsync(instance =>
         {
@@ -118,6 +125,7 @@ public class ReportEngine : IReportEngine
         return await response.Content.ReadAsStringAsync();
     }
 
+    #region Content
     /// <summary>
     /// Generate the output of the report with the Razor engine.
     /// </summary>
@@ -125,18 +133,22 @@ public class ReportEngine : IReportEngine
     /// <param name="sectionContent"></param>
     /// <param name="updateCache"></param>
     /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     public async Task<string> GenerateReportSubjectAsync(
         API.Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sectionContent,
         bool updateCache = false)
     {
-        var key = $"report-{report.Id}-subject";
-        var model = new TNO.TemplateEngine.Models.Reports.ReportEngineTemplateModel(sectionContent, report.Settings);
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
+        if (report.Template.ReportType != Entities.ReportType.Content) throw new InvalidOperationException("The report does not use a evening overview template.");
+
+        var key = $"report-template-{report.Template.Id}-subject";
         var template = (!updateCache ?
-            this.ReportTemplateEngine.GetOrAddTemplateInMemory(key, report.Template.Subject) :
-            this.ReportTemplateEngine.AddOrUpdateTemplateInMemory(key, report.Template.Subject))
+            this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Subject) :
+            this.ReportEngineContent.AddOrUpdateTemplateInMemory(key, report.Template.Subject))
             ?? throw new InvalidOperationException("Template does not exist");
+
+        var model = new ReportEngineContentModel(sectionContent, report.Settings);
         return await template.RunAsync(instance =>
         {
             instance.Model = model;
@@ -154,21 +166,23 @@ public class ReportEngine : IReportEngine
     /// <param name="uploadPath"></param>
     /// <param name="updateCache"></param>
     /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     public async Task<string> GenerateReportBodyAsync(
         API.Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sectionContent,
         string? uploadPath = null,
         bool updateCache = false)
     {
-        var key = $"report-{report.Id}";
-        var model = new TNO.TemplateEngine.Models.Reports.ReportEngineTemplateModel(sectionContent, report.Settings, uploadPath);
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
+        if (report.Template.ReportType != Entities.ReportType.Content) throw new InvalidOperationException("The report does not use a evening overview template.");
 
+        var key = $"report-template-{report.Template.Id}-body";
         var template = (!updateCache ?
-            this.ReportTemplateEngine.GetOrAddTemplateInMemory(key, report.Template.Body) :
-            this.ReportTemplateEngine.AddOrUpdateTemplateInMemory(key, report.Template.Body))
+            this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Body) :
+            this.ReportEngineContent.AddOrUpdateTemplateInMemory(key, report.Template.Body))
             ?? throw new InvalidOperationException("Template does not exist");
 
+        var model = new ReportEngineContentModel(sectionContent, report.Settings, uploadPath);
         var body = await template.RunAsync(instance =>
         {
             instance.Model = model;
@@ -198,7 +212,7 @@ public class ReportEngine : IReportEngine
                 if (chart.SectionSettings.Options == null || chart.SectionSettings.Options.ToJson() == "{}")
                     chart.SectionSettings.Options = chart.Settings.Options;
 
-                var chartModel = new ChartEngineTemplateModel(ReportSectionModel.GenerateChartUid(section.Id, chart.Id), chart, aggregateSection, !settings.IsSummary ? content : null);
+                var chartModel = new ChartEngineContentModel(ReportSectionModel.GenerateChartUid(section.Id, chart.Id), chart, aggregateSection, !settings.IsSummary ? content : null);
                 var chartRequestModel = new ChartRequestModel(chartModel);
                 var base64Image = await this.GenerateBase64ImageAsync(chartRequestModel);
 
@@ -209,5 +223,64 @@ public class ReportEngine : IReportEngine
 
         return body;
     }
+    #endregion
+
+    #region AV Overview
+    /// <summary>
+    /// Generate the output of the report with the Razor engine.
+    /// </summary>
+    /// <param name="reportTemplate"></param>
+    /// <param name="eveningOverview"></param>
+    /// <param name="updateCache"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task<string> GenerateReportSubjectAsync(
+        API.Areas.Services.Models.AVOverview.ReportTemplateModel reportTemplate,
+        AVOverviewInstanceModel eveningOverview,
+        bool updateCache = false)
+    {
+        var key = $"report-template-{reportTemplate.Id}-subject";
+        var template = (!updateCache ?
+            this.ReportEngineAVOverview.GetOrAddTemplateInMemory(key, reportTemplate.Subject) :
+            this.ReportEngineAVOverview.AddOrUpdateTemplateInMemory(key, reportTemplate.Subject))
+            ?? throw new InvalidOperationException("Template does not exist");
+
+        var model = new ReportEngineAVOverviewModel(eveningOverview, eveningOverview.Settings);
+        return await template.RunAsync(instance =>
+        {
+            instance.Model = model;
+            instance.Settings = model.Settings;
+            instance.Instance = model.Instance;
+        });
+    }
+
+    /// <summary>
+    /// Generate the output of the report with the Razor engine.
+    /// </summary>
+    /// <param name="reportTemplate"></param>
+    /// <param name="eveningOverview"></param>
+    /// <param name="updateCache"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task<string> GenerateReportBodyAsync(
+        API.Areas.Services.Models.AVOverview.ReportTemplateModel reportTemplate,
+        AVOverviewInstanceModel eveningOverview,
+        bool updateCache = false)
+    {
+        var key = $"report-template-{reportTemplate.Id}-body";
+        var template = (!updateCache ?
+            this.ReportEngineAVOverview.GetOrAddTemplateInMemory(key, reportTemplate.Body) :
+            this.ReportEngineAVOverview.AddOrUpdateTemplateInMemory(key, reportTemplate.Body))
+            ?? throw new InvalidOperationException("Template does not exist");
+
+        var model = new ReportEngineAVOverviewModel(eveningOverview, eveningOverview.Settings);
+        return await template.RunAsync(instance =>
+        {
+            instance.Model = model;
+            instance.Settings = model.Settings;
+            instance.Instance = model.Instance;
+        });
+    }
+    #endregion
     #endregion
 }

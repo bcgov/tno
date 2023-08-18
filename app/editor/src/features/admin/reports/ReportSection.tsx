@@ -230,7 +230,6 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
                         options: { ...chart.settings.options },
                       },
                     };
-                    console.debug(chart);
                     const charts = [...section.chartTemplates, newChart].map((ct, i) => {
                       return { ...ct, sortOrder: i };
                     });

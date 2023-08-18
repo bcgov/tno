@@ -55,6 +55,7 @@ public class UserModel
         this.DisplayName = entity.DisplayName;
         this.FirstName = entity.FirstName;
         this.LastName = entity.LastName;
+        this.LastName = entity.LastName;
     }
 
     /// <summary>

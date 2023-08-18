@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using System.Text;
 using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
@@ -9,7 +8,6 @@ using TNO.Ches.Configuration;
 using TNO.Ches.Models;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
-using TNO.Core.Http;
 using TNO.Elastic.Models;
 using TNO.Entities;
 using TNO.Kafka;
@@ -17,8 +15,6 @@ using TNO.Kafka.Models;
 using TNO.Services.Managers;
 using TNO.Services.Reporting.Config;
 using TNO.TemplateEngine;
-using TNO.TemplateEngine.Config;
-using TNO.TemplateEngine.Models.Charts;
 using TNO.TemplateEngine.Models.Reports;
 
 namespace TNO.Services.Reporting;
@@ -274,26 +270,40 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var request = result.Message.Value;
         if (request.Destination.HasFlag(ReportDestination.ReportingService))
         {
-            if (request.ReportInstanceId.HasValue)
+            if (request.ReportType == Entities.ReportType.Content)
             {
-                var instance = await this.Api.GetReportInstanceAsync(request.ReportInstanceId.Value);
+                if (request.ReportInstanceId.HasValue)
+                {
+                    var instance = await this.Api.GetReportInstanceAsync(request.ReportInstanceId.Value);
+                    if (instance != null)
+                    {
+                        await GenerateReportAsync(request, instance);
+                    }
+                    else
+                        this.Logger.LogWarning("Report instance does not exist.  Report Instance: {instance}", request.ReportInstanceId);
+                }
+                else
+                {
+                    var report = await this.Api.GetReportAsync(request.ReportId);
+                    if (report != null)
+                    {
+                        await GenerateReportAsync(request, report);
+                    }
+                    else
+                        this.Logger.LogWarning("Report does not exist.  Report: {report}", request.ReportId);
+                }
+            }
+            else if (request.ReportType == Entities.ReportType.AVOverview)
+            {
+                var instance = await this.Api.GetAVOverviewInstanceAsync(request.ReportId);
                 if (instance != null)
                 {
                     await GenerateReportAsync(request, instance);
                 }
                 else
-                    this.Logger.LogDebug("Report instance does not exist.  Report Instance: {instance}", request.ReportInstanceId);
+                    this.Logger.LogWarning("AV overview instance does not exist.  Instance: {report}", request.ReportId);
             }
-            else
-            {
-                var report = await this.Api.GetReportAsync(request.ReportId);
-                if (report != null)
-                {
-                    await GenerateReportAsync(request, report);
-                }
-                else
-                    this.Logger.LogDebug("Report does not exist.  Report: {report}", request.ReportId);
-            }
+            else throw new NotImplementedException($"Report template type '{request.ReportType.GetName()}' has not been implemented");
         }
     }
 
@@ -337,7 +347,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         // Save the report instance.
         // Group content by the section name.
-        var instance = new ReportInstance(report.Id, sectionContent.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder))))
+        var instance = new ReportInstance(report.Id, request.RequestorId, sectionContent.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder))))
         {
             OwnerId = request.RequestorId,
             PublishedOn = DateTime.UtcNow
@@ -354,6 +364,33 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         instance.Version = instanceModel.Version ?? 0;
         instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
         await this.Api.UpdateReportInstanceAsync(new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions));
+    }
+
+    /// <summary>
+    /// Send out an email for the specified report.
+    /// Generate a report instance for this email.
+    /// Send an email merge to CHES.
+    /// This will send out a separate email to each context provided.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel instance)
+    {
+        var model = new AVOverviewInstanceModel(instance);
+        var template = instance.Template ?? throw new InvalidOperationException($"Report template was not included in model.");
+
+        var to = instance.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.Email)).Select(s => s.Email).ToArray();
+        var subject = await this.ReportEngine.GenerateReportSubjectAsync(template, model, request.UpdateCache);
+        var body = await this.ReportEngine.GenerateReportBodyAsync(template, model, request.UpdateCache);
+
+        // Send the email.
+        var response = await SendEmailAsync(request, to, subject, body, $"{instance.TemplateType}-{instance.Id}");
+
+        // Update the report instance with the email response.
+        instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+        await this.Api.UpdateAVOverviewInstanceAsync(instance);
     }
 
     /// <summary>

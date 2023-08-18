@@ -1,6 +1,6 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
-using TNO.Core.Data;
 
 namespace TNO.Entities;
 
@@ -8,20 +8,37 @@ namespace TNO.Entities;
 /// AVOverviewInstance class, provides a DB model to manage different types of overviews.
 /// </summary>
 [Table("av_overview_instance")]
-public class AVOverviewInstance : BaseType<int>
+public class AVOverviewInstance : AuditColumns
 {
     #region Properties
+    /// <summary>
+    /// get/set - Primary key.
+    /// </summary>
+    [Key]
+    [Column("id")]
+    public int Id { get; set; }
+
     /// <summary>
     /// get/set - The type of template.
     /// </summary>
     [Column("template_type")]
-    public TemplateType TemplateType { get; set; }
+    public AVOverviewTemplateType TemplateType { get; set; }
 
-    [Column("published_on")]
+    /// <summary>
+    /// get/set - The template.
+    /// </summary>
+    public AVOverviewTemplate? Template { get; set; }
+
     /// <summary>
     /// get/set - When the content has been or will be published.
     /// </summary>
-    public DateTime? PublishedOn { get; set; }
+    [Column("published_on")]
+    public DateTime PublishedOn { get; set; }
+
+    /// <summary>
+    /// get/set - Whether this report has been published (emailed out).
+    /// </summary>
+    public bool IsPublished { get; set; }
 
     /// <summary>
     /// get/set - The response.
@@ -29,7 +46,10 @@ public class AVOverviewInstance : BaseType<int>
     [Column("response")]
     public JsonDocument Response { get; set; } = JsonDocument.Parse("{}");
 
-
+    /// <summary>
+    /// get - A collection of sections in this overview instance.
+    /// </summary>
+    public List<AVOverviewSection> Sections { get; } = new List<AVOverviewSection>();
     #endregion
 
     #region Constructors
@@ -41,14 +61,24 @@ public class AVOverviewInstance : BaseType<int>
     /// <summary>
     /// Creates a new instance of a av overview template object, initializes with specified parameters.
     /// </summary>
-    /// <param name="name"></param>
-    /// <param name="type"></param>
-    /// <param name="owner"></param>
     /// <param name="template"></param>
-    public AVOverviewInstance(string name) : base(name)
+    /// <param name="publishedOn"></param>
+    public AVOverviewInstance(AVOverviewTemplate template, DateTime publishedOn)
     {
-
+        this.TemplateType = template?.TemplateType ?? throw new ArgumentNullException(nameof(template));
+        this.Template = template;
+        this.PublishedOn = publishedOn;
     }
 
+    /// <summary>
+    /// Creates a new instance of a av overview template object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="templateType"></param>
+    /// <param name="publishedOn"></param>
+    public AVOverviewInstance(AVOverviewTemplateType templateType, DateTime publishedOn)
+    {
+        this.TemplateType = templateType;
+        this.PublishedOn = publishedOn;
+    }
     #endregion
 }

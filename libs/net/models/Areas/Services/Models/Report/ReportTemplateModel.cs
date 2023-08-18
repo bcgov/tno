@@ -1,5 +1,7 @@
 using System.Text.Json;
 using TNO.API.Models;
+using TNO.API.Models.Settings;
+using TNO.Entities;
 
 namespace TNO.API.Areas.Services.Models.Report;
 
@@ -9,6 +11,11 @@ namespace TNO.API.Areas.Services.Models.Report;
 public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
 {
     #region Properties
+    /// <summary>
+    /// get/set - The report type.
+    /// </summary>
+    public ReportType ReportType { get; set; }
+
     /// <summary>
     /// get/set - The Razor subject template to generate the report.
     /// </summary>
@@ -22,7 +29,7 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get/set - The settings for this report.
     /// </summary>
-    public Dictionary<string, object> Settings { get; set; } = new Dictionary<string, object>();
+    public ReportTemplateSettingsModel Settings { get; set; } = new();
 
     /// <summary>
     /// get/set - An array of chart templates.
@@ -43,9 +50,10 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
     /// <param name="options"></param>
     public ReportTemplateModel(Entities.ReportTemplate entity, JsonSerializerOptions options) : base(entity)
     {
+        this.ReportType = entity.ReportType;
         this.Subject = entity.Subject;
         this.Body = entity.Body;
-        this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
+        this.Settings = JsonSerializer.Deserialize<ReportTemplateSettingsModel>(entity.Settings, options) ?? new();
 
         if (entity.ChartTemplates.Any())
             this.ChartTemplates = entity.ChartTemplates.Select(ct => new ChartTemplateModel(ct, options));
@@ -72,7 +80,7 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
     /// <param name="model"></param>
     public static explicit operator Entities.ReportTemplate(ReportTemplateModel model)
     {
-        var entity = new Entities.ReportTemplate(model.Id, model.Name, model.Subject, model.Body)
+        var entity = new Entities.ReportTemplate(model.Id, model.Name, model.ReportType, model.Subject, model.Body)
         {
             Description = model.Description,
             IsEnabled = model.IsEnabled,

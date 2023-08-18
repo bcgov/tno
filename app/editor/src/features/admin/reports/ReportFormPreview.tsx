@@ -42,7 +42,7 @@ export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
         setPreview({
           subject: data.error,
           body: `${data.details}<div>${data.stackTrace}</div>`,
-          results: {},
+          data: {},
         });
       }
     },

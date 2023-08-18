@@ -89,12 +89,16 @@ public class TNOContext : DbContext
     public DbSet<Report> Reports => Set<Report>();
     public DbSet<ReportInstance> ReportInstances => Set<ReportInstance>();
     public DbSet<ReportInstanceContent> ReportInstanceContents => Set<ReportInstanceContent>();
+    public DbSet<UserReport> UserReports => Set<UserReport>();
 
     public DbSet<AVOverviewSection> AVOverviewSections => Set<AVOverviewSection>();
     public DbSet<AVOverviewSectionItem> AVOverviewSectionItems => Set<AVOverviewSectionItem>();
     public DbSet<AVOverviewInstance> AVOverviewInstances => Set<AVOverviewInstance>();
+    public DbSet<AVOverviewTemplate> AVOverviewTemplates => Set<AVOverviewTemplate>();
+    public DbSet<AVOverviewTemplateSection> AVOverviewTemplateSections => Set<AVOverviewTemplateSection>();
+    public DbSet<AVOverviewTemplateSectionItem> AVOverviewTemplateSectionItems => Set<AVOverviewTemplateSectionItem>();
+    public DbSet<UserAVOverview> UserAVOverviews => Set<UserAVOverview>();
 
-    public DbSet<UserReport> UserReports => Set<UserReport>();
     public DbSet<EventSchedule> EventSchedules => Set<EventSchedule>();
     #endregion
 

@@ -69,7 +69,7 @@ export const ChartTemplateFormOptions: React.FC<IChartTemplateFormOptionsProps> 
           <Checkbox
             name="horizontal"
             label="Horizontal Graph"
-            defaultChecked={values.settings.options.indexAxis === 'y'}
+            defaultChecked={values.settings.options?.indexAxis === 'y'}
             onChange={(e) => {
               const options = {
                 ...values.settings.options,
@@ -82,18 +82,18 @@ export const ChartTemplateFormOptions: React.FC<IChartTemplateFormOptionsProps> 
           <Checkbox
             name="showDataValues"
             label="Show Data Values"
-            defaultChecked={values.settings.options.plugins?.datalabels?.labels?.title?.display}
+            defaultChecked={values.settings.options?.plugins?.datalabels?.labels?.title?.display}
             onChange={(e) => {
               const options = {
                 ...values.settings.options,
                 plugins: {
-                  ...values.settings.options.plugins,
+                  ...values.settings.options?.plugins,
                   datalabels: {
-                    ...values.settings.options.plugins.datalabels,
+                    ...values.settings.options?.plugins?.datalabels,
                     labels: {
-                      ...values.settings.options.plugins.datalabels.labels,
+                      ...values.settings.options?.plugins?.datalabels?.labels,
                       title: {
-                        ...values.settings.options.plugins.datalabels.labels.title,
+                        ...values.settings.options?.plugins?.datalabels?.labels?.title,
                         display: e.currentTarget.checked,
                       },
                     },

@@ -12,7 +12,7 @@ public class ChartRequestModel
     /// <summary>
     /// get/set - The chart template to use.
     /// </summary>
-    public ChartEngineTemplateModel ChartTemplate { get; set; } = new();
+    public ChartEngineContentModel ChartTemplate { get; set; } = new();
 
     /// <summary>
     /// get/set - The chart JSON data that will be sent to the Chart API.
@@ -31,7 +31,7 @@ public class ChartRequestModel
     /// </summary>
     /// <param name="settings"></param>
     /// <param name="chartData"></param>
-    public ChartRequestModel(ChartEngineTemplateModel model, JsonDocument? chartData = null)
+    public ChartRequestModel(ChartEngineContentModel model, JsonDocument? chartData = null)
     {
         this.ChartTemplate = model;
         this.ChartData = chartData;
@@ -42,7 +42,7 @@ public class ChartRequestModel
     /// </summary>
     /// <param name="settings"></param>
     /// <param name="chartData"></param>
-    public ChartRequestModel(ChartEngineTemplateModel model, string chartData)
+    public ChartRequestModel(ChartEngineContentModel model, string chartData)
     {
         this.ChartTemplate = model;
         this.ChartData = chartData != null ? JsonDocument.Parse(chartData) : null;
