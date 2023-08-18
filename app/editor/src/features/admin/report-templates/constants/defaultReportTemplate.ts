@@ -1,9 +1,10 @@
-import { IReportTemplateModel } from 'tno-core';
+import { IReportTemplateModel, ReportTypeName } from 'tno-core';
 
 export const defaultReportTemplate: IReportTemplateModel = {
   id: 0,
   name: '',
   description: '',
+  reportType: ReportTypeName.Content,
   subject: '',
   body: '',
   isEnabled: true,

@@ -75,10 +75,11 @@ public class ReportInstance : AuditColumns
     /// </summary>
     /// <param name="reportId"></param>
     /// <param name="content"></param>
-    public ReportInstance(int reportId, IEnumerable<ReportInstanceContent> content)
+    public ReportInstance(int reportId, IEnumerable<ReportInstanceContent>? content = null)
     {
         this.ReportId = reportId;
-        this.ContentManyToMany.AddRange(content);
+        if (content != null)
+            this.ContentManyToMany.AddRange(content);
     }
 
     /// <summary>
@@ -88,7 +89,7 @@ public class ReportInstance : AuditColumns
     /// <param name="reportId"></param>
     /// <param name="ownerId"></param>
     /// <param name="content"></param>
-    public ReportInstance(int reportId, int? ownerId, IEnumerable<ReportInstanceContent> content)
+    public ReportInstance(int reportId, int? ownerId, IEnumerable<ReportInstanceContent>? content = null)
         : this(reportId, content)
     {
         this.OwnerId = ownerId;

@@ -1,6 +1,7 @@
 
 using System.Text.Json;
 using Microsoft.Extensions.Options;
+using TNO.Core.Extensions;
 using TNO.DAL.Config;
 using TNO.DAL.Services;
 using TNO.Elastic;
@@ -20,6 +21,7 @@ public class ReportHelper : IReportHelper
     #region Variables
     private readonly IReportEngine _reportEngine;
     private readonly IReportService _reportService;
+    private readonly IAVOverviewTemplateService _overviewTemplateService;
     private readonly IContentService _contentService;
     private readonly ElasticOptions _elasticOptions;
     private readonly StorageOptions _storageOptions;
@@ -35,6 +37,7 @@ public class ReportHelper : IReportHelper
     /// </summary>
     /// <param name="reportEngine"></param>
     /// <param name="reportService"></param>
+    /// <param name="overviewTemplateService"></param>
     /// <param name="contentService"></param>
     /// <param name="elasticOptions"></param>
     /// <param name="storageOptions"></param>
@@ -42,6 +45,7 @@ public class ReportHelper : IReportHelper
     public ReportHelper(
         IReportEngine reportEngine,
         IReportService reportService,
+        IAVOverviewTemplateService overviewTemplateService,
         IContentService contentService,
         IOptions<ElasticOptions> elasticOptions,
         IOptions<StorageOptions> storageOptions,
@@ -49,6 +53,7 @@ public class ReportHelper : IReportHelper
     {
         _reportEngine = reportEngine;
         _reportService = reportService;
+        _overviewTemplateService = overviewTemplateService;
         _contentService = contentService;
         _elasticOptions = elasticOptions.Value;
         _storageOptions = storageOptions.Value;
@@ -116,12 +121,14 @@ public class ReportHelper : IReportHelper
     /// <param name="model"></param>
     /// <param name="updateCache"></param>
     /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<ReportResultModel> GenerateReportAsync(
         Areas.Services.Models.ReportInstance.ReportInstanceModel model,
         bool updateCache = false)
     {
-        var reportModel = model.Report ?? throw new InvalidOperationException("Report is required");
+        var reportModel = model.Report ?? throw new ArgumentException("Parameter 'model.Report' is required");
+        if (model.Report.Template == null) throw new ArgumentException("Parameter 'model.Report.Template' is required");
 
         // Link each result with the section name.
         var sections = reportModel.Sections.ToDictionary(section => section.Name, section =>
@@ -145,11 +152,15 @@ public class ReportHelper : IReportHelper
     /// <param name="model"></param>
     /// <param name="updateCache"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="NotImplementedException"></exception>
     public async Task<ReportResultModel> GenerateReportAsync(
         Areas.Services.Models.Report.ReportModel model,
         bool updateCache = false)
     {
+        if (model.Template == null) throw new ArgumentException("Parameter 'model.Template' is required");
+
+        // Fetch all content for this report.
         var index = _elasticOptions.PublishedIndex;
         var elasticResults = await _reportService.FindContentWithElasticsearchAsync(index, model.ToEntity(_serializerOptions));
 
@@ -164,28 +175,71 @@ public class ReportHelper : IReportHelper
         });
 
         var result = await GenerateReportAsync(model, sections, updateCache);
-        result.Results = elasticResults;
+        result.Data = elasticResults;
         return result;
+
+        throw new NotImplementedException($"Report template type '{model.Template.ReportType.GetName()}' has not been implemented");
     }
 
     /// <summary>
     /// Use the Razor templates to generate the output.
-    /// If the report sections contain charts it will also generate them and include them in the results.
     /// </summary>
-    /// <param name="model"></param>
+    /// <param name="report"></param>
     /// <param name="sections"></param>
     /// <param name="updateCache"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     private async Task<ReportResultModel> GenerateReportAsync(
-        Areas.Services.Models.Report.ReportModel model,
+        Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sections,
         bool updateCache = false)
     {
-        var subject = await _reportEngine.GenerateReportSubjectAsync(model, sections, updateCache);
-        var body = await _reportEngine.GenerateReportBodyAsync(model, sections, _storageOptions.GetUploadPath(), updateCache);
+        var subject = await _reportEngine.GenerateReportSubjectAsync(report, sections, updateCache);
+        var body = await _reportEngine.GenerateReportBodyAsync(report, sections, _storageOptions.GetUploadPath(), updateCache);
 
         return new ReportResultModel(subject, body);
     }
+
+    #region AV Overview
+    /// <summary>
+    /// Execute the report template to generate the subject and body.
+    /// If the report sections contain charts it will also generate them and include them in the results.
+    /// Fetch content from elasticsearch and folders.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <param name="updateCache"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="NotImplementedException"></exception>
+    public async Task<ReportResultModel> GenerateReportAsync(
+        AVOverviewInstanceModel instance,
+        bool updateCache = false)
+    {
+        var template = _overviewTemplateService.FindById(instance.TemplateType) ?? throw new InvalidOperationException($"AV overview template '{instance.TemplateType.GetName()}' not found.");
+        if (template.Template == null) throw new InvalidOperationException($"Report template '{instance.TemplateType.GetName()}' not found.");
+        var result = await GenerateReportAsync(new Areas.Services.Models.AVOverview.ReportTemplateModel(template.Template, _serializerOptions), instance, updateCache);
+        result.Data = instance;
+        return result;
+    }
+
+    /// <summary>
+    /// Use the Razor templates to generate the output.
+    /// </summary>
+    /// <param name="reportTemplate"></param>
+    /// <param name="instance"></param>
+    /// <param name="updateCache"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private async Task<ReportResultModel> GenerateReportAsync(
+        Areas.Services.Models.AVOverview.ReportTemplateModel reportTemplate,
+        AVOverviewInstanceModel instance,
+        bool updateCache = false)
+    {
+        var subject = await _reportEngine.GenerateReportSubjectAsync(reportTemplate, instance, updateCache);
+        var body = await _reportEngine.GenerateReportBodyAsync(reportTemplate, instance, updateCache);
+
+        return new ReportResultModel(subject, body);
+    }
+    #endregion
     #endregion
 }

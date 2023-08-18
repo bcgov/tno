@@ -3,12 +3,11 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Nest;
 using TNO.Core.Extensions;
-using TNO.Elastic;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
+using TNO.Elastic;
 using TNO.Entities;
 using TNO.Entities.Models;
 
@@ -21,7 +20,6 @@ public class ContentService : BaseService<Content, long>, IContentService
 {
     #region Variables
     private readonly ITNOElasticClient _client;
-    private readonly ElasticOptions _elasticOptions;
     private static readonly ContentStatus[] _onlyPublished = new[] { ContentStatus.Publish, ContentStatus.Published };
     #endregion
 
@@ -33,7 +31,6 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// <param name="dbContext"></param>
     /// <param name="principal"></param>
     /// <param name="serviceProvider"></param>
-    /// <param name="elasticOptions"></param>
     /// <param name="logger"></param>
     #region Constructors
     public ContentService(
@@ -41,11 +38,9 @@ public class ContentService : BaseService<Content, long>, IContentService
         ClaimsPrincipal principal,
         IServiceProvider serviceProvider,
         ITNOElasticClient client,
-        IOptions<ElasticOptions> elasticOptions,
         ILogger<ContentService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
         _client = client;
-        _elasticOptions = elasticOptions.Value;
     }
     #endregion
 

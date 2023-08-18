@@ -37,6 +37,12 @@ public class UserNotification : AuditColumns
     /// </summary>
     [Column("resend")]
     public ResendOption? Resend { get; set; }
+
+    /// <summary>
+    /// get/set - Whether the user is subscribed to this report.
+    /// </summary>
+    [Column("is_subscribed")]
+    public bool IsSubscribed { get; set; }
     #endregion
 
     #region Constructors
@@ -53,6 +59,7 @@ public class UserNotification : AuditColumns
         this.Notification = notification ?? throw new ArgumentNullException(nameof(notification));
         this.NotificationId = notification.Id;
         this.Resend = resend;
+        this.IsSubscribed = true;
     }
 
     /// <summary>
@@ -66,6 +73,7 @@ public class UserNotification : AuditColumns
         this.UserId = userId;
         this.NotificationId = notificationId;
         this.Resend = resend;
+        this.IsSubscribed = true;
     }
     #endregion
 

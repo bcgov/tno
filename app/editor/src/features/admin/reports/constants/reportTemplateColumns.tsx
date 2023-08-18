@@ -14,6 +14,13 @@ export const reportTemplateColumns: ITableHookColumn<IReportTemplateModel>[] = [
     cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {
+    label: 'Report Type',
+    name: 'reportType',
+    width: 1,
+    hAlign: 'center',
+    cell: (cell) => <CellEllipsis>{cell.original.reportType}</CellEllipsis>,
+  },
+  {
     label: 'Enabled',
     name: 'isEnabled',
     width: 1,

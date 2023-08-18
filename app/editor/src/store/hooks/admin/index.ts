@@ -1,4 +1,5 @@
 export * from './useActions';
+export * from './useAVOverviewTemplates';
 export * from './useChartTemplates';
 export * from './useConnections';
 export * from './useContentReferences';

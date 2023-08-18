@@ -57,7 +57,7 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             product.Id,
             GetContentHash(source.Code, newsItemTitle, publishedOnInUtc),
             newsItemTitle,
-            newsItem.Summary! ?? string.Empty,
+            newsItem.Summary ?? string.Empty,
             GetNewsItemBody(newsItem.Text, newsItem.Summary),
             publishedOnInUtc,
             newsItem.Published)

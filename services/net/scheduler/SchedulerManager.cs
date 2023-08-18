@@ -168,8 +168,9 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
         var to = scheduledEvent.Settings.GetDictionaryJsonValue<string>("to") ?? "";
         var data = scheduledEvent.Settings.GetDictionaryJsonValue<object?>("data") ?? new { };
 
+        // TODO: Handle different report types.
         if (reportId == null || reportId == 0) throw new InvalidOperationException($"Event schedule configuration must have a valid report {scheduledEvent.Id}:{scheduledEvent.Name}");
-        var request = new ReportRequestModel(destination, reportId.Value, data)
+        var request = new ReportRequestModel(destination, Entities.ReportType.Content, reportId.Value, data)
         {
             ReportInstanceId = reportInstanceId,
             RequestorId = requestorId,

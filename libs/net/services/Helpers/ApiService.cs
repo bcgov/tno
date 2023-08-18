@@ -3,15 +3,14 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeTypes;
+using TNO.API.Areas.Services.Models.Content;
 using TNO.Core.Exceptions;
-using TNO.Services.Config;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
-using Microsoft.Extensions.Logging;
-using TNO.API.Areas.Services.Models.Content;
-using TNO.Entities;
+using TNO.Services.Config;
 
 namespace TNO.Services;
 
@@ -703,6 +702,30 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"services/events/schedules/{model.Id}");
         return await RetryRequestAsync(async () => await this.Client.PutAsync<API.Areas.Services.Models.EventSchedule.EventScheduleModel?>(url, JsonContent.Create(model)));
+    }
+    #endregion
+
+    #region AV Overview
+    /// <summary>
+    /// Make a request to the API for the evening overview instance for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?> GetAVOverviewInstanceAsync(int id)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/av/overviews/{id}");
+        return await RetryRequestAsync(async () => await this.Client.GetAsync<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?>(url));
+    }
+
+    /// <summary>
+    /// Make a request to the API to update the evening overview instance for the specified 'model'.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?> UpdateAVOverviewInstanceAsync(API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel model)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/av/overviews/{model.Id}");
+        return await RetryRequestAsync(async () => await this.Client.PutAsync<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?>(url, JsonContent.Create(model)));
     }
     #endregion
     #endregion

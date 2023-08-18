@@ -1,21 +1,32 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json;
-using TNO.Core.Data;
 
 namespace TNO.Entities;
 
 /// <summary>
-/// AVOverviewTemplate class, provides a DB model to manage different types of overviews.
+/// AVOverviewSectionItem class, provides a DB model to manage different types of overviews.
 /// </summary>
 [Table("av_overview_section_item")]
-public class AVOverviewSectionItem : BaseType<int>
+public class AVOverviewSectionItem : AuditColumns
 {
     #region Properties
     /// <summary>
-    /// get/set - The foreign key to the overview template.
+    /// get/set - Primary key.
+    /// </summary>
+    [Key]
+    [Column("id")]
+    public int Id { get; set; }
+
+    /// <summary>
+    /// get/set - The foreign key to the section.
     /// </summary>
     [Column("av_overview_section_id")]
-    public int AVOverviewSectionId { get; set; }
+    public int SectionId { get; set; }
+
+    /// <summary>
+    /// get/set - The parent section.
+    /// </summary>
+    public AVOverviewSection? Section { get; set; }
 
     /// <summary>
     /// get/set - Foreign key to the source.
@@ -41,22 +52,92 @@ public class AVOverviewSectionItem : BaseType<int>
     [Column("content_id")]
     public long? ContentId { get; set; }
 
+    /// <summary>
+    /// get/set - The content linked to this item.
+    /// </summary>
+    public Content? Content { get; set; }
 
+    /// <summary>
+    /// get/set - A way to control the sort order of the entities.
+    /// </summary>
+    [Column("sort_order")]
+    public int SortOrder { get; set; }
     #endregion
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a av overview template object.
+    /// Creates a new instance of a AVOverviewSectionItem object.
     /// </summary>
     protected AVOverviewSectionItem() : base() { }
 
     /// <summary>
-    /// Creates a new instance of a av overview template object, initializes with specified parameters.
+    /// Creates a new instance of a AVOverviewSectionItem object, initializes with specified parameters.
     /// </summary>
-    /// <param name="name"></param>
-    public AVOverviewSectionItem(string name) : base(name)
+    /// <param name="section"></param>
+    /// <param name="type"></param>
+    /// <param name="time"></param>
+    /// <param name="summary"></param>
+    /// <param name="content"></param>
+    public AVOverviewSectionItem(AVOverviewSection section, AVOverviewItemType type, string time, string summary, Content? content = null)
     {
+        this.Section = section ?? throw new ArgumentNullException(nameof(section));
+        this.SectionId = section.Id;
+        this.ItemType = type;
+        this.Time = time;
+        this.Summary = summary;
+        this.Content = content;
+        this.ContentId = content?.Id;
+    }
 
+    /// <summary>
+    /// Creates a new instance of a AVOverviewSectionItem object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="sectionId"></param>
+    /// <param name="type"></param>
+    /// <param name="time"></param>
+    /// <param name="summary"></param>
+    /// <param name="contentId"></param>
+    public AVOverviewSectionItem(int sectionId, AVOverviewItemType type, string time, string summary, long? contentId = null)
+    {
+        this.SectionId = sectionId;
+        this.ItemType = type;
+        this.Time = time;
+        this.Summary = summary;
+        this.ContentId = contentId;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a AVOverviewSectionItem object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="section"></param>
+    /// <param name="item"></param>
+    /// <param name="content"></param>
+    public AVOverviewSectionItem(AVOverviewSection section, AVOverviewTemplateSectionItem item, Content? content = null)
+    {
+        this.Section = section ?? throw new ArgumentNullException(nameof(section));
+        this.SectionId = section.Id;
+        this.ItemType = item.ItemType;
+        this.Time = item.Time;
+        this.Summary = item.Summary;
+        this.SortOrder = item.SortOrder;
+        this.Content = content;
+        this.ContentId = content?.Id;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a AVOverviewSectionItem object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="sectionId"></param>
+    /// <param name="item"></param>
+    /// <param name="contentId"></param>
+    public AVOverviewSectionItem(int sectionId, AVOverviewTemplateSectionItem item, long? contentId = null)
+    {
+        this.SectionId = sectionId;
+        this.ItemType = item.ItemType;
+        this.Time = item.Time;
+        this.Summary = item.Summary;
+        this.SortOrder = item.SortOrder;
+        this.ContentId = contentId;
     }
     #endregion
 }

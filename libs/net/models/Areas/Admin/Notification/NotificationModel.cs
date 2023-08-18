@@ -116,7 +116,10 @@ public class NotificationModel : BaseTypeWithAuditColumnsModel<int>
             Version = model.Version ?? 0
         };
 
-        entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us => new UserNotification(us.Id, entity.Id)));
+        entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us => new UserNotification(us.Id, entity.Id)
+        {
+            IsSubscribed = us.IsSubscribed
+        }));
 
         return entity;
     }

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using TNO.API.Models;
+using TNO.Entities;
 
 namespace TNO.API.Areas.Editor.Models.Report;
 
@@ -9,6 +10,11 @@ namespace TNO.API.Areas.Editor.Models.Report;
 public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
 {
     #region Properties
+    /// <summary>
+    /// get/set - The report type.
+    /// </summary>
+    public ReportType ReportType { get; set; }
+
     /// <summary>
     /// get/set - The Razor subject template to generate the report.
     /// </summary>
@@ -43,6 +49,7 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
     /// <param name="options"></param>
     public ReportTemplateModel(Entities.ReportTemplate entity, JsonSerializerOptions options) : base(entity)
     {
+        this.ReportType = entity.ReportType;
         this.Subject = entity.Subject;
         this.Body = entity.Body;
         this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
@@ -72,7 +79,7 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
     /// <param name="model"></param>
     public static explicit operator Entities.ReportTemplate(ReportTemplateModel model)
     {
-        var entity = new Entities.ReportTemplate(model.Id, model.Name, model.Subject, model.Body)
+        var entity = new Entities.ReportTemplate(model.Id, model.Name, model.ReportType, model.Subject, model.Body)
         {
             Description = model.Description,
             IsEnabled = model.IsEnabled,

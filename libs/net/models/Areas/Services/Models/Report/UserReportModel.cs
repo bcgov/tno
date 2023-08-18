@@ -22,6 +22,11 @@ public class UserReportModel : AuditColumnsModel
     /// get/set - Primary key and foreign key to the report.
     /// </summary>
     public int ReportId { get; set; }
+
+    /// <summary>
+    /// get/set - Whether this user is subscribed to the report.
+    /// </summary>
+    public bool IsSubscribed { get; set; }
     #endregion
 
     #region Constructors
@@ -37,8 +42,9 @@ public class UserReportModel : AuditColumnsModel
     public UserReportModel(Entities.UserReport entity) : base(entity)
     {
         this.UserId = entity.UserId;
-        this.User = entity.User != null ? new UserModel(entity.User) : null;
+        this.User = entity.User != null ? new UserModel(entity.User, entity.IsSubscribed) : null;
         this.ReportId = entity.ReportId;
+        this.IsSubscribed = entity.IsSubscribed;
     }
     #endregion
 
@@ -51,6 +57,7 @@ public class UserReportModel : AuditColumnsModel
     {
         return new Entities.UserReport(model.UserId, model.ReportId)
         {
+            IsSubscribed = model.IsSubscribed,
             Version = model.Version ?? 0
         };
     }

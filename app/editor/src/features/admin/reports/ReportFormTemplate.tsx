@@ -4,19 +4,10 @@ import React from 'react';
 import Editor from 'react-simple-code-editor';
 import { useReportTemplates } from 'store/hooks/admin';
 import { useAdminStore } from 'store/slices';
-import {
-  Button,
-  ButtonVariant,
-  Col,
-  FormikSelect,
-  getSortableOptions,
-  IOptionItem,
-  IReportModel,
-  OptionItem,
-  Row,
-} from 'tno-core';
+import { Button, ButtonVariant, Col, FormikSelect, IOptionItem, IReportModel, Row } from 'tno-core';
 
 import { defaultRazorTemplate, defaultReportTemplate } from './constants';
+import { getReportTemplateOptions } from './utils';
 
 /**
  * The page used to view and edit reports.
@@ -28,14 +19,12 @@ export const ReportFormTemplate: React.FC = () => {
   const [, { findAllReportTemplates }] = useReportTemplates();
 
   const [templateOptions, setTemplateOptions] = React.useState<IOptionItem[]>(
-    getSortableOptions(reportTemplates, [new OptionItem('[New Template]', 0)]),
+    getReportTemplateOptions(reportTemplates),
   );
 
   React.useEffect(() => {
     findAllReportTemplates()
-      .then((templates) =>
-        setTemplateOptions(getSortableOptions(templates, [new OptionItem('[New Template]', 0)])),
-      )
+      .then((templates) => setTemplateOptions(getReportTemplateOptions(templates)))
       .catch(() => {
         // Handled already.
       });
@@ -44,7 +33,7 @@ export const ReportFormTemplate: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    setTemplateOptions(getSortableOptions(reportTemplates, [new OptionItem('[New Template]', 0)]));
+    setTemplateOptions(getReportTemplateOptions(reportTemplates));
   }, [reportTemplates]);
 
   return (

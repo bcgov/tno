@@ -35,6 +35,11 @@ public class UserModel
     /// get/set - Last name of user.
     /// </summary>
     public string LastName { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Whether the user is subscribed to the report.
+    /// </summary>
+    public bool IsSubscribed { get; set; }
     #endregion
 
     #region Constructors
@@ -47,7 +52,8 @@ public class UserModel
     /// Creates a new instance of an UserModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public UserModel(Entities.User entity)
+    /// <param name="isSubscribed"></param>
+    public UserModel(Entities.User entity, bool isSubscribed = true)
     {
         this.Id = entity.Id;
         this.Username = entity.Username;
@@ -55,6 +61,7 @@ public class UserModel
         this.DisplayName = entity.DisplayName;
         this.FirstName = entity.FirstName;
         this.LastName = entity.LastName;
+        this.IsSubscribed = isSubscribed;
     }
     #endregion
 }

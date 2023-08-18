@@ -30,6 +30,12 @@ public class UserReport : AuditColumns
     /// get/set - the report linked to the user.
     /// </summary>
     public Report? Report { get; set; }
+
+    /// <summary>
+    /// get/set - Whether the user is subscribed to this report.
+    /// </summary>
+    [Column("is_subscribed")]
+    public bool IsSubscribed { get; set; }
     #endregion
 
     #region Constructors
@@ -44,6 +50,7 @@ public class UserReport : AuditColumns
         this.UserId = user.Id;
         this.Report = report ?? throw new ArgumentNullException(nameof(report));
         this.ReportId = report.Id;
+        this.IsSubscribed = true;
     }
 
     /// <summary>
@@ -55,6 +62,7 @@ public class UserReport : AuditColumns
     {
         this.UserId = userId;
         this.ReportId = reportId;
+        this.IsSubscribed = true;
     }
     #endregion
 
