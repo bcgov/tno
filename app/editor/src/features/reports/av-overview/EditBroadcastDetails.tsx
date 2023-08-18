@@ -128,7 +128,7 @@ export const EditBroadcastDetails: React.FC<IEditBroadcastDetailsProps> = ({
           />
           <FormikSelect
             name={`sections.${index}.seriesId`}
-            label="Series"
+            label="Show/Program"
             value={seriesOptions.find((x) => x.value === section.seriesId)}
             width={FieldSize.Big}
             onChange={(e: any) => changeSeries(e?.value)}
