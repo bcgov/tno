@@ -32,7 +32,7 @@ export const Newspaper: React.FC = (props) => {
     let id = 0;
     const keyValues = values.configuration.sources.split('&');
     keyValues.forEach((x: string) => {
-      if (x !== '=') data.push({ id: ++id, name: x.split('=')[0], source: x.split('=')[1] });
+      data.push({ id: ++id, name: x.split('=')[0], source: x.split('=')[1] });
     });
     data.push({ id: ++id, name: '', source: '' });
     return data;
