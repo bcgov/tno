@@ -7,11 +7,6 @@ public class AVOverviewSectionItemModel
 {
     #region Properties
     /// <summary>
-    /// get/set - Primary key.
-    /// </summary>
-    public int Id { get; set; }
-
-    /// <summary>
     /// get/set - The section reference.
     /// </summary>
     public int SectionId { get; set; }
@@ -54,7 +49,6 @@ public class AVOverviewSectionItemModel
     /// <param name="entity"></param>
     public AVOverviewSectionItemModel(Entities.AVOverviewSectionItem entity)
     {
-        this.Id = entity.Id;
         this.SortOrder = entity.SortOrder;
         this.SectionId = entity.SectionId;
         this.ItemType = entity.ItemType;
@@ -69,7 +63,6 @@ public class AVOverviewSectionItemModel
     /// <param name="model"></param>
     public AVOverviewSectionItemModel(TNO.API.Areas.Editor.Models.AVOverview.AVOverviewSectionItemModel model)
     {
-        this.Id = model.Id;
         this.SortOrder = model.SortOrder;
         this.SectionId = model.SectionId;
         this.ItemType = model.ItemType;
@@ -84,7 +77,6 @@ public class AVOverviewSectionItemModel
     /// <param name="model"></param>
     public AVOverviewSectionItemModel(TNO.API.Areas.Services.Models.AVOverview.AVOverviewSectionItemModel model)
     {
-        this.Id = model.Id;
         this.SortOrder = model.SortOrder;
         this.SectionId = model.SectionId;
         this.ItemType = model.ItemType;

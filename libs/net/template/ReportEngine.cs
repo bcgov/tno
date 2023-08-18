@@ -38,6 +38,11 @@ public class ReportEngine : IReportEngine
     /// <summary>
     /// get - Charts options.
     /// </summary>
+    protected ReportingOptions ReportingOptions { get; }
+
+    /// <summary>
+    /// get - Charts options.
+    /// </summary>
     protected ChartsOptions ChartsOptions { get; }
     #endregion
 
@@ -55,12 +60,14 @@ public class ReportEngine : IReportEngine
         ITemplateEngine<ReportEngineAVOverviewModel> reportEngineAVOverview,
         ITemplateEngine<ChartEngineContentModel> chartEngineContent,
         IHttpRequestClient httpClient,
+        IOptions<ReportingOptions> reportingOptions,
         IOptions<ChartsOptions> chartsOptions)
     {
         this.ReportEngineContent = reportEngineContent;
         this.ReportEngineAVOverview = reportEngineAVOverview;
         this.ChartEngineContent = chartEngineContent;
         this.HttpClient = httpClient;
+        this.ReportingOptions = reportingOptions.Value;
         this.ChartsOptions = chartsOptions.Value;
     }
     #endregion
@@ -155,6 +162,10 @@ public class ReportEngine : IReportEngine
             instance.Settings = model.Settings;
             instance.Content = model.Content;
             instance.Sections = model.Sections;
+
+            instance.MmiaUrl = this.ReportingOptions.MmiaUrl;
+            instance.ViewContentUrl = this.ReportingOptions.ViewContentUrl;
+            instance.RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl;
         });
     }
 
@@ -189,6 +200,10 @@ public class ReportEngine : IReportEngine
             instance.Settings = model.Settings;
             instance.Content = model.Content;
             instance.Sections = model.Sections;
+
+            instance.MmiaUrl = this.ReportingOptions.MmiaUrl;
+            instance.ViewContentUrl = this.ReportingOptions.ViewContentUrl;
+            instance.RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl;
         });
 
         var aggregateSection = new Dictionary<string, ReportSectionModel>();
@@ -251,6 +266,10 @@ public class ReportEngine : IReportEngine
             instance.Model = model;
             instance.Settings = model.Settings;
             instance.Instance = model.Instance;
+
+            instance.MmiaUrl = this.ReportingOptions.MmiaUrl;
+            instance.ViewContentUrl = this.ReportingOptions.ViewContentUrl;
+            instance.RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl;
         });
     }
 
@@ -279,6 +298,10 @@ public class ReportEngine : IReportEngine
             instance.Model = model;
             instance.Settings = model.Settings;
             instance.Instance = model.Instance;
+
+            instance.MmiaUrl = this.ReportingOptions.MmiaUrl;
+            instance.ViewContentUrl = this.ReportingOptions.ViewContentUrl;
+            instance.RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl;
         });
     }
     #endregion

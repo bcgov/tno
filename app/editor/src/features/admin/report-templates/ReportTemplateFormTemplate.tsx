@@ -19,7 +19,12 @@ import {
   Row,
 } from 'tno-core';
 
-import { defaultRazorTemplate } from './constants';
+import {
+  defaultAVOverviewBodyRazorTemplate,
+  defaultAVOverviewSubjectRazorTemplate,
+  defaultContentBodyRazorTemplate,
+  defaultContentSubjectRazorTemplate,
+} from './constants';
 
 /**
  * The page used to view and edit a report template.
@@ -50,7 +55,20 @@ export const ReportTemplateFormTemplate: React.FC = () => {
         <Col flex="1"></Col>
         <Button
           variant={ButtonVariant.secondary}
-          onClick={() => setFieldValue('body', defaultRazorTemplate)}
+          onClick={() => {
+            setFieldValue(
+              'subject',
+              values.reportType === ReportTypeName.Content
+                ? defaultContentSubjectRazorTemplate
+                : defaultAVOverviewSubjectRazorTemplate,
+            );
+            setFieldValue(
+              'body',
+              values.reportType === ReportTypeName.Content
+                ? defaultContentBodyRazorTemplate
+                : defaultAVOverviewBodyRazorTemplate,
+            );
+          }}
         >
           Use Default Template
         </Button>

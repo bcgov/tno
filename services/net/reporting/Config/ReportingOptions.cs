@@ -4,7 +4,7 @@ using TNO.Services.Config;
 namespace TNO.Services.Reporting.Config;
 
 /// <summary>
-/// ReportingOptions class, configuration options for notification service
+/// ReportingOptions class, configuration options for reporting service
 /// </summary>
 public class ReportingOptions : ServiceOptions
 {

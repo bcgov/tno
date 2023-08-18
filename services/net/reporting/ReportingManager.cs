@@ -382,15 +382,24 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var template = instance.Template ?? throw new InvalidOperationException($"Report template was not included in model.");
 
         var to = instance.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.Email)).Select(s => s.Email).ToArray();
-        var subject = await this.ReportEngine.GenerateReportSubjectAsync(template, model, request.UpdateCache);
-        var body = await this.ReportEngine.GenerateReportBodyAsync(template, model, request.UpdateCache);
+        // No need to send an email if there are no subscribers.
+        if (to.Length > 0)
+        {
+            var subject = await this.ReportEngine.GenerateReportSubjectAsync(template, model, request.UpdateCache);
+            var body = await this.ReportEngine.GenerateReportBodyAsync(template, model, request.UpdateCache);
 
-        // Send the email.
-        var response = await SendEmailAsync(request, to, subject, body, $"{instance.TemplateType}-{instance.Id}");
+            // Send the email.
+            var response = await SendEmailAsync(request, to, subject, body, $"{instance.TemplateType}-{instance.Id}");
 
-        // Update the report instance with the email response.
-        instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
-        await this.Api.UpdateAVOverviewInstanceAsync(instance);
+            // Update the report instance with the email response.
+            instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+            instance.IsPublished = true;
+            await this.Api.UpdateAVOverviewInstanceAsync(instance);
+        }
+        else
+        {
+            this.Logger.LogWarning($"AV evening overview has no subscribers.");
+        }
     }
 
     /// <summary>

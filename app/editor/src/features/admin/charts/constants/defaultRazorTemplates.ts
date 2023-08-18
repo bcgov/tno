@@ -1,4 +1,4 @@
-export const defaultDateRazorTemplate = `@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.ChartTemplateModel>
+export const defaultDateRazorTemplate = `@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.ChartEngineContentModel>
 @using System
 @using System.Linq
 @using TNO.Entities
@@ -39,7 +39,7 @@ export const defaultDateRazorTemplate = `@inherits RazorEngineCore.RazorEngineTe
 
 `;
 
-export const defaultCountRazorTemplate = `@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.ChartTemplateModel>
+export const defaultCountRazorTemplate = `@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.ChartEngineContentModel>
 @using System
 @using System.Linq
 @using TNO.Entities

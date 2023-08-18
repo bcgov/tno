@@ -25,6 +25,26 @@ public class ReportEngineContentModel : RazorEngineTemplateBase
     /// get/set - The report settings.
     /// </summary>
     public ReportSettingsModel Settings { get; set; } = new();
+
+    /// <summary>
+    /// get/set - The MMIA URL.
+    /// </summary>
+    public Uri? MmiaUrl { get; set; }
+
+    /// <summary>
+    /// get/set - The view content URL.
+    /// </summary>
+    public Uri? ViewContentUrl { get; set; }
+
+    /// <summary>
+    /// get/set - The request transcript URL.
+    /// </summary>
+    public Uri? RequestTranscriptUrl { get; set; }
+
+    /// <summary>
+    /// get/set - The add to report URL.
+    /// </summary>
+    public Uri? AddToReportUrl { get; set; }
     #endregion
 
     #region Constructors

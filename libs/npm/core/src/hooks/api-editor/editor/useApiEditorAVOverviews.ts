@@ -3,7 +3,7 @@ import React from 'react';
 
 import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IAVOverviewInstanceModel, useApi } from '..';
+import { IAVOverviewInstanceModel, IReportResultModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -28,9 +28,9 @@ export const useApiEditorAVOverviews = (
         `/editor/reports/av/overviews?${toQueryString(params)}`,
       );
     },
-    getAVOverview: (id: number) => {
+    getAVOverview: (instanceId: number) => {
       return api.get<never, AxiosResponse<IAVOverviewInstanceModel | undefined>, any>(
-        `/editor/reports/av/overviews/${id}`,
+        `/editor/reports/av/overviews/${instanceId}`,
       );
     },
     addAVOverview: (instance: IAVOverviewInstanceModel) => {
@@ -49,6 +49,16 @@ export const useApiEditorAVOverviews = (
       return api.delete<IAVOverviewInstanceModel, AxiosResponse<IAVOverviewInstanceModel>, any>(
         `/editor/reports/av/overviews/${instance.id}`,
         { data: instance },
+      );
+    },
+    previewAVOverview: (instanceId: number) => {
+      return api.post<IAVOverviewInstanceModel, AxiosResponse<IReportResultModel>, any>(
+        `/editor/reports/av/overviews/${instanceId}/preview`,
+      );
+    },
+    publishAVOverview: (instanceId: number) => {
+      return api.post<IAVOverviewInstanceModel, AxiosResponse<IAVOverviewInstanceModel>, any>(
+        `/editor/reports/av/overviews/${instanceId}/publish`,
       );
     },
   }).current;

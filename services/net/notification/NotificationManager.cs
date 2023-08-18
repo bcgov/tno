@@ -1,19 +1,19 @@
+using System.Security.Claims;
+using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
-using System.Security.Claims;
-using TNO.Services.Managers;
-using TNO.Services.Notification.Config;
-using TNO.Kafka.Models;
-using TNO.Kafka;
+using TNO.Ches;
+using TNO.Ches.Configuration;
+using TNO.Ches.Models;
 using TNO.Core.Exceptions;
 using TNO.Entities;
-using TNO.Models.Extensions;
-using TNO.Ches;
-using TNO.Ches.Models;
-using TNO.Ches.Configuration;
 using TNO.Entities.Validation;
+using TNO.Kafka;
+using TNO.Kafka.Models;
+using TNO.Models.Extensions;
+using TNO.Services.Managers;
+using TNO.Services.Notification.Config;
 using TNO.TemplateEngine;
 using TNO.TemplateEngine.Models.Notifications;
 
@@ -402,9 +402,10 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         var key = $"notification_{notification.Id}_subject";
         var model = new TemplateModel(content)
         {
-            AddToReportUrl = this.Options.AddToReportUrl,
             MmiaUrl = this.Options.MmiaUrl,
-            RequestTranscriptUrl = this.Options.RequestTranscriptUrl
+            ViewContentUrl = this.Options.ViewContentUrl,
+            RequestTranscriptUrl = this.Options.RequestTranscriptUrl,
+            AddToReportUrl = this.Options.AddToReportUrl,
         };
         var templateText = notification.Settings.GetDictionaryJsonValue<string>("subject") ?? "";
         var template = (!updateCache ?
@@ -415,9 +416,10 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         {
             instance.Model = model;
             instance.Content = model.Content;
-            instance.AddToReportUrl = model.AddToReportUrl;
             instance.MmiaUrl = model.MmiaUrl;
+            instance.ViewContentUrl = model.ViewContentUrl;
             instance.RequestTranscriptUrl = model.RequestTranscriptUrl;
+            instance.AddToReportUrl = model.AddToReportUrl;
         });
     }
 

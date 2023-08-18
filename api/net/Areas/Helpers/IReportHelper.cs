@@ -45,5 +45,19 @@ public interface IReportHelper
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     Task<ReportResultModel> GenerateReportAsync(Areas.Services.Models.Report.ReportModel model, bool updateCache = false);
+
+    /// <summary>
+    /// Execute the report template to generate the subject and body.
+    /// If the report sections contain charts it will also generate them and include them in the results.
+    /// Fetch content from elasticsearch and folders.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <param name="updateCache"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="NotImplementedException"></exception>
+    Task<ReportResultModel> GenerateReportAsync(
+        AVOverviewInstanceModel instance,
+        bool updateCache = false);
     #endregion
 }
