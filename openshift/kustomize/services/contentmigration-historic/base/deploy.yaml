@@ -3,23 +3,23 @@
 kind: DeploymentConfig
 apiVersion: apps.openshift.io/v1
 metadata:
-  name: contentmigration-service
+  name: contentmigration-service-historic
   namespace: default
   annotations:
-    description: Defines how to deploy contentmigration-service
+    description: Defines how to deploy contentmigration-service-historic
     created-by: kyle.morris
   labels:
-    name: contentmigration-service
+    name: contentmigration-service-historic
     part-of: tno
     version: 1.0.0
-    component: contentmigration-service
+    component: contentmigration-service-historic
     managed-by: kustomize
 spec:
   replicas: 1
   selector:
-    name: contentmigration-service
+    name: contentmigration-service-historic
     part-of: tno
-    component: contentmigration-service
+    component: contentmigration-service-historic
   strategy:
     rollingParams:
       intervalSeconds: 1
@@ -30,18 +30,18 @@ spec:
     type: Rolling
   template:
     metadata:
-      name: contentmigration-service
+      name: contentmigration-service-historic
       labels:
-        name: contentmigration-service
+        name: contentmigration-service-historic
         part-of: tno
-        component: contentmigration-service
+        component: contentmigration-service-historic
     spec:
       volumes:
         - name: ingest-storage
           persistentVolumeClaim:
             claimName: ingest-storage
       containers:
-        - name: contentmigration-service
+        - name: contentmigration-service-historic
           image: ""
           imagePullPolicy: Always
           ports:
@@ -99,27 +99,27 @@ spec:
             - name: Service__MaxFailLimit
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-service
+                  name: contentmigration-service-historic
                   key: MAX_FAIL_LIMIT
             - name: Service__VolumePath
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-service
+                  name: contentmigration-service-historic
                   key: VOLUME_PATH
             - name: Service__MediaHostRootUri
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-service
+                  name: contentmigration-service-historic
                   key: CONTENT_MIGRATION_MEDIA_HOST_ROOT_URI
             - name: Service__IngestTypes
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-service
+                  name: contentmigration-service-historic
                   key: INGEST_TYPES
             - name: Service__SupportedImportMigrationTypes
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-service
+                  name: contentmigration-service-historic
                   key: SUPPORTED_IMPORT_MIGRATION_TYPES
             - name: Service__DefaultUserNameForAudit
               valueFrom:
@@ -161,7 +161,7 @@ spec:
       imageChangeParams:
         automatic: true
         containerNames:
-          - contentmigration-service
+          - contentmigration-service-historic
         from:
           kind: ImageStreamTag
           namespace: 9b301c-tools

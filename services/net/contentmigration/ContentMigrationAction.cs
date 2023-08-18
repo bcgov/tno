@@ -150,7 +150,26 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// <exception cref="ConfigurationException"></exception>
     public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
-        this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
+        string importMigrationType = manager.Ingest.GetConfigurationValue("importMigrationType");
+        if (string.IsNullOrEmpty(importMigrationType))
+        {
+            this.Logger.LogError("Error in Ingest [{ingestName}] config. 'importMigrationType' cannot be null.", manager.Ingest.Name);
+            throw new ArgumentNullException(nameof(importMigrationType));
+        }
+
+        if (string.IsNullOrEmpty(this.Options.SupportedImportMigrationTypes))
+        {
+            this.Logger.LogError("Error in service config. 'SupportedImportMigrationTypes' cannot be null.");
+            throw new ArgumentNullException(nameof(this.Options.SupportedImportMigrationTypes));
+        }
+
+        if (!this.Options.SupportedImportMigrationTypes.Split(',', StringSplitOptions.TrimEntries).Contains(importMigrationType))
+        {
+            this.Logger.LogInformation("Skipping Ingest [{ingestName}]. Import Migration Type: [{migrationType}] not in supported list [{supportedMigrationTypes}]", manager.Ingest.Name, importMigrationType, this.Options.SupportedImportMigrationTypes);
+            return;
+        }
+
+        this.Logger.LogDebug("Performing ingestion service action for Ingest '{name}'", manager.Ingest.Name);
         IContentMigrator contentMigrator = _migratorFactory.GetContentMigrator(manager.Ingest.IngestType!.Name);
 
         API.Areas.Editor.Models.Lookup.LookupModel? lookups = await this.Api.GetLookupsAsync();
@@ -290,7 +309,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                         string contentStagingFolderName = GetOutputPathPrefix(manager.Ingest);
                         await contentMigrator.CopyFileAsync(new Models.FileMigrationModel(newsItem.RSN, Path.GetDirectoryName(newsItem.FilePath)!, Path.GetFileName(newsItem.FilePath), newsItem.ContentType!), contentStagingFolderName);
                         sourceContent.FilePath = Path.Combine(contentStagingFolderName, newsItem.FilePath);
-                        Logger.LogInformation("Migrating file associated with content content {RSN}:{Title}:[{filePath}]", newsItem.RSN, newsItem.Title,sourceContent.FilePath);
+                        Logger.LogInformation("Migrating file associated with content content {RSN}:{Title}:[{filePath}]", newsItem.RSN, newsItem.Title, sourceContent.FilePath);
                     }
                 }
                 catch (FileNotFoundException)

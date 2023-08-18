@@ -9,6 +9,7 @@ import {
   FieldSize,
   formatDate,
   FormikDatePicker,
+  FormikRadioGroup,
   FormikText,
   IIngestModel,
   Row,
@@ -24,6 +25,8 @@ export const DbMigration: React.FC = (props) => {
 
   const minMigrationIngestSpanInDays = 1;
   const maxMigrationIngestSpanInYears = 1;
+  let isImportStartDateRequired = false;
+  let isImportEndDateRequired = false;
 
   const maxEndDate = React.useMemo(() => {
     let dateTimeNow = moment();
@@ -91,6 +94,22 @@ export const DbMigration: React.FC = (props) => {
       </Row>
       <Row>
         <Col flex="1 1 1">
+          <FormikRadioGroup
+            label="Migration Type"
+            name="ImportMigrationType"
+            value={!!values.configuration.importMigrationType ? 'Recent' : undefined}
+            onChange={(val) => {
+              isImportStartDateRequired = val.target.value === 'Recent';
+              isImportEndDateRequired = val.target.value === 'Historic';
+              setFieldValue('configuration.importMigrationType', val.target.value, false);
+            }}
+            options={['Historic', 'Recent']}
+            required={true}
+          ></FormikRadioGroup>
+        </Col>
+      </Row>
+      <Row>
+        <Col flex="1 1 1">
           <FormikDatePicker
             name="importDateStart"
             label="Import Start Date"
@@ -106,6 +125,7 @@ export const DbMigration: React.FC = (props) => {
                 ? moment(values.configuration.importDateStart).format('MMM D, yyyy')
                 : undefined
             }
+            required={isImportStartDateRequired}
             minDate={minStartDate}
             maxDate={maxStartDate}
             onChange={(date) => {
@@ -151,6 +171,19 @@ export const DbMigration: React.FC = (props) => {
             }}
           />
         </Col>
+        <Col>
+          <label>&nbsp;</label>
+          <Button
+            tooltip="Reset"
+            variant={ButtonVariant.danger}
+            disabled={!values.configuration.importDateStart}
+            onClick={() => {
+              setFieldValue('configuration.importDateStart', null);
+            }}
+          >
+            <FaTrash />
+          </Button>
+        </Col>
       </Row>
       <Row>
         <Col flex="1 1 1">
@@ -169,6 +202,7 @@ export const DbMigration: React.FC = (props) => {
                 ? moment(values.configuration.importDateEnd).format('MMM D, yyyy')
                 : ''
             }
+            required={isImportEndDateRequired}
             minDate={minEndDate}
             maxDate={maxEndDate}
             onChange={(date) => {
@@ -213,6 +247,19 @@ export const DbMigration: React.FC = (props) => {
               }
             }}
           />
+        </Col>
+        <Col>
+          <label>&nbsp;</label>
+          <Button
+            tooltip="Reset"
+            variant={ButtonVariant.danger}
+            disabled={!values.configuration.importDateEnd}
+            onClick={() => {
+              setFieldValue('configuration.importDateEnd', null);
+            }}
+          >
+            <FaTrash />
+          </Button>
         </Col>
       </Row>
       <Row>

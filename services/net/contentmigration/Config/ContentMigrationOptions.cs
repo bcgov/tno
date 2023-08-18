@@ -65,5 +65,10 @@ public class ContentMigrationOptions : IngestServiceOptions
     /// </summary>
     public int DefaultTone { get; set; } = 0;
 
+    /// <summary>
+    /// get/set - The Migration Type to do Historic|Recent
+    /// </summary>
+    public string SupportedImportMigrationTypes { get; set; } = "";
+
     #endregion
 }
