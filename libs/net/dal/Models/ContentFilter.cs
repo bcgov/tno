@@ -182,6 +182,11 @@ public class ContentFilter : PageFilter
     public int[] Sentiment { get; set; } = Array.Empty<int>();
 
     /// <summary>
+    /// get/set - The number whether to return only content with files attached.
+    /// </summary>
+    public bool? HasFile { get; set; }
+
+    /// <summary>
     /// get/set - The story text to search for.
     /// </summary>
     public string? StoryText { get; set; }
@@ -208,6 +213,7 @@ public class ContentFilter : PageFilter
         this.Status = filter.GetEnumNullValue<ContentStatus>(nameof(this.Status));
 
         this.HasTopic = filter.GetBoolNullValue(nameof(this.HasTopic));
+        this.HasFile = filter.GetBoolNullValue(nameof(this.HasFile));
         this.IncludeHidden = filter.GetBoolNullValue(nameof(this.IncludeHidden));
         this.OnlyHidden = filter.GetBoolNullValue(nameof(this.OnlyHidden));
         this.OnlyPublished = filter.GetBoolNullValue(nameof(this.OnlyPublished));

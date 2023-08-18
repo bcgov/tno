@@ -1,6 +1,6 @@
 export interface IAdvancedSearchFilter {
   /** keeps track of which field the search term will query */
-  searchInField: string;
+  searchInField?: { byline: boolean; headline: boolean; storyText: boolean };
   /** the term that will be queried */
   searchTerm: string;
   /** array of sources to filter by */
@@ -11,4 +11,10 @@ export interface IAdvancedSearchFilter {
   endDate: string;
   /** sentiment min max */
   sentiment?: number[];
+  /** whether content was tagged as top story or not */
+  topStory?: boolean;
+  /** whether content was tagged as front page or not */
+  frontPage?: boolean;
+  /** whether or not the content has a file associated to it or not */
+  hasFile?: boolean;
 }

@@ -21,4 +21,6 @@ export interface IContentListFilter {
   sentiment?: number[];
   storyText?: string;
   userId?: number | '';
+  topStory?: boolean;
+  hasFile?: boolean;
 }
