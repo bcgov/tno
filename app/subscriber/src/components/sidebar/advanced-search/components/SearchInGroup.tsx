@@ -46,19 +46,11 @@ export const SearchInGroup: React.FC<ISearchInGroupProps> = ({
         />
         <label>Byline</label>
         <Checkbox
-          onChange={(e) =>
-            e.target.checked
-              ? setSearchInOptions({ ...searchInOptions, byline: true })
-              : setSearchInOptions({ ...searchInOptions, byline: false })
-          }
+          onChange={(e) => setSearchInOptions({ ...searchInOptions, byline: e.target.checked })}
         />
         <label>Story text</label>
         <Checkbox
-          onChange={(e) =>
-            e.target.checked
-              ? setSearchInOptions({ ...searchInOptions, storyText: true })
-              : setSearchInOptions({ ...searchInOptions, storyText: false })
-          }
+          onChange={(e) => setSearchInOptions({ ...searchInOptions, storyText: e.target.checked })}
         />
       </Row>
     </Show>
