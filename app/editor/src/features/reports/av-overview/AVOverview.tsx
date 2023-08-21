@@ -76,7 +76,9 @@ export const AVOverview: React.FC = () => {
       <FormikForm
         initialValues={instance}
         onSubmit={(values, { setSubmitting }) => {
-          handleSubmit(values);
+          handleSubmit(values)
+            .catch((err) => toast.warning(() => 'Failed to save.'))
+            .finally(() => toast.success(() => 'Evening overview saved.'));
           setSubmitting(false);
         }}
       >
