@@ -7,11 +7,6 @@ public class AVOverviewSectionModel
 {
     #region Properties
     /// <summary>
-    /// get/set - Primary key.
-    /// </summary>
-    public int Id { get; set; }
-
-    /// <summary>
     /// get/set - A unique name to identify this section.
     /// </summary>
     public string Name { get; set; } = "";
@@ -69,7 +64,6 @@ public class AVOverviewSectionModel
     /// <param name="entity"></param>
     public AVOverviewSectionModel(Entities.AVOverviewSection entity)
     {
-        this.Id = entity.Id;
         this.Name = entity.Name;
         this.SortOrder = entity.SortOrder;
         this.InstanceId = entity.InstanceId;
@@ -78,7 +72,7 @@ public class AVOverviewSectionModel
         this.SeriesId = entity.SeriesId;
         this.Anchors = entity.Anchors;
         this.StartTime = entity.StartTime;
-        this.Items = entity.Items.Select(i => new AVOverviewSectionItemModel(i)).ToArray();
+        this.Items = entity.Items.Select(i => new AVOverviewSectionItemModel(i)).OrderBy(s => s.SortOrder).ToArray();
     }
 
     /// <summary>
@@ -87,7 +81,6 @@ public class AVOverviewSectionModel
     /// <param name="model"></param>
     public AVOverviewSectionModel(TNO.API.Areas.Editor.Models.AVOverview.AVOverviewSectionModel model)
     {
-        this.Id = model.Id;
         this.Name = model.Name;
         this.SortOrder = model.SortOrder;
         this.InstanceId = model.InstanceId;
@@ -96,7 +89,7 @@ public class AVOverviewSectionModel
         this.SeriesId = model.SeriesId;
         this.Anchors = model.Anchors;
         this.StartTime = model.StartTime;
-        this.Items = model.Items.Select(i => new AVOverviewSectionItemModel(i)).ToArray();
+        this.Items = model.Items.Select(i => new AVOverviewSectionItemModel(i)).OrderBy(s => s.SortOrder).ToArray();
     }
 
     /// <summary>
@@ -105,7 +98,6 @@ public class AVOverviewSectionModel
     /// <param name="model"></param>
     public AVOverviewSectionModel(TNO.API.Areas.Services.Models.AVOverview.AVOverviewSectionModel model)
     {
-        this.Id = model.Id;
         this.Name = model.Name;
         this.SortOrder = model.SortOrder;
         this.InstanceId = model.InstanceId;
@@ -114,7 +106,7 @@ public class AVOverviewSectionModel
         this.SeriesId = model.SeriesId;
         this.Anchors = model.Anchors;
         this.StartTime = model.StartTime;
-        this.Items = model.Items.Select(i => new AVOverviewSectionItemModel(i)).ToArray();
+        this.Items = model.Items.Select(i => new AVOverviewSectionItemModel(i)).OrderBy(s => s.SortOrder).ToArray();
     }
     #endregion
 }

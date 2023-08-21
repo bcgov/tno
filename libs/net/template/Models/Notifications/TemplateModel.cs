@@ -20,6 +20,11 @@ public class TemplateModel : RazorEngineTemplateBase
     public Uri? MmiaUrl { get; set; }
 
     /// <summary>
+    /// get/set - The view content URL.
+    /// </summary>
+    public Uri? ViewContentUrl { get; set; }
+
+    /// <summary>
     /// get/set - The request transcript URL.
     /// </summary>
     public Uri? RequestTranscriptUrl { get; set; }

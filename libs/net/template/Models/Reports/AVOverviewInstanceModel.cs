@@ -6,11 +6,6 @@ namespace TNO.TemplateEngine.Models.Reports;
 public class AVOverviewInstanceModel
 {
     #region Properties
-    /// <summary>
-    /// get/set - Primary key.
-    /// </summary>
-    public int Id { get; set; }
-
     // <summary>
     // get/set - The template type.
     // </summary>
@@ -49,10 +44,9 @@ public class AVOverviewInstanceModel
     /// <param name="entity"></param>
     public AVOverviewInstanceModel(Entities.AVOverviewInstance entity)
     {
-        this.Id = entity.Id;
         this.TemplateType = entity.TemplateType;
         this.PublishedOn = entity.PublishedOn;
-        this.Sections = entity.Sections.Select(s => new AVOverviewSectionModel(s)).ToArray();
+        this.Sections = entity.Sections.Select(s => new AVOverviewSectionModel(s)).OrderBy(s => s.SortOrder).ToArray();
         this.Response = entity.Response;
     }
 
@@ -62,10 +56,9 @@ public class AVOverviewInstanceModel
     /// <param name="model"></param>
     public AVOverviewInstanceModel(TNO.API.Areas.Editor.Models.AVOverview.AVOverviewInstanceModel model)
     {
-        this.Id = model.Id;
         this.TemplateType = model.TemplateType;
         this.PublishedOn = model.PublishedOn;
-        this.Sections = model.Sections.Select(s => new AVOverviewSectionModel(s)).ToArray();
+        this.Sections = model.Sections.Select(s => new AVOverviewSectionModel(s)).OrderBy(s => s.SortOrder).ToArray();
         this.Response = model.Response;
     }
 
@@ -75,10 +68,9 @@ public class AVOverviewInstanceModel
     /// <param name="model"></param>
     public AVOverviewInstanceModel(TNO.API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel model)
     {
-        this.Id = model.Id;
         this.TemplateType = model.TemplateType;
         this.PublishedOn = model.PublishedOn;
-        this.Sections = model.Sections.Select(s => new AVOverviewSectionModel(s)).ToArray();
+        this.Sections = model.Sections.Select(s => new AVOverviewSectionModel(s)).OrderBy(s => s.SortOrder).ToArray();
         this.Response = model.Response;
     }
     #endregion

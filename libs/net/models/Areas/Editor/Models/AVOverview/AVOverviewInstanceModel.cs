@@ -22,6 +22,11 @@ public class AVOverviewInstanceModel : AuditColumnsModel
     public DateTime PublishedOn { get; set; }
 
     /// <summary>
+    /// get/set - Whether the report has been published (emailed).
+    /// </summary>
+    public bool IsPublished { get; set; }
+
+    /// <summary>
     /// get/set - An array of sections in this instance.
     /// </summary>
     public IEnumerable<AVOverviewSectionModel> Sections { get; set; } = Array.Empty<AVOverviewSectionModel>();
@@ -47,6 +52,7 @@ public class AVOverviewInstanceModel : AuditColumnsModel
         this.Id = entity.Id;
         this.TemplateType = entity.TemplateType;
         this.PublishedOn = entity.PublishedOn;
+        this.IsPublished = entity.IsPublished;
         this.Sections = entity.Sections.OrderBy(s => s.SortOrder).Select(s => new AVOverviewSectionModel(s));
         this.Response = entity.Response;
     }
@@ -75,6 +81,7 @@ public class AVOverviewInstanceModel : AuditColumnsModel
         var entity = new Entities.AVOverviewInstance(model.TemplateType, model.PublishedOn)
         {
             Id = model.Id,
+            IsPublished = model.IsPublished,
             Response = model.Response,
             Version = model.Version ?? 0
         };

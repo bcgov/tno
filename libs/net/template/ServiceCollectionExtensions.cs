@@ -19,6 +19,7 @@ public static class ServiceCollectionExtensions
     {
         return services
             .Configure<ChartsOptions>(config.GetSection("Charts"))
+            .Configure<ReportingOptions>(config.GetSection("Reporting"))
             .AddScoped<IRazorEngine, RazorEngine>()
             .AddScoped<ITemplateEngine<Models.Notifications.TemplateModel>, TemplateEngine<Models.Notifications.TemplateModel>>()
             .AddScoped<ITemplateEngine<Models.Reports.ReportEngineContentModel>, TemplateEngine<Models.Reports.ReportEngineContentModel>>()

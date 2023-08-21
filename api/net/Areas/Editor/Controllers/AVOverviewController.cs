@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.AVOverview;
 using TNO.API.Config;
+using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
@@ -35,6 +36,7 @@ public class AVOverviewController : ControllerBase
     private readonly IAVOverviewInstanceService _overviewInstanceService;
     private readonly IAVOverviewTemplateService _overviewTemplateService;
     private readonly IUserService _userService;
+    private readonly IReportHelper _reportHelper;
     private readonly IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
     #endregion
@@ -46,18 +48,21 @@ public class AVOverviewController : ControllerBase
     /// <param name="overviewInstanceService"></param>
     /// <param name="overviewTemplateService"></param>
     /// <param name="userService"></param>
+    /// <param name="reportHelper"></param>
     /// <param name="kafkaProducer"></param>
     /// <param name="kafkaOptions"></param>
     public AVOverviewController(
         IAVOverviewInstanceService overviewInstanceService,
         IAVOverviewTemplateService overviewTemplateService,
         IUserService userService,
+        IReportHelper reportHelper,
         IKafkaMessenger kafkaProducer,
         IOptions<KafkaOptions> kafkaOptions)
     {
         _overviewInstanceService = overviewInstanceService;
         _overviewTemplateService = overviewTemplateService;
         _userService = userService;
+        _reportHelper = reportHelper;
         _kafkaProducer = kafkaProducer;
         _kafkaOptions = kafkaOptions.Value;
     }
@@ -90,18 +95,18 @@ public class AVOverviewController : ControllerBase
     }
 
     /// <summary>
-    /// Find evening overview for the specified 'id'.
+    /// Find evening overview for the specified 'instanceId'.
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="instanceId"></param>
     /// <returns></returns>
-    [HttpGet("{id}")]
+    [HttpGet("{instanceId}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(AVOverviewInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
-    public IActionResult FindById(int id)
+    public IActionResult FindById(int instanceId)
     {
-        var result = _overviewInstanceService.FindById(id);
+        var result = _overviewInstanceService.FindById(instanceId);
         if (result == null) return new NoContentResult();
         return new JsonResult(new AVOverviewInstanceModel(result));
     }
@@ -120,7 +125,7 @@ public class AVOverviewController : ControllerBase
     {
         var result = _overviewInstanceService.AddAndSave((Entities.AVOverviewInstance)model);
         var instance = _overviewInstanceService.FindById(result.Id) ?? throw new InvalidOperationException("Overview Section does not exist");
-        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new AVOverviewInstanceModel(instance));
+        return CreatedAtAction(nameof(FindById), new { instanceId = result.Id }, new AVOverviewInstanceModel(instance));
     }
 
     /// <summary>
@@ -157,18 +162,36 @@ public class AVOverviewController : ControllerBase
     }
 
     /// <summary>
+    /// Execute the report template and generate the results for previewing.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <returns></returns>
+    [HttpPost("{instanceId}/preview")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(TemplateEngine.Models.Reports.ReportResultModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public async Task<IActionResult> Preview(int instanceId)
+    {
+        var instance = _overviewInstanceService.FindById(instanceId) ?? throw new InvalidOperationException($"AV overview instance '{instanceId}' not found");
+        var model = new TemplateEngine.Models.Reports.AVOverviewInstanceModel(instance);
+        var result = await _reportHelper.GenerateReportAsync(model, true);
+        return new JsonResult(result);
+    }
+
+    /// <summary>
     /// Publish the AV evening overview report and send to all subscribers.
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="instanceId"></param>
     /// <returns></returns>
-    [HttpPost("{id}/publish")]
+    [HttpPost("{instanceId}/publish")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(AVOverviewInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public async Task<IActionResult> Publish(int id)
+    public async Task<IActionResult> Publish(int instanceId)
     {
-        var instance = _overviewInstanceService.FindById(id) ?? throw new InvalidOperationException($"AV overview instance '{id}' not found");
+        var instance = _overviewInstanceService.FindById(instanceId) ?? throw new InvalidOperationException($"AV overview instance '{instanceId}' not found");
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
 

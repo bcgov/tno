@@ -9,6 +9,7 @@ import {
   IconButton,
   IReportTemplateModel,
   Modal,
+  ReportTypeName,
   Row,
   Show,
   Tab,
@@ -101,13 +102,15 @@ export const ReportTemplateForm: React.FC = () => {
                   }}
                   active={active === 'template'}
                 />
-                <Tab
-                  label="Charts"
-                  onClick={() => {
-                    setActive('charts');
-                  }}
-                  active={active === 'charts'}
-                />
+                <Show visible={values.reportType === ReportTypeName.Content}>
+                  <Tab
+                    label="Charts"
+                    onClick={() => {
+                      setActive('charts');
+                    }}
+                    active={active === 'charts'}
+                  />
+                </Show>
               </>
             }
           >
