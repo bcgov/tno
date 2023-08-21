@@ -97,7 +97,11 @@ export const DbMigration: React.FC = (props) => {
           <FormikRadioGroup
             label="Migration Type"
             name="ImportMigrationType"
-            value={!!values.configuration.importMigrationType ? 'Recent' : undefined}
+            value={
+              !!values.configuration.importMigrationType
+                ? values.configuration.importMigrationType
+                : 'Recent'
+            }
             onChange={(val) => {
               isImportStartDateRequired = val.target.value === 'Recent';
               isImportEndDateRequired = val.target.value === 'Historic';
