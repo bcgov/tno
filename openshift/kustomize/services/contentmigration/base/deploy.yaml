@@ -124,7 +124,7 @@ spec:
             - name: Service__DefaultUserNameForAudit
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-service-historic
+                  name: contentmigration-service
                   key: DEFAULT_USERNAME_FOR_AUDIT
             # Container TimeZone Configuration
             - name: TZ
