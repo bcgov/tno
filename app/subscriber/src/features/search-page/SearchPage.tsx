@@ -108,6 +108,7 @@ export const SearchPage: React.FC = () => {
           makeFilter({
             ...filter,
             contentTypes: [],
+            pageSize: 10000,
           }),
         );
         setSearchItems(data.items);
