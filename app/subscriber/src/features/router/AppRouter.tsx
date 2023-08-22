@@ -6,7 +6,9 @@ import { SearchPage } from 'features/search-page/SearchPage';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
-import { InternalServerError, NotFound } from 'tno-core';
+import { Claim, InternalServerError, NotFound } from 'tno-core';
+
+import { PrivateRoute } from './PrivateRoute';
 
 export interface IAppRouter {
   name: string;
@@ -35,10 +37,22 @@ export const AppRouter: React.FC<IAppRouter> = () => {
         <Route path="login" element={<Login />} />
         <Route path="welcome" element={<AccessRequest />} />
         <Route path="access/request" element={<AccessRequest />} />
-        <Route path="/landing/:id" element={<Landing />} />
-        <Route path="/search/:query" element={<SearchPage />} />
-        <Route path="/view/:id" element={<Landing />} />
-        <Route path="/view/my-minister/:id" element={<Landing />} />
+        <Route
+          path="/landing/:id"
+          element={<PrivateRoute claims={Claim.subscriber} element={<Landing />}></PrivateRoute>}
+        />
+        <Route
+          path="/search/:query"
+          element={<PrivateRoute claims={Claim.subscriber} element={<SearchPage />}></PrivateRoute>}
+        />
+        <Route
+          path="/view/:id"
+          element={<PrivateRoute claims={Claim.subscriber} element={<Landing />}></PrivateRoute>}
+        />
+        <Route
+          path="/view/my-minister/:id"
+          element={<PrivateRoute claims={Claim.subscriber} element={<Landing />}></PrivateRoute>}
+        />
         <Route path="error" element={<InternalServerError />} />
         <Route path="*" element={<NotFound />} />
       </Route>

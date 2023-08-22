@@ -45,10 +45,10 @@ export const AccessRequest: React.FC = () => {
             Monitoring Insights & Analysis, you will need to request approval.
           </p>
         </Row>
-        <Row gap="1em" justifyContent="space-evenly">
+        {/* <Row gap="1em" justifyContent="space-evenly">
           <PreapprovedRequest />
           <RegisterRequest />
-        </Row>
+        </Row> */}
       </Show>
     </styled.AccessRequest>
   );
