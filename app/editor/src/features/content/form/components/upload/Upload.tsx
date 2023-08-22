@@ -125,7 +125,7 @@ export const Upload: React.FC<IUploadProps> = ({
             </audio>
           </Show>
           <Show visible={fileReference?.contentType.startsWith('video/')}>
-            <video src={stream?.url} controls>
+            <video src={`${stream?.url}#t=0.5`} controls preload="metadata">
               HTML5 Video is required
             </video>
           </Show>
