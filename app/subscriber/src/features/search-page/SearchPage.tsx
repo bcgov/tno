@@ -71,8 +71,9 @@ export const SearchPage: React.FC = () => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [query]);
 
-  // function that bolds the searched text
+  // function that bolds the searched text only if advanced filter is enabled for it
   const formatSearch = (text: string) => {
+    if (!urlParams.get('boldKeyword')) return;
     let tempText = text;
     let parseText = () => {
       if (advancedSubscriberFilter.storyText) return advancedSubscriberFilter.storyText;

@@ -3,6 +3,7 @@ import { ContentStatus, ContentTypeName } from 'tno-core';
 import { ISortBy } from './ISortBy';
 
 export interface IContentListFilter {
+  boldKeywords?: boolean;
   byline?: string;
   contentTypes: ContentTypeName[];
   excludeSourceIds?: number[];

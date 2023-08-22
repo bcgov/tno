@@ -15,9 +15,11 @@ export const makeFilter = (
 ): ISubscriberContentFilter => {
   const result: ISubscriberContentFilter = {
     actions: applyActions(filter),
+    boldKeywords: filter.boldKeywords ?? undefined,
     byline: filter.byline ?? undefined,
     contentTypes: filter.contentTypes ?? [],
     excludeSourceIds: filter.excludeSourceIds ?? undefined,
+    hasFile: filter.hasFile ?? undefined,
     headline: filter.headline ?? '',
     keyword: filter.keyword ?? undefined,
     names: filter.names ?? undefined,

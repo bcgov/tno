@@ -71,6 +71,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
           advancedSearch?.searchTerm && advancedSearch.searchInField?.headline
             ? advancedSearch.searchTerm
             : '',
+        boldKeywords: advancedSearch?.boldKeywords,
         byline:
           advancedSearch?.searchTerm && advancedSearch.searchInField?.byline
             ? advancedSearch.searchTerm
@@ -146,18 +147,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
         </p>
       </Show>
       <Show visible={expanded}>
-        <div className="search-in-group space-top">
-          {/* <b>Search in: </b>
-          <ToggleGroup
-            defaultSelected={
-              !advancedSearch?.searchInField
-                ? toggleOptions.keyword
-                : toggleOptions[advancedSearch?.searchInField as keyof typeof toggleOptions]
-            }
-            className="toggles"
-            options={searchInOptions}
-          /> */}
-        </div>
+        <div className="search-in-group space-top"></div>
         <Col className="section narrow">
           <b>Narrow your results by: </b>
           <Col className={`date-range-group space-top ${dateExpanded ? 'expanded' : ''}`}>
