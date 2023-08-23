@@ -1,4 +1,4 @@
-import { ILookupModel, ISourceModel } from 'tno-core';
+import { ISourceModel } from 'tno-core';
 
 import { ISubMediaGroupExpanded } from '../interfaces';
 
@@ -11,9 +11,8 @@ export interface ISubMediaGroupItem {
  * section
  */
 export const SubMediaGroups = (
-  dailyPapers: ISourceModel[],
+  dailyPrint: ISourceModel[],
   all: ISourceModel[],
-  internet: ILookupModel[],
 ): ISubMediaGroupItem[] => {
   return [
     {
@@ -22,14 +21,14 @@ export const SubMediaGroups = (
       options: all,
     },
     {
-      key: 'regionalPapers',
-      label: 'Regional Papers',
+      key: 'weeklyPrint',
+      label: 'Weekly Print',
       options: [],
     },
     {
-      key: 'dailyPapers',
-      label: 'Daily Papers',
-      options: dailyPapers,
+      key: 'dailyPrint',
+      label: 'Daily Print',
+      options: dailyPrint,
     },
     {
       key: 'talkRadio',
@@ -42,13 +41,18 @@ export const SubMediaGroups = (
       options: [],
     },
     {
-      key: 'internet',
-      label: 'Internet',
+      key: 'online',
+      label: 'Online',
       options: [],
     },
     {
       key: 'cpNews',
       label: 'CP News',
+      options: [],
+    },
+    {
+      key: 'newsRadio',
+      label: 'News Radio',
       options: [],
     },
   ];

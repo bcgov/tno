@@ -2,7 +2,7 @@ import { useLookup } from 'store/hooks';
 
 export const useFilterOptions = () => {
   const [{ sources }] = useLookup();
-  const dailyPapers = sources.filter(
+  const dailyPrint = sources.filter(
     (source) =>
       source.code === 'SUN' ||
       source.code === 'PROVINCE' ||
@@ -10,5 +10,5 @@ export const useFilterOptions = () => {
       source.code === 'GLOBE' ||
       source.code === 'POST',
   );
-  return { dailyPapers, sources };
+  return { dailyPrint: dailyPrint, sources };
 };
