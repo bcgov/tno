@@ -438,6 +438,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         {
             AddToReportUrl = this.Options.AddToReportUrl,
             MmiaUrl = this.Options.MmiaUrl,
+            ViewContentUrl = this.Options.ViewContentUrl != null ? new Uri(this.Options.ViewContentUrl, content.Id.ToString()) : null,
             RequestTranscriptUrl = this.Options.RequestTranscriptUrl
         };
         var template = (!updateCache ?
@@ -450,6 +451,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
             instance.Content = model.Content;
             instance.AddToReportUrl = model.AddToReportUrl;
             instance.MmiaUrl = model.MmiaUrl;
+            instance.ViewContentUrl = model.ViewContentUrl;
             instance.RequestTranscriptUrl = model.RequestTranscriptUrl;
         });
     }
