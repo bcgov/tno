@@ -30,10 +30,10 @@ UPDATE public."notification" SET
 }@toneIcon@sourceCode: @Content.Headline @transcriptIcon" }', '[\r\t]+', '', 'g'), '[\n]+', '\\n', 'g')::jsonb
   , "template" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Notification.Models.TemplateModel>
 @{
-  var mmiaUrl = @MmiaUrl?.AbsoluteUri;
-  var viewContentUrl = @ViewContentUrl?.AbsoluteUri;
-  var requestTranscriptUrl = @RequestTranscriptUrl?.AbsoluteUri;
-  var addToReportUrl = @AddToReportUrl?.AbsoluteUri;
+  var mmiaUrl = @MmiaUrl?.ToString();
+  var viewContentUrl = @ViewContentUrl?.ToString();
+  var requestTranscriptUrl = @RequestTranscriptUrl?.ToString();
+  var addToReportUrl = @AddToReportUrl?.ToString();
   var isAV = @Content.ContentType == TNO.Entities.ContentType.AudioVideo;
   var isTranscriptAvailable = isAV && !string.IsNullOrWhiteSpace(@Content.Body) && @Content.IsApproved;
   var sourceCode = !string.IsNullOrEmpty(@Content.Source?.Code) ? @Content.Source.Code : @Content.OtherSource;
@@ -54,7 +54,7 @@ UPDATE public."notification" SET
 }
 @if (isAV && !isTranscriptAvailable && !string.IsNullOrEmpty(requestTranscriptUrl))
 {
-  <div><a href="@requestTranscriptUrl" target="_blank">Request Transcript</a></div>
+  <div><a href="@requestTranscriptUrl" target="_blank">Request Transcript...</a></div>
   <br />
 }
 @if (!string.IsNullOrEmpty(addToReportUrl))
