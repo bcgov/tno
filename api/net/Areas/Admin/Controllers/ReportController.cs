@@ -133,7 +133,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult Add(ReportModel model)
     {
-        var result = _reportService.AddAndSave(model.ToEntity(_serializerOptions, false));
+        var result = _reportService.AddAndSave(model.ToEntity(_serializerOptions));
         var report = _reportService.FindById(result.Id) ?? throw new InvalidOperationException("Report does not exist");
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportModel(report, _serializerOptions));
     }
@@ -150,7 +150,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult Update(ReportModel model)
     {
-        var result = _reportService.UpdateAndSave(model.ToEntity(_serializerOptions, false));
+        var result = _reportService.UpdateAndSave(model.ToEntity(_serializerOptions));
         var report = _reportService.FindById(result.Id) ?? throw new InvalidOperationException("Report does not exist");
         return new JsonResult(new ReportModel(report, _serializerOptions));
     }
@@ -240,7 +240,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> Preview(ReportModel model)
     {
-        var result = await _reportHelper.GenerateReportAsync(new Areas.Services.Models.Report.ReportModel(model.ToEntity(_serializerOptions), _serializerOptions), true);
+        var result = await _reportHelper.GenerateReportAsync(new Areas.Services.Models.Report.ReportModel(model.ToEntity(_serializerOptions, true), _serializerOptions), true);
         return new JsonResult(result);
     }
     #endregion

@@ -14,6 +14,8 @@ export * from './ContentTypeName';
 export * from './LogicalOperator';
 export * from './NotificationType';
 export * from './NotificationTypeName';
+export * from './ReportSectionType';
+export * from './ReportSectionTypeName';
 export * from './ReportType';
 export * from './ReportTypeName';
 export * from './ResendOption';

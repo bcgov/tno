@@ -61,7 +61,6 @@ export * from './IReportFilter';
 export * from './IReportHeadlineSettingsModel';
 export * from './IReportInstanceContentModel';
 export * from './IReportInstanceModel';
-export * from './IReportInstanceSettingsModel';
 export * from './IReportModel';
 export * from './IReportResultModel';
 export * from './IReportSectionChartTemplateModel';

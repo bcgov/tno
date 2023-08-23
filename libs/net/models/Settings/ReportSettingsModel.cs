@@ -11,7 +11,6 @@ public class ReportSettingsModel
     public ReportHeadlineSettingsModel Headline { get; set; } = new();
     public ReportContentSettingsModel Content { get; set; } = new();
     public ReportSectionsSettingsModel Sections { get; set; } = new();
-    public ReportInstanceSettingsModel Instance { get; set; } = new();
     #endregion
 
     #region Constructors
@@ -24,7 +23,6 @@ public class ReportSettingsModel
         this.Headline = settings.GetDictionaryJsonValue<ReportHeadlineSettingsModel>("headline", new(), options)!;
         this.Content = settings.GetDictionaryJsonValue<ReportContentSettingsModel>("content", new(), options)!;
         this.Sections = settings.GetDictionaryJsonValue<ReportSectionsSettingsModel>("sections", new(), options)!;
-        this.Instance = settings.GetDictionaryJsonValue<ReportInstanceSettingsModel>("instance", new(), options)!;
     }
     #endregion
 }

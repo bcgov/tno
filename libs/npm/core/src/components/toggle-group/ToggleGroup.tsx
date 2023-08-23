@@ -41,8 +41,8 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({
 
   // ensure default selected gets reset when new content is loaded
   React.useEffect(() => {
-    if (defaultSelected) setActiveToggle(defaultSelected);
     if (disabled) setActiveToggle('');
+    else setActiveToggle(defaultSelected);
   }, [defaultSelected, disabled]);
 
   // Close dropdown when clicking outside of it

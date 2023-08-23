@@ -138,7 +138,7 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
               } else if (typeof option === 'number') {
                 const value = option as number;
                 return (
-                  <span key={value}>
+                  <styled.Span spaceUnderRadio={!!spaceUnderRadio} key={value}>
                     <Radio
                       id={`rad-${name}-${value}`}
                       name={name}
@@ -149,13 +149,13 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
                       onChange={handleChange}
                     />
                     <label htmlFor={`rad-${name}-${value}`}>{value}</label>
-                  </span>
+                  </styled.Span>
                 );
               } else {
                 const value = option as string;
 
                 return (
-                  <span key={value}>
+                  <styled.Span spaceUnderRadio={!!spaceUnderRadio} key={value}>
                     <Radio
                       error={error}
                       id={`rad-${name}-${value}`}
@@ -166,7 +166,7 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
                       onChange={handleChange}
                     />
                     <label htmlFor={`rad-${name}-${value}`}>{value}</label>
-                  </span>
+                  </styled.Span>
                 );
               }
             })

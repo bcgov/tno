@@ -10,5 +10,28 @@ export const defaultReportTemplate: IReportTemplateModel = {
   isEnabled: true,
   sortOrder: 0,
   chartTemplates: [],
-  settings: {},
+  settings: {
+    viewOnWebOnly: false,
+    subject: {
+      text: false,
+      showTodaysDate: false,
+    },
+    headline: {
+      showSource: false,
+      showShortName: false,
+      showPublishedOn: false,
+      showSentiment: false,
+    },
+    content: {
+      excludeHistorical: false,
+      excludeReports: false,
+      showLinkToStory: false,
+      highlightKeywords: false,
+    },
+    sections: {
+      enable: false,
+      usePageBreaks: false,
+    },
+    enableCharts: false,
+  },
 };

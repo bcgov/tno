@@ -546,7 +546,9 @@ public class ContentService : BaseService<Content, long>, IContentService
     {
         var original = FindById(updated.Id) ?? throw new InvalidOperationException("Entity does not exist");
 
-        this.Context.Entry(original.Status).CurrentValues.SetValues(updated.Status);
+        original.Status = updated.Status;
+        original.Version = updated.Version;
+        this.Context.ResetVersion(original);
 
         return base.Update(original);
     }

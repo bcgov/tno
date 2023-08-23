@@ -1,10 +1,16 @@
+import { ReportSectionTypeName } from '..';
+
 export interface IReportSectionSettingsModel {
   label: string;
-  isSummary: boolean;
-  showContent: boolean;
+  sectionType: ReportSectionTypeName;
+  showHeadlines: boolean;
+  showFullStory: boolean;
+  showImage: boolean;
   showCharts: boolean;
   chartsOnTop: boolean;
   chartDirection: 'row' | 'column';
   removeDuplicates: boolean;
+  hideEmpty: boolean;
+  groupBy: string;
   sortBy: string;
 }

@@ -44,4 +44,13 @@ export const FilterForm = styled(FormPage)`
   hr {
     width: 100%;
   }
+
+  .search-in {
+    flex-wrap: nowrap;
+    width: 100%;
+  }
+
+  .pad-05 {
+    padding: 0.5rem;
+  }
 `;

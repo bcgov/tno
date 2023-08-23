@@ -87,7 +87,7 @@ export const ReportFormTemplate: React.FC = () => {
           </Button>
         </Row>
         <label htmlFor="txa-subject">Subject Template</label>
-        <Col className="editor">
+        <Col className="editor subject">
           <Editor
             id="txa-subject-template"
             required
@@ -101,7 +101,7 @@ export const ReportFormTemplate: React.FC = () => {
       </Col>
       <Col className="code frm-in">
         <label htmlFor="txa-template">Report Template</label>
-        <Col className="editor">
+        <Col className="editor body">
           <Editor
             id="txa-body-template"
             required

@@ -75,7 +75,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.IsPublic = entity.IsPublic;
         this.Settings = JsonSerializer.Deserialize<ReportSettingsModel>(entity.Settings, options) ?? new();
-        this.Sections = entity.Sections.Select(s => new ReportSectionModel(s, options)).ToArray();
+        this.Sections = entity.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s, options)).ToArray();
         this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!)).ToArray();
         this.Instances = entity.Instances.OrderByDescending(i => i.Id).Select(i => new ReportInstanceModel(i, options)).ToArray();
     }
@@ -86,27 +86,35 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of a Report object.
     /// </summary>
     /// <param name="options"></param>
-    /// <param name="includeChartTemplates">Need to remove references to ChartTemplate when add/update operations occur or it will attempt to add new records.</param>
+    /// <param name="includeDependencies">Whether to include related dependencies like ChartTemplate, Filter, and Folder entities.</param>
     /// <returns></returns>
-    public Entities.Report ToEntity(JsonSerializerOptions options, bool includeChartTemplates = true)
+    public Entities.Report ToEntity(JsonSerializerOptions options, bool includeDependencies = false)
     {
         var entity = (Entities.Report)this;
         entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
         entity.Sections.ForEach(s =>
         {
-            var section = this.Sections.FirstOrDefault(us => us.Id == s.Id || us.Name == s.Name) ?? throw new InvalidOperationException("Unable to find matching section");
+            var section = this.Sections.FirstOrDefault(us => us.Name == s.Name) ?? throw new InvalidOperationException("Unable to find matching section");
             s.Settings = JsonDocument.Parse(JsonSerializer.Serialize(section.Settings, options));
-            if (section.Folder != null && s.Folder != null) s.Folder.Settings = JsonDocument.Parse(JsonSerializer.Serialize(section.Folder.Settings, options));
-            if (section.Filter != null && s.Filter != null)
+            if (includeDependencies)
             {
-                s.Filter.Settings = JsonDocument.Parse(JsonSerializer.Serialize(section.Filter.Settings, options));
-                s.Filter.Query = JsonDocument.Parse(JsonSerializer.Serialize(section.Filter.Query, options));
+                if (section.Folder != null && s.Folder != null) s.Folder.Settings = JsonDocument.Parse(JsonSerializer.Serialize(section.Folder.Settings, options));
+                if (section.Filter != null && s.Filter != null)
+                {
+                    s.Filter.Settings = JsonDocument.Parse(JsonSerializer.Serialize(section.Filter.Settings, options));
+                    s.Filter.Query = JsonDocument.Parse(JsonSerializer.Serialize(section.Filter.Query, options));
+                }
+            }
+            else
+            {
+                s.Folder = null;
+                s.Filter = null;
             }
             s.ChartTemplatesManyToMany.ForEach(ct =>
             {
                 var chart = section.ChartTemplates.FirstOrDefault(uct => uct.Id == ct.ChartTemplateId) ?? throw new InvalidOperationException("Unable to find matching chart template");
                 ct.Settings = JsonDocument.Parse(JsonSerializer.Serialize(chart.SectionSettings, options));
-                if (!includeChartTemplates)
+                if (!includeDependencies)
                     ct.ChartTemplate = null;
             });
         });
@@ -136,7 +144,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
             entity.Template = (Entities.ReportTemplate)model.Template;
         }
 
-        entity.Sections.AddRange(model.Sections.Select(modelSection =>
+        entity.Sections.AddRange(model.Sections.OrderBy(s => s.SortOrder).Select(modelSection =>
         {
             var section = new Entities.ReportSection(modelSection.Id, modelSection.Name, modelSection.ReportId)
             {
@@ -163,7 +171,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
                 Settings = JsonDocument.Parse(JsonSerializer.Serialize(modelSection.Settings)),
                 Version = modelSection.Version ?? 0
             };
-            section.ChartTemplatesManyToMany.AddRange(modelSection.ChartTemplates.Select(ct => new Entities.ReportSectionChartTemplate(modelSection.Id, ct.Id, ct.SortOrder)
+            section.ChartTemplatesManyToMany.AddRange(modelSection.ChartTemplates.OrderBy(ct => ct.SortOrder).Select(ct => new Entities.ReportSectionChartTemplate(modelSection.Id, ct.Id, ct.SortOrder)
             {
                 ChartTemplate = new Entities.ChartTemplate(ct.Id, ct.Name, ct.Template)
                 {

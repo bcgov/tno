@@ -108,7 +108,7 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
             Version = model.Version ?? 0
         };
 
-        entity.ChartTemplatesManyToMany.AddRange(model.ChartTemplates.Select(c => new Entities.ReportSectionChartTemplate(model.Id, c.Id, c.SortOrder)
+        entity.ChartTemplatesManyToMany.AddRange(model.ChartTemplates.OrderBy(ct => ct.SortOrder).Select(c => new Entities.ReportSectionChartTemplate(model.Id, c.Id, c.SortOrder)
         {
             Settings = JsonDocument.Parse(JsonSerializer.Serialize(c.SectionSettings)),
         }));

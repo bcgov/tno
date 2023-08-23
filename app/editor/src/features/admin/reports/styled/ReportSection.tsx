@@ -15,4 +15,14 @@ export const ReportSection = styled.div`
       border-bottom-right-radius: 0.5rem;
     }
   }
+
+  .section-type {
+    p {
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      background-color: ${(props) => props.theme.css.stickyNoteColor};
+      width: auto;
+      height: 100%;
+    }
+  }
 `;

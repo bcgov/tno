@@ -227,7 +227,11 @@ public class ReportEngine : IReportEngine
                 if (chart.SectionSettings.Options == null || chart.SectionSettings.Options.ToJson() == "{}")
                     chart.SectionSettings.Options = chart.Settings.Options;
 
-                var chartModel = new ChartEngineContentModel(ReportSectionModel.GenerateChartUid(section.Id, chart.Id), chart, aggregateSection, !settings.IsSummary ? content : null);
+                var chartModel = new ChartEngineContentModel(
+                    ReportSectionModel.GenerateChartUid(section.Id, chart.Id),
+                    chart,
+                    aggregateSection,
+                    settings.SectionType == Entities.ReportSectionType.Content ? content : null);
                 var chartRequestModel = new ChartRequestModel(chartModel);
                 var base64Image = await this.GenerateBase64ImageAsync(chartRequestModel);
 

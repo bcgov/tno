@@ -22,18 +22,13 @@ export const defaultReport: IReportModel = {
       showSentiment: false,
     },
     content: {
-      includeStory: false,
-      showImage: false,
-      useThumbnail: false,
-      highlightKeywords: false,
-    },
-    sections: {
-      hideEmpty: false,
-      usePageBreaks: false,
-    },
-    instance: {
       excludeHistorical: false,
       excludeReports: [],
+      highlightKeywords: false,
+      showLinkToStory: false,
+    },
+    sections: {
+      usePageBreaks: false,
     },
   },
   isEnabled: false,

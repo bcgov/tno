@@ -1,6 +1,6 @@
 export interface IReportContentSettingsModel {
-  includeStory: boolean;
-  showImage: boolean;
-  useThumbnail: boolean;
+  excludeHistorical: boolean;
+  excludeReports: number[];
+  showLinkToStory: boolean;
   highlightKeywords: boolean;
 }

@@ -4,13 +4,13 @@ export const filterColumns: ITableHookColumn<IFilterModel>[] = [
   {
     label: 'Name',
     name: 'name',
-    width: 2,
+    width: 3,
     cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
     label: 'Description',
     name: 'description',
-    width: 5,
+    width: 4,
     cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {
