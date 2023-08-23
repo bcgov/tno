@@ -26,11 +26,11 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
   setAdvancedSearch,
   advancedSearch,
 }) => {
-  const { dailyPapers, sources } = useFilterOptions();
+  const { dailyPrint, sources } = useFilterOptions();
   return (
     <Show visible={mediaExpanded}>
       <Col className="expanded media-section space-top">
-        {SubMediaGroups(dailyPapers, sources, []).map((mediaGroup, index) => (
+        {SubMediaGroups(dailyPrint, sources).map((mediaGroup, index) => (
           <Col key={`${mediaGroup.key}-${index}`} className="sub-group">
             <Row>
               {`${mediaGroup.label} (${mediaGroup.options.length})`}
