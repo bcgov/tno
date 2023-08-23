@@ -21,6 +21,10 @@ data:
   CHES_FROM: Media Monitoring Insights and Analysis <mmia@gov.bc.ca>
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"
+  MMIA_BASE_URL: ""
+  MMIA_VIEW_CONTENT_URL: ""
+  MMIA_REQUEST_TRANSCRIPT_URL: ""
+  MMIA_ADD_TO_REPORT_URL: ""
 
 ---
 kind: ConfigMap
