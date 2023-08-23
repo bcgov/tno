@@ -18,17 +18,17 @@ export const SearchInGroup: React.FC<ISearchInGroupProps> = ({
   setAdvancedSearch,
 }) => {
   const [searchInOptions, setSearchInOptions] = React.useState({
-    byline: false,
-    headline: false,
-    storyText: false,
+    byline: advancedSearch.searchInField?.byline,
+    headline: advancedSearch.searchInField?.headline,
+    storyText: advancedSearch.searchInField?.storyText,
   });
   React.useEffect(() => {
     setAdvancedSearch({
       ...advancedSearch,
       searchInField: {
-        headline: searchInOptions.headline,
-        byline: searchInOptions.byline,
-        storyText: searchInOptions.storyText,
+        headline: searchInOptions.headline ?? false,
+        byline: searchInOptions.byline ?? false,
+        storyText: searchInOptions.storyText ?? false,
       },
     });
     // only want to run when the options change
@@ -40,16 +40,19 @@ export const SearchInGroup: React.FC<ISearchInGroupProps> = ({
       <Row justifyContent="space-evenly" className="options expanded space-top">
         <label>Headline</label>
         <Checkbox
+          checked={advancedSearch.searchInField?.headline}
           onChange={(e) => {
             setSearchInOptions({ ...searchInOptions, headline: e.target.checked });
           }}
         />
         <label>Byline</label>
         <Checkbox
+          checked={advancedSearch.searchInField?.byline}
           onChange={(e) => setSearchInOptions({ ...searchInOptions, byline: e.target.checked })}
         />
         <label>Story text</label>
         <Checkbox
+          checked={advancedSearch.searchInField?.storyText}
           onChange={(e) => setSearchInOptions({ ...searchInOptions, storyText: e.target.checked })}
         />
       </Row>

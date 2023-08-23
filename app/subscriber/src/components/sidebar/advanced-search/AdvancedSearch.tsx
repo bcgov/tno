@@ -246,10 +246,17 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
             <Row className="search-options-group">
               <IoIosCog />
               Search result options
-              <IoIosArrowDroprightCircle
-                className="drop-icon"
-                onClick={() => setOptionsExpanded(true)}
-              />
+              {!optionsExpanded ? (
+                <IoIosArrowDroprightCircle
+                  className="drop-icon"
+                  onClick={() => setOptionsExpanded(true)}
+                />
+              ) : (
+                <IoIosArrowDropdownCircle
+                  onClick={() => setOptionsExpanded(false)}
+                  className="drop-icon"
+                />
+              )}
               <MoreOptions
                 advancedSearch={advancedSearch}
                 setAdvancedSearch={setAdvancedSearch}
