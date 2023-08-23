@@ -5,8 +5,6 @@ import { Row, Show, useKeycloakWrapper, UserStatusName } from 'tno-core';
 
 import { ApprovalDenied } from './ApprovalDenied';
 import { ApprovalStatus } from './ApprovalStatus';
-import { PreapprovedRequest } from './PreapprovedRequest';
-import { RegisterRequest } from './RegisterRequest';
 import * as styled from './styled';
 
 /**
