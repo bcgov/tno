@@ -5,8 +5,6 @@ import { Row, Show, useKeycloakWrapper, UserStatusName } from 'tno-core';
 
 import { ApprovalDenied } from './ApprovalDenied';
 import { ApprovalStatus } from './ApprovalStatus';
-import { PreapprovedRequest } from './PreapprovedRequest';
-import { RegisterRequest } from './RegisterRequest';
 import * as styled from './styled';
 
 /**
@@ -45,10 +43,10 @@ export const AccessRequest: React.FC = () => {
             Monitoring Insights & Analysis, you will need to request approval.
           </p>
         </Row>
-        <Row gap="1em" justifyContent="space-evenly">
+        {/* <Row gap="1em" justifyContent="space-evenly">
           <PreapprovedRequest />
           <RegisterRequest />
-        </Row>
+        </Row> */}
       </Show>
     </styled.AccessRequest>
   );
