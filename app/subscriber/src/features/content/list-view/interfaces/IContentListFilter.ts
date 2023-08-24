@@ -3,6 +3,7 @@ import { ContentStatus, ContentTypeName } from 'tno-core';
 import { ISortBy } from './ISortBy';
 
 export interface IContentListFilter {
+  boldKeywords?: boolean;
   byline?: string;
   contentTypes: ContentTypeName[];
   excludeSourceIds?: number[];
@@ -21,4 +22,6 @@ export interface IContentListFilter {
   sentiment?: number[];
   storyText?: string;
   userId?: number | '';
+  topStory?: boolean;
+  hasFile?: boolean;
 }

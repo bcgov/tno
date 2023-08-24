@@ -2,12 +2,14 @@ import { ContentStatus, ContentTypeName, ISortPageFilter } from 'hooks/api-edito
 
 export interface ISubscriberContentFilter extends ISortPageFilter {
   actions?: string[];
+  boldKeywords?: boolean;
   byline?: string;
   contentTypes: ContentTypeName[];
   createdEndOn?: string;
   createdOn?: string;
   createdStartOn?: string;
   excludeSourceIds?: number[];
+  hasFile?: boolean;
   hasTopic?: boolean;
   headline?: string;
   includeHidden?: boolean;

@@ -327,6 +327,9 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         if (filter.HasTopic == true)
             filterQueries.Add(s => s.Nested(n => n.IgnoreUnmapped().Path(f => f.Topics).Query(q => q.MatchAll())));
+        
+        if (filter.HasFile == true)
+            filterQueries.Add(s => s.Nested(n => n.IgnoreUnmapped().Path(f => f.FileReferences).Query(q => q.MatchAll())));
 
         if (filter.OnlyPublished == true)
             filterQueries.Add(s => s.Terms(m => m.Field("status").Terms(_onlyPublished.Select(s => s.GetName()))));

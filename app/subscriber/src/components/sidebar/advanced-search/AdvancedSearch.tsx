@@ -11,10 +11,16 @@ import {
 } from 'react-icons/io';
 import { useNavigate } from 'react-router';
 import { useParams } from 'react-router-dom';
-import { Button, Col, ContentStatus, Row, Show, Text, ToggleGroup, toQueryString } from 'tno-core';
+import { Button, Col, Row, Show, Text, toQueryString } from 'tno-core';
 
-import { DateSection, MediaSection, SentimentSection } from './components';
-import { defaultAdvancedSearch, SearchInFieldName, toggleOptions } from './constants';
+import {
+  DateSection,
+  MediaSection,
+  MoreOptions,
+  SearchInGroup,
+  SentimentSection,
+} from './components';
+import { defaultAdvancedSearch } from './constants';
 import {
   defaultSubMediaGroupExpanded,
   IAdvancedSearchFilter,
@@ -38,12 +44,16 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
   const { query } = useParams();
   /** determines whether the date filter section is shown or not */
   const [dateExpanded, setDateExpanded] = React.useState(false);
+  /** determines whether the additional options are expanded  */
+  const [optionsExpanded, setOptionsExpanded] = React.useState(false);
+  /** determines whether the search in section is shown or not */
+  const [searchExpanded, setSearchExpanded] = React.useState(false);
   /** controls the parent group "Media Sources" expansion */
   const [mediaExpanded, setMediaExpanded] = React.useState(false);
   /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
   const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
     React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);
-  /** controls the sub group statee for sentiment */
+  /** controls the sub group state for sentiment */
   const [sentimentExpanded, setSentimentExpanded] = React.useState(false);
   /** the object that will eventually be converted to a query and be passed to elastic search */
   const [advancedSearch, setAdvancedSearch] =
@@ -58,26 +68,30 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
     () =>
       makeFilter({
         headline:
-          advancedSearch?.searchTerm && advancedSearch.searchInField === SearchInFieldName.Headline
+          advancedSearch?.searchTerm && advancedSearch.searchInField?.headline
             ? advancedSearch.searchTerm
             : '',
+        boldKeywords: advancedSearch?.boldKeywords,
         byline:
-          advancedSearch?.searchTerm && advancedSearch.searchInField === SearchInFieldName.Byline
+          advancedSearch?.searchTerm && advancedSearch.searchInField?.byline
             ? advancedSearch.searchTerm
             : '',
+        hasFile: advancedSearch?.hasFile,
         storyText:
-          advancedSearch?.searchTerm && advancedSearch.searchInField === SearchInFieldName.StoryText
+          advancedSearch?.searchTerm && advancedSearch.searchInField?.storyText
             ? advancedSearch.searchTerm
             : '',
         keyword:
-          advancedSearch?.searchTerm && !advancedSearch.searchInField
+          advancedSearch?.searchTerm &&
+          advancedSearch.searchInField &&
+          Object.values(advancedSearch.searchInField).every((v) => v === false)
             ? advancedSearch.searchTerm
             : '',
         startDate: advancedSearch?.startDate,
-        sourceIds: advancedSearch?.sourceIds,
+        sourceIds: advancedSearch?.frontPage ? [11] : advancedSearch?.sourceIds,
         sentiment: advancedSearch?.sentiment,
         endDate: advancedSearch?.endDate,
-        status: ContentStatus.Published,
+        topStory: advancedSearch?.topStory,
         contentTypes: [],
         sort: [],
         pageIndex: 0,
@@ -89,25 +103,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
   const handleSearch = async () => {
     navigate(`/search/${toQueryString(advancedFilter, { includeEmpty: false })}`);
   };
-
-  const searchInOptions = [
-    {
-      label: 'All',
-      onClick: () => setAdvancedSearch({ ...advancedSearch, searchInField: 'keyword' }),
-    },
-    {
-      label: 'Headline',
-      onClick: () => setAdvancedSearch({ ...advancedSearch, searchInField: 'headline' }),
-    },
-    {
-      label: 'Byline',
-      onClick: () => setAdvancedSearch({ ...advancedSearch, searchInField: 'byline' }),
-    },
-    {
-      label: 'Story text',
-      onClick: () => setAdvancedSearch({ ...advancedSearch, searchInField: 'storyText' }),
-    },
-  ];
 
   /** allow user to hit enter while searching */
   const enterPressed = (e: React.KeyboardEvent) => {
@@ -133,7 +128,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
           />
         </Row>
       </Show>
-      <Row className="search-bar">
+      <Row className="search-bar space-top">
         <GiHamburgerMenu />
         <Text
           width="10.5em"
@@ -152,18 +147,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
         </p>
       </Show>
       <Show visible={expanded}>
-        <div className="search-in-group space-top">
-          <b>Search in: </b>
-          <ToggleGroup
-            defaultSelected={
-              !advancedSearch?.searchInField
-                ? toggleOptions.keyword
-                : toggleOptions[advancedSearch?.searchInField as keyof typeof toggleOptions]
-            }
-            className="toggles"
-            options={searchInOptions}
-          />
-        </div>
+        <div className="search-in-group space-top"></div>
         <Col className="section narrow">
           <b>Narrow your results by: </b>
           <Col className={`date-range-group space-top ${dateExpanded ? 'expanded' : ''}`}>
@@ -211,7 +195,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
               mediaGroupExpandedStates={mediaGroupExpandedStates}
             />
           </Col>
-          {/*  */}
           <Col className={`sentiment-group ${sentimentExpanded ? 'expanded' : ''}`}>
             <Row>
               <FaRegSmile />
@@ -234,6 +217,28 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
               setAdvancedSearch={setAdvancedSearch}
             />
           </Col>
+          <Col className={`search-in-group ${searchExpanded ? 'expanded' : ''}`}>
+            <Row>
+              <FaSearch />
+              Search in
+              {!searchExpanded ? (
+                <IoIosArrowDroprightCircle
+                  onClick={() => setSearchExpanded(true)}
+                  className="drop-icon"
+                />
+              ) : (
+                <IoIosArrowDropdownCircle
+                  onClick={() => setSearchExpanded(false)}
+                  className="drop-icon"
+                />
+              )}
+            </Row>
+            <SearchInGroup
+              advancedSearch={advancedSearch}
+              searchExpanded={searchExpanded}
+              setAdvancedSearch={setAdvancedSearch}
+            />
+          </Col>
         </Col>
         <Row className="section">
           <Col className="section">
@@ -241,7 +246,22 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
             <Row className="search-options-group">
               <IoIosCog />
               Search result options
-              <IoIosArrowDroprightCircle className="drop-icon" />
+              {!optionsExpanded ? (
+                <IoIosArrowDroprightCircle
+                  className="drop-icon"
+                  onClick={() => setOptionsExpanded(true)}
+                />
+              ) : (
+                <IoIosArrowDropdownCircle
+                  onClick={() => setOptionsExpanded(false)}
+                  className="drop-icon"
+                />
+              )}
+              <MoreOptions
+                advancedSearch={advancedSearch}
+                setAdvancedSearch={setAdvancedSearch}
+                optionsExpanded={optionsExpanded}
+              />
             </Row>
             <Row className="story-options-group">
               <GiHamburgerMenu />

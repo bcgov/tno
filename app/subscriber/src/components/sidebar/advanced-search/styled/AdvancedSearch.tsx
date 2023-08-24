@@ -99,8 +99,23 @@ export const AdvancedSearch = styled(Row)`
     margin-top: 1em;
   }
 
+  .search-in-group {
+    .options {
+      label {
+        align-self: center;
+      }
+      margin-top: 0.5em;
+      font-size: 0.8em;
+    }
+  }
+
+  .more-options {
+    font-size: 0.8em;
+  }
+
   .date-range-group,
   .media-group,
+  .search-in-group,
   .sentiment-group,
   .search-options-group,
   .story-options-group {
