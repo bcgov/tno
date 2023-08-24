@@ -9,7 +9,7 @@ import { columns } from './constants/columns';
 import * as styled from './styled';
 
 export const MyReport: React.FC = () => {
-  const [{ findAllReports, findMyReports, addReport, updateReport }] = useReports();
+  const [{ findAllReports, findMyReports, updateReport }] = useReports();
   const [myReports, setMyReports] = React.useState<IReportModel[]>([]);
   const [allReports, setAllReports] = React.useState<IReportModel[]>([]);
 

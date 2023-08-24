@@ -1,4 +1,3 @@
-import { FiMoreHorizontal, FiSave } from 'react-icons/fi';
 import { CellEllipsis, Checkbox, IReportModel, ITableHookColumn, Text } from 'tno-core';
 
 export const availableReportColumns = (
