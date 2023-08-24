@@ -73,7 +73,6 @@ export const SearchPage: React.FC = () => {
 
   // function that bolds the searched text only if advanced filter is enabled for it
   const formatSearch = (text: string) => {
-    if (!urlParams.get('boldKeyword')) return;
     let tempText = text;
     let parseText = () => {
       if (advancedSubscriberFilter.storyText) return advancedSubscriberFilter.storyText;
@@ -99,6 +98,7 @@ export const SearchPage: React.FC = () => {
           tempText = tempText.replace(regex, `<b>${matches[0]}</b>`);
         }
       });
+    if (!urlParams.get('boldKeyword')) return parse(text);
     return parse(tempText);
   };
   const fetch = React.useCallback(
