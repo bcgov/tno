@@ -90,6 +90,23 @@ public class ReportService : BaseService<Report, int>, IReportService
             .FirstOrDefault(r => r.Id == id);
     }
 
+
+    /// <summary>
+    /// Find the reports for the specified user.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public IEnumerable<Report> FindMyReports(int userId)
+    {
+        return this.Context.Reports
+            .Include(f => f.Owner)
+            .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
+            .Include(r => r.Sections)
+            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
+            .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
+    }
+
+
     /// <summary>
     /// Add the new report to the database.
     /// Add subscribers to the report.

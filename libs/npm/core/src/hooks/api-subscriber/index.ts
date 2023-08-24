@@ -4,3 +4,4 @@ export * from './useApiSubscriberContents';
 export * from './useApiSubscriberMinisters';
 export * from './useApiSubscriberSystemMessages';
 export * from './useApiSubscriberWorkOrders';
+export * from './useApiSubscriberReports';

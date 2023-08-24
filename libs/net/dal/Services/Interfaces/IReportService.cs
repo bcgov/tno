@@ -41,4 +41,11 @@ public interface IReportService : IBaseService<Report, int>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     IEnumerable<long> GetRelatedReportInstanceContentToExclude(int reportId);
+
+    /// <summary>
+    /// Find all my reports.
+    /// </summary>
+    /// <returns></returns>
+    IEnumerable<Report> FindMyReports(int userId);
+
 }
