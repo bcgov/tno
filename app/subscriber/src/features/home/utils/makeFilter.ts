@@ -16,6 +16,7 @@ export const makeFilter = (
   const result: ISubscriberContentFilter = {
     actions: applyActions(filter),
     boldKeywords: filter.boldKeywords,
+    quantity: filter.pageSize,
     byline: filter.byline ?? undefined,
     contentTypes: filter.contentTypes ?? [],
     excludeSourceIds: filter.excludeSourceIds ?? undefined,

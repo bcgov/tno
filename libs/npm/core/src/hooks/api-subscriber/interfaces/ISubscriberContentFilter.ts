@@ -24,6 +24,7 @@ export interface ISubscriberContentFilter extends ISortPageFilter {
   publishedEndOn?: string;
   publishedOn?: string;
   publishedStartOn?: string;
+  quantity?: number;
   section?: string;
   sentiment?: number[];
   sourceIds?: number[];
