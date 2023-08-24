@@ -77,7 +77,7 @@ public class ContentController : ControllerBase
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var filter = new ContentFilter(query);
-        if (filter.Actions.Any(x => x.Contains("Commentary")))
+        if (filter.Actions.Any(x => x.Contains("Commentary")) && filter.Quantity == 10)
         {
             filter.Quantity = 500;
         }
