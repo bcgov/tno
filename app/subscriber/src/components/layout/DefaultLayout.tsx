@@ -61,10 +61,25 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
     <styled.Layout collapsed={collapsed} {...rest}>
       <UserInfo />
       <Show visible={keycloak.authenticated}>
-        <div className="grid-container">
-          <div className="nav-bar">
-            <CustomSidebar advancedSearch={advancedSearch} setAdvancedSearch={setAdvancedSearch} />
+        <Show visible={keycloak.hasClaim()}>
+          <div className="grid-container">
+            <div className="nav-bar">
+              <CustomSidebar
+                advancedSearch={advancedSearch}
+                setAdvancedSearch={setAdvancedSearch}
+              />
+            </div>
+            <div className="main-contents">
+              <LayoutErrorBoundary>
+                <main>
+                  <Outlet />
+                </main>
+                <SubscriberFooter />
+              </LayoutErrorBoundary>
+            </div>
           </div>
+        </Show>
+        <Show visible={!keycloak.hasClaim()}>
           <div className="main-contents">
             <LayoutErrorBoundary>
               <main>
@@ -73,7 +88,7 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
               <SubscriberFooter />
             </LayoutErrorBoundary>
           </div>
-        </div>
+        </Show>
       </Show>
       <Show visible={!keycloak.authenticated}>
         <div className="main-window">
