@@ -1,4 +1,4 @@
-import { IReportSectionModel } from 'tno-core';
+import { IReportSectionModel, ReportSectionTypeName } from 'tno-core';
 
 export const defaultReportSection = (reportId: number): IReportSectionModel => {
   return {
@@ -11,12 +11,16 @@ export const defaultReportSection = (reportId: number): IReportSectionModel => {
     chartTemplates: [],
     settings: {
       label: '',
-      isSummary: false,
-      showContent: true,
+      sectionType: ReportSectionTypeName.Content,
+      removeDuplicates: false,
+      showHeadlines: true,
+      showFullStory: false,
+      showImage: false,
+      hideEmpty: false,
       showCharts: false,
       chartsOnTop: false,
       chartDirection: 'row',
-      removeDuplicates: false,
+      groupBy: '',
       sortBy: '',
     },
   };

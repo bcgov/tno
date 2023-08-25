@@ -3,22 +3,22 @@ using TNO.Models.Extensions;
 
 namespace TNO.API.Models.Settings;
 
-public class ReportContentSettingsModel
+public class ReportTemplateContentSettingsModel
 {
     #region Properties
     public bool ExcludeHistorical { get; set; }
-    public IEnumerable<int> ExcludeReports { get; set; } = Array.Empty<int>();
+    public bool ExcludeReports { get; set; }
     public bool ShowLinkToStory { get; set; }
     public bool HighlightKeywords { get; set; }
     #endregion
 
     #region Constructors
-    public ReportContentSettingsModel() { }
+    public ReportTemplateContentSettingsModel() { }
 
-    public ReportContentSettingsModel(Dictionary<string, object> settings, JsonSerializerOptions options)
+    public ReportTemplateContentSettingsModel(Dictionary<string, object> settings, JsonSerializerOptions options)
     {
         this.ExcludeHistorical = settings.GetDictionaryJsonValue<bool>("excludeHistorical", false, options)!;
-        this.ExcludeReports = settings.GetDictionaryJsonValue<int[]>("excludeReports", Array.Empty<int>(), options)!;
+        this.ExcludeReports = settings.GetDictionaryJsonValue<bool>("excludeReports", false, options)!;
         this.ShowLinkToStory = settings.GetDictionaryJsonValue<bool>("showLinkToStory", false, options)!;
         this.HighlightKeywords = settings.GetDictionaryJsonValue<bool>("highlightKeywords", false, options)!;
     }

@@ -5,4 +5,5 @@ export * from './defaultReportTemplate';
 export * from './instanceColumns';
 export * from './reportColumns';
 export * from './reportTemplateColumns';
+export * from './sectionOptions';
 export * from './subscriberColumns';

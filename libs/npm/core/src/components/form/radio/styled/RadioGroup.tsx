@@ -8,6 +8,7 @@ export const RadioGroup = styled.div<IRadioGroupProps<any>>`
 
   label {
     cursor: pointer;
+    margin-right: 0.5rem;
   }
 
   .required:after {

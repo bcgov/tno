@@ -8,5 +8,5 @@ export const defaultFilter: IFilterModel = {
   query: {},
   settings: {},
   sortOrder: 0,
-  isEnabled: false,
+  isEnabled: true,
 };

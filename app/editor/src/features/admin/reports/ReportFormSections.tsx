@@ -26,6 +26,7 @@ export const ReportFormSections = () => {
 
   const [section, setSection] = React.useState<IReportSectionModel>();
   const [reportOptions, setReportOptions] = React.useState(getSortableOptions(reports));
+  const now = new Date();
 
   React.useEffect(() => {
     if (!reports.length)
@@ -44,7 +45,7 @@ export const ReportFormSections = () => {
       [...values.sections, defaultReportSection(values.id)].map((section, index) => {
         return {
           ...section,
-          name: `section-${index + 1}`,
+          name: `section-${index + 1}-${now.getTime()}`,
           sortOrder: index,
         };
       }),
@@ -86,7 +87,11 @@ export const ReportFormSections = () => {
     if (index === section?.sortOrder) setSection(undefined);
     setFieldValue(
       `sections`,
-      sections.map((s, i) => ({ ...s, name: `section-${i + 1}`, sortOrder: i })),
+      sections.map((s, i) => ({
+        ...s,
+        name: `section-${i + 1}-${now.getTime()}`,
+        sortOrder: i,
+      })),
     );
   };
 
@@ -94,154 +99,178 @@ export const ReportFormSections = () => {
     <styled.ReportSections>
       <h2>{values.name}</h2>
       <p>A report must contain one or more section to display content or charts.</p>
-      <Col className="frm-in">
-        <label>Subject Line Options</label>
-        <Row alignItems="center">
-          <FormikText label="Text" name="settings.subject.text" required />
-          <FormikCheckbox
-            label="Show Today's Date"
-            name="settings.subject.showTodaysDate"
-            tooltip="Whether today's date will be included in the report subject line"
-          />
-        </Row>
-      </Col>
-      <Row>
-        <Col className="frm-in">
+      <Row gap="1rem">
+        <Col className="frm-in options" flex="1">
+          <label>Subject Line Options</label>
+          <Col>
+            <p>Customize the email subject line.</p>
+            <Row alignItems="center">
+              <Col flex="1">
+                <FormikText label="Text" name="settings.subject.text" required />
+              </Col>
+              <FormikCheckbox
+                label="Show Today's Date"
+                name="settings.subject.showTodaysDate"
+                tooltip="Whether today's date will be included in the report subject line"
+              />
+            </Row>
+          </Col>
+        </Col>
+        <Col className="frm-in options" flex="1">
           <label>Report Options</label>
-          <Row alignItems="center" flex="1">
+          <Col>
+            <p>
+              Control the output of the report. Redirect users to view the report on the website
+              instead of in their email.
+            </p>
             <FormikCheckbox
               label="View On Web Only"
               name="settings.viewOnWebOnly"
               tooltip="Email will only contain a link to view the report on the website"
             />
             <FormikCheckbox
-              label="Exclude Historical Content"
-              name="settings.instance.excludeHistorical"
-              tooltip="Exclude content already reported on in prior instances of this report"
+              label="Show Link to Story"
+              name="settings.content.showLinkToStory"
+              tooltip="Include a link to view the story online"
             />
-          </Row>
-        </Col>
-        <FormikSelect
-          name="settings.instance.excludeReports"
-          label="Exclude Related Report Content"
-          tooltip="Excludes content already reported on in the selected reports"
-          options={reportOptions}
-          isMulti
-          value={reportOptions.filter((ro) =>
-            values.settings.instance.excludeReports.some((reportId) => reportId === ro.value),
-          )}
-          onChange={(newValue) => {
-            if (Array.isArray(newValue))
-              setFieldValue(
-                'settings.instance.excludeReports',
-                newValue.map((v: OptionItem) => v.value),
-              );
-          }}
-        />
-      </Row>
-      <Col className="frm-in">
-        <label>Headline Options</label>
-        <Row>
-          <FormikCheckbox label="Show Source" name="settings.headline.showSource" />
-          <FormikCheckbox label="Show Common Call" name="settings.headline.showShortName" />
-          <FormikCheckbox label="Show Published On" name="settings.headline.showPublishedOn" />
-          <FormikCheckbox label="Show Sentiment" name="settings.headline.showSentiment" />
-        </Row>
-      </Col>
-      <Col className="frm-in">
-        <label>Content Options</label>
-        <Row>
-          <FormikCheckbox label="Include Full Story" name="settings.content.includeStory" />
-          {/* <FormikCheckbox label="Show Images" name="settings.content.showImage" />
-          <FormikCheckbox label="Use Thumbnails" name="settings.content.useThumbnail" />
-          <FormikCheckbox label="Highlight Keywords" name="settings.content.highlightKeywords" /> */}
-        </Row>
-      </Col>
-      <Col className="frm-in">
-        <label>Section Options</label>
-        <Row>
-          <FormikCheckbox
-            label="Hide Empty"
-            name="settings.sections.hideEmpty"
-            tooltip="If there is no content in the section it will not be included."
-          />
-          <FormikCheckbox
-            label="Use Page Breaks"
-            name="settings.sections.usePageBreaks"
-            tooltip="use page breaks in each section for printing."
-          />
-          <Col flex="1" alignItems="flex-end">
-            <Button variant={ButtonVariant.secondary} onClick={handleAddSection}>
-              Add New Section
-            </Button>
+            <FormikCheckbox
+              label="Highlight Keywords"
+              name="settings.content.highlightKeywords"
+              tooltip="Highlight the search keywords found in the report content"
+            />
           </Col>
-        </Row>
-      </Col>
-      <Col>
-        <div className="section-table">
-          <Row className="row-header">
-            <Col className="st-1"></Col>
-            <Col className="st-2">Heading</Col>
-            <Col className="st-3">Description</Col>
-            <Col className="st-4"></Col>
-          </Row>
-          {values.sections.map((row, index) => (
-            <React.Fragment key={index}>
-              <Row
-                className={`row${row.sortOrder === section?.sortOrder ? ' active' : ''}`}
-                onClick={() => {
-                  if (row.sortOrder !== section?.sortOrder) setSection(row);
-                  else setSection(undefined);
+        </Col>
+      </Row>
+      <Row gap="1rem">
+        <Col className="frm-in options" flex="2">
+          <label>Content Options</label>
+          <Col>
+            <p>
+              Control what content is included in this report by removing content from prior
+              instances or related reports.
+            </p>
+            <Row>
+              <FormikCheckbox
+                label="Exclude Historical Content"
+                name="settings.content.excludeHistorical"
+                tooltip="Exclude content already reported on in prior instances of this report"
+              />
+              <FormikSelect
+                name="settings.content.excludeReports"
+                label="Exclude Related Report Content"
+                tooltip="Excludes content already reported on in the selected reports"
+                options={reportOptions}
+                isMulti
+                value={reportOptions.filter((ro) =>
+                  values.settings.content.excludeReports?.some((reportId) => reportId === ro.value),
+                )}
+                onChange={(newValue) => {
+                  if (Array.isArray(newValue))
+                    setFieldValue(
+                      'settings.content.excludeReports',
+                      newValue.map((v: OptionItem) => v.value),
+                    );
                 }}
-              >
-                <Col className="st-1">{row.sortOrder + 1}</Col>
-                <Col className="st-2">{row.settings.label}</Col>
-                <Col className="st-3">{row.description}</Col>
-                <Col className="st-4">
-                  <Col>
-                    <Button
-                      variant={ButtonVariant.link}
-                      className="move"
-                      disabled={index < 1 || values.sections.length < index}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleMoveUp(row, index);
-                      }}
-                    >
-                      <FaArrowUp />
-                    </Button>
-                    <Button
-                      variant={ButtonVariant.link}
-                      className="move"
-                      disabled={index >= values.sections.length - 1}
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleMoveDown(row, index);
-                      }}
-                    >
-                      <FaArrowDown />
-                    </Button>
-                  </Col>
-                  <Button
-                    variant={ButtonVariant.danger}
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleDelete(index);
+              />
+            </Row>
+          </Col>
+        </Col>
+        <Col className="frm-in options" flex="1">
+          <label>Headline Options</label>
+          <Col>
+            <p>Control what is displayed for each headline in the report.</p>
+            <Row>
+              <FormikCheckbox label="Show Source" name="settings.headline.showSource" />
+              <FormikCheckbox label="Show Common Call" name="settings.headline.showShortName" />
+              <FormikCheckbox label="Show Published On" name="settings.headline.showPublishedOn" />
+              <FormikCheckbox label="Show Sentiment" name="settings.headline.showSentiment" />
+            </Row>
+          </Col>
+        </Col>
+      </Row>
+      <Col className="frm-in options">
+        <label>Section Options</label>
+        <Col>
+          <p>Control what sections are in the report, and how each section is presented.</p>
+          <Row>
+            <FormikCheckbox
+              label="Use Page Breaks"
+              name="settings.sections.usePageBreaks"
+              tooltip="use page breaks in each section for printing."
+            />
+            <Col flex="1" alignItems="flex-end">
+              <Button variant={ButtonVariant.secondary} onClick={handleAddSection}>
+                Add New Section
+              </Button>
+            </Col>
+          </Row>
+          <Col>
+            <Col className="section-table">
+              <Row className="row-header">
+                <Col className="st-1"></Col>
+                <Col className="st-2">Heading</Col>
+                <Col className="st-3">Summary</Col>
+                <Col className="st-4"></Col>
+              </Row>
+              {values.sections.map((row, index) => (
+                <React.Fragment key={index}>
+                  <Row
+                    className={`row${row.sortOrder === section?.sortOrder ? ' active' : ''}`}
+                    onClick={() => {
+                      if (row.sortOrder !== section?.sortOrder) setSection(row);
+                      else setSection(undefined);
                     }}
                   >
-                    <FaTrash />
-                  </Button>
-                </Col>
-              </Row>
-              {!!section && section.sortOrder === row.sortOrder && (
-                <ReportSection className="section" index={index} />
-              )}
-            </React.Fragment>
-          ))}
-        </div>
+                    <Col className="st-1">{row.sortOrder + 1}</Col>
+                    <Col className="st-2">{row.settings.label}</Col>
+                    <Col className="st-3">{row.description}</Col>
+                    <Col className="st-4">
+                      <Col>
+                        <Button
+                          variant={ButtonVariant.link}
+                          className="move"
+                          disabled={index < 1 || values.sections.length < index}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleMoveUp(row, index);
+                          }}
+                        >
+                          <FaArrowUp />
+                        </Button>
+                        <Button
+                          variant={ButtonVariant.link}
+                          className="move"
+                          disabled={index >= values.sections.length - 1}
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleMoveDown(row, index);
+                          }}
+                        >
+                          <FaArrowDown />
+                        </Button>
+                      </Col>
+                      <Button
+                        variant={ButtonVariant.danger}
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDelete(index);
+                        }}
+                      >
+                        <FaTrash />
+                      </Button>
+                    </Col>
+                  </Row>
+                  {!!section && section.sortOrder === row.sortOrder && (
+                    <ReportSection className="section" index={index} />
+                  )}
+                </React.Fragment>
+              ))}
+            </Col>
+          </Col>
+        </Col>
       </Col>
     </styled.ReportSections>
   );

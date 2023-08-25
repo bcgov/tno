@@ -255,11 +255,11 @@ public class ReportService : BaseService<Report, int>, IReportService
         var reportSettings = JsonSerializer.Deserialize<ReportSettingsModel>(report.Settings.ToJson(), _serializerOptions) ?? new();
 
         // Fetch the current instance of this report to exclude any content within it.
-        var excludeHistoricalContentIds = reportSettings.Instance.ExcludeHistorical ? this.GetReportInstanceContentToExclude(report.Id) : Array.Empty<long>();
+        var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical ? this.GetReportInstanceContentToExclude(report.Id) : Array.Empty<long>();
 
         // Fetch other reports to exclude any content within them.
-        var excludeReportContentIds = reportSettings.Instance.ExcludeReports.Any()
-            ? reportSettings.Instance.ExcludeReports.SelectMany(this.GetReportInstanceContentToExclude).Distinct()
+        var excludeReportContentIds = reportSettings.Content.ExcludeReports.Any()
+            ? reportSettings.Content.ExcludeReports.SelectMany(this.GetReportInstanceContentToExclude).Distinct()
             : Array.Empty<long>();
 
         var excludeContentIds = excludeHistoricalContentIds.AppendRange(excludeReportContentIds).Distinct();

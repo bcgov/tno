@@ -168,9 +168,7 @@ public class ReportHelper : IReportHelper
         var sections = model.Sections.ToDictionary(section => section.Name, section =>
         {
             elasticResults.TryGetValue(section.Name, out SearchResultModel<Areas.Services.Models.Content.ContentModel>? sectionResult);
-            var content = sectionResult?.Hits.Hits.Select(hit => new ContentModel(hit.Source)).ToArray()
-                    ?? Array.Empty<ContentModel>();
-
+            var content = sectionResult?.Hits.Hits.Select(hit => new ContentModel(hit.Source)).ToArray() ?? Array.Empty<ContentModel>();
             return new ReportSectionModel(section, content);
         });
 

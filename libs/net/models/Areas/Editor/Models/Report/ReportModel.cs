@@ -80,7 +80,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
         entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
         entity.Sections.ForEach(s =>
         {
-            var section = this.Sections.FirstOrDefault(us => us.Id == s.Id || us.Name == s.Name) ?? throw new InvalidOperationException("Unable to find matching section");
+            var section = this.Sections.FirstOrDefault(us => us.Name == s.Name) ?? throw new InvalidOperationException("Unable to find matching section");
             s.Settings = JsonDocument.Parse(JsonSerializer.Serialize(section.Settings, options));
             if (section.Folder != null && s.Folder != null) s.Folder.Settings = JsonDocument.Parse(JsonSerializer.Serialize(section.Folder.Settings, options));
             if (section.Filter != null && s.Filter != null)

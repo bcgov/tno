@@ -64,7 +64,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
         this.OwnerId = entity.OwnerId;
         this.IsPublic = entity.IsPublic;
         this.Settings = JsonSerializer.Deserialize<ReportSettingsModel>(entity.Settings, options) ?? new();
-        this.Sections = entity.Sections.Select(s => new ReportSectionModel(s, options));
+        this.Sections = entity.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s, options));
         this.Subscribers = entity.SubscribersManyToMany.Select(s => new UserReportModel(s));
     }
     #endregion
@@ -80,7 +80,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
         entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
         entity.Sections.ForEach(s =>
         {
-            var section = this.Sections.FirstOrDefault(us => us.Id == s.Id || us.Name == s.Name) ?? throw new InvalidOperationException("Unable to find matching section");
+            var section = this.Sections.FirstOrDefault(us => us.Name == s.Name) ?? throw new InvalidOperationException("Unable to find matching section");
             s.Settings = JsonDocument.Parse(JsonSerializer.Serialize(section.Settings, options));
             if (section.Folder != null && s.Folder != null) s.Folder.Settings = section.Folder.Settings;
             if (section.Filter != null && s.Filter != null)
@@ -120,7 +120,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
             entity.Template = (Entities.ReportTemplate)model.Template;
         }
 
-        entity.Sections.AddRange(model.Sections.Select(modelSection =>
+        entity.Sections.AddRange(model.Sections.OrderBy(s => s.SortOrder).Select(modelSection =>
         {
             var section = new Entities.ReportSection(modelSection.Id, modelSection.Name, modelSection.ReportId)
             {
@@ -147,7 +147,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
                 Settings = JsonDocument.Parse(JsonSerializer.Serialize(modelSection.Settings)),
                 Version = modelSection.Version ?? 0
             };
-            section.ChartTemplatesManyToMany.AddRange(modelSection.ChartTemplates.Select(ct => new Entities.ReportSectionChartTemplate(modelSection.Id, ct.Id, ct.SortOrder)
+            section.ChartTemplatesManyToMany.AddRange(modelSection.ChartTemplates.OrderBy(ct => ct.SortOrder).Select(ct => new Entities.ReportSectionChartTemplate(modelSection.Id, ct.Id, ct.SortOrder)
             {
                 ChartTemplate = new Entities.ChartTemplate(ct.Id, ct.Name, ct.Template)
                 {

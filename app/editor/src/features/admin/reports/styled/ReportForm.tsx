@@ -30,6 +30,14 @@ export const ReportForm = styled(FormPage)`
       min-width: 100%;
       max-width: 100%;
     }
+
+    & .subject {
+      max-height: 200px;
+    }
+
+    & .body {
+      max-height: 500px;
+    }
   }
 
   .form {

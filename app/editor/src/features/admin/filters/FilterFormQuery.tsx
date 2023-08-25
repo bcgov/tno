@@ -4,7 +4,6 @@ import 'prismjs/components/prism-cshtml';
 import 'prismjs/components/prism-json';
 
 import { useFormikContext } from 'formik';
-import _ from 'lodash';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
@@ -13,28 +12,17 @@ import {
   Button,
   ButtonVariant,
   Col,
+  FormikDatePicker,
+  FormikText,
   IFilterModel,
-  IFilterSettingsModel,
   OptionItem,
   Row,
   Select,
-  Text,
+  ToggleGroup,
 } from 'tno-core';
 
-/**
- * Generates an Elasticsearch query based on specified 'query'.
- * @param values Form values that will be used to configure the elasticsearch query.
- * @param original Original query object.
- * @returns Elasticsearch query JSON.
- */
-const generateQuery = (values: IFilterSettingsModel, original: any = {}) => {
-  if (values.size) _.set(original, 'size', values.size);
-  if (values.productIds && values.productIds.length)
-    _.set(original, 'query.terms.productIds', values.productIds);
-  else _.set(original, 'query.terms.productIds', undefined);
-
-  return original;
-};
+import { searchInOptions } from './constants/searchInOptions';
+import { generateQuery } from './utils';
 
 /**
  * The page used to view and edit report filter.
@@ -42,9 +30,31 @@ const generateQuery = (values: IFilterSettingsModel, original: any = {}) => {
  */
 export const FilterFormQuery: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IFilterModel>();
-  const [{ productOptions }] = useLookupOptions();
+  const [{ productOptions, sourceOptions, seriesOptions, contributorOptions }] = useLookupOptions();
 
   const [filter, setFilter] = React.useState(JSON.stringify(values.query, null, 2));
+
+  /**
+   * Update the settings and query values based on the new key=value.
+   */
+  const updateQuery = React.useCallback(
+    (key: string, value: any) => {
+      var settings = { ...values.settings };
+      settings[key] = value;
+      if (key === 'dateOffset') {
+        settings = { ...settings, startDate: undefined, endDate: undefined };
+      } else if (key === 'startDate' || key === 'endDate') {
+        settings = { ...settings, dateOffset: undefined };
+      }
+      const query = generateQuery(settings, values.query);
+      setFieldValue('settings', settings);
+      setFieldValue('query', query);
+      setFilter(JSON.stringify(query, null, 2));
+    },
+    [setFieldValue, values.query, values.settings],
+  );
+
+  const searchOptions = searchInOptions((value) => updateQuery('searchIn', value));
 
   return (
     <>
@@ -57,6 +67,7 @@ export const FilterFormQuery: React.FC = () => {
           <Button
             variant={ButtonVariant.secondary}
             onClick={() => {
+              setFieldValue('settings', {});
               setFieldValue('query', {});
               setFilter('');
             }}
@@ -65,19 +76,15 @@ export const FilterFormQuery: React.FC = () => {
           </Button>
         </Row>
         <Row alignItems="center">
-          <Text
-            name="query"
+          <FormikText
+            name="settings.size"
             label="Number of Stories"
             type="number"
             width="10ch"
-            value={values.query.size ?? 10}
+            value={values.settings.size ?? 10}
             onChange={(e) => {
-              const query = generateQuery(
-                { size: !!e.target.value ? parseInt(e.target.value) : 10 },
-                values.query,
-              );
-              setFieldValue('query', query);
-              setFilter(JSON.stringify(query, null, 2));
+              const value = !!e.target.value ? parseInt(e.target.value) : 10;
+              updateQuery('size', value);
             }}
           />
           <p>
@@ -85,25 +92,128 @@ export const FilterFormQuery: React.FC = () => {
             default limit is 10.
           </p>
         </Row>
+        <Row>
+          <FormikText
+            name="settings.search"
+            label="Keywords"
+            value={values.settings.search ?? ''}
+            onChange={(e) => {
+              const value = e.target.value;
+              updateQuery('search', value);
+            }}
+          >
+            <ToggleGroup
+              className="search-in"
+              options={searchOptions}
+              defaultSelected={values.settings.searchIn ?? searchOptions[0].label}
+            />
+          </FormikText>
+        </Row>
+        <Row nowrap>
+          <Col>
+            <FormikDatePicker
+              name="settings.startDate"
+              label="Start Date"
+              value={values.settings.startDate ?? ''}
+              width="13ch"
+              onChange={(value) => {
+                updateQuery('startDate', value);
+              }}
+              disabled={values.settings.dateOffset}
+            />
+          </Col>
+          <Col>
+            <FormikDatePicker
+              name="settings.endDate"
+              label="End Date"
+              value={values.settings.endDate ?? ''}
+              width="13ch"
+              onChange={(value) => {
+                updateQuery('endDate', value);
+              }}
+              disabled={values.settings.dateOffset}
+            />
+          </Col>
+          <Row nowrap>
+            <Col justifyContent="center" className="frm-in pad-05">
+              <label>Or</label>
+            </Col>
+            <FormikText
+              name="settings.dateOffset"
+              label="Date Offset"
+              type="number"
+              width="10ch"
+              value={values.settings.dateOffset ?? ''}
+              onChange={(e) => {
+                const value = !!e.target.value ? parseInt(e.target.value) : undefined;
+                updateQuery('dateOffset', value);
+              }}
+              disabled={values.settings.startDate || values.settings.endDate}
+            />
+            <p>
+              A date offset provides a consistent way to search for content that was published
+              relative to today's date.
+            </p>
+          </Row>
+        </Row>
         <Select
-          name="query.productIds"
+          name="sourceIds"
+          label="Sources"
+          isMulti
+          options={sourceOptions}
+          value={
+            sourceOptions.filter((mt) =>
+              values.settings.sourceIds?.some((p: number) => p === mt.value),
+            ) ?? []
+          }
+          onChange={(newValue: any) => {
+            const sourceIds = newValue.map((v: OptionItem) => v.value);
+            updateQuery('sourceIds', sourceIds);
+          }}
+        />
+        <Select
+          name="productIds"
           label="Products"
           isMulti
           options={productOptions}
           value={
             productOptions.filter((mt) =>
-              values.query?.query?.terms?.productIds?.some((p: number) => p === mt.value),
+              values.settings.productIds?.some((p: number) => p === mt.value),
             ) ?? []
           }
           onChange={(newValue: any) => {
-            const query = generateQuery(
-              {
-                productIds: newValue.map((v: OptionItem) => v.value),
-              },
-              values.query,
-            );
-            setFieldValue('query', query);
-            setFilter(JSON.stringify(query, null, 2));
+            const productIds = newValue.map((v: OptionItem) => v.value);
+            updateQuery('productIds', productIds);
+          }}
+        />
+        <Select
+          name="seriesIds"
+          label="Programs/Shows"
+          isMulti
+          options={seriesOptions}
+          value={
+            seriesOptions.filter((mt) =>
+              values.settings.seriesIds?.some((p: number) => p === mt.value),
+            ) ?? []
+          }
+          onChange={(newValue: any) => {
+            const seriesIds = newValue.map((v: OptionItem) => v.value);
+            updateQuery('seriesIds', seriesIds);
+          }}
+        />
+        <Select
+          name="contributorIds"
+          label="Columnists/Anchors"
+          isMulti
+          options={contributorOptions}
+          value={
+            contributorOptions.filter((mt) =>
+              values.settings.contributorIds?.some((p: number) => p === mt.value),
+            ) ?? []
+          }
+          onChange={(newValue: any) => {
+            const contributorIds = newValue.map((v: OptionItem) => v.value);
+            updateQuery('contributorIds', contributorIds);
           }}
         />
       </Col>

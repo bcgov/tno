@@ -1,6 +1,24 @@
 import styled from 'styled-components';
 
 export const ReportSections = styled.div`
+  .options {
+    border: solid 1px ${(props) => props.theme.css.beigeBackgroundColor};
+    border-radius: 0.5rem;
+    margin: 0.5rem 0 0 0;
+
+    > label {
+      border-top-left-radius: 0.5rem;
+      border-top-right-radius: 0.5rem;
+      padding: 0.5rem;
+      background-color: ${(props) => props.theme.css.primaryLightColor};
+      color: ${(props) => props.theme.css.backgroundColor};
+    }
+
+    > div {
+      padding: 0.5rem;
+    }
+  }
+
   .section-table {
     display: grid;
     grid-template-columns: 1fr 2fr 5fr 1fr;
@@ -13,10 +31,16 @@ export const ReportSections = styled.div`
 
     .st-2 {
       grid-column-start: 2;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
     }
 
     .st-3 {
       grid-column-start: 3;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
     }
 
     .st-4 {
@@ -63,6 +87,8 @@ export const ReportSections = styled.div`
       &:nth-child(even) > div:nth-child(3),
       &:nth-child(even) > div:nth-child(4) {
         background-color: ${(props) => props.theme.css.tableEvenRowColor};
+        border-top: solid 1px ${(props) => props.theme.css.tableEvenRowColor};
+        border-bottom: solid 1px ${(props) => props.theme.css.tableEvenRowColor};
       }
 
       &:nth-child(odd) > div:nth-child(1),
@@ -70,6 +96,8 @@ export const ReportSections = styled.div`
       &:nth-child(odd) > div:nth-child(3),
       &:nth-child(odd) > div:nth-child(4) {
         background-color: ${(props) => props.theme.css.tableOddRowColor};
+        border-top: solid 1px ${(props) => props.theme.css.tableEvenRowColor};
+        border-bottom: solid 1px ${(props) => props.theme.css.tableEvenRowColor};
       }
 
       &:hover > div:nth-child(1),
@@ -111,7 +139,8 @@ export const ReportSections = styled.div`
       grid-column: 1 /-1;
       background-color: ${(props) => props.theme.css.tableOddRowColor};
       border: solid 1px ${(props) => props.theme.css.tableEvenRowColor};
-      border-radius: 0.5rem;
+      border-bottom-left-radius: 0.5rem;
+      border-bottom-right-radius: 0.5rem;
       padding: 1rem;
       box-shadow: 0 3px 10px rgba(0 0 0 / 0.5);
     }
