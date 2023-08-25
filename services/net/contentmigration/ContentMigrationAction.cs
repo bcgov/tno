@@ -227,12 +227,18 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 countOfRecordsRetrieved = items.Count();
                 this.Logger.LogDebug("Ingest [{name}] retrieved [{countOfRecordsRetrieved}] records", manager.Ingest.Name, countOfRecordsRetrieved);
 
+                if (countOfRecordsRetrieved == 0 && importDateEnd.HasValue) {
+                    this.Logger.LogDebug("Ingest [{name}] - no records prior to import end date filter [{importDateEnd}] records", manager.Ingest.Name, importDateEnd.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
+                    creationDateOfLastImport = importDateEnd.Value;
+                }
+
                 await items.ForEachAsync(async newsItem =>
                 {
                     await MigrateNewsItemAsync(manager, contentMigrator, lookups, newsItem, defaultTimeZone);
                     // creationDateOfLastImport = newsItem.GetPublishedDateTime();  // Don't convert to UTC as this compares back to a timestamp in the Oracle DB
                     creationDateOfLastImport = newsItem.UpdatedOn;
                 });
+
                 await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport!.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
                 skip += countOfRecordsRetrieved;
             }
@@ -246,7 +252,10 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             }
         }
 
-        Logger.LogInformation("Migration Complete");
+        if (skip >= maxIngestedRecords)
+            this.Logger.LogInformation("Ingest [{name}] exited after reaching max ingest value [{maxIngest}]", manager.Ingest.Name, maxIngestedRecords);
+        else
+            this.Logger.LogInformation("Ingest [{name}] completed with [{countOfRecordsIngested}] records ingested", manager.Ingest.Name, skip);
     }
 
     /// <summary>
