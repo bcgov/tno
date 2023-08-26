@@ -9,37 +9,11 @@ export const generateRangeForArrayField = (
   values: any | any[],
   relation: 'intersects' | 'contains' | 'within' = 'intersects',
 ) => {
-  if (values === undefined || values === null) return [];
+  if (values === undefined || values === null) return undefined;
   if (Array.isArray(values)) {
     const range = values as any[];
     return range.length
-      ? [
-          {
-            nested: {
-              path: field.split('.')[0],
-              query: {
-                bool: {
-                  must: [
-                    {
-                      range: {
-                        [field]: {
-                          gte: range[0],
-                          lte: range.length > 1 ? range[1] : range[0],
-                          relation,
-                        },
-                      },
-                    },
-                  ],
-                },
-              },
-            },
-          },
-        ]
-      : [];
-  } else {
-    return [
-      [
-        {
+      ? {
           nested: {
             path: field.split('.')[0],
             query: {
@@ -48,8 +22,8 @@ export const generateRangeForArrayField = (
                   {
                     range: {
                       [field]: {
-                        gte: values,
-                        lte: values,
+                        gte: range[0],
+                        lte: range.length > 1 ? range[1] : range[0],
                         relation,
                       },
                     },
@@ -58,8 +32,28 @@ export const generateRangeForArrayField = (
               },
             },
           },
+        }
+      : undefined;
+  } else {
+    return {
+      nested: {
+        path: field.split('.')[0],
+        query: {
+          bool: {
+            must: [
+              {
+                range: {
+                  [field]: {
+                    gte: values,
+                    lte: values,
+                    relation,
+                  },
+                },
+              },
+            ],
+          },
         },
-      ],
-    ];
+      },
+    };
   }
 };
