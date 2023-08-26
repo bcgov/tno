@@ -38,6 +38,21 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// Find all the reports.
     /// </summary>
     /// <returns></returns>
+    public IEnumerable<Report> FindAll()
+    {
+        return this.Context.Reports
+            .AsNoTracking()
+            .Include(r => r.Owner)
+            .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
+            .Include(r => r.Sections)
+            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
+            .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
+    }
+
+        /// <summary>
+        /// Find all the public reports.
+        /// </summary>
+        /// <returns></returns>
     public IEnumerable<Report> GetPublic()
     {
         return this.Context.Reports

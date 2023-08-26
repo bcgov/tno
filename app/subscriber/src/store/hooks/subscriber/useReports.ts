@@ -5,7 +5,7 @@ import { IReportFilter, IReportModel, IReportResultModel, useApiSubscriberReport
 interface IReportController {
   findReports: (filter: IReportFilter) => Promise<IReportModel[]>;
   findMyReports: () => Promise<IReportModel[]>;
-  findAllReports: () => Promise<IReportModel[]>;
+  getPublicReports: () => Promise<IReportModel[]>;
   getReport: (id: number) => Promise<IReportModel | undefined>;
   addReport: (model: IReportModel) => Promise<IReportModel>;
   updateReport: (model: IReportModel) => Promise<IReportModel>;

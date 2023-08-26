@@ -9,7 +9,7 @@ import { columns } from './constants/columns';
 import * as styled from './styled';
 
 export const MyReport: React.FC = () => {
-  const [{ findAllReports, findMyReports, updateReport }] = useReports();
+  const [{ getPublicReports, findMyReports, updateReport }] = useReports();
   const [myReports, setMyReports] = React.useState<IReportModel[]>([]);
   const [allReports, setAllReports] = React.useState<IReportModel[]>([]);
 
@@ -19,7 +19,7 @@ export const MyReport: React.FC = () => {
     findMyReports().then((data) => {
       setMyReports(data);
     });
-    findAllReports().then((data) => {
+    getPublicReports().then((data) => {
       setAllReports(data);
     });
     // Only do this on init.
@@ -28,11 +28,13 @@ export const MyReport: React.FC = () => {
 
   const handleSave = () => {
     if (!!active) {
-      updateReport(active).then((data) => {
-        toast.success(`${data.name} updated successfully`);
-        setMyReports([...myReports.filter((report) => report.id !== data.id), data]);
-        setEditable('');
-      });
+      updateReport(active)
+        .then((data) => {
+          toast.success(`${data.name} updated successfully`);
+          setMyReports([...myReports.filter((report) => report.id !== data.id), data]);
+          setEditable('');
+        })
+        .catch();
     }
   };
 

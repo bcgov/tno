@@ -10385,6 +10385,7 @@ __metadata:
     sass-extract-loader: 1.1.0
     styled-components: 5.3.9
 <<<<<<< HEAD
+<<<<<<< HEAD
     tno-core: 0.0.304
 =======
 <<<<<<< HEAD
@@ -10393,6 +10394,9 @@ __metadata:
     tno-core: 0.0.300
 >>>>>>> 50eec177 (TNO-1374, 1517: Begin UI for reports)
 >>>>>>> 21f0580f (TNO-1374, 1517: Begin UI for reports)
+=======
+    tno-core: 0.0.303
+>>>>>>> e94fd494 (Fixes)
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -14318,6 +14322,7 @@ __metadata:
   linkType: hard
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 "tno-core@npm:0.0.304":
   version: 0.0.304
   resolution: "tno-core@npm:0.0.304"
@@ -14332,6 +14337,11 @@ __metadata:
   resolution: "tno-core@npm:0.0.300"
 >>>>>>> 50eec177 (TNO-1374, 1517: Begin UI for reports)
 >>>>>>> 21f0580f (TNO-1374, 1517: Begin UI for reports)
+=======
+"tno-core@npm:0.0.303":
+  version: 0.0.303
+  resolution: "tno-core@npm:0.0.303"
+>>>>>>> e94fd494 (Fixes)
   dependencies:
     "@fortawesome/free-solid-svg-icons": ^6.4.2
     "@fortawesome/react-fontawesome": ^0.2.0
@@ -14360,6 +14370,7 @@ __metadata:
     styled-components: ^5.3.9
     yup: ^1.1.1
 <<<<<<< HEAD
+<<<<<<< HEAD
   checksum: 530e18284f5a81b5cbe635e91f624c21e93b2ce87e36db2f3ca1b59cc80dc01c0527578b7ebb254e98e6a6ad7c3b40808339672e8751c8716dae0548f674cb51
 =======
 <<<<<<< HEAD
@@ -14368,6 +14379,9 @@ __metadata:
   checksum: f9725b585eac94d776418bf8ede35d2caa242a3c7c763b70d67f262e5364819ed44a0b450c016a5306d04612e154e824e90133a6dcced39cdbf9845f8fc1ec42
 >>>>>>> 50eec177 (TNO-1374, 1517: Begin UI for reports)
 >>>>>>> 21f0580f (TNO-1374, 1517: Begin UI for reports)
+=======
+  checksum: 08e7de13690ea4a32569b7ca005d79e491c7518c429f676bfa98c9dcbccbdf97493efdba955eea0a38c3c9ec77dfcfaced2a808ad89bdadb927e486bd1bc5374
+>>>>>>> e94fd494 (Fixes)
   languageName: node
   linkType: hard
 
