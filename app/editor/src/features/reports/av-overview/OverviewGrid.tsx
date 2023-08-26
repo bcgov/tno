@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { FaTrash } from 'react-icons/fa';
+import { FaGripLines, FaTrash } from 'react-icons/fa';
 import {
   AVOverviewItemTypeName,
   castEnumToOptions,
@@ -96,6 +96,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                             {...provided.draggableProps}
                           >
                             <Row className="rows" key={itemIndex} nowrap>
+                              <FaGripLines className="grip-lines" />
                               <FormikSelect
                                 key={itemIndex + `select`}
                                 name={`sections.${index}.items.${itemIndex}.itemType`}

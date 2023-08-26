@@ -16,6 +16,14 @@ export const OverviewGrid = styled.div`
       resize: vertical;
       max-height: fit-content;
     }
+    .grip-lines {
+      margin-right: 0.5em;
+      margin-left: 0.5em;
+      align-self: center;
+      &:hover {
+        color: ${(props) => props.theme.css.primaryLightColor};
+      }
+    }
     .clear-item {
       margin-top: 0.75em;
       cursor: pointer;
@@ -28,10 +36,11 @@ export const OverviewGrid = styled.div`
       width: 100%;
       background-color: #f5f5f5;
     }
-
-    .placement-header,
     .time-header {
-      width: 9.25em;
+      width: 9em;
+    }
+    .placement-header {
+      width: 11em;
     }
     .placement-header,
     .summary-header,
