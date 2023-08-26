@@ -42,6 +42,10 @@ export const OverviewGrid = styled.div`
     .placement-header {
       width: 11em;
     }
+
+    .summary-header {
+      max-width: 71.75em;
+    }
     .placement-header,
     .summary-header,
     .content-header,
