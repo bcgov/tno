@@ -25,10 +25,7 @@ export const AdvancedSearch = styled(Row)`
     }
   }
 
-  .rc-slider {
-    width: 95%;
-    margin-bottom: 1.5em;
-    margin-top: 1em;
+  .slider {
     .tone-icon {
       margin: 0;
     }

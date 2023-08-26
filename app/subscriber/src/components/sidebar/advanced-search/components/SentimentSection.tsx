@@ -1,8 +1,4 @@
-import 'rc-slider/assets/index.css';
-
-import Slider from 'rc-slider';
-import { FaRegFrown, FaRegMeh, FaRegSmile } from 'react-icons/fa';
-import { Row, Show } from 'tno-core';
+import { Col, SentimentSlider, Show } from 'tno-core';
 
 import { IAdvancedSearchFilter } from '../interfaces';
 
@@ -21,35 +17,20 @@ export const SentimentSection: React.FC<ISentimentSectionProps> = ({
   advancedSearch,
   setAdvancedSearch,
 }) => {
-  // marks are what appears under each slider range option
-  const marks = {
-    '-5': <FaRegFrown className="tone-icon" color="#DC3545" />,
-    '-4': '-4',
-    '-3': '-3',
-    '-2': '-2',
-    '-1': '-1',
-    '0': <FaRegMeh className="tone-icon" color="#FFC107" />,
-    '1': '1',
-    '2': '2',
-    '3': '3',
-    '4': '4',
-    '5': <FaRegSmile className="tone-icon" color="#20C997" />,
-  };
   return (
     <Show visible={sentimentExpanded}>
-      <Row className="expanded sentiment-range">
-        <Slider
-          marks={marks}
-          range
-          min={-5}
-          max={5}
-          value={advancedSearch.sentiment}
-          onChange={(e) =>
+      <Col justifyItems="stretch">
+        <SentimentSlider
+          value={advancedSearch.sentiment ?? []}
+          onChange={(value) => {
             // if e is a number then it is a single value, but backend expects an array
-            setAdvancedSearch({ ...advancedSearch, sentiment: typeof e === 'number' ? [e] : e })
-          }
+            setAdvancedSearch({
+              ...advancedSearch,
+              sentiment: typeof value === 'number' ? [value] : value,
+            });
+          }}
         />
-      </Row>
+      </Col>
     </Show>
   );
 };

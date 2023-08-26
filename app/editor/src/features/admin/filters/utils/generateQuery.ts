@@ -1,5 +1,12 @@
-import moment from 'moment';
 import { IFilterSettingsModel } from 'tno-core';
+
+import {
+  generateMultiMatch,
+  generateRangeForArrayField,
+  generateRangeForDateOffset,
+  generateRangeForDates,
+  generateTerms,
+} from '.';
 
 /**
  * Generates an Elasticsearch query based on specified 'query'.
@@ -16,12 +23,13 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
     query: {
       bool: {
         must: [
-          ...generateDateSearch('publishedOn', settings),
+          ...generatePublishedOnQuery(settings),
           ...generateTerms('sourceId', settings.sourceIds),
           ...generateTerms('productId', settings.productIds),
           ...generateTerms('seriesId', settings.seriesIds),
           ...generateTerms('contributorId', settings.contributorIds),
-          ...generateTextSearch(settings),
+          ...generateRangeForArrayField('tonePools.value', settings.sentiment),
+          ...generateTextQuery(settings),
         ],
       },
     },
@@ -43,109 +51,23 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
   return elastic;
 };
 
-const generateTerms = (key: string, values?: any[]) => {
-  return values && values.length > 0
-    ? [
-        {
-          terms: { [key]: values },
-        },
-      ]
-    : [];
-};
-
-const generateTextSearch = (settings: IFilterSettingsModel) => {
+const generateTextQuery = (settings: IFilterSettingsModel) => {
   if (!settings.search) return [];
   if (settings.searchIn === 'all')
-    return [
-      {
-        multi_match: {
-          query: settings.search,
-          fields: ['headline', 'byline', 'summary', 'body'],
-        },
-      },
-    ];
+    return generateMultiMatch(['headline', 'byline', 'summary', 'body'], settings.search);
   if (settings.searchIn === 'story')
-    return [
-      {
-        multi_match: {
-          query: settings.search,
-          fields: ['summary', 'body'],
-        },
-      },
-    ];
-  if (settings.searchIn === 'headline')
-    return [
-      {
-        match: {
-          headline: settings.search,
-        },
-      },
-    ];
-  if (settings.searchIn === 'byline')
-    return [
-      {
-        match: {
-          byline: settings.search,
-        },
-      },
-    ];
-
+    return generateMultiMatch(['summary', 'body'], settings.search);
+  if (settings.searchIn === 'headline') return generateMultiMatch('headline', settings.search);
+  if (settings.searchIn === 'byline') return generateMultiMatch('byline', settings.search);
   return [];
 };
 
-const generateDateSearch = (key: string, settings: IFilterSettingsModel) => {
+const generatePublishedOnQuery = (settings: IFilterSettingsModel) => {
   if (settings.dateOffset !== undefined)
-    return [
-      {
-        range: {
-          [key]: {
-            gte: `now${
-              settings.dateOffset > 0
-                ? `+${settings.dateOffset}d/d`
-                : settings.dateOffset < 0
-                ? `${settings.dateOffset}d/d`
-                : '/d'
-            }`,
-            time_zone: 'US/Pacific',
-          },
-        },
-      },
-    ];
+    return generateRangeForDateOffset('publishedOn', settings.dateOffset);
   if (settings.startDate && settings.endDate)
-    return [
-      {
-        range: {
-          [key]: {
-            gte: moment(settings.startDate).format('yyyy-MM-DD'),
-            lte: moment(settings.endDate).format('yyyy-MM-DD'),
-            time_zone: 'US/Pacific',
-          },
-        },
-      },
-    ];
-  if (settings.startDate)
-    return [
-      {
-        range: {
-          [key]: {
-            gte: moment(settings.startDate).format('yyyy-MM-DD'),
-            lte: moment(settings.startDate).format('yyyy-MM-DD'),
-            time_zone: 'US/Pacific',
-          },
-        },
-      },
-    ];
-  if (settings.endDate)
-    return [
-      {
-        range: {
-          [key]: {
-            gte: moment(settings.endDate).format('yyyy-MM-DD'),
-            lte: moment(settings.endDate).format('yyyy-MM-DD'),
-            time_zone: 'US/Pacific',
-          },
-        },
-      },
-    ];
+    return generateRangeForDates('publishedOn', [settings.startDate, settings.endDate]);
+  if (settings.startDate) return generateRangeForDates('publishedOn', [settings.startDate]);
+  if (settings.endDate) return generateRangeForDates('publishedOn', [settings.endDate]);
   return [];
 };
