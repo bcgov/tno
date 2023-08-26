@@ -9,7 +9,7 @@ import {
   defaultEnvelope,
   useApi,
 } from '..';
-import { toQueryString } from 'tno-core';
+import { toQueryString } from '../../utils';
 
 /**
  * Common hook to make requests to the API.

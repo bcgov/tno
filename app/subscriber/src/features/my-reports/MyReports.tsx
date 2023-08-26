@@ -1,9 +1,9 @@
 import React from 'react';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
-import { useReports } from 'store/hooks/subscriber/useReports';
 import { Col, FlexboxTable, IReportModel, Row } from 'tno-core';
 
+import { useReports } from '../../store/hooks/subscriber/useReports';
 import { availableReportColumns } from './constants/availableReportColumns';
 import { columns } from './constants/columns';
 import * as styled from './styled';
