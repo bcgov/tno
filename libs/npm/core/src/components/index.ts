@@ -21,3 +21,4 @@ export * from './toggle-group';
 export * from './tool-bar';
 export * from './user-menu';
 export * from './view';
+export * from './sentiment-slider';

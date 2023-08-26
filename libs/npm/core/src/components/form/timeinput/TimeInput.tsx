@@ -5,7 +5,8 @@ import { Error } from '../../form';
 import { Show } from '../../show';
 import * as styled from './styled';
 
-export interface ITimeInputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface ITimeInputProps
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'children' | 'dangerouslySetInnerHTML'> {
   label?: string;
   /**
    * Display errors.
@@ -32,8 +33,8 @@ export const TimeInput: React.FC<ITimeInputProps> = ({ label, error, ...rest }) 
       <MaskedInput
         role={!!error ? 'alert' : 'none'}
         className="masked-input"
-        {...rest}
         mask={formatTime}
+        {...rest}
       />
       <Error error={error} />
     </styled.TimeInput>

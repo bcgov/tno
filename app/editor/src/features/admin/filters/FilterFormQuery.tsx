@@ -18,6 +18,7 @@ import {
   OptionItem,
   Row,
   Select,
+  SentimentSlider,
   ToggleGroup,
 } from 'tno-core';
 
@@ -214,6 +215,13 @@ export const FilterFormQuery: React.FC = () => {
           onChange={(newValue: any) => {
             const contributorIds = newValue.map((v: OptionItem) => v.value);
             updateQuery('contributorIds', contributorIds);
+          }}
+        />
+        <SentimentSlider
+          label="Sentiment"
+          value={values.settings.sentiment ?? []}
+          onChange={(value) => {
+            updateQuery('sentiment', value);
           }}
         />
       </Col>

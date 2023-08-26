@@ -21,7 +21,7 @@ export const Spinner = styled.div<ISpinnerProps>`
   color: ${(props) => {
     switch (props.variant) {
       case SpinnerVariant.secondary:
-        return `rgba(${props.theme.css.secondaryRgb}, ${props.theme.css.textOpacity})`; // 'rgba(var(' + props.theme.bs-secondary-rgb + '),var(--bs-text-opacity))';
+        return `rgba(${props.theme.css.secondaryRgb}, ${props.theme.css.textOpacity})`;
       case SpinnerVariant.success:
         return `rgba(${props.theme.css.successRgb}, ${props.theme.css.textOpacity})`;
       case SpinnerVariant.info:
