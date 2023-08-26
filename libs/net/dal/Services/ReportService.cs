@@ -38,7 +38,7 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// Find all the reports.
     /// </summary>
     /// <returns></returns>
-    public IEnumerable<Report> FindAll()
+    public IEnumerable<Report> GetPublic()
     {
         return this.Context.Reports
             .AsNoTracking()
@@ -46,6 +46,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
             .Include(r => r.Sections)
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
+            .Where(r => r.IsPublic == true)
             .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
     }
 
@@ -103,6 +104,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
             .Include(r => r.Sections)
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
+            .Where(f => f.OwnerId == userId)
             .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
     }
 

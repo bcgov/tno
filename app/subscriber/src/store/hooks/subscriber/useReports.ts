@@ -20,9 +20,9 @@ export const useReports = (): [IReportController] => {
 
   const controller = React.useMemo(
     () => ({
-      findAllReports: async () => {
+      getPublicReports: async () => {
         const response = await dispatch<IReportModel[]>('find-all-reports', () =>
-          api.findAllReports(),
+          api.getPublicReports(),
         );
         return response.data;
       },

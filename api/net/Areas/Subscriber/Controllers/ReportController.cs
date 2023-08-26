@@ -91,7 +91,7 @@ public class ReportController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<ReportModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult FindMyFolders()
+    public IActionResult FindMyReports()
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
@@ -102,15 +102,13 @@ public class ReportController : ControllerBase
     /// Find all "available" reports.
     /// </summary>
     /// <returns></returns>
-    [HttpGet("all")]
+    [HttpGet("public")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<ReportModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult FindAll()
+    public IActionResult GetPublicReports()
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        return new JsonResult(_reportService.FindAll().Select(ds => new ReportModel(ds, _serializerOptions)));
+        return new JsonResult(_reportService.GetPublic().Select(ds => new ReportModel(ds, _serializerOptions)));
     }
 
     /// <summary>

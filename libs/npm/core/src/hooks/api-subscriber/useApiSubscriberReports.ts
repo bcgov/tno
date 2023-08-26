@@ -37,7 +37,7 @@ export const useApiSubscriberReports = (
         `/subscriber/reports/my-reports`,
       );
     },
-    findAllReports: () => {
+    getPublicReports: () => {
       return api.get<IReportModel[], AxiosResponse<IReportModel[]>, any>(`/subscriber/reports/all`);
     },
     getReport: (id: number) => {

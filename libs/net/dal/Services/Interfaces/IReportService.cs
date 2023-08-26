@@ -6,10 +6,10 @@ namespace TNO.DAL.Services;
 public interface IReportService : IBaseService<Report, int>
 {
     /// <summary>
-    /// Find all reports.
+    /// Find all public reports.
     /// </summary>
     /// <returns></returns>
-    IEnumerable<Report> FindAll();
+    IEnumerable<Report> GetPublic();
 
     /// <summary>
     /// Find all reports that match the filter.
