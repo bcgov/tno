@@ -6,7 +6,9 @@ import {
   generateRangeForArrayField,
   generateRangeForDateOffset,
   generateRangeForDates,
+  generateTerm,
   generateTerms,
+  generateTermsForArrayField,
 } from '.';
 
 /**
@@ -29,9 +31,14 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
           generateTerms('productId', settings.productIds),
           generateTerms('seriesId', settings.seriesIds),
           generateTerms('contributorId', settings.contributorIds),
+          generateTerms('contentType', settings.contentTypes),
+          generateTermsForArrayField('tags.code', settings.tags),
           generateRangeForArrayField('tonePools.value', settings.sentiment),
           ...generateQueryForActions(settings.actions ?? []),
           generateTextQuery(settings),
+          generateTerm('edition', settings.edition),
+          generateTerm('section', settings.section),
+          generateTerm('page', settings.page),
         ].filter((v) => v !== undefined),
       },
     },

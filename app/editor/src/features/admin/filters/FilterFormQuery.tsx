@@ -22,8 +22,8 @@ import {
   ToggleGroup,
 } from 'tno-core';
 
-import { searchInOptions } from './constants/searchInOptions';
-import { generateQuery, getActionOptions } from './utils';
+import { contentTypeOptions, searchInOptions } from './constants';
+import { generateQuery, getActionOptions, getTagOptions } from './utils';
 
 /**
  * The page used to view and edit report filter.
@@ -31,15 +31,20 @@ import { generateQuery, getActionOptions } from './utils';
  */
 export const FilterFormQuery: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IFilterModel>();
-  const [{ productOptions, sourceOptions, seriesOptions, contributorOptions, actions }] =
+  const [{ productOptions, sourceOptions, seriesOptions, contributorOptions, actions, tags }] =
     useLookupOptions();
 
   const [filter, setFilter] = React.useState(JSON.stringify(values.query, null, 2));
   const [actionOptions, setActionOptions] = React.useState(getActionOptions(actions));
+  const [tagOptions, setTagOptions] = React.useState(getTagOptions(tags));
 
   React.useEffect(() => {
     setActionOptions(getActionOptions(actions));
   }, [actions]);
+
+  React.useEffect(() => {
+    setTagOptions(getTagOptions(tags));
+  }, [tags]);
 
   /**
    * Update the settings and query values based on the new key=value.
@@ -105,7 +110,7 @@ export const FilterFormQuery: React.FC = () => {
             label="Keywords"
             value={values.settings.search ?? ''}
             onChange={(e) => {
-              const value = e.target.value;
+              const value = e.target.value.length ? e.target.value : undefined;
               updateQuery('search', value);
             }}
           >
@@ -162,6 +167,41 @@ export const FilterFormQuery: React.FC = () => {
               relative to today's date.
             </p>
           </Row>
+        </Row>
+        <Row>
+          <Col flex="1">
+            <FormikText
+              name="edition"
+              label="Edition"
+              value={values.settings.edition ?? ''}
+              onChange={(e) => {
+                const value = e.target.value.length ? e.target.value : undefined;
+                updateQuery('edition', value);
+              }}
+            />
+          </Col>
+          <Col flex="1">
+            <FormikText
+              name="section"
+              label="Section"
+              value={values.settings.section ?? ''}
+              onChange={(e) => {
+                const value = e.target.value.length ? e.target.value : undefined;
+                updateQuery('section', value);
+              }}
+            />
+          </Col>
+          <Col flex="1">
+            <FormikText
+              name="page"
+              label="Page"
+              value={values.settings.page ?? ''}
+              onChange={(e) => {
+                const value = e.target.value.length ? e.target.value : undefined;
+                updateQuery('page', value);
+              }}
+            />
+          </Col>
         </Row>
         <Row>
           <Col flex="1">
@@ -256,6 +296,42 @@ export const FilterFormQuery: React.FC = () => {
                   value: o.label === 'Commentary' ? '*' : 'true',
                 }));
                 updateQuery('actions', actions);
+              }}
+            />
+          </Col>
+          <Col flex="1">
+            <Select
+              name="contentTypes"
+              label="Content Types"
+              isMulti
+              options={contentTypeOptions}
+              value={
+                contentTypeOptions.filter((mt) =>
+                  values.settings.contentTypes?.some((o: string) => o === mt.value),
+                ) ?? []
+              }
+              onChange={(newValue: any) => {
+                const contentTypes = newValue.map((o: OptionItem) => o.value);
+                updateQuery('contentTypes', contentTypes);
+              }}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col flex="1">
+            <Select
+              name="tags"
+              label="Tags"
+              isMulti
+              options={tagOptions}
+              value={
+                tagOptions.filter((t) =>
+                  values.settings.tags?.some((o: string) => o === t.value),
+                ) ?? []
+              }
+              onChange={(newValue: any) => {
+                const tags = newValue.map((o: OptionItem) => o.value);
+                updateQuery('tags', tags);
               }}
             />
           </Col>
