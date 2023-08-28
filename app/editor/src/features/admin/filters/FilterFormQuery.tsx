@@ -23,7 +23,7 @@ import {
 } from 'tno-core';
 
 import { searchInOptions } from './constants/searchInOptions';
-import { generateQuery } from './utils';
+import { generateQuery, getActionOptions } from './utils';
 
 /**
  * The page used to view and edit report filter.
@@ -31,9 +31,15 @@ import { generateQuery } from './utils';
  */
 export const FilterFormQuery: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IFilterModel>();
-  const [{ productOptions, sourceOptions, seriesOptions, contributorOptions }] = useLookupOptions();
+  const [{ productOptions, sourceOptions, seriesOptions, contributorOptions, actions }] =
+    useLookupOptions();
 
   const [filter, setFilter] = React.useState(JSON.stringify(values.query, null, 2));
+  const [actionOptions, setActionOptions] = React.useState(getActionOptions(actions));
+
+  React.useEffect(() => {
+    setActionOptions(getActionOptions(actions));
+  }, [actions]);
 
   /**
    * Update the settings and query values based on the new key=value.
@@ -157,73 +163,112 @@ export const FilterFormQuery: React.FC = () => {
             </p>
           </Row>
         </Row>
-        <Select
-          name="sourceIds"
-          label="Sources"
-          isMulti
-          options={sourceOptions}
-          value={
-            sourceOptions.filter((mt) =>
-              values.settings.sourceIds?.some((p: number) => p === mt.value),
-            ) ?? []
-          }
-          onChange={(newValue: any) => {
-            const sourceIds = newValue.map((v: OptionItem) => v.value);
-            updateQuery('sourceIds', sourceIds);
-          }}
-        />
-        <Select
-          name="productIds"
-          label="Products"
-          isMulti
-          options={productOptions}
-          value={
-            productOptions.filter((mt) =>
-              values.settings.productIds?.some((p: number) => p === mt.value),
-            ) ?? []
-          }
-          onChange={(newValue: any) => {
-            const productIds = newValue.map((v: OptionItem) => v.value);
-            updateQuery('productIds', productIds);
-          }}
-        />
-        <Select
-          name="seriesIds"
-          label="Programs/Shows"
-          isMulti
-          options={seriesOptions}
-          value={
-            seriesOptions.filter((mt) =>
-              values.settings.seriesIds?.some((p: number) => p === mt.value),
-            ) ?? []
-          }
-          onChange={(newValue: any) => {
-            const seriesIds = newValue.map((v: OptionItem) => v.value);
-            updateQuery('seriesIds', seriesIds);
-          }}
-        />
-        <Select
-          name="contributorIds"
-          label="Columnists/Anchors"
-          isMulti
-          options={contributorOptions}
-          value={
-            contributorOptions.filter((mt) =>
-              values.settings.contributorIds?.some((p: number) => p === mt.value),
-            ) ?? []
-          }
-          onChange={(newValue: any) => {
-            const contributorIds = newValue.map((v: OptionItem) => v.value);
-            updateQuery('contributorIds', contributorIds);
-          }}
-        />
-        <SentimentSlider
-          label="Sentiment"
-          value={values.settings.sentiment ?? []}
-          onChange={(value) => {
-            updateQuery('sentiment', value);
-          }}
-        />
+        <Row>
+          <Col flex="1">
+            <Select
+              name="sourceIds"
+              label="Sources"
+              isMulti
+              options={sourceOptions}
+              value={
+                sourceOptions.filter((mt) =>
+                  values.settings.sourceIds?.some((p: number) => p === mt.value),
+                ) ?? []
+              }
+              onChange={(newValue: any) => {
+                const sourceIds = newValue.map((v: OptionItem) => v.value);
+                updateQuery('sourceIds', sourceIds);
+              }}
+            />
+          </Col>
+          <Col flex="1">
+            <Select
+              name="productIds"
+              label="Products"
+              isMulti
+              options={productOptions}
+              value={
+                productOptions.filter((mt) =>
+                  values.settings.productIds?.some((p: number) => p === mt.value),
+                ) ?? []
+              }
+              onChange={(newValue: any) => {
+                const productIds = newValue.map((v: OptionItem) => v.value);
+                updateQuery('productIds', productIds);
+              }}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col flex="1">
+            <Select
+              name="seriesIds"
+              label="Programs/Shows"
+              isMulti
+              options={seriesOptions}
+              value={
+                seriesOptions.filter((mt) =>
+                  values.settings.seriesIds?.some((p: number) => p === mt.value),
+                ) ?? []
+              }
+              onChange={(newValue: any) => {
+                const seriesIds = newValue.map((v: OptionItem) => v.value);
+                updateQuery('seriesIds', seriesIds);
+              }}
+            />
+          </Col>
+          <Col flex="1">
+            <Select
+              name="contributorIds"
+              label="Columnists/Anchors"
+              isMulti
+              options={contributorOptions}
+              value={
+                contributorOptions.filter((mt) =>
+                  values.settings.contributorIds?.some((p: number) => p === mt.value),
+                ) ?? []
+              }
+              onChange={(newValue: any) => {
+                const contributorIds = newValue.map((v: OptionItem) => v.value);
+                updateQuery('contributorIds', contributorIds);
+              }}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col flex="1">
+            <Select
+              name="actions"
+              label="Actions"
+              isMulti
+              options={actionOptions}
+              value={
+                actionOptions.filter((mt) =>
+                  values.settings.actions?.some(
+                    (p: { id: number; valueType: string; value: string }) => p.id === mt.value,
+                  ),
+                ) ?? []
+              }
+              onChange={(newValue: any) => {
+                const actions = newValue.map((o: OptionItem) => ({
+                  id: o.value,
+                  valueType: o.label === 'Commentary' ? 'String' : 'Boolean',
+                  value: o.label === 'Commentary' ? '*' : 'true',
+                }));
+                updateQuery('actions', actions);
+              }}
+            />
+          </Col>
+          <Col flex="1">
+            <SentimentSlider
+              label="Sentiment"
+              value={values.settings.sentiment ?? []}
+              onChange={(value) => {
+                updateQuery('sentiment', value);
+              }}
+            />
+          </Col>
+        </Row>
       </Col>
       <Col className="code frm-in">
         <label htmlFor="txa-filter">Elasticsearch Query</label>

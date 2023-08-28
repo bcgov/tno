@@ -5,11 +5,10 @@
  * @returns An Elasticsearch query.
  */
 export const generateTerms = (field: string, values?: any[]) => {
-  return values && values.length > 0
-    ? [
-        {
-          terms: { [field]: values },
-        },
-      ]
-    : [];
+  if (values === undefined || values === null) return undefined;
+  return values.length > 0
+    ? {
+        terms: { [field]: values },
+      }
+    : undefined;
 };

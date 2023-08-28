@@ -2,6 +2,7 @@ import { IFilterSettingsModel } from 'tno-core';
 
 import {
   generateMultiMatch,
+  generateQueryForActions,
   generateRangeForArrayField,
   generateRangeForDateOffset,
   generateRangeForDates,
@@ -23,14 +24,15 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
     query: {
       bool: {
         must: [
-          ...generatePublishedOnQuery(settings),
-          ...generateTerms('sourceId', settings.sourceIds),
-          ...generateTerms('productId', settings.productIds),
-          ...generateTerms('seriesId', settings.seriesIds),
-          ...generateTerms('contributorId', settings.contributorIds),
-          ...generateRangeForArrayField('tonePools.value', settings.sentiment),
-          ...generateTextQuery(settings),
-        ],
+          generatePublishedOnQuery(settings),
+          generateTerms('sourceId', settings.sourceIds),
+          generateTerms('productId', settings.productIds),
+          generateTerms('seriesId', settings.seriesIds),
+          generateTerms('contributorId', settings.contributorIds),
+          generateRangeForArrayField('tonePools.value', settings.sentiment),
+          ...generateQueryForActions(settings.actions ?? []),
+          generateTextQuery(settings),
+        ].filter((v) => v !== undefined),
       },
     },
   };
@@ -52,14 +54,13 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
 };
 
 const generateTextQuery = (settings: IFilterSettingsModel) => {
-  if (!settings.search) return [];
+  if (!settings.search) return undefined;
   if (settings.searchIn === 'all')
     return generateMultiMatch(['headline', 'byline', 'summary', 'body'], settings.search);
   if (settings.searchIn === 'story')
     return generateMultiMatch(['summary', 'body'], settings.search);
   if (settings.searchIn === 'headline') return generateMultiMatch('headline', settings.search);
   if (settings.searchIn === 'byline') return generateMultiMatch('byline', settings.search);
-  return [];
 };
 
 const generatePublishedOnQuery = (settings: IFilterSettingsModel) => {
@@ -69,5 +70,4 @@ const generatePublishedOnQuery = (settings: IFilterSettingsModel) => {
     return generateRangeForDates('publishedOn', [settings.startDate, settings.endDate]);
   if (settings.startDate) return generateRangeForDates('publishedOn', [settings.startDate]);
   if (settings.endDate) return generateRangeForDates('publishedOn', [settings.endDate]);
-  return [];
 };

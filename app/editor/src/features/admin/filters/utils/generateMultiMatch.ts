@@ -5,22 +5,19 @@
  * @returns An Elasticsearch query for either a multi_match or a match.
  */
 export const generateMultiMatch = (fields: string | string[], values: any) => {
+  if (values === undefined || values === null) return undefined;
   if (Array.isArray(fields)) {
-    return [
-      {
-        multi_match: {
-          query: values,
-          fields,
-        },
+    return {
+      multi_match: {
+        query: values,
+        fields,
       },
-    ];
+    };
   } else {
-    return [
-      {
-        match: {
-          [fields]: values,
-        },
+    return {
+      match: {
+        [fields]: values,
       },
-    ];
+    };
   }
 };
