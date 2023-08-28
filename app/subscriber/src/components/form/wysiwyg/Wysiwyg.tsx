@@ -91,9 +91,9 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
     if (!!fieldName) {
       const doc = new DOMParser().parseFromString(
         (values[fieldName] as string)
-          .replaceAll('<p>', '[p]')
+          .replace(/<p\s*[^>]*>/g, '[p]')
           .replaceAll('</p>', '[/p]')
-          .replaceAll('<br>', '[br]'),
+          .replace(/<br\s*\/?>/g, '[br]'),
         'text/html',
       );
       doc.body.textContent =
