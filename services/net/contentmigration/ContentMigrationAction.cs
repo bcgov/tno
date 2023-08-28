@@ -315,10 +315,44 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 {
                     if (newsItem.FilePath != null)
                     {
-                        string contentStagingFolderName = GetOutputPathPrefix(manager.Ingest);
-                        await contentMigrator.CopyFileAsync(new Models.FileMigrationModel(newsItem.RSN, Path.GetDirectoryName(newsItem.FilePath)!, Path.GetFileName(newsItem.FilePath), newsItem.ContentType!), contentStagingFolderName);
-                        sourceContent.FilePath = Path.Combine(contentStagingFolderName, newsItem.FilePath);
-                        Logger.LogInformation("Migrating file associated with content content {RSN}:{Title}:[{filePath}]", newsItem.RSN, newsItem.Title, sourceContent.FilePath);
+                        if (string.IsNullOrEmpty(newsItem.ContentType)) {
+                            string ext = Path.GetExtension(newsItem.FilePath);
+                            switch (ext.ToUpper()){
+                                case ".DOC":
+                                    newsItem.ContentType = "application/msword";
+                                    break;
+                                case ".GIF":
+                                    newsItem.ContentType = "image/gif";
+                                    break;
+                                case ".JPEG":
+                                case ".JPG":
+                                    newsItem.ContentType = "image/jpeg";
+                                    break;
+                                case ".HTM":
+                                    newsItem.ContentType = "text/html";
+                                    break;
+                                case ".MOV":
+                                case ".MP4":
+                                case ".M4A":
+                                    newsItem.ContentType = "video/quicktime";
+                                    break;
+                                case ".PDF":
+                                    newsItem.ContentType = "application/pdf";
+                                    break;
+                                case ".TXT":
+                                    newsItem.ContentType = "text/plain";
+                                    break;
+                            }
+                        }
+
+                        if (string.IsNullOrEmpty(newsItem.ContentType)) {
+                            Logger.LogWarning("Skipping file migration for RSN:{RSN} Path:{filePath} ContentType is missing", newsItem.RSN, newsItem.FilePath);
+                        } else {
+                            string contentStagingFolderName = GetOutputPathPrefix(manager.Ingest);
+                            await contentMigrator.CopyFileAsync(new Models.FileMigrationModel(newsItem.RSN, Path.GetDirectoryName(newsItem.FilePath)!, Path.GetFileName(newsItem.FilePath), newsItem.ContentType!), contentStagingFolderName);
+                            sourceContent.FilePath = Path.Combine(contentStagingFolderName, newsItem.FilePath);
+                            Logger.LogInformation("Migrating file associated with content content {RSN}:{Title}:[{filePath}]", newsItem.RSN, newsItem.Title, sourceContent.FilePath);
+                        }
                     }
                 }
                 catch (FileNotFoundException)
