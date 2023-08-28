@@ -318,9 +318,18 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                         if (string.IsNullOrEmpty(newsItem.ContentType)) {
                             string ext = Path.GetExtension(newsItem.FilePath);
                             switch (ext.ToUpper()){
+                                case ".DOC":
+                                    newsItem.ContentType = "application/msword";
+                                    break;
+                                case ".GIF":
+                                    newsItem.ContentType = "image/gif";
+                                    break;
                                 case ".JPEG":
                                 case ".JPG":
                                     newsItem.ContentType = "image/jpeg";
+                                    break;
+                                case ".HTM":
+                                    newsItem.ContentType = "text/html";
                                     break;
                                 case ".MOV":
                                 case ".MP4":
