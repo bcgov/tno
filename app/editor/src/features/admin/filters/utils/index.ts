@@ -5,5 +5,8 @@ export * from './generateQueryForActions';
 export * from './generateRangeForArrayField';
 export * from './generateRangeForDateOffset';
 export * from './generateRangeForDates';
+export * from './generateTerm';
 export * from './generateTerms';
+export * from './generateTermsForArrayField';
 export * from './getActionOptions';
+export * from './getTagOptions';
