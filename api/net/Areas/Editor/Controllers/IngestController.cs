@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.Ingest;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Entities.Models;
@@ -77,7 +78,7 @@ public class IngestController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Ingest" })]
     public IActionResult AddSchedule(IngestScheduleModel model)
     {
-        var ingest = _service.FindById(model.IngestId) ?? throw new KeyNotFoundException();
+        var ingest = _service.FindById(model.IngestId) ?? throw new NoContentException();
         var schedule = model.ToEntity();
         ingest.Schedules.Add(schedule);
         _service.UpdateAndSave(ingest, true);

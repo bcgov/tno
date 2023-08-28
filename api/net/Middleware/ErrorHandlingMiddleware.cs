@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using System.Net;
 using System.Net.Mime;
 using System.Security.Authentication;
 using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 
@@ -90,6 +90,22 @@ namespace TNO.API.Middleware
                 code = HttpStatusCode.Unauthorized;
                 message = "The authentication token not yet valid.";
             }
+            else if (ex is AuthenticationException)
+            {
+                code = HttpStatusCode.Unauthorized;
+                var exception = ex as AuthenticationException;
+                message = exception?.Message;
+                details = exception?.InnerException?.Message;
+
+                _logger.LogWarning(ex, "Unable to validate authentication information.", ex.Message);
+            }
+            else if (ex is NotAuthorizedException)
+            {
+                code = HttpStatusCode.Forbidden;
+                message = "User is not authorized to perform this action.";
+
+                _logger.LogWarning(ex, "Not authorized error", ex.Message);
+            }
             else if (ex is DbUpdateConcurrencyException)
             {
                 code = HttpStatusCode.BadRequest;
@@ -112,9 +128,16 @@ namespace TNO.API.Middleware
             else if (ex is KeyNotFoundException)
             {
                 code = HttpStatusCode.BadRequest;
-                message = "Item does not exist.";
+                message = ex.Message;
 
-                _logger.LogDebug(ex, "Key not found error", ex.Message);
+                _logger.LogDebug(ex, "Key not found", ex.Message);
+            }
+            else if (ex is NoContentException)
+            {
+                code = HttpStatusCode.BadRequest;
+                message = ex.Message;
+
+                _logger.LogDebug(ex, "Content not found.", ex.Message);
             }
             else if (ex is RowVersionMissingException)
             {
@@ -130,20 +153,6 @@ namespace TNO.API.Middleware
 
                 _logger.LogDebug(ex, "Middleware caught unhandled exception.", ex.Message);
             }
-            else if (ex is NotAuthorizedException)
-            {
-                code = HttpStatusCode.Forbidden;
-                message = "User is not authorized to perform this action.";
-
-                _logger.LogWarning(ex, "Not authorized error", ex.Message);
-            }
-            else if (ex is ConfigurationException)
-            {
-                code = HttpStatusCode.InternalServerError;
-                message = "Application configuration details invalid or missing.";
-
-                _logger.LogError(ex, "Configuration error", ex.Message);
-            }
             else if (ex is BadRequestException || ex is InvalidOperationException)
             {
                 code = HttpStatusCode.BadRequest;
@@ -151,14 +160,12 @@ namespace TNO.API.Middleware
 
                 _logger.LogError(ex, "Invalid operation or bad request details.", ex.Message);
             }
-            else if (ex is AuthenticationException)
+            else if (ex is ConfigurationException)
             {
-                code = HttpStatusCode.Unauthorized;
-                var exception = ex as AuthenticationException;
-                message = exception?.Message;
-                details = exception?.InnerException?.Message;
+                code = HttpStatusCode.InternalServerError;
+                message = "Application configuration details invalid or missing.";
 
-                _logger.LogWarning(ex, "Unable to validate authentication information.", ex.Message);
+                _logger.LogError(ex, "Configuration error", ex.Message);
             }
             else
             {

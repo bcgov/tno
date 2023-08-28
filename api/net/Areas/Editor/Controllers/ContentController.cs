@@ -1,33 +1,33 @@
 using System.Net;
+using System.Net.Mime;
+using System.Text.Json;
+using System.Web;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
-using TNO.API.Areas.Editor.Models.Storage;
 using TNO.API.Areas.Editor.Models.Content;
+using TNO.API.Areas.Editor.Models.Storage;
+using TNO.API.Config;
+using TNO.API.Helpers;
 using TNO.API.Models;
+using TNO.API.Models.SignalR;
+using TNO.API.SignalR;
+using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
+using TNO.DAL.Config;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
-using TNO.DAL.Config;
+using TNO.Elastic;
 using TNO.Entities;
 using TNO.Entities.Models;
-using TNO.Core.Extensions;
 using TNO.Kafka;
-using TNO.API.Config;
 using TNO.Kafka.Models;
-using System.Net.Mime;
-using TNO.API.Helpers;
-using TNO.Models.Extensions;
-using System.Web;
-using System.Text.Json;
-using TNO.API.SignalR;
-using Microsoft.AspNetCore.SignalR;
-using TNO.Keycloak;
-using TNO.Core.Exceptions;
-using TNO.Elastic;
 using TNO.Kafka.SignalR;
-using Microsoft.AspNetCore.SignalR.Protocol;
-using TNO.API.Models.SignalR;
+using TNO.Keycloak;
+using TNO.Models.Extensions;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -180,13 +180,11 @@ public class ContentController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult FindById(long id)
     {
-        var result = _contentService.FindById(id);
-
-        if (result == null) return new NoContentResult();
+        var result = _contentService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new ContentModel(result));
     }
 
@@ -469,7 +467,7 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> UploadFile([FromRoute] long id, [FromQuery] long version, [FromForm] List<IFormFile> files)
     {
-        var content = _contentService.FindById(id) ?? throw new InvalidOperationException("Entity does not exist");
+        var content = _contentService.FindById(id) ?? throw new NoContentException("Entity does not exist");
 
         if (!files.Any()) throw new InvalidOperationException("No file uploaded");
 
@@ -489,11 +487,11 @@ public class ContentController : ControllerBase
     [HttpGet("{id}/download")]
     [Produces("application/octet-stream")]
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult DownloadFile(long id)
     {
-        var fileReference = _fileReferenceService.FindByContentId(id).FirstOrDefault() ?? throw new InvalidOperationException("File does not exist");
+        var fileReference = _fileReferenceService.FindByContentId(id).FirstOrDefault() ?? throw new NoContentException("File does not exist");
         var stream = _fileReferenceService.Download(fileReference, _storageOptions.GetUploadPath());
         return File(stream, fileReference.ContentType);
     }
@@ -506,13 +504,13 @@ public class ContentController : ControllerBase
     [HttpGet("stream")]
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult Stream([FromQuery] string path)
     {
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
-        if (!safePath.FileExists()) throw new InvalidOperationException("File does not exist");
+        if (!safePath.FileExists()) throw new NoContentException("File does not exist");
 
         var info = new ItemModel(safePath);
         var filestream = System.IO.File.OpenRead(safePath);
@@ -536,7 +534,7 @@ public class ContentController : ControllerBase
     public IActionResult AttachFile([FromRoute] long contentId, [FromRoute] int locationId, [FromQuery] long version, [FromQuery] string path)
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
-        var content = _contentService.FindById(contentId) ?? throw new InvalidOperationException("Entity does not exist");
+        var content = _contentService.FindById(contentId) ?? throw new NoContentException("Entity does not exist");
         content.Version = version;
 
         var dataLocation = _connection.GetDataLocation(locationId);
@@ -546,7 +544,7 @@ public class ContentController : ControllerBase
             var locationPath = configuration.GetDictionaryJsonValue<string>("path") ?? "";
 
             var safePath = Path.Combine(locationPath, path);
-            if (!safePath.FileExists()) throw new InvalidOperationException("File does not exist");
+            if (!safePath.FileExists()) throw new NoContentException("File does not exist");
 
             var file = new FileInfo(safePath);
             // If the content has a file reference, then update it.  Otherwise, add one.
@@ -558,7 +556,7 @@ public class ContentController : ControllerBase
         else if (dataLocation?.Connection == null)
         {
             var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
-            if (!safePath.FileExists()) throw new InvalidOperationException("File does not exist");
+            if (!safePath.FileExists()) throw new NoContentException("File does not exist");
 
             var file = new FileInfo(safePath);
             // If the content has a file reference, then update it.  Otherwise, add one.

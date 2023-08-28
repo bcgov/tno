@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Models.Settings;
+using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Models;
 using TNO.Elastic;
@@ -121,10 +122,10 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="NoContentException"></exception>
     public override Report Update(Report entity)
     {
-        var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
+        var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
 
         // Add/Update/Delete report subscribers.
         var originalSubscribers = original.SubscribersManyToMany.ToArray();
@@ -338,10 +339,10 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// </summary>
     /// <param name="reportId"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="NoContentException"></exception>
     public IEnumerable<long> GetRelatedReportInstanceContentToExclude(int reportId)
     {
-        var report = this.Context.Reports.FirstOrDefault(r => r.Id == reportId) ?? throw new InvalidOperationException("Report does not exist.");
+        var report = this.Context.Reports.FirstOrDefault(r => r.Id == reportId) ?? throw new NoContentException("Report does not exist.");
         var relatedReportIds = report.Settings.GetElementValue("instance.excludeReports", Array.Empty<int>())!;
 
         var contentIds = new List<long>();

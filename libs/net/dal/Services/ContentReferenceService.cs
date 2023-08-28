@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TNO.Core.Exceptions;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
 using TNO.Entities;
@@ -96,10 +97,10 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="NoContentException"></exception>
     public override ContentReference UpdateAndSave(ContentReference entity)
     {
-        var original = FindByKey(entity.Source, entity.Uid) ?? throw new InvalidOperationException("Entity does not exist");
+        var original = FindByKey(entity.Source, entity.Uid) ?? throw new NoContentException("Entity does not exist");
         this.Context.Entry(original).CurrentValues.SetValues(entity);
         this.Context.ResetVersion(original);
         return base.UpdateAndSave(original);

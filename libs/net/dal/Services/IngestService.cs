@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TNO.Core.Exceptions;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
 using TNO.Entities;
@@ -235,11 +236,11 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     /// <param name="entity"></param>
     /// <param name="updateChildren"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="NoContentException"></exception>
     public Ingest UpdateAndSave(Ingest entity, bool updateChildren = false)
     {
         ValidateScheduleNames(entity);
-        var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
+        var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
         this.Context.UpdateContext(original, entity, updateChildren);
         return base.UpdateAndSave(original);
     }

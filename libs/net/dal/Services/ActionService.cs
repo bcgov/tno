@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TNO.Core.Exceptions;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
 using TNO.Entities.Models;
@@ -89,9 +90,10 @@ public class ActionService : BaseService<Entities.Action, int>, IActionService
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
     public override Entities.Action UpdateAndSave(Entities.Action entity)
     {
-        var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
+        var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
         this.Context.UpdateContext(original, entity);
         return base.UpdateAndSave(entity);
     }

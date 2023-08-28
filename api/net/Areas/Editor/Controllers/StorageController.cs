@@ -8,6 +8,7 @@ using TNO.API.Areas.Editor.Models.Storage;
 using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
 using TNO.DAL.Helpers;
@@ -65,7 +66,7 @@ public class StorageController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(DirectoryModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult GetDirectory([FromRoute] int? locationId, [FromQuery] string? path)
     {
@@ -117,7 +118,7 @@ public class StorageController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult DirectoryExists([FromRoute] int? locationId, [FromQuery] string? path)
     {
@@ -228,7 +229,7 @@ public class StorageController : ControllerBase
     [HttpGet("{locationId:int}/stream")]
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult Stream([FromRoute] int? locationId, [FromQuery] string path)
     {
@@ -252,11 +253,11 @@ public class StorageController : ControllerBase
 
     private FileStreamResult GetResult(string safePath, string path)
     {
-        if (!safePath.FileExists()) throw new InvalidOperationException($"Stream does not exist: '{path}'");
+        if (!safePath.FileExists()) throw new NoContentException($"Stream does not exist: '{path}'");
 
         var info = new ItemModel(safePath, true);
-        var filestream = System.IO.File.OpenRead(safePath);
-        return File(filestream, info.MimeType!);
+        var fileStream = System.IO.File.OpenRead(safePath);
+        return File(fileStream, info.MimeType!);
     }
 
     /// <summary>
@@ -269,7 +270,7 @@ public class StorageController : ControllerBase
     [HttpGet("{locationId:int}/download")]
     [Produces("application/octet-stream")]
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult Download([FromRoute] int? locationId, [FromQuery] string path)
     {
@@ -312,7 +313,7 @@ public class StorageController : ControllerBase
     [HttpPut("{locationId:int}/move")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ItemModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult Move([FromRoute] int? locationId, [FromQuery] string path, [FromQuery] string destination)
     {
@@ -368,7 +369,7 @@ public class StorageController : ControllerBase
     [HttpDelete("{locationId:int}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ItemModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult Delete([FromRoute] int? locationId, [FromQuery] string path)
     {
@@ -437,7 +438,7 @@ public class StorageController : ControllerBase
     [HttpPost("{locationId:int}/clip")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ItemModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public async Task<IActionResult> CreateClipAsync([FromRoute] int? locationId, [FromQuery] string path, [FromQuery] int start, [FromQuery] int end, [FromQuery] string outputName)
     {
@@ -472,7 +473,7 @@ public class StorageController : ControllerBase
     [HttpPost("{locationId:int}/join")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ItemModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public async Task<IActionResult> JoinClipsAsync([FromRoute] int? locationId, [FromQuery] string path, [FromQuery] string prefix)
     {

@@ -2,6 +2,7 @@ using System.Security.Claims;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TNO.Core.Exceptions;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
 using TNO.Entities;
@@ -122,46 +123,35 @@ public class UserService : BaseService<User, int>, IUserService
 
     public override User UpdateAndSave(User entity)
     {
-        var original = FindById(entity.Id);
+        var original = FindById(entity.Id) ?? throw new NoContentException();
+        original.Key = entity.Key;
+        original.Username = entity.Username;
+        original.Email = entity.Email;
+        original.DisplayName = entity.DisplayName;
+        original.EmailVerified = entity.EmailVerified;
+        original.IsEnabled = entity.IsEnabled;
+        original.FirstName = entity.FirstName;
+        original.LastName = entity.LastName;
+        original.Version = entity.Version;
+        original.Status = entity.Status;
+        original.Note = entity.Note;
+        original.Code = entity.Code;
+        original.Roles = entity.Roles;
+        original.Preferences = entity.Preferences;
+        original.LastLoginOn = entity.LastLoginOn;
+        if (String.IsNullOrWhiteSpace(entity.Code)) original.CodeCreatedOn = null;
+        else if (original.Code != entity.Code) original.CodeCreatedOn = DateTime.UtcNow;
 
-        if (original != null)
-        {
-            original.Key = entity.Key;
-            original.Username = entity.Username;
-            original.Email = entity.Email;
-            original.DisplayName = entity.DisplayName;
-            original.EmailVerified = entity.EmailVerified;
-            original.IsEnabled = entity.IsEnabled;
-            original.FirstName = entity.FirstName;
-            original.LastName = entity.LastName;
-            original.Version = entity.Version;
-            original.Status = entity.Status;
-            original.Note = entity.Note;
-            original.Code = entity.Code;
-            original.Roles = entity.Roles;
-            original.Preferences = entity.Preferences;
-            original.LastLoginOn = entity.LastLoginOn;
-            if (String.IsNullOrWhiteSpace(entity.Code)) original.CodeCreatedOn = null;
-            else if (original.Code != entity.Code) original.CodeCreatedOn = DateTime.UtcNow;
-
-            base.UpdateAndSave(original);
-            return FindById(entity.Id)!;
-        }
-
-        throw new InvalidOperationException("User does not exist");
+        base.UpdateAndSave(original);
+        return FindById(entity.Id)!;
     }
 
     public User UpdatePreferences(User model)
     {
-        var original = FindById(model.Id);
-        if (original != null)
-        {
-            original.Preferences = model.Preferences;
-            base.UpdateAndSave(original);
-            return FindById(model.Id)!;
-        }
-
-        throw new InvalidOperationException("User does not exist");
+        var original = FindById(model.Id) ?? throw new NoContentException();
+        original.Preferences = model.Preferences;
+        base.UpdateAndSave(original);
+        return FindById(model.Id)!;
     }
 
     public IEnumerable<User> FindByRoles(IEnumerable<string> roles)

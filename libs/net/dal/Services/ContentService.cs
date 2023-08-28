@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Nest;
+using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
@@ -327,7 +328,7 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         if (filter.HasTopic == true)
             filterQueries.Add(s => s.Nested(n => n.IgnoreUnmapped().Path(f => f.Topics).Query(q => q.MatchAll())));
-        
+
         if (filter.HasFile == true)
             filterQueries.Add(s => s.Nested(n => n.IgnoreUnmapped().Path(f => f.FileReferences).Query(q => q.MatchAll())));
 
@@ -514,11 +515,11 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="NoContentException"></exception>
     /// TODO: Switch to not found exception throughout services.
     public override Content UpdateAndSave(Content entity)
     {
-        var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
+        var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
         this.Context.UpdateContext(original, entity);
         if (entity.GuaranteeUid() && original.Uid != entity.Uid) original.Uid = entity.Uid;
         return base.UpdateAndSave(original);
@@ -540,11 +541,11 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// </summary>
     /// <param name="updated"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="NoContentException"></exception>
     /// TODO: Switch to not found exception throughout services.
     public Content UpdateStatusOnly(Content updated)
     {
-        var original = FindById(updated.Id) ?? throw new InvalidOperationException("Entity does not exist");
+        var original = FindById(updated.Id) ?? throw new NoContentException("Entity does not exist");
 
         original.Status = updated.Status;
         original.Version = updated.Version;
