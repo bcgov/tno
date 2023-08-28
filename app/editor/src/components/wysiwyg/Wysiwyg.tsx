@@ -90,9 +90,20 @@ export const Wysiwyg = <T extends object>({
   const stripHtml = () => {
     // strip html from string
     if (!!fieldName) {
-      let doc = new DOMParser().parseFromString((values[fieldName] as string) ?? '', 'text/html');
-      setFieldValue(fieldName as string, doc.body.textContent || '');
-      setState({ ...state, html: doc.body.textContent || '' });
+      const doc = new DOMParser().parseFromString(
+        (values[fieldName] as string)
+          .replaceAll('<p>', '[p]')
+          .replaceAll('</p>', '[/p]')
+          .replaceAll('<br>', '[br]'),
+        'text/html',
+      );
+      doc.body.textContent =
+        doc.body.textContent
+          ?.replaceAll('[p]', '<p>')
+          .replaceAll('[/p]', '</p>')
+          .replaceAll('[br]', '<br>') || '';
+      setFieldValue(fieldName as string, doc.body.textContent);
+      setState({ ...state, html: doc.body.textContent });
     }
   };
 
