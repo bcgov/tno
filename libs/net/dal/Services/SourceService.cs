@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TNO.Core.Exceptions;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
 using TNO.Entities;
@@ -135,10 +136,10 @@ public class SourceService : BaseService<Source, int>, ISourceService
     /// <param name="entity"></param>
     /// <param name="updateChildren"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="NoContentException"></exception>
     public Source UpdateAndSave(Source entity, bool updateChildren = false)
     {
-        var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
+        var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
         this.Context.UpdateContext(original, entity, updateChildren);
         return base.UpdateAndSave(original);
     }

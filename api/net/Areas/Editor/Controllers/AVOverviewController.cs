@@ -10,7 +10,6 @@ using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Services;
-using TNO.Entities;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Keycloak;
@@ -78,7 +77,7 @@ public class AVOverviewController : ControllerBase
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(AVOverviewInstanceModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
     public IActionResult FindByDate(DateTime publishedOn)
     {
@@ -87,8 +86,8 @@ public class AVOverviewController : ControllerBase
         // If an evening overview does not exist it will generate a new one based on the template, but not save it.
         if (instance == null)
         {
-            var type = publishedOn.DayOfWeek == DayOfWeek.Sunday || publishedOn.DayOfWeek == DayOfWeek.Saturday ? AVOverviewTemplateType.Weekend : AVOverviewTemplateType.Weekday;
-            var template = _overviewTemplateService.FindById(type) ?? throw new InvalidOperationException($"A template for '{type.GetName()}' does not exist.");
+            var type = publishedOn.DayOfWeek == DayOfWeek.Sunday || publishedOn.DayOfWeek == DayOfWeek.Saturday ? Entities.AVOverviewTemplateType.Weekend : Entities.AVOverviewTemplateType.Weekday;
+            var template = _overviewTemplateService.FindById(type) ?? throw new NoContentException($"A template for '{type.GetName()}' does not exist.");
             return new JsonResult(new AVOverviewInstanceModel(template, publishedOn));
         }
         return new JsonResult(new AVOverviewInstanceModel(instance));
@@ -102,12 +101,11 @@ public class AVOverviewController : ControllerBase
     [HttpGet("{instanceId}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(AVOverviewInstanceModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
     public IActionResult FindById(int instanceId)
     {
-        var result = _overviewInstanceService.FindById(instanceId);
-        if (result == null) return new NoContentResult();
+        var result = _overviewInstanceService.FindById(instanceId) ?? throw new NoContentException();
         return new JsonResult(new AVOverviewInstanceModel(result));
     }
 
@@ -124,7 +122,7 @@ public class AVOverviewController : ControllerBase
     public IActionResult Add(AVOverviewInstanceModel model)
     {
         var result = _overviewInstanceService.AddAndSave((Entities.AVOverviewInstance)model);
-        var instance = _overviewInstanceService.FindById(result.Id) ?? throw new InvalidOperationException("Overview Section does not exist");
+        var instance = _overviewInstanceService.FindById(result.Id) ?? throw new NoContentException("Overview Section does not exist");
         return CreatedAtAction(nameof(FindById), new { instanceId = result.Id }, new AVOverviewInstanceModel(instance));
     }
 
@@ -141,7 +139,7 @@ public class AVOverviewController : ControllerBase
     public IActionResult Update(AVOverviewInstanceModel model)
     {
         var result = _overviewInstanceService.UpdateAndSave((Entities.AVOverviewInstance)model);
-        var instance = _overviewInstanceService.FindById(result.Id) ?? throw new InvalidOperationException("Overview Section does not exist");
+        var instance = _overviewInstanceService.FindById(result.Id) ?? throw new NoContentException("Overview Section does not exist");
         return new JsonResult(new AVOverviewInstanceModel(instance));
     }
 
@@ -173,7 +171,7 @@ public class AVOverviewController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> Preview(int instanceId)
     {
-        var instance = _overviewInstanceService.FindById(instanceId) ?? throw new InvalidOperationException($"AV overview instance '{instanceId}' not found");
+        var instance = _overviewInstanceService.FindById(instanceId) ?? throw new NoContentException($"AV overview instance '{instanceId}' not found");
         var model = new TemplateEngine.Models.Reports.AVOverviewInstanceModel(instance);
         var result = await _reportHelper.GenerateReportAsync(model, true);
         return new JsonResult(result);
@@ -191,7 +189,7 @@ public class AVOverviewController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> Publish(int instanceId)
     {
-        var instance = _overviewInstanceService.FindById(instanceId) ?? throw new InvalidOperationException($"AV overview instance '{instanceId}' not found");
+        var instance = _overviewInstanceService.FindById(instanceId) ?? throw new NoContentException($"AV overview instance '{instanceId}' not found");
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
 

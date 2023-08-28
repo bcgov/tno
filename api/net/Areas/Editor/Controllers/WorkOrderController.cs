@@ -123,12 +123,11 @@ public class WorkOrderController : ControllerBase
     [HttpPost("transcribe/{contentId}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(WorkOrderMessageModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> RequestTranscriptionAsync(long contentId)
     {
-        var content = _contentService.FindById(contentId) ?? throw new InvalidOperationException("Content does not exist");
+        var content = _contentService.FindById(contentId) ?? throw new NoContentException("Content does not exist");
         if (String.IsNullOrWhiteSpace(_kafkaOptions.TranscriptionTopic)) throw new ConfigurationException("Kafka transcription topic not configured.");
 
         // Only allow one work order transcript request at a time.
@@ -165,12 +164,11 @@ public class WorkOrderController : ControllerBase
     [HttpPost("nlp/{contentId}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(WorkOrderMessageModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> RequestNLPAsync(long contentId)
     {
-        var content = _contentService.FindById(contentId) ?? throw new InvalidOperationException("Content does not exist");
+        var content = _contentService.FindById(contentId) ?? throw new NoContentException("Content does not exist");
         if (String.IsNullOrWhiteSpace(_kafkaOptions.NLPTopic)) throw new ConfigurationException("Kafka NLP topic not configured.");
 
         // Only allow one work order transcript request at a time.
@@ -207,7 +205,7 @@ public class WorkOrderController : ControllerBase
     [HttpPost("request/file/{locationId:int}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public async Task<IActionResult> RequestFileAsync([FromRoute] int locationId, [FromQuery] string path)
     {

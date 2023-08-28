@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Extensions;
 using TNO.Entities;
@@ -52,10 +53,10 @@ public class NotificationService : BaseService<Notification, int>, INotification
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="NoContentException"></exception>
     public override Notification Update(Notification entity)
     {
-        var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
+        var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
         var subscribers = this.Context.UserNotifications.Where(ur => ur.NotificationId == entity.Id).ToArray();
 
         subscribers.Except(entity.SubscribersManyToMany).ForEach(s =>

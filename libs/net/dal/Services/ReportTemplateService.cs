@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Extensions;
 using TNO.Entities;
@@ -63,10 +64,10 @@ public class ReportTemplateService : BaseService<ReportTemplate, int>, IReportTe
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="NoContentException"></exception>
     public override ReportTemplate Update(ReportTemplate entity)
     {
-        var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
+        var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
         var charts = this.Context.ReportTemplateChartTemplates.Where(ur => ur.ReportTemplateId == entity.Id).ToArray();
 
         charts.Except(entity.ChartTemplatesManyToMany).ForEach(s =>

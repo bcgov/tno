@@ -5,7 +5,8 @@
  * @returns An Elasticsearch query.
  */
 export const generateTermsForArrayField = (field: string, values?: any[]) => {
-  if (values === undefined || values === null) return undefined;
+  if (values === undefined || values === null || (Array.isArray(values) && values.length === 0))
+    return undefined;
   return Array.isArray(values)
     ? {
         nested: {

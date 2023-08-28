@@ -32,12 +32,19 @@ export const useAjaxWrapper = () => {
           let message = 'An unexpected error has occurred.';
           let detail = '';
           const data = ae.response?.data as any;
-
           if (ae.response?.status === 401) message = 'Authentication required.';
           else if (ae.response?.status === 403)
             message = 'Authorization required.  Your account does not have access.';
           else if (typeof data === 'string' && !!data) message = data;
-          else if (!!data?.error) {
+          else if (
+            data instanceof Blob &&
+            data.type &&
+            data.type.toLocaleLowerCase().indexOf('json') !== -1
+          ) {
+            const json = JSON.parse(await data.text());
+            message = json.error;
+            detail = message !== json.detail ? json.detail : undefined;
+          } else if (!!data?.error) {
             message = `${data?.error}`;
             detail = message.trim() !== data?.details?.trim() ? data?.details : undefined;
           } else if (!!data?.errors) {
