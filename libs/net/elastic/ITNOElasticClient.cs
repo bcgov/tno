@@ -6,9 +6,9 @@ namespace TNO.Elastic;
 
 public interface ITNOElasticClient : IElasticClient
 {
-    Task<SearchResultModel<T>> SearchAsync<T>(string index, JsonDocument query)
+    Task<SearchResultModel<T>> SearchAsync<T>(string index, JsonDocument query, string sortBy = "")
         where T : class;
 
-    Task<SearchResultModel<T>> SearchAsync<T>(string index, JsonElement query)
+    Task<SearchResultModel<T>> SearchAsync<T>(string index, JsonElement query, string sortBy = "")
         where T : class;
 }
