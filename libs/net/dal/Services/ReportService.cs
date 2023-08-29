@@ -49,6 +49,22 @@ public class ReportService : BaseService<Report, int>, IReportService
             .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
     }
 
+        /// <summary>
+        /// Find all the public reports.
+        /// </summary>
+        /// <returns></returns>
+    public IEnumerable<Report> GetPublic()
+    {
+        return this.Context.Reports
+            .AsNoTracking()
+            .Include(r => r.Owner)
+            .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
+            .Include(r => r.Sections)
+            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
+            .Where(r => r.IsPublic == true)
+            .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
+    }
+
     /// <summary>
     /// Find all reports that match the filter.
     /// </summary>
@@ -89,6 +105,24 @@ public class ReportService : BaseService<Report, int>, IReportService
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
             .FirstOrDefault(r => r.Id == id);
     }
+
+
+    /// <summary>
+    /// Find the reports for the specified user.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public IEnumerable<Report> FindMyReports(int userId)
+    {
+        return this.Context.Reports
+            .Include(f => f.Owner)
+            .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
+            .Include(r => r.Sections)
+            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
+            .Where(f => f.OwnerId == userId)
+            .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
+    }
+
 
     /// <summary>
     /// Add the new report to the database.
