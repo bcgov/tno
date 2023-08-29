@@ -12,6 +12,12 @@ public interface IReportService : IBaseService<Report, int>
     IEnumerable<Report> FindAll();
 
     /// <summary>
+    /// Find all public reports.
+    /// </summary>
+    /// <returns></returns>
+    IEnumerable<Report> GetPublic();
+
+    /// <summary>
     /// Find all reports that match the filter.
     /// </summary>
     /// <param name="filter"></param>
@@ -41,4 +47,11 @@ public interface IReportService : IBaseService<Report, int>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     IEnumerable<long> GetRelatedReportInstanceContentToExclude(int reportId);
+
+    /// <summary>
+    /// Find all my reports.
+    /// </summary>
+    /// <returns></returns>
+    IEnumerable<Report> FindMyReports(int userId);
+
 }
