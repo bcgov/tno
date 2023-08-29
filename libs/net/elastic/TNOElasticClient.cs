@@ -75,7 +75,7 @@ namespace TNO.Elastic
         public async Task<SearchResultModel<T>> SearchAsync<T>(string index, JsonDocument query)
             where T : class
         {
-            var url = this.Options.Url!.Append($"/{index}/_search?pretty=true&typed_keys=true");
+            var url = this.Options.Url!.Append($"/{index}/_search?pretty=true&typed_keys=true&sort=publishedOn:desc");
             var content = JsonContent.Create(query);
             var response = await this.Client.PostAsync<SearchResultModel<T>>(url, content);
             return response ?? new SearchResultModel<T>();
@@ -91,7 +91,7 @@ namespace TNO.Elastic
         public async Task<SearchResultModel<T>> SearchAsync<T>(string index, JsonElement query)
             where T : class
         {
-            var url = this.Options.Url!.Append($"/{index}/_search?pretty=true&typed_keys=true");
+            var url = this.Options.Url!.Append($"/{index}/_search?pretty=true&typed_keys=true&sort=publishedOn:desc");
             var content = JsonContent.Create(query);
             var response = await this.Client.PostAsync<SearchResultModel<T>>(url, content);
             return response ?? new SearchResultModel<T>();
