@@ -89,9 +89,20 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
   const stripHtml = () => {
     // strip html from string
     if (!!fieldName) {
-      let doc = new DOMParser().parseFromString(values[fieldName] as string, 'text/html');
-      setFieldValue(fieldName, doc.body.textContent || '');
-      setState({ ...state, html: doc.body.textContent || '' });
+      const doc = new DOMParser().parseFromString(
+        (values[fieldName] as string)
+          .replace(/<p\s*[^>]*>/g, '[p]')
+          .replaceAll('</p>', '[/p]')
+          .replace(/<br\s*\/?>/g, '[br]'),
+        'text/html',
+      );
+      doc.body.textContent =
+        doc.body.textContent
+          ?.replaceAll('[p]', '<p>')
+          .replaceAll('[/p]', '</p>')
+          .replaceAll('[br]', '<br>') || '';
+      setFieldValue(fieldName as string, doc.body.textContent);
+      setState({ ...state, html: doc.body.textContent });
     }
   };
 
