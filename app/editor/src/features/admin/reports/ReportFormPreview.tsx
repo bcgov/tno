@@ -68,7 +68,7 @@ export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
             <p>After you save the report, send a test email to the following address.</p>
             <Text
               name="to"
-              label="Email To"
+              label="Send Test Email To"
               value={sendTo}
               onChange={(e) => setSendTo(e.target.value)}
             >

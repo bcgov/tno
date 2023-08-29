@@ -72,13 +72,11 @@ public class ReportInstanceController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult FindById(long id)
     {
-        var result = _reportInstanceService.FindById(id);
-
-        if (result == null) return new NoContentResult();
+        var result = _reportInstanceService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new ReportInstanceModel(result, _serializerOptions));
     }
 
@@ -138,13 +136,11 @@ public class ReportInstanceController : ControllerBase
     [HttpPost("{id}/publish")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public async Task<IActionResult> Publish(int id)
     {
-        var instance = _reportInstanceService.FindById(id);
-        if (instance == null) return new NoContentResult();
+        var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException();
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");

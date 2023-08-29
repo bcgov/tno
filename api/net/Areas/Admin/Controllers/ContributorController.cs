@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Contributor;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Keycloak;
@@ -62,13 +63,11 @@ public class ContributorController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ContributorModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Contributor" })]
     public IActionResult FindById(int id)
     {
-        var result = _service.FindById(id);
-
-        if (result == null) return new NoContentResult();
+        var result = _service.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new ContributorModel(result));
     }
 
@@ -85,7 +84,7 @@ public class ContributorController : ControllerBase
     public IActionResult Add(ContributorModel model)
     {
         var result = _service.AddAndSave((Contributor)model);
-        result = _service.FindById(result.Id) ?? throw new KeyNotFoundException();
+        result = _service.FindById(result.Id) ?? throw new NoContentException();
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ContributorModel(result));
     }
 
@@ -102,7 +101,7 @@ public class ContributorController : ControllerBase
     public IActionResult Update(ContributorModel model)
     {
         var result = _service.UpdateAndSave((Contributor)model);
-        result = _service.FindById(result.Id) ?? throw new KeyNotFoundException();
+        result = _service.FindById(result.Id) ?? throw new NoContentException();
         return new JsonResult(new ContributorModel(result));
     }
 

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.NotificationInstance;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -53,13 +54,11 @@ public class NotificationInstanceController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(NotificationInstanceModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "NotificationInstance" })]
     public IActionResult FindById(long id)
     {
-        var result = _service.FindById(id);
-
-        if (result == null) return new NoContentResult();
+        var result = _service.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new NotificationInstanceModel(result, _serializerOptions));
     }
 

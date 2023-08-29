@@ -34,9 +34,14 @@ export const Modal = styled(Col)<IModalProps>`
   }
 
   .modal {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
     z-index: 100;
     background: white;
-    position: relative;
+    position: absolute;
+    left: 50%;
+    top: 50%;
     margin: 2%;
     border-radius: 3px;
     min-width: fit-content;
@@ -45,9 +50,14 @@ export const Modal = styled(Col)<IModalProps>`
     background-color: rgba(255, 255, 255, 1);
     height: ${(props) => props.hasHeight && '-webkit-fill-available'};
     width: -webkit-fill-available;
+    transform: translate(-50%, -50%);
   }
 
   .modal-header {
     display: flex;
+  }
+
+  .modal-body {
+    flex: 1;
   }
 `;

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Organization;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -62,12 +63,11 @@ public class OrganizationController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(OrganizationModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Organization" })]
     public IActionResult FindById(int id)
     {
-        var result = _organizationService.FindById(id);
-        if (result == null) return new NoContentResult();
+        var result = _organizationService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new OrganizationModel(result));
     }
 
@@ -84,7 +84,7 @@ public class OrganizationController : ControllerBase
     public IActionResult Add(OrganizationModel model)
     {
         var result = _organizationService.AddAndSave((Entities.Organization)model);
-        var organization = _organizationService.FindById(result.Id) ?? throw new InvalidOperationException("Organization does not exist");
+        var organization = _organizationService.FindById(result.Id) ?? throw new NoContentException("Organization does not exist");
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new OrganizationModel(organization));
     }
 
@@ -101,7 +101,7 @@ public class OrganizationController : ControllerBase
     public IActionResult Update(OrganizationModel model)
     {
         var result = _organizationService.UpdateAndSave((Entities.Organization)model);
-        var organization = _organizationService.FindById(result.Id) ?? throw new InvalidOperationException("Organization does not exist");
+        var organization = _organizationService.FindById(result.Id) ?? throw new NoContentException("Organization does not exist");
         return new JsonResult(new OrganizationModel(organization));
     }
 

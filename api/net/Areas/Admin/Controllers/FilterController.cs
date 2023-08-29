@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Filter;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -68,12 +69,11 @@ public class FilterController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(FilterModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Filter" })]
     public IActionResult FindById(int id)
     {
-        var result = _filterService.FindById(id);
-        if (result == null) return new NoContentResult();
+        var result = _filterService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new FilterModel(result, _serializerOptions));
     }
 
@@ -90,7 +90,7 @@ public class FilterController : ControllerBase
     public IActionResult Add(FilterModel model)
     {
         var result = _filterService.AddAndSave(model.ToEntity(_serializerOptions));
-        var filter = _filterService.FindById(result.Id) ?? throw new InvalidOperationException("Filter does not exist");
+        var filter = _filterService.FindById(result.Id) ?? throw new NoContentException("Filter does not exist");
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new FilterModel(filter, _serializerOptions));
     }
 
@@ -107,7 +107,7 @@ public class FilterController : ControllerBase
     public IActionResult Update(FilterModel model)
     {
         var result = _filterService.UpdateAndSave(model.ToEntity(_serializerOptions));
-        var filter = _filterService.FindById(result.Id) ?? throw new InvalidOperationException("Filter does not exist");
+        var filter = _filterService.FindById(result.Id) ?? throw new NoContentException("Filter does not exist");
         return new JsonResult(new FilterModel(filter, _serializerOptions));
     }
 

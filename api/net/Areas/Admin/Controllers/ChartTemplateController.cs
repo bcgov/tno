@@ -5,6 +5,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.ChartTemplate;
 using TNO.API.Helpers;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Keycloak;
@@ -69,12 +70,11 @@ public class ChartTemplateController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ChartTemplateModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Chart" })]
     public IActionResult FindById(int id)
     {
-        var result = _chartTemplateService.FindById(id);
-        if (result == null) return new NoContentResult();
+        var result = _chartTemplateService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new ChartTemplateModel(result));
     }
 
@@ -91,7 +91,7 @@ public class ChartTemplateController : ControllerBase
     public IActionResult Add(ChartTemplateModel model)
     {
         var result = _chartTemplateService.AddAndSave((ChartTemplate)model);
-        var chart = _chartTemplateService.FindById(result.Id) ?? throw new InvalidOperationException("Chart template does not exist");
+        var chart = _chartTemplateService.FindById(result.Id) ?? throw new NoContentException("Chart template does not exist");
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ChartTemplateModel(chart));
     }
 
@@ -108,7 +108,7 @@ public class ChartTemplateController : ControllerBase
     public IActionResult Update(ChartTemplateModel model)
     {
         var result = _chartTemplateService.UpdateAndSave((ChartTemplate)model);
-        var chart = _chartTemplateService.FindById(result.Id) ?? throw new InvalidOperationException("Chart template does not exist");
+        var chart = _chartTemplateService.FindById(result.Id) ?? throw new NoContentException("Chart template does not exist");
         return new JsonResult(new ChartTemplateModel(chart));
     }
 

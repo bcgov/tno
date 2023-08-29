@@ -128,4 +128,20 @@ export const ReportForm = styled(FormPage)`
       text-transform: none;
     }
   }
+
+  .btn.btn-error {
+    &:hover {
+      cursor: pointer;
+      color: red;
+      filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
+    }
+  }
+
+  .btn.btn-primary {
+    &:hover {
+      cursor: pointer;
+      color: ${(props) => props.theme.css.primaryColor};
+      filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
+    }
+  }
 `;

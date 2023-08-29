@@ -53,6 +53,11 @@ public class ReportRequestModel
     /// get/set - Whether to update Razor template cache.
     /// </summary>
     public bool UpdateCache { get; set; }
+
+    /// <summary>
+    /// get/set - Whether this request will generate an instance.
+    /// </summary>
+    public bool GenerateInstance { get; set; } = true;
     #endregion
 
     #region Constructors

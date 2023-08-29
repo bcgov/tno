@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.ContentReference;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Entities.Models;
 using TNO.Keycloak;
@@ -68,13 +69,11 @@ public class ContentReferenceController : ControllerBase
     [HttpGet("{source}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ContentReferenceModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ContentReference" })]
     public IActionResult FindById(string source, [FromQuery] string uid)
     {
-        var result = _contentReferenceService.FindById(new[] { source, uid });
-
-        if (result == null) return new NoContentResult();
+        var result = _contentReferenceService.FindById(new[] { source, uid }) ?? throw new NoContentException();
         return new JsonResult(new ContentReferenceModel(result));
     }
 

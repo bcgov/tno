@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.ReportInstance;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -53,13 +54,11 @@ public class ReportInstanceController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult FindById(long id)
     {
-        var result = _reportInstanceService.FindById(id);
-
-        if (result == null) return new NoContentResult();
+        var result = _reportInstanceService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new ReportInstanceModel(result, _serializerOptions));
     }
 
@@ -75,7 +74,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult Add(ReportInstanceModel model)
     {
-        var result = _reportInstanceService.AddAndSave(model.ToEntity(_serializerOptions));
+        var result = _reportInstanceService.AddAndSave((Entities.ReportInstance)model);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportInstanceModel(result, _serializerOptions));
     }
 
@@ -91,7 +90,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult Update(ReportInstanceModel model)
     {
-        var result = _reportInstanceService.UpdateAndSave(model.ToEntity(_serializerOptions));
+        var result = _reportInstanceService.UpdateAndSave((Entities.ReportInstance)model);
         return new JsonResult(new ReportInstanceModel(result, _serializerOptions));
     }
 
@@ -103,12 +102,11 @@ public class ReportInstanceController : ControllerBase
     [HttpGet("{id}/content")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<ReportInstanceContentModel>), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult GetContentForReportInstanceIdAsync(long id)
     {
-        var instance = _reportInstanceService.FindById(id);
-        if (instance == null) return new BadRequestResult();
+        var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(instance.ContentManyToMany.Select(c => new ReportInstanceContentModel(c)));
     }
     #endregion

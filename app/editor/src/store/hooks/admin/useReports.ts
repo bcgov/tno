@@ -5,6 +5,7 @@ import {
   IReportInstanceModel,
   IReportModel,
   IReportResultModel,
+  useApiAdminReportInstances,
   useApiAdminReports,
 } from 'tno-core';
 
@@ -18,10 +19,13 @@ interface IReportController {
   sendReport: (model: IReportModel, to: string) => Promise<IReportModel>;
   publishReport: (model: IReportModel) => Promise<IReportModel>;
   previewReport: (model: IReportModel) => Promise<IReportResultModel>;
+  deleteReportInstance: (model: IReportInstanceModel) => Promise<IReportInstanceModel>;
+  publishReportInstance: (model: IReportInstanceModel) => Promise<IReportInstanceModel>;
 }
 
 export const useReports = (): [IAdminState & { initialized: boolean }, IReportController] => {
   const api = useApiAdminReports();
+  const apiInstances = useApiAdminReportInstances();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
   const [, lookup] = useLookup();
@@ -80,6 +84,12 @@ export const useReports = (): [IAdminState & { initialized: boolean }, IReportCo
         await lookup.getLookups();
         return response.data;
       },
+      deleteReportInstance: async (model: IReportInstanceModel) => {
+        const response = await dispatch<IReportInstanceModel>('delete-report-instance', () =>
+          apiInstances.deleteReportInstance(model),
+        );
+        return response.data;
+      },
       sendReport: async (model: IReportModel, to: string) => {
         const response = await dispatch<IReportModel>('send-report', () =>
           api.sendReport(model, to),
@@ -92,6 +102,12 @@ export const useReports = (): [IAdminState & { initialized: boolean }, IReportCo
         );
         return response.data;
       },
+      publishReportInstance: async (model: IReportInstanceModel) => {
+        const response = await dispatch<IReportInstanceModel>('publish-report-instance', () =>
+          apiInstances.publishReportInstance(model),
+        );
+        return response.data;
+      },
       previewReport: async (model: IReportModel) => {
         const response = await dispatch<IReportResultModel>('preview-report', () =>
           api.previewReport(model),
@@ -99,7 +115,7 @@ export const useReports = (): [IAdminState & { initialized: boolean }, IReportCo
         return response.data;
       },
     }),
-    [api, dispatch, lookup, store],
+    [api, apiInstances, dispatch, lookup, store],
   );
 
   return [{ ...state, initialized }, controller];

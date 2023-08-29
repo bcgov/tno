@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -340,7 +341,11 @@ public class ReportService : BaseService<Report, int>, IReportService
             if (section.FilterId.HasValue)
             {
                 if (section.Filter == null) throw new InvalidOperationException($"Section '{section.Name}' filter is missing from report object.");
-                var content = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, section.Filter.Query);
+
+                // Modify the query to exclude content.
+                var query = excludeContentIds.Any() ? AddExcludeContent(section.Filter.Query, excludeContentIds) : section.Filter.Query;
+
+                var content = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, query);
                 content.Hits.Hits = content.Hits.Hits.Where(c => !excludeContentIds.Contains(c.Source.Id)
                     && (!sectionSettings.RemoveDuplicates || !excludeAboveSectionContentIds.Contains(c.Source.Id)));
                 results.Add(section.Name, content);
@@ -392,6 +397,46 @@ public class ReportService : BaseService<Report, int>, IReportService
         });
 
         return contentIds.Distinct().ToArray();
+    }
+
+    /// <summary>
+    /// Modify the Elasticsearch 'query' and add a 'must_not' filter to exclude the specified 'contentIds'.
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="contentIds"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private static JsonDocument AddExcludeContent(JsonDocument query, IEnumerable<long> contentIds)
+    {
+        var json = JsonNode.Parse(query.ToJson())?.AsObject();
+        if (json == null) return query;
+
+        var jMustNotTerms = JsonNode.Parse($"{{ \"terms\": {{ \"id\": [{String.Join(',', contentIds)}] }}}}")?.AsObject() ?? throw new InvalidOperationException("Failed to parse JSON");
+        Console.WriteLine(json.ToJsonString());
+
+        if (json.TryGetPropertyValue("query", out JsonNode? jQuery))
+        {
+            if (jQuery?.AsObject().TryGetPropertyValue("bool", out JsonNode? jQueryBool) == true)
+            {
+                if (jQueryBool?.AsObject().TryGetPropertyValue("must_not", out JsonNode? jQueryBoolMustNot) == true)
+                {
+                    jQueryBoolMustNot?.AsArray().Add(jMustNotTerms);
+                }
+                else
+                {
+                    jQueryBool?.AsObject().Add("must_not", JsonNode.Parse($"[ {jMustNotTerms.ToJsonString()} ]"));
+                }
+            }
+            else
+            {
+                jQuery?.AsObject().Add("bool", JsonNode.Parse($"{{ \"must_not\": [ {jMustNotTerms.ToJsonString()} ]}}"));
+            }
+        }
+        else
+        {
+            json.Add("query", JsonNode.Parse($"{{ \"bool\": {{ \"must_not\": [ {jMustNotTerms.ToJsonString()} ] }}}}"));
+        }
+        return JsonDocument.Parse(json.ToJsonString());
     }
     #endregion
 }

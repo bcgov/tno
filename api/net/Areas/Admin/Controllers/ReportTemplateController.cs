@@ -1,14 +1,15 @@
 using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.ReportTemplate;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
-using TNO.Keycloak;
 using TNO.Entities;
-using System.Text.Json;
-using Microsoft.Extensions.Options;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -69,12 +70,11 @@ public class ReportTemplateController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportTemplateModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult FindById(int id)
     {
-        var result = _reportTemplateService.FindById(id);
-        if (result == null) return new NoContentResult();
+        var result = _reportTemplateService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new ReportTemplateModel(result, _serializerOptions));
     }
 
@@ -91,7 +91,7 @@ public class ReportTemplateController : ControllerBase
     public IActionResult Add(ReportTemplateModel model)
     {
         var result = _reportTemplateService.AddAndSave((ReportTemplate)model);
-        var report = _reportTemplateService.FindById(result.Id) ?? throw new InvalidOperationException("Report template does not exist");
+        var report = _reportTemplateService.FindById(result.Id) ?? throw new NoContentException("Report template does not exist");
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportTemplateModel(report, _serializerOptions));
     }
 
@@ -108,7 +108,7 @@ public class ReportTemplateController : ControllerBase
     public IActionResult Update(ReportTemplateModel model)
     {
         var result = _reportTemplateService.UpdateAndSave((ReportTemplate)model);
-        var report = _reportTemplateService.FindById(result.Id) ?? throw new InvalidOperationException("Report template does not exist");
+        var report = _reportTemplateService.FindById(result.Id) ?? throw new NoContentException("Report template does not exist");
         return new JsonResult(new ReportTemplateModel(report, _serializerOptions));
     }
 

@@ -1,11 +1,12 @@
 using System.Text.Json;
+using TNO.API.Models;
 
 namespace TNO.API.Areas.Admin.Models.Report;
 
 /// <summary>
 /// ReportInstanceModel class, provides a model that represents an report instance.
 /// </summary>
-public class ReportInstanceModel
+public class ReportInstanceModel : AuditColumnsModel
 {
     #region Properties
     /// <summary>
@@ -50,7 +51,7 @@ public class ReportInstanceModel
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="options"></param>
-    public ReportInstanceModel(Entities.ReportInstance entity, JsonSerializerOptions options)
+    public ReportInstanceModel(Entities.ReportInstance entity, JsonSerializerOptions options) : base(entity)
     {
         this.Id = entity.Id;
         this.ReportId = entity.ReportId;

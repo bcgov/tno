@@ -345,25 +345,40 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var subject = await this.ReportEngine.GenerateReportSubjectAsync(report, sectionContent, request.UpdateCache);
         var body = await this.ReportEngine.GenerateReportBodyAsync(report, sectionContent, null, request.UpdateCache);
 
-        // Save the report instance.
-        // Group content by the section name.
-        var instance = new ReportInstance(report.Id, request.RequestorId, sectionContent.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder))))
+        if (to.Any() || !String.IsNullOrEmpty(request.To))
         {
-            OwnerId = request.RequestorId,
-            PublishedOn = DateTime.UtcNow
-        };
-        var instanceModel = await this.Api.AddReportInstanceAsync(new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions))
-            ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+            // Save the report instance.
+            // Group content by the section name.
+            var instance = new ReportInstance(
+                report.Id,
+                request.RequestorId,
+                sectionContent.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray()
+                )
+            {
+                OwnerId = request.RequestorId,
+                PublishedOn = DateTime.UtcNow
+            };
+            var model = new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions);
+            var instanceModel = request.GenerateInstance ? (await this.Api.AddReportInstanceAsync(model)
+                ?? throw new InvalidOperationException("Report instance failed to be returned by API")) : null;
 
-        // Send the email.
-        var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
+            // Send the email.
+            var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
 
-        // Save the report instance.
-        // Group content by the section name.
-        instance.Id = instanceModel.Id;
-        instance.Version = instanceModel.Version ?? 0;
-        instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
-        await this.Api.UpdateReportInstanceAsync(new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions));
+            // Save the report instance.
+            if (request.GenerateInstance && instanceModel != null)
+            {
+                model.Id = instanceModel.Id;
+                model.Version = instanceModel.Version ?? 0;
+                model.Content.ForEach(ric => ric.InstanceId = model.Id);
+                model.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+                await this.Api.UpdateReportInstanceAsync(model);
+            }
+        }
+        else
+        {
+            this.Logger.LogWarning($"Report request '{report.Id}' does not have any subscribers");
+        }
     }
 
     /// <summary>
@@ -383,7 +398,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         var to = instance.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.Email)).Select(s => s.Email).ToArray();
         // No need to send an email if there are no subscribers.
-        if (to.Length > 0)
+        if (to.Length > 0 || !String.IsNullOrEmpty(request.To))
         {
             var subject = await this.ReportEngine.GenerateReportSubjectAsync(template, model, request.UpdateCache);
             var body = await this.ReportEngine.GenerateReportBodyAsync(template, model, request.UpdateCache);
@@ -439,13 +454,19 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var body = await this.ReportEngine.GenerateReportBodyAsync(reportInstance.Report, sectionContent, null, request.UpdateCache);
 
         // Send the email.
-        var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
+        if (to.Any() || !String.IsNullOrEmpty(request.To))
+        {
+            var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
 
-        // Update the report instance.
-        var json = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
-        if (reportInstance.PublishedOn == null) reportInstance.PublishedOn = DateTime.UtcNow;
-        reportInstance.Response = JsonSerializer.Deserialize<Dictionary<string, object>>(json, _serializationOptions) ?? new Dictionary<string, object>();
-        await this.Api.UpdateReportInstanceAsync(reportInstance);
+            // Update the report instance.
+            reportInstance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+            if (reportInstance.PublishedOn == null) reportInstance.PublishedOn = DateTime.UtcNow;
+            await this.Api.UpdateReportInstanceAsync(reportInstance);
+        }
+        else
+        {
+            this.Logger.LogWarning($"Report request '{reportInstance.ReportId}' does not have any subscribers");
+        }
     }
 
     /// <summary>

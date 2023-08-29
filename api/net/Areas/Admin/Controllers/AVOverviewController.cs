@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.AVOverview;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -49,7 +50,6 @@ public class AVOverviewController : ControllerBase
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(AVOverviewTemplateModel[]), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
     public IActionResult FindAll()
     {
@@ -65,12 +65,11 @@ public class AVOverviewController : ControllerBase
     [HttpGet("{templateType}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(AVOverviewTemplateModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
     public IActionResult FindById(Entities.AVOverviewTemplateType templateType)
     {
-        var result = _overviewTemplateService.FindById(templateType);
-        if (result == null) return new NoContentResult();
+        var result = _overviewTemplateService.FindById(templateType) ?? throw new NoContentException();
         return new JsonResult(new AVOverviewTemplateModel(result));
     }
 

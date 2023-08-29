@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.CSS;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.CSS;
 using TNO.DAL.Services;
 using TNO.Keycloak;
@@ -89,9 +90,7 @@ public class CssController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Keycloak" })]
     public async Task<IActionResult> GetUserRolesAsync(string username)
     {
-        var user = _userService.FindByUsername(username);
-        if (user == null) return NoContent();
-
+        var user = _userService.FindByUsername(username) ?? throw new NoContentException();
         var userRoles = await _cssService.GetRolesForUserAsync(user.Key);
         return new JsonResult(userRoles.Roles?.Select(r => r.Name) ?? Array.Empty<string>());
     }
@@ -103,14 +102,11 @@ public class CssController : ControllerBase
     [HttpPut("users/{username}/roles")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Keycloak" })]
     public async Task<IActionResult> UpdateUserRoles(string username, string[] roles)
     {
-        var user = _userService.FindByUsername(username);
-        if (user == null) throw new InvalidOperationException("User does not exist");
-
+        var user = _userService.FindByUsername(username) ?? throw new NoContentException();
         var result = await _cssHelper.UpdateUserRolesAsync(user.Key, roles);
         return new JsonResult(result ?? Array.Empty<string>());
     }

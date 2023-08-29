@@ -96,9 +96,7 @@ public class KeycloakController : ControllerBase
     {
         if (!_options.ClientId.HasValue) throw new ConfigurationException("Keycloak clientId has not been configured");
 
-        var user = _userService.FindByUsername(username);
-        if (user == null) return NoContent();
-
+        var user = _userService.FindByUsername(username) ?? throw new NoContentException();
         var roles = await _keycloakService.GetUserClientRolesAsync(new Guid(user.Key), _options.ClientId.Value);
         return new JsonResult(roles?.Select(r => r.Name) ?? Array.Empty<string>());
     }
@@ -115,9 +113,7 @@ public class KeycloakController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Keycloak" })]
     public async Task<IActionResult> UpdateUserRoles(string username, string[] roles)
     {
-        var user = _userService.FindByUsername(username);
-        if (user == null) throw new InvalidOperationException("User does not exist");
-
+        var user = _userService.FindByUsername(username) ?? throw new NoContentException();
         var result = await _keycloakHelper.UpdateUserRolesAsync(new Guid(user.Key), roles);
         return new JsonResult(result ?? Array.Empty<string>());
     }

@@ -10,8 +10,7 @@ div[role='dialog'] {
   flex-direction: column;
   align-items: center;
 
-  > div:first-child {
-    display: block;
+  >div:first-child {
     text-align: center;
     background-color: white;
     border-radius: 0.5em;

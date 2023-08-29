@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.SystemMessage;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Keycloak;
@@ -48,11 +49,11 @@ public class SystemMessageController : ControllerBase
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<SystemMessageModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "System Message" })]
     public IActionResult FindSystemMessage()
     {
-         var result = _service.FindSystemMessage();
-        if (result == null) return new NoContentResult();
+        var result = _service.FindSystemMessage() ?? throw new NoContentException();
         return new JsonResult(new SystemMessageModel(result));
     }
 

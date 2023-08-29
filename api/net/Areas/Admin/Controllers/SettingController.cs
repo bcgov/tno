@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Setting;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Entities.Models;
 using TNO.Keycloak;
@@ -65,13 +66,11 @@ public class SettingController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(SettingModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Setting" })]
     public IActionResult FindById(int id)
     {
-        var result = _service.FindById(id);
-
-        if (result == null) return new NoContentResult();
+        var result = _service.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new SettingModel(result));
     }
 
