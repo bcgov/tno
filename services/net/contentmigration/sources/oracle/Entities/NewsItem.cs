@@ -31,7 +31,7 @@ public class NewsItem
     /// get/set.
     /// </summary>
     [Column("SOURCE")]
-    public string Source { get; set; } = "";
+    public string? Source { get; set; }
 
     /// <summary>
     /// get/set.
