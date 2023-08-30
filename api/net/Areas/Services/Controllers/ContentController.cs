@@ -352,25 +352,22 @@ public class ContentController : ControllerBase
     /// <returns></returns>
     [HttpGet("{id}/image")]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> GetImageFile(long id)
     {
-        var fileReference = _fileReferenceService.FindByContentId(id).FirstOrDefault();
-        if (fileReference == null)
+        var result = new JsonResult(new { Error = "File does not exist" })
         {
-            _logger.LogWarning("The file reference (id: {id}) does not exist.", id);
-            return NoContent();
-        }
+            StatusCode = StatusCodes.Status400BadRequest
+        };
+
+        var fileReference = _fileReferenceService.FindByContentId(id).FirstOrDefault();
+        if (fileReference == null) return result;
 
         var safePath = Path.Combine(
             _storageOptions.GetUploadPath(),
             HttpUtility.UrlDecode(fileReference.Path).MakeRelativePath());
-        if (!safePath.FileExists())
-        {
-            _logger.LogWarning("The image file (id: {id}) does not exist.", id);
-            return NoContent();
-        }
+        if (!safePath.FileExists()) return result;
 
         using var fileStream = new FileStream(safePath, FileMode.Open, FileAccess.Read);
         var imageBytes = new byte[fileStream.Length];

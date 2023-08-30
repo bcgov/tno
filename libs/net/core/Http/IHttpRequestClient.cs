@@ -54,7 +54,7 @@ namespace TNO.Core.Http
 
         Task<TModel?> SendAsync<TModel>(Uri url, HttpMethod? method = null, HttpContent? content = null, Func<HttpResponseMessage, bool>? onError = null);
         Task<TModel?> SendAsync<TModel>(Uri url, HttpMethod method, HttpRequestHeaders? headers, HttpContent? content = null, Func<HttpResponseMessage, bool>? onError = null);
-        Task<TModel?> GetAsync<TModel>(Uri url);
+        Task<TModel?> GetAsync<TModel>(Uri url, Func<HttpResponseMessage, bool>? onError = null);
         Task<TModel?> PostAsync<TModel>(Uri url, HttpContent? content = null);
         Task<TModel?> PutAsync<TModel>(Uri url, HttpContent? content = null);
         Task<TModel?> DeleteAsync<TModel>(Uri url, HttpContent? content = null);
