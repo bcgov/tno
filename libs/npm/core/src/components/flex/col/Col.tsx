@@ -72,10 +72,12 @@ export interface IColProps extends React.HTMLAttributes<HTMLDivElement> {
  * @param style pass further CSS properties to the column
  * @returns
  */
-export const Col: React.FC<IColProps> = ({ children, direction = 'column', ...rest }) => {
-  return (
-    <styled.Col direction={direction} {...rest}>
-      {children}
-    </styled.Col>
-  );
-};
+export const Col = React.forwardRef<HTMLDivElement, IColProps>(
+  ({ children, direction = 'column', ...rest }, ref) => {
+    return (
+      <styled.Col direction={direction} ref={ref} {...rest}>
+        {children}
+      </styled.Col>
+    );
+  },
+);

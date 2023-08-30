@@ -72,10 +72,12 @@ export interface IRowProps extends React.HTMLAttributes<HTMLDivElement> {
  * @param props0 Component properties.
  * @returns Row component.
  */
-export const Row: React.FC<IRowProps> = ({ children, direction = 'row', ...rest }) => {
-  return (
-    <styled.Row direction={direction} {...rest}>
-      {children}
-    </styled.Row>
-  );
-};
+export const Row = React.forwardRef<HTMLDivElement, IRowProps>(
+  ({ children, direction = 'row', ...rest }, ref) => {
+    return (
+      <styled.Row direction={direction} ref={ref} {...rest}>
+        {children}
+      </styled.Row>
+    );
+  },
+);
