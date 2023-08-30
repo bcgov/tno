@@ -348,18 +348,21 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> GetImageFile(long id)
     {
-        var result = new JsonResult(new { Error = "File does not exist" })
-        {
-            StatusCode = StatusCodes.Status400BadRequest
-        };
-
         var fileReference = _fileReferenceService.FindByContentId(id).FirstOrDefault();
-        if (fileReference == null) return result;
+        if (fileReference == null)
+        {
+            _logger.LogWarning("The file reference (id: {id}) does not exist.", id);
+            return NoContent();
+        }
 
         var safePath = Path.Combine(
             _storageOptions.GetUploadPath(),
             HttpUtility.UrlDecode(fileReference.Path).MakeRelativePath());
-        if (!safePath.FileExists()) return result;
+        if (!safePath.FileExists())
+        {
+            _logger.LogWarning("The image file (id: {id}) does not exist.", id);
+            return NoContent();
+        }
 
         using var fileStream = new FileStream(safePath, FileMode.Open, FileAccess.Read);
         var imageBytes = new byte[fileStream.Length];
