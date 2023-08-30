@@ -73,7 +73,7 @@ namespace TNO.Elastic
         /// <param name="query"></param>
         /// <returns></returns>
         public async Task<SearchResultModel<T>> SearchAsync<T>(
-            string index, JsonDocument query, string sortBy = "publishedOn:desc") where T : class
+            string index, JsonDocument query, string sortBy) where T : class
         {
             var url = this.Options.Url!.Append($"/{index}/_search?pretty=true&typed_keys=true&sort={sortBy}");
             var content = JsonContent.Create(query);
@@ -89,7 +89,7 @@ namespace TNO.Elastic
         /// <param name="query"></param>
         /// <returns></returns>
         public async Task<SearchResultModel<T>> SearchAsync<T>(
-            string index, JsonElement query, string sortBy = "publishedOn:desc") where T : class
+            string index, JsonElement query, string sortBy) where T : class
         {
             var url = this.Options.Url!.Append($"/{index}/_search?pretty=true&typed_keys=true&sort={sortBy}");
             var content = JsonContent.Create(query);
