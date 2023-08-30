@@ -14,6 +14,7 @@ using TNO.Services.ContentMigration.Migrators;
 using TNO.Services.ContentMigration.Extensions;
 using TNO.Services.ContentMigration.Sources.Oracle.Services;
 using Microsoft.EntityFrameworkCore;
+using TNO.API.Areas.Services.Models.ContentReference;
 
 namespace TNO.Services.ContentMigration;
 
@@ -305,12 +306,48 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             }
 
             var sourceContent = contentMigrator.CreateSourceContent(lookups, source!, product, manager.Ingest.IngestType!.ContentType, newsItem, defaultTimeZone);
-
+            bool isNewSourceContent = false;
+            bool isUpdatedSourceContent = false;
             var reference = await this.FindContentReferenceAsync(source?.Code, sourceContent.Uid);
             if (reference == null)
             {
-                reference = await this.Api.AddContentReferenceAsync(contentMigrator.CreateContentReference(source!, manager.Ingest.Topic, newsItem, sourceContent.Uid, defaultTimeZone));
+                isNewSourceContent = true;
+                reference = contentMigrator.CreateContentReference(source!, manager.Ingest.Topic, newsItem, sourceContent.Uid, defaultTimeZone);
+            }
+            else
+            {
+                // check if this is content, previously ingested by this service, but has been updated by an Editor in TNO
+                DateTime originalLastUpdateDate = DateTime.MinValue;
+                string originalSource = String.Empty;
+                if (reference.Metadata.ContainsKey(ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn))
+                {
+                    if (!DateTime.TryParse(reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn].ToString(), out originalLastUpdateDate))
+                        originalLastUpdateDate = DateTime.MinValue;
+                }
+                if (reference.Metadata.ContainsKey(ContentReferenceMetaDataKeys.MetadataKeyIngestSource)) {
+                    originalSource = reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyIngestSource].ToString();
+                }
+
+                // IF this record was previously ingested from TNO by the Content Migration Service
+                // AND it has been updated since it's original ingest
+                // THEN trigger an update to the content
+                if ((source?.Code == originalSource) && (sourceContent.UpdatedOn > originalLastUpdateDate))
+                {
+                    isUpdatedSourceContent = true;
+                    reference.Status = (int)WorkflowStatus.Received;
+                    // What about the worst case scenario: one Editor changes it in MMIA and another Editor changes it in TNO?
+                    Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMIA Content : {RSN}:{Title}", newsItem.RSN, newsItem.Title);
+                }
+            }
+
+            if (isNewSourceContent)
+            {
+                reference = await this.Api.AddContentReferenceAsync(reference);
                 Logger.LogInformation("Migrating content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
+            }
+
+            if (isNewSourceContent || isUpdatedSourceContent)
+            {
                 try
                 {
                     if (newsItem.FilePath != null)
@@ -363,17 +400,12 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 
                 await ContentReceivedAsync(manager, reference, sourceContent);
             }
-            else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
+            else if (reference != null & reference?.Status == (int)WorkflowStatus.InProgress && reference?.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
             {
                 // If another process has it in progress only attempt to do an Migration if it's
                 // more than an 5 minutes old. Assumption is that it is stuck.
                 reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
                 Logger.LogInformation("Updating migrated content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
-            }
-            else
-            {
-                // KGM - Found a ContentReference, but we are not stuck. Just skip???
-                Logger.LogInformation("Item is pre-existing - skipping : {RSN}:{Title}", newsItem.RSN, newsItem.Title);
             }
         }
         catch (Exception ex)

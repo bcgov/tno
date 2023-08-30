@@ -1,7 +1,15 @@
+using System.Text.Json;
 using TNO.API.Models;
 using TNO.Entities;
 
 namespace TNO.API.Areas.Services.Models.ContentReference;
+
+public static class ContentReferenceMetaDataKeys {
+    #region Constants
+    public const string MetadataKeyUpdatedOn = "UpdatedOn";
+    public const string MetadataKeyIngestSource = "IngestSource";
+    #endregion
+}
 
 /// <summary>
 /// ContentReferenceModel class, provides a model that represents an content reference.
@@ -37,6 +45,11 @@ public class ContentReferenceModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
+    public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
     public string Topic { get; set; } = "";
 
     /// <summary>
@@ -60,7 +73,8 @@ public class ContentReferenceModel : AuditColumnsModel
     /// Creates a new instance of an ContentReferenceModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public ContentReferenceModel(Entities.ContentReference entity) : base(entity)
+    /// <param name="options"></param>
+    public ContentReferenceModel(Entities.ContentReference entity, JsonSerializerOptions options) : base(entity)
     {
         this.Source = entity.Source;
         this.Uid = entity.Uid;
@@ -70,6 +84,9 @@ public class ContentReferenceModel : AuditColumnsModel
         this.Partition = entity.Partition;
         this.PublishedOn = entity.PublishedOn;
         this.SourceUpdateOn = entity.SourceUpdateOn;
+        this.Metadata = entity?.Metadata != null
+            ? JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Metadata, options) ?? new Dictionary<string, object>()
+            : new Dictionary<string, object>();
     }
     #endregion
 
@@ -77,10 +94,12 @@ public class ContentReferenceModel : AuditColumnsModel
     /// <summary>
     /// Creates a new instance of a ContentReference object.
     /// </summary>
+    /// <param name="options"></param>
     /// <returns></returns>
-    public Entities.ContentReference ToEntity()
+    public Entities.ContentReference ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.ContentReference)this;
+        entity.Metadata = JsonDocument.Parse(JsonSerializer.Serialize(this.Metadata, options));
         return entity;
     }
 
@@ -92,6 +111,7 @@ public class ContentReferenceModel : AuditColumnsModel
     {
         var entity = new Entities.ContentReference(model.Source, model.Uid, model.Topic, model.Offset, model.Partition, (WorkflowStatus)Enum.ToObject(typeof(WorkflowStatus), model.Status))
         {
+            Metadata = JsonDocument.Parse(JsonSerializer.Serialize(model.Metadata)),
             PublishedOn = model.PublishedOn,
             SourceUpdateOn = model.SourceUpdateOn,
             Version = model.Version ?? 0

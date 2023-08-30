@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
 namespace TNO.Entities;
 
@@ -49,6 +50,12 @@ public class ContentReference : AuditColumns
     /// </summary>
     [Column("partition")]
     public int Partition { get; set; }
+
+    /// <summary>
+    /// get/set - Content metadata.
+    /// </summary>
+    [Column("metadata")]
+    public JsonDocument? Metadata { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get/set - When the content was published.
