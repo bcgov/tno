@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Source;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Entities.Models;
@@ -86,13 +87,11 @@ public class SourceController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(SourceModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Source" })]
     public IActionResult FindById(int id)
     {
-        var result = _service.FindById(id);
-
-        if (result == null) return new NoContentResult();
+        var result = _service.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new SourceModel(result, _serializerOptions));
     }
 

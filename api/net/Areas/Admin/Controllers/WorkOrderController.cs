@@ -11,6 +11,7 @@ using TNO.API.Areas.Admin.Models.WorkOrder;
 using TNO.API.Models;
 using TNO.API.Models.SignalR;
 using TNO.API.SignalR;
+using TNO.Core.Exceptions;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Entities.Models;
@@ -89,13 +90,11 @@ public class WorkOrderController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public IActionResult FindById(int id)
     {
-        var result = _workOrderService.FindById(id);
-
-        if (result == null) return new NoContentResult();
+        var result = _workOrderService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new WorkOrderModel(result, _serializerOptions));
     }
 
@@ -128,8 +127,7 @@ public class WorkOrderController : ControllerBase
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public async Task<IActionResult> UpdateAsync(WorkOrderModel model)
     {
-        var entity = _workOrderService.FindById(model.Id);
-        if (entity == null) throw new InvalidOperationException("Work order not found");
+        var entity = _workOrderService.FindById(model.Id) ?? throw new NoContentException();
         var result = _workOrderService.UpdateAndSave(model.CopyTo(entity, _serializerOptions));
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("WorkOrder", new[] { new WorkOrderMessageModel(result, _serializerOptions) })));
         return new JsonResult(new WorkOrderModel(result, _serializerOptions));

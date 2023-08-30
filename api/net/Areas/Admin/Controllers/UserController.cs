@@ -8,6 +8,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.User;
 using TNO.API.CSS;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Entities.Models;
@@ -77,13 +78,11 @@ public class UserController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "User" })]
     public IActionResult FindById(int id)
     {
-        var result = _userService.FindById(id);
-
-        if (result == null) return new NoContentResult();
+        var result = _userService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new UserModel(result, _serializerOptions));
     }
 

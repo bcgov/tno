@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Core.Extensions;
+using TNO.DAL.Extensions;
 using TNO.Entities;
 
 namespace TNO.DAL.Services;
@@ -27,7 +28,9 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
     {
         return this.Context.ReportInstances
             .Include(ri => ri.Owner)
+            .Include(ri => ri.Report).ThenInclude(r => r!.Template)
             .Include(ri => ri.Report).ThenInclude(r => r!.SubscribersManyToMany).ThenInclude(sm2m => sm2m.User)
+            .Include(ri => ri.Report).ThenInclude(r => r!.Sections).ThenInclude(s => s.ChartTemplatesManyToMany).ThenInclude(ct => ct.ChartTemplate)
             .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content)
             .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Source)
             .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Product)
@@ -74,10 +77,15 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         // Elasticsearch can contain content that does not exist in the database regrettably.
         // While this should not occur, it's possible.
         // Extract any content that does not exist in the database.
-        var contentIds = entity.ContentManyToMany.Select(c => c.ContentId);
-        var existingContentIds = this.Context.Contents.Where(c => contentIds.Contains(c.Id)).Select(c => c.Id);
+        var contentIds = entity.ContentManyToMany.Select(c => c.ContentId).ToArray();
+        var existingContentIds = this.Context.Contents.Where(c => contentIds.Contains(c.Id)).Select(c => c.Id).ToArray();
         var reportInstanceContent = entity.ContentManyToMany.Where(c => existingContentIds.Contains(c.ContentId)).ToArray();
-        reportInstanceContent.ForEach(ric => this.Context.ReportInstanceContents.Add(ric));
+        reportInstanceContent.ForEach(ric =>
+        {
+            ric.Instance = entity;
+            ric.InstanceId = entity.Id;
+            this.Context.ReportInstanceContents.Add(ric);
+        });
         return base.Add(entity);
     }
 
@@ -91,26 +99,31 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         // Elasticsearch can contain content that does not exist in the database regrettably.
         // While this should not occur, it's possible.
         // Extract any content that does not exist in the database.
-        var contentIds = entity.ContentManyToMany.Select(c => c.ContentId);
-        var existingContentIds = this.Context.Contents.Where(c => contentIds.Contains(c.Id)).Select(c => c.Id);
+        var contentIds = entity.ContentManyToMany.Select(c => c.ContentId).ToArray();
+        var existingContentIds = this.Context.Contents.Where(c => contentIds.Contains(c.Id)).Select(c => c.Id).ToArray();
 
         // Fetch all content currently belonging to this report instance.
         var original = this.Context.ReportInstances.FirstOrDefault(ri => ri.Id == entity.Id) ?? throw new InvalidOperationException("Report instance does not exist");
         var originalContent = this.Context.ReportInstanceContents.Where(ric => ric.InstanceId == entity.Id).ToArray();
 
         // Delete removed content and add new content.
-        originalContent.Except(entity.ContentManyToMany).ForEach(c =>
+        originalContent.Except(entity.ContentManyToMany).Where(ric => existingContentIds.Contains(ric.ContentId)).ForEach(ric =>
         {
-            this.Context.Entry(c).State = EntityState.Deleted;
+            this.Context.Entry(ric).State = EntityState.Deleted;
         });
-        entity.ContentManyToMany.Where(c => existingContentIds.Contains(c.ContentId)).ForEach(c =>
+        entity.ContentManyToMany.Where(ric => existingContentIds.Contains(ric.ContentId)).ForEach(ric =>
         {
-            var current = originalContent.FirstOrDefault(o => o.ContentId == c.ContentId && o.SectionName == c.SectionName);
+            var current = originalContent.FirstOrDefault(o => o.ContentId == ric.ContentId && o.SectionName == ric.SectionName);
             if (current == null)
-                original.ContentManyToMany.Add(c);
-            else if (current.SortOrder != c.SortOrder)
             {
-                current.SortOrder = c.SortOrder;
+                ric.Content = null;
+                ric.Instance = null;
+                ric.InstanceId = entity.Id;
+                this.Context.ReportInstanceContents.Add(ric);
+            }
+            else if (current.SortOrder != ric.SortOrder)
+            {
+                current.SortOrder = ric.SortOrder;
                 this.Context.Entry(current).State = EntityState.Modified;
             }
         });
@@ -120,6 +133,7 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         original.ReportId = entity.ReportId;
         original.Response = entity.Response;
         original.Version = entity.Version;
+        this.Context.ResetVersion(original);
 
         return base.Update(original);
     }

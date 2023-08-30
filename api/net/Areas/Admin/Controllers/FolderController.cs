@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Folder;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -68,12 +69,11 @@ public class FolderController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Folder" })]
     public IActionResult FindById(int id)
     {
-        var result = _folderService.FindById(id);
-        if (result == null) return new NoContentResult();
+        var result = _folderService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new FolderModel(result, _serializerOptions));
     }
 
@@ -90,7 +90,7 @@ public class FolderController : ControllerBase
     public IActionResult Add(FolderModel model)
     {
         var result = _folderService.AddAndSave(model.ToEntity(_serializerOptions));
-        var folder = _folderService.FindById(result.Id) ?? throw new InvalidOperationException("Folder does not exist");
+        var folder = _folderService.FindById(result.Id) ?? throw new NoContentException("Folder does not exist");
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new FolderModel(folder, _serializerOptions));
     }
 
@@ -107,7 +107,7 @@ public class FolderController : ControllerBase
     public IActionResult Update(FolderModel model)
     {
         var result = _folderService.UpdateAndSave(model.ToEntity(_serializerOptions));
-        var folder = _folderService.FindById(result.Id) ?? throw new InvalidOperationException("Folder does not exist");
+        var folder = _folderService.FindById(result.Id) ?? throw new NoContentException("Folder does not exist");
         return new JsonResult(new FolderModel(folder, _serializerOptions));
     }
 

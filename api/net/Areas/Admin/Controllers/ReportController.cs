@@ -134,7 +134,7 @@ public class ReportController : ControllerBase
     public IActionResult Add(ReportModel model)
     {
         var result = _reportService.AddAndSave(model.ToEntity(_serializerOptions));
-        var report = _reportService.FindById(result.Id) ?? throw new InvalidOperationException("Report does not exist");
+        var report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportModel(report, _serializerOptions));
     }
 
@@ -151,7 +151,7 @@ public class ReportController : ControllerBase
     public IActionResult Update(ReportModel model)
     {
         var result = _reportService.UpdateAndSave(model.ToEntity(_serializerOptions));
-        var report = _reportService.FindById(result.Id) ?? throw new InvalidOperationException("Report does not exist");
+        var report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
         return new JsonResult(new ReportModel(report, _serializerOptions));
     }
 
@@ -180,13 +180,11 @@ public class ReportController : ControllerBase
     [HttpPost("{id}/send")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> SendToAsync(int id, string to)
     {
-        var report = _reportService.FindById(id);
-        if (report == null) return new NoContentResult();
+        var report = _reportService.FindById(id) ?? throw new NoContentException();
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
@@ -214,15 +212,15 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> Publish(int id)
     {
-        var report = _reportService.FindById(id);
-        if (report == null) return new NoContentResult();
+        var report = _reportService.FindById(id) ?? throw new NoContentException();
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
 
         var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, report.Id, new { })
         {
-            RequestorId = user.Id
+            RequestorId = user.Id,
+            GenerateInstance = false
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{report.Id}", request);
         return new JsonResult(new ReportModel(report, _serializerOptions));

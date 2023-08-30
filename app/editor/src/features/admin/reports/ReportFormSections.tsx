@@ -151,7 +151,7 @@ export const ReportFormSections = () => {
             </p>
             <Row>
               <FormikCheckbox
-                label="Exclude Historical Content"
+                label="Exclude Content From Previous Run"
                 name="settings.content.excludeHistorical"
                 tooltip="Exclude content already reported on in prior instances of this report"
               />

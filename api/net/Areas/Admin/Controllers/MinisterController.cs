@@ -5,6 +5,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Minister;
 using TNO.API.Filters;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -62,12 +63,11 @@ public class MinisterController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(MinisterModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Minister" })]
     public IActionResult FindById(int id)
     {
-        var result = _ministerService.FindById(id);
-        if (result == null) return new NoContentResult();
+        var result = _ministerService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new MinisterModel(result));
     }
 
@@ -84,7 +84,7 @@ public class MinisterController : ControllerBase
     public IActionResult Add(MinisterModel model)
     {
         var result = _ministerService.AddAndSave((Entities.Minister)model);
-        var minister = _ministerService.FindById(result.Id) ?? throw new InvalidOperationException("Minister does not exist");
+        var minister = _ministerService.FindById(result.Id) ?? throw new NoContentException("Minister does not exist");
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new MinisterModel(minister));
     }
 
@@ -101,7 +101,7 @@ public class MinisterController : ControllerBase
     public IActionResult Update(MinisterModel model)
     {
         var result = _ministerService.UpdateAndSave((Entities.Minister)model);
-        var minister = _ministerService.FindById(result.Id) ?? throw new InvalidOperationException("Minister does not exist");
+        var minister = _ministerService.FindById(result.Id) ?? throw new NoContentException("Minister does not exist");
         return new JsonResult(new MinisterModel(minister));
     }
 

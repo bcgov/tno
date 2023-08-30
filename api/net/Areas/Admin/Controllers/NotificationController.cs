@@ -81,13 +81,11 @@ public class NotificationController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(NotificationModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
     public IActionResult FindById(int id)
     {
-        var result = _notificationService.FindById(id);
-
-        if (result == null) return new NoContentResult();
+        var result = _notificationService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new NotificationModel(result, _serializerOptions));
     }
 
@@ -120,8 +118,8 @@ public class NotificationController : ControllerBase
     public IActionResult Update(NotificationModel model)
     {
         var result = _notificationService.UpdateAndSave(model.ToEntity(_serializerOptions));
-        var notification = _notificationService.FindById(result.Id);
-        return new JsonResult(new NotificationModel(notification!, _serializerOptions));
+        var notification = _notificationService.FindById(result.Id) ?? throw new NoContentException();
+        return new JsonResult(new NotificationModel(notification, _serializerOptions));
     }
 
     /// <summary>
@@ -150,13 +148,11 @@ public class NotificationController : ControllerBase
     [HttpPost("{notificationId}/send/{contentId}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(NotificationModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
     public async Task<IActionResult> SendToAsync(int notificationId, long contentId, string to)
     {
-        var notification = _notificationService.FindById(notificationId);
-        if (notification == null) return new NoContentResult();
+        var notification = _notificationService.FindById(notificationId) ?? throw new NoContentException();
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");

@@ -37,7 +37,7 @@ public class ReportInstanceModel : AuditColumnsModel
     /// <summary>
     /// get/set - CHES response containing keys to find the status of a report.
     /// </summary>
-    public Dictionary<string, object> Response { get; set; } = new Dictionary<string, object>();
+    public JsonDocument Response { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get - Collection of content associated with this report instance.
@@ -63,35 +63,24 @@ public class ReportInstanceModel : AuditColumnsModel
         this.OwnerId = entity.OwnerId;
         this.Report = entity.Report != null ? new Report.ReportModel(entity.Report, options) : null;
         this.PublishedOn = entity.PublishedOn;
-        this.Response = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Response, options) ?? new Dictionary<string, object>();
+        this.Response = entity.Response;
 
-        this.Content = entity.ContentManyToMany.Select(m => new ReportInstanceContentModel(m));
+        this.Content = entity.ContentManyToMany.Select(m => new ReportInstanceContentModel(m)).ToArray();
     }
     #endregion
 
     #region Methods
-    /// <summary>
-    /// Creates a new instance of a ReportInstance object.
-    /// </summary>
-    /// <returns></returns>
-    public Entities.ReportInstance ToEntity(JsonSerializerOptions options)
-    {
-        var entity = (Entities.ReportInstance)this;
-        entity.Response = JsonDocument.Parse(JsonSerializer.Serialize(this.Response, options));
-        return entity;
-    }
-
     /// <summary>
     /// Explicit conversion to entity.
     /// </summary>
     /// <param name="model"></param>
     public static explicit operator Entities.ReportInstance(ReportInstanceModel model)
     {
-        var entity = new Entities.ReportInstance(model.ReportId, model.OwnerId, model.Content.Select(c => (Entities.ReportInstanceContent)c))
+        var entity = new Entities.ReportInstance(model.ReportId, model.OwnerId, model.Content.Select(c => (Entities.ReportInstanceContent)c).ToArray())
         {
             Id = model.Id,
             PublishedOn = model.PublishedOn,
-            Response = JsonDocument.Parse(JsonSerializer.Serialize(model.Response)),
+            Response = model.Response,
             Version = model.Version ?? 0
         };
         return entity;
