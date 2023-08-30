@@ -445,8 +445,16 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<string?> GetImageFile(long id)
     {
-        var url = Options.ApiUrl.Append($"services/contents/{id}/image");
-        return await RetryRequestAsync(async () => await Client.GetAsync<string>(url));
+        try
+        {
+            var url = Options.ApiUrl.Append($"services/contents/{id}/image");
+            return await RetryRequestAsync(async () => await Client.GetAsync<string>(url));
+        }
+        catch (Exception e)
+        {
+            Logger.LogWarning(e, $"Unable to get the image file (id: {id}).");
+            return null;
+        }
     }
 
     /// <summary>
