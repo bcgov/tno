@@ -16,7 +16,7 @@ public class HitModel<T>
     public string Id { get; set; } = "";
 
     [JsonPropertyName("_score")]
-    public float Score { get; set; }
+    public float? Score { get; set; }
 
     [JsonPropertyName("_source")]
     public T Source { get; set; } = default!;
