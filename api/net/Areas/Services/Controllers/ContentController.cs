@@ -223,7 +223,15 @@ public class ContentController : ControllerBase
     {
         var content = _contentService.UpdateAndSave((Content)model);
 
-        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
+        // Send notification to user who requested the content.
+        if (content.OwnerId.HasValue)
+        {
+            var owner = content.Owner ?? _userService.FindById(content.OwnerId.Value);
+            if (!String.IsNullOrWhiteSpace(owner?.Username))
+                await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendUser, owner.Username, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
+            else
+                await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
+        }
 
         if (index && !String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
