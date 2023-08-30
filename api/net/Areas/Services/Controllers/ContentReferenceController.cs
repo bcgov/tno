@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Models;
@@ -26,6 +28,7 @@ public class ContentReferenceController : ControllerBase
 {
     #region Variables
     private readonly IContentReferenceService _service;
+    private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
     #region Constructors
@@ -33,9 +36,11 @@ public class ContentReferenceController : ControllerBase
     /// Creates a new instance of a ContentReferenceController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
-    public ContentReferenceController(IContentReferenceService service)
+    /// <param name="serializerOptions"></param>
+    public ContentReferenceController(IContentReferenceService service, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _service = service;
+        _serializerOptions = serializerOptions.Value;
     }
     #endregion
 
@@ -55,7 +60,7 @@ public class ContentReferenceController : ControllerBase
     {
         var reference = _service.FindByKey(source, uid);
         if (reference == null) return new NoContentResult();
-        return new JsonResult(new ContentReferenceModel(reference));
+        return new JsonResult(new ContentReferenceModel(reference, _serializerOptions));
     }
 
     /// <summary>
@@ -70,8 +75,8 @@ public class ContentReferenceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ContentReference" })]
     public IActionResult Add(ContentReferenceModel model)
     {
-        var result = _service.AddAndSave(model.ToEntity());
-        return CreatedAtAction(nameof(FindByKey), new { source = result.Source, uid = result.Uid }, new ContentReferenceModel(result));
+        var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
+        return CreatedAtAction(nameof(FindByKey), new { source = result.Source, uid = result.Uid }, new ContentReferenceModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -86,8 +91,8 @@ public class ContentReferenceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ContentReference" })]
     public IActionResult Update(ContentReferenceModel model)
     {
-        var result = _service.UpdateAndSave(model.ToEntity());
-        return new JsonResult(new ContentReferenceModel(result));
+        var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions));
+        return new JsonResult(new ContentReferenceModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -107,7 +112,7 @@ public class ContentReferenceController : ControllerBase
         reference.Offset = model.Offset;
         reference.Partition = model.Partition;
         var result = _service.UpdateAndSave(reference);
-        return new JsonResult(new ContentReferenceModel(result));
+        return new JsonResult(new ContentReferenceModel(result, _serializerOptions));
     }
     #endregion
 }

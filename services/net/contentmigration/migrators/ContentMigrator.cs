@@ -1,22 +1,22 @@
 using System.Linq.Expressions;
-using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Editor.Models.Lookup;
-using TNO.API.Areas.Editor.Models.Topic;
-using TNO.API.Areas.Editor.Models.Source;
 using TNO.API.Areas.Editor.Models.Product;
+using TNO.API.Areas.Editor.Models.Source;
+using TNO.API.Areas.Editor.Models.Topic;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Services.ContentMigration.Config;
-using TNO.Services.ContentMigration.Sources.Oracle;
-using TNO.Services.ContentMigration.Models;
 using TNO.Services.ContentMigration.Extensions;
-using TNO.Core.Extensions;
+using TNO.Services.ContentMigration.Models;
+using TNO.Services.ContentMigration.Sources.Oracle;
 
 namespace TNO.Services.ContentMigration.Migrators;
 
@@ -122,7 +122,11 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
             Uid = uid,
             PublishedOn = this.GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone).ToUniversalTime(),
             Topic = topic,
-            Status = (int)WorkflowStatus.InProgress
+            Status = (int)WorkflowStatus.InProgress,
+            Metadata = new Dictionary<string, object> {
+                { ContentReferenceMetaDataKeys.MetadataKeyIngestSource, source!.Code },
+                { ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn, newsItem.UpdatedOn.HasValue ? newsItem.UpdatedOn.Value.ToString("yyyy-MM-dd h:mm:ss tt") : DateTime.MinValue }
+            }
         };
     }
 
