@@ -51,9 +51,11 @@ export const ReportForm: React.FC = () => {
   React.useEffect(() => {
     if (!!reportId && report?.id !== reportId) {
       setReport({ ...defaultReport, id: reportId }); // Do this to stop double fetch.
-      getReport(reportId).then((data) => {
-        setReport(data);
-      });
+      getReport(reportId)
+        .then((data) => {
+          setReport(data);
+        })
+        .catch(() => {});
     }
   }, [getReport, report?.id, reportId]);
 

@@ -49,13 +49,16 @@ export const useReports = (): [IAdminState & { initialized: boolean }, IReportCo
       },
       getReport: async (id: number) => {
         const response = await dispatch<IReportModel>('get-report', () => api.getReport(id));
-        store.storeReports((reports) =>
-          reports.map((ds) => {
-            if (ds.id === response.data.id) return response.data;
-            return ds;
-          }),
-        );
-        return response.data;
+        if (response.status === 200) {
+          store.storeReports((reports) =>
+            reports.map((ds) => {
+              if (ds.id === response.data.id) return response.data;
+              return ds;
+            }),
+          );
+          return response.data;
+        }
+        return Promise.reject(response);
       },
       addReport: async (model: IReportModel) => {
         const response = await dispatch<IReportModel>('add-report', () => api.addReport(model));
