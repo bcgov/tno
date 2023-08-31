@@ -5,7 +5,6 @@ import {
 } from 'features/content/list-view/interfaces';
 import { DetermineToneIcon, makeFilter } from 'features/home/utils';
 import parse from 'html-react-parser';
-import { url } from 'inspector';
 import React from 'react';
 import { FaPlay, FaSave, FaStop } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -108,7 +107,12 @@ export const SearchPage: React.FC = () => {
       if (!advancedSubscriberFilter.boldKeywords) return parse(text);
       return parse(tempText);
     },
-    [urlParams],
+    [
+      urlParams,
+      advancedSubscriberFilter.storyText,
+      advancedSubscriberFilter.keyword,
+      advancedSubscriberFilter.boldKeywords,
+    ],
   );
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
