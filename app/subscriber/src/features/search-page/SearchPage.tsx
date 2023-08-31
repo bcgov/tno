@@ -108,7 +108,6 @@ export const SearchPage: React.FC = () => {
       return parse(tempText);
     },
     [
-      urlParams,
       advancedSubscriberFilter.storyText,
       advancedSubscriberFilter.keyword,
       advancedSubscriberFilter.boldKeywords,
