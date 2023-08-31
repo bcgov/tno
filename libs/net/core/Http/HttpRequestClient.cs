@@ -627,9 +627,9 @@ namespace TNO.Core.Http
         /// <param name="uri"></param>
         /// <exception cref="HttpClientRequestException">Response did not return a success status code.</exception>
         /// <returns></returns>
-        public async Task<TModel?> GetAsync<TModel>(Uri uri)
+        public async Task<TModel?> GetAsync<TModel>(Uri uri, Func<HttpResponseMessage, bool>? onError = null)
         {
-            return await SendAsync<TModel>(uri, HttpMethod.Get);
+            return await SendAsync<TModel>(uri, HttpMethod.Get, onError: onError);
         }
 
         /// <summary>
