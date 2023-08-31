@@ -5,4 +5,8 @@ export const defaultAdvancedSearch: IAdvancedSearchFilter = {
   searchInField: { headline: false, byline: false, storyText: false },
   startDate: '',
   endDate: '',
+  topStory: false,
+  frontPage: false,
+  hasFile: false,
+  boldKeywords: true,
 };

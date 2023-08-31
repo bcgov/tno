@@ -31,7 +31,13 @@ export const queryToState = (queryString: string) => {
   return {
     searchInField: searchInField,
     searchTerm: searchTerm,
+    actions: search.actions,
+    boldKeywords: search.boldKeywords,
+    hasFile: search.hasFile === 'true',
+    frontPage: search.productIds?.includes(11) || false,
+    topStory: search.actions?.includes('Top Story') || false,
     sourceIds: search.sourceIds?.map((v: any) => Number(v)),
+    productIds: search.productIds,
     startDate: urlParams.get('publishedStartOn') || '',
     endDate: urlParams.get('publishedEndOn') || '',
     sentiment: search.sentiment?.map((v: any) => Number(v)),

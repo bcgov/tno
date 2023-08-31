@@ -67,6 +67,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
   const advancedFilter = React.useMemo(
     () =>
       makeFilter({
+        actions: advancedSearch?.topStory ? ['Top Story'] : [],
         headline:
           advancedSearch?.searchTerm && advancedSearch.searchInField?.headline
             ? advancedSearch.searchTerm
@@ -87,8 +88,9 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
           Object.values(advancedSearch.searchInField).every((v) => v === false)
             ? advancedSearch.searchTerm
             : '',
+        productIds: advancedSearch?.frontPage ? [11] : [],
         startDate: advancedSearch?.startDate,
-        sourceIds: advancedSearch?.frontPage ? [11] : advancedSearch?.sourceIds,
+        sourceIds: advancedSearch?.sourceIds,
         sentiment: advancedSearch?.sentiment,
         endDate: advancedSearch?.endDate,
         topStory: advancedSearch?.topStory,

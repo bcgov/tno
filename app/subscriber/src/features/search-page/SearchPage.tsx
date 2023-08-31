@@ -5,6 +5,7 @@ import {
 } from 'features/content/list-view/interfaces';
 import { DetermineToneIcon, makeFilter } from 'features/home/utils';
 import parse from 'html-react-parser';
+import { url } from 'inspector';
 import React from 'react';
 import { FaPlay, FaSave, FaStop } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -46,8 +47,8 @@ export const SearchPage: React.FC = () => {
   const search = React.useMemo(
     () =>
       fromQueryString(query, {
-        arrays: ['sourceIds', 'sentiment'],
-        numbers: ['sourceIds', 'sentiment'],
+        arrays: ['sourceIds', 'sentiment', 'productIds', 'actions'],
+        numbers: ['sourceIds', 'sentiment', 'productIds'],
       }),
     [query],
   );
@@ -55,52 +56,60 @@ export const SearchPage: React.FC = () => {
   const advancedSubscriberFilter: IContentListFilter & Partial<IContentListAdvancedFilter> =
     React.useMemo(() => {
       return {
+        // actions: search.actions?.length ? [search.actions] : [],
+        actions: search.actions?.map((v: any) => convertTo(v, 'string', undefined)),
         contentTypes: [],
         endDate: urlParams.get('publishedEndOn') ?? '',
+        hasFile: urlParams.get('hasFile') === 'true' ?? false,
         headline: urlParams.get('headline') ?? '',
         keyword: urlParams.get('keyword') ?? '',
         pageIndex: convertTo(urlParams.get('pageIndex'), 'number', 0),
         pageSize: convertTo(urlParams.get('pageSize'), 'number', 100),
         sort: [],
         sourceIds: search.sourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
+        productIds: search.productIds?.map((v: any) => convertTo(v, 'number', undefined)),
         sentiment: search.sentiment?.map((v: any) => convertTo(v, 'number', undefined)),
         startDate: urlParams.get('publishedStartOn') ?? '',
         storyText: urlParams.get('storyText') ?? '',
+        boldKeywords: urlParams.get('boldKeywords') === 'true' ?? '',
       };
-      // only want this to udpate when the query changes
+      // only want this to update when the query changes
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [query]);
 
   // function that bolds the searched text only if advanced filter is enabled for it
-  const formatSearch = (text: string) => {
-    let tempText = text;
-    let parseText = () => {
-      if (advancedSubscriberFilter.storyText) return advancedSubscriberFilter.storyText;
-      if (advancedSubscriberFilter.keyword) return advancedSubscriberFilter.keyword;
-      else return '';
-    };
-    parseText()
-      .split(' ')
-      .forEach((word) => {
-        const regex = new RegExp(word ?? '', 'gi');
-        // remove duplicates found only want unique matches, this will be varying capitalization
-        const matches = text.match(regex)?.filter((v, i, a) => a.indexOf(v) === i) ?? [];
-        // text.match included in replace in order to keep the proper capitalization
-        // When there is more than one match, this indicates there will be varying capitalization. In this case we
-        // have to iterate through the matches and do a more specific replace in order to keep the words capitalization
-        if (matches.length > 1) {
-          matches.forEach((match, i) => {
-            let multiMatch = new RegExp(`${matches[i]}`);
-            tempText = tempText.replace(multiMatch, `<b>${match}</b>`);
-          });
-        } else {
-          // in this case there will only be one match, so we can just insert the first match
-          tempText = tempText.replace(regex, `<b>${matches[0]}</b>`);
-        }
-      });
-    if (!urlParams.get('boldKeyword')) return parse(text);
-    return parse(tempText);
-  };
+  const formatSearch = React.useCallback(
+    (text: string) => {
+      let tempText = text;
+      let parseText = () => {
+        if (advancedSubscriberFilter.storyText) return advancedSubscriberFilter.storyText;
+        if (advancedSubscriberFilter.keyword) return advancedSubscriberFilter.keyword;
+        else return '';
+      };
+      parseText()
+        .split(' e')
+        .forEach((word) => {
+          const regex = new RegExp(word ?? '', 'gi');
+          // remove duplicates found only want unique matches, this will be varying capitalization
+          const matches = text.match(regex)?.filter((v, i, a) => a.indexOf(v) === i) ?? [];
+          // text.match included in replace in order to keep the proper capitalization
+          // When there is more than one match, this indicates there will be varying capitalization. In this case we
+          // have to iterate through the matches and do a more specific replace in order to keep the words capitalization
+          if (matches.length > 1) {
+            matches.forEach((match, i) => {
+              let multiMatch = new RegExp(`${matches[i]}`);
+              tempText = tempText.replace(multiMatch, `<b>${match}</b>`);
+            });
+          } else {
+            // in this case there will only be one match, so we can just insert the first match
+            tempText = tempText.replace(regex, `<b>${matches[0]}</b>`);
+          }
+        });
+      if (!advancedSubscriberFilter.boldKeywords) return parse(text);
+      return parse(tempText);
+    },
+    [urlParams],
+  );
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
       try {
