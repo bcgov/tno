@@ -56,7 +56,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({
         })) as IOptionItem[],
       ),
     );
-  }, [findContent]);
+  }, [findContent, seriesId]);
 
   /** function that runs after a user drops an item in the list */
   const handleDrop = (droppedItem: any) => {
