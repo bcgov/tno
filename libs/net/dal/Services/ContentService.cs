@@ -338,6 +338,9 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (filter.UserId.HasValue)
             filterQueries.Add(s => s.Term(t => t.OwnerId, filter.UserId.Value));
 
+        if (filter.SeriesId.HasValue)
+            filterQueries.Add(s => s.Term(t => t.SeriesId, filter.SeriesId.Value));
+
         if (filter.Status.HasValue)
             filterQueries.Add(s => s.Match(m => m.Field(p => p.Status).Query(filter.Status.Value.GetName())));
 

@@ -26,6 +26,11 @@ public class ContentFilter : PageFilter
     public int? ProductId { get; set; }
 
     /// <summary>
+    /// get/set - Only the series id
+    /// </summary>
+    public int? SeriesId { get; set; }
+
+    /// <summary>
     /// get/set - Only include content with this these types.
     /// </summary>
     public ContentType[] ContentTypes { get; set; } = Array.Empty<ContentType>();
@@ -219,6 +224,7 @@ public class ContentFilter : PageFilter
         this.OnlyPublished = filter.GetBoolNullValue(nameof(this.OnlyPublished));
 
         this.ProductId = filter.GetIntNullValue(nameof(this.ProductId));
+        this.SeriesId = filter.GetIntNullValue(nameof(this.SeriesId));
         this.OwnerId = filter.GetIntNullValue(nameof(this.OwnerId));
         this.UserId = filter.GetIntNullValue(nameof(this.UserId));
 
