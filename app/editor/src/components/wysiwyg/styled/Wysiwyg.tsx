@@ -27,7 +27,7 @@ export const Wysiwyg = styled.div<IWysiwygProps<any>>`
 
   .ql-editor {
     min-height: 13rem;
-    height: ${(props) => props.hasHeight && '13rem'};
+    height: ${(props) => (!!props.customHeight ? props.customHeight + 'px' : '13rem')};
     font-family: ${(props) => props.theme.css?.bcSans};
     font-size: 1rem;
   }

@@ -22,8 +22,8 @@ export interface IWysiwygProps<T extends object> {
   required?: boolean;
   /** Whether to show the raw view. */
   viewRaw?: boolean;
-  /** Whether the text area has a height. */
-  hasHeight?: boolean;
+  /** Whether the text area has a custom height. */
+  customHeight?: number;
   /** Event fires when modal is expanded. */
   expandModal?: (show: boolean) => void;
   /** onBlur event. */
@@ -46,7 +46,7 @@ export const Wysiwyg = <T extends object>({
   label,
   required,
   expandModal,
-  hasHeight,
+  customHeight,
   onBlur,
 }: IWysiwygProps<T>) => {
   const { values, setFieldValue, errors, touched } = useFormikContext<T>();
@@ -145,7 +145,7 @@ export const Wysiwyg = <T extends object>({
   ];
 
   return (
-    <styled.Wysiwyg viewRaw={showRaw} hasHeight={hasHeight} className={className}>
+    <styled.Wysiwyg viewRaw={showRaw} customHeight={customHeight} className={className}>
       {label && <label className={required ? 'required' : ''}>{label}</label>}
       <CustomToolbar
         onClickRaw={onClickRaw}
