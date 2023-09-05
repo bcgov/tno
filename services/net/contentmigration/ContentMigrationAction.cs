@@ -1,20 +1,20 @@
+using LinqKit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using LinqKit;
 using TNO.API.Areas.Editor.Models.Product;
 using TNO.API.Areas.Editor.Models.Source;
+using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Models.Extensions;
 using TNO.Services.Actions;
 using TNO.Services.ContentMigration.Config;
-using TNO.Services.ContentMigration.Sources.Oracle;
-using TNO.Services.ContentMigration.Migrators;
 using TNO.Services.ContentMigration.Extensions;
+using TNO.Services.ContentMigration.Migrators;
+using TNO.Services.ContentMigration.Sources.Oracle;
 using TNO.Services.ContentMigration.Sources.Oracle.Services;
-using Microsoft.EntityFrameworkCore;
-using TNO.API.Areas.Services.Models.ContentReference;
 
 namespace TNO.Services.ContentMigration;
 
@@ -220,7 +220,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         {
             try
             {
-               var baseFilter = contentMigrator.GetBaseFilter(manager.Ingest.IngestType.ContentType);
+                var baseFilter = contentMigrator.GetBaseFilter(manager.Ingest.IngestType.ContentType);
 
                 IQueryable<NewsItem> items = GetFilteredNewsItems(_sourceContext.NewsItems, baseFilter, skip, this.Options.MaxRecordsPerRetrieval, manager.Ingest.LastRanOn, importDateStart, importDateEnd, creationDateOfLastImport, migrationTimeOffsetInHours);
                 this.Logger.LogDebug(items.ToQueryString());
@@ -228,7 +228,8 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 countOfRecordsRetrieved = items.Count();
                 this.Logger.LogDebug("Ingest [{name}] retrieved [{countOfRecordsRetrieved}] records", manager.Ingest.Name, countOfRecordsRetrieved);
 
-                if (countOfRecordsRetrieved == 0 && importDateEnd.HasValue) {
+                if (countOfRecordsRetrieved == 0 && importDateEnd.HasValue)
+                {
                     this.Logger.LogDebug("Ingest [{name}] - no records prior to import end date filter [{importDateEnd}] records", manager.Ingest.Name, importDateEnd.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
                     creationDateOfLastImport = importDateEnd.Value;
                 }
@@ -324,8 +325,9 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                     if (!DateTime.TryParse(reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn].ToString(), out originalLastUpdateDate))
                         originalLastUpdateDate = DateTime.MinValue;
                 }
-                if (reference.Metadata.ContainsKey(ContentReferenceMetaDataKeys.MetadataKeyIngestSource)) {
-                    originalSource = reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyIngestSource].ToString();
+                if (reference.Metadata.ContainsKey(ContentReferenceMetaDataKeys.MetadataKeyIngestSource))
+                {
+                    originalSource = reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyIngestSource].ToString() ?? String.Empty;
                 }
 
                 // IF this record was previously ingested from TNO by the Content Migration Service
@@ -352,9 +354,11 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 {
                     if (newsItem.FilePath != null)
                     {
-                        if (string.IsNullOrEmpty(newsItem.ContentType)) {
+                        if (string.IsNullOrEmpty(newsItem.ContentType))
+                        {
                             string ext = Path.GetExtension(newsItem.FilePath);
-                            switch (ext.ToUpper()){
+                            switch (ext.ToUpper())
+                            {
                                 case ".DOC":
                                     newsItem.ContentType = "application/msword";
                                     break;
@@ -382,9 +386,12 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                             }
                         }
 
-                        if (string.IsNullOrEmpty(newsItem.ContentType)) {
+                        if (string.IsNullOrEmpty(newsItem.ContentType))
+                        {
                             Logger.LogWarning("Skipping file migration for RSN:{RSN} Path:{filePath} ContentType is missing", newsItem.RSN, newsItem.FilePath);
-                        } else {
+                        }
+                        else
+                        {
                             string contentStagingFolderName = GetOutputPathPrefix(manager.Ingest);
                             await contentMigrator.CopyFileAsync(new Models.FileMigrationModel(newsItem.RSN, Path.GetDirectoryName(newsItem.FilePath)!, Path.GetFileName(newsItem.FilePath), newsItem.ContentType!), contentStagingFolderName);
                             sourceContent.FilePath = Path.Combine(contentStagingFolderName, newsItem.FilePath);

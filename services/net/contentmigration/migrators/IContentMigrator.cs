@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using TNO.API.Areas.Editor.Models.Lookup;
-using TNO.API.Areas.Editor.Models.Source;
 using TNO.API.Areas.Editor.Models.Product;
+using TNO.API.Areas.Editor.Models.Source;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.Entities;
 using TNO.Kafka.Models;
@@ -32,7 +32,7 @@ public interface IContentMigrator
     /// <param name="lookup"></param>
     /// <param name="newsItemSource"></param>
     /// <returns></returns>
-    SourceModel? GetSourceMapping(IEnumerable<SourceModel> lookup, string newsItemSource);
+    SourceModel? GetSourceMapping(IEnumerable<SourceModel> lookup, string? newsItemSource);
 
     /// <summary>
     ///

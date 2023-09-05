@@ -41,7 +41,7 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
 
   /** Searches for the value in every column */
   filterData = (search: string) => {
-    if (search) {
+    if (typeof search === 'string' && search.length) {
       return this.data.filter((item) => {
         return this.columns.some((col) => {
           if (item !== undefined) {
@@ -68,8 +68,8 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
             ?.isSelected ?? false;
       return new TableInternalRow(this, index, this.rowId, this.columns, original, selected);
     });
-
     this.rows = sortRows(rows, this.sortOrder);
+
     if (this.groupBy) {
       if (typeof this.groupBy === 'function') {
         this.groups = groupBy(this.rows, this.groupBy).map((group) => ({
