@@ -147,7 +147,7 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <param name="authors"></param>
     /// <param name="source"></param>
     /// <returns></returns>
-    internal static IEnumerable<string> ExtractAuthors(string authors, string source)
+    internal static IEnumerable<string> ExtractAuthors(string authors, string? source)
     {
         string[] delimiters = new[] { ",", ";", " ,", " & ", " and " };
         var splitArray = authors.Split(delimiters, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -181,13 +181,13 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <param name="lookup"></param>
     /// <param name="newsItemSource"></param>
     /// <returns></returns>
-    public SourceModel? GetSourceMapping(IEnumerable<SourceModel> lookup, string newsItemSource)
+    public SourceModel? GetSourceMapping(IEnumerable<SourceModel> lookup, string? newsItemSource)
     {
         SourceModel? source = lookup.Where(s => (s.Name.Equals(newsItemSource, StringComparison.InvariantCultureIgnoreCase)
                                                  || s.Code.Equals(newsItemSource, StringComparison.InvariantCultureIgnoreCase))).FirstOrDefault();
 
-        // if the Name doesnt match one of our sources, use the extra mappings from the config
-        if (source == null)
+        // if the Name doesn't match one of our sources, use the extra mappings from the config
+        if (source == null && newsItemSource != null)
         {
             this.MigratorOptions.IngestSourceMappings.TryGetValue(newsItemSource, out string? customMapping);
             source = lookup.Where(s => s.Code == customMapping).FirstOrDefault();
@@ -207,7 +207,7 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
         // TODO: KGM - what to do if we have no mapping - make nullable so we can skip it on migration
         ProductModel? product = lookup.Where(s => s.Name == newsItemProduct).FirstOrDefault();
 
-        // if the Name doesnt match one of our products, use the extra mappings from the config
+        // if the Name doesn't match one of our products, use the extra mappings from the config
         if (product == null)
         {
             this.MigratorOptions.ProductMappings.TryGetValue(newsItemProduct, out string? customMapping);

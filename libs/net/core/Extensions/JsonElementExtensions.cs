@@ -79,7 +79,9 @@ public static class JsonElementExtensions
         var node = (JsonElement)property;
         return node.ValueKind switch
         {
-            JsonValueKind.String => (T)Convert.ChangeType($"{node.GetString()}".Trim(), typeof(T)),
+            JsonValueKind.String => !typeof(T).IsEnum ?
+                (T)Convert.ChangeType($"{node.GetString()}".Trim(), typeof(T)) :
+                (T)Enum.Parse(typeof(T), node.GetString() ?? ""),
             JsonValueKind.Null or JsonValueKind.Undefined => defaultValue,
             JsonValueKind.Number => node.ConvertNumberTo<T>(),
             JsonValueKind.True or JsonValueKind.False => (T)Convert.ChangeType($"{node.GetBoolean()}", typeof(T)),
