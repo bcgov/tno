@@ -1,0 +1,245 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: buildah-all
+  annotations:
+    tekton.dev/displayName: Buildah Pipeline
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/tags: build deploy
+  labels:
+    name: buildah-all
+    part-of: tno
+    version: 1.0.0
+    component: pipeline
+    managed-by: kustomize
+spec:
+  params:
+    - name: GIT_REF
+      description: >-
+        The git revision reference to build.
+      type: string
+      default: dev
+
+    - name: CONTEXT
+      description: >-
+        The root path to the git repo.
+      type: string
+      default: tno
+
+    - name: IMAGE_TAG
+      description: >-
+        The tag given to the built images.
+        Use this to create versioned images.
+      type: string
+      default: latest
+
+    - name: PROJECT_SHORTNAME
+      description: >-
+        The project namespace shortname.
+        The part before the "-" (i.e. 9b301c-dev = 9b301c).
+      type: string
+      default: 9b301c
+
+    - name: DEPLOY_TO
+      description: >-
+        Identify the environment to deploy the solution to [dev,test,prod,tools].
+      type: string
+      default: dev
+
+    - name: EDITOR_URL
+      description: The URL to the web application that will be ZAP scanned.
+      type: string
+      default: https://tno-dev.apps.silver.devops.gov.bc.ca
+
+    - name: SUBSCRIBER_URL
+      description: The URL to the web application that will be ZAP scanned.
+      type: string
+      default: https://mmia-dev.apps.silver.devops.gov.bc.ca
+
+  workspaces:
+    - name: source
+      description: |
+        Git repo source code.
+    - name: conditions
+      description: |
+        Pipeline configuration file.
+    - name: build
+      description: |
+        Pipeline build volume
+    - name: owasp-settings
+      description: |
+        mounts /zap/wrk to store generated configs and results.
+
+  tasks:
+    - name: wait
+      taskRef:
+        name: pipeline-wait
+        kind: Task
+      params:
+        - name: PIPELINE_NAME
+          value: $(context.pipelineRun.name)
+
+    - name: git
+      taskRef:
+        name: git-conditions
+        kind: Task
+      runAfter:
+        - wait
+      params:
+        - name: GIT_REF
+          value: $(params.GIT_REF)
+        - name: CONTEXT
+          value: $(params.CONTEXT)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: output
+          workspace: conditions
+
+    - name: build-all
+      taskRef:
+        name: build-all
+        kind: Task
+      runAfter:
+        - git
+      params:
+        - name: CONTEXT
+          value: $(params.CONTEXT)
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: conditions
+          workspace: conditions
+        - name: build
+          workspace: build
+
+    - name: maintenance-on-editor
+      runAfter:
+        - build-all
+      taskRef:
+        name: oc-patch-route
+        kind: Task
+      params:
+        - name: PROJECT
+          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        - name: ROUTE
+          value: editor
+        - name: SERVICE
+          value: nginx
+
+    - name: maintenance-on-subscriber
+      runAfter:
+        - build-all
+      taskRef:
+        name: oc-patch-route
+        kind: Task
+      params:
+        - name: PROJECT
+          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        - name: ROUTE
+          value: subscriber
+        - name: SERVICE
+          value: nginx
+
+    - name: db-migration
+      runAfter:
+        - maintenance-on-editor
+        - maintenance-on-subscriber
+      taskRef:
+        name: db-migration-conditional
+        kind: Task
+      params:
+        - name: DB_SECRET_NAME
+          value: crunchy-pguser-admin
+        - name: API_NAME
+          value: api
+        - name: IMAGE
+          value: db-migration
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: DEPLOY_TO
+          value: $(params.DEPLOY_TO)
+      workspaces:
+        - name: conditions
+          workspace: conditions
+
+    - name: deploy-all
+      runAfter:
+        - db-migration
+      taskRef:
+        name: deploy-all
+        kind: Task
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)
+      workspaces:
+        - name: conditions
+          workspace: conditions
+
+    - name: maintenance-off-editor
+      runAfter:
+        - deploy-all
+      taskRef:
+        name: oc-patch-route
+        kind: Task
+      params:
+        - name: PROJECT
+          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        - name: ROUTE
+          value: editor
+        - name: SERVICE
+          value: editor
+
+    - name: maintenance-off-subscriber
+      runAfter:
+        - deploy-all
+      taskRef:
+        name: oc-patch-route
+        kind: Task
+      params:
+        - name: PROJECT
+          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        - name: ROUTE
+          value: subscriber
+        - name: SERVICE
+          value: subscriber
+
+    # - name: owasp-scan-editor
+    #   taskRef:
+    #     name: owasp-scanner
+    #     kind: Task
+    #   runAfter:
+    #     - maintenance-off-editor
+    #   params:
+    #     - name: TARGET_URL
+    #       value: $(params.EDITOR_URL)
+    #     - name: SCAN_TYPE
+    #       value: quick
+    #     - name: SCAN_DURATION
+    #       value: "1"
+    #   workspaces:
+    #     - name: owasp-settings
+    #       workspace: owasp-settings
+
+    # - name: owasp-scan-subscriber
+    #   taskRef:
+    #     name: owasp-scanner
+    #     kind: Task
+    #   runAfter:
+    #     - maintenance-off-subscriber
+    #   params:
+    #     - name: TARGET_URL
+    #       value: $(params.SUBSCRIBER_URL)
+    #     - name: SCAN_TYPE
+    #       value: quick
+    #     - name: SCAN_DURATION
+    #       value: "1"
+    #   workspaces:
+    #     - name: owasp-settings
+    #       workspace: owasp-settings

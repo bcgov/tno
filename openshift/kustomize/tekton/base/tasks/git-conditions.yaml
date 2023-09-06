@@ -2,15 +2,15 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: git-conditions
-  description: |
-    Update the git repo in the shared workspace with the latest commits for the
-    specified branch reference.
-    Creates a build.env file containing all the components that should be built based
-    on the changes made in the referenced commit.
   annotations:
     tekton.dev/displayName: Git Pull
     tekton.dev/pipelines.minVersion: 0.17.0
     tekton.dev/tags: git
+    description: |
+      Update the git repo in the shared workspace with the latest commits for the
+      specified branch reference.
+      Creates a build.env file containing all the components that should be built based
+      on the changes made in the referenced commit.
   labels:
     name: git-output
     part-of: tno
@@ -69,6 +69,8 @@ spec:
             echo $BUILD >> build.env
           elif grep -s libs/net/core <<< $DIFF; then
             echo $BUILD >> build.env
+          elif grep -s libs/net/models <<< $DIFF; then
+            echo $BUILD >> build.env
           fi
         }
 
@@ -86,19 +88,25 @@ spec:
 
         if grep -s api/net <<< $DIFF; then
           echo 'BUILD_API=true' >> build.env
-        elif grep -s libs/net/dal <<< $DIFF; then
+        elif grep -s libs/net/ches <<< $DIFF; then
           echo 'BUILD_API=true' >> build.env
         elif grep -s libs/net/core <<< $DIFF; then
           echo 'BUILD_API=true' >> build.env
+        elif grep -s libs/net/dal <<< $DIFF; then
+          echo 'BUILD_API=true' >> build.env
+        elif grep -s libs/net/elastic <<< $DIFF; then
+          echo 'BUILD_API=true' >> build.env
         elif grep -s libs/net/entities <<< $DIFF; then
           echo 'BUILD_API=true' >> build.env
-        elif grep -s libs/net/models <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s libs/net/ches <<< $DIFF; then
+        elif grep -s libs/net/kafka <<< $DIFF; then
           echo 'BUILD_API=true' >> build.env
         elif grep -s libs/net/keycloak <<< $DIFF; then
           echo 'BUILD_API=true' >> build.env
+        elif grep -s libs/net/models <<< $DIFF; then
+          echo 'BUILD_API=true' >> build.env
         elif grep -s libs/net/reports <<< $DIFF; then
+          echo 'BUILD_API=true' >> build.env
+        elif grep -s libs/net/template <<< $DIFF; then
           echo 'BUILD_API=true' >> build.env
         fi
 
@@ -106,14 +114,36 @@ spec:
           echo 'BUILD_ELASTIC_MIGRATION=true' >> build.env
         fi
 
+        if grep -s libs/net/ches <<< $DIFF; then
+          echo 'BUILD_REPORTING=true' >> build.env
+        elif grep -s libs/net/core <<< $DIFF; then
+          echo 'BUILD_REPORTING=true' >> build.env
+        elif grep -s libs/net/elastic <<< $DIFF; then
+          echo 'BUILD_REPORTING=true' >> build.env
+        elif grep -s libs/net/entities <<< $DIFF; then
+          echo 'BUILD_REPORTING=true' >> build.env
+        elif grep -s libs/net/kafka <<< $DIFF; then
+          echo 'BUILD_REPORTING=true' >> build.env
+        elif grep -s libs/net/models <<< $DIFF; then
+          echo 'BUILD_REPORTING=true' >> build.env
+        elif grep -s libs/net/services <<< $DIFF; then
+          echo 'BUILD_REPORTING=true' >> build.env
+        elif grep -s libs/net/template <<< $DIFF; then
+          echo 'BUILD_REPORTING=true' >> build.env
+        fi
+
         build_service 'capture'
         build_service 'clip'
         build_service 'syndication'
         build_service 'image'
+        build_service 'filecopy'
         build_service 'filemonitor'
         build_service 'content'
+        build_service 'contentmigration'
         build_service 'transcription'
         build_service 'nlp'
         build_service 'indexing'
+        build_service 'notification'
+        build_service 'scheduler'
 
         cat build.env
