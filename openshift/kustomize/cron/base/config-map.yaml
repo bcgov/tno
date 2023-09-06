@@ -18,7 +18,13 @@ data:
   entrypoint.sh: |-
     #!/bin/bash
 
-    purge_files () {
+    purge_old_file () {
+      echo "Deleting file: $1"
+      rm -rf $1
+    }
+    export -f purge_old_file
+
+    purge_old_files () {
       echo "************************************"
       echo "Purging $1"
       echo "Deleting files older than 5 days"
@@ -28,24 +34,18 @@ data:
 
       # Get filesystem usage percentage
       usage_percentage=$(df -h "$filesystem" | awk 'NR==2 {gsub("%","",$5); print $5}')
-
+      echo "$1 usage is currently @ $usage_percentage%."
       if [ "$usage_percentage" -gt "$threshold" ]; then
-          echo "Filesystem usage is above $threshold%."
+          echo "Filesystem $filesystem current usage is $usage_percentage% which is above $threshold%."
 
           # Clean up files older than 5 days
-          find "$filesystem" -mindepth 1 -type f -mtime +5 -exec sh -c '
-          echo "Deleting file: $0"
-          rm -f "$0"
-          '{} \;
+          find "$filesystem" -mindepth 1 -type f -mtime +5 -exec bash -c 'purge_old_file $0' {} \;
           echo "Cleanup complete."
       else
-          echo "Filesystem usage is below $threshold%."
+          echo "Filesystem $filesystem current usage is $usage_percentage% which is below $threshold%."
       fi
       echo "**********************************"
     }
 
-    purge_files /mnt/data;
-    purge_files /mnt/ingest;
-
-    
- 
+    purge_old_files /mnt/data;
+    purge_old_files /mnt/ingest;
