@@ -22,7 +22,7 @@ import {
   Row,
   Show,
   TimeInput,
-  useCustomHeight,
+  useWindowSize,
 } from 'tno-core';
 
 import { IFile } from '.';
@@ -50,7 +50,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   const [, contentApi] = useContent();
   const [showExpandModal, setShowExpandModal] = React.useState(false);
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
-  const { customHeight } = useCustomHeight();
+  const { height } = useWindowSize();
 
   const source = sources.find((s) => s.id === values.sourceId);
   const program = series.find((s) => s.id === values.seriesId);
@@ -223,7 +223,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
             className="modal-quill"
             label={contentType === ContentTypeName.PrintContent ? 'Story' : 'Summary'}
             required={isSummaryRequired}
-            customHeight={customHeight}
+            height={height}
             fieldName={contentType === ContentTypeName.PrintContent ? 'body' : 'summary'}
           />
         }
