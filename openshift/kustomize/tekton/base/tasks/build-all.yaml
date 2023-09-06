@@ -1,0 +1,122 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build-all
+  annotations:
+    tekton.dev/displayName: Buildah Image
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/tags: build
+    description: |
+      Using Buildah build a new image from source code and push the new images
+      to the specified image registry.
+      Only build the images that have been identified as updated by git.
+  labels:
+    name: build-all
+    part-of: tno
+    version: 1.0.0
+    component: task
+    managed-by: kustomize
+spec:
+  params:
+    - default: .
+      description: The root path to the git repo.
+      name: CONTEXT
+      type: string
+
+    - name: IMAGE_REGISTRY
+      description: The Root url of the image registry.
+      default: image-registry.openshift-image-registry.svc:5000/9b301c-tools
+    - name: IMAGE_TAG
+      description: The tag given to the built image.
+      type: string
+      default: latest
+
+    - name: STORAGE_DRIVER
+      description: Set buildah storage driver
+      default: vfs
+  workspaces:
+    - name: source
+    - name: conditions
+      mountPath: /data
+    - name: build
+      mountPath: /var/lib/containers/storage/vfs/dir
+  steps:
+    - name: build
+      image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/buildah:latest
+      securityContext:
+        capabilities:
+          add:
+            - SETFCAP
+        runAsUser: 0
+      workingDir: $(workspaces.source.path)
+      env:
+        - name: IMAGE_REGISTRY_USER
+          valueFrom:
+            secretKeyRef:
+              name: pipelines
+              key: username
+        - name: IMAGE_REGISTRY_PASS
+          valueFrom:
+            secretKeyRef:
+              name: pipelines
+              key: password
+      resources:
+        requests:
+          memory: 250Mi
+          cpu: 250m
+        limits:
+          memory: 5Gi
+          cpu: 2000m
+      script: |
+        #!/usr/bin/env bash
+        # set -xe
+
+        # export TMPDIR="$(workspaces.source.path)/tmp/buildah"
+        # mkdir -p "${TMPDIR}"
+
+        # Place config into environment variables.
+        if test -f $(workspaces.conditions.path)/build.env; then
+          export $(grep -v '^#' $(workspaces.conditions.path)/build.env | xargs)
+        else
+          echo 'Workspace conditions build.env not found'
+          exit 1;
+        fi
+
+        # An array of all the objects for the solution.
+        COMPONENTS=("db-migration" "elastic-migration" "api" "editor" "subscriber" "charts-api" "content" "filecopy" "filemonitor" "image" "indexing" "nlp" "notification" "reporting" "syndication" "transcription" "capture" "clip")
+        declare -A IMAGES=(["db-migration"]="db-migration" ["elastic-migration"]="elastic-migration" ["api"]="api" ["editor"]="editor" ["subscriber"]="subscriber" ["charts-api"]="charts-api" ["content"]="content-service" ["filecopy"]="filecopy-service" ["filemonitor"]="filemonitor-service" ["image"]="image-service" ["indexing"]="indexing-service" ["nlp"]="nlp-service" ["notification"]="notification-service" ["reporting"]="reporting-service" ["syndication"]="syndication-service" ["transcription"]="transcription-service" ["capture"]="capture-service" ["clip"]="clip-service")
+        declare -A CONTEXTS=(["db-migration"]="/libs/net" ["elastic-migration"]="" ["api"]="" ["editor"]="/app/editor" ["subscriber"]="/app/subscriber" ["charts-api"]="/api/node" ["content"]="" ["filecopy"]="" ["filemonitor"]="" ["image"]="" ["indexing"]="" ["nlp"]="" ["notification"]="" ["reporting"]="" ["syndication"]="" ["transcription"]="" ["capture"]="" ["clip"]="")
+        declare -A DOCKERFILES=(["db-migration"]="/Dockerfile" ["elastic-migration"]="/tools/elastic/migration/Dockerfile" ["api"]="/api/net/Dockerfile.openshift" ["editor"]="/Dockerfile.open" ["subscriber"]="/Dockerfile.open" ["charts-api"]="/Dockerfile.open" ["content"]="/services/net/content/Dockerfile" ["filecopy"]="/services/net/filecopy/Dockerfile" ["filemonitor"]="/services/net/filemonitor/Dockerfile" ["image"]="/services/net/image/Dockerfile" ["indexing"]="/services/net/indexing/Dockerfile" ["nlp"]="/services/net/nlp/Dockerfile" ["notification"]="/services/net/notification/Dockerfile" ["reporting"]="/services/net/reporting/Dockerfile" ["syndication"]="/services/net/syndication/Dockerfile" ["transcription"]="/services/net/transcription/Dockerfile" ["capture"]="/services/net/capture/Dockerfile" ["clip"]="/services/net/clip/Dockerfile")
+
+        # Loop through each component and build if required.
+        for VALUE in ${COMPONENTS[@]}; do
+          # Dynamic variable to control what will be built.
+          TVAR='BUILD_'${VALUE}
+          COMPONENT=${TVAR//\-/_}
+          COMPONENT=${COMPONENT^^}
+          echo $COMPONENT=${!COMPONENT}
+          IMAGE=${IMAGES[$VALUE]}
+          CONTEXT=${CONTEXTS[$VALUE]}
+          DOCKERFILE=${DOCKERFILES[$VALUE]}
+
+          # Check if this image needs to be built.
+          if [ "${!COMPONENT}" = true ]; then
+            echo '============================'
+            echo '= Building: '${IMAGE}
+            if [ ! -z "$IMAGE_REGISTRY_USER" ];  then
+              buildah login \
+                -u $IMAGE_REGISTRY_USER \
+                -p $IMAGE_REGISTRY_PASS $(params.IMAGE_REGISTRY) > /dev/null
+            fi
+
+            # Build the image.
+            buildah --storage-driver=$(params.STORAGE_DRIVER) bud \
+              --no-cache -f ${DOCKERFILE} -t $(params.IMAGE_REGISTRY)/${IMAGE}:$(params.IMAGE_TAG) --isolation chroot $(params.CONTEXT)${CONTEXT}
+
+            # Push the image to the registry.
+            buildah --storage-driver=$(params.STORAGE_DRIVER) push $(params.IMAGE_REGISTRY)/${IMAGE}:$(params.IMAGE_TAG)
+          else
+            echo '============================'
+            echo '= Not building: '${IMAGE}
+          fi
+        done

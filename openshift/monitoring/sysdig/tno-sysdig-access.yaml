@@ -7,17 +7,13 @@ spec:
   team:
     description: The Sysdig Team for the OpenShift Project Set 9b301c - TNO
     users:
-    - name: kulpreet.singh@gov.bc.ca
-      role: ROLE_TEAM_EDIT
-    - name: kulpreetsingh.acme@gmail.com
-      role: ROLE_TEAM_EDIT
-    - name: Jeremy.1.Foster@gov.bc.ca
-      role: ROLE_TEAM_STANDARD
-    - name: cello.liu@gov.bc.ca
-      role: ROLE_TEAM_READ
-    - name: Carolynn.Hunter@gov.bc.ca
-      role: ROLE_TEAM_READ
-    - name: kyle.morris@gov.bc.ca
-      role: ROLE_TEAM_READ
-    - name: Bobbi.Bjornholt@gov.bc.ca
-      role: ROLE_TEAM_READ
+      - name: jeremy.foster@fosol.ca
+        role: ROLE_TEAM_EDIT
+      - name: Jeremy.1.Foster@gov.bc.ca
+        role: ROLE_TEAM_EDIT
+      - name: kyle.morris@gov.bc.ca
+        role: ROLE_TEAM_EDIT
+      - name: cello.liu@gov.bc.ca
+        role: ROLE_TEAM_STANDARD
+      - name: Carolynn.Hunter@gov.bc.ca
+        role: ROLE_TEAM_READ

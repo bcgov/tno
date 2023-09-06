@@ -1,0 +1,122 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-all
+  annotations:
+    tekton.dev/displayName: openshift client
+    tekton.dev/pipelines.minVersion: 0.12.1
+    tekton.dev/tags: cli
+    description: >-
+      This task will tag a specific image with the environment name.
+      This will deploy the image if there is a DeployConfig trigger listening for the environment tag.
+  labels:
+    name: oc-all
+    part-of: tno
+    version: 1.0.0
+    component: task
+    managed-by: kustomize
+spec:
+  params:
+    - name: PROJECT_SHORTNAME
+      description: The project namespace.
+      type: string
+      default: 9b301c
+    - name: IMAGE_TAG
+      description: The tag given to the built image.
+      type: string
+      default: latest
+    - name: ENV
+      description: The environment to deploy to.
+      type: string
+    - name: TIMEOUT
+      description: The timeout before it will stop waiting for the pod to become available.
+      type: string
+      default: "600s"
+  workspaces:
+    - name: conditions
+      mountPath: /data
+
+  steps:
+    - name: deploy
+      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      resources: {}
+      script: |
+        set -xe
+
+        # Place config into environment variables.
+        if test -f $(workspaces.conditions.path)/build.env; then
+          export $(grep -v '^#' $(workspaces.conditions.path)/build.env | xargs)
+        else
+          echo 'Workspace conditions build.env not found'
+          exit 1;
+        fi
+
+        # An array of all the objects for the solution.
+        SERVICES=("content" "filecopy" "filemonitor" "image" "indexing" "nlp" "notification" "reporting" "syndication" "transcription" "capture" "clip")
+        COMPONENTS=("api" "editor" "subscriber" "charts-api" "content" "filecopy" "filemonitor" "image" "indexing" "nlp" "notification" "reporting" "syndication" "transcription" "capture" "clip")
+        declare -A IMAGES=(["api"]="api" ["editor"]="editor" ["subscriber"]="subscriber" ["charts-api"]="charts-api" ["content"]="content-service" ["filecopy"]="filecopy-service" ["filemonitor"]="filemonitor-service" ["image"]="image-service" ["indexing"]="indexing-service" ["nlp"]="nlp-service" ["notification"]="notification-service" ["reporting"]="reporting-service" ["syndication"]="syndication-service" ["transcription"]="transcription-service" ["capture"]="capture-service" ["clip"]="clip-service")
+        declare -A OBJECTS=(["api"]="sts" ["editor"]="dc" ["subscriber"]="dc" ["charts-api"]="dc" ["content"]="dc" ["filecopy"]="dc" ["filemonitor"]="dc" ["image"]="dc" ["indexing"]="dc" ["nlp"]="dc" ["notification"]="dc" ["reporting"]="dc" ["syndication"]="dc" ["transcription"]="dc" ["capture"]="dc" ["clip"]="dc")
+        declare -A REPLICAS=(["content"]="1" ["filecopy"]="1" ["filemonitor"]="1" ["image"]="1" ["indexing"]="1" ["nlp"]="1" ["notification"]="1" ["reporting"]="1" ["syndication"]="1" ["transcription"]="1" ["capture"]="0" ["clip"]="0")
+
+        # Stop all services if API needs to be deployed.
+        if [ "${BUILD_API}" = true ]; then
+          for VALUE in ${SERVICES[@]}; do
+            IMAGE=${IMAGES[$VALUE]}
+            OBJECT=${OBJECTS[$VALUE]}
+
+            echo "Stopping "${IMAGE}
+            oc scale ${OBJECT} ${IMAGE} -n $(params.PROJECT_SHORTNAME)-$(params.ENV) --replicas=0
+          done
+        fi
+
+        # Loop through each component and deploy if required.
+        for VALUE in ${COMPONENTS[@]}; do
+          # Dynamic variable to control what will be built.
+          TVAR='BUILD_'${VALUE}
+          COMPONENT=${TVAR//\-/_}
+          COMPONENT=${COMPONENT^^}
+          echo $COMPONENT=${!COMPONENT}
+          IMAGE=${IMAGES[$VALUE]}
+          OBJECT=${OBJECTS[$VALUE]}
+
+          # Check if this image needs to be deployed.
+          if [ "${!COMPONENT}" = true ]; then
+            echo "Tagging image to trigger deployment to $(params.ENV)"
+            oc tag ${IMAGE}:$(params.IMAGE_TAG) ${IMAGE}:$(params.ENV)
+
+            if [ "${OBJECT}" = "sts" ]; then
+              oc rollout restart ${OBJECT}/${IMAGE} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+            fi
+
+            echo "Waiting for deployment to roll out"
+            oc rollout status --watch --timeout=$(params.TIMEOUT) ${OBJECT}/${IMAGE} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+          fi
+        done
+
+        # Start all services if API was deployed.
+        if [ "${BUILD_API}" = true ]; then
+          for VALUE in ${SERVICES[@]}; do
+            IMAGE=${IMAGES[$VALUE]}
+            OBJECT=${OBJECTS[$VALUE]}
+            REPLICAS=${REPLICAS[$VALUE]}
+
+            if [ "${REPLICAS}" -gt "0" ]; then
+              oc scale ${OBJECT} ${IMAGE} -n $(params.PROJECT_SHORTNAME)-$(params.ENV) --replicas=${REPLICAS}
+            fi
+          done
+        fi
+
+        # Wait for all services if API was deployed.
+        if [ "${BUILD_API}" = true ]; then
+          for VALUE in ${SERVICES[@]}; do
+            IMAGE=${IMAGES[$VALUE]}
+            OBJECT=${OBJECTS[$VALUE]}
+            REPLICAS=${REPLICAS[$VALUE]}
+
+            if [ "${REPLICAS}" -gt "0" ]; then
+              echo "Waiting for replicas to spin up"
+              oc wait --for=condition=available --timeout=$(params.TIMEOUT) ${OBJECT}/${IMAGE} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+              # oc rollout status --watch --timeout=$(params.TIMEOUT) ${OBJECT}/${IMAGE} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+            fi
+          done
+        fi

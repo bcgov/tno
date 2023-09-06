@@ -15,22 +15,22 @@ spec:
     - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
       metadata:
-        generateName: buildah-main-$(tt.params.VERSION)-
+        generateName: buildah-all-$(tt.params.VERSION)-
         annotations:
           description: >-
             Build an docker image from a GIT repository using an existing BuildConfig.
             Then deploy to the specified environment.
           tags: "oc,git,docker,build,deploy"
         labels:
-          name: buildah-main-$(tt.params.VERSION)
+          name: buildah-all-$(tt.params.VERSION)
           part-of: tno
           version: $(tt.params.VERSION)
           component: pipeline
           managed-by: kustomize
-          tekton.dev/pipeline: buildah-main
+          tekton.dev/pipeline: buildah-all
       spec:
         pipelineRef:
-          name: buildah-main
+          name: buildah-all
         serviceAccountName: pipeline
         timeout: 1h45m0s
         params:

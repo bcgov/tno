@@ -39,6 +39,7 @@ objects:
           - apps.openshift.io
         resources:
           - deploymentconfigs
+          - deploymentconfigs/scale
         verbs:
           - create
           - get
@@ -52,6 +53,7 @@ objects:
         resources:
           - deployments
           - statefulsets
+          - statefulsets/scale
         verbs:
           - create
           - get
