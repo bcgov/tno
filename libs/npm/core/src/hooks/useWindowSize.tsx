@@ -6,11 +6,15 @@ import React from 'react';
  */
 export const useWindowSize = () => {
   const [width, setWidth] = React.useState<number | undefined>(undefined);
+  const [height, setHeight] = React.useState<string | undefined>(undefined);
   React.useEffect(() => {
-    const handleResize = () => setWidth(window.innerWidth);
+    const handleResize = () => {
+      setWidth(window.innerWidth);
+      setHeight(window.innerHeight - 235 + 'px');
+    };
     window.addEventListener('resize', handleResize);
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  return { width };
+  return { width, height };
 };

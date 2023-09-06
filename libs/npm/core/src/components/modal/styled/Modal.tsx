@@ -53,6 +53,22 @@ export const Modal = styled(Col)<IModalProps>`
     transform: translate(-50%, -50%);
   }
 
+  .modal-full {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    z-index: 100;
+    background: white;
+    margin: 2%;
+    border-radius: 3px;
+    min-width: fit-content;
+    max-width: 93%;
+    padding: 1.5rem;
+    background-color: rgba(255, 255, 255, 1);
+    height: ${(props) => props.hasHeight && '-webkit-fill-available'};
+    width: -webkit-fill-available;
+  }
+
   .modal-header {
     display: flex;
   }

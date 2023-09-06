@@ -25,6 +25,7 @@ export interface IModalProps {
   /** preset stylings for the modal */
   type?: 'delete' | 'default' | 'custom';
   hasHeight?: boolean;
+  className?: 'modal-full';
 }
 
 /**
@@ -42,13 +43,14 @@ export const Modal: React.FC<IModalProps> = ({
   customButtons,
   type,
   hasHeight,
+  className,
 }) => {
   return isShowing
     ? ReactDOM.createPortal(
         <styled.Modal hasHeight={hasHeight}>
           <div className="modal-overlay">
             <div className="modal-wrapper" aria-modal aria-hidden tabIndex={-1} role="dialog">
-              <div className="modal">
+              <div className={className ?? 'modal'}>
                 {!!headerText && (
                   <Row className="modal-header">
                     <h1>{headerText}</h1>
