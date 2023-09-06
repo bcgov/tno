@@ -19,9 +19,12 @@ metadata:
     managed-by: kustomize
 spec:
   params:
-    - name: GIT_REF
+    - name: GIT_SOURCE
       description: Git reference or branch to build from.
       default: dev
+    - name: GIT_REF
+      description: Git reference the commit.
+      default:
 
     - name: CONTEXT
       description: Path to the source code to build.
@@ -48,7 +51,10 @@ spec:
 
         # Update the git repo with the latest commit.
         git config --global --add safe.directory '*'
-        git checkout $(params.GIT_REF)
+        git fetch origin master
+        git fetch origin dev
+        git checkout $(params.GIT_SOURCE)
+        # TODO: Make the branch equal to the GIT_REF
         git pull
         git show -s
 
