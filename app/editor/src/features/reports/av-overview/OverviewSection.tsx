@@ -58,7 +58,7 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({ editable = tr
         editable={editable}
         open={!section.sourceId && !section.otherSource && !section.seriesId}
       />
-      <OverviewGrid index={index} editable={editable} seriesId={section.seriesId} />
+      <OverviewGrid index={index} editable={editable} />
       <Show visible={editable}>
         <Row className="buttons">
           <Row flex="1">

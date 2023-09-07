@@ -13,6 +13,7 @@ import {
   FormikTimeInput,
   IAVOverviewInstanceModel,
   IOptionItem,
+  OptionItem,
   Row,
   Show,
 } from 'tno-core';
@@ -24,16 +25,10 @@ export interface IOverviewGridProps {
   editable: boolean;
   /** index for av overview item */
   index: number;
-  /** helps to filter out content related to the show/program */
-  seriesId?: number;
 }
 
 /** OverviewGrid contains the table of items displayed for each overview section. */
-export const OverviewGrid: React.FC<IOverviewGridProps> = ({
-  editable = true,
-  index,
-  seriesId,
-}) => {
+export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, index }) => {
   const { values, setFieldValue } = useFormikContext<IAVOverviewInstanceModel>();
   const [, { findContent }] = useContent();
 
@@ -44,19 +39,13 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({
   /** fetch pieces of content that are related to the series to display as options for associated clips */
   React.useEffect(() => {
     findContent({
-      seriesId: seriesId,
+      seriesId: values.sections[index].seriesId,
+      publishedOn: new Date().toISOString(),
       contentTypes: [],
     }).then((data) =>
-      setClips(
-        data.items.map((c) => ({
-          label: c.headline,
-          value: c.id,
-          discriminator: 'IOption',
-          isEnabled: true,
-        })) as IOptionItem[],
-      ),
+      setClips(data.items.map((c) => new OptionItem(c.headline, c.id)) as IOptionItem[]),
     );
-  }, [findContent, seriesId]);
+  }, [findContent, values.sections[index].seriesId]);
 
   /** function that runs after a user drops an item in the list */
   const handleDrop = (droppedItem: any) => {
