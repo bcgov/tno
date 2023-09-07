@@ -14,11 +14,15 @@ metadata:
     managed-by: kustomize
 spec:
   params:
-    - name: GIT_REF
+    - name: GIT_SOURCE
       description: >-
         The git revision reference to build.
       type: string
       default: dev
+    - name: GIT_REF
+      description: >-
+        The git revision reference to build.
+      type: string
 
     - name: CONTEXT
       description: >-
@@ -86,6 +90,8 @@ spec:
       runAfter:
         - wait
       params:
+        - name: GIT_SOURCE
+          value: $(params.GIT_SOURCE)
         - name: GIT_REF
           value: $(params.GIT_REF)
         - name: CONTEXT

@@ -7,6 +7,8 @@ spec:
   params:
     - name: GIT_SOURCE
       description: Identify the git source
+    - name: GIT_REF
+      description: Identify the git commit
     - name: VERSION
       description: The version to tag the image with
     - name: DEPLOY_TO
@@ -34,8 +36,10 @@ spec:
         serviceAccountName: pipeline
         timeout: 1h45m0s
         params:
-          - name: GIT_REF
+          - name: GIT_SOURCE
             value: $(tt.params.GIT_SOURCE)
+          - name: GIT_REF
+            value: $(tt.params.GIT_REF)
           - name: IMAGE_TAG
             value: $(tt.params.VERSION)
           - name: CONTEXT

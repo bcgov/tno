@@ -1,14 +1,15 @@
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: git-webhook
-  component: app
+  name: git-webhook-master
+  annotations:
+    component: app
 spec:
   serviceAccountName: pipeline
   triggers:
     - name: github-listener
       bindings:
-        - ref: git-dev
+        - ref: git-test
       template:
         ref: git-app
       interceptors:
@@ -20,7 +21,7 @@ spec:
               - push
         - cel:
             filter: >-
-              body.ref == 'refs/heads/dev'
+              body.ref == 'refs/heads/master'
               && (body.commits.exists(c, c.added.exists(m, m.startsWith('app/editor')))
                 || body.commits.exists(c, c.modified.exists(m, m.startsWith('app/editor')))
                 || body.commits.exists(c, c.removed.exists(m, m.startsWith('app/editor')))
