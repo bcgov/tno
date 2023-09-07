@@ -1,9 +1,10 @@
-import { FaPaperPlane, FaTrash } from 'react-icons/fa';
+import { FaFileInvoice, FaPaperPlane, FaTrash } from 'react-icons/fa';
 import { CellDate, CellEllipsis, IReportInstanceModel, ITableHookColumn } from 'tno-core';
 
 export const instanceColumns = (options: {
   onDelete?: (model: IReportInstanceModel) => void;
   onResend?: (model: IReportInstanceModel) => void;
+  onPreview?: (model: IReportInstanceModel) => void;
 }): ITableHookColumn<IReportInstanceModel>[] => [
   {
     label: 'Published On',
@@ -22,6 +23,18 @@ export const instanceColumns = (options: {
     name: 'txId',
     width: 2,
     cell: (cell) => <CellEllipsis>{cell.original.response.txId}</CellEllipsis>,
+  },
+  {
+    label: '',
+    name: '',
+    width: '25px',
+    cell: (cell) => (
+      <FaFileInvoice
+        className="btn btn-primary"
+        onClick={() => options.onPreview?.(cell.original)}
+        title="View Report"
+      />
+    ),
   },
   {
     label: '',

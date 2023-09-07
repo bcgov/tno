@@ -31,6 +31,10 @@ spec:
       type: string
       default: latest
 
+    - name: BUILD
+      description: Whether to force build a component, or all [*|all|[name]].
+      default: "*"
+
     - name: STORAGE_DRIVER
       description: Set buildah storage driver
       default: vfs
@@ -62,10 +66,10 @@ spec:
               key: password
       resources:
         requests:
-          memory: 250Mi
-          cpu: 250m
+          memory: 4Gi
+          cpu: 1000m
         limits:
-          memory: 5Gi
+          memory: 6Gi
           cpu: 2000m
       script: |
         #!/usr/bin/env bash
@@ -100,7 +104,7 @@ spec:
           DOCKERFILE=${DOCKERFILES[$VALUE]}
 
           # Check if this image needs to be built.
-          if [ "${!COMPONENT}" = true ]; then
+          if [ "${!COMPONENT}" = true ] || [ "$(params.BUILD)" = "all" ] || [ "$(params.BUILD)" = ${VALUE} ]; then
             echo '============================'
             echo '= Building: '${IMAGE}
             if [ ! -z "$IMAGE_REGISTRY_USER" ];  then
