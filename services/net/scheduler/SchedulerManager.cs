@@ -32,6 +32,12 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Continuous loop fetches event configurations and sends messages to Kafka when scheduled.
+    /// TODO: Provide way to horizontally scale service.  Presently only one can run as they would all send the same messages to Kafka otherwise.
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     public override async Task RunAsync()
     {
         var delay = this.Options.DefaultDelayMS;
@@ -165,17 +171,19 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
         var reportInstanceId = scheduledEvent.Settings.GetDictionaryJsonValue<long?>("reportInstanceId");
         var requestorId = scheduledEvent.Settings.GetDictionaryJsonValue<int?>("requestorId");
         var assignedId = scheduledEvent.Settings.GetDictionaryJsonValue<int?>("assignedId");
+        var reportType = scheduledEvent.Settings.GetDictionaryJsonValue<ReportType?>("reportType") ?? ReportType.Content;
         var to = scheduledEvent.Settings.GetDictionaryJsonValue<string>("to") ?? "";
         var data = scheduledEvent.Settings.GetDictionaryJsonValue<object?>("data") ?? new { };
+        var generateInstance = scheduledEvent.Settings.GetDictionaryJsonValue<bool?>("generateInstance") ?? true;
 
-        // TODO: Handle different report types.
         if (reportId == null || reportId == 0) throw new InvalidOperationException($"Event schedule configuration must have a valid report {scheduledEvent.Id}:{scheduledEvent.Name}");
-        var request = new ReportRequestModel(destination, Entities.ReportType.Content, reportId.Value, data)
+        var request = new ReportRequestModel(destination, reportType, reportId.Value, data)
         {
             ReportInstanceId = reportInstanceId,
             RequestorId = requestorId,
             AssignedId = assignedId,
-            To = to
+            To = to,
+            GenerateInstance = generateInstance
         };
         await this.Api.SendMessageAsync(request);
     }

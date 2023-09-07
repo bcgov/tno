@@ -57,6 +57,10 @@ export const ReportFormInstance: React.FC = () => {
     [publishReportInstance],
   );
 
+  const handlePreview = React.useCallback((model: IReportInstanceModel) => {
+    window.open(`/report/instances/${model.id}/preview`, '_blank');
+  }, []);
+
   return (
     <>
       <h2>{values.name}</h2>
@@ -77,6 +81,7 @@ export const ReportFormInstance: React.FC = () => {
             setInstance(instance);
             toggleResend();
           },
+          onPreview: handlePreview,
         })}
         showActive={false}
       />

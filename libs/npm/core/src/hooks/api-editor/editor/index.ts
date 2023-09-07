@@ -13,6 +13,7 @@ export * from './useApiEditorLookups';
 export * from './useApiEditorMetrics';
 export * from './useApiEditorMinisters';
 export * from './useApiEditorProducts';
+export * from './useApiEditorReportInstances';
 export * from './useApiEditorReports';
 export * from './useApiEditorRoles';
 export * from './useApiEditorSeries';

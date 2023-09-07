@@ -32,6 +32,10 @@ spec:
       description: The timeout before it will stop waiting for the pod to become available.
       type: string
       default: "600s"
+
+    - name: DEPLOY
+      description: Whether to deploy a component, or all [*|all|[name]].
+      default: "*"
   workspaces:
     - name: conditions
       mountPath: /data
@@ -59,7 +63,7 @@ spec:
         declare -A REPLICAS=(["content"]="1" ["filecopy"]="1" ["filemonitor"]="1" ["image"]="1" ["indexing"]="1" ["nlp"]="1" ["notification"]="1" ["reporting"]="1" ["syndication"]="1" ["transcription"]="1" ["capture"]="0" ["clip"]="0")
 
         # Stop all services if API needs to be deployed.
-        if [ "${BUILD_API}" = true ]; then
+        if [ "${BUILD_API}" = true ] || [ "$(params.DEPLOY)" = "api" ] || [ "$(params.DEPLOY)" = "all" ]; then
           for VALUE in ${SERVICES[@]}; do
             IMAGE=${IMAGES[$VALUE]}
             OBJECT=${OBJECTS[$VALUE]}
@@ -80,7 +84,7 @@ spec:
           OBJECT=${OBJECTS[$VALUE]}
 
           # Check if this image needs to be deployed.
-          if [ "${!COMPONENT}" = true ]; then
+          if [ "${!COMPONENT}" = true ] || [ "$(params.DEPLOY)" = "all" ] || [ "$(params.DEPLOY)" = ${VALUE} ]; then
             echo "Tagging image to trigger deployment to $(params.ENV)"
             oc tag ${IMAGE}:$(params.IMAGE_TAG) ${IMAGE}:$(params.ENV)
 
@@ -94,7 +98,7 @@ spec:
         done
 
         # Start all services if API was deployed.
-        if [ "${BUILD_API}" = true ]; then
+        if [ "${BUILD_API}" = true ] || [ "$(params.DEPLOY)" = "api" ] || [ "$(params.DEPLOY)" = "all" ]; then
           for VALUE in ${SERVICES[@]}; do
             IMAGE=${IMAGES[$VALUE]}
             OBJECT=${OBJECTS[$VALUE]}
@@ -107,7 +111,7 @@ spec:
         fi
 
         # Wait for all services if API was deployed.
-        if [ "${BUILD_API}" = true ]; then
+        if [ "${BUILD_API}" = true ] || [ "$(params.DEPLOY)" = "api" ] || [ "$(params.DEPLOY)" = "all" ]; then
           for VALUE in ${SERVICES[@]}; do
             IMAGE=${IMAGES[$VALUE]}
             OBJECT=${OBJECTS[$VALUE]}

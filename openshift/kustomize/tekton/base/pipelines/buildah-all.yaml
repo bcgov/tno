@@ -23,12 +23,19 @@ spec:
       description: >-
         The git revision reference to build.
       type: string
+      default: ""
 
     - name: CONTEXT
       description: >-
         The root path to the git repo.
       type: string
       default: tno
+
+    - name: COMPONENT
+      description: >-
+        Identify the components to build and deploy [*|all|[name]].
+      type: string
+      default: "*"
 
     - name: IMAGE_TAG
       description: >-
@@ -113,6 +120,8 @@ spec:
           value: $(params.CONTEXT)
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
+        - name: BUILD
+          value: $(params.COMPONENT)
       workspaces:
         - name: source
           workspace: source
@@ -184,6 +193,8 @@ spec:
           value: $(params.IMAGE_TAG)
         - name: ENV
           value: $(params.DEPLOY_TO)
+        - name: DEPLOY
+          value: $(params.COMPONENT)
       workspaces:
         - name: conditions
           workspace: conditions
@@ -216,36 +227,36 @@ spec:
         - name: SERVICE
           value: subscriber
 
-    # - name: owasp-scan-editor
-    #   taskRef:
-    #     name: owasp-scanner
-    #     kind: Task
-    #   runAfter:
-    #     - maintenance-off-editor
-    #   params:
-    #     - name: TARGET_URL
-    #       value: $(params.EDITOR_URL)
-    #     - name: SCAN_TYPE
-    #       value: quick
-    #     - name: SCAN_DURATION
-    #       value: "1"
-    #   workspaces:
-    #     - name: owasp-settings
-    #       workspace: owasp-settings
+    - name: owasp-scan-editor
+      taskRef:
+        name: owasp-scanner
+        kind: Task
+      runAfter:
+        - maintenance-off-editor
+      params:
+        - name: TARGET_URL
+          value: $(params.EDITOR_URL)
+        - name: SCAN_TYPE
+          value: quick
+        - name: SCAN_DURATION
+          value: "1"
+      workspaces:
+        - name: owasp-settings
+          workspace: owasp-settings
 
-    # - name: owasp-scan-subscriber
-    #   taskRef:
-    #     name: owasp-scanner
-    #     kind: Task
-    #   runAfter:
-    #     - maintenance-off-subscriber
-    #   params:
-    #     - name: TARGET_URL
-    #       value: $(params.SUBSCRIBER_URL)
-    #     - name: SCAN_TYPE
-    #       value: quick
-    #     - name: SCAN_DURATION
-    #       value: "1"
-    #   workspaces:
-    #     - name: owasp-settings
-    #       workspace: owasp-settings
+    - name: owasp-scan-subscriber
+      taskRef:
+        name: owasp-scanner
+        kind: Task
+      runAfter:
+        - maintenance-off-subscriber
+      params:
+        - name: TARGET_URL
+          value: $(params.SUBSCRIBER_URL)
+        - name: SCAN_TYPE
+          value: quick
+        - name: SCAN_DURATION
+          value: "1"
+      workspaces:
+        - name: owasp-settings
+          workspace: owasp-settings

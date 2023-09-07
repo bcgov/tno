@@ -39,6 +39,20 @@ public interface IReportHelper
     /// <summary>
     /// Execute the report template to generate the subject and body.
     /// If the report sections contain charts it will also generate them and include them in the results.
+    /// Uses the content already in the report instance.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="updateCache"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    Task<ReportResultModel> GenerateReportAsync(
+        Areas.Services.Models.ReportInstance.ReportInstanceModel model,
+        bool updateCache = false);
+
+    /// <summary>
+    /// Execute the report template to generate the subject and body.
+    /// If the report sections contain charts it will also generate them and include them in the results.
     /// </summary>
     /// <param name="model"></param>
     /// <param name="updateCache"></param>
