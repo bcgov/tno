@@ -1,5 +1,6 @@
 import { makeFilter } from 'features';
 import React from 'react';
+import constants from './constants/constants.json';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
 import { FaRegSmile, FaSearch } from 'react-icons/fa';
 import { GiHamburgerMenu } from 'react-icons/gi';
@@ -88,7 +89,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
           Object.values(advancedSearch.searchInField).every((v) => v === false)
             ? advancedSearch.searchTerm
             : '',
-        productIds: advancedSearch?.frontPage ? [Number(process.env.FRONT_PAGE_ID)] : [],
+        productIds: advancedSearch?.frontPage ? [constants['front.page.id']] : [],
         startDate: advancedSearch?.startDate,
         sourceIds: advancedSearch?.sourceIds,
         sentiment: advancedSearch?.sentiment,
