@@ -1,6 +1,5 @@
 import { makeFilter } from 'features';
 import React from 'react';
-import constants from './constants/constants.json';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
 import { FaRegSmile, FaSearch } from 'react-icons/fa';
 import { GiHamburgerMenu } from 'react-icons/gi';
@@ -22,6 +21,7 @@ import {
   SentimentSection,
 } from './components';
 import { defaultAdvancedSearch } from './constants';
+import constants from './constants/constants.json';
 import {
   defaultSubMediaGroupExpanded,
   IAdvancedSearchFilter,
