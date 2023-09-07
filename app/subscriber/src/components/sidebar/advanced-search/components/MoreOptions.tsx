@@ -25,6 +25,8 @@ export const MoreOptions: React.FC<IMoreOptionsProps> = ({
           your search using these settings.
         </p>
         <Col>
+          {/* TODO: Future ticket covers this */}
+          <Checkbox label="featured on the MMIA home page" />
           <Checkbox
             label="are marked as top stories"
             checked={Boolean(advancedSearch.topStory)}

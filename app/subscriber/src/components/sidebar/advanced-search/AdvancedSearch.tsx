@@ -88,7 +88,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
           Object.values(advancedSearch.searchInField).every((v) => v === false)
             ? advancedSearch.searchTerm
             : '',
-        productIds: advancedSearch?.frontPage ? [11] : [],
+        productIds: advancedSearch?.frontPage ? [Number(process.env.FRONT_PAGE_ID)] : [],
         startDate: advancedSearch?.startDate,
         sourceIds: advancedSearch?.sourceIds,
         sentiment: advancedSearch?.sentiment,
