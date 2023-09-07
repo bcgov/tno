@@ -45,7 +45,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
     }).then((data) =>
       setClips(data.items.map((c) => new OptionItem(c.headline, c.id)) as IOptionItem[]),
     );
-  }, [findContent, values.sections[index].seriesId]);
+  }, [findContent, index, values.sections]);
 
   /** function that runs after a user drops an item in the list */
   const handleDrop = (droppedItem: any) => {
