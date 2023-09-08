@@ -27,4 +27,6 @@ data:
   KAFKA_JMX_HOSTNAME: kafka-headless
   KAFKA_HEAP_OPTS: "-Xmx8G -Xms6G"
   KAFKA_JVM_PERFORMANCE_OPTS: "-server -XX:MetaspaceSize=96m  -XX:G1HeapRegionSize=16M -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+ExplicitGCInvokesConcurrent -Djava.awt.headless=true"
+  KAFKA_NUM_PARTITIONS: "6"
+  KAFKA_DEFAULT_REPLICATION_FACTOR: "3"
   #KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
