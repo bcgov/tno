@@ -5,7 +5,7 @@ import { useLookup } from 'store/hooks';
 import { Row, Show, ToggleGroup, ToolBar, ToolBarSection } from 'tno-core';
 
 import { IContentForm } from '../../../form/interfaces';
-import { ActionSection, AlertSection, StatusSection } from './form';
+import { ActionSection, AlertSection, PublishedSection, StatusSection } from './form';
 
 export interface IContentFormToolBarProps {
   /** Function to fetch content. */
@@ -81,6 +81,9 @@ export const ContentFormToolBar: React.FC<IContentFormToolBarProps> = ({
           }
           label="LICENCE EXPIRY"
         />
+      </Show>
+      <Show visible={values.status === 'Publish'}>
+        <PublishedSection values={values} />
       </Show>
     </ToolBar>
   );
