@@ -12,7 +12,6 @@ import {
 import { useNavigate } from 'react-router';
 import { useParams } from 'react-router-dom';
 import { Button, Col, Row, Show, Text, toQueryString } from 'tno-core';
-
 import {
   DateSection,
   MediaSection,
@@ -21,7 +20,6 @@ import {
   SentimentSection,
 } from './components';
 import { defaultAdvancedSearch } from './constants';
-import constants from './constants/constants.json';
 import {
   defaultSubMediaGroupExpanded,
   IAdvancedSearchFilter,
@@ -59,11 +57,20 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
   /** the object that will eventually be converted to a query and be passed to elastic search */
   const [advancedSearch, setAdvancedSearch] =
     React.useState<IAdvancedSearchFilter>(defaultAdvancedSearch);
+  const [constants, setConstants] = React.useState<any>({});
 
   // update state when query changes, necessary to keep state in sync with url when navigating directly
   React.useEffect(() => {
     if (query) setAdvancedSearch(queryToState(query.toString()));
   }, [query]);
+
+  React.useEffect(() => {
+    fetch('/constants.json')
+      .then((res) => res.json())
+      .then((data) => {
+        setConstants(data);
+      });
+  }, []);
 
   const advancedFilter = React.useMemo(
     () =>
@@ -89,7 +96,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
           Object.values(advancedSearch.searchInField).every((v) => v === false)
             ? advancedSearch.searchTerm
             : '',
-        productIds: advancedSearch?.frontPage ? [constants['front.page.id']] : [],
+        productIds: advancedSearch?.frontPage ? [constants?.frontPageId] : [],
         startDate: advancedSearch?.startDate,
         sourceIds: advancedSearch?.sourceIds,
         sentiment: advancedSearch?.sentiment,
