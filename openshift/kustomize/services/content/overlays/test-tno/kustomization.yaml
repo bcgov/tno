@@ -32,3 +32,12 @@ patches:
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: content-service:test
+      - op: replace
+        path: /metadata/name
+        value: content-tno-service
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: Service__ContentTopics
+          value: "TNO"
+
