@@ -58,15 +58,25 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
   /** the object that will eventually be converted to a query and be passed to elastic search */
   const [advancedSearch, setAdvancedSearch] =
     React.useState<IAdvancedSearchFilter>(defaultAdvancedSearch);
+  const [constants, setConstants] = React.useState<any>({});
 
   // update state when query changes, necessary to keep state in sync with url when navigating directly
   React.useEffect(() => {
     if (query) setAdvancedSearch(queryToState(query.toString()));
   }, [query]);
 
+  React.useEffect(() => {
+    fetch('/constants.json')
+      .then((res) => res.json())
+      .then((data) => {
+        setConstants(data);
+      });
+  }, []);
+
   const advancedFilter = React.useMemo(
     () =>
       makeFilter({
+        actions: advancedSearch?.topStory ? ['Top Story'] : [],
         headline:
           advancedSearch?.searchTerm && advancedSearch.searchInField?.headline
             ? advancedSearch.searchTerm
@@ -87,8 +97,9 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
           Object.values(advancedSearch.searchInField).every((v) => v === false)
             ? advancedSearch.searchTerm
             : '',
+        productIds: advancedSearch?.frontPage ? [constants?.frontPageId] : [],
         startDate: advancedSearch?.startDate,
-        sourceIds: advancedSearch?.frontPage ? [11] : advancedSearch?.sourceIds,
+        sourceIds: advancedSearch?.sourceIds,
         sentiment: advancedSearch?.sentiment,
         endDate: advancedSearch?.endDate,
         topStory: advancedSearch?.topStory,
@@ -97,7 +108,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
         pageIndex: 0,
         pageSize: 100,
       }),
-    [advancedSearch],
+    [advancedSearch, constants?.frontPageId],
   );
 
   const handleSearch = async () => {

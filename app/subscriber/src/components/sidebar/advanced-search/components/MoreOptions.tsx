@@ -25,26 +25,28 @@ export const MoreOptions: React.FC<IMoreOptionsProps> = ({
           your search using these settings.
         </p>
         <Col>
-          {/* TODO: What is the below? */}
+          {/* TODO: Future ticket covers this */}
           <Checkbox label="featured on the MMIA home page" />
           <Checkbox
             label="are marked as top stories"
-            value={advancedSearch.topStory}
-            onChange={(e) => setAdvancedSearch({ ...advancedSearch, topStory: e.target.checked })}
+            checked={Boolean(advancedSearch.topStory)}
+            onChange={(e) => {
+              setAdvancedSearch({ ...advancedSearch, topStory: e.target.checked });
+            }}
           />
           <Checkbox
             label="are marked as a front page"
-            value={advancedSearch.frontPage}
+            checked={Boolean(advancedSearch.frontPage)}
             onChange={(e) => setAdvancedSearch({ ...advancedSearch, frontPage: e.target.checked })}
           />
           <Checkbox
             label="includes an image"
-            value={advancedSearch.hasFile}
+            checked={Boolean(advancedSearch.hasFile)}
             onChange={(e) => setAdvancedSearch({ ...advancedSearch, hasFile: e.target.checked })}
           />
           <Checkbox
             label={'bold keywords on search page'}
-            value={advancedSearch.boldKeywords}
+            checked={Boolean(advancedSearch.boldKeywords)}
             onChange={(e) =>
               setAdvancedSearch({ ...advancedSearch, boldKeywords: e.target.checked })
             }

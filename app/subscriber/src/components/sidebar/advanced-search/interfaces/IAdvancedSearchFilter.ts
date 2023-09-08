@@ -1,4 +1,6 @@
 export interface IAdvancedSearchFilter {
+  /** array of actions to filter by */
+  actions?: string[];
   /** keeps track of which field the search term will query */
   searchInField?: { byline: boolean; headline: boolean; storyText: boolean };
   /** the term that will be queried */
