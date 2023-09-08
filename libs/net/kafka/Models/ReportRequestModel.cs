@@ -18,6 +18,11 @@ public class ReportRequestModel
     public Entities.ReportType ReportType { get; set; } = Entities.ReportType.Content;
 
     /// <summary>
+    /// get/set - Foreign key to the event schedule that sent this request.
+    /// </summary>
+    public int? EventScheduleId { get; set; }
+
+    /// <summary>
     /// get/set - Foreign key to the report.
     /// This will result in a new report instance being generated.
     /// </summary>
@@ -58,6 +63,11 @@ public class ReportRequestModel
     /// get/set - Whether this request will generate an instance.
     /// </summary>
     public bool GenerateInstance { get; set; } = true;
+
+    /// <summary>
+    /// get/set - Whether the report will be sent to subscribers.
+    /// </summary>
+    public bool SendToSubscribers { get; set; } = true;
     #endregion
 
     #region Constructors

@@ -327,6 +327,13 @@ public interface IApiService
     /// <param name="instance"></param>
     /// <returns></returns>
     Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> UpdateReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance);
+
+    /// <summary>
+    /// Make a request to the API to clear all content from folders in this report.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.Report.ReportModel?> ClearFoldersInReport(int reportId);
     #endregion
 
     #region Event Schedules

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Report;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Elastic;
 using TNO.Entities.Models;
@@ -71,13 +72,11 @@ public class ReportController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult FindById(int id)
     {
-        var result = _service.FindById(id);
-
-        if (result == null) return new NoContentResult();
+        var result = _service.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new ReportModel(result, _serializerOptions));
     }
 
@@ -89,13 +88,30 @@ public class ReportController : ControllerBase
     [HttpGet("{id}/content")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> FindContentForReportIdAsync(int id)
     {
-        var report = _service.FindById(id);
-        if (report == null) return new BadRequestResult();
+        var report = _service.FindById(id) ?? throw new NoContentException();
         var results = await _service.FindContentWithElasticsearchAsync(_elasticOptions.PublishedIndex, report);
+        return new JsonResult(results);
+    }
+
+    /// <summary>
+    /// Clears all content from folders within this report.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    [HttpPost("{id}/clear/folders")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult ClearFoldersInReportId(int id)
+    {
+        var report = _service.FindById(id) ?? throw new NoContentException();
+        var results = _service.ClearFoldersInReport(report);
         return new JsonResult(results);
     }
     #endregion

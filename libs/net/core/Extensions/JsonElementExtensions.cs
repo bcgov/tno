@@ -84,7 +84,7 @@ public static class JsonElementExtensions
                 (T)Enum.Parse(typeof(T), node.GetString() ?? ""),
             JsonValueKind.Null or JsonValueKind.Undefined => defaultValue,
             JsonValueKind.Number => node.ConvertNumberTo<T>(),
-            JsonValueKind.True or JsonValueKind.False => (T)Convert.ChangeType($"{node.GetBoolean()}", typeof(T)),
+            JsonValueKind.True or JsonValueKind.False => (T)(object)node.GetBoolean(),
             JsonValueKind.Object => node.Deserialize<T>(options),
             JsonValueKind.Array => node.Deserialize<T>(options),
             _ => (T)Convert.ChangeType($"{node}", typeof(T)),

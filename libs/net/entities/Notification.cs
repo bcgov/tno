@@ -79,6 +79,11 @@ public class Notification : BaseType<int>
     /// get - Collection of notification instances.
     /// </summary>
     public virtual List<NotificationInstance> Instances { get; } = new List<NotificationInstance>();
+
+    /// <summary>
+    /// get - Collection of event schedules for this notification.
+    /// </summary>
+    public virtual List<EventSchedule> Schedules { get; } = new List<EventSchedule>();
     #endregion
 
     #region Constructors

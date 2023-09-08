@@ -1,5 +1,6 @@
 export * from './defaultRazorTemplate';
 export * from './defaultReport';
+export * from './defaultReportSchedule';
 export * from './defaultReportSection';
 export * from './defaultReportTemplate';
 export * from './instanceColumns';

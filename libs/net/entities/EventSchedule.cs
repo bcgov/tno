@@ -59,10 +59,38 @@ public class EventSchedule : AuditColumns
     public JsonDocument Settings { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
-    /// get/set - The last time this event was run.
+    /// get/set - The date and time a request was generated.  This is used to stop multiple requests being sent to Kafka.
+    /// </summary>
+    [Column("request_sent_on")]
+    public DateTime? RequestSentOn { get; set; }
+
+    /// <summary>
+    /// get/set - The last time this event was run successfully.
     /// </summary>
     [Column("last_ran_on")]
     public DateTime? LastRanOn { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to the report this event is linked to.
+    /// </summary>
+    [Column("report_id")]
+    public int? ReportId { get; set; }
+
+    /// <summary>
+    /// get/set - The report this event is linked to.
+    /// </summary>
+    public Report? Report { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to the notification this event is linked to.
+    /// </summary>
+    [Column("notification_id")]
+    public int? NotificationId { get; set; }
+
+    /// <summary>
+    /// get/set - The notification this event is linked to.
+    /// </summary>
+    public Notification? Notification { get; set; }
     #endregion
 
     #region Constructors
@@ -131,5 +159,16 @@ public class EventSchedule : AuditColumns
         this.EventType = type;
         this.ScheduleId = scheduleId;
     }
+    #endregion
+
+    #region Methods
+    public bool Equals(EventSchedule? other)
+    {
+        if (other == null) return false;
+        return this.Id == other.Id;
+    }
+
+    public override bool Equals(object? obj) => Equals(obj as EventSchedule);
+    public override int GetHashCode() => this.Id.GetHashCode();
     #endregion
 }

@@ -54,6 +54,11 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     /// get/set - An array of report instances.
     /// </summary>
     public IEnumerable<ReportInstanceModel> Instances { get; set; } = Array.Empty<ReportInstanceModel>();
+
+    /// <summary>
+    /// get/set - An array of event schedules to auto run this report.
+    /// </summary>
+    public IEnumerable<ReportScheduleModel> Schedules { get; set; } = Array.Empty<ReportScheduleModel>();
     #endregion
 
     #region Constructors
@@ -78,6 +83,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
         this.Sections = entity.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s, options)).ToArray();
         this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!)).ToArray();
         this.Instances = entity.Instances.OrderByDescending(i => i.Id).Select(i => new ReportInstanceModel(i, options)).ToArray();
+        this.Schedules = entity.Schedules.Select(s => new ReportScheduleModel(s)).ToArray();
     }
     #endregion
 
@@ -188,6 +194,36 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
         entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us => new Entities.UserReport(us.Id, entity.Id)
         {
             IsSubscribed = us.IsSubscribed
+        }));
+
+        entity.Schedules.AddRange(model.Schedules.Select(s =>
+        {
+            return new Entities.EventSchedule(s.Name, Entities.EventScheduleType.Report, s.ScheduleId, s.Settings)
+            {
+                Id = s.Id,
+                Description = s.Description,
+                IsEnabled = s.IsEnabled,
+                RequestSentOn = s.RequestSentOn,
+                LastRanOn = s.LastRanOn,
+                ReportId = model.Id,
+                Schedule = new Entities.Schedule(s.Name, s.DelayMS)
+                {
+                    Id = s.ScheduleId,
+                    Description = s.Description,
+                    IsEnabled = s.IsEnabled,
+                    RunOn = s.RunOn,
+                    StartAt = s.StartAt,
+                    StopAt = s.StopAt,
+                    RunOnlyOnce = s.RunOnlyOnce,
+                    Repeat = s.Repeat,
+                    RunOnWeekDays = s.RunOnWeekDays,
+                    RunOnMonths = s.RunOnMonths,
+                    DayOfMonth = s.DayOfMonth,
+                    RequestedById = s.RequestedById,
+                    Version = s.ScheduleVersion ?? 0
+                },
+                Version = s.Version ?? 0
+            };
         }));
 
         return entity;

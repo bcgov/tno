@@ -67,6 +67,11 @@ public class Report : BaseType<int>
     /// get - Collection of report instances.
     /// </summary>
     public virtual List<ReportInstance> Instances { get; } = new List<ReportInstance>();
+
+    /// <summary>
+    /// get - Collection of event schedules for this report.
+    /// </summary>
+    public virtual List<EventSchedule> Schedules { get; } = new List<EventSchedule>();
     #endregion
 
     #region Constructors
