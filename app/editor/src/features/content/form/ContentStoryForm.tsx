@@ -221,10 +221,18 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
         body={
           <Wysiwyg
             className="modal-quill"
-            label={contentType === ContentTypeName.PrintContent ? 'Story' : 'Summary'}
+            label={
+              contentType === ContentTypeName.PrintContent || contentType === ContentTypeName.Story
+                ? 'Story'
+                : 'Summary'
+            }
             required={isSummaryRequired}
             height={height}
-            fieldName={contentType === ContentTypeName.PrintContent ? 'body' : 'summary'}
+            fieldName={
+              contentType === ContentTypeName.PrintContent || contentType === ContentTypeName.Story
+                ? 'body'
+                : 'summary'
+            }
           />
         }
         isShowing={showExpandModal}
