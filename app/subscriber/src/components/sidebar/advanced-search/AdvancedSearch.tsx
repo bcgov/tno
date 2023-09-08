@@ -12,6 +12,7 @@ import {
 import { useNavigate } from 'react-router';
 import { useParams } from 'react-router-dom';
 import { Button, Col, Row, Show, Text, toQueryString } from 'tno-core';
+
 import {
   DateSection,
   MediaSection,
@@ -107,7 +108,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
         pageIndex: 0,
         pageSize: 100,
       }),
-    [advancedSearch],
+    [advancedSearch, constants?.frontPageId],
   );
 
   const handleSearch = async () => {
