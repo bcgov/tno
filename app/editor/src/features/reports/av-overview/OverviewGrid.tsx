@@ -1,6 +1,8 @@
 import { useFormikContext } from 'formik';
+import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaGripLines, FaTrash } from 'react-icons/fa';
+import { useContent } from 'store/hooks';
 import {
   AVOverviewItemTypeName,
   castEnumToOptions,
@@ -10,6 +12,8 @@ import {
   FormikTextArea,
   FormikTimeInput,
   IAVOverviewInstanceModel,
+  IOptionItem,
+  OptionItem,
   Row,
   Show,
 } from 'tno-core';
@@ -17,16 +21,31 @@ import {
 import * as styled from './styled';
 
 export interface IOverviewGridProps {
+  /** whether line item is editable or not  */
   editable: boolean;
+  /** index for av overview item */
   index: number;
 }
 
 /** OverviewGrid contains the table of items displayed for each overview section. */
 export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, index }) => {
   const { values, setFieldValue } = useFormikContext<IAVOverviewInstanceModel>();
+  const [, { findContent }] = useContent();
 
+  const [clips, setClips] = React.useState<IOptionItem[]>();
   const eveningOverviewItemTypeOptions = castEnumToOptions(AVOverviewItemTypeName);
   const items = values.sections[index].items;
+
+  /** fetch pieces of content that are related to the series to display as options for associated clips */
+  React.useEffect(() => {
+    findContent({
+      seriesId: values.sections[index].seriesId,
+      publishedOn: new Date().toISOString(),
+      contentTypes: [],
+    }).then((data) =>
+      setClips(data.items.map((c) => new OptionItem(c.headline, c.id)) as IOptionItem[]),
+    );
+  }, [findContent, index, values.sections]);
 
   /** function that runs after a user drops an item in the list */
   const handleDrop = (droppedItem: any) => {
@@ -125,7 +144,9 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                               </Col>
                               <FormikSelect
                                 name={`sections.${index}.items.${itemIndex}.contentId`}
-                                options={[]}
+                                value={clips?.find((c) => c.value === item.contentId)}
+                                options={clips ?? []}
+                                width={FieldSize.Medium}
                                 isDisabled={!editable}
                               />
                               <FaTrash
