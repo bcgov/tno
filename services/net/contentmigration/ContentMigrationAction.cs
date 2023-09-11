@@ -338,14 +338,14 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                     isUpdatedSourceContent = true;
                     reference.Status = (int)WorkflowStatus.Received;
                     // What about the worst case scenario: one Editor changes it in MMIA and another Editor changes it in TNO?
-                    Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMIA Content : {RSN}:{Title}", newsItem.RSN, newsItem.Title);
+                    Logger.LogInformation("Received updated content from TNO. Forcing an update to Content {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
                 }
             }
 
             if (isNewSourceContent)
             {
                 reference = await this.Api.AddContentReferenceAsync(reference);
-                Logger.LogInformation("Migrating content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
+                Logger.LogInformation("Migrating content {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
             }
 
             if (isNewSourceContent || isUpdatedSourceContent)
@@ -388,7 +388,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 
                         if (string.IsNullOrEmpty(newsItem.ContentType))
                         {
-                            Logger.LogWarning("Skipping file migration for RSN:{RSN} Path:{filePath} ContentType is missing", newsItem.RSN, newsItem.FilePath);
+                            Logger.LogWarning("Skipping file migration, ContentType is missing {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
                         }
                         else
                         {
@@ -412,7 +412,9 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 // If another process has it in progress only attempt to do an Migration if it's
                 // more than an 5 minutes old. Assumption is that it is stuck.
                 reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
-                Logger.LogInformation("Updating migrated content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
+                Logger.LogInformation("Updating migrated content {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
+            } else {
+                Logger.LogInformation("No action taken.  Not new, updated or stuck.  {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
             }
         }
         catch (Exception ex)
