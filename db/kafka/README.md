@@ -36,3 +36,39 @@ SSH into the Kafka broker pod.
 ```bash
 /bin/kafka-topics --bootstrap-server kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092 --topic reporting --create --partitions 3 --replication-factor 1
 ```
+
+Update the topic of partitions.
+
+```bash
+kafka-topics --bootstrap-server kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092 --alter --topic VBUZZ --partitions 6
+```
+
+Update the topic replication.
+
+Create a JSON file `replicas.json` and copy to configure. This requires that the topic have the specified number of partitions (i.e. 6).
+
+```json
+{
+  "version": 1,
+  "partitions": [
+    { "topic": "BCNG", "partition": 0, "replicas": [2, 3, 4] },
+    { "topic": "BCNG", "partition": 1, "replicas": [3, 4, 1] },
+    { "topic": "BCNG", "partition": 2, "replicas": [4, 1, 2] },
+    { "topic": "BCNG", "partition": 3, "replicas": [1, 3, 4] },
+    { "topic": "BCNG", "partition": 4, "replicas": [2, 1, 3] },
+    { "topic": "BCNG", "partition": 5, "replicas": [3, 2, 4] }
+  ]
+}
+```
+
+Copy the file to the Kafka broker container.
+
+```bash
+oc rsync . kafka-broker-0:/tmp
+```
+
+Update the replication.
+
+```bash
+kafka-reassign-partitions --bootstrap-server kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092 --reassignment-json-file replicas.json --execute
+```

@@ -30,7 +30,7 @@ export const Newspaper: React.FC = (props) => {
   const initialItems = () => {
     const data: any[] = [];
     let id = 0;
-    const keyValues = values.configuration.sources.split('&');
+    const keyValues = values.configuration.sources?.split('&') ?? [];
     keyValues.forEach((x: string) => {
       data.push({ id: ++id, name: x.split('=')[0], source: x.split('=')[1] });
     });
