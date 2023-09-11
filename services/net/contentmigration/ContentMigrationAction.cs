@@ -337,14 +337,15 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 }
 
                 // IF this record was previously ingested from TNO by the Content Migration Service
-                // AND it has been updated since it's original ingest
+                // AND ((it has been updated since it's original ingest)
+                //  OR (the published status of the TNO items has changed))
                 // THEN trigger an update to the content
                 if ((source?.Code == originalSource) && ((sourceContent.UpdatedOn > originalLastUpdateDate) || (newsItem.Published != originalIsContentPublished )))
                 {
                     isUpdatedSourceContent = true;
                     reference.Status = (int)WorkflowStatus.Received;
                     // What about the worst case scenario: one Editor changes it in MMIA and another Editor changes it in TNO?
-                    Logger.LogInformation("Received updated content from TNO. Forcing an update to Content {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
+                    Logger.LogInformation("Received updated content from TNO. Forcing a Content update {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
                 }
             }
 
