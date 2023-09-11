@@ -2,7 +2,7 @@ import { IContentForm } from 'features/content/form/interfaces';
 import React from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useSettings } from 'store/hooks/admin';
+import { useLookup } from 'store/hooks';
 import { Col, Row } from 'tno-core';
 
 import * as styled from './styled';
@@ -14,13 +14,11 @@ export interface IPublishedSectionProps {
 
 export const PublishedSection: React.FC<IPublishedSectionProps> = ({ values }) => {
   const [subscriberUrl, setSubscriberUrl] = React.useState<string>();
-  const [{ settings }, api] = useSettings();
+  const [{ settings }] = useLookup();
 
   React.useEffect(() => {
-    api.findAllSettings().then((data) => {
-      setSubscriberUrl(data.find((i) => i.name === 'SubscriberUrl')?.value);
-    });
-  }, [api, settings, subscriberUrl]);
+    setSubscriberUrl(settings.find((i) => i.name === 'SubscriberUrl')?.value);
+  }, [settings, subscriberUrl]);
 
   return (
     <styled.PublishedSection
