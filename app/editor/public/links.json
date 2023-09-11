@@ -1,5 +1,0 @@
-{
-  "devSubscriber": "https://mmia-dev.apps.silver.devops.gov.bc.ca",
-  "testSubscriber": "https://mmia-test.apps.silver.devops.gov.bc.ca",
-  "localSubscriber": "http://localhost:40081"
-}
