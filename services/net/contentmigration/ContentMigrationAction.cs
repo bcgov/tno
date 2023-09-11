@@ -320,6 +320,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 // check if this is content, previously ingested by this service, but has been updated by an Editor in TNO
                 DateTime originalLastUpdateDate = DateTime.MinValue;
                 string originalSource = String.Empty;
+                bool originalIsContentPublished = false;
                 if (reference.Metadata.ContainsKey(ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn))
                 {
                     if (!DateTime.TryParse(reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn].ToString(), out originalLastUpdateDate))
@@ -329,23 +330,29 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 {
                     originalSource = reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyIngestSource].ToString() ?? String.Empty;
                 }
+                if (reference.Metadata.ContainsKey(ContentReferenceMetaDataKeys.MetadataKeyIsContentPublished))
+                {
+                    if (!Boolean.TryParse(reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyIsContentPublished].ToString(), out originalIsContentPublished))
+                        originalIsContentPublished = false;
+                }
 
                 // IF this record was previously ingested from TNO by the Content Migration Service
-                // AND it has been updated since it's original ingest
+                // AND ((it has been updated since it's original ingest)
+                //  OR (the published status of the TNO items has changed))
                 // THEN trigger an update to the content
-                if ((source?.Code == originalSource) && (sourceContent.UpdatedOn > originalLastUpdateDate))
+                if ((source?.Code == originalSource) && ((sourceContent.UpdatedOn > originalLastUpdateDate) || (newsItem.Published != originalIsContentPublished )))
                 {
                     isUpdatedSourceContent = true;
                     reference.Status = (int)WorkflowStatus.Received;
                     // What about the worst case scenario: one Editor changes it in MMIA and another Editor changes it in TNO?
-                    Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMIA Content : {RSN}:{Title}", newsItem.RSN, newsItem.Title);
+                    Logger.LogInformation("Received updated content from TNO. Forcing a Content update {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
                 }
             }
 
             if (isNewSourceContent)
             {
                 reference = await this.Api.AddContentReferenceAsync(reference);
-                Logger.LogInformation("Migrating content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
+                Logger.LogInformation("Migrating content {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
             }
 
             if (isNewSourceContent || isUpdatedSourceContent)
@@ -388,7 +395,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 
                         if (string.IsNullOrEmpty(newsItem.ContentType))
                         {
-                            Logger.LogWarning("Skipping file migration for RSN:{RSN} Path:{filePath} ContentType is missing", newsItem.RSN, newsItem.FilePath);
+                            Logger.LogWarning("Skipping file migration, ContentType is missing {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
                         }
                         else
                         {
@@ -412,7 +419,9 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 // If another process has it in progress only attempt to do an Migration if it's
                 // more than an 5 minutes old. Assumption is that it is stuck.
                 reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
-                Logger.LogInformation("Updating migrated content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
+                Logger.LogInformation("Updating migrated content {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
+            } else {
+                Logger.LogInformation("No action taken.  Not new, updated or stuck.  {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
             }
         }
         catch (Exception ex)
