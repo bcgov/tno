@@ -62,10 +62,13 @@ export const Wysiwyg = <T extends object>({
 
   React.useEffect(() => {
     if (!!fieldName) {
-      setState({
-        ...state,
-        html: (values[fieldName] as string)?.replace(/\n+/g, '<br>') ?? '',
-      });
+      const html = (values[fieldName] as string)?.replace(/\n+/g, '<br>') ?? '';
+      if (html !== state.html && (!height || !state.html)) {
+        setState({
+          ...state,
+          html: html,
+        });
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, values, fieldName]);
@@ -108,12 +111,9 @@ export const Wysiwyg = <T extends object>({
   };
 
   const handleChange = (html: string) => {
-    setState({ ...state, html: html });
-    if (!!fieldName) {
-      setFieldValue(fieldName as string, html);
-      if (html === '<p><br></p>') {
-        setFieldValue(fieldName as string, '');
-      }
+    if (html !== state.html) {
+      setState({ ...state, html: html });
+      if (!!fieldName) setFieldValue(fieldName as string, html);
     }
   };
 
