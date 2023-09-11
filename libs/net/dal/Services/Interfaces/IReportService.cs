@@ -54,4 +54,11 @@ public interface IReportService : IBaseService<Report, int>
     /// <returns></returns>
     IEnumerable<Report> FindMyReports(int userId);
 
+    /// <summary>
+    /// Clears all content from all folders in any section of the specified 'report'.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <returns></returns>
+    Report? ClearFoldersInReport(Report report);
+
 }

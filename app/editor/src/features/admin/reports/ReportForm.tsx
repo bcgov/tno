@@ -18,10 +18,11 @@ import {
   useModal,
 } from 'tno-core';
 
-import { defaultReport } from './constants';
+import { defaultReport, generateScheduleName } from './constants';
 import { ReportFormDetails } from './ReportFormDetails';
 import { ReportFormInstance } from './ReportFormInstances';
 import { ReportFormPreview } from './ReportFormPreview';
+import { ReportFormScheduler } from './ReportFormScheduler';
 import { ReportFormSections } from './ReportFormSections';
 import { ReportFormSubscribers } from './ReportFormSubscribers';
 import { ReportFormTemplate } from './ReportFormTemplate';
@@ -62,7 +63,18 @@ export const ReportForm: React.FC = () => {
   const handleSubmit = async (values: IReportModel) => {
     try {
       const originalId = values.id;
-      const result = !report.id ? await addReport(values) : await updateReport(values);
+      // Update event schedule information because names must be unique.
+      const report = {
+        ...values,
+        schedules: [
+          ...values.schedules.map((s, i) => ({
+            ...s,
+            name: generateScheduleName(`Schedule ${i + 1}`, values),
+            description: values.description,
+          })),
+        ],
+      };
+      const result = !report.id ? await addReport(report) : await updateReport(report);
       setReport(result);
 
       if (!reportTemplates.some((rt) => rt.id === result.templateId)) {
@@ -116,40 +128,43 @@ export const ReportForm: React.FC = () => {
                     active={active === 'template'}
                   />
                   {!!values.templateId && (
-                    <Tab
-                      label="Sections"
-                      onClick={() => {
-                        setActive('sections');
-                      }}
-                      active={active === 'sections'}
-                    />
-                  )}
-                  {!!values.templateId && (
-                    <Tab
-                      label="Preview"
-                      onClick={() => {
-                        setActive('preview');
-                      }}
-                      active={active === 'preview'}
-                    />
-                  )}
-                  {!!values.templateId && (
-                    <Tab
-                      label="Subscribers"
-                      onClick={() => {
-                        setActive('subscribers');
-                      }}
-                      active={active === 'subscribers'}
-                    />
-                  )}
-                  {!!values.templateId && (
-                    <Tab
-                      label="Instances"
-                      onClick={() => {
-                        setActive('instances');
-                      }}
-                      active={active === 'instances'}
-                    />
+                    <>
+                      <Tab
+                        label="Sections"
+                        onClick={() => {
+                          setActive('sections');
+                        }}
+                        active={active === 'sections'}
+                      />
+                      <Tab
+                        label="Preview"
+                        onClick={() => {
+                          setActive('preview');
+                        }}
+                        active={active === 'preview'}
+                      />
+                      <Tab
+                        label="Subscribers"
+                        onClick={() => {
+                          setActive('subscribers');
+                        }}
+                        active={active === 'subscribers'}
+                      />
+                      <Tab
+                        label="Scheduler"
+                        onClick={() => {
+                          setActive('scheduler');
+                        }}
+                        active={active === 'scheduler'}
+                      />
+                      <Tab
+                        label="Instances"
+                        onClick={() => {
+                          setActive('instances');
+                        }}
+                        active={active === 'instances'}
+                      />
+                    </>
                   )}
                 </>
               }
@@ -169,6 +184,9 @@ export const ReportForm: React.FC = () => {
                 </Show>
                 <Show visible={active === 'subscribers'}>
                   <ReportFormSubscribers />
+                </Show>
+                <Show visible={active === 'scheduler'}>
+                  <ReportFormScheduler />
                 </Show>
                 <Show visible={active === 'instances'}>
                   <ReportFormInstance />

@@ -447,7 +447,8 @@ public class ApiService : IApiService
     {
         var url = Options.ApiUrl.Append($"services/contents/{id}/image");
         return await RetryRequestAsync(async () => await Client.GetAsync<string>(url,
-            (response) => {
+            (response) =>
+            {
                 var isBadRequest = response.StatusCode == HttpStatusCode.BadRequest;
                 if (isBadRequest) Logger.LogWarning("Unable to get the image file (id: {id}).", id);
                 return isBadRequest;
@@ -660,6 +661,17 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"services/report/instances/{instance.Id}");
         return await RetryRequestAsync(async () => await this.Client.PutAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(url, JsonContent.Create(instance)));
+    }
+
+    /// <summary>
+    /// Make a request to the API to clear all content from folders in this report.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.Report.ReportModel?> ClearFoldersInReport(int reportId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/report/{reportId}/clear/folders");
+        return await RetryRequestAsync(async () => await this.Client.PostAsync<API.Areas.Services.Models.Report.ReportModel>(url));
     }
     #endregion
 

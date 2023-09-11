@@ -13,6 +13,11 @@ public class NotificationRequestModel
     public NotificationDestination Destination { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to the event schedule that sent this request.
+    /// </summary>
+    public int? EventScheduleId { get; set; }
+
+    /// <summary>
     /// get/set - Foreign key to the notification.
     /// </summary>
     public int? NotificationId { get; set; }

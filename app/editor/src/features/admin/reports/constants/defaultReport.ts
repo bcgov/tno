@@ -1,5 +1,6 @@
 import { IReportModel } from 'tno-core';
 
+import { defaultReportSchedule } from './defaultReportSchedule';
 import { defaultReportTemplate } from './defaultReportTemplate';
 
 export const defaultReport: IReportModel = {
@@ -37,4 +38,5 @@ export const defaultReport: IReportModel = {
   sections: [],
   subscribers: [],
   instances: [],
+  schedules: [defaultReportSchedule('Schedule 1'), defaultReportSchedule('Schedule 2')],
 };

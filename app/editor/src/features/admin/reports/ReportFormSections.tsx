@@ -142,39 +142,6 @@ export const ReportFormSections = () => {
         </Col>
       </Row>
       <Row gap="1rem">
-        <Col className="frm-in options" flex="2">
-          <label>Content Options</label>
-          <Col>
-            <p>
-              Control what content is included in this report by removing content from prior
-              instances or related reports.
-            </p>
-            <Row>
-              <FormikCheckbox
-                label="Exclude Content From Previous Run"
-                name="settings.content.excludeHistorical"
-                tooltip="Exclude content already reported on in prior instances of this report"
-              />
-              <FormikSelect
-                name="settings.content.excludeReports"
-                label="Exclude Related Report Content"
-                tooltip="Excludes content already reported on in the selected reports"
-                options={reportOptions}
-                isMulti
-                value={reportOptions.filter((ro) =>
-                  values.settings.content.excludeReports?.some((reportId) => reportId === ro.value),
-                )}
-                onChange={(newValue) => {
-                  if (Array.isArray(newValue))
-                    setFieldValue(
-                      'settings.content.excludeReports',
-                      newValue.map((v: OptionItem) => v.value),
-                    );
-                }}
-              />
-            </Row>
-          </Col>
-        </Col>
         <Col className="frm-in options" flex="1">
           <label>Headline Options</label>
           <Col>
@@ -184,6 +151,48 @@ export const ReportFormSections = () => {
               <FormikCheckbox label="Show Common Call" name="settings.headline.showShortName" />
               <FormikCheckbox label="Show Published On" name="settings.headline.showPublishedOn" />
               <FormikCheckbox label="Show Sentiment" name="settings.headline.showSentiment" />
+            </Row>
+          </Col>
+        </Col>
+        <Col className="frm-in options" flex="2">
+          <label>Content Options</label>
+          <Col>
+            <p>
+              Control what content is included in this report by removing content from prior
+              instances or related reports.
+            </p>
+            <Row gap="1rem">
+              <Col gap="1rem">
+                <FormikCheckbox
+                  label="Exclude Content From Previous Run"
+                  name="settings.content.excludeHistorical"
+                  tooltip="Exclude content already reported on in prior instances of this report"
+                />
+                <FormikSelect
+                  name="settings.content.excludeReports"
+                  label="Exclude Related Report Content"
+                  tooltip="Excludes content already reported on in the selected reports"
+                  options={reportOptions}
+                  isMulti
+                  value={reportOptions.filter((ro) =>
+                    values.settings.content.excludeReports?.some(
+                      (reportId) => reportId === ro.value,
+                    ),
+                  )}
+                  onChange={(newValue) => {
+                    if (Array.isArray(newValue))
+                      setFieldValue(
+                        'settings.content.excludeReports',
+                        newValue.map((v: OptionItem) => v.value),
+                      );
+                  }}
+                />
+              </Col>
+              <FormikCheckbox
+                label="Clear all Folders after report runs"
+                name="settings.content.clearFolders"
+                tooltip="Clears all content from all folders in this report after this report is run"
+              />
             </Row>
           </Col>
         </Col>

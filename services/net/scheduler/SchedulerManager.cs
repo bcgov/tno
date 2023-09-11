@@ -73,8 +73,8 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
                             else if (ev.EventType == EventScheduleType.Notification)
                                 await GenerateNotificationRequestAsync(scheduledEvent);
 
-                            // Update even last ran on
-                            scheduledEvent.LastRanOn = DateTime.UtcNow;
+                            // Update event request sent on.
+                            scheduledEvent.RequestSentOn = DateTime.UtcNow;
                             await this.Api.UpdateEventScheduleAsync(scheduledEvent);
                         }
                     }
@@ -103,43 +103,17 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
         var schedule = scheduledEvent.Schedule ?? throw new InvalidOperationException($"Schedule is missing from event {scheduledEvent.Id}:{scheduledEvent.Name}");
 
         var now = DateTime.Now;
-        var currentMonth = now.Month switch
-        {
-            1 => ScheduleMonth.January,
-            2 => ScheduleMonth.February,
-            3 => ScheduleMonth.March,
-            4 => ScheduleMonth.April,
-            5 => ScheduleMonth.May,
-            6 => ScheduleMonth.June,
-            7 => ScheduleMonth.July,
-            8 => ScheduleMonth.August,
-            9 => ScheduleMonth.September,
-            10 => ScheduleMonth.October,
-            11 => ScheduleMonth.November,
-            12 => ScheduleMonth.December,
-            _ => ScheduleMonth.NA,
-        };
-
-        var currentWeekDay = now.DayOfWeek switch
-        {
-            DayOfWeek.Sunday => ScheduleWeekDay.Sunday,
-            DayOfWeek.Monday => ScheduleWeekDay.Monday,
-            DayOfWeek.Tuesday => ScheduleWeekDay.Tuesday,
-            DayOfWeek.Wednesday => ScheduleWeekDay.Wednesday,
-            DayOfWeek.Thursday => ScheduleWeekDay.Thursday,
-            DayOfWeek.Friday => ScheduleWeekDay.Friday,
-            DayOfWeek.Saturday => ScheduleWeekDay.Saturday,
-            _ => ScheduleWeekDay.NA,
-        };
+        var currentMonth = GetCurrentMonth(now);
+        var currentWeekDay = GetDayOfWeek(now);
 
         if (!schedule.IsEnabled) return false;
 
-        var lastRanOn = scheduledEvent.LastRanOn?.ToTimeZone(this.Options.TimeZone);
-        var nextRun = lastRanOn?.AddMilliseconds(schedule.DelayMS);
+        var requestSentOn = scheduledEvent.RequestSentOn?.ToTimeZone(this.Options.TimeZone);
+        var nextRun = requestSentOn?.AddMilliseconds(schedule.DelayMS);
         // Delay must have expired.
         if (nextRun > now) return false;
         // Only run once per day.
-        if (!schedule.Repeat && now.Year == lastRanOn?.Year && now.Month == lastRanOn?.Month && now.Day == lastRanOn?.Day) return false;
+        if (!schedule.Repeat && now.Year == requestSentOn?.Year && now.Month == requestSentOn?.Month && now.Day == requestSentOn?.Day) return false;
         // Only run on the specified months.
         if (schedule.RunOnMonths != null && !schedule.RunOnMonths.Contains((int)ScheduleMonth.NA) && !schedule.RunOnMonths.Contains((int)currentMonth)) return false;
         // Only run on the specified week days.
@@ -166,24 +140,26 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
     {
         if (scheduledEvent.EventType != EventScheduleType.Report) throw new InvalidOperationException("Only report event types allowed");
 
+        var reportId = scheduledEvent.ReportId;
+        var requestorId = scheduledEvent.Schedule?.RequestedById;
         var destination = scheduledEvent.Settings.GetDictionaryJsonValue<ReportDestination?>("destination") ?? ReportDestination.ReportingService;
-        var reportId = scheduledEvent.Settings.GetDictionaryJsonValue<int?>("reportId");
         var reportInstanceId = scheduledEvent.Settings.GetDictionaryJsonValue<long?>("reportInstanceId");
-        var requestorId = scheduledEvent.Settings.GetDictionaryJsonValue<int?>("requestorId");
         var assignedId = scheduledEvent.Settings.GetDictionaryJsonValue<int?>("assignedId");
         var reportType = scheduledEvent.Settings.GetDictionaryJsonValue<ReportType?>("reportType") ?? ReportType.Content;
         var to = scheduledEvent.Settings.GetDictionaryJsonValue<string>("to") ?? "";
         var data = scheduledEvent.Settings.GetDictionaryJsonValue<object?>("data") ?? new { };
-        var generateInstance = scheduledEvent.Settings.GetDictionaryJsonValue<bool?>("generateInstance") ?? true;
+        var autoSend = scheduledEvent.Settings.GetDictionaryJsonValue<bool?>("autoSend") ?? false;
 
         if (reportId == null || reportId == 0) throw new InvalidOperationException($"Event schedule configuration must have a valid report {scheduledEvent.Id}:{scheduledEvent.Name}");
         var request = new ReportRequestModel(destination, reportType, reportId.Value, data)
         {
+            EventScheduleId = scheduledEvent.Id,
             ReportInstanceId = reportInstanceId,
             RequestorId = requestorId,
             AssignedId = assignedId,
             To = to,
-            GenerateInstance = generateInstance
+            GenerateInstance = true,
+            SendToSubscribers = autoSend,
         };
         await this.Api.SendMessageAsync(request);
     }
@@ -208,6 +184,7 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
 
         var request = new NotificationRequestModel(destination, data)
         {
+            EventScheduleId = scheduledEvent.Id,
             NotificationId = notificationId,
             ContentId = contentId,
             RequestorId = requestorId,
@@ -215,6 +192,41 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
             To = to,
         };
         await this.Api.SendMessageAsync(request);
+    }
+
+    private static ScheduleMonth GetCurrentMonth(DateTime date)
+    {
+        return date.Month switch
+        {
+            1 => ScheduleMonth.January,
+            2 => ScheduleMonth.February,
+            3 => ScheduleMonth.March,
+            4 => ScheduleMonth.April,
+            5 => ScheduleMonth.May,
+            6 => ScheduleMonth.June,
+            7 => ScheduleMonth.July,
+            8 => ScheduleMonth.August,
+            9 => ScheduleMonth.September,
+            10 => ScheduleMonth.October,
+            11 => ScheduleMonth.November,
+            12 => ScheduleMonth.December,
+            _ => ScheduleMonth.NA,
+        };
+    }
+
+    private static ScheduleWeekDay GetDayOfWeek(DateTime date)
+    {
+        return date.DayOfWeek switch
+        {
+            DayOfWeek.Sunday => ScheduleWeekDay.Sunday,
+            DayOfWeek.Monday => ScheduleWeekDay.Monday,
+            DayOfWeek.Tuesday => ScheduleWeekDay.Tuesday,
+            DayOfWeek.Wednesday => ScheduleWeekDay.Wednesday,
+            DayOfWeek.Thursday => ScheduleWeekDay.Thursday,
+            DayOfWeek.Friday => ScheduleWeekDay.Friday,
+            DayOfWeek.Saturday => ScheduleWeekDay.Saturday,
+            _ => ScheduleWeekDay.NA,
+        };
     }
     #endregion
 }

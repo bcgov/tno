@@ -46,9 +46,24 @@ public class EventScheduleModel : AuditColumnsModel
     public EventScheduleType EventType { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to the notification.
+    /// </summary>
+    public int? NotificationId { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to the report.
+    /// </summary>
+    public int? ReportId { get; set; }
+
+    /// <summary>
     /// get/set -
     /// </summary>
     public Dictionary<string, object> Settings { get; set; } = new Dictionary<string, object>();
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public DateTime? RequestSentOn { get; set; }
 
     /// <summary>
     /// get/set -
@@ -76,7 +91,10 @@ public class EventScheduleModel : AuditColumnsModel
         this.IsEnabled = entity.IsEnabled;
         this.ScheduleId = entity.ScheduleId;
         this.Schedule = entity.Schedule != null ? new ScheduleModel(entity.Schedule) : null;
+        this.NotificationId = entity.NotificationId;
+        this.ReportId = entity.ReportId;
         this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
+        this.RequestSentOn = entity.RequestSentOn;
         this.LastRanOn = entity.LastRanOn;
     }
     #endregion
@@ -105,8 +123,11 @@ public class EventScheduleModel : AuditColumnsModel
             Id = model.Id,
             Description = model.Description,
             IsEnabled = model.IsEnabled,
+            NotificationId = model.NotificationId,
+            ReportId = model.ReportId,
             Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
             LastRanOn = model.LastRanOn,
+            RequestSentOn = model.RequestSentOn,
             Version = model.Version ?? 0
         };
 

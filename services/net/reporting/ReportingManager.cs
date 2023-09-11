@@ -305,6 +305,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
             else throw new NotImplementedException($"Report template type '{request.ReportType.GetName()}' has not been implemented");
         }
+
+        // If the request originated from the scheduler service, update the last ran one.
+        if (request.EventScheduleId.HasValue)
+        {
+            var scheduledEvent = await this.Api.GetEventScheduleAsync(request.EventScheduleId.Value) ?? throw new NoContentException($"Event schedule '{request.EventScheduleId}' does not exist.");
+            scheduledEvent.LastRanOn = DateTime.UtcNow;
+            await this.Api.UpdateEventScheduleAsync(scheduledEvent);
+        }
     }
 
     /// <summary>
@@ -345,27 +353,27 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var subject = await this.ReportEngine.GenerateReportSubjectAsync(report, sectionContent, request.UpdateCache);
         var body = await this.ReportEngine.GenerateReportBodyAsync(report, sectionContent, null, request.UpdateCache);
 
-        if (to.Any() || !String.IsNullOrEmpty(request.To))
+        // Save the report instance.
+        // Group content by the section name.
+        var instance = new ReportInstance(
+            report.Id,
+            request.RequestorId,
+            sectionContent.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray()
+            )
         {
-            // Save the report instance.
-            // Group content by the section name.
-            var instance = new ReportInstance(
-                report.Id,
-                request.RequestorId,
-                sectionContent.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray()
-                )
-            {
-                OwnerId = request.RequestorId,
-                PublishedOn = DateTime.UtcNow
-            };
-            var model = new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions);
-            var instanceModel = request.GenerateInstance ? (await this.Api.AddReportInstanceAsync(model)
-                ?? throw new InvalidOperationException("Report instance failed to be returned by API")) : null;
+            OwnerId = request.RequestorId,
+            PublishedOn = DateTime.UtcNow
+        };
+        var model = new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions);
+        var instanceModel = request.GenerateInstance ? (await this.Api.AddReportInstanceAsync(model)
+            ?? throw new InvalidOperationException("Report instance failed to be returned by API")) : null;
 
+        if (request.SendToSubscribers && (to.Any() || !String.IsNullOrEmpty(request.To)))
+        {
             // Send the email.
             var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
 
-            // Save the report instance.
+            // Update the report instance.
             if (request.GenerateInstance && instanceModel != null)
             {
                 model.Id = instanceModel.Id;
@@ -375,9 +383,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 await this.Api.UpdateReportInstanceAsync(model);
             }
         }
-        else
+
+        if (report.Settings.Content.ClearFolders)
         {
-            this.Logger.LogWarning($"Report request '{report.Id}' does not have any subscribers");
+            // Make a request to clear content from folders in this report.
+            await this.Api.ClearFoldersInReport(report.Id);
         }
     }
 
@@ -398,7 +408,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         var to = instance.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.Email)).Select(s => s.Email).ToArray();
         // No need to send an email if there are no subscribers.
-        if (to.Length > 0 || !String.IsNullOrEmpty(request.To))
+        if (request.SendToSubscribers && (to.Length > 0 || !String.IsNullOrEmpty(request.To)))
         {
             var subject = await this.ReportEngine.GenerateReportSubjectAsync(template, model, request.UpdateCache);
             var body = await this.ReportEngine.GenerateReportBodyAsync(template, model, request.UpdateCache);
@@ -410,10 +420,6 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
             instance.IsPublished = true;
             await this.Api.UpdateAVOverviewInstanceAsync(instance);
-        }
-        else
-        {
-            this.Logger.LogWarning($"AV evening overview has no subscribers.");
         }
     }
 
@@ -454,7 +460,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var body = await this.ReportEngine.GenerateReportBodyAsync(reportInstance.Report, sectionContent, null, request.UpdateCache);
 
         // Send the email.
-        if (to.Any() || !String.IsNullOrEmpty(request.To))
+        if (request.SendToSubscribers && (to.Any() || !String.IsNullOrEmpty(request.To)))
         {
             var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
 
@@ -463,9 +469,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             if (reportInstance.PublishedOn == null) reportInstance.PublishedOn = DateTime.UtcNow;
             await this.Api.UpdateReportInstanceAsync(reportInstance);
         }
-        else
+
+        if (report.Settings.Content.ClearFolders)
         {
-            this.Logger.LogWarning($"Report request '{reportInstance.ReportId}' does not have any subscribers");
+            // Make a request to clear content from folders in this report.
+            await this.Api.ClearFoldersInReport(report.Id);
         }
     }
 

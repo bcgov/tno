@@ -50,10 +50,10 @@ public class ReportService : BaseService<Report, int>, IReportService
             .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
     }
 
-        /// <summary>
-        /// Find all the public reports.
-        /// </summary>
-        /// <returns></returns>
+    /// <summary>
+    /// Find all the public reports.
+    /// </summary>
+    /// <returns></returns>
     public IEnumerable<Report> GetPublic()
     {
         return this.Context.Reports
@@ -104,6 +104,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             .Include(r => r.Sections).ThenInclude(s => s.Folder)
             .Include(r => r.Sections).ThenInclude(s => s.ChartTemplatesManyToMany).ThenInclude(c => c.ChartTemplate)
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
+            .Include(r => r.Schedules).ThenInclude(s => s.Schedule)
             .FirstOrDefault(r => r.Id == id);
     }
 
@@ -148,6 +149,15 @@ public class ReportService : BaseService<Report, int>, IReportService
             }
         }
         this.Context.AddRange(entity.Sections);
+
+        entity.Schedules.ForEach(schedule =>
+        {
+            if (schedule.Schedule != null)
+            {
+                this.Context.Add(schedule.Schedule);
+                this.Context.Add(schedule);
+            }
+        });
         return base.Add(entity);
     }
 
@@ -173,6 +183,47 @@ public class ReportService : BaseService<Report, int>, IReportService
             var originalSubscriber = originalSubscribers.FirstOrDefault(rs => rs.UserId == s.UserId);
             if (originalSubscriber == null)
                 original.SubscribersManyToMany.Add(s);
+        });
+
+        var originalSchedules = original.Schedules.ToArray();
+        originalSchedules.Except(entity.Schedules).ForEach(schedule =>
+        {
+            this.Context.Entry(schedule).State = EntityState.Deleted;
+        });
+        entity.Schedules.ForEach(schedule =>
+        {
+            var originalSchedule = originalSchedules.FirstOrDefault(s => s.Id == schedule.Id);
+            if (originalSchedule == null)
+                original.Schedules.Add(schedule);
+            else
+            {
+                originalSchedule.Name = schedule.Name;
+                originalSchedule.Description = schedule.Description;
+                originalSchedule.IsEnabled = schedule.IsEnabled;
+                originalSchedule.RequestSentOn = schedule.RequestSentOn;
+                originalSchedule.LastRanOn = schedule.LastRanOn;
+                originalSchedule.EventType = schedule.EventType;
+                originalSchedule.Settings = schedule.Settings;
+                originalSchedule.ReportId = schedule.ReportId;
+                originalSchedule.NotificationId = schedule.NotificationId;
+                originalSchedule.ScheduleId = schedule.ScheduleId;
+                if (originalSchedule.Schedule != null && schedule.Schedule != null)
+                {
+                    originalSchedule.Schedule.Name = schedule.Schedule.Name;
+                    originalSchedule.Schedule.Description = schedule.Schedule.Description;
+                    originalSchedule.Schedule.IsEnabled = schedule.Schedule.IsEnabled;
+                    originalSchedule.Schedule.DelayMS = schedule.Schedule.DelayMS;
+                    originalSchedule.Schedule.RunOn = schedule.Schedule.RunOn;
+                    originalSchedule.Schedule.StartAt = schedule.Schedule.StartAt;
+                    originalSchedule.Schedule.StopAt = schedule.Schedule.StopAt;
+                    originalSchedule.Schedule.RunOnlyOnce = schedule.Schedule.RunOnlyOnce;
+                    originalSchedule.Schedule.Repeat = schedule.Schedule.Repeat;
+                    originalSchedule.Schedule.RunOnWeekDays = schedule.Schedule.RunOnWeekDays;
+                    originalSchedule.Schedule.RunOnMonths = schedule.Schedule.RunOnMonths;
+                    originalSchedule.Schedule.DayOfMonth = schedule.Schedule.DayOfMonth;
+                    originalSchedule.Schedule.RequestedById = schedule.Schedule.RequestedById;
+                }
+            }
         });
 
         // Add/Update the report template.
@@ -397,6 +448,24 @@ public class ReportService : BaseService<Report, int>, IReportService
         });
 
         return contentIds.Distinct().ToArray();
+    }
+
+    /// <summary>
+    /// Clears all content from all folders in any section of the specified 'report'.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <returns></returns>
+    public Report? ClearFoldersInReport(Report report)
+    {
+        report.Sections.Where(s => s.Folder != null).ForEach(section =>
+        {
+            var folderContent = this.Context.FolderContents.Where(fc => fc.FolderId == section.FolderId).ToArray();
+            this.Context.RemoveRange(folderContent);
+        });
+
+        this.Context.SaveChanges();
+
+        return FindById(report.Id);
     }
 
     /// <summary>
