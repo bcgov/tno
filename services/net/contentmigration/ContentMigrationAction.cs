@@ -320,6 +320,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 // check if this is content, previously ingested by this service, but has been updated by an Editor in TNO
                 DateTime originalLastUpdateDate = DateTime.MinValue;
                 string originalSource = String.Empty;
+                bool originalIsContentPublished = false;
                 if (reference.Metadata.ContainsKey(ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn))
                 {
                     if (!DateTime.TryParse(reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn].ToString(), out originalLastUpdateDate))
@@ -329,11 +330,16 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 {
                     originalSource = reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyIngestSource].ToString() ?? String.Empty;
                 }
+                if (reference.Metadata.ContainsKey(ContentReferenceMetaDataKeys.MetadataKeyIsContentPublished))
+                {
+                    if (!Boolean.TryParse(reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyIsContentPublished].ToString(), out originalIsContentPublished))
+                        originalIsContentPublished = false;
+                }
 
                 // IF this record was previously ingested from TNO by the Content Migration Service
                 // AND it has been updated since it's original ingest
                 // THEN trigger an update to the content
-                if ((source?.Code == originalSource) && (sourceContent.UpdatedOn > originalLastUpdateDate))
+                if ((source?.Code == originalSource) && ((sourceContent.UpdatedOn > originalLastUpdateDate) || (newsItem.Published != originalIsContentPublished )))
                 {
                     isUpdatedSourceContent = true;
                     reference.Status = (int)WorkflowStatus.Received;
