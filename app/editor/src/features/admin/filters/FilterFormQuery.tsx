@@ -136,12 +136,18 @@ export const FilterFormQuery: React.FC = () => {
                 <li>
                   <code>"</code> wraps a number of tokens to signify a phrase for searching
                 </li>
-                {/* <li><code>*</code> at the end of a term signifies a prefix query</li> */}
+                <li>
+                  <code>*</code> at the end of a term signifies a prefix query
+                </li>
                 <li>
                   <code>(</code> and <code>)</code> signify precedence
                 </li>
-                {/* <li><code>~N</code> after a word signifies edit distance (fuzziness)</li> */}
-                {/* <li><code>~N</code> after a phrase signifies slop amount</li> */}
+                <li>
+                  <code>~N</code> after a word signifies edit distance (fuzziness)
+                </li>
+                <li>
+                  <code>~N</code> after a phrase signifies slop amount
+                </li>
               </ul>
             </p>
           </Col>
