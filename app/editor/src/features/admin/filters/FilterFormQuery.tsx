@@ -113,7 +113,7 @@ export const FilterFormQuery: React.FC = () => {
               label="Keywords"
               value={values.settings.search ?? ''}
               width={FieldSize.Large}
-              rows={5}
+              rows={8}
               onChange={(e) => {
                 const value = e.target.value.length ? e.target.value : undefined;
                 updateQuery('search', value);
