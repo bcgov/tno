@@ -5,7 +5,6 @@ import {
   FaComment,
   FaFire,
   FaFolder,
-  FaHeart,
   FaHome,
   FaSearch,
   FaSlidersH,
