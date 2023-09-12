@@ -13,6 +13,7 @@ export interface ISubscriberContentFilter extends ISortPageFilter {
   hasTopic?: boolean;
   headline?: string;
   includeHidden?: boolean;
+  index?: string;
   keyword?: string;
   names?: string;
   onlyHidden?: boolean;

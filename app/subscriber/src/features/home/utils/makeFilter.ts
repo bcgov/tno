@@ -22,6 +22,7 @@ export const makeFilter = (
     excludeSourceIds: filter.excludeSourceIds ?? undefined,
     hasFile: filter.hasFile,
     headline: filter.headline ?? '',
+    index: filter.index,
     keyword: filter.keyword ?? undefined,
     names: filter.names ?? undefined,
     productIds: filter.productIds ?? undefined,

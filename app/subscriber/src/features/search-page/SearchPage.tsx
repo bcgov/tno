@@ -60,6 +60,7 @@ export const SearchPage: React.FC = () => {
         endDate: urlParams.get('publishedEndOn') ?? '',
         hasFile: urlParams.get('hasFile') === 'true' ?? false,
         headline: urlParams.get('headline') ?? '',
+        index: urlParams.get('index') ?? '',
         keyword: urlParams.get('keyword') ?? '',
         pageIndex: convertTo(urlParams.get('pageIndex'), 'number', 0),
         pageSize: convertTo(urlParams.get('pageSize'), 'number', 100),

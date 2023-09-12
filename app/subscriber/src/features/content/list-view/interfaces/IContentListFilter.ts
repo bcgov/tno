@@ -8,7 +8,9 @@ export interface IContentListFilter {
   byline?: string;
   contentTypes: ContentTypeName[];
   excludeSourceIds?: number[];
+  hasFile?: boolean;
   headline?: string;
+  index?: string;
   keyword?: string;
   names?: string;
   otherSource?: string | '';
@@ -22,7 +24,6 @@ export interface IContentListFilter {
   status?: ContentStatus;
   sentiment?: number[];
   storyText?: string;
-  userId?: number | '';
   topStory?: boolean;
-  hasFile?: boolean;
+  userId?: number | '';
 }
