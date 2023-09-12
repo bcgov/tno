@@ -104,13 +104,15 @@ export const Wysiwyg = <T extends object>({
           .replace(/<br\s*\/?>/g, '[br]'),
         'text/html',
       );
-      doc.body.textContent =
+      const html =
         doc.body.textContent
           ?.replaceAll('[p]', '<p>')
           .replaceAll('[/p]', '</p>')
           .replaceAll('[br]', '<br>') || '';
-      setFieldValue(fieldName as string, doc.body.textContent);
-      setState({ ...state, html: doc.body.textContent });
+      if (html !== state.html) {
+        setState({ ...state, html: html });
+        setFieldValue(fieldName as string, html);
+      }
     }
   };
 
@@ -136,10 +138,8 @@ export const Wysiwyg = <T extends object>({
   const handleChange = (html: string) => {
     if (html !== state.html) {
       setState({ ...state, html: html });
-      if (!!fieldName) {
-        setFieldValue(fieldName as string, html);
-        updateTags(html);
-      }
+      if (!!fieldName) setFieldValue(fieldName as string, html);
+      updateTags(html);
     }
   };
 
