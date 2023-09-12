@@ -1,0 +1,22 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: scheduler-service
+  namespace: default
+  annotations:
+    description: Reporting service configuration settings
+    created-by: jeremy.foster
+  labels:
+    name: scheduler-service
+    part-of: tno
+    version: 1.0.0
+    component: scheduler-service
+    managed-by: kustomize
+type: Opaque
+data:
+  KAFKA_CLIENT_ID: Scheduler
+  MAX_FAIL_LIMIT: "5"
+  EVENT_TYPES: |
+    - Notification
+    - Report

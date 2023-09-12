@@ -2,7 +2,6 @@ apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
   name: git-app
-  component: app
 spec:
   params:
     - name: GIT_SOURCE
@@ -13,6 +12,8 @@ spec:
       description: The version to tag the image with
     - name: DEPLOY_TO
       description: The environment to deploy to
+    - name: COMPONENT
+      description: Which components to build/deploy [*|all|[name]]
   resourcetemplates:
     - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
@@ -46,6 +47,8 @@ spec:
             value: tno
           - name: DEPLOY_TO
             value: $(tt.params.DEPLOY_TO)
+          - name: COMPONENT
+            value: $(tt.params.COMPONENT)
         workspaces:
           - name: source
             persistentVolumeClaim:

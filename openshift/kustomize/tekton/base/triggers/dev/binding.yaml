@@ -14,3 +14,5 @@ spec:
       value: latest # TODO: Dynamically generate this somehow.
     - name: DEPLOY_TO
       value: dev
+    - name: COMPONENT
+      value: "*"
