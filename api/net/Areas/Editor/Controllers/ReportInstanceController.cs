@@ -72,11 +72,13 @@ public class ReportInstanceController : ControllerBase
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        var report = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report instance does not exist");
-        if (!user.Roles.Split(',').Contains(ClientRole.Administrator.GetName()) &&
-            report.OwnerId != user.Id &&
-            (report.Report?.IsPublic == false)) throw new NotAuthorizedException("Not authorized to preview this report");
-        var model = new Services.Models.ReportInstance.ReportInstanceModel(report, _serializerOptions);
+        var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report instance does not exist");
+        var report = instance.Report ?? throw new NoContentException("Report instance is missing report information");
+        if (!user.Roles.Split(',').Contains(ClientRole.Administrator.GetName()) && // User is not admin
+            instance.OwnerId != user.Id && // User does not own the report instance
+            !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) && // User is not subscribed to the report
+            !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report"); // Report is not public
+        var model = new Services.Models.ReportInstance.ReportInstanceModel(instance, _serializerOptions);
         var result = await _reportHelper.GenerateReportAsync(model);
         return new JsonResult(result);
     }

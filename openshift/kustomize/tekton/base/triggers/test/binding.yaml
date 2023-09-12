@@ -16,3 +16,7 @@ spec:
       value: test
     - name: COMPONENT
       value: all
+    - name: EDITOR_URL
+      value: https://tno-test.apps.silver.devops.gov.bc.ca
+    - name: SUBSCRIBER_URL
+      value: https://mmia-test.apps.silver.devops.gov.bc.ca

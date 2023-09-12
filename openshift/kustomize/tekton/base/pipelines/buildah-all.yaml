@@ -140,7 +140,7 @@ spec:
         - name: PROJECT
           value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
         - name: ROUTE
-          value: editor
+          value: editor-tls
         - name: SERVICE
           value: nginx
 
@@ -154,7 +154,7 @@ spec:
         - name: PROJECT
           value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
         - name: ROUTE
-          value: subscriber
+          value: subscriber-tls
         - name: SERVICE
           value: nginx
 
@@ -209,7 +209,7 @@ spec:
         - name: PROJECT
           value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
         - name: ROUTE
-          value: editor
+          value: editor-tls
         - name: SERVICE
           value: editor
 
@@ -223,7 +223,7 @@ spec:
         - name: PROJECT
           value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
         - name: ROUTE
-          value: subscriber
+          value: subscriber-tls
         - name: SERVICE
           value: subscriber
 

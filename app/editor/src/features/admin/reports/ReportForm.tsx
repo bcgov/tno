@@ -71,6 +71,7 @@ export const ReportForm: React.FC = () => {
             ...s,
             name: generateScheduleName(`Schedule ${i + 1}`, values),
             description: values.description,
+            requestedById: values.ownerId,
           })),
         ],
       };

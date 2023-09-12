@@ -66,8 +66,7 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
                         var scheduledEvent = await this.Api.GetEventScheduleAsync(ev.Id) ?? throw new InvalidOperationException($"Event does not exist {ev.Id}:{ev.Name}");
                         if (VerifySchedule(scheduledEvent))
                         {
-                            // Generate topic message
-                            // Send message to Kafka
+                            this.Logger.LogInformation("Scheduled event '{name}' is running", scheduledEvent.Name);
                             if (ev.EventType == EventScheduleType.Report)
                                 await GenerateReportRequestAsync(scheduledEvent);
                             else if (ev.EventType == EventScheduleType.Notification)
