@@ -3,18 +3,18 @@ using TNO.DAL.Services;
 namespace TNO.Elastic.Migration;
 
 /// <summary>
-/// Migration_107 class, provides a way to migration elastic to version 1.0.7.
+/// Migration_108 class, provides a way to migration elastic to version 1.0.8.
 /// </summary>
-[Migration("1.0.7")]
-public class Migration_107 : TNOMigration
+[Migration("1.0.8")]
+public class Migration_108 : TNOMigration
 {
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a Migration_107 object, initializes with specified parameters.
+    /// Creates a new instance of a Migration_108 object, initializes with specified parameters.
     /// </summary>
     /// <param name="builder"></param>
     /// <param name="contentService"></param>
-    public Migration_107(MigrationBuilder builder, IContentService contentService) : base(builder, contentService)
+    public Migration_108(MigrationBuilder builder, IContentService contentService) : base(builder, contentService)
     {
     }
     #endregion

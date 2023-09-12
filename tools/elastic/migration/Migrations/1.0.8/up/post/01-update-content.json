@@ -1,0 +1,13 @@
+{
+  "action": "updateMapping",
+  "settings": {
+    "indexName": "content"
+  },
+  "data": {
+    "properties": {
+      "postedOn": {
+        "type": "date"
+      }
+    }
+  }
+}

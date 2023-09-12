@@ -147,6 +147,11 @@ public class ContentModel : AuditColumnsModel
     public string SourceUrl { get; set; } = "";
 
     /// <summary>
+    /// get/set - When an editor posted the content.
+    /// </summary>
+    public DateTime? PostedOn { get; set; }
+
+    /// <summary>
     /// get/set - When the content has been or will be published.
     /// </summary>
     public DateTime? PublishedOn { get; set; }
@@ -255,6 +260,7 @@ public class ContentModel : AuditColumnsModel
         this.Summary = entity.Summary;
         this.Body = entity.Body;
         this.SourceUrl = entity.SourceUrl;
+        this.PostedOn = entity.PostedOn;
         this.PublishedOn = entity.PublishedOn;
         this.IsHidden = entity.IsHidden;
         this.IsApproved = entity.IsApproved;
@@ -286,6 +292,7 @@ public class ContentModel : AuditColumnsModel
             Edition = model.Edition,
             Section = model.Section,
             Page = model.Page,
+            PostedOn = model.PostedOn,
             PublishedOn = model.PublishedOn,
             Summary = model.Summary,
             Body = model.Body,

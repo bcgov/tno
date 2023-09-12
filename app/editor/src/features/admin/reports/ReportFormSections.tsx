@@ -164,13 +164,13 @@ export const ReportFormSections = () => {
             <Row gap="1rem">
               <Col gap="1rem">
                 <FormikCheckbox
-                  label="Exclude Content From Previous Run"
+                  label="Exclude content from previous run"
                   name="settings.content.excludeHistorical"
                   tooltip="Exclude content already reported on in prior instances of this report"
                 />
                 <FormikSelect
+                  label="Exclude related report content"
                   name="settings.content.excludeReports"
-                  label="Exclude Related Report Content"
                   tooltip="Excludes content already reported on in the selected reports"
                   options={reportOptions}
                   isMulti
@@ -188,11 +188,18 @@ export const ReportFormSections = () => {
                   }}
                 />
               </Col>
-              <FormikCheckbox
-                label="Clear all Folders after report runs"
-                name="settings.content.clearFolders"
-                tooltip="Clears all content from all folders in this report after this report is run"
-              />
+              <Col gap="1rem">
+                <FormikCheckbox
+                  label="Include only new content posted since previous run"
+                  name="settings.content.onlyNewContent"
+                  tooltip="Adds a date filter to only include content posted since the last time this report ran"
+                />
+                <FormikCheckbox
+                  label="Clear all folders after report runs"
+                  name="settings.content.clearFolders"
+                  tooltip="Clears all content from all folders in this report after this report is run"
+                />
+              </Col>
             </Row>
           </Col>
         </Col>
