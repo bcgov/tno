@@ -12,8 +12,10 @@ import {
   Button,
   ButtonVariant,
   Col,
+  FieldSize,
   FormikDatePicker,
   FormikText,
+  FormikTextArea,
   IFilterModel,
   OptionItem,
   Row,
@@ -105,21 +107,58 @@ export const FilterFormQuery: React.FC = () => {
           </p>
         </Row>
         <Row>
-          <FormikText
-            name="settings.search"
-            label="Keywords"
-            value={values.settings.search ?? ''}
-            onChange={(e) => {
-              const value = e.target.value.length ? e.target.value : undefined;
-              updateQuery('search', value);
-            }}
-          >
-            <ToggleGroup
-              className="search-in"
-              options={searchOptions}
-              defaultSelected={values.settings.searchIn ?? searchOptions[0].label}
+          <Col>
+            <FormikTextArea
+              name="settings.search"
+              label="Keywords"
+              value={values.settings.search ?? ''}
+              width={FieldSize.Large}
+              rows={8}
+              onChange={(e) => {
+                const value = e.target.value.length ? e.target.value : undefined;
+                updateQuery('search', value);
+              }}
             />
-          </FormikText>
+          </Col>
+          <Col>
+            <p>
+              The keywords query supports the following operators:
+              <ul>
+                <li>
+                  <code>+</code> signifies AND operation
+                </li>
+                <li>
+                  <code>|</code> signifies OR operation
+                </li>
+                <li>
+                  <code>-</code> negates a single token
+                </li>
+                <li>
+                  <code>"</code> wraps a number of tokens to signify a phrase for searching
+                </li>
+                <li>
+                  <code>*</code> at the end of a term signifies a prefix query
+                </li>
+                <li>
+                  <code>(</code> and <code>)</code> signify precedence
+                </li>
+                <li>
+                  <code>~N</code> after a word signifies edit distance (fuzziness)
+                </li>
+                <li>
+                  <code>~N</code> after a phrase signifies slop amount
+                </li>
+              </ul>
+            </p>
+          </Col>
+        </Row>
+        <Row>
+          <ToggleGroup
+            label="Search for Keywords in"
+            className="search-in"
+            options={searchOptions}
+            defaultSelected={values.settings.searchIn ?? searchOptions[0].label}
+          />
         </Row>
         <Row nowrap>
           <Col>
