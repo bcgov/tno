@@ -27,6 +27,13 @@ export const Commentary = styled.div`
   .content {
     padding-top: 0.5em;
     background-color: ${(props) => props.theme.css.lightGray};
-    min-height: 20em;
+    min-height: 10em;
+    max-height: 20em;
+    overflow-y: auto;
+    .content-row {
+      svg {
+        margin-right: 0.35em;
+      }
+    }
   }
 `;

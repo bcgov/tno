@@ -55,7 +55,6 @@ export const SearchPage: React.FC = () => {
   const advancedSubscriberFilter: IContentListFilter & Partial<IContentListAdvancedFilter> =
     React.useMemo(() => {
       return {
-        // actions: search.actions?.length ? [search.actions] : [],
         actions: search.actions?.map((v: any) => convertTo(v, 'string', undefined)),
         contentTypes: [],
         endDate: urlParams.get('publishedEndOn') ?? '',
