@@ -62,11 +62,6 @@ export const SidebarMenuItems: ISideBarMenuItems = {
     path: 'folders',
     icon: <FaFolder />,
   },
-  myCollections: {
-    label: 'My Collections',
-    path: 'mycollections',
-    icon: <FaHeart />,
-  },
   myReports: {
     label: 'My Reports',
     path: 'myreports',
