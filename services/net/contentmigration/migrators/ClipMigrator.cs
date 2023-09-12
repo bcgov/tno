@@ -1,5 +1,7 @@
 using System.Configuration;
 using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 using LinqKit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
