@@ -2,10 +2,12 @@ import 'react-quill/dist/quill.snow.css';
 
 import { useFormikContext } from 'formik';
 import { html_beautify } from 'js-beautify';
+import _ from 'lodash';
 import { Sources } from 'quill';
 import React from 'react';
 import ReactQuill from 'react-quill';
 import { useParams } from 'react-router-dom';
+import { useLookup } from 'store/hooks';
 import { Error } from 'tno-core';
 
 import { CustomToolbar } from './CustomToolbar';
@@ -53,6 +55,7 @@ export const Wysiwyg = <T extends object>({
   const [toolBarNode, setToolBarNode] = React.useState();
 
   const { id } = useParams();
+  const [{ tags }] = useLookup();
 
   const [state, setState] = React.useState({
     html: '',
@@ -68,6 +71,7 @@ export const Wysiwyg = <T extends object>({
           ...state,
           html: html,
         });
+        updateTags(html);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -110,10 +114,32 @@ export const Wysiwyg = <T extends object>({
     }
   };
 
+  const tagMatch = /\[.*?\]/g;
+
+  const extractTags = (values: string[]) => {
+    return tags
+      .filter((tag) =>
+        values.some((value: string) => value.trim().toLowerCase() === tag.code.toLowerCase()),
+      )
+      .map((tag) => tag);
+  };
+
+  const updateTags = (html: string) => {
+    const stringValue = html.match(tagMatch)?.pop()?.toString().slice(1, -1);
+    const tagValues = stringValue?.includes(',')
+      ? stringValue?.split(',')
+      : stringValue?.split(' ') ?? [];
+    const tags = extractTags(tagValues);
+    if (!_.isEqual(tags, (values as any)?.tags)) setFieldValue('tags', tags);
+  };
+
   const handleChange = (html: string) => {
     if (html !== state.html) {
       setState({ ...state, html: html });
-      if (!!fieldName) setFieldValue(fieldName as string, html);
+      if (!!fieldName) {
+        setFieldValue(fieldName as string, html);
+        updateTags(html);
+      }
     }
   };
 
