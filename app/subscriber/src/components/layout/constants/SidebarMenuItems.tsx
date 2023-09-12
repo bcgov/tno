@@ -5,7 +5,6 @@ import {
   FaComment,
   FaFire,
   FaFolder,
-  FaHeart,
   FaHome,
   FaSearch,
   FaSlidersH,
@@ -61,11 +60,6 @@ export const SidebarMenuItems: ISideBarMenuItems = {
     label: 'My Folders',
     path: 'folders',
     icon: <FaFolder />,
-  },
-  myCollections: {
-    label: 'My Collections',
-    path: 'mycollections',
-    icon: <FaHeart />,
   },
   myReports: {
     label: 'My Reports',
