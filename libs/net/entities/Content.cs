@@ -150,6 +150,12 @@ public class Content : AuditColumns
     public DateTime? PublishedOn { get; set; }
 
     /// <summary>
+    /// get/set -
+    /// </summary>
+    [Column("posted_on")]
+    public DateTime? PostedOn { get; set; }
+
+    /// <summary>
     /// get/set - Story abstract or summary text.
     /// </summary>
     [Column("summary")]

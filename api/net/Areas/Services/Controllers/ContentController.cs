@@ -165,7 +165,8 @@ public class ContentController : ControllerBase
         }
 
         var newTags = model.Tags.Where(t => t.Id == 0);
-        foreach (var tag in newTags) {
+        foreach (var tag in newTags)
+        {
             var tagModel = new TagModel
             {
                 Code = tag.Code,
@@ -271,9 +272,19 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult UpdateStatusAsync(ContentModel model)
+    public async Task<IActionResult> UpdateStatusAsync(ContentModel model)
     {
         var content = _contentService.UpdateStatusOnly((Content)model);
+
+        // Send notification to user who requested the content.
+        if (content.OwnerId.HasValue)
+        {
+            var owner = content.Owner ?? _userService.FindById(content.OwnerId.Value);
+            if (!String.IsNullOrWhiteSpace(owner?.Username))
+                await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendUser, owner.Username, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
+            else
+                await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
+        }
 
         return new JsonResult(new ContentModel(content));
     }

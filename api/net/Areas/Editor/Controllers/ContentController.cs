@@ -206,6 +206,7 @@ public class ContentController : ControllerBase
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
         var newContent = (Content)model;
         newContent.OwnerId = user.Id;
+        newContent.PostedOn = newContent.Status == ContentStatus.Publish || newContent.Status == ContentStatus.Published ? DateTime.UtcNow : null;
         var content = _contentService.AddAndSave(newContent);
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
@@ -239,6 +240,10 @@ public class ContentController : ControllerBase
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
         var updateContent = (Content)model;
         updateContent.OwnerId ??= user.Id;
+        if (!updateContent.PostedOn.HasValue &&
+            (updateContent.Status == ContentStatus.Publish ||
+            updateContent.Status == ContentStatus.Published))
+            updateContent.PostedOn = DateTime.UtcNow;
 
         var content = _contentService.UpdateAndSave(updateContent);
 
@@ -290,6 +295,7 @@ public class ContentController : ControllerBase
                 if (content.Status != ContentStatus.Published && content.Status != ContentStatus.Publish)
                 {
                     content.Status = ContentStatus.Publish;
+                    content.PostedOn = DateTime.UtcNow;
                     update.Add(_contentService.Update(content));
                 }
             }
@@ -407,6 +413,7 @@ public class ContentController : ControllerBase
     public async Task<IActionResult> PublishAsync(ContentModel model)
     {
         if (model.Status != ContentStatus.Published) model.Status = ContentStatus.Publish;
+        model.PostedOn = DateTime.UtcNow;
         var content = _contentService.UpdateAndSave((Content)model);
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))

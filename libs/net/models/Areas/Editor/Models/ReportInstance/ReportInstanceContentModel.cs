@@ -1,5 +1,3 @@
-using TNO.API.Models;
-
 namespace TNO.API.Areas.Editor.Models.ReportInstance;
 
 /// <summary>
