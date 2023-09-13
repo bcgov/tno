@@ -125,7 +125,7 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
             Status = (int)WorkflowStatus.InProgress,
             Metadata = new Dictionary<string, object> {
                 { ContentReferenceMetaDataKeys.MetadataKeyIngestSource, source!.Code },
-                { ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn, newsItem.UpdatedOn.HasValue ? newsItem.UpdatedOn.Value.ToString("yyyy-MM-dd h:mm:ss tt") : DateTime.MinValue },
+                { ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn, newsItem.UpdatedOn.HasValue ? this.GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone).ToUniversalTime().ToString("yyyy-MM-dd h:mm:ss tt") : DateTime.MinValue },
                 { ContentReferenceMetaDataKeys.MetadataKeyIsContentPublished, newsItem.Published.ToString() },
             }
         };
