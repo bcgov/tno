@@ -1,4 +1,5 @@
-import { DetermineToneIcon, makeFilter } from 'features/home/utils';
+import { Sentiment } from 'components/sentiment';
+import { makeFilter } from 'features/home/utils';
 import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router';
@@ -44,7 +45,7 @@ export const Commentary: React.FC = () => {
         {commentary.map((x) => {
           return (
             <Row key={x.id} className="content-row">
-              <DetermineToneIcon tone={x.tonePools?.length ? x.tonePools[0].value : 0} />
+              <Sentiment value={x.tonePools?.length ? x.tonePools[0].value : 0} />
               <DetermineContentIcon contentType={x.contentType} />
               <div className="headline" onClick={() => navigate(`/view/${x.id}`)}>
                 {x.headline}

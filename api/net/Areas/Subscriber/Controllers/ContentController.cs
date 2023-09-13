@@ -1,4 +1,6 @@
 using System.Net;
+using System.Net.Mime;
+using System.Web;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -6,15 +8,14 @@ using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Subscriber.Models.Content;
 using TNO.API.Areas.Subscriber.Models.Storage;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
+using TNO.DAL.Config;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
-using TNO.DAL.Config;
-using TNO.Entities.Models;
-using TNO.Core.Extensions;
-using System.Net.Mime;
-using System.Web;
-using TNO.Keycloak;
 using TNO.Elastic;
+using TNO.Entities.Models;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
 
@@ -82,7 +83,7 @@ public class ContentController : ControllerBase
         {
             filter.Quantity = 500;
         }
-        var result = await _contentService.FindWithElasticsearchAsync(useUnpublished ? _elasticOptions.UnpublishedIndex :_elasticOptions.PublishedIndex, filter);
+        var result = await _contentService.FindWithElasticsearchAsync(useUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex, filter);
         var page = new Paged<Services.Models.Content.ContentModel>(
             result.Items,
             result.Page,
@@ -99,13 +100,11 @@ public class ContentController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult FindById(long id)
     {
-        var result = _contentService.FindById(id);
-
-        if (result == null) return new NoContentResult();
+        var result = _contentService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new ContentModel(result));
     }
 
@@ -116,7 +115,6 @@ public class ContentController : ControllerBase
     [HttpGet("frontpages")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> FindFrontPages()
     {
@@ -137,11 +135,11 @@ public class ContentController : ControllerBase
     [HttpGet("{id}/download")]
     [Produces("application/octet-stream")]
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult DownloadFile(long id)
     {
-        var fileReference = _fileReferenceService.FindByContentId(id).FirstOrDefault() ?? throw new InvalidOperationException("File does not exist");
+        var fileReference = _fileReferenceService.FindByContentId(id).FirstOrDefault() ?? throw new NoContentException("File does not exist");
         var stream = _fileReferenceService.Download(fileReference, _storageOptions.GetUploadPath());
         return File(stream, fileReference.ContentType);
     }
@@ -160,7 +158,7 @@ public class ContentController : ControllerBase
     {
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
-        if (!safePath.FileExists()) throw new InvalidOperationException("File does not exist");
+        if (!safePath.FileExists()) throw new NoContentException("File does not exist");
 
         var info = new ItemModel(safePath);
         var filestream = System.IO.File.OpenRead(safePath);

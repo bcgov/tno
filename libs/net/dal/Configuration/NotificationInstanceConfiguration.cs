@@ -12,6 +12,7 @@ public class NotificationInstanceConfiguration : AuditColumnsConfiguration<Notif
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Property(m => m.NotificationId).IsRequired();
         builder.Property(m => m.ContentId).IsRequired();
+        builder.Property(m => m.SentOn);
         builder.Property(m => m.Response).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
 
         builder.HasOne(m => m.Notification).WithMany(m => m.Instances).HasForeignKey(m => m.NotificationId).OnDelete(DeleteBehavior.Cascade);

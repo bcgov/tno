@@ -1,16 +1,14 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { IUserModel } from 'tno-core';
-
-import { useApiUsers } from './api/useApiUsers';
+import { IUserModel, useApiSubscriberUsers } from 'tno-core';
 
 interface IUserController {
   updateUser: (model: IUserModel, requestorId: number) => Promise<IUserModel>;
 }
 
 export const useUsers = (): IUserController => {
-  const api = useApiUsers();
+  const api = useApiSubscriberUsers();
   const dispatch = useAjaxWrapper();
   const [, store] = useProfileStore();
 

@@ -6,6 +6,7 @@ export const MyReports = styled(Col)`
     margin-top: 1em;
     margin-bottom: 1em;
   }
+
   .header {
     .create-new {
       margin-left: auto;
@@ -20,6 +21,7 @@ export const MyReports = styled(Col)`
   .react-tooltip {
     z-index: 999;
   }
+
   .options {
     box-shadow: 0 0 0.5rem #c7c7c7;
     opacity: 1;
@@ -33,13 +35,16 @@ export const MyReports = styled(Col)`
       }
     }
   }
+
   .folder-name {
     height: 1.5em;
     margin-left: 0.5em;
   }
+
   .create-new {
     margin-left: auto;
   }
+
   /* table styling */
   .table {
     width: 100%;
@@ -71,6 +76,7 @@ export const MyReports = styled(Col)`
       }
     }
   }
+
   .folder-add {
     &:focus {
       outline: none;

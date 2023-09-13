@@ -1,20 +1,22 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Tooltip } from 'react-tooltip';
-import { Col, FlexboxTable, IReportModel, Row } from 'tno-core';
+import { useReports } from 'store/hooks';
+import { Col, FlexboxTable, IReportModel, Modal, Row, useModal } from 'tno-core';
 
-import { useReports } from '../../store/hooks/subscriber/useReports';
-import { availableReportColumns } from './constants/availableReportColumns';
-import { columns } from './constants/columns';
+import { reportProductColumns } from './constants';
+import { useColumns } from './hooks';
 import * as styled from './styled';
+import { isAutoSend } from './utils';
 
 export const MyReport: React.FC = () => {
-  const [{ getPublicReports, findMyReports, updateReport }] = useReports();
+  const [{ getPublicReports, findMyReports, deleteReport, updateReport }] = useReports();
+  const { toggle, isShowing } = useModal();
+
   const [myReports, setMyReports] = React.useState<IReportModel[]>([]);
   const [allReports, setAllReports] = React.useState<IReportModel[]>([]);
+  const [report, setReport] = React.useState<IReportModel>();
 
-  const [active, setActive] = React.useState<IReportModel>();
-  const [editable, setEditable] = React.useState<string>('');
   React.useEffect(() => {
     findMyReports().then((data) => {
       setMyReports(data);
@@ -26,58 +28,51 @@ export const MyReport: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSave = () => {
-    if (!!active) {
-      updateReport(active)
-        .then((data) => {
-          toast.success(`${data.name} updated successfully`);
-          setMyReports([...myReports.filter((report) => report.id !== data.id), data]);
-          setEditable('');
-        })
-        .catch();
-    }
-  };
+  const handleDelete = React.useCallback(
+    (report: IReportModel) => {
+      if (!!report) {
+        deleteReport(report)
+          .then((data) => {
+            toast.success(`Successfully deleted '${data.name}' report.`);
+            setMyReports(myReports.filter((r) => r.id !== report.id));
+          })
+          .catch();
+      }
+    },
+    [deleteReport, myReports],
+  );
+
+  const columns = useColumns(
+    async (report) => {
+      try {
+        const autoSend = isAutoSend(report);
+        const result = await updateReport(report);
+        setMyReports(myReports.map((r) => (r.id !== report.id ? r : result)));
+        toast.success(`Auto send has been turned ${autoSend ? 'on' : 'off'}.`);
+      } catch {}
+    },
+    (report) => {
+      setReport(report);
+      toggle();
+    },
+  );
 
   return (
     <styled.MyReports>
       <Col className="my-reports">
         <Row className="header">
           <div>Reports I can edit: </div>
-          <div className="create-new">+ Create new</div>
+          <Link className="create-new" to={'/reports/0'}>
+            + Create new
+          </Link>
         </Row>
         <FlexboxTable
           pagingEnabled={false}
-          columns={columns(setActive, editable, handleSave, active)}
+          columns={columns}
           rowId={'id'}
           data={myReports}
           showActive={false}
         />
-        <Tooltip
-          clickable
-          openOnClick
-          place="right"
-          id="options"
-          variant="light"
-          className="options"
-        >
-          <Col className="folder-container">
-            <div className="option" onClick={() => setEditable(active?.name ?? '')}>
-              Edit report
-            </div>
-            <div
-              className="option"
-              onClick={() => {
-                if (!!active) {
-                  updateReport({ ...active }).then(() => {
-                    toast.success(`${active.name} updated successfully`);
-                  });
-                }
-              }}
-            >
-              Share report
-            </div>
-          </Col>
-        </Tooltip>
         <Col className="info">
           <Row>Media Monitoring products</Row>
           <Row>
@@ -87,12 +82,24 @@ export const MyReport: React.FC = () => {
         </Col>
         <FlexboxTable
           pagingEnabled={false}
-          columns={availableReportColumns(setActive, editable, handleSave, active)}
+          columns={reportProductColumns}
           rowId={'id'}
           data={allReports}
           showActive={false}
         />
       </Col>
+      <Modal
+        headerText="Confirm Delete"
+        body={`Are you sure you wish to delete the '${report?.name}' report?`}
+        isShowing={isShowing}
+        hide={toggle}
+        type="delete"
+        confirmText="Yes, Remove It"
+        onConfirm={() => {
+          if (report) handleDelete(report);
+          toggle();
+        }}
+      />
     </styled.MyReports>
   );
 };

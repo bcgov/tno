@@ -19,6 +19,7 @@ export * from './generateTerms';
 export * from './generateTermsForArrayField';
 export * from './getCookie';
 export * from './getDirectoryName';
+export * from './getDistinct';
 export * from './getEnumStringOptions';
 export * from './getFilename';
 export * from './getFromLocalStorage';

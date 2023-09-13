@@ -48,6 +48,11 @@ public class ContentModel : AuditColumnsModel
     public int ProductId { get; set; }
 
     /// <summary>
+    /// get/set - The product.
+    /// </summary>
+    public ProductModel? Product { get; set; }
+
+    /// <summary>
     /// get/set - Foreign key to license.
     /// </summary>
     public int LicenseId { get; set; }
@@ -165,11 +170,6 @@ public class ContentModel : AuditColumnsModel
     /// get/set - Whether the content has been approved for publishing.
     /// </summary>
     public bool IsApproved { get; set; }
-
-    /// <summary>
-    /// get/set - The product.
-    /// </summary>
-    public ProductModel? Product { get; set; }
 
     /// <summary>
     /// get/set - Upload files with content.

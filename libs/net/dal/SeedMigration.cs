@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore.Migrations;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TNO.DAL;
 
@@ -52,11 +52,12 @@ public abstract class SeedMigration : Migration
     /// Execute any scripts in the migration \Up\PreUp\ folder.
     /// </summary>
     /// <param name="migrationBuilder"></param>
-    protected void PreUp(MigrationBuilder migrationBuilder)
+    /// <param name="suppressTransaction"></param>
+    protected void PreUp(MigrationBuilder migrationBuilder, bool suppressTransaction = false)
     {
         if (migrationBuilder == null) throw new ArgumentNullException(nameof(migrationBuilder));
 
-        ScriptDeploy(migrationBuilder, Path.Combine(this.DefaultMigrationsPath, this.Version, Path.Combine("Up", "PreUp")), "PreUp Scripts");
+        ScriptDeploy(migrationBuilder, Path.Combine(this.DefaultMigrationsPath, this.Version, Path.Combine("Up", "PreUp")), "PreUp Scripts", suppressTransaction);
     }
 
     /// <summary>
@@ -71,25 +72,39 @@ public abstract class SeedMigration : Migration
     }
 
     /// <summary>
-    /// Execute any scripts in the migration \Up\PostUp\ folder.
+    /// Execute any scripts in the migration \Up\ folder.
     /// </summary>
     /// <param name="migrationBuilder"></param>
-    protected void PostUp(MigrationBuilder migrationBuilder)
+    /// <param name="suppressTransaction"></param>
+    protected void Up(MigrationBuilder migrationBuilder, bool suppressTransaction)
     {
         if (migrationBuilder == null) throw new ArgumentNullException(nameof(migrationBuilder));
 
-        ScriptDeploy(migrationBuilder, Path.Combine(this.DefaultMigrationsPath, this.Version, Path.Combine("Up", "PostUp")), "PostUp Scripts");
+        ScriptDeploy(migrationBuilder, Path.Combine(this.DefaultMigrationsPath, this.Version, "Up"), "Up Scripts", suppressTransaction);
+    }
+
+    /// <summary>
+    /// Execute any scripts in the migration \Up\PostUp\ folder.
+    /// </summary>
+    /// <param name="migrationBuilder"></param>
+    /// <param name="suppressTransaction"></param>
+    protected void PostUp(MigrationBuilder migrationBuilder, bool suppressTransaction = false)
+    {
+        if (migrationBuilder == null) throw new ArgumentNullException(nameof(migrationBuilder));
+
+        ScriptDeploy(migrationBuilder, Path.Combine(this.DefaultMigrationsPath, this.Version, Path.Combine("Up", "PostUp")), "PostUp Scripts", suppressTransaction);
     }
 
     /// <summary>
     /// Execute any scripts in the migration \Up\PreDown\ folder.
     /// </summary>
     /// <param name="migrationBuilder"></param>
-    protected void PreDown(MigrationBuilder migrationBuilder)
+    /// <param name="suppressTransaction"></param>
+    protected void PreDown(MigrationBuilder migrationBuilder, bool suppressTransaction = false)
     {
         if (migrationBuilder == null) throw new ArgumentNullException(nameof(migrationBuilder));
 
-        ScriptDeploy(migrationBuilder, Path.Combine(this.DefaultMigrationsPath, this.Version, Path.Combine("Down", "PreDown")), "PreDown Scripts");
+        ScriptDeploy(migrationBuilder, Path.Combine(this.DefaultMigrationsPath, this.Version, Path.Combine("Down", "PreDown")), "PreDown Scripts", suppressTransaction);
     }
 
     /// <summary>
@@ -104,14 +119,27 @@ public abstract class SeedMigration : Migration
     }
 
     /// <summary>
-    /// Execute any scripts in the migration \Down\PostDown\ folder.
+    /// Execute any scripts in the migration \Down\ folder.
     /// </summary>
     /// <param name="migrationBuilder"></param>
-    protected void PostDown(MigrationBuilder migrationBuilder)
+    /// <param name="suppressTransaction"></param>
+    protected void Down(MigrationBuilder migrationBuilder, bool suppressTransaction)
     {
         if (migrationBuilder == null) throw new ArgumentNullException(nameof(migrationBuilder));
 
-        ScriptDeploy(migrationBuilder, Path.Combine(this.DefaultMigrationsPath, this.Version, Path.Combine("Down", "PostDown")), "PostDown Scripts");
+        ScriptDeploy(migrationBuilder, Path.Combine(this.DefaultMigrationsPath, this.Version, "Down"), "Down Scripts", suppressTransaction);
+    }
+
+    /// <summary>
+    /// Execute any scripts in the migration \Down\PostDown\ folder.
+    /// </summary>
+    /// <param name="migrationBuilder"></param>
+    /// <param name="suppressTransaction"></param>
+    protected void PostDown(MigrationBuilder migrationBuilder, bool suppressTransaction = false)
+    {
+        if (migrationBuilder == null) throw new ArgumentNullException(nameof(migrationBuilder));
+
+        ScriptDeploy(migrationBuilder, Path.Combine(this.DefaultMigrationsPath, this.Version, Path.Combine("Down", "PostDown")), "PostDown Scripts", suppressTransaction);
     }
 
     /// <summary>
@@ -120,16 +148,17 @@ public abstract class SeedMigration : Migration
     /// <param name="migrationBuilder"></param>
     /// <param name="path"></param>
     /// <param name="message"></param>
-    protected static void ScriptDeploy(MigrationBuilder migrationBuilder, string path, string message)
+    /// <param name="suppressTransaction"></param>
+    protected static void ScriptDeploy(MigrationBuilder migrationBuilder, string path, string message, bool suppressTransaction = false)
     {
         if (migrationBuilder == null) throw new ArgumentNullException(nameof(migrationBuilder));
         if (path == null) throw new ArgumentNullException(nameof(path));
 
-        migrationBuilder.Sql($"do $$ begin raise notice '{message}'; end; $$;");
+        migrationBuilder.Sql($"do $$ begin raise notice '{message}'; end; $$;", suppressTransaction);
 
         if (!Directory.Exists(path) && !File.Exists(path))
         {
-            migrationBuilder.Sql($"do $$ begin raise notice 'Script does not exist {path}.'; end; $$;");
+            migrationBuilder.Sql($"do $$ begin raise notice 'Script does not exist {path}.'; end; $$;", suppressTransaction);
             return;
         }
 
@@ -139,12 +168,12 @@ public abstract class SeedMigration : Migration
             var seed_files = System.IO.Directory.GetFiles(path, "*.sql").OrderBy(n => n);
             foreach (var file_name in seed_files)
             {
-                ExecuteScript(migrationBuilder, file_name);
+                ExecuteScript(migrationBuilder, file_name, suppressTransaction);
             }
         }
         else
         {
-            ExecuteScript(migrationBuilder, path);
+            ExecuteScript(migrationBuilder, path, suppressTransaction);
         }
 
     }
@@ -154,14 +183,15 @@ public abstract class SeedMigration : Migration
     /// </summary>
     /// <param name="migrationBuilder"></param>
     /// <param name="path"></param>
-    private static void ExecuteScript(MigrationBuilder migrationBuilder, string path)
+    /// <param name="suppressTransaction"></param>
+    private static void ExecuteScript(MigrationBuilder migrationBuilder, string path, bool suppressTransaction = false)
     {
-        migrationBuilder.Sql($"do $$ begin raise notice '---------------> {path}'; end; $$;");
+        migrationBuilder.Sql($"do $$ begin raise notice '---------------> {path}'; end; $$;", suppressTransaction);
         var sql = File.ReadAllText(path).Trim();
 
         if (!String.IsNullOrEmpty(sql))
         {
-            migrationBuilder.Sql(sql);
+            migrationBuilder.Sql(sql, suppressTransaction);
         }
     }
     #endregion

@@ -26,7 +26,6 @@ export const ReportFormSections = () => {
 
   const [section, setSection] = React.useState<IReportSectionModel>();
   const [reportOptions, setReportOptions] = React.useState(getSortableOptions(reports));
-  const now = new Date();
 
   React.useEffect(() => {
     if (!reports.length)
@@ -45,7 +44,6 @@ export const ReportFormSections = () => {
       [...values.sections, defaultReportSection(values.id)].map((section, index) => {
         return {
           ...section,
-          name: `section-${index + 1}-${now.getTime()}`,
           sortOrder: index,
         };
       }),
@@ -89,7 +87,6 @@ export const ReportFormSections = () => {
       `sections`,
       sections.map((s, i) => ({
         ...s,
-        name: `section-${i + 1}-${now.getTime()}`,
         sortOrder: i,
       })),
     );
@@ -164,12 +161,12 @@ export const ReportFormSections = () => {
             <Row gap="1rem">
               <Col gap="1rem">
                 <FormikCheckbox
-                  label="Exclude content from previous run"
+                  label="Exclude stories that have been sent out in previous report"
                   name="settings.content.excludeHistorical"
                   tooltip="Exclude content already reported on in prior instances of this report"
                 />
                 <FormikSelect
-                  label="Exclude related report content"
+                  label="Excludes content already reported on in the selected reports"
                   name="settings.content.excludeReports"
                   tooltip="Excludes content already reported on in the selected reports"
                   options={reportOptions}
@@ -190,7 +187,7 @@ export const ReportFormSections = () => {
               </Col>
               <Col gap="1rem">
                 <FormikCheckbox
-                  label="Include only new content posted since previous run"
+                  label="Include only new content posted after previous report"
                   name="settings.content.onlyNewContent"
                   tooltip="Adds a date filter to only include content posted since the last time this report ran"
                 />

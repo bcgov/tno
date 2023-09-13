@@ -11,9 +11,15 @@ public interface IReportTemplateService : IBaseService<ReportTemplate, int>
     IEnumerable<ReportTemplate> FindAll();
 
     /// <summary>
+    /// Find all the public report templates.
+    /// </summary>
+    /// <returns></returns>
+    IEnumerable<ReportTemplate> FindPublic();
+
+    /// <summary>
     /// Determine if this report template is being used by any reports.
     /// </summary>
     /// <param name="templateId"></param>
     /// <returns></returns>
-    public bool IsInUse(int templateId);
+    bool IsInUse(int templateId);
 }

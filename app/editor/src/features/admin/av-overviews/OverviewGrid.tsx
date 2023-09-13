@@ -1,5 +1,11 @@
 import { useFormikContext } from 'formik';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DropResult,
+  ResponderProvided,
+} from 'react-beautiful-dnd';
 import { FaGripLines, FaTrash } from 'react-icons/fa';
 import {
   AVOverviewItemTypeName,
@@ -28,15 +34,15 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ index }) => {
   const items = values.sections[index].items;
 
   /** function that runs after a user drops an item in the list */
-  const handleDrop = (droppedItem: any) => {
-    if (!droppedItem.destination) {
+  const handleDrop = (result: DropResult, provided: ResponderProvided) => {
+    if (!result.destination) {
       return;
     }
     var updatedList = [...items];
     // Remove dragged item
-    const [reorderedItem] = updatedList.splice(droppedItem.source.index, 1);
+    const [reorderedItem] = updatedList.splice(result.source.index, 1);
     // Add dropped item
-    updatedList.splice(droppedItem.destination.index, 0, reorderedItem);
+    updatedList.splice(result.destination.index, 0, reorderedItem);
     // Update State
     setFieldValue(
       `sections.${index}.items`,

@@ -3,6 +3,7 @@ import { AccessRequest } from 'features/access-request';
 import { Landing } from 'features/landing';
 import { Login } from 'features/login';
 import { ManageFolder } from 'features/manage-folder';
+import { ReportAdmin, ReportSnapshot } from 'features/my-reports';
 import { SearchPage } from 'features/search-page/SearchPage';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
@@ -59,6 +60,24 @@ export const AppRouter: React.FC<IAppRouter> = () => {
         <Route
           path="/view/my-minister/:id"
           element={<PrivateRoute claims={Claim.subscriber} element={<Landing />}></PrivateRoute>}
+        />
+        <Route
+          path="/reports/:id/edit"
+          element={
+            <PrivateRoute claims={Claim.subscriber} element={<ReportSnapshot />}></PrivateRoute>
+          }
+        />
+        <Route
+          path="/reports/:id/:path"
+          element={
+            <PrivateRoute claims={Claim.subscriber} element={<ReportAdmin />}></PrivateRoute>
+          }
+        />
+        <Route
+          path="/reports/:id"
+          element={
+            <PrivateRoute claims={Claim.subscriber} element={<ReportAdmin />}></PrivateRoute>
+          }
         />
         <Route path="error" element={<InternalServerError />} />
         <Route path="*" element={<NotFound />} />

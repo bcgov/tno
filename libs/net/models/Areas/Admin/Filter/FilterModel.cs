@@ -1,5 +1,6 @@
 using System.Text.Json;
 using TNO.API.Models;
+using TNO.API.Models.Settings;
 
 namespace TNO.API.Areas.Admin.Models.Filter;
 
@@ -23,12 +24,12 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get/set - The Elasticsearch query.
     /// </summary>
-    public Dictionary<string, object> Query { get; set; } = new Dictionary<string, object>();
+    public JsonDocument Query { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get/set - The filter settings.
     /// </summary>
-    public Dictionary<string, object> Settings { get; set; } = new Dictionary<string, object>();
+    public FilterSettingsModel Settings { get; set; } = new();
     #endregion
 
     #region Constructors
@@ -46,8 +47,8 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
     {
         this.OwnerId = entity.OwnerId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
-        this.Query = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Query, options) ?? new Dictionary<string, object>();
-        this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
+        this.Query = entity.Query;
+        this.Settings = JsonSerializer.Deserialize<FilterSettingsModel>(entity.Settings, options) ?? new();
     }
     #endregion
 
@@ -59,7 +60,7 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
     public Entities.Filter ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.Filter)this;
-        entity.Query = JsonDocument.Parse(JsonSerializer.Serialize(this.Query, options));
+        entity.Query = this.Query;
         entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
         return entity;
     }
@@ -77,7 +78,7 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
             IsEnabled = model.IsEnabled,
             OwnerId = model.OwnerId,
             SortOrder = model.SortOrder,
-            Query = JsonDocument.Parse(JsonSerializer.Serialize(model.Query)),
+            Query = model.Query,
             Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
             Version = model.Version ?? 0
         };

@@ -15,7 +15,7 @@ public interface IReportService : IBaseService<Report, int>
     /// Find all public reports.
     /// </summary>
     /// <returns></returns>
-    IEnumerable<Report> GetPublic();
+    IEnumerable<Report> FindPublic();
 
     /// <summary>
     /// Find all reports that match the filter.
@@ -25,12 +25,24 @@ public interface IReportService : IBaseService<Report, int>
     IEnumerable<Report> Find(ReportFilter filter);
 
     /// <summary>
-    /// Find content for the specified report with Elasticsearch.
+    /// Make a request to Elasticsearch to find content for the specified 'report'.
+    /// Makes a request for each section.
+    /// If the section also references a folder it will make a request for the folder content too.
     /// </summary>
-    /// <param name="index"></param>
     /// <param name="report"></param>
+    /// <param name="index">Override the index that will be used for search.</param>
     /// <returns></returns>
-    Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(string index, Report report);
+    /// <exception cref="Exception"></exception>
+    Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(Report report, string? index = null);
+
+    /// <summary>
+    /// Get the current instance for the specified report 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="isActive"></param>
+    /// <returns></returns>
+    ReportInstance? GetLatestInstance(int id, int? ownerId = null, bool? isActive = null);
 
     /// <summary>
     /// Get the content from the current report instance for the specified 'reportId'.

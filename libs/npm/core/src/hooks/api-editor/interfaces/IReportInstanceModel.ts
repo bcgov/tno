@@ -1,4 +1,4 @@
-import { IAuditColumnsModel, IContentModel, IUserModel } from '.';
+import { IAuditColumnsModel, IReportInstanceContentModel, IUserModel } from '.';
 
 export interface IReportInstanceModel extends IAuditColumnsModel {
   id: number;
@@ -6,6 +6,9 @@ export interface IReportInstanceModel extends IAuditColumnsModel {
   ownerId?: number;
   owner?: IUserModel;
   publishedOn?: Date | string;
+  sentOn?: Date | string;
+  subject: string;
+  body: string;
   response: any;
-  content: IContentModel[];
+  content: IReportInstanceContentModel[];
 }

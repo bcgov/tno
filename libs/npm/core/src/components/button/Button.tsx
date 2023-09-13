@@ -25,7 +25,7 @@ export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /**
    * Manually control the height of the button.
    */
-  height?: ButtonHeight;
+  height?: ButtonHeight | string;
 }
 
 /**
@@ -61,13 +61,15 @@ export const Button: React.FC<IButtonProps> = ({
         {children}
         {loading && <BouncingSpinner />}
       </div>
-      <Tooltip
-        style={{ zIndex: '999' }}
-        variant="info"
-        id={`btn-tip-${uniqueId}`}
-        place="top"
-        float
-      />
+      {tooltip && (
+        <Tooltip
+          style={{ zIndex: '999' }}
+          variant="info"
+          id={`btn-tip-${uniqueId}`}
+          place="top"
+          float
+        />
+      )}
     </styled.Button>
   );
 };

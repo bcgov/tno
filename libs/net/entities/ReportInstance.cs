@@ -47,6 +47,26 @@ public class ReportInstance : AuditColumns
     public DateTime? PublishedOn { get; set; }
 
     /// <summary>
+    /// get/set - The date and time the report was sent on.
+    /// </summary>
+    [Column("sent_on")]
+    public DateTime? SentOn { get; set; }
+
+    /// <summary>
+    /// get/set - The compiled subject of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    [Column("subject")]
+    public string Subject { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The compiled body of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    [Column("body")]
+    public string Body { get; set; } = "";
+
+    /// <summary>
     /// get/set - CHES response containing keys to find the status of a report.
     /// </summary>
     [Column("response")]

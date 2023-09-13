@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAjaxWrapper, useLookup } from 'store/hooks';
+import { useAjaxWrapper } from 'store/hooks';
 import { IReportFilter, IReportModel, IReportResultModel, useApiSubscriberReports } from 'tno-core';
 
 interface IReportController {
@@ -8,26 +8,22 @@ interface IReportController {
   getPublicReports: () => Promise<IReportModel[]>;
   getReport: (id: number) => Promise<IReportModel | undefined>;
   addReport: (model: IReportModel) => Promise<IReportModel>;
-  updateReport: (model: IReportModel) => Promise<IReportModel>;
+  updateReport: (model: IReportModel, updateInstances?: boolean) => Promise<IReportModel>;
   deleteReport: (model: IReportModel) => Promise<IReportModel>;
-  previewReport: (reportId: number) => Promise<IReportResultModel>;
+  previewReport: (id: number) => Promise<IReportResultModel>;
+  generateReport: (id: number, regenerate?: boolean) => Promise<IReportModel>;
+  sendReport: (id: number, to: string) => Promise<IReportModel>;
+  publishReport: (id: number) => Promise<IReportModel>;
 }
 
 export const useReports = (): [IReportController] => {
   const api = useApiSubscriberReports();
   const dispatch = useAjaxWrapper();
-  const [, lookup] = useLookup();
 
   const controller = React.useMemo(
     () => ({
-      getPublicReports: async () => {
-        const response = await dispatch<IReportModel[]>('find-all-reports', () =>
-          api.getPublicReports(),
-        );
-        return response.data;
-      },
       findReports: async (filter: IReportFilter) => {
-        const response = await dispatch<IReportModel[]>('find-all-reports', () =>
+        const response = await dispatch<IReportModel[]>('find-reports', () =>
           api.findReports(filter),
         );
         return response.data;
@@ -35,6 +31,12 @@ export const useReports = (): [IReportController] => {
       findMyReports: async () => {
         const response = await dispatch<IReportModel[]>('find-my-folders', () =>
           api.findMyReports(),
+        );
+        return response.data;
+      },
+      getPublicReports: async () => {
+        const response = await dispatch<IReportModel[]>('get-public-reports', () =>
+          api.getPublicReports(),
         );
         return response.data;
       },
@@ -46,31 +48,44 @@ export const useReports = (): [IReportController] => {
       },
       addReport: async (model: IReportModel) => {
         const response = await dispatch<IReportModel>('add-report', () => api.addReport(model));
-        await lookup.getLookups();
         return response.data;
       },
-      updateReport: async (model: IReportModel) => {
+      updateReport: async (model: IReportModel, updateInstances: boolean | undefined) => {
         const response = await dispatch<IReportModel>('update-report', () =>
-          api.updateReport(model),
+          api.updateReport(model, updateInstances),
         );
-        await lookup.getLookups();
         return response.data;
       },
       deleteReport: async (model: IReportModel) => {
         const response = await dispatch<IReportModel>('delete-report', () =>
           api.deleteReport(model),
         );
-        await lookup.getLookups();
         return response.data;
       },
-      previewReport: async (reportId: number) => {
+      previewReport: async (id: number) => {
         const response = await dispatch<IReportResultModel>('preview-report', () =>
-          api.previewReport(reportId),
+          api.previewReport(id),
+        );
+        return response.data;
+      },
+      generateReport: async (id: number, regenerate: boolean | undefined = false) => {
+        const response = await dispatch<IReportModel>('generate-report', () =>
+          api.generateReport(id, regenerate),
+        );
+        return response.data;
+      },
+      sendReport: async (id: number, to: string) => {
+        const response = await dispatch<IReportModel>('send-report', () => api.sendReport(id, to));
+        return response.data;
+      },
+      publishReport: async (id: number) => {
+        const response = await dispatch<IReportModel>('publish-report', () =>
+          api.publishReport(id),
         );
         return response.data;
       },
     }),
-    [api, dispatch, lookup],
+    [api, dispatch],
   );
 
   return [controller];

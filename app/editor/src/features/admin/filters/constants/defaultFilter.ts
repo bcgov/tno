@@ -6,7 +6,9 @@ export const defaultFilter: IFilterModel = {
   description: '',
   ownerId: undefined,
   query: {},
-  settings: {},
+  settings: {
+    searchUnpublished: false,
+  },
   sortOrder: 0,
   isEnabled: true,
 };

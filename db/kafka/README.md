@@ -72,3 +72,20 @@ Update the replication.
 ```bash
 kafka-reassign-partitions --bootstrap-server kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092 --reassignment-json-file replicas.json --execute
 ```
+
+Delete topic.
+
+```bash
+kafka-topics --bootstrap-server kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092 --delete --topic DAILYHIVE
+```
+
+Fix topic_id
+
+```bash
+cd /var/lib/kafka/data
+cat TNO-0/partition.metadata ; echo
+sed -i 's/cy7k9k7cT6yTuGD_HYAupg/KcKqT1giRLWIm9wN68pcXg/' TNO-3/partition.metadata
+
+cat DAILYHIVE-0/partition.metadata ; echo
+sed -i 's/_YCpj6MpQjudzH8OPik9Pw/--lKOi1HSN2AiT6WP7pfRg/' DAILYHIVE-0/partition.metadata
+```

@@ -85,7 +85,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
             if (section.Folder != null && s.Folder != null) s.Folder.Settings = section.Folder.Settings;
             if (section.Filter != null && s.Filter != null)
             {
-                s.Filter.Settings = section.Filter.Settings;
+                s.Filter.Settings = JsonDocument.Parse(JsonSerializer.Serialize(section.Filter.Settings, options));
                 s.Filter.Query = section.Filter.Query;
             }
             s.ChartTemplatesManyToMany.ForEach(ct =>
@@ -133,7 +133,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
                     Description = modelSection.Filter.Description,
                     IsEnabled = modelSection.Filter.IsEnabled,
                     SortOrder = modelSection.Filter.SortOrder,
-                    Settings = modelSection.Filter.Settings,
+                    Settings = JsonDocument.Parse(JsonSerializer.Serialize(modelSection.Filter.Settings)),
                     Query = modelSection.Filter.Query
                 } : null,
                 FolderId = modelSection.FolderId,

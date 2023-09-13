@@ -3,7 +3,6 @@ import { ActionMeta } from 'react-select';
 
 import { IOptionItem } from '../../form/options';
 import { ISelectProps, Select } from '../../form/select';
-import * as styled from './styled';
 
 export interface IFormikSelectProps<OptionType> extends ISelectProps<OptionType> {
   /**
@@ -34,23 +33,21 @@ export const FormikSelect = <OptionType extends IOptionItem>({
     : undefined;
 
   return (
-    <styled.FormikSelect>
-      <Select
-        name={name}
-        value={value}
-        options={options}
-        // TODO: Figure out how to strongly type these values.
-        onChange={(newValue: unknown, actionMeta: ActionMeta<unknown>) => {
-          const option = newValue as OptionType;
-          setFieldValue(name, option?.value);
-          if (onChange) onChange(newValue, actionMeta);
-        }}
-        onBlur={handleBlur}
-        clearValue={Array.isArray(value) ? [] : clearValue}
-        isDisabled={isDisabled || isSubmitting}
-        error={error}
-        {...rest}
-      />
-    </styled.FormikSelect>
+    <Select
+      name={name}
+      value={value}
+      options={options}
+      // TODO: Figure out how to strongly type these values.
+      onChange={(newValue: unknown, actionMeta: ActionMeta<unknown>) => {
+        const option = newValue as OptionType;
+        setFieldValue(name, option?.value);
+        if (onChange) onChange(newValue, actionMeta);
+      }}
+      onBlur={handleBlur}
+      clearValue={Array.isArray(value) ? [] : clearValue}
+      isDisabled={isDisabled || isSubmitting}
+      error={error}
+      {...rest}
+    />
   );
 };

@@ -1,6 +1,5 @@
+import { Sentiment } from 'components/sentiment';
 import { ContentTypeName, IContentModel, ITableHookColumn } from 'tno-core';
-
-import { DetermineToneIcon } from '../utils';
 
 export const determineColumns = (contentType: ContentTypeName | 'all', windowWidth?: number) => {
   // columns common to all content
@@ -10,7 +9,7 @@ export const determineColumns = (contentType: ContentTypeName | 'all', windowWid
       label: 'TONE',
       width: 0.25,
       cell: (cell) => (
-        <DetermineToneIcon tone={cell.original.tonePools ? cell.original.tonePools[0]?.value : 0} />
+        <Sentiment value={cell.original.tonePools ? cell.original.tonePools[0]?.value : 0} />
       ),
     },
     {

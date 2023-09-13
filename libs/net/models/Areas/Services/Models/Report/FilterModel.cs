@@ -1,5 +1,6 @@
 using System.Text.Json;
 using TNO.API.Models;
+using TNO.API.Models.Settings;
 
 namespace TNO.API.Areas.Services.Models.Report;
 
@@ -28,7 +29,7 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get/set - The filter settings.
     /// </summary>
-    public JsonDocument Settings { get; set; } = JsonDocument.Parse("{}");
+    public FilterSettingsModel Settings { get; set; } = new();
     #endregion
 
     #region Constructors
@@ -41,12 +42,13 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of an FilterModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public FilterModel(Entities.Filter entity) : base(entity)
+    /// <param name="options"></param>
+    public FilterModel(Entities.Filter entity, JsonSerializerOptions options) : base(entity)
     {
         this.OwnerId = entity.OwnerId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.Query = entity.Query;
-        this.Settings = entity.Settings;
+        this.Settings = JsonSerializer.Deserialize<FilterSettingsModel>(JsonSerializer.Serialize(entity.Settings, options)) ?? new();
     }
     #endregion
 

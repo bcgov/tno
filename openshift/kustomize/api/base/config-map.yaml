@@ -31,3 +31,7 @@ data:
   ELASTIC_URIS: http://elastic:9200
 
   KAFKA_BOOTSTRAP_SERVERS: kafka-headless:29092
+
+  REPORTING_MMIA_URL: https://mmia.gov.bc.ca
+  REPORTING_VIEW_CONTENT_URL: https://mmia.gov.bc.ca/view/
+  REPORTING_REQUEST_TRANSCRIPT_URL: https://mmia.gov.bc.ca/api/subscriber/work/orders/transcribe/

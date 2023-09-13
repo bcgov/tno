@@ -53,9 +53,11 @@ export const useApiSubscriberReports = (
         report,
       );
     },
-    updateReport: (report: IReportModel) => {
+    updateReport: (report: IReportModel, updateInstances: boolean | undefined) => {
       return api.put<IReportModel, AxiosResponse<IReportModel>, any>(
-        `/subscriber/reports/${report.id}`,
+        `/subscriber/reports/${report.id}${
+          updateInstances !== undefined ? `?updateInstances=${updateInstances}` : ''
+        }`,
         report,
       );
     },
@@ -68,6 +70,23 @@ export const useApiSubscriberReports = (
     previewReport: (reportId: number) => {
       return api.post<never, AxiosResponse<IReportResultModel>, any>(
         `/subscriber/reports/${reportId}/preview`,
+      );
+    },
+    generateReport: (reportId: number, regenerate: boolean | undefined = false) => {
+      return api.post<never, AxiosResponse<IReportModel>, any>(
+        `/subscriber/reports/${reportId}/generate${
+          regenerate !== undefined ? `?regenerate=${regenerate}` : ''
+        }`,
+      );
+    },
+    sendReport: (reportId: number, to: string) => {
+      return api.post<never, AxiosResponse<IReportModel>, any>(
+        `/subscriber/reports/${reportId}/send?to=${to}`,
+      );
+    },
+    publishReport: (reportId: number) => {
+      return api.post<never, AxiosResponse<IReportModel>, any>(
+        `/subscriber/reports/${reportId}/publish`,
       );
     },
   }).current;

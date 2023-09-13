@@ -1,8 +1,8 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { IProfileState, useProfileStore } from 'store/slices';
+import { useApiSubscriberMinisters } from 'tno-core';
 
-import { useApiMinisters } from './api/useApiMinisters';
 import { IMinisterModel } from './interfaces/IMinisterModel';
 
 interface IMinisterController {
@@ -10,7 +10,7 @@ interface IMinisterController {
 }
 
 export const useMinisters = (): [IProfileState, IMinisterController] => {
-  const api = useApiMinisters();
+  const api = useApiSubscriberMinisters();
   const dispatch = useAjaxWrapper();
   const [state, store] = useProfileStore();
 

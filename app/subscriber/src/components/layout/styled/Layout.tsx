@@ -15,7 +15,7 @@ export const Layout = styled.div<ILayoutProps>`
   /* 2 column base grid, sidebar left column, main content right column */
   .grid-container {
     background-color: ${(props) => props.theme.css.beigeBackgroundColor};
-    overflow: hidden;
+    /* overflow: hidden; */
     display: grid;
     /* media query for screens bigger than 500 */
     @media (min-width: 500px) {

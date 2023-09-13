@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { ButtonHeight, ButtonVariant, IButtonProps } from '..';
 
 export const Button = styled.button<IButtonProps>`
-  margin: 1px 2px 1px 2px;
   text-decoration: ${(props) => (props.variant === ButtonVariant.link ? 'underline' : 'none')};
   box-sizing: border-box;
   display: inline-block;

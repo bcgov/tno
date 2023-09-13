@@ -10,6 +10,7 @@ using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Services;
+using TNO.Entities;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Keycloak;
@@ -77,7 +78,7 @@ public class ReportInstanceController : ControllerBase
     public IActionResult FindById(long id)
     {
         var result = _reportInstanceService.FindById(id) ?? throw new NoContentException();
-        return new JsonResult(new ReportInstanceModel(result, _serializerOptions));
+        return new JsonResult(new ReportInstanceModel(result));
     }
 
     /// <summary>
@@ -92,8 +93,8 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult Add(ReportInstanceModel model)
     {
-        var result = _reportInstanceService.AddAndSave(model.ToEntity(_serializerOptions));
-        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportInstanceModel(result, _serializerOptions));
+        var result = _reportInstanceService.AddAndSave((ReportInstance)model);
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportInstanceModel(result));
     }
 
     /// <summary>
@@ -108,8 +109,8 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult Update(ReportInstanceModel model)
     {
-        var result = _reportInstanceService.UpdateAndSave(model.ToEntity(_serializerOptions));
-        return new JsonResult(new ReportInstanceModel(result, _serializerOptions));
+        var result = _reportInstanceService.UpdateAndSave((ReportInstance)model);
+        return new JsonResult(new ReportInstanceModel(result));
     }
 
     /// <summary>
@@ -124,7 +125,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult Delete(ReportInstanceModel model)
     {
-        _reportInstanceService.DeleteAndSave(model.ToEntity(_serializerOptions));
+        _reportInstanceService.DeleteAndSave((ReportInstance)model);
         return new JsonResult(model);
     }
 
@@ -150,7 +151,7 @@ public class ReportInstanceController : ControllerBase
             RequestorId = user.Id
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{instance.ReportId}", request);
-        return new JsonResult(new ReportInstanceModel(instance, _serializerOptions));
+        return new JsonResult(new ReportInstanceModel(instance));
     }
     #endregion
 }

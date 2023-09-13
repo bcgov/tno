@@ -41,6 +41,12 @@ public class NotificationInstance : AuditColumns
     public virtual Content? Content { get; }
 
     /// <summary>
+    /// get/set - The date and time the notification was sent on.
+    /// </summary>
+    [Column("sent_on")]
+    public DateTime? SentOn { get; set; }
+
+    /// <summary>
     /// get/set - CHES response containing keys to find the status of a notification.
     /// </summary>
     [Column("response")]

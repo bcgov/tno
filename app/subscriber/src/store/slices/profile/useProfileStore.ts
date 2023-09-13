@@ -1,16 +1,25 @@
 import React from 'react';
 import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
-import { IFolderModel, IMinisterModel, ISystemMessageModel, IUserModel } from 'tno-core';
+import {
+  IFilterModel,
+  IFolderModel,
+  IMinisterModel,
+  ISystemMessageModel,
+  IUserModel,
+} from 'tno-core';
 
-import { storeMyFolders, storeMyMinisters, storeMyProfile, storeSystemMessages } from '.';
+import {
+  storeMyFilters,
+  storeMyFolders,
+  storeMyMinisters,
+  storeMyProfile,
+  storeSystemMessages,
+} from '.';
 import { IProfileState } from './interfaces';
-
-export interface IProfileProps {
-  folders: IFolderModel[];
-}
 
 export interface IProfileStore {
   storeMyProfile: (user: IUserModel | ActionDelegate<IUserModel | undefined> | undefined) => void;
+  storeMyFilters: (folders: IFilterModel[] | ActionDelegate<IFilterModel[]>) => void;
   storeMyFolders: (folders: IFolderModel[] | ActionDelegate<IFolderModel[]>) => void;
   storeMyMinisters: (ministers: IMinisterModel[] | ActionDelegate<IMinisterModel[]>) => void;
   storeSystemMessages: (
@@ -18,7 +27,7 @@ export interface IProfileStore {
   ) => void;
 }
 
-export const useProfileStore = (props?: IProfileProps): [IProfileState, IProfileStore] => {
+export const useProfileStore = (): [IProfileState, IProfileStore] => {
   const dispatch = useAppDispatch();
   const state = useAppSelector((store) => store.profile);
 
@@ -28,6 +37,11 @@ export const useProfileStore = (props?: IProfileProps): [IProfileState, IProfile
         if (typeof user === 'function') {
           dispatch(storeMyProfile(user(state.profile)));
         } else dispatch(storeMyProfile(user));
+      },
+      storeMyFilters: (filters: IFilterModel[] | ActionDelegate<IFilterModel[]>) => {
+        if (typeof filters === 'function') {
+          dispatch(storeMyFilters(filters(state.myFilters)));
+        } else dispatch(storeMyFilters(filters));
       },
       storeMyFolders: (folders: IFolderModel[] | ActionDelegate<IFolderModel[]>) => {
         if (typeof folders === 'function') {
@@ -47,7 +61,14 @@ export const useProfileStore = (props?: IProfileProps): [IProfileState, IProfile
         } else dispatch(storeSystemMessages(systemMessages));
       },
     }),
-    [dispatch, state.profile, state.myFolders, state.myMinisters, state.systemMessages],
+    [
+      dispatch,
+      state.profile,
+      state.myFilters,
+      state.myFolders,
+      state.myMinisters,
+      state.systemMessages,
+    ],
   );
 
   return [state, controller];

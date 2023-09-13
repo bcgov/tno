@@ -1,4 +1,6 @@
+using System.Text.Json;
 using TNO.API.Models;
+using TNO.API.Models.Settings;
 
 namespace TNO.API.Areas.Admin.Models.ReportTemplate;
 
@@ -12,6 +14,11 @@ public class ChartTemplateModel : BaseTypeWithAuditColumnsModel<int>
     /// get/set - The Razor template to generate the report.
     /// </summary>
     public string Template { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The settings for this report.
+    /// </summary>
+    public ChartTemplateSettingsModel Settings { get; set; } = new();
     #endregion
 
     #region Constructors
@@ -24,29 +31,11 @@ public class ChartTemplateModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of an ChartTemplateModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public ChartTemplateModel(Entities.ChartTemplate entity) : base(entity)
+    /// <param name="options"></param>
+    public ChartTemplateModel(Entities.ChartTemplate entity, JsonSerializerOptions options) : base(entity)
     {
         this.Template = entity.Template;
-    }
-    #endregion
-
-    #region Methods
-    /// <summary>
-    /// Explicit conversion to entity.
-    /// </summary>
-    /// <param name="model"></param>
-    public static explicit operator Entities.ChartTemplate(ChartTemplateModel model)
-    {
-        var entity = new Entities.ChartTemplate(model.Id, model.Name, model.Template)
-        {
-            Id = model.Id,
-            Description = model.Description,
-            IsEnabled = model.IsEnabled,
-            SortOrder = model.SortOrder,
-            Version = model.Version ?? 0
-        };
-
-        return entity;
+        this.Settings = JsonSerializer.Deserialize<ChartTemplateSettingsModel>(entity.Settings, options) ?? new();
     }
     #endregion
 }

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using TNO.API.Models;
+using TNO.API.Models.Settings;
 
 namespace TNO.API.Areas.Admin.Models.Report;
 
@@ -28,7 +29,7 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get/set - The filter settings.
     /// </summary>
-    public JsonDocument Settings { get; set; } = JsonDocument.Parse("{}");
+    public FilterSettingsModel Settings { get; set; } = new();
     #endregion
 
     #region Constructors
@@ -41,16 +42,29 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of an FilterModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public FilterModel(Entities.Filter entity) : base(entity)
+    /// <param name="options"></param>
+    public FilterModel(Entities.Filter entity, JsonSerializerOptions options) : base(entity)
     {
         this.OwnerId = entity.OwnerId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.Query = entity.Query;
-        this.Settings = entity.Settings;
+        this.Settings = JsonSerializer.Deserialize<FilterSettingsModel>(JsonSerializer.Serialize(entity.Settings, options)) ?? new();
     }
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Cast to an entity.
+    /// </summary>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public Entities.Filter ToEntity(JsonSerializerOptions options)
+    {
+        var entity = (Entities.Filter)this;
+        entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
+        return entity;
+    }
+
     /// <summary>
     /// Explicit conversion to entity.
     /// </summary>
@@ -65,7 +79,7 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
             OwnerId = model.OwnerId,
             SortOrder = model.SortOrder,
             Query = model.Query,
-            Settings = model.Settings,
+            Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
             Version = model.Version ?? 0
         };
 
