@@ -62,7 +62,14 @@ export const MyFolders = () => {
           value={newFolderName}
           onChange={(e) => setNewFolderName(e.target.value)}
         />
-        <AiOutlineFolderAdd className="folder-add" onClick={() => handleAdd()} />
+        <button
+          type="button"
+          title="Create new folder"
+          onClick={handleAdd}
+          disabled={!newFolderName} // Disable button when folder name is empty
+        >
+          <AiOutlineFolderAdd className="folder-add" />
+        </button>
       </Row>
       <Row>
         <FlexboxTable
