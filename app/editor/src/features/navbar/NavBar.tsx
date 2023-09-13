@@ -146,8 +146,8 @@ export const NavBar: React.FC = () => {
               level={1}
             />
             <NavBarItem
-              navigateTo="/admin/av/overviews"
-              label="AV Overview Templates"
+              navigateTo="/admin/av/evening-overview"
+              label="Evening Overview Templates"
               claim={Claim.administrator}
               level={1}
             />
@@ -210,8 +210,8 @@ export const NavBar: React.FC = () => {
           {/* Reports */}
           <Show visible={activeHover === 'report'}>
             <NavBarItem
-              navigateTo="/reports/av/overviews"
-              label="AV Overview"
+              navigateTo="/reports/av/evening-overview"
+              label="Evening Overview"
               claim={Claim.editor}
               level={1}
             />
