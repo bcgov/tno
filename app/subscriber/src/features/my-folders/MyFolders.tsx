@@ -3,7 +3,7 @@ import { AiOutlineFolderAdd } from 'react-icons/ai';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { Col, FlexboxTable, IFolderModel, Row, Text } from 'tno-core';
+import { Col, FlexboxTable, IFolderModel, Modal, Row, Text, useModal } from 'tno-core';
 
 import { columns } from './constants/columns';
 import * as styled from './styled';
@@ -15,6 +15,8 @@ export const MyFolders = () => {
   const [newFolderName, setNewFolderName] = React.useState<string>('');
   const [active, setActive] = React.useState<IFolderModel>();
   const [editable, setEditable] = React.useState<string>('');
+
+  const { toggle, isShowing } = useModal();
 
   React.useEffect(() => {
     findMyFolders().then((data) => {
@@ -84,16 +86,7 @@ export const MyFolders = () => {
             <div className="option" onClick={() => setEditable(active?.name ?? '')}>
               Edit folder name
             </div>
-            <div
-              className="option"
-              onClick={() => {
-                if (!!active) {
-                  updateFolder({ ...active, content: [] }).then(() => {
-                    toast.success(`${active.name} updated successfully`);
-                  });
-                }
-              }}
-            >
+            <div className="option" onClick={toggle}>
               Empty this folder
             </div>
             <div
@@ -112,6 +105,25 @@ export const MyFolders = () => {
           </Col>
         </Tooltip>
       </Row>
+      <Modal
+        headerText="Confirm Removal"
+        body="Are you sure you wish to empty this folder?"
+        isShowing={isShowing}
+        hide={toggle}
+        type="delete"
+        confirmText="Yes, Remove It"
+        onConfirm={() => {
+          try {
+            if (!!active) {
+              updateFolder({ ...active, content: [] }).then(() => {
+                toast.success(`${active.name} updated successfully`);
+              });
+            }
+          } finally {
+            toggle();
+          }
+        }}
+      />
     </styled.MyFolders>
   );
 };
