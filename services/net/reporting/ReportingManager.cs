@@ -392,38 +392,6 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     }
 
     /// <summary>
-    /// Send out an email for the specified report.
-    /// Generate a report instance for this email.
-    /// Send an email merge to CHES.
-    /// This will send out a separate email to each context provided.
-    /// </summary>
-    /// <param name="request"></param>
-    /// <param name="instance"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentException"></exception>
-    private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel instance)
-    {
-        var model = new AVOverviewInstanceModel(instance);
-        var template = instance.Template ?? throw new InvalidOperationException($"Report template was not included in model.");
-
-        var to = instance.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.Email)).Select(s => s.Email).ToArray();
-        // No need to send an email if there are no subscribers.
-        if (request.SendToSubscribers && (to.Length > 0 || !String.IsNullOrEmpty(request.To)))
-        {
-            var subject = await this.ReportEngine.GenerateReportSubjectAsync(template, model, request.UpdateCache);
-            var body = await this.ReportEngine.GenerateReportBodyAsync(template, model, request.UpdateCache);
-
-            // Send the email.
-            var response = await SendEmailAsync(request, to, subject, body, $"{instance.TemplateType}-{instance.Id}");
-
-            // Update the report instance with the email response.
-            instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
-            instance.IsPublished = true;
-            await this.Api.UpdateAVOverviewInstanceAsync(instance);
-        }
-    }
-
-    /// <summary>
     /// Send out an email for the specified report instance.
     /// Send an email merge to CHES.
     /// This will send out a separate email to each context provided.
@@ -474,6 +442,38 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         {
             // Make a request to clear content from folders in this report.
             await this.Api.ClearFoldersInReport(report.Id);
+        }
+    }
+
+    /// <summary>
+    /// Send out an email for the specified report.
+    /// Generate a report instance for this email.
+    /// Send an email merge to CHES.
+    /// This will send out a separate email to each context provided.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel instance)
+    {
+        var model = new AVOverviewInstanceModel(instance);
+        var template = instance.Template ?? throw new InvalidOperationException($"Report template was not included in model.");
+
+        var to = instance.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.Email)).Select(s => s.Email).ToArray();
+        // No need to send an email if there are no subscribers.
+        if (request.SendToSubscribers && (to.Length > 0 || !String.IsNullOrEmpty(request.To)))
+        {
+            var subject = await this.ReportEngine.GenerateReportSubjectAsync(template, model, request.UpdateCache);
+            var body = await this.ReportEngine.GenerateReportBodyAsync(template, model, request.UpdateCache);
+
+            // Send the email.
+            var response = await SendEmailAsync(request, to, subject, body, $"{instance.TemplateType}-{instance.Id}");
+
+            // Update the report instance with the email response.
+            instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+            instance.IsPublished = true;
+            await this.Api.UpdateAVOverviewInstanceAsync(instance);
         }
     }
 

@@ -7,6 +7,7 @@ public class ReportContentSettingsModel
 {
     #region Properties
     public bool ClearFolders { get; set; }
+    public bool OnlyNewContent { get; set; }
     public bool ExcludeHistorical { get; set; }
     public IEnumerable<int> ExcludeReports { get; set; } = Array.Empty<int>();
     public bool ShowLinkToStory { get; set; }
@@ -18,11 +19,12 @@ public class ReportContentSettingsModel
 
     public ReportContentSettingsModel(Dictionary<string, object> settings, JsonSerializerOptions options)
     {
-        this.ClearFolders = settings.GetDictionaryJsonValue<bool>("clearFolders", false, options)!;
-        this.ExcludeHistorical = settings.GetDictionaryJsonValue<bool>("excludeHistorical", false, options)!;
-        this.ExcludeReports = settings.GetDictionaryJsonValue<int[]>("excludeReports", Array.Empty<int>(), options)!;
-        this.ShowLinkToStory = settings.GetDictionaryJsonValue<bool>("showLinkToStory", false, options)!;
-        this.HighlightKeywords = settings.GetDictionaryJsonValue<bool>("highlightKeywords", false, options)!;
+        this.ClearFolders = settings.GetDictionaryJsonValue("clearFolders", false, options)!;
+        this.OnlyNewContent = settings.GetDictionaryJsonValue("onlyNewContent", false, options)!;
+        this.ExcludeHistorical = settings.GetDictionaryJsonValue("excludeHistorical", false, options)!;
+        this.ExcludeReports = settings.GetDictionaryJsonValue("excludeReports", Array.Empty<int>(), options)!;
+        this.ShowLinkToStory = settings.GetDictionaryJsonValue("showLinkToStory", false, options)!;
+        this.HighlightKeywords = settings.GetDictionaryJsonValue("highlightKeywords", false, options)!;
     }
     #endregion
 }

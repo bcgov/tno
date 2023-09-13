@@ -554,7 +554,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         original.Version = updated.Version;
         this.Context.ResetVersion(original);
 
-        return base.Update(original);
+        return base.UpdateAndSave(original);
     }
     #endregion
 }

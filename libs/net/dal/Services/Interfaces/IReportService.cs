@@ -36,9 +36,10 @@ public interface IReportService : IBaseService<Report, int>
     /// Get the content from the current report instance for the specified 'reportId'.
     /// </summary>
     /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    IEnumerable<long> GetReportInstanceContentToExclude(int reportId);
+    IEnumerable<long> GetReportInstanceContentToExclude(int reportId, int? ownerId);
 
     /// <summary>
     /// Get the content from the related report instances for the specified 'reportId'.

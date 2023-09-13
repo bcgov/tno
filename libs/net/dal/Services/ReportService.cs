@@ -328,6 +328,22 @@ public class ReportService : BaseService<Report, int>, IReportService
     }
 
     /// <summary>
+    /// Find the last report instance created for the specified 'reportId' and 'ownerId'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
+    /// <returns></returns>
+    private ReportInstance? GetPreviousReportInstance(int reportId, int? ownerId)
+    {
+        return this.Context.ReportInstances
+            .Include(i => i.ContentManyToMany)
+            .OrderByDescending(i => i.Id)
+            .Where(i => i.ReportId == reportId &&
+                i.OwnerId == ownerId)
+            .FirstOrDefault();
+    }
+
+    /// <summary>
     /// Make a request to Elasticsearch to find content for the specified 'report'.
     /// Makes a request for each section.
     /// If the section also references a folder it will make a request for the folder content too.
@@ -338,15 +354,18 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <exception cref="Exception"></exception>
     public async Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(string index, Report report)
     {
-        var results = new Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>();
+        var searchResults = new Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>();
         var reportSettings = JsonSerializer.Deserialize<ReportSettingsModel>(report.Settings.ToJson(), _serializerOptions) ?? new();
 
+        var ownerId = report.OwnerId; // TODO: Handle users generating instances for a report they do not own.
+        var prevInstance = GetPreviousReportInstance(report.Id, ownerId);
+
         // Fetch the current instance of this report to exclude any content within it.
-        var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical ? this.GetReportInstanceContentToExclude(report.Id) : Array.Empty<long>();
+        var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical ? this.GetReportInstanceContentToExclude(report.Id, ownerId) : Array.Empty<long>();
 
         // Fetch other reports to exclude any content within them.
         var excludeReportContentIds = reportSettings.Content.ExcludeReports.Any()
-            ? reportSettings.Content.ExcludeReports.SelectMany(this.GetReportInstanceContentToExclude).Distinct()
+            ? reportSettings.Content.ExcludeReports.SelectMany((reportId) => this.GetReportInstanceContentToExclude(reportId, ownerId)).Distinct()
             : Array.Empty<long>();
 
         var excludeContentIds = excludeHistoricalContentIds.AppendRange(excludeReportContentIds).Distinct();
@@ -385,7 +404,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                     {
                         Source = new API.Areas.Services.Models.Content.ContentModel(c.Content!)
                     });
-                results.Add(section.Name, folderContent);
+                searchResults.Add(section.Name, folderContent);
                 excludeAboveSectionContentIds.AddRange(content.Select(c => c.ContentId).ToArray());
             }
             // Content in a filter is added second.
@@ -396,31 +415,32 @@ public class ReportService : BaseService<Report, int>, IReportService
                 // Modify the query to exclude content.
                 var query = excludeContentIds.Any() ? AddExcludeContent(section.Filter.Query, excludeContentIds) : section.Filter.Query;
 
+                // Only include content that has been posted since the last report instance.
+                if (reportSettings.Content.OnlyNewContent)
+                    query = IncludeOnlyLatestPosted(query, prevInstance?.PublishedOn);
+
                 var content = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, query);
                 content.Hits.Hits = content.Hits.Hits.Where(c => !excludeContentIds.Contains(c.Source.Id)
                     && (!sectionSettings.RemoveDuplicates || !excludeAboveSectionContentIds.Contains(c.Source.Id)));
-                results.Add(section.Name, content);
+                searchResults.Add(section.Name, content);
                 excludeAboveSectionContentIds.AddRange(content.Hits.Hits.Select(c => c.Source.Id).ToArray());
             }
         }
 
-        return results;
+        return searchResults;
     }
 
     /// <summary>
-    /// Get the content from the current report instance for the specified 'reportId'.
+    /// Get the content from the current report instance for the specified 'reportId' and 'ownerId'.
+    /// Including the 'ownerId' ensures the report the user generates is coupled with prior instances for the same user.
     /// </summary>
     /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public IEnumerable<long> GetReportInstanceContentToExclude(int reportId)
+    public IEnumerable<long> GetReportInstanceContentToExclude(int reportId, int? ownerId)
     {
-        var instance = this.Context.ReportInstances
-            .Include(i => i.ContentManyToMany)
-            .OrderByDescending(i => i.Id)
-            .Where(i => i.ReportId == reportId)
-            .FirstOrDefault();
-
+        var instance = GetPreviousReportInstance(reportId, ownerId);
         return instance?.ContentManyToMany.Select(c => c.ContentId).ToArray() ?? Array.Empty<long>();
     }
 
@@ -481,8 +501,6 @@ public class ReportService : BaseService<Report, int>, IReportService
         if (json == null) return query;
 
         var jMustNotTerms = JsonNode.Parse($"{{ \"terms\": {{ \"id\": [{String.Join(',', contentIds)}] }}}}")?.AsObject() ?? throw new InvalidOperationException("Failed to parse JSON");
-        Console.WriteLine(json.ToJsonString());
-
         if (json.TryGetPropertyValue("query", out JsonNode? jQuery))
         {
             if (jQuery?.AsObject().TryGetPropertyValue("bool", out JsonNode? jQueryBool) == true)
@@ -505,6 +523,44 @@ public class ReportService : BaseService<Report, int>, IReportService
         {
             json.Add("query", JsonNode.Parse($"{{ \"bool\": {{ \"must_not\": [ {jMustNotTerms.ToJsonString()} ] }}}}"));
         }
+        return JsonDocument.Parse(json.ToJsonString());
+    }
+
+    /// <summary>
+    /// Modify the Elasticsearch 'query' and add a 'must' filter to exclude content posted before the last report instance published date.
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="previousInstancePublishedOn"></param>
+    /// <returns></returns>
+    private static JsonDocument IncludeOnlyLatestPosted(JsonDocument query, DateTime? previousInstancePublishedOn)
+    {
+        var json = JsonNode.Parse(query.ToJson())?.AsObject();
+        if (json == null || previousInstancePublishedOn == null) return query;
+
+        var jIncludeOnlyLatestPosted = JsonNode.Parse($"{{ \"range\": {{ \"postedOn\": {{ \"gte\": \"{previousInstancePublishedOn.Value.ToLocalTime():yyyy-MM-dd}\", \"time_zone\": \"US/Pacific\", \"format\": \"yyyy-MM-DD\" }} }} }}");
+        if (json.TryGetPropertyValue("query", out JsonNode? jQuery))
+        {
+            if (jQuery?.AsObject().TryGetPropertyValue("bool", out JsonNode? jQueryBool) == true)
+            {
+                if (jQueryBool?.AsObject().TryGetPropertyValue("must", out JsonNode? jQueryBoolMust) == true)
+                {
+                    jQueryBoolMust?.AsArray().Add(jIncludeOnlyLatestPosted!);
+                }
+                else
+                {
+                    jQueryBool?.AsObject().Add("must", JsonNode.Parse($"[ {jIncludeOnlyLatestPosted!.ToJsonString()} ]"));
+                }
+            }
+            else
+            {
+                jQuery?.AsObject().Add("bool", JsonNode.Parse($"{{ \"must\": [ {jIncludeOnlyLatestPosted!.ToJsonString()} ]}}"));
+            }
+        }
+        else
+        {
+            json.Add("query", JsonNode.Parse($"{{ \"bool\": {{ \"must\": [ {jIncludeOnlyLatestPosted!.ToJsonString()} ] }}}}"));
+        }
+
         return JsonDocument.Parse(json.ToJsonString());
     }
     #endregion

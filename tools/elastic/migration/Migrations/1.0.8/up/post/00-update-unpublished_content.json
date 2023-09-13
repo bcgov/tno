@@ -1,0 +1,13 @@
+{
+  "action": "updateMapping",
+  "settings": {
+    "indexName": "unpublished_content"
+  },
+  "data": {
+    "properties": {
+      "postedOn": {
+        "type": "date"
+      }
+    }
+  }
+}

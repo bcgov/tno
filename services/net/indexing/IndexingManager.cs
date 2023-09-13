@@ -1,15 +1,15 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using TNO.Entities;
-using TNO.Kafka;
-using TNO.Services.Managers;
-using TNO.Services.Indexing.Config;
-using TNO.API.Areas.Services.Models.Content;
-using TNO.Kafka.Models;
 using Confluent.Kafka;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using TNO.API.Areas.Services.Models.Content;
 using TNO.Core.Exceptions;
+using TNO.Entities;
+using TNO.Kafka;
+using TNO.Kafka.Models;
+using TNO.Services.Indexing.Config;
+using TNO.Services.Managers;
 
 namespace TNO.Services.Indexing;
 

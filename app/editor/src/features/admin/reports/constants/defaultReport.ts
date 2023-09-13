@@ -27,6 +27,8 @@ export const defaultReport: IReportModel = {
       excludeReports: [],
       highlightKeywords: false,
       showLinkToStory: false,
+      clearFolders: false,
+      onlyNewContent: false,
     },
     sections: {
       usePageBreaks: false,
