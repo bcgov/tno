@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Exceptions;
@@ -48,14 +49,17 @@ public static class IngestModelExtensions
 
         if (value is JsonElement element)
         {
-            return element.ValueKind switch
-            {
-                JsonValueKind.String => (T)Convert.ChangeType($"{element.GetString()}".Trim(), typeof(T)),
-                JsonValueKind.Null or JsonValueKind.Undefined => default,
-                JsonValueKind.Number => (T)Convert.ChangeType($"{element.GetInt32()}", typeof(T)),
-                JsonValueKind.True or JsonValueKind.False => (T)Convert.ChangeType($"{element.GetBoolean()}", typeof(T)),
-                _ => (T)Convert.ChangeType($"{element}", typeof(T)),
-            };
+            if (typeof(T).GetTypeInfo().IsEnum)
+                return (T)Enum.Parse(typeof(T), $"{element.GetString()}".Trim());
+            else
+                return element.ValueKind switch
+                {
+                    JsonValueKind.String => (T)Convert.ChangeType($"{element.GetString()}".Trim(), typeof(T)),
+                    JsonValueKind.Null or JsonValueKind.Undefined => default,
+                    JsonValueKind.Number => (T)Convert.ChangeType($"{element.GetInt32()}", typeof(T)),
+                    JsonValueKind.True or JsonValueKind.False => (T)Convert.ChangeType($"{element.GetBoolean()}", typeof(T)),
+                    _ => (T)Convert.ChangeType($"{element}", typeof(T)),
+                };
         }
 
         throw new ConfigurationException($"Ingest configuration '{key}' is not a valid JSON element");
@@ -76,14 +80,24 @@ public static class IngestModelExtensions
 
         if (value is JsonElement element)
         {
-            return (element.ValueKind switch
+            if (typeof(T).GetTypeInfo().IsEnum)
             {
-                JsonValueKind.String => (T)Convert.ChangeType($"{element.GetString()}".Trim(), typeof(T)),
-                JsonValueKind.Null or JsonValueKind.Undefined => default,
-                JsonValueKind.Number => (T)Convert.ChangeType($"{element.GetInt32()}", typeof(T)),
-                JsonValueKind.True or JsonValueKind.False => (T)Convert.ChangeType($"{element.GetBoolean()}", typeof(T)),
-                _ => (T)Convert.ChangeType($"{element}", typeof(T)),
-            }) ?? defaultValue;
+                if (!Enum.IsDefined(typeof(T), $"{element.GetString()}".Trim()))
+                    return defaultValue;
+
+                return (T)Enum.Parse(typeof(T), $"{element.GetString()}".Trim());
+            }
+            else
+            {
+                return (element.ValueKind switch
+                {
+                    JsonValueKind.String => (T)Convert.ChangeType($"{element.GetString()}".Trim(), typeof(T)),
+                    JsonValueKind.Null or JsonValueKind.Undefined => default,
+                    JsonValueKind.Number => (T)Convert.ChangeType($"{element.GetInt32()}", typeof(T)),
+                    JsonValueKind.True or JsonValueKind.False => (T)Convert.ChangeType($"{element.GetBoolean()}", typeof(T)),
+                    _ => (T)Convert.ChangeType($"{element}", typeof(T)),
+                }) ?? defaultValue;
+            }
         }
 
         throw new ConfigurationException($"Ingest configuration '{key}' is not a valid JSON element");

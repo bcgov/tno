@@ -30,6 +30,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 {
     enum ImportMigrationType
     {
+        Unknown,
         Historic,
         Recent,
         RecentlyPublished
@@ -193,17 +194,10 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// <exception cref="ArgumentNullException"></exception>
     public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
-        string importMigrationTypeRaw = manager.Ingest.GetConfigurationValue("importMigrationType");
-
-        if (string.IsNullOrEmpty(importMigrationTypeRaw))
-        {
+        ImportMigrationType importMigrationType = manager.Ingest.GetConfigurationValue<ImportMigrationType>("importMigrationType", ImportMigrationType.Unknown);
+        if (importMigrationType == ImportMigrationType.Unknown) {
             this.Logger.LogError("Error in Ingest [{ingestName}] config. 'importMigrationType' cannot be null.", manager.Ingest.Name);
-            throw new ArgumentNullException(nameof(importMigrationTypeRaw));
-        }
-        if (!Enum.TryParse<ImportMigrationType>(importMigrationTypeRaw, out ImportMigrationType importMigrationType))
-        {
-            this.Logger.LogError("Error in Ingest [{ingestName}] config. 'importMigrationType' value [{importMigrationTypeRaw}] is unknown.", manager.Ingest.Name, importMigrationTypeRaw);
-            throw new ArgumentNullException(nameof(importMigrationTypeRaw));
+            throw new ArgumentNullException(nameof(importMigrationType));
         }
 
         if (string.IsNullOrEmpty(this.Options.SupportedImportMigrationTypes))
@@ -214,7 +208,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 
         if (!this.Options.SupportedImportMigrationTypes.Split(',', StringSplitOptions.TrimEntries).Contains(importMigrationType.ToString()))
         {
-            this.Logger.LogInformation("Skipping Ingest [{ingestName}]. Import Migration Type: [{migrationType}] not in supported list [{supportedMigrationTypes}]", manager.Ingest.Name, importMigrationTypeRaw, this.Options.SupportedImportMigrationTypes);
+            this.Logger.LogInformation("Skipping Ingest [{ingestName}]. Import Migration Type: [{migrationType}] not in supported list [{supportedMigrationTypes}]", manager.Ingest.Name, importMigrationType.ToString(), this.Options.SupportedImportMigrationTypes);
             return;
         }
 
