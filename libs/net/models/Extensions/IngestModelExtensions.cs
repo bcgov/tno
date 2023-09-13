@@ -49,7 +49,7 @@ public static class IngestModelExtensions
 
         if (value is JsonElement element)
         {
-            if (typeof(T).GetTypeInfo().IsEnum)
+            if (typeof(T).GetTypeInfo().IsEnum && element.ValueKind.Equals(JsonValueKind.String))
                 return (T)Enum.Parse(typeof(T), $"{element.GetString()}".Trim());
             else
                 return element.ValueKind switch
@@ -80,7 +80,7 @@ public static class IngestModelExtensions
 
         if (value is JsonElement element)
         {
-            if (typeof(T).GetTypeInfo().IsEnum)
+            if (typeof(T).GetTypeInfo().IsEnum && element.ValueKind.Equals(JsonValueKind.String))
             {
                 if (!Enum.IsDefined(typeof(T), $"{element.GetString()}".Trim()))
                     return defaultValue;
