@@ -23,7 +23,6 @@ export const defaultReport: IReportModel = {
       showSentiment: false,
     },
     content: {
-      clearFolders: false,
       excludeHistorical: false,
       excludeReports: [],
       highlightKeywords: false,
