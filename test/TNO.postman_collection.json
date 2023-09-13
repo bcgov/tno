@@ -1434,15 +1434,15 @@
 							]
 						},
 						{
-							"name": "av-overviews",
+							"name": "av-evening-overview",
 							"item": [
 								{
-									"name": "av/overviews",
+									"name": "av/evening-overview",
 									"request": {
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/av/overviews",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/av/evening-overview",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -1458,12 +1458,12 @@
 									"response": []
 								},
 								{
-									"name": "av/overviews/:id",
+									"name": "av/evening-overview/:id",
 									"request": {
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/av/overviews/:id",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/av/evening-overview/:id",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -1486,7 +1486,7 @@
 									"response": []
 								},
 								{
-									"name": "av/overviews",
+									"name": "av/evening-overview",
 									"request": {
 										"method": "POST",
 										"header": [],
@@ -1500,7 +1500,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/av/overviews",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/av/evening-overview",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -1516,7 +1516,7 @@
 									"response": []
 								},
 								{
-									"name": "av/overviews/:id",
+									"name": "av/evening-overview/:id",
 									"request": {
 										"method": "PUT",
 										"header": [],
@@ -1552,7 +1552,7 @@
 									"response": []
 								},
 								{
-									"name": "av/overviews/:id",
+									"name": "av/evening-overview/:id",
 									"request": {
 										"method": "DELETE",
 										"header": [],
@@ -5467,7 +5467,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/reports/av/overviews?publishedOn=08/17/2023",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/reports/av/evening-overview?publishedOn=08/17/2023",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -5511,7 +5511,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/reports/av/overviews",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/reports/av/evening-overview",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"

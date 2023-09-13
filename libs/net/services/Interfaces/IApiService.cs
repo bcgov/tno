@@ -358,7 +358,7 @@ public interface IApiService
     Task<API.Areas.Services.Models.EventSchedule.EventScheduleModel?> UpdateEventScheduleAsync(API.Areas.Services.Models.EventSchedule.EventScheduleModel model);
     #endregion
 
-    #region AV Overview
+    #region Evening Overview
     /// <summary>
     /// Make a request to the API for the evening overview instance for the specified 'id'.
     /// </summary>
