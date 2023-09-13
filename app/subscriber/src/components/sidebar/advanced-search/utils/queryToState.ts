@@ -34,7 +34,6 @@ export const queryToState = (queryString: string) => {
     actions: search.actions,
     boldKeywords: search.boldKeywords,
     hasFile: search.hasFile === 'true',
-    index: search.index,
     frontPage: search.productIds?.includes(11) || false,
     topStory: search.actions?.includes('Top Story') || false,
     sourceIds: search.sourceIds?.map((v: any) => Number(v)),
@@ -42,5 +41,6 @@ export const queryToState = (queryString: string) => {
     startDate: urlParams.get('publishedStartOn') || '',
     endDate: urlParams.get('publishedEndOn') || '',
     sentiment: search.sentiment?.map((v: any) => Number(v)),
+    useUnpublished: search.useUnpublished === 'true',
   };
 };

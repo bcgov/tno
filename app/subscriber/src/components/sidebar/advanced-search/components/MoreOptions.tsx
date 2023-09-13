@@ -27,7 +27,7 @@ export const MoreOptions: React.FC<IMoreOptionsProps> = ({
         <Col>
           <Checkbox
             label="featured on the MMIA home page"
-            checked={advancedSearch.useUnpublished}
+            checked={!advancedSearch.useUnpublished}
             onChange={(e) => {
               setAdvancedSearch({
                 ...advancedSearch,

@@ -10,7 +10,6 @@ export interface IContentListFilter {
   excludeSourceIds?: number[];
   hasFile?: boolean;
   headline?: string;
-  index?: string;
   keyword?: string;
   names?: string;
   otherSource?: string | '';
@@ -26,4 +25,5 @@ export interface IContentListFilter {
   storyText?: string;
   topStory?: boolean;
   userId?: number | '';
+  useUnpublished?: boolean;
 }

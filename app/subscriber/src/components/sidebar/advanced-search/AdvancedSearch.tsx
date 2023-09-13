@@ -107,7 +107,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
         sort: [],
         pageIndex: 0,
         pageSize: 100,
-        index: advancedSearch?.index,
+        useUnpublished: advancedSearch?.useUnpublished,
       }),
     [advancedSearch, constants?.frontPageId],
   );

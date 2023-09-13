@@ -60,7 +60,6 @@ export const SearchPage: React.FC = () => {
         endDate: urlParams.get('publishedEndOn') ?? '',
         hasFile: urlParams.get('hasFile') === 'true' ?? false,
         headline: urlParams.get('headline') ?? '',
-        index: urlParams.get('index') ?? '',
         keyword: urlParams.get('keyword') ?? '',
         pageIndex: convertTo(urlParams.get('pageIndex'), 'number', 0),
         pageSize: convertTo(urlParams.get('pageSize'), 'number', 100),
@@ -71,6 +70,7 @@ export const SearchPage: React.FC = () => {
         startDate: urlParams.get('publishedStartOn') ?? '',
         storyText: urlParams.get('storyText') ?? '',
         boldKeywords: urlParams.get('boldKeywords') === 'true' ?? '',
+        useUnpublished: urlParams.get('useUnpublished') === 'true' ?? false,
       };
       // only want this to update when the query changes
       // eslint-disable-next-line react-hooks/exhaustive-deps
