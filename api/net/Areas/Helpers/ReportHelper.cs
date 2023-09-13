@@ -198,7 +198,7 @@ public class ReportHelper : IReportHelper
         return new ReportResultModel(subject, body);
     }
 
-    #region Evening Overview
+    #region AV Overview
     /// <summary>
     /// Execute the report template to generate the subject and body.
     /// If the report sections contain charts it will also generate them and include them in the results.
