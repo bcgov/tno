@@ -107,7 +107,7 @@ export const DbMigration: React.FC = (props) => {
               isImportEndDateRequired = val.target.value === 'Historic';
               setFieldValue('configuration.importMigrationType', val.target.value, false);
             }}
-            options={['Historic', 'Recent']}
+            options={['Historic', 'Recent', 'RecentlyPublished']}
             required={true}
           ></FormikRadioGroup>
         </Col>
