@@ -2,7 +2,6 @@ import 'react-quill/dist/quill.snow.css';
 
 import { useFormikContext } from 'formik';
 import { html_beautify } from 'js-beautify';
-import _ from 'lodash';
 import { Sources } from 'quill';
 import React from 'react';
 import ReactQuill from 'react-quill';
