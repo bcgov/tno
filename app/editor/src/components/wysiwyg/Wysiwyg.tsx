@@ -6,6 +6,7 @@ import { Sources } from 'quill';
 import React from 'react';
 import ReactQuill from 'react-quill';
 import { useParams } from 'react-router-dom';
+import { useLookup } from 'store/hooks';
 import { Error } from 'tno-core';
 
 import { CustomToolbar } from './CustomToolbar';
@@ -53,6 +54,7 @@ export const Wysiwyg = <T extends object>({
   const [toolBarNode, setToolBarNode] = React.useState();
 
   const { id } = useParams();
+  const [{ tags }] = useLookup();
 
   const [state, setState] = React.useState({
     html: '',
@@ -68,6 +70,7 @@ export const Wysiwyg = <T extends object>({
           ...state,
           html: html,
         });
+        updateTags(html);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -100,20 +103,39 @@ export const Wysiwyg = <T extends object>({
           .replace(/<br\s*\/?>/g, '[br]'),
         'text/html',
       );
-      doc.body.textContent =
+      const html =
         doc.body.textContent
           ?.replaceAll('[p]', '<p>')
           .replaceAll('[/p]', '</p>')
           .replaceAll('[br]', '<br>') || '';
-      setFieldValue(fieldName as string, doc.body.textContent);
-      setState({ ...state, html: doc.body.textContent });
+      if (html !== state.html) {
+        setState({ ...state, html: html });
+        setFieldValue(fieldName as string, html);
+      }
     }
+  };
+
+  const extractTags = (values: string[]) => {
+    return tags.filter((tag) =>
+      values.some((value: string) => value.trim().toLowerCase() === tag.code.toLowerCase()),
+    );
+  };
+
+  const updateTags = (html: string) => {
+    const stringValue = html.match(/\[([^\]]+)\][^[\]]*$/s)?.pop();
+    const tagValues = stringValue?.includes(',')
+      ? stringValue?.split(',')
+      : stringValue?.split(' ') ?? [];
+    const currentTags = (values as any)?.tags;
+    const newTags = extractTags(tagValues).filter((item) => !currentTags.includes(item));
+    if (newTags.length > 0) setFieldValue('tags', [...currentTags, ...newTags]);
   };
 
   const handleChange = (html: string) => {
     if (html !== state.html) {
       setState({ ...state, html: html });
       if (!!fieldName) setFieldValue(fieldName as string, html);
+      updateTags(html);
     }
   };
 
