@@ -13,7 +13,7 @@ using TNO.DAL;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20230913164031_1.0.66")]
+    [Migration("20230913173415_1.0.66")]
     partial class _1066
     {
         /// <inheritdoc />
