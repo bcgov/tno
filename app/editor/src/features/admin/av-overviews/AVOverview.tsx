@@ -69,11 +69,11 @@ export const AVOverview: React.FC = () => {
   return (
     <styled.AVOverview>
       <Row className="page-header">
-        <div className="title">AV Evening Overview Template</div>
+        <div className="title">Evening Overview Template</div>
       </Row>
       <p>
-        An AV Overview Template provides a way to configure the default sections and stories within
-        each section.
+        An Evening Overview Template provides a way to configure the default sections and stories
+        within each section.
       </p>
 
       <FormikForm

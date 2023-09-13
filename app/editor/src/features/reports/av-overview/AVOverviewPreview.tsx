@@ -50,14 +50,14 @@ export const AVOverviewPreview: React.FC = () => {
   const handlePublish = React.useCallback(async () => {
     try {
       await publishAVOverview(instanceId);
-      toast.success('AV Evening Overview report request to publish has been sent.');
+      toast.success('Evening Overview report request to publish has been sent.');
     } catch {}
   }, [publishAVOverview, instanceId]);
 
   return (
     <styled.AVOverviewPreview>
       <Row className="page-header">
-        <h1>AV Evening Overview</h1>
+        <h1>Evening Overview</h1>
         <div className="buttons">
           <Button disabled={!instanceId} onClick={() => toggle()}>
             Publish <FaPaperPlane className="icon" />
