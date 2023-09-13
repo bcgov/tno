@@ -72,16 +72,17 @@ public class ContentController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IPaged<Services.Models.Content.ContentModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> FindWithElasticsearchAsync([FromQuery] string? index)
+    public async Task<IActionResult> FindWithElasticsearchAsync()
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var filter = new ContentFilter(query);
+        var useUnpublished = filter.UseUnpublished == true;
         if (filter.Actions.Any(x => x.Contains("Commentary")) && filter.Quantity == 10)
         {
             filter.Quantity = 500;
         }
-        var result = await _contentService.FindWithElasticsearchAsync(index ?? _elasticOptions.PublishedIndex, filter);
+        var result = await _contentService.FindWithElasticsearchAsync(useUnpublished ? _elasticOptions.UnpublishedIndex :_elasticOptions.PublishedIndex, filter);
         var page = new Paged<Services.Models.Content.ContentModel>(
             result.Items,
             result.Page,

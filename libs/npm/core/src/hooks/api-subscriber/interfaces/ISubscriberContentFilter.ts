@@ -13,7 +13,6 @@ export interface ISubscriberContentFilter extends ISortPageFilter {
   hasTopic?: boolean;
   headline?: string;
   includeHidden?: boolean;
-  index?: string;
   keyword?: string;
   names?: string;
   onlyHidden?: boolean;
@@ -35,4 +34,5 @@ export interface ISubscriberContentFilter extends ISortPageFilter {
   updatedOn?: string;
   updatedStartOn?: string;
   userId?: number;
+  useUnpublished?: boolean;
 }

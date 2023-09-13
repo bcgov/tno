@@ -9,5 +9,5 @@ export const defaultAdvancedSearch: IAdvancedSearchFilter = {
   frontPage: false,
   hasFile: false,
   boldKeywords: true,
-  index: 'content',
+  useUnpublished: false,
 };

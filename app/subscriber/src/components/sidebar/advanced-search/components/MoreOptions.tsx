@@ -25,14 +25,13 @@ export const MoreOptions: React.FC<IMoreOptionsProps> = ({
           your search using these settings.
         </p>
         <Col>
-          {/* TODO: Future ticket covers this */}
           <Checkbox
             label="featured on the MMIA home page"
-            checked={Boolean(advancedSearch.index === 'content')}
+            checked={advancedSearch.useUnpublished}
             onChange={(e) => {
               setAdvancedSearch({
                 ...advancedSearch,
-                index: e.target.checked ? 'content' : 'unpublished_content',
+                useUnpublished: !e.target.checked,
               });
             }}
           />

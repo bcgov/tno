@@ -22,7 +22,6 @@ export const makeFilter = (
     excludeSourceIds: filter.excludeSourceIds ?? undefined,
     hasFile: filter.hasFile,
     headline: filter.headline ?? '',
-    index: filter.index,
     keyword: filter.keyword ?? undefined,
     names: filter.names ?? undefined,
     productIds: filter.productIds ?? undefined,
@@ -32,6 +31,7 @@ export const makeFilter = (
     sourceIds: filter.sourceIds ?? undefined,
     status: filter.status ?? undefined,
     storyText: filter.storyText ?? undefined,
+    useUnpublished: filter.useUnpublished,
   };
   return result;
 };
