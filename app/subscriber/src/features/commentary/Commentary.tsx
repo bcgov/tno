@@ -29,7 +29,7 @@ export const Commentary: React.FC = () => {
       makeFilter({
         actions: [ActionName.Commentary],
         contentTypes: [],
-        pageSize: 10000,
+        pageSize: 500,
         pageIndex: 0,
         sort: [],
         startDate: determineCommentaryTime(),
