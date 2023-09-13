@@ -116,11 +116,9 @@ export const Wysiwyg = <T extends object>({
   };
 
   const extractTags = (values: string[]) => {
-    return tags
-      .filter((tag) =>
-        values.some((value: string) => value.trim().toLowerCase() === tag.code.toLowerCase()),
-      )
-      .map((tag) => tag);
+    return tags.filter((tag) =>
+      values.some((value: string) => value.trim().toLowerCase() === tag.code.toLowerCase()),
+    );
   };
 
   const updateTags = (html: string) => {
