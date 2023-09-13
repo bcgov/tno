@@ -722,7 +722,7 @@ public class ApiService : IApiService
     }
     #endregion
 
-    #region AV Overview
+    #region Evening Overview
     /// <summary>
     /// Make a request to the API for the evening overview instance for the specified 'id'.
     /// </summary>
@@ -730,7 +730,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?> GetAVOverviewInstanceAsync(int id)
     {
-        var url = this.Options.ApiUrl.Append($"services/reports/av/overviews/{id}");
+        var url = this.Options.ApiUrl.Append($"services/reports/av/evening-overview/{id}");
         return await RetryRequestAsync(async () => await this.Client.GetAsync<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?>(url));
     }
 
@@ -741,7 +741,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?> UpdateAVOverviewInstanceAsync(API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel model)
     {
-        var url = this.Options.ApiUrl.Append($"services/reports/av/overviews/{model.Id}");
+        var url = this.Options.ApiUrl.Append($"services/reports/av/evening-overview/{model.Id}");
         return await RetryRequestAsync(async () => await this.Client.PutAsync<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?>(url, JsonContent.Create(model)));
     }
     #endregion

@@ -131,7 +131,7 @@ export const AdminRouter: React.FC = () => {
       <Route path="notifications" element={<NotificationList />} />
       <Route path="notifications/:id" element={<NotificationForm />} />
 
-      <Route path="av/overviews" element={<AVOverview />} />
+      <Route path="av/evening-overview" element={<AVOverview />} />
     </Routes>
   );
 };

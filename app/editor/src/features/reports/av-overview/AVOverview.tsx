@@ -75,7 +75,7 @@ export const AVOverview: React.FC = () => {
   const handlePublish = React.useCallback(async () => {
     try {
       const result = await api.publishAVOverview(instance.id);
-      toast.success('AV Evening Overview report request to publish has been sent.');
+      toast.success('Evening Overview report request to publish has been sent.');
       setInstance(result);
     } catch {}
   }, [api, instance.id]);
@@ -83,7 +83,7 @@ export const AVOverview: React.FC = () => {
   return (
     <styled.AVOverview>
       <Row className="page-header">
-        <h1>AV Evening Overview</h1>
+        <h1>Evening Overview</h1>
         <div className="buttons">
           <Button disabled={!instance.id} onClick={() => navigate(`${instance.id}`)}>
             Preview <FaBinoculars className="icon" />
