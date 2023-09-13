@@ -116,8 +116,6 @@ export const Wysiwyg = <T extends object>({
     }
   };
 
-  const tagMatch = /\[.*?\]/g;
-
   const extractTags = (values: string[]) => {
     return tags
       .filter((tag) =>
@@ -127,12 +125,13 @@ export const Wysiwyg = <T extends object>({
   };
 
   const updateTags = (html: string) => {
-    const stringValue = html.match(tagMatch)?.pop()?.toString().slice(1, -1);
+    const stringValue = html.match(/\[([^\]]+)\][^[\]]*$/s)?.pop();
     const tagValues = stringValue?.includes(',')
       ? stringValue?.split(',')
       : stringValue?.split(' ') ?? [];
-    const tags = extractTags(tagValues);
-    if (!_.isEqual(tags, (values as any)?.tags)) setFieldValue('tags', tags);
+    const currentTags = (values as any)?.tags;
+    const newTags = extractTags(tagValues).filter((item) => !currentTags.includes(item));
+    if (newTags.length > 0) setFieldValue('tags', [...currentTags, ...newTags]);
   };
 
   const handleChange = (html: string) => {
