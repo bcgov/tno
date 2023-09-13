@@ -1,4 +1,4 @@
-import { DetermineToneIcon } from 'features/home/utils';
+import { DetermineToneIcon, makeFilter } from 'features/home/utils';
 import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router';
@@ -25,11 +25,16 @@ export const Commentary: React.FC = () => {
   };
 
   React.useEffect(() => {
-    findContent({
-      actions: [ActionName.Commentary],
-      contentTypes: [],
-      publishedStartOn: determineCommentaryTime(),
-    }).then((data) => setCommentary(data.items));
+    findContent(
+      makeFilter({
+        actions: [ActionName.Commentary],
+        contentTypes: [],
+        pageSize: 500,
+        pageIndex: 0,
+        sort: [],
+        startDate: determineCommentaryTime(),
+      }),
+    ).then((data) => setCommentary(data.items));
   }, [findContent]);
 
   return (
