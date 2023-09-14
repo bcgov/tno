@@ -82,7 +82,7 @@ export const ContentFormToolBar: React.FC<IContentFormToolBarProps> = ({
           label="LICENCE EXPIRY"
         />
       </Show>
-      <Show visible={values.status === 'Publish'}>
+      <Show visible={values.status === 'Publish' || values.status === 'Published'}>
         <PublishedSection values={values} />
       </Show>
     </ToolBar>
