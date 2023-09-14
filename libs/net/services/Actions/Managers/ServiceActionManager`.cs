@@ -56,11 +56,11 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
             {
                 this.IsRunning = true;
 
-                await PerformActionAsync();
+                var actionResult = await PerformActionAsync();
 
                 this.RanCounter++;
 
-                await PostRunAsync();
+                await PostRunAsync(actionResult);
             }
             catch
             {
@@ -96,10 +96,10 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
-    protected virtual async Task PerformActionAsync(string? name = null)
+    protected virtual async Task<ServiceActionResult> PerformActionAsync(string? name = null)
     {
         // Perform configured action.
-        await PerformActionAsync<object>(name, null);
+        return await PerformActionAsync<object>(name, null);
     }
 
     /// <summary>
@@ -108,21 +108,23 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     /// <param name="name"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    protected virtual async Task PerformActionAsync<T>(string? name = null, T? data = null)
+    protected virtual async Task<ServiceActionResult> PerformActionAsync<T>(string? name = null, T? data = null)
         where T : class
     {
         // Perform configured action.
-        await _action.PerformActionAsync(this, name, data);
+        return await _action.PerformActionAsync(this, name, data);
     }
 
     /// <summary>
     /// Perform activity after a successful run.
     /// </summary>
     /// <returns></returns>
-    protected virtual async Task PostRunAsync()
+    protected virtual async Task PostRunAsync(ServiceActionResult actionResult)
     {
-        // Inform data source of run.
-        await RecordSuccessAsync();
+        if (actionResult == ServiceActionResult.Success) {
+            // Inform data source of run.
+            await RecordSuccessAsync();
+        }
     }
 
     /// <summary>

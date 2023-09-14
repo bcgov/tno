@@ -10,6 +10,7 @@ using TNO.Services.Capture.Config;
 using TNO.Services.Command;
 using System.Diagnostics;
 using TNO.Core.Exceptions;
+using TNO.Services.Actions;
 
 namespace TNO.Services.Capture;
 
@@ -46,7 +47,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
 
@@ -85,6 +86,8 @@ public class CaptureAction : CommandAction<CaptureOptions>
                 await this.ContentReceivedAsync(manager, reference, CreateSourceContent(process, manager.Ingest, schedule, reference));
             }
         }
+
+        return ServiceActionResult.Success;
     }
 
     /// <summary>

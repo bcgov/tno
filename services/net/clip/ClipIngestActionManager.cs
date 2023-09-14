@@ -46,11 +46,11 @@ public class ClipIngestActionManager : CommandIngestActionManager<ClipOptions>
             {
                 this.IsRunning = true;
 
-                await PerformActionAsync("start");
+                var result = await PerformActionAsync("start");
 
                 this.RanCounter++;
 
-                await PostRunAsync();
+                await PostRunAsync(result);
             }
             catch (Exception ex)
             {

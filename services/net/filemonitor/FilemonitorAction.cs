@@ -13,6 +13,7 @@ using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Models.Extensions;
 using TNO.Services.Actions;
+using TNO.Services.Actions.Managers;
 using TNO.Services.FileMonitor.Config;
 
 namespace TNO.Services.FileMonitor;
@@ -49,7 +50,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
 
@@ -77,6 +78,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 break;
             default: throw new InvalidOperationException($"Invalid import file format defined for '{manager.Ingest.Name}'");
         };
+
+        return ServiceActionResult.Success;
     }
 
     /// <summary>

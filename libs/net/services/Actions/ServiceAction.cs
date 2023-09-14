@@ -54,6 +54,6 @@ public abstract class ServiceAction<TOptions> : IServiceAction<TOptions>
     /// <param name="name"></param>
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
-    public abstract Task PerformActionAsync<T>(IServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class;
+    public abstract Task<ServiceActionResult> PerformActionAsync<T>(IServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class;
     #endregion
 }

@@ -54,7 +54,7 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="ConfigurationException"></exception>
-    public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
 
@@ -151,6 +151,8 @@ public class ImageAction : IngestAction<ImageOptions>
                 client.Disconnect();
             throw;
         }
+
+        return ServiceActionResult.Success;
     }
 
     /// <summary>

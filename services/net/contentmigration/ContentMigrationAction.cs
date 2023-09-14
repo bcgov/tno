@@ -192,7 +192,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// <returns></returns>
     /// <exception cref="ConfigurationException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
-    public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         ImportMigrationType importMigrationType = manager.Ingest.GetConfigurationValue<ImportMigrationType>("importMigrationType", ImportMigrationType.Unknown);
         if (importMigrationType == ImportMigrationType.Unknown) {
@@ -209,7 +209,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         if (!this.Options.SupportedImportMigrationTypes.Split(',', StringSplitOptions.TrimEntries).Contains(importMigrationType.ToString()))
         {
             this.Logger.LogInformation("Skipping Ingest [{ingestName}]. Import Migration Type: [{migrationType}] not in supported list [{supportedMigrationTypes}]", manager.Ingest.Name, importMigrationType.ToString(), this.Options.SupportedImportMigrationTypes);
-            return;
+            return ServiceActionResult.Skipped;
         }
 
         this.Logger.LogDebug("Performing ingestion service action for Ingest '{name}'", manager.Ingest.Name);
@@ -320,6 +320,8 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             this.Logger.LogInformation("Ingest [{name}] exited after reaching max ingest value [{maxIngest}]", manager.Ingest.Name, maxIngestedRecords);
         else
             this.Logger.LogInformation("Ingest [{name}] completed with [{countOfRecordsIngested}] records ingested", manager.Ingest.Name, skip);
+
+        return ServiceActionResult.Success;
     }
 
     /// <summary>
