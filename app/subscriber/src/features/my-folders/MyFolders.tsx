@@ -17,6 +17,7 @@ export const MyFolders = () => {
   const [editable, setEditable] = React.useState<string>('');
 
   const { toggle, isShowing } = useModal();
+  const [actionName, setActionName] = React.useState<'empty' | 'delete'>('delete');
 
   React.useEffect(() => {
     findMyFolders().then((data) => {
@@ -93,18 +94,20 @@ export const MyFolders = () => {
             <div className="option" onClick={() => setEditable(active?.name ?? '')}>
               Edit folder name
             </div>
-            <div className="option" onClick={toggle}>
+            <div
+              className="option"
+              onClick={() => {
+                setActionName('empty');
+                toggle();
+              }}
+            >
               Empty this folder
             </div>
             <div
               className="option"
               onClick={() => {
-                if (!!active) {
-                  deleteFolder(active).then(() => {
-                    toast.success(`${active.name} deleted successfully`);
-                    setMyFolders(myFolders.filter((folder) => folder.id !== active.id));
-                  });
-                }
+                setActionName('delete');
+                toggle();
               }}
             >
               Delete this folder
@@ -114,7 +117,7 @@ export const MyFolders = () => {
       </Row>
       <Modal
         headerText="Confirm Removal"
-        body="Are you sure you wish to empty this folder?"
+        body={`Are you sure you wish to ${actionName} this folder?`}
         isShowing={isShowing}
         hide={toggle}
         type="delete"
@@ -122,9 +125,17 @@ export const MyFolders = () => {
         onConfirm={() => {
           try {
             if (!!active) {
-              updateFolder({ ...active, content: [] }).then(() => {
-                toast.success(`${active.name} updated successfully`);
-              });
+              if (actionName === 'empty') {
+                updateFolder({ ...active, content: [] }).then((data) => {
+                  toast.success(`${active.name} updated successfully`);
+                  setMyFolders(myFolders.map((item) => (item.id === active.id ? data : item)));
+                });
+              } else if (actionName === 'delete') {
+                deleteFolder(active).then(() => {
+                  toast.success(`${active.name} deleted successfully`);
+                  setMyFolders(myFolders.filter((folder) => folder.id !== active.id));
+                });
+              }
             }
           } finally {
             toggle();
