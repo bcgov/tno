@@ -82,11 +82,11 @@ public abstract class CommandIngestActionManager<TOptions> : IngestActionManager
     /// <param name="name">A way to identify different run actions.</param>
     private async Task HandleActionAsync(string? name = null)
     {
-        await PerformActionAsync(name);
+        var result = await PerformActionAsync(name);
 
         this.RanCounter++;
 
-        await PostRunAsync();
+        await PostRunAsync(result);
     }
 
     /// <summary>

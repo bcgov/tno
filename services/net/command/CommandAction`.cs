@@ -39,7 +39,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
 
@@ -62,6 +62,8 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
                 RemoveProcess(manager, schedule);
             }
         }
+
+        return ServiceActionResult.Success;
     }
 
     /// <summary>

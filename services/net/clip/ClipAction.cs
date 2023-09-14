@@ -11,6 +11,7 @@ using TNO.Kafka.Models;
 using TNO.Services.Clip.Config;
 using TNO.Services.Command;
 using System.Diagnostics;
+using TNO.Services.Actions;
 
 namespace TNO.Services.Clip;
 
@@ -54,7 +55,7 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
 
@@ -112,6 +113,8 @@ public class ClipAction : CommandAction<ClipOptions>
                 throw;
             }
         }
+
+        return ServiceActionResult.Success;
     }
 
     /// <summary>
