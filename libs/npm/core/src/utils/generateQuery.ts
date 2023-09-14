@@ -1,15 +1,13 @@
-import { IFilterSettingsModel } from 'tno-core';
+import { IFilterSettingsModel } from 'hooks';
 
-import {
-  generateQueryForActions,
-  generateRangeForArrayField,
-  generateRangeForDateOffset,
-  generateRangeForDates,
-  generateSimpleQueryString,
-  generateTerm,
-  generateTerms,
-  generateTermsForArrayField,
-} from '.';
+import { generateQueryForActions } from './generateQueryForActions';
+import { generateRangeForArrayField } from './generateRangeForArrayField';
+import { generateRangeForDateOffset } from './generateRangeForDateOffset';
+import { generateRangeForDates } from './generateRangeForDates';
+import { generateSimpleQueryString } from './generateSimpleQueryString';
+import { generateTerm } from './generateTerm';
+import { generateTerms } from './generateTerms';
+import { generateTermsForArrayField } from './generateTermsForArrayField';
 
 /**
  * Generates an Elasticsearch query based on specified 'query'.
