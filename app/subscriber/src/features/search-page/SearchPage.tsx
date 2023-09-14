@@ -70,6 +70,7 @@ export const SearchPage: React.FC = () => {
         startDate: urlParams.get('publishedStartOn') ?? '',
         storyText: urlParams.get('storyText') ?? '',
         boldKeywords: urlParams.get('boldKeywords') === 'true' ?? '',
+        useUnpublished: urlParams.get('useUnpublished') === 'true' ?? false,
       };
       // only want this to update when the query changes
       // eslint-disable-next-line react-hooks/exhaustive-deps

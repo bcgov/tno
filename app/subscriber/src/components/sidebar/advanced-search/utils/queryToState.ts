@@ -41,5 +41,6 @@ export const queryToState = (queryString: string) => {
     startDate: urlParams.get('publishedStartOn') || '',
     endDate: urlParams.get('publishedEndOn') || '',
     sentiment: search.sentiment?.map((v: any) => Number(v)),
+    useUnpublished: search.useUnpublished === 'true',
   };
 };

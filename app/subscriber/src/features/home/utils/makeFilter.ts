@@ -31,6 +31,7 @@ export const makeFilter = (
     sourceIds: filter.sourceIds ?? undefined,
     status: filter.status ?? undefined,
     storyText: filter.storyText ?? undefined,
+    useUnpublished: filter.useUnpublished,
   };
   return result;
 };

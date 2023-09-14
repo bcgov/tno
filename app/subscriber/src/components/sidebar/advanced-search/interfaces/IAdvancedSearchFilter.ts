@@ -19,6 +19,8 @@ export interface IAdvancedSearchFilter {
   frontPage?: boolean;
   /** whether or not the content has a file associated to it or not */
   hasFile?: boolean;
-  /** whether  not to bold the keywords */
+  /** whether or not to bold the keywords */
   boldKeywords?: boolean;
+  /** index to control whether content is published or unpublished */
+  useUnpublished?: boolean;
 }
