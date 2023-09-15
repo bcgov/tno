@@ -42,7 +42,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
   React.useEffect(() => {
     findContent({
       seriesId: values.sections[index].seriesId,
-      publishedOn: !!values.sections[index].startTime
+      publishedStartOn: !!values.sections[index].startTime
         ? moment()
             .utcOffset(0)
             .set({
@@ -57,7 +57,9 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
     }).then((data) =>
       setClips(data.items.map((c) => new OptionItem(c.headline, c.id)) as IOptionItem[]),
     );
-  }, [findContent, index, values.sections, startTime]);
+    // only want to fire this based on section and index
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, values.sections]);
 
   /** function that runs after a user drops an item in the list */
   const handleDrop = (droppedItem: any) => {
