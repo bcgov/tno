@@ -7,7 +7,7 @@ import { columns } from './constants';
 import { ContributorFilter } from './ContributorFilter';
 import * as styled from './styled';
 
-export const ContributorList: React.FC = () => {
+const ContributorList: React.FC = () => {
   const navigate = useNavigate();
   const [{ contributors }, api] = useContributors();
 
@@ -64,3 +64,5 @@ export const ContributorList: React.FC = () => {
     </styled.ContributorList>
   );
 };
+
+export default ContributorList;

@@ -27,7 +27,7 @@ import { defaultTag } from './constants';
 import * as styled from './styled';
 
 /** The page used to view and edit tags in the administrative section. */
-export const TagsForm: React.FC = () => {
+const TagsForm: React.FC = () => {
   const [, api] = useTags();
   const { state } = useLocation();
   const { id } = useParams();
@@ -162,3 +162,5 @@ export const TagsForm: React.FC = () => {
     </styled.TagsForm>
   );
 };
+
+export default TagsForm;

@@ -28,7 +28,7 @@ import { useColumns } from './useColumns';
  * Provides CRUD form for topics.
  * @returns Component
  */
-export const TopicList: React.FC = () => {
+const TopicList: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [, api] = useTopics();
@@ -204,3 +204,5 @@ export const TopicList: React.FC = () => {
     </styled.TopicList>
   );
 };
+
+export default TopicList;

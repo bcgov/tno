@@ -24,7 +24,7 @@ interface IIngestSettingsProps {}
  * A UI component form to manage data source ingest settings.
  * @returns Component.
  */
-export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
+const IngestSettings: React.FC<IIngestSettingsProps> = () => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
   const [{ connections }, { findAllConnections }] = useConnections();
   const [lookups] = useLookup();
@@ -259,3 +259,5 @@ export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
     </styled.IngestSettings>
   );
 };
+
+export default IngestSettings;

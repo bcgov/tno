@@ -39,7 +39,7 @@ const sortArray = <T,>(items: T[], predicate: keyof T | (keyof T)[] | ((item: T)
   });
 };
 
-export const SourceList: React.FC<ISourceListProps> = (props) => {
+const SourceList: React.FC<ISourceListProps> = (props) => {
   const navigate = useNavigate();
   const [{ sources }, api] = useSources();
 
@@ -97,3 +97,5 @@ export const SourceList: React.FC<ISourceListProps> = (props) => {
     </styled.SourceList>
   );
 };
+
+export default SourceList;

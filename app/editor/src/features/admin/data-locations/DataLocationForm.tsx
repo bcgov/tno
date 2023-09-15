@@ -31,7 +31,7 @@ import * as styled from './styled';
 import { toForm, toModel } from './utils';
 
 /** The page used to view and edit tags in the administrative section. */
-export const DataLocationForm: React.FC = () => {
+const DataLocationForm: React.FC = () => {
   const [, api] = useDataLocations();
   const { state } = useLocation();
   const [{ connections }, { findAllConnections }] = useConnections();
@@ -191,3 +191,5 @@ export const DataLocationForm: React.FC = () => {
     </styled.DataLocationForm>
   );
 };
+
+export default DataLocationForm;

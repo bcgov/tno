@@ -14,7 +14,7 @@ import { WorkOrderListFilter } from './WorkOrderListFilter';
  * Provides a component for listing and filtering work orders.
  * @returns Component for listing and filtering work orders.
  */
-export const WorkOrderList = () => {
+const WorkOrderList = () => {
   const navigate = useNavigate();
   const [{ workOrders, workOrderFilter }, { findWorkOrders, storeFilter }] = useWorkOrders();
 
@@ -100,3 +100,5 @@ export const WorkOrderList = () => {
     </styled.WorkOrderList>
   );
 };
+
+export default WorkOrderList;

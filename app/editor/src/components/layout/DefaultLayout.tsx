@@ -33,7 +33,7 @@ interface ILayoutProps extends React.HTMLAttributes<HTMLDivElement> {
  * @param param0 Component properties.
  * @returns DefaultLayout component.
  */
-export const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest }) => {
+const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest }) => {
   const keycloak = useKeycloakWrapper();
   const { setToken } = React.useContext(SummonContext);
   var hub = useApiHub();
@@ -152,3 +152,5 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest 
     </styled.Layout>
   );
 };
+
+export default DefaultLayout;

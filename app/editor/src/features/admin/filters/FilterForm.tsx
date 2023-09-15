@@ -29,7 +29,7 @@ export interface IFilterFormProps {}
  * Provides a page to admin a list of filters and filter templates.
  * @returns Component to admin filters and filter templates.
  */
-export const FilterForm: React.FC<IFilterFormProps> = () => {
+const FilterForm: React.FC<IFilterFormProps> = () => {
   const navigate = useNavigate();
   const [{ userInfo }] = useApp();
   const { id } = useParams();
@@ -153,3 +153,5 @@ export const FilterForm: React.FC<IFilterFormProps> = () => {
     </styled.FilterForm>
   );
 };
+
+export default FilterForm;

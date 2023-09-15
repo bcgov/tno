@@ -27,7 +27,7 @@ import { contentTypeOptions, defaultIngestType } from './constants';
 import * as styled from './styled';
 
 /** The page used to view and edit ingest types in the administrative section. */
-export const IngestTypeForm: React.FC = () => {
+const IngestTypeForm: React.FC = () => {
   const [, api] = useIngestTypes();
   const { state } = useLocation();
   const { id } = useParams();
@@ -177,3 +177,5 @@ export const IngestTypeForm: React.FC = () => {
     </styled.IngestTypeForm>
   );
 };
+
+export default IngestTypeForm;

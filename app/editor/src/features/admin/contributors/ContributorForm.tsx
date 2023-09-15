@@ -33,7 +33,7 @@ import * as styled from './styled';
 import { toForm, toModel } from './utils';
 
 /** The page used to view and edit contributors the administrative section. */
-export const ContributorForm: React.FC = () => {
+const ContributorForm: React.FC = () => {
   const { id } = useParams();
   const [, api] = useContributors();
   const { state } = useLocation();
@@ -188,3 +188,5 @@ export const ContributorForm: React.FC = () => {
     </styled.ContributorForm>
   );
 };
+
+export default ContributorForm;

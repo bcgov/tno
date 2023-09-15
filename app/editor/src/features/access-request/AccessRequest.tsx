@@ -13,7 +13,7 @@ import * as styled from './styled';
  * Component to submit access requests.
  * @returns Access request page.
  */
-export const AccessRequest: React.FC = () => {
+const AccessRequest: React.FC = () => {
   const keycloak = useKeycloakWrapper();
   const [{ userInfo }] = useApp();
   const navigate = useNavigate();
@@ -53,3 +53,5 @@ export const AccessRequest: React.FC = () => {
     </styled.AccessRequest>
   );
 };
+
+export default AccessRequest;

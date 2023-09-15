@@ -29,7 +29,7 @@ import * as styled from './styled';
 
 export interface IContentReferenceListProps {}
 
-export const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
+const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
   const [{ requests }] = useApp();
   const [, api] = useContentReferences();
   const { values } = useFormikContext<IIngestModel>();
@@ -178,3 +178,5 @@ export const ContentReferenceList: React.FC<IContentReferenceListProps> = (props
     </styled.ContentReferenceList>
   );
 };
+
+export default ContentReferenceList;

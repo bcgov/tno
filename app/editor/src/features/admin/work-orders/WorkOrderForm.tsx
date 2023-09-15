@@ -34,7 +34,7 @@ import * as styled from './styled';
  * Provides a WorkOrder Form to manage, create, update and delete a workOrder.
  * @returns React component containing administrative workOrder form.
  */
-export const WorkOrderForm: React.FC = () => {
+const WorkOrderForm: React.FC = () => {
   const [, api] = useWorkOrders();
   const { id } = useParams();
   const navigate = useNavigate();
@@ -197,3 +197,5 @@ export const WorkOrderForm: React.FC = () => {
     </styled.WorkOrderForm>
   );
 };
+
+export default WorkOrderForm;

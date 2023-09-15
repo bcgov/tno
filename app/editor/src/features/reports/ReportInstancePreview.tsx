@@ -5,7 +5,7 @@ import { Col, IReportResultModel, Loading, Show } from 'tno-core';
 
 import * as styled from './styled';
 
-export const ReportInstancePreview: React.FC = () => {
+const ReportInstancePreview: React.FC = () => {
   const [{ previewReportInstance }] = useReportInstances();
   const { id } = useParams();
   const reportId = parseInt(id ?? '');
@@ -51,3 +51,5 @@ export const ReportInstancePreview: React.FC = () => {
     </styled.ReportPreview>
   );
 };
+
+export default ReportInstancePreview;

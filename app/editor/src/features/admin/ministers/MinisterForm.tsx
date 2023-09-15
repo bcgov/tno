@@ -28,7 +28,7 @@ import * as styled from './styled';
  * Admin form for minister configuration.
  * @returns Component.
  */
-export const MinisterForm: React.FC = () => {
+const MinisterForm: React.FC = () => {
   const [, api] = useMinisters();
   const { state } = useLocation();
   const { id } = useParams();
@@ -167,3 +167,5 @@ export const MinisterForm: React.FC = () => {
     </styled.MinisterForm>
   );
 };
+
+export default MinisterForm;

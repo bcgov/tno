@@ -7,7 +7,7 @@ import { columns } from './constants';
 import { ProductFilter } from './ProductFilter';
 import * as styled from './styled';
 
-export const ProductList: React.FC = () => {
+const ProductList: React.FC = () => {
   const navigate = useNavigate();
   const [{ products }, api] = useProducts();
 
@@ -64,3 +64,5 @@ export const ProductList: React.FC = () => {
     </styled.ProductList>
   );
 };
+
+export default ProductList;

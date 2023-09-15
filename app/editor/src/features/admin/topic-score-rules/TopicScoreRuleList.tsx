@@ -31,7 +31,7 @@ import { TopicScoreRulesSchema } from './validation';
  * Provides CRUD methods for rules.
  * @returns Component
  */
-export const TopicScoreRuleList: React.FC = () => {
+const TopicScoreRuleList: React.FC = () => {
   const [{ rules }, api] = useTopicScoreRules();
   const [{ series }] = useLookup();
   const [{ sourceOptions, seriesOptions }] = useLookupOptions();
@@ -343,3 +343,5 @@ export const TopicScoreRuleList: React.FC = () => {
     </styled.TopicScoreRuleList>
   );
 };
+
+export default TopicScoreRuleList;

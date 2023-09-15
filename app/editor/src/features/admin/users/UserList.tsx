@@ -18,7 +18,7 @@ import { IUserListFilter } from './interfaces/IUserListFilter';
 import * as styled from './styled';
 import { UserFilter } from './UserFilter';
 
-export const UserList: React.FC = () => {
+const UserList: React.FC = () => {
   const navigate = useNavigate();
   const [{ users, userFilter }, { findUsers, storeFilter }] = useUsers();
 
@@ -99,3 +99,5 @@ export const UserList: React.FC = () => {
     </styled.UserList>
   );
 };
+
+export default UserList;

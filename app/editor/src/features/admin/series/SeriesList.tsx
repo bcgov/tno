@@ -7,7 +7,7 @@ import { columns } from './constants';
 import { SeriesFilter } from './SeriesFilter';
 import * as styled from './styled';
 
-export const SeriesList: React.FC = () => {
+const SeriesList: React.FC = () => {
   const navigate = useNavigate();
   const [{ series }, api] = useSeries();
 
@@ -67,3 +67,5 @@ export const SeriesList: React.FC = () => {
     </styled.SeriesList>
   );
 };
+
+export default SeriesList;

@@ -16,7 +16,7 @@ import * as styled from './styled';
 
 interface IIngestScheduleProps {}
 
-export const IngestSchedule: React.FC<IIngestScheduleProps> = () => {
+const IngestSchedule: React.FC<IIngestScheduleProps> = () => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
 
   const scheduleTypeOptions = getEnumStringOptions(ScheduleTypeName);
@@ -59,3 +59,5 @@ export const IngestSchedule: React.FC<IIngestScheduleProps> = () => {
     </styled.IngestSchedule>
   );
 };
+
+export default IngestSchedule;

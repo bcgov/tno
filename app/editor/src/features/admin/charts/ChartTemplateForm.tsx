@@ -28,7 +28,7 @@ import * as styled from './styled';
  * The page used to view and edit a chart template.
  * @returns Component.
  */
-export const ChartTemplateForm: React.FC = () => {
+const ChartTemplateForm: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [, { addChartTemplate, deleteChartTemplate, getChartTemplate, updateChartTemplate }] =
@@ -182,3 +182,5 @@ export const ChartTemplateForm: React.FC = () => {
     </styled.ChartForm>
   );
 };
+
+export default ChartTemplateForm;

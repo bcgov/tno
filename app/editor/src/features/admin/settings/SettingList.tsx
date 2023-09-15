@@ -7,7 +7,7 @@ import { columns } from './constants';
 import { SettingFilter } from './SettingFilter';
 import * as styled from './styled';
 
-export const SettingList: React.FC = () => {
+const SettingList: React.FC = () => {
   const navigate = useNavigate();
   const [{ settings }, api] = useSettings();
 
@@ -65,3 +65,5 @@ export const SettingList: React.FC = () => {
     </styled.SettingList>
   );
 };
+
+export default SettingList;

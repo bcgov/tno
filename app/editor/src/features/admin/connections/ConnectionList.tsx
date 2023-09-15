@@ -11,7 +11,7 @@ import * as styled from './styled';
  * Admin list view for connections.
  * @returns Component.
  */
-export const ConnectionList: React.FC = () => {
+const ConnectionList: React.FC = () => {
   const navigate = useNavigate();
   const [{ connections }, api] = useConnections();
 
@@ -69,3 +69,5 @@ export const ConnectionList: React.FC = () => {
     </styled.ConnectionList>
   );
 };
+
+export default ConnectionList;

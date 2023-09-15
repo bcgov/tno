@@ -29,7 +29,7 @@ export interface IRequestClipProps extends React.HTMLAttributes<HTMLDivElement> 
  * Provides a form to request generating a clip from a capture source.
  * @returns Component with form to request generating a clip.
  */
-export const RequestClip: React.FC<IRequestClipProps> = () => {
+const RequestClip: React.FC<IRequestClipProps> = () => {
   const [{ userInfo }] = useApp();
   const apiIngest = useApiEditorIngests();
   const apiIngestSchedule = useApiEditorIngestSchedules();
@@ -146,3 +146,5 @@ export const RequestClip: React.FC<IRequestClipProps> = () => {
     </styled.RequestClip>
   );
 };
+
+export default RequestClip;

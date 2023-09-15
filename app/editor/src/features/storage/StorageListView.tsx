@@ -4,7 +4,7 @@ import { useQuery } from 'tno-core';
 
 import { FileManager } from '.';
 
-export const StorageListView: React.FC = (props) => {
+const StorageListView: React.FC = (props) => {
   const { id } = useParams();
   const query = useQuery();
 
@@ -19,3 +19,5 @@ export const StorageListView: React.FC = (props) => {
     />
   );
 };
+
+export default StorageListView;

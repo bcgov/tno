@@ -28,7 +28,7 @@ import * as styled from './styled';
 import { getIsEditable } from './utils';
 
 /** Evening overview section, contains table of items, and list of overview sections */
-export const AVOverview: React.FC = () => {
+const AVOverview: React.FC = () => {
   const [api] = useAVOverviewInstances();
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -193,3 +193,5 @@ export const AVOverview: React.FC = () => {
     </styled.AVOverview>
   );
 };
+
+export default AVOverview;

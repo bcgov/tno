@@ -7,7 +7,7 @@ import { columns } from './constants';
 import { DataLocationFilter } from './DataLocationFilter';
 import * as styled from './styled';
 
-export const DataLocationList: React.FC = () => {
+const DataLocationList: React.FC = () => {
   const navigate = useNavigate();
   const [{ dataLocations }, api] = useDataLocations();
 
@@ -63,3 +63,4 @@ export const DataLocationList: React.FC = () => {
     </styled.DataLocationList>
   );
 };
+export default DataLocationList;

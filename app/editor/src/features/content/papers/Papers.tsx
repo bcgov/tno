@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { HubMethodName, useApiHub, useChannel, useContent } from 'store/hooks';
@@ -21,7 +21,6 @@ import {
 } from 'tno-core';
 
 import { useTab } from '..';
-import { ContentForm } from '../form';
 import { defaultPage } from '../list-view/constants';
 import { IContentListAdvancedFilter } from '../list-view/interfaces';
 import { ReportActions } from './components';
@@ -30,6 +29,7 @@ import { IPaperFilter } from './interfaces';
 import { PaperFilter } from './PaperFilter';
 import * as styled from './styled';
 import { makeFilter } from './utils';
+const ContentForm = lazy(() => import('../form/ContentForm'));
 
 export interface IPapersProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -38,7 +38,7 @@ export interface IPapersProps extends React.HTMLAttributes<HTMLDivElement> {}
  * @param props Component props.
  * @returns Component.
  */
-export const Papers: React.FC<IPapersProps> = (props) => {
+const Papers: React.FC<IPapersProps> = (props) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { combined, formType } = useCombinedView();
@@ -223,3 +223,5 @@ export const Papers: React.FC<IPapersProps> = (props) => {
     </styled.Papers>
   );
 };
+
+export default Papers;

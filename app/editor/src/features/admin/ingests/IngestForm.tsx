@@ -25,7 +25,7 @@ import * as styled from './styled';
 
 interface IIngestProps {}
 
-export const IngestForm: React.FC<IIngestProps> = (props) => {
+const IngestForm: React.FC<IIngestProps> = (props) => {
   const [, api] = useIngests();
   const { state } = useLocation();
   const { id } = useParams();
@@ -168,3 +168,5 @@ export const IngestForm: React.FC<IIngestProps> = (props) => {
     </styled.IngestForm>
   );
 };
+
+export default IngestForm;

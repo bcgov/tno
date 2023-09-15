@@ -2,7 +2,7 @@ import { render, waitFor } from '@testing-library/react';
 import { mockContent, TestWrapper } from 'test/utils';
 import { ContentStatusName, ContentTypeName } from 'tno-core';
 
-import { ContentListView } from './ContentListView';
+import ContentListView from './ContentListView';
 
 jest.mock('store', () => ({
   useAppDispatch: jest.fn(),

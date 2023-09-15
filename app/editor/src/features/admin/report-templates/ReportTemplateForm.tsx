@@ -27,7 +27,7 @@ import * as styled from './styled';
  * The page used to view and edit a report template.
  * @returns Component.
  */
-export const ReportTemplateForm: React.FC = () => {
+const ReportTemplateForm: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [, { addReportTemplate, deleteReportTemplate, getReportTemplate, updateReportTemplate }] =
@@ -160,3 +160,5 @@ export const ReportTemplateForm: React.FC = () => {
     </styled.ReportTemplateForm>
   );
 };
+
+export default ReportTemplateForm;

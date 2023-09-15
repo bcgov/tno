@@ -21,7 +21,7 @@ import * as styled from './styled';
 
 interface ISourceDetailsProps {}
 
-export const SourceDetails: React.FC<ISourceDetailsProps> = () => {
+const SourceDetails: React.FC<ISourceDetailsProps> = () => {
   const { values, setFieldValue } = useFormikContext<ISourceModel>();
   const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
   const [lookups] = useLookup();
@@ -104,3 +104,5 @@ export const SourceDetails: React.FC<ISourceDetailsProps> = () => {
     </styled.SourceDetails>
   );
 };
+
+export default SourceDetails;

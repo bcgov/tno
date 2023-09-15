@@ -33,7 +33,7 @@ import * as styled from './styled';
 import { toForm, toModel } from './utils';
 
 /** The page used to view and edit series the administrative section. */
-export const SeriesForm: React.FC = () => {
+const SeriesForm: React.FC = () => {
   const { id } = useParams();
   const [, api] = useSeries();
   const { state } = useLocation();
@@ -191,3 +191,5 @@ export const SeriesForm: React.FC = () => {
     </styled.SeriesForm>
   );
 };
+
+export default SeriesForm;
