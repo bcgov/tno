@@ -33,7 +33,7 @@ import * as styled from './styled';
  * The page used to view and edit reports.
  * @returns Component.
  */
-export const ReportForm: React.FC = () => {
+const ReportForm: React.FC = () => {
   const navigate = useNavigate();
   const [{ userInfo }] = useApp();
   const { id } = useParams();
@@ -232,3 +232,5 @@ export const ReportForm: React.FC = () => {
     </styled.ReportForm>
   );
 };
+
+export default ReportForm;

@@ -7,7 +7,7 @@ import { ActionFilter } from './ActionFilter';
 import { columns } from './constants';
 import * as styled from './styled';
 
-export const ActionList: React.FC = () => {
+const ActionList: React.FC = () => {
   const navigate = useNavigate();
   const [{ actions }, api] = useActions();
 
@@ -65,3 +65,5 @@ export const ActionList: React.FC = () => {
     </styled.ActionList>
   );
 };
+
+export default ActionList;

@@ -27,7 +27,7 @@ import { defaultProduct } from './constants';
 import * as styled from './styled';
 
 /** The page used to view and edit tags in the administrative section. */
-export const ProductForm: React.FC = () => {
+const ProductForm: React.FC = () => {
   const [, api] = useProducts();
   const { state } = useLocation();
   const { id } = useParams();
@@ -163,3 +163,5 @@ export const ProductForm: React.FC = () => {
     </styled.ProductForm>
   );
 };
+
+export default ProductForm;

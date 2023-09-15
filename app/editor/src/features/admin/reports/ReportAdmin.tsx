@@ -14,7 +14,7 @@ export interface IReportAdminProps {
  * Provides a page to admin a list of reports and report templates.
  * @returns Component to admin reports and report templates.
  */
-export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = 'reports' }) => {
+const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = 'reports' }) => {
   const navigate = useNavigate();
   const { path = defaultPath } = useParams();
 
@@ -60,3 +60,5 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
     </styled.ReportAdmin>
   );
 };
+
+export default ReportAdmin;

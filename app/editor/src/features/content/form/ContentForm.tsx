@@ -71,7 +71,7 @@ export interface IContentFormProps {
  * @param param0 Component properties.
  * @returns Edit/Create Form for Content
  */
-export const ContentForm: React.FC<IContentFormProps> = ({
+const ContentForm: React.FC<IContentFormProps> = ({
   contentType: initContentType = ContentTypeName.AudioVideo,
   combinedPath,
 }) => {
@@ -872,3 +872,5 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     </styled.ContentForm>
   );
 };
+
+export default ContentForm;

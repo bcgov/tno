@@ -7,7 +7,7 @@ import { columns } from './constants';
 import { IngestTypeFilter } from './IngestTypeFilter';
 import * as styled from './styled';
 
-export const IngestTypeList: React.FC = () => {
+const IngestTypeList: React.FC = () => {
   const navigate = useNavigate();
   const [{ ingestTypes }, api] = useIngestTypes();
 
@@ -63,3 +63,5 @@ export const IngestTypeList: React.FC = () => {
     </styled.IngestTypeList>
   );
 };
+
+export default IngestTypeList;

@@ -45,7 +45,7 @@ import * as styled from './styled';
  * The page used to view and edit Notifications.
  * @returns Component.
  */
-export const NotificationForm: React.FC = () => {
+const NotificationForm: React.FC = () => {
   const navigate = useNavigate();
   const [{ userInfo }] = useApp();
   const { id } = useParams();
@@ -308,3 +308,5 @@ export const NotificationForm: React.FC = () => {
     </styled.NotificationForm>
   );
 };
+
+export default NotificationForm;

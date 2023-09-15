@@ -11,7 +11,7 @@ import * as styled from './styled';
  * Admin list view for ministers.
  * @returns Component.
  */
-export const MinisterList: React.FC = () => {
+const MinisterList: React.FC = () => {
   const navigate = useNavigate();
   const [{ ministers }, api] = useMinisters();
 
@@ -68,3 +68,5 @@ export const MinisterList: React.FC = () => {
     </styled.MinisterList>
   );
 };
+
+export default MinisterList;

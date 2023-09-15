@@ -31,7 +31,7 @@ import * as styled from './styled';
  * Admin form for connection configuration.
  * @returns Component.
  */
-export const ConnectionForm: React.FC = () => {
+const ConnectionForm: React.FC = () => {
   const [, api] = useConnections();
   const { state } = useLocation();
   const { id } = useParams();
@@ -181,3 +181,5 @@ export const ConnectionForm: React.FC = () => {
     </styled.ConnectionForm>
   );
 };
+
+export default ConnectionForm;

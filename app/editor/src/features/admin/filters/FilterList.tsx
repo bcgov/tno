@@ -7,7 +7,7 @@ import { filterColumns } from './constants';
 import { ListFilter } from './ListFilter';
 import * as styled from './styled';
 
-export const FilterList: React.FC = () => {
+const FilterList: React.FC = () => {
   const navigate = useNavigate();
   const [{ initialized, filters }, api] = useFilters();
 
@@ -66,3 +66,5 @@ export const FilterList: React.FC = () => {
     </styled.FilterList>
   );
 };
+
+export default FilterList;

@@ -7,7 +7,7 @@ import { columns } from './constants';
 import { NotificationFilter } from './NotificationFilter';
 import * as styled from './styled';
 
-export const NotificationList: React.FC = () => {
+const NotificationList: React.FC = () => {
   const navigate = useNavigate();
   const [{ notifications }, api] = useNotifications();
 
@@ -65,3 +65,5 @@ export const NotificationList: React.FC = () => {
     </styled.NotificationList>
   );
 };
+
+export default NotificationList;

@@ -33,7 +33,7 @@ import * as styled from './styled';
  * Provides a User Form to manage, create, update and delete a user.
  * @returns React component containing administrative user form.
  */
-export const UserForm: React.FC = () => {
+const UserForm: React.FC = () => {
   const [, api] = useUsers();
   const { id } = useParams();
   const navigate = useNavigate();
@@ -214,3 +214,5 @@ export const UserForm: React.FC = () => {
     </styled.UserForm>
   );
 };
+
+export default UserForm;

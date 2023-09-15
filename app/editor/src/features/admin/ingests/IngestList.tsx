@@ -9,7 +9,7 @@ import * as styled from './styled';
 
 interface IIngestListProps {}
 
-export const IngestList: React.FC<IIngestListProps> = (props) => {
+const IngestList: React.FC<IIngestListProps> = (props) => {
   const navigate = useNavigate();
   const [{ ingests }, api] = useIngests();
 
@@ -68,3 +68,5 @@ export const IngestList: React.FC<IIngestListProps> = (props) => {
     </styled.IngestList>
   );
 };
+
+export default IngestList;

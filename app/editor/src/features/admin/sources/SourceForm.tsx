@@ -24,7 +24,7 @@ import * as styled from './styled';
 
 interface ISourceProps {}
 
-export const SourceForm: React.FC<ISourceProps> = (props) => {
+const SourceForm: React.FC<ISourceProps> = (props) => {
   const [, api] = useSources();
   const { state } = useLocation();
   const { id } = useParams();
@@ -134,3 +134,5 @@ export const SourceForm: React.FC<ISourceProps> = (props) => {
     </styled.SourceForm>
   );
 };
+
+export default SourceForm;

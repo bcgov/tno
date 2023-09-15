@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { CBRAReport } from '.';
 
-export const ReportsRouter: React.FC = () => {
+const ReportsRouter: React.FC = () => {
   return (
     <Routes>
       <Route index element={<Navigate to="cbra" />} />
@@ -11,3 +11,5 @@ export const ReportsRouter: React.FC = () => {
     </Routes>
   );
 };
+
+export default ReportsRouter;

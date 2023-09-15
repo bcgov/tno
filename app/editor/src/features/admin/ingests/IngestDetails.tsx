@@ -26,7 +26,7 @@ interface IIngestDetailsProps {}
  * A component with ingest detail form.
  * @returns Component provides ingest detail form.
  */
-export const IngestDetails: React.FC<IIngestDetailsProps> = () => {
+const IngestDetails: React.FC<IIngestDetailsProps> = () => {
   const { values, setFieldValue, setErrors, errors } = useFormikContext<IIngestModel>();
   const [lookups] = useLookup();
   const [{ dataLocations }, { findAllDataLocations }] = useDataLocations();
@@ -139,3 +139,5 @@ export const IngestDetails: React.FC<IIngestDetailsProps> = () => {
     </styled.IngestDetails>
   );
 };
+
+export default IngestDetails;

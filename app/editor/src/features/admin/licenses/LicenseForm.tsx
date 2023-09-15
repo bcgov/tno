@@ -27,7 +27,7 @@ import { defaultLicense } from './constants';
 import * as styled from './styled';
 
 /** The page used to view and edit tags in the administrative section. */
-export const LicenseForm: React.FC = () => {
+const LicenseForm: React.FC = () => {
   const [, api] = useLicenses();
   const { state } = useLocation();
   const { id } = useParams();
@@ -171,3 +171,5 @@ export const LicenseForm: React.FC = () => {
     </styled.LicenseForm>
   );
 };
+
+export default LicenseForm;

@@ -28,7 +28,7 @@ import { defaultSystemMessage } from './constants';
 import * as styled from './styled';
 
 /** The page used to view and edit tags in the administrative section. */
-export const SystemMessageForm: React.FC = () => {
+const SystemMessageForm: React.FC = () => {
   const [, api] = useSystemMessages();
   const navigate = useNavigate();
   const [systemMessage, setSystemMessage] =
@@ -163,3 +163,5 @@ export const SystemMessageForm: React.FC = () => {
     </styled.SystemMessageForm>
   );
 };
+
+export default SystemMessageForm;

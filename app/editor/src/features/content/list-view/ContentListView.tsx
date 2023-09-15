@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { HubMethodName, useApiHub, useApp, useChannel, useContent } from 'store/hooks';
 import { useContentStore } from 'store/slices';
@@ -20,19 +20,19 @@ import {
 } from 'tno-core';
 
 import { useTab } from '..';
-import { ContentForm } from '../form';
 import { ContentToolBar } from './components';
 import { defaultPage, getColumns } from './constants';
 import { IContentListAdvancedFilter, IContentListFilter } from './interfaces';
 import * as styled from './styled';
 import { makeFilter, queryToFilter, queryToFilterAdvanced } from './utils';
+const ContentForm = lazy(() => import('../form/ContentForm'));
 
 /**
  * ContentListView provides a way to list, search and select content for viewing and editing.
  * Also provides a combined view which splits the page into two columns.
  * @returns Component
  */
-export const ContentListView: React.FC = () => {
+const ContentListView: React.FC = () => {
   const [{ userInfo }] = useApp();
   const { id } = useParams();
   const [, { addContent, updateContent }] = useContentStore();
@@ -243,3 +243,5 @@ export const ContentListView: React.FC = () => {
     </styled.ContentListView>
   );
 };
+
+export default ContentListView;

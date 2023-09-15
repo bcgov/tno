@@ -7,7 +7,7 @@ import * as styled from './styled';
 
 interface IReachEarnedMediaProps {}
 
-export const ReachEarnedMedia: React.FC<IReachEarnedMediaProps> = () => {
+const ReachEarnedMedia: React.FC<IReachEarnedMediaProps> = () => {
   const { values } = useFormikContext<ISourceModel>();
 
   return (
@@ -17,3 +17,5 @@ export const ReachEarnedMedia: React.FC<IReachEarnedMediaProps> = () => {
     </styled.ReachEarnedMedia>
   );
 };
+
+export default ReachEarnedMedia;

@@ -34,7 +34,7 @@ import * as styled from './styled';
  * The page used to view and edit actions.
  * @returns Component.
  */
-export const ActionForm: React.FC = () => {
+const ActionForm: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [, api] = useActions();
@@ -185,3 +185,5 @@ export const ActionForm: React.FC = () => {
     </styled.ActionForm>
   );
 };
+
+export default ActionForm;

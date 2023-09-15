@@ -34,7 +34,7 @@ interface IPrivateRouteProps {
  * @param param0 Route element attributes.
  * @returns PrivateRoute component.
  */
-export const PrivateRoute = ({
+const PrivateRoute = ({
   redirectTo = '/login',
   claims,
   roles,
@@ -61,3 +61,5 @@ export const PrivateRoute = ({
   }
   return element ? element : <>{children}</>;
 };
+
+export default PrivateRoute;

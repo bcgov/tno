@@ -7,7 +7,7 @@ import { columns } from './constants';
 import * as styled from './styled';
 import { TagFilter } from './TagFilter';
 
-export const TagList: React.FC = () => {
+const TagList: React.FC = () => {
   const navigate = useNavigate();
   const [{ tags }, api] = useTags();
 
@@ -63,3 +63,5 @@ export const TagList: React.FC = () => {
     </styled.TagList>
   );
 };
+
+export default TagList;

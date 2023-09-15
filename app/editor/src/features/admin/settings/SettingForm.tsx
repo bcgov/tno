@@ -30,7 +30,7 @@ import * as styled from './styled';
  * The page used to view and edit settings.
  * @returns Component.
  */
-export const SettingForm: React.FC = () => {
+const SettingForm: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [, api] = useSettings();
@@ -167,3 +167,5 @@ export const SettingForm: React.FC = () => {
     </styled.SettingForm>
   );
 };
+
+export default SettingForm;

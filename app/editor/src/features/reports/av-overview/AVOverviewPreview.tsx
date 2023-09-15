@@ -17,7 +17,7 @@ import {
 
 import * as styled from './styled';
 
-export const AVOverviewPreview: React.FC = () => {
+const AVOverviewPreview: React.FC = () => {
   const [{ getAVOverview, previewAVOverview, publishAVOverview }] = useAVOverviewInstances();
   const { toggle, isShowing } = useModal();
   const { id } = useParams();
@@ -103,3 +103,5 @@ export const AVOverviewPreview: React.FC = () => {
     </styled.AVOverviewPreview>
   );
 };
+
+export default AVOverviewPreview;

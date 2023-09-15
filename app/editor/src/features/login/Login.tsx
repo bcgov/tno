@@ -6,7 +6,7 @@ import { useKeycloakWrapper } from 'tno-core';
  * If the user is already authenticated it will redirect to the home route.
  * @returns Login component.
  */
-export const Login = () => {
+const Login = () => {
   const keycloak = useKeycloakWrapper();
 
   if (keycloak.authenticated) {
@@ -14,3 +14,5 @@ export const Login = () => {
   }
   return <div>Anonymous user</div>;
 };
+
+export default Login;

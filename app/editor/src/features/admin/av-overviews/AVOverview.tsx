@@ -24,7 +24,7 @@ import { OverviewSection } from './OverviewSection';
 import * as styled from './styled';
 
 /** Evening overview section, contains table of items, and list of overview sections */
-export const AVOverview: React.FC = () => {
+const AVOverview: React.FC = () => {
   const [api] = useAVOverviewTemplates();
   const [{ reportTemplates }, { findAllReportTemplates }] = useReportTemplates();
 
@@ -156,3 +156,5 @@ export const AVOverview: React.FC = () => {
     </styled.AVOverview>
   );
 };
+
+export default AVOverview;

@@ -7,7 +7,7 @@ import { columns } from './constants';
 import { LicenseFilter } from './LicenseFilter';
 import * as styled from './styled';
 
-export const LicenseList: React.FC = () => {
+const LicenseList: React.FC = () => {
   const navigate = useNavigate();
   const [{ licenses }, api] = useLicenses();
 
@@ -65,3 +65,4 @@ export const LicenseList: React.FC = () => {
     </styled.LicenseList>
   );
 };
+export default LicenseList;
