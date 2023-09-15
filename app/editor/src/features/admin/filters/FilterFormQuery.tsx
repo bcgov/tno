@@ -16,6 +16,7 @@ import {
   FormikDatePicker,
   FormikText,
   FormikTextArea,
+  generateQuery,
   IFilterModel,
   OptionItem,
   Row,
@@ -25,7 +26,7 @@ import {
 } from 'tno-core';
 
 import { contentTypeOptions, searchInOptions } from './constants';
-import { generateQuery, getActionOptions, getTagOptions } from './utils';
+import { getActionOptions, getTagOptions } from './utils';
 
 /**
  * The page used to view and edit report filter.

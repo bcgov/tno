@@ -1,4 +1,4 @@
-import { generateQueryForAction } from '.';
+import { generateQueryForAction } from './generateQueryForAction';
 
 export const generateQueryForActions = (
   actions: {
