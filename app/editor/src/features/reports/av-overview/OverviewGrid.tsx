@@ -1,4 +1,5 @@
 import { useFormikContext } from 'formik';
+import moment from 'moment';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaGripLines, FaTrash } from 'react-icons/fa';
@@ -35,17 +36,28 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
   const [clips, setClips] = React.useState<IOptionItem[]>();
   const eveningOverviewItemTypeOptions = castEnumToOptions(AVOverviewItemTypeName);
   const items = values.sections[index].items;
+  const startTime = values.sections[index]?.startTime?.split(':');
 
-  /** fetch pieces of content that are related to the series to display as options for associated clips */
+  /** fetch pieces of content that are related to the series to display as options for associated clips, search for clips published after the start time if it is specified - otherwise filter based on that day.*/
   React.useEffect(() => {
     findContent({
       seriesId: values.sections[index].seriesId,
-      publishedOn: new Date().toISOString(),
+      publishedOn: !!values.sections[index].startTime
+        ? moment()
+            .utcOffset(0)
+            .set({
+              hour: Number(startTime[0]),
+              minute: Number(startTime[1]),
+              second: Number(startTime[2]),
+              millisecond: 0,
+            })
+            .toISOString()
+        : moment().startOf('day').toISOString(),
       contentTypes: [],
     }).then((data) =>
       setClips(data.items.map((c) => new OptionItem(c.headline, c.id)) as IOptionItem[]),
     );
-  }, [findContent, index, values.sections]);
+  }, [findContent, index, values.sections, startTime]);
 
   /** function that runs after a user drops an item in the list */
   const handleDrop = (droppedItem: any) => {
