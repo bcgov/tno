@@ -2,13 +2,12 @@ import React, { lazy } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { HubMethodName, useApiHub, useChannel, useContent } from 'store/hooks';
-import { useContentStore } from 'store/slices';
+import { IContentSearchResult, useContentStore } from 'store/slices';
 import {
   Col,
   ContentTypeName,
   FlexboxTable,
   IContentMessageModel,
-  IContentModel,
   ITableInternalCell,
   ITableInternalRow,
   ITablePage,
@@ -72,7 +71,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
   });
 
   const [isLoading, setIsLoading] = React.useState(false);
-  const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
 
   const onContentUpdated = React.useCallback(
     async (message: IContentMessageModel) => {
@@ -90,17 +89,21 @@ const Papers: React.FC<IPapersProps> = (props) => {
   }, [onContentUpdated, hub]);
 
   const handleClickUse = React.useCallback(
-    (content: IContentModel) => {
-      updateStatus(content)
+    (content: IContentSearchResult) => {
+      getContent(content.id)
         .then((response) => {
-          updateContent([response]);
-          toast.success(
-            `"${content.headline}" has been updated.  A request has been sent to update the index.`,
-          );
+          if (response) {
+            return updateStatus({ ...response, status: content.status }).then((content) => {
+              updateContent([content]);
+              toast.success(
+                `"${content.headline}" has been updated.  A request has been sent to update the index.`,
+              );
+            });
+          } else Promise.reject('Content does not exist');
         })
         .catch((error) => {});
     },
-    [updateContent, updateStatus],
+    [getContent, updateContent, updateStatus],
   );
 
   const openTab = true; // TODO: Change to user preference and responsive in future.
@@ -143,8 +146,8 @@ const Papers: React.FC<IPapersProps> = (props) => {
   }, [filter, fetch]);
 
   const handleRowClick = (
-    cell: ITableInternalCell<IContentModel>,
-    row: ITableInternalRow<IContentModel>,
+    cell: ITableInternalCell<IContentSearchResult>,
+    row: ITableInternalRow<IContentSearchResult>,
   ) => {
     if (cell.index > 0 && cell.index !== 6) {
       setContentType(row.original.contentType);
@@ -170,14 +173,14 @@ const Papers: React.FC<IPapersProps> = (props) => {
   );
 
   const handleChangeSort = React.useCallback(
-    (sort: ITableSort<IContentModel>[]) => {
+    (sort: ITableSort<IContentSearchResult>[]) => {
       const sorts = sort.filter((s) => s.isSorted).map((s) => ({ id: s.id, desc: s.isSortedDesc }));
       storeFilterPaper({ ...filter, sort: sorts });
     },
     [filter, storeFilterPaper],
   );
 
-  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
+  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentSearchResult>) => {
     if (row.isSelected) {
       setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
     } else {

@@ -1,13 +1,12 @@
 import React, { lazy } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { HubMethodName, useApiHub, useApp, useChannel, useContent } from 'store/hooks';
-import { useContentStore } from 'store/slices';
+import { IContentSearchResult, useContentStore } from 'store/slices';
 import {
   Col,
   ContentTypeName,
   FlexboxTable,
   IContentMessageModel,
-  IContentModel,
   ITableInternalRow,
   ITablePage,
   ITableSort,
@@ -178,14 +177,14 @@ const ContentListView: React.FC = () => {
   );
 
   const handleChangeSort = React.useCallback(
-    (sort: ITableSort<IContentModel>[]) => {
+    (sort: ITableSort<IContentSearchResult>[]) => {
       const sorts = sort.filter((s) => s.isSorted).map((s) => ({ id: s.id, desc: s.isSortedDesc }));
       storeFilter({ ...filter, sort: sorts });
     },
     [storeFilter, filter],
   );
 
-  const handleRowClick = (row: ITableInternalRow<IContentModel>) => {
+  const handleRowClick = (row: ITableInternalRow<IContentSearchResult>) => {
     setContentType(row.original.contentType);
     setContentId(row.original.id.toString());
     if (openTab) initTab(row.original.id);

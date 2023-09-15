@@ -1,6 +1,7 @@
-import { IContentModel, IPage } from 'tno-core';
+import { IContentSearchResult } from 'store/slices';
+import { IPage } from 'tno-core';
 
-export const defaultPage: IPage<IContentModel> = {
+export const defaultPage: IPage<IContentSearchResult> = {
   pageIndex: 0,
   pageSize: 500,
   pageCount: -1,

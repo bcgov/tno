@@ -1,11 +1,6 @@
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import {
-  CellEllipsis,
-  Checkbox,
-  ContentStatusName,
-  IContentModel,
-  ITableHookColumn,
-} from 'tno-core';
+import { IContentSearchResult } from 'store/slices';
+import { CellEllipsis, Checkbox, ContentStatusName, ITableHookColumn } from 'tno-core';
 
 import { getStatusText } from '../../list-view/utils';
 
@@ -19,8 +14,8 @@ const changeStatus = (status: ContentStatusName) => {
 export const getColumns = (
   openTab: boolean,
   onClickOpen: (contentId: number) => void,
-  onClickUse: (content: IContentModel) => void,
-): ITableHookColumn<IContentModel>[] => [
+  onClickUse: (content: IContentSearchResult) => void,
+): ITableHookColumn<IContentSearchResult>[] => [
   {
     name: 'headline',
     label: 'Headline',
@@ -37,14 +32,11 @@ export const getColumns = (
     cell: (cell) => <CellEllipsis>{cell.original.otherSource}</CellEllipsis>,
   },
   {
-    name: 'seriesId',
+    name: 'product',
     label: 'Product',
     cell: (cell) => (
-      <CellEllipsis
-        data-tooltip-id="main-tooltip"
-        data-tooltip-content={cell.original.product?.name}
-      >
-        {cell.original.product?.name}
+      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={cell.original.product}>
+        {cell.original.product}
       </CellEllipsis>
     ),
     width: 2,
