@@ -1,12 +1,11 @@
 import { FaExternalLinkAlt, FaFeather } from 'react-icons/fa';
+import { IContentSearchResult } from 'store/slices';
 import {
   CellCheckbox,
   CellDate,
   CellEllipsis,
   ContentStatusName,
-  ContentTypeName,
   formatIdirUsername,
-  IContentModel,
   ITableHookColumn,
   Show,
 } from 'tno-core';
@@ -16,17 +15,13 @@ import { getStatusText } from '../utils';
 export const getColumns = (
   openTab: boolean,
   onClickOpen: (contentId: number) => void,
-): ITableHookColumn<IContentModel>[] => [
+): ITableHookColumn<IContentSearchResult>[] => [
   {
     name: 'headline',
     label: 'Headline',
     cell: (cell) => (
       <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={cell.original.headline}>
-        <Show
-          visible={
-            cell.row.original.contentType === ContentTypeName.AudioVideo && !!cell.row.original.body
-          }
-        >
+        <Show visible={cell.row.original.hasTranscript}>
           <FaFeather />
         </Show>
         <span>{cell.original.headline}</span>
@@ -44,14 +39,11 @@ export const getColumns = (
     ),
   },
   {
-    name: 'seriesId',
+    name: 'product',
     label: 'Product',
     cell: (cell) => (
-      <CellEllipsis
-        data-tooltip-id="main-tooltip"
-        data-tooltip-content={cell.original.product?.name}
-      >
-        {cell.original.product?.name}
+      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={cell.original.product}>
+        {cell.original.product}
       </CellEllipsis>
     ),
     width: 1,
@@ -72,14 +64,11 @@ export const getColumns = (
     width: 2,
   },
   {
-    name: 'ownerId',
+    name: 'owner',
     label: 'User',
     cell: (cell) => (
-      <CellEllipsis
-        data-tooltip-id="main-tooltip"
-        data-tooltip-content={cell.original.owner?.username}
-      >
-        {formatIdirUsername(cell.original.owner?.username)}
+      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={cell.original.owner}>
+        {formatIdirUsername(cell.original.owner)}
       </CellEllipsis>
     ),
     width: 1,

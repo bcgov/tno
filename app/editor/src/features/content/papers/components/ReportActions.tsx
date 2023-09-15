@@ -4,7 +4,7 @@ import { getDefaultCommentaryExpiryValue } from 'features/content/form/utils';
 import * as React from 'react';
 import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
-import { useContentStore } from 'store/slices';
+import { IContentSearchResult, useContentStore } from 'store/slices';
 import {
   ActionName,
   Button,
@@ -12,7 +12,6 @@ import {
   Col,
   ContentListActionName,
   ContentStatusName,
-  IContentModel,
   Row,
   Show,
 } from 'tno-core';
@@ -26,7 +25,7 @@ interface IReportActionProps {
   /** Whether content is loading. */
   setLoading: (loading: boolean) => void;
   /** An array of selected content. */
-  selected: IContentModel[];
+  selected: IContentSearchResult[];
 }
 
 /**
