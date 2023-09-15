@@ -1,5 +1,4 @@
-import { IFilterSettingsModel } from 'hooks';
-
+import { IFilterSettingsModel } from '../hooks';
 import { generateQueryForActions } from './generateQueryForActions';
 import { generateRangeForArrayField } from './generateRangeForArrayField';
 import { generateRangeForDateOffset } from './generateRangeForDateOffset';
