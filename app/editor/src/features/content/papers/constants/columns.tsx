@@ -19,11 +19,7 @@ export const getColumns = (
   {
     name: 'headline',
     label: 'Headline',
-    cell: (cell) => (
-      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={cell.original.headline}>
-        {cell.original.headline}
-      </CellEllipsis>
-    ),
+    cell: (cell) => <CellEllipsis>{cell.original.headline}</CellEllipsis>,
     width: 6,
   },
   {
@@ -34,11 +30,7 @@ export const getColumns = (
   {
     name: 'product',
     label: 'Product',
-    cell: (cell) => (
-      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={cell.original.product}>
-        {cell.original.product}
-      </CellEllipsis>
-    ),
+    cell: (cell) => <CellEllipsis>{cell.original.product}</CellEllipsis>,
     width: 2,
   },
   {
@@ -46,11 +38,7 @@ export const getColumns = (
     label: 'Page:Section',
     cell: (cell) => {
       const value = `${cell.original.page ? `${cell.original.page}:` : ''}${cell.original.section}`;
-      return (
-        <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={value}>
-          {value}
-        </CellEllipsis>
-      );
+      return <CellEllipsis>{value}</CellEllipsis>;
     },
     width: 2,
   },
