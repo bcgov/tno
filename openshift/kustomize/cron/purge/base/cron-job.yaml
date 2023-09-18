@@ -21,6 +21,9 @@ spec:
       template:
         spec:
           restartPolicy: OnFailure
+          securityContext:
+            runAsUser: 1010230000
+            fsGroup: 1010230000
           volumes:
             - name: entrypoint
               configMap:
