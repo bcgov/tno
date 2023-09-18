@@ -20,7 +20,7 @@ export const getColumns = (
     name: 'headline',
     label: 'Headline',
     cell: (cell) => (
-      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={cell.original.headline}>
+      <CellEllipsis>
         <Show visible={cell.row.original.hasTranscript}>
           <FaFeather />
         </Show>
@@ -32,20 +32,12 @@ export const getColumns = (
   {
     name: 'otherSource',
     label: 'Source',
-    cell: (cell) => (
-      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={cell.original.otherSource}>
-        {cell.original.otherSource}
-      </CellEllipsis>
-    ),
+    cell: (cell) => <CellEllipsis>{cell.original.otherSource}</CellEllipsis>,
   },
   {
     name: 'product',
     label: 'Product',
-    cell: (cell) => (
-      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={cell.original.product}>
-        {cell.original.product}
-      </CellEllipsis>
-    ),
+    cell: (cell) => <CellEllipsis>{cell.original.product}</CellEllipsis>,
     width: 1,
   },
   {
@@ -55,22 +47,14 @@ export const getColumns = (
       const value = `${cell.original.section ? `${cell.original.section}:` : ''}${
         cell.original.page
       }`;
-      return (
-        <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={value}>
-          {value}
-        </CellEllipsis>
-      );
+      return <CellEllipsis>{value}</CellEllipsis>;
     },
     width: 2,
   },
   {
     name: 'owner',
     label: 'User',
-    cell: (cell) => (
-      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={cell.original.owner}>
-        {formatIdirUsername(cell.original.owner)}
-      </CellEllipsis>
-    ),
+    cell: (cell) => <CellEllipsis>{formatIdirUsername(cell.original.owner)}</CellEllipsis>,
     width: 1,
   },
   {
