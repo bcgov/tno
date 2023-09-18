@@ -22,7 +22,9 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
     findMyFolders().then((data) => {
       setMyFolders(data);
     });
-  }, [findMyFolders]);
+    // Only on initialize
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleAdd = () => {
     if (!!content) {

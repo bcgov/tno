@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 using TNO.Entities;
 
 namespace TNO.DAL.Services;
@@ -39,6 +41,25 @@ public class FolderService : BaseService<Folder, int>, IFolderService
             .Include(f => f.Content)
             .Where(f => f.OwnerId == userId)
             .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
+    }
+
+    public override Folder Update(Folder entity)
+    {
+        var originalContents = this.Context.FolderContents.Where(fc => fc.FolderId == entity.Id).ToArray();
+        originalContents.Except(entity.ContentManyToMany).ForEach(s =>
+        {
+            this.Context.Entry(s).State = EntityState.Deleted;
+        });
+        entity.ContentManyToMany.ForEach(folderContent =>
+        {
+            var originalContent = originalContents.FirstOrDefault(rs => rs.ContentId == folderContent.ContentId);
+            if (originalContent == null)
+                this.Context.Add(folderContent);
+            else
+                originalContent.SortOrder = folderContent.SortOrder;
+        });
+
+        return base.Update(entity);
     }
     #endregion
 
