@@ -1,0 +1,63 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup-service
+  namespace: default
+  annotations:
+    description: CronJob service to delete files from PVC
+  labels:
+    name: backup-service
+    part-of: tno
+    version: 1.0.0
+    component: backup-service
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  # ttlSecondsAfterFinished: 100
+  schedule: "0 */12 * * *" # Every 6 hour
+  # schedule: "*/5 * * * *" # Immediately
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          securityContext:
+            runAsUser: 1010230000
+            fsGroup: 1010230000
+          volumes:
+            - name: entrypoint
+              configMap:
+                defaultMode: 0755
+                name: backup-service
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: backup-storage
+            - name: ingest-storage
+              persistentVolumeClaim:
+                claimName: ingest-storage
+            - name: api-storage
+              persistentVolumeClaim:
+                claimName: api-storage
+          containers:
+            - name: backup-service
+              image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/node:18-bullseye
+              imagePullPolicy: IfNotPresent
+              resources:
+                requests:
+                  cpu: 20m
+                  memory: 50Mi
+                limits:
+                  cpu: 150m
+                  memory: 250Mi
+              volumeMounts:
+                - name: entrypoint
+                  mountPath: /bin/entrypoint.sh
+                  subPath: entrypoint.sh
+                - name: backup-storage
+                  mountPath: /mnt/backup
+                - name: ingest-storage
+                  mountPath: /mnt/ingest
+                - name: api-storage
+                  mountPath: /mnt/data
+              command:
+                - /bin/entrypoint.sh

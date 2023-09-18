@@ -1,0 +1,29 @@
+---
+# Configuration settings
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: backup-service
+  namespace: default
+  annotations:
+    description: CronJob backup-service tar script.
+  labels:
+    name: backup-service
+    part-of: tno
+    version: 1.0.0
+    component: backup-service
+    managed-by: kustomize
+    created-by: jeremy.foster
+data:
+  entrypoint.sh: |-
+    #!/bin/bash
+
+    cd /mnt/backup
+
+    # Zip up all files in the specified directories.
+    DATE=$(date +"%Y-%m-%d-%T")
+    tar -zcvf $DATE-ingest.tar.gz /mnt/ingest
+    tar -zcvf $DATE-storage.tar.gz /mnt/data
+
+    # Delete older backups.
+    find . -type f -name "*.tar.gz" -mindepth 1 -mtime +2 -delete
