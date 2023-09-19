@@ -1,3 +1,4 @@
+import { FolderSubMenu } from 'components/folder-sub-menu';
 import { SearchWithLogout } from 'components/search-with-logout';
 import {
   IContentListAdvancedFilter,
@@ -12,6 +13,7 @@ import { toast } from 'react-toastify';
 import { useApp, useContent, useUsers } from 'store/hooks';
 import { useAppStore } from 'store/slices';
 import {
+  Checkbox,
   Col,
   convertTo,
   fromQueryString,
@@ -31,16 +33,16 @@ import { trimWords } from './utils';
 // Simple component to display users search results
 export const SearchPage: React.FC = () => {
   const [, { findContent }] = useContent();
+  const navigate = useNavigate();
+  const [{ userInfo }] = useApp();
+  const [, store] = useAppStore();
+  const api = useUsers();
+  const { query } = useParams();
   const [searchItems, setSearchItems] = React.useState<IContentModel[]>([]);
   const [activeContent, setActiveContent] = React.useState<IContentModel | null>(null);
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
   const [searchName, setSearchName] = React.useState<string>('');
-  const navigate = useNavigate();
-  const [{ userInfo }] = useApp();
-  const [, store] = useAppStore();
-
-  const api = useUsers();
-  const { query } = useParams();
+  const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const urlParams = new URLSearchParams(query);
 
   const search = React.useMemo(
@@ -161,12 +163,11 @@ export const SearchPage: React.FC = () => {
   return (
     <styled.SearchPage>
       <SearchWithLogout />
-      <Row className="save-bar" justifyContent="center">
+      <Row className="save-bar">
         <p className="label">Name this search: </p>
         <Text onChange={(e) => setSearchName(e.target.value)} name="searchName" />
-        <button onClick={() => updateUserSearches()}>
-          <FaSave />
-        </button>
+        <FaSave className="save-button" onClick={() => updateUserSearches()} />
+        <FolderSubMenu selectedContent={selected} />
       </Row>
       <Row>
         <div className={playerOpen ? 'scroll minimized' : 'scroll'}>
@@ -175,13 +176,29 @@ export const SearchPage: React.FC = () => {
               return (
                 <Row key={item.id} className="rows">
                   <Col className="cols">
-                    <Row className="tone-date">
-                      <DetermineToneIcon
-                        tone={item.tonePools?.length ? item.tonePools[0].value : 0}
-                      />
-                      <p className="date text-content">
-                        {new Date(item.publishedOn).toDateString()}
-                      </p>
+                    <Row>
+                      <Col alignItems="center">
+                        <Checkbox
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelected([...selected, item]);
+                            } else {
+                              setSelected(selected.filter((i) => i.id !== item.id));
+                            }
+                          }}
+                          className="checkbox"
+                        />
+                      </Col>
+                      <Col className="tone-date">
+                        <Row>
+                          <DetermineToneIcon
+                            tone={item.tonePools?.length ? item.tonePools[0].value : 0}
+                          />
+                          <p className="date text-content">
+                            {new Date(item.publishedOn).toDateString()}
+                          </p>
+                        </Row>
+                      </Col>
                     </Row>
                     <p
                       className="headline text-content"

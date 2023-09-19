@@ -17,13 +17,13 @@ export const DetermineToneIcon: React.FC<IDetermineToneIconProps> = ({ tone }) =
   return (
     <styled.DetermineToneIcont>
       <Show visible={tone < 0}>
-        <FaRegFrown color="#DC3545" />
+        <FaRegFrown className="tone-icon" color="#DC3545" />
       </Show>
       <Show visible={tone === 0 || !tone}>
-        <FaRegMeh color="#FFC107" />
+        <FaRegMeh className="tone-icon" color="#FFC107" />
       </Show>
       <Show visible={tone > 0}>
-        <FaRegSmile color="#20C997" />
+        <FaRegSmile className="tone-icon" color="#20C997" />
       </Show>
     </styled.DetermineToneIcont>
   );
