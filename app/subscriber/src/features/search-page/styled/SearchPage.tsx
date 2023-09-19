@@ -1,18 +1,35 @@
 import styled from 'styled-components';
 
 export const SearchPage = styled.div`
+  .add-page {
+    margin-left: auto;
+  }
+  .checkbox {
+    height: 1.5em;
+    width: 1.5em;
+    margin-top: 0.25em;
+  }
   .save-bar {
-    input {
-      height: 1.5em;
+    padding-left: 1.5em;
+    padding-right: 1.5em;
+    padding-bottom: 0.5em;
+    .folder-sub-menu {
+      margin-left: auto;
     }
-    button {
-      height: 1.5em;
-      justify-content: center;
-      color: #178d6a;
-      background-color: #20c9971a;
-      border-color: #178d6a;
-      border-width: 0.05em;
-      border-radius: 0.25em;
+    .save-button {
+      margin-top: 0.05em;
+
+      height: 1.75em;
+      width: 1.75em;
+      color: #a5a4bf;
+      &:hover {
+        transform: scale(1.1);
+        cursor: pointer;
+        color: ${(props) => props.theme.css.sideBarIconHoverColor};
+      }
+    }
+    input {
+      height: 1.75em;
     }
     .label {
       /* margin: 0; */
@@ -62,8 +79,8 @@ export const SearchPage = styled.div`
   }
 
   .tone-date {
+    margin-left: auto;
     .date {
-      margin-left: auto;
       color: #8f929d;
     }
     svg {

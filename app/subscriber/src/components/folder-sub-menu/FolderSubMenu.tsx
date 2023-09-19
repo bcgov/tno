@@ -28,7 +28,7 @@ export const FolderSubMenu: React.FC<IFolderSubMenuProps> = ({ selectedContent }
   };
 
   return (
-    <styled.FolderSubMenu>
+    <styled.FolderSubMenu className="folder-sub-menu">
       <Row justifyContent="end">
         <FaFolderPlus className="add-folder" data-tooltip-id="folder" />
       </Row>
