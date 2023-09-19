@@ -10,7 +10,7 @@ export const generateSimpleQueryString = (fields: string | string[], values: any
     simple_query_string: {
       query: values,
       fields,
-      default_operator: 'and',
+      default_operator: 'or',
     },
   };
 };
