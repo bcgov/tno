@@ -18,7 +18,7 @@ import * as styled from './styled';
 export interface IViewContentToolbarProps {
   /** The current content that is being viewed. */
   tags: ITagModel[] | [];
-  content?: IContentModel;
+  content: IContentModel;
 }
 
 /**
@@ -79,7 +79,7 @@ export const ViewContentToolbar: React.FC<IViewContentToolbarProps> = ({ tags, c
               openOnClick
               id="folder"
             >
-              <FolderMenu content={content} />
+              <FolderMenu content={[{ ...content, sortOrder: 0, contentId: content.id }]} />
             </Tooltip>
             <FaFileAlt
               data-tooltip-id="main-tooltip"

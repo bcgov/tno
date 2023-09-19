@@ -3,13 +3,13 @@ import { AiOutlineFolderAdd } from 'react-icons/ai';
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { toast } from 'react-toastify';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { Col, IContentModel, IFolderModel, Row } from 'tno-core';
+import { Col, IFolderContentModel, IFolderModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
 export interface IFolderMenuProps {
   /** The current content that is being viewed. */
-  content?: IContentModel;
+  content?: IFolderContentModel[];
 }
 
 /** The submenu that appears in the tooltip when clicking on "Add folder" from the content tool bar */
@@ -35,9 +35,9 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
         isEnabled: true,
         sortOrder: 0,
         id: 0,
-        content: [{ ...content, sortOrder: 0, contentId: content.id }],
+        content: content,
       }).then((data) => {
-        toast.success(`${folderName} created and "${content.headline}" added to folder.`);
+        toast.success(`${folderName} created and ${content.length} stories added to folder.`);
         setFolderName('');
         setMyFolders([...myFolders, data]);
       });
@@ -48,9 +48,9 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
     if (!!content) {
       updateFolder({
         ...folder,
-        content: [...folder.content, { ...content, sortOrder: 0, contentId: content.id }],
+        content: [...folder.content, ...content],
       }).then((data) => {
-        toast.success(`${content.headline} added to folder`);
+        toast.success(`${content.length} stories added to folder`);
       });
     }
   };
