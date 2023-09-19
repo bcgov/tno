@@ -12,7 +12,9 @@ export interface IFolderSubMenuProps {
   selectedContent: IContentModel[];
 }
 
-/** Component that will take selected content, convert it to folder content and render the folder menu. */
+/** Component that renders the button that gives users access to a sub menu that will allow them to add selected content to
+ * an existing folder. Or create a new one.
+ */
 export const FolderSubMenu: React.FC<IFolderSubMenuProps> = ({ selectedContent }) => {
   /** transform the content to folder content before sending it to the API */
   const toFolderContent = (content: IContentModel[]) => {
