@@ -1,20 +1,17 @@
 import { DateFilter } from 'components/date-filter';
+import { FolderSubMenu } from 'components/folder-sub-menu';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { FolderMenu } from 'features/content/view-content/FolderMenu';
 import React from 'react';
-import { FaFolderPlus } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { Tooltip } from 'react-tooltip';
 import { useContent } from 'store/hooks';
 import {
   ContentStatus,
   ContentTypeName,
   FlexboxTable,
   IContentModel,
-  IFolderContentModel,
   ITableInternalRow,
   Page,
   Row,
@@ -72,17 +69,6 @@ export const Home: React.FC = () => {
     }
   };
 
-  /** transform the content to folder content before sending it to the API */
-  const toFolderContent = (content: IContentModel[]) => {
-    return content.map((item) => {
-      return {
-        ...item,
-        sortOrder: 0,
-        contentId: item.id,
-      } as IFolderContentModel;
-    });
-  };
-
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
     fetch({ ...filter, ...filterAdvanced });
@@ -94,21 +80,8 @@ export const Home: React.FC = () => {
         <div className="show-media-label">SHOW MEDIA TYPE:</div>
         <HomeFilters />
       </Row>
-      <Row justifyContent="end">
-        <FaFolderPlus className="add-folder" data-tooltip-id="folder" />
-      </Row>
+      <FolderSubMenu selectedContent={selected} />
       <DateFilter />
-      <Tooltip
-        clickable
-        variant="light"
-        className="folder-menu"
-        place="bottom"
-        openOnClick
-        style={{ opacity: '1', boxShadow: '0 0 8px #464545' }}
-        id="folder"
-      >
-        <FolderMenu content={toFolderContent(selected)} />
-      </Tooltip>
       <Row className="table-container">
         <FlexboxTable
           rowId="id"
