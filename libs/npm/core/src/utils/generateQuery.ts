@@ -59,23 +59,18 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
 
 const generateTextQuery = (settings: IFilterSettingsModel) => {
   if (!settings.search) return undefined;
-  switch (settings.searchIn) {
-    case 'all':
-      // give an arbitrary weight to the headline, so if it's found there
-      // it gets a slightly higher score, as opposed to other fields
-      return generateSimpleQueryString(
-        ['headline^5', 'byline', 'summary', 'body'],
-        settings.search,
-      );
-    case 'story':
-      return generateSimpleQueryString(['summary', 'body'], settings.search);
-    case 'headline':
-      return generateSimpleQueryString(['headline'], settings.search);
-    case 'byline':
-      return generateSimpleQueryString(['byline'], settings.search);
-    default:
-      return undefined;
+
+  if (!!settings.inHeadline && !!settings.inByline && !!settings.inStory) {
+    // give an arbitrary weight to the headline, so if it's found there
+    // it gets a slightly higher score, as opposed to other fields
+    return generateSimpleQueryString(['headline^5', 'byline', 'summary', 'body'], settings.search);
   }
+
+  let fields: string[] = [];
+  if (!!settings.inByline) fields = [...fields, 'byline'];
+  if (!!settings.inStory) fields = [...fields, ...['summary', 'body']];
+  if (!!settings.inHeadline) fields = [...fields, 'headline'];
+  return fields.length > 0 ? generateSimpleQueryString(fields, settings.search) : undefined;
 };
 
 const generatePublishedOnQuery = (settings: IFilterSettingsModel) => {

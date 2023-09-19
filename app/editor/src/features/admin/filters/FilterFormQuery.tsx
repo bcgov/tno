@@ -11,6 +11,7 @@ import { useLookupOptions } from 'store/hooks';
 import {
   Button,
   ButtonVariant,
+  Checkbox,
   Col,
   FieldSize,
   FormikDatePicker,
@@ -22,10 +23,9 @@ import {
   Row,
   Select,
   SentimentSlider,
-  ToggleGroup,
 } from 'tno-core';
 
-import { contentTypeOptions, searchInOptions } from './constants';
+import { contentTypeOptions } from './constants';
 import { getActionOptions, getTagOptions } from './utils';
 
 /**
@@ -68,8 +68,6 @@ export const FilterFormQuery: React.FC = () => {
     },
     [setFieldValue, values.query, values.settings],
   );
-
-  const searchOptions = searchInOptions((value) => updateQuery('searchIn', value));
 
   return (
     <>
@@ -122,7 +120,7 @@ export const FilterFormQuery: React.FC = () => {
             />
           </Col>
           <Col>
-            <p>
+            <div>
               The keywords query supports the following operators:
               <ul>
                 <li>
@@ -150,15 +148,30 @@ export const FilterFormQuery: React.FC = () => {
                   <code>~N</code> after a phrase signifies slop amount
                 </li>
               </ul>
-            </p>
+            </div>
           </Col>
         </Row>
         <Row>
-          <ToggleGroup
-            label="Search for Keywords in"
-            className="search-in"
-            options={searchOptions}
-            defaultSelected={values.settings.searchIn ?? searchOptions[0].label}
+          <label>Search for Keywords in: Headline</label>
+          <Checkbox
+            checked={values.settings.inHeadline ?? false}
+            onChange={(e) => {
+              updateQuery('inHeadline', e.target.checked);
+            }}
+          />
+          <label>Byline</label>
+          <Checkbox
+            checked={values.settings.inByline ?? false}
+            onChange={(e) => {
+              updateQuery('inByline', e.target.checked);
+            }}
+          />
+          <label>Story text</label>
+          <Checkbox
+            checked={values.settings.inStory ?? false}
+            onChange={(e) => {
+              updateQuery('inStory', e.target.checked);
+            }}
           />
         </Row>
         <Row nowrap>
