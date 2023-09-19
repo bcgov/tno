@@ -1,5 +1,5 @@
 import { DateFilter } from 'components/date-filter';
-import { determinecolumns } from 'features/home/constants';
+import { determineColumns } from 'features/home/constants';
 import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -30,7 +30,7 @@ export const TodaysCommentary: React.FC = () => {
       <Row className="table-container">
         <FlexboxTable
           rowId="id"
-          columns={determinecolumns('all')}
+          columns={determineColumns('all')}
           isMulti
           groupBy={(item) => item.original.source?.name ?? ''}
           onRowClick={(e: any) => {
