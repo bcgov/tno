@@ -7,7 +7,7 @@ import * as styled from './styled';
 
 export interface IDateFilterProps {}
 
-/** Custom datefilter for the subscriber home page. Control the calendar state with custom button, custom styling also applied. Also allows user to navigate a day at a time via arrow buttons. */
+/** Custom date filter for the subscriber home page. Control the calendar state with custom button, custom styling also applied. Also allows user to navigate a day at a time via arrow buttons. */
 export const DateFilter: React.FC<IDateFilterProps> = () => {
   /** default to today's date */
   const [date, setDate] = React.useState<Date>(new Date());
@@ -20,7 +20,7 @@ export const DateFilter: React.FC<IDateFilterProps> = () => {
     setOpen(false);
   }, [date, setOpen]);
 
-  /** update state variable when date changes, can be controlled via datepicker or arrows */
+  /** update state variable when date changes, can be controlled via date picker or arrows */
   React.useEffect(() => {
     storeFilterAdvanced({
       ...filterAdvanced,
@@ -37,7 +37,7 @@ export const DateFilter: React.FC<IDateFilterProps> = () => {
     return tempDate.toISOString();
   };
 
-  /** funtction to help manipulate the current date based on user input */
+  /** function to help manipulate the current date based on user input */
   const adjustDate = (days: number, direction: 'forwards' | 'backwards') => {
     let tempDate = new Date(date);
     if (direction === 'backwards') tempDate.setDate(tempDate.getDate() - days);

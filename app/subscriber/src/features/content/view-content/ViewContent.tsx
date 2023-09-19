@@ -185,7 +185,9 @@ export const ViewContent: React.FC = () => {
 
   return (
     <styled.ViewContent>
-      <ViewContentToolbar content={content} tags={content?.tags ?? []} />
+      <Show visible={!!content}>
+        <ViewContentToolbar content={content!} tags={content?.tags ?? []} />
+      </Show>
       <Row className="headline-container">
         <p>{content?.headline && content.headline}</p>
         <Row alignItems="center">

@@ -1,4 +1,5 @@
 import { DateFilter } from 'components/date-filter';
+import { FolderSubMenu } from 'components/folder-sub-menu';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
@@ -11,12 +12,13 @@ import {
   ContentTypeName,
   FlexboxTable,
   IContentModel,
+  ITableInternalRow,
   Page,
   Row,
   useWindowSize,
 } from 'tno-core';
 
-import { determinecolumns } from './constants';
+import { determineColumns } from './constants';
 import { HomeFilters } from './home-filters';
 import * as styled from './styled';
 import { makeFilter } from './utils';
@@ -27,6 +29,7 @@ import { makeFilter } from './utils';
 export const Home: React.FC = () => {
   const [{ filter, filterAdvanced }, { findContent }] = useContent();
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
+  const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const navigate = useNavigate();
   const { width } = useWindowSize();
 
@@ -57,6 +60,15 @@ export const Home: React.FC = () => {
     [findContent],
   );
 
+  /** controls the checking and unchecking of rows in the list view */
+  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
+    if (row.isSelected) {
+      setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
+    } else {
+      setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
+    }
+  };
+
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
     fetch({ ...filter, ...filterAdvanced });
@@ -68,16 +80,18 @@ export const Home: React.FC = () => {
         <div className="show-media-label">SHOW MEDIA TYPE:</div>
         <HomeFilters />
       </Row>
+      <FolderSubMenu selectedContent={selected} />
       <DateFilter />
       <Row className="table-container">
         <FlexboxTable
           rowId="id"
-          columns={determinecolumns(filter.contentTypes[0], width)}
+          columns={determineColumns(filter.contentTypes[0], width)}
           isMulti
           groupBy={(item) => item.original.source?.name ?? ''}
           onRowClick={(e: any) => {
             navigate(`/view/${e.original.id}`);
           }}
+          onSelectedChanged={handleSelectedRowsChanged}
           data={homeItems}
           pageButtons={5}
           showPaging={false}

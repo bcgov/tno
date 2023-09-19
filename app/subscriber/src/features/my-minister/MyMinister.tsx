@@ -1,26 +1,29 @@
+import { FolderSubMenu } from 'components/folder-sub-menu';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { determinecolumns } from 'features/home/constants';
+import { determineColumns } from 'features/home/constants';
 import { makeFilter } from 'features/home/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp, useContent } from 'store/hooks';
 import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import { useMinisters } from 'store/hooks/subscriber/useMinisters';
-import { FlexboxTable, IContentModel, Page, Row } from 'tno-core';
+import { FlexboxTable, IContentModel, ITableInternalRow, Page, Row } from 'tno-core';
 
 import * as styled from './styled';
 
 export const MyMinister: React.FC = () => {
   const [{ filter, filterAdvanced }, { findContent }] = useContent();
-  const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
-  const [ministerNames, setMinisterNames] = React.useState<string[]>([]);
   const [{ userInfo }] = useApp();
   const [, api] = useMinisters();
-  const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
   const navigate = useNavigate();
+  const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
+  const [ministerNames, setMinisterNames] = React.useState<string[]>([]);
+  const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
+  const [, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     if (!ministers.length) {
@@ -30,7 +33,14 @@ export const MyMinister: React.FC = () => {
     }
   }, [api, ministers.length]);
 
-  const [, setLoading] = React.useState(false);
+  /** controls the checking and unchecking of rows in the list view */
+  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
+    if (row.isSelected) {
+      setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
+    } else {
+      setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
+    }
+  };
 
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
@@ -81,10 +91,12 @@ export const MyMinister: React.FC = () => {
   }, [ministerNames]);
   return (
     <styled.MyMinister>
+      <FolderSubMenu selectedContent={selected} />
       <Row className="table-container">
         <FlexboxTable
           rowId="id"
-          columns={determinecolumns('all')}
+          columns={determineColumns('all')}
+          onSelectedChanged={handleSelectedRowsChanged}
           isMulti
           groupBy={(item) => item.original.source?.name ?? ''}
           onRowClick={(e: any) => {

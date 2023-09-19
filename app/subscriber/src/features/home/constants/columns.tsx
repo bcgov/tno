@@ -2,7 +2,7 @@ import { ContentTypeName, IContentModel, ITableHookColumn } from 'tno-core';
 
 import { DetermineToneIcon } from '../utils';
 
-export const determinecolumns = (contentType: ContentTypeName | 'all', windowWidth?: number) => {
+export const determineColumns = (contentType: ContentTypeName | 'all', windowWidth?: number) => {
   // columns common to all content
   const baseCols: ITableHookColumn<IContentModel>[] = [
     {
