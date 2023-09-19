@@ -5,7 +5,6 @@ import {
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
 import React from 'react';
-import { FaFolderPlus } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import {
@@ -81,11 +80,8 @@ export const Home: React.FC = () => {
         <div className="show-media-label">SHOW MEDIA TYPE:</div>
         <HomeFilters />
       </Row>
-      <Row justifyContent="end">
-        <FaFolderPlus className="add-folder" data-tooltip-id="folder" />
-      </Row>
-      <DateFilter />
       <FolderSubMenu selectedContent={selected} />
+      <DateFilter />
       <Row className="table-container">
         <FlexboxTable
           rowId="id"

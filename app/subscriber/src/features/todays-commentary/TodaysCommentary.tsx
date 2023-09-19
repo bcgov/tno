@@ -1,10 +1,11 @@
 import { DateFilter } from 'components/date-filter';
+import { FolderSubMenu } from 'components/folder-sub-menu';
 import { determineColumns } from 'features/home/constants';
 import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { ActionName, FlexboxTable, IContentModel, Row } from 'tno-core';
+import { ActionName, FlexboxTable, IContentModel, ITableInternalRow, Row } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -13,6 +14,7 @@ export const TodaysCommentary: React.FC = () => {
   const [{ filterAdvanced }, { findContent }] = useContent();
   const navigate = useNavigate();
   const [commentary, setCommentary] = React.useState<IContentModel[]>([]);
+  const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
   React.useEffect(() => {
     findContent({
@@ -24,14 +26,25 @@ export const TodaysCommentary: React.FC = () => {
     }).then((data) => setCommentary(data.items));
   }, [findContent, filterAdvanced]);
 
+  /** controls the checking and unchecking of rows in the list view */
+  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
+    if (row.isSelected) {
+      setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
+    } else {
+      setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
+    }
+  };
+
   return (
     <styled.TodaysCommentary>
+      <FolderSubMenu selectedContent={selected} />
       <DateFilter />
       <Row className="table-container">
         <FlexboxTable
           rowId="id"
           columns={determineColumns('all')}
           isMulti
+          onSelectedChanged={handleSelectedRowsChanged}
           groupBy={(item) => item.original.source?.name ?? ''}
           onRowClick={(e: any) => {
             navigate(`/view/${e.original.id}`);

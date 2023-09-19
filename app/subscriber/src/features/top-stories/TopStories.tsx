@@ -3,7 +3,6 @@ import { FolderSubMenu } from 'components/folder-sub-menu';
 import { determineColumns } from 'features/home/constants';
 import moment from 'moment';
 import React from 'react';
-import { FaFolderPlus } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { ActionName, FlexboxTable, IContentModel, ITableInternalRow, Row } from 'tno-core';
@@ -38,11 +37,8 @@ export const TopStories: React.FC = () => {
 
   return (
     <styled.TopStories>
-      <Row justifyContent="end">
-        <FaFolderPlus className="add-folder" data-tooltip-id="folder" />
-      </Row>
-      <DateFilter />
       <FolderSubMenu selectedContent={selected} />
+      <DateFilter />
       <Row className="table-container">
         <FlexboxTable
           rowId="id"

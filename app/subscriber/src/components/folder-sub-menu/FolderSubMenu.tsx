@@ -1,6 +1,9 @@
 import { FolderMenu } from 'features/content/view-content/FolderMenu';
+import { FaFolderPlus } from 'react-icons/fa';
 import { Tooltip } from 'react-tooltip';
-import { IContentModel, IFolderContentModel } from 'tno-core';
+import { IContentModel, IFolderContentModel, Row } from 'tno-core';
+
+import * as styled from './styled';
 
 export interface IFolderSubMenuProps {
   /**
@@ -23,16 +26,21 @@ export const FolderSubMenu: React.FC<IFolderSubMenuProps> = ({ selectedContent }
   };
 
   return (
-    <Tooltip
-      clickable
-      variant="light"
-      className="folder-menu"
-      place="bottom"
-      openOnClick
-      style={{ opacity: '1', boxShadow: '0 0 8px #464545', zIndex: '999' }}
-      id="folder"
-    >
-      <FolderMenu content={toFolderContent(selectedContent)} />
-    </Tooltip>
+    <styled.FolderSubMenu>
+      <Row justifyContent="end">
+        <FaFolderPlus className="add-folder" data-tooltip-id="folder" />
+      </Row>
+      <Tooltip
+        clickable
+        variant="light"
+        className="folder-menu"
+        place="bottom"
+        openOnClick
+        style={{ opacity: '1', boxShadow: '0 0 8px #464545', zIndex: '999' }}
+        id="folder"
+      >
+        <FolderMenu content={toFolderContent(selectedContent)} />
+      </Tooltip>
+    </styled.FolderSubMenu>
   );
 };
