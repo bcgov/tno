@@ -68,7 +68,7 @@ const generateTextQuery = (settings: IFilterSettingsModel) => {
 
   let fields: string[] = [];
   if (!!settings.inByline) fields = [...fields, 'byline'];
-  if (!!settings.inStory) fields = [...fields, ...['summary', 'body']];
+  if (!!settings.inStory) fields = [...fields, 'summary', 'body'];
   if (!!settings.inHeadline) fields = [...fields, 'headline'];
   return fields.length > 0 ? generateSimpleQueryString(fields, settings.search) : undefined;
 };
