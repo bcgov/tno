@@ -1,3 +1,4 @@
+import { FolderSubMenu } from 'components/folder-sub-menu';
 import { Tags } from 'components/form/tags';
 import React from 'react';
 import {
@@ -12,7 +13,6 @@ import { Tooltip } from 'react-tooltip';
 import { IContentModel, ITagModel, Row } from 'tno-core';
 
 import { ActionNames } from './constants';
-import { FolderMenu } from './FolderMenu';
 import * as styled from './styled';
 
 export interface IViewContentToolbarProps {
@@ -71,16 +71,7 @@ export const ViewContentToolbar: React.FC<IViewContentToolbarProps> = ({ tags, c
             >
               {ActionNames.AddToFolder}
             </Tooltip>
-            <Tooltip
-              clickable
-              variant="light"
-              className="folder-menu"
-              place="bottom"
-              openOnClick
-              id="folder"
-            >
-              <FolderMenu content={[{ ...content, sortOrder: 0, contentId: content.id }]} />
-            </Tooltip>
+            <FolderSubMenu selectedContent={[content]} />
             <FaFileAlt
               data-tooltip-id="main-tooltip"
               data-tooltip-content={ActionNames.AddToReport}
