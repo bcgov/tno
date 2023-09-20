@@ -1,5 +1,6 @@
 import React from 'react';
 import { AiOutlineFolderAdd } from 'react-icons/ai';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
@@ -11,12 +12,12 @@ import * as styled from './styled';
 /** contains a list of the user's folders, allows for edit and viewing */
 export const MyFolders = () => {
   const [, { findMyFolders, addFolder, updateFolder, deleteFolder }] = useFolders();
+  const { toggle, isShowing } = useModal();
+  const navigate = useNavigate();
   const [myFolders, setMyFolders] = React.useState<IFolderModel[]>([]);
   const [newFolderName, setNewFolderName] = React.useState<string>('');
   const [active, setActive] = React.useState<IFolderModel>();
   const [editable, setEditable] = React.useState<string>('');
-
-  const { toggle, isShowing } = useModal();
   const [actionName, setActionName] = React.useState<'empty' | 'delete'>('delete');
 
   React.useEffect(() => {
@@ -79,6 +80,7 @@ export const MyFolders = () => {
           pagingEnabled={false}
           columns={columns(setActive, editable, handleSave, active)}
           rowId={'id'}
+          onRowClick={(e) => navigate(`/folders/${e.original.id}`)}
           data={myFolders}
           showActive={false}
         />

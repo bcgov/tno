@@ -5,6 +5,7 @@ export interface IContentFilter extends ISortPageFilter {
   otherSource?: string;
   ownerId?: number;
   userId?: number;
+  contentIds?: number[];
   pageName?: string;
   section?: string;
   status?: ContentStatus;

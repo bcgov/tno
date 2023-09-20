@@ -2,6 +2,7 @@ import { DefaultLayout } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
 import { Landing } from 'features/landing';
 import { Login } from 'features/login';
+import { ManageFolder } from 'features/manage-folder';
 import { SearchPage } from 'features/search-page/SearchPage';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
@@ -44,6 +45,12 @@ export const AppRouter: React.FC<IAppRouter> = () => {
         <Route
           path="/search/:query"
           element={<PrivateRoute claims={Claim.subscriber} element={<SearchPage />}></PrivateRoute>}
+        />
+        <Route
+          path="/folders/:id"
+          element={
+            <PrivateRoute claims={Claim.subscriber} element={<ManageFolder />}></PrivateRoute>
+          }
         />
         <Route
           path="/view/:id"
