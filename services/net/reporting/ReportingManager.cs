@@ -334,7 +334,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         {
             if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
             {
-                section.Content = results.Hits.Hits.Select(h => new ContentModel(h.Source)).ToArray();
+                var sortOrder = 0;
+                section.Content = results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).ToArray();
             }
             return section;
         });
@@ -362,7 +363,9 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             )
         {
             OwnerId = request.RequestorId,
-            PublishedOn = DateTime.UtcNow
+            PublishedOn = DateTime.UtcNow,
+            Subject = subject,
+            Body = body,
         };
         var model = new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions);
         var instanceModel = request.GenerateInstance ? (await this.Api.AddReportInstanceAsync(model)
@@ -378,6 +381,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             {
                 model.Id = instanceModel.Id;
                 model.Version = instanceModel.Version ?? 0;
+                model.SentOn = DateTime.UtcNow;
                 model.Content.ForEach(ric => ric.InstanceId = model.Id);
                 model.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
                 await this.Api.UpdateReportInstanceAsync(model);
@@ -397,15 +401,15 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// This will send out a separate email to each context provided.
     /// </summary>
     /// <param name="request"></param>
-    /// <param name="reportInstance"></param>
+    /// <param name="instance"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel reportInstance)
+    private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance)
     {
         // TODO: Control when a report is sent through configuration.
-        var report = reportInstance.Report ?? throw new ArgumentException("Report instance must include the report model.");
+        var report = instance.Report ?? throw new ArgumentException("Report instance must include the report model.");
         var sections = report.Sections.Select(s => new ReportSectionModel(s));
-        var searchResults = await this.Api.GetContentForReportInstanceIdAsync(reportInstance.Id);
+        var searchResults = await this.Api.GetContentForReportInstanceIdAsync(instance.Id);
         var sectionContent = searchResults.GroupBy(r => r.SectionName).ToDictionary(r => r.Key, r =>
         {
             var section = sections.FirstOrDefault(s => s.Name == r.Key) ?? throw new InvalidOperationException("Unable to find matching section in report");
@@ -424,8 +428,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         }
 
         var to = report.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email)).Select(s => s.User!.Email).ToArray();
-        var subject = await this.ReportEngine.GenerateReportSubjectAsync(reportInstance.Report, sectionContent, request.UpdateCache);
-        var body = await this.ReportEngine.GenerateReportBodyAsync(reportInstance.Report, sectionContent, null, request.UpdateCache);
+        var subject = await this.ReportEngine.GenerateReportSubjectAsync(instance.Report, sectionContent, request.UpdateCache);
+        var body = await this.ReportEngine.GenerateReportBodyAsync(instance.Report, sectionContent, null, request.UpdateCache);
 
         // Send the email.
         if (request.SendToSubscribers && (to.Any() || !String.IsNullOrEmpty(request.To)))
@@ -433,9 +437,12 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
 
             // Update the report instance.
-            reportInstance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
-            if (reportInstance.PublishedOn == null) reportInstance.PublishedOn = DateTime.UtcNow;
-            await this.Api.UpdateReportInstanceAsync(reportInstance);
+            instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+            instance.Subject = subject;
+            instance.Body = body;
+            instance.SentOn = DateTime.UtcNow;
+            if (instance.PublishedOn == null) instance.PublishedOn = DateTime.UtcNow;
+            await this.Api.UpdateReportInstanceAsync(instance);
         }
 
         if (report.Settings.Content.ClearFolders)

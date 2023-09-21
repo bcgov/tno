@@ -1,8 +1,6 @@
 import styled from 'styled-components';
 
-import { Col } from '../../../flex';
-
-export const Select = styled(Col)`
+export const Select = styled.div`
   .required:after {
     content: ' *';
     color: ${(props) => props.theme.css.dangerColor};

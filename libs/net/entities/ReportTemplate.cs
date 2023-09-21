@@ -31,6 +31,12 @@ public class ReportTemplate : BaseType<int>
     public string Body { get; set; } = "";
 
     /// <summary>
+    /// get/set - Whether this report template is public to all users.
+    /// </summary>
+    [Column("is_public")]
+    public bool IsPublic { get; set; } = false;
+
+    /// <summary>
     /// get/set - The report template settings.
     /// </summary>
     [Column("settings")]

@@ -45,7 +45,7 @@ spec:
         pipelineRef:
           name: buildah-all
         serviceAccountName: pipeline
-        timeout: 1h45m0s
+        timeout: 2h45m0s
         params:
           - name: GIT_SOURCE
             value: $(tt.params.GIT_SOURCE)

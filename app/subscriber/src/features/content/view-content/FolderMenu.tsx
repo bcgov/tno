@@ -3,7 +3,7 @@ import { AiOutlineFolderAdd } from 'react-icons/ai';
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { toast } from 'react-toastify';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { Col, IFolderContentModel, IFolderModel, Row } from 'tno-core';
+import { Col, getDistinct, IFolderContentModel, IFolderModel, Row, Text } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -14,53 +14,56 @@ export interface IFolderMenuProps {
 
 /** The submenu that appears in the tooltip when clicking on "Add folder" from the content tool bar */
 export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
-  const [, { findMyFolders, addFolder, updateFolder }] = useFolders();
-  const [myFolders, setMyFolders] = React.useState<IFolderModel[]>([]);
+  const [{ myFolders }, { findMyFolders, addFolder, updateFolder }] = useFolders();
   const [folderName, setFolderName] = React.useState('');
 
   React.useEffect(() => {
-    findMyFolders().then((data) => {
-      setMyFolders(data);
-    });
+    if (!myFolders.length) findMyFolders().catch(() => {});
     // Only on initialize
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleAdd = () => {
+  const handleAdd = React.useCallback(async () => {
     if (!!content) {
-      addFolder({
-        name: folderName,
-        description: '',
-        settings: {},
-        isEnabled: true,
-        sortOrder: 0,
-        id: 0,
-        content: content,
-      }).then((data) => {
+      try {
+        await addFolder({
+          name: folderName,
+          description: '',
+          settings: {},
+          isEnabled: true,
+          sortOrder: 0,
+          id: 0,
+          content: content,
+        });
+
         toast.success(`${folderName} created and ${content.length} stories added to folder.`);
         setFolderName('');
-        setMyFolders([...myFolders, data]);
-      });
+      } catch {}
     }
-  };
+  }, [addFolder, content, folderName]);
 
-  const handleUpdate = (folder: IFolderModel) => {
-    if (!content?.length) toast.error('No content selected');
-    if (!!content?.length) {
-      updateFolder({
-        ...folder,
-        content: [...folder.content, ...content],
-      }).then((data) => {
-        toast.success(`${content.length} stories added to folder`);
-      });
-    }
-  };
+  const handleUpdate = React.useCallback(
+    async (folder: IFolderModel) => {
+      if (!content?.length) toast.error('No content selected');
+      if (!!content?.length) {
+        try {
+          await updateFolder({
+            ...folder,
+            content: getDistinct([...folder.content, ...content], (item) => item.contentId),
+          });
+
+          toast.success(`${content.length} stories added to folder`);
+        } catch {}
+      }
+    },
+    [content, updateFolder],
+  );
 
   return (
     <styled.FolderMenu>
       <p>Add to: </p>
       <Row className="add-row">
-        <input
+        <Text
           placeholder="Create new folder..."
           className="folder-name"
           name="folder"

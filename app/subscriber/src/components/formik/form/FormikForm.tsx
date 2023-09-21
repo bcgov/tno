@@ -1,4 +1,4 @@
-import { Formik, FormikConfig, FormikValues } from 'formik';
+import { Form, Formik, FormikConfig, FormikValues } from 'formik';
 import { useApp } from 'store/hooks';
 import { Loader, SpinnerVariant } from 'tno-core';
 
@@ -50,11 +50,7 @@ export const FormikForm = <Values extends FormikValues = FormikValues>({
         visible={typeof loading === 'function' ? requests.some(loading) : loading}
       />
       <Formik enableReinitialize={enableReinitialize} {...rest}>
-        {(props) => (
-          <form onSubmit={props.handleSubmit}>
-            {typeof children === 'function' ? children(props) : children}
-          </form>
-        )}
+        {(props) => <Form>{typeof children === 'function' ? children(props) : children}</Form>}
       </Formik>
     </styled.FormikForm>
   );

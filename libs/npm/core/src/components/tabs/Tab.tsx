@@ -5,11 +5,11 @@ import { Claim, useKeycloakWrapper } from '../../hooks/keycloak';
 import * as styled from './styled';
 import { isActivePath } from './utils';
 
-export interface ITabProps extends React.HTMLProps<HTMLButtonElement> {
+export interface ITabProps extends Omit<React.HTMLProps<HTMLButtonElement>, 'label'> {
   /**
    * choose the tab label
    */
-  label?: string;
+  label?: React.ReactNode;
   /**
    * prop used to determine whether the tab is active
    */
@@ -94,7 +94,7 @@ export const Tab: React.FC<ITabProps> = ({
         className={`tab${className ? ` ${className}` : ''}`}
         hasErrors={hasError}
       >
-        <span>{label}</span>
+        {typeof label === 'string' ? <span>{label}</span> : label}
         {children}
       </styled.Tab>
     ) : (
@@ -102,7 +102,7 @@ export const Tab: React.FC<ITabProps> = ({
         className={`tab disabled${className ? ` ${className}` : ''}`}
         hasErrors={hasError}
       >
-        <span>{label}</span>
+        {typeof label === 'string' ? <span>{label}</span> : label}
         {children}
       </styled.Tab>
     );

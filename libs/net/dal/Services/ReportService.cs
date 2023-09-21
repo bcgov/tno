@@ -16,7 +16,8 @@ namespace TNO.DAL.Services;
 public class ReportService : BaseService<Report, int>, IReportService
 {
     #region Variables
-    private readonly ITNOElasticClient _client;
+    private readonly ElasticOptions _elasticOptions;
+    private readonly ITNOElasticClient _elasticClient;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -24,12 +25,14 @@ public class ReportService : BaseService<Report, int>, IReportService
     public ReportService(
         TNOContext dbContext,
         ClaimsPrincipal principal,
-        ITNOElasticClient client,
+        ITNOElasticClient elasticClient,
+        IOptions<ElasticOptions> elasticOptions,
         IServiceProvider serviceProvider,
         IOptions<JsonSerializerOptions> serializerOptions,
         ILogger<ReportService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
-        _client = client;
+        _elasticClient = elasticClient;
+        _elasticOptions = elasticOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -54,7 +57,7 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// Find all the public reports.
     /// </summary>
     /// <returns></returns>
-    public IEnumerable<Report> GetPublic()
+    public IEnumerable<Report> FindPublic()
     {
         return this.Context.Reports
             .AsNoTracking()
@@ -121,10 +124,51 @@ public class ReportService : BaseService<Report, int>, IReportService
             .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
             .Include(r => r.Sections)
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
+            .Include(r => r.Schedules).ThenInclude(s => s.Schedule)
             .Where(f => f.OwnerId == userId)
             .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
     }
 
+    /// <summary>
+    /// Get the current instance for the specified report 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="isActive"></param>
+    /// <returns></returns>
+    public ReportInstance? GetLatestInstance(int id, int? ownerId = null, bool? isActive = null)
+    {
+        var query = this.Context.ReportInstances
+            .Include(ri => ri.Owner)
+            .Include(ri => ri.Report).ThenInclude(r => r!.Template)
+            .Include(ri => ri.Report).ThenInclude(r => r!.SubscribersManyToMany).ThenInclude(sm2m => sm2m.User)
+            .Include(ri => ri.Report).ThenInclude(r => r!.Sections).ThenInclude(s => s.ChartTemplatesManyToMany).ThenInclude(ct => ct.ChartTemplate)
+            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content)
+            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Source)
+            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Product)
+            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Series)
+            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Contributor)
+            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.ActionsManyToMany).ThenInclude(c => c.Action)
+            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.TopicsManyToMany).ThenInclude(c => c.Topic)
+            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Labels)
+            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Tags)
+            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.TimeTrackings)
+            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.FileReferences)
+            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.TonePools)
+            .Where(ri => ri.ReportId == id);
+
+        if (ownerId.HasValue)
+            query = query.Where(ri => ri.OwnerId == ownerId);
+
+        if (isActive.HasValue && isActive == false)
+            query = query.Where(ri => ri.SentOn == null);
+        else if (isActive.HasValue)
+            query = query.Where(ri => ri.SentOn != null);
+
+        return query
+            .OrderByDescending(ri => ri.Id)
+            .FirstOrDefault();
+    }
 
     /// <summary>
     /// Add the new report to the database.
@@ -328,6 +372,22 @@ public class ReportService : BaseService<Report, int>, IReportService
     }
 
     /// <summary>
+    /// Delete report and related entities.
+    /// </summary>
+    /// <param name="entity"></param>
+    public override void Delete(Report entity)
+    {
+        var schedules = this.Context.EventSchedules
+            .Include(es => es.Schedule)
+            .Where(es => es.ReportId == entity.Id)
+            .Select(es => es.Schedule!)
+            .ToArray();
+
+        this.Context.RemoveRange(schedules);
+        base.Delete(entity);
+    }
+
+    /// <summary>
     /// Find the last report instance created for the specified 'reportId' and 'ownerId'.
     /// </summary>
     /// <param name="reportId"></param>
@@ -348,11 +408,11 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// Makes a request for each section.
     /// If the section also references a folder it will make a request for the folder content too.
     /// </summary>
-    /// <param name="index"></param>
     /// <param name="report"></param>
+    /// <param name="index">Override the index that will be used for search.</param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(string index, Report report)
+    public async Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(Report report, string? index = null)
     {
         var searchResults = new Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>();
         var reportSettings = JsonSerializer.Deserialize<ReportSettingsModel>(report.Settings.ToJson(), _serializerOptions) ?? new();
@@ -378,7 +438,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             // Content in a folder is added first.
             if (section.FolderId.HasValue)
             {
-                var content = this.Context.FolderContents
+                var query = this.Context.FolderContents
                     .Include(fc => fc.Content)
                     .Include(fc => fc.Content).ThenInclude(c => c!.Source)
                     .Include(fc => fc.Content).ThenInclude(c => c!.Series)
@@ -393,11 +453,18 @@ public class ReportService : BaseService<Report, int>, IReportService
                     .Include(fc => fc.Content).ThenInclude(c => c!.ActionsManyToMany).ThenInclude(t => t.Action)
                     .Include(fc => fc.Content).ThenInclude(c => c!.TopicsManyToMany).ThenInclude(t => t.Topic)
                     .Include(fc => fc.Content).ThenInclude(c => c!.TonePoolsManyToMany).ThenInclude(t => t.TonePool)
-                    .Where(fc => fc.FolderId == section.FolderId
-                        && !excludeContentIds.Contains(fc.ContentId)
-                        && (!sectionSettings.RemoveDuplicates || !excludeAboveSectionContentIds.Contains(fc.ContentId)))
+                    .Where(fc => fc.FolderId == section.FolderId);
+
+                if (sectionSettings.RemoveDuplicates)
+                    query = query.Where(fc => !excludeAboveSectionContentIds.Contains(fc.ContentId));
+
+                if (excludeContentIds.Any())
+                    query = query.Where(fc => !excludeContentIds.Contains(fc.ContentId));
+
+                var content = query
                     .OrderBy(fc => fc.SortOrder)
                     .ToArray();
+
                 var folderContent = new Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>();
                 folderContent.Hits.Hits = content
                     .Select(c => new Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>()
@@ -419,9 +486,18 @@ public class ReportService : BaseService<Report, int>, IReportService
                 if (reportSettings.Content.OnlyNewContent)
                     query = IncludeOnlyLatestPosted(query, prevInstance?.PublishedOn);
 
-                var content = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, query);
-                content.Hits.Hits = content.Hits.Hits.Where(c => !excludeContentIds.Contains(c.Source.Id)
-                    && (!sectionSettings.RemoveDuplicates || !excludeAboveSectionContentIds.Contains(c.Source.Id)));
+                // Determine index.
+                var searchUnpublished = section.Filter.Settings.GetElementValue(".searchUnpublished", false);
+                var defaultIndex = index ?? (searchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex);
+
+                var content = await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
+
+                if (sectionSettings.RemoveDuplicates)
+                    content.Hits.Hits = content.Hits.Hits.Where(c => !excludeAboveSectionContentIds.Contains(c.Source.Id));
+
+                if (excludeContentIds.Any())
+                    content.Hits.Hits = content.Hits.Hits.Where(c => !excludeContentIds.Contains(c.Source.Id));
+
                 searchResults.Add(section.Name, content);
                 excludeAboveSectionContentIds.AddRange(content.Hits.Hits.Select(c => c.Source.Id).ToArray());
             }

@@ -35,9 +35,26 @@ public class ReportInstanceModel : AuditColumnsModel
     public DateTime? PublishedOn { get; set; }
 
     /// <summary>
+    /// get/set - The date and time the report was sent on.
+    /// </summary>
+    public DateTime? SentOn { get; set; }
+
+    /// <summary>
+    /// get/set - The compiled subject of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    public string Subject { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The compiled body of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    public string Body { get; set; } = "";
+
+    /// <summary>
     /// get/set - CHES response containing keys to find the status of a report.
     /// </summary>
-    public Dictionary<string, object> Response { get; set; } = new Dictionary<string, object>();
+    public JsonDocument Response { get; set; } = JsonDocument.Parse("{}");
     #endregion
 
     #region Constructors
@@ -50,15 +67,17 @@ public class ReportInstanceModel : AuditColumnsModel
     /// Creates a new instance of an ReportInstanceModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    /// <param name="options"></param>
-    public ReportInstanceModel(Entities.ReportInstance entity, JsonSerializerOptions options) : base(entity)
+    public ReportInstanceModel(Entities.ReportInstance entity) : base(entity)
     {
         this.Id = entity.Id;
         this.ReportId = entity.ReportId;
         this.OwnerId = entity.OwnerId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.PublishedOn = entity.PublishedOn;
-        this.Response = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Response, options) ?? new Dictionary<string, object>();
+        this.SentOn = entity.SentOn;
+        this.Response = entity.Response;
+        this.Subject = entity.Subject;
+        this.Body = entity.Body;
     }
     #endregion
 }

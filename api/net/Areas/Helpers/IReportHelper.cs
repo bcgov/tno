@@ -37,6 +37,18 @@ public interface IReportHelper
     Task<string> GenerateBase64ImageAsync(ChartRequestModel model, string? index, JsonDocument? filter, bool updateCache = false);
 
     /// <summary>
+    /// Generate an instance of the report.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="requestorId"></param>
+    /// <param name="instanceId"></param>
+    /// <returns></returns>
+    Task<Entities.ReportInstance> GenerateReportInstanceAsync(
+        Areas.Services.Models.Report.ReportModel model,
+        int? requestorId = null,
+        long instanceId = 0);
+
+    /// <summary>
     /// Execute the report template to generate the subject and body.
     /// If the report sections contain charts it will also generate them and include them in the results.
     /// Uses the content already in the report instance.

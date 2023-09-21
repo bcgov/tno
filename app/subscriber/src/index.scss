@@ -1,8 +1,9 @@
 @import './css/_colors';
+
 body {
   margin: 0;
   background-color: #efebdf;
-  overflow: hidden;
+  // overflow: hidden;
 }
 
 body,
@@ -57,6 +58,7 @@ h4 {
 .type-light.place-top {
   padding: 2px 5px 2px 5px;
   border: solid 1px $primary-color;
+
   &:after {
     border-top: 5px solid $primary-color !important;
   }
@@ -65,6 +67,7 @@ h4 {
 .type-light.place-left {
   padding: 2px 5px 2px 5px;
   border: solid 1px $primary-color;
+
   &:after {
     border-left: 5px solid $primary-color !important;
   }
@@ -73,6 +76,7 @@ h4 {
 .type-light.place-right {
   padding: 2px 5px 2px 5px;
   border: solid 1px $primary-color;
+
   &:after {
     border-right: 5px solid $primary-color !important;
   }
@@ -81,6 +85,7 @@ h4 {
 .type-light.place-bottom {
   padding: 2px 5px 2px 5px;
   border: solid 1px $primary-color;
+
   &:after {
     border-bottom: 5px solid $primary-color !important;
   }
@@ -91,27 +96,55 @@ h4 {
 // *************************************************
 .frm-in {
   padding-bottom: 0.5em;
+
   label {
     padding-right: 0.5em;
     font-weight: bold;
   }
+
   &.chk {
     padding-bottom: 0em;
+
     label {
       cursor: pointer;
     }
   }
+
   &.chg {
     padding-bottom: 0;
+
     label:not(:first-child) {
       display: inline;
       font-weight: normal;
     }
   }
+
   &.rag {
     label:not(:first-child) {
       display: inline;
       font-weight: normal;
     }
   }
+}
+
+main {
+  height: 100%;
+}
+
+.error {
+  color: red;
+}
+
+.btn-link {
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(80%);
+  }
+}
+
+.ellipsis {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }

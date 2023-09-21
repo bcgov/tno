@@ -78,7 +78,7 @@ const ReportForm: React.FC = () => {
       const result = !report.id ? await addReport(report) : await updateReport(report);
       setReport(result);
 
-      if (!reportTemplates.some((rt) => rt.id === result.templateId)) {
+      if (!reportTemplates.some((rt) => rt.id === result.templateId) && result.template) {
         const templates = [...reportTemplates, result.template];
         storeReportTemplates(templates);
       }

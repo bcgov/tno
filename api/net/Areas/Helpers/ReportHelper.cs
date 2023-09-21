@@ -1,5 +1,6 @@
 
 using System.Text.Json;
+using System.Web;
 using Microsoft.Extensions.Options;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
@@ -23,6 +24,7 @@ public class ReportHelper : IReportHelper
     private readonly IReportService _reportService;
     private readonly IAVOverviewTemplateService _overviewTemplateService;
     private readonly IContentService _contentService;
+    private readonly IFileReferenceService _fileReferenceService;
     private readonly ElasticOptions _elasticOptions;
     private readonly StorageOptions _storageOptions;
     private readonly JsonSerializerOptions _serializerOptions;
@@ -39,6 +41,7 @@ public class ReportHelper : IReportHelper
     /// <param name="reportService"></param>
     /// <param name="overviewTemplateService"></param>
     /// <param name="contentService"></param>
+    /// <param name="fileReferenceService"></param>
     /// <param name="elasticOptions"></param>
     /// <param name="storageOptions"></param>
     /// <param name="serializerOptions"></param>
@@ -47,6 +50,7 @@ public class ReportHelper : IReportHelper
         IReportService reportService,
         IAVOverviewTemplateService overviewTemplateService,
         IContentService contentService,
+        IFileReferenceService fileReferenceService,
         IOptions<ElasticOptions> elasticOptions,
         IOptions<StorageOptions> storageOptions,
         IOptions<JsonSerializerOptions> serializerOptions)
@@ -55,6 +59,7 @@ public class ReportHelper : IReportHelper
         _reportService = reportService;
         _overviewTemplateService = overviewTemplateService;
         _contentService = contentService;
+        _fileReferenceService = fileReferenceService;
         _elasticOptions = elasticOptions.Value;
         _storageOptions = storageOptions.Value;
         _serializerOptions = serializerOptions.Value;
@@ -114,6 +119,63 @@ public class ReportHelper : IReportHelper
     }
 
     /// <summary>
+    /// Generate a base 64 string for the image associated with the specified 'contentId'.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    public async Task<string?> GetImageAsync(long contentId)
+    {
+        var fileReference = _fileReferenceService.FindByContentId(contentId).FirstOrDefault();
+        if (fileReference == null) return null;
+
+        var safePath = Path.Combine(
+            _storageOptions.GetUploadPath(),
+            HttpUtility.UrlDecode(fileReference.Path).MakeRelativePath());
+        if (!safePath.FileExists()) return null;
+
+        using var fileStream = new FileStream(safePath, FileMode.Open, FileAccess.Read);
+        var imageBytes = new byte[fileStream.Length];
+        await fileStream.ReadAsync(imageBytes.AsMemory(0, (int)fileStream.Length));
+        return Convert.ToBase64String(imageBytes);
+    }
+
+    /// <summary>
+    /// Generate an instance of the report.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="requestorId"></param>
+    /// <param name="instanceId"></param>
+    /// <returns></returns>
+    public async Task<Entities.ReportInstance> GenerateReportInstanceAsync(
+        Areas.Services.Models.Report.ReportModel model,
+        int? requestorId = null,
+        long instanceId = 0)
+    {
+        // Fetch content for every section within the report.  This will include folders and filters.
+        var sections = model.Sections.Select(s => new ReportSectionModel(s));
+        var searchResults = await _reportService.FindContentWithElasticsearchAsync((Entities.Report)model);
+        var sectionContent = sections.ToDictionary(s => s.Name, section =>
+        {
+            if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
+            {
+                var sortOrder = 0;
+                section.Content = results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder)).ToArray();
+            }
+            return section;
+        });
+
+        return new Entities.ReportInstance(
+            model.Id,
+            requestorId ?? model.OwnerId,
+            sectionContent.SelectMany(s => s.Value.Content.Select(c => new Entities.ReportInstanceContent(instanceId, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray()
+        )
+        {
+            OwnerId = requestorId,
+            PublishedOn = DateTime.UtcNow
+        };
+    }
+
+    /// <summary>
     /// Execute the report template to generate the subject and body.
     /// If the report sections contain charts it will also generate them and include them in the results.
     /// Uses the content already in the report instance.
@@ -161,14 +223,14 @@ public class ReportHelper : IReportHelper
         if (model.Template == null) throw new ArgumentException("Parameter 'model.Template' is required");
 
         // Fetch all content for this report.
-        var index = _elasticOptions.PublishedIndex;
-        var elasticResults = await _reportService.FindContentWithElasticsearchAsync(index, model.ToEntity(_serializerOptions));
+        var elasticResults = await _reportService.FindContentWithElasticsearchAsync(model.ToEntity(_serializerOptions));
 
         // Link each result with the section name.
         var sections = model.Sections.ToDictionary(section => section.Name, section =>
         {
+            var sortOrder = 0;
             elasticResults.TryGetValue(section.Name, out SearchResultModel<Areas.Services.Models.Content.ContentModel>? sectionResult);
-            var content = sectionResult?.Hits.Hits.Select(hit => new ContentModel(hit.Source)).ToArray() ?? Array.Empty<ContentModel>();
+            var content = sectionResult?.Hits.Hits.Select(hit => new ContentModel(hit.Source, sortOrder++)).ToArray() ?? Array.Empty<ContentModel>();
             return new ReportSectionModel(section, content);
         });
 

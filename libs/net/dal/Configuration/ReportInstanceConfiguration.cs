@@ -13,6 +13,9 @@ public class ReportInstanceConfiguration : AuditColumnsConfiguration<ReportInsta
         builder.Property(m => m.ReportId).IsRequired();
         builder.Property(m => m.OwnerId);
         builder.Property(m => m.PublishedOn);
+        builder.Property(m => m.SentOn);
+        builder.Property(m => m.Subject).IsRequired().HasColumnType("text");
+        builder.Property(m => m.Body).IsRequired().HasColumnType("text");
         builder.Property(m => m.Response).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
 
         builder.HasOne(m => m.Report).WithMany(m => m.Instances).HasForeignKey(m => m.ReportId).OnDelete(DeleteBehavior.Cascade);

@@ -35,6 +35,7 @@ import {
   storeMinisters,
   storeProducts,
   storeRoles,
+  storeRules,
   storeSeries,
   storeSettings,
   storeSourceActions,
@@ -90,7 +91,7 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
         dispatch(storeTopics(topics));
       },
       storeTopicScoreRules: (rules: ITopicScoreRuleModel[]) => {
-        dispatch(storeTopicScoreRules(rules));
+        dispatch(storeRules(rules));
       },
       storeProducts: (contentTypes: IProductModel[]) => {
         dispatch(storeProducts(contentTypes));
@@ -146,6 +147,3 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
 
   return [state, controller];
 };
-function storeTopicScoreRules(rules: ITopicScoreRuleModel[]): any {
-  throw new Error('Function not implemented.');
-}

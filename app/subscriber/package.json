@@ -33,7 +33,7 @@
     "lodash.throttle": "4.1.1",
     "moment": "2.29.4",
     "moment-timezone": "0.5.41",
-    "rc-slider": "^10.2.1",
+    "rc-slider": "10.2.1",
     "react": "18.2.0",
     "react-beautiful-dnd": "13.1.1",
     "react-datepicker": "4.10.0",
@@ -55,7 +55,7 @@
     "react-tooltip": "5.10.0",
     "redux-logger": "3.0.6",
     "styled-components": "5.3.9",
-    "tno-core": "0.0.319"
+    "tno-core": "0.0.320"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "5.16.5",
@@ -69,6 +69,7 @@
     "@types/node": "18.15.3",
     "@types/pretty": "2.0.1",
     "@types/react": "18.0.28",
+    "@types/react-beautiful-dnd": "13.1.4",
     "@types/react-datepicker": "4.10.0",
     "@types/react-dom": "18.0.11",
     "@types/react-redux": "7.1.25",

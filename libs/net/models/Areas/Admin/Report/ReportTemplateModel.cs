@@ -1,5 +1,6 @@
 using System.Text.Json;
 using TNO.API.Models;
+using TNO.API.Models.Settings;
 using TNO.Entities;
 
 namespace TNO.API.Areas.Admin.Models.Report;
@@ -26,9 +27,15 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
     public string Body { get; set; } = "";
 
     /// <summary>
+    /// get/set - Whether this report template is public to all users.
+    /// </summary>
+    public bool IsPublic { get; set; } = false;
+
+    /// <summary>
     /// get/set - The settings for this report.
     /// </summary>
-    public Dictionary<string, object> Settings { get; set; } = new Dictionary<string, object>();
+    /// </summary>
+    public ReportTemplateSettingsModel Settings { get; set; } = new();
 
     /// <summary>
     /// get/set - An array of chart templates.
@@ -52,7 +59,8 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
         this.ReportType = entity.ReportType;
         this.Subject = entity.Subject;
         this.Body = entity.Body;
-        this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
+        this.IsPublic = entity.IsPublic;
+        this.Settings = JsonSerializer.Deserialize<ReportTemplateSettingsModel>(entity.Settings, options) ?? new();
 
         if (entity.ChartTemplates.Any())
             this.ChartTemplates = entity.ChartTemplates.Select(ct => new ChartTemplateModel(ct, options));
@@ -83,6 +91,7 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
         {
             Description = model.Description,
             IsEnabled = model.IsEnabled,
+            IsPublic = model.IsPublic,
             SortOrder = model.SortOrder,
             Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
             Version = model.Version ?? 0

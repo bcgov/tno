@@ -21,7 +21,8 @@ public class FilterService : BaseService<Filter, int>, IFilterService
         return this.Context.Filters
             .AsNoTracking()
             .Include(f => f.Owner)
-            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
+            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name)
+            .ToArray();
     }
 
     public override Filter? FindById(int id)
@@ -29,6 +30,13 @@ public class FilterService : BaseService<Filter, int>, IFilterService
         return this.Context.Filters
             .Include(f => f.Owner)
             .FirstOrDefault(f => f.Id == id);
+    }
+
+    public IEnumerable<Filter> FindMyFilters(int userId)
+    {
+        return this.Context.Filters
+            .Where(f => f.OwnerId == userId)
+            .ToArray();
     }
     #endregion
 

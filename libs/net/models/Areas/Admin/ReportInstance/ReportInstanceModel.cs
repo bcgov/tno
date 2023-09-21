@@ -30,9 +30,26 @@ public class ReportInstanceModel : AuditColumnsModel
     public DateTime? PublishedOn { get; set; }
 
     /// <summary>
+    /// get/set - The date and time the report was sent on.
+    /// </summary>
+    public DateTime? SentOn { get; set; }
+
+    /// <summary>
+    /// get/set - The compiled subject of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    public string Subject { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The compiled body of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    public string Body { get; set; } = "";
+
+    /// <summary>
     /// get/set - CHES response containing keys to find the status of a report.
     /// </summary>
-    public Dictionary<string, object> Response { get; set; } = new Dictionary<string, object>();
+    public JsonDocument Response { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get - Collection of content associated with this report instance.
@@ -50,30 +67,22 @@ public class ReportInstanceModel : AuditColumnsModel
     /// Creates a new instance of an ReportInstanceModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    /// <param name="options"></param>
-    public ReportInstanceModel(Entities.ReportInstance entity, JsonSerializerOptions options) : base(entity)
+    public ReportInstanceModel(Entities.ReportInstance entity) : base(entity)
     {
         this.Id = entity.Id;
+        this.OwnerId = entity.OwnerId;
         this.ReportId = entity.ReportId;
         this.PublishedOn = entity.PublishedOn;
-        this.Response = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Response, options) ?? new Dictionary<string, object>();
+        this.SentOn = entity.SentOn;
+        this.Response = entity.Response;
+        this.Subject = entity.Subject;
+        this.Body = entity.Body;
 
-        this.Content = entity.ContentManyToMany.Select(m => new ReportInstanceContentModel(m));
+        this.Content = entity.ContentManyToMany.OrderBy(c => c.SectionName).ThenBy(c => c.SortOrder).Select(m => new ReportInstanceContentModel(m));
     }
     #endregion
 
     #region Methods
-    /// <summary>
-    /// Creates a new instance of a ReportInstance object.
-    /// </summary>
-    /// <returns></returns>
-    public Entities.ReportInstance ToEntity(JsonSerializerOptions options)
-    {
-        var entity = (Entities.ReportInstance)this;
-        entity.Response = JsonDocument.Parse(JsonSerializer.Serialize(this.Response, options));
-        return entity;
-    }
-
     /// <summary>
     /// Explicit conversion to entity.
     /// </summary>
@@ -83,8 +92,12 @@ public class ReportInstanceModel : AuditColumnsModel
         var entity = new Entities.ReportInstance(model.ReportId, model.Content.Select(c => (Entities.ReportInstanceContent)c))
         {
             Id = model.Id,
+            OwnerId = model.OwnerId,
             PublishedOn = model.PublishedOn,
-            Response = JsonDocument.Parse(JsonSerializer.Serialize(model.Response)),
+            SentOn = model.SentOn,
+            Response = model.Response,
+            Subject = model.Subject,
+            Body = model.Body,
             Version = model.Version ?? 0
         };
         return entity;

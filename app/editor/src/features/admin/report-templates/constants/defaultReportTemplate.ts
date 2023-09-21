@@ -8,6 +8,7 @@ export const defaultReportTemplate: IReportTemplateModel = {
   subject: '',
   body: '',
   isEnabled: true,
+  isPublic: false,
   sortOrder: 0,
   chartTemplates: [],
   settings: {

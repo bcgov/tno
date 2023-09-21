@@ -1,10 +1,11 @@
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { SearchWithLogout } from 'components/search-with-logout';
+import { Sentiment } from 'components/sentiment';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { DetermineToneIcon, makeFilter } from 'features/home/utils';
+import { makeFilter } from 'features/home/utils';
 import { determinePreview } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
@@ -191,9 +192,7 @@ export const SearchPage: React.FC = () => {
                       </Col>
                       <Col className="tone-date">
                         <Row>
-                          <DetermineToneIcon
-                            tone={item.tonePools?.length ? item.tonePools[0].value : 0}
-                          />
+                          <Sentiment value={item.tonePools?.length ? item.tonePools[0].value : 0} />
                           <p className="date text-content">
                             {new Date(item.publishedOn).toDateString()}
                           </p>

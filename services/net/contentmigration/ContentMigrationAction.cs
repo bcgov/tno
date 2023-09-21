@@ -11,7 +11,6 @@ using TNO.Entities;
 using TNO.Models.Extensions;
 using TNO.Services.Actions;
 using TNO.Services.ContentMigration.Config;
-using TNO.Services.ContentMigration.Extensions;
 using TNO.Services.ContentMigration.Migrators;
 using TNO.Services.ContentMigration.Sources.Oracle;
 using TNO.Services.ContentMigration.Sources.Oracle.Services;
@@ -195,7 +194,8 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         ImportMigrationType importMigrationType = manager.Ingest.GetConfigurationValue<ImportMigrationType>("importMigrationType", ImportMigrationType.Unknown);
-        if (importMigrationType == ImportMigrationType.Unknown) {
+        if (importMigrationType == ImportMigrationType.Unknown)
+        {
             this.Logger.LogError("Error in Ingest [{ingestName}] config. 'importMigrationType' cannot be null.", manager.Ingest.Name);
             throw new ArgumentNullException(nameof(importMigrationType));
         }
@@ -271,7 +271,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             {
                 var baseFilter = contentMigrator.GetBaseFilter(manager.Ingest.IngestType.ContentType);
 
-                IQueryable<NewsItem> items = null;
+                IQueryable<NewsItem>? items = null;
                 switch (importMigrationType)
                 {
                     case ImportMigrationType.Historic:
@@ -411,7 +411,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                     // make sure the published status on the reference is up to date
                     reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyIsContentPublished] = newsItem.Published;
                     // update the stored UpdatedOn value
-                        reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn] = sourceContent.UpdatedOn.Value.ToString("yyyy-MM-dd h:mm:ss tt");
+                    reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn] = sourceContent.UpdatedOn?.ToString("yyyy-MM-dd h:mm:ss tt") ?? DateTime.Now.ToString("yyyy-MM-dd h:mm:ss tt");
                     // What about the worst case scenario: one Editor changes it in MMIA and another Editor changes it in TNO?
                     Logger.LogInformation("Received updated content from TNO. Forcing a Content update {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
                 }

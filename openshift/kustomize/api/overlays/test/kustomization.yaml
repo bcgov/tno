@@ -20,6 +20,15 @@ patches:
       - op: replace
         path: /data/CSS_AUTHORITY
         value: https://loginproxy.gov.bc.ca
+      - op: replace
+        path: /data/REPORTING_MMIA_URL
+        value: https://test.mmia.gov.bc.ca
+      - op: replace
+        path: /data/REPORTING_VIEW_CONTENT_URL
+        value: https://test.mmia.gov.bc.ca/view/
+      - op: replace
+        path: /data/REPORTING_REQUEST_TRANSCRIPT_URL
+        value: https://test.mmia.gov.bc.ca/api/subscriber/work/orders/transcribe/
   - target:
       kind: PersistentVolumeClaim
       name: api-storage

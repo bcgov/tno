@@ -1,5 +1,5 @@
 import { SearchWithLogout } from 'components/search-with-logout';
-import { DetermineToneIcon } from 'features/home';
+import { Sentiment } from 'components/sentiment';
 import { determinePreview } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
@@ -139,8 +139,8 @@ export const ManageFolder: React.FC = () => {
                           </Col>
                           <Col className="tone-date">
                             <Row>
-                              <DetermineToneIcon
-                                tone={item.tonePools?.length ? item.tonePools[0].value : 0}
+                              <Sentiment
+                                value={item.tonePools?.length ? item.tonePools[0].value : 0}
                               />
                               <p className="date text-content">
                                 {new Date(item.publishedOn).toDateString()}

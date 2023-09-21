@@ -50,7 +50,7 @@ public class ReportTemplateController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Find a page of content for the specified query filter.
+    /// Find all report templates.
     /// </summary>
     /// <returns></returns>
     [HttpGet]
@@ -63,7 +63,7 @@ public class ReportTemplateController : ControllerBase
     }
 
     /// <summary>
-    /// Find content for the specified 'id'.
+    /// Find report template for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -79,7 +79,7 @@ public class ReportTemplateController : ControllerBase
     }
 
     /// <summary>
-    /// Add content for the specified 'id'.
+    /// Add report template for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -96,7 +96,7 @@ public class ReportTemplateController : ControllerBase
     }
 
     /// <summary>
-    /// Update content for the specified 'id'.
+    /// Update report template for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -113,7 +113,7 @@ public class ReportTemplateController : ControllerBase
     }
 
     /// <summary>
-    /// Delete content for the specified 'id'.
+    /// Delete report template for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>

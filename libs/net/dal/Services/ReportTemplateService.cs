@@ -37,6 +37,20 @@ public class ReportTemplateService : BaseService<ReportTemplate, int>, IReportTe
     }
 
     /// <summary>
+    /// Find all the public report templates.
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable<ReportTemplate> FindPublic()
+    {
+        return this.Context.ReportTemplates
+            .AsNoTracking()
+            .Include(r => r.ChartTemplatesManyToMany).ThenInclude(s => s.ChartTemplate)
+            .OrderBy(r => r.SortOrder).ThenBy(r => r.Name)
+            .Where(r => r.IsPublic)
+            .ToArray();
+    }
+
+    /// <summary>
     /// Find the report template for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>

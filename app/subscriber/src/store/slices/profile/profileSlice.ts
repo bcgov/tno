@@ -1,9 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IFolderModel, IMinisterModel, ISystemMessageModel, IUserModel } from 'tno-core';
+import {
+  IFilterModel,
+  IFolderModel,
+  IMinisterModel,
+  ISystemMessageModel,
+  IUserModel,
+} from 'tno-core';
 
 import { IProfileState } from './interfaces';
 
 export const initialProfileState: IProfileState = {
+  myFilters: [],
   myFolders: [],
   myMinisters: [],
   systemMessages: [],
@@ -15,6 +22,9 @@ export const profileSlice = createSlice({
   reducers: {
     storeMyProfile(state: IProfileState, action: PayloadAction<IUserModel | undefined>) {
       state.profile = action.payload;
+    },
+    storeMyFilters(state: IProfileState, action: PayloadAction<IFilterModel[]>) {
+      state.myFilters = action.payload;
     },
     storeMyFolders(state: IProfileState, action: PayloadAction<IFolderModel[]>) {
       state.myFolders = action.payload;
@@ -28,5 +38,10 @@ export const profileSlice = createSlice({
   },
 });
 
-export const { storeMyProfile, storeMyFolders, storeMyMinisters, storeSystemMessages } =
-  profileSlice.actions;
+export const {
+  storeMyProfile,
+  storeMyFilters,
+  storeMyFolders,
+  storeMyMinisters,
+  storeSystemMessages,
+} = profileSlice.actions;

@@ -197,6 +197,25 @@ spec:
                   name: elastic
                   key: PASSWORD
 
+            - name: Charts__Url
+              value: "http://charts-api:8080"
+
+            - name: Reporting__MmiaUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: api
+                  key: REPORTING_MMIA_URL
+            - name: Reporting__ViewContentUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: api
+                  key: REPORTING_VIEW_CONTENT_URL
+            - name: Reporting__RequestTranscriptUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: api
+                  key: REPORTING_REQUEST_TRANSCRIPT_URL
+
           livenessProbe:
             httpGet:
               path: "/health"

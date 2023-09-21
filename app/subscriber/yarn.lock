@@ -10406,7 +10406,7 @@ __metadata:
     prettier: 2.8.4
     pretty: 2.0.0
     pretty-quick: 3.1.3
-    rc-slider: ^10.2.1
+    rc-slider: 10.2.1
     react: 18.2.0
     react-beautiful-dnd: 13.1.1
     react-datepicker: 4.10.0
@@ -10432,7 +10432,7 @@ __metadata:
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
     styled-components: 5.3.9
-    tno-core: 0.0.319
+    tno-core: 0.0.320
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -12324,7 +12324,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-slider@npm:^10.2.1":
+"rc-slider@npm:10.2.1, rc-slider@npm:^10.2.1":
   version: 10.2.1
   resolution: "rc-slider@npm:10.2.1"
   dependencies:
@@ -14426,9 +14426,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.0.319":
-  version: 0.0.319
-  resolution: "tno-core@npm:0.0.319"
+"tno-core@npm:0.0.320":
+  version: 0.0.320
+  resolution: "tno-core@npm:0.0.320"
   dependencies:
     "@fortawesome/free-solid-svg-icons": ^6.4.2
     "@fortawesome/react-fontawesome": ^0.2.0
@@ -14456,7 +14456,7 @@ __metadata:
     react-tooltip: ^5.10.0
     styled-components: ^5.3.9
     yup: ^1.1.1
-  checksum: b1c41dcdd60006e6b885b8dcfb6bcb207c995e7b22bd6633f85b9164a89e800e42902c89f4c411b0389f33995126d99233a28fa3dfe8e2cf9ed02f482ec2db82
+  checksum: 122f55da5d307c24c1c14711058b05abd2d209b1e65ea6a9906a3069cf0dce0eecb74309dea8c19094a415883c91d8d04447acdeee81e658554192c2c4e1d285
   languageName: node
   linkType: hard
 

@@ -1,6 +1,6 @@
 ﻿using System;
-using TNO.DAL;
 using Microsoft.EntityFrameworkCore.Migrations;
+using TNO.DAL;
 
 #nullable disable
 
@@ -12,23 +12,23 @@ namespace TNO.DAL.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            PreUp(migrationBuilder);
+            PreUp(migrationBuilder, true);
             migrationBuilder.AddColumn<DateTime>(
                 name: "posted_on",
                 table: "content",
                 type: "timestamp with time zone",
                 nullable: true);
-            PostUp(migrationBuilder);
+            PostUp(migrationBuilder, true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            PreDown(migrationBuilder);
+            PreDown(migrationBuilder, true);
             migrationBuilder.DropColumn(
                 name: "posted_on",
                 table: "content");
-            PostDown(migrationBuilder);
+            PostDown(migrationBuilder, true);
         }
     }
 }

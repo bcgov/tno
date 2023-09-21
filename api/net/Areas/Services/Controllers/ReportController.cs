@@ -93,7 +93,7 @@ public class ReportController : ControllerBase
     public async Task<IActionResult> FindContentForReportIdAsync(int id)
     {
         var report = _service.FindById(id) ?? throw new NoContentException();
-        var results = await _service.FindContentWithElasticsearchAsync(_elasticOptions.PublishedIndex, report);
+        var results = await _service.FindContentWithElasticsearchAsync(report);
         return new JsonResult(results);
     }
 

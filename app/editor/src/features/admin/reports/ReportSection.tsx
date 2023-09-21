@@ -71,7 +71,7 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
 
   const [filterOptions, setFilterOptions] = React.useState(getSortableItems(filters));
   const [folderOptions, setFolderOptions] = React.useState(getSortableItems(folders));
-  const [chartOptions] = React.useState(getSortableOptions(values.template.chartTemplates));
+  const [chartOptions] = React.useState(getSortableOptions(values.template?.chartTemplates ?? []));
   const [chart, setChart] = React.useState<IChartTemplateModel>();
 
   const section = values.sections[index];
@@ -239,7 +239,7 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
                   value={filterOptions.find((o) => o.value === section.filterId) ?? ''}
                   onChange={(newValue) => {
                     const option = newValue as OptionItem;
-                    const filter = filters.find((f) => f.id === option.value);
+                    const filter = filters.find((f) => f.id === option?.value);
                     if (filter) setFieldValue(`sections.${index}.filter`, filter);
                   }}
                 />
@@ -254,7 +254,7 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
                   value={folderOptions.find((o) => o.value === section.folderId) ?? ''}
                   onChange={(newValue) => {
                     const option = newValue as OptionItem;
-                    const folder = folders.find((f) => f.id === option.value);
+                    const folder = folders.find((f) => f.id === option?.value);
                     if (folder) setFieldValue(`sections.${index}.folder`, folder);
                   }}
                 />
@@ -272,13 +272,13 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
             <Col>
               <hr />
               <label>Charts</label>
-              <Show visible={!values.template.chartTemplates.length}>
+              <Show visible={!values.template?.chartTemplates.length}>
                 <p className="error">
                   This template does not currently support charts. Update the template and add the
                   charts it supports.
                 </p>
               </Show>
-              <Show visible={!!values.template.chartTemplates.length}>
+              <Show visible={!!values.template?.chartTemplates.length}>
                 <p>Select and order the charts that will be displayed in this section.</p>
                 <Row className="add-chart">
                   <Select
@@ -287,7 +287,9 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
                     value={chartOptions.find((c) => c.value === chart?.id) ?? ''}
                     onChange={(e) => {
                       const o = e as OptionItem;
-                      const chart = values.template.chartTemplates.find((ct) => ct.id === o?.value);
+                      const chart = values.template?.chartTemplates.find(
+                        (ct) => ct.id === o?.value,
+                      );
                       setChart(chart);
                     }}
                   />
@@ -300,15 +302,17 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
                           sectionSettings: {
                             ...chart.sectionSettings,
                             title: '',
-                            chartType: chart.settings.chartTypes.length
+                            chartType: chart.settings?.chartTypes.length
                               ? chart.settings.chartTypes[0]
                               : '',
-                            groupBy: chart.settings.groupBy.length ? chart.settings.groupBy[0] : '',
+                            groupBy: chart.settings?.groupBy.length
+                              ? chart.settings.groupBy[0]
+                              : '',
                             isHorizontal: false,
                             showDataValues: false,
                             width: 500,
                             height: 500,
-                            options: { ...chart.settings.options },
+                            options: { ...chart.settings?.options },
                           },
                         };
                         const charts = [...section.chartTemplates, newChart].map((ct, i) => {

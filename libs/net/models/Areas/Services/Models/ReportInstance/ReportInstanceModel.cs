@@ -35,6 +35,23 @@ public class ReportInstanceModel : AuditColumnsModel
     public DateTime? PublishedOn { get; set; }
 
     /// <summary>
+    /// get/set - The date and time the report was sent on.
+    /// </summary>
+    public DateTime? SentOn { get; set; }
+
+    /// <summary>
+    /// get/set - The compiled subject of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    public string Subject { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The compiled body of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    public string Body { get; set; } = "";
+
+    /// <summary>
     /// get/set - CHES response containing keys to find the status of a report.
     /// </summary>
     public JsonDocument Response { get; set; } = JsonDocument.Parse("{}");
@@ -63,9 +80,12 @@ public class ReportInstanceModel : AuditColumnsModel
         this.OwnerId = entity.OwnerId;
         this.Report = entity.Report != null ? new Report.ReportModel(entity.Report, options) : null;
         this.PublishedOn = entity.PublishedOn;
+        this.SentOn = entity.SentOn;
         this.Response = entity.Response;
+        this.Subject = entity.Subject;
+        this.Body = entity.Body;
 
-        this.Content = entity.ContentManyToMany.Select(m => new ReportInstanceContentModel(m)).ToArray();
+        this.Content = entity.ContentManyToMany.OrderBy(c => c.SectionName).ThenBy(c => c.SortOrder).Select(m => new ReportInstanceContentModel(m)).ToArray();
     }
     #endregion
 
@@ -80,7 +100,10 @@ public class ReportInstanceModel : AuditColumnsModel
         {
             Id = model.Id,
             PublishedOn = model.PublishedOn,
+            SentOn = model.SentOn,
             Response = model.Response,
+            Subject = model.Subject,
+            Body = model.Body,
             Version = model.Version ?? 0
         };
         return entity;

@@ -24,7 +24,8 @@ public static class IdentityExtensions
         return user.FindFirst("username")?.Value
             ?? user.FindFirst("idir_username")?.Value
             ?? user.FindFirst("github_username")?.Value
-            ?? user.FindFirst("bceid_username")?.Value;
+            ?? user.FindFirst("bceid_username")?.Value
+            ?? user.FindFirst("preferred_username")?.Value;
     }
 
     /// <summary>

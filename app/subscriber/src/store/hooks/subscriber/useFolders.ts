@@ -1,9 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { IProfileState, useProfileStore } from 'store/slices';
-import { IFolderModel } from 'tno-core';
-
-import { useApiFolders } from './api';
+import { IFolderModel, useApiSubscriberFolders } from 'tno-core';
 
 interface IFolderController {
   findAllFolders: () => Promise<IFolderModel[]>;
@@ -15,7 +13,7 @@ interface IFolderController {
 }
 
 export const useFolders = (): [IProfileState, IFolderController] => {
-  const api = useApiFolders();
+  const api = useApiSubscriberFolders();
   const dispatch = useAjaxWrapper();
   const [state, store] = useProfileStore();
 

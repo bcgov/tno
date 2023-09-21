@@ -96,15 +96,15 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
     /// <returns></returns>
     public override ReportInstance Update(ReportInstance entity)
     {
-        // Elasticsearch can contain content that does not exist in the database regrettably.
-        // While this should not occur, it's possible.
-        // Extract any content that does not exist in the database.
-        var contentIds = entity.ContentManyToMany.Select(c => c.ContentId).ToArray();
-        var existingContentIds = this.Context.Contents.Where(c => contentIds.Contains(c.Id)).Select(c => c.Id).ToArray();
-
         // Fetch all content currently belonging to this report instance.
         var original = this.Context.ReportInstances.FirstOrDefault(ri => ri.Id == entity.Id) ?? throw new InvalidOperationException("Report instance does not exist");
         var originalContent = this.Context.ReportInstanceContents.Where(ric => ric.InstanceId == entity.Id).ToArray();
+
+        // Elasticsearch can contain content that does not exist in the database regrettably.
+        // While this should not occur, it's possible.
+        // Extract any content that does not exist in the database.
+        var contentIds = entity.ContentManyToMany.Select(c => c.ContentId).Distinct().ToArray();
+        var existingContentIds = this.Context.Contents.Where(c => contentIds.Contains(c.Id)).Select(c => c.Id).Distinct().ToArray();
 
         // Delete removed content and add new content.
         originalContent.Except(entity.ContentManyToMany).Where(ric => existingContentIds.Contains(ric.ContentId)).ForEach(ric =>
@@ -130,7 +130,10 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
 
         original.OwnerId = entity.OwnerId;
         original.PublishedOn = entity.PublishedOn;
+        original.SentOn = entity.SentOn;
         original.ReportId = entity.ReportId;
+        original.Subject = entity.Subject;
+        original.Body = entity.Body;
         original.Response = entity.Response;
         original.Version = entity.Version;
         this.Context.ResetVersion(original);

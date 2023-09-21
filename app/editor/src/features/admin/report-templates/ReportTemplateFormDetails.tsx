@@ -28,6 +28,7 @@ export const ReportTemplateFormDetails: React.FC = () => {
         <FormikTextArea name="description" label="Description" />
         <Row gap="1em">
           <FormikCheckbox label="Is Enabled" name="isEnabled" />
+          <FormikCheckbox label="Is Public" name="isPublic" />
           <FormikText
             width={FieldSize.Tiny}
             name="sortOrder"

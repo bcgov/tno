@@ -75,16 +75,15 @@ public class FolderController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Folder" })]
     public IActionResult FindById(int id)
     {
-        var result = _folderService.FindById(id);
-        if (result == null) return new NoContentResult();
+        var result = _folderService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new FolderModel(result, _serializerOptions));
     }
 
-    
+
     /// <summary>
     /// Find all "my" folders.
     /// </summary>
@@ -113,10 +112,10 @@ public class FolderController : ControllerBase
     public IActionResult Add(FolderModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist"); 
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
         model.OwnerId = user.Id;
         var result = _folderService.AddAndSave(model.ToEntity(_serializerOptions));
-        var folder = _folderService.FindById(result.Id) ?? throw new InvalidOperationException("Folder does not exist");
+        var folder = _folderService.FindById(result.Id) ?? throw new NoContentException("Folder does not exist");
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new FolderModel(folder, _serializerOptions));
     }
 
@@ -132,8 +131,13 @@ public class FolderController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Folder" })]
     public IActionResult Update(FolderModel model)
     {
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var folder = _folderService.FindById(model.Id) ?? throw new NoContentException("Folder does not exist");
+        if (folder.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to update folder");
+        _folderService.ClearChangeTracker();
         var result = _folderService.UpdateAndSave(model.ToEntity(_serializerOptions));
-        var folder = _folderService.FindById(result.Id) ?? throw new InvalidOperationException("Folder does not exist");
+        folder = _folderService.FindById(result.Id) ?? throw new NoContentException("Folder does not exist");
         return new JsonResult(new FolderModel(folder, _serializerOptions));
     }
 
@@ -149,7 +153,11 @@ public class FolderController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Folder" })]
     public IActionResult Delete(FolderModel model)
     {
-        _folderService.DeleteAndSave(model.ToEntity(_serializerOptions));
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var folder = _folderService.FindById(model.Id) ?? throw new NoContentException("Folder does not exist");
+        if (folder.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to delete folder");
+        _folderService.DeleteAndSave(folder);
         return new JsonResult(model);
     }
     #endregion

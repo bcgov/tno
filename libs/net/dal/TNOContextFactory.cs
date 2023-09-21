@@ -1,12 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using DotNetEnv.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Npgsql;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using TNO.Core.Extensions;
 
 namespace TNO.DAL;
@@ -81,7 +81,7 @@ public class TNOContextFactory : IDesignTimeDbContextFactory<TNOContext>
         var optionsBuilder = new DbContextOptionsBuilder<TNOContext>();
         optionsBuilder.UseNpgsql(sqlBuilder.ConnectionString, options =>
         {
-            options.CommandTimeout((int)TimeSpan.FromMinutes(10).TotalSeconds);
+            options.CommandTimeout((int)TimeSpan.FromMinutes(60).TotalSeconds);
         });
 
         var serializerOptions = new JsonSerializerOptions()

@@ -153,8 +153,8 @@ export const Select = <OptionType extends IOptionItem>({
             }}
             {...rest}
           />
+          {children}
         </Row>
-        <div className="children">{children}</div>
       </div>
       {!rest.isDisabled && (
         <input

@@ -91,7 +91,7 @@ export const ReportFormTemplate: React.FC = () => {
           <Editor
             id="txa-subject-template"
             required
-            value={values.template.subject}
+            value={values.template?.subject ?? ''}
             onValueChange={(code) => setFieldValue('template.subject', code)}
             highlight={(code) => {
               return highlight(code, languages.cshtml, 'razor');
@@ -105,7 +105,7 @@ export const ReportFormTemplate: React.FC = () => {
           <Editor
             id="txa-body-template"
             required
-            value={values.template.body}
+            value={values.template?.body ?? ''}
             onValueChange={(code) => setFieldValue('template.body', code)}
             highlight={(code) => {
               return highlight(code, languages.cshtml, 'razor');

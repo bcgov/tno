@@ -118,7 +118,7 @@ public class ReportController : ControllerBase
     public IActionResult FindInstancesForReportId(int reportId, int? ownerId)
     {
         var result = _reportInstanceService.FindInstancesForReportId(reportId, ownerId);
-        return new JsonResult(result.Select(ri => new ReportInstanceModel(ri, _serializerOptions)));
+        return new JsonResult(result.Select(ri => new ReportInstanceModel(ri)));
     }
 
     /// <summary>

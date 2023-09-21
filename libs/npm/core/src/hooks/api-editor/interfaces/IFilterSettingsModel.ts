@@ -1,1 +1,3 @@
-export interface IFilterSettingsModel extends Record<string, any> {}
+export interface IFilterSettingsModel extends Record<string, any> {
+  searchUnpublished: boolean;
+}

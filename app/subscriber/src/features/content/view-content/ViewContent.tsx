@@ -1,4 +1,4 @@
-import { DetermineToneIcon } from 'features/home/utils';
+import { Sentiment } from 'components/sentiment';
 import { showTranscription } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
@@ -37,17 +37,22 @@ export interface IStream {
  */
 export const ViewContent: React.FC = () => {
   const { id } = useParams();
-  const [content, setContent] = React.useState<IContentModel>();
   const [, { getContent, stream }] = useContent();
-  const [avStream, setAVStream] = React.useState<IStream>();
-  // flag to keep track of the bolding completion in my minister view
-  const [boldingComplete, setBoldingComplete] = React.useState(false);
   const { width } = useWindowSize();
   const [{ userInfo }] = useApp();
   const [, api] = useMinisters();
-  const [aliases, setAliases] = React.useState<string[]>([]);
   const [, { transcribe, findWorkOrders }] = useWorkOrders();
+
+  // flag to keep track of the bolding completion in my minister view
+  const [boldingComplete, setBoldingComplete] = React.useState(false);
+  const [aliases, setAliases] = React.useState<string[]>([]);
   const [workOrders, setWorkOrders] = React.useState<IWorkOrderModel[]>([]);
+  const [content, setContent] = React.useState<IContentModel>();
+  const [avStream, setAVStream] = React.useState<IStream>();
+  const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
+
+  const fileReference = content?.fileReferences ? content?.fileReferences[0] : undefined;
+
   const handleTranscribe = React.useCallback(async () => {
     try {
       // TODO: Only save when required.
@@ -68,10 +73,6 @@ export const ViewContent: React.FC = () => {
     }
   }, [workOrders, transcribe, content]);
 
-  const fileReference = content?.fileReferences ? content?.fileReferences[0] : undefined;
-
-  const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
-
   React.useEffect(() => {
     if (!ministers.length) {
       api.getMinisters().then((data) => {
@@ -87,7 +88,7 @@ export const ViewContent: React.FC = () => {
         .filter((m) => userInfo?.preferences?.myMinisters?.includes(m.id))
         .flatMap((x) => [
           x.name,
-          // first letter of first name whole last name seperated by a period
+          // first letter of first name whole last name separated by a period
           x.name.charAt(0) + '.' + x.name.split(' ').slice(-1),
           // ...x.aliases
           //   .split(',')
@@ -195,7 +196,7 @@ export const ViewContent: React.FC = () => {
           <p className="tone-value">
             {showToneValue(content?.tonePools ? content?.tonePools[0]?.value : 0)}
           </p>
-          <DetermineToneIcon tone={content?.tonePools ? content?.tonePools[0]?.value : 0} />
+          <Sentiment value={content?.tonePools ? content?.tonePools[0]?.value : 0} />
         </Row>
       </Row>
       <Row justifyContent="space-between">
