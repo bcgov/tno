@@ -1,5 +1,6 @@
 import { SearchWithLogout } from 'components/search-with-logout';
 import { DetermineToneIcon } from 'features/home';
+import { trimWords } from 'features/search-page/utils';
 import parse from 'html-react-parser';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
@@ -22,7 +23,6 @@ export const ManageFolder: React.FC = () => {
   const [, { findContent }] = useContent();
   const [folder, setFolder] = React.useState<IFolderModel>();
   const [items, setItems] = React.useState<any>([]);
-  const [sortedFlag, setSortedFlag] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
   /** TODO: Folder content only contains contentId and sortOrder so we have to make an additional call based off of the contentIds to get the headline/summary etc..
@@ -36,74 +36,76 @@ export const ManageFolder: React.FC = () => {
       findContent({
         contentTypes: [],
         contentIds: data.content.map((c) => c.contentId),
-      }).then((data) => {
-        const tempSort = data.items.map((item) => ({
-          ...item,
-          sortOrder: temp.content.find((c) => c.contentId === item.id)?.sortOrder ?? 0,
-        }));
-        tempSort.sort((a, b) => a.sortOrder - b.sortOrder);
-        setItems(tempSort);
-      });
+      })
+        .then((data) => {
+          const tempSort = data.items.map((item) => ({
+            ...item,
+            sortOrder: temp.content.find((c) => c.contentId === item.id)?.sortOrder ?? 0,
+          }));
+          tempSort.sort((a, b) => a.sortOrder - b.sortOrder);
+          setItems(tempSort);
+        })
+        .catch();
     });
     // Only on initialize, or when sort order changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortedFlag]);
+  }, []);
 
   /** function that runs after a user drops an item in the list */
-  const handleDrop = (droppedItem: any) => {
-    if (!droppedItem.destination) {
-      return;
-    }
-    var updatedList = [...items];
-    // Remove dragged item
-    const [reorderedItem] = updatedList.splice(droppedItem.source.index, 1);
-    // Add dropped item
-    updatedList.splice(droppedItem.destination.index, 0, reorderedItem);
-    // Update State
-    //  has what we want still sorted
-    setItems(updatedList);
-    // Update Folder
-    !!folder &&
-      updateFolder({
-        ...folder,
-        content: updatedList.map((item, index) => ({
-          ...item,
-          contentId: item.id,
-          sortOrder: index,
-        })),
-      }).then((data) => {
-        setFolder(data);
-      });
-    // setSortedFlag(!sortedFlag);
-  };
+  const handleDrop = React.useCallback(
+    async (droppedItem: any) => {
+      if (!droppedItem.destination) {
+        return;
+      }
+      var updatedList = [...items];
+      // Remove dragged item
+      const [reorderedItem] = updatedList.splice(droppedItem.source.index, 1);
+      // Add dropped item
+      updatedList.splice(droppedItem.destination.index, 0, reorderedItem);
+      // Update State
+      setItems(updatedList);
+      // Update Folder
+      !!folder &&
+        (await updateFolder({
+          ...folder,
+          content: updatedList.map((item, index) => ({
+            ...item,
+            contentId: item.id,
+            sortOrder: index,
+          })),
+        })
+          .then((data) => {
+            setFolder(data);
+          })
+          .catch());
+    },
+    [folder, items, updateFolder],
+  );
 
   /** function that will remove items from the folder when the button is clicked */
-  const removeItems = () => {
+  const removeItems = React.useCallback(async () => {
     const updatedList = items.filter((item: any) => !selected.includes(item));
     setItems(updatedList);
     !!folder &&
-      updateFolder({
+      (await updateFolder({
         ...folder,
         content: updatedList.map((item: any, index: any) => ({
           ...item,
           contentId: item.id,
           sortOrder: index,
         })),
-      }).then((data) => {
-        setFolder(data);
-        setSortedFlag(!sortedFlag);
-      });
+      })
+        .then((data) => {
+          setFolder(data);
+        })
+        .catch());
     setSelected([]);
-  };
+  }, [folder, items, selected, updateFolder]);
 
   /** determines whether to show body or summary text */
   const determinePreview = (item: IContentModel) => {
-    if (!!item.body && !item.summary) {
-      return parse(item.body);
-    }
-    if (!!item.summary && !item.body) {
-      return parse(item.summary);
-    }
+    const text = item.body ?? item.summary ?? '';
+    return parse(trimWords(text, 50));
   };
 
   return (

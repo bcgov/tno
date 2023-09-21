@@ -3345,7 +3345,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-beautiful-dnd@npm:^13.1.4":
+"@types/react-beautiful-dnd@npm:13.1.4":
   version: 13.1.4
   resolution: "@types/react-beautiful-dnd@npm:13.1.4"
   dependencies:
@@ -10372,7 +10372,7 @@ __metadata:
     "@types/pretty": 2.0.1
     "@types/quill": 2.0.10
     "@types/react": 18.0.28
-    "@types/react-beautiful-dnd": ^13.1.4
+    "@types/react-beautiful-dnd": 13.1.4
     "@types/react-datepicker": 4.10.0
     "@types/react-dom": 18.0.11
     "@types/react-redux": 7.1.25
