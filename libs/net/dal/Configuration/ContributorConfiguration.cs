@@ -10,6 +10,8 @@ public class ContributorConfiguration : BaseTypeConfiguration<Contributor, int>
     {
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Property(m => m.SourceId).IsRequired(false);
+        builder.Property(m => m.Aliases).IsRequired(false).HasMaxLength(500);
+        builder.Property(m => m.IsPress).IsRequired();
         builder.Property(m => m.AutoTranscribe).IsRequired();
 
         builder.HasOne(m => m.Source).WithMany(m => m.Contributors).HasForeignKey(m => m.SourceId).OnDelete(DeleteBehavior.Cascade);

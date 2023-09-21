@@ -10,8 +10,6 @@ import * as styled from './styled';
 /** TODO: Didn't realize I had two different stories - this page will be done in the next ticket*/
 export const PressGallery: React.FC = () => {
   const navigate = useNavigate();
-  // const [items, setItems] = React.useState<IContentModel[]>([]);
-  // const [{ contributors }] = useLookup();
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
   /** controls the checking and unchecking of rows in the list view */
