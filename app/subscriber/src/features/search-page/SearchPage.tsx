@@ -29,6 +29,7 @@ import {
 import { Player } from './player/Player';
 import * as styled from './styled';
 import { trimWords } from './utils';
+import { determinePreview } from 'features/utils';
 
 // Simple component to display users search results
 export const SearchPage: React.FC = () => {
@@ -207,11 +208,7 @@ export const SearchPage: React.FC = () => {
                       {formatSearch(item.headline)}
                     </p>
                     {/* TODO: Extract text around keyword searched and preview that text rather than the first 50 words */}
-                    <p className="summary text-content">
-                      {item.body
-                        ? formatSearch(trimWords(item.body, 50))
-                        : formatSearch(trimWords(item.summary, 50))}
-                    </p>
+                    <p className="summary text-content">{formatSearch(determinePreview(item))}</p>
                     <Show visible={!!item.fileReferences?.length}>
                       <button
                         onClick={() => {

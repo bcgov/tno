@@ -1,6 +1,6 @@
 import { SearchWithLogout } from 'components/search-with-logout';
 import { DetermineToneIcon } from 'features/home';
-import { trimWords } from 'features/search-page/utils';
+import { determinePreview } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
@@ -29,12 +29,12 @@ export const ManageFolder: React.FC = () => {
    * assuming we want this to differ eventually.
    */
   React.useEffect(() => {
-    getFolder(Number(id)).then((data) => {
+    getFolder(Number(id)).then((folder) => {
       // have to use temp not folder state as folder state will not update right away
-      const temp = data;
-      setFolder(data);
+      const temp = folder;
+      setFolder(folder);
       findContent({
-        contentIds: data.content.map((c) => c.contentId),
+        contentIds: folder.content.map((c) => c.contentId),
       })
         .then((data) => {
           const tempSort = data.items.map((item) => ({
@@ -57,6 +57,8 @@ export const ManageFolder: React.FC = () => {
         return;
       }
       var updatedList = [...items];
+      // hold response
+      let res: IFolderModel | undefined;
       // Remove dragged item
       const [reorderedItem] = updatedList.splice(droppedItem.source.index, 1);
       // Add dropped item
@@ -64,19 +66,17 @@ export const ManageFolder: React.FC = () => {
       // Update State
       setItems(updatedList);
       // Update Folder
-      !!folder &&
-        (await updateFolder({
+      if (!!folder) {
+        res = await updateFolder({
           ...folder,
           content: updatedList.map((item, index) => ({
             ...item,
             contentId: item.id,
             sortOrder: index,
           })),
-        })
-          .then((data) => {
-            setFolder(data);
-          })
-          .catch());
+        });
+      }
+      setFolder(res);
     },
     [folder, items, updateFolder],
   );
@@ -85,27 +85,20 @@ export const ManageFolder: React.FC = () => {
   const removeItems = React.useCallback(async () => {
     const updatedList = items.filter((item: any) => !selected.includes(item));
     setItems(updatedList);
-    !!folder &&
-      (await updateFolder({
+    let res: IFolderModel | undefined;
+    if (!!folder) {
+      res = await updateFolder({
         ...folder,
         content: updatedList.map((item: any, index: any) => ({
           ...item,
           contentId: item.id,
           sortOrder: index,
         })),
-      })
-        .then((data) => {
-          setFolder(data);
-        })
-        .catch());
+      });
+    }
+    setFolder(res);
     setSelected([]);
   }, [folder, items, selected, updateFolder]);
-
-  /** determines whether to show body or summary text */
-  const determinePreview = (item: IContentModel) => {
-    const text = item.body ?? item.summary ?? '';
-    return parse(trimWords(text, 50));
-  };
 
   return (
     <styled.ManageFolder>
@@ -162,7 +155,7 @@ export const ManageFolder: React.FC = () => {
                           </div>
                           <FaGripLines className="grip-lines" />
                         </Row>
-                        <div className="item-preview">{determinePreview(item)}</div>
+                        <div className="item-preview">{parse(determinePreview(item))}</div>
                       </Col>
                     </div>
                   )}
