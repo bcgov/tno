@@ -13,8 +13,8 @@ using TNO.DAL;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20230921065638_1.0.68")]
-    partial class _1068
+    [Migration("20230921212403_1.0.69")]
+    partial class _1069
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -2866,6 +2866,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("response")
                         .HasDefaultValueSql("'{}'::jsonb");
 
+                    b.Property<DateTime?>("SentOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_on");
+
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -3151,6 +3155,11 @@ namespace TNO.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("body");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -3181,6 +3190,15 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("response")
                         .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<DateTime?>("SentOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_on");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("subject");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
@@ -3465,6 +3483,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
 
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_public");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -3518,6 +3540,8 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("Name")
                         .IsUnique();
+
+                    b.HasIndex("IsPublic", "IsEnabled");
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_reporttemplate_is_enabled");
 
