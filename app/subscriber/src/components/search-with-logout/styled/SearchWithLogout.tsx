@@ -3,7 +3,6 @@ import { Row } from 'tno-core';
 
 export const SearchWithLogout = styled(Row)`
   max-height: 4em;
-  margin-bottom: 2%;
   width: 100%;
   justify-content: space-between;
   background-color: #ddd6c8;

@@ -10,6 +10,9 @@ export const SearchPage = styled.div`
     margin-top: 0.25em;
   }
   .save-bar {
+    background-color: rgb(233, 236, 239);
+    padding-top: 0.5em;
+    box-shadow: 0 0.5em 0.5em -0.4em rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.02);
     padding-left: 1.5em;
     padding-right: 1.5em;
     padding-bottom: 0.5em;
@@ -32,7 +35,6 @@ export const SearchPage = styled.div`
       height: 1.75em;
     }
     .label {
-      /* margin: 0; */
       margin-right: 0.25em;
       margin-top: auto;
     }

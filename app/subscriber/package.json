@@ -20,6 +20,7 @@
     "@react-keycloak/web": "3.4.0",
     "@reduxjs/toolkit": "1.9.3",
     "@types/quill": "2.0.10",
+    "@types/react-beautiful-dnd": "13.1.4",
     "axios": "1.4.0",
     "axios-mock-adapter": "1.21.5",
     "dequal": "2.0.3",
@@ -34,6 +35,7 @@
     "moment-timezone": "0.5.41",
     "rc-slider": "^10.2.1",
     "react": "18.2.0",
+    "react-beautiful-dnd": "13.1.1",
     "react-datepicker": "4.10.0",
     "react-device-detect": "2.2.3",
     "react-dom": "18.2.0",
@@ -53,7 +55,7 @@
     "react-tooltip": "5.10.0",
     "redux-logger": "3.0.6",
     "styled-components": "5.3.9",
-    "tno-core": "0.0.317"
+    "tno-core": "0.0.319"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "5.16.5",

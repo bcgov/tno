@@ -5,6 +5,7 @@ export interface IContentFilter extends ISortPageFilter {
   otherSource?: string;
   ownerId?: number;
   userId?: number;
+  contentIds?: number[];
   pageName?: string;
   section?: string;
   status?: ContentStatus;
@@ -21,7 +22,7 @@ export interface IContentFilter extends ISortPageFilter {
   publishedOn?: string;
   publishedStartOn?: string;
   publishedEndOn?: string;
-  contentTypes: ContentTypeName[];
+  contentTypes?: ContentTypeName[];
   keyword?: string;
   actions?: string[];
   productIds?: number[];

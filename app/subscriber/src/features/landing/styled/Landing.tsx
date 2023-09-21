@@ -59,7 +59,7 @@ export const Landing = styled(Col)`
 
   /* The panel containing the media list */
   .main-panel {
-    /* switch between max width and min width depending on screen size in order to maximize screen realestate */
+    /* switch between max width and min width depending on screen size in order to maximize screen real estate */
     @media (max-width: 1702px) {
       min-width: 100%;
     }
