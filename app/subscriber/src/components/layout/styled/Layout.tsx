@@ -34,6 +34,8 @@ export const Layout = styled.div<ILayoutProps>`
     @media (max-width: 500px) {
       z-index: 1;
     }
+    /* should never be scrolling from main contents, always scroll within components */
+    overflow: hidden;
     background-color: ${(props) => props.theme.css.beigeBackgroundColor};
   }
 `;
