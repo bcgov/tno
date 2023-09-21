@@ -45,7 +45,8 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
   };
 
   const handleUpdate = (folder: IFolderModel) => {
-    if (!!content) {
+    if (!content?.length) toast.error('No content selected');
+    if (!!content?.length) {
       updateFolder({
         ...folder,
         content: [...folder.content, ...content],
