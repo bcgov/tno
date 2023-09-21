@@ -1,8 +1,8 @@
-import { FaEdit, FaTrash } from 'react-icons/fa';
-import { FaGear } from 'react-icons/fa6';
+import { FaEdit, FaFileAlt, FaTrash } from 'react-icons/fa';
+import { FaChartPie, FaGear } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { CellEllipsis, Checkbox, IReportModel, ITableHookColumn, Row } from 'tno-core';
+import { CellEllipsis, Checkbox, IReportModel, ITableHookColumn, Row, Show } from 'tno-core';
 
 import { isAutoSend, isAutoSendDisabled, setAutoSend } from '../utils';
 
@@ -30,11 +30,19 @@ export const useColumns = (
       name: 'name',
       width: 2,
       cell: (cell) => (
-        <CellEllipsis>
-          <Link to={`/reports/${cell.original.id}/edit`} title="Edit">
-            {cell.original.name}
-          </Link>
-        </CellEllipsis>
+        <Row gap="0.5rem" alignItems="center">
+          <Show visible={cell.original.sections.some((section) => section.settings.showCharts)}>
+            <FaChartPie className="primary-light-color" />
+          </Show>
+          <Show visible={!cell.original.sections.some((section) => section.settings.showCharts)}>
+            <FaFileAlt className="primary-light-color" />
+          </Show>
+          <CellEllipsis>
+            <Link to={`/reports/${cell.original.id}/edit`} title="Edit">
+              {cell.original.name}
+            </Link>
+          </CellEllipsis>
+        </Row>
       ),
     },
     {

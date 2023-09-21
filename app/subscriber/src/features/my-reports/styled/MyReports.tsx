@@ -93,4 +93,8 @@ export const MyReports = styled(Col)`
       color: ${(props) => props.theme.css.sidebarIconHoverColor};
     }
   }
+
+  .primary-light-color {
+    color: ${(props) => props.theme.css.primaryLightColor};
+  }
 `;
