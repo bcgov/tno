@@ -34,7 +34,6 @@ export const ManageFolder: React.FC = () => {
       const temp = data;
       setFolder(data);
       findContent({
-        contentTypes: [],
         contentIds: data.content.map((c) => c.contentId),
       })
         .then((data) => {

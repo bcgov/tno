@@ -22,7 +22,7 @@ export interface IContentFilter extends ISortPageFilter {
   publishedOn?: string;
   publishedStartOn?: string;
   publishedEndOn?: string;
-  contentTypes: ContentTypeName[];
+  contentTypes?: ContentTypeName[];
   keyword?: string;
   actions?: string[];
   productIds?: number[];
