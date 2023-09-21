@@ -27,6 +27,13 @@ export const columns: ITableHookColumn<IContributorModel>[] = [
     cell: (cell) => cell.original.sortOrder,
   },
   {
+    label: 'Press',
+    name: 'isPress',
+    width: 1,
+    hAlign: 'center',
+    cell: (cell) => <CellCheckbox checked={cell.original.isPress} />,
+  },
+  {
     label: 'Enabled',
     name: 'isEnabled',
     width: 1,

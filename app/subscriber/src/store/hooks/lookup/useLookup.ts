@@ -58,6 +58,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           (results) => {
             if (!!results) {
               saveToLocalStorage('actions', results.actions, store.storeActions);
+              saveToLocalStorage('contributors', results.contributors, store.storeContributors);
               saveToLocalStorage('ministers', results.ministers, store.storeMinisters);
               saveToLocalStorage('topics', results.topics, store.storeTopics);
               saveToLocalStorage('products', results.products, store.storeProducts);

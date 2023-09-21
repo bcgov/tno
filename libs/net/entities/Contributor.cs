@@ -29,6 +29,18 @@ public class Contributor : BaseType<int>
     public bool AutoTranscribe { get; set; }
 
     /// <summary>
+    /// get/set - Whether this contributor is associated with the press gallery.
+    /// </summary>
+    [Column("is_press")]
+    public bool IsPress { get; set; } = false;
+
+    /// <summary>
+    /// get/set - Comma separated list of alias values when searching for the contributor.
+    /// </summary>
+    [Column("aliases")]
+    public string Aliases { get; set; } = "";
+
+    /// <summary>
     /// get - List of content linked to this contributor.
     /// </summary>
     public virtual List<Content> Contents { get; } = new List<Content>();

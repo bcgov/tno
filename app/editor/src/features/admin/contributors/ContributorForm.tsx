@@ -92,6 +92,7 @@ const ContributorForm: React.FC = () => {
           <div className="form-container">
             <Col className="form-inputs">
               <FormikText width={FieldSize.Large} name="name" label="Name" />
+              <FormikText width={FieldSize.Large} name="aliases" label="Aliases" />
 
               <FormikSelect
                 label="Source"
@@ -111,11 +112,19 @@ const ContributorForm: React.FC = () => {
                 type="number"
                 className="sort-order"
               />
-              <FormikCheckbox
-                labelPosition={LabelPosition.Top}
-                label="Is Enabled"
-                name="isEnabled"
-              />
+              <Row>
+                <FormikCheckbox
+                  labelPosition={LabelPosition.Top}
+                  label="Is Enabled"
+                  name="isEnabled"
+                />
+                <FormikCheckbox
+                  labelPosition={LabelPosition.Top}
+                  className="is-press"
+                  label="Is Press"
+                  name="isPress"
+                />
+              </Row>
               <Show visible={!!values.id}>
                 <Row>
                   <FormikText
