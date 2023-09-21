@@ -5,6 +5,7 @@ import {
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
 import { DetermineToneIcon, makeFilter } from 'features/home/utils';
+import { determinePreview } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
 import { FaPlay, FaSave, FaStop } from 'react-icons/fa';
@@ -28,8 +29,6 @@ import {
 
 import { Player } from './player/Player';
 import * as styled from './styled';
-import { trimWords } from './utils';
-import { determinePreview } from 'features/utils';
 
 // Simple component to display users search results
 export const SearchPage: React.FC = () => {

@@ -1,4 +1,5 @@
 import { DetermineToneIcon } from 'features/home/utils';
+import { showTranscription } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
 import { useParams } from 'react-router-dom';
@@ -287,7 +288,7 @@ export const ViewContent: React.FC = () => {
         <hr />
         <h3>Transcription:</h3>
         <Row>
-          <span>{parse(content?.body ?? '')}</span>
+          <span>{content && parse(showTranscription(content))}</span>
         </Row>
       </Show>
     </styled.ViewContent>

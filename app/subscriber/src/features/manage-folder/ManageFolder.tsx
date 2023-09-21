@@ -30,8 +30,6 @@ export const ManageFolder: React.FC = () => {
    */
   React.useEffect(() => {
     getFolder(Number(id)).then((folder) => {
-      // have to use temp not folder state as folder state will not update right away
-      const temp = folder;
       setFolder(folder);
       findContent({
         contentIds: folder.content.map((c) => c.contentId),
@@ -39,7 +37,7 @@ export const ManageFolder: React.FC = () => {
         .then((data) => {
           const tempSort = data.items.map((item) => ({
             ...item,
-            sortOrder: temp.content.find((c) => c.contentId === item.id)?.sortOrder ?? 0,
+            sortOrder: folder.content.find((c) => c.contentId === item.id)?.sortOrder ?? 0,
           }));
           tempSort.sort((a, b) => a.sortOrder - b.sortOrder);
           setItems(tempSort);
@@ -67,14 +65,16 @@ export const ManageFolder: React.FC = () => {
       setItems(updatedList);
       // Update Folder
       if (!!folder) {
-        res = await updateFolder({
-          ...folder,
-          content: updatedList.map((item, index) => ({
-            ...item,
-            contentId: item.id,
-            sortOrder: index,
-          })),
-        });
+        try {
+          res = await updateFolder({
+            ...folder,
+            content: updatedList.map((item, index) => ({
+              ...item,
+              contentId: item.id,
+              sortOrder: index,
+            })),
+          });
+        } catch (error) {}
       }
       setFolder(res);
     },
@@ -87,14 +87,16 @@ export const ManageFolder: React.FC = () => {
     setItems(updatedList);
     let res: IFolderModel | undefined;
     if (!!folder) {
-      res = await updateFolder({
-        ...folder,
-        content: updatedList.map((item: any, index: any) => ({
-          ...item,
-          contentId: item.id,
-          sortOrder: index,
-        })),
-      });
+      try {
+        res = await updateFolder({
+          ...folder,
+          content: updatedList.map((item: any, index: any) => ({
+            ...item,
+            contentId: item.id,
+            sortOrder: index,
+          })),
+        });
+      } catch (error) {}
     }
     setFolder(res);
     setSelected([]);
