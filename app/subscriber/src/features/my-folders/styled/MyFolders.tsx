@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { Col } from 'tno-core';
 
 export const MyFolders = styled(Col)`
+  max-height: calc(100vh - 6.5em);
   .react-tooltip {
     z-index: 999;
   }

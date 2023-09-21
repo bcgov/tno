@@ -43,7 +43,11 @@ export const columns = (
           <FiSave onClick={() => handleSave()} className="elips" />
         ) : (
           <FiMoreHorizontal
-            onClick={() => setActive(cell.original)}
+            onClick={(e) => {
+              // stop the row click event from firing
+              e.stopPropagation();
+              setActive(cell.original);
+            }}
             data-tooltip-id="options"
             className="elips"
           />
