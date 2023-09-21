@@ -1,23 +1,19 @@
 import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { determineColumns } from 'features/home/constants';
-import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useContent } from 'store/hooks';
-import { useContributors } from 'store/hooks/subscriber/useContributors';
 import { FlexboxTable, IContentModel, ITableInternalRow, Row } from 'tno-core';
 
 import * as styled from './styled';
 
+/** TODO: Didn't realize I had two different stories - this page will be done in the next ticket*/
 export const PressGallery: React.FC = () => {
-  const [{ filterAdvanced }, { findContent }] = useContent();
   const navigate = useNavigate();
-  const [items, setItems] = React.useState<IContentModel[]>([]);
-  const [, { getContributors }] = useContributors();
+  // const [items, setItems] = React.useState<IContentModel[]>([]);
+  // const [{ contributors }] = useLookup();
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
-  getContributors().then((data) => console.log(data));
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
     if (row.isSelected) {
@@ -40,7 +36,7 @@ export const PressGallery: React.FC = () => {
           onRowClick={(e: any) => {
             navigate(`/view/${e.original.id}`);
           }}
-          data={items}
+          data={[]}
           pageButtons={5}
           onSelectedChanged={handleSelectedRowsChanged}
           showPaging={false}

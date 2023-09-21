@@ -6,6 +6,8 @@ export const defaultContributor: IContributorForm = {
   description: '',
   sourceId: '',
   isEnabled: true,
+  isPress: false,
+  aliases: '',
   sortOrder: 0,
   autoTranscribe: false,
 };

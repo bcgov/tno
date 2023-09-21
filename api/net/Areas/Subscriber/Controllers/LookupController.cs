@@ -40,6 +40,7 @@ public class LookupController : ControllerBase
     private readonly IMinisterService _ministerService;
     private readonly ILicenseService _licenseService;
     private readonly ISeriesService _seriesService;
+    private readonly IContributorService _contributorService;
     private readonly ITagService _tagService;
     private readonly ITonePoolService _tonePoolService;
     private readonly ICssEnvironmentService _CssService;
@@ -62,6 +63,7 @@ public class LookupController : ControllerBase
     /// <param name="ministerService"></param>
     /// <param name="cssService"></param>
     /// <param name="cssOptions"></param>
+    /// <param name="contributorService"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
     public LookupController(
@@ -71,6 +73,7 @@ public class LookupController : ControllerBase
         IProductService productService,
         ISourceService sourceService,
         ILicenseService licenseService,
+        IContributorService contributorService,
         ISeriesService seriesService,
         ITagService tagService,
         ITonePoolService tonePoolService,
@@ -89,6 +92,7 @@ public class LookupController : ControllerBase
         _tagService = tagService;
         _tonePoolService = tonePoolService;
         _CssService = cssService;
+        _contributorService = contributorService;
         _CssOptions = cssOptions.Value;
         _serializerOptions = serializerOptions.Value;
         _logger = logger;
@@ -113,6 +117,7 @@ public class LookupController : ControllerBase
         if (String.IsNullOrWhiteSpace(_CssOptions.Secret)) throw new ConfigurationException("CSS secret has not been configured");
 
         var actions = _actionService.FindAll();
+        var contributors = _contributorService.FindAll();
         var topics = _topicService.FindAll();
         var products = _productService.FindAll();
         var sources = _sourceService.FindAll();
@@ -131,6 +136,7 @@ public class LookupController : ControllerBase
             tagServices,
             tonePools,
             ministers,
+            contributors,
             _serializerOptions
             ));
     }

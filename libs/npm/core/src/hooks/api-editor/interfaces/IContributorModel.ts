@@ -1,7 +1,9 @@
 import { ISortableModel, ISourceModel } from '.';
 
 export interface IContributorModel extends ISortableModel<number> {
-  sourceId?: number;
-  source?: ISourceModel;
+  aliases?: string;
   autoTranscribe: boolean;
+  isPress: boolean;
+  source?: ISourceModel;
+  sourceId?: number;
 }

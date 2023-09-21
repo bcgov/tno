@@ -47,6 +47,17 @@ public class ContributorModel : AuditColumnsModel
     /// get/set - Whether content should be automatically transcribed.
     /// </summary>
     public bool AutoTranscribe { get; set; }
+
+    /// <summary>
+    /// get/set - Contributor's aliases.
+    /// </summary>
+    public string Aliases { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Whether the contributor is associated with the press gallery.
+    /// </summary>
+    public bool IsPress { get; set; }
+    
     #endregion
 
     #region Constructors
@@ -68,6 +79,8 @@ public class ContributorModel : AuditColumnsModel
         this.Description = entity.Description;
         this.SortOrder = entity.SortOrder;
         this.IsEnabled = entity.IsEnabled;
+        this.IsPress = entity.IsPress;
+        this.Aliases = entity.Aliases;
         this.AutoTranscribe = entity.AutoTranscribe;
     }
     #endregion
@@ -84,6 +97,8 @@ public class ContributorModel : AuditColumnsModel
             Id = model.Id,
             Description = model.Description,
             IsEnabled = model.IsEnabled,
+            IsPress = model.IsPress,
+            Aliases = model.Aliases,
             SortOrder = model.SortOrder,
             AutoTranscribe = model.AutoTranscribe,
             Version = model.Version ?? 0,

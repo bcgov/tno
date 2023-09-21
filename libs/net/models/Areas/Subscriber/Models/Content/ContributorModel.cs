@@ -14,6 +14,16 @@ public class ContributorModel : BaseTypeModel<int>
     public int? SourceId { get; set; }
 
     /// <summary>
+    /// get/set - Contributor's aliases.
+    /// </summary>
+    public string Aliases { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Whether the contributor is associated with the press gallery.
+    /// </summary>
+    public bool IsPress { get; set; }
+
+    /// <summary>
     /// get/set - Whether to show the topics on the content form.
     /// </summary>
     public bool UseInTopics { get; set; }

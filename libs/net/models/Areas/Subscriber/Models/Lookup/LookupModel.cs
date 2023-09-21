@@ -1,4 +1,5 @@
 using System.Text.Json;
+using TNO.API.Areas.Subscriber.Models.Content;
 
 namespace TNO.API.Areas.Subscriber.Models.Lookup;
 
@@ -13,10 +14,15 @@ public class LookupModel
     /// </summary>
     public IEnumerable<Action.ActionModel> Actions { get; set; } = Array.Empty<Action.ActionModel>();
 
-        /// <summary>
+    /// <summary>
     /// get/set - An array of all ministers.
     /// </summary>
     public IEnumerable<Minister.MinisterModel> Ministers { get; set; } = Array.Empty<Minister.MinisterModel>();
+
+    /// <summary>
+    /// get/set - An array of all contributors.
+    /// </summary>
+    public IEnumerable<ContributorModel> Contributors { get; set; } = Array.Empty<ContributorModel>();
 
     /// <summary>
     /// get/set - An array of all topics.
@@ -73,7 +79,9 @@ public class LookupModel
     /// <param name="tagServices"></param>
     /// <param name="tonePools"></param>
     /// <param name="ministers"></param>
+    /// <param name="contributors"></param>
     /// <param name="options"></param>
+
     public LookupModel(
         IEnumerable<Entities.Action> actions,
         IEnumerable<Entities.Topic> topics,
@@ -84,6 +92,7 @@ public class LookupModel
         IEnumerable<Entities.Tag> tagServices,
         IEnumerable<Entities.TonePool> tonePools,
         IEnumerable<Entities.Minister> ministers,
+        IEnumerable<Entities.Contributor> contributors,
         JsonSerializerOptions options)
     {
         this.Actions = actions.Select(a => new Action.ActionModel(a));
@@ -95,6 +104,7 @@ public class LookupModel
         this.Tags = tagServices.Select(a => new Tag.TagModel(a));
         this.TonePools = tonePools.Select(a => new TonePool.TonePoolModel(a));
         this.Ministers = ministers.Select(a => new Minister.MinisterModel(a));
+        this.Contributors = contributors.Select(a => new ContributorModel(a));
     }
     #endregion
 }
