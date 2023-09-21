@@ -15,9 +15,9 @@ namespace TNO.DAL.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "aliases",
                 table: "contributor",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
+                type: "character varying(500)",
+                maxLength: 500,
+                nullable: true);
 
             migrationBuilder.AddColumn<bool>(
                 name: "is_press",

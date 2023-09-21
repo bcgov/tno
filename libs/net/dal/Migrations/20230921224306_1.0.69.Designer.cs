@@ -13,7 +13,7 @@ using TNO.DAL;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20230921212403_1.0.69")]
+    [Migration("20230921224306_1.0.69")]
     partial class _1069
     {
         /// <inheritdoc />
@@ -1518,8 +1518,8 @@ namespace TNO.DAL.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Aliases")
-                        .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("aliases");
 
                     b.Property<bool>("AutoTranscribe")
