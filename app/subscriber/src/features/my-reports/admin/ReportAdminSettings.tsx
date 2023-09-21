@@ -44,7 +44,12 @@ export const ReportAdminSettings: React.FC = () => {
   return (
     <Col gap="1rem">
       <Box title="Identify your report" icon={<FaFileInvoice />}>
-        <FormikText name="name" label="Report Name:" required />
+        <FormikText
+          name="name"
+          label="Report Name:"
+          required
+          placeholder="Enter unique report name"
+        />
         <FormikTextArea name="description" label="Description:" />
       </Box>
       <Box title="Content Settings" icon={<FaFileInvoice />}>

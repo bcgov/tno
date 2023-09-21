@@ -63,6 +63,7 @@ export const ReportFormDetails: React.FC = () => {
             if (values.templateId === 0)
               setFieldValue('template.name', `${name}-${Date.now().toString()}`);
           }}
+          placeholder="Enter unique report name"
         />
         <FormikTextArea name="description" label="Description" />
         <FormikSelect
