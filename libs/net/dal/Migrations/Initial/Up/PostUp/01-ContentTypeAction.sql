@@ -9,7 +9,7 @@ INSERT INTO public.content_type_action (
 ) VALUES
 
 -- *************
--- PrintContent
+-- AudioVideo
 -- *************
 (
   0 -- AudioVideo

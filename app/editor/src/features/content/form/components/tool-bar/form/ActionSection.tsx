@@ -30,8 +30,9 @@ export const ActionSection: React.FC<IActionSectionProps> = ({ values }) => {
       case ContentTypeName.Image:
         return (a: IActionModel) => a.name === ActionName.Homepage;
       case ContentTypeName.AudioVideo:
-      // TODO: Determine actions for remaining content types
-      // eslint-disable-next-line no-fallthrough
+        return (a: IActionModel) => {
+          return a.valueType === ValueType.Boolean && a.name !== ActionName.TopStory;
+        };
       default:
         return (a: IActionModel) =>
           a.valueType === ValueType.Boolean && a.name !== ActionName.Alert;
