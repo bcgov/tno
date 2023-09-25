@@ -45,7 +45,10 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
       return this.data.filter((item) => {
         return this.columns.some((col) => {
           if (item !== undefined) {
-            const value = item[col.name];
+            const value =
+              typeof col.accessor === 'function'
+                ? col.accessor(item)
+                : item[col.accessor as keyof T];
             return value ? `${value}`.includes(search) : false;
           }
           return false;
@@ -297,7 +300,7 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
           new TableInternalHeaderColumn(
             table,
             index,
-            col.name,
+            col.accessor,
             col.label,
             col.isVisible ?? true,
             col.sort,
@@ -314,7 +317,7 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
     };
     table.columns = headerColumns.map(
       (col, index) =>
-        new TableInternalColumn(index, col.name as keyof T, col.label, col.cell, {
+        new TableInternalColumn(index, col.accessor, col.label, col.cell, {
           isVisible: col.isVisible,
           hAlign: col.hAlign,
           vAlign: col.vAlign,

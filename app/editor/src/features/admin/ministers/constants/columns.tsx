@@ -3,13 +3,13 @@ import { CellCheckbox, CellEllipsis, IMinisterModel, ITableHookColumn } from 'tn
 export const columns: ITableHookColumn<IMinisterModel>[] = [
   {
     label: 'Name',
-    name: 'name',
+    accessor: 'name',
     width: 2,
     cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
     label: 'Position',
-    name: 'position',
+    accessor: 'position',
     width: 5,
     cell: (cell) => <CellEllipsis>{cell.original.position}</CellEllipsis>,
   },
@@ -22,14 +22,14 @@ export const columns: ITableHookColumn<IMinisterModel>[] = [
   // },
   {
     label: 'Order',
-    name: 'sortOrder',
+    accessor: 'sortOrder',
     width: 1,
     hAlign: 'center',
     cell: (cell) => cell.original.sortOrder,
   },
   {
     label: 'Enabled',
-    name: 'isEnabled',
+    accessor: 'isEnabled',
     width: 1,
     hAlign: 'center',
     cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,

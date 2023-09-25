@@ -6,13 +6,13 @@ export const getColumns = (
 ): ITableHookColumn<IWorkOrderModel>[] => [
   {
     label: 'Type',
-    name: 'workType',
+    accessor: 'workType',
     width: 2,
     cell: (cell) => <span>{cell.original.workType.replace(/([A-Z])/g, ' $1')}</span>,
   },
   {
     label: 'Content',
-    name: 'configuration',
+    accessor: 'configuration',
     width: 4,
     cell: (cell) => (
       <CellEllipsis
@@ -31,7 +31,7 @@ export const getColumns = (
   },
   {
     label: 'Submitted',
-    name: 'createdOn',
+    accessor: 'createdOn',
     width: 2,
     cell: (cell) => {
       const created = moment(cell.original.createdOn);
@@ -41,7 +41,7 @@ export const getColumns = (
   },
   {
     label: 'Updated',
-    name: 'updatedOn',
+    accessor: 'updatedOn',
     width: 2,
     cell: (cell) => {
       const created = moment(cell.original.updatedOn);
@@ -51,7 +51,7 @@ export const getColumns = (
   },
   {
     label: 'Status',
-    name: 'status',
+    accessor: 'status',
     width: 1,
     cell: (cell) => <span>{cell.original.status.replace(/([A-Z])/g, ' $1')}</span>,
   },

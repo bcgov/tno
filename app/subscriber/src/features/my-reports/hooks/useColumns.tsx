@@ -15,7 +15,7 @@ export const useColumns = (
   return [
     {
       label: 'Auto Send',
-      name: 'auto-send',
+      accessor: 'auto-send',
       width: '40px',
       cell: (cell) => (
         <Checkbox
@@ -27,7 +27,7 @@ export const useColumns = (
     },
     {
       label: 'Name',
-      name: 'name',
+      accessor: 'name',
       width: 2,
       cell: (cell) => (
         <Row gap="0.5rem" alignItems="center">
@@ -47,7 +47,7 @@ export const useColumns = (
     },
     {
       label: '',
-      name: 'options',
+      accessor: 'options',
       width: '80px',
       cell: (cell) => (
         <Row gap="0.5rem">

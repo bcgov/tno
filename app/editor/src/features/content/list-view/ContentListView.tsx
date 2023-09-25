@@ -24,6 +24,7 @@ import { columns, defaultPage } from './constants';
 import { IContentListAdvancedFilter, IContentListFilter } from './interfaces';
 import * as styled from './styled';
 import { makeFilter, queryToFilter, queryToFilterAdvanced } from './utils';
+
 const ContentForm = lazy(() => import('../form/ContentForm'));
 
 /**

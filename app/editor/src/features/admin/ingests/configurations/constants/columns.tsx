@@ -8,7 +8,7 @@ export const columns = (
   return [
     {
       label: 'Name',
-      name: 'name',
+      accessor: 'name',
       width: 5,
       cell: (cell) => {
         return (
@@ -25,7 +25,7 @@ export const columns = (
     },
     {
       label: 'Source',
-      name: 'source',
+      accessor: 'source',
       width: 3,
       cell: (cell) => {
         return (
@@ -42,7 +42,7 @@ export const columns = (
     },
     {
       label: 'Remove',
-      name: 'Remove',
+      accessor: 'Remove',
       width: '1',
       cell: (cell) => (
         <>

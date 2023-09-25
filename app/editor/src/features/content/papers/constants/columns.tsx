@@ -15,7 +15,7 @@ export const getColumns = (
   onClickUse: (content: IContentSearchResult) => void,
 ): ITableHookColumn<IContentSearchResult>[] => [
   {
-    name: 'headline',
+    accessor: 'headline',
     label: (
       <Row gap="0.5rem">
         <TabControl />
@@ -26,33 +26,34 @@ export const getColumns = (
     width: 6,
   },
   {
-    name: 'otherSource',
+    accessor: 'otherSource',
     label: 'Source',
     cell: (cell) => <CellEllipsis>{cell.original.otherSource}</CellEllipsis>,
   },
   {
-    name: 'product',
+    accessor: 'product',
     label: 'Product',
     cell: (cell) => <CellEllipsis>{cell.original.product}</CellEllipsis>,
     width: 2,
   },
   {
-    name: 'section',
+    accessor: 'section',
     label: 'Page:Section',
     cell: (cell) => {
-      const value = `${cell.original.page ? `${cell.original.page}:` : ''}${cell.original.section}`;
+      const separator = cell.original.page && cell.original.section ? ':' : '';
+      const value = `${cell.original.page}${separator}${cell.original.section}`;
       return <CellEllipsis>{value}</CellEllipsis>;
     },
     width: 2,
   },
   {
-    name: 'status',
+    accessor: 'status',
     label: 'Status',
     hAlign: 'center',
     cell: (cell) => getStatusText(cell.original.status),
   },
   {
-    name: 'status',
+    accessor: 'status',
     label: 'Use',
     cell: (cell) => (
       <div className="center">

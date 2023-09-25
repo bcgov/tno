@@ -8,25 +8,25 @@ export const instanceColumns = (options: {
 }): ITableHookColumn<IReportInstanceModel>[] => [
   {
     label: 'Published On',
-    name: 'publishedOn',
+    accessor: 'publishedOn',
     width: 1,
     cell: (cell) => <CellDate value={cell.original.publishedOn} />,
   },
   {
     label: 'Owner',
-    name: 'owner.username',
+    accessor: 'owner.username',
     width: 2,
     cell: (cell) => <CellEllipsis>{cell.original.owner?.username ?? ''}</CellEllipsis>,
   },
   {
     label: 'Transaction Id',
-    name: 'txId',
+    accessor: 'txId',
     width: 2,
     cell: (cell) => <CellEllipsis>{cell.original.response.txId}</CellEllipsis>,
   },
   {
     label: '',
-    name: '',
+    accessor: '',
     width: '25px',
     cell: (cell) => (
       <FaFileInvoice
@@ -38,7 +38,7 @@ export const instanceColumns = (options: {
   },
   {
     label: '',
-    name: '',
+    accessor: '',
     width: '25px',
     cell: (cell) => (
       <FaPaperPlane
@@ -50,7 +50,7 @@ export const instanceColumns = (options: {
   },
   {
     label: '',
-    name: '',
+    accessor: '',
     width: '25px',
     cell: (cell) => (
       <FaTrash

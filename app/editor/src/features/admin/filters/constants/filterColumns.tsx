@@ -3,25 +3,25 @@ import { CellCheckbox, CellEllipsis, IFilterModel, ITableHookColumn } from 'tno-
 export const filterColumns: ITableHookColumn<IFilterModel>[] = [
   {
     label: 'Name',
-    name: 'name',
+    accessor: 'name',
     width: 3,
     cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
     label: 'Description',
-    name: 'description',
+    accessor: 'description',
     width: 4,
     cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {
     label: 'Owner',
-    name: 'ownerId',
+    accessor: 'ownerId',
     width: 2,
     cell: (cell) => <CellEllipsis>{cell.original.owner?.username}</CellEllipsis>,
   },
   {
     label: 'Enabled',
-    name: 'isEnabled',
+    accessor: 'isEnabled',
     width: 1,
     hAlign: 'center',
     cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,

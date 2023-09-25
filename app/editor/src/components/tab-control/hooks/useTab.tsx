@@ -33,7 +33,7 @@ export const useTab = (props?: ITabProps) => {
   const navigateTab = React.useCallback(
     (id: number, path: string = '/contents', open?: NavigateOptions) => {
       const url = `${path}/${id}${values?.showNav ? `?showNav=${values.showNav}` : ''}`;
-      const nav = open ?? values?.open;
+      const nav = open ?? values?.open ?? NavigateOptions.NewTab;
       if (nav === NavigateOptions.NewTab) {
         window.open(url, '_blank');
       } else if (nav === NavigateOptions.OnPage) {

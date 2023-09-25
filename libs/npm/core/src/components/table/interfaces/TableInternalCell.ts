@@ -10,7 +10,7 @@ export class TableInternalCell<T extends object>
   public constructor(
     row: ITableInternalRow<T>,
     index: number,
-    name: keyof T,
+    accessor: keyof T | string | undefined | ((data: T) => unknown),
     label: React.ReactNode,
     cell: ((cell: ITableInternalCell<T>) => React.ReactNode) | undefined,
     original: T,
@@ -21,7 +21,7 @@ export class TableInternalCell<T extends object>
       width?: string | number;
     },
   ) {
-    super(index, name, label, cell, options);
+    super(index, accessor, label, cell, options);
     this.row = row;
     this.original = original;
   }
