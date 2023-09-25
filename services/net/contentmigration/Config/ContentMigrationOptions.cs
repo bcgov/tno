@@ -70,5 +70,10 @@ public class ContentMigrationOptions : IngestServiceOptions
     /// </summary>
     public string SupportedImportMigrationTypes { get; set; } = "";
 
+    /// <summary>
+    /// get/set - Generate Alerts from content migrated from TNO 1.0 if it flagged as alertable.
+    /// </summary>
+    public bool GenerateAlertsOnContentMigration { get; set; } = true;
+
     #endregion
 }
