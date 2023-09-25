@@ -6,7 +6,7 @@ import {
 } from 'features/content/list-view/interfaces';
 import { defaultPaperFilter } from 'features/content/papers/constants';
 import { IPaperFilter } from 'features/content/papers/interfaces';
-import { IContentModel, IPaged, LogicalOperator } from 'tno-core';
+import { IContentModel, IPaged, LogicalOperator, saveToLocalStorage } from 'tno-core';
 
 import { IContentState } from './interfaces';
 import { castContentToSearchResult } from './utils';
@@ -72,6 +72,7 @@ export const contentSlice = createSlice({
             items: action.payload.items.map((content) => castContentToSearchResult(content)),
           }
         : action.payload;
+      saveToLocalStorage('content', state.content?.items ?? []);
     },
     addContent(state: IContentState, action: PayloadAction<IContentModel[]>) {
       if (!!state.content)
@@ -82,6 +83,7 @@ export const contentSlice = createSlice({
             ...state.content.items,
           ],
         };
+      saveToLocalStorage('content', state.content?.items ?? []);
     },
     updateContent(state: IContentState, action: PayloadAction<IContentModel[]>) {
       if (!!state.content)
@@ -92,6 +94,7 @@ export const contentSlice = createSlice({
             return content ? castContentToSearchResult(content) : i;
           }),
         };
+      saveToLocalStorage('content', state.content?.items ?? []);
     },
     removeContent(state: IContentState, action: PayloadAction<IContentModel[]>) {
       if (!!state.content)
@@ -99,6 +102,7 @@ export const contentSlice = createSlice({
           ...state.content,
           items: state.content.items.filter((i) => !action.payload.some((r) => r.id === i.id)),
         };
+      saveToLocalStorage('content', state.content?.items ?? []);
     },
   },
 });

@@ -6,4 +6,5 @@ export interface IContentMessageModel {
   status: ContentStatusName;
   ownerId?: number;
   headline: string;
+  version?: number;
 }

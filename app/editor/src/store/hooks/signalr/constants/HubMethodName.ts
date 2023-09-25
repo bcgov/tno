@@ -1,6 +1,10 @@
 export enum HubMethodName {
-  /** Work order messages */
-  WorkOrder = 'WorkOrder',
   /** Content messages */
-  Content = 'Content',
+  ContentAdded = 'content-added',
+  /** Content messages */
+  ContentUpdated = 'content-updated',
+  /** Content messages */
+  ContentDeleted = 'content-deleted',
+  /** Work order messages */
+  WorkOrder = 'work-order',
 }

@@ -224,15 +224,7 @@ public class ContentController : ControllerBase
     {
         var content = _contentService.UpdateAndSave((Content)model);
 
-        // Send notification to user who requested the content.
-        if (content.OwnerId.HasValue)
-        {
-            var owner = content.Owner ?? _userService.FindById(content.OwnerId.Value);
-            if (!String.IsNullOrWhiteSpace(owner?.Username))
-                await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendUser, owner.Username, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
-            else
-                await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
-        }
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentAdded, new[] { new ContentMessageModel(content) })));
 
         if (index && !String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
@@ -276,15 +268,7 @@ public class ContentController : ControllerBase
     {
         var content = _contentService.UpdateStatusOnly((Content)model);
 
-        // Send notification to user who requested the content.
-        if (content.OwnerId.HasValue)
-        {
-            var owner = content.Owner ?? _userService.FindById(content.OwnerId.Value);
-            if (!String.IsNullOrWhiteSpace(owner?.Username))
-                await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendUser, owner.Username, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
-            else
-                await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
-        }
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content) })));
 
         return new JsonResult(new ContentModel(content));
     }
@@ -320,15 +304,7 @@ public class ContentController : ControllerBase
         if (content.FileReferences.Any()) await _fileReferenceService.UploadAsync(content, files.First(), _storageOptions.GetUploadPath());
         else await _fileReferenceService.UploadAsync(new ContentFileReference(content, files.First()), _storageOptions.GetUploadPath());
 
-        // Send notification to user who requested the content.
-        if (content.OwnerId.HasValue)
-        {
-            var owner = content.Owner ?? _userService.FindById(content.OwnerId.Value);
-            if (!String.IsNullOrWhiteSpace(owner?.Username))
-                await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendUser, owner.Username, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
-            else
-                await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
-        }
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content) })));
 
         return new JsonResult(new ContentModel(content));
     }

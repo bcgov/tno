@@ -90,7 +90,7 @@ public class WorkOrderController : ControllerBase
         if (entity == null) throw new InvalidOperationException("Work order does not exist");
 
         var result = _service.UpdateAndSave(workOrder.CopyTo(entity, _serializerOptions));
-        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("WorkOrder", new[] { new WorkOrderMessageModel(result, _serializerOptions) })));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.WorkOrder, new[] { new WorkOrderMessageModel(result, _serializerOptions) })));
         return new JsonResult(new WorkOrderModel(entity, _serializerOptions));
     }
     #endregion

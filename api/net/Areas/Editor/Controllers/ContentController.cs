@@ -247,7 +247,7 @@ public class ContentController : ControllerBase
 
         var content = _contentService.UpdateAndSave(updateContent);
 
-        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content) })));
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
