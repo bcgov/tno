@@ -631,7 +631,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                               showErrorOnSave={{ value: true, savePressed: savePressed }}
                             /> */}
                           </Show>
-                          <Show
+                          {/* <Show
                             visible={
                               props.values.contentType !== ContentTypeName.Image &&
                               props.values.contentType !== ContentTypeName.AudioVideo
@@ -647,7 +647,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                 type={WorkOrderTypeName.NaturalLanguageProcess}
                               />
                             </Tab>
-                          </Show>
+                          </Show> */}
                         </>
                       }
                     >
