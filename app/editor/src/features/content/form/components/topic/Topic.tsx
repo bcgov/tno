@@ -9,7 +9,6 @@ import {
   IOptionItem,
   OptionItem,
   Row,
-  Text,
   TopicTypeName,
 } from 'tno-core';
 
@@ -68,7 +67,6 @@ export const Topic: React.FC<ITopicProps> = () => {
           topicOptions,
           !!values.topics?.length ? values.topics[0].id : undefined,
         )}
-        required
         isDisabled={!values.sourceId}
         filterOption={(option, input) => {
           const label = (option.label as any)?.props?.children?.toLowerCase();
@@ -86,25 +84,6 @@ export const Topic: React.FC<ITopicProps> = () => {
             'topics',
             !!value ? [{ ...value, score: calcTopicScore(values, rules) }] : [],
           );
-        }}
-      />
-      <Text
-        name="score"
-        label="Score"
-        width={FieldSize.Tiny}
-        maxLength={3}
-        required={
-          !!values.topics.length && values.topics[0].name.toLocaleLowerCase() !== 'not applicable'
-        }
-        value={values.topics.length ? values.topics[0].score : ''}
-        disabled={
-          values.topics.length === 0 ||
-          values.topics[0].name.toLocaleLowerCase() === 'not applicable'
-        }
-        onChange={(e) => {
-          const value = e.currentTarget.value;
-          if (!isNaN(Number(value))) setFieldValue('topics.0.score', +value);
-          else e.currentTarget.value = '';
         }}
       />
     </Row>
