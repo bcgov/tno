@@ -251,11 +251,9 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
             mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString.ToLower()));
         }
 
-        // KGM: 2023-07-19 - Disabled alerting on migrated content after discussion with Scott
-        // It is enough that after content is migrated, that an Editor can trigger an alert on
-        // content that has been migrated.
-        /*
-        if (alert)
+        // KGM: 2023-09-25 - Added an option switch for triggering alerts in MMI
+        // if content has been flagged with Alert in TNO 1.0
+        if (alert && this.Options.GenerateAlertsOnContentMigration)
         {
             actionType = ActionType.Alert;
             actionName = this.Options.ActionNameMappings.ContainsKey(actionType)
@@ -263,7 +261,6 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
                 : actionType.ToString();
             mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString.ToLower()));
         }
-        */
 
         if (commentary && commentaryTimeout.HasValue)
         {
