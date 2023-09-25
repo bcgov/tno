@@ -25,7 +25,7 @@ import {
   useWindowSize,
 } from 'tno-core';
 
-import { IFile } from '.';
+import { ContentTranscriptForm, IFile } from '.';
 import { Topic } from './components';
 import { IContentForm } from './interfaces';
 import { MediaSummary } from './MediaSummary';
@@ -34,6 +34,7 @@ import * as styled from './styled';
 export interface IContentStoryFormProps {
   contentType: ContentTypeName;
   isSummaryRequired: boolean;
+  isTranscript?: boolean;
 }
 
 /**
@@ -44,6 +45,7 @@ export interface IContentStoryFormProps {
 export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   contentType,
   isSummaryRequired,
+  isTranscript = false,
 }) => {
   const [{ series, sources }] = useLookup();
   const { values, setFieldValue } = useFormikContext<IContentForm>();
@@ -101,98 +103,103 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
 
   return (
     <styled.ContentStoryForm className="content-properties">
-      <Row>
-        <Col>
-          <Row alignContent="flex-start" alignItems="flex-start">
-            <Show visible={contentType !== ContentTypeName.Image}>
-              <FormikDatePicker
-                name="publishedOn"
-                label="Published On"
-                required
-                autoComplete="false"
-                width={FieldSize.Medium}
-                selectedDate={
-                  !!values.publishedOn ? moment(values.publishedOn).toString() : undefined
-                }
-                value={!!values.publishedOn ? moment(values.publishedOn).format('MMM D, yyyy') : ''}
-                onChange={(date) => {
-                  if (!!values.publishedOnTime) {
-                    const hours = values.publishedOnTime?.split(':');
-                    if (!!hours && !!date) {
-                      date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
+      <Show visible={!isTranscript}>
+        <Row>
+          <Col>
+            <Row alignContent="flex-start" alignItems="flex-start">
+              <Show visible={contentType !== ContentTypeName.Image}>
+                <FormikDatePicker
+                  name="publishedOn"
+                  label="Published On"
+                  required
+                  autoComplete="false"
+                  width={FieldSize.Medium}
+                  selectedDate={
+                    !!values.publishedOn ? moment(values.publishedOn).toString() : undefined
+                  }
+                  value={
+                    !!values.publishedOn ? moment(values.publishedOn).format('MMM D, yyyy') : ''
+                  }
+                  onChange={(date) => {
+                    if (!!values.publishedOnTime) {
+                      const hours = values.publishedOnTime?.split(':');
+                      if (!!hours && !!date) {
+                        date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
+                      }
                     }
-                  }
-                  setFieldValue('publishedOn', moment(date).format('MMM D, yyyy HH:mm:ss'));
-                }}
-              />
-              <TimeInput
-                name="publishedOnTime"
-                label="Time"
-                disabled={!values.publishedOn}
-                width="7em"
-                value={!!values.publishedOn ? values.publishedOnTime : ''}
-                placeholder={!!values.publishedOn ? values.publishedOnTime : 'HH:MM:SS'}
-                onChange={(e) => {
-                  const date = new Date(values.publishedOn);
-                  const hours = e.target.value?.split(':');
-                  if (!!hours && !!e.target.value && !e.target.value.includes('_')) {
-                    date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
-                    setFieldValue(
-                      'publishedOn',
-                      moment(date.toISOString()).format('MMM D, yyyy HH:mm:ss'),
-                    );
-                  }
-                }}
-              />
-            </Show>
-            <Show visible={contentType === ContentTypeName.AudioVideo}>
-              <FormikSelect
-                name="seriesId"
-                label="Show/Program"
-                width={FieldSize.Medium}
-                value={seriesOptions.find((s: any) => s.value === values.seriesId) ?? ''}
-                options={filterEnabledOptions(seriesOptions, values.seriesId)}
-                isDisabled={!!values.otherSeries}
-                onChange={(e) => {
-                  setFieldValue('otherSeries', '');
-                }}
-              />
-              <FormikText
-                name="otherSeries"
-                label="Other Show/Program"
-                width={FieldSize.Medium}
-                onChange={(e) => {
-                  const value = e.currentTarget.value;
-                  setFieldValue('otherSeries', value);
-                  if (!!value) setFieldValue('seriesId', undefined);
-                }}
-                onBlur={() => {
-                  const found = series.find(
-                    (s) => s.name.toLocaleLowerCase() === values.otherSeries.toLocaleLowerCase(),
-                  );
-                  if (!!found) {
-                    setFieldValue('seriesId', found.id);
+                    setFieldValue('publishedOn', moment(date).format('MMM D, yyyy HH:mm:ss'));
+                  }}
+                />
+                <TimeInput
+                  name="publishedOnTime"
+                  label="Time"
+                  disabled={!values.publishedOn}
+                  width="7em"
+                  value={!!values.publishedOn ? values.publishedOnTime : ''}
+                  placeholder={!!values.publishedOn ? values.publishedOnTime : 'HH:MM:SS'}
+                  onChange={(e) => {
+                    const date = new Date(values.publishedOn);
+                    const hours = e.target.value?.split(':');
+                    if (!!hours && !!e.target.value && !e.target.value.includes('_')) {
+                      date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
+                      setFieldValue(
+                        'publishedOn',
+                        moment(date.toISOString()).format('MMM D, yyyy HH:mm:ss'),
+                      );
+                    }
+                  }}
+                />
+              </Show>
+              <Show visible={contentType === ContentTypeName.AudioVideo}>
+                <FormikSelect
+                  name="seriesId"
+                  label="Show/Program"
+                  width={FieldSize.Medium}
+                  value={seriesOptions.find((s: any) => s.value === values.seriesId) ?? ''}
+                  options={filterEnabledOptions(seriesOptions, values.seriesId)}
+                  isDisabled={!!values.otherSeries}
+                  onChange={(e) => {
                     setFieldValue('otherSeries', '');
-                  }
-                }}
-              />
-            </Show>
-          </Row>
-        </Col>
-        <Show
-          visible={
-            contentType !== ContentTypeName.Image && (source?.useInTopics || program?.useInTopics)
-          }
-        >
-          <Row>
-            <div className="vl" />
-            <Topic />
-          </Row>
-        </Show>
-      </Row>
+                  }}
+                />
+                <FormikText
+                  name="otherSeries"
+                  label="Other Show/Program"
+                  width={FieldSize.Medium}
+                  onChange={(e) => {
+                    const value = e.currentTarget.value;
+                    setFieldValue('otherSeries', value);
+                    if (!!value) setFieldValue('seriesId', undefined);
+                  }}
+                  onBlur={() => {
+                    const found = series.find(
+                      (s) => s.name.toLocaleLowerCase() === values.otherSeries.toLocaleLowerCase(),
+                    );
+                    if (!!found) {
+                      setFieldValue('seriesId', found.id);
+                      setFieldValue('otherSeries', '');
+                    }
+                  }}
+                />
+              </Show>
+            </Row>
+          </Col>
+          <Show
+            visible={
+              contentType !== ContentTypeName.Image && (source?.useInTopics || program?.useInTopics)
+            }
+          >
+            <Row>
+              <div className="vl" />
+              <Topic />
+            </Row>
+          </Show>
+        </Row>
+      </Show>
       <Show
         visible={
-          contentType === ContentTypeName.Image || contentType === ContentTypeName.AudioVideo
+          !isTranscript &&
+          (contentType === ContentTypeName.Image || contentType === ContentTypeName.AudioVideo)
         }
       >
         <MediaSummary
@@ -205,9 +212,21 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           isSummaryRequired={isSummaryRequired}
         />
       </Show>
+      <Show visible={isTranscript}>
+        <ContentTranscriptForm
+          file={file}
+          fileReference={fileReference}
+          setStream={setStream}
+          stream={stream}
+          contentType={contentType}
+          setShowExpandModal={setShowExpandModal}
+        />
+      </Show>
       <Show
         visible={
-          contentType !== ContentTypeName.AudioVideo && contentType !== ContentTypeName.Image
+          !isTranscript &&
+          contentType !== ContentTypeName.AudioVideo &&
+          contentType !== ContentTypeName.Image
         }
       >
         <Wysiwyg
@@ -222,14 +241,18 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           <Wysiwyg
             className="modal-quill"
             label={
-              contentType === ContentTypeName.PrintContent || contentType === ContentTypeName.Story
+              contentType === ContentTypeName.PrintContent ||
+              contentType === ContentTypeName.Story ||
+              isTranscript
                 ? 'Story'
                 : 'Summary'
             }
             required={isSummaryRequired}
             height={height}
             fieldName={
-              contentType === ContentTypeName.PrintContent || contentType === ContentTypeName.Story
+              contentType === ContentTypeName.PrintContent ||
+              contentType === ContentTypeName.Story ||
+              isTranscript
                 ? 'body'
                 : 'summary'
             }
