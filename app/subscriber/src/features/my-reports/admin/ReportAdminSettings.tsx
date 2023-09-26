@@ -36,7 +36,7 @@ export const ReportAdminSettings: React.FC = () => {
   };
 
   React.useEffect(() => {
-    fetchMyReports().catch();
+    fetchMyReports().catch(() => {});
     // Initialize first time this component loads.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

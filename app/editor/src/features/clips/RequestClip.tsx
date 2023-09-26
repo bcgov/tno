@@ -55,7 +55,7 @@ const RequestClip: React.FC<IRequestClipProps> = () => {
       .then((response) => {
         setIngests(response.data.items);
       })
-      .catch(); // Errors are handled globally.
+      .catch(() => {}); // Errors are handled globally.
   }, [apiIngest]);
 
   const onSubmit = async (values: IScheduleModel) => {

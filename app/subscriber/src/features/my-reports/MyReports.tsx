@@ -36,7 +36,7 @@ export const MyReport: React.FC = () => {
             toast.success(`Successfully deleted '${data.name}' report.`);
             setMyReports(myReports.filter((r) => r.id !== report.id));
           })
-          .catch();
+          .catch(() => {});
       }
     },
     [deleteReport, myReports],

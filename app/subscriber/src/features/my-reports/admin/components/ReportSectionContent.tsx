@@ -46,14 +46,14 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
           .then((folders) => {
             setFolderOptions(getSortableOptions(folders));
           })
-          .catch();
+          .catch(() => {});
       }
       if (!filters.length) {
         findMyFilters()
           .then((filters) => {
             setFilterOptions(getSortableOptions(filters));
           })
-          .catch();
+          .catch(() => {});
       }
       // Only do on init.
       // eslint-disable-next-line react-hooks/exhaustive-deps

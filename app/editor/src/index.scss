@@ -55,6 +55,19 @@ h4 {
   text-transform: uppercase;
 }
 
+
+// *************************************************
+// Button Customization
+// *************************************************
+.btn.btn-link {
+  cursor: pointer;
+  color: $action-button-color;
+
+  &:hover {
+    color: $primary-color;
+  }
+}
+
 // *************************************************
 // Tooltip Customization
 // *************************************************
@@ -132,7 +145,8 @@ h4 {
 // *************************************************
 // Modal
 // *************************************************
-.modal, .modal-full {
+.modal,
+.modal-full {
   .modal-quill {
     .ql-editor {
       resize: both;

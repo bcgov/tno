@@ -42,7 +42,7 @@ export const ManageFolder: React.FC = () => {
           tempSort.sort((a, b) => a.sortOrder - b.sortOrder);
           setItems(tempSort);
         })
-        .catch();
+        .catch(() => {});
     });
     // Only on initialize, or when sort order changes
     // eslint-disable-next-line react-hooks/exhaustive-deps

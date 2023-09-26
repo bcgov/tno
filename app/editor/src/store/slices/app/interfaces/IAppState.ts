@@ -1,6 +1,6 @@
 import { IUserInfoModel } from 'tno-core';
 
-import { IAjaxRequest, IErrorModel } from '.';
+import { IAjaxRequest, IErrorModel, IUserOptions } from '.';
 
 export interface IAppState {
   /** The current Java Web Token */
@@ -13,4 +13,6 @@ export interface IAppState {
   showErrors: boolean;
   /** An array of errors. */
   errors: IErrorModel[];
+  /** User preference options */
+  options?: IUserOptions;
 }

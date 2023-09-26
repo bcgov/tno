@@ -82,11 +82,11 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
     if (!filters.length)
       findAllFilters()
         .then((results) => setFilterOptions(getSortableItems(results)))
-        .catch();
+        .catch(() => {});
     if (!folders.length)
       findAllFolders()
         .then((results) => setFolderOptions(getSortableItems(results)))
-        .catch();
+        .catch(() => {});
     // Only fetch items on initial load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

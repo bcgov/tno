@@ -36,7 +36,7 @@ export const FilterFormDetails: React.FC = () => {
         .then((results) => {
           setUserOptions(getUserOptions(results.items));
         })
-        .catch();
+        .catch(() => {});
     }
     // Only fire on initial load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
