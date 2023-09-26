@@ -36,6 +36,7 @@ export const ViewContent = styled.div`
     font-size: 0.875rem;
   }
   .transcribe-button {
+    border: 2px solid rgb(0, 51, 102) !important;
     margin-left: auto;
     .text {
       color: black;
