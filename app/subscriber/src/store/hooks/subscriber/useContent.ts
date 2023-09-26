@@ -11,6 +11,7 @@ import { useAjaxWrapper } from '..';
 
 interface IContentController {
   findContent: (filter: IContentFilter) => Promise<IPaged<IContentModel>>;
+  findContentWithElasticsearch: (filter: unknown, index?: string) => Promise<unknown>;
   getContent: (id: number) => Promise<IContentModel | undefined>;
   getFrontPages: () => Promise<IPaged<IContentModel>>;
   download: (id: number, fileName: string) => Promise<unknown>;
@@ -29,6 +30,15 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       findContent: async (filter: IContentFilter) => {
         const response = await dispatch('find-contents', () => api.findContent(filter));
         actions.storeContent(response.data);
+        return response.data;
+      },
+      findContentWithElasticsearch: async (
+        filter: unknown,
+        index: string | undefined = undefined,
+      ) => {
+        const response = await dispatch('find-contents-with-elasticsearch', () =>
+          api.findContentWithElasticsearch(filter, index),
+        );
         return response.data;
       },
       getFrontPages: async () => {

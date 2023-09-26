@@ -1,13 +1,13 @@
 using TNO.API.Models;
 
-namespace TNO.API.Areas.Subscriber.Models.Content;
+namespace TNO.API.Areas.Subscriber.Models.Contributor;
 
 /// <summary>
 /// ContributorModel class, provides a model that represents an contributor.
 /// </summary>
-public class ContributorModel : BaseTypeModel<int>
+public class ContributorModel : AuditColumnsModel
 {
-   #region Properties
+    #region Properties
     /// <summary>
     /// get/set - The primary key of the contributor.
     /// </summary>
@@ -82,6 +82,28 @@ public class ContributorModel : BaseTypeModel<int>
         this.IsPress = entity.IsPress;
         this.Aliases = entity.Aliases;
         this.AutoTranscribe = entity.AutoTranscribe;
+    }
+    #endregion
+
+    #region Methods
+    /// <summary>
+    /// Explicit conversion to entity.
+    /// </summary>
+    /// <param name="model"></param>
+    public static explicit operator Entities.Contributor(ContributorModel model)
+    {
+        var entity = new Entities.Contributor(model.Name, model.SourceId)
+        {
+            Id = model.Id,
+            Description = model.Description,
+            IsEnabled = model.IsEnabled,
+            IsPress = model.IsPress,
+            Aliases = model.Aliases,
+            SortOrder = model.SortOrder,
+            AutoTranscribe = model.AutoTranscribe,
+            Version = model.Version ?? 0,
+        };
+        return entity;
     }
     #endregion
 }

@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
+  IContributorModel,
   IFilterModel,
   IFolderModel,
   IMinisterModel,
@@ -10,6 +11,7 @@ import {
 import { IProfileState } from './interfaces';
 
 export const initialProfileState: IProfileState = {
+  contributors: [],
   myFilters: [],
   myFolders: [],
   myMinisters: [],
@@ -31,6 +33,9 @@ export const profileSlice = createSlice({
     },
     storeMyMinisters(state: IProfileState, action: PayloadAction<IMinisterModel[]>) {
       state.myMinisters = action.payload;
+    },
+    contributors(state: IProfileState, action: PayloadAction<IContributorModel[]>) {
+      state.contributors = action.payload;
     },
     storeSystemMessages(state: IProfileState, action: PayloadAction<ISystemMessageModel[]>) {
       state.systemMessages = action.payload;

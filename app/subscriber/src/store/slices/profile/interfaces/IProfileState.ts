@@ -1,4 +1,5 @@
 import {
+  IContributorModel,
   IFilterModel,
   IFolderModel,
   IMinisterModel,
@@ -11,5 +12,6 @@ export interface IProfileState {
   myFilters: IFilterModel[];
   myFolders: IFolderModel[];
   myMinisters: IMinisterModel[];
+  contributors: IContributorModel[];
   systemMessages: ISystemMessageModel[];
 }
