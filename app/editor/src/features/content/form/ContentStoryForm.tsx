@@ -30,10 +30,11 @@ import { Topic } from './components';
 import { IContentForm } from './interfaces';
 import { MediaSummary } from './MediaSummary';
 import * as styled from './styled';
+import { isSummaryRequired } from './utils';
 
 export interface IContentStoryFormProps {
   contentType: ContentTypeName;
-  isSummaryRequired: boolean;
+  summaryRequired?: boolean;
 }
 
 /**
@@ -43,7 +44,7 @@ export interface IContentStoryFormProps {
  */
 export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   contentType,
-  isSummaryRequired,
+  summaryRequired: initSummaryRequired,
 }) => {
   const [{ series, sources }] = useLookup();
   const { values, setFieldValue } = useFormikContext<IContentForm>();
@@ -51,6 +52,12 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   const [showExpandModal, setShowExpandModal] = React.useState(false);
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
   const { height } = useWindowSize();
+
+  // TODO: The stream shouldn't be reset every time the users changes the tab.
+  const [stream, setStream] = React.useState<IStream>(); // TODO: Remove dependency coupling with storage component.
+  const [summaryRequired, setSummaryRequired] = React.useState(
+    initSummaryRequired ?? isSummaryRequired(values),
+  );
 
   const source = sources.find((s) => s.id === values.sourceId);
   const program = series.find((s) => s.id === values.seriesId);
@@ -63,8 +70,6 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
         size: fileReference.size,
       } as IFile)
     : undefined;
-  // TODO: The stream shouldn't be reset every time the users changes the tab.
-  const [stream, setStream] = React.useState<IStream>(); // TODO: Remove dependency coupling with storage component.
 
   React.useEffect(() => {
     if (!!path) {
@@ -98,6 +103,12 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   React.useEffect(() => {
     setSeriesOptions(series.map((m: any) => new OptionItem(m.name, m.id, m.isEnabled)));
   }, [series]);
+
+  React.useEffect(() => {
+    setSummaryRequired(isSummaryRequired(values));
+    // Only interested in changing this value when the product changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [values.productId]);
 
   return (
     <styled.ContentStoryForm className="content-properties">
@@ -202,7 +213,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           stream={stream}
           contentType={contentType}
           setShowExpandModal={setShowExpandModal}
-          isSummaryRequired={isSummaryRequired}
+          isSummaryRequired={summaryRequired}
         />
       </Show>
       <Show
@@ -226,7 +237,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
                 ? 'Story'
                 : 'Summary'
             }
-            required={isSummaryRequired}
+            required={summaryRequired}
             height={height}
             fieldName={
               contentType === ContentTypeName.PrintContent || contentType === ContentTypeName.Story

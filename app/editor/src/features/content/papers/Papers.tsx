@@ -1,7 +1,7 @@
 import React, { lazy } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { HubMethodName, useApiHub, useChannel, useContent } from 'store/hooks';
+import { HubMethodName, useApiHub, useContent } from 'store/hooks';
 import { IContentSearchResult, useContentStore } from 'store/slices';
 import {
   Col,
@@ -45,48 +45,29 @@ const Papers: React.FC<IPapersProps> = (props) => {
     { filterPaper: filter, filterPaperAdvanced: filterAdvanced, content },
     { findContent, storeFilterPaper, updateContent: updateStatus, getContent },
   ] = useContent();
-  const [, { addContent, updateContent }] = useContentStore();
+  const [, { updateContent }] = useContentStore();
   const initTab = useTab();
   var hub = useApiHub();
 
   const [contentId, setContentId] = React.useState(id);
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
 
-  const channel = useChannel<any>({
-    onMessage: (ev) => {
-      switch (ev.data.type) {
-        case 'content':
-          if (content?.items.some((i) => i.id === ev.data.message.id))
-            updateContent([ev.data.message]);
-          else addContent([ev.data.message]);
-          break;
-        case 'page':
-          channel('page', content);
-          break;
-        case 'load':
-          setContentId(ev.data.message.id.toString());
-          break;
-      }
-    },
-  });
-
   const [isLoading, setIsLoading] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
 
   const onContentUpdated = React.useCallback(
     async (message: IContentMessageModel) => {
-      const item = await getContent(message.id);
-      if (!!item) {
-        if (content?.items.some((i) => i.id === item.id)) updateContent([item]);
-        else addContent([item]);
+      if (content?.items.some((c) => c.id === message.id)) {
+        try {
+          const item = await getContent(message.id);
+          if (!!item) updateContent([item]);
+        } catch {}
       }
     },
-    [addContent, content?.items, getContent, updateContent],
+    [content?.items, getContent, updateContent],
   );
 
-  React.useEffect(() => {
-    return hub.listen(HubMethodName.Content, onContentUpdated);
-  }, [onContentUpdated, hub]);
+  hub.useHubEffect(HubMethodName.ContentUpdated, onContentUpdated);
 
   const handleClickUse = React.useCallback(
     (content: IContentSearchResult) => {
@@ -127,7 +108,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
           }),
         );
         const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
-        channel('page', page);
         return page;
       } catch (error) {
         // TODO: Handle error
@@ -136,7 +116,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
         setIsLoading(false);
       }
     },
-    [channel, findContent],
+    [findContent],
   );
 
   React.useEffect(() => {

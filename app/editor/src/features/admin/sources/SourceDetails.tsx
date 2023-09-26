@@ -1,7 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useLookup } from 'store/hooks';
-import {} from 'store/hooks/lookup/utils';
 import {
   FieldSize,
   filterEnabledOptions,

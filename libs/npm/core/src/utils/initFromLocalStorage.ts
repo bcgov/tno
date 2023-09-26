@@ -1,4 +1,4 @@
-import { getFromLocalStorage } from 'tno-core';
+import { getFromLocalStorage } from '.';
 
 /**
  * Initialize values from local storage, or from the specified action.

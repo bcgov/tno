@@ -4,6 +4,7 @@ export * from './getContentPath';
 export * from './getDefaultCommentaryExpiryValue';
 export * from './getTotalTime';
 export * from './isHoliday';
+export * from './isSummaryRequired';
 export * from './switchStatus';
 export * from './toForm';
 export * from './toModel';

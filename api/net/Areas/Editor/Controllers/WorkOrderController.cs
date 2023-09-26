@@ -149,7 +149,7 @@ public class WorkOrderController : ControllerBase
             workOrder.Status = WorkOrderStatus.Failed;
             workOrder.Note = "Transcript request to Kafka failed";
             workOrder = _workOrderService.UpdateAndSave(workOrder);
-            await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("WorkOrder", new[] { new WorkOrderMessageModel(workOrder, _serializerOptions) })));
+            await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.WorkOrder, new[] { new WorkOrderMessageModel(workOrder, _serializerOptions) })));
             throw new BadRequestException("Transcription request failed");
         }
         return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions));
@@ -190,7 +190,7 @@ public class WorkOrderController : ControllerBase
             workOrder.Status = WorkOrderStatus.Failed;
             workOrder.Note = "NLP request to Kafka failed";
             workOrder = _workOrderService.UpdateAndSave(workOrder);
-            await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("WorkOrder", new[] { new WorkOrderMessageModel(workOrder, _serializerOptions) })));
+            await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.WorkOrder, new[] { new WorkOrderMessageModel(workOrder, _serializerOptions) })));
             throw new BadRequestException("Natural Language Processing request failed");
         }
         return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions));

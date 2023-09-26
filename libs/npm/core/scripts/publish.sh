@@ -30,3 +30,5 @@ fi
 npm version $version
 
 yarn npm publish
+
+echo "version: $version"

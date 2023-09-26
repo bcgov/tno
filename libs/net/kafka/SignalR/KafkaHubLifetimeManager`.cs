@@ -170,10 +170,11 @@ public class KafkaHubLifetimeManager<THub> : DefaultHubLifetimeManager<THub>, ID
     /// <returns></returns>
     protected Message<string, KafkaHubMessage> CreateMessage(HubEvent hubEvent, IEnumerable<string> groupNames, string methodName, object?[] args, IReadOnlyList<string>? excludedConnectionIds = null)
     {
+        if (!Enum.TryParse<MessageTarget>(methodName, out MessageTarget target)) throw new ArgumentException($"Parameter 'methodName' must be a valid MessageTarget");
         return new Message<string, KafkaHubMessage>()
         {
             Key = CreateKey(methodName),
-            Value = new KafkaHubMessage(hubEvent, groupNames, new InvocationMessage(methodName, args), excludedConnectionIds)
+            Value = new KafkaHubMessage(hubEvent, groupNames, new KafkaInvocationMessage(target, args), excludedConnectionIds)
         };
     }
 
@@ -436,7 +437,7 @@ public class KafkaHubLifetimeManager<THub> : DefaultHubLifetimeManager<THub>, ID
     protected async Task ConsumeMessageAsync(ConsumeResult<string, KafkaHubMessage> consumeResult, CancellationToken cancellationToken)
     {
         var model = consumeResult.Message.Value;
-        var message = model.Message;
+        var message = (InvocationMessage)model.Message;
         _logger.LogDebug("Message received for {event}:{target}", model.HubEvent, message.Target);
         switch (model.HubEvent)
         {

@@ -129,7 +129,7 @@ public class WorkOrderController : ControllerBase
     {
         var entity = _workOrderService.FindById(model.Id) ?? throw new NoContentException();
         var result = _workOrderService.UpdateAndSave(model.CopyTo(entity, _serializerOptions));
-        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("WorkOrder", new[] { new WorkOrderMessageModel(result, _serializerOptions) })));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.WorkOrder, new[] { new WorkOrderMessageModel(result, _serializerOptions) })));
         return new JsonResult(new WorkOrderModel(result, _serializerOptions));
     }
 

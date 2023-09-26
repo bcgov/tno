@@ -1,7 +1,7 @@
 import { AxiosError, AxiosResponse } from 'axios';
-import { addOrUpdateArray, getFromLocalStorage, ICacheModel } from 'tno-core';
+import { ICacheModel } from 'hooks';
 
-import { initFromLocalStorage } from '.';
+import { addOrUpdateArray, getFromLocalStorage, initFromLocalStorage } from '.';
 
 /**
  * Extracts the etag key from local storage.

@@ -1,6 +1,6 @@
 import React, { lazy } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { HubMethodName, useApiHub, useApp, useChannel, useContent } from 'store/hooks';
+import { HubMethodName, useApiHub, useApp, useContent } from 'store/hooks';
 import { IContentSearchResult, useContentStore } from 'store/slices';
 import {
   Col,
@@ -10,7 +10,7 @@ import {
   ITableInternalRow,
   ITablePage,
   ITableSort,
-  IWorkOrderModel,
+  IWorkOrderMessageModel,
   Page,
   Row,
   Show,
@@ -34,7 +34,7 @@ const ContentForm = lazy(() => import('../form/ContentForm'));
 const ContentListView: React.FC = () => {
   const [{ userInfo }] = useApp();
   const { id } = useParams();
-  const [, { addContent, updateContent }] = useContentStore();
+  const [, { updateContent }] = useContentStore();
   const [
     { filter, filterAdvanced, content },
     { findContent, getContent, storeFilter, storeFilterAdvanced },
@@ -43,24 +43,6 @@ const ContentListView: React.FC = () => {
   const { combined, formType } = useCombinedView();
   var hub = useApiHub();
   const initTab = useTab();
-
-  const channel = useChannel<any>({
-    onMessage: (ev) => {
-      switch (ev.data.type) {
-        case 'content':
-          if (content?.items.some((i) => i.id === ev.data.message.id))
-            updateContent([ev.data.message]);
-          else addContent([ev.data.message]);
-          break;
-        case 'page':
-          channel('page', content);
-          break;
-        case 'load':
-          setContentId(ev.data.message.id.toString());
-          break;
-      }
-    },
-  });
 
   const [contentId, setContentId] = React.useState(id);
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
@@ -91,7 +73,7 @@ const ContentListView: React.FC = () => {
   const isReady = !!userId && filter.userId !== '';
 
   const onWorkOrder = React.useCallback(
-    (workOrder: IWorkOrderModel) => {
+    (workOrder: IWorkOrderMessageModel) => {
       if (
         [WorkOrderTypeName.Transcription, WorkOrderTypeName.NaturalLanguageProcess].includes(
           workOrder.workType,
@@ -107,21 +89,22 @@ const ContentListView: React.FC = () => {
     [getContent, updateContent],
   );
 
-  React.useEffect(() => {
-    return hub.listen(HubMethodName.WorkOrder, onWorkOrder);
-  }, [onWorkOrder, hub]);
+  hub.useHubEffect(HubMethodName.WorkOrder, onWorkOrder);
 
   const onContentUpdated = React.useCallback(
     async (message: IContentMessageModel) => {
-      const content = await getContent(message.id);
-      if (!!content) updateContent([content]);
+      // Only update if the current page includes the updated content.
+      if (content?.items.some((c) => c.id === message.id)) {
+        try {
+          const result = await getContent(message.id);
+          if (!!result) updateContent([result]);
+        } catch {}
+      }
     },
-    [getContent, updateContent],
+    [content?.items, getContent, updateContent],
   );
 
-  React.useEffect(() => {
-    return hub.listen(HubMethodName.Content, onContentUpdated);
-  }, [onContentUpdated, hub]);
+  hub.useHubEffect(HubMethodName.ContentUpdated, onContentUpdated);
 
   React.useEffect(() => {
     // Required because the first time this page is loaded directly the user has not been set.
@@ -142,7 +125,6 @@ const ContentListView: React.FC = () => {
             }),
           );
           const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
-          channel('page', page);
           return page;
         }
       } catch (error) {
@@ -153,7 +135,7 @@ const ContentListView: React.FC = () => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [channel, findContent],
+    [findContent],
   );
 
   React.useEffect(() => {

@@ -26,6 +26,8 @@ export interface IHubController {
   stop: () => Promise<void>;
   /** Add event listener and return function to remove listener. */
   listen: (methodName: HubMethodName, newMethod: (...args: any[]) => void) => () => void;
+  /** Add event listener and return function to remove listener. */
+  useHubEffect: (methodName: HubMethodName, newMethod: (...args: any[]) => void) => void;
 }
 
 /**
@@ -84,6 +86,14 @@ export const useApiHub = (): IHubController => {
       return () => {
         hub.off(methodName, newMethod);
       };
+    },
+    useHubEffect: (methodName: HubMethodName, newMethod: (...args: any[]) => void) => {
+      React.useEffect(() => {
+        hub.on(methodName, newMethod);
+        return () => {
+          hub.off(methodName, newMethod);
+        };
+      }, [methodName, newMethod]);
     },
   };
 };

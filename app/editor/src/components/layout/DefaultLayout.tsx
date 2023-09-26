@@ -7,9 +7,7 @@ import { toast } from 'react-toastify';
 import { HubMethodName, IWorkOrderToast, useApiHub, useToastError } from 'store/hooks';
 import {
   Button,
-  ContentTypeName,
   Header,
-  IContentMessageModel,
   IWorkOrderMessageModel,
   Show,
   SummonContext,
@@ -105,24 +103,6 @@ const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest }) => {
   React.useEffect(() => {
     return hub.listen(HubMethodName.WorkOrder, onWorkOrderMessage);
   }, [onWorkOrderMessage, hub]);
-
-  const onContentMessage = React.useCallback((content: IContentMessageModel) => {
-    if (content.contentType === ContentTypeName.AudioVideo) {
-      toast.success(() => (
-        <div>
-          Clip created "
-          <Link to={`/snippets/${content.id}`} target="_blank">
-            {content.headline}
-          </Link>
-          "
-        </div>
-      ));
-    }
-  }, []);
-
-  React.useEffect(() => {
-    return hub.listen(HubMethodName.Content, onContentMessage);
-  }, [onContentMessage, hub]);
 
   return (
     <styled.Layout {...rest}>

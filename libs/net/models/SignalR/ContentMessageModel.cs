@@ -32,6 +32,11 @@ public class ContentMessageModel
     /// get/set - Content headline.
     /// </summary>
     public string Headline { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Version number.
+    /// </summary>
+    public long? Version { get; set; }
     #endregion
 
     #region Constructors
@@ -51,6 +56,7 @@ public class ContentMessageModel
         this.Status = entity.Status;
         this.OwnerId = entity.OwnerId;
         this.Headline = entity.Headline;
+        this.Version = entity.Version;
     }
 
     /// <summary>
@@ -64,6 +70,7 @@ public class ContentMessageModel
         this.Status = model.Status;
         this.OwnerId = model.OwnerId;
         this.Headline = model.Headline;
+        this.Version = model.Version;
     }
     #endregion
 }

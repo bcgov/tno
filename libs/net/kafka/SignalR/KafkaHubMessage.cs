@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.SignalR.Protocol;
-
 namespace TNO.Kafka.SignalR;
 
 /// <summary>
@@ -41,10 +39,10 @@ public class KafkaHubMessage
     /// <param name="hubEvent"></param>
     /// <param name="message"></param>
     /// <param name="excludedConnectionIds"></param>
-    public KafkaHubMessage(HubEvent hubEvent, InvocationMessage message, IEnumerable<string>? excludedConnectionIds = null)
+    public KafkaHubMessage(HubEvent hubEvent, KafkaInvocationMessage message, IEnumerable<string>? excludedConnectionIds = null)
     {
         this.HubEvent = hubEvent;
-        this.Message = new KafkaInvocationMessage(message);
+        this.Message = message;
         this.ExcludedConnectionIds = excludedConnectionIds?.ToArray();
     }
 
@@ -55,7 +53,7 @@ public class KafkaHubMessage
     /// <param name="identifier"></param>
     /// <param name="message"></param>
     /// <param name="excludedConnectionIds"></param>
-    public KafkaHubMessage(HubEvent hubEvent, string identifier, InvocationMessage message, IEnumerable<string>? excludedConnectionIds = null)
+    public KafkaHubMessage(HubEvent hubEvent, string identifier, KafkaInvocationMessage message, IEnumerable<string>? excludedConnectionIds = null)
         : this(hubEvent, new[] { identifier }, message, excludedConnectionIds)
     {
     }
@@ -67,7 +65,7 @@ public class KafkaHubMessage
     /// <param name="identifiers"></param>
     /// <param name="message"></param>
     /// <param name="excludedConnectionIds"></param>
-    public KafkaHubMessage(HubEvent hubEvent, IEnumerable<string> identifiers, InvocationMessage message, IEnumerable<string>? excludedConnectionIds = null)
+    public KafkaHubMessage(HubEvent hubEvent, IEnumerable<string> identifiers, KafkaInvocationMessage message, IEnumerable<string>? excludedConnectionIds = null)
         : this(hubEvent, message, excludedConnectionIds)
     {
         this.Identifiers = identifiers.ToArray();

@@ -1,5 +1,6 @@
+import { AxiosError } from 'axios';
 import { FormikForm } from 'components/formik';
-import { FormikProps } from 'formik';
+import { FormikHelpers, FormikProps } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
@@ -9,12 +10,11 @@ import {
   HubMethodName,
   useApiHub,
   useApp,
-  useChannel,
   useContent,
   useLookupOptions,
   useWorkOrders,
 } from 'store/hooks';
-import { IAjaxRequest, useContentStore } from 'store/slices';
+import { IAjaxRequest } from 'store/slices';
 import {
   Area,
   Button,
@@ -32,8 +32,10 @@ import {
   FormikTextArea,
   FormPage,
   hasErrors,
+  IContentMessageModel,
   IContentModel,
-  IWorkOrderModel,
+  IResponseErrorModel,
+  IWorkOrderMessageModel,
   Modal,
   Row,
   Show,
@@ -80,7 +82,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const [{ userInfo }] = useApp();
   const { id } = useParams();
   const [, { getContent, addContent, updateContent, deleteContent, upload, attach }] = useContent();
-  const [, { storeContent }] = useContentStore();
   const [, { findWorkOrders, transcribe, nlp }] = useWorkOrders();
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
   const { isShowing: showTranscribeModal, toggle: toggleTranscribe } = useModal();
@@ -89,22 +90,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
     useLookupOptions();
   const { combined, formType } = useCombinedView(initContentType);
   const { setShowValidationToast } = useTabValidationToasts();
-
-  const channel = useChannel<any>({
-    onMessage: (ev) => {
-      switch (ev.data.type) {
-        case 'page':
-          storeContent(ev.data.message);
-          break;
-        case 'content':
-          setForm(toForm(ev.data.message));
-          break;
-        case 'fetch':
-          navigate(`/contents${combined ? '/combined' : ''}/${ev.data.message}`);
-          break;
-      }
-    },
-  });
 
   const [contentType, setContentType] = React.useState(formType ?? initContentType);
   const [size, setSize] = React.useState(1); // TODO: change this to use css media types instead.
@@ -118,64 +103,63 @@ const ContentForm: React.FC<IContentFormProps> = ({
     ...defaultFormValues(contentType),
     id: parseInt(id ?? '0'),
   });
-
-  const [isSummaryRequired, setIsSummaryRequired] = React.useState(true);
-  const setSummaryRequirement = (input: string | unknown) => {
-    const product = typeof input === 'string' ? input : (input as any)?.label;
-    setIsSummaryRequired(product !== 'News Radio' && product !== 'Events');
-  };
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const userId = userInfo?.id ?? '';
 
-  React.useEffect(() => {
-    // On the initial load it needs to request the page of content from the list view.
-    channel('page', null);
-  }, [channel]);
+  const updateForm = React.useCallback(
+    async (content: IContentModel | undefined) => {
+      if (!!content) {
+        setForm(toForm(content));
+        const res = await findWorkOrders({ contentId: content.id });
+        setForm({ ...toForm(content), workOrders: res.data.items });
+        // If the form is loaded from the URL instead of clicking on the list view it defaults to the snippet form.
+        setContentType(content.contentType);
+      }
+    },
+    [findWorkOrders],
+  );
 
   const fetchContent = React.useCallback(
-    (id: number) => {
-      getContent(id).then((content) => {
-        if (!!content) {
-          setForm(toForm(content));
-          if (content.product) setSummaryRequirement(content.product.name);
-          findWorkOrders({ contentId: id }).then((res) => {
-            setForm({ ...toForm(content), workOrders: res.data.items });
-            // If the form is loaded from the URL instead of clicking on the list view it defaults to the snippet form.
-          });
-          setContentType(content.contentType);
-          channel('load', content);
-        } else {
-          toast.error('Content requested could not be found.');
-          navigate('/contents');
+    async (id: number) => {
+      try {
+        const content = await getContent(id);
+        await updateForm(content);
+      } catch (error) {
+        const aError = error as AxiosError;
+        if (!!aError && !!aError.response?.data) {
+          const data = aError.response.data as IResponseErrorModel;
+          if (data.type === 'NoContentException') navigate('/contents');
         }
-      });
+      }
     },
-    [channel, getContent, findWorkOrders, navigate],
+    [getContent, updateForm, navigate],
   );
 
   const onWorkOrder = React.useCallback(
-    (workOrder: IWorkOrderModel) => {
-      if (!!id && +id === workOrder.configuration.contentId)
+    (workOrder: IWorkOrderMessageModel) => {
+      if (form.id === workOrder.configuration.contentId)
+        // TODO: Don't overwrite the user's edits.
         fetchContent(workOrder.configuration.contentId);
     },
-    [fetchContent, id],
+    [fetchContent, form],
   );
 
-  React.useEffect(() => {
-    return hub.listen(HubMethodName.WorkOrder, onWorkOrder);
-  }, [hub, onWorkOrder]);
+  hub.useHubEffect(HubMethodName.WorkOrder, onWorkOrder);
 
   const onContentUpdated = React.useCallback(
-    (content: IContentModel) => {
-      // TODO: Don't overwrite the user's edits.
-      if (!!id && +id === content.id) fetchContent(content.id);
+    async (message: IContentMessageModel) => {
+      if (form.id === message.id && form.version !== message.version && !isSubmitting) {
+        try {
+          // TODO: Don't overwrite the user's edits.
+          fetchContent(message.id);
+        } catch {}
+      }
     },
-    [fetchContent, id],
+    [fetchContent, form.id, form.version, isSubmitting],
   );
 
-  React.useEffect(() => {
-    return hub.listen(HubMethodName.Content, onContentUpdated);
-  }, [hub, onContentUpdated]);
+  hub.useHubEffect(HubMethodName.ContentUpdated, onContentUpdated);
 
   React.useEffect(() => {
     if (!!id && +id > 0) {
@@ -184,7 +168,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
   }, [id, fetchContent]);
 
   const handleSubmit = React.useCallback(
-    async (values: IContentForm): Promise<IContentForm> => {
+    async (
+      values: IContentForm,
+      formikHelpers: FormikHelpers<IContentForm>,
+    ): Promise<IContentForm> => {
+      setIsSubmitting(true);
       let contentResult: IContentModel | null = null;
       const originalId = values.id;
       let result = form;
@@ -220,8 +208,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
 
         toast.success(`"${contentResult.headline}" has successfully been saved.`);
 
-        channel('content', result);
-
         if (!originalId) {
           if (result.status === ContentStatusName.Draft)
             navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
@@ -251,6 +237,8 @@ const ContentForm: React.FC<IContentFormProps> = ({
           if (!originalId)
             navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
         }
+      } finally {
+        setIsSubmitting(false);
       }
       return result;
     },
@@ -266,12 +254,14 @@ const ContentForm: React.FC<IContentFormProps> = ({
       updateContent,
       upload,
       userId,
-      channel,
     ],
   );
 
   const handlePublish = React.useCallback(
-    async (values: IContentForm): Promise<IContentForm> => {
+    async (
+      values: IContentForm,
+      formikHelpers: FormikHelpers<IContentForm>,
+    ): Promise<IContentForm> => {
       if (
         [
           ContentStatusName.Draft,
@@ -281,7 +271,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
       )
         values.status = ContentStatusName.Publish;
 
-      return await handleSubmit(values);
+      return await handleSubmit(values, formikHelpers);
     },
     [handleSubmit],
   );
@@ -295,7 +285,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
         triggerFormikValidate(props);
         if (props.isValid) {
           props.values.status = ContentStatusName.Unpublish;
-          await handleSubmit(props.values);
+          await handleSubmit(props.values, props);
         }
       }
     },
@@ -307,18 +297,18 @@ const ContentForm: React.FC<IContentFormProps> = ({
       triggerFormikValidate(props);
       props.validateForm(props.values);
       if (props.isValid) {
-        await handleSubmit(props.values);
+        await handleSubmit(props.values, props);
       }
     },
     [handleSubmit],
   );
 
   const handleTranscribe = React.useCallback(
-    async (values: IContentForm) => {
+    async (values: IContentForm, formikHelpers: FormikHelpers<IContentForm>) => {
       try {
         // TODO: Only save when required.
         // Save before submitting request.
-        const content = await handleSubmit(values);
+        const content = await handleSubmit(values, formikHelpers);
         const response = await transcribe(toModel(values));
         setForm({ ...content, workOrders: [response.data, ...form.workOrders] });
 
@@ -336,11 +326,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
   );
 
   const handleNLP = React.useCallback(
-    async (values: IContentForm) => {
+    async (values: IContentForm, formikHelpers: FormikHelpers<IContentForm>) => {
       try {
         // TODO: Only save when required.
         // Save before submitting request.
-        const content = await handleSubmit(values);
+        const content = await handleSubmit(values, formikHelpers);
         const response = await nlp(toModel(values));
         setForm({ ...content, workOrders: [response.data, ...form.workOrders] });
 
@@ -457,9 +447,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                     (mt) => mt.value === props.values.productId,
                                   ) ?? ''
                                 }
-                                onChange={(newValue: any) => {
-                                  setSummaryRequirement(newValue?.label);
-                                }}
                                 label="Product"
                                 width={FieldSize.Small}
                                 options={productOptions}
@@ -485,7 +472,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       </Row>
                       {/* Image form layout */}
                       <Show visible={contentType === ContentTypeName.Image}>
-                        <ImageSection handleProductChange={setSummaryRequirement} />
+                        <ImageSection />
                       </Show>
                       <Show visible={contentType === ContentTypeName.PrintContent}>
                         <Row>
@@ -573,10 +560,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                 </Row>
                 <Row flex="1 1 100%" wrap="nowrap">
                   <Show visible={contentType === ContentTypeName.Image}>
-                    <ContentStoryForm
-                      contentType={ContentTypeName.Image}
-                      isSummaryRequired={isSummaryRequired}
-                    />
+                    <ContentStoryForm contentType={ContentTypeName.Image} />
                   </Show>
                 </Row>
                 <Row className="tab-section">
@@ -652,10 +636,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       }
                     >
                       <Show visible={active === 'properties'}>
-                        <ContentStoryForm
-                          contentType={contentType}
-                          isSummaryRequired={isSummaryRequired}
-                        />
+                        <ContentStoryForm contentType={contentType} />
                       </Show>
                       <Show visible={active === 'transcript'}>
                         <ContentTranscriptForm />
@@ -673,10 +654,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     </Tabs>
                   </Show>
                   <Show visible={contentType === ContentTypeName.PrintContent}>
-                    <ContentStoryForm
-                      contentType={contentType}
-                      isSummaryRequired={isSummaryRequired}
-                    />
+                    <ContentStoryForm contentType={contentType} />
                   </Show>
                 </Row>
                 <Row gap="0.5rem">
@@ -785,7 +763,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                 WorkOrderStatusName.Completed,
                               ])
                                 ? toggleTranscribe()
-                                : handleTranscribe(props.values)
+                                : handleTranscribe(props.values, props)
                             }
                             variant={ButtonVariant.action}
                             disabled={
@@ -843,7 +821,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                   confirmText="Yes, transcribe"
                   onConfirm={async () => {
                     try {
-                      await handleTranscribe(props.values);
+                      await handleTranscribe(props.values, props);
                     } finally {
                       toggleTranscribe();
                     }
@@ -858,7 +836,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                   confirmText="Yes, process"
                   onConfirm={async () => {
                     try {
-                      await handleNLP(props.values);
+                      await handleNLP(props.values, props);
                     } finally {
                       toggleNLP();
                     }

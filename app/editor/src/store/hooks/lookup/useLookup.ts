@@ -2,6 +2,7 @@ import React from 'react';
 import { useLookupStore } from 'store/slices';
 import { ILookupState } from 'store/slices/lookup';
 import {
+  fetchIfNoneMatch,
   getFromLocalStorage,
   IActionModel,
   ICacheModel,
@@ -24,6 +25,7 @@ import {
   ITopicModel,
   ITopicScoreRuleModel,
   IUserModel,
+  saveToLocalStorage,
   useApiEditorActions,
   useApiEditorCache,
   useApiEditorContributors,
@@ -47,7 +49,6 @@ import {
 } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
-import { fetchIfNoneMatch, saveToLocalStorage } from './utils';
 
 export interface ILookupController {
   getCache: () => Promise<ICacheModel[]>;

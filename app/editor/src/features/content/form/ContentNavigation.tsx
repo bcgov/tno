@@ -1,7 +1,15 @@
+import React from 'react';
 import { FaChevronLeft, FaChevronRight, FaSpinner } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { useContent } from 'store/hooks';
-import { Button, ButtonVariant, Row, Show, useCombinedView } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  getFromLocalStorage,
+  IContentModel,
+  Row,
+  Show,
+  useCombinedView,
+} from 'tno-core';
 
 import { IContentForm } from './interfaces/IContentForm';
 import { getContentPath } from './utils';
@@ -26,12 +34,14 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
   combinedPath,
 }) => {
   const navigate = useNavigate();
-  const [{ content: page }] = useContent();
   const { combined } = useCombinedView(values.contentType);
 
-  const indexPosition = !!values.id ? page?.items.findIndex((c) => c.id === +values.id) ?? -1 : -1;
+  // TODO: This won't update with the latest search results.
+  const [items] = React.useState(getFromLocalStorage<IContentModel[]>('content', []));
+
+  const indexPosition = !!values.id ? items.findIndex((c) => c.id === +values.id) ?? -1 : -1;
   const enablePrev = indexPosition > 0;
-  const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
+  const enableNext = indexPosition < (items.length ?? 0) - 1;
 
   return (
     <Row>
@@ -40,7 +50,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
           variant={ButtonVariant.secondary}
           tooltip="Previous"
           onClick={() => {
-            const id = page?.items[indexPosition - 1]?.id;
+            const id = items[indexPosition - 1]?.id;
             if (!!id) {
               navigate(getContentPath(combined, id, values.contentType, combinedPath));
             }
@@ -53,7 +63,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
           variant={ButtonVariant.secondary}
           tooltip="Next"
           onClick={() => {
-            const id = page?.items[indexPosition + 1]?.id;
+            const id = items[indexPosition + 1]?.id;
             navigate(getContentPath(combined, id, values.contentType, combinedPath));
           }}
           disabled={!enableNext}
