@@ -234,13 +234,16 @@ public class ContentManager : ServiceManager<ContentOptions>
 
             // KGM - This code should be removed/refactored post PROD deployment most likely
             // IF we are allowing overwrites from the Content Migration Service
-            // AND if the current content was ingested by the Content Migration Service
-            // THEN we trigger a complete overwrite of the existing content with the updated content
-            if (this.Options.MigrationOptions.AllowSourceContentOverwrite
-                && result.Topic.Equals(this.Options.MigrationOptions.ContentMigrationIngestSourceCode)) {
-                // updates from the Content Migration service *ALWAYS* get applied
-                updateSourceContent = true;
-                Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMIA Content : {Source}:{Title}", model.Source, model.Title);
+            if (result.Topic.Equals(this.Options.MigrationOptions.ContentMigrationIngestSourceCode)) {
+                // AND if the current content was ingested by the Content Migration Service
+                // THEN we trigger a complete overwrite of the existing content with the updated content
+                if (this.Options.MigrationOptions.AllowSourceContentOverwrite) {
+                    updateSourceContent = true;
+                    Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMIA Content : {Source}:{Title}", model.Source, model.Title);
+                } else {
+                    updateSourceContent = false;
+                    Logger.LogInformation("Received updated content from TNO, but SourceContentOverwrite is disabled : {Source}:{Title}", model.Source, model.Title);
+                }
             }
         }
 
