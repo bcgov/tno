@@ -1,4 +1,5 @@
-import { FaExternalLinkAlt, FaFeather } from 'react-icons/fa';
+import { TabControl } from 'components/tab-control';
+import { FaFeather } from 'react-icons/fa';
 import { IContentSearchResult } from 'store/slices';
 import {
   CellCheckbox,
@@ -7,18 +8,21 @@ import {
   ContentStatusName,
   formatIdirUsername,
   ITableHookColumn,
+  Row,
   Show,
 } from 'tno-core';
 
 import { getStatusText } from '../utils';
 
-export const getColumns = (
-  openTab: boolean,
-  onClickOpen: (contentId: number) => void,
-): ITableHookColumn<IContentSearchResult>[] => [
+export const columns: ITableHookColumn<IContentSearchResult>[] = [
   {
     name: 'headline',
-    label: 'Headline',
+    label: (
+      <Row gap="0.5rem">
+        <TabControl />
+        Headline
+      </Row>
+    ),
     cell: (cell) => (
       <CellEllipsis>
         <Show visible={cell.row.original.hasTranscript}>
@@ -85,27 +89,5 @@ export const getColumns = (
       </div>
     ),
     width: '55px',
-  },
-  {
-    name: 'newTab',
-    label: '',
-    // Header: () => (
-    //   <FaInfoCircle data-tooltip-id="main-tooltip" data-tooltip-content="Open snippet in new tab" />
-    // ),
-    showSort: false,
-    hAlign: 'center',
-    isVisible: !openTab,
-    cell: (cell) => {
-      return (
-        <FaExternalLinkAlt
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onClickOpen(cell.original.id);
-          }}
-        />
-      );
-    },
-    width: '50px',
   },
 ];

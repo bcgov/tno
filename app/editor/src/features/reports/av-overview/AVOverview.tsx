@@ -58,7 +58,7 @@ const AVOverview: React.FC = () => {
           setInstance(defaultAVOverviewInstance(defaultAVOverviewTemplate, publishedOn.toDate()));
         }
       })
-      .catch();
+      .catch(() => {});
   }, [api, instance.isPublished, publishedOn]);
 
   const handleSubmit = React.useCallback(

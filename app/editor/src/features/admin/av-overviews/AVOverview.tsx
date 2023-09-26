@@ -51,7 +51,7 @@ const AVOverview: React.FC = () => {
           setTemplate(defaultAVOverviewTemplate(AVOverviewTemplateTypeName.Weekday, 0));
         }
       })
-      .catch();
+      .catch(() => {});
   }, [api, templateType]);
 
   const handleSubmit = React.useCallback(

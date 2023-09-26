@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IUserInfoModel } from 'tno-core';
 
-import { IAjaxRequest, IAppState, IErrorModel } from '.';
+import { IAjaxRequest, IAppState, IErrorModel, IUserOptions } from '.';
 
 const defaultState: IAppState = {
   requests: [],
@@ -18,6 +18,9 @@ export const appSlice = createSlice({
   name: 'app',
   initialState: defaultState,
   reducers: {
+    storeUserOptions(state: IAppState, action: PayloadAction<IUserOptions | undefined>) {
+      state.options = action.payload;
+    },
     storeUserInfo(state: IAppState, action: PayloadAction<IUserInfoModel | undefined>) {
       state.userInfo = action.payload;
     },
@@ -48,6 +51,7 @@ export const appSlice = createSlice({
 });
 
 export const {
+  storeUserOptions,
   storeUserInfo,
   addRequest,
   removeRequest,

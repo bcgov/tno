@@ -2,7 +2,7 @@ import { UnauthenticatedHome } from 'features/home';
 import { UserInfo } from 'features/login';
 import { NavBar } from 'features/navbar';
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { HubMethodName, IWorkOrderToast, useApiHub, useToastError } from 'store/hooks';
 import {
@@ -24,6 +24,8 @@ interface ILayoutProps extends React.HTMLAttributes<HTMLDivElement> {
    * Site name to display in header.
    */
   name: string;
+  /** Whether the navbar is visible. */
+  showNav?: boolean;
 }
 
 /**
@@ -31,13 +33,20 @@ interface ILayoutProps extends React.HTMLAttributes<HTMLDivElement> {
  * @param param0 Component properties.
  * @returns DefaultLayout component.
  */
-const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest }) => {
+const DefaultLayout: React.FC<ILayoutProps> = ({
+  name,
+  showNav: initShowNav,
+  children,
+  ...rest
+}) => {
   const keycloak = useKeycloakWrapper();
   const { setToken } = React.useContext(SummonContext);
   var hub = useApiHub();
   useToastError();
+  const [searchParams] = useSearchParams({ showNav: 'true' });
 
   const [toastIds, setToastIds] = React.useState<IWorkOrderToast[]>([]);
+  const showNav = initShowNav ?? searchParams.get('showNav') === 'true';
 
   React.useEffect(() => {
     keycloak.instance.onTokenExpired = () => {
@@ -100,9 +109,7 @@ const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest }) => {
     [toastIds],
   );
 
-  React.useEffect(() => {
-    return hub.listen(HubMethodName.WorkOrder, onWorkOrderMessage);
-  }, [onWorkOrderMessage, hub]);
+  hub.useHubEffect(HubMethodName.WorkOrder, onWorkOrderMessage);
 
   return (
     <styled.Layout {...rest}>
@@ -115,7 +122,9 @@ const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest }) => {
         </Header>
         <div className="main-window">
           <LayoutErrorBoundary>
-            <NavBar />
+            <Show visible={showNav}>
+              <NavBar />
+            </Show>
             <main>
               <Outlet />
             </main>

@@ -11,7 +11,7 @@ export class TableInternalCell<T extends object>
     row: ITableInternalRow<T>,
     index: number,
     name: keyof T,
-    label: string,
+    label: React.ReactNode,
     cell: ((cell: ITableInternalCell<T>) => React.ReactNode) | undefined,
     original: T,
     options: {
