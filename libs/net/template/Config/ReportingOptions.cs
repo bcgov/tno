@@ -21,5 +21,11 @@ public class ReportingOptions
     /// get/set - The request transcript URL.
     /// </summary>
     public Uri? RequestTranscriptUrl { get; set; }
+
+    /// <summary>
+    /// get/set - The add to report URL.
+    /// </summary>
+    public Uri? AddToReportUrl { get; set; }
+
     #endregion
 }
