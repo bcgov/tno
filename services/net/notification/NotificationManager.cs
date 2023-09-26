@@ -15,6 +15,7 @@ using TNO.Models.Extensions;
 using TNO.Services.Managers;
 using TNO.Services.Notification.Config;
 using TNO.TemplateEngine;
+using TNO.TemplateEngine.Config;
 using TNO.TemplateEngine.Models.Notifications;
 
 namespace TNO.Services.Notification;
@@ -55,6 +56,11 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     protected ChesOptions ChesOptions { get; }
 
     /// <summary>
+    /// get - Reporting options.
+    /// </summary>
+    protected ReportingOptions ReportingOptions { get; }
+
+    /// <summary>
     /// get - Notification validator.
     /// </summary>
     protected NotificationValidator NotificationValidator { get; }
@@ -72,6 +78,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <param name="chesOptions"></param>
     /// <param name="serializationOptions"></param>
     /// <param name="notificationOptions"></param>
+    /// <param name="reportingOptions"></param>
     /// <param name="notificationValidator"></param>
     /// <param name="logger"></param>
     public NotificationManager(
@@ -83,6 +90,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         IOptions<ChesOptions> chesOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
         IOptions<NotificationOptions> notificationOptions,
+        IOptions<ReportingOptions> reportingOptions,
         INotificationValidator notificationValidator,
         ILogger<NotificationManager> logger)
         : base(api, notificationOptions, logger)
@@ -91,6 +99,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         this.TemplateEngine = templateEngine;
         this.Ches = chesService;
         this.ChesOptions = chesOptions.Value;
+        this.ReportingOptions = reportingOptions.Value;
         _serializationOptions = serializationOptions.Value;
         this.NotificationValidator = notificationValidator as NotificationValidator ?? throw new ArgumentException("NotificationValidator must be of the correct type");
         this.Listener = listener;
@@ -402,10 +411,10 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         var key = $"notification_{notification.Id}_subject";
         var model = new TemplateModel(content)
         {
-            MmiaUrl = this.Options.MmiaUrl,
-            ViewContentUrl = this.Options.ViewContentUrl,
-            RequestTranscriptUrl = this.Options.RequestTranscriptUrl,
-            AddToReportUrl = this.Options.AddToReportUrl,
+            MmiaUrl = this.ReportingOptions.MmiaUrl,
+            ViewContentUrl = this.ReportingOptions.ViewContentUrl,
+            RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl,
+            AddToReportUrl = this.ReportingOptions.AddToReportUrl,
         };
         var templateText = notification.Settings.GetDictionaryJsonValue<string>("subject") ?? "";
         var template = (!updateCache ?
@@ -436,10 +445,10 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         var key = $"notification_{notification.Id}";
         var model = new TemplateModel(content)
         {
-            AddToReportUrl = this.Options.AddToReportUrl,
-            MmiaUrl = this.Options.MmiaUrl,
-            ViewContentUrl = this.Options.ViewContentUrl != null ? new Uri(this.Options.ViewContentUrl, content.Id.ToString()) : null,
-            RequestTranscriptUrl = this.Options.RequestTranscriptUrl
+            AddToReportUrl = this.ReportingOptions.AddToReportUrl,
+            MmiaUrl = this.ReportingOptions.MmiaUrl,
+            ViewContentUrl = this.ReportingOptions.ViewContentUrl != null ? new Uri(this.ReportingOptions.ViewContentUrl, content.Id.ToString()) : null,
+            RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl
         };
         var template = (!updateCache ?
             this.TemplateEngine.GetOrAddTemplateInMemory(key, notification.Template) :
