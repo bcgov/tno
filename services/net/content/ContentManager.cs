@@ -227,22 +227,23 @@ public class ContentManager : ServiceManager<ContentOptions>
         bool updateSourceContent = false;
         long? existingContentId = null;
 
-        // KGM - This code should be removed/refactored post PROD deployment most likely
-        // IF we are allowing overwrites from the Content Migration Service
-        // AND if the current content was ingested by that the Content Migration Service
-        // THEN we trigger a complete overwrite of the existing content with the updated content
-        if (this.Options.MigrationOptions.AllowSourceContentOverwrite
-            && model.Source.Equals(this.Options.MigrationOptions.ContentMigrationIngestSourceCode)) {
-            // updates from the Content Migration service *ALWAYS* get applied
-            updateSourceContent = true;
-            Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMIA Content : {Source}:{Title}", model.Source, model.Title);
-        }
-
         // Only add if doesn't already exist.
         ContentModel? content = await this.Api.FindContentByUidAsync(model.Uid, model.Source);
         if (content != null) {
             existingContentId = content.Id;
+
+            // KGM - This code should be removed/refactored post PROD deployment most likely
+            // IF we are allowing overwrites from the Content Migration Service
+            // AND if the current content was ingested by the Content Migration Service
+            // THEN we trigger a complete overwrite of the existing content with the updated content
+            if (this.Options.MigrationOptions.AllowSourceContentOverwrite
+                && result.Topic.Equals(this.Options.MigrationOptions.ContentMigrationIngestSourceCode)) {
+                // updates from the Content Migration service *ALWAYS* get applied
+                updateSourceContent = true;
+                Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMIA Content : {Source}:{Title}", model.Source, model.Title);
+            }
         }
+
         if (content == null || updateSourceContent)
         {
             // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
