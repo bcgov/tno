@@ -29,7 +29,7 @@ export const ReportTemplateFormCharts: React.FC = () => {
     if (!chartTemplates.length)
       findAllChartTemplates()
         .then((results) => setChartOptions(getSortableOptions(results)))
-        .catch();
+        .catch(() => {});
     // Only fetch items on initial load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

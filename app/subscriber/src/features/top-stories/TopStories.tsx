@@ -25,7 +25,7 @@ export const TopStories: React.FC = () => {
       quantity: 100,
     })
       .then((data) => setTopStories(data.items))
-      .catch();
+      .catch(() => {});
   }, [findContent, filterAdvanced]);
 
   /** controls the checking and unchecking of rows in the list view */

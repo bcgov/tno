@@ -31,4 +31,5 @@ npm version $version
 
 yarn npm publish
 
-echo "version: $version"
+package_version=$(node -p "require('./package.json').version")
+echo "version: $package_version"

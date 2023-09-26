@@ -11,7 +11,7 @@ export interface ITableInternalColumn<T extends object>
 export class TableInternalColumn<T extends object> implements ITableInternalColumn<T> {
   index: number;
   name: keyof T;
-  label: string; // TODO: Need to separate header columns and row columns.  Also need to make this a function
+  label: React.ReactNode; // TODO: Need to separate header columns and row columns.  Also need to make this a function
   cell: (cell: ITableInternalCell<T>) => React.ReactNode;
   isVisible: boolean;
   hAlign?: 'left' | 'center' | 'right';
@@ -21,7 +21,7 @@ export class TableInternalColumn<T extends object> implements ITableInternalColu
   constructor(
     index: number,
     name: keyof T,
-    label: string,
+    label: React.ReactNode,
     cell: ((cell: ITableInternalCell<T>) => React.ReactNode) | undefined,
     options: {
       isVisible?: boolean;

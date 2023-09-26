@@ -1,5 +1,6 @@
+import { NavigateOptions, useTab } from 'components/tab-control';
 import React, { lazy } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { HubMethodName, useApiHub, useContent } from 'store/hooks';
 import { IContentSearchResult, useContentStore } from 'store/slices';
@@ -19,7 +20,6 @@ import {
   useCombinedView,
 } from 'tno-core';
 
-import { useTab } from '..';
 import { defaultPage } from '../list-view/constants';
 import { IContentListAdvancedFilter } from '../list-view/interfaces';
 import { ReportActions } from './components';
@@ -39,14 +39,13 @@ export interface IPapersProps extends React.HTMLAttributes<HTMLDivElement> {}
  */
 const Papers: React.FC<IPapersProps> = (props) => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { combined, formType } = useCombinedView();
   const [
     { filterPaper: filter, filterPaperAdvanced: filterAdvanced, content },
     { findContent, storeFilterPaper, updateContent: updateStatus, getContent },
   ] = useContent();
   const [, { updateContent }] = useContentStore();
-  const initTab = useTab();
+  const { navigate } = useTab();
   var hub = useApiHub();
 
   const [contentId, setContentId] = React.useState(id);
@@ -87,8 +86,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
     [getContent, updateContent, updateStatus],
   );
 
-  const openTab = true; // TODO: Change to user preference and responsive in future.
-  const columns = getColumns(openTab, initTab, handleClickUse);
+  const columns = getColumns(handleClickUse);
 
   const page = React.useMemo(
     () =>
@@ -128,12 +126,13 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const handleRowClick = (
     cell: ITableInternalCell<IContentSearchResult>,
     row: ITableInternalRow<IContentSearchResult>,
+    event: React.MouseEvent<Element, MouseEvent>,
   ) => {
     if (cell.index > 0 && cell.index !== 6) {
       setContentType(row.original.contentType);
       setContentId(row.original.id.toString());
-      if (openTab) initTab(row.original.id);
-      else navigate(`/papers/combined/${row.original.id}${window.location.search}`);
+      if (event.ctrlKey) navigate(row.original.id, '/contents', NavigateOptions.NewTab);
+      else navigate(row.original.id);
     }
   };
 

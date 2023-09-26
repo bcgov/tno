@@ -3,7 +3,7 @@ import { ITableInternal, ITableInternalHeaderColumn, ITableInternalRow } from '.
 export class TableInternalHeaderColumn<T extends object> implements ITableInternalHeaderColumn<T> {
   index: number;
   name: keyof T | string;
-  label: string; // TODO: Need to separate header columns and row columns.  Also need to make this a function
+  label: React.ReactNode; // TODO: Need to separate header columns and row columns.  Also need to make this a function
   isVisible: boolean;
   sort: string | ((row: ITableInternalRow<T>) => string | number | boolean | null | undefined);
   showSort: boolean;
@@ -17,7 +17,7 @@ export class TableInternalHeaderColumn<T extends object> implements ITableIntern
     table: ITableInternal<T>,
     index: number,
     name: keyof T | string,
-    label: string,
+    label: React.ReactNode,
     isVisible: boolean,
     sort?:
       | string

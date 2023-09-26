@@ -33,7 +33,7 @@ export const ReportFormSections = () => {
         .then((reports) => {
           setReportOptions(getSortableOptions(reports));
         })
-        .catch();
+        .catch(() => {});
     // Only run on initialize.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

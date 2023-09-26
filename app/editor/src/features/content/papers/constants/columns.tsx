@@ -1,6 +1,6 @@
-import { FaExternalLinkAlt } from 'react-icons/fa';
+import { TabControl } from 'components/tab-control';
 import { IContentSearchResult } from 'store/slices';
-import { CellEllipsis, Checkbox, ContentStatusName, ITableHookColumn } from 'tno-core';
+import { CellEllipsis, Checkbox, ContentStatusName, ITableHookColumn, Row } from 'tno-core';
 
 import { getStatusText } from '../../list-view/utils';
 
@@ -12,13 +12,16 @@ const changeStatus = (status: ContentStatusName) => {
 };
 
 export const getColumns = (
-  openTab: boolean,
-  onClickOpen: (contentId: number) => void,
   onClickUse: (content: IContentSearchResult) => void,
 ): ITableHookColumn<IContentSearchResult>[] => [
   {
     name: 'headline',
-    label: 'Headline',
+    label: (
+      <Row gap="0.5rem">
+        <TabControl />
+        Headline
+      </Row>
+    ),
     cell: (cell) => <CellEllipsis>{cell.original.headline}</CellEllipsis>,
     width: 6,
   },
@@ -65,24 +68,5 @@ export const getColumns = (
       </div>
     ),
     hAlign: 'center',
-  },
-  {
-    name: 'newTab',
-    label: '',
-    showSort: false,
-    hAlign: 'center',
-    isVisible: !openTab,
-    cell: (cell) => {
-      return (
-        <FaExternalLinkAlt
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onClickOpen(cell.original.id);
-          }}
-        />
-      );
-    },
-    width: '50px',
   },
 ];

@@ -10,10 +10,12 @@ import {
   removeError,
   removeRequest,
   storeUserInfo,
+  storeUserOptions,
 } from '.';
-import { IAppState, IErrorModel } from './interfaces';
+import { IAppState, IErrorModel, IUserOptions } from './interfaces';
 
 export interface IAppStore {
+  storeUserOptions: (options?: IUserOptions) => void;
   storeUserInfo: (user?: IUserInfoModel) => void;
   addRequest: (url: string, group?: string | string[], isSilent?: boolean) => void;
   removeRequest: (url: string) => void;
@@ -33,6 +35,9 @@ export const useAppStore = (): [IAppState, IAppStore] => {
 
   const controller = React.useMemo(
     () => ({
+      storeUserOptions: (options?: IUserOptions) => {
+        dispatch(storeUserOptions(options));
+      },
       storeUserInfo: (user?: IUserInfoModel) => {
         dispatch(storeUserInfo(user));
       },

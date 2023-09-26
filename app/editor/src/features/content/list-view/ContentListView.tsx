@@ -1,5 +1,6 @@
+import { NavigateOptions, useTab } from 'components/tab-control';
 import React, { lazy } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { HubMethodName, useApiHub, useApp, useContent } from 'store/hooks';
 import { IContentSearchResult, useContentStore } from 'store/slices';
 import {
@@ -18,9 +19,8 @@ import {
   WorkOrderTypeName,
 } from 'tno-core';
 
-import { useTab } from '..';
 import { ContentToolBar } from './components';
-import { defaultPage, getColumns } from './constants';
+import { columns, defaultPage } from './constants';
 import { IContentListAdvancedFilter, IContentListFilter } from './interfaces';
 import * as styled from './styled';
 import { makeFilter, queryToFilter, queryToFilterAdvanced } from './utils';
@@ -39,18 +39,13 @@ const ContentListView: React.FC = () => {
     { filter, filterAdvanced, content },
     { findContent, getContent, storeFilter, storeFilterAdvanced },
   ] = useContent();
-  const navigate = useNavigate();
   const { combined, formType } = useCombinedView();
   var hub = useApiHub();
-  const initTab = useTab();
+  const { navigate } = useTab({ showNav: false });
 
   const [contentId, setContentId] = React.useState(id);
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
-
   const [isLoading, setIsLoading] = React.useState(false);
-
-  const openTab = true; // TODO: Change to user preference and responsive in future.
-  const columns = getColumns(openTab, initTab);
 
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
@@ -127,9 +122,7 @@ const ContentListView: React.FC = () => {
           const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
           return page;
         }
-      } catch (error) {
-        // TODO: Handle error
-        throw error;
+      } catch {
       } finally {
         setIsLoading(false);
       }
@@ -166,11 +159,14 @@ const ContentListView: React.FC = () => {
     [storeFilter, filter],
   );
 
-  const handleRowClick = (row: ITableInternalRow<IContentSearchResult>) => {
+  const handleRowClick = (
+    row: ITableInternalRow<IContentSearchResult>,
+    event: React.MouseEvent<Element, MouseEvent>,
+  ) => {
     setContentType(row.original.contentType);
     setContentId(row.original.id.toString());
-    if (openTab) initTab(row.original.id);
-    else navigate(`/contents/combined/${row.original.id}${window.location.search}`);
+    if (event.ctrlKey) navigate(row.original.id, '/contents', NavigateOptions.NewTab);
+    else navigate(row.original.id);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
