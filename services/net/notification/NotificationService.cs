@@ -7,6 +7,7 @@ using TNO.Kafka.Models;
 using TNO.Services.Notification.Config;
 using TNO.Services.Runners;
 using TNO.TemplateEngine;
+using TNO.TemplateEngine.Config;
 
 namespace TNO.Services.Notification;
 
@@ -43,6 +44,7 @@ public class NotificationService : KafkaConsumerService
         base.ConfigureServices(services);
         services
             .Configure<NotificationOptions>(this.Configuration.GetSection("Service"))
+            .Configure<ReportingOptions>(this.Configuration.GetSection("Reporting"))
             .AddTransient<IKafkaListener<string, NotificationRequestModel>, KafkaListener<string, NotificationRequestModel>>()
             .AddTransient<INotificationValidator, NotificationValidator>()
             .AddChesSingletonService(this.Configuration.GetSection("CHES"))

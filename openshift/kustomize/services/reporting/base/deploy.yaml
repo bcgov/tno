@@ -160,6 +160,27 @@ spec:
                   name: reporting-service
                   key: CHARTS_URL
 
+            - name: Reporting__MmiaUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-service
+                  key: MMIA_BASE_URL
+            - name: Reporting__ViewContentUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-service
+                  key: MMIA_VIEW_CONTENT_URL
+            - name: Reporting__RequestTranscriptUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-service
+                  key: MMIA_REQUEST_TRANSCRIPT_URL
+            - name: Reporting__AddToReportUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-service
+                  key: MMIA_ADD_TO_REPORT_URL
+
             # Notification Service Configuration
             - name: Service__MaxFailLimit
               valueFrom:
