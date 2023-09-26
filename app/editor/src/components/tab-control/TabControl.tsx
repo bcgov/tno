@@ -4,12 +4,16 @@ import { Show } from 'tno-core';
 
 import { NavigateOptions } from './constants';
 
+/**
+ * Component to choose navigation options.
+ * @returns Component.
+ */
 export const TabControl: React.FC = () => {
   const [{ options }, { storeUserOptions }] = useApp();
 
   return (
     <>
-      <Show visible={options?.open === NavigateOptions.NewTab}>
+      <Show visible={options?.open === undefined || options?.open === NavigateOptions.NewTab}>
         <FaExternalLinkAlt
           className="btn btn-link"
           title="Open in new tab"

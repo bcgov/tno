@@ -107,15 +107,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
 
   const userId = userInfo?.id ?? '';
 
-  React.useEffect(() => {
-    const onChange = (event: PopStateEvent) => {
-      console.debug(event.state);
-    };
-    window.addEventListener('popstate', onChange);
-
-    return () => window.removeEventListener('popstate', onChange);
-  }, []);
-
   const updateForm = React.useCallback(
     async (content: IContentModel | undefined) => {
       if (!!content) {
