@@ -8,4 +8,13 @@ export const ContentTranscriptForm = styled.div`
     flex: auto;
     height: 90%;
   }
+
+  .summary {
+    flex: 1;
+    padding-right: 0.5rem;
+  }
+
+  .quill {
+    height: 295px;
+  }
 `;

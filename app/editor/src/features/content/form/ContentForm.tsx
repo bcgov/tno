@@ -639,7 +639,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
                         <ContentStoryForm contentType={contentType} />
                       </Show>
                       <Show visible={active === 'transcript'}>
-                        <ContentTranscriptForm />
+                        <ContentStoryForm
+                          contentType={contentType}
+                          summaryRequired={false}
+                          isTranscript={true}
+                        />
                       </Show>
                       <Show visible={active === 'clips'}>
                         <ContentClipForm
