@@ -50,7 +50,7 @@ import {
 
 import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
-import { ContentClipForm, ContentLabelsForm, ContentStoryForm, ContentTranscriptForm } from '.';
+import { ContentClipForm, ContentLabelsForm, ContentStoryForm } from '.';
 import { ContentFormToolBar, Tags, TimeLogSection, ToningGroup } from './components';
 import { defaultFormValues } from './constants';
 import { ImageSection } from './ImageSection';
