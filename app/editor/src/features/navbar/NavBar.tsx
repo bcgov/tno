@@ -56,7 +56,7 @@ export const NavBar: React.FC = () => {
           </div>
         </Row>
       </NavBarGroup>
-      <NavBarGroup hover className="navbar" onClick={() => handleClick()}>
+      <NavBarGroup hover zIndex={1001} className="navbar" onClick={() => handleClick()}>
         <Row hidden={!activeHover}>
           {/* Editor */}
           <Show visible={activeHover === 'editor'}>

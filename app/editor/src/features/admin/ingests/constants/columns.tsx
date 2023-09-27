@@ -29,7 +29,6 @@ export const columns: ITableHookColumn<IIngestModel>[] = [
   {
     label: 'Status',
     accessor: (data: IIngestModel) => getStatus(data),
-    // sort: (row) => getStatus(row.original),
     width: 1,
   },
   {

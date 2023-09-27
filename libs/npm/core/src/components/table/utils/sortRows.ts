@@ -48,9 +48,9 @@ export const sortRows = <T extends object>(
 
         // Use the accessor for the search column.
         const accessor = a.columns[sortBy.index].accessor;
-        if (accessor !== undefined) {
-          const aVal = a.original[accessor as keyof T] ?? '';
-          const bVal = b.original[accessor as keyof T] ?? '';
+        if (typeof accessor === 'function') {
+          const aVal = accessor(a.original) ?? '';
+          const bVal = accessor(b.original) ?? '';
           return (aVal < bVal ? -1 : 1) * (sortBy.isSortedDesc ? -1 : 1);
         }
       }
