@@ -16,7 +16,7 @@ import { getStatusText } from '../utils';
 
 export const columns: ITableHookColumn<IContentSearchResult>[] = [
   {
-    name: 'headline',
+    accessor: 'headline',
     label: (
       <Row gap="0.5rem">
         <TabControl />
@@ -34,48 +34,47 @@ export const columns: ITableHookColumn<IContentSearchResult>[] = [
     width: 5,
   },
   {
-    name: 'otherSource',
+    accessor: 'otherSource',
     label: 'Source',
     cell: (cell) => <CellEllipsis>{cell.original.otherSource}</CellEllipsis>,
   },
   {
-    name: 'product',
+    accessor: 'product',
     label: 'Product',
     cell: (cell) => <CellEllipsis>{cell.original.product}</CellEllipsis>,
     width: 1,
   },
   {
-    name: 'section',
-    label: 'Section:Page',
+    accessor: 'section',
+    label: 'Page:Section',
     cell: (cell) => {
-      const value = `${cell.original.section ? `${cell.original.section}:` : ''}${
-        cell.original.page
-      }`;
+      const separator = cell.original.page && cell.original.section ? ':' : '';
+      const value = `${cell.original.page}${separator}${cell.original.section}`;
       return <CellEllipsis>{value}</CellEllipsis>;
     },
     width: 2,
   },
   {
-    name: 'owner',
+    accessor: 'owner',
     label: 'User',
     cell: (cell) => <CellEllipsis>{formatIdirUsername(cell.original.owner)}</CellEllipsis>,
     width: 1,
   },
   {
-    name: 'status',
+    accessor: 'status',
     label: 'Status',
     hAlign: 'center',
     cell: (cell) => getStatusText(cell.original.status),
   },
   {
-    name: 'publishedOn',
+    accessor: 'publishedOn',
     label: 'Pub Date',
     cell: (cell) => <CellDate value={cell.original.publishedOn} />,
     width: 3,
     hAlign: 'center',
   },
   {
-    name: 'status',
+    accessor: 'status',
     label: 'Use',
     hAlign: 'center',
     cell: (cell) => (

@@ -3,19 +3,19 @@ import { CellEllipsis, Checkbox, IReportModel, ITableHookColumn } from 'tno-core
 export const reportProductColumns: ITableHookColumn<IReportModel>[] = [
   {
     label: 'Subscribed',
-    name: 'subscribed',
+    accessor: 'subscribed',
     width: 1,
     cell: (cell) => <Checkbox />,
   },
   {
     label: 'Name',
-    name: 'name',
+    accessor: 'name',
     width: 2,
     cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
     label: 'Start time',
-    name: 'start-time',
+    accessor: 'start-time',
     width: 1,
     cell: () => '--',
   },

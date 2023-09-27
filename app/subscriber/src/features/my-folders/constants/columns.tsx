@@ -9,7 +9,7 @@ export const columns = (
 ): ITableHookColumn<IFolderModel>[] => [
   {
     label: 'My Folders',
-    name: 'name',
+    accessor: 'name',
     width: 2,
     cell: (cell) => (
       <CellEllipsis>
@@ -29,13 +29,13 @@ export const columns = (
   },
   {
     label: 'Story Count',
-    name: 'storyCount',
+    accessor: 'storyCount',
     width: 5,
     cell: (cell) => <CellEllipsis>{cell.original.content.length ?? 0}</CellEllipsis>,
   },
   {
     label: '',
-    name: 'options',
+    accessor: 'options',
     width: 1,
     cell: (cell) => (
       <>

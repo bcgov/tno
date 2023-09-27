@@ -3,33 +3,33 @@ import { CellCheckbox, CellEllipsis, ILicenseModel, ITableHookColumn } from 'tno
 export const columns: ITableHookColumn<ILicenseModel>[] = [
   {
     label: 'Name',
-    name: 'name',
+    accessor: 'name',
     width: 2,
     cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
     label: 'Description',
-    name: 'description',
+    accessor: 'description',
     width: 5,
     cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {
     label: 'Order',
-    name: 'sortOrder',
+    accessor: 'sortOrder',
     width: 1,
     hAlign: 'center',
     cell: (cell) => cell.original.sortOrder,
   },
   {
     label: 'TTL',
-    name: 'ttl',
+    accessor: 'ttl',
     width: 1,
     hAlign: 'center',
     cell: (cell) => <CellEllipsis>{cell.original.ttl}</CellEllipsis>,
   },
   {
     label: 'Enabled',
-    name: 'isEnabled',
+    accessor: 'isEnabled',
     width: 1,
     hAlign: 'center',
     cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,

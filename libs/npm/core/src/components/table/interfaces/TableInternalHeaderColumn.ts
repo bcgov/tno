@@ -2,10 +2,14 @@ import { ITableInternal, ITableInternalHeaderColumn, ITableInternalRow } from '.
 
 export class TableInternalHeaderColumn<T extends object> implements ITableInternalHeaderColumn<T> {
   index: number;
-  name: keyof T | string;
+  accessor: keyof T | string | undefined | ((data: T) => unknown);
   label: React.ReactNode; // TODO: Need to separate header columns and row columns.  Also need to make this a function
   isVisible: boolean;
-  sort: string | ((row: ITableInternalRow<T>) => string | number | boolean | null | undefined);
+  sort:
+    | keyof T
+    | string
+    | undefined
+    | ((row: ITableInternalRow<T>) => string | number | boolean | null | undefined);
   showSort: boolean;
   isSorted: boolean;
   isSortedDesc: boolean;
@@ -16,13 +20,13 @@ export class TableInternalHeaderColumn<T extends object> implements ITableIntern
   constructor(
     table: ITableInternal<T>,
     index: number,
-    name: keyof T | string,
+    accessor: keyof T | string | undefined | ((data: T) => unknown),
     label: React.ReactNode,
     isVisible: boolean,
     sort?:
+      | keyof T
       | string
-      | ((row: ITableInternalRow<T>) => string | number | boolean | null | undefined)
-      | undefined,
+      | ((row: ITableInternalRow<T>) => string | number | boolean | null | undefined),
     showSort?: boolean | undefined,
     isSorted?: boolean | undefined,
     isSortedDesc?: boolean | undefined,
@@ -33,9 +37,9 @@ export class TableInternalHeaderColumn<T extends object> implements ITableIntern
     },
   ) {
     this.index = index;
-    this.name = name;
+    this.accessor = accessor;
     this.label = label;
-    this.sort = sort ?? name.toString();
+    this.sort = sort;
     this.isVisible = isVisible ?? true;
     this.showSort = showSort ?? table.showSort ?? false;
     this.isSorted = isSorted ?? false;

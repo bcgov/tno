@@ -6,7 +6,7 @@ export const subscriberColumns = (
 ): ITableHookColumn<IUserModel>[] => [
   {
     label: '',
-    name: 'id',
+    accessor: 'id',
     width: '50px',
     cell: (cell) => (
       <Checkbox
@@ -27,25 +27,25 @@ export const subscriberColumns = (
   },
   {
     label: 'Username',
-    name: 'username',
+    accessor: 'username',
     width: 1,
     cell: (cell) => <CellEllipsis>{cell.original.username}</CellEllipsis>,
   },
   {
     label: 'Last Name',
-    name: 'lastName',
+    accessor: 'lastName',
     width: 1,
     cell: (cell) => <CellEllipsis>{cell.original.lastName}</CellEllipsis>,
   },
   {
     label: 'First Name',
-    name: 'firstName',
+    accessor: 'firstName',
     width: 1,
     cell: (cell) => <CellEllipsis>{cell.original.firstName}</CellEllipsis>,
   },
   {
     label: 'Email',
-    name: 'email',
+    accessor: 'email',
     width: 2,
     cell: (cell) => <CellEllipsis>{cell.original.email}</CellEllipsis>,
   },

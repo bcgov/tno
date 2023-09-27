@@ -14,6 +14,7 @@ export class TableInternalRow<T extends object> implements ITableInternalRow<T> 
   isSelected: boolean;
   isActive: boolean;
   cells: ITableInternalCell<T>[];
+  columns: ITableInternalColumn<T>[];
   toggleSelected: (value?: boolean) => void;
 
   constructor(
@@ -32,9 +33,10 @@ export class TableInternalRow<T extends object> implements ITableInternalRow<T> 
     this.isActive = table.activeRow
       ? table.activeRow?.original?.[rowId] === original[rowId]
       : table.activeRowId === `${original[rowId]}`;
+    this.columns = columns;
     this.cells = columns.map(
       (col) =>
-        new TableInternalCell(this, col.index, col.name, col.label, col.cell, original, {
+        new TableInternalCell(this, col.index, col.accessor, col.label, col.cell, original, {
           isVisible: col.isVisible,
         }),
     );

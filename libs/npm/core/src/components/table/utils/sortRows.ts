@@ -17,31 +17,42 @@ export const sortRows = <T extends object>(
       const sortBy = sortOrder.find((sort) => {
         if (!sort.isSorted) return false;
 
+        if (typeof sort.sort === 'function' && sort.sort(a) === sort.sort(b)) {
+          return false;
+        }
+
         if (typeof sort.sort === 'string') {
-          const aVal = (a.original as any)[sort.sort];
-          const bVal = (b.original as any)[sort.sort];
+          const aVal = a.original[sort.sort as keyof T];
+          const bVal = b.original[sort.sort as keyof T];
 
           if (aVal === bVal) return false;
           return true;
         }
 
-        if (sort.sort(a) === sort.sort(b)) return false;
         return true;
       });
 
       // Apply the sort.
       if (sortBy) {
-        if (typeof sortBy.sort === 'string') {
-          const aVal = (a.original as any)[sortBy.sort] ?? '';
-          const bVal = (b.original as any)[sortBy.sort] ?? '';
-
-          const outcome = (aVal < bVal ? -1 : 1) * (sortBy.isSortedDesc ? -1 : 1);
-          return outcome;
+        if (typeof sortBy.sort === 'function') {
+          const aVal = sortBy.sort(a) ?? '';
+          const bVal = sortBy.sort(b) ?? '';
+          return (aVal < bVal ? -1 : 1) * (sortBy.isSortedDesc ? -1 : 1);
         }
 
-        const aVal = sortBy.sort(a) ?? '';
-        const bVal = sortBy.sort(b) ?? '';
-        return (aVal < bVal ? -1 : 1) * (sortBy.isSortedDesc ? -1 : 1);
+        if (typeof sortBy.sort === 'string') {
+          const aVal = a.original[sortBy.sort as keyof T] ?? '';
+          const bVal = b.original[sortBy.sort as keyof T] ?? '';
+          return (aVal < bVal ? -1 : 1) * (sortBy.isSortedDesc ? -1 : 1);
+        }
+
+        // Use the accessor for the search column.
+        const accessor = a.columns[sortBy.index].accessor;
+        if (accessor !== undefined) {
+          const aVal = a.original[accessor as keyof T] ?? '';
+          const bVal = b.original[accessor as keyof T] ?? '';
+          return (aVal < bVal ? -1 : 1) * (sortBy.isSortedDesc ? -1 : 1);
+        }
       }
 
       return 0;

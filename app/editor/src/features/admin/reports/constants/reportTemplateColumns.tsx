@@ -3,26 +3,26 @@ import { CellCheckbox, CellEllipsis, IReportTemplateModel, ITableHookColumn } fr
 export const reportTemplateColumns: ITableHookColumn<IReportTemplateModel>[] = [
   {
     label: 'Name',
-    name: 'name',
+    accessor: 'name',
     width: 2,
     cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
     label: 'Description',
-    name: 'description',
+    accessor: 'description',
     width: 5,
     cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {
     label: 'Report Type',
-    name: 'reportType',
+    accessor: 'reportType',
     width: 1,
     hAlign: 'center',
     cell: (cell) => <CellEllipsis>{cell.original.reportType}</CellEllipsis>,
   },
   {
     label: 'Enabled',
-    name: 'isEnabled',
+    accessor: 'isEnabled',
     width: 1,
     hAlign: 'center',
     cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,

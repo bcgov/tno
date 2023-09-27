@@ -3,15 +3,15 @@ import { ITableHookColumn, ITableInternalCell } from '.';
 export interface ITableInternalColumn<T extends object>
   extends Omit<ITableHookColumn<T>, 'id' | 'sort' | 'showSort' | 'isSorted' | 'isSortedDesc'> {
   index: number;
-  name: keyof T;
+  accessor?: keyof T | string | ((data: T) => unknown);
   isVisible: boolean;
   cell: (cell: ITableInternalCell<T>) => React.ReactNode;
 }
 
 export class TableInternalColumn<T extends object> implements ITableInternalColumn<T> {
   index: number;
-  name: keyof T;
-  label: React.ReactNode; // TODO: Need to separate header columns and row columns.  Also need to make this a function
+  accessor: keyof T | string | undefined | ((data: T) => unknown);
+  label: React.ReactNode; // TODO: Separate header columns and row columns.
   cell: (cell: ITableInternalCell<T>) => React.ReactNode;
   isVisible: boolean;
   hAlign?: 'left' | 'center' | 'right';
@@ -20,7 +20,7 @@ export class TableInternalColumn<T extends object> implements ITableInternalColu
 
   constructor(
     index: number,
-    name: keyof T,
+    assessor: keyof T | string | undefined | ((data: T) => unknown),
     label: React.ReactNode,
     cell: ((cell: ITableInternalCell<T>) => React.ReactNode) | undefined,
     options: {
@@ -33,9 +33,17 @@ export class TableInternalColumn<T extends object> implements ITableInternalColu
     },
   ) {
     this.index = index;
-    this.name = name;
+    this.accessor = assessor;
     this.label = label;
-    this.cell = cell ? cell : (cell) => <>{cell.original[name]}</>;
+    this.cell = cell
+      ? cell
+      : (cell) => {
+          return typeof assessor === 'function' ? (
+            <>{assessor(cell.original)}</>
+          ) : (
+            <>{cell.original[assessor as keyof T]}</>
+          );
+        };
     this.isVisible = options.isVisible ?? true;
     this.hAlign = options?.hAlign;
     this.vAlign = options?.vAlign;

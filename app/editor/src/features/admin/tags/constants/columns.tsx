@@ -3,32 +3,32 @@ import { CellCheckbox, CellEllipsis, ITableHookColumn, ITagModel } from 'tno-cor
 export const columns: ITableHookColumn<ITagModel>[] = [
   {
     label: 'Code',
-    name: 'code',
+    accessor: 'code',
     width: 1,
     cell: (cell) => <CellEllipsis>{cell.original.code}</CellEllipsis>,
   },
   {
     label: 'Name',
-    name: 'name',
+    accessor: 'name',
     width: 2,
     cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
     label: 'Description',
-    name: 'description',
+    accessor: 'description',
     width: 5,
     cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {
     label: 'Order',
-    name: 'sortOrder',
+    accessor: 'sortOrder',
     width: 1,
     hAlign: 'center',
     cell: (cell) => cell.original.sortOrder,
   },
   {
     label: 'Enabled',
-    name: 'isEnabled',
+    accessor: 'isEnabled',
     width: 1,
     hAlign: 'center',
     cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,

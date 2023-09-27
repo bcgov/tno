@@ -1,11 +1,15 @@
 import { ITableHookColumn, ITableInternalCell, ITableInternalRow } from '.';
 
 export class TableHookColumn<T extends object> implements ITableHookColumn<T> {
-  name: keyof T | string;
+  accessor: keyof T | undefined | string | ((data: T) => unknown);
   label: string;
   cell?: ((cell: ITableInternalCell<T>) => React.ReactNode) | undefined;
   isVisible: boolean;
-  sort: string | ((row: ITableInternalRow<T>) => string | number | boolean | undefined | null);
+  sort:
+    | keyof T
+    | undefined
+    | string
+    | ((row: ITableInternalRow<T>) => string | number | boolean | undefined | null);
   showSort: boolean;
   isSorted: boolean;
   isSortedDesc: boolean;
@@ -14,12 +18,15 @@ export class TableHookColumn<T extends object> implements ITableHookColumn<T> {
   width?: string | number;
 
   constructor(
-    name: keyof T | string,
+    accessor: keyof T | undefined | string | ((data: T) => unknown),
     label: string,
     cell?: ((column: ITableInternalCell<T>) => React.ReactNode) | undefined,
     options: {
       isVisible?: boolean;
-      sort?: string | ((row: ITableInternalRow<T>) => string | number | boolean | undefined | null);
+      sort?:
+        | keyof T
+        | string
+        | ((row: ITableInternalRow<T>) => string | number | boolean | undefined | null);
       showSort?: boolean;
       isSorted?: boolean;
       isSortedDesc?: boolean;
@@ -30,11 +37,11 @@ export class TableHookColumn<T extends object> implements ITableHookColumn<T> {
       isVisible: true,
     },
   ) {
-    this.name = name;
+    this.accessor = accessor;
     this.label = label;
     this.cell = cell;
     this.isVisible = options?.isVisible ?? true;
-    this.sort = options?.sort ?? name.toString();
+    this.sort = options?.sort;
     this.showSort = options?.showSort ?? false;
     this.isSorted = options?.isSorted ?? false;
     this.isSortedDesc = options?.isSortedDesc ?? false;

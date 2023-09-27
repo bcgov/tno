@@ -21,28 +21,28 @@ export class DemoData {
 
 const columns: ITableHookColumn<DemoData>[] = [
   {
-    name: 'id',
+    accessor: 'id',
     label: 'Id',
     showSort: true,
   },
   {
-    name: 'name',
+    accessor: 'name',
     label: 'Name',
     cell: (cell) => cell.original.name,
     showSort: true,
   },
   {
-    name: 'value',
+    accessor: 'value',
     label: 'Value',
     showSort: true,
   },
   {
-    name: 'section',
+    accessor: 'section',
     label: 'Section',
     showSort: true,
   },
   {
-    name: 'cost',
+    accessor: 'cost',
     label: 'Cost',
     showSort: true,
     hAlign: 'right',

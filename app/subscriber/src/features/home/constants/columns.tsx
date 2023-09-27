@@ -5,7 +5,7 @@ export const determineColumns = (contentType: ContentTypeName | 'all', windowWid
   // columns common to all content
   const baseCols: ITableHookColumn<IContentModel>[] = [
     {
-      name: 'tone',
+      accessor: 'tone',
       label: 'TONE',
       width: 0.25,
       cell: (cell) => (
@@ -13,7 +13,7 @@ export const determineColumns = (contentType: ContentTypeName | 'all', windowWid
       ),
     },
     {
-      name: 'headline',
+      accessor: 'headline',
       label: 'HEADLINE',
       cell: (cell) => <div className="headline">{cell.original.headline}</div>,
       width: windowWidth && windowWidth > 1000 ? 4 : 0.85,
@@ -22,7 +22,7 @@ export const determineColumns = (contentType: ContentTypeName | 'all', windowWid
   // columns specific to print content
   const printCols: ITableHookColumn<IContentModel>[] = [
     {
-      name: 'sectionPage',
+      accessor: 'sectionPage',
       label: 'SECTION PAGE',
       cell: (cell) => (
         <div className="section">{`${cell.original.section}: ${cell?.original.page}`}</div>

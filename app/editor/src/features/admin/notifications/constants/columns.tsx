@@ -3,26 +3,26 @@ import { CellCheckbox, CellEllipsis, INotificationModel, ITableHookColumn } from
 export const columns: ITableHookColumn<INotificationModel>[] = [
   {
     label: 'Name',
-    name: 'name',
+    accessor: 'name',
     width: 2,
     cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
     label: 'Description',
-    name: 'description',
+    accessor: 'description',
     width: 5,
     cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {
     label: 'Public',
-    name: 'isPublic',
+    accessor: 'isPublic',
     width: 1,
     hAlign: 'center',
     cell: (cell) => <CellCheckbox checked={cell.original.isPublic} />,
   },
   {
     label: 'Enabled',
-    name: 'isEnabled',
+    accessor: 'isEnabled',
     width: 1,
     hAlign: 'center',
     cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,

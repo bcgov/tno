@@ -1,5 +1,6 @@
 import { Checkbox } from '../../form';
 import {
+  getSortId,
   ITableHookColumn,
   ITableInternalCell,
   ITableInternalRow,
@@ -24,7 +25,7 @@ export const initColumns = <T extends object>(
   if (table.options.isMulti)
     cols.unshift(
       new TableHookColumn<T>(
-        'multi-select',
+        undefined,
         '',
         (cell: ITableInternalCell<T>) => {
           return (
@@ -52,9 +53,10 @@ export const initColumns = <T extends object>(
       ),
     );
 
-  return cols.map((col) => {
+  return cols.map((col, index) => {
+    const id = getSortId(col, index);
     sortOrder.some((sort) => {
-      if (col.name === sort.id) {
+      if (id === sort.id) {
         col.isSorted = sort.isSorted;
         col.isSortedDesc = sort.isSortedDesc;
         return sort.isSorted;

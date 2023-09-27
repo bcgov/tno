@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { Text } from '../form';
-import { Loader } from '../spinners/Loader';
-import { ITableProps, SortFlag, TablePager, useTable } from '.';
+import { Loader } from '../spinners';
+import { getSortId, ITableProps, SortFlag, TablePager, useTable } from '.';
 import * as styled from './styled';
 
 export const FlexboxTable = <T extends object>({
@@ -102,9 +102,10 @@ export const FlexboxTable = <T extends object>({
                     className="sort"
                     onClick={() => {
                       table.setSortOrder([
-                        ...table.sortOrder.filter((sort) => sort.id !== col.name.toString()),
+                        ...table.sortOrder.filter((sort) => sort.id !== getSortId(col, index)),
                         {
-                          id: col.name.toString(),
+                          id: getSortId(col, index),
+                          index: index,
                           sort: col.sort,
                           isSorted: !col.isSorted ? true : col.isSortedDesc ? false : true,
                           isSortedDesc: col.isSorted ? !col.isSortedDesc : col.isSortedDesc,

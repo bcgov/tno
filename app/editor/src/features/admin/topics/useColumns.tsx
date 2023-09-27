@@ -37,7 +37,7 @@ export const useColumns = (
   const result: ITableHookColumn<ITopicModel>[] = [
     {
       label: 'Topic Name',
-      name: 'name',
+      accessor: 'name',
       width: 1,
       cell: (cell) => {
         return (
@@ -59,7 +59,7 @@ export const useColumns = (
     },
     {
       label: 'Type',
-      name: 'topicType',
+      accessor: 'topicType',
       width: 1,
       cell: (cell) => {
         return (
@@ -97,7 +97,7 @@ export const useColumns = (
     },
     {
       label: 'Remove',
-      name: 'Remove',
+      accessor: 'Remove',
       width: '4',
       cell: (cell) => (
         <>
