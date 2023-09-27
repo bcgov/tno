@@ -35,6 +35,7 @@ import { isSummaryRequired } from './utils';
 export interface IContentStoryFormProps {
   contentType: ContentTypeName;
   summaryRequired?: boolean;
+  setCreateAfterPublish?: (state: boolean) => void;
 }
 
 /**
@@ -45,6 +46,7 @@ export interface IContentStoryFormProps {
 export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   contentType,
   summaryRequired: initSummaryRequired,
+  setCreateAfterPublish,
 }) => {
   const [{ series, sources }] = useLookup();
   const { values, setFieldValue } = useFormikContext<IContentForm>();
@@ -214,6 +216,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           contentType={contentType}
           setShowExpandModal={setShowExpandModal}
           isSummaryRequired={summaryRequired}
+          setCreateAfterPublish={setCreateAfterPublish}
         />
       </Show>
       <Show

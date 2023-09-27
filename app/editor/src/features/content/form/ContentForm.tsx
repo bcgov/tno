@@ -19,6 +19,7 @@ import {
   Area,
   Button,
   ButtonVariant,
+  Checkbox,
   Claim,
   Col,
   ContentStatusName,
@@ -96,6 +97,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const [active, setActive] = React.useState('properties');
   const [savePressed, setSavePressed] = React.useState(false);
   const [allowPublishWithoutFile, setAllowPublishWithoutFile] = React.useState(false);
+  const [createAfterPublish, setCreateAfterPublish] = React.useState(true);
   const [, setClipErrors] = React.useState<string>('');
   const [textDecorationStyle, setTextDecorationStyle] = React.useState('none');
   const [cursorStyle, setCursorStyle] = React.useState('text');
@@ -135,6 +137,19 @@ const ContentForm: React.FC<IContentFormProps> = ({
     },
     [getContent, updateForm, navigate],
   );
+
+  const resetForm = React.useCallback((values: IContentForm) => {
+    // Reset form for next record.
+    const parsedDate = moment(values.publishedOn);
+    const updatedDate = parsedDate.add(1, 'second');
+    setForm({
+      ...defaultFormValues(values.contentType),
+      sourceId: values.sourceId,
+      productId: values.productId,
+      otherSource: values.otherSource,
+      publishedOn: updatedDate.toLocaleString(),
+    });
+  }, []);
 
   const onWorkOrder = React.useCallback(
     (workOrder: IWorkOrderMessageModel) => {
@@ -208,26 +223,22 @@ const ContentForm: React.FC<IContentFormProps> = ({
 
         toast.success(`"${contentResult.headline}" has successfully been saved.`);
 
-        if (!originalId) {
-          if (result.status === ContentStatusName.Draft)
-            navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
-          else {
-            // Reset form for next record.
-            const parsedDate = moment(values.publishedOn, 'MMM D, yyyy HH:mm:ss');
-            const updatedDate = parsedDate.add(1, 'second');
-            setForm({
-              ...defaultFormValues(contentType),
-              sourceId: values.sourceId,
-              productId: values.productId,
-              otherSource: values.otherSource,
-              publishedOn: updatedDate.format('MMM D, yyyy HH:mm:ss'),
-            });
-          }
-        }
         if (!!contentResult?.seriesId) {
           // A dynamically added series has been added, fetch the latests series.
           const newSeries = series.find((s) => s.id === contentResult?.seriesId);
           if (!newSeries) getSeries();
+        }
+
+        if (!originalId) {
+          if (!createAfterPublish) {
+            setCreateAfterPublish(true);
+            navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
+          } else {
+            resetForm(result);
+          }
+        } else if (createAfterPublish) {
+          navigate(getContentPath(combined, 0, contentResult?.contentType));
+          resetForm(result);
         }
       } catch {
         // If the upload fails, we still need to update the form from the original update.
@@ -247,9 +258,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
       attach,
       combined,
       contentType,
+      createAfterPublish,
       form,
       getSeries,
       navigate,
+      resetForm,
       series,
       updateContent,
       upload,
@@ -350,10 +363,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
   return (
     <styled.ContentForm className="content-form">
       <FormPage className={combined ? 'no-padding' : ''}>
-        <Area>
+        <Area className="area">
           <FormikForm
             onSubmit={handlePublish}
             validationSchema={ContentFormSchema}
+            validateOnChange={false}
             initialValues={form}
             loading={(request: IAjaxRequest) =>
               !request.isSilent && request.group.some((g) => g === 'content' || g === 'lookup')
@@ -560,7 +574,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
                 </Row>
                 <Row flex="1 1 100%" wrap="nowrap">
                   <Show visible={contentType === ContentTypeName.Image}>
-                    <ContentStoryForm contentType={ContentTypeName.Image} />
+                    <ContentStoryForm
+                      contentType={ContentTypeName.Image}
+                      setCreateAfterPublish={setCreateAfterPublish}
+                    />
                   </Show>
                 </Row>
                 <Row className="tab-section">
@@ -636,7 +653,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       }
                     >
                       <Show visible={active === 'properties'}>
-                        <ContentStoryForm contentType={contentType} />
+                        <ContentStoryForm
+                          contentType={contentType}
+                          setCreateAfterPublish={setCreateAfterPublish}
+                        />
                       </Show>
                       <Show visible={active === 'transcript'}>
                         <ContentTranscriptForm />
@@ -654,7 +674,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     </Tabs>
                   </Show>
                   <Show visible={contentType === ContentTypeName.PrintContent}>
-                    <ContentStoryForm contentType={contentType} />
+                    <ContentStoryForm
+                      contentType={contentType}
+                      setCreateAfterPublish={setCreateAfterPublish}
+                    />
                   </Show>
                 </Row>
                 <Row gap="0.5rem">
@@ -673,26 +696,36 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     </Show>
                   </Show>
 
-                  <Row className="submit-buttons">
-                    <Show
-                      visible={
-                        contentType === ContentTypeName.AudioVideo &&
-                        props.values.fileReferences.length === 0 &&
-                        !props.values.file
-                      }
-                    >
-                      <FormikCheckbox
-                        name="allowPublishWithoutFile"
-                        label="Allow publish without file"
+                  <Row className="submit-buttons" gap="0.5rem">
+                    <Col>
+                      <Checkbox
+                        name="createAfterPublish"
+                        label="Create new after publish"
                         className="allow-no-file"
-                        value={allowPublishWithoutFile}
-                        checked={allowPublishWithoutFile}
-                        onChange={(e: any) => {
-                          setAllowPublishWithoutFile(e.target.checked);
+                        checked={createAfterPublish}
+                        onChange={(e) => {
+                          setCreateAfterPublish(e.target.checked);
                         }}
                       />
-                    </Show>
-                    <Row>
+                      <Show
+                        visible={
+                          contentType === ContentTypeName.AudioVideo &&
+                          props.values.fileReferences.length === 0 &&
+                          !props.values.file
+                        }
+                      >
+                        <Checkbox
+                          name="allowPublishWithoutFile"
+                          label="Allow publish without file"
+                          className="allow-no-file"
+                          checked={allowPublishWithoutFile}
+                          onChange={(e) => {
+                            setAllowPublishWithoutFile(e.target.checked);
+                          }}
+                        />
+                      </Show>
+                    </Col>
+                    <Row gap="0.5rem">
                       <Button
                         type="submit"
                         disabled={
