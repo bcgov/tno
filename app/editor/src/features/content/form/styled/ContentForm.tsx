@@ -4,6 +4,22 @@ export const ContentForm = styled.div`
   height: 100%;
   width: 100%;
 
+  .form-page {
+    height: calc(100% - 1rem);
+
+    > div {
+      height: 100%;
+
+      .form {
+        height: 100%;
+
+        > form {
+          height: 100%;
+        }
+      }
+    }
+  }
+
   .minimize-details {
     margin: 1em 0 0 0;
     padding: 0;

@@ -11,6 +11,7 @@ import {
   IUserModel,
   Modal,
   Row,
+  Text,
   useKeycloakWrapper,
   useModal,
 } from 'tno-core';
@@ -33,6 +34,7 @@ export const TimeLogSection: React.FC<ITimeLogSectionProps> = ({ prepTimeRequire
   const [{ users }] = useLookup();
 
   const [effort, setEffort] = React.useState(0);
+  const [prep, setPrep] = React.useState<number | ''>('');
 
   const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
 
@@ -42,24 +44,48 @@ export const TimeLogSection: React.FC<ITimeLogSectionProps> = ({ prepTimeRequire
     setFieldValue('efforts', value);
   }, [setFieldValue, values.timeTrackings]);
 
+  const addTime = React.useCallback(
+    (value: number | string) => {
+      if (!!values.timeTrackings && typeof value === 'number' && value > 0) {
+        setFieldValue('timeTrackings', [
+          ...values.timeTrackings,
+          {
+            userId: userId,
+            activity: !!values.id ? 'Updated' : 'Created',
+            effort: value,
+            createdOn: new Date(),
+          },
+        ]);
+        setPrep('');
+      }
+    },
+    [setFieldValue, userId, values.id, values.timeTrackings],
+  );
+
   return (
     <styled.TimeLogSection className="multi-group">
-      <FormikText width={FieldSize.Small} name="prep" label="Prep time (minutes)" type="number" />
+      <Text
+        width={FieldSize.Small}
+        name="prep"
+        label="Prep time (minutes)"
+        value={prep}
+        type="number"
+        onChange={(e) => {
+          const value = parseFloat(e.target.value);
+          if (value > 0) setPrep(value);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            addTime(prep);
+            e.preventDefault();
+            return false;
+          }
+        }}
+      />
       <FaArrowAltCircleRight
         className="action-button"
         onClick={() => {
-          if (!!values.timeTrackings) {
-            setFieldValue('timeTrackings', [
-              ...values.timeTrackings,
-              {
-                userId: userId,
-                activity: !!values.id ? 'Updated' : 'Created',
-                effort: (values as any).prep,
-                createdOn: new Date(),
-              },
-            ]);
-            setFieldValue('prep', '');
-          }
+          addTime(prep);
         }}
       />
       <Row className="disabled-section">

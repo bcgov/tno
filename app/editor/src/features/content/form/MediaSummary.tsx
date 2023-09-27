@@ -16,6 +16,7 @@ export interface IMediaSummaryProps {
   contentType?: ContentTypeName;
   setShowExpandModal?: (show: boolean) => void;
   isSummaryRequired: boolean;
+  setCreateAfterPublish?: (state: boolean) => void;
 }
 
 /**
@@ -30,6 +31,7 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
   contentType,
   setShowExpandModal,
   isSummaryRequired,
+  setCreateAfterPublish,
 }) => {
   const { setFieldValue, values } = useFormikContext<IContentForm>();
   const [, { download }] = useContent();
@@ -56,6 +58,8 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
           setFieldValue('file', file);
           // Remove file reference.
           setFieldValue('fileReferences', []);
+          // Don't navigate to a new form after publishing files.
+          setCreateAfterPublish?.(false);
         }}
         onDownload={() => {
           download(values.id, file?.name ?? `${values.otherSource}-${values.id}`);
