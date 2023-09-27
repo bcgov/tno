@@ -20,7 +20,8 @@ import {
 } from 'tno-core';
 
 import { ContentToolBar } from './components';
-import { columns, defaultPage } from './constants';
+import { defaultPage } from './constants';
+import { useColumns } from './hooks';
 import { IContentListAdvancedFilter, IContentListFilter } from './interfaces';
 import * as styled from './styled';
 import { makeFilter, queryToFilter, queryToFilterAdvanced } from './utils';
@@ -131,6 +132,8 @@ const ContentListView: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [findContent],
   );
+
+  const columns = useColumns({ fetch });
 
   React.useEffect(() => {
     if (isReady) {

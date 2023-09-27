@@ -1,4 +1,4 @@
-import { advancedSearchKeys } from 'features/content/list-view/constants';
+import { AdvancedSearchKeys } from 'features/content/list-view/constants';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
@@ -40,7 +40,7 @@ export interface IContentStore {
 }
 
 var filterAdvanced: IContentListAdvancedFilter = {
-  fieldType: advancedSearchKeys.Source,
+  fieldType: AdvancedSearchKeys.Source,
   logicalOperator: '',
   searchTerm: '',
 };

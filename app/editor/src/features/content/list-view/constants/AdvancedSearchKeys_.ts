@@ -1,4 +1,4 @@
-export enum advancedSearchKeys {
+export enum AdvancedSearchKeys {
   Headline = 'headline',
   Source = 'sourceIds',
   Byline = 'byline',

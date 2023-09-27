@@ -14,7 +14,7 @@ import {
 } from 'tno-core';
 
 import { CreateNewSection } from '../list-view/components/tool-bar/filter';
-import { advancedSearchKeys } from '../list-view/constants';
+import { AdvancedSearchKeys } from '../list-view/constants';
 import { queryToFilter, queryToFilterAdvanced } from '../list-view/utils';
 import { AdvancedFilter, ContentFilter } from './components';
 import { defaultPaperFilter } from './constants';
@@ -57,7 +57,7 @@ export const PaperFilter: React.FC<IPaperFilterProps> = ({ onSearch }) => {
     );
     storeFilterAdvanced(
       queryToFilterAdvanced(
-        { ...filterAdvanced, fieldType: advancedSearchKeys.Headline },
+        { ...filterAdvanced, fieldType: AdvancedSearchKeys.Headline },
         window.location.search,
       ),
     );

@@ -1,8 +1,11 @@
-import { advancedSearchKeys, advancedSearchOptions } from 'features/content/list-view/constants';
+import { AdvancedSearchKeys, advancedSearchOptions } from 'features/content/list-view/constants';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
+import { FaX } from 'react-icons/fa6';
 import { useContent, useLookupOptions } from 'store/hooks';
 import {
+  Button,
+  ButtonVariant,
   ContentStatusName,
   FieldSize,
   filterEnabledOptions,
@@ -27,14 +30,10 @@ export interface IAdvancedSearchSectionProps {}
  */
 export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () => {
   const [{ sourceOptions }] = useLookupOptions();
-  const [
-    { filter: oFilter, filterAdvanced: oFilterAdvanced },
-    { storeFilter, storeFilterAdvanced },
-  ] = useContent();
+  const [{ filter: oFilter, filterAdvanced }, { storeFilter, storeFilterAdvanced }] = useContent();
 
   const [statusOptions] = React.useState(getEnumStringOptions(ContentStatusName));
   const [filter, setFilter] = React.useState(oFilter);
-  const [filterAdvanced, setFilterAdvanced] = React.useState(oFilterAdvanced);
 
   // keep the filter in sync with the store
   React.useEffect(() => {
@@ -45,8 +44,8 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
     storeFilter({ ...filter, pageIndex: 0 });
     storeFilterAdvanced({
       ...filterAdvanced,
-      startDate: oFilterAdvanced.startDate,
-      endDate: oFilterAdvanced.endDate,
+      startDate: filterAdvanced.startDate,
+      endDate: filterAdvanced.endDate,
     });
     replaceQueryParams({ ...filter, pageIndex: 0, ...filterAdvanced }, { includeEmpty: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,10 +65,10 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
             onChange={(newValue) => {
               const value =
                 newValue instanceof OptionItem ? newValue.toInterface() : (newValue as IOptionItem);
-              setFilterAdvanced({ ...filterAdvanced, fieldType: value.value, searchTerm: '' });
+              storeFilterAdvanced({ ...filterAdvanced, fieldType: value.value, searchTerm: '' });
             }}
           />
-          <Show visible={filterAdvanced.fieldType === advancedSearchKeys.Source}>
+          <Show visible={filterAdvanced.fieldType === AdvancedSearchKeys.Source}>
             <Select
               name="searchTerm"
               width={FieldSize.Medium}
@@ -77,12 +76,12 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
                 if (e.key === 'Enter') setFilter({ ...filter, pageIndex: 0 });
               }}
               onChange={(newValue: any) => {
-                if (!newValue) setFilterAdvanced({ ...filterAdvanced, searchTerm: '' });
+                if (!newValue) storeFilterAdvanced({ ...filterAdvanced, searchTerm: '' });
                 else {
                   const optionItem = filterEnabledOptions(sourceOptions, newValue.value).find(
                     (ds) => ds.value === newValue.value,
                   );
-                  setFilterAdvanced({
+                  storeFilterAdvanced({
                     ...filterAdvanced,
                     searchTerm: optionItem?.value?.toString() ?? '',
                   });
@@ -94,7 +93,7 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
               )}
             />
           </Show>
-          <Show visible={filterAdvanced.fieldType === advancedSearchKeys.Status}>
+          <Show visible={filterAdvanced.fieldType === AdvancedSearchKeys.Status}>
             <Select
               name="searchTerm"
               width={FieldSize.Medium}
@@ -102,10 +101,10 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
                 if (e.key === 'Enter') setFilter({ ...filter, pageIndex: 0 });
               }}
               onChange={(newValue: any) => {
-                if (!newValue) setFilterAdvanced({ ...filterAdvanced, searchTerm: '' });
+                if (!newValue) storeFilterAdvanced({ ...filterAdvanced, searchTerm: '' });
                 else {
                   const optionItem = statusOptions.find((ds) => ds.value === newValue.value);
-                  setFilterAdvanced({
+                  storeFilterAdvanced({
                     ...filterAdvanced,
                     searchTerm: optionItem?.value?.toString() ?? '',
                   });
@@ -119,7 +118,7 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
           </Show>
           <Show
             visible={
-              ![advancedSearchKeys.Source, advancedSearchKeys.Status].includes(
+              ![AdvancedSearchKeys.Source, AdvancedSearchKeys.Status].includes(
                 filterAdvanced.fieldType,
               )
             }
@@ -134,9 +133,18 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
                 }
               }}
               onChange={(e) => {
-                setFilterAdvanced({ ...filterAdvanced, searchTerm: e.target.value });
+                storeFilterAdvanced({ ...filterAdvanced, searchTerm: e.target.value });
               }}
-            />
+            >
+              <Button
+                variant={ButtonVariant.secondary}
+                onClick={() => {
+                  storeFilterAdvanced({ ...filterAdvanced, searchTerm: '' });
+                }}
+              >
+                <FaX />
+              </Button>
+            </Text>
           </Show>
           <FaArrowAltCircleRight onClick={onChange} className="action-button" />
         </Row>

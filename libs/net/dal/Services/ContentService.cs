@@ -410,20 +410,28 @@ public class ContentService : BaseService<Content, long>, IContentService
 
             if (filter.Sort.Any())
             {
-                Expression<Func<Content, dynamic>>? objPath = null;
-                var sorts = filter.Sort[0];
-                var sort = sorts.Split(' ')[0];
+                var selector = new SortDescriptor<API.Areas.Services.Models.Content.ContentModel>();
+                foreach (var value in filter.Sort)
+                {
+                    Expression<Func<API.Areas.Services.Models.Content.ContentModel, dynamic>>? predicate = null;
+                    var sort = value.Split(' ');
+                    var field = sort.FirstOrDefault();
+                    var order = value.EndsWith(" desc") == true ? SortOrder.Descending : SortOrder.Ascending;
 
-                if (sort == "id") objPath = p => p.Id;
-                if (sort == "productId") objPath = p => p.ProductId;
-                if (sort == "ownerId") objPath = p => p.OwnerId!;
-                if (sort == "publishedOn") objPath = p => p.PublishedOn!;
-                if (sort == "otherSource") objPath = p => p.OtherSource;
-                if (sort == "page") objPath = p => p.Page;
-                if (sort == "status") objPath = p => p.Status;
-                if (sort == "source.sortOrder") objPath = p => p.Source!.SortOrder;
+                    if (field == "id") predicate = p => p.Id;
+                    if (field == "productId") predicate = p => p.ProductId;
+                    if (field == "ownerId") predicate = p => p.OwnerId!;
+                    if (field == "publishedOn") predicate = p => p.PublishedOn!;
+                    if (field == "otherSource") predicate = p => p.OtherSource;
+                    if (field == "page") predicate = p => p.Page;
+                    if (field == "section") predicate = p => p.Section;
+                    if (field == "status") predicate = p => p.Status;
+                    if (field == "source.sortOrder") predicate = p => p.Source!.SortOrder;
 
-                if (objPath != null) result = result.Sort(s => sorts.EndsWith(" desc") ? s.Descending(objPath) : s.Ascending(objPath));
+                    if (field != null) selector = selector.Field(f => f.Field(predicate).Order(order));
+                }
+
+                result.Sort(s => selector);
             }
             else
             {

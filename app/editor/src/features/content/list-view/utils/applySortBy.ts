@@ -13,8 +13,8 @@ export const applySortBy = (sortBy?: ISortBy[]) => {
   for (let i = 0; i < sortBy.length; i++) {
     let column = sortBy[i].id;
     if (column === 'section') {
-      sort.push(`PrintContent.${column}${sortBy[i].desc ? ' desc' : ''}`);
       sort.push(`page${sortBy[i].desc ? ' desc' : ''}`);
+      sort.push(`${column}${sortBy[i].desc ? ' desc' : ''}`);
     } else {
       sort.push(`${column}${sortBy[i].desc ? ' desc' : ''}`);
     }
