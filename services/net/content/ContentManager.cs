@@ -376,7 +376,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             if (updateSourceContent && (existingContentId != null)) {
                 // before updating, reinstate the Id value
                 content.Id = existingContentId.Value;
-                content = await this.Api.UpdateContentAsync(content) ?? throw new InvalidOperationException($"Updating content failed {content.OtherSource}:{content.Uid}");
+                content = await this.Api.UpdateContentAsync(content, null, updateSourceContent) ?? throw new InvalidOperationException($"Updating content failed {content.OtherSource}:{content.Uid}");
                 this.Logger.LogInformation("Content Updated.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
             } else {
                 content = await this.Api.AddContentAsync(content) ?? throw new InvalidOperationException($"Adding content failed {content.OtherSource}:{content.Uid}");
