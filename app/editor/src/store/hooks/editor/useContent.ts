@@ -20,7 +20,10 @@ import { useAjaxWrapper } from '..';
 
 interface IContentController {
   findContent: (filter: IContentFilter) => Promise<IPaged<IContentModel>>;
-  findContentWithElasticsearch: (filter: unknown, index?: string) => Promise<unknown>;
+  findContentWithElasticsearch: (
+    filter: unknown,
+    includeUnpublishedContent: boolean,
+  ) => Promise<unknown>;
   getContent: (id: number) => Promise<IContentModel | undefined>;
   addContent: (content: IContentModel) => Promise<IContentModel>;
   updateContent: (content: IContentModel) => Promise<IContentModel>;
@@ -54,12 +57,9 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         actions.storeContent(response.data);
         return response.data;
       },
-      findContentWithElasticsearch: async (
-        filter: unknown,
-        index: string | undefined = undefined,
-      ) => {
+      findContentWithElasticsearch: async (filter: unknown, includeUnpublishedContent: boolean) => {
         const response = await dispatch('find-contents-with-elasticsearch', () =>
-          api.findContentWithElasticsearch(filter, index),
+          api.findContentWithElasticsearch(filter, includeUnpublishedContent),
         );
         // TODO: store in redux
         return response.data;
