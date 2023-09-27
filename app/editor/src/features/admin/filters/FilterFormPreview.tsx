@@ -23,7 +23,7 @@ export const FilterFormPreview: React.FC = () => {
   const fetchResults = React.useCallback(
     async (filter: unknown) => {
       try {
-        const res = await findContentWithElasticsearch(filter);
+        const res = await findContentWithElasticsearch(filter, false);
         setResults(res);
       } catch {}
     },

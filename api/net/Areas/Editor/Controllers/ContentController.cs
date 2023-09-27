@@ -159,16 +159,16 @@ public class ContentController : ControllerBase
     /// <summary>
     /// Find a page of content for the specified query filter.
     /// </summary>
-    /// <param name="index"></param>
+    /// <param name="includeUnpublishedContent"></param>
     /// <param name="filter"></param>
     /// <returns></returns>
     [HttpPost("search")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> FindWithElasticsearchAsync([FromQuery] string? index, [FromBody] JsonDocument filter)
+    public async Task<IActionResult> FindWithElasticsearchAsync([FromBody] JsonDocument filter, [FromQuery] bool includeUnpublishedContent = false)
     {
-        var result = await _contentService.FindWithElasticsearchAsync(index ?? _elasticOptions.UnpublishedIndex, filter);
+        var result = await _contentService.FindWithElasticsearchAsync(includeUnpublishedContent ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex, filter);
         return new JsonResult(result);
     }
 
