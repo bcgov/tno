@@ -1,17 +1,17 @@
 import { OptionItem } from 'tno-core';
 
-import { advancedSearchKeys } from '.';
+import { AdvancedSearchKeys } from '.';
 
 export const advancedSearchOptions = [
-  new OptionItem('Headline', advancedSearchKeys.Headline),
-  new OptionItem('Source', advancedSearchKeys.Source),
-  new OptionItem('Byline', advancedSearchKeys.Byline),
-  new OptionItem('Section', advancedSearchKeys.Section),
-  new OptionItem('Page', advancedSearchKeys.Page),
-  new OptionItem('Status', advancedSearchKeys.Status),
-  new OptionItem('Edition', advancedSearchKeys.Edition),
-  new OptionItem('Content Type', advancedSearchKeys.ContentType),
-  new OptionItem('Published On', advancedSearchKeys.PublishedOn),
-  new OptionItem('Created On', advancedSearchKeys.CreatedOn),
-  new OptionItem('Updated On', advancedSearchKeys.UpdatedOn),
+  new OptionItem('Headline', AdvancedSearchKeys.Headline),
+  new OptionItem('Source', AdvancedSearchKeys.Source),
+  new OptionItem('Byline', AdvancedSearchKeys.Byline),
+  new OptionItem('Section', AdvancedSearchKeys.Section),
+  new OptionItem('Page', AdvancedSearchKeys.Page),
+  new OptionItem('Status', AdvancedSearchKeys.Status),
+  new OptionItem('Edition', AdvancedSearchKeys.Edition),
+  new OptionItem('Content Type', AdvancedSearchKeys.ContentType),
+  new OptionItem('Published On', AdvancedSearchKeys.PublishedOn),
+  new OptionItem('Created On', AdvancedSearchKeys.CreatedOn),
+  new OptionItem('Updated On', AdvancedSearchKeys.UpdatedOn),
 ];

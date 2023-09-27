@@ -1,4 +1,4 @@
-import { advancedSearchKeys, advancedSearchOptions } from 'features/content/list-view/constants';
+import { AdvancedSearchKeys, advancedSearchOptions } from 'features/content/list-view/constants';
 import { IContentListAdvancedFilter } from 'features/content/list-view/interfaces';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
@@ -57,7 +57,7 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
     if (!!window.location.search) {
       storeFilterPaperAdvanced({
         ...filterAdvanced,
-        fieldType: search.fieldType ?? advancedSearchKeys.Source,
+        fieldType: search.fieldType ?? AdvancedSearchKeys.Source,
         searchTerm: search.searchTerm ?? '',
       });
     }
@@ -101,7 +101,7 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
           <Row>
             <Select
               name="fieldType"
-              options={advancedSearchOptions.filter((ft) => ft.value !== advancedSearchKeys.Source)}
+              options={advancedSearchOptions.filter((ft) => ft.value !== AdvancedSearchKeys.Source)}
               className="select"
               isClearable={false}
               value={advancedSearchOptions.find((ft) => ft.value === filterAdvanced.fieldType)}
@@ -117,7 +117,7 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
                 });
               }}
             />
-            <Show visible={filterAdvanced.fieldType !== advancedSearchKeys.Status}>
+            <Show visible={filterAdvanced.fieldType !== AdvancedSearchKeys.Status}>
               <Text
                 name="searchTerm"
                 value={filterAdvanced.searchTerm}
@@ -133,7 +133,7 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
                 }}
               />
             </Show>
-            <Show visible={filterAdvanced.fieldType === advancedSearchKeys.Status}>
+            <Show visible={filterAdvanced.fieldType === AdvancedSearchKeys.Status}>
               <Select
                 name="searchTerm"
                 width={FieldSize.Medium}

@@ -23,7 +23,7 @@ import {
 import { defaultPage } from '../list-view/constants';
 import { IContentListAdvancedFilter } from '../list-view/interfaces';
 import { ReportActions } from './components';
-import { getColumns } from './constants';
+import { useColumns } from './hooks';
 import { IPaperFilter } from './interfaces';
 import { PaperFilter } from './PaperFilter';
 import * as styled from './styled';
@@ -86,8 +86,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
     [getContent, updateContent, updateStatus],
   );
 
-  const columns = getColumns(handleClickUse);
-
   const page = React.useMemo(
     () =>
       !!content
@@ -116,6 +114,8 @@ const Papers: React.FC<IPapersProps> = (props) => {
     },
     [findContent],
   );
+
+  const columns = useColumns({ fetch, onClickUse: handleClickUse });
 
   React.useEffect(() => {
     fetch({ ...filter, ...filterAdvanced });
