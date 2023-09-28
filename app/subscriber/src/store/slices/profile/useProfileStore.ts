@@ -1,6 +1,7 @@
 import React from 'react';
 import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
 import {
+  IContributorModel,
   IFilterModel,
   IFolderModel,
   IMinisterModel,
@@ -8,6 +9,7 @@ import {
   IUserModel,
 } from 'tno-core';
 
+import { storeContributors } from '../lookup';
 import {
   storeMyFilters,
   storeMyFolders,
@@ -21,6 +23,9 @@ export interface IProfileStore {
   storeMyProfile: (user: IUserModel | ActionDelegate<IUserModel | undefined> | undefined) => void;
   storeMyFilters: (folders: IFilterModel[] | ActionDelegate<IFilterModel[]>) => void;
   storeMyFolders: (folders: IFolderModel[] | ActionDelegate<IFolderModel[]>) => void;
+  storeContributors: (
+    contributors: IContributorModel[] | ActionDelegate<IContributorModel[]>,
+  ) => void;
   storeMyMinisters: (ministers: IMinisterModel[] | ActionDelegate<IMinisterModel[]>) => void;
   storeSystemMessages: (
     ministers: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
@@ -53,6 +58,13 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
           dispatch(storeMyMinisters(ministers(state.myMinisters)));
         } else dispatch(storeMyMinisters(ministers));
       },
+      storeContributors: (
+        contributors: IContributorModel[] | ActionDelegate<IContributorModel[]>,
+      ) => {
+        if (typeof contributors === 'function') {
+          dispatch(storeContributors(contributors(state.contributors)));
+        } else dispatch(storeContributors(contributors));
+      },
       storeSystemMessages: (
         systemMessages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
       ) => {
@@ -68,6 +80,7 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
       state.myFolders,
       state.myMinisters,
       state.systemMessages,
+      state.contributors,
     ],
   );
 

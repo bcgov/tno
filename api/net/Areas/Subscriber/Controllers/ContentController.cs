@@ -9,6 +9,7 @@ using TNO.API.Areas.Subscriber.Models.Content;
 using TNO.API.Areas.Subscriber.Models.Storage;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
+using System.Text.Json;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
 using TNO.DAL.Models;
@@ -90,6 +91,22 @@ public class ContentController : ControllerBase
             result.Quantity,
             result.Total);
         return new JsonResult(page);
+    }
+
+    /// <summary>
+    /// Find a page of content for the specified query filter.
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    [HttpPost("search")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> FindWithElasticsearchAsync([FromQuery] string? index, [FromBody] JsonDocument filter)
+    {
+        var result = await _contentService.FindWithElasticsearchAsync(index ?? _elasticOptions.UnpublishedIndex, filter);
+        return new JsonResult(result);
     }
 
     /// <summary>

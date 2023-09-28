@@ -35,6 +35,12 @@ export const useApiSubscriberContents = (
         `/subscriber/contents?${toQueryString(params)}`,
       );
     },
+    findContentWithElasticsearch: (filter: unknown, index: string | undefined = undefined) => {
+      return api.post<unknown, AxiosResponse<unknown>, any>(
+        `/subscriber/contents/search${index ? `?index=${index}` : ''}`,
+        filter,
+      );
+    },
     getFrontPages: () => {
       return api.get<never, AxiosResponse<IPaged<IContentModel>>, any>(
         `/subscriber/contents/frontpages`,

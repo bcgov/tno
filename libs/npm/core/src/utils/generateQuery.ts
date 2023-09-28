@@ -59,11 +59,14 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
 
 const generateTextQuery = (settings: IFilterSettingsModel) => {
   if (!settings.search) return undefined;
-
   if (!!settings.inHeadline && !!settings.inByline && !!settings.inStory) {
     // give an arbitrary weight to the headline, so if it's found there
     // it gets a slightly higher score, as opposed to other fields
-    return generateSimpleQueryString(['headline^5', 'byline', 'summary', 'body'], settings.search);
+    return generateSimpleQueryString(
+      ['headline^5', 'byline', 'summary', 'body'],
+      settings.search,
+      settings.defaultOperator,
+    );
   }
 
   let fields: string[] = [];
