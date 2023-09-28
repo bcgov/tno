@@ -13,17 +13,21 @@
 		}
 	},
 
-	// Set *default* container specific settings.json values on container create.
-	"settings": {},
+  "customizations": {
+    "vscode": {
+      // Set *default* container specific settings.json values on container create.
+      "settings": {},
 
-	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [
-		"ms-dotnettools.csharp",
-    "eamodio.gitlens",
-    "jorgeserrano.vscode-csharp-snippets",
-    "adrianwilczynski.add-reference",
-    "kreativ-software.csharpextensions"
-	],
+      // Add the IDs of extensions you want installed when the container is created.
+      "extensions": [
+        "ms-dotnettools.csharp",
+        "eamodio.gitlens",
+        "jorgeserrano.vscode-csharp-snippets",
+        "adrianwilczynski.add-reference",
+        "kreativ-software.csharpextensions"
+      ]
+    }
+  },
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [5000, 5001],

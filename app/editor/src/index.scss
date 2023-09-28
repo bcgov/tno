@@ -155,3 +155,26 @@ h4 {
     }
   }
 }
+
+// *************************************************
+// Status
+// *************************************************
+.status-draft {
+  color: $status-draft;
+}
+
+.status-publish {
+  color: $status-publish;
+}
+
+.status-published {
+  color: $status-published;
+}
+
+.status-unpublish {
+  color: $status-unpublish;
+}
+
+.status-unpublished {
+  color: $status-unpublished;
+}

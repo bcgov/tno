@@ -128,7 +128,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
     row: ITableInternalRow<IContentSearchResult>,
     event: React.MouseEvent<Element, MouseEvent>,
   ) => {
-    if (cell.index > 0 && cell.index !== 6) {
+    if (cell.index > 0 && cell.index !== 5) {
       setContentType(row.original.contentType);
       setContentId(row.original.id.toString());
       if (event.ctrlKey) navigate(row.original.id, '/contents', NavigateOptions.NewTab);

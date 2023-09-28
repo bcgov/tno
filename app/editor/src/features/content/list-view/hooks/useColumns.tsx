@@ -1,13 +1,12 @@
+import { Status } from 'components/status';
 import { TabControl } from 'components/tab-control';
 import { FaFeather } from 'react-icons/fa';
 import { useContent } from 'store/hooks';
 import { IContentSearchResult } from 'store/slices';
 import {
-  CellCheckbox,
   CellDate,
   CellEllipsis,
   Checkbox,
-  ContentStatusName,
   formatIdirUsername,
   IContentModel,
   ITableHookColumn,
@@ -19,7 +18,6 @@ import {
 
 import { AdvancedSearchKeys } from '../constants';
 import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
-import { getStatusText } from '../utils';
 
 export interface IColumnProps {
   fetch: (
@@ -98,33 +96,18 @@ export const useColumns = ({ fetch }: IColumnProps): ITableHookColumn<IContentSe
       width: 1,
     },
     {
-      accessor: 'status',
-      label: 'Status',
-      hAlign: 'center',
-      cell: (cell) => getStatusText(cell.original.status),
-    },
-    {
       accessor: 'publishedOn',
       label: 'Pub Date',
       cell: (cell) => <CellDate value={cell.original.publishedOn} />,
-      width: 3,
+      width: '180px',
       hAlign: 'center',
     },
     {
       accessor: 'status',
       label: 'Use',
       hAlign: 'center',
-      cell: (cell) => (
-        <div className="center">
-          <CellCheckbox
-            checked={
-              cell.original.status === ContentStatusName.Publish ||
-              cell.original.status === ContentStatusName.Published
-            }
-          />
-        </div>
-      ),
       width: '55px',
+      cell: (cell) => <Status value={cell.original.status} />,
     },
   ];
 };
