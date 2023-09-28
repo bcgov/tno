@@ -227,9 +227,10 @@ public class ContentManager : ServiceManager<ContentOptions>
         bool updateSourceContent = false;
         long? existingContentId = null;
 
-        // Only add if doesn't already exist.
+        ContentModel? originalContent = await this.Api.FindContentByUidAsync(model.Uid, model.Source);
         ContentModel? content = await this.Api.FindContentByUidAsync(model.Uid, model.Source);
         if (content != null) {
+            // Only add if doesn't already exist.
             existingContentId = content.Id;
 
             // KGM - This code should be removed/refactored post PROD deployment most likely
@@ -291,7 +292,7 @@ public class ContentManager : ServiceManager<ContentOptions>
 
             if (model.Actions.Any())
             {
-                IEnumerable<ContentActionModel> mappedContentActionModels = GetActionMappings(actions!, model.Actions);
+                IEnumerable<ContentActionModel> mappedContentActionModels = GetActionMappings(actions!, model.Actions, existingContentId ?? 0);
                 if (mappedContentActionModels.Any())
                 {
                     content.Actions = mappedContentActionModels.ToArray();
@@ -374,8 +375,18 @@ public class ContentManager : ServiceManager<ContentOptions>
             }
 
             if (updateSourceContent && (existingContentId != null)) {
-                // before updating, reinstate the Id value
-                content.Id = existingContentId.Value;
+                // before saving, reinstate some values from the original content object
+                if (originalContent != null) {
+                    content.Id = originalContent.Id;
+                    content.Source = originalContent.Source;
+                    content.Product = originalContent.Product;
+                    content.Version = originalContent.Version;
+                    content.CreatedBy = originalContent.CreatedBy;
+                    content.CreatedOn = originalContent.CreatedOn;
+                    content.UpdatedBy = originalContent.UpdatedBy;
+                    content.UpdatedOn = originalContent.UpdatedOn;
+                }
+
                 content = await this.Api.UpdateContentAsync(content, null, updateSourceContent) ?? throw new InvalidOperationException($"Updating content failed {content.OtherSource}:{content.Uid}");
                 this.Logger.LogInformation("Content Updated.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
             } else {
@@ -664,7 +675,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     }
 
     private static IEnumerable<ContentActionModel> GetActionMappings(IEnumerable<API.Areas.Editor.Models.Action.ActionModel> actionsLookup,
-        IEnumerable<Kafka.Models.Action> actions)
+        IEnumerable<Kafka.Models.Action> actions, long contentId)
     {
         List<ContentActionModel> mappedActions = new();
         foreach (var action in actions)
@@ -674,7 +685,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             {
                 mappedActions.Add(new ContentActionModel
                 {
-                    ContentId = 0,
+                    ContentId = contentId,
                     Id = targetAction.Id,
                     Name = targetAction.Name,
                     Value = action.ActionValue,
