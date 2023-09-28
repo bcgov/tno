@@ -24,14 +24,17 @@ export const PressGallery: React.FC = () => {
   const [results, setResults] = React.useState<any>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
-  const defaultSettings: IFilterSettingsModel = {
-    startDate: `${moment(filterAdvanced.startDate).format('YYYY-MM-DD')}`,
-    inByline: true,
-    inHeadline: true,
-    inStory: true,
-    searchUnpublished: false,
-    defaultOperator: 'or',
-  };
+  const defaultSettings = React.useMemo<IFilterSettingsModel>(() => {
+    return {
+      startDate: `${moment(filterAdvanced.startDate).format('YYYY-MM-DD')}`,
+      inByline: true,
+      inHeadline: true,
+      inStory: true,
+      searchUnpublished: false,
+      defaultOperator: 'or',
+    };
+  }, [filterAdvanced.startDate]);
+
   const [pressSettings, setPressSettings] = React.useState<IFilterSettingsModel>(defaultSettings);
   const [pressQuery, setPressQuery] = React.useState<any>();
 
@@ -51,7 +54,7 @@ export const PressGallery: React.FC = () => {
       setPressSettings(settings);
       setPressQuery(query);
     },
-    [pressQuery],
+    [pressQuery, defaultSettings],
   );
 
   const fetchResults = React.useCallback(
