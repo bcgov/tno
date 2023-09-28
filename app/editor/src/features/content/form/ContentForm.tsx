@@ -298,6 +298,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
       navigate,
       resetForm,
       series,
+      setAvStream,
       updateContent,
       upload,
       userId,
