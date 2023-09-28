@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Ingest;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 using TNO.Services.Actions.Managers;
 using TNO.Services.Image.Config;
 
@@ -20,9 +22,17 @@ public class ImageIngestActionManager : IngestActionManager<ImageOptions>
     /// <param name="dataSource"></param>
     /// <param name="action"></param>
     /// <param name="api"></param>
+    /// <param name="ches"></param>
+    /// <param name="chesOptions"></param>
     /// <param name="options"></param>
-    public ImageIngestActionManager(IngestModel dataSource, IApiService api, IIngestAction<ImageOptions> action, IOptions<ImageOptions> options)
-        : base(dataSource, api, action, options)
+    public ImageIngestActionManager(
+        IngestModel dataSource,
+        IApiService api,
+        IChesService ches,
+        IOptions<ChesOptions> chesOptions,
+        IIngestAction<ImageOptions> action,
+        IOptions<ImageOptions> options)
+        : base(dataSource, api, ches, chesOptions, action, options)
     {
     }
     #endregion

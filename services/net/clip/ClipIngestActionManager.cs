@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Ingest;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Models.Extensions;
 using TNO.Services.Clip.Config;
@@ -24,10 +26,19 @@ public class ClipIngestActionManager : CommandIngestActionManager<ClipOptions>
     /// <param name="dataSource"></param>
     /// <param name="action"></param>
     /// <param name="api"></param>
+    /// <param name="ches"></param>
+    /// <param name="chesOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public ClipIngestActionManager(IngestModel dataSource, IApiService api, IIngestAction<ClipOptions> action, IOptions<ClipOptions> options, ILogger<ClipIngestActionManager> logger)
-        : base(dataSource, api, action, options)
+    public ClipIngestActionManager(
+        IngestModel dataSource,
+        IApiService api,
+        IChesService ches,
+        IOptions<ChesOptions> chesOptions,
+        IIngestAction<ClipOptions> action,
+        IOptions<ClipOptions> options,
+        ILogger<ClipIngestActionManager> logger)
+        : base(dataSource, api, ches, chesOptions, action, options)
     {
         _logger = logger;
     }

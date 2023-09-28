@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using TNO.Ches;
 using TNO.Core.Http;
 using TNO.Core.Http.Configuration;
 using TNO.Services.Config;
@@ -111,6 +113,8 @@ public abstract class BaseService
                 options.AddConsole();
             })
             .AddTransient<JwtSecurityTokenHandler>()
+            .AddChesService(this.Configuration.GetSection("CHES"))
+            .AddSingleton(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Email, "") })))
             .Configure<AuthClientOptions>(this.Configuration.GetSection("Auth:Keycloak"))
             .Configure<OpenIdConnectOptions>(this.Configuration.GetSection("Auth:OIDC"))
             .AddTransient<IHttpRequestClient, HttpRequestClient>()

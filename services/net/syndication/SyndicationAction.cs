@@ -1,13 +1,14 @@
+using System.Globalization;
 using System.ServiceModel.Syndication;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
-using System.Globalization;
+using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
+using TNO.Core.Extensions;
 using TNO.Core.Http;
 using TNO.Entities;
 using TNO.Kafka.Models;
@@ -15,9 +16,6 @@ using TNO.Models.Extensions;
 using TNO.Services.Actions;
 using TNO.Services.Syndication.Config;
 using TNO.Services.Syndication.Xml;
-using HtmlAgilityPack;
-using TNO.Core.Extensions;
-using TNO.Services.Actions.Managers;
 
 namespace TNO.Services.Syndication;
 
@@ -100,8 +98,10 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 {
                     reference = await AddContentReferenceAsync(manager.Ingest, item, sourceContent);
                 }
-                else if ((reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddHours(1) < DateTime.UtcNow) ||
-                        (!reference.Status.In((int)WorkflowStatus.InProgress, (int)WorkflowStatus.Received, (int)WorkflowStatus.Imported)
+                // If the Content Service hasn't imported within X minutes, then perhaps send another message.
+                else if ((reference.Status.In((int)WorkflowStatus.Failed, (int)WorkflowStatus.InProgress, (int)WorkflowStatus.Received)
+                            && reference.UpdatedOn?.AddSeconds(this.Options.RetryAfterSeconds) < DateTime.UtcNow) ||
+                        (reference.Status.In((int)WorkflowStatus.Imported) // They've updated the story, so we need to update our copy.
                             && item.PublishDate.UtcDateTime != DateTime.MinValue
                             && (reference.PublishedOn != item.PublishDate.UtcDateTime
                                 || (item.LastUpdatedTime.UtcDateTime != DateTime.MinValue
@@ -123,7 +123,10 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             {
                 // Reached limit return to ingest manager.
                 if (manager.Ingest.FailedAttempts + 1 >= manager.Ingest.RetryLimit)
+                {
+                    await manager.SendEmailAsync($"Ingest Failure - {manager.Ingest.Name}", ex);
                     throw;
+                }
 
                 this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}'", manager.Ingest.Name);
                 await manager.RecordFailureAsync();

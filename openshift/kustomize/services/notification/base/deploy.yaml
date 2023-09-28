@@ -66,7 +66,13 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: API_HOST_URL
+            - name: Service__EmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: EMAIL_FAILURE_TO
 
+            # Authentication Configuration
             - name: Auth__Keycloak__Authority
               valueFrom:
                 configMapKeyRef:
@@ -116,6 +122,39 @@ spec:
                   name: services
                   key: KAFKA_BOOTSTRAP_SERVERS
 
+            # Notification Service Configuration
+            - name: Service__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: MAX_FAIL_LIMIT
+            - name: Service__Topics
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: TOPICS
+
+            - name: Reporting__MmiaUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: MMIA_BASE_URL
+            - name: Reporting__ViewContentUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: MMIA_VIEW_CONTENT_URL
+            - name: Reporting__RequestTranscriptUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: MMIA_REQUEST_TRANSCRIPT_URL
+            - name: Reporting__AddToReportUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: MMIA_ADD_TO_REPORT_URL
+
             # CHES Configuration
             - name: CHES__From
               valueFrom:
@@ -153,39 +192,6 @@ spec:
                 secretKeyRef:
                   name: ches
                   key: PASSWORD
-
-            # Notification Service Configuration
-            - name: Service__MaxFailLimit
-              valueFrom:
-                configMapKeyRef:
-                  name: notification-service
-                  key: MAX_FAIL_LIMIT
-            - name: Service__Topics
-              valueFrom:
-                configMapKeyRef:
-                  name: notification-service
-                  key: TOPICS
-
-            - name: Reporting__MmiaUrl
-              valueFrom:
-                configMapKeyRef:
-                  name: notification-service
-                  key: MMIA_BASE_URL
-            - name: Reporting__ViewContentUrl
-              valueFrom:
-                configMapKeyRef:
-                  name: notification-service
-                  key: MMIA_VIEW_CONTENT_URL
-            - name: Reporting__RequestTranscriptUrl
-              valueFrom:
-                configMapKeyRef:
-                  name: notification-service
-                  key: MMIA_REQUEST_TRANSCRIPT_URL
-            - name: Reporting__AddToReportUrl
-              valueFrom:
-                configMapKeyRef:
-                  name: notification-service
-                  key: MMIA_ADD_TO_REPORT_URL
           livenessProbe:
             httpGet:
               path: "/health"

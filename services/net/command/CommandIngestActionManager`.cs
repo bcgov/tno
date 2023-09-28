@@ -1,6 +1,8 @@
-using Microsoft.Extensions.Options;
 using System.Text.Json;
+using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Ingest;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 using TNO.Services.Actions.Managers;
 using TNO.Services.Command.Config;
 
@@ -19,9 +21,17 @@ public abstract class CommandIngestActionManager<TOptions> : IngestActionManager
     /// <param name="ingest"></param>
     /// <param name="action"></param>
     /// <param name="api"></param>
+    /// <param name="ches"></param>
+    /// <param name="chesOptions"></param>
     /// <param name="options"></param>
-    public CommandIngestActionManager(IngestModel ingest, IApiService api, IIngestAction<TOptions> action, IOptions<TOptions> options)
-        : base(ingest, api, action, options)
+    public CommandIngestActionManager(
+        IngestModel ingest,
+        IApiService api,
+        IChesService ches,
+        IOptions<ChesOptions> chesOptions,
+        IIngestAction<TOptions> action,
+        IOptions<TOptions> options)
+        : base(ingest, api, ches, chesOptions, action, options)
     {
     }
     #endregion

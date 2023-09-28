@@ -76,5 +76,39 @@ namespace TNO.Ches.Models
         /// </summary>
         public IEnumerable<IAttachment> Attachments { get; set; } = new List<AttachmentModel>();
         #endregion
+
+        #region Constructors
+        /// <summary>
+        /// Creates a new instance of an EmailModel object.
+        /// </summary>
+        public EmailModel() { }
+
+        /// <summary>
+        /// Creates a new instance of an EmailModel object, initializes with specified parameters.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="subject"></param>
+        /// <param name="body"></param>
+        public EmailModel(string from, string to, string subject, string body)
+            : this(from, new[] { to }, subject, body)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance of an EmailModel object, initializes with specified parameters.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="subject"></param>
+        /// <param name="body"></param>
+        public EmailModel(string from, string[] to, string subject, string body)
+        {
+            this.From = from;
+            this.To = to;
+            this.Subject = subject;
+            this.Body = body;
+        }
+        #endregion
     }
 }

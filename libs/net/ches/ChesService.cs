@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -9,6 +7,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using TNO.Ches.Configuration;
 using TNO.Ches.Models;
 using TNO.Core.Exceptions;
@@ -103,7 +103,7 @@ namespace TNO.Ches
             }
             catch (HttpClientRequestException ex)
             {
-                _logger.LogError(ex, $"Failed to send/receive request: {ex.StatusCode} {url}");
+                _logger.LogError(ex, "Failed to send/receive request: {status} {url}", ex.StatusCode, url);
                 var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
                 throw new ChesException(ex, this.Client, response);
             }
@@ -131,7 +131,7 @@ namespace TNO.Ches
             }
             catch (HttpClientRequestException ex)
             {
-                _logger.LogError(ex, $"Failed to send/receive request: {ex.StatusCode} {url}");
+                _logger.LogError(ex, "Failed to send/receive request: {status} {url}", ex.StatusCode, url);
                 var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
                 throw new ChesException(ex, this.Client, response);
             }
@@ -163,7 +163,7 @@ namespace TNO.Ches
             }
             catch (HttpClientRequestException ex)
             {
-                _logger.LogError(ex, $"Failed to send/receive request: {ex.StatusCode} {url}");
+                _logger.LogError(ex, "Failed to send/receive request: {code} {url}", ex.StatusCode, url);
                 var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
                 throw new ChesException(ex, this.Client, response);
             }
@@ -194,7 +194,7 @@ namespace TNO.Ches
             }
             catch (HttpClientRequestException ex)
             {
-                _logger.LogError(ex, $"Failed to send/receive request: {ex.StatusCode} {this.Options.AuthUrl}");
+                _logger.LogError(ex, "Failed to send/receive request: {code} {url}", ex.StatusCode, this.Options.AuthUrl);
                 var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
                 throw new ChesException(ex, this.Client, response);
             }
