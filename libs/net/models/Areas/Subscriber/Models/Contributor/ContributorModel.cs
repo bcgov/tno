@@ -5,14 +5,9 @@ namespace TNO.API.Areas.Subscriber.Models.Contributor;
 /// <summary>
 /// ContributorModel class, provides a model that represents an contributor.
 /// </summary>
-public class ContributorModel : AuditColumnsModel
+public class ContributorModel : BaseTypeModel<int>
 {
     #region Properties
-    /// <summary>
-    /// get/set - The primary key of the contributor.
-    /// </summary>
-    public int Id { get; set; }
-
     /// <summary>
     /// get/set - Foreign key to source.
     /// </summary>
@@ -22,26 +17,6 @@ public class ContributorModel : AuditColumnsModel
     /// get/set - The source.
     /// </summary>
     public SourceModel? Source { get; set; }
-
-    /// <summary>
-    /// get/set - The unique name of the model.
-    /// </summary>
-    public string Name { get; set; } = "";
-
-    /// <summary>
-    /// get/set - A description of the contributor.
-    /// </summary>
-    public string Description { get; set; } = "";
-
-    /// <summary>
-    /// get/set - Whether this model is enabled.
-    /// </summary>
-    public bool IsEnabled { get; set; }
-
-    /// <summary>
-    /// get/set - The sort order of the models.
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// get/set - Whether content should be automatically transcribed.
@@ -101,7 +76,6 @@ public class ContributorModel : AuditColumnsModel
             Aliases = model.Aliases,
             SortOrder = model.SortOrder,
             AutoTranscribe = model.AutoTranscribe,
-            Version = model.Version ?? 0,
         };
         return entity;
     }

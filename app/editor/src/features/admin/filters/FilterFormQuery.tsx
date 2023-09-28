@@ -49,6 +49,7 @@ export const FilterFormQuery: React.FC = () => {
     setTagOptions(getTagOptions(tags));
   }, [tags]);
 
+  console.log(values.query);
   /**
    * Update the settings and query values based on the new key=value.
    */

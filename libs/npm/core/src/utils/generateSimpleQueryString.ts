@@ -4,13 +4,17 @@
  * @param value The value(s) to search for.
  * @returns An Elasticsearch query for either a multi_match or a match.
  */
-export const generateSimpleQueryString = (fields: string | string[], values: any) => {
+export const generateSimpleQueryString = (
+  fields: string | string[],
+  values: any,
+  defaultOperator?: string,
+) => {
   if (values === undefined || values === null) return undefined;
   return {
     simple_query_string: {
       query: values,
       fields,
-      default_operator: 'and',
+      default_operator: !!defaultOperator ? defaultOperator : 'and',
     },
   };
 };
