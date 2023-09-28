@@ -1,7 +1,7 @@
+import { Status } from 'components/status';
 import { TabControl } from 'components/tab-control';
 import { AdvancedSearchKeys } from 'features/content/list-view/constants';
 import { IContentListAdvancedFilter } from 'features/content/list-view/interfaces';
-import { getStatusText } from 'features/content/list-view/utils';
 import { useContent } from 'store/hooks';
 import { IContentSearchResult } from 'store/slices';
 import {
@@ -14,9 +14,7 @@ import {
   Row,
 } from 'tno-core';
 
-import { PublishedStatuses } from '../constants';
 import { IPaperFilter } from '../interfaces';
-import { changeStatus } from '../utils';
 
 export interface IColumnProps {
   fetch: (
@@ -87,27 +85,15 @@ export const useColumns = ({
     },
     {
       accessor: 'status',
-      label: 'Status',
-      hAlign: 'center',
-      cell: (cell) => getStatusText(cell.original.status),
-    },
-    {
-      accessor: 'status',
       label: 'Use',
-      cell: (cell) => (
-        <div className="center">
-          <Checkbox
-            name="publish"
-            id={`publish-${cell.original.id}`}
-            value={true}
-            checked={PublishedStatuses.includes(cell.original.status)}
-            onChange={() =>
-              onClickUse?.({ ...cell.original, status: changeStatus(cell.original.status) })
-            }
-          />
-        </div>
-      ),
       hAlign: 'center',
+      width: '55px',
+      cell: (cell) => (
+        <Status
+          value={cell.original.status}
+          onClick={(status) => onClickUse?.({ ...cell.original, status: status })}
+        />
+      ),
     },
   ];
 };

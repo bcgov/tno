@@ -33,5 +33,10 @@ public class TranscriptionOptions : ServiceOptions
     /// get/set - Whether to only accept messages from Kafka that include work orders.
     /// </summary>
     public bool AcceptOnlyWorkOrders { get; set; } = true;
+
+    /// <summary>
+    /// get/set - An array of file extensions to convert to audio format (i.e. mp4, mov).
+    /// </summary>
+    public string[] ConvertToAudio { get; set; } = Array.Empty<string>();
     #endregion
 }

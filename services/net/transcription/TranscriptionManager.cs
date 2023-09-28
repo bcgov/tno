@@ -1,18 +1,19 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
+using Confluent.Kafka;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using TNO.API.Areas.Services.Models.Content;
+using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
+using TNO.Entities;
+using TNO.Kafka;
+using TNO.Kafka.Models;
 using TNO.Services.Managers;
 using TNO.Services.Transcription.Config;
-using TNO.Kafka.Models;
-using Confluent.Kafka;
-using System.Text;
-using TNO.Kafka;
-using TNO.Core.Extensions;
-using TNO.Core.Exceptions;
-using TNO.Entities;
-using TNO.API.Areas.Services.Models.Content;
-using System.Text.RegularExpressions;
 
 namespace TNO.Services.Transcription;
 
@@ -250,8 +251,8 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         if (File.Exists(safePath))
         {
             // convert to audio if it's video file
-            var isVideo = Path.GetExtension(safePath).ToLower() == ".mp4";
-            if (isVideo)
+            var ext = Path.GetExtension(safePath)[1..].ToLower();
+            if (this.Options.ConvertToAudio.Contains(ext))
             {
                 safePath = await Video2Audio(safePath);
             }
@@ -425,7 +426,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         var result = process.ExitCode;
         if (result != 0)
         {
-            this.Logger.LogError("Speech convertion error. Error code: {errorcode}, Details: {details}", result, output);
+            this.Logger.LogError("Speech conversion error. Error code: {errorcode}, Details: {details}", result, output);
         }
         return result == 0 ? destFile : string.Empty;
     }

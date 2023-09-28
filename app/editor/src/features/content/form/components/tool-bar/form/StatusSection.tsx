@@ -1,3 +1,4 @@
+import { Status } from 'components/status';
 import { ContentNavigation } from 'features/content/form';
 import { IContentForm } from 'features/content/form/interfaces';
 import { getStatusText } from 'features/content/list-view/utils';
@@ -32,8 +33,9 @@ export const StatusSection: React.FC<IStatusSectionProps> = ({
             combinedPath={combinedPath}
           />
           <Row className="title-container">Content Details</Row>
-          <Row justifyContent="center" className="white-bg">
+          <Row justifyContent="center" className="white-bg" gap="0.5rem">
             {getStatusText(values.status)}
+            <Status value={values.status} />
           </Row>
         </Col>
       </ToolBarSection>

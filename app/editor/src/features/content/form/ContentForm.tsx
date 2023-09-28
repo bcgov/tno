@@ -231,8 +231,8 @@ const ContentForm: React.FC<IContentFormProps> = ({
 
         if (!originalId) {
           if (!createAfterPublish) {
-            setCreateAfterPublish(true);
             navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
+            setCreateAfterPublish(true);
           } else {
             resetForm(result);
           }
