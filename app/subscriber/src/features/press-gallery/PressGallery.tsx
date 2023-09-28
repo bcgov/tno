@@ -51,7 +51,7 @@ export const PressGallery: React.FC = () => {
       setPressSettings(settings);
       setPressQuery(query);
     },
-    [pressQuery, defaultSettings],
+    [pressQuery],
   );
 
   const fetchResults = React.useCallback(
