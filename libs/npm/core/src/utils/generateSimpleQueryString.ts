@@ -14,7 +14,7 @@ export const generateSimpleQueryString = (
     simple_query_string: {
       query: values,
       fields,
-      default_operator: !!defaultOperator ? defaultOperator : 'and',
+      default_operator: defaultOperator ?? 'and',
     },
   };
 };
