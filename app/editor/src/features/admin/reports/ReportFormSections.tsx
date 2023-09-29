@@ -241,9 +241,9 @@ export const ReportFormSections = () => {
                     </Col>
                     <Col className="st-3">{row.description}</Col>
                     <Col className="st-4">
-                      {row.settings.sectionType == 'Content'
+                      {row.settings.sectionType === 'Content'
                         ? row.filter?.name
-                        : row.settings.sectionType == 'TableOfContents'
+                        : row.settings.sectionType === 'TableOfContents'
                         ? 'Table of Contents'
                         : 'Summary'}
                     </Col>
