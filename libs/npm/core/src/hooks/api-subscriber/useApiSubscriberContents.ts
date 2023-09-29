@@ -35,9 +35,11 @@ export const useApiSubscriberContents = (
         `/subscriber/contents?${toQueryString(params)}`,
       );
     },
-    findContentWithElasticsearch: (filter: unknown, index: string | undefined = undefined) => {
+    findContentWithElasticsearch: (filter: unknown, includeUnpublishedContent: boolean = false) => {
       return api.post<unknown, AxiosResponse<unknown>, any>(
-        `/subscriber/contents/search${index ? `?index=${index}` : ''}`,
+        `/subscriber/contents/search${
+          includeUnpublishedContent ? `?includeUnpublishedContent=${includeUnpublishedContent}` : ''
+        }`,
         filter,
       );
     },
