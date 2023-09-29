@@ -23,5 +23,4 @@ data:
 
   DATA_LOCATION: Openshift
 
-  EMAIL_FAILURE_TO: |
-    - jeremy.foster@fosol.ca
+  EMAIL_FAILURE_TO: jeremy.foster@fosol.ca

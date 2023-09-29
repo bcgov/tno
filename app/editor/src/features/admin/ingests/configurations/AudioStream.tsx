@@ -3,6 +3,7 @@ import React from 'react';
 import { Col, FormikSelect, FormikText, IIngestModel, Row, useFormikHelpers } from 'tno-core';
 
 import { Languages, LoggingLevels, TimeZones } from './constants';
+import { ImportContent } from './ImportContent';
 import * as styled from './styled';
 
 export const AudioStream: React.FC = (props) => {
@@ -15,6 +16,7 @@ export const AudioStream: React.FC = (props) => {
 
   return (
     <styled.IngestType>
+      <ImportContent />
       <FormikText
         label="Stream URL"
         name="configuration.url"

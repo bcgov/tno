@@ -1,5 +1,4 @@
 import { useFormikContext } from 'formik';
-import moment from 'moment';
 import React from 'react';
 import {
   Button,
@@ -14,6 +13,8 @@ import {
   Text,
 } from 'tno-core';
 
+import { getStatus } from './utils';
+
 export interface IIngestStatusProps extends IColProps {}
 
 /**
@@ -26,20 +27,10 @@ export interface IIngestStatusProps extends IColProps {}
 export const IngestStatus: React.FC<IIngestStatusProps> = (props) => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
 
-  const getStatus = () => {
-    if (!values.schedules.length) return 'No Service Schedule';
-    if (!values.lastRanOn || !values.isEnabled || values.schedules.every((s) => !s.isEnabled))
-      return 'Not Running';
-
-    const lastDelay = moment();
-    const lastRanOn = moment(values.lastRanOn).add(5, 'minutes');
-    return lastRanOn.isValid() && lastRanOn >= lastDelay ? 'Running' : 'Sleeping';
-  };
-
   return (
     <Col {...props}>
       <Row justifyContent="center">
-        <Text label="Status" name="status" disabled value={getStatus()} />
+        <Text label="Status" name="status" disabled value={getStatus(values)} />
         <FormikText
           label="Last Run On"
           name="lastRanOn"

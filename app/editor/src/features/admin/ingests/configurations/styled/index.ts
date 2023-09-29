@@ -1,2 +1,2 @@
-export * from './Connection';
+export * from './IngestConfiguration';
 export * from './IngestType';

@@ -139,10 +139,10 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
                     }
                     catch (HttpRequestException ex)
                     {
-                        this.Logger.LogError(ex, "Ingest '{name}' failed to run: {Data}", ingest.Name, ex.Data["Body"]);
+                        this.Logger.LogError(ex, "Ingest '{name}' failed to run. Response: {Data}", ingest.Name, ex.Data["Body"]);
 
                         // Update ingest with failure.
-                        await manager.RecordFailureAsync();
+                        await manager.RecordFailureAsync(ex);
                         this.State.RecordFailure();
                     }
                     catch (Exception ex)
@@ -150,7 +150,7 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
                         this.Logger.LogError(ex, "Ingest '{name}' failed to run", ingest.Name);
 
                         // Update ingest with failure.
-                        await manager.RecordFailureAsync();
+                        await manager.RecordFailureAsync(ex);
                         this.State.RecordFailure();
                     }
                 }

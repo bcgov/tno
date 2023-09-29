@@ -17,6 +17,7 @@ import {
   useFormikHelpers,
 } from 'tno-core';
 
+import { ImportContent } from './ImportContent';
 import * as styled from './styled';
 
 export const DbMigration: React.FC = (props) => {
@@ -86,6 +87,7 @@ export const DbMigration: React.FC = (props) => {
 
   return (
     <styled.IngestType>
+      <ImportContent />
       <Row>
         <Col>
           Max Ingest window is&nbsp;{maxMigrationIngestSpanInYears} Year(s). Min Ingest window

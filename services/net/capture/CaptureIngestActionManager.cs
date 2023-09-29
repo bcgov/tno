@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Ches;
@@ -18,19 +19,21 @@ public class CaptureIngestActionManager : CommandIngestActionManager<CaptureOpti
     /// Creates a new instance of a CaptureIngestActionManager object, initializes with specified parameters.
     /// </summary>
     /// <param name="ingest"></param>
-    /// <param name="action"></param>
     /// <param name="api"></param>
     /// <param name="ches"></param>
     /// <param name="chesOptions"></param>
+    /// <param name="action"></param>
     /// <param name="options"></param>
+    /// <param name="logger"></param>
     public CaptureIngestActionManager(
         IngestModel ingest,
         IApiService api,
         IChesService ches,
         IOptions<ChesOptions> chesOptions,
         IIngestAction<CaptureOptions> action,
-        IOptions<CaptureOptions> options)
-        : base(ingest, api, ches, chesOptions, action, options)
+        IOptions<CaptureOptions> options,
+        ILogger<IServiceActionManager> logger)
+        : base(ingest, api, ches, chesOptions, action, options, logger)
     {
     }
     #endregion

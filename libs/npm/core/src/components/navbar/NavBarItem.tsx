@@ -5,17 +5,21 @@ import * as styled from './styled';
 import { isActive } from './utils';
 
 export interface INavBarItem {
+  /** The unique key to identify this item. */
+  uid?: string;
   /**
    * choose the tab label
    */
-  label?: string;
+  label?: React.ReactNode;
   /**
    * the path the item will navigate you to
    */
   navigateTo?: string;
 }
 
-export interface INavBarItemProps extends React.HTMLProps<HTMLButtonElement>, INavBarItem {
+export interface INavBarItemProps
+  extends Omit<React.HTMLProps<HTMLButtonElement>, 'label'>,
+    INavBarItem {
   /**
    * prop used to determine whether the tab is active
    */
@@ -56,6 +60,7 @@ export interface INavBarItemPropsAndEvents extends Omit<INavBarItemProps, 'onCli
  * @returns styled navigation bar item
  */
 export const NavBarItem: React.FC<INavBarItemPropsAndEvents> = ({
+  uid,
   label,
   navigateTo,
   claim,
@@ -68,14 +73,15 @@ export const NavBarItem: React.FC<INavBarItemPropsAndEvents> = ({
   const navigate = useNavigate();
   const keycloak = useKeycloakWrapper();
   const hasClaim = !claim || keycloak.hasClaim(claim);
+  const key = uid ?? (typeof label === 'string' ? label : '');
 
   return hasClaim ? (
     <styled.NavBarItem
       onClick={() => {
-        const nav = onClick?.({ label, navigateTo });
+        const nav = onClick?.({ uid: key, navigateTo });
         if (nav) navigate(navigateTo!!);
       }}
-      active={isActive(location.pathname, navigateTo, exact, activeHoverTab, label)}
+      active={isActive(location.pathname, navigateTo, exact, activeHoverTab, key)}
       level={level}
     >
       {label}

@@ -3,6 +3,7 @@ import React from 'react';
 import { Col, FormikCheckbox, FormikSelect, FormikText, IIngestModel, Row } from 'tno-core';
 
 import { TimeZones } from './constants';
+import { ImportContent } from './ImportContent';
 import * as styled from './styled';
 
 export const FrontPage: React.FC = (props) => {
@@ -10,6 +11,7 @@ export const FrontPage: React.FC = (props) => {
 
   return (
     <styled.IngestType>
+      <ImportContent />
       <FormikText
         label="Path to Files"
         name="configuration.path"

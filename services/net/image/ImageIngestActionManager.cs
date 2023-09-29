@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Ches;
@@ -20,19 +21,21 @@ public class ImageIngestActionManager : IngestActionManager<ImageOptions>
     /// Creates a new instance of a ImageIngestActionManager object, initializes with specified parameters.
     /// </summary>
     /// <param name="dataSource"></param>
-    /// <param name="action"></param>
     /// <param name="api"></param>
     /// <param name="ches"></param>
     /// <param name="chesOptions"></param>
+    /// <param name="action"></param>
     /// <param name="options"></param>
+    /// <param name="logger"></param>
     public ImageIngestActionManager(
         IngestModel dataSource,
         IApiService api,
         IChesService ches,
         IOptions<ChesOptions> chesOptions,
         IIngestAction<ImageOptions> action,
-        IOptions<ImageOptions> options)
-        : base(dataSource, api, ches, chesOptions, action, options)
+        IOptions<ImageOptions> options,
+        ILogger<IServiceActionManager> logger)
+        : base(dataSource, api, ches, chesOptions, action, options, logger)
     {
     }
     #endregion

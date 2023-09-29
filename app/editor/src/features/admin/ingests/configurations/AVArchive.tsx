@@ -2,6 +2,7 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FormikText, IIngestModel } from 'tno-core';
 
+import { ImportContent } from './ImportContent';
 import * as styled from './styled';
 
 export const AVArchive: React.FC = (props) => {
@@ -9,6 +10,7 @@ export const AVArchive: React.FC = (props) => {
 
   return (
     <styled.IngestType>
+      <ImportContent />
       <FormikText
         label="Volume Range"
         name="configuration.volumeRange"

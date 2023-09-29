@@ -38,7 +38,7 @@ public class ClipIngestActionManager : CommandIngestActionManager<ClipOptions>
         IIngestAction<ClipOptions> action,
         IOptions<ClipOptions> options,
         ILogger<ClipIngestActionManager> logger)
-        : base(dataSource, api, ches, chesOptions, action, options)
+        : base(dataSource, api, ches, chesOptions, action, options, logger)
     {
         _logger = logger;
     }

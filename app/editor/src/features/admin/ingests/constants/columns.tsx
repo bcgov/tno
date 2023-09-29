@@ -1,5 +1,6 @@
-import moment from 'moment';
 import { CellCheckbox, CellDate, CellEllipsis, IIngestModel, ITableHookColumn } from 'tno-core';
+
+import { getStatus } from '../utils';
 
 export const columns: ITableHookColumn<IIngestModel>[] = [
   {
@@ -34,23 +35,14 @@ export const columns: ITableHookColumn<IIngestModel>[] = [
   {
     label: 'Last Run',
     accessor: 'lastRanOn',
-    width: 3,
+    width: '200px',
     cell: (cell) => <CellDate value={cell.original.lastRanOn} format="MM/DD/YYYY HH:mm:SS A" />,
   },
   {
     label: 'Enabled',
     accessor: 'isEnabled',
-    width: 1,
+    width: '100px',
+    hAlign: 'center',
     cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,
   },
 ];
-
-const getStatus = (data: IIngestModel) => {
-  if (data.failedAttempts >= data.retryLimit) return 'Failed';
-  else if (!data.isEnabled) return 'Disabled';
-  else if (!data.lastRanOn) return 'Not Running';
-
-  const lastDelay = moment();
-  const lastRanOn = moment(data.lastRanOn).add(5, 'minutes');
-  return lastRanOn.isValid() && lastRanOn >= lastDelay ? 'Running' : 'Sleeping';
-};

@@ -53,7 +53,6 @@ const IngestForm: React.FC<IIngestProps> = (props) => {
       };
       const result = !values.id ? await api.addIngest(model) : await api.updateIngest(model);
       setIngest({ ...result });
-      api.findAllIngests();
       toast.success(`${result.name} has successfully been saved.`);
       if (!originalId) navigate(`/admin/ingests/${result.id}`);
     } catch {}

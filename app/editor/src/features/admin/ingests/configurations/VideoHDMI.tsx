@@ -12,6 +12,7 @@ import {
 } from 'tno-core';
 
 import { Languages, LoggingLevels, TimeZones } from './constants';
+import { ImportContent } from './ImportContent';
 import * as styled from './styled';
 
 export const VideoHDMI: React.FC = (props) => {
@@ -24,6 +25,7 @@ export const VideoHDMI: React.FC = (props) => {
 
   return (
     <styled.IngestType>
+      <ImportContent />
       <FormikText
         label="Device Hostname"
         name="configuration.hostname"

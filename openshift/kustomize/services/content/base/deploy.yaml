@@ -73,7 +73,7 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: API_HOST_URL
-            - name: Service__EmailTo
+            - name: Service__EmailTo__0
               valueFrom:
                 configMapKeyRef:
                   name: services

@@ -3,6 +3,7 @@ import React from 'react';
 import { Col, FormikSelect, FormikText, IIngestModel, Row } from 'tno-core';
 
 import { Languages, LoggingLevels, TimeZones } from './constants';
+import { ImportContent } from './ImportContent';
 import * as styled from './styled';
 
 export const AudioTuner: React.FC = (props) => {
@@ -13,6 +14,7 @@ export const AudioTuner: React.FC = (props) => {
 
   return (
     <styled.IngestType>
+      <ImportContent />
       <FormikSelect label="Timezone" name="configuration.timeZone" options={TimeZones} required />
       <FormikText
         label="Volume Range"

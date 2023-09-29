@@ -5,7 +5,6 @@ import { useConnections } from 'store/hooks/admin';
 import {
   Col,
   ConnectionTypeName,
-  FormikCheckbox,
   FormikSelect,
   FormikText,
   getSortableOptions,
@@ -238,17 +237,6 @@ const IngestSettings: React.FC<IIngestSettingsProps> = () => {
                 disabled
               />
             </Show>
-            <hr />
-            <p>
-              Ingest services that do not generate content may not need to post to Kafka. Capture
-              services normally will not need to post or import their content.
-            </p>
-            <FormikCheckbox label="Post to Kafka" name="configuration.post" />
-            <p>
-              Select if content will be imported by the content service. This provides a way to
-              continue ingesting content to Kafka without indexing it.
-            </p>
-            <FormikCheckbox label="Import Content" name="configuration.import" />
           </Section>
         </Col>
         <Col flex="1 1">

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Ches;
@@ -42,14 +43,16 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// <param name="chesOptions"></param>
     /// <param name="action"></param>
     /// <param name="options"></param>
+    /// <param name="logger"></param>
     public IngestActionManager(
         IngestModel ingest,
         IApiService api,
         IChesService ches,
         IOptions<ChesOptions> chesOptions,
         IIngestAction<TOptions> action,
-        IOptions<TOptions> options)
-        : base(ches, chesOptions, action, options)
+        IOptions<TOptions> options,
+        ILogger<IServiceActionManager> logger)
+        : base(ches, chesOptions, action, options, logger)
     {
         this.Ingest = ingest;
         this.Api = api;
@@ -94,10 +97,20 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// <summary>
     /// Inform ingest of failure.
     /// </summary>
+    /// <param name="error"></param>
     /// <returns></returns>
-    public override async Task RecordFailureAsync()
+    public override async Task RecordFailureAsync(Exception? error = null)
     {
         this.Ingest = await UpdateIngestStateAsync(this.Ingest.FailedAttempts + 1);
+
+        // Reached limit return to ingest manager.
+        if (this.Ingest.FailedAttempts + 1 >= this.Ingest.RetryLimit)
+        {
+            if (error != null)
+                await this.SendEmailAsync($"Ingest Failure - {this.Ingest.Name}", error);
+            else
+                await this.SendEmailAsync($"Ingest Failure - {this.Ingest.Name}", "Failure limit reached");
+        }
         this.IsRunning = false;
     }
 

@@ -121,16 +121,32 @@ const IngestDetails: React.FC<IIngestDetailsProps> = () => {
           onChange={(newValue: any) => {
             // Use the source.code to set the Kafka topic.
             const source = lookups.sources.find((s) => s.id === newValue.value);
-            setFieldValue('topic', source?.code ?? '');
+            if (!!values.configuration.topicFromSource)
+              setFieldValue('topic', (source?.code ?? '').replaceAll(/\s/g, '_'));
           }}
           required
+          isClearable={false}
         />
+        <Row alignItems="center">
+          <FormikText
+            label="Kafka Topic"
+            name="topic"
+            required
+            disabled={!!values.configuration.topicFromSource}
+          />
+          <FormikCheckbox
+            label="Use Source Code"
+            name="configuration.topicFromSource"
+            checked={!!values.configuration.topicFromSource}
+          />
+        </Row>
         <FormikSelect
           label="Product"
           name="productId"
           tooltip="The product designation the ingested content will be assigned"
           options={products}
           required
+          isClearable={false}
         />
       </Col>
       <Col>

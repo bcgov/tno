@@ -94,7 +94,7 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: DATA_LOCATION
-            - name: Service__EmailTo
+            - name: Service__EmailTo__0
               valueFrom:
                 configMapKeyRef:
                   name: services

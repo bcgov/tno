@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Ches;
 using TNO.Ches.Configuration;
@@ -33,6 +34,11 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     /// get - Configuration options for the service.
     /// </summary>
     protected TOptions Options { get; private set; }
+
+    /// <summary>
+    /// get - The action manager logger.
+    /// </summary>
+    protected ILogger Logger { get; private set; }
     #endregion
 
     #region Constructors
@@ -43,12 +49,19 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     /// <param name="chesOptions"></param>
     /// <param name="action"></param>
     /// <param name="options"></param>
-    public ServiceActionManager(IChesService ches, IOptions<ChesOptions> chesOptions, IServiceAction<TOptions> action, IOptions<TOptions> options)
+    /// <param name="logger"></param>
+    public ServiceActionManager(
+        IChesService ches,
+        IOptions<ChesOptions> chesOptions,
+        IServiceAction<TOptions> action,
+        IOptions<TOptions> options,
+        ILogger<IServiceActionManager> logger)
     {
         _ches = ches;
         _chesOptions = chesOptions.Value;
         _action = action;
         this.Options = options.Value;
+        this.Logger = logger;
     }
     #endregion
 
@@ -146,8 +159,9 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     /// <summary>
     /// Inform data source of failure.
     /// </summary>
+    /// <param name="error"></param>
     /// <returns></returns>
-    public abstract Task RecordFailureAsync();
+    public abstract Task RecordFailureAsync(Exception? error = null);
 
     /// <summary>
     /// Updates service config.
@@ -163,10 +177,28 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     /// <returns></returns>
     public async Task SendEmailAsync(string subject, Exception ex)
     {
+        await this.SendEmailAsync(subject, $"<div>{ex.GetAllMessages()}</div>{Environment.NewLine}<div>{ex.StackTrace}</div>");
+    }
+
+    /// <summary>
+    /// Send email alert of failure.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    public async Task SendEmailAsync(string subject, string message)
+    {
         if (this.Options.SendEmailOnFailure)
         {
-            var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, this.Options.EmailTo, subject, ex.GetAllMessages());
-            await _ches.SendEmailAsync(email);
+            try
+            {
+                var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, this.Options.EmailTo, subject, message);
+                await _ches.SendEmailAsync(email);
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Email failed to send");
+            }
         }
     }
     #endregion

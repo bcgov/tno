@@ -39,8 +39,9 @@ public interface IServiceActionManager
     /// <summary>
     /// Inform action of failure.
     /// </summary>
+    /// <param name="error"></param>
     /// <returns></returns>
-    public Task RecordFailureAsync();
+    public Task RecordFailureAsync(Exception? error = null);
 
     /// <summary>
     /// Updates service config/state.
@@ -55,5 +56,13 @@ public interface IServiceActionManager
     /// <param name="ex"></param>
     /// <returns></returns>
     public Task SendEmailAsync(string subject, Exception ex);
+
+    /// <summary>
+    /// Send email alert of failure.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    public Task SendEmailAsync(string subject, string message);
     #endregion
 }
