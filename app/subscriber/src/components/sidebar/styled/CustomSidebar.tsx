@@ -1,3 +1,4 @@
+import env from 'env.json';
 import { Sidebar } from 'react-pro-sidebar';
 import styled from 'styled-components';
 
@@ -20,7 +21,13 @@ export const CustomSidebar = styled(Sidebar)`
 
   /* controls the mmia logo at top of sidebar */
   .title {
-    background-color: #302e2e;
+    background-color: ${(props) => {
+      if (env.dev.includes(window.location.hostname))
+        return props.theme.css.developmentBackgroundColor;
+      else if (env.test.includes(window.location.hostname))
+        return props.theme.css.testBackgroundColor;
+      else return props.theme.css.productionBackgroundColor;
+    }};
     padding: 0.65rem;
   }
 
