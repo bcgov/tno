@@ -1,7 +1,6 @@
 import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { determineColumns } from 'features/home/constants';
-import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
@@ -33,7 +32,7 @@ export const PressGallery: React.FC = () => {
       searchUnpublished: false,
       defaultOperator: 'or',
     };
-  }, [filterAdvanced.startDate]);
+  }, []);
 
   const [pressSettings, setPressSettings] = React.useState<IFilterSettingsModel>(defaultSettings);
   const [pressQuery, setPressQuery] = React.useState<any>();
