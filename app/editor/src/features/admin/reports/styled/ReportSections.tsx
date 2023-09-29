@@ -21,7 +21,7 @@ export const ReportSections = styled.div`
 
   .section-table {
     display: grid;
-    grid-template-columns: 1fr 2fr 5fr 1fr;
+    grid-template-columns: 0.25fr 2fr 4fr 2fr 0.25fr;
     row-gap: 0.25rem;
     width: 100%;
 
@@ -45,6 +45,13 @@ export const ReportSections = styled.div`
 
     .st-4 {
       grid-column-start: 4;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .st-5 {
+      grid-column-start: 5;
       display: flex;
       flex-direction: row;
       justify-content: flex-end;

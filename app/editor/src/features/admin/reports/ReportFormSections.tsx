@@ -223,7 +223,8 @@ export const ReportFormSections = () => {
                 <Col className="st-1"></Col>
                 <Col className="st-2">Heading</Col>
                 <Col className="st-3">Summary</Col>
-                <Col className="st-4"></Col>
+                <Col className="st-4">Content</Col>
+                <Col className="st-5"></Col>
               </Row>
               {values.sections.map((row, index) => (
                 <React.Fragment key={index}>
@@ -235,9 +236,18 @@ export const ReportFormSections = () => {
                     }}
                   >
                     <Col className="st-1">{row.sortOrder + 1}</Col>
-                    <Col className="st-2">{row.settings.label}</Col>
+                    <Col className="st-2">
+                      {row.settings.label.length > 0 ? row.settings.label : '[empty]'}
+                    </Col>
                     <Col className="st-3">{row.description}</Col>
                     <Col className="st-4">
+                      {row.settings.sectionType == 'Content'
+                        ? row.filter?.name
+                        : row.settings.sectionType == 'TableOfContents'
+                        ? 'Table of Contents'
+                        : 'Summary'}
+                    </Col>
+                    <Col className="st-5">
                       <Col>
                         <Button
                           variant={ButtonVariant.link}
