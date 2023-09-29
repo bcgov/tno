@@ -175,4 +175,12 @@ export const ContentForm = styled.div`
     padding: 0.5em;
     border-radius: 0.25em;
   }
+
+  .tab-section {
+    flex-flow: row;
+  }
+
+  .media {
+    align-self: center;
+  }
 `;

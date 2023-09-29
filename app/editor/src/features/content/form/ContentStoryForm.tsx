@@ -1,11 +1,10 @@
 import 'react-quill/dist/quill.snow.css';
 
 import { Wysiwyg } from 'components/wysiwyg';
-import { IStream } from 'features/storage/interfaces';
 import { useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
-import { useContent, useLookup } from 'store/hooks';
+import { useLookup } from 'store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -25,7 +24,6 @@ import {
   useWindowSize,
 } from 'tno-core';
 
-import { IFile } from '.';
 import { Topic } from './components';
 import { IContentForm } from './interfaces';
 import { MediaSummary } from './MediaSummary';
@@ -50,43 +48,16 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
 }) => {
   const [{ series, sources }] = useLookup();
   const { values, setFieldValue } = useFormikContext<IContentForm>();
-  const [, contentApi] = useContent();
   const [showExpandModal, setShowExpandModal] = React.useState(false);
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
   const { height } = useWindowSize();
 
-  // TODO: The stream shouldn't be reset every time the users changes the tab.
-  const [stream, setStream] = React.useState<IStream>(); // TODO: Remove dependency coupling with storage component.
   const [summaryRequired, setSummaryRequired] = React.useState(
     initSummaryRequired ?? isSummaryRequired(values),
   );
 
   const source = sources.find((s) => s.id === values.sourceId);
   const program = series.find((s) => s.id === values.seriesId);
-
-  const fileReference = values.fileReferences.length ? values.fileReferences[0] : undefined;
-  const path = fileReference?.path;
-  const file = !!fileReference
-    ? ({
-        name: fileReference.fileName,
-        size: fileReference.size,
-      } as IFile)
-    : undefined;
-
-  React.useEffect(() => {
-    if (!!path) {
-      contentApi.stream(path).then((result) => {
-        setStream(
-          !!result
-            ? {
-                url: result,
-                type: fileReference?.contentType,
-              }
-            : undefined,
-        );
-      });
-    }
-  }, [contentApi, fileReference?.contentType, path]);
 
   React.useEffect(() => {
     setFieldValue(
@@ -209,11 +180,6 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
         }
       >
         <MediaSummary
-          file={file}
-          fileReference={fileReference}
-          setStream={setStream}
-          stream={stream}
-          contentType={contentType}
           setShowExpandModal={setShowExpandModal}
           isSummaryRequired={summaryRequired}
           setCreateAfterPublish={setCreateAfterPublish}

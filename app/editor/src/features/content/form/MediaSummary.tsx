@@ -1,19 +1,9 @@
 import { Wysiwyg } from 'components/wysiwyg';
-import { useFormikContext } from 'formik';
 import React from 'react';
-import { useContent } from 'store/hooks';
-import { ContentTypeName, IFileReferenceModel } from 'tno-core';
 
-import { IFile, Upload } from '.';
-import { IContentForm } from './interfaces';
 import * as styled from './styled';
 
 export interface IMediaSummaryProps {
-  file?: IFile;
-  fileReference?: IFileReferenceModel;
-  setStream: (stream: any) => void;
-  stream?: { url: string };
-  contentType?: ContentTypeName;
   setShowExpandModal?: (show: boolean) => void;
   isSummaryRequired: boolean;
   setCreateAfterPublish?: (state: boolean) => void;
@@ -24,18 +14,10 @@ export interface IMediaSummaryProps {
  * @returns the MediaSummary
  */
 export const MediaSummary: React.FC<IMediaSummaryProps> = ({
-  file,
-  fileReference,
-  setStream,
-  stream,
-  contentType,
   setShowExpandModal,
   isSummaryRequired,
   setCreateAfterPublish,
 }) => {
-  const { setFieldValue, values } = useFormikContext<IContentForm>();
-  const [, { download }] = useContent();
-
   return (
     <styled.MediaSummary>
       <Wysiwyg
@@ -44,29 +26,6 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
         required={isSummaryRequired}
         fieldName="summary"
         expandModal={setShowExpandModal}
-      />
-      <Upload
-        className="media"
-        contentType={contentType}
-        id="upload"
-        name="file"
-        file={file}
-        stream={stream}
-        downloadable={fileReference?.isUploaded}
-        onSelect={(e) => {
-          const file = (e as IFile).name ? (e as IFile) : undefined;
-          setFieldValue('file', file);
-          // Remove file reference.
-          setFieldValue('fileReferences', []);
-          // Don't navigate to a new form after publishing files.
-          setCreateAfterPublish?.(false);
-        }}
-        onDownload={() => {
-          download(values.id, file?.name ?? `${values.otherSource}-${values.id}`);
-        }}
-        onDelete={() => {
-          setStream(undefined);
-        }}
       />
     </styled.MediaSummary>
   );

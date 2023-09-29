@@ -1,8 +1,9 @@
 import { AxiosError } from 'axios';
 import { FormikForm } from 'components/formik';
+import { IStream } from 'features/storage/interfaces';
 import { FormikHelpers, FormikProps } from 'formik';
 import moment from 'moment';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -52,7 +53,7 @@ import {
 import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
 import { ContentClipForm, ContentLabelsForm, ContentStoryForm, ContentTranscriptForm } from '.';
-import { ContentFormToolBar, Tags, TimeLogSection, ToningGroup } from './components';
+import { ContentFormToolBar, IFile, Tags, TimeLogSection, ToningGroup, Upload } from './components';
 import { defaultFormValues } from './constants';
 import { ImageSection } from './ImageSection';
 import { IContentForm } from './interfaces';
@@ -108,6 +109,38 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const userId = userInfo?.id ?? '';
+
+  const [, contentApi] = useContent();
+  // TODO: The stream shouldn't be reset every time the users changes the tab.
+  const [stream, setStream] = React.useState<IStream>(); // TODO: Remove dependency coupling with storage component.
+  const [, { download }] = useContent();
+  const fileReference = form.fileReferences.length ? form.fileReferences[0] : undefined;
+  const path = fileReference?.path;
+  const file = !!fileReference
+    ? ({
+        name: fileReference.fileName,
+        size: fileReference.size,
+      } as IFile)
+    : undefined;
+
+  const setAvStream = useCallback(() => {
+    if (!!path) {
+      contentApi.stream(path).then((result) => {
+        setStream(
+          !!result
+            ? {
+                url: result,
+                type: fileReference?.contentType,
+              }
+            : undefined,
+        );
+      });
+    }
+  }, [contentApi, fileReference?.contentType, path]);
+
+  React.useEffect(() => {
+    setAvStream();
+  }, [setAvStream]);
 
   const updateForm = React.useCallback(
     async (content: IContentModel | undefined) => {
@@ -205,6 +238,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
           // TODO: Make it possible to upload on the initial save instead of a separate request.
           // Upload the file if one has been added.
           const content = await upload(contentResult, values.file);
+          setAvStream();
           result = toForm({ ...content, tonePools: values.tonePools });
         } else if (
           !originalId &&
@@ -264,6 +298,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
       navigate,
       resetForm,
       series,
+      setAvStream,
       updateContent,
       upload,
       userId,
@@ -677,6 +712,34 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     <ContentStoryForm
                       contentType={contentType}
                       setCreateAfterPublish={setCreateAfterPublish}
+                    />
+                  </Show>
+                  <Show visible={contentType === ContentTypeName.AudioVideo}>
+                    <Upload
+                      className="media"
+                      contentType={contentType}
+                      id="upload"
+                      name="file"
+                      file={file}
+                      stream={stream}
+                      downloadable={fileReference?.isUploaded}
+                      onSelect={(e) => {
+                        const file = (e as IFile).name ? (e as IFile) : undefined;
+                        props.setFieldValue('file', file);
+                        // Remove file reference.
+                        props.setFieldValue('fileReferences', []);
+                        // Don't navigate to a new form after publishing files.
+                        setCreateAfterPublish?.(false);
+                      }}
+                      onDownload={() => {
+                        download(
+                          props.values.id,
+                          file?.name ?? `${props.values.otherSource}-${props.values.id}`,
+                        );
+                      }}
+                      onDelete={() => {
+                        setStream(undefined);
+                      }}
                     />
                   </Show>
                 </Row>

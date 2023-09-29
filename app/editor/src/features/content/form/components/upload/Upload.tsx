@@ -68,14 +68,18 @@ export const Upload: React.FC<IUploadProps> = ({
           <Button
             variant={ButtonVariant.link}
             onClick={() => onDownload?.()}
-            disabled={!onDownload || !!file || !downloadable || !fileName}
+            disabled={!onDownload || !!file || !downloadable || !fileName || !fileReference}
             className="file-name"
             tooltip={`Download ${!!fileName ? fileName : 'not available'}`}
           >
-            {fileName ?? 'No file attached'}
+            {fileReference
+              ? fileReference.fileName
+              : !!file && fileName
+              ? fileName
+              : 'No file uploaded'}
           </Button>
           <Button
-            disabled={!fileName}
+            disabled={!fileName || (!fileReference && !file)}
             variant={ButtonVariant.danger}
             className="delete"
             onClick={() => {
@@ -87,7 +91,7 @@ export const Upload: React.FC<IUploadProps> = ({
           </Button>
         </div>
 
-        <Show visible={!fileName}>
+        <Show visible={!fileName || (!fileReference && !file)}>
           <Row className="drop-box">
             <FileUploader
               children={
