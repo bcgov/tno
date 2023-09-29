@@ -20,3 +20,6 @@ data:
   VOLUME_PATH: /data
   KEY_PATH: ../keys
   TOPICS: ""
+  CHES_FROM: Media Monitoring Insights <mmia@gov.bc.ca>
+  CHES_EMAIL_ENABLED: "true"
+  CHES_EMAIL_AUTHORIZED: "true"

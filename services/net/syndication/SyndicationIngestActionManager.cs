@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Ingest;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 using TNO.Models.Extensions;
 using TNO.Services.Actions.Managers;
 using TNO.Services.Syndication.Config;
@@ -18,9 +20,17 @@ public class SyndicationIngestActionManager : IngestActionManager<SyndicationOpt
     /// <param name="ingest"></param>
     /// <param name="action"></param>
     /// <param name="api"></param>
+    /// <param name="ches"></param>
+    /// <param name="chesOptions"></param>
     /// <param name="options"></param>
-    public SyndicationIngestActionManager(IngestModel ingest, IApiService api, IIngestAction<SyndicationOptions> action, IOptions<SyndicationOptions> options)
-        : base(ingest, api, action, options)
+    public SyndicationIngestActionManager(
+        IngestModel ingest,
+        IApiService api,
+        IChesService ches,
+        IOptions<ChesOptions> chesOptions,
+        IIngestAction<SyndicationOptions> action,
+        IOptions<SyndicationOptions> options)
+        : base(ingest, api, ches, chesOptions, action, options)
     {
     }
     #endregion

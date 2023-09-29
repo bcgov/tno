@@ -47,5 +47,13 @@ public interface IServiceActionManager
     /// </summary>
     /// <returns></returns>
     public Task UpdateIngestConfigAsync(string propName, object propValue);
+
+    /// <summary>
+    /// Send email alert of failure.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="ex"></param>
+    /// <returns></returns>
+    public Task SendEmailAsync(string subject, Exception ex);
     #endregion
 }

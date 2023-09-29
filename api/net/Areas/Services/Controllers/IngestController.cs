@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -41,7 +42,11 @@ public class IngestController : ControllerBase
     /// <param name="serviceIngest"></param>
     /// <param name="serviceSchedule"></param>
     /// <param name="serializerOptions"></param>
-    public IngestController(IIngestStateService serviceIngestState, IIngestService serviceIngest, IScheduleService serviceSchedule, IOptions<JsonSerializerOptions> serializerOptions)
+    public IngestController(
+      IIngestStateService serviceIngestState,
+      IIngestService serviceIngest,
+      IScheduleService serviceSchedule,
+      IOptions<JsonSerializerOptions> serializerOptions)
     {
         _serviceIngestState = serviceIngestState;
         _serviceIngest = serviceIngest;
@@ -118,14 +123,11 @@ public class IngestController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
     public IActionResult UpdateState(IngestModel model)
     {
         _serviceIngestState.AddOrUpdate(model.ToEntity(_serializerOptions).State!);
-
-        var result = _serviceIngest.FindById(model.Id);
-        if (result == null) return new NoContentResult();
+        var result = _serviceIngest.FindById(model.Id) ?? throw new NoContentException();
         return new JsonResult(new IngestModel(result, _serializerOptions));
     }
 
@@ -138,17 +140,15 @@ public class IngestController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
     public IActionResult UpdateConfiguration(IngestModel model)
     {
         var convertedEntity = model.ToEntity(_serializerOptions);
-        var target = _serviceIngest.FindById(model.Id) ?? throw new InvalidOperationException("Ingest does not exist");
+        var target = _serviceIngest.FindById(model.Id) ?? throw new NoContentException("Ingest does not exist");
         target.Configuration = convertedEntity.Configuration;
         _serviceIngest.UpdateAndSave(target);
 
-        var result = _serviceIngest.FindById(model.Id);
-        if (result == null) return new NoContentResult();
+        var result = _serviceIngest.FindById(model.Id) ?? throw new NoContentException();
         return new JsonResult(new IngestModel(result, _serializerOptions));
     }
 

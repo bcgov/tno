@@ -39,5 +39,15 @@ public class ServiceOptions
     /// get/set - The service timezone.
     /// </summary>
     public string TimeZone { get; set; } = "UTC";
+
+    /// <summary>
+    /// get/set - Whether to send emails on failure.
+    /// </summary>
+    public bool SendEmailOnFailure { get; set; } = false;
+
+    /// <summary>
+    /// get/set - Who to send email failures to.
+    /// </summary>
+    public string[] EmailTo { get; set; } = Array.Empty<string>();
     #endregion
 }

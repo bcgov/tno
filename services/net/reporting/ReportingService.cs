@@ -44,8 +44,6 @@ public class ReportingService : KafkaConsumerService
         services
             .Configure<ReportingOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IKafkaListener<string, ReportRequestModel>, KafkaListener<string, ReportRequestModel>>()
-            .AddChesSingletonService(this.Configuration.GetSection("CHES"))
-            .AddSingleton(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Email, "") })))
             .AddScoped<IServiceManager, ReportingManager>()
             .AddTemplateEngine(this.Configuration);
 

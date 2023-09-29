@@ -9,12 +9,6 @@ namespace TNO.Services.Runners;
 /// </summary>
 public abstract class IngestService : BaseService
 {
-    #region Variables
-    #endregion
-
-    #region Properties
-    #endregion
-
     #region Constructors
     /// <summary>
     /// Creates a new instance of a IngestService object, initializes with arguments.
@@ -26,7 +20,6 @@ public abstract class IngestService : BaseService
     #endregion
 
     #region Methods
-
     /// <summary>
     /// Configure dependency injection.
     /// </summary>

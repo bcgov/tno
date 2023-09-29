@@ -1,4 +1,7 @@
 using Microsoft.Extensions.Options;
+using TNO.Ches;
+using TNO.Ches.Configuration;
+using TNO.Core.Extensions;
 using TNO.Services.Config;
 
 namespace TNO.Services.Actions.Managers;
@@ -11,6 +14,8 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
 {
     #region Variables
     private readonly IServiceAction<TOptions> _action;
+    private readonly IChesService _ches;
+    private readonly ChesOptions _chesOptions;
     #endregion
 
     #region Properties
@@ -34,10 +39,14 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     /// <summary>
     /// Creates a new instance of a DataSourceIngestManager object, initializes with specified parameters.
     /// </summary>
+    /// <param name="ches"></param>
+    /// <param name="chesOptions"></param>
     /// <param name="action"></param>
     /// <param name="options"></param>
-    public ServiceActionManager(IServiceAction<TOptions> action, IOptions<TOptions> options)
+    public ServiceActionManager(IChesService ches, IOptions<ChesOptions> chesOptions, IServiceAction<TOptions> action, IOptions<TOptions> options)
     {
+        _ches = ches;
+        _chesOptions = chesOptions.Value;
         _action = action;
         this.Options = options.Value;
     }
@@ -121,7 +130,8 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     /// <returns></returns>
     protected virtual async Task PostRunAsync(ServiceActionResult actionResult)
     {
-        if (actionResult == ServiceActionResult.Success) {
+        if (actionResult == ServiceActionResult.Success)
+        {
             // Inform data source of run.
             await RecordSuccessAsync();
         }
@@ -144,5 +154,20 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     /// </summary>
     /// <returns></returns>
     public abstract Task UpdateIngestConfigAsync(string propName, object propValue);
+
+    /// <summary>
+    /// Send email alert of failure.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="ex"></param>
+    /// <returns></returns>
+    public async Task SendEmailAsync(string subject, Exception ex)
+    {
+        if (this.Options.SendEmailOnFailure)
+        {
+            var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, this.Options.EmailTo, subject, ex.GetAllMessages());
+            await _ches.SendEmailAsync(email);
+        }
+    }
     #endregion
 }

@@ -269,7 +269,10 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         {
             // Reached limit return to ingest manager.
             if (manager.Ingest.FailedAttempts + 1 >= manager.Ingest.RetryLimit)
+            {
+                await manager.SendEmailAsync($"Ingest Failure - {manager.Ingest.Name}", ex);
                 throw;
+            }
 
             this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}'", manager.Ingest.Name);
             await manager.RecordFailureAsync();

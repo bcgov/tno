@@ -489,6 +489,13 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__EmailAuthorized=true
+# CHES__OverrideTo=
+
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/syndication/.env
     echo "./services/net/syndication/.env created"
 fi
@@ -508,6 +515,13 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data
+
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__EmailAuthorized=true
+# CHES__OverrideTo=
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/capture/.env
     echo "./services/net/capture/.env created"
@@ -529,6 +543,13 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data
 
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__EmailAuthorized=true
+# CHES__OverrideTo=
+
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/clip/.env
     echo "./services/net/clip/.env created"
 fi
@@ -549,6 +570,13 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data
 
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__EmailAuthorized=true
+# CHES__OverrideTo=
+
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/image/.env
     echo "./services/net/image/.env created"
 fi
@@ -568,6 +596,13 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data
+
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__EmailAuthorized=true
+# CHES__OverrideTo=
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/filemonitor/.env
     echo "./services/net/filemonitor/.env created"
@@ -591,7 +626,14 @@ Kafka__Producer__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertise
 Kafka__Consumer__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
-Service__TranscriptionTopic=transcription" >> ./services/net/content/.env
+Service__TranscriptionTopic=transcription
+
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__EmailAuthorized=true
+# CHES__OverrideTo=" >> ./services/net/content/.env
     echo "./services/net/content/.env created"
 fi
 
@@ -612,7 +654,14 @@ Kafka__Admin__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedEx
 Kafka__Producer__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
-Service__TranscriptionTopic=transcription" >> ./services/net/contentmigration/.env
+Service__TranscriptionTopic=transcription
+
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__EmailAuthorized=true
+# CHES__OverrideTo=" >> ./services/net/contentmigration/.env
     echo "./services/net/contentmigration/.env created"
 fi
 
@@ -631,6 +680,13 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 Service__AzureCognitiveServicesKey={ENTER A VALID AZURE KEY}
+
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__EmailAuthorized=true
+# CHES__OverrideTo=
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/transcription/.env
     echo "./services/net/transcription/.env created"
@@ -654,6 +710,13 @@ Service__ElasticsearchUri=http://host.docker.internal:$portElastic
 Service__ElasticsearchUsername=$elasticUser
 Service__ElasticsearchPassword=$password
 
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__EmailAuthorized=true
+# CHES__OverrideTo=
+
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/indexing/.env
     echo "./services/net/indexing/.env created"
 fi
@@ -673,6 +736,13 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__EmailAuthorized=true
+# CHES__OverrideTo=
+
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/nlp/.env
     echo "./services/net/nlp/.env created"
 fi
@@ -691,6 +761,13 @@ Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
+
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__EmailAuthorized=true
+# CHES__OverrideTo=
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/filecopy/.env
     echo "./services/net/filecopy/.env created"
@@ -744,6 +821,31 @@ CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}" >> ./services/net/reporting/.env
     echo "./services/net/reporting/.env created"
+fi
+
+## Scheduler Service
+if test -f "./services/net/scheduler/.env"; then
+    echo "./services/net/scheduler/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
+
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}" >> ./services/net/scheduler/.env
+    echo "./services/net/scheduler/.env created"
 fi
 
 

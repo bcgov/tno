@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Ingest;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 using TNO.Services.Actions.Managers;
 using TNO.Services.ContentMigration.Config;
 
@@ -20,9 +22,17 @@ public class ContentMigrationIngestActionManager : IngestActionManager<ContentMi
     /// <param name="ingest"></param>
     /// <param name="action"></param>
     /// <param name="api"></param>
+    /// <param name="ches"></param>
+    /// <param name="chesOptions"></param>
     /// <param name="options"></param>
-    public ContentMigrationIngestActionManager(IngestModel ingest, IApiService api, IIngestAction<ContentMigrationOptions> action, IOptions<ContentMigrationOptions> options)
-        : base(ingest, api, action, options)
+    public ContentMigrationIngestActionManager(
+        IngestModel ingest,
+        IApiService api,
+        IChesService ches,
+        IOptions<ChesOptions> chesOptions,
+        IIngestAction<ContentMigrationOptions> action,
+        IOptions<ContentMigrationOptions> options)
+        : base(ingest, api, ches, chesOptions, action, options)
     {
     }
     #endregion

@@ -47,8 +47,6 @@ public class NotificationService : KafkaConsumerService
             .Configure<ReportingOptions>(this.Configuration.GetSection("Reporting"))
             .AddTransient<IKafkaListener<string, NotificationRequestModel>, KafkaListener<string, NotificationRequestModel>>()
             .AddTransient<INotificationValidator, NotificationValidator>()
-            .AddChesSingletonService(this.Configuration.GetSection("CHES"))
-            .AddSingleton(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Email, "") })))
             .AddScoped<IServiceManager, NotificationManager>()
             .AddTemplateEngine(this.Configuration);
 

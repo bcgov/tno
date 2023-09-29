@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Ingest;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 using TNO.Models.Extensions;
 using TNO.Services.Actions.Managers;
 using TNO.Services.FileMonitor.Config;
@@ -16,11 +18,19 @@ public class FileMonitorIngestActionManager : IngestActionManager<FileMonitorOpt
     /// Creates a new instance of a FileMonitorIngestActionManager object, initializes with specified parameters.
     /// </summary>
     /// <param name="ingest"></param>
-    /// <param name="action"></param>
     /// <param name="api"></param>
+    /// <param name="ches"></param>
+    /// <param name="chesOptions"></param>
+    /// <param name="action"></param>
     /// <param name="options"></param>
-    public FileMonitorIngestActionManager(IngestModel ingest, IApiService api, IIngestAction<FileMonitorOptions> action, IOptions<FileMonitorOptions> options)
-        : base(ingest, api, action, options)
+    public FileMonitorIngestActionManager(
+        IngestModel ingest,
+        IApiService api,
+        IChesService ches,
+        IOptions<ChesOptions> chesOptions,
+        IIngestAction<FileMonitorOptions> action,
+        IOptions<FileMonitorOptions> options)
+        : base(ingest, api, ches, chesOptions, action, options)
     {
     }
     #endregion
