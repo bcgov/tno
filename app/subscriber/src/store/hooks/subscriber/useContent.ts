@@ -11,7 +11,10 @@ import { useAjaxWrapper } from '..';
 
 interface IContentController {
   findContent: (filter: IContentFilter) => Promise<IPaged<IContentModel>>;
-  findContentWithElasticsearch: (filter: unknown, index?: string) => Promise<unknown>;
+  findContentWithElasticsearch: (
+    filter: unknown,
+    includeUnpublishedContent: boolean,
+  ) => Promise<unknown>;
   getContent: (id: number) => Promise<IContentModel | undefined>;
   getFrontPages: () => Promise<IPaged<IContentModel>>;
   download: (id: number, fileName: string) => Promise<unknown>;
@@ -32,12 +35,9 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         actions.storeContent(response.data);
         return response.data;
       },
-      findContentWithElasticsearch: async (
-        filter: unknown,
-        index: string | undefined = undefined,
-      ) => {
+      findContentWithElasticsearch: async (filter: unknown, includeUnpublishedContent: boolean) => {
         const response = await dispatch('find-contents-with-elasticsearch', () =>
-          api.findContentWithElasticsearch(filter, index),
+          api.findContentWithElasticsearch(filter, includeUnpublishedContent),
         );
         return response.data;
       },

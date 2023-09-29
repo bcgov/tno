@@ -26,7 +26,7 @@ export const PressGallery: React.FC = () => {
 
   const defaultSettings = React.useMemo<IFilterSettingsModel>(() => {
     return {
-      startDate: `${moment(filterAdvanced.startDate).format('YYYY-MM-DD')}`,
+      // startDate: `${moment(filterAdvanced.startDate).format('YYYY-MM-DD')}`,
       inByline: true,
       inHeadline: true,
       inStory: true,
@@ -60,7 +60,7 @@ export const PressGallery: React.FC = () => {
   const fetchResults = React.useCallback(
     async (filter: unknown) => {
       try {
-        const res: any = await findContentWithElasticsearch(filter);
+        const res: any = await findContentWithElasticsearch(filter, false);
         setResults(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
       } catch {}
     },
@@ -88,7 +88,7 @@ export const PressGallery: React.FC = () => {
           return contributor.name;
         }
       });
-    updateQuery('search', aliases.toString());
+    updateQuery('search', aliases.toString().split(',').join(' '));
     fetchResults(generateQuery(pressSettings, pressQuery));
   };
 
