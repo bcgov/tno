@@ -4,6 +4,7 @@ import { FormikSelect, IIngestModel, Show } from 'tno-core';
 
 import { AudioClip, AudioStream, AudioTuner } from '.';
 import { serviceTypes } from './constants';
+import { ImportContent } from './ImportContent';
 import * as styled from './styled';
 
 export const Audio: React.FC = (props) => {
@@ -14,6 +15,7 @@ export const Audio: React.FC = (props) => {
 
   return (
     <styled.IngestType>
+      <ImportContent />
       <FormikSelect
         label="Service Type"
         name="configuration.serviceType"

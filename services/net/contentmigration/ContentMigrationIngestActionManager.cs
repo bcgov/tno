@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Ches;
@@ -20,19 +21,21 @@ public class ContentMigrationIngestActionManager : IngestActionManager<ContentMi
     /// Creates a new instance of a ContentMigrationIngestActionManager object, initializes with specified parameters.
     /// </summary>
     /// <param name="ingest"></param>
-    /// <param name="action"></param>
     /// <param name="api"></param>
     /// <param name="ches"></param>
     /// <param name="chesOptions"></param>
+    /// <param name="action"></param>
     /// <param name="options"></param>
+    /// <param name="logger"></param>
     public ContentMigrationIngestActionManager(
         IngestModel ingest,
         IApiService api,
         IChesService ches,
         IOptions<ChesOptions> chesOptions,
         IIngestAction<ContentMigrationOptions> action,
-        IOptions<ContentMigrationOptions> options)
-        : base(ingest, api, ches, chesOptions, action, options)
+        IOptions<ContentMigrationOptions> options,
+        ILogger<IServiceActionManager> logger)
+        : base(ingest, api, ches, chesOptions, action, options, logger)
     {
     }
     #endregion

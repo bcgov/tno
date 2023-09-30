@@ -4,6 +4,7 @@ import { FormikSelect, IIngestModel } from 'tno-core';
 
 import { VideoClip, VideoHDMI, VideoRPi, VideoStream, VideoTuner } from '.';
 import { serviceTypes } from './constants';
+import { ImportContent } from './ImportContent';
 import * as styled from './styled';
 
 export const Video: React.FC = (props) => {
@@ -31,6 +32,7 @@ export const Video: React.FC = (props) => {
 
   return (
     <styled.IngestType>
+      <ImportContent />
       <FormikSelect
         label="Service Type"
         name="configuration.serviceType"

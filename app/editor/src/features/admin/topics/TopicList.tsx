@@ -1,6 +1,6 @@
 import { FormikForm } from 'components/formik';
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useTopics } from 'store/hooks/admin';
 import {
@@ -19,9 +19,9 @@ import {
 } from 'tno-core';
 
 import { defaultTopic } from './constants';
+import { useColumns } from './hooks';
 import * as styled from './styled';
 import { TopicFilter } from './TopicFilter';
-import { useColumns } from './useColumns';
 
 /**
  * Provides a list of all topics.
@@ -30,8 +30,7 @@ import { useColumns } from './useColumns';
  */
 const TopicList: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
-  const [, api] = useTopics();
+  const [, { findAllTopics, updateTopic, addTopic }] = useTopics();
 
   const [loading, setLoading] = React.useState(false);
   const [topics, setTopics] = React.useState<ITopicModel[]>([]);
@@ -43,24 +42,24 @@ const TopicList: React.FC = () => {
   React.useEffect(() => {
     if (!items.length && !loading && !topicFilter) {
       setLoading(true);
-      api
-        .findAllTopics()
+      findAllTopics()
         .then((data) => {
           setTopics(data.filter((t) => t.id !== 1));
           setItems(data.filter((t) => t.id !== 1 && t.isEnabled));
         })
+        .catch(() => {})
         .finally(() => {
           setLoading(false);
         });
     }
-  }, [api, items.length, loading, topicFilter]);
+  }, [findAllTopics, items.length, loading, topicFilter]);
 
   const handleRemove = async (topicId: number) => {
     const topic = items.find((i) => i.id === topicId);
     if (!topic) return;
     try {
       setLoading(true);
-      const removedTopic = await api.updateTopic({ ...topic, isEnabled: false });
+      const removedTopic = await updateTopic({ ...topic, isEnabled: false });
       setItems(items.filter((t) => t.id !== topic.id));
       setTopics(topics.map((item) => (item.id === topic.id ? removedTopic : item)));
       navigate('/admin/topics');
@@ -78,7 +77,7 @@ const TopicList: React.FC = () => {
       const existsTopic = topics.find((x) => x.name === values.name);
       if (values.id === 0) {
         if (!existsTopic) {
-          const result = await api.addTopic(values);
+          const result = await addTopic(values);
           results = [...items, result];
           updatedTopics = [...topics, result];
         } else {
@@ -86,7 +85,7 @@ const TopicList: React.FC = () => {
             toast.warn(`${values.name} already exists.`);
             return;
           } else {
-            const result = await api.updateTopic({
+            const result = await updateTopic({
               ...existsTopic,
               isEnabled: values.isEnabled,
               topicType: values.topicType,
@@ -97,7 +96,7 @@ const TopicList: React.FC = () => {
         }
       } else {
         if (!existsTopic || values.id === existsTopic.id) {
-          const result = await api.updateTopic(values);
+          const result = await updateTopic(values);
           results = items.map((i) => (i.id === values.id ? result : i));
           updatedTopics = topics.map((i) => (i.id === values.id ? result : i));
         } else {
@@ -112,7 +111,6 @@ const TopicList: React.FC = () => {
       if (values.id === 0) {
         if (values.name !== defaultTopic.name) values.name = defaultTopic.name;
         if (values.topicType !== defaultTopic.topicType) values.topicType = defaultTopic.topicType;
-        if (id) navigate('/admin/topics');
       }
     } catch {
       // Ignore error as it's handled globally.
@@ -183,9 +181,6 @@ const TopicList: React.FC = () => {
                 } else {
                   setItems(topics.filter((x) => x.isEnabled));
                 }
-                if (id) {
-                  navigate('/admin/topics');
-                }
               }}
             />
             <FlexboxTable
@@ -193,8 +188,6 @@ const TopicList: React.FC = () => {
               data={items}
               columns={useColumns(handleRemove, handleSubmit, loading)}
               showSort={true}
-              activeRowId={id}
-              onRowClick={(row) => navigate(`/admin/topics/${row.original.id}`)}
               pagingEnabled={false}
               isLoading={loading}
             />

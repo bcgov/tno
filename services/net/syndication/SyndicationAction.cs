@@ -123,13 +123,10 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             {
                 // Reached limit return to ingest manager.
                 if (manager.Ingest.FailedAttempts + 1 >= manager.Ingest.RetryLimit)
-                {
-                    await manager.SendEmailAsync($"Ingest Failure - {manager.Ingest.Name}", ex);
                     throw;
-                }
 
                 this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}'", manager.Ingest.Name);
-                await manager.RecordFailureAsync();
+                await manager.RecordFailureAsync(ex);
             }
         }
     }
@@ -376,26 +373,42 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             throw ex;
         }
 
-        var data = await response.Content.ReadAsStringAsync();
-        try
+        var data = await response.Content.ReadAsStringAsync() ?? "";
+        if (!manager.Ingest.Configuration.GetDictionaryJsonValue("customFeed", false))
         {
-            var xmlr = XmlReader.Create(new StringReader(data));
-            return SyndicationFeed.Load(xmlr);
-        }
-        catch (Exception ex)
-        {
-            this.Logger.LogWarning(ex, "Syndication feed for ingest '{name}' is invalid.", manager.Ingest.Name);
-
-            var settings = new XmlReaderSettings()
+            try
             {
-                IgnoreComments = false,
-                IgnoreWhitespace = true,
-            };
-            var xmlr = XmlReader.Create(new StringReader(data), settings);
-            var document = XDocument.Load(xmlr);
-            var isRss = RssFeed.IsRssFeed(document);
-            return isRss ? RssFeed.Load(document, false) : AtomFeed.Load(document);
+                var xmlr = XmlReader.Create(new StringReader(data));
+                return SyndicationFeed.Load(xmlr);
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogWarning(ex, "Syndication feed for ingest '{name}' is invalid.", manager.Ingest.Name);
+                return GetCustomFeed(data);
+            }
         }
+        else
+        {
+            return GetCustomFeed(data);
+        }
+    }
+
+    /// <summary>
+    /// Make AJAX request to fetch syndication feed.
+    /// </summary>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    private SyndicationFeed GetCustomFeed(string data)
+    {
+        var settings = new XmlReaderSettings()
+        {
+            IgnoreComments = false,
+            IgnoreWhitespace = true,
+        };
+        var xmlr = XmlReader.Create(new StringReader(data), settings);
+        var document = XDocument.Load(xmlr);
+        var isRss = RssFeed.IsRssFeed(document);
+        return isRss ? RssFeed.Load(document, false) : AtomFeed.Load(document);
     }
 
     /// <summary>

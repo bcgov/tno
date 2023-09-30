@@ -3,6 +3,7 @@ import React from 'react';
 import { FormikCheckbox, FormikSelect, FormikText, IIngestModel } from 'tno-core';
 
 import { TimeZones } from './constants';
+import { ImportContent } from './ImportContent';
 import * as styled from './styled';
 
 export const Syndication: React.FC = (props) => {
@@ -11,11 +12,12 @@ export const Syndication: React.FC = (props) => {
 
   return (
     <styled.IngestType>
-      <FormikText
-        label="Syndication Feed URL"
-        name="configuration.url"
-        value={values.configuration.url}
-        required
+      <ImportContent />
+      <FormikText label="Syndication Feed URL" name="configuration.url" required />
+      <FormikCheckbox
+        label="Custom RSS/ATOM"
+        name="configuration.customFeed"
+        tooltip="If the feed doesn't follow the standardized rules it is a custom feed."
       />
       <FormikSelect
         label="Timezone"
@@ -27,13 +29,11 @@ export const Syndication: React.FC = (props) => {
       <FormikText
         label="Username"
         name="configuration.username"
-        value={values.configuration.username}
         tooltip="Configure in the source connection"
       />
       <FormikText
         label="Password"
         name="configuration.password"
-        value={values.configuration.password}
         tooltip="Configure in the source connection"
         type="password"
         autoComplete="off"

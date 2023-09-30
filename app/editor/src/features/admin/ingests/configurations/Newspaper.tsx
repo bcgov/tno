@@ -15,6 +15,7 @@ import {
 
 import { FileTypes, Languages, TimeZones } from './constants';
 import { columns } from './constants/columns';
+import { ImportContent } from './ImportContent';
 import * as styled from './styled';
 
 export const Newspaper: React.FC = (props) => {
@@ -77,6 +78,7 @@ export const Newspaper: React.FC = (props) => {
 
   return (
     <styled.IngestType>
+      <ImportContent />
       <Row>
         <Col flex="1 1 0">
           <FormikCheckbox label="Escape Content" name="configuration.escapeContent" />

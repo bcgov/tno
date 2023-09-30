@@ -269,13 +269,10 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         {
             // Reached limit return to ingest manager.
             if (manager.Ingest.FailedAttempts + 1 >= manager.Ingest.RetryLimit)
-            {
-                await manager.SendEmailAsync($"Ingest Failure - {manager.Ingest.Name}", ex);
                 throw;
-            }
 
             this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}'", manager.Ingest.Name);
-            await manager.RecordFailureAsync();
+            await manager.RecordFailureAsync(ex);
         }
     }
 
@@ -482,7 +479,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                     throw new FormatException($"File contents for ingest '{ingest.Name}' is invalid.", ex);
 
                 this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}', File: {file}", ingest.Name, path);
-                await manager.RecordFailureAsync();
+                await manager.RecordFailureAsync(ex);
             }
         }
     }
@@ -564,7 +561,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                     throw new FormatException($"File contents for ingest '{ingest.Name}' is invalid.", ex);
 
                 this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}', File: {file}", ingest.Name, path);
-                await manager.RecordFailureAsync();
+                await manager.RecordFailureAsync(ex);
             }
         }
     }

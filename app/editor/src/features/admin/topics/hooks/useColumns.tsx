@@ -3,12 +3,14 @@ import { FaTrash } from 'react-icons/fa';
 import {
   Button,
   ButtonVariant,
+  Col,
   FieldSize,
   getEnumStringOptions,
   ITableHookColumn,
   ITopicModel,
   OptionItem,
   Select,
+  Text,
   TopicTypeName,
 } from 'tno-core';
 
@@ -38,22 +40,22 @@ export const useColumns = (
     {
       label: 'Topic Name',
       accessor: 'name',
-      width: 1,
+      width: 3,
       cell: (cell) => {
         return (
-          <input
-            type="text"
-            title="topic Name"
-            disabled={loading}
-            value={
-              topicModel && topicModel.id === cell.original.id
-                ? topicModel.name
-                : cell.original.name
-            }
-            onBlur={async () => await handleBlur(cell)}
-            onChange={async (e: any) => await handleChange(e, cell)}
-            style={{ height: 35, width: '286px' }}
-          />
+          <Col flex="1">
+            <Text
+              name="name"
+              disabled={loading}
+              value={
+                topicModel && topicModel.id === cell.original.id
+                  ? topicModel.name
+                  : cell.original.name
+              }
+              onBlur={async () => await handleBlur(cell)}
+              onChange={async (e: any) => await handleChange(e, cell)}
+            />
+          </Col>
         );
       },
     },
@@ -96,15 +98,16 @@ export const useColumns = (
       },
     },
     {
-      label: 'Remove',
+      label: '',
       accessor: 'Remove',
-      width: '4',
+      width: '80px',
       cell: (cell) => (
         <>
           <Button
             variant={ButtonVariant.danger}
             onClick={() => onClick(cell.original.id)}
             disabled={loading}
+            title="Remove"
           >
             <FaTrash className="indicator" />
           </Button>

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Ches;
@@ -23,14 +24,16 @@ public class FileMonitorIngestActionManager : IngestActionManager<FileMonitorOpt
     /// <param name="chesOptions"></param>
     /// <param name="action"></param>
     /// <param name="options"></param>
+    /// <param name="logger"></param>
     public FileMonitorIngestActionManager(
         IngestModel ingest,
         IApiService api,
         IChesService ches,
         IOptions<ChesOptions> chesOptions,
         IIngestAction<FileMonitorOptions> action,
-        IOptions<FileMonitorOptions> options)
-        : base(ingest, api, ches, chesOptions, action, options)
+        IOptions<FileMonitorOptions> options,
+        ILogger<IServiceActionManager> logger)
+        : base(ingest, api, ches, chesOptions, action, options, logger)
     {
     }
     #endregion

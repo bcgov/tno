@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useIngests } from 'store/hooks/admin';
-import { Col, FlexboxTable, IconButton, IIngestModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { IngestFilter } from './IngestFilter';
@@ -11,18 +11,21 @@ interface IIngestListProps {}
 
 const IngestList: React.FC<IIngestListProps> = (props) => {
   const navigate = useNavigate();
-  const [{ ingests }, api] = useIngests();
+  const [{ ingests }, { findAllIngests, updateIngest }] = useIngests();
 
-  const [items, setItems] = React.useState<IIngestModel[]>([]);
+  const [filter, setFilter] = React.useState('');
+
+  const items = ingests.filter(
+    (i) =>
+      i.name.toLocaleLowerCase().includes(filter) ||
+      i.source?.code.toLocaleLowerCase().includes(filter) ||
+      i.description.toLocaleLowerCase().includes(filter) ||
+      i.ingestType?.name.toLocaleLowerCase().includes(filter),
+  );
 
   React.useEffect(() => {
-    if (ingests.length) {
-      setItems(ingests);
-    } else {
-      api.findAllIngests().then((data) => {
-        setItems(data);
-      });
-    }
+    findAllIngests().catch(() => {});
+    // Only init list.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -30,8 +33,8 @@ const IngestList: React.FC<IIngestListProps> = (props) => {
     <styled.IngestList>
       <Row justifyContent="flex-end">
         <Col flex="1 1 0">
-          Ingest management provides a way to configure ingestion services. These services run in
-          the background and upload content from external data sources.
+          Manage all ingest services. These services run in the background and upload content from
+          external data sources.
         </Col>
         <IconButton
           iconType="plus"
@@ -41,20 +44,7 @@ const IngestList: React.FC<IIngestListProps> = (props) => {
       </Row>
       <IngestFilter
         onFilterChange={(filter) => {
-          if (filter && filter.length) {
-            const value = filter.toLocaleLowerCase();
-            setItems(
-              ingests.filter(
-                (i) =>
-                  i.name.toLocaleLowerCase().includes(value) ||
-                  i.source?.code.toLocaleLowerCase().includes(value) ||
-                  i.description.toLocaleLowerCase().includes(value) ||
-                  i.ingestType?.name.toLocaleLowerCase().includes(value),
-              ),
-            );
-          } else {
-            setItems(ingests);
-          }
+          setFilter(filter);
         }}
       />
       <FlexboxTable
@@ -62,7 +52,15 @@ const IngestList: React.FC<IIngestListProps> = (props) => {
         data={items}
         columns={columns}
         showSort={true}
-        onRowClick={(row) => navigate(`${row.original.id}`)}
+        // onRowClick={(row) => navigate(`${row.original.id}`)}
+        onCellClick={async (cell, row) => {
+          if (cell.index !== 6) navigate(`${row.original.id}`);
+          else {
+            await updateIngest({ ...row.original, isEnabled: !row.original.isEnabled }).catch(
+              () => {},
+            );
+          }
+        }}
         pagingEnabled={false}
       />
     </styled.IngestList>

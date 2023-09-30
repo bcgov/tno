@@ -13,6 +13,7 @@ export const defaultIngest: IIngestModel = {
   configuration: {
     post: false,
     import: false,
+    topicFromSource: true,
   },
   sourceConnectionId: 0,
   destinationConnectionId: 0,

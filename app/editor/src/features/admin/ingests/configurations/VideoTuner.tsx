@@ -3,6 +3,7 @@ import React from 'react';
 import { FormikSelect, FormikText, IIngestModel } from 'tno-core';
 
 import { Languages, TimeZones } from './constants';
+import { ImportContent } from './ImportContent';
 import * as styled from './styled';
 
 export const VideoTuner: React.FC = (props) => {
@@ -13,6 +14,7 @@ export const VideoTuner: React.FC = (props) => {
 
   return (
     <styled.IngestType>
+      <ImportContent />
       <FormikSelect
         label="Timezone"
         name="configuration.timeZone"

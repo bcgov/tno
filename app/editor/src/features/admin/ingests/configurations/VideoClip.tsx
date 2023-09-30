@@ -10,6 +10,7 @@ import {
 } from 'tno-core';
 
 import { TimeZones } from './constants';
+import { ImportContent } from './ImportContent';
 import * as styled from './styled';
 
 export const VideoClip: React.FC = (props) => {
@@ -26,6 +27,7 @@ export const VideoClip: React.FC = (props) => {
 
   return (
     <styled.IngestType>
+      <ImportContent />
       <FormikText
         label="Device Hostname"
         name="configuration.hostname"

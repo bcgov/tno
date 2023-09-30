@@ -3,6 +3,7 @@ import React from 'react';
 import { FormikSelect, FormikText, IIngestModel, useFormikHelpers } from 'tno-core';
 
 import { Languages, TimeZones } from './constants';
+import { ImportContent } from './ImportContent';
 import * as styled from './styled';
 
 export const VideoStream: React.FC = (props) => {
@@ -20,6 +21,7 @@ export const VideoStream: React.FC = (props) => {
 
   return (
     <styled.IngestType>
+      <ImportContent />
       <FormikText
         label="Stream URL"
         name="configuration.url"

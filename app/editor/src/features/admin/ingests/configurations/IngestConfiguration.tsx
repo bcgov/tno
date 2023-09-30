@@ -22,7 +22,7 @@ export const IngestConfiguration: React.FC = (props) => {
   }, [loading, connections, findAllConnections]);
 
   return (
-    <styled.Connection>
+    <styled.IngestConfiguration>
       <Show visible={!values.ingestTypeId}>Select a ingest type before configuring.</Show>
       <Show visible={values.ingestType?.name === 'Syndication'}>
         <Syndication />
@@ -66,6 +66,6 @@ export const IngestConfiguration: React.FC = (props) => {
       <Show visible={values.ingestType?.name === 'TNO-Story'}>
         <DbMigration />
       </Show>
-    </styled.Connection>
+    </styled.IngestConfiguration>
   );
 };

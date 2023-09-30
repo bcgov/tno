@@ -2,6 +2,7 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FormikText, IIngestModel } from 'tno-core';
 
+import { ImportContent } from './ImportContent';
 import * as styled from './styled';
 
 export const Image: React.FC = (props) => {
@@ -9,6 +10,7 @@ export const Image: React.FC = (props) => {
 
   return (
     <styled.IngestType>
+      <ImportContent />
       <FormikText
         label="Path to Files"
         name="configuration.path"
