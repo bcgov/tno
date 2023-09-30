@@ -49,6 +49,9 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         Logger.LogDebug("NewItem.RSN: {rsn}, PublishedDateTime: {publishedDateTime}, ToUtc: {publishedDateTimeInUtc}", newsItem.RSN, publishedOnInDefaultTimeZone, publishedOnInUtc);
 
         var newsItemTitle = newsItem.GetTitle();
+        var sanitizedSummary = SanitizeLineBreaks(newsItem.Summary);
+        var sanitizedBody = SanitizeLineBreaks(newsItem.Text);
+        if (string.IsNullOrEmpty(sanitizedBody)) sanitizedBody = sanitizedSummary;
 
         var content = new SourceContent(
             this.Options.DataLocation,
@@ -57,8 +60,8 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             product.Id,
             GetContentHash(source.Code, newsItemTitle, publishedOnInUtc),
             newsItemTitle,
-            newsItem.Summary ?? string.Empty,
-            GetNewsItemBody(newsItem.Text, newsItem.Summary),
+            sanitizedSummary,
+            sanitizedBody,
             publishedOnInUtc,
             newsItem.Published)
         {
@@ -126,38 +129,6 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         }
 
         return content;
-    }
-
-    /// <summary>
-    /// fix the replace of paragraph markers with "|"
-    /// </summary>
-    /// <param name="text"></param>
-    /// <param name="summary"></param>
-    /// <returns>formatted body string</returns>
-    private string GetNewsItemBody(string? text, string? summary)
-    {
-        string body = string.Empty;
-
-        if (!string.IsNullOrEmpty(text))
-        {
-            const string marker = "|";
-            int index = text.IndexOf(marker);
-            if (index != -1)
-            {
-                // found at least one linebreak marker
-                body = $"<p>{text.Replace(marker, "</p><p>")}</p>";
-            }
-            else
-            {
-                // no line breaks apparently
-                body = text;
-            }
-        }
-        else if (!string.IsNullOrEmpty(summary))
-        {
-            body = summary;
-        }
-        return body;
     }
 
     /// <summary>

@@ -55,6 +55,9 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
         var publishedOnInUtc = publishedOnInDefaultTimeZone.ToUniversalTime();
         Logger.LogDebug("NewItem.RSN: {rsn}, PublishedDateTime: {publishedDateTime}, ToUtc: {publishedDateTimeInUtc}", newsItem.RSN, publishedOnInDefaultTimeZone, publishedOnInUtc);
 
+        var sanitizedSummary = SanitizeLineBreaks(newsItem.Summary);
+        var sanitizedBody = SanitizeLineBreaks(newsItem.Transcript);
+
         var content = new SourceContent(
             this.Options.DataLocation,
             source.Code,
@@ -62,8 +65,8 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
             product.Id,
             GetContentHash(source.Code, newsItem.GetTitle(), publishedOnInUtc),
             newsItem.GetTitle(),
-            newsItem.Summary! ?? string.Empty,
-            newsItem.Transcript ?? string.Empty,
+            sanitizedSummary,
+            sanitizedBody,
             publishedOnInUtc,
             newsItem.Published)
         {
