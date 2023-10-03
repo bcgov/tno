@@ -15,6 +15,13 @@ public interface IWorkOrderService : IBaseService<WorkOrder, long>
     IPaged<WorkOrder> Find(WorkOrderFilter filter);
 
     /// <summary>
+    /// Find work orders that match the specified 'filter' and only return the latest distinct record for each content item..
+    /// </summary>
+    /// <param name="filter">Filter to apply to the query.</param>
+    /// <returns>A page of work order items that match the filter.</returns>
+    IPaged<WorkOrder> FindDistinctWorkOrders(WorkOrderFilter filter);
+
+    /// <summary>
     /// Find all work orders for the specified 'contentId'.
     /// </summary>
     /// <param name="contentId"></param>

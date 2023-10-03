@@ -1,5 +1,6 @@
 export * from './IdType';
 export * from './ITableColumn';
+export * from './ITableGroup';
 export * from './ITableHook';
 export * from './ITableHookColumn';
 export * from './ITableHookFilter';
@@ -28,5 +29,6 @@ export * from './StringKey';
 export * from './TableHookColumn';
 export * from './TableInternal';
 export * from './TableInternalCell';
+export * from './TableInternalColumn';
 export * from './TableInternalHeaderColumn';
 export * from './TableInternalRow';

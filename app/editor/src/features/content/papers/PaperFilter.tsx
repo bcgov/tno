@@ -3,7 +3,7 @@ import { FaFileInvoice } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useLookup, useLookupOptions } from 'store/hooks';
-import { storeFilterAdvanced } from 'store/slices';
+import { storeContentFilterAdvanced } from 'store/slices';
 import {
   ContentTypeName,
   IOptionItem,
@@ -55,7 +55,7 @@ export const PaperFilter: React.FC<IPaperFilterProps> = ({ onSearch }) => {
         window.location.search,
       ),
     );
-    storeFilterAdvanced(
+    storeContentFilterAdvanced(
       queryToFilterAdvanced(
         { ...filterAdvanced, fieldType: AdvancedSearchKeys.Headline },
         window.location.search,

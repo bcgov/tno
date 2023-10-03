@@ -11,6 +11,11 @@ public class WorkOrderFilter : PageFilter
 {
     #region Properties
     /// <summary>
+    /// get/set - Keywords to search for.
+    /// </summary>
+    public string? Keywords { get; set; }
+
+    /// <summary>
     /// get/set - Only include work order with this status.
     /// </summary>
     public WorkOrderStatus? Status { get; set; }
@@ -84,6 +89,8 @@ public class WorkOrderFilter : PageFilter
     public WorkOrderFilter(Dictionary<string, StringValues> queryParams) : base(queryParams)
     {
         var filter = new Dictionary<string, StringValues>(queryParams, StringComparer.OrdinalIgnoreCase);
+
+        this.Keywords = filter.GetStringValue(nameof(this.Keywords));
 
         this.Status = filter.GetEnumNullValue<WorkOrderStatus>(nameof(this.Status));
         this.WorkType = filter.GetEnumNullValue<WorkOrderType>(nameof(this.WorkType));

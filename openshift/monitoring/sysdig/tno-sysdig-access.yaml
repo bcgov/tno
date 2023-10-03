@@ -7,6 +7,10 @@ spec:
   team:
     description: The Sysdig Team for the OpenShift Project Set 9b301c - TNO
     users:
+      - name: ckayfish@gmail.com
+        role: ROLE_TEAM_EDIT
+      - name: curtis.kayfish@gov.bc.ca
+        role: ROLE_TEAM_EDIT
       - name: jeremy.foster@fosol.ca
         role: ROLE_TEAM_EDIT
       - name: Jeremy.1.Foster@gov.bc.ca

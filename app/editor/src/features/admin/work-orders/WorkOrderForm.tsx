@@ -78,7 +78,7 @@ const WorkOrderForm: React.FC = () => {
         iconType="back"
         label="Back to WorkOrders"
         className="back-button"
-        onClick={() => navigate('/work/orders')}
+        onClick={() => navigate('/admin/work/orders')}
       />
       <FormikForm
         initialValues={workOrder}
@@ -122,7 +122,9 @@ const WorkOrderForm: React.FC = () => {
                   <FormikText name="configuration.headline" label="Content Headline" disabled>
                     <Button
                       variant={ButtonVariant.secondary}
-                      onClick={() => goToContent(values.configuration.contentId!)}
+                      onClick={() =>
+                        goToContent(values.configuration.contentId ?? values.contentId ?? 0)
+                      }
                     >
                       Go
                     </Button>
@@ -185,7 +187,7 @@ const WorkOrderForm: React.FC = () => {
                 try {
                   await api.deleteWorkOrder(workOrder);
                   toast.success(`Work order has successfully been deleted.`);
-                  navigate('/work/orders');
+                  navigate('/admin/work/orders');
                 } finally {
                   toggle();
                 }

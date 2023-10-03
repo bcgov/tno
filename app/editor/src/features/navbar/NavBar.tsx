@@ -70,8 +70,8 @@ export const NavBar: React.FC = () => {
             />
             <NavBarItem navigateTo="/clips" label="Request Clip" claim={Claim.editor} level={1} /> */}
             <NavBarItem
-              navigateTo="/work/orders"
-              label="Work Orders"
+              navigateTo="/transcriptions"
+              label="Transcriptions"
               claim={Claim.editor}
               level={1}
             />
@@ -172,6 +172,12 @@ export const NavBar: React.FC = () => {
             <NavBarItem
               navigateTo="/admin/licences"
               label="Licences"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/work/orders"
+              label="Work Orders"
               claim={Claim.administrator}
               level={1}
             />

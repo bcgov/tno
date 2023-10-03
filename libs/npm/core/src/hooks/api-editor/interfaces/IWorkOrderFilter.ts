@@ -1,6 +1,7 @@
 import { WorkOrderStatusName, WorkOrderTypeName } from '../constants';
 
 export interface IWorkOrderFilter {
+  keywords?: string;
   status?: WorkOrderStatusName;
   workType?: WorkOrderTypeName;
   contentId?: number;

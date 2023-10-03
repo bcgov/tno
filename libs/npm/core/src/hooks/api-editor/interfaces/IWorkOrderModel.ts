@@ -1,4 +1,10 @@
-import { IAuditColumnsModel, IUserModel, WorkOrderStatusName, WorkOrderTypeName } from '..';
+import {
+  IAuditColumnsModel,
+  IUserModel,
+  IWorkOrderContentModel,
+  WorkOrderStatusName,
+  WorkOrderTypeName,
+} from '..';
 
 export interface IWorkOrderModel extends IAuditColumnsModel {
   id: number;
@@ -11,4 +17,6 @@ export interface IWorkOrderModel extends IAuditColumnsModel {
   description: string;
   note: string;
   configuration: any;
+  contentId?: number;
+  content?: IWorkOrderContentModel;
 }

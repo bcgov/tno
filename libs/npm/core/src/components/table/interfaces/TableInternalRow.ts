@@ -1,10 +1,8 @@
-import {
-  ITableInternal,
-  ITableInternalCell,
-  ITableInternalColumn,
-  ITableInternalRow,
-  TableInternalCell,
-} from '.';
+import { ITableInternal } from './ITableInternal';
+import { ITableInternalCell } from './ITableInternalCell';
+import { ITableInternalColumn } from './ITableInternalColumn';
+import { ITableInternalRow } from './ITableInternalRow';
+import { TableInternalCell } from './TableInternalCell';
 
 export class TableInternalRow<T extends object> implements ITableInternalRow<T> {
   table: ITableInternal<T>;

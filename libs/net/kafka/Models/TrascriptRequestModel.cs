@@ -60,10 +60,10 @@ public class TranscriptRequestModel : WorkOrderModel
     /// <param name="workOrder"></param>
     public TranscriptRequestModel(WorkOrder workOrder) : base(workOrder.Id, workOrder.WorkType, workOrder.RequestorId, workOrder.Requestor?.DisplayName ?? "", workOrder.CreatedOn)
     {
-        if (workOrder.Configuration.RootElement.TryGetProperty("contentId", out JsonElement element) && element.TryGetInt64(out long contentId))
-        {
+        if (workOrder.ContentId.HasValue)
+            this.ContentId = workOrder.ContentId.Value;
+        else if (workOrder.Configuration.RootElement.TryGetProperty("contentId", out JsonElement element) && element.TryGetInt64(out long contentId))
             this.ContentId = contentId;
-        }
         else throw new ArgumentException("Work order must be for a transcription and contain 'contentId' property.");
     }
     #endregion

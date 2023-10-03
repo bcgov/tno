@@ -1,4 +1,6 @@
-import { ITableInternal, ITableInternalHeaderColumn, ITableInternalRow } from '.';
+import { ITableInternal } from './ITableInternal';
+import { ITableInternalHeaderColumn } from './ITableInternalHeaderColumn';
+import { ITableInternalRow } from './ITableInternalRow';
 
 export class TableInternalHeaderColumn<T extends object> implements ITableInternalHeaderColumn<T> {
   index: number;

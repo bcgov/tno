@@ -26,6 +26,7 @@ export * from './getEnumStringOptions';
 export * from './getFilename';
 export * from './getFromLocalStorage';
 export * from './getIngestOptions';
+export * from './getProperty';
 export * from './getSortableOptions';
 export * from './getSourceOptions';
 export * from './getUserOptions';

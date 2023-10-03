@@ -59,6 +59,11 @@ public class WorkOrderModel : AuditColumnsModel
     /// get/set - The work order configuration.
     /// </summary>
     public Dictionary<string, object> Configuration { get; set; } = new Dictionary<string, object>();
+
+    /// <summary>
+    /// get/set - Foreign key to content.
+    /// </summary>
+    public long? ContentId { get; set; }
     #endregion
 
     #region Constructors
@@ -82,6 +87,7 @@ public class WorkOrderModel : AuditColumnsModel
         this.Description = entity.Description;
         this.Note = entity.Note;
         this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
+        this.ContentId = entity.ContentId;
 
         if (entity.Requestor != null)
             this.Requestor = new UserModel(entity.Requestor);
@@ -105,6 +111,7 @@ public class WorkOrderModel : AuditColumnsModel
         entity.Description = this.Description;
         entity.Note = this.Note;
         entity.Configuration = JsonDocument.Parse(JsonSerializer.Serialize(this.Configuration, options));
+        entity.ContentId = this.ContentId;
         entity.Version = this.Version ?? 0;
 
         return entity;
@@ -125,6 +132,7 @@ public class WorkOrderModel : AuditColumnsModel
             AssignedId = this.AssignedId,
             Description = this.Description,
             Note = this.Note,
+            ContentId = this.ContentId,
             Version = this.Version ?? 0
         };
     }

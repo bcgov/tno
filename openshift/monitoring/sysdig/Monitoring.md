@@ -18,8 +18,6 @@ spec:
   team:
     description: The Sysdig Team for the OpenShift Project Set 9b301c - TNO
     users:
-    - name: kulpreet.singh@gov.bc.ca
-      role: ROLE_TEAM_EDIT
     - name: Jeremy.1.Foster@gov.bc.ca
       role: ROLE_TEAM_STANDARD
     - name: cello.liu@gov.bc.ca
@@ -40,11 +38,11 @@ To access them:
 
 - Navigate to the bottom left hand of the page to switch your team, which should be named as [PROJECT_SET_LICENSE_PLATE]-team.
 
-![Select Teams Image](./images/my_teams.png "Select Teams!")
+![Select Teams Image](./images/my_teams.png 'Select Teams!')
 
 ### Access Shared Dashboards
 
-TNO Dev Dashboard 
+TNO Dev Dashboard
 
 - [9b301c-dev - Pod Status & Performance](https://app.sysdigcloud.com/#/dashboards/399487?last=3600&scope=kubernetes.cluster.name%20as%20%22cluster%22%20in%20%3F%28%22silver%22%29%20and%20kubernetes.namespace.name%20as%20%22namespace%22%20in%20%3F%28%229b301c-dev%22%29%20and%20kubernetes.workload.type%20as%20%22type%22%20in%20%3F%20and%20kubernetes.workload.name%20as%20%22workload%22%20in%20%3F%20and%20container.label.io.kubernetes.pod.name%20as%20%22pod%22%20in%20%3F)
 

@@ -63,8 +63,12 @@ h4 {
   cursor: pointer;
   color: $action-button-color;
 
+  &.red {
+    color: $danger-color;
+  }
+
   &:hover {
-    color: $primary-color;
+    filter: brightness(50%);
   }
 }
 

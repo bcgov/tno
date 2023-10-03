@@ -21,8 +21,14 @@ export const useApiEditorWorkOrders = (
 
   return React.useRef({
     findWorkOrders: (filter: IWorkOrderFilter) => {
-      return api.get<IPaged<IWorkOrderModel>, AxiosResponse<IPaged<IWorkOrderModel>>, any>(
+      return api.get<never, AxiosResponse<IPaged<IWorkOrderModel>>, any>(
         `/editor/work/orders?${toQueryString(filter)}`,
+      );
+    },
+    updateWorkOrder: (workOrder: IWorkOrderModel) => {
+      return api.put<IWorkOrderModel, AxiosResponse<IWorkOrderModel>, any>(
+        `/editor/work/orders/${workOrder.id}`,
+        workOrder,
       );
     },
     transcribe: (content: IContentModel) => {
