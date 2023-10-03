@@ -38,16 +38,17 @@ export const Home: React.FC = () => {
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
       try {
         setLoading(true);
-        const data = await findContent(
-          makeFilter({
-            ...filter,
-            contentTypes:
-              filter.contentTypes.length > 0 ? filter.contentTypes : [ContentTypeName.PrintContent],
-            startDate: filter.startDate ? filter.startDate : new Date().toDateString(),
-            sort: [{ id: 'source.sortOrder' }],
-            status: ContentStatus.Published,
-          }),
-        );
+        const filters = makeFilter({
+          ...filter,
+          contentTypes:
+            filter.contentTypes.length > 0 ? filter.contentTypes : [ContentTypeName.PrintContent],
+          startDate: filter.startDate ? filter.startDate : new Date().toDateString(),
+          status: ContentStatus.Published,
+        });
+        const data = await findContent({
+          ...filters,
+          sort: ['source.sortOrder'],
+        });
         setHomeItems(data.items);
         return new Page(data.page - 1, data.quantity, data?.items, data.total);
       } catch (error) {
