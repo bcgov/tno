@@ -1,6 +1,7 @@
 import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { determineColumns } from 'features/home/constants';
+import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
@@ -25,14 +26,15 @@ export const PressGallery: React.FC = () => {
 
   const defaultSettings = React.useMemo<IFilterSettingsModel>(() => {
     return {
-      // startDate: `${moment(filterAdvanced.startDate).format('YYYY-MM-DD')}`,
+      startDate: `${moment(filterAdvanced.startDate)}`,
+      endDate: `${moment(filterAdvanced.startDate).endOf('day')}`,
       inByline: true,
       inHeadline: true,
       inStory: true,
       searchUnpublished: false,
       defaultOperator: 'or',
     };
-  }, []);
+  }, [filterAdvanced.startDate]);
 
   const [pressSettings, setPressSettings] = React.useState<IFilterSettingsModel>(defaultSettings);
   const [pressQuery, setPressQuery] = React.useState<any>();
@@ -56,6 +58,8 @@ export const PressGallery: React.FC = () => {
     [pressQuery, defaultSettings],
   );
 
+  React.useEffect(() => {}, [filterAdvanced.startDate]);
+
   const fetchResults = React.useCallback(
     async (filter: unknown) => {
       try {
@@ -69,12 +73,13 @@ export const PressGallery: React.FC = () => {
   /** Get all the contributors that are marked as press */
   React.useEffect(() => {
     getPressContributorAliases();
+
     // Only want this to run when the date is updated or on initial load
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterAdvanced.startDate]);
 
   // async function to fetch the press enable contributors and update the search query with appropriate aliases
-  const getPressContributorAliases = async () => {
+  const getPressContributorAliases = React.useCallback(async () => {
     // regex to match words separated by space or comma, and treat words surrounded by quotes as one value
     const regex = /"[^"]+"|\w+/g;
     const contributors = await api.findAllContributors();
@@ -88,8 +93,19 @@ export const PressGallery: React.FC = () => {
         }
       });
     updateQuery('search', aliases.toString().split(',').join(' '));
-    fetchResults(generateQuery(pressSettings, pressQuery));
-  };
+    fetchResults(
+      generateQuery(
+        {
+          ...pressSettings,
+          startDate: `${moment(filterAdvanced.startDate)}`,
+          endDate: `${moment(filterAdvanced.startDate).endOf('day')}`,
+        },
+        pressQuery,
+      ),
+    );
+    // only want to trigger when date changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterAdvanced.startDate]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
