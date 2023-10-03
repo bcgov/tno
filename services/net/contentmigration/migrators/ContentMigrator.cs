@@ -340,5 +340,37 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
         return date.ToTimeZone(timeZoneId);
     }
 
+    /// <summary>
+    /// swap line breaks with paragraph tags
+    /// </summary>
+    /// <param name="text"></param>
+    /// <returns>formatted body string</returns>
+    protected string SanitizeLineBreaks(string? text)
+    {
+        string sanitizedString = string.IsNullOrEmpty(text) ? string.Empty : text;
+
+        if (!string.IsNullOrEmpty(sanitizedString))
+        {
+            // pattern for any matching pair of tags
+            Regex tagRegex = new Regex(@"<\s*([^ >]+)[^>]*>.*?<\s*/\s*\1\s*>");
+
+            // if the input string is not markup, sanitize it
+            if (!tagRegex.IsMatch(sanitizedString))
+            {
+                const string LINE_BREAK_MARKER = "#linebreak#";
+                // replace "carriage return + line feed" OR "carriage return" OR "line feed" OR "|"
+                // with a placeholder first
+                string result = Regex.Replace(Regex.Unescape(sanitizedString), @"\r\n?|\n|\|", LINE_BREAK_MARKER);
+                if (!result.Equals(sanitizedString, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    // found at least one linebreak placeholder
+                    sanitizedString = $"<p>{result.Replace(LINE_BREAK_MARKER, "</p><p>")}</p>";
+                }
+            }
+        }
+        return sanitizedString;
+    }
+
+
     #endregion
 }
