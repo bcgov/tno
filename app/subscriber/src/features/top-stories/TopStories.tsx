@@ -23,6 +23,7 @@ export const TopStories: React.FC = () => {
       publishedStartOn: moment(filterAdvanced.startDate).toISOString(),
       publishedEndOn: moment(filterAdvanced.endDate).toISOString(),
       quantity: 100,
+      sort: ['source.sortOrder'],
     })
       .then((data) => setTopStories(data.items))
       .catch(() => {});
