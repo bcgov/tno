@@ -25,7 +25,6 @@ export const PressGallery: React.FC = () => {
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
   const defaultSettings = React.useMemo<IFilterSettingsModel>(() => {
-    console.log(filterAdvanced.startDate);
     return {
       startDate: `${moment(filterAdvanced.startDate)}`,
       endDate: `${moment(filterAdvanced.startDate).endOf('day')}`,
@@ -56,7 +55,7 @@ export const PressGallery: React.FC = () => {
       setPressSettings(settings);
       setPressQuery(query);
     },
-    [pressQuery, defaultSettings, filterAdvanced.startDate],
+    [pressQuery, defaultSettings],
   );
 
   React.useEffect(() => {}, [filterAdvanced.startDate]);
@@ -94,7 +93,6 @@ export const PressGallery: React.FC = () => {
         }
       });
     updateQuery('search', aliases.toString().split(',').join(' '));
-    console.log(filterAdvanced.startDate, 'heres', pressSettings.startDate);
     fetchResults(
       generateQuery(
         {
@@ -105,6 +103,8 @@ export const PressGallery: React.FC = () => {
         pressQuery,
       ),
     );
+    // only want to trigger when date changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterAdvanced.startDate]);
 
   /** controls the checking and unchecking of rows in the list view */
