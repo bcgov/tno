@@ -398,12 +398,13 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// </summary>
     /// <param name="data"></param>
     /// <returns></returns>
-    private SyndicationFeed GetCustomFeed(string data)
+    static SyndicationFeed GetCustomFeed(string data)
     {
         var settings = new XmlReaderSettings()
         {
             IgnoreComments = false,
             IgnoreWhitespace = true,
+            DtdProcessing = DtdProcessing.Parse,
         };
         var xmlr = XmlReader.Create(new StringReader(data), settings);
         var document = XDocument.Load(xmlr);
