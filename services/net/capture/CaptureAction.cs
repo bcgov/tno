@@ -1,16 +1,16 @@
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
+using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
-using TNO.Models.Extensions;
 using TNO.Kafka.Models;
+using TNO.Models.Extensions;
+using TNO.Services.Actions;
 using TNO.Services.Capture.Config;
 using TNO.Services.Command;
-using System.Diagnostics;
-using TNO.Core.Exceptions;
-using TNO.Services.Actions;
 
 namespace TNO.Services.Capture;
 
@@ -168,7 +168,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
         var process = new Process();
         process.StartInfo.Verb = $"Stream Type";
         process.StartInfo.FileName = "/bin/sh";
-        process.StartInfo.Arguments = $"-c \"ffmpeg -i {file} 2>&1 | grep Video | awk '{{print $0}}' | tr -d ,\"";
+        process.StartInfo.Arguments = $"-c \"ffmpeg -i '{file}' 2>&1 | grep Video | awk '{{print $0}}' | tr -d ,\"";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;
         process.StartInfo.RedirectStandardOutput = true;

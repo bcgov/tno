@@ -2,8 +2,8 @@ using System.Net;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using TNO.API.Filters;
 using TNO.API.Areas.Subscriber.Models.Contributor;
+using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.DAL.Services;
 using TNO.Keycloak;
@@ -32,6 +32,7 @@ public class ContributorController : ControllerBase
     #region Constructors
     /// <summary>
     /// Creates a new instance of a ContributorController object, initializes with specified parameters.
+    /// </summary>
     /// <param name="service"></param>
     public ContributorController(IContributorService service)
     {

@@ -213,7 +213,7 @@ public class ContentFileReference : IReadonlyFileReference
     /// <summary>
     /// Creates a new instance of a ContentFileReference, initializes with specified parameters.
     /// Use this to update an existing FileReference.
-    /// Only use this contructor when the 'content' already exists in the database.
+    /// Only use this constructor when the 'content' already exists in the database.
     /// </summary>
     /// <param name="fileReference"></param>
     /// <param name="file"></param>
@@ -258,7 +258,7 @@ public class ContentFileReference : IReadonlyFileReference
     public static string GenerateFilePath(Content content, IFormFile file)
     {
         var fileName = GenerateFileName(content, file);
-        return System.IO.Path.Combine(content.OtherSource, fileName);
+        return System.IO.Path.Combine(content.OtherSource.Replace(' ', '_'), fileName);
     }
 
     /// <summary>
@@ -270,7 +270,7 @@ public class ContentFileReference : IReadonlyFileReference
     public static string GenerateFileName(Content content, IFormFile file)
     {
         if (content.Id == 0) throw new ArgumentException("Parameter 'content.Id' must be greater than zero.", nameof(content));
-        if (String.IsNullOrWhiteSpace(content.OtherSource)) throw new ArgumentException("Parameter 'content.OtherSource' cannot be null, empty, or whitespace.", nameof(content));
+        if (String.IsNullOrWhiteSpace(content.OtherSource.Replace(' ', '_'))) throw new ArgumentException("Parameter 'content.OtherSource' cannot be null, empty, or whitespace.", nameof(content));
 
         return GenerateFileName(content, file.FileName);
     }
@@ -284,7 +284,7 @@ public class ContentFileReference : IReadonlyFileReference
     public static string GenerateFilePath(Content content, string file)
     {
         var fileName = GenerateFileName(content, file);
-        return System.IO.Path.Combine(content.OtherSource, fileName);
+        return System.IO.Path.Combine(content.OtherSource.Replace(' ', '_'), fileName);
     }
 
     /// <summary>
@@ -297,9 +297,9 @@ public class ContentFileReference : IReadonlyFileReference
     public static string GenerateFileName(Content content, string file)
     {
         if (content.Id == 0) throw new ArgumentException("Parameter 'content.Id' must be greater than zero.", nameof(content));
-        if (String.IsNullOrWhiteSpace(content.OtherSource)) throw new ArgumentException("Parameter 'content.OtherSource' cannot be null, empty, or whitespace.", nameof(content));
+        if (String.IsNullOrWhiteSpace(content.OtherSource.Replace(' ', '_'))) throw new ArgumentException("Parameter 'content.OtherSource' cannot be null, empty, or whitespace.", nameof(content));
 
-        return $"{content.OtherSource}-{content.Id}{System.IO.Path.GetExtension(file)}";
+        return $"{content.OtherSource.Replace(' ', '_')}-{content.Id}{System.IO.Path.GetExtension(file)}";
     }
 
     /// <summary>
