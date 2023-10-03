@@ -12,10 +12,9 @@ export const generateRangeForDates = (
     return {
       range: {
         [field]: {
-          gte: moment(value1).format('yyyy-MM-DD'),
-          lte: moment(values2).format('yyyy-MM-DD'),
+          gte: moment(value1),
+          lte: moment(values2),
           time_zone: 'US/Pacific',
-          format: 'yyyy-MM-DD',
         },
       },
     };
@@ -23,10 +22,9 @@ export const generateRangeForDates = (
     return {
       range: {
         [field]: {
-          gte: moment(values).format('yyyy-MM-DD'),
-          lte: moment(values).format('yyyy-MM-DD'),
+          gte: moment(values),
+          lte: moment(values),
           time_zone: 'US/Pacific',
-          format: 'yyyy-MM-DD',
         },
       },
     };
