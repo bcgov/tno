@@ -416,7 +416,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         var process = new System.Diagnostics.Process();
         process.StartInfo.Verb = $"Stream Type";
         process.StartInfo.FileName = "/bin/sh";
-        process.StartInfo.Arguments = $"-c \"ffmpeg -i {srcFile} -y {destFile} 2>&1 \"";
+        process.StartInfo.Arguments = $"-c \"ffmpeg -i '{srcFile}' -y '{destFile}' 2>&1 \"";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.CreateNoWindow = true;
