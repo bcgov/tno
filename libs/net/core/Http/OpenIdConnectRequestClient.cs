@@ -1,10 +1,11 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Core.Exceptions;
 using TNO.Core.Http.Configuration;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http.Headers;
-using System.Text.Json;
 
 namespace TNO.Core.Http
 {
@@ -244,7 +245,13 @@ namespace TNO.Core.Http
 
             var token = await RequestAccessToken();
 
-            if (!String.IsNullOrWhiteSpace(token)) headers.Add("Authorization", token.ToString());
+            if (!String.IsNullOrWhiteSpace(token))
+            {
+                if (!headers.TryGetValues("Authorization", out _))
+                    headers.Add("Authorization", token.ToString());
+                else
+                    headers.Authorization = new AuthenticationHeaderValue(token.ToString());
+            }
 
             return await base.SendAsync(url, method, headers, content);
 
