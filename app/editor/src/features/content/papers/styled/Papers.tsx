@@ -77,7 +77,7 @@ export const Papers = styled(FormPage)`
 
     .rows {
       min-height: 100px;
-      max-height: calc(-600px + 100vh);
+      max-height: calc(-450px + 100vh);
     }
 
     .column {
