@@ -26,7 +26,7 @@ import { exportFilter, parseExportedFilter } from './utils';
  */
 export const FilterFormImportExport: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IFilterModel>();
-  const [{ series, products, sources, contributors, actions, tags }] = useLookupOptions();
+  const [{ series, products, sources, contributors, actions }] = useLookupOptions();
 
   const [rawFilter, setRawFilter] = React.useState('{}');
 
@@ -48,7 +48,7 @@ export const FilterFormImportExport: React.FC = () => {
       const query = generateQuery(importedFilter.settings as IFilterSettingsModel, null);
       setFieldValue('query', query);
     },
-    [setFieldValue, values.query, values.settings],
+    [setFieldValue, actions, contributors, series, sources, products],
   );
 
   return (
