@@ -62,11 +62,7 @@ export const ViewContent: React.FC = () => {
         setWorkOrders([response.data, ...workOrders]);
 
         if (response.status === 200) toast.success('A transcript has been requested');
-        else if (response.status === 208) {
-          if (response.data.status === WorkOrderStatusName.Completed)
-            toast.warn('Content has already been transcribed');
-          else toast.warn(`An active request for transcription already exists`);
-        }
+        // In case of failure no message will be displayed to the Subscriber application user.
       }
     } catch {
       // Ignore this failure it is handled by our global ajax requests.
