@@ -19,6 +19,7 @@ import {
 
 import { defaultFilter } from './constants';
 import { FilterFormDetails } from './FilterFormDetails';
+import { FilterFormImportExport } from './FilterFormImportExport';
 import { FilterFormPreview } from './FilterFormPreview';
 import { FilterFormQuery } from './FilterFormQuery';
 import * as styled from './styled';
@@ -104,6 +105,13 @@ const FilterForm: React.FC<IFilterFormProps> = () => {
                   }}
                   active={active === 'preview'}
                 />
+                <Tab
+                  label="Import/Export"
+                  onClick={() => {
+                    setActive('importexport');
+                  }}
+                  active={active === 'importexport'}
+                />
               </>
             }
           >
@@ -116,6 +124,9 @@ const FilterForm: React.FC<IFilterFormProps> = () => {
               </Show>
               <Show visible={active === 'preview'}>
                 <FilterFormPreview />
+              </Show>
+              <Show visible={active === 'importexport'}>
+                <FilterFormImportExport />
               </Show>
               <Row justifyContent="center" className="form-inputs">
                 <Button type="submit" disabled={isSubmitting}>
