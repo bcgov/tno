@@ -1,5 +1,7 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
+import { ActionDelegate } from 'store';
+import { IWorkOrderState, useWorkOrderStore } from 'store/slices';
 import {
   IContentModel,
   IPaged,
@@ -11,15 +13,18 @@ import {
 import { useAjaxWrapper } from '..';
 
 interface IWorkOrderController {
+  storeTranscriptFilter: (filter: IWorkOrderFilter | ActionDelegate<IWorkOrderFilter>) => void;
   findWorkOrders: (filter: IWorkOrderFilter) => Promise<AxiosResponse<IPaged<IWorkOrderModel>>>;
+  updateWorkOrder: (workOrder: IWorkOrderModel) => Promise<AxiosResponse<IWorkOrderModel>>;
   transcribe: (content: IContentModel) => Promise<AxiosResponse<IWorkOrderModel>>;
   nlp: (content: IContentModel) => Promise<AxiosResponse<IWorkOrderModel>>;
   requestFile: (locationId: number, path: string) => Promise<AxiosResponse<IWorkOrderModel>>;
 }
 
-export const useWorkOrders = (): [any, IWorkOrderController] => {
+export const useWorkOrders = (): [IWorkOrderState, IWorkOrderController] => {
   const dispatch = useAjaxWrapper();
   const api = useApiEditorWorkOrders();
+  const [state, store] = useWorkOrderStore();
 
   const controller = React.useMemo(
     () => ({
@@ -31,6 +36,9 @@ export const useWorkOrders = (): [any, IWorkOrderController] => {
           true,
         );
         return response;
+      },
+      updateWorkOrder: async (workOrder: IWorkOrderModel) => {
+        return await dispatch('update-work-order', () => api.updateWorkOrder(workOrder));
       },
       transcribe: async (content: IContentModel) => {
         return await dispatch('transcribe-content', () => api.transcribe(content));
@@ -45,5 +53,5 @@ export const useWorkOrders = (): [any, IWorkOrderController] => {
     [api, dispatch],
   );
 
-  return [{}, controller];
+  return [state, { ...controller, ...store }];
 };

@@ -108,8 +108,8 @@ export const contentSlice = createSlice({
 });
 
 export const {
-  storeFilter,
-  storeFilterAdvanced,
+  storeFilter: storeContentFilter,
+  storeFilterAdvanced: storeContentFilterAdvanced,
   storeFilterPaper,
   storeFilterPaperAdvanced,
   addContent,

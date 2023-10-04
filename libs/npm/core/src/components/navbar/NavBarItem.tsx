@@ -77,9 +77,12 @@ export const NavBarItem: React.FC<INavBarItemPropsAndEvents> = ({
 
   return hasClaim ? (
     <styled.NavBarItem
-      onClick={() => {
+      onClick={(e) => {
         const nav = onClick?.({ uid: key, navigateTo });
-        if (nav) navigate(navigateTo!!);
+        if (nav && navigateTo) {
+          if (!e.ctrlKey) navigate(navigateTo);
+          else window.open(navigateTo, '_blank');
+        }
       }}
       active={isActive(location.pathname, navigateTo, exact, activeHoverTab, key)}
       level={level}

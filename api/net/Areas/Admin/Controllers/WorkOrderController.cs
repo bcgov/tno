@@ -4,7 +4,6 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.WorkOrder;
@@ -24,7 +23,7 @@ namespace TNO.API.Areas.Admin.Controllers;
 /// <summary>
 /// WorkOrderController class, provides WorkOrder endpoints for the admin api.
 /// </summary>
-[ClientRoleAuthorize(ClientRole.Editor)]
+[ClientRoleAuthorize(ClientRole.Administrator)]
 [ApiController]
 [Area("admin")]
 [ApiVersion("1.0")]

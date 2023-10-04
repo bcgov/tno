@@ -38,12 +38,17 @@ export const useColumns = ({ fetch }: IColumnProps): ITableHookColumn<IContentSe
         </Row>
       ),
       cell: (cell) => (
-        <CellEllipsis>
+        <Row nowrap gap="0.5rem">
           <Show visible={cell.row.original.hasTranscript}>
-            <FaFeather />
+            <FaFeather
+              title={cell.row.original.isApproved ? 'Transcription' : 'Ready to review'}
+              className={cell.row.original.isApproved ? 'completed' : 'ready'}
+            />
           </Show>
-          <span>{cell.original.headline}</span>
-        </CellEllipsis>
+          <CellEllipsis>
+            <span>{cell.original.headline}</span>
+          </CellEllipsis>
+        </Row>
       ),
       width: 5,
     },

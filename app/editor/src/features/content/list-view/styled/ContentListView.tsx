@@ -84,4 +84,16 @@ export const ContentListView = styled(FormPage)`
     align-items: center;
     justify-content: center;
   }
+
+  .ready {
+    color: ${(props) => props.theme.css.cancelledColor};
+  }
+
+  .completed {
+    color: ${(props) => props.theme.css.completedColor};
+  }
+
+  .failed {
+    color: ${(props) => props.theme.css.dangerColor};
+  }
 `;

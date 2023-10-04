@@ -12,8 +12,8 @@ import {
   addContent,
   removeContent,
   storeContent,
-  storeFilter,
-  storeFilterAdvanced,
+  storeContentFilter,
+  storeContentFilterAdvanced,
   storeFilterPaper,
   storeFilterPaperAdvanced,
   updateContent,
@@ -56,14 +56,15 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
   const controller = React.useMemo(
     () => ({
       storeFilter: (filter: IContentListFilter | ActionDelegate<IContentListFilter>) => {
-        if (typeof filter === 'function') dispatch(storeFilter(filter(state.filter)));
-        else dispatch(storeFilter(filter));
+        if (typeof filter === 'function') dispatch(storeContentFilter(filter(state.filter)));
+        else dispatch(storeContentFilter(filter));
       },
       storeFilterAdvanced: (
         filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
       ) => {
-        if (typeof filter === 'function') dispatch(storeFilterAdvanced(filter(filterAdvanced)));
-        else dispatch(storeFilterAdvanced(filter));
+        if (typeof filter === 'function')
+          dispatch(storeContentFilterAdvanced(filter(filterAdvanced)));
+        else dispatch(storeContentFilterAdvanced(filter));
       },
       storeFilterPaper: (filter: IPaperFilter | ActionDelegate<IPaperFilter>) => {
         if (typeof filter === 'function') dispatch(storeFilterPaper(filter(state.filterPaper)));

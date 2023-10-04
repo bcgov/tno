@@ -21,6 +21,7 @@ public class WorkOrderConfiguration : AuditColumnsConfiguration<WorkOrder>
 
         builder.HasOne(m => m.Requestor).WithMany(m => m.WorkOrderRequests).HasForeignKey(m => m.RequestorId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(m => m.Assigned).WithMany(m => m.WorkOrdersAssigned).HasForeignKey(m => m.AssignedId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(m => m.Content).WithMany(m => m.WorkOrders).HasForeignKey(m => m.ContentId).OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(m => new { m.WorkType, m.Status, m.CreatedOn, m.RequestorId, m.AssignedId }, "IX_work_order");
 

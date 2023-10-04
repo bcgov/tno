@@ -1,12 +1,6 @@
-import { ITableHookColumn, ITableInternalCell } from '.';
-
-export interface ITableInternalColumn<T extends object>
-  extends Omit<ITableHookColumn<T>, 'id' | 'sort' | 'showSort' | 'isSorted' | 'isSortedDesc'> {
-  index: number;
-  accessor?: keyof T | string | ((data: T) => unknown);
-  isVisible: boolean;
-  cell: (cell: ITableInternalCell<T>) => React.ReactNode;
-}
+import { getProperty } from '../../../utils';
+import { ITableInternalCell } from './ITableInternalCell';
+import { ITableInternalColumn } from './ITableInternalColumn';
 
 export class TableInternalColumn<T extends object> implements ITableInternalColumn<T> {
   index: number;
@@ -41,7 +35,7 @@ export class TableInternalColumn<T extends object> implements ITableInternalColu
           return typeof assessor === 'function' ? (
             <>{assessor(cell.original)}</>
           ) : (
-            <>{cell.original[assessor as keyof T]}</>
+            <>{getProperty(cell.original, assessor)}</>
           );
         };
     this.isVisible = options.isVisible ?? true;

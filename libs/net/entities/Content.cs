@@ -274,6 +274,11 @@ public class Content : AuditColumns
     /// get - Collection of folders that have this content (many-to-many).
     /// </summary>
     public virtual List<FolderContent> FoldersManyToMany { get; } = new List<FolderContent>();
+
+    /// <summary>
+    /// get - Collection of work orders that are for this content.
+    /// </summary>
+    public virtual List<WorkOrder> WorkOrders { get; } = new List<WorkOrder>();
     #endregion
 
     #region Constructors

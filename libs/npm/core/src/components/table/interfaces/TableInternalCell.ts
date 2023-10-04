@@ -1,4 +1,6 @@
-import { ITableInternalCell, ITableInternalRow, TableInternalColumn } from '.';
+import { ITableInternalCell } from './ITableInternalCell';
+import { ITableInternalRow } from './ITableInternalRow';
+import { TableInternalColumn } from './TableInternalColumn';
 
 export class TableInternalCell<T extends object>
   extends TableInternalColumn<T>

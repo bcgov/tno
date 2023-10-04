@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Logging;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
@@ -41,6 +42,8 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
     {
         var query = this.Context.WorkOrders
             .AsNoTracking()
+            .Include(w => w.Requestor)
+            .Include(w => w.Assigned)
             .AsQueryable();
 
         if (filter.WorkType.HasValue)
@@ -49,11 +52,94 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
             query = query.Where(c => c.Status == filter.Status);
 
         if (filter.ContentId.HasValue)
-            query = query.Where(c => EF.Functions.JsonContains(c.Configuration, $"{{\"contentId\":{filter.ContentId}}}"));
+            query = query.Where(c => c.ContentId == filter.ContentId || EF.Functions.JsonContains(c.Configuration, $"{{\"contentId\":{filter.ContentId}}}"));
         if (filter.RequestorId.HasValue)
             query = query.Where(c => c.RequestorId == filter.RequestorId);
         if (filter.AssignedId.HasValue)
             query = query.Where(c => c.AssignedId == filter.AssignedId);
+        if (filter.Keywords != null)
+            query = query.Where(c => EF.Functions.Like(c.Content!.Headline.ToLower(), $"%{filter.Keywords.ToLower()}%") ||
+                EF.Functions.Like(c.Requestor!.Username.ToLower(), $"%{filter.Keywords.ToLower()}%"));
+
+        if (filter.CreatedOn.HasValue)
+            query = query.Where(c => c.CreatedOn == filter.CreatedOn.Value.ToUniversalTime());
+        if (filter.CreatedStartOn.HasValue && filter.CreatedEndOn.HasValue)
+            query = query.Where(c => c.CreatedOn >= filter.CreatedStartOn.Value.ToUniversalTime() && c.CreatedOn <= filter.CreatedEndOn.Value.ToUniversalTime());
+        else if (filter.CreatedStartOn.HasValue)
+            query = query.Where(c => c.CreatedOn >= filter.CreatedStartOn.Value.ToUniversalTime());
+        else if (filter.CreatedEndOn.HasValue)
+            query = query.Where(c => c.CreatedOn <= filter.CreatedEndOn.Value.ToUniversalTime());
+
+        if (filter.UpdatedOn.HasValue)
+            query = query.Where(c => c.UpdatedOn == filter.UpdatedOn.Value.ToUniversalTime());
+        if (filter.UpdatedStartOn.HasValue && filter.UpdatedEndOn.HasValue)
+            query = query.Where(c => c.UpdatedOn >= filter.UpdatedStartOn.Value.ToUniversalTime() && c.UpdatedOn <= filter.UpdatedEndOn.Value.ToUniversalTime());
+        else if (filter.UpdatedStartOn.HasValue)
+            query = query.Where(c => c.UpdatedOn >= filter.UpdatedStartOn.Value.ToUniversalTime());
+        else if (filter.UpdatedEndOn.HasValue)
+            query = query.Where(c => c.UpdatedOn <= filter.UpdatedEndOn.Value.ToUniversalTime());
+
+        var total = query.Count();
+
+        if (filter.Sort?.Any() == true)
+        {
+            query = query.OrderByProperty(filter.Sort.First());
+            foreach (var sort in filter.Sort.Skip(1))
+            {
+                query = query.ThenByProperty(sort);
+            }
+        }
+        else
+            query = query.OrderByDescending(c => c.CreatedOn);
+
+        var skip = (filter.Page - 1) * filter.Quantity;
+        query = query.Skip(skip).Take(filter.Quantity);
+
+        var items = query?.ToArray() ?? Array.Empty<WorkOrder>();
+
+        return new Paged<WorkOrder>(items, filter.Page, filter.Quantity, total);
+    }
+
+    /// <summary>
+    /// Find work orders that match the specified 'filter' and only return the latest distinct record for each content item..
+    /// </summary>
+    /// <param name="filter">Filter to apply to the query.</param>
+    /// <returns>A page of work order items that match the filter.</returns>
+    public IPaged<WorkOrder> FindDistinctWorkOrders(WorkOrderFilter filter)
+    {
+        var gQuery = (from wo in this.Context.WorkOrders
+                        .AsNoTracking()
+                      group wo by wo.ContentId into woc
+                      select new
+                      {
+                          ContentId = woc.Key,
+                          WorkOrderId = woc.OrderByDescending(w => w.CreatedOn).Select(w => w.Id).First(),
+                      }).Select(g => g.WorkOrderId);
+
+        var query = from wo in this.Context.WorkOrders
+                        .AsNoTracking()
+                        .Include(w => w.Content)
+                        .Include(w => w.Requestor)
+                        .Include(w => w.Assigned)
+                    where gQuery.Contains(wo.Id)
+                    select wo;
+
+        if (filter.WorkType.HasValue)
+            query = query.Where(c => c.WorkType == filter.WorkType);
+        if (filter.Status.HasValue)
+            query = query.Where(c => c.Status == filter.Status);
+
+        if (filter.ContentId.HasValue)
+            query = query.Where(c => c.ContentId == filter.ContentId || EF.Functions.JsonContains(c.Configuration, $"{{\"contentId\":{filter.ContentId}}}"));
+        if (filter.RequestorId.HasValue)
+            query = query.Where(c => c.RequestorId == filter.RequestorId);
+        if (filter.AssignedId.HasValue)
+            query = query.Where(c => c.AssignedId == filter.AssignedId);
+        if (filter.Keywords != null)
+            query = query.Where(c => EF.Functions.Like(c.Content!.Headline.ToLower(), $"%{filter.Keywords.ToLower()}%") ||
+                EF.Functions.Like(c.Content!.OtherSource.ToLower(), $"{filter.Keywords.ToLower()}") ||
+                EF.Functions.Like(c.Requestor!.Username.ToLower(), $"%{filter.Keywords.ToLower()}%") ||
+                EF.Functions.Like(c.Assigned!.Username.ToLower(), $"%{filter.Keywords.ToLower()}%"));
 
         if (filter.CreatedOn.HasValue)
             query = query.Where(c => c.CreatedOn == filter.CreatedOn.Value.ToUniversalTime());

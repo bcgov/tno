@@ -1,27 +1,28 @@
 import React from 'react';
 
-import { groupBy, initColumns, ITableGroup, sortRows } from '..';
-import {
-  IdType,
-  ITableHookColumn,
-  ITableHookFilter,
-  ITableHookGrouping,
-  ITableHookOptions,
-  ITableHookPaging,
-  ITableHookSorting,
-  ITableInternal,
-  ITableInternalColumn,
-  ITableInternalFooter,
-  ITableInternalHeader,
-  ITableInternalOptions,
-  ITableInternalRow,
-  ITableInternalRowGroup,
-  ITablePage,
-  ITableSort,
-  TableInternalColumn,
-  TableInternalHeaderColumn,
-  TableInternalRow,
-} from '.';
+import { groupBy } from '../utils/groupBy';
+import { initColumns } from '../utils/initColumns';
+import { sortRows } from '../utils/sortRows';
+import { IdType } from './IdType';
+import { ITableGroup } from './ITableGroup';
+import { ITableHookColumn } from './ITableHookColumn';
+import { ITableHookFilter } from './ITableHookFilter';
+import { ITableHookGrouping } from './ITableHookGrouping';
+import { ITableHookOptions } from './ITableHookOptions';
+import { ITableHookPaging } from './ITableHookPaging';
+import { ITableHookSorting } from './ITableHookSorting';
+import { ITableInternal } from './ITableInternal';
+import { ITableInternalColumn } from './ITableInternalColumn';
+import { ITableInternalFooter } from './ITableInternalFooter';
+import { ITableInternalHeader } from './ITableInternalHeader';
+import { ITableInternalOptions } from './ITableInternalOptions';
+import { ITableInternalRow } from './ITableInternalRow';
+import { ITableInternalRowGroup } from './ITableInternalRowGroup';
+import { ITablePage } from './ITablePage';
+import { ITableSort } from './ITableSort';
+import { TableInternalColumn } from './TableInternalColumn';
+import { TableInternalHeaderColumn } from './TableInternalHeaderColumn';
+import { TableInternalRow } from './TableInternalRow';
 
 export class TableInternal<T extends object> implements ITableInternal<T> {
   rowId: keyof T;

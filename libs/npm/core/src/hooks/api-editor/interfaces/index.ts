@@ -95,6 +95,7 @@ export * from './IUserFilter';
 export * from './IUserInfoModel';
 export * from './IUserModel';
 export * from './IValidationErrorModel';
+export * from './IWorkOrderContentModel';
 export * from './IWorkOrderFilter';
 export * from './IWorkOrderMessageModel';
 export * from './IWorkOrderModel';

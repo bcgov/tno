@@ -6,8 +6,6 @@ import { Claim, ContentTypeName, InternalServerError, NotFound } from 'tno-core'
 
 const DefaultLayout = lazy(() => import('components/layout/DefaultLayout'));
 const AccessRequest = lazy(() => import('features/access-request/AccessRequest'));
-const WorkOrderForm = lazy(() => import('features/admin/work-orders/WorkOrderForm'));
-const WorkOrderList = lazy(() => import('features/admin/work-orders/WorkOrderList'));
 const RequestClip = lazy(() => import('features/clips/RequestClip'));
 const ContentForm = lazy(() => import('features/content/form/ContentForm'));
 const ContentListView = lazy(() => import('features/content/list-view/ContentListView'));
@@ -21,6 +19,9 @@ const ReportPreview = lazy(() => import('features/reports/ReportPreview'));
 const ReportsRouter = lazy(() => import('features/reports/ReportsRouter'));
 const StorageListView = lazy(() => import('features/storage/StorageListView'));
 const PrivateRoute = lazy(() => import('features/router/PrivateRoute'));
+const TranscriptionList = lazy(
+  () => import('features/work-orders/transcription/TranscriptionList'),
+);
 
 export interface IAppRouter {
   name: string;
@@ -121,8 +122,7 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
             }
           />
           <Route path="clips" element={<RequestClip />} />
-          <Route path="work/orders" element={<WorkOrderList />} />
-          <Route path="work/orders/:id" element={<WorkOrderForm />} />
+          <Route path="transcriptions" element={<TranscriptionList />} />
 
           <Route
             path="report/instances/:id/preview"

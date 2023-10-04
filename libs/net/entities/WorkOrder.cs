@@ -69,6 +69,17 @@ public class WorkOrder : AuditColumns
     /// </summary>
     [Column("configuration")]
     public JsonDocument Configuration { get; set; } = JsonDocument.Parse("{}");
+
+    /// <summary>
+    /// get/set - Foreign key to the content this work order is associated with.
+    /// </summary>
+    [Column("content_id")]
+    public long? ContentId { get; set; }
+
+    /// <summary>
+    /// get/set - Content work order is associated with.
+    /// </summary>
+    public Content? Content { get; set; }
     #endregion
 
     #region Constructors
@@ -162,8 +173,9 @@ public class WorkOrder : AuditColumns
     /// <param name="description"></param>
     /// <param name="contentId"></param>
     /// <param name="headline"></param>
-    public WorkOrder(WorkOrderType type, string description, long contentId, string headline) : this(type, description, $"{{ \"contentId\": {contentId}, \"headline\": \"{headline}\" }}")
+    public WorkOrder(WorkOrderType type, string description, long contentId, string headline) : this(type, description, $"{{ \"headline\": \"{headline}\" }}")
     {
+        this.ContentId = contentId;
     }
 
     /// <summary>
@@ -177,6 +189,8 @@ public class WorkOrder : AuditColumns
     {
         this.RequestorId = requestor.Id;
         this.Requestor = requestor;
+        this.ContentId = content.Id;
+        this.Content = content;
     }
 
     /// <summary>

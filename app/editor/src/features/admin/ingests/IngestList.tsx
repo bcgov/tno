@@ -6,6 +6,7 @@ import { Col, FlexboxTable, IconButton, Row } from 'tno-core';
 import { columns } from './constants';
 import { IngestFilter } from './IngestFilter';
 import * as styled from './styled';
+import { getStatus } from './utils';
 
 interface IIngestListProps {}
 
@@ -20,7 +21,8 @@ const IngestList: React.FC<IIngestListProps> = (props) => {
       i.name.toLocaleLowerCase().includes(filter) ||
       i.source?.code.toLocaleLowerCase().includes(filter) ||
       i.description.toLocaleLowerCase().includes(filter) ||
-      i.ingestType?.name.toLocaleLowerCase().includes(filter),
+      i.ingestType?.name.toLocaleLowerCase().includes(filter) ||
+      getStatus(i).toLocaleLowerCase().includes(filter),
   );
 
   React.useEffect(() => {

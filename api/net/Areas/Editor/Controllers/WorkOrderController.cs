@@ -5,9 +5,9 @@ using System.Web;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
+using TNO.API.Areas.Editor.Models.WorkOrder;
 using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
@@ -103,15 +103,34 @@ public class WorkOrderController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IPaged<WorkOrderMessageModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IPaged<WorkOrderModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public IActionResult Find()
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        var result = _workOrderService.Find(new WorkOrderFilter(query));
-        var page = new Paged<WorkOrderMessageModel>(result.Items.Select(i => new WorkOrderMessageModel(i, _serializerOptions)), result.Page, result.Quantity, result.Total);
+        var result = _workOrderService.FindDistinctWorkOrders(new WorkOrderFilter(query));
+        var page = new Paged<WorkOrderModel>(result.Items.Select(i => new WorkOrderModel(i, _serializerOptions)), result.Page, result.Quantity, result.Total);
         return new JsonResult(page);
+    }
+
+    /// <summary>
+    /// Update work order for the specified 'id'.
+    /// Update the work order in Keycloak if the 'Key' is linked.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut("{id}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "WorkOrder" })]
+    public async Task<IActionResult> UpdateAsync(WorkOrderModel model)
+    {
+        var entity = _workOrderService.FindById(model.Id) ?? throw new NoContentException();
+        var result = _workOrderService.UpdateAndSave(model.CopyTo(entity, _serializerOptions));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.WorkOrder, new[] { new WorkOrderMessageModel(result, _serializerOptions) })));
+        return new JsonResult(new WorkOrderModel(result, _serializerOptions));
     }
 
     /// <summary>

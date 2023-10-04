@@ -4994,6 +4994,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("configuration")
                         .HasDefaultValueSql("'{}'::jsonb");
 
+                    b.Property<long?>("ContentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("content_id");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -5051,6 +5055,8 @@ namespace TNO.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AssignedId");
+
+                    b.HasIndex("ContentId");
 
                     b.HasIndex("RequestorId");
 
@@ -5900,12 +5906,19 @@ namespace TNO.DAL.Migrations
                         .HasForeignKey("AssignedId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("TNO.Entities.Content", "Content")
+                        .WithMany("WorkOrders")
+                        .HasForeignKey("ContentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("TNO.Entities.User", "Requestor")
                         .WithMany("WorkOrderRequests")
                         .HasForeignKey("RequestorId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Assigned");
+
+                    b.Navigation("Content");
 
                     b.Navigation("Requestor");
                 });
@@ -5982,6 +5995,8 @@ namespace TNO.DAL.Migrations
                     b.Navigation("TonePoolsManyToMany");
 
                     b.Navigation("TopicsManyToMany");
+
+                    b.Navigation("WorkOrders");
                 });
 
             modelBuilder.Entity("TNO.Entities.Contributor", b =>

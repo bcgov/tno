@@ -113,9 +113,6 @@ export const AdminRouter: React.FC = () => {
           <Route path="ingesting" element={<ContentReferenceList />} />
         </Route>
 
-        <Route path="work/orders" element={<WorkOrderList />} />
-        <Route path="work/orders/:id" element={<WorkOrderForm />} />
-
         <Route path="reports" element={<ReportAdmin />} />
         <Route path="reports/:id" element={<ReportForm />} />
         <Route path="report/templates/:id" element={<ReportTemplateForm />} />
@@ -133,6 +130,9 @@ export const AdminRouter: React.FC = () => {
         <Route path="notifications/:id" element={<NotificationForm />} />
 
         <Route path="av/evening-overview" element={<AVOverview />} />
+
+        <Route path="work/orders" element={<WorkOrderList />} />
+        <Route path="work/orders/:id" element={<WorkOrderForm />} />
       </Routes>
     </Suspense>
   );
