@@ -5,6 +5,9 @@ export interface IWorkOrderFilter {
   status?: WorkOrderStatusName;
   workType?: WorkOrderTypeName;
   contentId?: number;
+  productIds?: number[];
+  sourceIds?: number[];
+  seriesIds?: number[];
   requestorId?: number;
   assignedId?: number;
   createdOn?: string;

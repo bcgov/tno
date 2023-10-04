@@ -1,6 +1,6 @@
-import { ISourceModel } from 'tno-core';
+import { ISourceForm } from '../interfaces';
 
-export const defaultSource: ISourceModel = {
+export const defaultSource: ISourceForm = {
   id: 0,
   name: '',
   code: '',
@@ -12,7 +12,11 @@ export const defaultSource: ISourceModel = {
   autoTranscribe: false,
   disableTranscribe: false,
   useInTopics: false,
-  configuration: {},
+  ownerId: '',
+  productId: '',
+  configuration: {
+    timeZone: '',
+  },
   actions: [],
   metrics: [],
 };

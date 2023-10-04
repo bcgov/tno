@@ -10,33 +10,30 @@ import {
   FormikTextArea,
   getSortableOptions,
   getUserOptions,
-  ISourceModel,
   OptionItem,
 } from 'tno-core';
 import { Col } from 'tno-core/dist/components/flex';
 
 import { TimeZones } from '../ingests/configurations/constants';
+import { ISourceForm } from './interfaces';
 import * as styled from './styled';
 
 interface ISourceDetailsProps {}
 
 const SourceDetails: React.FC<ISourceDetailsProps> = () => {
-  const { values, setFieldValue } = useFormikContext<ISourceModel>();
-  const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
+  const { values, setFieldValue } = useFormikContext<ISourceForm>();
   const [lookups] = useLookup();
 
   const users = getUserOptions(lookups.users);
   const licenses = getSortableOptions(lookups.licenses);
-  const products = getSortableOptions(lookups.products, [new OptionItem('None', undefined)]);
+  const products = getSortableOptions(lookups.products, [new OptionItem('None', '')]);
 
   React.useEffect(() => {
-    // Ensures the connection settings can display the correct form on initial load.
     const license = lookups.licenses.find((mt) => mt.id === values.licenseId);
     setFieldValue('license', license);
   }, [lookups.licenses, setFieldValue, values.licenseId, values.license]);
 
   React.useEffect(() => {
-    // Ensures the connection settings can display the correct form on initial load.
     const user = lookups.users.find((mt) => mt.id === values.ownerId);
     setFieldValue('owner', user);
   }, [lookups.users, setFieldValue, values.ownerId, values.owner]);
@@ -66,25 +63,32 @@ const SourceDetails: React.FC<ISourceDetailsProps> = () => {
           tooltip="Manage the length of time content will be stored"
           options={licenses}
           required
+          isClearable={false}
         />
         <FormikSelect
           label="Owner"
           name="ownerId"
           tooltip="The user that manages this content"
+          value={users.find((o) => o.value === values.ownerId) ?? ''}
           options={filterEnabledOptions(users)}
         />
         <FormikSelect
           label="Product Override"
           name="productId"
           tooltip="The product designation the source content will be assigned (overrides the value in the ingest)"
+          value={products.find((o) => o.value === values.productId) ?? ''}
           options={products}
         />
         <FormikSelect
           label="Timezone Override"
           name="configuration.timeZone"
           tooltip="Timezone of the source (overrides the value in the ingest)"
+          value={TimeZones.find((o) => o.value === values.configuration.timeZone) ?? ''}
+          onChange={(newValue) => {
+            const option = newValue as OptionItem;
+            setFieldValue('configuration.timeZone', option ? option.value : '');
+          }}
           options={TimeZones}
-          value={timeZone}
         />
         <FormikText
           width={FieldSize.Tiny}
@@ -97,7 +101,7 @@ const SourceDetails: React.FC<ISourceDetailsProps> = () => {
       <Col>
         <FormikCheckbox label="Enabled" name="isEnabled" />
         <FormikCheckbox label="Use in Topics" name="useInTopics" />
-        <FormikCheckbox label="Transcribe when Published" name="autoTranscribe" />
+        <FormikCheckbox label="Automatically transcribe when saved" name="autoTranscribe" />
         <FormikCheckbox label="Disable transcript requests" name="disableTranscribe" />
       </Col>
     </styled.SourceDetails>

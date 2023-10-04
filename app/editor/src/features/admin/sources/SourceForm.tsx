@@ -9,7 +9,6 @@ import {
   Col,
   hasErrors,
   IconButton,
-  ISourceModel,
   Modal,
   Row,
   Show,
@@ -20,7 +19,9 @@ import {
 } from 'tno-core';
 
 import { defaultSource } from './constants';
+import { ISourceForm } from './interfaces';
 import * as styled from './styled';
+import { toForm, toModel } from './utils';
 
 interface ISourceProps {}
 
@@ -31,27 +32,24 @@ const SourceForm: React.FC<ISourceProps> = (props) => {
   const { isShowing, toggle } = useModal();
 
   const sourceId = Number(id);
-  const [source, setSource] = React.useState<ISourceModel>((state as any)?.source ?? defaultSource);
+  const [source, setSource] = React.useState<ISourceForm>((state as any)?.source ?? defaultSource);
   const navigate = useNavigate();
 
   React.useEffect(() => {
     if (!!sourceId && source?.id !== sourceId) {
       setSource({ ...defaultSource, id: sourceId }); // Do this to stop double fetch.
       api.getSource(sourceId).then((data) => {
-        setSource({ ...data });
+        setSource(toForm(data));
       });
     }
   }, [api, source?.id, sourceId]);
 
-  const handleSubmit = async (values: ISourceModel) => {
+  const handleSubmit = async (values: ISourceForm) => {
     try {
       const originalId = values.id;
-      const model: ISourceModel = {
-        ...values,
-        ownerId: values.ownerId ? values.ownerId : undefined,
-      };
+      const model = toModel(values);
       const result = !values.id ? await api.addSource(model) : await api.updateSource(model);
-      setSource({ ...result });
+      setSource(toForm(result));
       toast.success(`${result.name} has successfully been saved.`);
       if (!originalId) navigate(`/admin/sources/${result.id}`);
     } catch {}
@@ -118,7 +116,7 @@ const SourceForm: React.FC<ISourceProps> = (props) => {
                   confirmText="Yes, Remove It"
                   onConfirm={async () => {
                     try {
-                      await api.deleteSource(source);
+                      await api.deleteSource(toModel(source));
                       toast.success(`${source.name} has successfully been deleted.`);
                       navigate('/admin/sources');
                     } finally {

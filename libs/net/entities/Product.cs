@@ -12,6 +12,12 @@ public class Product : BaseType<int>
 {
     #region Properties
     /// <summary>
+    /// get/set - Whether content with this series should automatically be transcribed.
+    /// </summary>
+    [Column("auto_transcribe")]
+    public bool AutoTranscribe { get; set; }
+
+    /// <summary>
     /// get - List of ingest linked to this product.
     /// </summary>
     public virtual List<Ingest> Ingests { get; } = new List<Ingest>();

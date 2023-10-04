@@ -7,6 +7,7 @@ export const mockProducts: IProductModel[] = [
     description: '',
     sortOrder: 0,
     isEnabled: true,
+    autoTranscribe: false,
   },
   {
     id: 2,
@@ -14,5 +15,6 @@ export const mockProducts: IProductModel[] = [
     description: '',
     sortOrder: 0,
     isEnabled: true,
+    autoTranscribe: false,
   },
 ];

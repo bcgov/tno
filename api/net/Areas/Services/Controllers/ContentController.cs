@@ -5,13 +5,13 @@ using System.Web;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Tag;
 using TNO.API.Areas.Admin.Models.Topic;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Config;
+using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.API.Models.SignalR;
 using TNO.API.SignalR;
@@ -48,12 +48,12 @@ public class ContentController : ControllerBase
     private readonly IUserService _userService;
     private readonly ITagService _tagService;
     private readonly ITopicService _topicService;
+    private readonly IWorkOrderHelper _workOrderHelper;
     private readonly StorageOptions _storageOptions;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
     private readonly KafkaHubConfig _kafkaHubOptions;
     private readonly JsonSerializerOptions _serializerOptions;
-    private readonly IHubContext<MessageHub> _hub;
     private readonly ILogger _logger;
     #endregion
 
@@ -66,10 +66,10 @@ public class ContentController : ControllerBase
     /// <param name="userService"></param>
     /// <param name="tagService"></param>
     /// <param name="topicService"></param>
+    /// <param name="workOrderHelper"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
     /// <param name="kafkaHubOptions"></param>
-    /// <param name="hub"></param>
     /// <param name="storageOptions"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
@@ -80,9 +80,9 @@ public class ContentController : ControllerBase
         ITagService tagService,
         ITopicService topicService,
         IKafkaMessenger kafkaMessenger,
+        IWorkOrderHelper workOrderHelper,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<KafkaHubConfig> kafkaHubOptions,
-        IHubContext<MessageHub> hub,
         IOptions<StorageOptions> storageOptions,
         IOptions<JsonSerializerOptions> serializerOptions,
         ILogger<ContentController> logger)
@@ -92,10 +92,10 @@ public class ContentController : ControllerBase
         _userService = userService;
         _tagService = tagService;
         _topicService = topicService;
+        _workOrderHelper = workOrderHelper;
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
         _kafkaHubOptions = kafkaHubOptions.Value;
-        _hub = hub;
         _storageOptions = storageOptions.Value;
         _serializerOptions = serializerOptions.Value;
         _logger = logger;
@@ -200,6 +200,8 @@ public class ContentController : ControllerBase
         else
             _logger.LogWarning("Kafka indexing topic not configured.");
 
+        if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
+
         return new JsonResult(new ContentModel(content));
 
         // TODO: Figure out how to return a 201 for a route in a different controller.
@@ -250,6 +252,9 @@ public class ContentController : ControllerBase
         }
         else if (index)
             _logger.LogWarning("Kafka indexing topic not configured.");
+
+
+        if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
 
         return new JsonResult(new ContentModel(content));
     }
@@ -305,6 +310,8 @@ public class ContentController : ControllerBase
         else await _fileReferenceService.UploadAsync(new ContentFileReference(content, files.First()), _storageOptions.GetUploadPath());
 
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content) })));
+
+        if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
 
         return new JsonResult(new ContentModel(content));
     }

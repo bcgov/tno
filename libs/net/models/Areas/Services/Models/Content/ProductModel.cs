@@ -8,6 +8,10 @@ namespace TNO.API.Areas.Services.Models.Content;
 public class ProductModel : BaseTypeModel<int>
 {
     #region Properties
+    /// <summary>
+    /// get/set - Whether content should be automatically transcribed.
+    /// </summary>
+    public bool AutoTranscribe { get; set; }
     #endregion
 
     #region Constructors
@@ -22,6 +26,7 @@ public class ProductModel : BaseTypeModel<int>
     /// <param name="entity"></param>
     public ProductModel(Entities.Product entity) : base(entity)
     {
+        this.AutoTranscribe = entity.AutoTranscribe;
     }
     #endregion
 }

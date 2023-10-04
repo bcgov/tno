@@ -193,6 +193,7 @@ builder.Services
     .Configure<ApiOptions>(config.GetSection("API"))
     .AddScoped<IConnectionHelper, ConnectionHelper>()
     .AddScoped<IReportHelper, ReportHelper>()
+    .AddScoped<IWorkOrderHelper, WorkOrderHelper>()
     .AddTNOServices(config, env)
     .AddTemplateEngine(config)
     .AddKafkaMessenger(config)

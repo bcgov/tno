@@ -3,4 +3,7 @@ export interface IWorkOrderContentModel {
   headline: string;
   otherSource: string;
   isApproved: boolean;
+  product?: string;
+  series?: string;
+  contributor?: string;
 }

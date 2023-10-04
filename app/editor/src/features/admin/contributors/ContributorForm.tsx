@@ -19,7 +19,6 @@ import {
   getSourceOptions,
   IconButton,
   IOptionItem,
-  LabelPosition,
   Modal,
   OptionItem,
   Row,
@@ -112,19 +111,11 @@ const ContributorForm: React.FC = () => {
                 type="number"
                 className="sort-order"
               />
-              <Row>
-                <FormikCheckbox
-                  labelPosition={LabelPosition.Top}
-                  label="Is Enabled"
-                  name="isEnabled"
-                />
-                <FormikCheckbox
-                  labelPosition={LabelPosition.Top}
-                  className="is-press"
-                  label="Is Press"
-                  name="isPress"
-                />
-              </Row>
+              <Col gap="0.5rem">
+                <FormikCheckbox label="Is Enabled" name="isEnabled" />
+                <FormikCheckbox label="Is Press" name="isPress" />
+                <FormikCheckbox label="Automatically transcribe when saved" name="autoTranscribe" />
+              </Col>
               <Show visible={!!values.id}>
                 <Row>
                   <FormikText

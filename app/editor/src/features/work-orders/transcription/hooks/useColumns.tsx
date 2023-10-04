@@ -43,13 +43,13 @@ export const useColumns = ({ onCancel }: IColumnsProps): ITableHookColumn<IWorkO
       width: 1,
     },
     {
-      label: 'Requested By',
-      accessor: 'requestor.username',
+      label: 'Product',
+      accessor: 'content.product',
       width: 1,
     },
     {
-      label: 'Assigned To',
-      accessor: 'assigned.username',
+      label: 'Requested By',
+      accessor: 'requestor.username',
       width: 1,
     },
     {
@@ -77,7 +77,7 @@ export const useColumns = ({ onCancel }: IColumnsProps): ITableHookColumn<IWorkO
           cell.original.status === WorkOrderStatusName.Completed &&
           cell.original.content?.isApproved
         )
-          return <FaCheckCircle className="completed" title="ready to review" />;
+          return <FaCheckCircle className="completed" title="Completed" />;
         if (cell.original.status === WorkOrderStatusName.Submitted)
           return <FaClock className="submitted" title="Submitted" />;
         if (cell.original.status === WorkOrderStatusName.Failed)

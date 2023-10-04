@@ -1,5 +1,14 @@
 import React from 'react';
-import { Checkbox, IconButton, IWorkOrderFilter, Row, Text, WorkOrderStatusName } from 'tno-core';
+import { useLookup } from 'store/hooks';
+import {
+  Checkbox,
+  IconButton,
+  IWorkOrderFilter,
+  Row,
+  Show,
+  Text,
+  WorkOrderStatusName,
+} from 'tno-core';
 
 interface IWorkOrderFilterProps {
   filter: IWorkOrderFilter;
@@ -8,6 +17,15 @@ interface IWorkOrderFilterProps {
 
 export const WorkOrderFilter = ({ filter, onFilterChange }: IWorkOrderFilterProps) => {
   const [keywords, setKeywords] = React.useState<string>('');
+  const [{ settings }] = useLookup();
+
+  // Settings contains a link to the news radio products.
+  const newsRadioProductFilter = (
+    settings.find((s) => s.name === 'NewsRadioProductFilter')?.value ?? ''
+  )
+    .split(',')
+    .filter((v) => v)
+    .map((v) => +v);
 
   return (
     <Row className="filter" justifyContent="center" alignItems="center" gap="1rem">
@@ -22,6 +40,19 @@ export const WorkOrderFilter = ({ filter, onFilterChange }: IWorkOrderFilterProp
           })
         }
       />
+      <Show visible={!!newsRadioProductFilter.length}>
+        <Checkbox
+          name="newsRadio"
+          label="News Radio"
+          checked={!!filter.productIds?.length}
+          onChange={(e) =>
+            onFilterChange({
+              ...filter,
+              productIds: e.target.checked ? newsRadioProductFilter : undefined,
+            })
+          }
+        />
+      </Show>
       <Text
         name="search"
         placeholder="Search by keyword"
@@ -29,7 +60,9 @@ export const WorkOrderFilter = ({ filter, onFilterChange }: IWorkOrderFilterProp
           setKeywords(e.target.value);
         }}
         onKeyDown={(e) => {
-          if (e.code === 'Enter') onFilterChange((e.target as any).value);
+          const value = (e.target as any).value;
+          if (e.code === 'Enter')
+            onFilterChange({ ...filter, keywords: value !== '' ? value : undefined });
         }}
         value={keywords}
       >
@@ -38,7 +71,7 @@ export const WorkOrderFilter = ({ filter, onFilterChange }: IWorkOrderFilterProp
             iconType="search"
             title="Search"
             onClick={() => {
-              onFilterChange({ ...filter, keywords });
+              onFilterChange({ ...filter, keywords: keywords !== '' ? keywords : undefined });
             }}
           />
           <IconButton

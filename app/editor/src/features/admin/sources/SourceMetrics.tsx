@@ -1,12 +1,13 @@
 import { getIn, useFormikContext } from 'formik';
 import React from 'react';
 import { useLookup } from 'store/hooks';
-import { FieldSize, FormikText, IMetricModel, ISourceModel, Row, useNamespace } from 'tno-core';
+import { FieldSize, FormikText, IMetricModel, Row, useNamespace } from 'tno-core';
 
+import { ISourceForm } from './interfaces';
 import * as styled from './styled';
 
 export const SourceMetrics: React.FC = (props) => {
-  const { values, setFieldValue } = useFormikContext<ISourceModel>();
+  const { values, setFieldValue } = useFormikContext<ISourceForm>();
   const [{ metrics }] = useLookup();
   const { field } = useNamespace('metrics');
 

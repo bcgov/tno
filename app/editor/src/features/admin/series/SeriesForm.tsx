@@ -19,7 +19,6 @@ import {
   getSourceOptions,
   IconButton,
   IOptionItem,
-  LabelPosition,
   Modal,
   OptionItem,
   Row,
@@ -109,16 +108,11 @@ const SeriesForm: React.FC = () => {
                 type="number"
                 className="sort-order"
               />
-              <FormikCheckbox
-                labelPosition={LabelPosition.Top}
-                label="Is Enabled"
-                name="isEnabled"
-              />
-              <FormikCheckbox
-                labelPosition={LabelPosition.Top}
-                label="Use in Topics"
-                name="useInTopics"
-              />
+              <Col gap="0.5rem">
+                <FormikCheckbox label="Is Enabled" name="isEnabled" />
+                <FormikCheckbox label="Use in Topics" name="useInTopics" />
+                <FormikCheckbox label="Automatically transcribe when saved" name="autoTranscribe" />
+              </Col>
               <Show visible={!!values.id}>
                 <Row>
                   <FormikText

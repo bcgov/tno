@@ -31,6 +31,21 @@ public class WorkOrderFilter : PageFilter
     public long? ContentId { get; set; }
 
     /// <summary>
+    /// get/set - An array of products to filter on.
+    /// </summary>
+    public int[] ProductIds { get; set; } = Array.Empty<int>();
+
+    /// <summary>
+    /// get/set - An array of serries/program/show to filter on.
+    /// </summary>
+    public int[] SeriesIds { get; set; } = Array.Empty<int>();
+
+    /// <summary>
+    /// get/set - An array of sources to filter on.
+    /// </summary>
+    public int[] SourceIds { get; set; } = Array.Empty<int>();
+
+    /// <summary>
     /// get/set - Only include work order requested by this user.
     /// </summary>
     public int? RequestorId { get; set; }
@@ -106,6 +121,10 @@ public class WorkOrderFilter : PageFilter
         this.UpdatedOn = filter.GetDateTimeNullValue(nameof(this.UpdatedOn));
         this.UpdatedStartOn = filter.GetDateTimeNullValue(nameof(this.UpdatedStartOn));
         this.UpdatedEndOn = filter.GetDateTimeNullValue(nameof(this.UpdatedEndOn));
+
+        this.ProductIds = filter.GetIntArrayValue(nameof(this.ProductIds));
+        this.SeriesIds = filter.GetIntArrayValue(nameof(this.SeriesIds));
+        this.SourceIds = filter.GetIntArrayValue(nameof(this.SourceIds));
 
         this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }
