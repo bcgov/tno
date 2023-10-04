@@ -19,7 +19,8 @@
     "notnull",
     "opennlp",
     "Renci",
-    "Swashbuckle"
+    "Swashbuckle",
+    "Unpublish"
   ],
   "java.configuration.updateBuildConfiguration": "interactive",
   "editor.codeActionsOnSave": {

@@ -116,7 +116,6 @@ export const ContentForm = styled.div`
   }
 
   .tab .spinner {
-    margin-left: 0.5em;
     color: #494949;
   }
 

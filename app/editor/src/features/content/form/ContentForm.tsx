@@ -98,7 +98,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const [active, setActive] = React.useState('properties');
   const [savePressed, setSavePressed] = React.useState(false);
   const [allowPublishWithoutFile, setAllowPublishWithoutFile] = React.useState(false);
-  const [createAfterPublish, setCreateAfterPublish] = React.useState(true);
   const [, setClipErrors] = React.useState<string>('');
   const [textDecorationStyle, setTextDecorationStyle] = React.useState('none');
   const [cursorStyle, setCursorStyle] = React.useState('text');
@@ -215,6 +214,14 @@ const ContentForm: React.FC<IContentFormProps> = ({
     }
   }, [id, fetchContent]);
 
+  const goToNext = React.useCallback(
+    (form: IContentForm) => {
+      navigate(getContentPath(combined, 0, form.contentType));
+      resetForm(form);
+    },
+    [combined, navigate, resetForm],
+  );
+
   const handleSubmit = React.useCallback(
     async (
       values: IContentForm,
@@ -264,15 +271,8 @@ const ContentForm: React.FC<IContentFormProps> = ({
         }
 
         if (!originalId) {
-          if (!createAfterPublish) {
-            navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
-            setCreateAfterPublish(true);
-          } else {
-            resetForm(result);
-          }
-        } else if (createAfterPublish) {
-          navigate(getContentPath(combined, 0, contentResult?.contentType));
-          resetForm(result);
+          navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
+          // resetForm(result);
         }
       } catch {
         // If the upload fails, we still need to update the form from the original update.
@@ -292,11 +292,9 @@ const ContentForm: React.FC<IContentFormProps> = ({
       attach,
       combined,
       contentType,
-      createAfterPublish,
       form,
       getSeries,
       navigate,
-      resetForm,
       series,
       setAvStream,
       updateContent,
@@ -609,10 +607,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                 </Row>
                 <Row flex="1 1 100%" wrap="nowrap">
                   <Show visible={contentType === ContentTypeName.Image}>
-                    <ContentStoryForm
-                      contentType={ContentTypeName.Image}
-                      setCreateAfterPublish={setCreateAfterPublish}
-                    />
+                    <ContentStoryForm contentType={ContentTypeName.Image} />
                   </Show>
                 </Row>
                 <Row className="tab-section">
@@ -644,12 +639,12 @@ const ContentForm: React.FC<IContentFormProps> = ({
                               onClick={() => setActive('transcript')}
                               active={active === 'transcript'}
                             >
-                              <Row>
-                                <span>Transcript</span>
+                              <Row alignItems="center" gap="0.25rem">
                                 <WorkOrderStatus
                                   workOrders={form.workOrders}
                                   type={WorkOrderTypeName.Transcription}
                                 />
+                                <span>Transcript</span>
                                 <Show visible={!!props.values.body}>
                                   <FormikCheckbox
                                     name="isApproved"
@@ -688,10 +683,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       }
                     >
                       <Show visible={active === 'properties'}>
-                        <ContentStoryForm
-                          contentType={contentType}
-                          setCreateAfterPublish={setCreateAfterPublish}
-                        />
+                        <ContentStoryForm contentType={contentType} />
                       </Show>
                       <Show visible={active === 'transcript'}>
                         <ContentTranscriptForm />
@@ -709,10 +701,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     </Tabs>
                   </Show>
                   <Show visible={contentType === ContentTypeName.PrintContent}>
-                    <ContentStoryForm
-                      contentType={contentType}
-                      setCreateAfterPublish={setCreateAfterPublish}
-                    />
+                    <ContentStoryForm contentType={contentType} />
                   </Show>
                   <Show visible={contentType === ContentTypeName.AudioVideo}>
                     <Upload
@@ -728,8 +717,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
                         props.setFieldValue('file', file);
                         // Remove file reference.
                         props.setFieldValue('fileReferences', []);
-                        // Don't navigate to a new form after publishing files.
-                        setCreateAfterPublish?.(false);
                       }}
                       onDownload={() => {
                         download(
@@ -761,15 +748,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
 
                   <Row className="submit-buttons" gap="0.5rem">
                     <Col>
-                      <Checkbox
-                        name="createAfterPublish"
-                        label="Create new after publish"
-                        className="allow-no-file"
-                        checked={createAfterPublish}
-                        onChange={(e) => {
-                          setCreateAfterPublish(e.target.checked);
-                        }}
-                      />
                       <Show
                         visible={
                           contentType === ContentTypeName.AudioVideo &&
@@ -872,7 +850,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
                             Transcribe
                           </Button>
                         </Show>
-
                         <Show
                           visible={
                             props.values.status === ContentStatusName.Draft ||
@@ -888,6 +865,9 @@ const ContentForm: React.FC<IContentFormProps> = ({
                             Delete
                           </Button>
                         </Show>
+                        <Button variant={ButtonVariant.cyan} onClick={() => goToNext(form)}>
+                          Next Snippet
+                        </Button>
                       </Show>
                     </Row>
                   </Row>

@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Logging;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
@@ -43,7 +42,6 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
         var query = this.Context.WorkOrders
             .AsNoTracking()
             .Include(w => w.Requestor)
-            .Include(w => w.Assigned)
             .AsQueryable();
 
         if (filter.WorkType.HasValue)
@@ -60,6 +58,13 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
         if (filter.Keywords != null)
             query = query.Where(c => EF.Functions.Like(c.Content!.Headline.ToLower(), $"%{filter.Keywords.ToLower()}%") ||
                 EF.Functions.Like(c.Requestor!.Username.ToLower(), $"%{filter.Keywords.ToLower()}%"));
+
+        if (filter.SourceIds.Any())
+            query = query.Where(c => filter.SourceIds.Contains(c.Content!.SourceId ?? 0));
+        if (filter.SeriesIds.Any())
+            query = query.Where(c => filter.SeriesIds.Contains(c.Content!.SeriesId ?? 0));
+        if (filter.ProductIds.Any())
+            query = query.Where(c => filter.ProductIds.Contains(c.Content!.ProductId));
 
         if (filter.CreatedOn.HasValue)
             query = query.Where(c => c.CreatedOn == filter.CreatedOn.Value.ToUniversalTime());
@@ -118,9 +123,10 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
 
         var query = from wo in this.Context.WorkOrders
                         .AsNoTracking()
-                        .Include(w => w.Content)
                         .Include(w => w.Requestor)
-                        .Include(w => w.Assigned)
+                        .Include(w => w.Content).ThenInclude(c => c!.Product)
+                        .Include(w => w.Content).ThenInclude(c => c!.Series)
+                        .Include(w => w.Content).ThenInclude(c => c!.Source)
                     where gQuery.Contains(wo.Id)
                     select wo;
 
@@ -140,6 +146,13 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
                 EF.Functions.Like(c.Content!.OtherSource.ToLower(), $"{filter.Keywords.ToLower()}") ||
                 EF.Functions.Like(c.Requestor!.Username.ToLower(), $"%{filter.Keywords.ToLower()}%") ||
                 EF.Functions.Like(c.Assigned!.Username.ToLower(), $"%{filter.Keywords.ToLower()}%"));
+
+        if (filter.SourceIds.Any())
+            query = query.Where(c => filter.SourceIds.Contains(c.Content!.SourceId ?? 0));
+        if (filter.SeriesIds.Any())
+            query = query.Where(c => filter.SeriesIds.Contains(c.Content!.SeriesId ?? 0));
+        if (filter.ProductIds.Any())
+            query = query.Where(c => filter.ProductIds.Contains(c.Content!.ProductId));
 
         if (filter.CreatedOn.HasValue)
             query = query.Where(c => c.CreatedOn == filter.CreatedOn.Value.ToUniversalTime());
@@ -191,7 +204,7 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
     {
         var query = this.Context.WorkOrders
             .AsNoTracking()
-            .Where(c => EF.Functions.JsonContains(c.Configuration, $"{{\"contentId\":{contentId}}}"))
+            .Where(c => c.ContentId == contentId)
             .OrderByDescending(c => c.CreatedOn);
 
         return query.ToArray();

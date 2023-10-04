@@ -10432,7 +10432,7 @@ __metadata:
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
     styled-components: 5.3.9
-    tno-core: 0.0.333
+    tno-core: 0.0.335
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -14426,9 +14426,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.0.324":
-  version: 0.0.324
-  resolution: "tno-core@npm:0.0.324"
+"tno-core@npm:0.0.335":
+  version: 0.0.335
+  resolution: "tno-core@npm:0.0.335"
   dependencies:
     "@fortawesome/free-solid-svg-icons": ^6.4.2
     "@fortawesome/react-fontawesome": ^0.2.0
@@ -14456,42 +14456,7 @@ __metadata:
     react-tooltip: ^5.10.0
     styled-components: ^5.3.9
     yup: ^1.1.1
-  checksum: d70362f73feb690b62b82e325773d2db2bca2df0e3455c02155441835ff05cc83f249f5f01aefbfe2aa1c6c593bc1fb923472d9509a6496d5ac0a59181759994
-  languageName: node
-  linkType: hard
-
-"tno-core@npm:0.0.333":
-  version: 0.0.333
-  resolution: "tno-core@npm:0.0.333"
-  dependencies:
-    "@fortawesome/free-solid-svg-icons": ^6.4.2
-    "@fortawesome/react-fontawesome": ^0.2.0
-    "@headlessui/react": ^1.7.13
-    "@react-keycloak/web": ^3.4.0
-    axios: ^1.4.0
-    dequal: ^2.0.3
-    formik: ^2.2.9
-    keycloak-js: ^21.0.1
-    lodash: ^4.17.21
-    lodash.throttle: ^4.1.1
-    moment: ^2.29.4
-    moment-timezone: ^0.5.41
-    rc-slider: ^10.2.1
-    react: ^18.2.0
-    react-datepicker: ^4.10.0
-    react-dom: ^18.2.0
-    react-icons: ^4.10.1
-    react-inlinesvg: ^3.0.2
-    react-router-dom: ^6.9.0
-    react-select: ^5.7.0
-    react-table: ^7.8.0
-    react-text-mask: ^5.5.0
-    react-toastify: ^9.1.1
-    react-tooltip: ^5.10.0
-    styled-components: ^5.3.9
-    tno-core: 0.0.324
-    yup: ^1.1.1
-  checksum: bcee136293fac4533e9f1c0e412d52d71f3dc34e717120127dc4f6d46424546f3a8e5a94f68fcd0f8d794823881b51a7152fbb838cd8c09acfa9c4395441c2c5
+  checksum: 0fe7eb4d9cbafe98a0cc5a90cfba4b637db314dcbe15b81cfa399c0fe907f5f294ed1dbf0a2404de9aa218523bdc345003779b202642468b19b298c904f53be9
   languageName: node
   linkType: hard
 

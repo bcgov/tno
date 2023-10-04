@@ -5,7 +5,6 @@ using System.Web;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.Content;
@@ -50,6 +49,7 @@ public class ContentController : ControllerBase
     private readonly IContentService _contentService;
     private readonly IFileReferenceService _fileReferenceService;
     private readonly IWorkOrderService _workOrderService;
+    private readonly IWorkOrderHelper _workOrderHelper;
     private readonly IUserService _userService;
     private readonly IActionService _actionService;
     private readonly StorageOptions _storageOptions;
@@ -71,6 +71,7 @@ public class ContentController : ControllerBase
     /// <param name="contentService"></param>
     /// <param name="fileReferenceService"></param>
     /// <param name="workOrderService"></param>
+    /// <param name="workOrderHelper"></param>
     /// <param name="userService"></param>
     /// <param name="actionService"></param>
     /// <param name="hub"></param>
@@ -86,6 +87,7 @@ public class ContentController : ControllerBase
         IContentService contentService,
         IFileReferenceService fileReferenceService,
         IWorkOrderService workOrderService,
+        IWorkOrderHelper workOrderHelper,
         IUserService userService,
         IActionService actionService,
         IHubContext<MessageHub> hub,
@@ -101,6 +103,7 @@ public class ContentController : ControllerBase
         _contentService = contentService;
         _fileReferenceService = fileReferenceService;
         _workOrderService = workOrderService;
+        _workOrderHelper = workOrderHelper;
         _userService = userService;
         _actionService = actionService;
         _storageOptions = storageOptions.Value;
@@ -219,6 +222,8 @@ public class ContentController : ControllerBase
         else
             _logger.LogWarning("Kafka indexing topic not configured.");
 
+        if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
+
         return CreatedAtAction(nameof(FindById), new { id = content.Id }, new ContentModel(content));
     }
 
@@ -261,6 +266,8 @@ public class ContentController : ControllerBase
         }
         else
             _logger.LogWarning("Kafka indexing topic not configured.");
+
+        if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
 
         return new JsonResult(new ContentModel(content));
     }
@@ -426,6 +433,8 @@ public class ContentController : ControllerBase
         else
             _logger.LogWarning("Kafka indexing topic not configured.");
 
+        if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
+
         return new JsonResult(new ContentModel(content));
     }
 
@@ -483,6 +492,8 @@ public class ContentController : ControllerBase
         if (content.FileReferences.Any()) await _fileReferenceService.UploadAsync(content, files.First(), _storageOptions.GetUploadPath());
         else await _fileReferenceService.UploadAsync(new ContentFileReference(content, files.First()), _storageOptions.GetUploadPath());
 
+        if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
+
         return new JsonResult(new ContentModel(content));
     }
 
@@ -520,8 +531,8 @@ public class ContentController : ControllerBase
         if (!safePath.FileExists()) throw new NoContentException("File does not exist");
 
         var info = new ItemModel(safePath);
-        var filestream = System.IO.File.OpenRead(safePath);
-        return File(filestream, info.MimeType!);
+        var fileStream = System.IO.File.OpenRead(safePath);
+        return File(fileStream, info.MimeType!);
     }
 
     /// <summary>
@@ -538,7 +549,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult AttachFile([FromRoute] long contentId, [FromRoute] int locationId, [FromQuery] long version, [FromQuery] string path)
+    public async Task<IActionResult> AttachFileAsync([FromRoute] long contentId, [FromRoute] int locationId, [FromQuery] long version, [FromQuery] string path)
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var content = _contentService.FindById(contentId) ?? throw new NoContentException("Entity does not exist");
@@ -558,6 +569,8 @@ public class ContentController : ControllerBase
             if (content.FileReferences.Any()) _fileReferenceService.Attach(content, file, locationPath);
             else _fileReferenceService.Attach(new ContentFileReference(content, file), locationPath);
 
+            if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
+
             return new JsonResult(new ContentModel(content));
         }
         else if (dataLocation?.Connection == null)
@@ -569,6 +582,8 @@ public class ContentController : ControllerBase
             // If the content has a file reference, then update it.  Otherwise, add one.
             if (content.FileReferences.Any()) _fileReferenceService.Attach(content, file, _storageOptions.GetUploadPath(), false);
             else _fileReferenceService.Attach(new ContentFileReference(content, file), _storageOptions.GetUploadPath());
+
+            if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
 
             return new JsonResult(new ContentModel(content));
         }

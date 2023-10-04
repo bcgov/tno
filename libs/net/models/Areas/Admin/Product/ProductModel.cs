@@ -8,6 +8,10 @@ namespace TNO.API.Areas.Admin.Models.Product;
 public class ProductModel : BaseTypeWithAuditColumnsModel<int>
 {
     #region Properties
+    /// <summary>
+    /// get/set - Whether content should be automatically transcribed.
+    /// </summary>
+    public bool AutoTranscribe { get; set; }
     #endregion
 
     #region Constructors
@@ -22,7 +26,7 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
     /// <param name="entity"></param>
     public ProductModel(Entities.Product entity) : base(entity)
     {
-
+        this.AutoTranscribe = entity.AutoTranscribe;
     }
     #endregion
 
@@ -47,6 +51,7 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
         {
             Id = model.Id,
             Description = model.Description,
+            AutoTranscribe = model.AutoTranscribe,
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
             Version = model.Version ?? 0

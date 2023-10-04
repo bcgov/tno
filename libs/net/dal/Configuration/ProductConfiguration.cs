@@ -8,6 +8,7 @@ public class ProductConfiguration : BaseTypeConfiguration<Product, int>
     public override void Configure(EntityTypeBuilder<Product> builder)
     {
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
+        builder.Property(m => m.AutoTranscribe).IsRequired();
 
         builder.HasIndex(m => m.Name, "IX_name").IsUnique();
 

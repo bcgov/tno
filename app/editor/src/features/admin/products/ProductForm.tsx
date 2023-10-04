@@ -16,7 +16,6 @@ import {
   FormikTextArea,
   IconButton,
   IProductModel,
-  LabelPosition,
   Modal,
   Row,
   Show,
@@ -86,11 +85,10 @@ const ProductForm: React.FC = () => {
                 type="number"
                 className="sort-order"
               />
-              <FormikCheckbox
-                labelPosition={LabelPosition.Top}
-                label="Is Enabled"
-                name="isEnabled"
-              />
+              <Col gap="0.5rem">
+                <FormikCheckbox label="Is Enabled" name="isEnabled" />
+                <FormikCheckbox label="Automatically transcribe when saved" name="autoTranscribe" />
+              </Col>
               <Show visible={!!values.id}>
                 <Row>
                   <FormikText

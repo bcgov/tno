@@ -6,7 +6,6 @@ import * as styled from './styled';
 export interface IMediaSummaryProps {
   setShowExpandModal?: (show: boolean) => void;
   isSummaryRequired: boolean;
-  setCreateAfterPublish?: (state: boolean) => void;
 }
 
 /**
@@ -16,7 +15,6 @@ export interface IMediaSummaryProps {
 export const MediaSummary: React.FC<IMediaSummaryProps> = ({
   setShowExpandModal,
   isSummaryRequired,
-  setCreateAfterPublish,
 }) => {
   return (
     <styled.MediaSummary>

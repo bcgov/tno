@@ -1,19 +1,18 @@
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Kafka;
-using TNO.Kafka.Models;
-using TNO.Models.Extensions;
-using TNO.Services.Managers;
-using TNO.Services.Content.Config;
-using TNO.Core.Exceptions;
-using TNO.Core.Extensions;
-using TNO.Entities;
 using Renci.SshNet;
 using Renci.SshNet.Common;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Areas.Services.Models.DataLocation;
-using TNO.API.Areas.Services.Models.ContentReference;
+using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
+using TNO.Entities;
+using TNO.Kafka;
+using TNO.Kafka.Models;
+using TNO.Models.Extensions;
+using TNO.Services.Content.Config;
+using TNO.Services.Managers;
 
 namespace TNO.Services.Content;
 
@@ -229,19 +228,24 @@ public class ContentManager : ServiceManager<ContentOptions>
 
         ContentModel? originalContent = await this.Api.FindContentByUidAsync(model.Uid, model.Source);
         ContentModel? content = await this.Api.FindContentByUidAsync(model.Uid, model.Source);
-        if (content != null) {
+        if (content != null)
+        {
             // Only add if doesn't already exist.
             existingContentId = content.Id;
 
             // KGM - This code should be removed/refactored post PROD deployment most likely
             // IF we are allowing overwrites from the Content Migration Service
-            if (result.Topic.Equals(this.Options.MigrationOptions.ContentMigrationIngestSourceCode)) {
+            if (result.Topic.Equals(this.Options.MigrationOptions.ContentMigrationIngestSourceCode))
+            {
                 // AND if the current content was ingested by the Content Migration Service
                 // THEN we trigger a complete overwrite of the existing content with the updated content
-                if (this.Options.MigrationOptions.AllowSourceContentOverwrite) {
+                if (this.Options.MigrationOptions.AllowSourceContentOverwrite)
+                {
                     updateSourceContent = true;
                     Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMIA Content : {Source}:{Title}", model.Source, model.Title);
-                } else {
+                }
+                else
+                {
                     updateSourceContent = false;
                     Logger.LogInformation("Received updated content from TNO, but SourceContentOverwrite is disabled : {Source}:{Title}", model.Source, model.Title);
                 }
@@ -374,9 +378,11 @@ public class ContentManager : ServiceManager<ContentOptions>
                 content.TimeTrackings = model.TimeTrackings.Select(t => new API.Areas.Services.Models.Content.TimeTrackingModel(t.UserId, t.Effort, t.Activity)).ToArray();
             }
 
-            if (updateSourceContent && (existingContentId != null)) {
+            if (updateSourceContent && (existingContentId != null))
+            {
                 // before saving, reinstate some values from the original content object
-                if (originalContent != null) {
+                if (originalContent != null)
+                {
                     content.Id = originalContent.Id;
                     content.Source = originalContent.Source;
                     content.Product = originalContent.Product;
@@ -389,7 +395,9 @@ public class ContentManager : ServiceManager<ContentOptions>
 
                 content = await this.Api.UpdateContentAsync(content, null, updateSourceContent) ?? throw new InvalidOperationException($"Updating content failed {content.OtherSource}:{content.Uid}");
                 this.Logger.LogInformation("Content Updated.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
-            } else {
+            }
+            else
+            {
                 content = await this.Api.AddContentAsync(content) ?? throw new InvalidOperationException($"Adding content failed {content.OtherSource}:{content.Uid}");
                 this.Logger.LogInformation("Content Imported.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
             }
@@ -418,13 +426,6 @@ public class ContentManager : ServiceManager<ContentOptions>
                         ConnectionType.LocalVolume => await CopyFileFromLocalVolumeAsync(model, content),
                         _ => await CopyFileFromLocalVolumeAsync(model, content),
                     };
-
-                    // Send a Kafka message to the transcription topic
-                    // TODO: Automate transcripts when configured by rules (ingest, source, type).
-                    // if (!String.IsNullOrWhiteSpace(this.Options.TranscriptionTopic))
-                    // {
-                    //     await SendMessageAsync(content!);
-                    // }
                 }
                 catch (Exception ex)
                 {
@@ -563,19 +564,6 @@ public class ContentManager : ServiceManager<ContentOptions>
             client.Disconnect();
             file?.Close();
         }
-    }
-
-    /// <summary>
-    /// Send message to kafka with updated transcription.
-    /// </summary>
-    /// <param name="content"></param>
-    /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    private async Task<DeliveryResult<string, TranscriptRequestModel>> SendMessageAsync(ContentModel content)
-    {
-        var result = await this.Producer.SendMessageAsync(this.Options.TranscriptionTopic, new TranscriptRequestModel(content, null, "ContentService"));
-        if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {content.OtherSource}:{content.Uid}");
-        return result;
     }
     #endregion
 

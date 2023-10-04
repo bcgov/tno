@@ -25,6 +25,21 @@ public class ContentModel
     /// get/set - Whether the transcription has been approved.
     /// </summary>
     public bool IsApproved { get; set; }
+
+    /// <summary>
+    /// get/set - The product name.
+    /// </summary>
+    public string? Product { get; set; }
+
+    /// <summary>
+    /// get/set - The series name.
+    /// </summary>
+    public string? Series { get; set; }
+
+    /// <summary>
+    /// get/set - The contributor name.
+    /// </summary>
+    public string? Contributor { get; set; }
     #endregion
 
     #region Constructors
@@ -43,6 +58,9 @@ public class ContentModel
         this.Headline = entity.Headline;
         this.OtherSource = entity.OtherSource;
         this.IsApproved = entity.IsApproved;
+        this.Product = entity.Product?.Name;
+        this.Series = entity.Series?.Name;
+        this.Contributor = entity.Contributor?.Name;
     }
     #endregion
 }

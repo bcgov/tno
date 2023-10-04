@@ -8,6 +8,10 @@ namespace TNO.TemplateEngine.Models.Reports;
 public class ProductModel : BaseTypeModel<int>
 {
     #region Properties
+    /// <summary>
+    /// get/set - Whether content should be automatically transcribed.
+    /// </summary>
+    public bool AutoTranscribe { get; set; }
     #endregion
 
     #region Constructors
@@ -33,6 +37,7 @@ public class ProductModel : BaseTypeModel<int>
         this.Id = model.Id;
         this.Name = model.Name;
         this.Description = model.Description;
+        this.AutoTranscribe = model.AutoTranscribe;
         this.IsEnabled = model.IsEnabled;
         this.SortOrder = model.SortOrder;
     }
@@ -46,6 +51,7 @@ public class ProductModel : BaseTypeModel<int>
         this.Id = model.Id;
         this.Name = model.Name;
         this.Description = model.Description;
+        this.AutoTranscribe = model.AutoTranscribe;
         this.IsEnabled = model.IsEnabled;
         this.SortOrder = model.SortOrder;
     }
@@ -59,6 +65,7 @@ public class ProductModel : BaseTypeModel<int>
         this.Id = model.Id;
         this.Name = model.Name;
         this.Description = model.Description;
+        this.AutoTranscribe = model.AutoTranscribe;
         this.IsEnabled = model.IsEnabled;
         this.SortOrder = model.SortOrder;
     }
