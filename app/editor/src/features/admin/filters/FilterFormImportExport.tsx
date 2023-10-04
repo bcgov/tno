@@ -25,7 +25,7 @@ import { exportFilter, parseExportedFilter } from './utils';
  * @returns Component.
  */
 export const FilterFormImportExport: React.FC = () => {
-  const { values, setFieldValue } = useFormikContext<IFilterModel>();
+  const { values, setFieldValue, setValues } = useFormikContext<IFilterModel>();
   const [{ series, products, sources, contributors, actions }] = useLookupOptions();
 
   const [rawFilter, setRawFilter] = React.useState('{}');
@@ -40,15 +40,12 @@ export const FilterFormImportExport: React.FC = () => {
         sources,
         products,
       );
-
-      setFieldValue('name', importedFilter.name ?? '');
-      setFieldValue('description', importedFilter.description ?? '');
-      setFieldValue('settings', importedFilter.settings);
+      setValues({ ...importedFilter });
 
       const query = generateQuery(importedFilter.settings as IFilterSettingsModel, null);
       setFieldValue('query', query);
     },
-    [setFieldValue, actions, contributors, series, sources, products],
+    [setValues, setFieldValue, actions, contributors, series, sources, products],
   );
 
   return (
@@ -88,7 +85,7 @@ export const FilterFormImportExport: React.FC = () => {
         </Row>
       </Col>
       <Col className="code frm-importexportfilter">
-        <label htmlFor="txa-importexportfilter">Import a filter</label>
+        <label htmlFor="txa-importexportfilter">Raw filter</label>
         <p>Paste your exported filter below and an attempt will be made to parse it.</p>
         <Col className="editor">
           <Editor
