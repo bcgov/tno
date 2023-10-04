@@ -8,9 +8,9 @@ public class ReportingOptions
 {
     #region Properties
     /// <summary>
-    /// get/set - The MMIA URL.
+    /// get/set - The Subscriber App URL.
     /// </summary>
-    public Uri? MmiaUrl { get; set; }
+    public Uri? SubscriberAppUrl { get; set; }
 
     /// <summary>
     /// get/set - The view content URL.

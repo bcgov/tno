@@ -19,4 +19,4 @@ spec:
     - name: EDITOR_URL
       value: https://tno-dev.apps.silver.devops.gov.bc.ca
     - name: SUBSCRIBER_URL
-      value: https://mmia-dev.apps.silver.devops.gov.bc.ca
+      value: https://mmi-dev.apps.silver.devops.gov.bc.ca

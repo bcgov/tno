@@ -65,7 +65,7 @@ spec:
     - name: SUBSCRIBER_URL
       description: The URL to the web application that will be ZAP scanned.
       type: string
-      default: https://mmia-dev.apps.silver.devops.gov.bc.ca
+      default: https://mmi-dev.apps.silver.devops.gov.bc.ca
 
   workspaces:
     - name: source

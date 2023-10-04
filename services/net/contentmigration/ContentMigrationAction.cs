@@ -412,8 +412,8 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                     reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyIsContentPublished] = newsItem.Published;
                     // update the stored UpdatedOn value
                     reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn] = sourceContent.UpdatedOn?.ToString("yyyy-MM-dd h:mm:ss tt") ?? DateTime.Now.ToString("yyyy-MM-dd h:mm:ss tt");
-                    // What about the worst case scenario: one Editor changes it in MMIA and another Editor changes it in TNO?
-                    Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMIA Content : {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
+                    // What about the worst case scenario: one Editor changes it in MMI and another Editor changes it in TNO?
+                    Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMI Content : {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
                 }
             }
 

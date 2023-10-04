@@ -10348,9 +10348,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mmia-subscriber-app@workspace:.":
+"mmi-subscriber-app@workspace:.":
   version: 0.0.0-use.local
-  resolution: "mmia-subscriber-app@workspace:."
+  resolution: "mmi-subscriber-app@workspace:."
   dependencies:
     "@bcgov/bc-sans": 1.0.1
     "@fortawesome/fontawesome-svg-core": 6.4.2

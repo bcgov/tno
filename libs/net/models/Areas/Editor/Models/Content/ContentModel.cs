@@ -111,7 +111,7 @@ public class ContentModel : AuditColumnsModel
     public string Byline { get; set; } = "";
 
     /// <summary>
-    /// get/set - Unique identifier within MMIA based on a hash of values.
+    /// get/set - Unique identifier within MMI based on a hash of values.
     /// </summary>
     [MaxLength(500)]
     public string Uid { get; set; } = "";

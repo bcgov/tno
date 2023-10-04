@@ -30,7 +30,7 @@ UPDATE public."notification" SET
 }@toneIcon@sourceCode: @Content.Headline @transcriptIcon" }', '[\r\t]+', '', 'g'), '[\n]+', '\\n', 'g')::jsonb
   , "template" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Notification.Models.TemplateModel>
 @{
-  var mmiaUrl = @MmiaUrl?.ToString();
+  var subscriberAppUrl = @SubscriberAppUrl?.ToString();
   var viewContentUrl = @ViewContentUrl?.ToString();
   var requestTranscriptUrl = @RequestTranscriptUrl?.ToString();
   var addToReportUrl = @AddToReportUrl?.ToString();
@@ -47,12 +47,12 @@ UPDATE public."notification" SET
 <div>@Content.PublishedOn?.ToString("dd-MMM-yyyy hh:mm")</div>
 <div>@body</div>
 <br />
-@if (!string.IsNullOrEmpty(mmiaUrl))
+@if (!string.IsNullOrEmpty(subscriberAppUrl))
 {
-  <div><a href="@mmiaUrl" target="_blank">MMIA</a> :: <a href="@viewContentUrl" target="_blank">View Article</a></div>
+  <div><a href="@subscriberAppUrl" target="_blank">MMI</a> :: <a href="@viewContentUrl" target="_blank">View Article</a></div>
   <br />
 }
-@if (isAV && !isTranscriptAvailable && !string.IsNullOrEmpty(requestTranscriptUrl))
+@if (isAV && !isTranscriptAvailable && !string.IsNullOrEmpty(requestTranscriptUrl) && Content.Source?.DisableTranscribe == false)
 {
   <div><a href="@requestTranscriptUrl" target="_blank">Request Transcript...</a></div>
   <br />

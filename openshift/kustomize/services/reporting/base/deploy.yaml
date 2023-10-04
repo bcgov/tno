@@ -123,26 +123,26 @@ spec:
                   key: KAFKA_BOOTSTRAP_SERVERS
 
             # Reporting Configuration
-            - name: Reporting__MmiaUrl
+            - name: Reporting__SubscriberAppUrl
               valueFrom:
                 configMapKeyRef:
                   name: reporting-service
-                  key: MMIA_BASE_URL
+                  key: REPORTING_BASE_URL
             - name: Reporting__ViewContentUrl
               valueFrom:
                 configMapKeyRef:
                   name: reporting-service
-                  key: MMIA_VIEW_CONTENT_URL
+                  key: REPORTING_VIEW_CONTENT_URL
             - name: Reporting__RequestTranscriptUrl
               valueFrom:
                 configMapKeyRef:
                   name: reporting-service
-                  key: MMIA_REQUEST_TRANSCRIPT_URL
+                  key: REPORTING_REQUEST_TRANSCRIPT_URL
             - name: Reporting__AddToReportUrl
               valueFrom:
                 configMapKeyRef:
                   name: reporting-service
-                  key: MMIA_ADD_TO_REPORT_URL
+                  key: REPORTING_ADD_TO_REPORT_URL
 
             # Service Configuration
             - name: Service__MaxFailLimit

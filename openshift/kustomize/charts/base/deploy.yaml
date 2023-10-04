@@ -44,12 +44,12 @@ spec:
             - containerPort: 8080
               protocol: TCP
           resources:
-            requests:
-              cpu: 25m
-              memory: 30Mi
             limits:
-              cpu: 50m
+              cpu: 35m
               memory: 100Mi
+            requests:
+              cpu: 20m
+              memory: 50Mi
           env:
             - name: PORT
               value: "8080"

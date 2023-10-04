@@ -36,7 +36,7 @@ SET
 	template='@model TNO.Services.Notification.Models.TemplateModel
 @using RazorLight
 @{
-  var mmiaUrl = Model.NotificationOptions.Value.MmiaUrl?.AbsoluteUri;
+  var subscriberAppUrl = Model.NotificationOptions.Value.SubscriberAppUrl?.AbsoluteUri;
   var requestTranscriptUrl = Model.NotificationOptions.Value.RequestTranscriptUrl?.AbsoluteUri;
   var addToReportUrl = Model.NotificationOptions.Value.AddToReportUrl?.AbsoluteUri;
   var isAV = Model.Content.ContentType == TNO.Entities.ContentType.AudioVideo;
@@ -52,9 +52,9 @@ SET
 <div>@Model.Content.PublishedOn?.ToString("dd-MMM-yyyy hh:mm")</div>
 <div>@Raw(body)</div>
 <br />
-@if (!string.IsNullOrEmpty(mmiaUrl))
+@if (!string.IsNullOrEmpty(subscriberAppUrl))
 {
-  <div><a href="@mmiaUrl" target="_blank">MMIA...</a></div>
+  <div><a href="@subscriberAppUrl" target="_blank">MMI...</a></div>
   <br />
 }
 @if (isAV && !isTranscriptAvailable && !string.IsNullOrEmpty(requestTranscriptUrl))

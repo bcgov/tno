@@ -14,7 +14,7 @@ metadata:
     managed-by: kustomize
     created-by: jeremy.foster
 spec:
-  host: mmia-dev.apps.silver.devops.gov.bc.ca
+  host: mmi-dev.apps.silver.devops.gov.bc.ca
   path: /api
   port:
     targetPort: 8080-tcp
@@ -44,7 +44,7 @@ metadata:
     managed-by: kustomize
     created-by: jeremy.foster
 spec:
-  host: mmia-dev-0.apps.silver.devops.gov.bc.ca
+  host: mmi-dev-0.apps.silver.devops.gov.bc.ca
   path: /api
   port:
     targetPort: 8080-tcp
@@ -74,7 +74,7 @@ metadata:
     managed-by: kustomize
     created-by: jeremy.foster
 spec:
-  host: mmia-dev-1.apps.silver.devops.gov.bc.ca
+  host: mmi-dev-1.apps.silver.devops.gov.bc.ca
   path: /api
   port:
     targetPort: 8080-tcp
@@ -104,7 +104,7 @@ metadata:
     managed-by: kustomize
     created-by: jeremy.foster
 spec:
-  host: mmia-dev-2.apps.silver.devops.gov.bc.ca
+  host: mmi-dev-2.apps.silver.devops.gov.bc.ca
   path: /api
   port:
     targetPort: 8080-tcp
@@ -134,7 +134,7 @@ metadata:
     managed-by: kustomize
     created-by: jeremy.foster
 spec:
-  host: dev.mmia.gov.bc.ca
+  host: dev.mmi.gov.bc.ca
   path: /api
   port:
     targetPort: 8080-tcp

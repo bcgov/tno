@@ -49,7 +49,7 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
 
         var newsItemTitle = newsItem.Title != null ? WebUtility.HtmlDecode(newsItem.Title) : string.Empty;
 
-        // KGM: will the TNO filename match the MMIA filename? Also, we don't want to risk having null or empty here...
+        // KGM: will the TNO filename match the MMI filename? Also, we don't want to risk having null or empty here...
         var referenceUid = newsItem.FileName ?? newsItem.RSN.ToString();
 
         var content = new SourceContent(
@@ -68,18 +68,20 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             Language = "", // TODO: Need to extract this from the ingest, or determine it after transcription.
         };
 
-        if (newsItem.UpdatedOn != null) {
+        if (newsItem.UpdatedOn != null)
+        {
             var updatedOnInDefaultTimeZone = this.GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone);
             var updatedOnInUtc = updatedOnInDefaultTimeZone.ToUniversalTime();
             Logger.LogDebug("NewItem.RSN: {rsn}, UpdatedDateTime: {publishedDateTime}, ToUtc: {publishedDateTimeInUtc}", newsItem.RSN, updatedOnInDefaultTimeZone, updatedOnInUtc);
-            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ?  updatedOnInUtc : null;
+            content.UpdatedOn = newsItem.UpdatedOn != DateTime.MinValue ? updatedOnInUtc : null;
         }
 
         // Tags are in the Summary as they are added by an Editor
-        if (!string.IsNullOrEmpty(newsItem.Summary)) {
+        if (!string.IsNullOrEmpty(newsItem.Summary))
+        {
             // if Tags are found, let the ContentManagement service decide if they are new or not
             content.Tags = ExtractTags(newsItem.Summary)
-                .Select(c => new TNO.Kafka.Models.Tag(c.ToUpperInvariant(),""));
+                .Select(c => new TNO.Kafka.Models.Tag(c.ToUpperInvariant(), ""));
         }
 
         // map relevant news item properties to actions
@@ -93,7 +95,8 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     ///
     /// </summary>
     /// <returns></returns>
-    public override System.Linq.Expressions.Expression<Func<NewsItem, bool>> GetBaseFilter(ContentType contentType) {
+    public override System.Linq.Expressions.Expression<Func<NewsItem, bool>> GetBaseFilter(ContentType contentType)
+    {
         return PredicateBuilder.New<NewsItem>()
             .And(ni => ni.ContentType!.Equals("image/jpeg"));
     }
