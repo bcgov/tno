@@ -55,6 +55,19 @@ public class FilterController : ControllerBase
 
     #region Endpoints
     /// <summary>
+    /// Find all filters.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<FilterModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Filter" })]
+    public IActionResult FindAll()
+    {
+        return new JsonResult(_filterService.FindAll().Select(ds => new FilterModel(ds, _serializerOptions)));
+    }
+
+    /// <summary>
     /// Find filter for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
@@ -69,7 +82,6 @@ public class FilterController : ControllerBase
         var result = _filterService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new FilterModel(result, _serializerOptions));
     }
-
     /// <summary>
     /// Find all "my" filters.
     /// </summary>
@@ -142,7 +154,7 @@ public class FilterController : ControllerBase
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
         var filter = _filterService.FindById(model.Id) ?? throw new NoContentException("Filter does not exist");
         if (filter.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to delete filter");
-        _filterService.DeleteAndSave(filter);
+        _filterService.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);
     }
     #endregion

@@ -4,6 +4,7 @@ import { Landing } from 'features/landing';
 import { Login } from 'features/login';
 import { ManageFolder } from 'features/manage-folder';
 import { ReportAdmin, ReportSnapshot } from 'features/my-reports';
+import SearchForm from 'features/my-searches/SearchForm';
 import { SearchPage } from 'features/search-page/SearchPage';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
@@ -66,6 +67,16 @@ export const AppRouter: React.FC<IAppRouter> = () => {
           element={
             <PrivateRoute claims={Claim.subscriber} element={<ReportSnapshot />}></PrivateRoute>
           }
+        />
+        <Route
+          path="/reports/:id/edit"
+          element={
+            <PrivateRoute claims={Claim.subscriber} element={<ReportSnapshot />}></PrivateRoute>
+          }
+        />
+        <Route
+          path="/filters/:id"
+          element={<PrivateRoute claims={Claim.subscriber} element={<SearchForm />}></PrivateRoute>}
         />
         <Route
           path="/reports/:id/:path"

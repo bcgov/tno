@@ -13,6 +13,9 @@ export interface ISubscriberContentFilter extends ISortPageFilter {
   hasTopic?: boolean;
   headline?: string;
   includeHidden?: boolean;
+  inStory?: boolean;
+  inByline?: boolean;
+  inHeadline?: boolean;
   keyword?: string;
   names?: string;
   onlyHidden?: boolean;
@@ -25,6 +28,7 @@ export interface ISubscriberContentFilter extends ISortPageFilter {
   publishedOn?: string;
   publishedStartOn?: string;
   quantity?: number;
+  searchTerm?: string;
   section?: string;
   sentiment?: number[];
   sourceIds?: number[];

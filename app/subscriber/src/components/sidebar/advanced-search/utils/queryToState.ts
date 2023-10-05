@@ -2,26 +2,7 @@ import { fromQueryString } from 'tno-core';
 
 /** Function that returns advanced search filter state allowing the the inputs to stay in sync when the user is navigating back */
 export const queryToState = (queryString: string) => {
-  let searchInField = { headline: false, byline: false, storyText: false };
-  let searchTerm = '';
   const urlParams = new URLSearchParams(queryString);
-
-  if (queryString.includes('headline')) {
-    searchInField.headline = true;
-    searchTerm = urlParams.get('headline') ?? '';
-  }
-  if (queryString.includes('byline')) {
-    searchInField.byline = true;
-    searchTerm = urlParams.get('byline') ?? '';
-  }
-  if (queryString.includes('storyText')) {
-    searchInField.storyText = true;
-    searchTerm = urlParams.get('storyText') ?? '';
-  }
-  if (queryString.includes('keyword')) {
-    searchInField = { headline: false, byline: false, storyText: false };
-    searchTerm = urlParams.get('keyword') ?? '';
-  }
 
   const search = fromQueryString(queryString, {
     arrays: ['sourceIds', 'sentiment'],
@@ -29,11 +10,13 @@ export const queryToState = (queryString: string) => {
   });
 
   return {
-    searchInField: searchInField,
-    searchTerm: searchTerm,
+    searchTerm: search.searchTerm,
     actions: search.actions,
-    boldKeywords: search.boldKeywords,
+    boldKeywords: search.boldKeywords === 'true',
     hasFile: search.hasFile === 'true',
+    inHeadline: search.inHeadline === 'true',
+    inStory: search.inStory === 'true',
+    inByline: search.inByline === 'true',
     frontPage: search.productIds?.includes(11) || false,
     topStory: search.actions?.includes('Top Story') || false,
     sourceIds: search.sourceIds?.map((v: any) => Number(v)),

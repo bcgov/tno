@@ -17,11 +17,13 @@ export const makeFilter = (
     actions: filter.actions,
     boldKeywords: filter.boldKeywords,
     quantity: filter.pageSize,
-    byline: filter.byline ?? undefined,
+    searchTerm: filter.searchTerm,
+    inByline: filter.inByline,
+    inHeadline: filter.inHeadline,
+    inStory: filter.inStory,
     contentTypes: filter.contentTypes ?? [],
     excludeSourceIds: filter.excludeSourceIds ?? undefined,
     hasFile: filter.hasFile,
-    headline: filter.headline ?? '',
     keyword: filter.keyword ?? undefined,
     names: filter.names ?? undefined,
     productIds: filter.productIds ?? undefined,
@@ -30,7 +32,6 @@ export const makeFilter = (
     sentiment: filter.sentiment,
     sourceIds: filter.sourceIds ?? undefined,
     status: filter.status ?? undefined,
-    storyText: filter.storyText ?? undefined,
     useUnpublished: filter.useUnpublished,
   };
   return result;

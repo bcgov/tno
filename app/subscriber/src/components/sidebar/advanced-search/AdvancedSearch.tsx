@@ -77,26 +77,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
     () =>
       makeFilter({
         actions: advancedSearch?.topStory ? ['Top Story'] : [],
-        headline:
-          advancedSearch?.searchTerm && advancedSearch.searchInField?.headline
-            ? advancedSearch.searchTerm
-            : '',
         boldKeywords: advancedSearch?.boldKeywords,
-        byline:
-          advancedSearch?.searchTerm && advancedSearch.searchInField?.byline
-            ? advancedSearch.searchTerm
-            : '',
-        hasFile: advancedSearch?.hasFile,
-        storyText:
-          advancedSearch?.searchTerm && advancedSearch.searchInField?.storyText
-            ? advancedSearch.searchTerm
-            : '',
-        keyword:
-          advancedSearch?.searchTerm &&
-          advancedSearch.searchInField &&
-          Object.values(advancedSearch.searchInField).every((v) => v === false)
-            ? advancedSearch.searchTerm
-            : '',
+        inByline: advancedSearch?.inByline,
+        inHeadline: advancedSearch?.inHeadline,
+        inStory: advancedSearch?.inStory,
+        searchTerm: advancedSearch?.searchTerm,
         productIds: advancedSearch?.frontPage ? [constants?.frontPageId] : [],
         startDate: advancedSearch?.startDate,
         sourceIds: advancedSearch?.sourceIds,

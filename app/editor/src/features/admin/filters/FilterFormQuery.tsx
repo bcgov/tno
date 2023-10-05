@@ -38,6 +38,7 @@ export const FilterFormQuery: React.FC = () => {
     useLookupOptions();
 
   const [filter, setFilter] = React.useState(JSON.stringify(values.query, null, 2));
+  console.log(values.query);
   const [actionOptions, setActionOptions] = React.useState(getActionOptions(actions));
   const [tagOptions, setTagOptions] = React.useState(getTagOptions(tags));
 
@@ -62,6 +63,7 @@ export const FilterFormQuery: React.FC = () => {
         settings = { ...settings, dateOffset: undefined };
       }
       const query = generateQuery(settings, values.query);
+      console.log(query);
       setFieldValue('settings', settings);
       setFieldValue('query', query);
       setFilter(JSON.stringify(query, null, 2));

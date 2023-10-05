@@ -5,11 +5,9 @@ import { ISortBy } from './ISortBy';
 export interface IContentListFilter {
   actions?: string[];
   boldKeywords?: boolean;
-  byline?: string;
   contentTypes: ContentTypeName[];
   excludeSourceIds?: number[];
   hasFile?: boolean;
-  headline?: string;
   keyword?: string;
   names?: string;
   otherSource?: string | '';
@@ -22,8 +20,11 @@ export interface IContentListFilter {
   sourceIds?: number[];
   status?: ContentStatus;
   sentiment?: number[];
-  storyText?: string;
+  searchTerm?: string;
   topStory?: boolean;
   userId?: number | '';
   useUnpublished?: boolean;
+  inHeadline?: boolean;
+  inByline?: boolean;
+  inStory?: boolean;
 }

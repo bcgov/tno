@@ -18,18 +18,17 @@ export const SearchInGroup: React.FC<ISearchInGroupProps> = ({
   setAdvancedSearch,
 }) => {
   const [searchInOptions, setSearchInOptions] = React.useState({
-    byline: advancedSearch.searchInField?.byline,
-    headline: advancedSearch.searchInField?.headline,
-    storyText: advancedSearch.searchInField?.storyText,
+    byline: advancedSearch.inByline,
+    headline: advancedSearch.inHeadline,
+    storyText: advancedSearch.inStory,
   });
   React.useEffect(() => {
     setAdvancedSearch({
       ...advancedSearch,
-      searchInField: {
-        headline: searchInOptions.headline ?? false,
-        byline: searchInOptions.byline ?? false,
-        storyText: searchInOptions.storyText ?? false,
-      },
+      searchTerm: advancedSearch.searchTerm,
+      inHeadline: searchInOptions.headline ?? false,
+      inByline: searchInOptions.byline ?? false,
+      inStory: searchInOptions.storyText ?? false,
     });
     // only want to run when the options change
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -40,19 +39,19 @@ export const SearchInGroup: React.FC<ISearchInGroupProps> = ({
       <Row justifyContent="space-evenly" className="options expanded space-top">
         <label>Headline</label>
         <Checkbox
-          checked={advancedSearch.searchInField?.headline}
+          checked={advancedSearch.inHeadline}
           onChange={(e) => {
             setSearchInOptions({ ...searchInOptions, headline: e.target.checked });
           }}
         />
         <label>Byline</label>
         <Checkbox
-          checked={advancedSearch.searchInField?.byline}
+          checked={advancedSearch.inByline}
           onChange={(e) => setSearchInOptions({ ...searchInOptions, byline: e.target.checked })}
         />
         <label>Story text</label>
         <Checkbox
-          checked={advancedSearch.searchInField?.storyText}
+          checked={advancedSearch.inStory}
           onChange={(e) => setSearchInOptions({ ...searchInOptions, storyText: e.target.checked })}
         />
       </Row>

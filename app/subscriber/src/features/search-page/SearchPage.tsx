@@ -5,24 +5,20 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { makeFilter } from 'features/home/utils';
 import { determinePreview } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
 import { FaPlay, FaSave, FaStop } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp, useContent, useUsers } from 'store/hooks';
-import { useAppStore } from 'store/slices';
+import { useContent, useFilters } from 'store/hooks';
 import {
   Checkbox,
   Col,
   convertTo,
   fromQueryString,
+  generateQuery,
   IContentModel,
-  IUserInfoModel,
-  IUserModel,
-  Page,
   Row,
   Show,
   Text,
@@ -30,29 +26,30 @@ import {
 
 import { Player } from './player/Player';
 import * as styled from './styled';
+import { filterFormat } from './utils';
 
 // Simple component to display users search results
 export const SearchPage: React.FC = () => {
-  const [, { findContent }] = useContent();
+  const [, { findContentWithElasticsearch }] = useContent();
   const navigate = useNavigate();
-  const [{ userInfo }] = useApp();
-  const [, store] = useAppStore();
-  const api = useUsers();
-  const { query } = useParams();
+  const [, { addFilter }] = useFilters();
+
+  const params = useParams();
   const [searchItems, setSearchItems] = React.useState<IContentModel[]>([]);
   const [activeContent, setActiveContent] = React.useState<IContentModel | null>(null);
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
   const [searchName, setSearchName] = React.useState<string>('');
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-  const urlParams = new URLSearchParams(query);
+
+  const urlParams = new URLSearchParams(params.query);
 
   const search = React.useMemo(
     () =>
-      fromQueryString(query, {
+      fromQueryString(params.query, {
         arrays: ['sourceIds', 'sentiment', 'productIds', 'actions'],
         numbers: ['sourceIds', 'sentiment', 'productIds'],
       }),
-    [query],
+    [params.query],
   );
 
   const advancedSubscriberFilter: IContentListFilter & Partial<IContentListAdvancedFilter> =
@@ -63,6 +60,9 @@ export const SearchPage: React.FC = () => {
         endDate: urlParams.get('publishedEndOn') ?? '',
         hasFile: urlParams.get('hasFile') === 'true' ?? false,
         headline: urlParams.get('headline') ?? '',
+        inByline: urlParams.get('inByline') === 'true' ?? false,
+        inHeadline: urlParams.get('inHeadline') === 'true' ?? false,
+        inStory: urlParams.get('inStory') === 'true' ?? false,
         keyword: urlParams.get('keyword') ?? '',
         pageIndex: convertTo(urlParams.get('pageIndex'), 'number', 0),
         pageSize: convertTo(urlParams.get('pageSize'), 'number', 100),
@@ -70,6 +70,7 @@ export const SearchPage: React.FC = () => {
         sourceIds: search.sourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
         productIds: search.productIds?.map((v: any) => convertTo(v, 'number', undefined)),
         sentiment: search.sentiment?.map((v: any) => convertTo(v, 'number', undefined)),
+        searchTerm: urlParams.get('searchTerm') ?? '',
         startDate: urlParams.get('publishedStartOn') ?? '',
         storyText: urlParams.get('storyText') ?? '',
         boldKeywords: urlParams.get('boldKeywords') === 'true' ?? '',
@@ -77,15 +78,14 @@ export const SearchPage: React.FC = () => {
       };
       // only want this to update when the query changes
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [query]);
+    }, [params.query]);
 
   // function that bolds the searched text only if advanced filter is enabled for it
   const formatSearch = React.useCallback(
     (text: string) => {
       let tempText = text;
       let parseText = () => {
-        if (advancedSubscriberFilter.storyText) return advancedSubscriberFilter.storyText;
-        if (advancedSubscriberFilter.keyword) return advancedSubscriberFilter.keyword;
+        if (advancedSubscriberFilter.searchTerm) return advancedSubscriberFilter.searchTerm;
         else return '';
       };
       parseText()
@@ -110,64 +110,51 @@ export const SearchPage: React.FC = () => {
       if (!advancedSubscriberFilter.boldKeywords) return parse(text);
       return parse(tempText);
     },
-    [
-      advancedSubscriberFilter.storyText,
-      advancedSubscriberFilter.keyword,
-      advancedSubscriberFilter.boldKeywords,
-    ],
+    [advancedSubscriberFilter.searchTerm, advancedSubscriberFilter.boldKeywords],
   );
-  const fetch = React.useCallback(
-    async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
+
+  const fetchResults = React.useCallback(
+    async (filter: unknown) => {
       try {
-        const data = await findContent(
-          makeFilter({
-            ...filter,
-            contentTypes: [],
-            pageSize: 10000,
-          }),
-        );
-        setSearchItems(data.items);
-        return new Page(data.page - 1, data.quantity, data?.items, data.total);
-      } catch (error) {
-        // TODO: Handle error
-        throw error;
-      }
+        const res: any = await findContentWithElasticsearch(filter, false);
+        setSearchItems(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
+      } catch {}
     },
-    [findContent],
+    [findContentWithElasticsearch],
   );
 
-  const updateUserSearches = async () => {
-    const user = {
-      ...userInfo,
-      preferences: {
-        ...userInfo?.preferences,
-        searches: [
-          ...(userInfo?.preferences.searches ?? []),
-          { name: searchName, queryText: query },
-        ],
-      },
-      roles: userInfo?.roles ?? [],
-    } as IUserModel;
-    await api.updateUser(user, user.id ?? 0);
-    store.storeUserInfo(user as IUserInfoModel);
-
-    toast.success(`${searchName} has successfully been saved.`);
-  };
+  const saveSearch = React.useCallback(async () => {
+    const data = await addFilter({
+      name: searchName,
+      query: generateQuery(filterFormat(advancedSubscriberFilter)),
+      settings: { ...filterFormat(advancedSubscriberFilter) },
+      id: 0,
+      sortOrder: 0,
+      description: '',
+      isEnabled: true,
+    });
+    toast.success(`${data.name} has successfully been saved.`);
+  }, [advancedSubscriberFilter, searchName, addFilter]);
 
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
-    fetch({
-      ...advancedSubscriberFilter,
-    });
-  }, [query, fetch, advancedSubscriberFilter]);
+    fetchResults(generateQuery(filterFormat(advancedSubscriberFilter)));
+    // only run when query changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.query]);
 
   return (
     <styled.SearchPage>
       <SearchWithLogout />
       <Row className="save-bar">
-        <p className="label">Name this search: </p>
-        <Text onChange={(e) => setSearchName(e.target.value)} name="searchName" />
-        <FaSave className="save-button" onClick={() => updateUserSearches()} />
+        <div className="label">Name this search: </div>
+        <Text
+          onChange={(e) => {
+            setSearchName(e.target.value);
+          }}
+          name="searchName"
+        />
+        <FaSave className="save-button" onClick={() => saveSearch()} />
         <FolderSubMenu selectedContent={selected} />
       </Row>
       <Row>
@@ -193,20 +180,22 @@ export const SearchPage: React.FC = () => {
                       <Col className="tone-date">
                         <Row>
                           <Sentiment value={item.tonePools?.length ? item.tonePools[0].value : 0} />
-                          <p className="date text-content">
+                          <div className="date text-content">
                             {new Date(item.publishedOn).toDateString()}
-                          </p>
+                          </div>
                         </Row>
                       </Col>
                     </Row>
-                    <p
+                    <div
                       className="headline text-content"
                       onClick={() => navigate(`/view/${item.id}`)}
                     >
                       {formatSearch(item.headline)}
-                    </p>
+                    </div>
                     {/* TODO: Extract text around keyword searched and preview that text rather than the first 50 words */}
-                    <p className="summary text-content">{formatSearch(determinePreview(item))}</p>
+                    <div className="summary text-content">
+                      {formatSearch(determinePreview(item))}
+                    </div>
                     <Show visible={!!item.fileReferences?.length}>
                       <button
                         onClick={() => {
@@ -221,11 +210,11 @@ export const SearchPage: React.FC = () => {
                       >
                         {playerOpen && activeContent?.id === item.id ? (
                           <Row>
-                            <p>NOW PLAYING</p> <FaStop />
+                            <div>NOW PLAYING</div> <FaStop />
                           </Row>
                         ) : (
                           <Row>
-                            <p>PLAY MEDIA</p> <FaPlay />
+                            <div>PLAY MEDIA</div> <FaPlay />
                           </Row>
                         )}
                       </button>
