@@ -68,6 +68,11 @@ public class NotificationService : BaseService<Notification, int>, INotification
             var current = subscribers.FirstOrDefault(rs => rs.UserId == s.UserId);
             if (current == null)
                 original.SubscribersManyToMany.Add(s);
+            else
+            {
+                if (current.IsSubscribed != s.IsSubscribed)
+                    current.IsSubscribed = s.IsSubscribed;
+            }
         });
 
         this.Context.Entry(original).CurrentValues.SetValues(entity);

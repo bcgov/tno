@@ -12,15 +12,15 @@ export const subscriberColumns = (
       <Checkbox
         id={`user-${cell.original.id}`}
         value={true}
-        checked={report.subscribers.some((u) => u.id === cell.original.id)}
+        checked={report.subscribers.some((u) => u.id === cell.original.id && u.isSubscribed)}
         onChange={(e) => {
-          if (e.target.checked)
-            setFieldValue('subscribers', [cell.original, ...report.subscribers]);
-          else
+          const user = { ...cell.original, isSubscribed: e.target.checked };
+          if (report.subscribers.some((u) => u.id === cell.original.id))
             setFieldValue(
               'subscribers',
-              report.subscribers.filter((s) => s.id !== cell.original.id),
+              report.subscribers.map((item) => (item.id === cell.original.id ? user : item)),
             );
+          else setFieldValue('subscribers', [user, ...report.subscribers]);
         }}
       />
     ),
