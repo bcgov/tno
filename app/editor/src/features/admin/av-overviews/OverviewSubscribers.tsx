@@ -17,7 +17,9 @@ export const OverviewSubscribers: React.FC = () => {
 
   React.useEffect(() => {
     async function getUsers() {
-      await findUsers({ page: 1, quantity: users.quantity });
+      try {
+        await findUsers({ page: 1, quantity: users.quantity });
+      } catch {}
     }
     getUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -25,7 +27,9 @@ export const OverviewSubscribers: React.FC = () => {
 
   const handlePageChange = React.useCallback(
     async (page: ITablePage, table: ITableInternal<IUserModel>) => {
-      await findUsers({ page: page.pageIndex + 1, quantity: page.pageSize });
+      try {
+        await findUsers({ page: page.pageIndex + 1, quantity: page.pageSize });
+      } catch {}
     },
     [findUsers],
   );
@@ -35,7 +39,9 @@ export const OverviewSubscribers: React.FC = () => {
       const sorts = sort
         .filter((s) => s.isSorted)
         .map((s) => `${s.id}${s.isSortedDesc ? ' desc' : ''}`);
-      await findUsers({ page: 1, quantity: users.quantity, sort: sorts });
+      try {
+        await findUsers({ page: 1, quantity: users.quantity, sort: sorts });
+      } catch {}
     },
     [findUsers, users.quantity],
   );

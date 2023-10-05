@@ -98,23 +98,23 @@ const AVOverview: React.FC = () => {
           </>
         }
       >
-        <Show visible={active === 'report'}>
-          <Row className="page-header">
-            <div className="title">Evening Media Overview Template</div>
-          </Row>
-          <p>
-            An Evening Overview Template provides a way to configure the default sections and
-            stories within each section.
-          </p>
-          <FormikForm
-            initialValues={template}
-            onSubmit={(values, { setSubmitting }) => {
-              handleSubmit(values);
-              setSubmitting(false);
-            }}
-          >
-            {({ isSubmitting, values, setFieldValue }) => (
-              <>
+        <FormikForm
+          initialValues={template}
+          onSubmit={(values, { setSubmitting }) => {
+            handleSubmit(values);
+            setSubmitting(false);
+          }}
+        >
+          {({ isSubmitting, values, setFieldValue }) => (
+            <>
+              <Show visible={active === 'report'}>
+                <Row className="page-header">
+                  <div className="title">Evening Media Overview Template</div>
+                </Row>
+                <p>
+                  An Evening Overview Template provides a way to configure the default sections and
+                  stories within each section.
+                </p>
                 <Row className="buttons">
                   <Select
                     label="Template Type"
@@ -180,23 +180,11 @@ const AVOverview: React.FC = () => {
                     </Button>
                   </Show>
                 </Row>
-              </>
-            )}
-          </FormikForm>
-        </Show>
-        <Show visible={active === 'subscribers'}>
-          <Row className="page-header">
-            <div className="title">Update Subscribers</div>
-          </Row>
-          <FormikForm
-            initialValues={template}
-            onSubmit={(values, { setSubmitting }) => {
-              handleSubmit(values);
-              setSubmitting(false);
-            }}
-          >
-            {({ isSubmitting }) => (
-              <>
+              </Show>
+              <Show visible={active === 'subscribers'}>
+                <Row className="page-header">
+                  <div className="title">Update Subscribers</div>
+                </Row>
                 <p>
                   Select users to be subscribed to this template:{' '}
                   <b>Evening Overview - {templateType}</b>
@@ -207,10 +195,10 @@ const AVOverview: React.FC = () => {
                     Save
                   </Button>
                 </Row>
-              </>
-            )}
-          </FormikForm>
-        </Show>
+              </Show>
+            </>
+          )}
+        </FormikForm>
       </Tabs>
     </styled.AVOverview>
   );
