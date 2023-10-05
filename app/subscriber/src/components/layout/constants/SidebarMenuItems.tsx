@@ -6,6 +6,7 @@ import {
   FaFire,
   FaFolder,
   FaHome,
+  FaMoon,
   FaSearch,
   FaSlidersH,
   FaUsers,
@@ -70,6 +71,11 @@ export const SidebarMenuItems: ISideBarMenuItems = {
     label: 'My Searches',
     path: 'mysearches',
     icon: <FaSearch />,
+  },
+  eveningOverview: {
+    label: 'Evening Overview',
+    path: 'eveningoverview',
+    icon: <FaMoon />,
   },
   settings: {
     label: 'Settings',

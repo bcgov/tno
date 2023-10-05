@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from 'react-icons/fa';
 import { Menu, useProSidebar } from 'react-pro-sidebar';
+import { useNavigate } from 'react-router';
 import { Row, Show } from 'tno-core';
 
 import { AdvancedSearch } from './advanced-search/AdvancedSearch';
@@ -31,10 +32,11 @@ export const CustomSidebar: React.FC<ICustomSidebarProps> = ({
   setAdvancedSearch,
 }) => {
   const { collapseSidebar, collapsed } = useProSidebar();
+  const navigate = useNavigate();
   return (
     <styled.CustomSidebar>
       <Menu>
-        <Row className="title">
+        <Row className="title" onClick={() => navigate('/')}>
           <img
             alt="BC Gov logo"
             src={!collapsed ? '/assets/mminsights_logo.svg' : '/assets/mm_logo.svg'}
