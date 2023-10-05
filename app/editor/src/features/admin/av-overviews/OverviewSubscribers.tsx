@@ -16,12 +16,7 @@ export const OverviewSubscribers: React.FC = () => {
   const [{ users }, { findUsers }] = useUsers();
 
   React.useEffect(() => {
-    async function getUsers() {
-      try {
-        await findUsers({ page: 1, quantity: users.quantity });
-      } catch {}
-    }
-    getUsers();
+    findUsers({ page: 1, quantity: users.quantity }).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
