@@ -62,7 +62,6 @@ export const FilterFormQuery: React.FC = () => {
         settings = { ...settings, dateOffset: undefined };
       }
       const query = generateQuery(settings, values.query);
-      console.log(query);
       setFieldValue('settings', settings);
       setFieldValue('query', query);
       setFilter(JSON.stringify(query, null, 2));
