@@ -76,7 +76,7 @@ const AVOverview: React.FC = () => {
   return (
     <styled.AVOverview>
       <Row className="page-header">
-        <h1>Evening Media Overview</h1>
+        <h1>Evening Overview</h1>
       </Row>
       <Tabs
         tabs={
@@ -109,7 +109,7 @@ const AVOverview: React.FC = () => {
             <>
               <Show visible={active === 'report'}>
                 <Row className="page-header">
-                  <div className="title">Evening Media Overview Template</div>
+                  <div className="title">Evening Overview Template</div>
                 </Row>
                 <p>
                   An Evening Overview Template provides a way to configure the default sections and
