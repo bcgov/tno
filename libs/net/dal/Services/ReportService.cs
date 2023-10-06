@@ -227,6 +227,11 @@ public class ReportService : BaseService<Report, int>, IReportService
             var originalSubscriber = originalSubscribers.FirstOrDefault(rs => rs.UserId == s.UserId);
             if (originalSubscriber == null)
                 original.SubscribersManyToMany.Add(s);
+            else
+            {
+                if (originalSubscriber.IsSubscribed != s.IsSubscribed)
+                    originalSubscriber.IsSubscribed = s.IsSubscribed;
+            }
         });
 
         var originalSchedules = original.Schedules.ToArray();

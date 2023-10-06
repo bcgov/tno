@@ -68,12 +68,13 @@ public class UserNotification : AuditColumns
     /// <param name="userId"></param>
     /// <param name="notificationId"></param>
     /// <param name="resend"></param>
-    public UserNotification(int userId, int notificationId, ResendOption? resend = null)
+    public UserNotification(
+        int userId, int notificationId, bool isSubscribed = true, ResendOption? resend = null)
     {
         this.UserId = userId;
         this.NotificationId = notificationId;
         this.Resend = resend;
-        this.IsSubscribed = true;
+        this.IsSubscribed = isSubscribed;
     }
     #endregion
 
