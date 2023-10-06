@@ -44,3 +44,4 @@ export * from './replaceQueryParams';
 export * from './saveToLocalStorage';
 export * from './setCookie';
 export * from './toQueryString';
+export * from './generateMultiMatch';
