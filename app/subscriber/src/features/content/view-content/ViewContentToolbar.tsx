@@ -1,4 +1,3 @@
-import { Tags } from 'components/form/tags';
 import React from 'react';
 import {
   FaFileAlt,
