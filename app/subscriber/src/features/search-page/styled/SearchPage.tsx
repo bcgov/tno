@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 export const SearchPage = styled.div`
   max-height: 100vh - 6.5em;
+  overflow: none;
   .add-page {
     margin-left: auto;
   }
@@ -37,7 +38,7 @@ export const SearchPage = styled.div`
     }
     .label {
       margin-right: 0.25em;
-      margin-top: auto;
+      margin-top: 0.25em;
     }
   }
   .scroll {
@@ -60,7 +61,7 @@ export const SearchPage = styled.div`
     border-radius: 0.25em;
     border-width: 0.5px;
     svg {
-      margin-top: 0.65em;
+      margin-top: 0.25em;
       margin-left: 0.5em;
     }
   }
@@ -87,7 +88,7 @@ export const SearchPage = styled.div`
       color: #8f929d;
     }
     svg {
-      margin-top: 0.5em;
+      margin-top: 0.15em;
       margin-right: 0.5em;
       margin-left: 0;
     }

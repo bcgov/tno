@@ -33,6 +33,7 @@ export const SearchWithLogout = styled(Row)`
   }
   .logout {
     padding: 0.5em;
+    margin-right: 0.5em;
     max-height: fit-content;
     font-size: 1em;
     &:hover {

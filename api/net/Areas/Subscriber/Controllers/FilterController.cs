@@ -69,7 +69,6 @@ public class FilterController : ControllerBase
         var result = _filterService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new FilterModel(result, _serializerOptions));
     }
-
     /// <summary>
     /// Find all "my" filters.
     /// </summary>
@@ -142,7 +141,7 @@ public class FilterController : ControllerBase
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
         var filter = _filterService.FindById(model.Id) ?? throw new NoContentException("Filter does not exist");
         if (filter.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to delete filter");
-        _filterService.DeleteAndSave(filter);
+         _filterService.DeleteAndSave(filter);
         return new JsonResult(model);
     }
     #endregion

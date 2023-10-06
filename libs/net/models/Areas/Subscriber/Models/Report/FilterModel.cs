@@ -1,5 +1,6 @@
 using System.Text.Json;
 using TNO.API.Models;
+using TNO.API.Models.Settings;
 
 namespace TNO.API.Areas.Subscriber.Models.Report;
 
@@ -8,12 +9,17 @@ namespace TNO.API.Areas.Subscriber.Models.Report;
 /// </summary>
 public class FilterModel : BaseTypeWithAuditColumnsModel<int>
 {
-    #region Properties
+     #region Properties
 
     /// <summary>
     /// get/set - Foreign key to user who owns this report.
     /// </summary>
     public int? OwnerId { get; set; }
+
+    /// <summary>
+    /// get/set - The owner of this report.
+    /// </summary>
+    public UserModel? Owner { get; set; }
 
     /// <summary>
     /// get/set - The Elasticsearch query.
@@ -23,7 +29,7 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get/set - The filter settings.
     /// </summary>
-    public JsonDocument Settings { get; set; } = JsonDocument.Parse("{}");
+    public FilterSettingsModel Settings { get; set; } = new();
     #endregion
 
     #region Constructors
@@ -36,23 +42,25 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of an FilterModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public FilterModel(Entities.Filter entity) : base(entity)
+    /// <param name="options"></param>
+    public FilterModel(Entities.Filter entity, JsonSerializerOptions options) : base(entity)
     {
         this.OwnerId = entity.OwnerId;
+        this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.Query = entity.Query;
-        this.Settings = entity.Settings;
+        this.Settings = JsonSerializer.Deserialize<FilterSettingsModel>(JsonSerializer.Serialize(entity.Settings, options)) ?? new();
     }
     #endregion
 
     #region Methods
     /// <summary>
-    /// Creates a new instance of a Filter object.
+    /// Cast to an entity.
     /// </summary>
+    /// <param name="options"></param>
     /// <returns></returns>
     public Entities.Filter ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.Filter)this;
-        entity.Query = JsonDocument.Parse(JsonSerializer.Serialize(this.Query, options));
         entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
         return entity;
     }
@@ -70,7 +78,7 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
             IsEnabled = model.IsEnabled,
             OwnerId = model.OwnerId,
             SortOrder = model.SortOrder,
-            Query = JsonDocument.Parse(JsonSerializer.Serialize(model.Query)),
+            Query = model.Query,
             Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
             Version = model.Version ?? 0
         };

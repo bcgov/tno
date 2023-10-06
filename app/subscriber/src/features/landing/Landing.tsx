@@ -11,6 +11,7 @@ import { Home } from 'features/home';
 import { MyFolders } from 'features/my-folders';
 import { MyMinister } from 'features/my-minister/MyMinister';
 import { MyReport } from 'features/my-reports';
+import { MySearches } from 'features/my-searches';
 import { PressGallery } from 'features/press-gallery';
 import { MyMinisterSettings } from 'features/settings';
 import { TodaysCommentary } from 'features/todays-commentary';
@@ -18,7 +19,6 @@ import { TopStories } from 'features/top-stories';
 import React from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useApp } from 'store/hooks';
 import { Col, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
@@ -30,7 +30,6 @@ import * as styled from './styled';
 export const Landing: React.FC = () => {
   const { id } = useParams();
   const [activeItem, setActiveItem] = React.useState<string>(SidebarMenuItems.home.label);
-  const [{ userInfo }] = useApp();
   const navigate = useNavigate();
 
   /* keep active item in sync with url */
@@ -86,20 +85,8 @@ export const Landing: React.FC = () => {
             <Show visible={activeItem === SidebarMenuItems.pressGallery.label}>
               <PressGallery />
             </Show>
-            {/* TODO: Create own component when a/c defined for next iteration */}
             <Show visible={activeItem === SidebarMenuItems.mySearches.label}>
-              {!!userInfo?.preferences?.searches?.length &&
-                userInfo?.preferences.searches.map(
-                  (search: { name: string; queryText: string }) => (
-                    <p
-                      onClick={() => navigate(`/search/${search.queryText}`)}
-                      className="search-links"
-                      key={search.name}
-                    >
-                      {search.name}
-                    </p>
-                  ),
-                )}
+              <MySearches />
             </Show>
             <Show visible={activeItem === SidebarMenuItems.folders.label}>
               <MyFolders />
