@@ -39,18 +39,19 @@ const AVOverview: React.FC = () => {
   const [instance, setInstance] = React.useState<IAVOverviewInstanceModel>(
     defaultAVOverviewInstance(defaultAVOverviewTemplate, publishedOn.toDate()),
   );
-  const [isEditable, setIsEditable] = React.useState(
-    !instance.isPublished || getIsEditable(publishedOn),
-  );
+  // Unlock Evening Overview to allow editing prior days
+  const [isEditable] = React.useState(true || !instance.isPublished || getIsEditable(publishedOn));
 
   React.useEffect(() => {
-    setIsEditable(getIsEditable(publishedOn));
+    // Unlock Evening Overview to allow editing prior days
+    // setIsEditable(getIsEditable(publishedOn));
     api
       .findAVOverview(publishedOn.local().format('MM/DD/yyyy'))
       .then((data) => {
         if (data) {
           setInstance(data);
-          if (data.isPublished) setIsEditable(!data.isPublished);
+          // Unlock Evening Overview to allow editing prior days
+          // if (data.isPublished) setIsEditable(!data.isPublished);
           const date = moment(data.publishedOn).utc();
           window.history.pushState({}, '', `?date=${date.format('yyyy/MM/DD')}`);
         } else {
