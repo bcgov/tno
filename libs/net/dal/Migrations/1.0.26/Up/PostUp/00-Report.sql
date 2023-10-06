@@ -12,7 +12,7 @@ UPDATE public."report" SET
     (k, c) => new { Key = k, Content = c }).OrderBy(c => c.Key);
   var content = @Content.ToArray();
 }
-<h2 id="top">Media Monitoring Insights & Analysis - Morning Report</h2>
+<h2 id="top">Media Monitoring Insights - Morning Report</h2>
 <div style="color:red;">DO NOT FORWARD THIS EMAIL TO ANYONE</div>
 <br/>
 <div>@System.DateTime.Now.ToString("dddd, MMMM d, yyyy")</div>
