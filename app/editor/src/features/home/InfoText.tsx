@@ -20,8 +20,8 @@ export const InfoText: React.FC = () => {
   return (
     <div className="info">
       <p>
-        Media Monitoring Insights & Analysis is a service that allows people to see all of BC’s news
-        at a glance. Some of its key features include:
+        Media Monitoring Insights is a service that allows people to see all of BC’s news at a
+        glance. Some of its key features include:
       </p>
       <ul>
         <li>Aggregation of all newspapers, radio shows, and online articles.</li>

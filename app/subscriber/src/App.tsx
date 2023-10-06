@@ -11,7 +11,7 @@ import { ToastContainer } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { createKeycloakInstance, Loading, Show, useKeycloakEventHandler } from 'tno-core';
 
-const appName = 'Media Monitoring Insights & Analysis';
+const appName = 'Media Monitoring Insights';
 
 function App() {
   const keycloakEventHandler = useKeycloakEventHandler();
