@@ -76,13 +76,11 @@ public class AVOverviewTemplateService : BaseService<AVOverviewTemplate, AVOverv
             var originalSubscriber = originalSubscribers.FirstOrDefault(rs => rs.UserId == s.UserId);
             if (originalSubscriber == null)
             {
-                s.Template = entity;
-                s.TemplateType = entity.TemplateType;
                 this.Context.UserAVOverviews.Add(s);
             }
             else if (originalSubscriber.IsSubscribed != s.IsSubscribed)
             {
-                this.Context.UserAVOverviews.Update(s);
+                originalSubscriber.IsSubscribed = s.IsSubscribed;
             }
         });
 
