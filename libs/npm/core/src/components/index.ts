@@ -1,6 +1,7 @@
 export * from './breadcrumb';
 export * from './button';
 export * from './cell';
+export * from './container';
 export * from './dialog';
 export * from './flex';
 export * from './footer';

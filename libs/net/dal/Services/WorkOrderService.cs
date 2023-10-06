@@ -58,6 +58,8 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
         if (filter.Keywords != null)
             query = query.Where(c => EF.Functions.Like(c.Content!.Headline.ToLower(), $"%{filter.Keywords.ToLower()}%") ||
                 EF.Functions.Like(c.Requestor!.Username.ToLower(), $"%{filter.Keywords.ToLower()}%"));
+        if (filter.IsApproved.HasValue)
+            query = query.Where(c => c.Content!.IsApproved == filter.IsApproved.Value);
 
         if (filter.SourceIds.Any())
             query = query.Where(c => filter.SourceIds.Contains(c.Content!.SourceId ?? 0));
@@ -146,6 +148,8 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
                 EF.Functions.Like(c.Content!.OtherSource.ToLower(), $"{filter.Keywords.ToLower()}") ||
                 EF.Functions.Like(c.Requestor!.Username.ToLower(), $"%{filter.Keywords.ToLower()}%") ||
                 EF.Functions.Like(c.Assigned!.Username.ToLower(), $"%{filter.Keywords.ToLower()}%"));
+        if (filter.IsApproved.HasValue)
+            query = query.Where(c => c.Content!.IsApproved == filter.IsApproved.Value);
 
         if (filter.SourceIds.Any())
             query = query.Where(c => filter.SourceIds.Contains(c.Content!.SourceId ?? 0));

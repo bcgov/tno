@@ -97,4 +97,8 @@ export const MyReports = styled(Col)`
   .primary-light-color {
     color: ${(props) => props.theme.css.primaryLightColor};
   }
+
+  .table {
+    min-height: 100px;
+  }
 `;

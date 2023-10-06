@@ -1,5 +1,6 @@
-import env from 'env.json';
 import styled from 'styled-components';
+
+import env from '../env.json';
 
 export const Layout = styled.div`
   display: flex;

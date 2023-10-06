@@ -3,7 +3,8 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useReports, useReportTemplates } from 'store/hooks';
-import { Col, Row } from 'tno-core';
+import { useAppStore } from 'store/slices';
+import { Col, Container, Row } from 'tno-core';
 
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
@@ -12,12 +13,15 @@ import { ReportAdminEdit } from './ReportAdminEdit';
 import { ReportAdminPreview } from './ReportAdminPreview';
 import * as styled from './styled';
 
+const loading = ['get-report', 'add-report', 'update-report', 'delete-report'];
+
 export interface IReportAdminProps {
   path?: string;
 }
 
 /**
  * Component provides a way to configure a report.
+ * Two column page to show admin tools on left, and preview on right.
  * @param param0 Component properties.
  * @returns Component.
  */
@@ -27,6 +31,7 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
   const { id, path = defaultPath } = useParams();
   const [{ getReport, addReport, updateReport }] = useReports();
   const [{ getReportTemplates }] = useReportTemplates();
+  const [{ requests }] = useAppStore();
 
   const [report, setReport] = React.useState<IReportForm>(defaultReport(userInfo?.id));
 
@@ -82,6 +87,7 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
   return (
     <styled.ReportAdmin>
       <FormikForm
+        loading={false}
         initialValues={report}
         onSubmit={async (values, { setSubmitting }) => {
           await handleSubmit(values);
@@ -91,7 +97,9 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
         {({ isSubmitting, values }) => (
           <Row className="report-layout" gap="1rem">
             <Col flex="1" className="edit">
-              <ReportAdminEdit />
+              <Container isLoading={requests.some((r) => loading.includes(r.url))}>
+                <ReportAdminEdit />
+              </Container>
             </Col>
             <Col flex="1" className="preview">
               <ReportAdminPreview />

@@ -16,6 +16,11 @@ public class WorkOrderFilter : PageFilter
     public string? Keywords { get; set; }
 
     /// <summary>
+    /// get/set - Whether the transcript has been approved.
+    /// </summary>
+    public bool? IsApproved { get; set; }
+
+    /// <summary>
     /// get/set - Only include work order with this status.
     /// </summary>
     public WorkOrderStatus? Status { get; set; }
@@ -107,6 +112,7 @@ public class WorkOrderFilter : PageFilter
 
         this.Keywords = filter.GetStringValue(nameof(this.Keywords));
 
+        this.IsApproved = filter.GetBoolNullValue(nameof(this.IsApproved));
         this.Status = filter.GetEnumNullValue<WorkOrderStatus>(nameof(this.Status));
         this.WorkType = filter.GetEnumNullValue<WorkOrderType>(nameof(this.WorkType));
 

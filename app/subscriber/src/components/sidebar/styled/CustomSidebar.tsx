@@ -1,6 +1,7 @@
-import env from 'env.json';
 import { Sidebar } from 'react-pro-sidebar';
 import styled from 'styled-components';
+
+import env from '../env.json';
 
 export const CustomSidebar = styled(Sidebar)`
   position: fixed;

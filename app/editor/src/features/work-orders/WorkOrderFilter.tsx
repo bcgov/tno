@@ -36,6 +36,7 @@ export const WorkOrderFilter = ({ filter, onFilterChange }: IWorkOrderFilterProp
         onChange={(e) =>
           onFilterChange({
             ...filter,
+            isApproved: e.target.checked ? false : undefined,
             status: e.target.checked ? WorkOrderStatusName.Completed : undefined,
           })
         }
