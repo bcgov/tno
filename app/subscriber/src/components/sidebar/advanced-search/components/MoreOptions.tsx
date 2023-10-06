@@ -20,13 +20,13 @@ export const MoreOptions: React.FC<IMoreOptionsProps> = ({
     <Show visible={optionsExpanded}>
       <div className="more-options">
         <p>
-          MMIA imports and archives many more stories than those published to out website. You can
+          MMI imports and archives many more stories than those published to out website. You can
           search within the published stories, or expand your search to the whole dataset. Narrow
           your search using these settings.
         </p>
         <Col>
           <Checkbox
-            label="featured on the MMIA home page"
+            label="featured on the MMI home page"
             checked={!advancedSearch.useUnpublished}
             onChange={(e) => {
               setAdvancedSearch({

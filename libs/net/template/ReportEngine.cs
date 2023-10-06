@@ -163,7 +163,7 @@ public class ReportEngine : IReportEngine
             instance.Content = model.Content;
             instance.Sections = model.Sections;
 
-            instance.MmiaUrl = this.ReportingOptions.MmiaUrl;
+            instance.SubscriberAppUrl = this.ReportingOptions.SubscriberAppUrl;
             instance.ViewContentUrl = this.ReportingOptions.ViewContentUrl;
             instance.RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl;
         });
@@ -201,7 +201,7 @@ public class ReportEngine : IReportEngine
             instance.Content = model.Content;
             instance.Sections = model.Sections;
 
-            instance.MmiaUrl = this.ReportingOptions.MmiaUrl;
+            instance.SubscriberAppUrl = this.ReportingOptions.SubscriberAppUrl;
             instance.ViewContentUrl = this.ReportingOptions.ViewContentUrl;
             instance.RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl;
         });
@@ -271,7 +271,7 @@ public class ReportEngine : IReportEngine
             instance.Settings = model.Settings;
             instance.Instance = model.Instance;
 
-            instance.MmiaUrl = this.ReportingOptions.MmiaUrl;
+            instance.SubscriberAppUrl = this.ReportingOptions.SubscriberAppUrl;
             instance.ViewContentUrl = this.ReportingOptions.ViewContentUrl;
             instance.RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl;
         });
@@ -303,7 +303,7 @@ public class ReportEngine : IReportEngine
             instance.Settings = model.Settings;
             instance.Instance = model.Instance;
 
-            instance.MmiaUrl = this.ReportingOptions.MmiaUrl;
+            instance.SubscriberAppUrl = this.ReportingOptions.SubscriberAppUrl;
             instance.ViewContentUrl = this.ReportingOptions.ViewContentUrl;
             instance.RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl;
         });

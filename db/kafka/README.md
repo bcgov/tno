@@ -37,6 +37,13 @@ SSH into the Kafka broker pod.
 /bin/kafka-topics --bootstrap-server kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092 --topic reporting --create --partitions 3 --replication-factor 1
 ```
 
+Send a message to the topic.
+Enter the following command, then after it executes enter in your JSON.
+
+```bash
+kafka-consoleproducer --bootstrap-server kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092 --topic TNO
+```
+
 Update the topic of partitions.
 
 ```bash
@@ -88,4 +95,18 @@ sed -i 's/cy7k9k7cT6yTuGD_HYAupg/KcKqT1giRLWIm9wN68pcXg/' TNO-3/partition.metada
 
 cat DAILYHIVE-0/partition.metadata ; echo
 sed -i 's/_YCpj6MpQjudzH8OPik9Pw/--lKOi1HSN2AiT6WP7pfRg/' DAILYHIVE-0/partition.metadata
+```
+
+## Helper scripts
+
+Reconfigure all topics partitions.
+
+```bash
+./scripts/partition.sh -p 9b301c-test -o kafka-broker-0
+```
+
+Reconfigure all topic replications. First update `scripts/data/replicas.json`.
+
+```bash
+./scripts/replicas.sh -p 9b301c-test -o kafka-broker-0
 ```

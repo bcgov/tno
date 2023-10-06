@@ -59,12 +59,12 @@ spec:
               mountPath: /keys
               readOnly: true
           resources:
-            requests:
-              cpu: 50m
-              memory: 100Mi
             limits:
-              cpu: 75m
+              cpu: 50m
               memory: 150Mi
+            requests:
+              cpu: 25m
+              memory: 100Mi
           env:
             # .NET Configuration
             - name: ASPNETCORE_ENVIRONMENT

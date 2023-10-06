@@ -27,9 +27,9 @@ public class ReportEngineContentModel : RazorEngineTemplateBase
     public ReportSettingsModel Settings { get; set; } = new();
 
     /// <summary>
-    /// get/set - The MMIA URL.
+    /// get/set - The Subscriber app URL.
     /// </summary>
-    public Uri? MmiaUrl { get; set; }
+    public Uri? SubscriberAppUrl { get; set; }
 
     /// <summary>
     /// get/set - The view content URL.

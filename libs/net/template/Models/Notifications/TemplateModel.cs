@@ -15,9 +15,9 @@ public class TemplateModel : RazorEngineTemplateBase
     public ContentModel Content { get; set; }
 
     /// <summary>
-    /// get/set - The MMIA URL.
+    /// get/set - The Subscriber app URL.
     /// </summary>
-    public Uri? MmiaUrl { get; set; }
+    public Uri? SubscriberAppUrl { get; set; }
 
     /// <summary>
     /// get/set - The view content URL.

@@ -134,7 +134,7 @@ metadata:
     managed-by: kustomize
     created-by: jeremy.foster
 spec:
-  host: dev.editor.mmia.gov.bc.ca
+  host: dev.editor.mmi.gov.bc.ca
   path: ""
   port:
     targetPort: 8080-tcp

@@ -10,7 +10,7 @@ UPDATE public.report_template SET
     var utcOffset = tz.GetUtcOffset(now).Hours;
     var today = now.AddHours(utcOffset).ToString("dddd, MMMM d, yyyy");
 }
-MMIA Morning Report - @today
+MMI Morning Report - @today
 ',
     "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.TemplateModel>
 @using System

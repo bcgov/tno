@@ -19,7 +19,7 @@ export const CustomSidebar = styled(Sidebar)`
     }
   }
 
-  /* controls the mmia logo at top of sidebar */
+  /* controls the logo at top of sidebar */
   .title {
     cursor: pointer;
     background-color: ${(props) => {

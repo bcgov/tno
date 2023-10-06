@@ -30,7 +30,7 @@ UPDATE public."notification" SET
 }@toneIcon@sourceCode: @Content.Headline @transcriptIcon" }', '[\r\t]+', '', 'g'), '[\n]+', '\\n', 'g')::jsonb
   , "template" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Notification.Models.TemplateModel>
 @{
-  var mmiaUrl = @MmiaUrl?.AbsoluteUri;
+  var subscriberAppUrl = @SubscriberAppUrl?.AbsoluteUri;
   var requestTranscriptUrl = @RequestTranscriptUrl?.AbsoluteUri;
   var addToReportUrl = @AddToReportUrl?.AbsoluteUri;
   var isAV = @Content.ContentType == TNO.Entities.ContentType.AudioVideo;
@@ -46,9 +46,9 @@ UPDATE public."notification" SET
 <div>@Content.PublishedOn?.ToString("dd-MMM-yyyy hh:mm")</div>
 <div>@body</div>
 <br />
-@if (!string.IsNullOrEmpty(mmiaUrl))
+@if (!string.IsNullOrEmpty(subscriberAppUrl))
 {
-  <div><a href="@mmiaUrl" target="_blank">MMIA...</a></div>
+  <div><a href="@subscriberAppUrl" target="_blank">MMI...</a></div>
   <br />
 }
 @if (isAV && !isTranscriptAvailable && !string.IsNullOrEmpty(requestTranscriptUrl))

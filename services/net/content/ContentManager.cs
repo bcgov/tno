@@ -242,7 +242,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 if (this.Options.MigrationOptions.AllowSourceContentOverwrite)
                 {
                     updateSourceContent = true;
-                    Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMIA Content : {Source}:{Title}", model.Source, model.Title);
+                    Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMI Content : {Source}:{Title}", model.Source, model.Title);
                 }
                 else
                 {

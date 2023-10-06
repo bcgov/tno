@@ -411,7 +411,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         var key = $"notification_{notification.Id}_subject";
         var model = new TemplateModel(content)
         {
-            MmiaUrl = this.ReportingOptions.MmiaUrl,
+            SubscriberAppUrl = this.ReportingOptions.SubscriberAppUrl,
             ViewContentUrl = this.ReportingOptions.ViewContentUrl,
             RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl,
             AddToReportUrl = this.ReportingOptions.AddToReportUrl,
@@ -425,7 +425,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         {
             instance.Model = model;
             instance.Content = model.Content;
-            instance.MmiaUrl = model.MmiaUrl;
+            instance.SubscriberAppUrl = model.SubscriberAppUrl;
             instance.ViewContentUrl = model.ViewContentUrl;
             instance.RequestTranscriptUrl = model.RequestTranscriptUrl;
             instance.AddToReportUrl = model.AddToReportUrl;
@@ -446,7 +446,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         var model = new TemplateModel(content)
         {
             AddToReportUrl = this.ReportingOptions.AddToReportUrl,
-            MmiaUrl = this.ReportingOptions.MmiaUrl,
+            SubscriberAppUrl = this.ReportingOptions.SubscriberAppUrl,
             ViewContentUrl = this.ReportingOptions.ViewContentUrl != null ? new Uri(this.ReportingOptions.ViewContentUrl, content.Id.ToString()) : null,
             RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl
         };
@@ -459,7 +459,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
             instance.Model = model;
             instance.Content = model.Content;
             instance.AddToReportUrl = model.AddToReportUrl;
-            instance.MmiaUrl = model.MmiaUrl;
+            instance.SubscriberAppUrl = model.SubscriberAppUrl;
             instance.ViewContentUrl = model.ViewContentUrl;
             instance.RequestTranscriptUrl = model.RequestTranscriptUrl;
         });

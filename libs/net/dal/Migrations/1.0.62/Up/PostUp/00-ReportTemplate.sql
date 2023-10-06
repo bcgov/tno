@@ -26,7 +26,7 @@ SET
 }
 @if (Settings.ViewOnWebOnly)
 {
-  <a href="@MmiaUrl" target="_blank">Click to view this report online</a>
+  <a href="@SubscriberAppUrl" target="_blank">Click to view this report online</a>
 }
 else
 {

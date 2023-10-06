@@ -63,11 +63,11 @@ spec:
               key: password
       resources:
         requests:
-          memory: 250Mi
-          cpu: 250m
-        limits:
-          memory: 2560Mi
+          memory: 4Gi
           cpu: 1000m
+        limits:
+          memory: 6656Mi
+          cpu: 2000m
       script: |
         #!/usr/bin/env bash
         set -e

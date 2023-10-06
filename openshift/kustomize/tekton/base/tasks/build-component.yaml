@@ -74,11 +74,11 @@ spec:
               key: password
       resources:
         requests:
-          memory: 250Mi
-          cpu: 250m
+          memory: 1Gi
+          cpu: 1
         limits:
-          memory: 4Gi
-          cpu: 2000m
+          memory: 6656Mi
+          cpu: 2
       script: |
         #!/usr/bin/env bash
         set -xe

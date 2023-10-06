@@ -66,7 +66,7 @@ public interface IContentMigrator
     SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string defaultTimeZone);
 
     /// <summary>
-    /// Copies a file from the TNO store to a location where it can be picked up by MMIA Content service
+    /// Copies a file from the TNO store to a location where it can be picked up by MMI Content service
     /// </summary>
     /// <param name="request"></param>
     /// <param name="contentStagingRoot"></param>
