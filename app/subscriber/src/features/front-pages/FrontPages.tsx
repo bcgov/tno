@@ -1,8 +1,7 @@
 import React from 'react';
-import { useContent } from 'store/hooks';
+import { useContent, useNavigateAndScroll } from 'store/hooks';
 import { IContentModel, Row } from 'tno-core';
 
-import { UseNavigateAndScroll } from './../utils';
 import * as styled from './styled';
 
 /** simple component used to display front pages on the landing page */
@@ -10,6 +9,8 @@ export const FrontPages = () => {
   const [frontPages, setFrontPages] = React.useState<IContentModel[]>([]);
   const [srcUrls, setSrcUrls] = React.useState<any[]>([]);
   const [, { getFrontPages, stream }] = useContent();
+  const [navigateAndScroll] = useNavigateAndScroll();
+
   React.useEffect(() => {
     getFrontPages().then((data) => {
       setFrontPages(data.items);
@@ -38,7 +39,7 @@ export const FrontPages = () => {
             alt={s.id}
             className="front-page"
             src={s.url}
-            onClick={() => UseNavigateAndScroll(`/view/${s.id}`)}
+            onClick={() => navigateAndScroll.goTo(`/view/${s.id}`)}
           />
         ))}
       </Row>
