@@ -96,7 +96,6 @@ export const ViewContentToolbar: React.FC<IViewContentToolbarProps> = ({ tags, c
             />
           </div>
         </Row>
-        <Tags contentTags={tags} />
       </Row>
       <Row className="hrz-line" />
     </styled.ViewContentToolbar>
