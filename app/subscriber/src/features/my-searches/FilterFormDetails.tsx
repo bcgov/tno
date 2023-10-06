@@ -1,5 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
+import { useLookupOptions } from 'store/hooks';
+import { getActionOptions } from 'store/hooks/subscriber/getActionOptions';
+import { getTagOptions } from 'store/hooks/subscriber/getTagOptions';
 import {
   Checkbox,
   Col,
@@ -17,8 +20,6 @@ import {
 } from 'tno-core';
 
 import { contentTypeOptions } from './constants';
-import { getActionOptions, getTagOptions } from './utils';
-import { useLookupOptions } from './utils/useLookupOptions';
 
 /**
  * The page used to view and edit filters.
