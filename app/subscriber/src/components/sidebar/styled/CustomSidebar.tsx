@@ -21,6 +21,7 @@ export const CustomSidebar = styled(Sidebar)`
 
   /* controls the mmia logo at top of sidebar */
   .title {
+    cursor: pointer;
     background-color: ${(props) => {
       if (env.dev.includes(window.location.hostname))
         return props.theme.css.developmentBackgroundColor;

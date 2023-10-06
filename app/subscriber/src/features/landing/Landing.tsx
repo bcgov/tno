@@ -5,6 +5,7 @@ import {
 import { SearchWithLogout } from 'components/search-with-logout';
 import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
+import AVOverviewPreview from 'features/daily-overview/AVOverviewPreview';
 import { FrontPages } from 'features/front-pages';
 import { Home } from 'features/home';
 import { MyFolders } from 'features/my-folders';
@@ -102,6 +103,9 @@ export const Landing: React.FC = () => {
             </Show>
             <Show visible={activeItem === SidebarMenuItems.folders.label}>
               <MyFolders />
+            </Show>
+            <Show visible={activeItem === SidebarMenuItems.eveningOverview.label}>
+              <AVOverviewPreview />
             </Show>
           </div>
         </Col>
