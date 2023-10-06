@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router';
 import { useContent } from 'store/hooks';
 import { ActionName, IContentModel, Row } from 'tno-core';
 
+import { navigateAndScroll } from './../utils';
 import * as styled from './styled';
 import { DetermineContentIcon, isWeekday } from './utils';
 
@@ -47,7 +48,10 @@ export const Commentary: React.FC = () => {
             <Row key={x.id} className="content-row">
               <Sentiment value={x.tonePools?.length ? x.tonePools[0].value : 0} />
               <DetermineContentIcon contentType={x.contentType} />
-              <div className="headline" onClick={() => navigate(`/view/${x.id}`)}>
+              <div
+                className="headline"
+                onClick={() => navigateAndScroll(navigate, `/view/${x.id}`)}
+              >
                 {x.headline}
               </div>
             </Row>

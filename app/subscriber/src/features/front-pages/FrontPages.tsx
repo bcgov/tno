@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { IContentModel, Row } from 'tno-core';
 
+import { navigateAndScroll } from './../utils';
 import * as styled from './styled';
 
 /** simple component used to display front pages on the landing page */
@@ -39,7 +40,7 @@ export const FrontPages = () => {
             alt={s.id}
             className="front-page"
             src={s.url}
-            onClick={() => navigate(`/view/${s.id}`)}
+            onClick={() => navigateAndScroll(navigate, `/view/${s.id}`)}
           />
         ))}
       </Row>
