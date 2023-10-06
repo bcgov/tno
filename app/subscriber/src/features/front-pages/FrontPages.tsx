@@ -1,6 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useContent } from 'store/hooks';
+import { useContent, useNavigateAndScroll } from 'store/hooks';
 import { IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';
@@ -9,8 +8,9 @@ import * as styled from './styled';
 export const FrontPages = () => {
   const [frontPages, setFrontPages] = React.useState<IContentModel[]>([]);
   const [srcUrls, setSrcUrls] = React.useState<any[]>([]);
-  const navigate = useNavigate();
   const [, { getFrontPages, stream }] = useContent();
+  const navigateAndScroll = useNavigateAndScroll();
+
   React.useEffect(() => {
     getFrontPages().then((data) => {
       setFrontPages(data.items);
@@ -39,7 +39,7 @@ export const FrontPages = () => {
             alt={s.id}
             className="front-page"
             src={s.url}
-            onClick={() => navigate(`/view/${s.id}`)}
+            onClick={() => navigateAndScroll(`/view/${s.id}`)}
           />
         ))}
       </Row>
