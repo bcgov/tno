@@ -22,13 +22,13 @@ patches:
         value: 20m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 80Mi
+        value: 100Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
         value: 50m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 120Mi
+        value: 250Mi
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: indexing-service:prod

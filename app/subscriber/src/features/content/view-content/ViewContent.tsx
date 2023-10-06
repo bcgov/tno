@@ -55,8 +55,6 @@ export const ViewContent: React.FC = () => {
 
   const handleTranscribe = React.useCallback(async () => {
     try {
-      // TODO: Only save when required.
-      // Save before submitting request.
       if (!!content) {
         const response = await transcribe(content);
         setWorkOrders([response.data, ...workOrders]);
@@ -261,7 +259,12 @@ export const ViewContent: React.FC = () => {
             </a>
           </Show>
         </Col>
-        <Show visible={content?.contentType === ContentTypeName.AudioVideo}>
+        <Show
+          visible={
+            content?.contentType === ContentTypeName.AudioVideo &&
+            !content?.source?.disableTranscribe
+          }
+        >
           <Button
             onClick={() => handleTranscribe()}
             variant={ButtonVariant.action}

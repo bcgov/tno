@@ -114,7 +114,7 @@ public class Content : AuditColumns
     public string Byline { get; set; } = "";
 
     /// <summary>
-    /// get/set - Unique identifier within MMIA based on a hash of values.
+    /// get/set - Unique identifier within MMI based on a hash of values.
     /// </summary>
     [Column("uid")]
     public string Uid { get; set; } = "";

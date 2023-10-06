@@ -18,13 +18,13 @@ data:
   KAFKA_CLIENT_ID: Notification
   MAX_FAIL_LIMIT: "5"
   TOPICS: notify
-  CHES_FROM: Media Monitoring Insights <mmia@gov.bc.ca>
+  CHES_FROM: Media Monitoring Insights <mmi@gov.bc.ca>
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"
-  MMIA_BASE_URL: "https://mmia.gov.bc.ca/"
-  MMIA_VIEW_CONTENT_URL: "https://mmia.gov.bc.ca/view/"
-  MMIA_REQUEST_TRANSCRIPT_URL: "https://mmia.gov.bc.ca/api/subscriber/work/orders/transcribe/"
-  MMIA_ADD_TO_REPORT_URL: "https://mmia.gov.bc.ca"
+  REPORTING_BASE_URL: "https://mmi.gov.bc.ca/"
+  REPORTING_VIEW_CONTENT_URL: "https://mmi.gov.bc.ca/view/"
+  REPORTING_REQUEST_TRANSCRIPT_URL: "https://mmi.gov.bc.ca/api/subscriber/work/orders/transcribe/"
+  REPORTING_ADD_TO_REPORT_URL: "https://mmi.gov.bc.ca"
 
 ---
 kind: ConfigMap

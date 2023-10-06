@@ -51,12 +51,12 @@ spec:
             - name: ingest-storage
               mountPath: /data
           resources:
-            requests:
-              cpu: 20m
-              memory: 75Mi
             limits:
-              cpu: 50m
-              memory: 100Mi
+              cpu: 25m
+              memory: 250Mi
+            requests:
+              cpu: 10m
+              memory: 128Mi
           env:
             # .NET Configuration
             - name: ASPNETCORE_ENVIRONMENT

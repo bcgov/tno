@@ -70,12 +70,12 @@ spec:
             - name: ingest-storage
               mountPath: /mnt/ingest
           resources:
-            requests:
-              cpu: 100m
-              memory: 150Mi
             limits:
-              cpu: 500m
-              memory: 1Gi
+              cpu: 150m
+              memory: 550Mi
+            requests:
+              cpu: 50m
+              memory: 380Mi
           env:
             - name: ASPNETCORE_URLS
               value: http://+:8080
@@ -185,11 +185,11 @@ spec:
             - name: Charts__Url
               value: "http://charts-api:8080"
 
-            - name: Reporting__MmiaUrl
+            - name: Reporting__SubscriberAppUrl
               valueFrom:
                 configMapKeyRef:
                   name: api
-                  key: REPORTING_MMIA_URL
+                  key: REPORTING_SUBSCRIBER_URL
             - name: Reporting__ViewContentUrl
               valueFrom:
                 configMapKeyRef:

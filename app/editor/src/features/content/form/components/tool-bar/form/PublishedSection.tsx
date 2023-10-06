@@ -22,7 +22,7 @@ export const PublishedSection: React.FC<IPublishedSectionProps> = ({ values }) =
 
   return (
     <styled.PublishedSection
-      label="VIEW ON MMIA"
+      label="VIEW ON MMI"
       children={
         <Col>
           <Row

@@ -55,7 +55,7 @@ patches:
     patch: |-
       - op: replace
         path: /spec/host
-        value: test.editor.mmia.gov.bc.ca
+        value: test.editor.mmi.gov.bc.ca
   - target:
       kind: DeploymentConfig
       name: editor

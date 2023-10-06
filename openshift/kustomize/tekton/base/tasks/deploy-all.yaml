@@ -56,11 +56,14 @@ spec:
         fi
 
         # An array of all the objects for the solution.
-        SERVICES=("content" "filecopy" "filemonitor" "image" "indexing" "nlp" "notification" "reporting" "syndication" "transcription" "capture" "clip" "scheduler")
-        COMPONENTS=("api" "editor" "subscriber" "charts-api" "content" "filecopy" "filemonitor" "image" "indexing" "nlp" "notification" "reporting" "syndication" "transcription" "capture" "clip" "scheduler")
-        declare -A IMAGES=(["api"]="api" ["editor"]="editor" ["subscriber"]="subscriber" ["charts-api"]="charts-api" ["content"]="content-service" ["filecopy"]="filecopy-service" ["filemonitor"]="filemonitor-service" ["image"]="image-service" ["indexing"]="indexing-service" ["nlp"]="nlp-service" ["notification"]="notification-service" ["reporting"]="reporting-service" ["syndication"]="syndication-service" ["transcription"]="transcription-service" ["capture"]="capture-service" ["clip"]="clip-service" ["scheduler"]="scheduler-service")
-        declare -A OBJECTS=(["api"]="sts" ["editor"]="dc" ["subscriber"]="dc" ["charts-api"]="dc" ["content"]="dc" ["filecopy"]="dc" ["filemonitor"]="dc" ["image"]="dc" ["indexing"]="dc" ["nlp"]="dc" ["notification"]="dc" ["reporting"]="dc" ["syndication"]="dc" ["transcription"]="dc" ["capture"]="dc" ["clip"]="dc" ["scheduler"]="dc")
-        declare -A REPLICAS=(["content"]="1" ["filecopy"]="1" ["filemonitor"]="1" ["image"]="1" ["indexing"]="1" ["nlp"]="1" ["notification"]="1" ["reporting"]="1" ["syndication"]="1" ["transcription"]="1" ["capture"]="0" ["clip"]="0" ["scheduler"]=1)
+        INGEST=("filemonitor" "image" "syndication" "capture" "contentmigration")
+        PROCESSING=("content" "filecopy" "indexing" "nlp" "notification" "reporting" "transcription" "clip" "scheduler")
+        APPS=("api" "editor" "subscriber" "charts-api")
+        SERVICES=(${INGEST[@]} ${PROCESSING[@]})
+        COMPONENTS=(${INGEST[@]} ${PROCESSING[@]} {APPS[@]})
+        declare -A IMAGES=(["api"]="api" ["editor"]="editor" ["subscriber"]="subscriber" ["charts-api"]="charts-api" ["content"]="content-service" ["filecopy"]="filecopy-service" ["filemonitor"]="filemonitor-service" ["image"]="image-service" ["indexing"]="indexing-service" ["nlp"]="nlp-service" ["notification"]="notification-service" ["reporting"]="reporting-service" ["syndication"]="syndication-service" ["transcription"]="transcription-service" ["capture"]="capture-service" ["clip"]="clip-service" ["scheduler"]="scheduler-service" ["contentmigration"]= "contentmigration-service")
+        declare -A OBJECTS=(["api"]="sts" ["editor"]="dc" ["subscriber"]="dc" ["charts-api"]="dc" ["content"]="dc" ["filecopy"]="dc" ["filemonitor"]="dc" ["image"]="dc" ["indexing"]="dc" ["nlp"]="dc" ["notification"]="dc" ["reporting"]="dc" ["syndication"]="dc" ["transcription"]="dc" ["capture"]="dc" ["clip"]="dc" ["scheduler"]="dc" ["contentmigration"]="dc")
+        declare -A REPLICAS=(["content"]="2" ["filecopy"]="1" ["filemonitor"]="1" ["image"]="1" ["indexing"]="2" ["nlp"]="1" ["notification"]="1" ["reporting"]="1" ["syndication"]="1" ["transcription"]="2" ["capture"]="0" ["clip"]="0" ["scheduler"]=1 ["contentmigration"]=1)
 
         # Stop all services if API needs to be deployed.
         if [ "${BUILD_API}" = true ] || [ "$(params.DEPLOY)" = "api" ] || [ "$(params.DEPLOY)" = "all" ]; then
