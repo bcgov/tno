@@ -32,7 +32,6 @@ export const Landing: React.FC = () => {
   const [activeItem, setActiveItem] = React.useState<string>(SidebarMenuItems.home.label);
   const [{ userInfo }] = useApp();
   const navigate = useNavigate();
-  const contentFrame = React.useRef();
 
   /* keep active item in sync with url */
   React.useEffect(() => {
