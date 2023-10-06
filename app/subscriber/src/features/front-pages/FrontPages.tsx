@@ -9,7 +9,7 @@ export const FrontPages = () => {
   const [frontPages, setFrontPages] = React.useState<IContentModel[]>([]);
   const [srcUrls, setSrcUrls] = React.useState<any[]>([]);
   const [, { getFrontPages, stream }] = useContent();
-  const [navigateAndScroll] = useNavigateAndScroll();
+  const navigateAndScroll = useNavigateAndScroll();
 
   React.useEffect(() => {
     getFrontPages().then((data) => {
@@ -39,7 +39,7 @@ export const FrontPages = () => {
             alt={s.id}
             className="front-page"
             src={s.url}
-            onClick={() => navigateAndScroll.goTo(`/view/${s.id}`)}
+            onClick={() => navigateAndScroll(`/view/${s.id}`)}
           />
         ))}
       </Row>

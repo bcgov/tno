@@ -11,7 +11,7 @@ import { DetermineContentIcon, isWeekday } from './utils';
 export const Commentary: React.FC = () => {
   const [, { findContent }] = useContent();
   const [commentary, setCommentary] = React.useState<IContentModel[]>([]);
-  const [navigateAndScroll] = useNavigateAndScroll();
+  const navigateAndScroll = useNavigateAndScroll();
 
   /** determine how far back to grab commentary */
   const determineCommentaryTime = () => {
@@ -46,7 +46,7 @@ export const Commentary: React.FC = () => {
             <Row key={x.id} className="content-row">
               <Sentiment value={x.tonePools?.length ? x.tonePools[0].value : 0} />
               <DetermineContentIcon contentType={x.contentType} />
-              <div className="headline" onClick={() => navigateAndScroll.goTo(`/view/${x.id}`)}>
+              <div className="headline" onClick={() => navigateAndScroll(`/view/${x.id}`)}>
                 {x.headline}
               </div>
             </Row>
