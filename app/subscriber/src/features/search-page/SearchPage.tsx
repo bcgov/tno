@@ -19,6 +19,7 @@ import {
   fromQueryString,
   generateQuery,
   IContentModel,
+  Loading,
   Row,
   Show,
   Text,
@@ -40,6 +41,7 @@ export const SearchPage: React.FC = () => {
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
   const [searchName, setSearchName] = React.useState<string>('');
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const urlParams = new URLSearchParams(params.query);
 
@@ -116,9 +118,13 @@ export const SearchPage: React.FC = () => {
   const fetchResults = React.useCallback(
     async (filter: unknown) => {
       try {
+        setIsLoading(true);
         const res: any = await findContentWithElasticsearch(filter, false);
         setSearchItems(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
-      } catch {}
+      } catch {
+      } finally {
+        setIsLoading(false);
+      }
     },
     [findContentWithElasticsearch],
   );
@@ -231,6 +237,7 @@ export const SearchPage: React.FC = () => {
           </Col>
         </Show>
       </Row>
+      {isLoading && <Loading />}
     </styled.SearchPage>
   );
 };
