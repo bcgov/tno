@@ -29,9 +29,9 @@ export const useReports = (): [IReportController] => {
         return response.data;
       },
       findMyReports: async () => {
-        const response = await dispatch<IReportModel[]>('find-my-folders', () =>
-          api.findMyReports(),
-        );
+        const response = await dispatch<IReportModel[]>('find-my-reports', async () => {
+          return api.findMyReports();
+        });
         return response.data;
       },
       getPublicReports: async () => {

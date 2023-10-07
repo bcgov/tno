@@ -1,6 +1,6 @@
 import { Form, Formik, FormikConfig, FormikValues } from 'formik';
 import { useApp } from 'store/hooks';
-import { Loader, SpinnerVariant } from 'tno-core';
+import { Container, SpinnerVariant } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -44,14 +44,11 @@ export const FormikForm = <Values extends FormikValues = FormikValues>({
 
   return (
     <styled.FormikForm>
-      <Loader
-        size={load.size}
-        variant={load.variant}
-        visible={typeof loading === 'function' ? requests.some(loading) : loading}
-      />
-      <Formik enableReinitialize={enableReinitialize} {...rest}>
-        {(props) => <Form>{typeof children === 'function' ? children(props) : children}</Form>}
-      </Formik>
+      <Container isLoading={typeof loading === 'function' ? requests.some(loading) : loading}>
+        <Formik enableReinitialize={enableReinitialize} {...rest}>
+          {(props) => <Form>{typeof children === 'function' ? children(props) : children}</Form>}
+        </Formik>
+      </Container>
     </styled.FormikForm>
   );
 };

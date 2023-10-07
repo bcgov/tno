@@ -29,7 +29,7 @@ export const useColumns = ({ onCancel }: IColumnsProps): ITableHookColumn<IWorkO
       cell: (cell) => (
         <CellEllipsis>
           <Link
-            to={`/contents/${cell.original.configuration.contentId}`}
+            to={`/contents/${cell.original.contentId}`}
             target={options?.open === NavigateOptions.OnPage ? '_self' : '_blank'}
           >
             {cell.original.configuration.headline}

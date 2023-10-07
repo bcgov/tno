@@ -40,9 +40,6 @@ export const ReportAdmin = styled.div`
     }
   }
 
-  .report-layout {
-  }
-
   .report-sections {
     /* overflow-y: scroll; */
     margin-top: 1rem;

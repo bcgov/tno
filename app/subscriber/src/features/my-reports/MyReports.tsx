@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useReports } from 'store/hooks';
+import { useAppStore } from 'store/slices';
 import { Col, FlexboxTable, IReportModel, Modal, Row, useModal } from 'tno-core';
 
 import { reportProductColumns } from './constants';
@@ -12,6 +13,7 @@ import { isAutoSend } from './utils';
 export const MyReport: React.FC = () => {
   const [{ getPublicReports, findMyReports, deleteReport, updateReport }] = useReports();
   const { toggle, isShowing } = useModal();
+  const [{ requests }] = useAppStore();
 
   const [myReports, setMyReports] = React.useState<IReportModel[]>([]);
   const [allReports, setAllReports] = React.useState<IReportModel[]>([]);
@@ -72,6 +74,7 @@ export const MyReport: React.FC = () => {
           rowId={'id'}
           data={myReports}
           showActive={false}
+          isLoading={requests.some((r) => r.url.includes('find-my-reports'))}
         />
         <Col className="info">
           <Row>Media Monitoring products</Row>
@@ -86,6 +89,7 @@ export const MyReport: React.FC = () => {
           rowId={'id'}
           data={allReports}
           showActive={false}
+          isLoading={requests.some((r) => r.url.includes('get-public-reports'))}
         />
       </Col>
       <Modal
