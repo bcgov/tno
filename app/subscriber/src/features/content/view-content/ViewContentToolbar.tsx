@@ -1,4 +1,3 @@
-import { Tags } from 'components/form/tags';
 import React from 'react';
 import {
   FaFileAlt,
@@ -96,7 +95,6 @@ export const ViewContentToolbar: React.FC<IViewContentToolbarProps> = ({ tags, c
             />
           </div>
         </Row>
-        <Tags contentTags={tags} />
       </Row>
       <Row className="hrz-line" />
     </styled.ViewContentToolbar>
