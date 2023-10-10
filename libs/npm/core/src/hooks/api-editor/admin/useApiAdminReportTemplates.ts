@@ -20,12 +20,10 @@ export const useApiAdminReportTemplates = (
 
   return React.useRef({
     findAllReportTemplates: () => {
-      return api.get<IReportTemplateModel[], AxiosResponse<IReportTemplateModel[]>, any>(
-        `/admin/report/templates`,
-      );
+      return api.get<never, AxiosResponse<IReportTemplateModel[]>, any>(`/admin/report/templates`);
     },
     getReportTemplate: (id: number) => {
-      return api.get<IReportTemplateModel, AxiosResponse<IReportTemplateModel>, any>(
+      return api.get<never, AxiosResponse<IReportTemplateModel>, any>(
         `/admin/report/templates/${id}`,
       );
     },

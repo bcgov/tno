@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -52,12 +53,11 @@ public class ConnectionController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ConnectionModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Connection" })]
     public IActionResult FindById(int id)
     {
-        var result = _serviceConnection.FindById(id);
-        if (result == null) return new NoContentResult();
+        var result = _serviceConnection.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new ConnectionModel(result, _serializerOptions));
     }
     #endregion

@@ -1,7 +1,7 @@
 {
   "name": "tno-core",
   "description": "TNO shared library",
-  "version": "0.0.339",
+  "version": "0.0.340",
   "homepage": "https://github.com/bcgov/tno",
   "license": "Apache-2.0",
   "files": [
@@ -19,6 +19,7 @@
     "yarn": ">=3.2.0 <4.0.0"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^8.10.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@headlessui/react": "^1.7.13",
@@ -33,6 +34,7 @@
     "moment-timezone": "^0.5.41",
     "rc-slider": "^10.2.1",
     "react": "^18.2.0",
+    "react-beautiful-dnd": "^13.1.1",
     "react-datepicker": "^4.10.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.10.1",
@@ -56,6 +58,7 @@
     "@types/node": "^18.15.3",
     "@types/pretty": "^2.0.1",
     "@types/react": "^18.0.28",
+    "@types/react-beautiful-dnd": "^13.1.5",
     "@types/react-datepicker": "^4.10.0",
     "@types/react-dom": "^18.0.11",
     "@types/react-router-dom": "^5.3.3",

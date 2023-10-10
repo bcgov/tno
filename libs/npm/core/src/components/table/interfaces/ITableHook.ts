@@ -8,7 +8,7 @@ import {
 } from '.';
 
 export interface ITableHook<T extends object> {
-  rowId: keyof T;
+  rowId: keyof T | ((data?: T) => string);
   data: T[];
   columns: ITableHookColumn<T>[];
   options: ITableHookOptions<T>;

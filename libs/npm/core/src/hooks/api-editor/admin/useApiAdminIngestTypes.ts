@@ -21,19 +21,15 @@ export const useApiAdminIngestTypes = (
 
   return React.useRef({
     findAllIngestTypes: () => {
-      return api.get<IIngestTypeModel[], AxiosResponse<IIngestTypeModel[]>, any>(
-        `/admin/ingest/types/all`,
-      );
+      return api.get<never, AxiosResponse<IIngestTypeModel[]>, any>(`/admin/ingest/types/all`);
     },
     findIngestTypes: (filter: IIngestTypeFilter) => {
-      return api.get<IPaged<IIngestTypeModel>, AxiosResponse<IPaged<IIngestTypeModel>>, any>(
+      return api.get<never, AxiosResponse<IPaged<IIngestTypeModel>>, any>(
         `/admin/ingest/types?${toQueryString(filter)}`,
       );
     },
     getIngestType: (id: number) => {
-      return api.get<IIngestTypeModel, AxiosResponse<IIngestTypeModel>, any>(
-        `/admin/ingest/types/${id}`,
-      );
+      return api.get<never, AxiosResponse<IIngestTypeModel>, any>(`/admin/ingest/types/${id}`);
     },
     addIngestType: (model: IIngestTypeModel) => {
       return api.post<IIngestTypeModel, AxiosResponse<IIngestTypeModel>, any>(

@@ -78,6 +78,22 @@ public class FolderController : ControllerBase
     }
 
     /// <summary>
+    /// Get folder content for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/content")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<FolderContentModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Folder" })]
+    public IActionResult GetContent(int id)
+    {
+        var result = _folderService.GetContentInFolder(id) ?? throw new NoContentException();
+        return new JsonResult(result.Select(f => new FolderContentModel(f)));
+    }
+
+    /// <summary>
     /// Add folder for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>

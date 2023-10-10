@@ -20,14 +20,10 @@ export const useApiAdminConnections = (
 
   return React.useRef({
     findAllConnections: () => {
-      return api.get<IConnectionModel[], AxiosResponse<IConnectionModel[]>, any>(
-        `/admin/connections`,
-      );
+      return api.get<never, AxiosResponse<IConnectionModel[]>, any>(`/admin/connections`);
     },
     getConnection: (id: number) => {
-      return api.get<IConnectionModel, AxiosResponse<IConnectionModel>, any>(
-        `/admin/connections/${id}`,
-      );
+      return api.get<never, AxiosResponse<IConnectionModel>, any>(`/admin/connections/${id}`);
     },
     addConnection: (model: IConnectionModel) => {
       return api.post<IConnectionModel, AxiosResponse<IConnectionModel>, any>(

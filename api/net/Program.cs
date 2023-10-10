@@ -30,7 +30,6 @@ using TNO.DAL;
 using TNO.Kafka;
 using TNO.Keycloak;
 using TNO.TemplateEngine;
-using TNO.TemplateEngine.Config;
 
 DotNetEnv.Env.Load();
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");

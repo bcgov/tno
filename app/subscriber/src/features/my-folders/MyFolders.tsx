@@ -33,11 +33,14 @@ export const MyFolders = () => {
       addFolder({
         name: newFolderName,
         description: '',
-        settings: {},
+        settings: {
+          keepAgeLimit: 0,
+        },
         isEnabled: true,
         sortOrder: 0,
         id: 0,
         content: [],
+        reports: [],
       }).then((data) => {
         toast.success(`${data.name} created successfully`);
         setNewFolderName('');

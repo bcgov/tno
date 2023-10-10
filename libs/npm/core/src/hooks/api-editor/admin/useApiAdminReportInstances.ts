@@ -20,7 +20,7 @@ export const useApiAdminReportInstances = (
 
   return React.useRef({
     getReportInstance: (id: number) => {
-      return api.get<IReportInstanceModel, AxiosResponse<IReportInstanceModel>, any>(
+      return api.get<never, AxiosResponse<IReportInstanceModel>, any>(
         `/admin/report/instances/${id}`,
       );
     },

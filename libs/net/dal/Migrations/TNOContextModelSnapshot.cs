@@ -2030,6 +2030,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("description")
                         .HasDefaultValueSql("''");
 
+                    b.Property<int?>("FilterId")
+                        .HasColumnType("integer")
+                        .HasColumnName("filter_id");
+
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
@@ -2043,6 +2047,10 @@ namespace TNO.DAL.Migrations
                     b.Property<int?>("OwnerId")
                         .HasColumnType("integer")
                         .HasColumnName("owner_id");
+
+                    b.Property<int?>("ScheduleId")
+                        .HasColumnType("integer")
+                        .HasColumnName("schedule_id");
 
                     b.Property<JsonDocument>("Settings")
                         .IsRequired()
@@ -2077,6 +2085,10 @@ namespace TNO.DAL.Migrations
                         .HasDefaultValueSql("0");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FilterId");
+
+                    b.HasIndex("ScheduleId");
 
                     b.HasIndex("OwnerId", "Name")
                         .IsUnique();
@@ -5428,12 +5440,26 @@ namespace TNO.DAL.Migrations
 
             modelBuilder.Entity("TNO.Entities.Folder", b =>
                 {
+                    b.HasOne("TNO.Entities.Filter", "Filter")
+                        .WithMany("Folders")
+                        .HasForeignKey("FilterId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("TNO.Entities.User", "Owner")
                         .WithMany("Folders")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade);
 
+                    b.HasOne("TNO.Entities.Schedule", "Schedule")
+                        .WithMany("Folders")
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Filter");
+
                     b.Navigation("Owner");
+
+                    b.Navigation("Schedule");
                 });
 
             modelBuilder.Entity("TNO.Entities.FolderContent", b =>
@@ -6015,6 +6041,8 @@ namespace TNO.DAL.Migrations
 
             modelBuilder.Entity("TNO.Entities.Filter", b =>
                 {
+                    b.Navigation("Folders");
+
                     b.Navigation("ReportSections");
                 });
 
@@ -6111,6 +6139,8 @@ namespace TNO.DAL.Migrations
             modelBuilder.Entity("TNO.Entities.Schedule", b =>
                 {
                     b.Navigation("Events");
+
+                    b.Navigation("Folders");
 
                     b.Navigation("IngestsManyToMany");
                 });

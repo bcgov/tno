@@ -6,6 +6,7 @@ export * from './connections';
 export * from './contributors';
 export * from './data-locations';
 export * from './filters';
+export * from './folders';
 export * from './ingest-types';
 export * from './ingests';
 export * from './licenses';

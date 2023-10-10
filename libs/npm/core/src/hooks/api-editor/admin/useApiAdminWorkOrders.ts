@@ -21,14 +21,12 @@ export const useApiAdminWorkOrders = (
 
   return React.useRef({
     findWorkOrders: (filter: IWorkOrderFilter) => {
-      return api.get<IPaged<IWorkOrderModel>, AxiosResponse<IPaged<IWorkOrderModel>>, any>(
+      return api.get<never, AxiosResponse<IPaged<IWorkOrderModel>>, any>(
         `/admin/work/orders?${toQueryString(filter)}`,
       );
     },
     getWorkOrder: (id: number) => {
-      return api.get<IWorkOrderModel, AxiosResponse<IWorkOrderModel>, any>(
-        `/admin/work/orders/${id}`,
-      );
+      return api.get<never, AxiosResponse<IWorkOrderModel>, any>(`/admin/work/orders/${id}`);
     },
     addWorkOrder: (model: IWorkOrderModel) => {
       return api.post<IWorkOrderModel, AxiosResponse<IWorkOrderModel>, any>(

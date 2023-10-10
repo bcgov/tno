@@ -37,6 +37,11 @@ public class Filter : BaseType<int>
     /// get - List of report sections that use this filter.
     /// </summary>
     public virtual List<ReportSection> ReportSections { get; } = new List<ReportSection>();
+
+    /// <summary>
+    /// get - Collection of folders using this filter.
+    /// </summary>
+    public virtual List<Folder> Folders { get; set; } = new List<Folder>();
     #endregion
 
     #region Constructors

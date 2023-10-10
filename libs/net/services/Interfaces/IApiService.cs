@@ -1,5 +1,4 @@
 using System.Net.Http.Headers;
-using TNO.Entities;
 
 namespace TNO.Services;
 
@@ -372,5 +371,29 @@ public interface IApiService
     /// <param name="model"></param>
     /// <returns></returns>
     Task<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?> UpdateAVOverviewInstanceAsync(API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel model);
+    #endregion
+
+    #region Folders
+    /// <summary>
+    /// Removes the specified content from all folders.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    Task<HttpResponseMessage> RemoveContentFromFoldersAsync(long contentId);
+
+    /// <summary>
+    /// Get all folders with enabled filters
+    /// </summary>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.Folder.FolderModel>?> GetFoldersWithFiltersAsync();
+
+    /// <summary>
+    /// Add the specified content to the specified folder.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="folderId"></param>
+    /// <param name="toBottom"></param>
+    /// <returns></returns>
+    Task<HttpResponseMessage> AddContentToFolderAsync(long contentId, int folderId, bool toBottom = true);
     #endregion
 }

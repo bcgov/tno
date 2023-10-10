@@ -1,5 +1,6 @@
 using System.Text.Json;
 using TNO.API.Models;
+using TNO.API.Models.Settings;
 
 namespace TNO.API.Areas.Admin.Models.Folder;
 
@@ -21,9 +22,29 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
     public UserModel? Owner { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to a filter to apply to the folder.
+    /// </summary>
+    public int? FilterId { get; set; }
+
+    /// <summary>
+    /// get/set - The filter that populates this folder.
+    /// </summary>
+    public FilterModel? Filter { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to a schedule to clean this folder.
+    /// </summary>
+    public int? ScheduleId { get; set; }
+
+    /// <summary>
+    /// get/set - A schedule to clean this folder.
+    /// </summary>
+    public ScheduleModel? Schedule { get; set; }
+
+    /// <summary>
     /// get/set - The folder settings.
     /// </summary>
-    public Dictionary<string, object> Settings { get; set; } = new Dictionary<string, object>();
+    public FolderSettingsModel Settings { get; set; } = new();
 
     /// <summary>
     /// get/set - An array of content in this folder.
@@ -46,7 +67,11 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
     {
         this.OwnerId = entity.OwnerId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
-        this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
+        this.ScheduleId = entity.ScheduleId;
+        this.Schedule = entity.Schedule != null ? new ScheduleModel(entity.Schedule) : null;
+        this.FilterId = entity.FilterId;
+        this.Filter = entity.Filter != null ? new FilterModel(entity.Filter, options) : null;
+        this.Settings = JsonSerializer.Deserialize<FolderSettingsModel>(entity.Settings, options) ?? new();
         this.Content = entity.ContentManyToMany.Select(c => new FolderContentModel(c));
     }
     #endregion
@@ -60,6 +85,7 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
     {
         var entity = (Entities.Folder)this;
         entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
+        entity.Filter = this.Filter?.ToEntity(options);
         return entity;
     }
 
@@ -75,6 +101,10 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             OwnerId = model.OwnerId,
+            FilterId = model.FilterId,
+            Filter = model.Filter != null ? (Entities.Filter)model.Filter : null,
+            ScheduleId = model.ScheduleId,
+            Schedule = model.Schedule != null ? (Entities.Schedule)model.Schedule : null,
             SortOrder = model.SortOrder,
             Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
             Version = model.Version ?? 0

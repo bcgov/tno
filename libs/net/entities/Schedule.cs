@@ -113,6 +113,11 @@ public class Schedule : AuditColumns
     /// get - Collection of events using this schedule.
     /// </summary>
     public virtual List<EventSchedule> Events { get; set; } = new List<EventSchedule>();
+
+    /// <summary>
+    /// get - Collection of folders using this schedule.
+    /// </summary>
+    public virtual List<Folder> Folders { get; set; } = new List<Folder>();
     #endregion
 
     #region Constructors

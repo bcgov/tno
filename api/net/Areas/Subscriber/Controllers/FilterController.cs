@@ -4,7 +4,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
-using TNO.API.Areas.Admin.Models.Filter;
+using TNO.API.Areas.Subscriber.Models.Filter;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
@@ -141,7 +141,7 @@ public class FilterController : ControllerBase
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
         var filter = _filterService.FindById(model.Id) ?? throw new NoContentException("Filter does not exist");
         if (filter.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to delete filter");
-         _filterService.DeleteAndSave(filter);
+        _filterService.DeleteAndSave(filter);
         return new JsonResult(model);
     }
     #endregion

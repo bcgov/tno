@@ -20,10 +20,10 @@ export const useApiAdminLicenses = (
 
   return React.useRef({
     findAllLicenses: () => {
-      return api.get<ILicenseModel[], AxiosResponse<ILicenseModel[]>, any>(`/admin/licences`);
+      return api.get<never, AxiosResponse<ILicenseModel[]>, any>(`/admin/licences`);
     },
     getLicense: (id: number) => {
-      return api.get<ILicenseModel, AxiosResponse<ILicenseModel>, any>(`/admin/licences/${id}`);
+      return api.get<never, AxiosResponse<ILicenseModel>, any>(`/admin/licences/${id}`);
     },
     addLicense: (model: ILicenseModel) => {
       return api.post<ILicenseModel, AxiosResponse<ILicenseModel>, any>(`/admin/licences`, model);

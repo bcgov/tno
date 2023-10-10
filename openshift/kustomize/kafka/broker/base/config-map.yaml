@@ -29,4 +29,9 @@ data:
   KAFKA_JVM_PERFORMANCE_OPTS: "-server -XX:MetaspaceSize=96m  -XX:G1HeapRegionSize=16M -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+ExplicitGCInvokesConcurrent -Djava.awt.headless=true"
   KAFKA_NUM_PARTITIONS: "6"
   KAFKA_DEFAULT_REPLICATION_FACTOR: "3"
+  KAFKA_TOOLS_LOG4J_LOGLEVEL: WARN
+  KAFKA_LOG4J_LOGGERS: >-
+    org.apache.zookeeper=ERROR,org.apache.kafka=ERROR,kafka=ERROR,kafka.cluster=ERROR,kafka.controller=ERROR,kafka.coordinator=ERROR,kafka.log=ERROR,kafka.server=ERROR,kafka.zookeeper=ERROR,state.change.logger=ERROR
+  KAFKA_LOG4J_ROOT_LEVEL: WARN
+
   #KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081

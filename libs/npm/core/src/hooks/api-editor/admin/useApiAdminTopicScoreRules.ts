@@ -20,12 +20,12 @@ export const useApiAdminTopicScoreRules = (
 
   return React.useRef({
     findAllTopicScoreRules: () => {
-      return api.get<ITopicScoreRuleModel[], AxiosResponse<ITopicScoreRuleModel[]>, any>(
+      return api.get<never, AxiosResponse<ITopicScoreRuleModel[]>, any>(
         `/admin/topics/scores/rules/all`,
       );
     },
     getTopicScoreRule: (id: number) => {
-      return api.get<ITopicScoreRuleModel, AxiosResponse<ITopicScoreRuleModel>, any>(
+      return api.get<never, AxiosResponse<ITopicScoreRuleModel>, any>(
         `/admin/topics/scores/rules/${id}`,
       );
     },

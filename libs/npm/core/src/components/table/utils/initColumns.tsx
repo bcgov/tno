@@ -30,7 +30,7 @@ export const initColumns = <T extends object>(
         (cell: ITableInternalCell<T>) => {
           return (
             <Checkbox
-              name={`select-${cell.original[table.rowId]}`}
+              name={`select-${table._rowId(cell.original)}`}
               checked={cell.row.isSelected}
               onChange={(e) => {
                 table.onSelectedChanged(cell.row, e);

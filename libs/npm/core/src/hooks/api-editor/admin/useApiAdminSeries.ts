@@ -22,15 +22,15 @@ export const useApiAdminSeries = (
 
   return React.useRef({
     findAllSeries: () => {
-      return api.get<ISeriesModel[], AxiosResponse<ISeriesModel[]>, any>(`/admin/series/all`);
+      return api.get<never, AxiosResponse<ISeriesModel[]>, any>(`/admin/series/all`);
     },
     findSeries: (filter: ITagFilter) => {
-      return api.get<IPaged<ISeriesModel>, AxiosResponse<IPaged<ISeriesModel>>, any>(
+      return api.get<never, AxiosResponse<IPaged<ISeriesModel>>, any>(
         `/admin/Series?${toQueryString(filter)}`,
       );
     },
     getSeries: (id: number) => {
-      return api.get<ISeriesModel, AxiosResponse<ISeriesModel>, any>(`/admin/series/${id}`);
+      return api.get<never, AxiosResponse<ISeriesModel>, any>(`/admin/series/${id}`);
     },
     addSeries: (model: ISeriesModel) => {
       return api.post<ISeriesModel, AxiosResponse<ISeriesModel>, any>(`/admin/series`, model);
