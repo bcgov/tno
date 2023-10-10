@@ -179,7 +179,7 @@ public class ContentService : BaseService<Content, long>, IContentService
     {
         var productQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
         var today = DateTime.Today.ToUniversalTime();
-        productQueries.Add(q => q.Raw(@"{""match"": {""productId"": 11}}"));
+        productQueries.Add(q => q.Raw(@"{""match"": {""productId"": 10}}"));
         var response = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(s =>
        {
            var result = s
