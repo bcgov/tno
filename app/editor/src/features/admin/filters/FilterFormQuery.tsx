@@ -152,27 +152,31 @@ export const FilterFormQuery: React.FC = () => {
           </Col>
         </Row>
         <Row>
-          <label>Search for Keywords in: Headline</label>
+          <label>Search for Keywords in: </label>
           <Checkbox
+            id="chk_inHeadline"
             checked={values.settings.inHeadline ?? false}
             onChange={(e) => {
               updateQuery('inHeadline', e.target.checked);
             }}
           />
-          <label>Byline</label>
+          <label htmlFor="chk_inHeadline">Headline </label>
           <Checkbox
+            id="chk_inByline"
             checked={values.settings.inByline ?? false}
             onChange={(e) => {
               updateQuery('inByline', e.target.checked);
             }}
           />
-          <label>Story text</label>
+          <label htmlFor="chk_inByline">Byline </label>
           <Checkbox
+            id="chk_inStory"
             checked={values.settings.inStory ?? false}
             onChange={(e) => {
               updateQuery('inStory', e.target.checked);
             }}
           />
+          <label htmlFor="chk_inStory">Story text </label>
         </Row>
         <Row nowrap>
           <Col>
