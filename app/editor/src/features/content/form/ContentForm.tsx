@@ -703,7 +703,12 @@ const ContentForm: React.FC<IContentFormProps> = ({
                   <Show visible={contentType === ContentTypeName.PrintContent}>
                     <ContentStoryForm contentType={contentType} />
                   </Show>
-                  <Show visible={contentType === ContentTypeName.AudioVideo}>
+                  <Show
+                    visible={
+                      contentType === ContentTypeName.AudioVideo ||
+                      contentType === ContentTypeName.Image
+                    }
+                  >
                     <Upload
                       className="media"
                       contentType={contentType}
