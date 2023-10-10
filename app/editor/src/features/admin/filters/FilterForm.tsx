@@ -67,12 +67,25 @@ const FilterForm: React.FC<IFilterFormProps> = () => {
 
   return (
     <styled.FilterForm>
-      <IconButton
-        iconType="back"
-        label="Back to filters"
-        className="back-button"
-        onClick={() => navigate('/admin/filters')}
-      />
+      <Row justifyContent="space-between" className="form-inputs-header">
+        <IconButton
+          iconType="back"
+          label="Back to filters"
+          className="back-button"
+          onClick={() => navigate('/admin/filters')}
+        />
+        <Show visible={filter?.id > 0}>
+          <IconButton
+            iconType="plus"
+            label={`Add new filter`}
+            className="add-new-button"
+            onClick={() => {
+              setFilter({ ...defaultFilter, id: 0 }); // Do this to stop double fetch.
+              navigate(`/admin/filters/0`);
+            }}
+          />
+        </Show>
+      </Row>
       <FormikForm
         initialValues={filter}
         onSubmit={(values, { setSubmitting }) => {

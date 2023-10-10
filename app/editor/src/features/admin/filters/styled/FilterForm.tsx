@@ -5,10 +5,6 @@ export const FilterForm = styled(FormPage)`
   display: flex;
   flex-direction: column;
 
-  .back-button {
-    align-self: start;
-  }
-
   .code {
     .editor {
       padding: 0.375rem 0.75rem;
