@@ -16,6 +16,7 @@ import {
   IFilterModel,
   IFilterSettingsModel,
   Row,
+  Show,
 } from 'tno-core';
 
 import { exportFilter, parseExportedFilter } from './utils';
@@ -64,24 +65,26 @@ export const FilterFormImportExport: React.FC = () => {
           >
             Import Filter
           </Button>
-          <Button
-            variant={ButtonVariant.secondary}
-            onClick={() => {
-              var exportedFilter = exportFilter(
-                values.name,
-                values.description,
-                values.settings,
-                actions,
-                contributors,
-                series,
-                sources,
-                products,
-              );
-              setRawFilter(JSON.stringify(exportedFilter));
-            }}
-          >
-            Export Filter
-          </Button>
+          <Show visible={values?.id > 0}>
+            <Button
+              variant={ButtonVariant.secondary}
+              onClick={() => {
+                var exportedFilter = exportFilter(
+                  values.name,
+                  values.description,
+                  values.settings,
+                  actions,
+                  contributors,
+                  series,
+                  sources,
+                  products,
+                );
+                setRawFilter(JSON.stringify(exportedFilter));
+              }}
+            >
+              Export Filter
+            </Button>
+          </Show>
         </Row>
       </Col>
       <Col className="code frm-importexportfilter">
