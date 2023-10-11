@@ -2,7 +2,7 @@ import { Status } from 'components/status';
 import { ContentNavigation } from 'features/content/form';
 import { IContentForm } from 'features/content/form/interfaces';
 import { getStatusText } from 'features/content/list-view/utils';
-import { Col, Row, ToolBarSection } from 'tno-core';
+import { Col, Row, Show, ToolBarSection } from 'tno-core';
 
 export interface IStatusSectionProps {
   /** Form values. */
@@ -37,6 +37,11 @@ export const StatusSection: React.FC<IStatusSectionProps> = ({
             {getStatusText(values.status)}
             <Status value={values.status} />
           </Row>
+          <Show visible={values.id !== 0}>
+            <Row justifyContent="center" className="white-bg">
+              <span>ID: {values.id}</span>
+            </Row>
+          </Show>
         </Col>
       </ToolBarSection>
     </Col>
