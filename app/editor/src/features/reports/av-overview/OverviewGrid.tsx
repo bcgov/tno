@@ -43,7 +43,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
    */
   const shouldFetch = React.useMemo(() => {
     return !values.sections[index].startTime.includes('_') && !!values.sections[index].startTime;
-  }, [values.sections[index].startTime]);
+  }, [index, values.sections]);
 
   /** fetch pieces of content that are related to the series to display as options for associated clips, search for clips published after the start time if it is specified - otherwise filter based on that day.*/
   React.useEffect(() => {
