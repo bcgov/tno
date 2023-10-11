@@ -2,8 +2,7 @@ import { Sentiment } from 'components/sentiment';
 import { makeFilter } from 'features/home/utils';
 import moment from 'moment';
 import React from 'react';
-import { useNavigate } from 'react-router';
-import { useContent } from 'store/hooks';
+import { useContent, useNavigateAndScroll } from 'store/hooks';
 import { ActionName, IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';
@@ -12,7 +11,7 @@ import { DetermineContentIcon, isWeekday } from './utils';
 export const Commentary: React.FC = () => {
   const [, { findContent }] = useContent();
   const [commentary, setCommentary] = React.useState<IContentModel[]>([]);
-  const navigate = useNavigate();
+  const navigateAndScroll = useNavigateAndScroll();
 
   /** determine how far back to grab commentary */
   const determineCommentaryTime = () => {
@@ -47,7 +46,7 @@ export const Commentary: React.FC = () => {
             <Row key={x.id} className="content-row">
               <Sentiment value={x.tonePools?.length ? x.tonePools[0].value : 0} />
               <DetermineContentIcon contentType={x.contentType} />
-              <div className="headline" onClick={() => navigate(`/view/${x.id}`)}>
+              <div className="headline" onClick={() => navigateAndScroll(`/view/${x.id}`)}>
                 {x.headline}
               </div>
             </Row>

@@ -2,7 +2,8 @@ import { FormikForm } from 'components/formik';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useReports } from 'store/hooks';
-import { Col, Row } from 'tno-core';
+import { useAppStore } from 'store/slices';
+import { Col, Container, Row } from 'tno-core';
 
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
@@ -11,9 +12,12 @@ import { ReportSnapshotEdit } from './ReportSnapshotEdit';
 import { ReportSnapshotView } from './ReportSnapshotView';
 import * as styled from './styled';
 
+const loading = ['generate-report', 'update-report', 'delete-report'];
+
 export const ReportSnapshot: React.FC = () => {
   const { id } = useParams();
   const [{ generateReport, updateReport }] = useReports();
+  const [{ requests }] = useAppStore();
 
   const [report, setReport] = React.useState<IReportForm>(defaultReport);
 
@@ -47,6 +51,7 @@ export const ReportSnapshot: React.FC = () => {
   return (
     <styled.ReportSnapshot>
       <FormikForm
+        loading={false}
         initialValues={report}
         onSubmit={async (values, { setSubmitting }) => {
           await handleSubmit(values);
@@ -56,7 +61,9 @@ export const ReportSnapshot: React.FC = () => {
         {({ isSubmitting, values }) => (
           <Row gap="1rem">
             <Col className="edit">
-              <ReportSnapshotEdit />
+              <Container isLoading={requests.some((r) => loading.includes(r.url))}>
+                <ReportSnapshotEdit />
+              </Container>
             </Col>
             <Col className="preview">
               <ReportSnapshotView />

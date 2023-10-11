@@ -227,7 +227,8 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (filter.ContentTypes.Any())
             filterQueries.Add(s => s.Terms(t => t.Field(f => f.ContentType).Terms(filter.ContentTypes.Select(ct => ct.GetName()))));
 
-        filterQueries.Add(s => s.Bool(b => b.Should(contentQueries)));
+        if (contentQueries.Count > 0)
+            filterQueries.Add(s => s.Bool(b => b.Should(contentQueries)));
 
         var actionQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
         foreach (var action in filter.Actions)
@@ -249,7 +250,13 @@ public class ContentService : BaseService<Content, long>, IContentService
             filterQueries.Add(s => s.Bool(b => b.Should(actionQueries)));
 
         if (!string.IsNullOrWhiteSpace(filter.Headline))
-            filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Headline).Value($"*{filter.Headline.ToLower()}*")));
+        {
+            filterQueries.Add(s =>
+               filter.Headline.Contains(' ') ?
+               s.MatchPhrase(m => m.Field(p => p.Headline).Query($"*{filter.Headline.ToLower()}*")) :
+               s.Wildcard(m => m.Field(p => p.Headline).Value($"*{filter.Headline.ToLower()}*"))
+            );
+        }
 
         if (!string.IsNullOrWhiteSpace(filter.Keyword))
             filterQueries.Add(s => s.MultiMatch(m => m

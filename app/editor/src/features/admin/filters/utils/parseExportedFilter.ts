@@ -22,6 +22,9 @@ export const parseExportedFilter = (
   if ('description' in value) {
     importedModel = { ...importedModel, description: value.description };
   }
+  if ('isEnabled' in value) {
+    importedModel = { ...importedModel, isEnabled: value.isEnabled };
+  }
   var importedSettings = {};
   if ('size' in value.settings) {
     importedSettings = { ...importedSettings, size: value.settings.size ?? 10 };
