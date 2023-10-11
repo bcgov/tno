@@ -38,28 +38,36 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
   const items = values.sections[index].items;
   const startTime = values.sections[index]?.startTime?.split(':');
 
+  /** flag to keep track of when new complete start time is entered and trigger another search
+   * for relevant clips
+   */
+  const shouldFetch = React.useMemo(() => {
+    return !values.sections[index].startTime.includes('_') && !!values.sections[index].startTime;
+  }, [index, values.sections]);
+
   /** fetch pieces of content that are related to the series to display as options for associated clips, search for clips published after the start time if it is specified - otherwise filter based on that day.*/
   React.useEffect(() => {
-    findContent({
-      seriesId: values.sections[index].seriesId,
-      publishedStartOn: !!values.sections[index].startTime
-        ? moment()
-            .utcOffset(0)
-            .set({
-              hour: Number(startTime[0]),
-              minute: Number(startTime[1]),
-              second: Number(startTime[2]),
-              millisecond: 0,
-            })
-            .toISOString()
-        : moment().startOf('day').toISOString(),
-      contentTypes: [],
-    }).then((data) =>
-      setClips(data.items.map((c) => new OptionItem(c.headline, c.id)) as IOptionItem[]),
-    );
-    // only want to fire once
+    if (shouldFetch) {
+      findContent({
+        seriesId: values.sections[index].seriesId,
+        publishedStartOn: !!values.sections[index].startTime
+          ? moment()
+              .set({
+                hour: Number(startTime[0]),
+                minute: Number(startTime[1]),
+                second: Number(startTime[2]),
+                millisecond: 0,
+              })
+              .toISOString()
+          : moment().startOf('day').toISOString(),
+        contentTypes: [],
+      }).then((data) =>
+        setClips(data.items.map((c) => new OptionItem(c.headline, c.id)) as IOptionItem[]),
+      );
+    }
+    // only want to fire on init, and when start time is changed
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [shouldFetch]);
 
   /** function that runs after a user drops an item in the list */
   const handleDrop = (droppedItem: any) => {
