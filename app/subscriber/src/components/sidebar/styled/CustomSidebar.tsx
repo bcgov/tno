@@ -30,7 +30,7 @@ export const CustomSidebar = styled(Sidebar)`
         return props.theme.css.testBackgroundColor;
       else return props.theme.css.productionBackgroundColor;
     }};
-    padding: 0.65rem;
+    padding: 0.5rem;
   }
 
   .ps-sidebar-root {
@@ -67,6 +67,10 @@ export const CustomSidebar = styled(Sidebar)`
       padding-left: 6px !important;
       padding-right: 6px !important;
     }
+    @media (max-height: 770px) {
+      /* important tag needed as we are fighting the library */
+      height: 40px !important;
+    }
     /* again need to override defaults */
     &:hover {
       background-color: ${(props) => props.theme.css.selectedMenuItemColor} !important;
@@ -74,7 +78,7 @@ export const CustomSidebar = styled(Sidebar)`
   }
   .ps-menuitem-root {
     color: white;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
   }
 
   .ps-menuitem-root:not(.selected) {
