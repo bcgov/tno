@@ -1,8 +1,10 @@
 import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { determineColumns } from 'features/home/constants';
+import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
 import { FlexboxTable, IContentModel, IFilterModel, ITableInternalRow, Row } from 'tno-core';
 
@@ -11,57 +13,82 @@ import * as styled from './styled';
 
 /** Component that displays front pages defaulting to today's date and adjustable via a date filter. */
 export const TodaysFrontPages: React.FC = () => {
-  const [, { findContentWithElasticsearch }] = useContent();
+  const [{ filterAdvanced }, { findContentWithElasticsearch }] = useContent();
   const navigate = useNavigate();
   const [frontpages, setFrontPages] = React.useState<IContentModel[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [{ settings }] = useLookup();
-  const [frontpageFilterId, setFrontpageFilterId] = React.useState('');
   const [, { getFilter }] = useFilters();
-
   const [filter, setFilter] = React.useState<IFilterModel>(defaultFilter);
-  const [results, setResults] = React.useState<any>([]);
+  // const [firstLoad, setFirstLoad] = React.useState<boolean>(false);
 
   const fetchResults = React.useCallback(
-    async (filter: unknown) => {
+    async (filter: IFilterModel) => {
       try {
-        const res: unknown = await findContentWithElasticsearch(filter, false);
-        setResults(res);
+        const res: any = await findContentWithElasticsearch(filter, false);
+        const mappedResults = res.hits?.hits?.map((h: { _source: IContentModel }) => {
+          const content = h._source;
+          return {
+            id: content.id,
+            headline: content.headline,
+            section: content.section,
+            tonePools: content.tonePools,
+            otherSource: content.otherSource,
+            source: content.source,
+            page: content.page,
+          };
+        });
+        setFrontPages(mappedResults);
       } catch {}
     },
     [findContentWithElasticsearch],
   );
 
   React.useEffect(() => {
-    const id = settings.find((s) => s.name === 'FrontpageFilter')?.value;
-    if (id) setFrontpageFilterId(id);
-  }, [settings]);
-
-  React.useEffect(() => {
-    if (!!frontpageFilterId && filter?.id !== parseInt(frontpageFilterId)) {
-      const id = parseInt(frontpageFilterId);
-      setFilter({ ...defaultFilter, id }); // Do this to stop double fetch.
-      getFilter(id).then((data) => {
-        fetchResults(data.query);
-      });
+    if (!!filter.query.query) {
+      const calendarStartDate = moment(filterAdvanced.startDate).toISOString();
+      const filterStartDate = filter.query.query.bool.must[0].range.publishedOn.gte;
+      if (calendarStartDate !== filterStartDate) {
+        const range = {
+          range: {
+            publishedOn: {
+              gte: moment(filterAdvanced.startDate).toISOString(),
+              lte: moment(filterAdvanced.endDate).toISOString(),
+            },
+          },
+        };
+        const newFilter = { ...filter };
+        newFilter.query.query.bool.must[0] = range;
+        setFilter(newFilter);
+        fetchResults(newFilter.query);
+      }
     }
-  }, [frontpageFilterId, filter?.id, getFilter, filter.query, fetchResults]);
+  }, [fetchResults, filter, filterAdvanced]);
 
   React.useEffect(() => {
-    const mappedResults = results.hits?.hits?.map((h: { _source: IContentModel }) => {
-      const content = h._source;
-      return {
-        id: content.id,
-        headline: content.headline,
-        section: content.section,
-        tonePools: content.tonePools,
-        otherSource: content.otherSource,
-        source: content.source,
-        page: content.page,
-      };
-    });
-    setFrontPages(mappedResults);
-  }, [results]);
+    const range = {
+      range: {
+        publishedOn: {
+          gte: moment(filterAdvanced.startDate).toISOString(),
+          lte: moment(filterAdvanced.endDate).toISOString(),
+        },
+      },
+    };
+    const filterId = settings.find((s) => s.name === 'FrontpageFilter')?.value;
+    if (filterId) {
+      const id: number = parseInt(filterId);
+      if (filter?.id !== id) {
+        setFilter({ ...defaultFilter, id }); // Do this to stop double fetch.
+        getFilter(id).then((data) => {
+          data.query.query.bool.must[0] = range;
+          setFilter(data);
+          fetchResults(data.query);
+        });
+      }
+    } else {
+      toast.error('FrontpageFilter setting needs to be configured.');
+    }
+  }, [fetchResults, filter?.id, getFilter, settings, filterAdvanced, filter]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
