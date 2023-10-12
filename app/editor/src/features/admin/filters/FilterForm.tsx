@@ -48,9 +48,11 @@ export const FilterForm: React.FC<IFilterFormProps> = () => {
   React.useEffect(() => {
     if (!!filterId && filter?.id !== filterId) {
       setFilter({ ...defaultFilter, id: filterId }); // Do this to stop double fetch.
-      getFilter(filterId).then((data) => {
-        setFilter(data);
-      });
+      getFilter(filterId)
+        .then((data) => {
+          setFilter(data);
+        })
+        .catch(() => {});
     }
   }, [getFilter, filter?.id, filterId]);
 

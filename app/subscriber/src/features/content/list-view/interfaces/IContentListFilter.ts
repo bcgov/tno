@@ -23,7 +23,7 @@ export interface IContentListFilter {
   searchTerm?: string;
   topStory?: boolean;
   userId?: number | '';
-  useUnpublished?: boolean;
+  useUnpublished?: boolean; // TODO: Rename 'searchUnpublished' to be consistent with filter settings.
   inHeadline?: boolean;
   inByline?: boolean;
   inStory?: boolean;
