@@ -20,7 +20,6 @@ export const TodaysFrontPages: React.FC = () => {
   const [{ settings }] = useLookup();
   const [, { getFilter }] = useFilters();
   const [filter, setFilter] = React.useState<IFilterModel>(defaultFilter);
-  // const [firstLoad, setFirstLoad] = React.useState<boolean>(false);
 
   const fetchResults = React.useCallback(
     async (filter: IFilterModel) => {
