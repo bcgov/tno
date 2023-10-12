@@ -66,6 +66,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               saveToLocalStorage('licenses', results.licenses, store.storeLicenses);
               saveToLocalStorage('series', results.series, store.storeSeries);
               saveToLocalStorage('tags', results.tags, store.storeTags);
+              saveToLocalStorage('settings', results.settings, store.storeSettings);
               saveToLocalStorage('tone_pools', results.tonePools, store.storeTonePools);
               return results;
             } else {
