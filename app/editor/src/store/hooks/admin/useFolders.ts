@@ -1,11 +1,12 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
-import { IFolderModel, useApiAdminFolders } from 'tno-core';
+import { IFolderContentModel, IFolderModel, useApiAdminFolders } from 'tno-core';
 
 interface IFolderController {
   findAllFolders: () => Promise<IFolderModel[]>;
   getFolder: (id: number) => Promise<IFolderModel>;
+  getContentInFolder: (id: number) => Promise<IFolderContentModel[]>;
   addFolder: (model: IFolderModel) => Promise<IFolderModel>;
   updateFolder: (model: IFolderModel) => Promise<IFolderModel>;
   deleteFolder: (model: IFolderModel) => Promise<IFolderModel>;
@@ -35,6 +36,12 @@ export const useFolders = (): [IAdminState & { initialized: boolean }, IFolderCo
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
+        );
+        return response.data;
+      },
+      getContentInFolder: async (id: number) => {
+        const response = await dispatch<IFolderContentModel[]>('get-folder-content', () =>
+          api.getContentInFolder(id),
         );
         return response.data;
       },

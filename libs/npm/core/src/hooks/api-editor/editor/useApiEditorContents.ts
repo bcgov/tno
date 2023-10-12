@@ -1,3 +1,4 @@
+import { KnnSearchResponse, MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
@@ -36,9 +37,14 @@ export const useApiEditorContents = (
         `/editor/contents?${toQueryString(params)}`,
       );
     },
-    findContentWithElasticsearch: (filter: unknown, includeUnpublishedContent: boolean = false) => {
-      return api.post<unknown, AxiosResponse<unknown>, any>(
-        `/editor/contents/search${includeUnpublishedContent ? `?includeUnpublishedContent=${includeUnpublishedContent}` : ''}`,
+    findContentWithElasticsearch: (
+      filter: MsearchMultisearchBody,
+      includeUnpublishedContent: boolean = false,
+    ) => {
+      return api.post<MsearchMultisearchBody, AxiosResponse<KnnSearchResponse>, any>(
+        `/editor/contents/search${
+          includeUnpublishedContent ? `?includeUnpublishedContent=${includeUnpublishedContent}` : ''
+        }`,
         filter,
       );
     },

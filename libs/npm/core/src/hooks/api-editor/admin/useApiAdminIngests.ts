@@ -20,15 +20,13 @@ export const useApiAdminIngests = (
 
   return React.useRef({
     findAllIngests: () => {
-      return api.get<IIngestModel[], AxiosResponse<IIngestModel[]>, any>(`/admin/ingests`);
+      return api.get<never, AxiosResponse<IIngestModel[]>, any>(`/admin/ingests`);
     },
     findIngests: () => {
-      return api.get<IPaged<IIngestModel>, AxiosResponse<IPaged<IIngestModel>>, any>(
-        `/admin/ingests/find`,
-      );
+      return api.get<never, AxiosResponse<IPaged<IIngestModel>>, any>(`/admin/ingests/find`);
     },
     getIngest: (id: number) => {
-      return api.get<IIngestModel, AxiosResponse<IIngestModel>, any>(`/admin/ingests/${id}`);
+      return api.get<never, AxiosResponse<IIngestModel>, any>(`/admin/ingests/${id}`);
     },
     addIngest: (model: IIngestModel) => {
       return api.post<IIngestModel, AxiosResponse<IIngestModel>, any>(`/admin/ingests`, model);

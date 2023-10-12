@@ -1,3 +1,4 @@
+import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
@@ -12,7 +13,7 @@ import { useAjaxWrapper } from '..';
 interface IContentController {
   findContent: (filter: IContentFilter) => Promise<IPaged<IContentModel>>;
   findContentWithElasticsearch: (
-    filter: unknown,
+    filter: MsearchMultisearchBody,
     includeUnpublishedContent: boolean,
   ) => Promise<unknown>;
   getContent: (id: number) => Promise<IContentModel | undefined>;
@@ -35,7 +36,10 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         actions.storeContent(response.data);
         return response.data;
       },
-      findContentWithElasticsearch: async (filter: unknown, includeUnpublishedContent: boolean) => {
+      findContentWithElasticsearch: async (
+        filter: MsearchMultisearchBody,
+        includeUnpublishedContent: boolean,
+      ) => {
         const response = await dispatch('find-contents-with-elasticsearch', () =>
           api.findContentWithElasticsearch(filter, includeUnpublishedContent),
         );

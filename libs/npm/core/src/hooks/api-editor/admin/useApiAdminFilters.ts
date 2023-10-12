@@ -20,10 +20,10 @@ export const useApiAdminFilters = (
 
   return React.useRef({
     findAllFilters: () => {
-      return api.get<IFilterModel[], AxiosResponse<IFilterModel[]>, any>(`/admin/filters`);
+      return api.get<never, AxiosResponse<IFilterModel[]>, any>(`/admin/filters`);
     },
     getFilter: (id: number) => {
-      return api.get<IFilterModel, AxiosResponse<IFilterModel>, any>(`/admin/filters/${id}`);
+      return api.get<never, AxiosResponse<IFilterModel>, any>(`/admin/filters/${id}`);
     },
     addFilter: (model: IFilterModel) => {
       return api.post<IFilterModel, AxiosResponse<IFilterModel>, any>(`/admin/filters`, model);

@@ -243,7 +243,7 @@
       // Use IntelliSense to find out which attributes exist for C# debugging
       // Use hover for the description of the existing attributes
       // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-      "name": "Run Schduler Service",
+      "name": "Run Scheduler Service",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-scheduler",
@@ -255,6 +255,23 @@
       "console": "internalConsole",
       "stopAtEntry": false,
       "envFile": "${workspaceFolder}/scheduler/.env"
+    },
+    {
+      // Use IntelliSense to find out which attributes exist for C# debugging
+      // Use hover for the description of the existing attributes
+      // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
+      "name": "Run Folder Collection Service",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-folder-collection",
+      // If you have changed target frameworks, make sure to update the program path.
+      "program": "${workspaceFolder}/folder-collection/bin/Debug/net7.0/TNO.Services.FolderCollection.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/folder-collection",
+      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "envFile": "${workspaceFolder}/folder-collection/.env"
     },
     {
       "name": ".NET Core Attach",

@@ -29,11 +29,14 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
         await addFolder({
           name: folderName,
           description: '',
-          settings: {},
+          settings: {
+            keepAgeLimit: 0,
+          },
           isEnabled: true,
           sortOrder: 0,
           id: 0,
           content: content,
+          reports: [],
         });
 
         toast.success(`${folderName} created and ${content.length} stories added to folder.`);
@@ -49,7 +52,9 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
         try {
           await updateFolder({
             ...folder,
-            content: getDistinct([...folder.content, ...content], (item) => item.contentId),
+            content: getDistinct([...folder.content, ...content], (item) => item.contentId).map(
+              (c, index) => ({ ...c, sortOrder: index }),
+            ),
           });
 
           toast.success(`${content.length} stories added to folder`);

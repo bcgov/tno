@@ -8,6 +8,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.WorkOrder;
 using TNO.API.Models;
 using TNO.API.Models.SignalR;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Kafka;
 using TNO.Kafka.SignalR;
@@ -63,14 +64,11 @@ public class WorkOrderController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public IActionResult FindById(long id)
     {
-        var result = _service.FindById(id);
-        if (result == null)
-            return NoContent();
-
+        var result = _service.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new WorkOrderModel(result, _serializerOptions));
     }
 
@@ -82,12 +80,11 @@ public class WorkOrderController : ControllerBase
     [HttpPut("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public async Task<IActionResult> Update(WorkOrderModel workOrder)
     {
-        var entity = _service.FindById(workOrder.Id);
-        if (entity == null) throw new InvalidOperationException("Work order does not exist");
+        var entity = _service.FindById(workOrder.Id) ?? throw new NoContentException();
 
         var result = _service.UpdateAndSave(workOrder.CopyTo(entity, _serializerOptions));
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.WorkOrder, new[] { new WorkOrderMessageModel(result, _serializerOptions) })));

@@ -20,14 +20,10 @@ export const useApiAdminNotifications = (
 
   return React.useRef({
     findAllNotifications: () => {
-      return api.get<INotificationModel[], AxiosResponse<INotificationModel[]>, any>(
-        `/admin/notifications`,
-      );
+      return api.get<never, AxiosResponse<INotificationModel[]>, any>(`/admin/notifications`);
     },
     getNotification: (id: number) => {
-      return api.get<INotificationModel, AxiosResponse<INotificationModel>, any>(
-        `/admin/notifications/${id}`,
-      );
+      return api.get<never, AxiosResponse<INotificationModel>, any>(`/admin/notifications/${id}`);
     },
     addNotification: (model: INotificationModel) => {
       return api.post<INotificationModel, AxiosResponse<INotificationModel>, any>(

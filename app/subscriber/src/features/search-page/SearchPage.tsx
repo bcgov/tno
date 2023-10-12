@@ -1,3 +1,4 @@
+import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { SearchWithLogout } from 'components/search-with-logout';
 import { Sentiment } from 'components/sentiment';
@@ -116,7 +117,7 @@ export const SearchPage: React.FC = () => {
   );
 
   const fetchResults = React.useCallback(
-    async (filter: unknown) => {
+    async (filter: MsearchMultisearchBody) => {
       try {
         setIsLoading(true);
         const res: any = await findContentWithElasticsearch(filter, false);
@@ -138,6 +139,8 @@ export const SearchPage: React.FC = () => {
       sortOrder: 0,
       description: '',
       isEnabled: true,
+      reports: [],
+      folders: [],
     });
     toast.success(`${data.name} has successfully been saved.`);
   }, [advancedSubscriberFilter, searchName, addFilter]);

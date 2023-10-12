@@ -745,5 +745,41 @@ public class ApiService : IApiService
         return await RetryRequestAsync(async () => await this.Client.PutAsync<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?>(url, JsonContent.Create(model)));
     }
     #endregion
+
+    #region Folders
+    /// <summary>
+    /// Removes the specified content from all folders.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    public async Task<HttpResponseMessage> RemoveContentFromFoldersAsync(long contentId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/folders/content/{contentId}");
+        return await RetryRequestAsync(async () => await this.Client.DeleteAsync(url));
+    }
+
+    /// <summary>
+    /// Get all folders with enabled filters
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.Folder.FolderModel>?> GetFoldersWithFiltersAsync()
+    {
+        var url = this.Options.ApiUrl.Append($"services/folders/with-filters");
+        return await RetryRequestAsync(async () => await this.Client.GetAsync<IEnumerable<API.Areas.Services.Models.Folder.FolderModel>?>(url));
+    }
+
+    /// <summary>
+    /// Add the specified content to the specified folder.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="folderId"></param>
+    /// <param name="toBottom"></param>
+    /// <returns></returns>
+    public async Task<HttpResponseMessage> AddContentToFolderAsync(long contentId, int folderId, bool toBottom = true)
+    {
+        var url = this.Options.ApiUrl.Append($"services/folders/{folderId}/contents/{contentId}?bottom={toBottom}");
+        return await RetryRequestAsync(async () => await this.Client.PutAsync(url));
+    }
+    #endregion
     #endregion
 }

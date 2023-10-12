@@ -20,15 +20,15 @@ export const useApiAdminActions = (
 
   return React.useRef({
     findAllActions: () => {
-      return api.get<IActionModel[], AxiosResponse<IActionModel[]>, any>(`/admin/actions`);
+      return api.get<never, AxiosResponse<IActionModel[]>, any>(`/admin/actions`);
     },
     findActions: (filter: IActionFilter) => {
-      return api.get<IPaged<IActionModel>, AxiosResponse<IPaged<IActionModel>>, any>(
+      return api.get<never, AxiosResponse<IPaged<IActionModel>>, any>(
         `/admin/actions?${toQueryString(filter)}`,
       );
     },
     getAction: (id: number) => {
-      return api.get<IActionModel, AxiosResponse<IActionModel>, any>(`/admin/actions/${id}`);
+      return api.get<never, AxiosResponse<IActionModel>, any>(`/admin/actions/${id}`);
     },
     addAction: (model: IActionModel) => {
       return api.post<IActionModel, AxiosResponse<IActionModel>, any>(`/admin/actions`, model);

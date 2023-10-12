@@ -22,6 +22,28 @@ public class Folder : BaseType<int>
     public virtual User? Owner { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to a filter to apply to the folder.
+    /// </summary>
+    [Column("filter_id")]
+    public int? FilterId { get; set; }
+
+    /// <summary>
+    /// get/set - The filter that populates this folder.
+    /// </summary>
+    public Filter? Filter { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to a schedule to clean this folder.
+    /// </summary>
+    [Column("schedule_id")]
+    public int? ScheduleId { get; set; }
+
+    /// <summary>
+    /// get/set - A schedule to clean this folder.
+    /// </summary>
+    public Schedule? Schedule { get; set; }
+
+    /// <summary>
     /// get/set - The settings for this folder.
     /// </summary>
     [Column("settings")]

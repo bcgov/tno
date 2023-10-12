@@ -7,7 +7,8 @@ import { TableInternalCell } from './TableInternalCell';
 export class TableInternalRow<T extends object> implements ITableInternalRow<T> {
   table: ITableInternal<T>;
   index: number;
-  rowId: keyof T;
+  rowId: keyof T | ((data?: T) => string);
+  _rowId: (data?: T) => string;
   original: T;
   isSelected: boolean;
   isActive: boolean;
@@ -18,7 +19,7 @@ export class TableInternalRow<T extends object> implements ITableInternalRow<T> 
   constructor(
     table: ITableInternal<T>,
     index: number,
-    rowId: keyof T,
+    rowId: keyof T | ((data?: T) => string),
     columns: ITableInternalColumn<T>[],
     original: T,
     isSelected: boolean,
@@ -26,11 +27,12 @@ export class TableInternalRow<T extends object> implements ITableInternalRow<T> 
     this.table = table;
     this.index = index;
     this.rowId = rowId;
+    this._rowId = typeof rowId === 'function' ? rowId : (data?: T) => `${data?.[rowId]}`;
     this.original = original;
     this.isSelected = isSelected;
     this.isActive = table.activeRow
-      ? table.activeRow?.original?.[rowId] === original[rowId]
-      : table.activeRowId === `${original[rowId]}`;
+      ? this._rowId(table.activeRow?.original) === this._rowId(original)
+      : table.activeRowId === this._rowId(original);
     this.columns = columns;
     this.cells = columns.map(
       (col) =>

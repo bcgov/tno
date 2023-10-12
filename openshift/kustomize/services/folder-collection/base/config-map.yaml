@@ -1,0 +1,23 @@
+---
+# Configuration settings
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: folder-collection-service
+  namespace: default
+  annotations:
+    description: Folder content collection service configuration settings
+    created-by: jeremy.foster
+  labels:
+    name: folder-collection-service
+    part-of: tno
+    version: 1.0.0
+    component: folder-collection-service
+    managed-by: kustomize
+type: Opaque
+data:
+  KAFKA_CLIENT_ID: FolderCollection
+  MAX_FAIL_LIMIT: "5"
+  CHES_FROM: Media Monitoring Insights <mmi@gov.bc.ca>
+  CHES_EMAIL_ENABLED: "true"
+  CHES_EMAIL_AUTHORIZED: "true"

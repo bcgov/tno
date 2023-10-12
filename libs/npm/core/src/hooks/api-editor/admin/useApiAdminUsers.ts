@@ -21,12 +21,12 @@ export const useApiAdminUsers = (
 
   return React.useRef({
     findUsers: (filter: IUserFilter) => {
-      return api.get<IPaged<IUserModel>, AxiosResponse<IPaged<IUserModel>>, any>(
+      return api.get<never, AxiosResponse<IPaged<IUserModel>>, any>(
         `/admin/users?${toQueryString(filter)}`,
       );
     },
     getUser: (id: number) => {
-      return api.get<IUserModel, AxiosResponse<IUserModel>, any>(`/admin/users/${id}`);
+      return api.get<never, AxiosResponse<IUserModel>, any>(`/admin/users/${id}`);
     },
     addUser: (model: IUserModel) => {
       return api.post<IUserModel, AxiosResponse<IUserModel>, any>(`/admin/users`, model);

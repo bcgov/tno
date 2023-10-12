@@ -21,14 +21,12 @@ export const useApiAdminContentReferences = (
 
   return React.useRef({
     findContentReferences: (filter: IContentReferenceFilter) => {
-      return api.get<
-        IPaged<IContentReferenceModel>,
-        AxiosResponse<IPaged<IContentReferenceModel>>,
-        any
-      >(`/admin/content/references?${toQueryString(filter)}`);
+      return api.get<never, AxiosResponse<IPaged<IContentReferenceModel>>, any>(
+        `/admin/content/references?${toQueryString(filter)}`,
+      );
     },
     getContentReference: (source: string, uid: string) => {
-      return api.get<IContentReferenceModel, AxiosResponse<IContentReferenceModel>, any>(
+      return api.get<never, AxiosResponse<IContentReferenceModel>, any>(
         `/admin/content/references/${source}?uid={uid}`,
       );
     },

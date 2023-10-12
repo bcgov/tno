@@ -20,10 +20,10 @@ export const useApiAdminMinisters = (
 
   return React.useRef({
     findAllMinisters: () => {
-      return api.get<IMinisterModel[], AxiosResponse<IMinisterModel[]>, any>(`/admin/ministers`);
+      return api.get<never, AxiosResponse<IMinisterModel[]>, any>(`/admin/ministers`);
     },
     getMinister: (id: number) => {
-      return api.get<IMinisterModel, AxiosResponse<IMinisterModel>, any>(`/admin/ministers/${id}`);
+      return api.get<never, AxiosResponse<IMinisterModel>, any>(`/admin/ministers/${id}`);
     },
     addMinister: (model: IMinisterModel) => {
       return api.post<IMinisterModel, AxiosResponse<IMinisterModel>, any>(

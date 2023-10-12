@@ -5,6 +5,16 @@ export const FilterForm = styled(FormPage)`
   display: flex;
   flex-direction: column;
 
+  .form-actions {
+    margin-top: 1rem;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .back-button {
+    align-self: start;
+  }
+
   .code {
     .editor {
       padding: 0.375rem 0.75rem;

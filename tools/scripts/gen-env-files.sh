@@ -80,6 +80,7 @@ NLP_PORT=$portNlp
 FILECOPY_PORT=$portFileCopy
 NOTIFICATION_PORT=$portNotification
 REPORTING_PORT=$portReporting
+FOLDER_COLLECTION_PORT=$portFolderCollection
 
 #############################
 # Kafka Configuration
@@ -846,6 +847,31 @@ CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}" >> ./services/net/scheduler/.env
     echo "./services/net/scheduler/.env created"
+fi
+
+## Folder Collection Service
+if test -f "./services/net/folder-collection/.env"; then
+    echo "./services/net/folder-collection/.env exists"
+else
+echo \
+"# Local
+ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+###########################################
+# Local
+###########################################
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+
+# Elastic__Url=host.docker.internal:$portElastic
+ELASTIC_USERNAME=$elasticUser
+ELASTIC_PASSWORD=$password" >> ./services/net/folder-collection/.env
+    echo "./services/net/folder-collection/.env created"
 fi
 
 

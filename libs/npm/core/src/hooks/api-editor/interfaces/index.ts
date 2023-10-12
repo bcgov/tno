@@ -32,6 +32,7 @@ export * from './IDataLocationModel';
 export * from './IDirectoryModel';
 export * from './IEarnedMediaModel';
 export * from './IFileReferenceModel';
+export * from './IFilterActionSettingsModel';
 export * from './IFilterModel';
 export * from './IFilterSettingsModel';
 export * from './IFolderContentModel';

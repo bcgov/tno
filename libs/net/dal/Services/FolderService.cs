@@ -29,7 +29,13 @@ public class FolderService : BaseService<Folder, int>, IFolderService
     {
         return this.Context.Folders
             .Include(f => f.Owner)
+            .Include(f => f.Filter)
+            .Include(f => f.Schedule)
             .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content)
+            .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content).ThenInclude(c => c!.Source)
+            .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content).ThenInclude(c => c!.Product)
+            .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content).ThenInclude(c => c!.Series)
+            .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content).ThenInclude(c => c!.TonePools)
             .FirstOrDefault(f => f.Id == id);
     }
 
@@ -42,8 +48,46 @@ public class FolderService : BaseService<Folder, int>, IFolderService
             .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
 
+    public IEnumerable<FolderContent> GetContentInFolder(int folderId)
+    {
+        return this.Context.FolderContents
+            .Include(fc => fc.Content!.Source)
+            .Include(fc => fc.Content!.Product)
+            .Include(fc => fc.Content!.Series)
+            .Include(fc => fc.Content!.Contributor)
+            .Include(fc => fc.Content!.Owner)
+            .Include(fc => fc.Content!.License)
+            .Include(fc => fc.Content!.TonePools)
+            .Where(fc => fc.FolderId == folderId)
+            .OrderBy(fc => fc.SortOrder).ThenByDescending(fc => fc.Content!.PublishedOn)
+            .ToArray();
+    }
+
+    public override Folder Add(Folder entity)
+    {
+        if (entity.Schedule != null)
+            this.Context.Add(entity.Schedule);
+
+        return base.Add(entity);
+    }
+
     public override Folder Update(Folder entity)
     {
+        var original = this.Context.Folders.FirstOrDefault(f => f.Id == entity.Id) ?? throw new NoContentException();
+
+        original.Name = entity.Name;
+        original.Description = entity.Description;
+        original.SortOrder = entity.SortOrder;
+        original.IsEnabled = entity.IsEnabled;
+        original.FilterId = entity.FilterId;
+        original.ScheduleId = entity.ScheduleId;
+        original.Schedule = entity.Schedule;
+        original.OwnerId = entity.OwnerId;
+        original.Settings = entity.Settings;
+        original.UpdatedBy = entity.UpdatedBy;
+        original.UpdatedOn = entity.UpdatedOn;
+        original.Version = entity.Version;
+
         var originalContents = this.Context.FolderContents.Where(fc => fc.FolderId == entity.Id).ToArray();
         var removeContent = originalContents.Except(entity.ContentManyToMany).ToArray();
         var removeContentIds = removeContent.Select(c => c.ContentId).ToArray();
@@ -51,18 +95,31 @@ public class FolderService : BaseService<Folder, int>, IFolderService
         {
             this.Context.Entry(s).State = EntityState.Deleted;
         });
-        var addContent = new List<FolderContent>();
         entity.ContentManyToMany.ForEach(folderContent =>
         {
             var originalContent = originalContents.FirstOrDefault(rs => rs.ContentId == folderContent.ContentId);
             if (originalContent == null)
             {
                 this.Context.Add(folderContent);
-                addContent.Add(folderContent);
             }
             else
+            {
                 originalContent.SortOrder = folderContent.SortOrder;
+                this.Context.Update(originalContent);
+            }
         });
+
+        if (entity.Schedule != null)
+        {
+            if (entity.Schedule.Id == 0)
+            {
+                this.Context.Add(entity.Schedule);
+            }
+            else
+            {
+                this.Context.Update(entity.Schedule);
+            }
+        }
 
         // Update all report instances that have not been sent, and that reference this folder.
         var sections = this.Context.ReportSections
@@ -96,7 +153,57 @@ public class FolderService : BaseService<Folder, int>, IFolderService
             }
         }
 
-        return base.Update(entity);
+        return base.Update(original);
+    }
+
+    /// <summary>
+    /// Remove the specified content from all folders.
+    /// </summary>
+    /// <param name="contentId"></param>
+    public void RemoveContentFromFolders(long contentId)
+    {
+        this.Context.Database.ExecuteSql($"DELETE FROM public.folder_content WHERE content_id={contentId};");
+    }
+
+    /// <summary>
+    /// Get all folders that have enabled filters.
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable<Folder> GetFoldersWithFilters()
+    {
+        return this.Context.Folders
+            .Include(f => f.Filter)
+            .Include(f => f.Schedule)
+            .Where(f => f.FilterId != null && f.IsEnabled && f.Filter!.IsEnabled)
+            .ToArray();
+    }
+
+
+    /// <summary>
+    /// Add the specified content to the specified folder.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="folderId"></param>
+    /// <param name="toBottom"></param>
+    public void AddContentToFolder(long contentId, int folderId, bool toBottom = true)
+    {
+        var folderContent = this.Context.FolderContents.Where(fc => fc.FolderId == folderId).ToArray();
+        if (!folderContent.Any(c => c.ContentId == contentId))
+        {
+            var sortOrder = toBottom && folderContent.Length > 0 ? folderContent.Max(c => c.SortOrder) + 1 : 0;
+            this.Context.Add(new FolderContent(folderId, contentId, sortOrder));
+
+            // When content is added to the top everything needs to be moved down.
+            if (!toBottom)
+            {
+                foreach (var content in folderContent)
+                {
+                    content.SortOrder++;
+                }
+                this.Context.UpdateRange(folderContent);
+            }
+            this.CommitTransaction();
+        }
     }
     #endregion
 

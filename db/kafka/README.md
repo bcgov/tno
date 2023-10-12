@@ -102,11 +102,13 @@ sed -i 's/_YCpj6MpQjudzH8OPik9Pw/--lKOi1HSN2AiT6WP7pfRg/' DAILYHIVE-0/partition.
 Reconfigure all topics partitions.
 
 ```bash
-./scripts/partition.sh -p 9b301c-test -o kafka-broker-0
+cd db/kafka/scripts
+./partition.sh -p 9b301c-test -o kafka-broker-0
 ```
 
 Reconfigure all topic replications. First update `scripts/data/replicas.json`.
 
 ```bash
-./scripts/replicas.sh -p 9b301c-test -o kafka-broker-0
+cd db/kafka/scripts
+./replicas.sh -p 9b301c-test -o kafka-broker-0
 ```

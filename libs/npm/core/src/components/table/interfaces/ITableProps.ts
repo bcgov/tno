@@ -16,7 +16,7 @@ export interface ITableProps<T extends object>
     ITableHookGrouping<T>,
     ITableStyleProps {
   /** The primary key for the row */
-  rowId: keyof T;
+  rowId: keyof T | ((data?: T) => string);
   /** An array of data to display */
   data: T[];
   /** An array of columns to control the output */

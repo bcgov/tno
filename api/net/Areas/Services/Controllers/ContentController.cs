@@ -15,6 +15,7 @@ using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.API.Models.SignalR;
 using TNO.API.SignalR;
+using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
 using TNO.DAL.Models;
@@ -111,12 +112,11 @@ public class ContentController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult FindById(long id)
     {
-        var result = _contentService.FindById(id);
-        if (result == null) return new NoContentResult();
+        var result = _contentService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new ContentModel(result));
     }
 
@@ -129,12 +129,11 @@ public class ContentController : ControllerBase
     [HttpGet("find")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult FindByUid([FromQuery] string uid, [FromQuery] string? source)
     {
-        var result = _contentService.FindByUid(uid, source);
-        if (result == null) return new NoContentResult();
+        var result = _contentService.FindByUid(uid, source) ?? throw new NoContentException();
         return new JsonResult(new ContentModel(result));
     }
 

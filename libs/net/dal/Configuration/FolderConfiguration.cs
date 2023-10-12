@@ -10,9 +10,13 @@ public class FolderConfiguration : BaseTypeConfiguration<Folder, int>
     {
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Property(m => m.OwnerId);
+        builder.Property(m => m.ScheduleId);
+        builder.Property(m => m.FilterId);
         builder.Property(m => m.Settings).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
 
         builder.HasOne(m => m.Owner).WithMany(m => m.Folders).HasForeignKey(m => m.OwnerId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(m => m.Schedule).WithMany(m => m.Folders).HasForeignKey(m => m.ScheduleId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(m => m.Filter).WithMany(m => m.Folders).HasForeignKey(m => m.FilterId).OnDelete(DeleteBehavior.Cascade);
         builder.HasMany(m => m.Content).WithMany(m => m.Folders).UsingEntity<FolderContent>();
 
         builder.HasIndex(m => new { m.OwnerId, m.Name }).IsUnique();

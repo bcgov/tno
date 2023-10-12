@@ -22,15 +22,15 @@ export const useApiAdminTopics = (
 
   return React.useRef({
     findAllTopics: () => {
-      return api.get<ITopicModel[], AxiosResponse<ITopicModel[]>, any>(`/admin/topics/all`);
+      return api.get<never, AxiosResponse<ITopicModel[]>, any>(`/admin/topics/all`);
     },
     findTopics: (filter: ITopicFilter) => {
-      return api.get<IPaged<ITopicModel>, AxiosResponse<IPaged<ITopicModel>>, any>(
+      return api.get<never, AxiosResponse<IPaged<ITopicModel>>, any>(
         `/admin/topics?${toQueryString(filter)}`,
       );
     },
     getTopic: (id: number) => {
-      return api.get<ITopicModel, AxiosResponse<ITopicModel>, any>(`/admin/topics/${id}`);
+      return api.get<never, AxiosResponse<ITopicModel>, any>(`/admin/topics/${id}`);
     },
     addTopic: (model: ITopicModel) => {
       return api.post<ITopicModel, AxiosResponse<ITopicModel>, any>(`/admin/topics`, model);
