@@ -64,10 +64,12 @@ public class IngestController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
     public IActionResult FindById(int id)
     {
-        var result = _serviceIngest.FindById(id) ?? throw new NoContentException();
+        var result = _serviceIngest.FindById(id);
+        if (result == null) return NoContent();
         return new JsonResult(new IngestModel(result, _serializerOptions));
     }
 

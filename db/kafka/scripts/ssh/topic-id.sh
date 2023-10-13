@@ -17,8 +17,8 @@ if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
     exit 1
 fi
 
-OPTIONS=p:o:a:b:
-LONGOPTS=project:,pod:,partitions:,bootstrap:
+OPTIONS=ut:o:n:
+LONGOPTS=update,topic:,oldvalue:,newvalue:
 
 # -regarding ! and PIPESTATUS see above
 # -temporarily store output to be able to check for errors
@@ -33,25 +33,24 @@ fi
 # read getopt’s output this way to handle the quoting right:
 eval set -- "$PARSED"
 
-project=9b301c-dev pod=kafka-broker-0 partitions=6 bootstrap=kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092,kafka-broker-3.kafka-headless:9092
+update=false topic= oldvalue= newvalue=
 # now enjoy the options in order and nicely split until we see --
 while true; do
   case "$1" in
-    -p|--project)
-      # Remove objects from kafka
-      project="$2"
+    -u|--update)
+      update=true
+      shift
+      ;;
+    -t|--topic)
+      topic="$2"
       shift 2
       ;;
-    -o|--pod)
-      pod="$2"
+    -o|--oldvalue)
+      oldvalue="$2"
       shift 2
       ;;
-    -a|--partitions)
-      partitions="$2"
-      shift 2
-      ;;
-    -b|--bootstrap)
-      bootstrap="$2"
+    -n|--newvalue)
+      newvalue="$2"
       shift 2
       ;;
     --)
@@ -65,21 +64,46 @@ while true; do
   esac
 done
 
-if [ -z "$project" ]; then
-    echo "Enter the Openshift project name."
-    read -p 'Project name: ' project
+if [ -z "$topic" ]; then
+    echo "Enter the topic name."
+    read -p 'Topic name: ' topic
 fi
 
-if [ -z "$pod" ]; then
-    echo "Enter the Kafka broker pod name."
-    read -p 'Pod name: ' pod
+if [[ -z "$oldvalue" ]] && [[ $update == true ]]; then
+    echo "Enter the invalid topic ID."
+    read -p 'Topic ID: ' oldvalue
 fi
 
-echo "project: $project, pod: $pod, partitions: $partitions, bootstrap: $bootstrap"
+if [[ -z "$newvalue" ]] && [[ $update == true ]]; then
+    echo "Enter the valid topic ID."
+    read -p 'Topic ID: ' newvalue
+fi
+
+echo ----------------------------------------------------------------------------
+echo "topic: $topic, oldvalue: $oldvalue, newvalue: $newvalue"
+echo ----------------------------------------------------------------------------
+
+# Make variables available scripts.
+export topic
+export oldvalue
+export newvalue
 
 #################################################
 # Work
 #################################################
 
-# Update the partitions in all topics
-cat ./ssh/partitions.sh | oc rsh -n $project $pod bash -s - -p $partitions -b $bootstrap
+# Replace the topic id with the new value.
+cd /var/lib/kafka/data
+
+# Find all files for the specified topic.
+files=(${topic}-*)
+
+for file in "${files[@]}"; do
+  echo --------------------------------
+  echo Partition $file
+  cat $file/partition.metadata ; echo
+  if [[ $update == true ]]; then
+    echo Updating $file
+    sed -i "s/$oldvalue/$newvalue/" $file/partition.metadata
+  fi
+done

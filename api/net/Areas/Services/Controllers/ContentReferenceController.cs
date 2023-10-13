@@ -56,10 +56,12 @@ public class ContentReferenceController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ContentReferenceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "ContentReference" })]
     public IActionResult FindByKey(string source, [FromQuery] string uid)
     {
-        var reference = _service.FindByKey(source, uid) ?? throw new NoContentException();
+        var reference = _service.FindByKey(source, uid);
+        if (reference == null) return NoContent();
         return new JsonResult(new ContentReferenceModel(reference, _serializerOptions));
     }
 

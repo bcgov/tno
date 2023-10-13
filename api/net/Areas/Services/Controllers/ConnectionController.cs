@@ -54,10 +54,12 @@ public class ConnectionController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ConnectionModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Connection" })]
     public IActionResult FindById(int id)
     {
-        var result = _serviceConnection.FindById(id) ?? throw new NoContentException();
+        var result = _serviceConnection.FindById(id);
+        if (result == null) return NoContent();
         return new JsonResult(new ConnectionModel(result, _serializerOptions));
     }
     #endregion

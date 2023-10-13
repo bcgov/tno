@@ -68,10 +68,12 @@ public class EventScheduleController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(EventScheduleModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "EventSchedule" })]
     public IActionResult FindById(int id)
     {
-        var result = _serviceEventSchedule.FindById(id) ?? throw new NoContentException();
+        var result = _serviceEventSchedule.FindById(id);
+        if (result == null) return NoContent();
         return new JsonResult(new EventScheduleModel(result, _serializerOptions));
     }
 
