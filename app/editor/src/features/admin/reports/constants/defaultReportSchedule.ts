@@ -25,5 +25,9 @@ export const defaultReportSchedule = (
   dayOfMonth: 0,
 });
 
-export const generateScheduleName = (label: string, report?: IReportModel) =>
-  `${report?.name ?? 'Report'}-${report?.ownerId ?? 0}-${label}`;
+export const generateScheduleName = (label: string, report?: IReportModel) => {
+  let maxNameLength = 100;
+  let nameSuffix = `-${report?.ownerId ?? 0}-${label}`;
+  let namePrefix = `${report?.name ?? 'Report'}`.substring(0, maxNameLength - nameSuffix.length);
+  return `${namePrefix}${nameSuffix}`;
+};
