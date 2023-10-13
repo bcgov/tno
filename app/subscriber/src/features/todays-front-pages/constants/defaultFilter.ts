@@ -24,6 +24,8 @@ export const defaultFilter: IFilterModel = {
     contentTypes: [],
     tags: [],
     sentiment: [],
+    reports: [],
+    folders: [],
   },
   sortOrder: 0,
   isEnabled: true,
