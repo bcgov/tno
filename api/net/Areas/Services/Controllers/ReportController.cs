@@ -31,7 +31,6 @@ public class ReportController : ControllerBase
 {
     #region Variables
     private readonly IReportService _service;
-    private readonly ElasticOptions _elasticOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -40,12 +39,10 @@ public class ReportController : ControllerBase
     /// Creates a new instance of a ReportController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
-    /// <param name="elasticOptions"></param>
     /// <param name="serializerOptions"></param>
-    public ReportController(IReportService service, IOptions<ElasticOptions> elasticOptions, IOptions<JsonSerializerOptions> serializerOptions)
+    public ReportController(IReportService service, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _service = service;
-        _elasticOptions = elasticOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -73,10 +70,12 @@ public class ReportController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult FindById(int id)
     {
-        var result = _service.FindById(id) ?? throw new NoContentException();
+        var result = _service.FindById(id);
+        if (result == null) return NoContent();
         return new JsonResult(new ReportModel(result, _serializerOptions));
     }
 

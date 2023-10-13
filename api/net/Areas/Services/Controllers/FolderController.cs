@@ -57,10 +57,12 @@ public class FolderController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Folder" })]
     public IActionResult FindById(int id)
     {
-        var result = _folderService.FindById(id) ?? throw new NoContentException();
+        var result = _folderService.FindById(id);
+        if (result == null) return NoContent();
         return new JsonResult(new FolderModel(result, _serializerOptions));
     }
 

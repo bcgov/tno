@@ -279,9 +279,9 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 {
                     var oldValue = keyValue[0];
                     var newValue = keyValue[1];
-                    if (title?.Contains(oldValue) == true) title = title.Replace(oldValue, newValue);
-                    if (summary?.Contains(oldValue) == true) summary = summary.Replace(oldValue, newValue);
-                    if (body?.Contains(oldValue) == true) body = body.Replace(oldValue, newValue);
+                    if (title.Contains(oldValue) == true) title = title.Replace(oldValue, newValue);
+                    if (summary.Contains(oldValue) == true) summary = summary.Replace(oldValue, newValue);
+                    if (body.Contains(oldValue) == true) body = body.Replace(oldValue, newValue);
                 }
             }
         }

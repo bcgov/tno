@@ -50,10 +50,12 @@ public class UserController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "User" })]
     public IActionResult FindById(int id)
     {
-        var result = _service.FindById(id) ?? throw new NoContentException();
+        var result = _service.FindById(id);
+        if (result == null) return NoContent();
         return new JsonResult(new UserModel(result));
     }
     #endregion

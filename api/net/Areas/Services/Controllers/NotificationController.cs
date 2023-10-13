@@ -69,10 +69,12 @@ public class NotificationController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(NotificationModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
     public IActionResult FindById(int id)
     {
-        var result = _service.FindById(id) ?? throw new NoContentException();
+        var result = _service.FindById(id);
+        if (result == null) return NoContent();
         return new JsonResult(new NotificationModel(result, _serializerOptions));
     }
     #endregion

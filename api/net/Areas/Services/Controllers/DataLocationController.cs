@@ -54,10 +54,12 @@ public class DataLocationController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(DataLocationModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "DataLocation" })]
     public IActionResult FindById(int id)
     {
-        var result = _serviceDataLocation.FindById(id) ?? throw new NoContentException();
+        var result = _serviceDataLocation.FindById(id);
+        if (result == null) return NoContent();
         return new JsonResult(new DataLocationModel(result, _serializerOptions));
     }
 
@@ -69,10 +71,12 @@ public class DataLocationController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(DataLocationModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "DataLocation" })]
     public IActionResult FindByName(string name)
     {
-        var result = _serviceDataLocation.FindByName(name) ?? throw new NoContentException();
+        var result = _serviceDataLocation.FindByName(name);
+        if (result == null) return NoContent();
         return new JsonResult(new DataLocationModel(result, _serializerOptions));
     }
     #endregion

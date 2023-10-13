@@ -4,7 +4,6 @@ using System.Text.Json;
 using System.Web;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Tag;
@@ -14,8 +13,6 @@ using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.API.Models.SignalR;
-using TNO.API.SignalR;
-using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
 using TNO.DAL.Models;
@@ -113,10 +110,12 @@ public class ContentController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult FindById(long id)
     {
-        var result = _contentService.FindById(id) ?? throw new NoContentException();
+        var result = _contentService.FindById(id);
+        if (result == null) return NoContent();
         return new JsonResult(new ContentModel(result));
     }
 
@@ -130,10 +129,12 @@ public class ContentController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult FindByUid([FromQuery] string uid, [FromQuery] string? source)
     {
-        var result = _contentService.FindByUid(uid, source) ?? throw new NoContentException();
+        var result = _contentService.FindByUid(uid, source);
+        if (result == null) return NoContent();
         return new JsonResult(new ContentModel(result));
     }
 
@@ -323,7 +324,7 @@ public class ContentController : ControllerBase
     [HttpGet("{id}/download")]
     [Produces("application/octet-stream")]
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult DownloadFile(long id)
     {
@@ -345,7 +346,7 @@ public class ContentController : ControllerBase
     /// <returns></returns>
     [HttpGet("{id}/image")]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> GetImageFile(long id)
     {
@@ -435,7 +436,6 @@ public class ContentController : ControllerBase
     [HttpGet("{id}/notifications")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<NotificationInstanceModel>), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult GetNotificationsFor(long id)
     {

@@ -65,10 +65,12 @@ public class WorkOrderController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public IActionResult FindById(long id)
     {
-        var result = _service.FindById(id) ?? throw new NoContentException();
+        var result = _service.FindById(id);
+        if (result == null) return NoContent();
         return new JsonResult(new WorkOrderModel(result, _serializerOptions));
     }
 

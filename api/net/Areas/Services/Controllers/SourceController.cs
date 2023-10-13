@@ -54,10 +54,12 @@ public class SourceController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(SourceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Source" })]
     public IActionResult FindByCode(string code)
     {
-        var result = _serviceSource.FindByCode(code) ?? throw new NoContentException();
+        var result = _serviceSource.FindByCode(code);
+        if (result == null) return NoContent();
         return new JsonResult(new SourceModel(result, _serializerOptions));
     }
 

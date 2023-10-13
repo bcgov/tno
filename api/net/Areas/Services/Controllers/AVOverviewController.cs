@@ -62,10 +62,13 @@ public class AVOverviewController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(AVOverviewInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
     public IActionResult FindInstance(int id)
     {
-        var instance = _overviewInstanceService.FindById(id) ?? throw new NoContentException();
+        var instance = _overviewInstanceService.FindById(id);
+        if (instance == null) return NoContent();
+
         var template = _overviewTemplateInstanceService.FindById(instance.TemplateType);
         instance.Template = template;
         return new JsonResult(new AVOverviewInstanceModel(instance, _serializerOptions));
