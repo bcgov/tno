@@ -10,7 +10,7 @@ public class ScheduleConfiguration : AuditColumnsConfiguration<Schedule>
     {
         builder.HasKey(m => m.Id);
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
-        builder.Property(m => m.Name).IsRequired().HasMaxLength(50);
+        builder.Property(m => m.Name).IsRequired().HasMaxLength(100);
         builder.Property(m => m.Description).IsRequired().HasMaxLength(2000);
         builder.Property(m => m.IsEnabled).IsRequired();
         builder.Property(m => m.DelayMS);
