@@ -4,6 +4,7 @@ import 'prismjs/components/prism-cshtml';
 import 'prismjs/components/prism-json';
 
 import { useFormikContext } from 'formik';
+import moment from 'moment';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
@@ -40,6 +41,13 @@ export const FilterFormQuery: React.FC = () => {
   const [filter, setFilter] = React.useState(JSON.stringify(values.query, null, 2));
   const [actionOptions, setActionOptions] = React.useState(getActionOptions(actions));
   const [tagOptions, setTagOptions] = React.useState(getTagOptions(tags));
+
+  const startDate = values.settings.startDate
+    ? moment(values.settings.startDate).format('YYYY/MM/DD')
+    : '';
+  const endDate = values.settings.endDate
+    ? moment(values.settings.endDate).format('YYYY/MM/DD')
+    : '';
 
   React.useEffect(() => {
     setActionOptions(getActionOptions(actions));
@@ -175,24 +183,28 @@ export const FilterFormQuery: React.FC = () => {
             <FormikDatePicker
               name="settings.startDate"
               label="Start Date"
-              value={values.settings.startDate ?? ''}
-              width="13ch"
+              value={startDate}
+              selectedDate={startDate}
+              width="15ch"
               onChange={(value) => {
                 updateQuery('startDate', value);
               }}
               disabled={!!values.settings.dateOffset}
+              isClearable={true}
             />
           </Col>
           <Col>
             <FormikDatePicker
               name="settings.endDate"
               label="End Date"
-              value={values.settings.endDate ?? ''}
-              width="13ch"
+              value={endDate}
+              selectedDate={endDate}
+              width="15ch"
               onChange={(value) => {
                 updateQuery('endDate', value);
               }}
               disabled={!!values.settings.dateOffset}
+              isClearable={true}
             />
           </Col>
           <Row nowrap>

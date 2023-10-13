@@ -7,8 +7,13 @@ import { IFilterSettingsModel } from 'tno-core';
 
 export const filterFormat = (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
   const settings: IFilterSettingsModel = {
+    size: 0,
     startDate: filter.startDate ?? undefined,
-    endDate: !filter.endDate ? `${moment(filter.startDate).endOf('day')}` : filter.endDate,
+    endDate: filter.endDate
+      ? filter.endDate
+      : filter.startDate
+      ? `${moment(filter.startDate).endOf('day')}`
+      : undefined,
     searchUnpublished: filter.useUnpublished ?? false,
     inHeadline: filter.inHeadline ?? false,
     inByline: filter.inByline ?? false,
@@ -17,11 +22,10 @@ export const filterFormat = (filter: IContentListFilter & Partial<IContentListAd
     sourceIds: filter.sourceIds ?? [],
     productIds: filter.productIds ?? [],
     search: filter.searchTerm,
-    size: 0,
     seriesIds: [],
     contributorIds: [],
     actions: [],
-    contentTypes: [],
+    contentTypes: filter.contentTypes,
     tags: [],
   };
 
