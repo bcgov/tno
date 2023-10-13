@@ -1,3 +1,4 @@
+import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { determineColumns } from 'features/home/constants';
@@ -16,6 +17,7 @@ import {
 } from 'tno-core';
 
 import * as styled from './styled';
+import { createFilterSettings } from './utils';
 
 export const PressGallery: React.FC = () => {
   const navigate = useNavigate();
@@ -24,19 +26,12 @@ export const PressGallery: React.FC = () => {
   const [results, setResults] = React.useState<any>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
-  const defaultSettings = React.useMemo<IFilterSettingsModel>(() => {
-    return {
-      startDate: `${moment(filterAdvanced.startDate)}`,
-      endDate: `${moment(filterAdvanced.startDate).endOf('day')}`,
-      inByline: true,
-      inHeadline: true,
-      inStory: true,
-      searchUnpublished: false,
-      defaultOperator: 'or',
-    };
-  }, [filterAdvanced.startDate]);
-
-  const [pressSettings, setPressSettings] = React.useState<IFilterSettingsModel>(defaultSettings);
+  const [pressSettings, setPressSettings] = React.useState<IFilterSettingsModel>(
+    createFilterSettings(
+      `${moment(filterAdvanced.startDate)}`,
+      `${moment(filterAdvanced.startDate).endOf('day')}`,
+    ),
+  );
   const [pressQuery, setPressQuery] = React.useState<any>();
 
   /**
@@ -44,7 +39,7 @@ export const PressGallery: React.FC = () => {
    */
   const updateQuery = React.useCallback(
     (key: string, value: any) => {
-      var settings = defaultSettings;
+      var settings = { ...pressSettings };
       settings[key] = value;
       if (key === 'dateOffset') {
         settings = { ...settings, startDate: undefined, endDate: undefined };
@@ -55,13 +50,13 @@ export const PressGallery: React.FC = () => {
       setPressSettings(settings);
       setPressQuery(query);
     },
-    [pressQuery, defaultSettings],
+    [pressQuery, pressSettings],
   );
 
   React.useEffect(() => {}, [filterAdvanced.startDate]);
 
   const fetchResults = React.useCallback(
-    async (filter: unknown) => {
+    async (filter: MsearchMultisearchBody) => {
       try {
         const res: any = await findContentWithElasticsearch(filter, false);
         setResults(res.hits.hits.map((h: { _source: IContentModel }) => h._source));

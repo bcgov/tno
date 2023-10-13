@@ -20,10 +20,10 @@ export const useApiAdminProducts = (
 
   return React.useRef({
     findAllProducts: () => {
-      return api.get<IProductModel[], AxiosResponse<IProductModel[]>, any>(`/admin/products`);
+      return api.get<never, AxiosResponse<IProductModel[]>, any>(`/admin/products`);
     },
     getProduct: (id: number) => {
-      return api.get<IProductModel, AxiosResponse<IProductModel>, any>(`/admin/products/${id}`);
+      return api.get<never, AxiosResponse<IProductModel>, any>(`/admin/products/${id}`);
     },
     addProduct: (model: IProductModel) => {
       return api.post<IProductModel, AxiosResponse<IProductModel>, any>(`/admin/products`, model);

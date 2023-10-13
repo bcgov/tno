@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.AVOverview;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -60,12 +61,14 @@ public class AVOverviewController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(AVOverviewInstanceModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
     public IActionResult FindInstance(int id)
     {
         var instance = _overviewInstanceService.FindById(id);
-        if (instance == null) return new NoContentResult();
+        if (instance == null) return NoContent();
+
         var template = _overviewTemplateInstanceService.FindById(instance.TemplateType);
         instance.Template = template;
         return new JsonResult(new AVOverviewInstanceModel(instance, _serializerOptions));
@@ -84,7 +87,7 @@ public class AVOverviewController : ControllerBase
     public IActionResult Update(AVOverviewInstanceModel model)
     {
         var result = _overviewInstanceService.UpdateAndSave((Entities.AVOverviewInstance)model);
-        var instance = _overviewInstanceService.FindById(result.Id) ?? throw new InvalidOperationException("Overview Section does not exist");
+        var instance = _overviewInstanceService.FindById(result.Id) ?? throw new NoContentException("Overview Section does not exist");
         return new JsonResult(new AVOverviewInstanceModel(instance, _serializerOptions));
     }
     #endregion

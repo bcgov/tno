@@ -102,11 +102,31 @@ sed -i 's/_YCpj6MpQjudzH8OPik9Pw/--lKOi1HSN2AiT6WP7pfRg/' DAILYHIVE-0/partition.
 Reconfigure all topics partitions.
 
 ```bash
-./scripts/partition.sh -p 9b301c-test -o kafka-broker-0
+cd db/kafka/scripts
+./update-partitions.sh -p 9b301c-test -o kafka-broker-0
 ```
 
 Reconfigure all topic replications. First update `scripts/data/replicas.json`.
+Select the leader broker.
 
 ```bash
-./scripts/replicas.sh -p 9b301c-test -o kafka-broker-0
+cd db/kafka/scripts
+./update-replicas.sh -p 9b301c-test -o kafka-broker-0
+```
+
+Find the current topic ID from a node that is in sync.
+This makes a request for the active topic id for the specified topic.
+
+```bash
+oc rsh -n 9b301c-dev zookeeper-0
+zookeeper-shell localhost:2181 get /brokers/topics/TNO
+```
+
+Fix topic ids in all brokers.
+
+```bash
+cd db/kafka/scripts
+./fix-topic-id.sh -p 9b301c-test -t TNO -o KcKqT1giRLWIm9wN68pcXg -n eB2a_RPUQrCbEuMDUr8XVA -u
+
+# manually restart Kafka brokers, one at a time.
 ```

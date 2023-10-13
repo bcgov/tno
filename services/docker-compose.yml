@@ -461,3 +461,37 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+
+  folder-collection:
+    image: tno:folder-collection
+    profiles:
+      - all
+      - service
+    restart: "no"
+    container_name: tno-folder-collection
+    build:
+      context: ./
+      dockerfile: services/net/folder-collection/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
+    env_file:
+      - services/net/folder-collection/.env
+    ports:
+      - ${FOLDER_COLLECTION_PORT:-40033}:8081
+    depends_on:
+      - api
+      - broker
+    networks:
+      - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s

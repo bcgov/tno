@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.EventSchedule;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -66,12 +67,13 @@ public class EventScheduleController : ControllerBase
     [HttpGet("{id:int}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(EventScheduleModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "EventSchedule" })]
     public IActionResult FindById(int id)
     {
         var result = _serviceEventSchedule.FindById(id);
-        if (result == null) return new NoContentResult();
+        if (result == null) return NoContent();
         return new JsonResult(new EventScheduleModel(result, _serializerOptions));
     }
 
@@ -90,8 +92,7 @@ public class EventScheduleController : ControllerBase
     {
         _serviceEventSchedule.UpdateAndSave(model.ToEntity(_serializerOptions));
 
-        var result = _serviceEventSchedule.FindById(model.Id);
-        if (result == null) return new NoContentResult();
+        var result = _serviceEventSchedule.FindById(model.Id) ?? throw new NoContentException();
         return new JsonResult(new EventScheduleModel(result, _serializerOptions));
     }
     #endregion

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -54,12 +55,13 @@ public class ContentReferenceController : ControllerBase
     [HttpGet("{source}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ContentReferenceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "ContentReference" })]
     public IActionResult FindByKey(string source, [FromQuery] string uid)
     {
         var reference = _service.FindByKey(source, uid);
-        if (reference == null) return new NoContentResult();
+        if (reference == null) return NoContent();
         return new JsonResult(new ContentReferenceModel(reference, _serializerOptions));
     }
 
@@ -107,8 +109,7 @@ public class ContentReferenceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ContentReference" })]
     public IActionResult UpdateKafka(ContentReferenceModel model)
     {
-        var reference = _service.FindByKey(model.Source, model.Uid);
-        if (reference == null) return new NoContentResult();
+        var reference = _service.FindByKey(model.Source, model.Uid) ?? throw new NoContentException();
         reference.Offset = model.Offset;
         reference.Partition = model.Partition;
         var result = _service.UpdateAndSave(reference);

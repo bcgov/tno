@@ -17,8 +17,8 @@ if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
     exit 1
 fi
 
-OPTIONS=p:b:
-LONGOPTS=partitions:,bootstrap:
+OPTIONS=p:o:a:b:
+LONGOPTS=project:,pod:,partitions:,bootstrap:
 
 # -regarding ! and PIPESTATUS see above
 # -temporarily store output to be able to check for errors
@@ -33,11 +33,20 @@ fi
 # read getopt’s output this way to handle the quoting right:
 eval set -- "$PARSED"
 
-partitions=6 bootstrap=kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092,kafka-broker-3.kafka-headless:9092
+project=9b301c-dev pod=kafka-broker-0 partitions=6 bootstrap=kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092,kafka-broker-3.kafka-headless:9092
 # now enjoy the options in order and nicely split until we see --
 while true; do
   case "$1" in
-    -p|--partitions)
+    -p|--project)
+      # Remove objects from kafka
+      project="$2"
+      shift 2
+      ;;
+    -o|--pod)
+      pod="$2"
+      shift 2
+      ;;
+    -a|--partitions)
       partitions="$2"
       shift 2
       ;;
@@ -56,27 +65,21 @@ while true; do
   esac
 done
 
-if [ -z "$bootstrap" ]; then
-    echo "Enter the host and port to the bootstrap server."
-    read -p 'Host and Port: ' bootstrap
+if [ -z "$project" ]; then
+    echo "Enter the Openshift project name."
+    read -p 'Project name: ' project
 fi
 
-echo "partitions: $partitions, bootstrap: $bootstrap"
+if [ -z "$pod" ]; then
+    echo "Enter the Kafka broker pod name."
+    read -p 'Pod name: ' pod
+fi
+
+echo "project: $project, pod: $pod, partitions: $partitions, bootstrap: $bootstrap"
 
 #################################################
 # Work
 #################################################
 
-# BOOTSTRAP=kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092,kafka-broker-3.kafka-headless:9092
-# PARTITIONS=6
-
-# List topics
-TOPICS=( $(kafka-topics --bootstrap-server $bootstrap --list) )
-
-for TOPIC in "${TOPICS[@]}"
-do
-  if [[ $TOPIC != "__consumer_offsets" ]]; then
-    echo $TOPIC
-    kafka-topics --bootstrap-server $bootstrap --alter --topic $TOPIC --partitions $partitions
-  fi
-done
+# Update the partitions in all topics
+cat ./ssh/partitions.sh | oc rsh -n $project $pod bash -s - -p $partitions -b $bootstrap

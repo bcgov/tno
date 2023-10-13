@@ -20,15 +20,15 @@ export const useApiAdminReports = (
 
   return React.useRef({
     findAllReports: () => {
-      return api.get<IReportModel[], AxiosResponse<IReportModel[]>, any>(`/admin/reports`);
+      return api.get<never, AxiosResponse<IReportModel[]>, any>(`/admin/reports`);
     },
     findInstancesForReportId: (id: number, ownerId: number | undefined = undefined) => {
-      return api.get<IReportInstanceModel[], AxiosResponse<IReportInstanceModel[]>, any>(
+      return api.get<never, AxiosResponse<IReportInstanceModel[]>, any>(
         `/admin/reports/${id}/instances?ownerId=${ownerId ? ownerId : ''}`,
       );
     },
     getReport: (id: number) => {
-      return api.get<IReportModel, AxiosResponse<IReportModel>, any>(`/admin/reports/${id}`);
+      return api.get<never, AxiosResponse<IReportModel>, any>(`/admin/reports/${id}`);
     },
     addReport: (model: IReportModel) => {
       return api.post<IReportModel, AxiosResponse<IReportModel>, any>(`/admin/reports`, model);

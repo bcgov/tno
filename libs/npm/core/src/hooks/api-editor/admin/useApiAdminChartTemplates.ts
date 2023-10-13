@@ -20,12 +20,10 @@ export const useApiAdminChartTemplates = (
 
   return React.useRef({
     findAllChartTemplates: () => {
-      return api.get<IChartTemplateModel[], AxiosResponse<IChartTemplateModel[]>, any>(
-        `/admin/chart/templates`,
-      );
+      return api.get<never, AxiosResponse<IChartTemplateModel[]>, any>(`/admin/chart/templates`);
     },
     getChartTemplate: (id: number) => {
-      return api.get<IChartTemplateModel, AxiosResponse<IChartTemplateModel>, any>(
+      return api.get<never, AxiosResponse<IChartTemplateModel>, any>(
         `/admin/chart/templates/${id}`,
       );
     },

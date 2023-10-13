@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.DataLocation;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -52,12 +53,13 @@ public class DataLocationController : ControllerBase
     [HttpGet("{id:int}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(DataLocationModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "DataLocation" })]
     public IActionResult FindById(int id)
     {
         var result = _serviceDataLocation.FindById(id);
-        if (result == null) return new NoContentResult();
+        if (result == null) return NoContent();
         return new JsonResult(new DataLocationModel(result, _serializerOptions));
     }
 
@@ -68,12 +70,13 @@ public class DataLocationController : ControllerBase
     [HttpGet("{name}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(DataLocationModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "DataLocation" })]
     public IActionResult FindByName(string name)
     {
         var result = _serviceDataLocation.FindByName(name);
-        if (result == null) return new NoContentResult();
+        if (result == null) return NoContent();
         return new JsonResult(new DataLocationModel(result, _serializerOptions));
     }
     #endregion

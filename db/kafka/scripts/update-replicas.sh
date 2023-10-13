@@ -17,8 +17,8 @@ if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
     exit 1
 fi
 
-OPTIONS=b:
-LONGOPTS=bootstrap:
+OPTIONS=p:o:b:
+LONGOPTS=project:,pod:,bootstrap:
 
 # -regarding ! and PIPESTATUS see above
 # -temporarily store output to be able to check for errors
@@ -33,10 +33,19 @@ fi
 # read getopt’s output this way to handle the quoting right:
 eval set -- "$PARSED"
 
-bootstrap=kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092,kafka-broker-3.kafka-headless:9092
+project=9b301c-dev pod=kafka-broker-0 bootstrap=kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092,kafka-broker-3.kafka-headless:9092
 # now enjoy the options in order and nicely split until we see --
 while true; do
   case "$1" in
+    -p|--project)
+      # Remove objects from kafka
+      project="$2"
+      shift 2
+      ;;
+    -o|--pod)
+      pod="$2"
+      shift 2
+      ;;
     -b|--bootstrap)
       bootstrap="$2"
       shift 2
@@ -52,16 +61,22 @@ while true; do
   esac
 done
 
-if [ -z "$bootstrap" ]; then
-    echo "Enter the host and port to the bootstrap server."
-    read -p 'Host and Port: ' bootstrap
+if [ -z "$project" ]; then
+    echo "Enter the Openshift project name."
+    read -p 'Project name: ' project
 fi
 
-echo "bootstrap: $bootstrap"
+if [ -z "$pod" ]; then
+    echo "Enter the Kafka broker pod name."
+    read -p 'Pod name: ' pod
+fi
+
+echo "project: $project, pod: $pod, bootstrap: $bootstrap"
 
 #################################################
 # Work
 #################################################
 
 # Update the replication in all topics
-kafka-reassign-partitions --bootstrap-server $bootstrap --reassignment-json-file /tmp/data/replicas.json --execute
+oc rsync -n $project data $pod:/tmp
+cat ./ssh/replicas.sh | oc rsh -n $project $pod bash -s - -b $bootstrap

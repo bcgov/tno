@@ -20,14 +20,10 @@ export const useApiAdminDataLocations = (
 
   return React.useRef({
     findAllDataLocations: () => {
-      return api.get<IDataLocationModel[], AxiosResponse<IDataLocationModel[]>, any>(
-        `/admin/data/locations`,
-      );
+      return api.get<never, AxiosResponse<IDataLocationModel[]>, any>(`/admin/data/locations`);
     },
     getDataLocation: (id: number) => {
-      return api.get<IDataLocationModel, AxiosResponse<IDataLocationModel>, any>(
-        `/admin/data/locations/${id}`,
-      );
+      return api.get<never, AxiosResponse<IDataLocationModel>, any>(`/admin/data/locations/${id}`);
     },
     addDataLocation: (model: IDataLocationModel) => {
       return api.post<IDataLocationModel, AxiosResponse<IDataLocationModel>, any>(

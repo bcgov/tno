@@ -22,15 +22,15 @@ export const useApiAdminTags = (
 
   return React.useRef({
     findAllTags: () => {
-      return api.get<ITagModel[], AxiosResponse<ITagModel[]>, any>(`/admin/tags/all`);
+      return api.get<never, AxiosResponse<ITagModel[]>, any>(`/admin/tags/all`);
     },
     findTags: (filter: ITagFilter) => {
-      return api.get<IPaged<ITagModel>, AxiosResponse<IPaged<ITagModel>>, any>(
+      return api.get<never, AxiosResponse<IPaged<ITagModel>>, any>(
         `/admin/tags?${toQueryString(filter)}`,
       );
     },
     getTag: (id: number) => {
-      return api.get<ITagModel, AxiosResponse<ITagModel>, any>(`/admin/tags/${id}`);
+      return api.get<never, AxiosResponse<ITagModel>, any>(`/admin/tags/${id}`);
     },
     addTag: (model: ITagModel) => {
       return api.post<ITagModel, AxiosResponse<ITagModel>, any>(`/admin/tags`, model);

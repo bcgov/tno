@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@bcgov/bc-sans": "1.0.1",
+    "@elastic/elasticsearch": "8.10.0",
     "@fortawesome/fontawesome-svg-core": "6.4.2",
     "@fortawesome/free-solid-svg-icons": "6.4.2",
     "@fortawesome/react-fontawesome": "0.2.0",
@@ -57,7 +58,7 @@
     "react-tooltip": "5.10.0",
     "redux-logger": "3.0.6",
     "styled-components": "5.3.9",
-    "tno-core": "0.0.339"
+    "tno-core": "0.0.340"
   },
   "devDependencies": {
     "@simbathesailor/use-what-changed": "2.0.0",

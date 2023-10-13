@@ -14,6 +14,8 @@ const DataLocationForm = lazy(() => import('features/admin/data-locations/DataLo
 const DataLocationList = lazy(() => import('features/admin/data-locations/DataLocationList'));
 const FilterForm = lazy(() => import('features/admin/filters/FilterForm'));
 const FilterList = lazy(() => import('features/admin/filters/FilterList'));
+const FolderForm = lazy(() => import('features/admin/folders/FolderForm'));
+const FolderList = lazy(() => import('features/admin/folders/FolderList'));
 const IngestDetails = lazy(() => import('features/admin/ingests/IngestDetails'));
 const IngestForm = lazy(() => import('features/admin/ingests/IngestForm'));
 const IngestList = lazy(() => import('features/admin/ingests/IngestList'));
@@ -122,6 +124,9 @@ export const AdminRouter: React.FC = () => {
 
         <Route path="filters" element={<FilterList />} />
         <Route path="filters/:id" element={<FilterForm />} />
+
+        <Route path="folders" element={<FolderList />} />
+        <Route path="folders/:id" element={<FolderForm />} />
 
         <Route path="settings" element={<SettingList />} />
         <Route path="settings/:id" element={<SettingForm />} />

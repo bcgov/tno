@@ -20,14 +20,10 @@ export const useApiAdminOrganizations = (
 
   return React.useRef({
     findAllOrganizations: () => {
-      return api.get<IOrganizationModel[], AxiosResponse<IOrganizationModel[]>, any>(
-        `/admin/organizations`,
-      );
+      return api.get<never, AxiosResponse<IOrganizationModel[]>, any>(`/admin/organizations`);
     },
     getOrganization: (id: number) => {
-      return api.get<IOrganizationModel, AxiosResponse<IOrganizationModel>, any>(
-        `/admin/organizations/${id}`,
-      );
+      return api.get<never, AxiosResponse<IOrganizationModel>, any>(`/admin/organizations/${id}`);
     },
     addOrganization: (model: IOrganizationModel) => {
       return api.post<IOrganizationModel, AxiosResponse<IOrganizationModel>, any>(

@@ -17,7 +17,7 @@ export interface ITableInternal<T extends object>
     ITableInternalSorting<T>,
     ITableInternalFilter<T>,
     ITableInternalGrouping<T> {
-  rowId: keyof T;
+  rowId: keyof T | ((data?: T) => string);
   columns: ITableInternalColumn<T>[];
   data: T[];
   rows: ITableInternalRow<T>[];

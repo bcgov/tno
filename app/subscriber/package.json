@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@bcgov/bc-sans": "1.0.1",
+    "@elastic/elasticsearch": "8.10.0",
     "@fortawesome/fontawesome-svg-core": "6.4.2",
     "@fortawesome/free-solid-svg-icons": "6.4.2",
     "@fortawesome/react-fontawesome": "0.2.0",
@@ -19,8 +20,6 @@
     "@microsoft/signalr": "7.0.4",
     "@react-keycloak/web": "3.4.0",
     "@reduxjs/toolkit": "1.9.3",
-    "@types/quill": "2.0.10",
-    "@types/react-beautiful-dnd": "13.1.4",
     "axios": "1.4.0",
     "axios-mock-adapter": "1.21.5",
     "dequal": "2.0.3",
@@ -55,7 +54,7 @@
     "react-tooltip": "5.10.0",
     "redux-logger": "3.0.6",
     "styled-components": "5.3.9",
-    "tno-core": "0.0.339"
+    "tno-core": "0.0.340"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "5.16.5",
@@ -68,6 +67,7 @@
     "@types/lodash.throttle": "4.1.7",
     "@types/node": "18.15.3",
     "@types/pretty": "2.0.1",
+    "@types/quill": "2.0.10",
     "@types/react": "18.0.28",
     "@types/react-beautiful-dnd": "13.1.4",
     "@types/react-datepicker": "4.10.0",

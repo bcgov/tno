@@ -58,6 +58,7 @@ export const FlexboxTable = <T extends object>({
     },
   });
   const [search, setSearch] = React.useState(table.search);
+  const _rowId = typeof rowId === 'function' ? rowId : (data?: T) => `${data?.[rowId]}`;
 
   const style = {
     className: `table${rest.className ? ` ${rest.className}` : ''}`,
@@ -137,7 +138,7 @@ export const FlexboxTable = <T extends object>({
                             className={`row${row.isSelected ? ' selected' : ''}${
                               showActive && row.isActive ? ' active' : ''
                             }`}
-                            key={`${row.original[row.rowId]}`}
+                            key={_rowId(row.original)}
                             onClick={(e) => {
                               if (table.options.stopPropagation) e.stopPropagation();
                               table.options.onRowClick?.(row, e);
@@ -178,7 +179,7 @@ export const FlexboxTable = <T extends object>({
                   className={`row${row.isSelected ? ' selected' : ''}${
                     showActive && row.isActive ? ' active' : ''
                   }`}
-                  key={`${row.original[row.rowId]}`}
+                  key={_rowId(row.original)}
                   onClick={(e) => {
                     if (table.options.stopPropagation) e.stopPropagation();
                     table.options.onRowClick?.(row, e);

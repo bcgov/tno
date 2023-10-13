@@ -1712,6 +1712,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@elastic/elasticsearch@npm:8.10.0, @elastic/elasticsearch@npm:^8.10.0":
+  version: 8.10.0
+  resolution: "@elastic/elasticsearch@npm:8.10.0"
+  dependencies:
+    "@elastic/transport": ^8.3.4
+    tslib: ^2.4.0
+  checksum: b980c2634beb74f7c9113f8248640729e73511c8862d0795f827125ea6c49e85840e0b370f7a4e436f05ce80d67103c406be8ea54e777c32bafe4d650c9b4ef2
+  languageName: node
+  linkType: hard
+
+"@elastic/transport@npm:^8.3.4":
+  version: 8.3.4
+  resolution: "@elastic/transport@npm:8.3.4"
+  dependencies:
+    debug: ^4.3.4
+    hpagent: ^1.0.0
+    ms: ^2.1.3
+    secure-json-parse: ^2.4.0
+    tslib: ^2.4.0
+    undici: ^5.22.1
+  checksum: a5df199a46d8e9a33cee96c3442fe8261860deb59a9ec518858dde9ed35fb92e70ba4aed4dfaaf512e1b411cea3d05cab2b85a062ad60d377704f4e95e6ebc0e
+  languageName: node
+  linkType: hard
+
 "@emotion/babel-plugin@npm:^11.10.5":
   version: 11.10.5
   resolution: "@emotion/babel-plugin@npm:11.10.5"
@@ -1974,6 +1998,13 @@ __metadata:
   version: 8.36.0
   resolution: "@eslint/js@npm:8.36.0"
   checksum: b7d6b84b823c8c7784be390741196617565527b1f7c0977fde9455bfb57fd88f81c074a03dd878757d2c33fa29f24291e9ecbc1425710f067917324b55e1bf3a
+  languageName: node
+  linkType: hard
+
+"@fastify/busboy@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@fastify/busboy@npm:2.0.0"
+  checksum: 41879937ce1dee6421ef9cd4da53239830617e1f0bb7a0e843940772cd72827205d05e518af6adabe6e1ea19301285fff432b9d11bad01a531e698bea95c781b
   languageName: node
   linkType: hard
 
@@ -8068,6 +8099,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"hpagent@npm:^1.0.0":
+  version: 1.2.0
+  resolution: "hpagent@npm:1.2.0"
+  checksum: b029da695edae438cee4da2a437386f9db4ac27b3ceb7306d02e1b586c9c194741ed2e943c8a222e0cfefaf27ee3f863aca7ba1721b0950a2a19bf25bc0d85e2
+  languageName: node
+  linkType: hard
+
 "html-dom-parser@npm:3.1.7":
   version: 3.1.7
   resolution: "html-dom-parser@npm:3.1.7"
@@ -10353,6 +10391,7 @@ __metadata:
   resolution: "mmi-subscriber-app@workspace:."
   dependencies:
     "@bcgov/bc-sans": 1.0.1
+    "@elastic/elasticsearch": 8.10.0
     "@fortawesome/fontawesome-svg-core": 6.4.2
     "@fortawesome/free-solid-svg-icons": 6.4.2
     "@fortawesome/react-fontawesome": 0.2.0
@@ -10432,7 +10471,7 @@ __metadata:
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
     styled-components: 5.3.9
-    tno-core: 0.0.339
+    tno-core: 0.0.340
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -10474,7 +10513,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ms@npm:2.1.3, ms@npm:^2.0.0, ms@npm:^2.1.1":
+"ms@npm:2.1.3, ms@npm:^2.0.0, ms@npm:^2.1.1, ms@npm:^2.1.3":
   version: 2.1.3
   resolution: "ms@npm:2.1.3"
   checksum: aa92de608021b242401676e35cfa5aa42dd70cbdc082b916da7fb925c542173e36bce97ea3e804923fe92c0ad991434e4a38327e15a1b5b5f945d66df615ae6d
@@ -12365,7 +12404,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-beautiful-dnd@npm:13.1.1":
+"react-beautiful-dnd@npm:13.1.1, react-beautiful-dnd@npm:^13.1.1":
   version: 13.1.1
   resolution: "react-beautiful-dnd@npm:13.1.1"
   dependencies:
@@ -13496,6 +13535,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"secure-json-parse@npm:^2.4.0":
+  version: 2.7.0
+  resolution: "secure-json-parse@npm:2.7.0"
+  checksum: d9d7d5a01fc6db6115744ba23cf9e67ecfe8c524d771537c062ee05ad5c11b64c730bc58c7f33f60bd6877f96b86f0ceb9ea29644e4040cb757f6912d4dd6737
+  languageName: node
+  linkType: hard
+
 "select-hose@npm:^2.0.0":
   version: 2.0.0
   resolution: "select-hose@npm:2.0.0"
@@ -14426,10 +14472,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.0.339":
-  version: 0.0.339
-  resolution: "tno-core@npm:0.0.339"
+"tno-core@npm:0.0.340":
+  version: 0.0.340
+  resolution: "tno-core@npm:0.0.340"
   dependencies:
+    "@elastic/elasticsearch": ^8.10.0
     "@fortawesome/free-solid-svg-icons": ^6.4.2
     "@fortawesome/react-fontawesome": ^0.2.0
     "@headlessui/react": ^1.7.13
@@ -14444,6 +14491,7 @@ __metadata:
     moment-timezone: ^0.5.41
     rc-slider: ^10.2.1
     react: ^18.2.0
+    react-beautiful-dnd: ^13.1.1
     react-datepicker: ^4.10.0
     react-dom: ^18.2.0
     react-icons: ^4.10.1
@@ -14456,7 +14504,7 @@ __metadata:
     react-tooltip: ^5.10.0
     styled-components: ^5.3.9
     yup: ^1.1.1
-  checksum: db06ed5660c154218d23430a7b15dfd55228e2f5b823f043187d667a202a569b7b0dadf0763815282bb7740375c345c98ef2425cfbddf07ba65c44d114114d71
+  checksum: eadf7bcb4a084c71fa033dd772e85795743c3897fc4979a518d5c19963a746e45b31a808ae6679633c921b19bee723358d962310b69cd657ece1fb07e5e3bbaa
   languageName: node
   linkType: hard
 
@@ -14557,6 +14605,13 @@ __metadata:
   version: 2.4.1
   resolution: "tslib@npm:2.4.1"
   checksum: 19480d6e0313292bd6505d4efe096a6b31c70e21cf08b5febf4da62e95c265c8f571f7b36fcc3d1a17e068032f59c269fab3459d6cd3ed6949eafecf64315fca
+  languageName: node
+  linkType: hard
+
+"tslib@npm:^2.4.0":
+  version: 2.6.2
+  resolution: "tslib@npm:2.6.2"
+  checksum: 329ea56123005922f39642318e3d1f0f8265d1e7fcb92c633e0809521da75eeaca28d2cf96d7248229deb40e5c19adf408259f4b9640afd20d13aecc1430f3ad
   languageName: node
   linkType: hard
 
@@ -14679,6 +14734,15 @@ __metadata:
     has-symbols: ^1.0.3
     which-boxed-primitive: ^1.0.2
   checksum: b7a1cf5862b5e4b5deb091672ffa579aa274f648410009c81cca63fed3b62b610c4f3b773f912ce545bb4e31edc3138975b5bc777fc6e4817dca51affb6380e9
+  languageName: node
+  linkType: hard
+
+"undici@npm:^5.22.1":
+  version: 5.26.3
+  resolution: "undici@npm:5.26.3"
+  dependencies:
+    "@fastify/busboy": ^2.0.0
+  checksum: aaa9aadb712cf80e1a9cea2377e4842670105e00abbc184a21770ea5a8b77e4e2eadc200eac62442e74a1cd3b16a840c6f73b112b9e886bd3c1a125eb22e4f21
   languageName: node
   linkType: hard
 

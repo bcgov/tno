@@ -20,14 +20,10 @@ export const useApiAdminContributors = (
 
   return React.useRef({
     findAllContributors: () => {
-      return api.get<IContributorModel[], AxiosResponse<IContributorModel[]>, any>(
-        `/admin/contributors/all`,
-      );
+      return api.get<never, AxiosResponse<IContributorModel[]>, any>(`/admin/contributors/all`);
     },
     getContributor: (id: number) => {
-      return api.get<IContributorModel, AxiosResponse<IContributorModel>, any>(
-        `/admin/contributors/${id}`,
-      );
+      return api.get<never, AxiosResponse<IContributorModel>, any>(`/admin/contributors/${id}`);
     },
     addContributor: (model: IContributorModel) => {
       return api.post<IContributorModel, AxiosResponse<IContributorModel>, any>(

@@ -122,7 +122,7 @@ const IngestDetails: React.FC<IIngestDetailsProps> = () => {
             // Use the source.code to set the Kafka topic.
             const source = lookups.sources.find((s) => s.id === newValue.value);
             if (!!values.configuration.topicFromSource)
-              setFieldValue('topic', (source?.code ?? '').replaceAll(/\s/g, '_'));
+              setFieldValue('topic', (source?.code ?? '').trim().replaceAll(/\s/g, '_'));
           }}
           required
           isClearable={false}

@@ -15,6 +15,11 @@ public class FolderContentModel
     /// get/set - The sort order.
     /// </summary>
     public int SortOrder { get; set; }
+
+    /// <summary>
+    /// get/set - The content.
+    /// </summary>
+    public ContentModel? Content { get; set; }
     #endregion
 
     #region Constructors
@@ -31,6 +36,7 @@ public class FolderContentModel
     {
         this.ContentId = entity.ContentId;
         this.SortOrder = entity.SortOrder;
+        this.Content = entity.Content != null ? new ContentModel(entity.Content) : null;
     }
     #endregion
 }

@@ -32,6 +32,11 @@ public abstract class BaseService
 
     #region Properties
     /// <summary>
+    /// get - The environment.
+    /// </summary>
+    public IHostEnvironment Environment { get; private set; }
+
+    /// <summary>
     /// get - Program configuration.
     /// </summary>
     public IConfiguration Configuration { get; private set; }
@@ -49,8 +54,9 @@ public abstract class BaseService
     /// <param name="args"></param>
     public BaseService(string[] args)
     {
-        DotNetEnv.Env.Load($"{Environment.CurrentDirectory}{Path.DirectorySeparatorChar}.env");
+        DotNetEnv.Env.Load($"{System.Environment.CurrentDirectory}{Path.DirectorySeparatorChar}.env");
         var builder = WebApplication.CreateBuilder(args);
+        this.Environment = builder.Environment;
         this.Configuration = Configure(builder, args)
             .Build();
         ConfigureServices(builder.Services);
@@ -69,8 +75,8 @@ public abstract class BaseService
     /// <returns></returns>
     protected virtual IConfigurationBuilder Configure(WebApplicationBuilder builder, string[]? args)
     {
-        string? environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-        string urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS") ?? "http://+:5000";
+        string? environment = System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        string urls = System.Environment.GetEnvironmentVariable("ASPNETCORE_URLS") ?? "http://+:5000";
         builder.WebHost.UseUrls(urls);
         return builder.Configuration
             .SetBasePath(Directory.GetCurrentDirectory())

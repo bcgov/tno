@@ -7,6 +7,7 @@ import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
+import { toast } from 'react-toastify';
 import { useLookupOptions } from 'store/hooks';
 import {
   Button,
@@ -32,19 +33,27 @@ export const FilterFormImportExport: React.FC = () => {
   const [rawFilter, setRawFilter] = React.useState('{}');
 
   const parseImport = React.useCallback(
-    (rawExportedFilter: any) => {
-      var importedFilter = parseExportedFilter(
-        rawExportedFilter,
-        actions,
-        contributors,
-        series,
-        sources,
-        products,
-      );
-      setValues({ ...importedFilter });
+    (data: string) => {
+      try {
+        const rawExportedFilter = JSON.parse(data);
 
-      const query = generateQuery(importedFilter.settings as IFilterSettingsModel, null);
-      setFieldValue('query', query);
+        var importedFilter = parseExportedFilter(
+          rawExportedFilter,
+          actions,
+          contributors,
+          series,
+          sources,
+          products,
+        );
+        setValues({ ...importedFilter });
+
+        const query = generateQuery(importedFilter.settings as IFilterSettingsModel, null);
+        setFieldValue('query', query);
+      } catch (ex) {
+        const error = ex as Error;
+        console.error(ex);
+        toast.error(error.message);
+      }
     },
     [setValues, setFieldValue, actions, contributors, series, sources, products],
   );
@@ -60,7 +69,7 @@ export const FilterFormImportExport: React.FC = () => {
           <Button
             variant={ButtonVariant.secondary}
             onClick={() => {
-              parseImport(JSON.parse(rawFilter));
+              parseImport(rawFilter);
             }}
           >
             Import Filter

@@ -7,17 +7,19 @@ import { filterColumns } from './constants';
 import { ListFilter } from './ListFilter';
 import * as styled from './styled';
 
-const FilterList: React.FC = () => {
+export const FilterList: React.FC = () => {
   const navigate = useNavigate();
-  const [{ initialized, filters }, api] = useFilters();
+  const [{ initialized, filters }, { findAllFilters }] = useFilters();
 
   const [items, setItems] = React.useState<IFilterModel[]>(filters);
 
   React.useEffect(() => {
     if (!initialized) {
-      api.findAllFilters().then((data) => {
-        setItems(data);
-      });
+      findAllFilters()
+        .then((data) => {
+          setItems(data);
+        })
+        .catch(() => {});
     }
     // The api will cause a double render because findAllFilters(...) updates the store.
     // eslint-disable-next-line react-hooks/exhaustive-deps

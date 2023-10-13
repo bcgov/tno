@@ -1,4 +1,4 @@
-import { IQueryStringOptions, toQueryString } from './toQueryString';
+import { IQueryStringOptions, toQueryString } from './querystring/toQueryString';
 
 /**
  * Replaces all query parameters with the parameters from the specified 'queryParams'.

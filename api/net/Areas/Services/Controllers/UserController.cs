@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.User;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -48,14 +49,13 @@ public class UserController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "User" })]
     public IActionResult FindById(int id)
     {
         var result = _service.FindById(id);
-        if (result == null)
-            return NoContent();
-
+        if (result == null) return NoContent();
         return new JsonResult(new UserModel(result));
     }
     #endregion

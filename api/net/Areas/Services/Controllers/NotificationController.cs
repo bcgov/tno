@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Notification;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Entities.Models;
 using TNO.Keycloak;
@@ -67,13 +68,13 @@ public class NotificationController : ControllerBase
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(NotificationModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
     public IActionResult FindById(int id)
     {
         var result = _service.FindById(id);
-
-        if (result == null) return new NoContentResult();
+        if (result == null) return NoContent();
         return new JsonResult(new NotificationModel(result, _serializerOptions));
     }
     #endregion

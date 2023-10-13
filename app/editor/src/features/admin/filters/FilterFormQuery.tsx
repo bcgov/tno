@@ -4,6 +4,7 @@ import 'prismjs/components/prism-cshtml';
 import 'prismjs/components/prism-json';
 
 import { useFormikContext } from 'formik';
+import moment from 'moment';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
@@ -11,9 +12,9 @@ import { useLookupOptions } from 'store/hooks';
 import {
   Button,
   ButtonVariant,
-  Checkbox,
   Col,
   FieldSize,
+  FormikCheckbox,
   FormikDatePicker,
   FormikText,
   FormikTextArea,
@@ -40,6 +41,13 @@ export const FilterFormQuery: React.FC = () => {
   const [filter, setFilter] = React.useState(JSON.stringify(values.query, null, 2));
   const [actionOptions, setActionOptions] = React.useState(getActionOptions(actions));
   const [tagOptions, setTagOptions] = React.useState(getTagOptions(tags));
+
+  const startDate = values.settings.startDate
+    ? moment(values.settings.startDate).format('YYYY/MM/DD')
+    : '';
+  const endDate = values.settings.endDate
+    ? moment(values.settings.endDate).format('YYYY/MM/DD')
+    : '';
 
   React.useEffect(() => {
     setActionOptions(getActionOptions(actions));
@@ -71,7 +79,7 @@ export const FilterFormQuery: React.FC = () => {
 
   return (
     <>
-      <Col>
+      <Col gap="0.5rem">
         <h2>{values.name}</h2>
         <Row>
           <Col flex="1">
@@ -88,6 +96,7 @@ export const FilterFormQuery: React.FC = () => {
             Clear Query
           </Button>
         </Row>
+        <FormikCheckbox name="settings.searchUnpublished" label="Search unpublished content" />
         <Row alignItems="center">
           <FormikText
             name="settings.size"
@@ -102,7 +111,7 @@ export const FilterFormQuery: React.FC = () => {
           />
           <p>
             All filters must have a upward limit of content returned in a single request. The
-            default limit is 10.
+            default is 10, the maximum is 10,000.
           </p>
         </Row>
         <Row>
@@ -151,56 +160,51 @@ export const FilterFormQuery: React.FC = () => {
             </div>
           </Col>
         </Row>
-        <Row>
+        <Row gap="1rem">
           <label>Search for Keywords in: </label>
-          <Checkbox
-            id="chk_inHeadline"
-            checked={values.settings.inHeadline ?? false}
-            onChange={(e) => {
-              updateQuery('inHeadline', e.target.checked);
-            }}
+          <FormikCheckbox
+            name="settings.inHeadline"
+            label="Headline"
+            onChange={(e) => updateQuery('inHeadline', e.target.checked)}
           />
-          <label htmlFor="chk_inHeadline">Headline </label>
-          <Checkbox
-            id="chk_inByline"
-            checked={values.settings.inByline ?? false}
-            onChange={(e) => {
-              updateQuery('inByline', e.target.checked);
-            }}
+          <FormikCheckbox
+            name="settings.inByline"
+            label="Byline"
+            onChange={(e) => updateQuery('inByline', e.target.checked)}
           />
-          <label htmlFor="chk_inByline">Byline </label>
-          <Checkbox
-            id="chk_inStory"
-            checked={values.settings.inStory ?? false}
-            onChange={(e) => {
-              updateQuery('inStory', e.target.checked);
-            }}
+          <FormikCheckbox
+            name="settings.inStory"
+            label="Story text"
+            onChange={(e) => updateQuery('inStory', e.target.checked)}
           />
-          <label htmlFor="chk_inStory">Story text </label>
         </Row>
         <Row nowrap>
           <Col>
             <FormikDatePicker
               name="settings.startDate"
               label="Start Date"
-              value={values.settings.startDate ?? ''}
-              width="13ch"
+              value={startDate}
+              selectedDate={startDate}
+              width="15ch"
               onChange={(value) => {
                 updateQuery('startDate', value);
               }}
-              disabled={values.settings.dateOffset}
+              disabled={!!values.settings.dateOffset}
+              isClearable={true}
             />
           </Col>
           <Col>
             <FormikDatePicker
               name="settings.endDate"
               label="End Date"
-              value={values.settings.endDate ?? ''}
-              width="13ch"
+              value={endDate}
+              selectedDate={endDate}
+              width="15ch"
               onChange={(value) => {
                 updateQuery('endDate', value);
               }}
-              disabled={values.settings.dateOffset}
+              disabled={!!values.settings.dateOffset}
+              isClearable={true}
             />
           </Col>
           <Row nowrap>
@@ -217,7 +221,7 @@ export const FilterFormQuery: React.FC = () => {
                 const value = !!e.target.value ? parseInt(e.target.value) : undefined;
                 updateQuery('dateOffset', value);
               }}
-              disabled={values.settings.startDate || values.settings.endDate}
+              disabled={!!values.settings.startDate || !!values.settings.endDate}
             />
             <p>
               A date offset provides a consistent way to search for content that was published

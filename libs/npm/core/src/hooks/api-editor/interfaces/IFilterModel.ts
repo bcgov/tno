@@ -1,8 +1,10 @@
-import { IFilterSettingsModel, ISortableModel, IUserModel } from '.';
+import { IFilterSettingsModel, IFolderModel, IReportModel, ISortableModel, IUserModel } from '.';
 
 export interface IFilterModel extends ISortableModel<number> {
   ownerId?: number;
   owner?: IUserModel;
   query: any;
   settings: IFilterSettingsModel;
+  reports: IReportModel[];
+  folders: IFolderModel[];
 }

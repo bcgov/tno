@@ -20,9 +20,7 @@ export const useApiAdminSystemMessages = (
 
   return React.useRef({
     findSystemMessage: () => {
-      return api.get<ISystemMessageModel, AxiosResponse<ISystemMessageModel>, any>(
-        `/admin/system-message`,
-      );
+      return api.get<never, AxiosResponse<ISystemMessageModel>, any>(`/admin/system-message`);
     },
     addSystemMessage: (model: ISystemMessageModel) => {
       return api.post<ISystemMessageModel, AxiosResponse<ISystemMessageModel>, any>(

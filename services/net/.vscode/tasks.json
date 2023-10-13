@@ -540,6 +540,42 @@
         "${workspaceFolder}/scheduler/TNO.Services.Scheduler.csproj"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-folder-collection",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/folder-collection/TNO.Services.FolderCollection.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-folder-collection",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/folder-collection/TNO.Services.FolderCollection.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-folder-collection",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/folder-collection/TNO.Services.FolderCollection.csproj"
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

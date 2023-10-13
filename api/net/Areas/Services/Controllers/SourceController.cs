@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -52,12 +53,13 @@ public class SourceController : ControllerBase
     [HttpGet("{code}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(SourceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Source" })]
     public IActionResult FindByCode(string code)
     {
         var result = _serviceSource.FindByCode(code);
-        if (result == null) return new NoContentResult();
+        if (result == null) return NoContent();
         return new JsonResult(new SourceModel(result, _serializerOptions));
     }
 

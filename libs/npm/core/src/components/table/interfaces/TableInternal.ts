@@ -25,7 +25,8 @@ import { TableInternalHeaderColumn } from './TableInternalHeaderColumn';
 import { TableInternalRow } from './TableInternalRow';
 
 export class TableInternal<T extends object> implements ITableInternal<T> {
-  rowId: keyof T;
+  rowId: keyof T | ((data?: T) => string);
+  _rowId: (data?: T) => string;
   columns: ITableInternalColumn<T>[];
   data: T[];
   rows: ITableInternalRow<T>[];
@@ -35,6 +36,7 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
   activeRowId?: IdType<T>;
   activeRow: ITableInternalRow<T> | null;
   selectedRowIds: IdType<T>[];
+
   onSelectedChanged: (
     row: ITableInternalRow<T>,
     event: React.ChangeEvent<HTMLInputElement>,
@@ -66,9 +68,9 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
 
   refreshRows = (selectedRows: ITableInternalRow<T>[] = []) => {
     const rows = this.filterData(this.search).map((original, index) => {
-      const selected = this.selectedRowIds.some((id) => `${original[this.rowId]}` === id)
+      const selected = this.selectedRowIds.some((id) => this._rowId(original) === id)
         ? true
-        : selectedRows.find((row) => row.original[this.rowId] === original[this.rowId])
+        : selectedRows.find((row) => this._rowId(row.original) === this._rowId(original))
             ?.isSelected ?? false;
       return new TableInternalRow(this, index, this.rowId, this.columns, original, selected);
     });
@@ -104,10 +106,10 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
         (typeof rowOrIndex !== 'number' && rowOrIndex?.index !== this.activeRow.index)
       ) {
         const index = this.rows.findIndex(
-          (row) => row.original[this.rowId] === this.activeRow?.original[this.rowId],
+          (row) => this._rowId(row.original) === this._rowId(this.activeRow?.original),
         );
         if (index >= 0) {
-          this.activeRowId = `${this.rows[index].original[this.rowId]}`;
+          this.activeRowId = this._rowId(this.rows[index].original);
           this.rows[index].isActive = false;
         }
       }
@@ -118,15 +120,15 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
     } else if (typeof rowOrIndex === 'number') {
       this.rows[rowOrIndex].isActive = true;
       this.activeRow = this.rows[rowOrIndex];
-      this.activeRowId = `${this.rows[rowOrIndex].original[this.rowId]}`;
+      this.activeRowId = this._rowId(this.rows[rowOrIndex].original);
     } else {
       const index = this.rows.findIndex(
-        (row) => row.original[this.rowId] === rowOrIndex.original[this.rowId],
+        (row) => this._rowId(row.original) === this._rowId(rowOrIndex.original),
       );
       if (index >= 0) {
         this.rows[index].isActive = true;
         this.activeRow = this.rows[index];
-        this.activeRowId = `${this.rows[index].original[this.rowId]}`;
+        this.activeRowId = this._rowId(this.rows[index].original);
       } else this.activeRow = null;
     }
   };
@@ -240,7 +242,7 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
    * @returns A new instance of a table.
    */
   static create<T extends object>(
-    rowId: keyof T,
+    rowId: keyof T | ((data?: T) => string),
     columns: ITableHookColumn<T>[],
     data: T[],
     options: ITableHookOptions<T>,
@@ -252,6 +254,7 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
   ) {
     const table = new TableInternal<T>();
     table.rowId = rowId;
+    table._rowId = typeof rowId === 'function' ? rowId : (data?: T) => `${data?.[rowId]}`;
     table.data = data;
 
     table.options = {
@@ -341,6 +344,10 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
    */
   protected constructor() {
     this.rowId = '' as keyof T;
+    this._rowId =
+      typeof this.rowId === 'function'
+        ? this.rowId
+        : (data?: T) => `${data?.[this.rowId as keyof T]}`;
     this.header = {
       columns: [],
     };
