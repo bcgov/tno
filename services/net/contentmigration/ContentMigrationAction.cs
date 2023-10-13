@@ -303,7 +303,10 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                     });
                 }
 
-                await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport!.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
+                // might not have a date set here if the filter retrieved no records
+                if (creationDateOfLastImport != null)
+                    await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport!.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
+
                 skip += countOfRecordsRetrieved;
             }
             catch (Exception)
