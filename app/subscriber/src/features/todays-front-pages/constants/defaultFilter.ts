@@ -1,6 +1,4 @@
-import { IFilterModel } from 'tno-core';
-
-export const defaultFilter: IFilterModel = {
+export const defaultFilter = {
   id: 0,
   name: '',
   description: '',
@@ -8,24 +6,6 @@ export const defaultFilter: IFilterModel = {
   query: {},
   settings: {
     searchUnpublished: false,
-    inByline: true,
-    inStory: true,
-    inHeadline: true,
-    size: 0,
-    startDate: '',
-    endDate: '',
-    topStory: false,
-    frontPage: true,
-    sourceIds: [],
-    productIds: [],
-    seriesIds: [],
-    contributorIds: [],
-    actions: [],
-    contentTypes: [],
-    tags: [],
-    sentiment: [],
-    reports: [],
-    folders: [],
   },
   sortOrder: 0,
   isEnabled: true,
