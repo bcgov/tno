@@ -42,6 +42,7 @@ public class LookupController : ControllerBase
     private readonly ISeriesService _seriesService;
     private readonly IContributorService _contributorService;
     private readonly ITagService _tagService;
+    private readonly ISettingService _settingService;
     private readonly ITonePoolService _tonePoolService;
     private readonly ICssEnvironmentService _CssService;
     private readonly CssEnvironmentOptions _CssOptions;
@@ -59,6 +60,7 @@ public class LookupController : ControllerBase
     /// <param name="licenseService"></param>
     /// <param name="seriesService"></param>
     /// <param name="tagService"></param>
+    /// <param name="settingService"></param>
     /// <param name="tonePoolService"></param>
     /// <param name="ministerService"></param>
     /// <param name="cssService"></param>
@@ -76,6 +78,7 @@ public class LookupController : ControllerBase
         IContributorService contributorService,
         ISeriesService seriesService,
         ITagService tagService,
+        ISettingService settingService,
         ITonePoolService tonePoolService,
         ICssEnvironmentService cssService,
         IOptions<CssEnvironmentOptions> cssOptions,
@@ -90,6 +93,7 @@ public class LookupController : ControllerBase
         _licenseService = licenseService;
         _seriesService = seriesService;
         _tagService = tagService;
+        _settingService = settingService;
         _tonePoolService = tonePoolService;
         _CssService = cssService;
         _contributorService = contributorService;
@@ -125,6 +129,7 @@ public class LookupController : ControllerBase
         var series = _seriesService.FindAll();
         var ministers = _ministerService.FindAll();
         var tagServices = _tagService.FindAll();
+        var settings = _settingService.FindAll();
         var tonePools = _tonePoolService.FindAll();
         return new JsonResult(new LookupModel(
             actions,
@@ -134,6 +139,7 @@ public class LookupController : ControllerBase
             license,
             series,
             tagServices,
+            settings,
             tonePools,
             ministers,
             contributors,

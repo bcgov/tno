@@ -1,5 +1,7 @@
 using System.Text.Json;
+using TNO.API.Areas.Admin.Models.Setting;
 using TNO.API.Areas.Subscriber.Models.Content;
+using TNO.Entities;
 
 namespace TNO.API.Areas.Subscriber.Models.Lookup;
 
@@ -55,6 +57,11 @@ public class LookupModel
     public IEnumerable<Tag.TagModel> Tags { get; set; } = Array.Empty<Tag.TagModel>();
 
     /// <summary>
+    /// get/set - An array of all settings.
+    /// </summary>
+    public IEnumerable<SettingModel> Settings { get; set; } = Array.Empty<SettingModel>();
+
+    /// <summary>
     /// get/set - An array of all tone pools.
     /// </summary>
     public IEnumerable<TonePool.TonePoolModel> TonePools { get; set; } = Array.Empty<TonePool.TonePoolModel>();
@@ -77,6 +84,7 @@ public class LookupModel
     /// <param name="license"></param>
     /// <param name="series"></param>
     /// <param name="tagServices"></param>
+    /// <param name="settings"></param>
     /// <param name="tonePools"></param>
     /// <param name="ministers"></param>
     /// <param name="contributors"></param>
@@ -90,6 +98,7 @@ public class LookupModel
         IEnumerable<Entities.License> license,
         IEnumerable<Entities.Series> series,
         IEnumerable<Entities.Tag> tagServices,
+        IEnumerable<Entities.Setting> settings,
         IEnumerable<Entities.TonePool> tonePools,
         IEnumerable<Entities.Minister> ministers,
         IEnumerable<Entities.Contributor> contributors,
@@ -102,6 +111,7 @@ public class LookupModel
         this.Licenses = license.Select(a => new License.LicenseModel(a));
         this.Series = series.Select(a => new Series.SeriesModel(a));
         this.Tags = tagServices.Select(a => new Tag.TagModel(a));
+        this.Settings = settings.Select(a => new SettingModel(a));
         this.TonePools = tonePools.Select(a => new TonePool.TonePoolModel(a));
         this.Ministers = ministers.Select(a => new Minister.MinisterModel(a));
         this.Contributors = contributors.Select(a => new ContributorModel(a));

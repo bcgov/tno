@@ -7,6 +7,7 @@ import {
   FaFolder,
   FaHome,
   FaMoon,
+  FaNewspaper,
   FaSearch,
   FaSlidersH,
   FaUsers,
@@ -46,6 +47,11 @@ export const SidebarMenuItems: ISideBarMenuItems = {
     label: "Today's Commentary",
     path: 'todayscommentary',
     icon: <FaComment />,
+  },
+  todaysFrontPages: {
+    label: "Today's Front Pages",
+    path: 'todaysfrontpages',
+    icon: <FaNewspaper />,
   },
   pressGallery: {
     label: 'Press Gallery',

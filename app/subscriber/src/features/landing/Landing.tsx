@@ -15,6 +15,7 @@ import { MySearches } from 'features/my-searches';
 import { PressGallery } from 'features/press-gallery';
 import { MyMinisterSettings } from 'features/settings';
 import { TodaysCommentary } from 'features/todays-commentary';
+import { TodaysFrontPages } from 'features/todays-front-pages';
 import { TopStories } from 'features/top-stories';
 import React from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
@@ -75,6 +76,9 @@ export const Landing: React.FC = () => {
             </Show>
             <Show visible={activeItem === SidebarMenuItems.todaysCommentary.label}>
               <TodaysCommentary />
+            </Show>
+            <Show visible={activeItem === SidebarMenuItems.todaysFrontPages.label}>
+              <TodaysFrontPages />
             </Show>
             <Show visible={activeItem === SidebarMenuItems.topStories.label}>
               <TopStories />
