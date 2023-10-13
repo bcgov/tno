@@ -34,6 +34,11 @@ public class ReportInstanceModel
     public DateTime? SentOn { get; set; }
 
     /// <summary>
+    /// get/set - The report status.
+    /// </summary>
+    public Entities.ReportStatus Status { get; set; }
+
+    /// <summary>
     /// get/set - The compiled subject of the report.
     /// Used to recreate the report.
     /// </summary>
@@ -73,6 +78,7 @@ public class ReportInstanceModel
         this.ReportId = entity.ReportId;
         this.PublishedOn = entity.PublishedOn;
         this.SentOn = entity.SentOn;
+        this.Status = entity.Status;
         this.Response = entity.Response;
         this.Subject = entity.Subject;
         this.Body = entity.Body;

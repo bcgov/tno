@@ -48,8 +48,17 @@ public class Action : BaseType<int>
     #endregion
 
     #region Constructors
+    /// <summary>
+    /// Creates a new instance of an Action object.
+    /// </summary>
     protected Action() { }
 
+    /// <summary>
+    /// Creates a new instance of an Action object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="valueType"></param>
+    /// <param name="valueLabel"></param>
     public Action(string name, ValueType valueType, string valueLabel = "") : base(name)
     {
         this.ValueType = valueType;

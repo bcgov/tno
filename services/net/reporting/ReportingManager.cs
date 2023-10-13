@@ -373,18 +373,35 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         if (request.SendToSubscribers && (to.Any() || !String.IsNullOrEmpty(request.To)))
         {
-            // Send the email.
-            var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
-
-            // Update the report instance.
-            if (request.GenerateInstance && instanceModel != null)
+            try
             {
-                model.Id = instanceModel.Id;
-                model.Version = instanceModel.Version ?? 0;
-                model.SentOn = DateTime.UtcNow;
-                model.Content.ForEach(ric => ric.InstanceId = model.Id);
-                model.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
-                await this.Api.UpdateReportInstanceAsync(model);
+                // Send the email.
+                var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
+
+                // Update the report instance.
+                if (request.GenerateInstance && instanceModel != null)
+                {
+                    model.Id = instanceModel.Id;
+                    model.Version = instanceModel.Version ?? 0;
+                    model.SentOn = DateTime.UtcNow;
+                    model.Status = ReportStatus.Completed;
+                    model.Content.ForEach(ric => ric.InstanceId = model.Id);
+                    model.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+                    await this.Api.UpdateReportInstanceAsync(model);
+                }
+            }
+            catch (ChesException ex)
+            {
+                // Update the report instance.
+                if (request.GenerateInstance && instanceModel != null)
+                {
+                    model.Id = instanceModel.Id;
+                    model.Version = instanceModel.Version ?? 0;
+                    model.Status = ReportStatus.Failed;
+                    model.Content.ForEach(ric => ric.InstanceId = model.Id);
+                    model.Response = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
+                    await this.Api.UpdateReportInstanceAsync(model);
+                }
             }
         }
 

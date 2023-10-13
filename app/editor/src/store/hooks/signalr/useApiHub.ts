@@ -6,9 +6,7 @@ import {
 } from '@microsoft/signalr';
 import React from 'react';
 import { useAppStore } from 'store/slices';
-import { Settings, useKeycloakWrapper } from 'tno-core';
-
-import { HubMethodName } from './constants';
+import { MessageTargetName, Settings, useKeycloakWrapper } from 'tno-core';
 
 const url = Settings.ApiPath + '/hub';
 let hub: HubConnection;
@@ -19,15 +17,15 @@ export interface IHubController {
   /** Start the connection. */
   start: () => Promise<void>;
   /** Add event listener. */
-  on: (methodName: string, newMethod: (...args: any[]) => void) => void;
+  on: (target: string, newMethod: (...args: any[]) => void) => void;
   /** Remove event listener. */
-  off: (methodName: string, method: (...args: any[]) => void) => void;
+  off: (target: string, method: (...args: any[]) => void) => void;
   /** Stop the connection. */
   stop: () => Promise<void>;
   /** Add event listener and return function to remove listener. */
-  listen: (methodName: HubMethodName, newMethod: (...args: any[]) => void) => () => void;
+  listen: (target: MessageTargetName, newMethod: (...args: any[]) => void) => () => void;
   /** Add event listener and return function to remove listener. */
-  useHubEffect: (methodName: HubMethodName, newMethod: (...args: any[]) => void) => void;
+  useHubEffect: (target: MessageTargetName, newMethod: (...args: any[]) => void) => void;
 }
 
 /**
@@ -78,22 +76,22 @@ export const useApiHub = (): IHubController => {
   return {
     state,
     start: () => hub.start(),
-    on: (methodName: string, newMethod: (...args: any[]) => void) => hub.on(methodName, newMethod),
-    off: (methodName: string, method: (...args: any[]) => void) => hub.off(methodName, method),
+    on: (target: string, callback: (...args: any[]) => void) => hub.on(target, callback),
+    off: (target: string, callback: (...args: any[]) => void) => hub.off(target, callback),
     stop: () => hub.stop(),
-    listen: (methodName: HubMethodName, newMethod: (...args: any[]) => void) => {
-      hub.on(methodName, newMethod);
+    listen: (target: MessageTargetName, callback: (...args: any[]) => void) => {
+      hub.on(target, callback);
       return () => {
-        hub.off(methodName, newMethod);
+        hub.off(target, callback);
       };
     },
-    useHubEffect: (methodName: HubMethodName, newMethod: (...args: any[]) => void) => {
+    useHubEffect: (target: MessageTargetName, callback: (...args: any[]) => void) => {
       React.useEffect(() => {
-        hub.on(methodName, newMethod);
+        hub.on(target, callback);
         return () => {
-          hub.off(methodName, newMethod);
+          hub.off(target, callback);
         };
-      }, [methodName, newMethod]);
+      }, [target, callback]);
     },
   };
 };

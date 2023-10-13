@@ -14,6 +14,7 @@ public class ReportInstanceConfiguration : AuditColumnsConfiguration<ReportInsta
         builder.Property(m => m.OwnerId);
         builder.Property(m => m.PublishedOn);
         builder.Property(m => m.SentOn);
+        builder.Property(m => m.Status).IsRequired();
         builder.Property(m => m.Subject).IsRequired().HasColumnType("text");
         builder.Property(m => m.Body).IsRequired().HasColumnType("text");
         builder.Property(m => m.Response).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");

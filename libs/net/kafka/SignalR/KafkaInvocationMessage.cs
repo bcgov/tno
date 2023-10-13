@@ -43,7 +43,7 @@ public class KafkaInvocationMessage
     /// <param name="message"></param>
     public KafkaInvocationMessage(InvocationMessage message)
     {
-        if (!Enum.TryParse<MessageTarget>(message.Target, out MessageTarget target)) throw new ConfigurationException($"Invocation message target '{message.Target}' does not exist");
+        if (!Enum.TryParse(message.Target, out MessageTarget target)) throw new ConfigurationException($"Invocation message target '{message.Target}' does not exist");
         this.InvocationId = message.InvocationId;
         this.Target = target;
         this.Arguments = message.Arguments;

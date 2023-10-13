@@ -1,5 +1,6 @@
 using System.Text.Json;
 using TNO.API.Models;
+using TNO.Entities;
 
 namespace TNO.API.Areas.Admin.Models.Report;
 
@@ -40,6 +41,11 @@ public class ReportInstanceModel : AuditColumnsModel
     public DateTime? SentOn { get; set; }
 
     /// <summary>
+    /// get/set - The report status.
+    /// </summary>
+    public ReportStatus Status { get; set; }
+
+    /// <summary>
     /// get/set - The compiled subject of the report.
     /// Used to recreate the report.
     /// </summary>
@@ -75,6 +81,7 @@ public class ReportInstanceModel : AuditColumnsModel
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.PublishedOn = entity.PublishedOn;
         this.SentOn = entity.SentOn;
+        this.Status = entity.Status;
         this.Response = entity.Response;
         this.Subject = entity.Subject;
         this.Body = entity.Body;

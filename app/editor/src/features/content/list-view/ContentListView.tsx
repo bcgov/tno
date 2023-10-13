@@ -1,7 +1,7 @@
 import { NavigateOptions, useTab } from 'components/tab-control';
 import React, { lazy } from 'react';
 import { useParams } from 'react-router-dom';
-import { HubMethodName, useApiHub, useApp, useContent } from 'store/hooks';
+import { useApiHub, useApp, useContent } from 'store/hooks';
 import { IContentSearchResult, useContentStore } from 'store/slices';
 import {
   Col,
@@ -12,6 +12,7 @@ import {
   ITablePage,
   ITableSort,
   IWorkOrderMessageModel,
+  MessageTargetName,
   Page,
   Row,
   Show,
@@ -86,7 +87,7 @@ const ContentListView: React.FC = () => {
     [getContent, updateContent],
   );
 
-  hub.useHubEffect(HubMethodName.WorkOrder, onWorkOrder);
+  hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
 
   const onContentUpdated = React.useCallback(
     async (message: IContentMessageModel) => {
@@ -101,7 +102,7 @@ const ContentListView: React.FC = () => {
     [content?.items, getContent, updateContent],
   );
 
-  hub.useHubEffect(HubMethodName.ContentUpdated, onContentUpdated);
+  hub.useHubEffect(MessageTargetName.ContentUpdated, onContentUpdated);
 
   React.useEffect(() => {
     // Required because the first time this page is loaded directly the user has not been set.

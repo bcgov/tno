@@ -1,4 +1,4 @@
-using System.Net.Http.Headers;
+using TNO.Core.Http;
 
 namespace TNO.Services;
 
@@ -7,6 +7,13 @@ namespace TNO.Services;
 /// </summary>
 public interface IApiService
 {
+    #region Properties
+    /// <summary>
+    /// get - HTTP client to make HTTP requests.
+    /// </summary>
+    IOpenIdConnectRequestClient OpenClient { get; }
+    #endregion
+
     #region Helper Methods
     public Task<T> HandleRequestFailure<T>(Func<Task<T>> callbackDelegate, bool ignoreError, T defaultResponse);
     #endregion
@@ -126,17 +133,15 @@ public interface IApiService
     /// Make a request to the API to update the ingest state.
     /// </summary>
     /// <param name="ingest"></param>
-    /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestStateAsync(API.Areas.Services.Models.Ingest.IngestModel ingest, HttpRequestHeaders? headers = null);
+    public Task<API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestStateAsync(API.Areas.Services.Models.Ingest.IngestModel ingest);
 
     /// <summary>
     /// Make a request to the API to update the ingest configuration.
     /// </summary>
     /// <param name="ingest"></param>
-    /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestConfigAsync(API.Areas.Services.Models.Ingest.IngestModel ingest, HttpRequestHeaders? headers = null);
+    public Task<API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestConfigAsync(API.Areas.Services.Models.Ingest.IngestModel ingest);
 
     /// <summary>
     /// Make a request to the API to find the content reference for the specified key.
@@ -157,17 +162,15 @@ public interface IApiService
     /// Make a request to the API to update the specified content reference.
     /// </summary>
     /// <param name="contentReference"></param>
-    /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> UpdateContentReferenceAsync(API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference, HttpRequestHeaders? headers = null);
+    public Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> UpdateContentReferenceAsync(API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference);
 
     /// <summary>
     /// Make a request to the API to update the specified content reference with Kafka information.
     /// </summary>
     /// <param name="contentReference"></param>
-    /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> UpdateContentReferenceKafkaAsync(API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference, HttpRequestHeaders? headers = null);
+    public Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> UpdateContentReferenceKafkaAsync(API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference);
 
     /// <summary>
     /// Make a request to the API to add the specified content.
@@ -181,20 +184,18 @@ public interface IApiService
     /// Make a request to the API to update the content for the specified ContentModel.
     /// </summary>
     /// <param name="content"></param>
-    /// <param name="headers"></param>
     /// <param name="index">Be careful this can result in a indexing loop.</param>
     /// <param name="requestorId">The user ID who is requesting the update.</param>
     /// <returns></returns>
-    public Task<API.Areas.Services.Models.Content.ContentModel?> UpdateContentAsync(API.Areas.Services.Models.Content.ContentModel content, HttpRequestHeaders? headers = null, bool index = false, int? requestorId = null);
+    public Task<API.Areas.Services.Models.Content.ContentModel?> UpdateContentAsync(API.Areas.Services.Models.Content.ContentModel content, bool index = false, int? requestorId = null);
 
     /// <summary>
     /// Make a request to the API to update the content status for the specified ContentModel.
     /// Will not trigger any re-index or audit trail update
     /// </summary>
     /// <param name="content"></param>
-    /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<API.Areas.Services.Models.Content.ContentModel?> UpdateContentStatusAsync(API.Areas.Services.Models.Content.ContentModel content, HttpRequestHeaders? headers = null);
+    public Task<API.Areas.Services.Models.Content.ContentModel?> UpdateContentStatusAsync(API.Areas.Services.Models.Content.ContentModel content);
 
     /// <summary>
     /// Make a request to the API to upload the file and link to specified content.
@@ -236,6 +237,15 @@ public interface IApiService
     Task<string?> GetImageFile(long id);
     #endregion
 
+    #region Actions
+    /// <summary>
+    /// Update the content action.
+    /// </summary>
+    /// <param name="action"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.Content.ContentActionModel?> UpdateContentActionAsync(API.Areas.Services.Models.Content.ContentActionModel action);
+    #endregion
+
     #region Work Orders
     /// <summary>
     /// Make a request to the API and find the work order for the specified 'id'.
@@ -248,9 +258,8 @@ public interface IApiService
     /// Make a request to the API and update the specified 'workOrder'.
     /// </summary>
     /// <param name="workOrder"></param>
-    /// <param name="headers"></param>
     /// <returns></returns>
-    Task<API.Areas.Services.Models.WorkOrder.WorkOrderModel?> UpdateWorkOrderAsync(API.Areas.Services.Models.WorkOrder.WorkOrderModel workOrder, HttpRequestHeaders? headers = null);
+    Task<API.Areas.Services.Models.WorkOrder.WorkOrderModel?> UpdateWorkOrderAsync(API.Areas.Services.Models.WorkOrder.WorkOrderModel workOrder);
     #endregion
 
     #region Users

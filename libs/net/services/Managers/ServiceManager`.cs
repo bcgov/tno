@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Net.Http.Headers;
 using TNO.Services.Config;
 
 namespace TNO.Services.Managers;
@@ -35,19 +34,6 @@ public abstract class ServiceManager<TOption> : IServiceManager
     /// get - Api service controller.
     /// </summary>
     protected IApiService Api { get; private set; }
-
-    /// <summary>
-    /// get - HTTP headers to include in all requests.
-    /// </summary>
-    protected HttpRequestHeaders Headers
-    {
-        get
-        {
-            var headers = new HttpRequestMessage().Headers;
-            headers.Add("User-Agent", GetType().FullName);
-            return headers;
-        }
-    }
     #endregion
 
     #region Constructors
@@ -64,6 +50,8 @@ public abstract class ServiceManager<TOption> : IServiceManager
         ILogger<ServiceManager<TOption>> logger)
     {
         this.Api = api;
+        // All requests will be identified by the service type name.
+        this.Api.OpenClient.Client.DefaultRequestHeaders.Add("User-Agent", GetType().FullName);
         this.Options = options.Value;
         this.Logger = logger;
         this.State = new ServiceState(this.Options);
