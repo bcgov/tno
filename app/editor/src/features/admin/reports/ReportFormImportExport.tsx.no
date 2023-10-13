@@ -1,0 +1,123 @@
+import 'prismjs/themes/prism.css';
+import 'prismjs/components/prism-csharp';
+import 'prismjs/components/prism-cshtml';
+import 'prismjs/components/prism-json';
+
+import { useFormikContext } from 'formik';
+import { highlight, languages } from 'prismjs';
+import React from 'react';
+import Editor from 'react-simple-code-editor';
+import { toast } from 'react-toastify';
+import { useLookupOptions } from 'store/hooks';
+import {
+  Button,
+  ButtonVariant,
+  Col,
+  generateQuery,
+  IReportModel,
+  IReportSettingsModel,
+  Row,
+  Show,
+} from 'tno-core';
+
+import { exportReport, parseExportedReport } from './utils';
+
+/**
+ * The page used to import and export report.
+ * @returns Component.
+ */
+export const ReportFormImportExport: React.FC = () => {
+  const { values, setFieldValue, setValues } = useFormikContext<IReportModel>();
+  const [{ series, products, sources, contributors, actions }] = useLookupOptions();
+
+  const [rawReport, setRawReport] = React.useState('{}');
+
+  const parseImport = React.useCallback(
+    (data: string) => {
+      try {
+        const rawExportedReport = JSON.parse(data);
+
+        var importedReport = parseExportedReport(
+          rawExportedReport,
+          actions,
+          contributors,
+          series,
+          sources,
+          products,
+        );
+        setValues({ ...importedReport });
+
+        const query = generateQuery(importedReport.settings as IReportSettingsModel, null);
+        setFieldValue('query', query);
+      } catch (ex) {
+        const error = ex as Error;
+        console.error(ex);
+        toast.error(error.message);
+      }
+    },
+    [setValues, setFieldValue, actions, contributors, series, sources, products],
+  );
+
+  return (
+    <>
+      <Col>
+        <h2>{values.name}</h2>
+        <Row>
+          <Col flex="1">
+            <p>Import / Export.</p>
+          </Col>
+          <Button
+            variant={ButtonVariant.secondary}
+            onClick={() => {
+              parseImport(rawReport);
+            }}
+          >
+            Import Report
+          </Button>
+          <Show visible={values?.id > 0}>
+            <Button
+              variant={ButtonVariant.secondary}
+              onClick={() => {
+                var exportedReport = exportReport(
+                  values.name,
+                  values.description,
+                  values.settings,
+                  actions,
+                  contributors,
+                  series,
+                  sources,
+                  products,
+                );
+                setRawReport(JSON.stringify(exportedReport));
+              }}
+            >
+              Export Report
+            </Button>
+          </Show>
+        </Row>
+      </Col>
+      <Col className="code frm-importexportreport">
+        <label htmlFor="txa-importexportreport">Raw report</label>
+        <p>Paste your exported report below and an attempt will be made to parse it.</p>
+        <Col className="editor">
+          <Editor
+            id="txa-importexportreport"
+            value={rawReport}
+            onValueChange={(importJson) => {
+              try {
+                // parseImport(JSON.parse(importJson));
+                setRawReport(importJson);
+              } catch {
+                // Ignore errors.
+                // TODO: Inform user of formatting issues on blur/validation.
+              }
+            }}
+            highlight={(code) => {
+              return highlight(code, languages.json, 'json');
+            }}
+          />
+        </Col>
+      </Col>
+    </>
+  );
+};
