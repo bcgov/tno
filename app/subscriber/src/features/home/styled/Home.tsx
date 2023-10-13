@@ -1,7 +1,26 @@
 import styled from 'styled-components';
 
 export const Home = styled.div`
+  .folder-sub-menu {
+    margin-left: auto;
+  }
   /* table styling */
+  .view-options {
+    background-color: white;
+    color: black;
+    opacity: 1;
+    /* add box shadow */
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+    z-index: 999;
+  }
+  .more-options {
+    margin-left: 1em;
+    margin-top: 0.25em;
+    color: #3847aa;
+    &:hover {
+      cursor: pointer;
+    }
+  }
   .table {
     width: 100%;
     .group {

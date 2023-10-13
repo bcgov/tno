@@ -1,13 +1,18 @@
 import { Sentiment } from 'components/sentiment';
 import { ContentTypeName, IContentModel, ITableHookColumn } from 'tno-core';
 
-export const determineColumns = (contentType: ContentTypeName | 'all', windowWidth?: number) => {
+export const determineColumns = (
+  contentType: ContentTypeName | 'all',
+  windowWidth?: number,
+  hide?: string[],
+) => {
   // columns common to all content
   const baseCols: ITableHookColumn<IContentModel>[] = [
     {
       accessor: 'tone',
       label: 'TONE',
       width: 0.25,
+      isVisible: !hide?.includes('tone'),
       cell: (cell) => (
         <Sentiment value={cell.original.tonePools ? cell.original.tonePools[0]?.value : 0} />
       ),
@@ -24,6 +29,7 @@ export const determineColumns = (contentType: ContentTypeName | 'all', windowWid
     {
       accessor: 'sectionPage',
       label: 'SECTION PAGE',
+      isVisible: !hide?.includes('sectionPage'),
       cell: (cell) => (
         <div className="section">{`${cell.original.section}: ${cell?.original.page}`}</div>
       ),
