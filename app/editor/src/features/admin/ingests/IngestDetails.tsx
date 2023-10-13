@@ -133,6 +133,9 @@ const IngestDetails: React.FC<IIngestDetailsProps> = () => {
             name="topic"
             required
             disabled={!!values.configuration.topicFromSource}
+            onChange={(e) => {
+              setFieldValue('topic', e.target.value.replaceAll(/\s/g, '_'));
+            }}
           />
           <FormikCheckbox
             label="Use Source Code"

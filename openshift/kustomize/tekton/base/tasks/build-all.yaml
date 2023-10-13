@@ -86,27 +86,170 @@ spec:
           exit 1;
         fi
 
+        # ***************************************************
         # An array of all the objects for the solution.
-        COMPONENTS=("db-migration" "elastic-migration" "api" "editor" "subscriber" "charts-api" "content" "filecopy" "filemonitor" "image" "indexing" "nlp" "notification" "reporting" "syndication" "transcription" "capture" "clip" "scheduler")
-        declare -A IMAGES=(["db-migration"]="db-migration" ["elastic-migration"]="elastic-migration" ["api"]="api" ["editor"]="editor" ["subscriber"]="subscriber" ["charts-api"]="charts-api" ["content"]="content-service" ["filecopy"]="filecopy-service" ["filemonitor"]="filemonitor-service" ["image"]="image-service" ["indexing"]="indexing-service" ["nlp"]="nlp-service" ["notification"]="notification-service" ["reporting"]="reporting-service" ["syndication"]="syndication-service" ["transcription"]="transcription-service" ["capture"]="capture-service" ["clip"]="clip-service" ["scheduler"]="scheduler-service")
-        declare -A CONTEXTS=(["db-migration"]="/libs/net" ["elastic-migration"]="" ["api"]="" ["editor"]="/app/editor" ["subscriber"]="/app/subscriber" ["charts-api"]="/api/node" ["content"]="" ["filecopy"]="" ["filemonitor"]="" ["image"]="" ["indexing"]="" ["nlp"]="" ["notification"]="" ["reporting"]="" ["syndication"]="" ["transcription"]="" ["capture"]="" ["clip"]="" ["scheduler"]="")
-        declare -A DOCKERFILES=(["db-migration"]="/Dockerfile" ["elastic-migration"]="/tools/elastic/migration/Dockerfile" ["api"]="/api/net/Dockerfile.openshift" ["editor"]="/Dockerfile.open" ["subscriber"]="/Dockerfile.open" ["charts-api"]="/Dockerfile.open" ["content"]="/services/net/content/Dockerfile" ["filecopy"]="/services/net/filecopy/Dockerfile" ["filemonitor"]="/services/net/filemonitor/Dockerfile" ["image"]="/services/net/image/Dockerfile" ["indexing"]="/services/net/indexing/Dockerfile" ["nlp"]="/services/net/nlp/Dockerfile" ["notification"]="/services/net/notification/Dockerfile" ["reporting"]="/services/net/reporting/Dockerfile" ["syndication"]="/services/net/syndication/Dockerfile" ["transcription"]="/services/net/transcription/Dockerfile" ["capture"]="/services/net/capture/Dockerfile" ["clip"]="/services/net/clip/Dockerfile" ["scheduler"]="/services/net/scheduler/Dockerfile")
+        # ***************************************************
+
+        # Ingest Services
+        declare -A COMPONENT0=(
+          [id]="syndication"
+          [image]="syndication-service"
+          [context]=""
+          [dockerfile]="/services/net/syndication/Dockerfile"
+        )
+
+        declare -A COMPONENT1=(
+          [id]="filemonitor"
+          [image]="filemonitor-service"
+          [context]=""
+          [dockerfile]="/services/net/filemonitor/Dockerfile"
+        )
+
+        declare -A COMPONENT2=(
+          [id]="image"
+          [image]="image-service"
+          [context]=""
+          [dockerfile]="/services/net/image/Dockerfile"
+        )
+
+        declare -A COMPONENT3=(
+          [id]="capture"
+          [image]="capture-service"
+          [context]=""
+          [dockerfile]="/services/net/capture/Dockerfile"
+        )
+
+        declare -A COMPONENT4=(
+          [id]="clip"
+          [image]="clip-service"
+          [context]=""
+          [dockerfile]="/services/net/clip/Dockerfile"
+        )
+
+        declare -A COMPONENT5=(
+          [id]="contentmigration"
+          [image]="contentmigration-service"
+          [context]=""
+          [dockerfile]="/services/net/contentmigration/Dockerfile"
+        )
+
+        # Processing Services
+
+        declare -A COMPONENT6=(
+          [id]="content"
+          [image]="content-service"
+          [context]=""
+          [dockerfile]="/services/net/content/Dockerfile"
+        )
+
+        declare -A COMPONENT7=(
+          [id]="indexing"
+          [image]="indexing-service"
+          [context]=""
+          [dockerfile]="/services/net/indexing/Dockerfile"
+        )
+
+        declare -A COMPONENT8=(
+          [id]="transcription"
+          [image]="transcription-service"
+          [context]=""
+          [dockerfile]="/services/net/transcription/Dockerfile"
+        )
+
+        declare -A COMPONENT9=(
+          [id]="nlp"
+          [image]="nlp-service"
+          [context]=""
+          [dockerfile]="/services/net/nlp/Dockerfile"
+        )
+
+        declare -A COMPONENT10=(
+          [id]="filecopy"
+          [image]="filecopy-service"
+          [context]=""
+          [dockerfile]="/services/net/filecopy/Dockerfile"
+        )
+
+        declare -A COMPONENT11=(
+          [id]="reporting"
+          [image]="reporting-service"
+          [context]=""
+          [dockerfile]="/services/net/reporting/Dockerfile"
+        )
+
+        declare -A COMPONENT12=(
+          [id]="notification"
+          [image]="notification-service"
+          [context]=""
+          [dockerfile]="/services/net/notification/Dockerfile"
+        )
+
+        declare -A COMPONENT13=(
+          [id]="scheduler"
+          [image]="scheduler-service"
+          [context]=""
+          [dockerfile]="/services/net/scheduler/Dockerfile"
+        )
+
+        # Applications
+
+        declare -A COMPONENT14=(
+          [id]="api"
+          [image]="api"
+          [context]=""
+          [dockerfile]="/api/net/Dockerfile.openshift"
+        )
+
+        declare -A COMPONENT15=(
+          [id]="charts-api"
+          [image]="charts-api"
+          [context]="/api/node"
+          [dockerfile]="/Dockerfile.open"
+        )
+
+        declare -A COMPONENT16=(
+          [id]="editor"
+          [image]="editor"
+          [context]="/app/editor"
+          [dockerfile]="/Dockerfile.open"
+        )
+
+        declare -A COMPONENT17=(
+          [id]="subscriber"
+          [image]="subscriber"
+          [context]="/app/subscriber"
+          [dockerfile]="/Dockerfile.open"
+        )
+
+        declare -A COMPONENT18=(
+          [id]="db"
+          [image]="db-migration"
+          [context]="/libs/net"
+          [dockerfile]="/Dockerfile"
+        )
+
+        declare -A COMPONENT19=(
+          [id]="elastic
+          [image]="elastic-migration"
+          [context]=""
+          [dockerfile]="/tools/elastic/migration/Dockerfile"
+        )
+
+        declare -n component;
 
         # Loop through each component and build if required.
-        for VALUE in ${COMPONENTS[@]}; do
+        for component in ${!COMPONENT@}; do
           # Dynamic variable to control what will be built.
-          TVAR='BUILD_'${VALUE}
+          TVAR='BUILD_'${component[id]}
           COMPONENT=${TVAR//\-/_}
           COMPONENT=${COMPONENT^^}
           echo $COMPONENT=${!COMPONENT}
-          IMAGE=${IMAGES[$VALUE]}
-          CONTEXT=${CONTEXTS[$VALUE]}
-          DOCKERFILE=${DOCKERFILES[$VALUE]}
 
           # Check if this image needs to be built.
-          if [ "${!COMPONENT}" = true ] || [ "$(params.BUILD)" = "all" ] || [ "$(params.BUILD)" = ${VALUE} ]; then
+          # If the component was auto built by the build step, or all components are to built, or a specific component was requested to be built.
+          if [ "${!COMPONENT}" = true ] || [ "$(params.BUILD)" = "all" ] || [ "$(params.BUILD)" = "${component[id]}" ]; then
             echo '============================'
-            echo '= Building: '${IMAGE}
+            echo '= Building: '${component[id]}
             if [ ! -z "$IMAGE_REGISTRY_USER" ];  then
               buildah login \
                 -u $IMAGE_REGISTRY_USER \
@@ -115,12 +258,12 @@ spec:
 
             # Build the image.
             buildah --storage-driver=$(params.STORAGE_DRIVER) bud \
-              --no-cache -f ${DOCKERFILE} -t $(params.IMAGE_REGISTRY)/${IMAGE}:$(params.IMAGE_TAG) --isolation chroot $(params.CONTEXT)${CONTEXT}
+              --no-cache -f ${component[dockerfile]} -t $(params.IMAGE_REGISTRY)/${component[image]}:$(params.IMAGE_TAG) --isolation chroot $(params.CONTEXT)${component[context]}
 
             # Push the image to the registry.
-            buildah --storage-driver=$(params.STORAGE_DRIVER) push $(params.IMAGE_REGISTRY)/${IMAGE}:$(params.IMAGE_TAG)
+            buildah --storage-driver=$(params.STORAGE_DRIVER) push $(params.IMAGE_REGISTRY)/${component[image]}:$(params.IMAGE_TAG)
           else
             echo '============================'
-            echo '= Not building: '${IMAGE}
+            echo '= Not building: '${component[id]}
           fi
         done
