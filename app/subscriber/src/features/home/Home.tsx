@@ -5,9 +5,13 @@ import {
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
 import React from 'react';
+import { FaEllipsisVertical } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
+import { Tooltip } from 'react-tooltip';
 import { useContent } from 'store/hooks';
 import {
+  Checkbox,
+  Col,
   ContentStatus,
   ContentTypeName,
   FlexboxTable,
@@ -30,6 +34,8 @@ export const Home: React.FC = () => {
   const [{ filter, filterAdvanced }, { findContent }] = useContent();
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const [disabledCols, setDisabledCols] = React.useState<string[]>([]);
+  const [sortBy, setSortBy] = React.useState<'source' | 'time' | ''>('source');
   const navigate = useNavigate();
   const { width } = useWindowSize();
 
@@ -47,7 +53,7 @@ export const Home: React.FC = () => {
         });
         const data = await findContent({
           ...filters,
-          sort: ['source.sortOrder'],
+          sort: sortBy === 'time' ? ['publishedOn'] : ['source.sortOrder'],
         });
         setHomeItems(data.items);
         return new Page(data.page - 1, data.quantity, data?.items, data.total);
@@ -58,7 +64,7 @@ export const Home: React.FC = () => {
         setLoading(false);
       }
     },
-    [findContent],
+    [findContent, sortBy],
   );
 
   /** controls the checking and unchecking of rows in the list view */
@@ -80,15 +86,65 @@ export const Home: React.FC = () => {
       <Row>
         <div className="show-media-label">SHOW MEDIA TYPE:</div>
         <HomeFilters />
+        <FaEllipsisVertical data-tooltip-id="view-options" className="more-options" />
+        <FolderSubMenu selectedContent={selected} />
+
+        <Tooltip place="right" className="view-options" openOnClick id="view-options" clickable>
+          <Col>
+            <div className="show-section">
+              <b>Show:</b>
+              <Checkbox label={'TEASERS'} />
+              <Checkbox
+                label={'SENTIMENT'}
+                defaultChecked={!disabledCols.includes('tone')}
+                onClick={(e) => {
+                  if (!(e.target as HTMLInputElement).checked)
+                    setDisabledCols((disabledCols) => [...disabledCols, 'tone']);
+                  else
+                    setDisabledCols((disabledCols) => disabledCols.filter((col) => col !== 'tone'));
+                }}
+              />
+              <Checkbox
+                label={'PAGE NUMBERS'}
+                defaultChecked={!disabledCols.includes('sectionPage')}
+                onClick={(e) => {
+                  if (!(e.target as HTMLInputElement).checked)
+                    setDisabledCols((disabledCols) => [...disabledCols, 'sectionPage']);
+                  else
+                    setDisabledCols((disabledCols) =>
+                      disabledCols.filter((col) => col !== 'sectionPage'),
+                    );
+                }}
+              />
+            </div>
+            <div className="sort-section">
+              <b>Sort:</b>
+              <Checkbox
+                defaultChecked={sortBy === 'source'}
+                onClick={(e) =>
+                  (e.target as HTMLInputElement).checked ? setSortBy('source') : setSortBy('')
+                }
+                label={'MEDIA SOURCE'}
+              />
+              <Checkbox
+                onClick={(e) =>
+                  (e.target as HTMLInputElement).checked ? setSortBy('time') : setSortBy('')
+                }
+                label={'TIME'}
+              />
+            </div>
+          </Col>
+        </Tooltip>
       </Row>
-      <FolderSubMenu selectedContent={selected} />
       <DateFilter />
       <Row className="table-container">
         <FlexboxTable
           rowId="id"
-          columns={determineColumns(filter.contentTypes[0], width)}
+          columns={determineColumns(filter.contentTypes[0], width, disabledCols)}
           isMulti
-          groupBy={(item) => item.original.source?.name ?? ''}
+          groupBy={(item) =>
+            item.original.source?.name && sortBy === 'source' ? item.original.source?.name : ''
+          }
           onRowClick={(e: any) => {
             navigate(`/view/${e.original.id}`);
           }}
