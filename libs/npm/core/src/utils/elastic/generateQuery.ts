@@ -1,5 +1,6 @@
 import { IFilterSettingsModel } from '../../hooks';
 import { generateQueryForActions } from './generateQueryForActions';
+import { generateQueryForExistCheck } from './generateQueryForExistCheck';
 import { generateRangeForArrayField } from './generateRangeForArrayField';
 import { generateRangeForDateOffset } from './generateRangeForDateOffset';
 import { generateRangeForDates } from './generateRangeForDates';
@@ -36,6 +37,7 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
           generateTerm('edition', settings.edition),
           generateTerm('section', settings.section),
           generateTerm('page', settings.page),
+          settings.hasTopic ? generateQueryForExistCheck('topics') : undefined,
         ].filter((v) => v !== undefined),
       },
     },
