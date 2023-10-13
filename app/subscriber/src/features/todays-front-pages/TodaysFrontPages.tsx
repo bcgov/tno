@@ -1,3 +1,4 @@
+import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { determineColumns } from 'features/home/constants';
@@ -22,7 +23,7 @@ export const TodaysFrontPages: React.FC = () => {
   const [filter, setFilter] = React.useState<IFilterModel>(defaultFilter);
 
   const fetchResults = React.useCallback(
-    async (filter: IFilterModel) => {
+    async (filter: MsearchMultisearchBody) => {
       try {
         const res: any = await findContentWithElasticsearch(filter, false);
         const mappedResults = res.hits?.hits?.map((h: { _source: IContentModel }) => {
