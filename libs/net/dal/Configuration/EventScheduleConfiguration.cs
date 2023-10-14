@@ -12,7 +12,7 @@ public class EventScheduleConfiguration : AuditColumnsConfiguration<EventSchedul
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Property(m => m.ScheduleId).IsRequired();
         builder.Property(m => m.EventType).IsRequired();
-        builder.Property(m => m.Name).IsRequired().HasMaxLength(50);
+        builder.Property(m => m.Name).IsRequired().HasMaxLength(100);
         builder.Property(m => m.Description).IsRequired().HasMaxLength(2000);
         builder.Property(m => m.IsEnabled).IsRequired();
         builder.Property(m => m.ReportId);
