@@ -28,6 +28,7 @@ import { ReportFormSubscribers } from './ReportFormSubscribers';
 import { ReportFormTemplate } from './ReportFormTemplate';
 import { ReportTemplateContextProvider } from './ReportTemplateContext';
 import * as styled from './styled';
+import { ReportFormSchema } from './validation/ReportFormSchema';
 
 /**
  * The page used to view and edit reports.
@@ -46,6 +47,8 @@ const ReportForm: React.FC = () => {
     ownerId: userInfo?.id ?? 0,
   });
   const [active, setActive] = React.useState('report');
+
+  const [tabReportError, setTabReportError] = React.useState(false);
 
   const reportId = Number(id);
 
@@ -104,6 +107,8 @@ const ReportForm: React.FC = () => {
       />
       <FormikForm
         initialValues={report}
+        validationSchema={ReportFormSchema}
+        validateOnChange={false}
         onSubmit={(values, { setSubmitting }) => {
           handleSubmit(values);
           setSubmitting(false);
@@ -116,6 +121,7 @@ const ReportForm: React.FC = () => {
                 <>
                   <Tab
                     label="Report"
+                    hasErrors={tabReportError}
                     onClick={() => {
                       setActive('report');
                     }}
