@@ -495,3 +495,39 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+
+  ffmpeg:
+    image: tno:ffmpeg
+    profiles:
+      - all
+      - service
+    restart: "no"
+    container_name: tno-ffmpeg
+    build:
+      context: ./
+      dockerfile: services/net/ffmpeg/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
+    env_file:
+      - services/net/ffmpeg/.env
+    ports:
+      - ${FFMPEG_PORT:-40034}:8081
+    depends_on:
+      - api
+      - broker
+    networks:
+      - tno
+    volumes:
+      - tno-api-data:/data
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s

@@ -19,6 +19,7 @@ interface IWorkOrderController {
   transcribe: (content: IContentModel) => Promise<AxiosResponse<IWorkOrderModel>>;
   nlp: (content: IContentModel) => Promise<AxiosResponse<IWorkOrderModel>>;
   requestFile: (locationId: number, path: string) => Promise<AxiosResponse<IWorkOrderModel>>;
+  ffmpeg: (content: IContentModel) => Promise<AxiosResponse<IWorkOrderModel>>;
 }
 
 export const useWorkOrders = (): [IWorkOrderState, IWorkOrderController] => {
@@ -48,6 +49,9 @@ export const useWorkOrders = (): [IWorkOrderState, IWorkOrderController] => {
       },
       requestFile: async (locationId: number, path: string) => {
         return await dispatch('request-file', () => api.requestFile(locationId, path));
+      },
+      ffmpeg: async (content: IContentModel) => {
+        return await dispatch('ffmpeg-content', () => api.ffmpeg(content));
       },
     }),
     [api, dispatch],

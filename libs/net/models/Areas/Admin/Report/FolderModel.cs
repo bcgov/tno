@@ -41,11 +41,12 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of an FolderModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public FolderModel(Entities.Folder entity) : base(entity)
+    /// <param name="options"></param>
+    public FolderModel(Entities.Folder entity, JsonSerializerOptions options) : base(entity)
     {
         this.OwnerId = entity.OwnerId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
-        this.Content = entity.ContentManyToMany.Select(c => new FolderContentModel(c));
+        this.Content = entity.ContentManyToMany.Select(c => new FolderContentModel(c, options));
         this.Settings = entity.Settings;
     }
     #endregion

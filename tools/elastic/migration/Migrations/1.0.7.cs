@@ -1,3 +1,5 @@
+using System.Text.Json;
+using Microsoft.Extensions.Options;
 using TNO.DAL.Services;
 
 namespace TNO.Elastic.Migration;
@@ -14,7 +16,8 @@ public class Migration_107 : TNOMigration
     /// </summary>
     /// <param name="builder"></param>
     /// <param name="contentService"></param>
-    public Migration_107(MigrationBuilder builder, IContentService contentService) : base(builder, contentService)
+    /// <param name="serializerOptions"></param>
+    public Migration_107(MigrationBuilder builder, IContentService contentService, IOptions<JsonSerializerOptions> serializerOptions) : base(builder, contentService, serializerOptions)
     {
     }
     #endregion

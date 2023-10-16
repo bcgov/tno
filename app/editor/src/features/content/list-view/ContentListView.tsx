@@ -77,8 +77,8 @@ const ContentListView: React.FC = () => {
           workOrder.workType,
         )
       ) {
-        if (!!workOrder.configuration.contentId) {
-          getContent(workOrder.configuration.contentId ?? 0).then((content) => {
+        if (!!workOrder.contentId) {
+          getContent(workOrder.contentId ?? 0).then((content) => {
             if (!!content) updateContent([content]);
           });
         }

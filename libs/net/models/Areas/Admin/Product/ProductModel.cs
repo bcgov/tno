@@ -1,4 +1,6 @@
+using System.Text.Json;
 using TNO.API.Models;
+using TNO.API.Models.Settings;
 
 namespace TNO.API.Areas.Admin.Models.Product;
 
@@ -12,6 +14,11 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
     /// get/set - Whether content should be automatically transcribed.
     /// </summary>
     public bool AutoTranscribe { get; set; }
+
+    /// <summary>
+    /// get/set - Product settings.
+    /// </summary>
+    public ProductSettingsModel Settings { get; set; } = new ProductSettingsModel();
     #endregion
 
     #region Constructors
@@ -24,9 +31,11 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of an ProductModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public ProductModel(Entities.Product entity) : base(entity)
+    /// <param name="options"></param>
+    public ProductModel(Entities.Product entity, JsonSerializerOptions options) : base(entity)
     {
         this.AutoTranscribe = entity.AutoTranscribe;
+        this.Settings = JsonSerializer.Deserialize<ProductSettingsModel>(entity.Settings, options) ?? new();
     }
     #endregion
 
@@ -34,10 +43,12 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// Creates a new instance of a Product object.
     /// </summary>
+    /// <param name="options"></param>
     /// <returns></returns>
-    public Entities.Product ToEntity()
+    public Entities.Product ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.Product)this;
+        entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
         return entity;
     }
 
@@ -54,6 +65,7 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
             AutoTranscribe = model.AutoTranscribe,
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
+            Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
             Version = model.Version ?? 0
         };
 

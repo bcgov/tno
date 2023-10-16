@@ -134,7 +134,7 @@ public class WorkOrderController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(WorkOrderMessageModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Content" })]
+    [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public async Task<IActionResult> RequestTranscriptionAsync(long contentId)
     {
         var workOrder = await _workOrderHelper.RequestTranscriptionAsync(contentId, true);
@@ -157,7 +157,7 @@ public class WorkOrderController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(WorkOrderMessageModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Content" })]
+    [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public async Task<IActionResult> RequestNLPAsync(long contentId)
     {
         var workOrder = await _workOrderHelper.RequestNLPAsync(contentId, true);
@@ -180,7 +180,7 @@ public class WorkOrderController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Storage" })]
+    [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public async Task<IActionResult> RequestFileAsync([FromRoute] int locationId, [FromQuery] string path)
     {
         path = String.IsNullOrWhiteSpace(path) ? throw new BadRequestException("Query parameter 'path' required.") : HttpUtility.UrlDecode(path).MakeRelativePath();
@@ -235,6 +235,29 @@ public class WorkOrderController : ControllerBase
         }
 
         throw new BadRequestException("Location is not valid");
+    }
+
+    /// <summary>
+    /// Request a transcript for the content for the specified 'contentId'.
+    /// Publish message to kafka to request a transcription.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    [HttpPost("ffmpeg/{contentId}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(WorkOrderMessageModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "WorkOrder" })]
+    public async Task<IActionResult> RequestFFmpegAsync(long contentId)
+    {
+        var workOrder = await _workOrderHelper.RequestFFmpegAsync(contentId, true);
+        if (workOrder.Status != WorkOrderStatus.Submitted)
+            return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions))
+            {
+                StatusCode = (int)HttpStatusCode.AlreadyReported
+            };
+
+        return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions));
     }
     #endregion
 }

@@ -140,6 +140,11 @@ public class TnoTestContext : TNOContext
             .HasConversion(
                 v => JsonDocumentToString(v!), //KGM: Ignoring this for TestContext
                 v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<Entities.Product>().Property(p => p.Settings)
+            .HasConversion(
+                v => JsonDocumentToString(v),
+                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
     }
 
     /// <summary>

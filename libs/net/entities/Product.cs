@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using TNO.Core.Data;
 
 namespace TNO.Entities;
@@ -16,6 +17,11 @@ public class Product : BaseType<int>
     /// </summary>
     [Column("auto_transcribe")]
     public bool AutoTranscribe { get; set; }
+
+    /// <summary>
+    /// get/set - Configuration settings for product.
+    /// </summary>
+    public JsonDocument Settings { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get - List of ingest linked to this product.

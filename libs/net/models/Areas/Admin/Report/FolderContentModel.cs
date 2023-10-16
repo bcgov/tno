@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace TNO.API.Areas.Admin.Models.Report;
 
 /// <summary>
@@ -27,7 +29,8 @@ public class FolderContentModel : TNO.API.Areas.Services.Models.Content.ContentM
     /// Creates a new instance of an FolderContentModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public FolderContentModel(Entities.FolderContent entity) : base(entity.Content ?? throw new ArgumentNullException(nameof(entity)))
+    /// <param name="options"></param>
+    public FolderContentModel(Entities.FolderContent entity, JsonSerializerOptions options) : base(entity.Content ?? throw new ArgumentNullException(nameof(entity)), options)
     {
         this.FolderId = entity.FolderId;
         this.SortOrder = entity.SortOrder;

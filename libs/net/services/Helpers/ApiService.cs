@@ -516,6 +516,19 @@ public class ApiService : IApiService
     }
 
     /// <summary>
+    /// Make a request to the API to update the file for the specified ContentModel.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="index">Be careful this can result in a indexing loop.</param>
+    /// <param name="requestorId">The user ID who is requesting the update.</param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.Content.ContentModel?> UpdateFileAsync(API.Areas.Services.Models.Content.ContentModel content, bool index = false, int? requestorId = null)
+    {
+        var url = this.Options.ApiUrl.Append($"services/contents/{content.Id}/file?index={index}{(requestorId.HasValue ? $"&requestorId={requestorId.Value}" : "")}");
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.Content.ContentModel>(url, JsonContent.Create(content)));
+    }
+
+    /// <summary>
     /// Make a request to the API to get all notification instances for the specified 'contentId'.
     /// </summary>
     /// <param name="contentId"></param>

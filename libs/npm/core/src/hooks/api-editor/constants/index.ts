@@ -11,6 +11,8 @@ export * from './ContentStatus';
 export * from './ContentStatusName';
 export * from './ContentType';
 export * from './ContentTypeName';
+export * from './FFmpegAction';
+export * from './FFmpegActionName';
 export * from './LogicalOperator';
 export * from './MessageTargetName';
 export * from './NotificationStatus';

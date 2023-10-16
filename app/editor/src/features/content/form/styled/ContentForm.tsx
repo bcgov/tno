@@ -177,6 +177,7 @@ export const ContentForm = styled.div`
 
   .tab-section {
     flex-flow: row;
+    gap: 0.5rem;
   }
 
   .media {

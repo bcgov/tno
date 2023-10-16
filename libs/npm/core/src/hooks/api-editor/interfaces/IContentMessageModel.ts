@@ -7,4 +7,5 @@ export interface IContentMessageModel {
   ownerId?: number;
   headline: string;
   version?: number;
+  reason?: string;
 }

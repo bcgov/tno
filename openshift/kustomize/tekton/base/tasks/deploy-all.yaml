@@ -194,7 +194,7 @@ spec:
         )
 
         declare -A COMPONENT12=(
-          [id]="folder-collection"
+          [id]="foldercollection"
           [name]="folder-collection-service"
           [type]="dc"
           [replicas]="1"
@@ -239,7 +239,7 @@ spec:
           [id]="capture"
           [name]="capture-service"
           [type]="dc"
-          [replicas]="1"
+          [replicas]="0"
           [action]="stop"
           [build]="yes"
           [env]="dev test prod"
@@ -249,7 +249,7 @@ spec:
           [id]="clip"
           [name]="clip-service"
           [type]="dc"
-          [replicas]="1"
+          [replicas]="0"
           [action]="stop"
           [build]="yes"
           [env]="dev test prod"

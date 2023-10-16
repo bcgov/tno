@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using TNO.API.Models;
 using TNO.Entities;
@@ -233,7 +234,8 @@ public class ContentModel : AuditColumnsModel
     /// Creates a new instance of an ContentModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public ContentModel(Entities.Content entity) : base(entity)
+    /// <param name="options"></param>
+    public ContentModel(Entities.Content entity, JsonSerializerOptions options) : base(entity)
     {
         this.Id = entity?.Id ?? throw new ArgumentNullException(nameof(entity));
         this.Status = entity.Status;
@@ -242,7 +244,7 @@ public class ContentModel : AuditColumnsModel
         this.Source = entity.Source != null ? new SourceModel(entity.Source) : null;
         this.OtherSource = entity.OtherSource;
         this.ProductId = entity.ProductId;
-        this.Product = entity.Product != null ? new ProductModel(entity.Product) : null;
+        this.Product = entity.Product != null ? new ProductModel(entity.Product, options) : null;
         this.LicenseId = entity.LicenseId;
         this.SeriesId = entity.SeriesId;
         this.Series = entity.Series != null ? new SeriesModel(entity.Series) : null;

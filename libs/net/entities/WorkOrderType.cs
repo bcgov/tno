@@ -19,4 +19,9 @@ public enum WorkOrderType
     /// A request for a remote file.
     /// </summary>
     FileRequest = 2,
+
+    /// <summary>
+    /// A request to process file with FFmpeg.
+    /// </summary>
+    FFmpeg = 3,
 }
