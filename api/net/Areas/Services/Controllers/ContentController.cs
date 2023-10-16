@@ -13,6 +13,7 @@ using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.API.Models.SignalR;
+using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
 using TNO.DAL.Models;
@@ -258,6 +259,7 @@ public class ContentController : ControllerBase
 
         return new JsonResult(new ContentModel(content));
     }
+
     /// <summary>
     /// Update content for the specified 'id'.
     /// Will not trigger any re-index or audit trail update
@@ -370,6 +372,40 @@ public class ContentController : ControllerBase
     }
 
     /// <summary>
+    /// Find the notifications that have been sent for the specified content 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/notifications")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<NotificationInstanceModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public IActionResult GetNotificationsFor(long id)
+    {
+        var notifications = _contentService.GetNotificationsFor(id);
+        return new JsonResult(notifications.Select(n => new NotificationInstanceModel(n, _serializerOptions)));
+    }
+
+    /// <summary>
+    /// Update content action.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut("{id}/actions/{actionId}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ContentActionModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> UpdateContentActionAsync(ContentActionModel model)
+    {
+        var action = _contentService.AddOrUpdateContentAction((ContentAction)model);
+
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentActionUpdated, new[] { new ContentActionMessageModel(action), })));
+
+        return new JsonResult(new ContentActionModel(action));
+    }
+
+    /// <summary>
     /// Re-index all content in the database.
     /// </summary>
     /// <param name="requestorId">The user ID who is requesting the update.</param>
@@ -426,21 +462,6 @@ public class ContentController : ControllerBase
             _logger.LogWarning("Kafka indexing topic not configured.");
 
         return new BadRequestResult();
-    }
-
-    /// <summary>
-    /// Find the notifications that have been sent for the specified content 'id'.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpGet("{id}/notifications")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IEnumerable<NotificationInstanceModel>), (int)HttpStatusCode.OK)]
-    [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult GetNotificationsFor(long id)
-    {
-        var notifications = _contentService.GetNotificationsFor(id);
-        return new JsonResult(notifications.Select(n => new NotificationInstanceModel(n, _serializerOptions)));
     }
     #endregion
 }

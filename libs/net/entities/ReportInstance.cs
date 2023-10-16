@@ -67,6 +67,12 @@ public class ReportInstance : AuditColumns
     public string Body { get; set; } = "";
 
     /// <summary>
+    /// get/set - The status of this report.
+    /// </summary>
+    [Column("status")]
+    public ReportStatus Status { get; set; }
+
+    /// <summary>
     /// get/set - CHES response containing keys to find the status of a report.
     /// </summary>
     [Column("response")]

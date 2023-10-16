@@ -193,6 +193,16 @@ spec:
           [env]="dev test prod"
         )
 
+        declare -A COMPONENT12=(
+          [id]="folder-collection"
+          [name]="folder-collection-service"
+          [type]="dc"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
         # Ingest Services
 
         declare -A COMPONENT13=(
@@ -276,7 +286,7 @@ spec:
         if [ "${BUILD_API}" = true ] || [ "$(params.DEPLOY)" = "api" ] || [ "$(params.DEPLOY)" = "all" ]; then
           for component in ${!COMPONENT@}; do
             environments=(${component[env]})
-            if [[ "${component[action]}" == "stop" ]] && [[ $environments =~ "$(params.ENV)" ]]; then
+            if [[ "${component[action]}" = "stop" ]] && [[ $environments =~ "$(params.ENV)" ]]; then
               echo "Stopping ${component[id]}"
               oc scale ${component[type]} ${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV) --replicas=0
             fi
@@ -297,7 +307,7 @@ spec:
           # If the component was auto built by the build step, or all components are to built, or a specific component was requested to be built.
           if [ "${!COMPONENT}" = true ] || [ "$(params.DEPLOY)" = "all" ] || [ "$(params.DEPLOY)" = "${component[id]}" ]; then
             if [[ $environments =~ "$(params.ENV)" ]]; then
-              if [[ $component[build] == "yes" ]]; then
+              if [[ $component[build] = "yes" ]]; then
                 echo "Tagging image to trigger deployment to $(params.ENV)"
                 oc tag ${component[name]}:$(params.IMAGE_TAG) ${component[name]}:$(params.ENV)
               fi
@@ -316,7 +326,7 @@ spec:
         if [ "${BUILD_API}" = true ] || [ "$(params.DEPLOY)" = "api" ] || [ "$(params.DEPLOY)" = "all" ]; then
           for component in ${!COMPONENT@}; do
             environments=(${component[env]})
-            if [[ "${component[action]}" == "stop" ]] && [[ $environments =~ "$(params.ENV)" ]]; then
+            if [[ "${component[action]}" = "stop" ]] && [[ $environments =~ "$(params.ENV)" ]]; then
               echo "Starting ${component[name]}"
 
               if [ "${component[replicas]}" -gt "0" ]; then

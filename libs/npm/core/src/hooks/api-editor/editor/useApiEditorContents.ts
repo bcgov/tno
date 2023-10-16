@@ -8,6 +8,7 @@ import {
   IContentFilter,
   IContentListModel,
   IContentModel,
+  INotificationInstanceModel,
   IPaged,
   IWorkOrderModel,
   useApi,
@@ -33,7 +34,7 @@ export const useApiEditorContents = (
         ...filter,
         actions: filter?.actions?.length ? filter.actions : undefined,
       };
-      return api.get<IPaged<IContentModel>, AxiosResponse<IPaged<IContentModel>>, any>(
+      return api.get<never, AxiosResponse<IPaged<IContentModel>>, any>(
         `/editor/contents?${toQueryString(params)}`,
       );
     },
@@ -49,7 +50,7 @@ export const useApiEditorContents = (
       );
     },
     getContent: (id: number) => {
-      return api.get<IContentModel | undefined, AxiosResponse<IContentModel | undefined>, any>(
+      return api.get<never, AxiosResponse<IContentModel | undefined>, any>(
         `/editor/contents/${id}`,
       );
     },
@@ -113,7 +114,7 @@ export const useApiEditorContents = (
       );
     },
     download: async (id: number, fileName: string) => {
-      const response = await api.get<any, AxiosResponse<any>, any>(
+      const response = await api.get<never, AxiosResponse<any>, any>(
         `/editor/contents/${id}/download`,
         {
           responseType: 'blob',
@@ -140,7 +141,7 @@ export const useApiEditorContents = (
     },
     stream: async (path: string) => {
       const params = { path };
-      const response = await api.get<any, AxiosResponse<any>, any>(
+      const response = await api.get<never, AxiosResponse<any>, any>(
         `/editor/contents/stream?${toQueryString(params)}`,
         {
           responseType: 'blob',
@@ -150,6 +151,11 @@ export const useApiEditorContents = (
 
       response.data = window.URL.createObjectURL(new Blob([response.data]));
       return response;
+    },
+    getNotificationsFor: async (contentId: number) => {
+      return api.get<never, AxiosResponse<INotificationInstanceModel[]>, any>(
+        `/editor/contents/${contentId}/notifications`,
+      );
     },
   }).current;
 };

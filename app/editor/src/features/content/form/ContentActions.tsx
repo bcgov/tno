@@ -32,8 +32,8 @@ export interface IContentActionsProps {
    * Filter which actions you want included.
    */
   filter?: (action: IActionModel) => boolean;
-  /** The type of content that is being displayed within the Content Form */
-  contentType?: ContentTypeName;
+  /** A way to force actions to go to a new row. */
+  addRowOn?: (action: IActionModel, index: number) => boolean;
 }
 
 export interface IContentActionCheckbox {
@@ -44,8 +44,8 @@ export interface IContentActionCheckbox {
 export const ContentActions: React.FC<IContentActionsProps> = ({
   name = 'actions',
   init,
-  filter = () => true,
-  contentType,
+  filter,
+  addRowOn,
 }) => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [{ actions, holidays }] = useLookup();
@@ -53,6 +53,10 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
 
   const formActions: IContentActionModel[] = getIn(values, name, []);
   const [hidden, setHidden] = React.useState<IContentActionCheckbox[]>([]);
+
+  // Default to only showing actions assigned to the content type.
+  filter ??= (action: IActionModel) => action.contentTypes.includes(values.contentType);
+  addRowOn ??= (action: IActionModel, index: number) => action.name === ActionName.Commentary;
 
   React.useEffect(() => {
     // Needed this to reset the hidden values when new content is loaded.
@@ -75,17 +79,20 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
           found = { ...action, value: action.defaultValue };
           defaultActions.push(found);
         }
-        if (found.name === ActionName.Alert && contentType === ContentTypeName.PrintContent) {
+        if (
+          found.name === ActionName.Alert &&
+          values.contentType === ContentTypeName.PrintContent
+        ) {
           // Default PrintContent to not alert.
           found.value = 'false';
         }
-        if (found.name === ActionName.Homepage && contentType === ContentTypeName.Image) {
+        if (found.name === ActionName.Homepage && values.contentType === ContentTypeName.Image) {
           found.value = 'true';
         }
       });
       setFieldValue(name, defaultActions);
     }
-  }, [setFieldValue, actions, values.actions, init, name, contentType]);
+  }, [setFieldValue, actions, values.actions, init, name, values.contentType]);
 
   React.useEffect(() => {
     // When form action values are changed the hidden checkbox values must update so that the checkbox works correctly.
@@ -98,36 +105,37 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
   }, [formActions]);
 
   const options = actions
-    .filter((x) => x.isEnabled && filter(x))
-    .map((a) => {
-      const index = formActions.findIndex((ca) => ca.id === a.id);
-      const found = formActions[index];
+    .filter((a) => a.isEnabled && filter?.(a))
+    .map((a, rowIndex) => {
+      const actionIndex = formActions.findIndex((ca) => ca.id === a.id);
+      const found = formActions[actionIndex];
       return (
         <React.Fragment key={a.id}>
+          {addRowOn?.(a, rowIndex) && <div className="forceFlexRow"></div>}
           {a.valueType === ValueType.Boolean && (
             <FormikCheckbox
               label={a.name}
-              name={field('value', index)}
+              name={field('value', actionIndex)}
               value="true"
               checked={found?.value === 'true'}
               onChange={(e) => {
                 const checked = e.currentTarget.checked;
-                setFieldValue(field('value', index), checked ? 'true' : 'false');
+                setFieldValue(field('value', actionIndex), checked ? 'true' : 'false');
               }}
             />
           )}
           {a.valueType !== ValueType.Boolean && (
             <Checkbox
               label={a.name}
-              name={field('placeholder', index)}
+              name={field('placeholder', actionIndex)}
               value={true}
               checked={!!hidden.find((h) => h.id === a.id)?.value}
               onChange={(e) => {
                 const checked = e.currentTarget.checked;
-                if (!checked) setFieldValue(field('value', index), '');
+                if (!checked) setFieldValue(field('value', actionIndex), '');
                 else {
                   setFieldValue(
-                    field('value', index),
+                    field('value', actionIndex),
                     `${getDefaultCommentaryExpiryValue(values.publishedOn, holidays)}`,
                   );
                 }
@@ -142,9 +150,9 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
           )}
           {a.valueType === ValueType.String && (
             <Row>
-              {a.name === 'Commentary' && <FaHourglassHalf className="icon-indicator" />}
+              {a.name === ActionName.Commentary && <FaHourglassHalf className="icon-indicator" />}
               <FormikText
-                name={field('value', index)}
+                name={field('value', actionIndex)}
                 disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
                 required={!!hidden.find((h) => h.id === a.id)?.value}
                 width={FieldSize.Tiny}
@@ -154,7 +162,7 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
           )}
           {a.valueType === ValueType.Text && (
             <FormikTextArea
-              name={field('value', index)}
+              name={field('value', actionIndex)}
               label={a.valueLabel}
               disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
               required={!!hidden.find((h) => h.id === a.id)?.value}
@@ -162,7 +170,7 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
           )}
           {a.valueType === ValueType.Numeric && (
             <FormikText
-              name={field('value', index)}
+              name={field('value', actionIndex)}
               label={a.valueLabel}
               type="number"
               disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}

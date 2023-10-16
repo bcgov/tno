@@ -589,6 +589,21 @@ public class ContentController : ControllerBase
         }
         throw new NotImplementedException($"Data location type '{dataLocation?.Connection?.ConnectionType}' has not been configured");
     }
+
+    /// <summary>
+    /// Find the notifications that have been sent for the specified content 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/notifications")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<NotificationInstanceModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public IActionResult GetNotificationsFor(long id)
+    {
+        var notifications = _contentService.GetNotificationsFor(id);
+        return new JsonResult(notifications.Select(n => new NotificationInstanceModel(n, _serializerOptions)));
+    }
     #endregion
     #endregion
 }

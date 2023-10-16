@@ -22,6 +22,11 @@ public class ActionModel : BaseTypeModel<int>
     /// get/set - The default value.
     /// </summary>
     public string DefaultValue { get; set; } = "";
+
+    /// <summary>
+    /// get/set - An array of content type this action is linked to.
+    /// </summary>
+    public IEnumerable<Entities.ContentType> ContentTypes { get; set; } = Array.Empty<Entities.ContentType>();
     #endregion
 
     #region Constructors
@@ -39,6 +44,7 @@ public class ActionModel : BaseTypeModel<int>
         this.ValueLabel = entity.ValueLabel;
         this.ValueType = entity.ValueType;
         this.DefaultValue = entity.DefaultValue;
+        this.ContentTypes = entity.ContentTypes.Select(c => c.ContentType).ToArray();
     }
     #endregion
 }

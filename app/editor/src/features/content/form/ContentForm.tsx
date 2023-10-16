@@ -7,14 +7,7 @@ import React, { useCallback } from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import {
-  HubMethodName,
-  useApiHub,
-  useApp,
-  useContent,
-  useLookupOptions,
-  useWorkOrders,
-} from 'store/hooks';
+import { useApiHub, useApp, useContent, useLookupOptions, useWorkOrders } from 'store/hooks';
 import { IAjaxRequest } from 'store/slices';
 import {
   Area,
@@ -34,10 +27,12 @@ import {
   FormikTextArea,
   FormPage,
   hasErrors,
+  IContentActionMessageModel,
   IContentMessageModel,
   IContentModel,
   IResponseErrorModel,
   IWorkOrderMessageModel,
+  MessageTargetName,
   Modal,
   Row,
   Show,
@@ -192,7 +187,23 @@ const ContentForm: React.FC<IContentFormProps> = ({
     [fetchContent, form],
   );
 
-  hub.useHubEffect(HubMethodName.WorkOrder, onWorkOrder);
+  hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
+
+  const onContentAction = React.useCallback(
+    (action: IContentActionMessageModel) => {
+      if (action.contentId === form.id) {
+        setForm({
+          ...form,
+          actions: form.actions.map((a) =>
+            a.id === action.actionId ? { ...a, value: action.value, version: action.version } : a,
+          ),
+        });
+      }
+    },
+    [form],
+  );
+
+  hub.useHubEffect(MessageTargetName.ContentActionUpdated, onContentAction);
 
   const onContentUpdated = React.useCallback(
     async (message: IContentMessageModel) => {
@@ -206,7 +217,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
     [fetchContent, form.id, form.version, isSubmitting],
   );
 
-  hub.useHubEffect(HubMethodName.ContentUpdated, onContentUpdated);
+  hub.useHubEffect(MessageTargetName.ContentUpdated, onContentUpdated);
 
   React.useEffect(() => {
     if (!!id && +id > 0) {

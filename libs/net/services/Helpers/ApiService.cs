@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeTypes;
-using TNO.API.Areas.Services.Models.Content;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
@@ -37,7 +36,7 @@ public class ApiService : IApiService
     /// <summary>
     /// get - HTTP client to make HTTP requests.
     /// </summary>
-    protected IOpenIdConnectRequestClient Client { get; private set; }
+    public IOpenIdConnectRequestClient OpenClient { get; private set; }
 
     /// <summary>
     /// get - The logger.
@@ -56,7 +55,7 @@ public class ApiService : IApiService
     public ApiService(IOpenIdConnectRequestClient client, IOptions<JsonSerializerOptions> serializerOptions, IOptions<ServiceOptions> options, ILogger<IApiService> logger)
     {
         _serializerOptions = serializerOptions.Value;
-        this.Client = client;
+        this.OpenClient = client;
         this.Options = options.Value;
         this.Logger = logger;
     }
@@ -130,7 +129,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.SourceContent>?> SendMessageAsync(string topic, TNO.Kafka.Models.SourceContent content)
     {
         var url = this.Options.ApiUrl.Append($"kafka/producers/content/{topic}");
-        return await RetryRequestAsync(async () => await this.Client.PostAsync<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.SourceContent>>(url, JsonContent.Create(content)));
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.SourceContent>>(url, JsonContent.Create(content)));
     }
 
     /// <summary>
@@ -141,7 +140,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.NotificationRequestModel>?> SendMessageAsync(TNO.Kafka.Models.NotificationRequestModel request)
     {
         var url = this.Options.ApiUrl.Append($"kafka/producers/notification");
-        return await RetryRequestAsync(async () => await this.Client.PostAsync<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.NotificationRequestModel>>(url, JsonContent.Create(request)));
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.NotificationRequestModel>>(url, JsonContent.Create(request)));
     }
 
     /// <summary>
@@ -152,7 +151,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.ReportRequestModel>?> SendMessageAsync(TNO.Kafka.Models.ReportRequestModel request)
     {
         var url = this.Options.ApiUrl.Append($"kafka/producers/report");
-        return await RetryRequestAsync(async () => await this.Client.PostAsync<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.ReportRequestModel>>(url, JsonContent.Create(request)));
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.ReportRequestModel>>(url, JsonContent.Create(request)));
     }
     #endregion
 
@@ -164,7 +163,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Editor.Models.Lookup.LookupModel?> GetLookupsAsync()
     {
         var url = this.Options.ApiUrl.Append($"editor/lookups");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<API.Areas.Editor.Models.Lookup.LookupModel>(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Editor.Models.Lookup.LookupModel>(url));
     }
     #endregion
 
@@ -177,7 +176,7 @@ public class ApiService : IApiService
     public async Task<TNO.API.Areas.Services.Models.DataLocation.DataLocationModel?> GetDataLocationAsync(int id)
     {
         var url = this.Options.ApiUrl.Append($"services/data/locations/{id}");
-        var response = await RetryRequestAsync(async () => await this.Client.GetAsync(url));
+        var response = await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url));
 
         return response.StatusCode switch
         {
@@ -195,7 +194,7 @@ public class ApiService : IApiService
     public async Task<TNO.API.Areas.Services.Models.DataLocation.DataLocationModel?> GetDataLocationAsync(string name)
     {
         var url = this.Options.ApiUrl.Append($"services/data/locations/{name}");
-        var response = await RetryRequestAsync(async () => await this.Client.GetAsync(url));
+        var response = await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url));
 
         return response.StatusCode switch
         {
@@ -215,7 +214,7 @@ public class ApiService : IApiService
     public async Task<TNO.API.Areas.Services.Models.Ingest.ConnectionModel?> GetConnectionAsync(int id)
     {
         var url = this.Options.ApiUrl.Append($"services/connections/{id}");
-        var response = await RetryRequestAsync(async () => await this.Client.GetAsync(url));
+        var response = await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url));
 
         return response.StatusCode switch
         {
@@ -234,7 +233,7 @@ public class ApiService : IApiService
     public async Task<IEnumerable<TNO.API.Areas.Services.Models.Ingest.SourceModel>> GetSourcesAsync()
     {
         var url = this.Options.ApiUrl.Append($"services/sources");
-        var result = await RetryRequestAsync(async () => await this.Client.GetAsync<TNO.API.Areas.Services.Models.Ingest.SourceModel[]>(url));
+        var result = await RetryRequestAsync(async () => await this.OpenClient.GetAsync<TNO.API.Areas.Services.Models.Ingest.SourceModel[]>(url));
         return result ?? Array.Empty<TNO.API.Areas.Services.Models.Ingest.SourceModel>();
     }
 
@@ -246,7 +245,7 @@ public class ApiService : IApiService
     public async Task<TNO.API.Areas.Services.Models.Ingest.SourceModel?> GetSourceForCodeAsync(string code)
     {
         var url = this.Options.ApiUrl.Append($"services/sources/{code}");
-        var response = await RetryRequestAsync(async () => await this.Client.GetAsync(url));
+        var response = await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url));
 
         return response.StatusCode switch
         {
@@ -266,7 +265,7 @@ public class ApiService : IApiService
     public async Task<TNO.API.Areas.Services.Models.Ingest.IngestModel?> GetIngestAsync(int id)
     {
         var url = this.Options.ApiUrl.Append($"services/ingests/{id}");
-        var response = await RetryRequestAsync(async () => await this.Client.GetAsync(url));
+        var response = await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url));
 
         return response.StatusCode switch
         {
@@ -283,7 +282,7 @@ public class ApiService : IApiService
     public async Task<IEnumerable<TNO.API.Areas.Services.Models.Ingest.IngestModel>> GetIngestsAsync()
     {
         var url = this.Options.ApiUrl.Append($"services/ingests");
-        var result = await RetryRequestAsync(async () => await this.Client.GetAsync<TNO.API.Areas.Services.Models.Ingest.IngestModel[]>(url));
+        var result = await RetryRequestAsync(async () => await this.OpenClient.GetAsync<TNO.API.Areas.Services.Models.Ingest.IngestModel[]>(url));
         return result ?? Array.Empty<TNO.API.Areas.Services.Models.Ingest.IngestModel>();
     }
 
@@ -295,7 +294,7 @@ public class ApiService : IApiService
     public async Task<IEnumerable<TNO.API.Areas.Services.Models.Ingest.IngestModel>> GetIngestsForIngestTypeAsync(string ingestType)
     {
         var url = this.Options.ApiUrl.Append($"services/ingests/for/ingest/type/{ingestType}");
-        var result = await RetryRequestAsync(async () => await this.Client.GetAsync<TNO.API.Areas.Services.Models.Ingest.IngestModel[]>(url));
+        var result = await RetryRequestAsync(async () => await this.OpenClient.GetAsync<TNO.API.Areas.Services.Models.Ingest.IngestModel[]>(url));
         return result ?? Array.Empty<TNO.API.Areas.Services.Models.Ingest.IngestModel>();
     }
 
@@ -307,7 +306,7 @@ public class ApiService : IApiService
     public async Task<IEnumerable<TNO.API.Areas.Services.Models.Ingest.IngestModel>> GetIngestsForTopicAsync(string topic)
     {
         var url = this.Options.ApiUrl.Append($"services/ingests/for/topic/{topic}");
-        var result = await RetryRequestAsync(async () => await this.Client.GetAsync<TNO.API.Areas.Services.Models.Ingest.IngestModel[]>(url));
+        var result = await RetryRequestAsync(async () => await this.OpenClient.GetAsync<TNO.API.Areas.Services.Models.Ingest.IngestModel[]>(url));
         return result ?? Array.Empty<TNO.API.Areas.Services.Models.Ingest.IngestModel>();
     }
 
@@ -317,12 +316,11 @@ public class ApiService : IApiService
     /// <param name="ingest"></param>
     /// <returns></returns>
     public async Task<TNO.API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestStateAsync(
-        TNO.API.Areas.Services.Models.Ingest.IngestModel ingest,
-        HttpRequestHeaders? headers = null)
+        TNO.API.Areas.Services.Models.Ingest.IngestModel ingest)
     {
         var url = this.Options.ApiUrl.Append($"services/ingests/{ingest.Id}/state");
         var jsonString = JsonSerializer.Serialize(ingest);
-        return await RetryRequestAsync(async () => await Client.SendAsync<TNO.API.Areas.Services.Models.Ingest.IngestModel>(url, HttpMethod.Put, headers, JsonContent.Create(ingest)));
+        return await RetryRequestAsync(async () => await this.OpenClient.SendAsync<TNO.API.Areas.Services.Models.Ingest.IngestModel>(url, HttpMethod.Put, JsonContent.Create(ingest)));
     }
 
     /// <summary>
@@ -331,12 +329,11 @@ public class ApiService : IApiService
     /// <param name="ingest"></param>
     /// <returns></returns>
     public async Task<TNO.API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestConfigAsync(
-        TNO.API.Areas.Services.Models.Ingest.IngestModel ingest,
-        HttpRequestHeaders? headers = null)
+        TNO.API.Areas.Services.Models.Ingest.IngestModel ingest)
     {
         var url = this.Options.ApiUrl.Append($"services/ingests/{ingest.Id}/configuration");
         var jsonString = JsonSerializer.Serialize(ingest);
-        return await RetryRequestAsync(async () => await Client.SendAsync<TNO.API.Areas.Services.Models.Ingest.IngestModel>(url, HttpMethod.Put, headers, JsonContent.Create(ingest)));
+        return await RetryRequestAsync(async () => await this.OpenClient.SendAsync<TNO.API.Areas.Services.Models.Ingest.IngestModel>(url, HttpMethod.Put, JsonContent.Create(ingest)));
     }
     #endregion
 
@@ -349,7 +346,7 @@ public class ApiService : IApiService
     public async Task<TNO.API.Areas.Services.Models.Ingest.ScheduleModel?> DeleteIngestSchedule(TNO.API.Areas.Services.Models.Ingest.IngestScheduleModel schedule)
     {
         var url = this.Options.ApiUrl.Append($"services/ingests/schedules/{schedule.IngestId}");
-        return await RetryRequestAsync(async () => await this.Client.DeleteAsync<TNO.API.Areas.Services.Models.Ingest.ScheduleModel>(url, JsonContent.Create(schedule.Schedule)));
+        return await RetryRequestAsync(async () => await this.OpenClient.DeleteAsync<TNO.API.Areas.Services.Models.Ingest.ScheduleModel>(url, JsonContent.Create(schedule.Schedule)));
     }
     #endregion
 
@@ -363,7 +360,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> FindContentReferenceAsync(string source, string uid)
     {
         var url = this.Options.ApiUrl.Append($"services/content/references/{source}?uid={uid}");
-        var response = await RetryRequestAsync(async () => await this.Client.GetAsync(url));
+        var response = await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url));
 
         return response.StatusCode switch
         {
@@ -382,7 +379,7 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"services/content/references");
         var content = JsonContent.Create(contentReference);
-        return await RetryRequestAsync(async () => await this.Client.PostAsync<API.Areas.Services.Models.ContentReference.ContentReferenceModel>(url, content));
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.ContentReference.ContentReferenceModel>(url, content));
     }
 
     /// <summary>
@@ -391,12 +388,11 @@ public class ApiService : IApiService
     /// <param name="contentReference"></param>
     /// <returns></returns>
     public async Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> UpdateContentReferenceAsync(
-        API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference,
-        HttpRequestHeaders? headers = null)
+        API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference)
     {
         var url = this.Options.ApiUrl.Append($"services/content/references/{contentReference.Source}?uid={contentReference.Uid}");
         var content = JsonContent.Create(contentReference);
-        return await RetryRequestAsync(async () => await Client.SendAsync<API.Areas.Services.Models.ContentReference.ContentReferenceModel>(url, HttpMethod.Put, headers, content));
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.ContentReference.ContentReferenceModel>(url, content));
     }
 
     /// <summary>
@@ -405,12 +401,11 @@ public class ApiService : IApiService
     /// <param name="contentReference"></param>
     /// <returns></returns>
     public async Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> UpdateContentReferenceKafkaAsync(
-        API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference,
-        HttpRequestHeaders? headers = null)
+        API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference)
     {
         var url = this.Options.ApiUrl.Append($"services/content/references/{contentReference.Source}/kafka?uid={contentReference.Uid}");
         var content = JsonContent.Create(contentReference);
-        return await RetryRequestAsync(async () => await Client.SendAsync<API.Areas.Services.Models.ContentReference.ContentReferenceModel>(url, HttpMethod.Put, headers, content));
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.ContentReference.ContentReferenceModel>(url, content));
     }
     #endregion
 
@@ -424,7 +419,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.Content.ContentModel?> FindContentByUidAsync(string uid, string? source)
     {
         var url = this.Options.ApiUrl.Append($"services/contents/find?uid={uid}&source={source}");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<API.Areas.Services.Models.Content.ContentModel?>(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.Content.ContentModel?>(url));
     }
 
     /// <summary>
@@ -435,7 +430,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.Content.ContentModel?> FindContentByIdAsync(long id)
     {
         var url = this.Options.ApiUrl.Append($"services/contents/{id}");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<API.Areas.Services.Models.Content.ContentModel?>(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.Content.ContentModel?>(url));
     }
 
     /// <summary>
@@ -446,7 +441,7 @@ public class ApiService : IApiService
     public async Task<string?> GetImageFile(long id)
     {
         var url = Options.ApiUrl.Append($"services/contents/{id}/image");
-        return await RetryRequestAsync(async () => await Client.GetAsync<string>(url,
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<string>(url,
             (response) =>
             {
                 var isBadRequest = response.StatusCode == HttpStatusCode.BadRequest;
@@ -466,7 +461,7 @@ public class ApiService : IApiService
         int? requestorId = null)
     {
         var url = this.Options.ApiUrl.Append($"services/contents{(requestorId.HasValue ? $"?requestorId={requestorId.Value}" : "")}");
-        return await RetryRequestAsync(async () => await this.Client.PostAsync<API.Areas.Services.Models.Content.ContentModel>(url, JsonContent.Create(content)));
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.Content.ContentModel>(url, JsonContent.Create(content)));
     }
 
     /// <summary>
@@ -478,12 +473,11 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<API.Areas.Services.Models.Content.ContentModel?> UpdateContentAsync(
         API.Areas.Services.Models.Content.ContentModel content,
-        HttpRequestHeaders? headers = null,
         bool index = false,
         int? requestorId = null)
     {
         var url = this.Options.ApiUrl.Append($"services/contents/{content.Id}?index={index}{(requestorId.HasValue ? $"&requestorId={requestorId.Value}" : "")}");
-        return await RetryRequestAsync(async () => await Client.SendAsync<API.Areas.Services.Models.Content.ContentModel>(url, HttpMethod.Put, headers, JsonContent.Create(content)));
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.Content.ContentModel>(url, JsonContent.Create(content)));
     }
 
     /// <summary>
@@ -493,12 +487,11 @@ public class ApiService : IApiService
     /// <param name="contentId"></param>
     /// <param name="newStatus"></param>
     /// <returns></returns>
-    public async Task<ContentModel?> UpdateContentStatusAsync(
-        API.Areas.Services.Models.Content.ContentModel content,
-        HttpRequestHeaders? headers = null)
+    public async Task<API.Areas.Services.Models.Content.ContentModel?> UpdateContentStatusAsync(
+        API.Areas.Services.Models.Content.ContentModel content)
     {
         var url = this.Options.ApiUrl.Append($"services/contents/{content.Id}/status");
-        return await RetryRequestAsync(async () => await Client.SendAsync<API.Areas.Services.Models.Content.ContentModel>(url, HttpMethod.Put, headers, JsonContent.Create(content)));
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.Content.ContentModel>(url, JsonContent.Create(content)));
     }
 
     /// <summary>
@@ -519,7 +512,7 @@ public class ApiService : IApiService
         {
             { fileContent, "files", fileName }
         };
-        return await RetryRequestAsync(async () => await this.Client.PostAsync<API.Areas.Services.Models.Content.ContentModel>(url, form));
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.Content.ContentModel>(url, form));
     }
 
     /// <summary>
@@ -530,8 +523,21 @@ public class ApiService : IApiService
     public async Task<IEnumerable<API.Areas.Services.Models.Content.NotificationInstanceModel>> GetNotificationsForAsync(long contentId)
     {
         var url = this.Options.ApiUrl.Append($"services/contents/{contentId}/notifications");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<IEnumerable<API.Areas.Services.Models.Content.NotificationInstanceModel>>(url)) ??
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Content.NotificationInstanceModel>>(url)) ??
             Array.Empty<API.Areas.Services.Models.Content.NotificationInstanceModel>();
+    }
+    #endregion
+
+    #region Actions
+    /// <summary>
+    /// Update the content action.
+    /// </summary>
+    /// <param name="action"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.Content.ContentActionModel?> UpdateContentActionAsync(API.Areas.Services.Models.Content.ContentActionModel action)
+    {
+        var url = this.Options.ApiUrl.Append($"services/contents/{action.ContentId}/actions/{action.Id}");
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.Content.ContentActionModel>(url, JsonContent.Create(action)));
     }
     #endregion
 
@@ -544,7 +550,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.WorkOrder.WorkOrderModel?> FindWorkOrderAsync(long id)
     {
         var url = this.Options.ApiUrl.Append($"services/work/orders/{id}");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<API.Areas.Services.Models.WorkOrder.WorkOrderModel>(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.WorkOrder.WorkOrderModel>(url));
     }
 
     /// <summary>
@@ -553,11 +559,10 @@ public class ApiService : IApiService
     /// <param name="workOrder"></param>
     /// <returns></returns>
     public async Task<API.Areas.Services.Models.WorkOrder.WorkOrderModel?> UpdateWorkOrderAsync(
-        API.Areas.Services.Models.WorkOrder.WorkOrderModel workOrder,
-        HttpRequestHeaders? headers = null)
+        API.Areas.Services.Models.WorkOrder.WorkOrderModel workOrder)
     {
         var url = this.Options.ApiUrl.Append($"services/work/orders/{workOrder.Id}");
-        return await RetryRequestAsync(async () => await Client.SendAsync<API.Areas.Services.Models.WorkOrder.WorkOrderModel>(url, HttpMethod.Put, headers, JsonContent.Create(workOrder)));
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.WorkOrder.WorkOrderModel>(url, JsonContent.Create(workOrder)));
     }
     #endregion
 
@@ -569,7 +574,7 @@ public class ApiService : IApiService
     public async Task<IEnumerable<API.Areas.Services.Models.Notification.NotificationModel>> GetAllNotificationsAsync()
     {
         var url = this.Options.ApiUrl.Append($"services/notifications");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<IEnumerable<API.Areas.Services.Models.Notification.NotificationModel>>(url)) ?? Array.Empty<API.Areas.Services.Models.Notification.NotificationModel>();
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Notification.NotificationModel>>(url)) ?? Array.Empty<API.Areas.Services.Models.Notification.NotificationModel>();
     }
 
     /// <summary>
@@ -580,7 +585,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.Notification.NotificationModel?> GetNotificationAsync(int id)
     {
         var url = this.Options.ApiUrl.Append($"services/notifications/{id}");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<API.Areas.Services.Models.Notification.NotificationModel?>(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.Notification.NotificationModel?>(url));
     }
 
     /// <summary>
@@ -591,7 +596,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel?> AddNotificationInstanceAsync(API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel instance)
     {
         var url = this.Options.ApiUrl.Append($"services/notification/instances");
-        return await RetryRequestAsync(async () => await this.Client.PostAsync<API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel>(url, JsonContent.Create(instance)));
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel>(url, JsonContent.Create(instance)));
     }
     #endregion
 
@@ -604,7 +609,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.Report.ReportModel?> GetReportAsync(int id)
     {
         var url = this.Options.ApiUrl.Append($"services/reports/{id}");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<API.Areas.Services.Models.Report.ReportModel?>(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.Report.ReportModel?>(url));
     }
 
     /// <summary>
@@ -615,7 +620,18 @@ public class ApiService : IApiService
     public async Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentForReportIdAsync(int id)
     {
         var url = this.Options.ApiUrl.Append($"services/reports/{id}/content");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>>(url)) ?? new Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>();
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>>(url)) ?? new Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>();
+    }
+
+    /// <summary>
+    /// Make a request to the API to clear all content from folders in this report.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.Report.ReportModel?> ClearFoldersInReport(int reportId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/{reportId}/clear/folders");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.Report.ReportModel>(url));
     }
 
     /// <summary>
@@ -626,7 +642,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> GetReportInstanceAsync(long id)
     {
         var url = this.Options.ApiUrl.Append($"services/report/instances/{id}");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?>(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?>(url));
     }
 
     /// <summary>
@@ -637,7 +653,7 @@ public class ApiService : IApiService
     public async Task<IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>> GetContentForReportInstanceIdAsync(long id)
     {
         var url = this.Options.ApiUrl.Append($"services/report/instances/{id}/content");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>>(url))
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>>(url))
             ?? Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>();
     }
 
@@ -649,7 +665,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> AddReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance)
     {
         var url = this.Options.ApiUrl.Append($"services/report/instances");
-        return await RetryRequestAsync(async () => await this.Client.PostAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(url, JsonContent.Create(instance)));
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(url, JsonContent.Create(instance)));
     }
 
     /// <summary>
@@ -660,18 +676,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> UpdateReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance)
     {
         var url = this.Options.ApiUrl.Append($"services/report/instances/{instance.Id}");
-        return await RetryRequestAsync(async () => await this.Client.PutAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(url, JsonContent.Create(instance)));
-    }
-
-    /// <summary>
-    /// Make a request to the API to clear all content from folders in this report.
-    /// </summary>
-    /// <param name="instance"></param>
-    /// <returns></returns>
-    public async Task<API.Areas.Services.Models.Report.ReportModel?> ClearFoldersInReport(int reportId)
-    {
-        var url = this.Options.ApiUrl.Append($"services/report/{reportId}/clear/folders");
-        return await RetryRequestAsync(async () => await this.Client.PostAsync<API.Areas.Services.Models.Report.ReportModel>(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(url, JsonContent.Create(instance)));
     }
     #endregion
 
@@ -684,7 +689,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.User.UserModel?> GetUserAsync(int id)
     {
         var url = this.Options.ApiUrl.Append($"services/users/{id}");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<API.Areas.Services.Models.User.UserModel?>(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.User.UserModel?>(url));
     }
     #endregion
 
@@ -696,7 +701,7 @@ public class ApiService : IApiService
     public async Task<IEnumerable<API.Areas.Services.Models.EventSchedule.EventScheduleModel>> GetEventSchedulesAsync()
     {
         var url = this.Options.ApiUrl.Append($"services/events/schedules");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<IEnumerable<API.Areas.Services.Models.EventSchedule.EventScheduleModel>>(url)) ?? Array.Empty<API.Areas.Services.Models.EventSchedule.EventScheduleModel>();
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.EventSchedule.EventScheduleModel>>(url)) ?? Array.Empty<API.Areas.Services.Models.EventSchedule.EventScheduleModel>();
     }
 
     /// <summary>
@@ -707,7 +712,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.EventSchedule.EventScheduleModel?> GetEventScheduleAsync(int id)
     {
         var url = this.Options.ApiUrl.Append($"services/events/schedules/{id}");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<API.Areas.Services.Models.EventSchedule.EventScheduleModel?>(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.EventSchedule.EventScheduleModel?>(url));
     }
 
     /// <summary>
@@ -718,7 +723,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.EventSchedule.EventScheduleModel?> UpdateEventScheduleAsync(API.Areas.Services.Models.EventSchedule.EventScheduleModel model)
     {
         var url = this.Options.ApiUrl.Append($"services/events/schedules/{model.Id}");
-        return await RetryRequestAsync(async () => await this.Client.PutAsync<API.Areas.Services.Models.EventSchedule.EventScheduleModel?>(url, JsonContent.Create(model)));
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.EventSchedule.EventScheduleModel?>(url, JsonContent.Create(model)));
     }
     #endregion
 
@@ -731,7 +736,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?> GetAVOverviewInstanceAsync(int id)
     {
         var url = this.Options.ApiUrl.Append($"services/reports/av/overviews/{id}");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?>(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?>(url));
     }
 
     /// <summary>
@@ -742,7 +747,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?> UpdateAVOverviewInstanceAsync(API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel model)
     {
         var url = this.Options.ApiUrl.Append($"services/reports/av/overviews/{model.Id}");
-        return await RetryRequestAsync(async () => await this.Client.PutAsync<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?>(url, JsonContent.Create(model)));
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?>(url, JsonContent.Create(model)));
     }
     #endregion
 
@@ -755,7 +760,7 @@ public class ApiService : IApiService
     public async Task<HttpResponseMessage> RemoveContentFromFoldersAsync(long contentId)
     {
         var url = this.Options.ApiUrl.Append($"services/folders/content/{contentId}");
-        return await RetryRequestAsync(async () => await this.Client.DeleteAsync(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.DeleteAsync(url));
     }
 
     /// <summary>
@@ -765,7 +770,7 @@ public class ApiService : IApiService
     public async Task<IEnumerable<API.Areas.Services.Models.Folder.FolderModel>?> GetFoldersWithFiltersAsync()
     {
         var url = this.Options.ApiUrl.Append($"services/folders/with-filters");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<IEnumerable<API.Areas.Services.Models.Folder.FolderModel>?>(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Folder.FolderModel>?>(url));
     }
 
     /// <summary>
@@ -778,7 +783,7 @@ public class ApiService : IApiService
     public async Task<HttpResponseMessage> AddContentToFolderAsync(long contentId, int folderId, bool toBottom = true)
     {
         var url = this.Options.ApiUrl.Append($"services/folders/{folderId}/contents/{contentId}?bottom={toBottom}");
-        return await RetryRequestAsync(async () => await this.Client.PutAsync(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync(url));
     }
     #endregion
     #endregion
