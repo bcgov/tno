@@ -1,7 +1,7 @@
 import { NavigateOptions, useTab } from 'components/tab-control';
 import React, { lazy } from 'react';
 import { useParams } from 'react-router-dom';
-import { useApiHub, useApp, useContent } from 'store/hooks';
+import { useApiHub, useApp, useContent, useLookup } from 'store/hooks';
 import { IContentSearchResult, useContentStore } from 'store/slices';
 import { castContentToSearchResult } from 'store/slices/content/utils';
 import {
