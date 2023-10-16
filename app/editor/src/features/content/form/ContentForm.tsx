@@ -607,7 +607,35 @@ const ContentForm: React.FC<IContentFormProps> = ({
                 </Row>
                 <Row flex="1 1 100%" wrap="nowrap">
                   <Show visible={contentType === ContentTypeName.Image}>
-                    <ContentStoryForm contentType={ContentTypeName.Image} />
+                    <Col flex="1 1 0%">
+                      <ContentStoryForm contentType={ContentTypeName.Image} />
+                    </Col>
+                    <Col flex="1 1 0%">
+                      <Upload
+                        className="media"
+                        contentType={contentType}
+                        id="upload"
+                        name="file"
+                        file={file}
+                        stream={stream}
+                        downloadable={fileReference?.isUploaded}
+                        onSelect={(e) => {
+                          const file = (e as IFile).name ? (e as IFile) : undefined;
+                          props.setFieldValue('file', file);
+                          // Remove file reference.
+                          props.setFieldValue('fileReferences', []);
+                        }}
+                        onDownload={() => {
+                          download(
+                            props.values.id,
+                            file?.name ?? `${props.values.otherSource}-${props.values.id}`,
+                          );
+                        }}
+                        onDelete={() => {
+                          setStream(undefined);
+                        }}
+                      />
+                    </Col>
                   </Show>
                 </Row>
                 <Row className="tab-section">
@@ -702,37 +730,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
                   </Show>
                   <Show visible={contentType === ContentTypeName.PrintContent}>
                     <ContentStoryForm contentType={contentType} />
-                  </Show>
-                  <Show
-                    visible={
-                      contentType === ContentTypeName.AudioVideo ||
-                      contentType === ContentTypeName.Image
-                    }
-                  >
-                    <Upload
-                      className="media"
-                      contentType={contentType}
-                      id="upload"
-                      name="file"
-                      file={file}
-                      stream={stream}
-                      downloadable={fileReference?.isUploaded}
-                      onSelect={(e) => {
-                        const file = (e as IFile).name ? (e as IFile) : undefined;
-                        props.setFieldValue('file', file);
-                        // Remove file reference.
-                        props.setFieldValue('fileReferences', []);
-                      }}
-                      onDownload={() => {
-                        download(
-                          props.values.id,
-                          file?.name ?? `${props.values.otherSource}-${props.values.id}`,
-                        );
-                      }}
-                      onDelete={() => {
-                        setStream(undefined);
-                      }}
-                    />
                   </Show>
                 </Row>
                 <Row gap="0.5rem">
