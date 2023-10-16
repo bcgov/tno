@@ -191,44 +191,51 @@ spec:
           [dockerfile]="/services/net/scheduler/Dockerfile"
         )
 
+        declare -A COMPONENT14=(
+          [id]="folder-collection"
+          [image]="folder-collection-service"
+          [context]=""
+          [dockerfile]="/services/net/folder-collection/Dockerfile"
+        )
+
         # Applications
 
-        declare -A COMPONENT14=(
+        declare -A COMPONENT15=(
           [id]="api"
           [image]="api"
           [context]=""
           [dockerfile]="/api/net/Dockerfile.openshift"
         )
 
-        declare -A COMPONENT15=(
+        declare -A COMPONENT16=(
           [id]="charts-api"
           [image]="charts-api"
           [context]="/api/node"
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT16=(
+        declare -A COMPONENT17=(
           [id]="editor"
           [image]="editor"
           [context]="/app/editor"
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT17=(
+        declare -A COMPONENT18=(
           [id]="subscriber"
           [image]="subscriber"
           [context]="/app/subscriber"
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT18=(
+        declare -A COMPONENT19=(
           [id]="db"
           [image]="db-migration"
           [context]="/libs/net"
           [dockerfile]="/Dockerfile"
         )
 
-        declare -A COMPONENT19=(
+        declare -A COMPONENT20=(
           [id]="elastic
           [image]="elastic-migration"
           [context]=""
