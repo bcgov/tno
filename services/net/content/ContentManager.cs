@@ -393,7 +393,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                     content.UpdatedOn = originalContent.UpdatedOn;
                 }
 
-                content = await this.Api.UpdateContentAsync(content, null, updateSourceContent) ?? throw new InvalidOperationException($"Updating content failed {content.OtherSource}:{content.Uid}");
+                content = await this.Api.UpdateContentAsync(content, updateSourceContent) ?? throw new InvalidOperationException($"Updating content failed {content.OtherSource}:{content.Uid}");
                 this.Logger.LogInformation("Content Updated.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
             }
             else
@@ -444,7 +444,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                     if (reference.Status != newStatus)
                     {
                         reference.Status = newStatus;
-                        await Api.UpdateContentReferenceAsync(reference, Headers);
+                        await Api.UpdateContentReferenceAsync(reference);
                     }
                 }
                 catch

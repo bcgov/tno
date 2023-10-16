@@ -277,7 +277,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                         if (String.CompareOrdinal(original, content.Body) != 0) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", request.ContentId);
 
                         content.Body = GetFormattedTranscript(transcript);
-                        await this.Api.UpdateContentAsync(content, Headers); // TODO: This can result in an editor getting a optimistic concurrency error.
+                        await this.Api.UpdateContentAsync(content); // TODO: This can result in an editor getting a optimistic concurrency error.
                         this.Logger.LogInformation("Transcription updated.  Content ID: {Id}", request.ContentId);
 
                         await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
@@ -336,7 +336,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             if (workOrder != null && !_ignoreWorkOrders.Contains(workOrder.Status))
             {
                 workOrder.Status = status;
-                await this.Api.UpdateWorkOrderAsync(workOrder, Headers);
+                await this.Api.UpdateWorkOrderAsync(workOrder);
                 return true;
             }
         }
