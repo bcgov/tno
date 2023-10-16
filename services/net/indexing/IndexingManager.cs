@@ -294,7 +294,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         if (content.Status != ContentStatus.Published)
         {
             content.Status = ContentStatus.Published;
-            content = await this.Api.UpdateContentStatusAsync(content, Headers) ?? throw new InvalidOperationException($"Content failed to update. ID:{content.Id}");
+            content = await this.Api.UpdateContentStatusAsync(content) ?? throw new InvalidOperationException($"Content failed to update. ID:{content.Id}");
         }
 
         // Remove the transcript body if it hasn't been approved.
@@ -330,7 +330,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         if (content.Status != ContentStatus.Unpublished)
         {
             content.Status = ContentStatus.Unpublished;
-            content = await this.Api.UpdateContentAsync(content, Headers) ?? throw new InvalidOperationException($"Content failed to update. ID:{content.Id}");
+            content = await this.Api.UpdateContentAsync(content) ?? throw new InvalidOperationException($"Content failed to update. ID:{content.Id}");
         }
 
         var document = new DeleteRequest<ContentModel>(content, this.Options.PublishedIndex, content.Uid);

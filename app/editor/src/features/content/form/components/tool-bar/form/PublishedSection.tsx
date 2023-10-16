@@ -13,12 +13,8 @@ export interface IPublishedSectionProps {
 }
 
 export const PublishedSection: React.FC<IPublishedSectionProps> = ({ values }) => {
-  const [subscriberUrl, setSubscriberUrl] = React.useState<string>();
   const [{ settings }] = useLookup();
-
-  React.useEffect(() => {
-    setSubscriberUrl(settings.find((i) => i.name === 'SubscriberUrl')?.value);
-  }, [settings, subscriberUrl]);
+  const subscriberUrl = settings.find((i) => i.name === 'SubscriberUrl')?.value;
 
   return (
     <styled.PublishedSection
@@ -35,7 +31,7 @@ export const PublishedSection: React.FC<IPublishedSectionProps> = ({ values }) =
               window.open(`${subscriberUrl}/view/${values.id}`);
             }}
           >
-            <FaExternalLinkAlt /> View on site
+            <FaExternalLinkAlt size={25} />
           </Row>
         </Col>
       }

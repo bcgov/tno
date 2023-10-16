@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace TNO.Kafka.SignalR;
@@ -16,4 +15,7 @@ public enum MessageTarget
 
     [Display(Name = "work-order")]
     WorkOrder = 3,
+
+    [Display(Name = "content-action-updated")]
+    ContentActionUpdated = 4,
 }

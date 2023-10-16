@@ -25,6 +25,16 @@ public class NotificationInstanceModel : AuditColumnsModel
     public long ContentId { get; set; }
 
     /// <summary>
+    /// get/set  When the notification was sent.
+    /// </summary>
+    public DateTime? SentOn { get; set; }
+
+    /// <summary>
+    /// get/set - The notification status.
+    /// </summary>
+    public Entities.NotificationStatus Status { get; set; }
+
+    /// <summary>
     /// get/set - CHES response containing keys to find the status of a notification.
     /// </summary>
     public Dictionary<string, object> Response { get; set; } = new Dictionary<string, object>();
@@ -46,6 +56,8 @@ public class NotificationInstanceModel : AuditColumnsModel
         this.Id = entity.Id;
         this.NotificationId = entity.NotificationId;
         this.ContentId = entity.ContentId;
+        this.SentOn = entity.SentOn;
+        this.Status = entity.Status;
         this.Response = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Response, options) ?? new Dictionary<string, object>();
     }
     #endregion
@@ -71,6 +83,8 @@ public class NotificationInstanceModel : AuditColumnsModel
         var entity = new Entities.NotificationInstance(model.NotificationId, model.ContentId)
         {
             Id = model.Id,
+            SentOn = model.SentOn,
+            Status = model.Status,
             Response = JsonDocument.Parse(JsonSerializer.Serialize(model.Response)),
             Version = model.Version ?? 0
         };

@@ -24,7 +24,7 @@ export const StatusSection: React.FC<IStatusSectionProps> = ({
   combinedPath,
 }) => {
   return (
-    <Col>
+    <Col alignContent="center">
       <ToolBarSection>
         <Col>
           <ContentNavigation
@@ -32,7 +32,9 @@ export const StatusSection: React.FC<IStatusSectionProps> = ({
             fetchContent={fetchContent}
             combinedPath={combinedPath}
           />
-          <Row className="title-container">Content Details</Row>
+          <Row justifyContent="center" className="title-container">
+            Details
+          </Row>
           <Row justifyContent="center" className="white-bg" gap="0.5rem">
             {getStatusText(values.status)}
             <Status value={values.status} />

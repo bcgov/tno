@@ -1,5 +1,5 @@
-using Microsoft.Extensions.Options;
 using System.Text.Json;
+using Microsoft.Extensions.Options;
 using TNO.Entities.Models;
 
 namespace TNO.Entities.Validation;
@@ -48,7 +48,7 @@ public class NotificationValidator : INotificationValidator
     public NotificationValidator(
         Notification notification,
         Content content,
-        IOptions<JsonSerializerOptions> serializationOptions): this(serializationOptions)
+        IOptions<JsonSerializerOptions> serializationOptions) : this(serializationOptions)
     {
         this.Notification = notification;
         this.Content = content;
@@ -90,19 +90,25 @@ public class NotificationValidator : INotificationValidator
         if (this.Notification == null || this.Content == null) throw new InvalidOperationException("Notification and Content properties cannot be null");
         if (!this.AlertId.HasValue) throw new InvalidOperationException("AlertId must be set for validation");
 
-        var doAlert = !this.Notification.RequireAlert || this.Content.ActionsManyToMany.Any(a => a.ActionId == this.AlertId && a.Value == "true");
-        var hasBeenSent = this.Notification.Instances.Any(i => i.ContentId == this.Content.Id) ||
-            this.Content.NotificationsManyToMany.Any(n => n.NotificationId == this.Notification.Id);
-        return this.Content.Status == Entities.ContentStatus.Published &&
-            doAlert &&
-            this.Notification.Resend switch
-            {
-                Entities.ResendOption.Never => !hasBeenSent,
-                Entities.ResendOption.Updated => hasBeenSent, // TODO: Determine if it was updated
-                Entities.ResendOption.Republished => hasBeenSent, // TODO: Determine if it was republished
-                Entities.ResendOption.Transcribed => this.Content.IsApproved, // TODO: Determine if it was approved
-                _ => false,
-            };
+        var alertRequested = this.Content.ActionsManyToMany.Any(a => a.ActionId == this.AlertId && a.Value == "true"); // The editor requested an alert.
+        var resend = this.Notification.Resend switch
+        {
+            // Never resend after the first published alert.
+            Entities.ResendOption.Never => this.Content.Status == Entities.ContentStatus.Published &&
+                !this.Notification.Instances.Any(i => i.ContentId == this.Content.Id &&
+                    (i.Status == NotificationStatus.Pending || i.Status == NotificationStatus.Accepted || i.Status == NotificationStatus.Completed)) &&
+                    !this.Content.NotificationsManyToMany.Any(i => i.NotificationId == this.Notification.Id &&
+                        (i.Status == NotificationStatus.Pending || i.Status == NotificationStatus.Accepted || i.Status == NotificationStatus.Completed)),
+            // Send updates every time it has been updated.
+            Entities.ResendOption.Updated => true,
+            // Send every time published.
+            Entities.ResendOption.Republished => this.Content.Status == Entities.ContentStatus.Published,
+            // Send every time published an approved transcript
+            Entities.ResendOption.Transcribed => this.Content.Status == Entities.ContentStatus.Published && this.Content.IsApproved,
+            _ => false,
+        };
+        return resend && (!this.Notification.RequireAlert || alertRequested);
+
     }
 
     /// <summary>

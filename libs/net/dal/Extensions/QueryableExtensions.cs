@@ -144,7 +144,7 @@ public static class QueryableExtensions
         var query = source;
         foreach (var prop in propertyName)
         {
-            var rType = GetPropertyPathType<T>(prop);
+            var rType = GetPropertyPathType<T>(prop) ?? throw new InvalidOperationException($"Property type at the specified path '{prop}' cannot be null.");
             var convertMethod = GeneratePropertyPathLambdaMethod.MakeGenericMethod(new[] { typeof(T), rType });
             var orderExpression = convertMethod.Invoke(null, new[] { prop });
             if (orderExpression != null)
@@ -173,7 +173,7 @@ public static class QueryableExtensions
     /// <param name="ignoreCase"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    private static Type GetPropertyPathType<T>(string path, bool ignoreCase = true)
+    private static Type? GetPropertyPathType<T>(string path, bool ignoreCase = true)
     {
         var type = typeof(T);
         foreach (var part in path.Split('.'))

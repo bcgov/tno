@@ -13,6 +13,7 @@ import {
   IContentFilter,
   IContentListModel,
   IContentModel,
+  INotificationInstanceModel,
   IPaged,
   useApiEditorContents,
 } from 'tno-core';
@@ -44,6 +45,7 @@ interface IContentController {
   storeFilterPaperAdvanced: (
     filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
+  getNotificationsFor: (id: number) => Promise<INotificationInstanceModel[]>;
 }
 
 export const useContent = (props?: IContentProps): [IContentState, IContentController] => {
@@ -146,6 +148,11 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       },
       stream: async (path: string) => {
         return (await dispatch('stream-content', () => api.stream(path), 'content')).data;
+      },
+      getNotificationsFor: async (id: number) => {
+        return (
+          await dispatch('content-notifications', () => api.getNotificationsFor(id), 'content')
+        ).data;
       },
       storeFilter: actions.storeFilter,
       storeFilterAdvanced: actions.storeFilterAdvanced,

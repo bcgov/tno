@@ -122,9 +122,7 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     {
         this.Ingest.LastRanOn = DateTime.UtcNow;
         this.Ingest.FailedAttempts = failedAttempts;
-        var headers = new HttpRequestMessage().Headers;
-        headers.Add("User-Agent", GetType().FullName);
-        return await this.Api.UpdateIngestStateAsync(Ingest, headers) ?? Ingest;
+        return await this.Api.UpdateIngestStateAsync(Ingest) ?? Ingest;
     }
 
     /// <summary>
@@ -136,9 +134,7 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     public override async Task UpdateIngestConfigAsync(string propName, object propValue)
     {
         this.Ingest.Configuration[propName] = propValue;
-        var headers = new HttpRequestMessage().Headers;
-        headers.Add("User-Agent", GetType().FullName);
-        this.Ingest = await this.Api.UpdateIngestConfigAsync(Ingest, headers) ?? Ingest;
+        this.Ingest = await this.Api.UpdateIngestConfigAsync(Ingest) ?? Ingest;
     }
 
     /// <summary>

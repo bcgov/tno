@@ -1,4 +1,4 @@
-export enum HubMethodName {
+export enum MessageTargetName {
   /** Content messages */
   ContentAdded = 'content-added',
   /** Content messages */
@@ -7,4 +7,6 @@ export enum HubMethodName {
   ContentDeleted = 'content-deleted',
   /** Work order messages */
   WorkOrder = 'work-order',
+  /** Content action message */
+  ContentActionUpdated = 'content-action-updated',
 }

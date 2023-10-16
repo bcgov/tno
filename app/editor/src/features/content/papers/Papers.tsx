@@ -2,7 +2,7 @@ import { NavigateOptions, useTab } from 'components/tab-control';
 import React, { lazy } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { HubMethodName, useApiHub, useContent } from 'store/hooks';
+import { useApiHub, useContent } from 'store/hooks';
 import { IContentSearchResult, useContentStore } from 'store/slices';
 import {
   Col,
@@ -13,6 +13,7 @@ import {
   ITableInternalRow,
   ITablePage,
   ITableSort,
+  MessageTargetName,
   Page,
   replaceQueryParams,
   Row,
@@ -66,7 +67,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
     [content?.items, getContent, updateContent],
   );
 
-  hub.useHubEffect(HubMethodName.ContentUpdated, onContentUpdated);
+  hub.useHubEffect(MessageTargetName.ContentUpdated, onContentUpdated);
 
   const handleClickUse = React.useCallback(
     (content: IContentSearchResult) => {
