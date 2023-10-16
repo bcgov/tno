@@ -122,8 +122,8 @@ const ContentListView: React.FC = () => {
         if (!isLoading) {
           setIsLoading(true);
           const result = await findContentWithElasticsearch(getFilter(filter, actions), false);
-          const items = (result as any).hits?.hits?.map((h: { _source: IContentModel }) =>
-            castContentToSearchResult(h._source),
+          const items = result.hits?.hits?.map((h) =>
+            castContentToSearchResult(h._source as IContentModel),
           ) as IContentSearchResult[];
           setResults(items);
           const page = new Page(1, items.length, items, items.length);

@@ -1,15 +1,15 @@
 import moment from 'moment';
 import {
+  ContentTypeName,
   generateQuery,
   IActionModel,
   IContentFilter,
-  IFilterActionSettingsModel,
   IFilterSettingsModel,
 } from 'tno-core';
 
 import { AdvancedSearchKeys } from '../constants';
 import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
-import { applySortBy, setTimeFrame } from '.';
+import { applySortBy, getActions, setTimeFrame } from '.';
 
 /**
  * Creates a IContentFilter that can be passed to the API hook endpoint.
@@ -89,36 +89,11 @@ export const getFilter = (
     settings[filter.fieldType] =
       filter.fieldType === AdvancedSearchKeys.Source ? [+filter.searchTerm] : filter.searchTerm;
   }
+  if (settings.contentTypes.length === 0 && settings.contentType) {
+    const contentType = settings.contentType as ContentTypeName;
+    if (contentType) settings.contentTypes = [contentType];
+  }
   const result = generateQuery(settings);
-  return result;
-};
-
-/**
- * Creates an array of actions from the provided filter information.
- * Cleans up the data to ensure it matches what is expected by the API.
- * @param filter Filter object
- * @returns An array of actions.
- */
-const getActions = (filter: IContentListFilter, actions: IActionModel[]) => {
-  const result: IFilterActionSettingsModel[] = [];
-  if (filter.commentary) {
-    const action = actions.find((x) => x.name === 'Commentary');
-    if (action)
-      result.push({
-        id: action.id,
-        value: action.valueLabel,
-        valueType: action.valueType,
-      });
-  }
-  if (filter.topStory) {
-    const action = actions.find((x) => x.name === 'Top Story');
-    if (action)
-      result.push({
-        id: action.id,
-        value: action.valueLabel,
-        valueType: action.valueType,
-      });
-  }
   return result;
 };
 

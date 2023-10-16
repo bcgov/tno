@@ -6,9 +6,10 @@
  */
 export const generateTerms = (field: string, values?: any[]) => {
   if (values === undefined || values === null) return undefined;
-  return values.length > 0
+  const fieldValues = values.filter((x) => !!x);
+  return fieldValues.length > 0
     ? {
-        terms: { [field]: values },
+        terms: { [field]: fieldValues },
       }
     : undefined;
 };

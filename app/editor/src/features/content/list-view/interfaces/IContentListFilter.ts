@@ -24,4 +24,5 @@ export interface IContentListFilter {
   topStory: boolean;
   homepage: boolean;
   sort: ISortBy[];
+  contentType?: string;
 }

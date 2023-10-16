@@ -1,4 +1,4 @@
-import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
+import { KnnSearchResponse, MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
@@ -24,7 +24,7 @@ interface IContentController {
   findContentWithElasticsearch: (
     filter: MsearchMultisearchBody,
     includeUnpublishedContent: boolean,
-  ) => Promise<unknown>;
+  ) => Promise<KnnSearchResponse>;
   getContent: (id: number) => Promise<IContentModel | undefined>;
   addContent: (content: IContentModel) => Promise<IContentModel>;
   updateContent: (content: IContentModel) => Promise<IContentModel>;
