@@ -19,7 +19,6 @@ import {
   ITableInternalRow,
   Page,
   Radio,
-  RadioGroup,
   Row,
   useWindowSize,
 } from 'tno-core';
