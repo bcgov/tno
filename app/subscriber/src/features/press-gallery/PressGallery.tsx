@@ -38,6 +38,17 @@ export const PressGallery: React.FC = () => {
   const [pressSettings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(`${moment().startOf('day')}`, `${moment().subtract('2', 'weeks')}`),
   );
+
+  const fetchResults = React.useCallback(
+    async (filter: MsearchMultisearchBody) => {
+      try {
+        const res: any = await findContentWithElasticsearch(filter, false);
+        setResults(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
+      } catch {}
+    },
+    [findContentWithElasticsearch],
+  );
+
   React.useEffect(() => {
     // create for loop with a cap of 7 days
     let dates: any[] = [];
@@ -64,6 +75,8 @@ export const PressGallery: React.FC = () => {
         });
       setAliases(allAliases);
     });
+    // run on init
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
@@ -72,11 +85,11 @@ export const PressGallery: React.FC = () => {
         ...pressSettings,
         defaultSearchOperator: 'or',
         search: aliases.toString().split(',').join(' '),
-        startDate: `${moment(filterAdvanced.startDate).subtract(2, 'weeks')}`,
+        startDate: `${moment().startOf('day').subtract(2, 'weeks')}`,
         endDate: `${moment()}`,
       }),
     );
-  }, [aliases.length]);
+  }, [aliases, pressSettings, fetchResults]);
 
   React.useEffect(() => {
     pressMembers.forEach((contributor) => {
@@ -90,6 +103,8 @@ export const PressGallery: React.FC = () => {
         contributor.name,
       );
     });
+    // only want to run when press members are loaded
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pressMembers.length]);
 
   React.useEffect(() => {
@@ -105,17 +120,9 @@ export const PressGallery: React.FC = () => {
         date.value,
       );
     });
+    // only want to run when date options are loaded
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateOptions.length]);
-
-  const fetchResults = React.useCallback(
-    async (filter: MsearchMultisearchBody) => {
-      try {
-        const res: any = await findContentWithElasticsearch(filter, false);
-        setResults(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
-      } catch {}
-    },
-    [findContentWithElasticsearch],
-  );
 
   /** separate requests to find total hits for each press member */
   const fetchResultHits = React.useCallback(
