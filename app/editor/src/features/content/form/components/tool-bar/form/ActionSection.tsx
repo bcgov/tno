@@ -29,7 +29,7 @@ export const ActionSection: React.FC<IActionSectionProps> = ({ values }) => {
         <Row gap="0.5rem" alignItems="center" justifyContent="center">
           <ContentActions
             init
-            filter={(a) => a.id !== +alertId && a.contentTypes.includes(values.contentType)}
+            filter={(a) => a.id !== +alertId && a.contentTypes?.includes(values.contentType)}
           />
         </Row>
       }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useContent, useLookup } from 'store/hooks';
 import { Button, ButtonHeight, ButtonVariant, ContentTypeName } from 'tno-core';
 
@@ -7,63 +7,63 @@ import * as styled from './styled';
 
 export interface IHomeFilterProps {}
 
-/**
- * Component for displaying the home filters, gives functionality to change content type on the home screen
- * @param fetch performs the api call to gather the appropriate content
- * @returns Home filter component
- */
 export const HomeFilters: React.FC<IHomeFilterProps> = () => {
-  const [active, setActive] = React.useState<HomeFilterType>(HomeFilterType.Papers);
+  const [active, setActive] = useState<HomeFilterType>(HomeFilterType.Papers);
   const [{ filter }, { storeFilter }] = useContent();
   const [{ sources }] = useLookup();
 
   const handleFilterClick = (type: HomeFilterType) => {
-    setActive(type);
-  };
-  const getClassName = (type: HomeFilterType) => {
-    return type === active ? 'active' : 'inactive';
-  };
+    const defaultFilter = {
+      ...filter,
+      contentTypes: [ContentTypeName.PrintContent],
+      sourceIds: [],
+      excludeSourceIds: [],
+    };
 
-  React.useEffect(() => {
-    switch (active) {
+    switch (type) {
       case HomeFilterType.Papers:
-        storeFilter({
-          ...filter,
-          contentTypes: [ContentTypeName.PrintContent],
-          sourceIds: [],
-          excludeSourceIds: [],
-        });
+        storeFilter(defaultFilter);
         break;
       case HomeFilterType.RadioTV:
-        storeFilter({
-          ...filter,
-          contentTypes: [ContentTypeName.AudioVideo],
-          sourceIds: [],
-          excludeSourceIds: [],
-        });
+        storeFilter({ ...defaultFilter, contentTypes: [ContentTypeName.AudioVideo] });
         break;
       case HomeFilterType.Internet:
         storeFilter({
-          ...filter,
+          ...defaultFilter,
           contentTypes: [ContentTypeName.Story],
-          sourceIds: [],
           excludeSourceIds: [sources.find((s) => s.code === 'CPNEWS')?.id ?? 0],
         });
         break;
       case HomeFilterType.CPNews:
         storeFilter({
-          ...filter,
+          ...defaultFilter,
           contentTypes: [ContentTypeName.Story],
           sourceIds: [sources.find((s) => s.code === 'CPNEWS')?.id ?? 0],
-          excludeSourceIds: [],
         });
         break;
       default:
-        storeFilter({ ...filter, contentTypes: [ContentTypeName.PrintContent] });
+        storeFilter(defaultFilter);
     }
-    // only want the above to trigger when active changes not when the filter changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, sources]);
+  };
+
+  const getClassName = (type: HomeFilterType) => (type === active ? 'active' : 'inactive');
+
+  useEffect(() => {
+    switch (filter.contentTypes[0]) {
+      case ContentTypeName.PrintContent:
+        setActive(HomeFilterType.Papers);
+        break;
+      case ContentTypeName.AudioVideo:
+        setActive(HomeFilterType.RadioTV);
+        break;
+      case ContentTypeName.Story:
+        console.log(filter);
+        setActive(!!filter.sourceIds?.length ? HomeFilterType.CPNews : HomeFilterType.Internet);
+        break;
+      default:
+        setActive(HomeFilterType.Papers);
+    }
+  }, [filter]);
 
   return (
     <styled.HomeFilters>
