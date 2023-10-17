@@ -2,6 +2,14 @@ import styled from 'styled-components';
 
 export const PressGallery = styled.div`
   .tool-bar {
+    .reset {
+      margin-top: 0.5em;
+      margin-left: 0.5em;
+      &:hover {
+        cursor: pointer;
+        transform: scale(1.1);
+      }
+    }
     .folder-sub-menu {
       margin-left: auto;
     }
