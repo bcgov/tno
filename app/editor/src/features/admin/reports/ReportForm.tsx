@@ -69,8 +69,6 @@ const ReportForm: React.FC = () => {
 
   const handleSubmit = async (values: IReportModel) => {
     try {
-      // eslint-disable-next-line no-console
-      console.log('props', values);
       const originalId = values.id;
       // Update event schedule information because names must be unique.
       const report = {
