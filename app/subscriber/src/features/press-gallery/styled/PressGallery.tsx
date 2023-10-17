@@ -1,6 +1,21 @@
 import styled from 'styled-components';
 
 export const PressGallery = styled.div`
+  .tool-bar {
+    .folder-sub-menu {
+      margin-left: auto;
+    }
+    .or {
+      margin-right: 0.5em;
+    }
+    .date-navigator {
+      margin-left: auto;
+      margin-right: auto;
+      input {
+        margin-top: 0.25em;
+      }
+    }
+  }
   .table {
     width: 100%;
     .group {
