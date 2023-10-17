@@ -1,4 +1,5 @@
 import { FormikForm } from 'components/formik';
+import { FormikProps } from 'formik';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -12,6 +13,7 @@ import { getHideEmpty, toForm } from '../utils';
 import { ReportAdminEdit } from './ReportAdminEdit';
 import { ReportAdminPreview } from './ReportAdminPreview';
 import * as styled from './styled';
+import { ReportFormSchema } from './validation/ReportFormSchema';
 
 const loading = ['get-report', 'add-report', 'update-report', 'delete-report'];
 
@@ -89,12 +91,14 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
       <FormikForm
         loading={false}
         initialValues={report}
+        validationSchema={ReportFormSchema}
+        validateOnChange={false}
         onSubmit={async (values, { setSubmitting }) => {
           await handleSubmit(values);
           setSubmitting(false);
         }}
       >
-        {({ isSubmitting, values }) => (
+        {(props: FormikProps<IReportAdminProps>) => (
           <Row className="report-layout" gap="1rem">
             <Col flex="1" className="edit">
               <Container isLoading={requests.some((r) => loading.includes(r.url))}>

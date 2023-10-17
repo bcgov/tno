@@ -4,7 +4,19 @@ import { FaSave, FaTrash } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useReports } from 'store/hooks';
-import { Button, ButtonVariant, Modal, Row, Show, Spinner, Tab, Tabs, useModal } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  hasErrors,
+  Modal,
+  Row,
+  Show,
+  Spinner,
+  Tab,
+  Tabs,
+  useModal,
+  useTabValidationToasts,
+} from 'tno-core';
 
 import { IReportForm } from '../interfaces';
 import { ReportAdminSections } from './ReportAdminSections';
@@ -27,6 +39,8 @@ export const ReportAdminEdit: React.FC<IReportAdminProps> = ({
   const { id, path = defaultPath } = useParams();
   const [{ deleteReport }] = useReports();
   const { toggle, isShowing } = useModal();
+  const [savePressed, setSavePressed] = React.useState(false);
+  const { setShowValidationToast } = useTabValidationToasts();
 
   const handleDelete = React.useCallback(
     async (values: IReportForm) => {
@@ -45,6 +59,9 @@ export const ReportAdminEdit: React.FC<IReportAdminProps> = ({
         tabs={
           <Row flex="1" nowrap>
             <Tab
+              showErrorOnSave={{ value: true, savePressed: savePressed }}
+              setShowValidationToast={setShowValidationToast}
+              hasErrors={hasErrors(props.errors, ['name'])}
               label={
                 <Row gap="0.25rem">
                   <Show visible={!!values.id}>
@@ -80,6 +97,9 @@ export const ReportAdminEdit: React.FC<IReportAdminProps> = ({
                 disabled={isSubmitting}
                 type="submit"
                 title="Save report"
+                onClick={() => {
+                  setSavePressed(true);
+                }}
               >
                 <Row gap="0.5rem">
                   <FaSave />
