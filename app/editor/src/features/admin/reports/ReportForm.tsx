@@ -1,4 +1,5 @@
 import { FormikForm } from 'components/formik';
+import { FormikProps } from 'formik';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -8,6 +9,7 @@ import { useAdminStore } from 'store/slices';
 import {
   Button,
   ButtonVariant,
+  hasErrors,
   IconButton,
   IReportModel,
   Modal,
@@ -16,6 +18,7 @@ import {
   Tab,
   Tabs,
   useModal,
+  useTabValidationToasts,
 } from 'tno-core';
 
 import { defaultReport, generateScheduleName } from './constants';
@@ -41,6 +44,7 @@ const ReportForm: React.FC = () => {
   const [, { addReport, deleteReport, getReport, updateReport, publishReport }] = useReports();
   const [{ reportTemplates }, { storeReportTemplates }] = useAdminStore();
   const { toggle, isShowing } = useModal();
+  const { setShowValidationToast } = useTabValidationToasts();
 
   const [report, setReport] = React.useState<IReportModel>({
     ...defaultReport,
@@ -48,7 +52,7 @@ const ReportForm: React.FC = () => {
   });
   const [active, setActive] = React.useState('report');
 
-  const [tabReportError, setTabReportError] = React.useState(false);
+  const [savePressed, setSavePressed] = React.useState(false);
 
   const reportId = Number(id);
 
@@ -65,6 +69,8 @@ const ReportForm: React.FC = () => {
 
   const handleSubmit = async (values: IReportModel) => {
     try {
+      // eslint-disable-next-line no-console
+      console.log('props', values);
       const originalId = values.id;
       // Update event schedule information because names must be unique.
       const report = {
@@ -90,13 +96,6 @@ const ReportForm: React.FC = () => {
     } catch {}
   };
 
-  const handlePublish = async (values: IReportModel) => {
-    try {
-      await publishReport(values);
-      toast.success('Report has been successfully requested');
-    } catch {}
-  };
-
   return (
     <styled.ReportForm>
       <IconButton
@@ -114,14 +113,16 @@ const ReportForm: React.FC = () => {
           setSubmitting(false);
         }}
       >
-        {({ isSubmitting, values }) => (
+        {(props: FormikProps<IReportModel>) => (
           <ReportTemplateContextProvider>
             <Tabs
               tabs={
                 <>
                   <Tab
                     label="Report"
-                    hasErrors={tabReportError}
+                    showErrorOnSave={{ value: true, savePressed: savePressed }}
+                    setShowValidationToast={setShowValidationToast}
+                    hasErrors={hasErrors(props.errors, ['name'])}
                     onClick={() => {
                       setActive('report');
                     }}
@@ -129,15 +130,21 @@ const ReportForm: React.FC = () => {
                   />
                   <Tab
                     label="Template"
+                    showErrorOnSave={{ value: true, savePressed: savePressed }}
+                    setShowValidationToast={setShowValidationToast}
+                    hasErrors={hasErrors(props.errors, ['templateId'])}
                     onClick={() => {
                       setActive('template');
                     }}
                     active={active === 'template'}
                   />
-                  {!!values.templateId && (
+                  {!!props.values.templateId && (
                     <>
                       <Tab
                         label="Sections"
+                        showErrorOnSave={{ value: true, savePressed: savePressed }}
+                        setShowValidationToast={setShowValidationToast}
+                        hasErrors={hasErrors(props.errors, ['settings'])}
                         onClick={() => {
                           setActive('sections');
                         }}
@@ -199,14 +206,27 @@ const ReportForm: React.FC = () => {
                   <ReportFormInstance />
                 </Show>
                 <Row justifyContent="center" className="form-inputs">
-                  <Button type="submit" disabled={isSubmitting}>
+                  <Button
+                    type="submit"
+                    disabled={props.isSubmitting}
+                    onClick={() => {
+                      setSavePressed(true);
+                    }}
+                  >
                     Save
                   </Button>
-                  <Button variant={ButtonVariant.secondary} onClick={() => handlePublish(values)}>
+                  <Button
+                    variant={ButtonVariant.secondary}
+                    onClick={() => handleSubmit(props.values)}
+                  >
                     Send
                   </Button>
-                  <Show visible={!!values.id}>
-                    <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
+                  <Show visible={!!props.values.id}>
+                    <Button
+                      onClick={toggle}
+                      variant={ButtonVariant.danger}
+                      disabled={props.isSubmitting}
+                    >
                       Delete
                     </Button>
                   </Show>

@@ -54,7 +54,6 @@ export const ReportFormDetails: React.FC = () => {
         <FormikText
           name="name"
           label="Name"
-          required
           onChange={(e) => {
             const name = e.target.value;
             if (!values.settings.subject.text || values.settings.subject.text === values.name)
