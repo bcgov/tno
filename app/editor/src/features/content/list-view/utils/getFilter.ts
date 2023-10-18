@@ -9,7 +9,7 @@ import {
 
 import { AdvancedSearchKeys } from '../constants';
 import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
-import { applySortBy, getActions, setTimeFrame } from '.';
+import { applySortBy, getActions } from '.';
 
 /**
  * Creates a IContentFilter that can be passed to the API hook endpoint.
@@ -33,14 +33,9 @@ export const getFilter = (
     includeHidden: filter.includeHidden ? true : undefined,
     onlyHidden: filter.onlyHidden ? true : undefined,
     onlyPublished: filter.onlyPublished ? true : undefined,
-    startDate: filter.startDate
-      ? moment(filter.startDate).toISOString()
-      : setTimeFrame(filter.timeFrame as number)?.toISOString(),
-    endDate: filter.endDate
-      ? moment(filter.endDate).toISOString()
-      : filter.startDate
-      ? moment(filter.startDate).endOf('day').toISOString()
-      : undefined,
+    startDate: filter.startDate ? moment(filter.startDate).toISOString() : undefined,
+    endDate: filter.endDate ? moment(filter.endDate).toISOString() : undefined,
+    dateOffset: filter.timeFrame ? +filter.timeFrame : undefined,
     sort: applySortBy(filter.sort),
     search: filter.searchTerm,
     inHeadline: filter.fieldType === AdvancedSearchKeys.Headline,

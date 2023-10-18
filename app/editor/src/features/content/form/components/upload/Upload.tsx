@@ -108,7 +108,7 @@ export const Upload: React.FC<IUploadProps> = ({
   return (
     <styled.Upload className={className ?? ''}>
       <Show visible={!fileName || (!fileReference && !file)}>
-        <Row className="drop-box" flex="1">
+        <Col className="drop-box" flex="1">
           <FileUploader
             children={
               <div className="upload-box">
@@ -130,7 +130,7 @@ export const Upload: React.FC<IUploadProps> = ({
               }
             }}
           />
-        </Row>
+        </Col>
       </Show>
       <Show visible={!!stream && contentType === ContentTypeName.Image}>
         <Col flex="1">
@@ -153,48 +153,57 @@ export const Upload: React.FC<IUploadProps> = ({
           </Col>
         </Show>
       </Show>
-      <Row justifyContent="flex-end" gap="0.25rem" alignItems="center">
-        {fileName}
-        <Show visible={values.contentType === ContentTypeName.AudioVideo}>
-          <Button
-            variant={ButtonVariant.link}
-            onClick={() =>
-              isWorkOrderStatus(values.workOrders, WorkOrderTypeName.FFmpeg, [
-                WorkOrderStatusName.Completed,
-              ])
-                ? toggleFFmpeg()
-                : handleFFmpeg(values)
-            }
-            disabled={
-              !onDownload || !!file || !downloadable || !fileName || !fileReference || processing
-            }
-            className="file-name"
-            tooltip="Process file"
-          >
-            {processing ? <Spinner size="8px" /> : <FaMobile />}
-          </Button>
-        </Show>
-        <Button
-          variant={ButtonVariant.link}
-          onClick={() => onDownload?.()}
-          disabled={!onDownload || !!file || !downloadable || !fileName || !fileReference}
-          className="file-name"
-          tooltip={`Download ${!!fileName ? fileName : 'not available'}`}
-        >
-          <FaDownload />
-        </Button>
-        <Button
-          disabled={!fileName || (!fileReference && !file)}
-          variant={ButtonVariant.danger}
-          className="delete"
-          onClick={() => {
-            if (verifyDelete) toggle();
-            else handleDelete();
-          }}
-        >
-          <FaTrash />
-        </Button>
-      </Row>
+      <Show visible={!!file || !!fileName || !!fileReference}>
+        <Row justifyContent="flex-end" gap="0.5rem" alignItems="center">
+          {fileName}
+          <Row gap="0.25rem">
+            <Show visible={values.contentType === ContentTypeName.AudioVideo}>
+              <Button
+                variant={ButtonVariant.link}
+                onClick={() =>
+                  isWorkOrderStatus(values.workOrders, WorkOrderTypeName.FFmpeg, [
+                    WorkOrderStatusName.Completed,
+                  ])
+                    ? toggleFFmpeg()
+                    : handleFFmpeg(values)
+                }
+                disabled={
+                  !onDownload ||
+                  !!file ||
+                  !downloadable ||
+                  !fileName ||
+                  !fileReference ||
+                  processing
+                }
+                className="file-name"
+                tooltip="Process file"
+              >
+                {processing ? <Spinner size="8px" /> : <FaMobile />}
+              </Button>
+            </Show>
+            <Button
+              variant={ButtonVariant.link}
+              onClick={() => onDownload?.()}
+              disabled={!onDownload || !!file || !downloadable || !fileName || !fileReference}
+              className="file-name"
+              tooltip={`Download ${!!fileName ? fileName : 'not available'}`}
+            >
+              <FaDownload />
+            </Button>
+            <Button
+              disabled={!fileName || (!fileReference && !file)}
+              variant={ButtonVariant.danger}
+              className="delete"
+              onClick={() => {
+                if (verifyDelete) toggle();
+                else handleDelete();
+              }}
+            >
+              <FaTrash />
+            </Button>
+          </Row>
+        </Row>
+      </Show>
       {/* Modal to appear when removing a file */}
       <Modal
         isShowing={isShowing}

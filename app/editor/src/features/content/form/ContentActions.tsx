@@ -56,7 +56,9 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
 
   // Default to only showing actions assigned to the content type.
   filter ??= (action: IActionModel) => action.contentTypes.includes(values.contentType);
-  addRowOn ??= (action: IActionModel, index: number) => action.name === ActionName.Commentary;
+  const options = actions.filter((a) => a.isEnabled && filter?.(a));
+  addRowOn ??= (action: IActionModel, index: number) =>
+    options.length > 4 && action.name === ActionName.Commentary;
 
   React.useEffect(() => {
     // Needed this to reset the hidden values when new content is loaded.
@@ -104,82 +106,80 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
     });
   }, [formActions]);
 
-  const options = actions
-    .filter((a) => a.isEnabled && filter?.(a))
-    .map((a, rowIndex) => {
-      const actionIndex = formActions.findIndex((ca) => ca.id === a.id);
-      const found = formActions[actionIndex];
-      return (
-        <React.Fragment key={a.id}>
-          {addRowOn?.(a, rowIndex) && <div className="forceFlexRow"></div>}
-          {a.valueType === ValueType.Boolean && (
-            <FormikCheckbox
-              label={a.name}
-              name={field('value', actionIndex)}
-              value="true"
-              checked={found?.value === 'true'}
-              onChange={(e) => {
-                const checked = e.currentTarget.checked;
-                setFieldValue(field('value', actionIndex), checked ? 'true' : 'false');
-              }}
-            />
-          )}
-          {a.valueType !== ValueType.Boolean && (
-            <Checkbox
-              label={a.name}
-              name={field('placeholder', actionIndex)}
-              value={true}
-              checked={!!hidden.find((h) => h.id === a.id)?.value}
-              onChange={(e) => {
-                const checked = e.currentTarget.checked;
-                if (!checked) setFieldValue(field('value', actionIndex), '');
-                else {
-                  setFieldValue(
-                    field('value', actionIndex),
-                    `${getDefaultCommentaryExpiryValue(values.publishedOn, holidays)}`,
-                  );
-                }
-                setHidden(
-                  hidden.map((h) => {
-                    if (h.id === a.id) return { ...h, value: checked };
-                    return h;
-                  }),
+  const inputs = options.map((a, rowIndex) => {
+    const actionIndex = formActions.findIndex((ca) => ca.id === a.id);
+    const found = formActions[actionIndex];
+    return (
+      <React.Fragment key={a.id}>
+        {addRowOn?.(a, rowIndex) && <div className="forceFlexRow"></div>}
+        {a.valueType === ValueType.Boolean && (
+          <FormikCheckbox
+            label={a.name}
+            name={field('value', actionIndex)}
+            value="true"
+            checked={found?.value === 'true'}
+            onChange={(e) => {
+              const checked = e.currentTarget.checked;
+              setFieldValue(field('value', actionIndex), checked ? 'true' : 'false');
+            }}
+          />
+        )}
+        {a.valueType !== ValueType.Boolean && (
+          <Checkbox
+            label={a.name}
+            name={field('placeholder', actionIndex)}
+            value={true}
+            checked={!!hidden.find((h) => h.id === a.id)?.value}
+            onChange={(e) => {
+              const checked = e.currentTarget.checked;
+              if (!checked) setFieldValue(field('value', actionIndex), '');
+              else {
+                setFieldValue(
+                  field('value', actionIndex),
+                  `${getDefaultCommentaryExpiryValue(values.publishedOn, holidays)}`,
                 );
-              }}
-            />
-          )}
-          {a.valueType === ValueType.String && (
-            <Row>
-              {a.name === ActionName.Commentary && <FaHourglassHalf className="icon-indicator" />}
-              <FormikText
-                name={field('value', actionIndex)}
-                disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
-                required={!!hidden.find((h) => h.id === a.id)?.value}
-                width={FieldSize.Tiny}
-                className="small-txt"
-              />
-            </Row>
-          )}
-          {a.valueType === ValueType.Text && (
-            <FormikTextArea
-              name={field('value', actionIndex)}
-              label={a.valueLabel}
-              disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
-              required={!!hidden.find((h) => h.id === a.id)?.value}
-            />
-          )}
-          {a.valueType === ValueType.Numeric && (
+              }
+              setHidden(
+                hidden.map((h) => {
+                  if (h.id === a.id) return { ...h, value: checked };
+                  return h;
+                }),
+              );
+            }}
+          />
+        )}
+        {a.valueType === ValueType.String && (
+          <Row>
+            {a.name === ActionName.Commentary && <FaHourglassHalf className="icon-indicator" />}
             <FormikText
               name={field('value', actionIndex)}
-              label={a.valueLabel}
-              type="number"
               disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
               required={!!hidden.find((h) => h.id === a.id)?.value}
+              width={FieldSize.Tiny}
+              className="small-txt"
             />
-          )}
-        </React.Fragment>
-      );
-    });
+          </Row>
+        )}
+        {a.valueType === ValueType.Text && (
+          <FormikTextArea
+            name={field('value', actionIndex)}
+            label={a.valueLabel}
+            disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
+            required={!!hidden.find((h) => h.id === a.id)?.value}
+          />
+        )}
+        {a.valueType === ValueType.Numeric && (
+          <FormikText
+            name={field('value', actionIndex)}
+            label={a.valueLabel}
+            type="number"
+            disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
+            required={!!hidden.find((h) => h.id === a.id)?.value}
+          />
+        )}
+      </React.Fragment>
+    );
+  });
 
-  return <>{options}</>;
+  return <>{inputs}</>;
 };

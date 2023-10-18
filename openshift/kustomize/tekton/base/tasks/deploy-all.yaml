@@ -193,7 +193,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT12=(
+        declare -A COMPONENT13=(
           [id]="foldercollection"
           [name]="folder-collection-service"
           [type]="dc"
@@ -203,9 +203,19 @@ spec:
           [env]="dev test prod"
         )
 
+        declare -A COMPONENT14=(
+          [id]="ffmpeg"
+          [name]="ffmpeg-service"
+          [type]="dc"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
         # Ingest Services
 
-        declare -A COMPONENT13=(
+        declare -A COMPONENT15=(
           [id]="syndication"
           [name]="syndication-service"
           [type]="dc"
@@ -215,7 +225,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT14=(
+        declare -A COMPONENT16=(
           [id]="filemonitor"
           [name]="filemonitor-service"
           [type]="dc"
@@ -225,7 +235,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT15=(
+        declare -A COMPONENT17=(
           [id]="image"
           [name]="image-service"
           [type]="dc"
@@ -235,7 +245,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT16=(
+        declare -A COMPONENT18=(
           [id]="capture"
           [name]="capture-service"
           [type]="dc"
@@ -245,7 +255,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT17=(
+        declare -A COMPONENT19=(
           [id]="clip"
           [name]="clip-service"
           [type]="dc"
@@ -255,7 +265,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT18=(
+        declare -A COMPONENT20=(
           [id]="contentmigration"
           [name]="contentmigration-service"
           [type]="dc"
@@ -265,7 +275,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT19=(
+        declare -A COMPONENT21=(
           [id]="contentmigration"
           [name]="contentmigration-service-historic"
           [type]="dc"
@@ -306,9 +316,9 @@ spec:
           # Check if this image needs to be deployed.
           # If the component was auto built by the build step, or all components are to built, or a specific component was requested to be built.
           if [ "${!COMPONENT}" = true ] || [ "$(params.DEPLOY)" = "all" ] || [ "$(params.DEPLOY)" = "${component[id]}" ]; then
-            if [[ $environments =~ "$(params.ENV)" ]]; then
-              if [[ $component[build] = "yes" ]]; then
-                echo "Tagging image to trigger deployment to $(params.ENV)"
+            if [[ "$environments" =~ "$(params.ENV)" ]]; then
+              if [[ "${component[build]}" = "yes" ]]; then
+                echo "Tagging image to trigger deployment to ${component[name]}:$(params.ENV)"
                 oc tag ${component[name]}:$(params.IMAGE_TAG) ${component[name]}:$(params.ENV)
               fi
 

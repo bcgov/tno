@@ -20,7 +20,7 @@ patchesStrategicMerge:
 patches:
   - target:
       kind: ConfigMap
-      name: capture-service
+      name: notification-service
     patch: |-
       - op: replace
         path: /data/CHES_FROM

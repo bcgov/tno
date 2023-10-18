@@ -24,7 +24,7 @@ export const StatusSection: React.FC<IStatusSectionProps> = ({
   combinedPath,
 }) => {
   return (
-    <Col alignContent="center">
+    <Col alignContent="center" className="toolbar-status">
       <ToolBarSection>
         <Col>
           <ContentNavigation

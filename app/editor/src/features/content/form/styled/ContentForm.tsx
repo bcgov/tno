@@ -4,6 +4,14 @@ export const ContentForm = styled.div`
   height: 100%;
   width: 100%;
 
+  .toolbar-status {
+    min-width: 150px;
+  }
+
+  .toolbar-alert {
+    max-width: 200px;
+  }
+
   .form-page {
     height: calc(100% - 1rem);
 
@@ -181,6 +189,8 @@ export const ContentForm = styled.div`
   }
 
   .media {
-    align-self: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 `;

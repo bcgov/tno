@@ -3,22 +3,23 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: folder-collection-service
+  name: ffmpeg-service
   namespace: default
   annotations:
-    description: Folder content collection service configuration settings
+    description: Transcription service configuration settings
     created-by: jeremy.foster
   labels:
-    name: folder-collection-service
+    name: ffmpeg-service
     part-of: tno
     version: 1.0.0
-    component: folder-collection-service
+    component: ffmpeg-service
     managed-by: kustomize
 type: Opaque
 data:
-  KAFKA_CLIENT_ID: FolderCollection
+  KAFKA_CLIENT_ID: FFmpeg
   MAX_FAIL_LIMIT: "5"
-  TOPICS: index
+  TOPICS: ffmpeg
+  VOLUME_PATH: /data
   CHES_FROM: Media Monitoring Insights <mmi@gov.bc.ca>
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"
