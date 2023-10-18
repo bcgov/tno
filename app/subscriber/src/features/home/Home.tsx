@@ -13,7 +13,6 @@ import {
   Checkbox,
   Col,
   ContentStatus,
-  ContentTypeName,
   FlexboxTable,
   IContentModel,
   ITableInternalRow,
@@ -46,8 +45,7 @@ export const Home: React.FC = () => {
         setLoading(true);
         const filters = makeFilter({
           ...filter,
-          contentTypes:
-            filter.contentTypes.length > 0 ? filter.contentTypes : [ContentTypeName.PrintContent],
+          contentTypes: filter.contentTypes.length > 0 ? filter.contentTypes : [],
           startDate: filter.startDate ? filter.startDate : new Date().toDateString(),
           status: ContentStatus.Published,
         });

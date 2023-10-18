@@ -1,105 +1,99 @@
+import { IContentListFilter } from 'features/content/list-view/interfaces';
 import React, { useEffect, useState } from 'react';
 import { useContent, useLookup } from 'store/hooks';
-import { Button, ButtonHeight, ButtonVariant, ContentTypeName } from 'tno-core';
+import { Button, ButtonHeight, ContentTypeName } from 'tno-core';
 
 import { HomeFilterType } from '../constants';
 import * as styled from './styled';
 
 export interface IHomeFilterProps {}
 
+/**
+ * Component that renders the toggle buttons for filtering content on the Home page.
+ * @returns Home filter toggles.
+ */
 export const HomeFilters: React.FC<IHomeFilterProps> = () => {
   const [active, setActive] = useState<HomeFilterType>(HomeFilterType.Papers);
   const [{ filter }, { storeFilter }] = useContent();
   const [{ sources }] = useLookup();
 
+  const defaultFilter: Partial<IContentListFilter> = {
+    contentTypes: [],
+    sourceIds: [],
+    excludeSourceIds: [],
+  };
+
   const handleFilterClick = (type: HomeFilterType) => {
-    const defaultFilter = {
-      ...filter,
-      contentTypes: [ContentTypeName.PrintContent],
-      sourceIds: [],
-      excludeSourceIds: [],
-    };
+    const updatedFilter = { ...defaultFilter };
 
     switch (type) {
       case HomeFilterType.Papers:
-        storeFilter(defaultFilter);
+        updatedFilter.contentTypes = [ContentTypeName.PrintContent];
         break;
       case HomeFilterType.RadioTV:
-        storeFilter({ ...defaultFilter, contentTypes: [ContentTypeName.AudioVideo] });
+        updatedFilter.contentTypes = [ContentTypeName.AudioVideo];
         break;
       case HomeFilterType.Internet:
-        storeFilter({
-          ...defaultFilter,
-          contentTypes: [ContentTypeName.Story],
-          excludeSourceIds: [sources.find((s) => s.code === 'CPNEWS')?.id ?? 0],
-        });
+        updatedFilter.contentTypes = [ContentTypeName.Story];
+        updatedFilter.excludeSourceIds = [sources.find((s) => s.code === 'CPNEWS')?.id ?? 0];
         break;
       case HomeFilterType.CPNews:
-        storeFilter({
-          ...defaultFilter,
-          contentTypes: [ContentTypeName.Story],
-          sourceIds: [sources.find((s) => s.code === 'CPNEWS')?.id ?? 0],
-        });
+        updatedFilter.contentTypes = [ContentTypeName.Story];
+        updatedFilter.sourceIds = [sources.find((s) => s.code === 'CPNEWS')?.id ?? 0];
+        break;
+      case HomeFilterType.All:
         break;
       default:
-        storeFilter(defaultFilter);
+        break;
     }
+
+    storeFilter({ ...filter, ...updatedFilter });
   };
 
   const getClassName = (type: HomeFilterType) => (type === active ? 'active' : 'inactive');
 
   useEffect(() => {
-    switch (filter.contentTypes[0]) {
-      case ContentTypeName.PrintContent:
-        setActive(HomeFilterType.Papers);
-        break;
-      case ContentTypeName.AudioVideo:
-        setActive(HomeFilterType.RadioTV);
-        break;
-      case ContentTypeName.Story:
-        console.log(filter);
-        setActive(!!filter.sourceIds?.length ? HomeFilterType.CPNews : HomeFilterType.Internet);
-        break;
-      default:
-        setActive(HomeFilterType.Papers);
+    if (!filter.contentTypes?.length) {
+      setActive(HomeFilterType.All);
+    } else {
+      // currently only support one content type at a time (with the exception of the all filter)
+      switch (filter.contentTypes[0]) {
+        case ContentTypeName.PrintContent:
+          setActive(HomeFilterType.Papers);
+          break;
+        case ContentTypeName.AudioVideo:
+          setActive(HomeFilterType.RadioTV);
+          break;
+        case ContentTypeName.Story:
+          setActive(!!filter.sourceIds?.length ? HomeFilterType.CPNews : HomeFilterType.Internet);
+          break;
+        default:
+          setActive(HomeFilterType.All);
+      }
     }
   }, [filter]);
 
+  const filters = [
+    { type: HomeFilterType.All, label: 'ALL' },
+    { type: HomeFilterType.Papers, label: 'PAPERS' },
+    { type: HomeFilterType.RadioTV, label: 'RADIO/TV' },
+    { type: HomeFilterType.Internet, label: 'INTERNET' },
+    { type: HomeFilterType.CPNews, label: 'CP NEWS' },
+  ];
+
   return (
     <styled.HomeFilters>
-      <Button
-        rounded
-        height={ButtonHeight.Small}
-        className={getClassName(HomeFilterType.Papers)}
-        onClick={() => handleFilterClick(HomeFilterType.Papers)}
-      >
-        PAPERS
-      </Button>
-      <Button
-        variant={ButtonVariant.red}
-        height={ButtonHeight.Small}
-        rounded
-        className={getClassName(HomeFilterType.RadioTV)}
-        onClick={() => handleFilterClick(HomeFilterType.RadioTV)}
-      >
-        RADIO/TV
-      </Button>
-      <Button
-        rounded
-        height={ButtonHeight.Small}
-        className={getClassName(HomeFilterType.Internet)}
-        onClick={() => handleFilterClick(HomeFilterType.Internet)}
-      >
-        INTERNET
-      </Button>
-      <Button
-        rounded
-        height={ButtonHeight.Small}
-        className={getClassName(HomeFilterType.CPNews)}
-        onClick={() => handleFilterClick(HomeFilterType.CPNews)}
-      >
-        CP NEWS
-      </Button>
+      {filters.map((filter) => (
+        <Button
+          key={filter.type}
+          rounded
+          height={ButtonHeight.Small}
+          className={getClassName(filter.type)}
+          onClick={() => handleFilterClick(filter.type)}
+        >
+          {filter.label}
+        </Button>
+      ))}
     </styled.HomeFilters>
   );
 };
