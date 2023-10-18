@@ -48,12 +48,12 @@ const ContentListView: React.FC = () => {
   var hub = useApiHub();
   const { navigate } = useTab({ showNav: false });
 
+  const [{ actions }] = useLookup();
+  const [data, setData] = React.useState<IContentSearchResult[]>([]);
+
   const [contentId, setContentId] = React.useState(id);
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
   const [isLoading, setIsLoading] = React.useState(false);
-
-  const [results, setResults] = React.useState<IContentSearchResult[]>([]);
-  const [{ actions }] = useLookup();
 
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
@@ -125,8 +125,8 @@ const ContentListView: React.FC = () => {
           const result = await findContentWithElasticsearch(getFilter(filter, actions), false);
           const items = result.hits?.hits?.map((h) =>
             castContentToSearchResult(h._source as IContentModel),
-          ) as IContentSearchResult[];
-          setResults(items);
+          );
+          setData(items);
           const page = new Page(1, items.length, items, items.length);
           return page;
         }
@@ -204,7 +204,7 @@ const ContentListView: React.FC = () => {
             <FlexboxTable
               rowId="id"
               columns={columns}
-              data={results}
+              data={data}
               showPaging={false}
               manualPaging={true}
               pageIndex={filter.pageIndex}
