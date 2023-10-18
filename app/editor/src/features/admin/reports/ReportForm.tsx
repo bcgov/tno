@@ -94,6 +94,13 @@ const ReportForm: React.FC = () => {
     } catch {}
   };
 
+  const handlePublish = async (values: IReportModel) => {
+    try {
+      await publishReport(values);
+      toast.success('Report has been successfully requested');
+    } catch {}
+  };
+
   return (
     <styled.ReportForm>
       <IconButton
@@ -215,7 +222,7 @@ const ReportForm: React.FC = () => {
                   </Button>
                   <Button
                     variant={ButtonVariant.secondary}
-                    onClick={() => handleSubmit(props.values)}
+                    onClick={() => handlePublish(props.values)}
                   >
                     Send
                   </Button>
