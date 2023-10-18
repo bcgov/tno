@@ -53,6 +53,13 @@ export const ReportAdminEdit: React.FC<IReportAdminProps> = ({
     [deleteReport, navigate],
   );
 
+  const checkErrors = () => {
+    if (!!values.settings.subject.text && !!values.name) {
+      return false;
+    }
+    return true;
+  };
+
   return (
     <>
       <Tabs
@@ -61,7 +68,7 @@ export const ReportAdminEdit: React.FC<IReportAdminProps> = ({
             <Tab
               showErrorOnSave={{ value: true, savePressed: savePressed }}
               setShowValidationToast={setShowValidationToast}
-              hasErrors={hasErrors(props.errors, ['name'])}
+              hasErrors={checkErrors()}
               label={
                 <Row gap="0.25rem">
                   <Show visible={!!values.id}>

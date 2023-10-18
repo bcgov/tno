@@ -98,7 +98,7 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
           setSubmitting(false);
         }}
       >
-        {(props: FormikProps<IReportAdminProps>) => (
+        {(props: FormikProps<IReportForm>) => (
           <Row className="report-layout" gap="1rem">
             <Col flex="1" className="edit">
               <Container isLoading={requests.some((r) => loading.includes(r.url))}>
