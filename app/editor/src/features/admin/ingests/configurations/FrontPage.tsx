@@ -67,6 +67,7 @@ export const FrontPage: React.FC = (props) => {
           />
         </Col>
       </Row>
+      <FormikCheckbox label="Delete original files" name="configuration.deleteOriginal" />
       <p>
         Front page images are often delivered the evening before the publish date. Use a regular
         expression to parse the file name to determine the published on date. Use regex group names
@@ -80,7 +81,7 @@ export const FrontPage: React.FC = (props) => {
         placeholder="^sv-GLB-[A-Za-z]{3}-(?<day>[0-9]{2})(?<month>[0-9]{2})(?<year>[0-9]{4})"
         value={values.configuration.publishedOnExpression}
       />
-      <FormikCheckbox label="Publish" name="configuration.publish" />
+      <FormikCheckbox label="Publish content immediately" name="configuration.publish" />
     </styled.IngestType>
   );
 };
