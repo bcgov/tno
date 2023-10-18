@@ -49,7 +49,6 @@ const ContentListView: React.FC = () => {
   const { navigate } = useTab({ showNav: false });
 
   const [{ actions }] = useLookup();
-  const [data, setData] = React.useState<IContentSearchResult[]>([]);
 
   const [contentId, setContentId] = React.useState(id);
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
@@ -126,7 +125,6 @@ const ContentListView: React.FC = () => {
           const items = result.hits?.hits?.map((h) =>
             castContentToSearchResult(h._source as IContentModel),
           );
-          setData(items);
           const page = new Page(1, items.length, items, items.length);
           return page;
         }
@@ -204,7 +202,7 @@ const ContentListView: React.FC = () => {
             <FlexboxTable
               rowId="id"
               columns={columns}
-              data={data}
+              data={page.items}
               showPaging={false}
               manualPaging={true}
               pageIndex={filter.pageIndex}

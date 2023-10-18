@@ -67,7 +67,13 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         const response = await dispatch('find-contents-with-elasticsearch', () =>
           api.findContentWithElasticsearch(filter, includeUnpublishedContent),
         );
-        // TODO: store in redux
+        const items = response.data.hits?.hits?.map((h) => h._source as IContentModel);
+        actions.storeContent({
+          page: 1,
+          quantity: items.length,
+          total: items.length,
+          items: items,
+        });
         return response.data;
       },
       getContent: async (id: number) => {
