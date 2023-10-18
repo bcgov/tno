@@ -1,59 +1,44 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
-import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { determineColumns } from 'features/home/constants';
 import moment from 'moment';
 import React from 'react';
+import { FiRefreshCcw } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { useContributors } from 'store/hooks/subscriber/useContributors';
 import {
+  FieldSize,
   FlexboxTable,
   generateQuery,
   IContentModel,
   IFilterSettingsModel,
+  IOptionItem,
   ITableInternalRow,
   Row,
+  Select,
 } from 'tno-core';
 
+import { IDateOptions, IPressMember } from './interfaces';
 import * as styled from './styled';
-import { createFilterSettings } from './utils';
+import { createFilterSettings, generateDates } from './utils';
 
 export const PressGallery: React.FC = () => {
   const navigate = useNavigate();
   const [{ filterAdvanced }, { findContentWithElasticsearch }] = useContent();
   const [, api] = useContributors();
-  const [results, setResults] = React.useState<any>([]);
+  const [results, setResults] = React.useState<IContentModel[]>([]);
+  const [pressMembers, setPressMembers] = React.useState<IPressMember[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const [dateOptions, setDateOptions] = React.useState<IDateOptions[]>([]);
+  const [aliases, setAliases] = React.useState<string[]>([]);
 
-  const [pressSettings, setPressSettings] = React.useState<IFilterSettingsModel>(
-    createFilterSettings(
-      `${moment(filterAdvanced.startDate)}`,
-      `${moment(filterAdvanced.startDate).endOf('day')}`,
-    ),
+  const [dateValue, setDateValue] = React.useState<IOptionItem | null>();
+  const [pressValue, setPressValue] = React.useState<IOptionItem | null>();
+
+  const [pressSettings] = React.useState<IFilterSettingsModel>(
+    createFilterSettings(`${moment().startOf('day')}`, `${moment().subtract('2', 'weeks')}`),
   );
-  const [pressQuery, setPressQuery] = React.useState<any>();
-
-  /**
-   * Update the settings and query values based on the new key=value.
-   */
-  const updateQuery = React.useCallback(
-    (key: string, value: any) => {
-      var settings = { ...pressSettings };
-      settings[key] = value;
-      if (key === 'dateOffset') {
-        settings = { ...settings, startDate: undefined, endDate: undefined };
-      } else if (key === 'startDate' || key === 'endDate') {
-        settings = { ...settings, dateOffset: undefined };
-      }
-      const query = generateQuery(settings, pressQuery);
-      setPressSettings(settings);
-      setPressQuery(query);
-    },
-    [pressQuery, pressSettings],
-  );
-
-  React.useEffect(() => {}, [filterAdvanced.startDate]);
 
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
@@ -65,42 +50,93 @@ export const PressGallery: React.FC = () => {
     [findContentWithElasticsearch],
   );
 
-  /** Get all the contributors that are marked as press */
   React.useEffect(() => {
-    getPressContributorAliases();
+    const dates = generateDates();
+    setDateOptions(dates);
+  }, []);
 
-    // Only want this to run when the date is updated or on initial load
+  React.useEffect(() => {
+    api.findAllContributors().then((contributors) => {
+      setPressMembers(contributors.filter((contributor) => contributor.isPress));
+      const allAliases = contributors
+        .filter((c) => c.isPress)
+        .map((contributor) => {
+          if (!!contributor.aliases) {
+            return contributor.aliases;
+          } else {
+            return contributor.name;
+          }
+        });
+      setAliases(allAliases);
+    });
+    // run on init
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterAdvanced.startDate]);
+  }, []);
 
-  // async function to fetch the press enable contributors and update the search query with appropriate aliases
-  const getPressContributorAliases = React.useCallback(async () => {
-    // regex to match words separated by space or comma, and treat words surrounded by quotes as one value
-    const regex = /"[^"]+"|\w+/g;
-    const contributors = await api.findAllContributors();
-    const aliases = contributors
-      .filter((contributor) => contributor.isPress)
-      .map((contributor) => {
-        if (!!contributor.aliases) {
-          return contributor.aliases.match(regex);
-        } else {
-          return contributor.name;
-        }
-      });
-    updateQuery('search', aliases.toString().split(',').join(' '));
-    fetchResults(
-      generateQuery(
-        {
+  React.useEffect(() => {
+    // only fetch once the aliases are ready
+    !!aliases.length &&
+      fetchResults(
+        generateQuery({
           ...pressSettings,
-          startDate: `${moment(filterAdvanced.startDate)}`,
-          endDate: `${moment(filterAdvanced.startDate).endOf('day')}`,
-        },
-        pressQuery,
-      ),
-    );
-    // only want to trigger when date changes
+          defaultSearchOperator: 'or',
+          search: aliases.toString().split(',').join(' '),
+          startDate: `${moment().startOf('day').subtract(2, 'weeks')}`,
+          endDate: `${moment()}`,
+        }),
+      );
+  }, [aliases, pressSettings, fetchResults]);
+
+  React.useEffect(() => {
+    pressMembers.forEach((contributor) => {
+      fetchResultHits(
+        generateQuery({
+          ...pressSettings,
+          search: contributor.aliases,
+          startDate: `${moment(filterAdvanced.startDate).subtract(2, 'weeks')}`,
+          endDate: `${moment()}`,
+        }),
+        contributor.name,
+      );
+    });
+    // only want to run when press members are loaded
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterAdvanced.startDate]);
+  }, [pressMembers.length]);
+
+  React.useEffect(() => {
+    dateOptions.forEach((date) => {
+      fetchResultHits(
+        generateQuery({
+          ...pressSettings,
+          search: aliases.toString().split(',').join(' '),
+          startDate: `${moment(date.value).startOf('day')}`,
+          endDate: `${moment(date.value).endOf('day')}`,
+        }),
+        '',
+        String(date.value),
+      );
+    });
+    // only want to run when date options are loaded
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateOptions.length]);
+
+  /** separate requests to find total hits for each press member */
+  const fetchResultHits = React.useCallback(
+    async (filter: MsearchMultisearchBody, name?: string, date?: string) => {
+      try {
+        const res: any = await findContentWithElasticsearch(filter, false);
+        if (!!name)
+          setPressMembers((pressMembers) =>
+            pressMembers.map((c) => (c.name === name ? { ...c, hits: res.hits.total.value } : c)),
+          );
+        if (!!date)
+          setDateOptions((dates) =>
+            dates.map((d) => (d.value === date ? { ...d, hits: res.hits.total.value } : d)),
+          );
+      } catch {}
+    },
+    [findContentWithElasticsearch],
+  );
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
@@ -113,8 +149,87 @@ export const PressGallery: React.FC = () => {
 
   return (
     <styled.PressGallery>
-      <FolderSubMenu selectedContent={selected} />
-      <DateFilter />
+      <Row className="tool-bar">
+        <Select
+          width={FieldSize.Medium}
+          name="select-press-member"
+          placeholder={'Select a press member'}
+          isClearable={false}
+          clearValue={() => setPressValue(null)}
+          value={pressValue}
+          onChange={(e: any) => {
+            if (!!e.value) {
+              setPressValue(e);
+              // can only use one of the two filters
+              setDateValue(null);
+              fetchResults(
+                generateQuery({
+                  ...pressSettings,
+                  defaultSearchOperator: 'or',
+                  search: pressMembers.find((c) => c.name === e.value)?.aliases ?? '',
+                  startDate: `${moment().subtract(2, 'weeks')}`,
+                  endDate: `${moment()}`,
+                }),
+              );
+            }
+          }}
+          options={pressMembers.map((c) => {
+            return {
+              label: `${c.name} (${c.hits ?? 0})`,
+              value: c.aliases ?? c.name,
+            };
+          })}
+        />
+        <p className="or">or</p>
+        <Select
+          value={dateValue}
+          isClearable={false}
+          options={dateOptions.map((d) => {
+            return {
+              label: `${d.label} (${d.hits ?? 0})`,
+              value: d.value,
+            };
+          })}
+          placeholder={'Select a date'}
+          clearValue={() => setDateValue(undefined)}
+          onChange={(e: any) => {
+            console.log(e);
+            if (!!e.value) {
+              setDateValue(e);
+              // can only use one of the two filters
+              setPressValue(null);
+              fetchResults(
+                generateQuery({
+                  ...pressSettings,
+                  defaultSearchOperator: 'or',
+                  search: aliases.toString().split(',').join(' '),
+                  startDate: `${moment(e.value).startOf('day')}`,
+                  endDate: `${moment(e.value).endOf('day')}`,
+                }),
+              );
+            }
+          }}
+          name="date-select"
+          width={FieldSize.Medium}
+        />
+        <FiRefreshCcw
+          className="reset"
+          onClick={() => {
+            setDateValue(null);
+            setPressValue(null);
+            fetchResults(
+              generateQuery({
+                ...pressSettings,
+                defaultSearchOperator: 'or',
+                search: aliases.toString().split(',').join(' '),
+                startDate: `${moment(filterAdvanced.startDate).subtract(2, 'weeks')}`,
+                endDate: `${moment()}`,
+              }),
+            );
+          }}
+        />
+        <FolderSubMenu selectedContent={selected} />
+      </Row>
       <Row className="table-container">
         <FlexboxTable
           rowId="id"
