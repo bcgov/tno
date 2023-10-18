@@ -1,4 +1,6 @@
+using System;
 using System.Globalization;
+using System.IO.Compression;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -59,8 +61,8 @@ public class ImageAction : IngestAction<ImageOptions>
         this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
 
         // Extract the ingest configuration settings.
-        var fileName = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("fileName")) ? manager.Ingest.Source?.Code : manager.Ingest.GetConfigurationValue("fileName");
-        if (String.IsNullOrWhiteSpace(fileName)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' is missing a 'fileName'.");
+        var fileNameExp = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("fileName")) ? manager.Ingest.Source?.Code : manager.Ingest.GetConfigurationValue("fileName");
+        if (String.IsNullOrWhiteSpace(fileNameExp)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' is missing a 'fileName'.");
 
         // TODO: Handle different remote connections.
         // TODO: create new account to access server
@@ -112,20 +114,39 @@ public class ImageAction : IngestAction<ImageOptions>
             var uppercaseDate = manager.Ingest.GetConfigurationValue<bool>("uppercaseDate", false);
             var pathDateValue = date.ToString(pathDateFormat, CultureInfo.InvariantCulture).Replace(".-", "-"); // Remove the odd period after ddd format.
             var fileDateValue = date.ToString(dateFormat, CultureInfo.InvariantCulture).Replace(".-", "-"); // Remove the odd period after ddd format.
+            var deleteOriginal = manager.Ingest.GetConfigurationValue<bool>("deleteOriginal", false);
 
             remotePath = remotePath.Replace("<date>", pathDateValue).Replace("~/", $"{client.WorkingDirectory}/");
 
             var datePattern = uppercaseDate ? fileDateValue.ToUpperInvariant() : fileDateValue.ToUpperInvariant();
-            var filePattern = fileName.Replace("<date>", datePattern);
+            var filePattern = fileNameExp.Replace("<date>", datePattern);
             var match = new Regex(filePattern);
 
             var files = await FetchImagesAsync(client, remotePath);
             files = files.Where(f => match.Match(f.Name).Success);
             this.Logger.LogDebug("{count} files were discovered that match the filter '{filter}'.", files.Count(), filePattern);
 
+            var outputPath = GetOutputPath(manager.Ingest);
             foreach (var file in files)
             {
-                var newReference = CreateContentReference(manager.Ingest, file.Name);
+                // Downloading the file can result in multiple Image Services performing the same task.
+                // However, we need to unzip the images before creating a content reference.
+                var filePath = await DownloadFileAsync(client, manager.Ingest, remotePath.CombineWith(file.Name), deleteOriginal);
+
+                // If a zip file it needs to be unzipped first.
+                if (Path.GetExtension(file.Name).Equals(".zip", StringComparison.OrdinalIgnoreCase))
+                {
+                    UnzipFile(filePath, outputPath, true);
+                }
+            }
+
+            // We're only interested in the files that were copied.
+            var localFiles = Directory.GetFiles(outputPath);
+            localFiles = localFiles.Where(path => match.Match(path).Success).ToArray();
+            foreach (var path in localFiles)
+            {
+                var fileName = Path.GetFileName(path);
+                var newReference = CreateContentReference(manager.Ingest, fileName);
                 var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, newReference.Uid);
                 if (reference == null)
                 {
@@ -139,9 +160,8 @@ public class ImageAction : IngestAction<ImageOptions>
                 }
                 else continue;
 
-                await CopyImageAsync(client, manager.Ingest, remotePath.CombineWith(file.Name));
                 reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
-                if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, file.Name));
+                if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, fileName));
             }
         }
         catch
@@ -156,6 +176,30 @@ public class ImageAction : IngestAction<ImageOptions>
     }
 
     /// <summary>
+    /// Unzip the file to the specified path.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="outputPath"></param>
+    /// <param name="deleteZip"></param>
+    /// <returns></returns>
+    private void UnzipFile(string path, string outputPath, bool deleteZip = false)
+    {
+        using var archive = ZipFile.OpenRead(path);
+        foreach (var entry in archive.Entries)
+        {
+            var localPath = outputPath.CombineWith(entry.FullName);
+            if (!File.Exists(localPath))
+                entry.ExtractToFile(localPath);
+        }
+        archive.Dispose();
+
+        if (deleteZip)
+        {
+            File.Delete(path);
+        };
+    }
+
+    /// <summary>
     /// Get the output path to store the file.
     /// </summary>
     /// <param name="ingest"></param>
@@ -163,7 +207,9 @@ public class ImageAction : IngestAction<ImageOptions>
     protected string GetOutputPath(IngestModel ingest)
     {
         // TODO: Handle different destination connections.
-        return this.Options.VolumePath.CombineWith(ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}/");
+        return this.Options.VolumePath.CombineWith(
+            ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "",
+            $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}/");
     }
 
     /// <summary>
@@ -212,8 +258,9 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <param name="client"></param>
     /// <param name="ingest"></param>
     /// <param name="pathToFile"></param>
+    /// <param name="moveFile">Whether to move the file instead of copy.</param>
     /// <returns></returns>
-    private async Task CopyImageAsync(SftpClient client, IngestModel ingest, string pathToFile)
+    private async Task<string> DownloadFileAsync(SftpClient client, IngestModel ingest, string pathToFile, bool moveFile = false)
     {
         // Copy image to destination data location.
         // TODO: Eventually handle different destination data locations based on config.
@@ -227,9 +274,18 @@ public class ImageAction : IngestAction<ImageOptions>
             {
                 Directory.CreateDirectory(outputPath);
             }
+
             using var saveFile = File.OpenWrite(outputFile);
             await Task.Factory.FromAsync(client.BeginDownloadFile(pathToFile, saveFile), client.EndDownloadFile);
+
+            // If move then delete original.
+            if (moveFile)
+            {
+                client.DeleteFile(pathToFile);
+            }
         }
+
+        return outputFile;
     }
 
     /// <summary>
@@ -309,8 +365,7 @@ public class ImageAction : IngestAction<ImageOptions>
             ingest.GetConfigurationValue<bool>("publish"))
         {
             StreamUrl = ingest.GetConfigurationValue("url"),
-            FilePath = (ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "")
-                .CombineWith($"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}/", fileName),
+            FilePath = GetOutputPath(ingest).CombineWith(fileName),
             Language = ingest.GetConfigurationValue("language")
         };
         return content;
