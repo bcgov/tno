@@ -7,7 +7,6 @@ import { useReports } from 'store/hooks';
 import {
   Button,
   ButtonVariant,
-  hasErrors,
   Modal,
   Row,
   Show,

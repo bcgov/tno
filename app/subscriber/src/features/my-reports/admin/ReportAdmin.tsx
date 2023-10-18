@@ -31,7 +31,7 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
   const [{ userInfo }] = useApp();
   const navigate = useNavigate();
   const { id, path = defaultPath } = useParams();
-  const [{ getReport, addReport, updateReport }] = useReports();
+  const [{ getReport, addReport, updateReport, findReports }] = useReports();
   const [{ getReportTemplates }] = useReportTemplates();
   const [{ requests }] = useAppStore();
 
@@ -65,25 +65,35 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
 
   const handleSubmit = React.useCallback(
     async (values: IReportForm) => {
-      const originalId = values.id;
-      const report = originalId ? await updateReport(values) : await addReport(values);
-
-      if (!originalId) {
-        navigate(`/reports/${report.id}${path ? `/${path}` : ''}`);
-        toast.success(`Successfully created '${report.name}'.`);
-      } else {
-        setReport({
-          ...report,
-          sections: report.sections.map((section, index) => ({
-            ...section,
-            expand: values.sections[index].expand,
-          })),
-          hideEmptySections: getHideEmpty(report.sections),
+      try {
+        const sameNameReport = await findReports({
+          name: values.name,
+          ownerId: values.ownerId,
         });
-        toast.success(`Successfully updated '${report.name}'.`);
-      }
+        if (sameNameReport.length > 0) {
+          toast.error(`A report with the name '${values.name}' already exists.`);
+        } else {
+          const originalId = values.id;
+          const report = originalId ? await updateReport(values) : await addReport(values);
+
+          if (!originalId) {
+            navigate(`/reports/${report.id}${path ? `/${path}` : ''}`);
+            toast.success(`Successfully created '${report.name}'.`);
+          } else {
+            setReport({
+              ...report,
+              sections: report.sections.map((section, index) => ({
+                ...section,
+                expand: values.sections[index].expand,
+              })),
+              hideEmptySections: getHideEmpty(report.sections),
+            });
+            toast.success(`Successfully updated '${report.name}'.`);
+          }
+        }
+      } catch {}
     },
-    [addReport, navigate, path, updateReport],
+    [addReport, findReports, navigate, path, updateReport],
   );
 
   return (
