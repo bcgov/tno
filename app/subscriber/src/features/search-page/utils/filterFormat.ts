@@ -8,7 +8,7 @@ import { IFilterSettingsModel } from 'tno-core';
 export const filterFormat = (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
   const settings: IFilterSettingsModel = {
     size: 0,
-    startDate: filter.startDate ?? undefined,
+    startDate: !!filter.startDate ? filter.startDate : undefined,
     endDate: filter.endDate
       ? filter.endDate
       : filter.startDate
