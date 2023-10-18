@@ -162,8 +162,10 @@ public class WorkOrder : AuditColumns
     /// <param name="type"></param>
     /// <param name="description"></param>
     /// <param name="content"></param>
-    public WorkOrder(WorkOrderType type, string description, Content content) : this(type, description, content.Id, content.Headline)
+    public WorkOrder(WorkOrderType type, string description, Content content, JsonDocument? configuration = null)
+         : this(type, description, content.Id, content.Headline)
     {
+        this.Configuration = configuration ?? JsonDocument.Parse("{}");
     }
 
     /// <summary>
@@ -173,9 +175,12 @@ public class WorkOrder : AuditColumns
     /// <param name="description"></param>
     /// <param name="contentId"></param>
     /// <param name="headline"></param>
-    public WorkOrder(WorkOrderType type, string description, long contentId, string headline) : this(type, description, $"{{ \"headline\": \"{headline}\" }}")
+    /// <param name="configuration"></param>
+    public WorkOrder(WorkOrderType type, string description, long contentId, string headline, JsonDocument? configuration = null)
+        : this(type, description, $"{{ \"headline\": \"{headline}\" }}")
     {
         this.ContentId = contentId;
+        this.Configuration = configuration ?? JsonDocument.Parse("{}");
     }
 
     /// <summary>
@@ -185,7 +190,9 @@ public class WorkOrder : AuditColumns
     /// <param name="requestor"></param>
     /// <param name="description"></param>
     /// <param name="content"></param>
-    public WorkOrder(WorkOrderType type, User requestor, string description, Content content) : this(type, description, content)
+    /// <param name="configuration"></param>
+    public WorkOrder(WorkOrderType type, User requestor, string description, Content content, JsonDocument? configuration = null)
+        : this(type, description, content, configuration)
     {
         this.RequestorId = requestor.Id;
         this.Requestor = requestor;
@@ -201,7 +208,9 @@ public class WorkOrder : AuditColumns
     /// <param name="description"></param>
     /// <param name="contentId"></param>
     /// <param name="headline"></param>
-    public WorkOrder(WorkOrderType type, int requestorId, string description, long contentId, string headline) : this(type, description, contentId, headline)
+    /// <param name="configuration"></param>
+    public WorkOrder(WorkOrderType type, int requestorId, string description, long contentId, string headline, JsonDocument? configuration = null)
+        : this(type, description, contentId, headline, configuration)
     {
         this.RequestorId = requestorId;
     }

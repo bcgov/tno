@@ -37,6 +37,12 @@ public class ContentMessageModel
     /// get/set - Version number.
     /// </summary>
     public long? Version { get; set; }
+
+    /// <summary>
+    /// get/set - The reason the message has been sent.
+    /// The app can then act based on the reason.
+    /// </summary>
+    public string? Reason { get; set; }
     #endregion
 
     #region Constructors
@@ -49,7 +55,8 @@ public class ContentMessageModel
     /// Creates a new instance of an ContentMessageModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public ContentMessageModel(Entities.Content entity)
+    /// <param name="reason"></param>
+    public ContentMessageModel(Entities.Content entity, string? reason = null)
     {
         this.Id = entity.Id;
         this.ContentType = entity.ContentType;
@@ -57,13 +64,15 @@ public class ContentMessageModel
         this.OwnerId = entity.OwnerId;
         this.Headline = entity.Headline;
         this.Version = entity.Version;
+        this.Reason = reason;
     }
 
     /// <summary>
     /// Creates a new instance of an ContentMessageModel, initializes with specified parameter.
     /// </summary>
     /// <param name="model"></param>
-    public ContentMessageModel(TNO.API.Areas.Services.Models.Content.ContentModel model)
+    /// <param name="reason"></param>
+    public ContentMessageModel(TNO.API.Areas.Services.Models.Content.ContentModel model, string? reason = null)
     {
         this.Id = model.Id;
         this.ContentType = model.ContentType;
@@ -71,6 +80,7 @@ public class ContentMessageModel
         this.OwnerId = model.OwnerId;
         this.Headline = model.Headline;
         this.Version = model.Version;
+        this.Reason = reason;
     }
     #endregion
 }

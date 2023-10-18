@@ -367,7 +367,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
         if (json == "{}") return true;
         var node = JsonNode.Parse(json)?.AsObject();
         if (node == null) return true;
-        return node.ContainsKey("query");
+        return !node.ContainsKey("query");
     }
 
     /// <summary>

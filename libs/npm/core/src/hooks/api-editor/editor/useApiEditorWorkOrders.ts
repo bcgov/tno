@@ -46,5 +46,10 @@ export const useApiEditorWorkOrders = (
         `/editor/work/orders/request/file/${locationId}?path=${encodeURIComponent(path)}`,
       );
     },
+    ffmpeg: (content: IContentModel) => {
+      return api.post<never, AxiosResponse<IWorkOrderModel>, any>(
+        `/editor/work/orders/ffmpeg/${content.id}`,
+      );
+    },
   }).current;
 };

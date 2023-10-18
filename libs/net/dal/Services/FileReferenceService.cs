@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
-using TNO.DAL.Extensions;
 using TNO.DAL.Models;
 using TNO.Entities;
 

@@ -19,6 +19,7 @@ import {
   Modal,
   Row,
   Show,
+  TextArea,
   useModal,
 } from 'tno-core';
 
@@ -31,21 +32,31 @@ const ProductForm: React.FC = () => {
   const { state } = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
+  const { toggle, isShowing } = useModal();
+
   const productId = Number(id);
   const [product, setProduct] = React.useState<IProductModel>(
     (state as any)?.product ?? defaultProduct,
   );
-
-  const { toggle, isShowing } = useModal();
+  const [settings, setSettings] = React.useState('');
 
   React.useEffect(() => {
     if (!!productId && product?.id !== productId) {
       setProduct({ ...defaultProduct, id: productId }); // Do this to stop double fetch.
       api.getProduct(productId).then((data) => {
         setProduct(data);
+        setSettings(JSON.stringify(data.settings, null, 2));
       });
     }
   }, [api, product?.id, productId]);
+
+  React.useEffect(() => {
+    try {
+      const json = JSON.parse(settings);
+      setProduct((product) => ({ ...product, settings: json }));
+      setSettings(JSON.stringify(json, null, 2));
+    } catch {}
+  }, [settings]);
 
   const handleSubmit = async (values: IProductModel) => {
     try {
@@ -88,6 +99,14 @@ const ProductForm: React.FC = () => {
               <Col gap="0.5rem">
                 <FormikCheckbox label="Is Enabled" name="isEnabled" />
                 <FormikCheckbox label="Automatically transcribe when saved" name="autoTranscribe" />
+                <TextArea
+                  label="Settings"
+                  name="settings"
+                  value={settings}
+                  onChange={(e) => {
+                    setSettings(e.target.value);
+                  }}
+                />
               </Col>
               <Show visible={!!values.id}>
                 <Row>

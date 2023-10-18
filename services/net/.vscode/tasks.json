@@ -576,6 +576,42 @@
         "${workspaceFolder}/folder-collection/TNO.Services.FolderCollection.csproj"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-ffmpeg",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/ffmpeg/TNO.Services.FFmpeg.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-ffmpeg",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/ffmpeg/TNO.Services.FFmpeg.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-ffmpeg",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/ffmpeg/TNO.Services.FFmpeg.csproj"
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

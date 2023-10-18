@@ -35,6 +35,11 @@ public class WorkOrderMessageModel : AuditColumnsModel
     public int? AssignedId { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to the content this work order is for.
+    /// </summary>
+    public long? ContentId { get; set; }
+
+    /// <summary>
     /// get/set - Description of the work order.
     /// </summary>
     public string Description { get; set; } = "";
@@ -68,6 +73,7 @@ public class WorkOrderMessageModel : AuditColumnsModel
         this.Status = entity.Status;
         this.RequestorId = entity.RequestorId;
         this.AssignedId = entity.AssignedId;
+        this.ContentId = entity.ContentId;
         this.Description = entity.Description;
         this.Note = entity.Note;
         this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();

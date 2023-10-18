@@ -1,4 +1,6 @@
-﻿using TNO.API.Models;
+﻿using System.Text.Json;
+using TNO.API.Models;
+using TNO.API.Models.Settings;
 
 namespace TNO.API.Areas.Services.Models.Content;
 
@@ -12,6 +14,11 @@ public class ProductModel : BaseTypeModel<int>
     /// get/set - Whether content should be automatically transcribed.
     /// </summary>
     public bool AutoTranscribe { get; set; }
+
+    /// <summary>
+    /// get/set - Product settings.
+    /// </summary>
+    public ProductSettingsModel Settings { get; set; } = new ProductSettingsModel();
     #endregion
 
     #region Constructors
@@ -24,9 +31,11 @@ public class ProductModel : BaseTypeModel<int>
     /// Creates a new instance of an ProductModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public ProductModel(Entities.Product entity) : base(entity)
+    /// <param name="options"></param>
+    public ProductModel(Entities.Product entity, JsonSerializerOptions options) : base(entity)
     {
         this.AutoTranscribe = entity.AutoTranscribe;
+        this.Settings = JsonSerializer.Deserialize<ProductSettingsModel>(entity.Settings, options) ?? new();
     }
     #endregion
 }

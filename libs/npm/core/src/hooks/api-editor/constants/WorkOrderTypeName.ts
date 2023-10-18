@@ -1,6 +1,6 @@
 export enum WorkOrderTypeName {
   /// <summary>
-  /// A request for content to te sent for transcription.
+  /// A request for content to be sent for transcription.
   /// </summary>
   Transcription = 'Transcription',
 
@@ -13,4 +13,9 @@ export enum WorkOrderTypeName {
   /// A request for a remote file.
   /// </summary>
   FileRequest = 'FileRequest',
+
+  /// <summary>
+  /// A request for content to be sent for FFmpeg actions.
+  /// </summary>
+  FFmpeg = 'FFmpeg',
 }

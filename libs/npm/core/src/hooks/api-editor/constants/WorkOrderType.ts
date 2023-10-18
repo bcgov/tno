@@ -13,4 +13,9 @@ export enum WorkOrderType {
   /// A request for a remote file.
   /// </summary>
   FileRequest = 2,
+
+  /// <summary>
+  /// A request for content to be sent for FFmpeg actions.
+  /// </summary>
+  FFmpeg = 3,
 }

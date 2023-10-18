@@ -128,7 +128,7 @@ public interface IApiService
     public Task<API.Areas.Services.Models.Ingest.ScheduleModel?> DeleteIngestSchedule(API.Areas.Services.Models.Ingest.IngestScheduleModel schedule);
     #endregion
 
-    #region Contents
+    #region Ingest
     /// <summary>
     /// Make a request to the API to update the ingest state.
     /// </summary>
@@ -142,7 +142,9 @@ public interface IApiService
     /// <param name="ingest"></param>
     /// <returns></returns>
     public Task<API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestConfigAsync(API.Areas.Services.Models.Ingest.IngestModel ingest);
+    #endregion
 
+    #region Contents
     /// <summary>
     /// Make a request to the API to find the content reference for the specified key.
     /// </summary>
@@ -206,6 +208,15 @@ public interface IApiService
     /// <param name="fileName"></param>
     /// <returns></returns>
     Task<API.Areas.Services.Models.Content.ContentModel?> UploadFileAsync(long contentId, long version, Stream file, string fileName);
+
+    /// <summary>
+    /// Make a request to the API to update the file for the specified ContentModel.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="index">Be careful this can result in a indexing loop.</param>
+    /// <param name="requestorId">The user ID who is requesting the update.</param>
+    /// <returns></returns>
+    public Task<API.Areas.Services.Models.Content.ContentModel?> UpdateFileAsync(API.Areas.Services.Models.Content.ContentModel content, bool index = false, int? requestorId = null);
 
     /// <summary>
     /// Make a request to the API to find the specified content.

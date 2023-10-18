@@ -13,7 +13,14 @@ public interface IWorkOrderHelper
     /// <param name="contentId"></param>
     /// <returns></returns>
     /// <exception cref="NoContentException"></exception>
-    public bool ShouldAutoTranscribe(long contentId);
+    bool ShouldAutoTranscribe(long contentId);
+
+    /// <summary>
+    /// Determine if the content should perform FFmpeg actions.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    bool ShouldFFmpeg(long contentId);
 
     /// <summary>
     /// Request a transcript for the specified 'contentId'.
@@ -38,4 +45,15 @@ public interface IWorkOrderHelper
     /// <exception cref="ConfigurationException"></exception>
     /// <exception cref="NotAuthorizedException"></exception>
     Task<Entities.WorkOrder> RequestNLPAsync(long contentId, bool force = false);
+
+    /// <summary>
+    /// Request a FFmpeg for the specified 'contentId'.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="force">Whether to force a request regardless of the prior requests state</param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    /// <exception cref="ConfigurationException"></exception>
+    /// <exception cref="NotAuthorizedException"></exception>
+    Task<Entities.WorkOrder> RequestFFmpegAsync(long contentId, bool force = false);
 }

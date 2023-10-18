@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Product;
 using TNO.API.Models;
@@ -28,6 +30,7 @@ public class ProductController : ControllerBase
 {
     #region Variables
     private readonly IProductService _service;
+    private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
     #region Constructors
@@ -35,9 +38,11 @@ public class ProductController : ControllerBase
     /// Creates a new instance of a ProductController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
-    public ProductController(IProductService service)
+    /// <param name="serializerOptions"></param>
+    public ProductController(IProductService service, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _service = service;
+        _serializerOptions = serializerOptions.Value;
     }
     #endregion
 
@@ -52,7 +57,7 @@ public class ProductController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Product" })]
     public IActionResult FindAll()
     {
-        return new JsonResult(_service.FindAll().Select(ds => new ProductModel(ds)));
+        return new JsonResult(_service.FindAll().Select(ds => new ProductModel(ds, _serializerOptions)));
     }
 
     /// <summary>
@@ -68,7 +73,7 @@ public class ProductController : ControllerBase
     public IActionResult FindById(int id)
     {
         var result = _service.FindById(id) ?? throw new NoContentException();
-        return new JsonResult(new ProductModel(result));
+        return new JsonResult(new ProductModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -83,8 +88,8 @@ public class ProductController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Product" })]
     public IActionResult Add(ProductModel model)
     {
-        var result = _service.AddAndSave(model.ToEntity());
-        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ProductModel(result));
+        var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ProductModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -99,8 +104,8 @@ public class ProductController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Product" })]
     public IActionResult Update(ProductModel model)
     {
-        var result = _service.UpdateAndSave(model.ToEntity());
-        return new JsonResult(new ProductModel(result));
+        var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions));
+        return new JsonResult(new ProductModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -115,7 +120,7 @@ public class ProductController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Product" })]
     public IActionResult Delete(ProductModel model)
     {
-        _service.DeleteAndSave(model.ToEntity());
+        _service.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);
     }
     #endregion

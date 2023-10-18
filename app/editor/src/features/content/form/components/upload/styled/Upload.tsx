@@ -2,12 +2,12 @@ import styled from 'styled-components';
 
 export const Upload = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   width: fit-content;
+  height: 100%;
 
-  .indicator {
-    align-self: center;
-    padding-right: 0.25em;
+  > div:first-child {
+    justify-content: center;
   }
 
   .upload-image {

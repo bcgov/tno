@@ -135,36 +135,38 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
               />
             </Show>
             <Show visible={contentType === ContentTypeName.AudioVideo}>
-              <FormikSelect
-                name="seriesId"
-                label="Show/Program"
-                width={FieldSize.Medium}
-                value={seriesOptions.find((s: any) => s.value === values.seriesId) ?? ''}
-                options={filterEnabledOptions(seriesOptions, values.seriesId)}
-                isDisabled={!!values.otherSeries}
-                onChange={(e) => {
-                  setFieldValue('otherSeries', '');
-                }}
-              />
-              <FormikText
-                name="otherSeries"
-                label="Other Show/Program"
-                width={FieldSize.Medium}
-                onChange={(e) => {
-                  const value = e.currentTarget.value;
-                  setFieldValue('otherSeries', value);
-                  if (!!value) setFieldValue('seriesId', undefined);
-                }}
-                onBlur={() => {
-                  const found = series.find(
-                    (s) => s.name.toLocaleLowerCase() === values.otherSeries.toLocaleLowerCase(),
-                  );
-                  if (!!found) {
-                    setFieldValue('seriesId', found.id);
+              <Row nowrap>
+                <FormikSelect
+                  name="seriesId"
+                  label="Show/Program"
+                  width={FieldSize.Medium}
+                  value={seriesOptions.find((s: any) => s.value === values.seriesId) ?? ''}
+                  options={filterEnabledOptions(seriesOptions, values.seriesId)}
+                  isDisabled={!!values.otherSeries}
+                  onChange={(e) => {
                     setFieldValue('otherSeries', '');
-                  }
-                }}
-              />
+                  }}
+                />
+                <FormikText
+                  name="otherSeries"
+                  label="Other Show/Program"
+                  width={FieldSize.Medium}
+                  onChange={(e) => {
+                    const value = e.currentTarget.value;
+                    setFieldValue('otherSeries', value);
+                    if (!!value) setFieldValue('seriesId', undefined);
+                  }}
+                  onBlur={() => {
+                    const found = series.find(
+                      (s) => s.name.toLocaleLowerCase() === values.otherSeries.toLocaleLowerCase(),
+                    );
+                    if (!!found) {
+                      setFieldValue('seriesId', found.id);
+                      setFieldValue('otherSeries', '');
+                    }
+                  }}
+                />
+              </Row>
             </Show>
           </Row>
         </Col>

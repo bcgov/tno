@@ -474,7 +474,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                 folderContent.Hits.Hits = content
                     .Select(c => new Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>()
                     {
-                        Source = new API.Areas.Services.Models.Content.ContentModel(c.Content!)
+                        Source = new API.Areas.Services.Models.Content.ContentModel(c.Content!, _serializerOptions)
                     });
                 searchResults.Add(section.Name, folderContent);
                 excludeAboveSectionContentIds.AddRange(content.Select(c => c.ContentId).ToArray());

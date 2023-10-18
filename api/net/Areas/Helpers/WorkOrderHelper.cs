@@ -1,6 +1,8 @@
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.Extensions.Options;
 using TNO.API.Config;
+using TNO.API.Models.Settings;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Services;
@@ -25,6 +27,14 @@ public class WorkOrderHelper : IWorkOrderHelper
     private readonly IUserService _userService;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
+    private readonly JsonSerializerOptions _serializerOptions;
+    #endregion
+
+    #region Properties
+    /// <summary>
+    /// get/set - The content
+    /// </summary>
+    public Entities.Content? Content { get; set; }
     #endregion
 
     #region Constructors
@@ -37,13 +47,15 @@ public class WorkOrderHelper : IWorkOrderHelper
     /// <param name="userService"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
+    /// <param name="serializerOptions"></param>
     public WorkOrderHelper(
         ClaimsPrincipal principal,
         IContentService contentService,
         IWorkOrderService workOrderService,
         IUserService userService,
         IKafkaMessenger kafkaMessenger,
-        IOptions<KafkaOptions> kafkaOptions)
+        IOptions<KafkaOptions> kafkaOptions,
+        IOptions<JsonSerializerOptions> serializerOptions)
     {
         _principal = principal;
         _contentService = contentService;
@@ -51,10 +63,38 @@ public class WorkOrderHelper : IWorkOrderHelper
         _userService = userService;
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
+        _serializerOptions = serializerOptions.Value;
     }
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Get the FFmpeg actions configured for the specified product.
+    /// </summary>
+    /// <param name="product"></param>
+    /// <returns></returns>
+    private IEnumerable<FFmpegActionSettingsModel> GetFFmpegActions(Entities.Product? product)
+    {
+        if (product == null) return Array.Empty<FFmpegActionSettingsModel>();
+        var settings = JsonSerializer.Deserialize<ProductSettingsModel>(product.Settings, _serializerOptions);
+        return settings?.FFmpeg ?? Array.Empty<FFmpegActionSettingsModel>();
+    }
+
+    /// <summary>
+    /// Determine if the content should perform FFmpeg actions.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    public bool ShouldFFmpeg(long contentId)
+    {
+        if (this.Content == null || this.Content.Id != contentId)
+            this.Content = _contentService.FindById(contentId);
+
+        return this.Content?.ContentType == Entities.ContentType.AudioVideo &&
+            this.Content.FileReferences.Any() &&
+            GetFFmpegActions(this.Content.Product).Any();
+    }
+
     /// <summary>
     /// Determine if the content should be auto transcribed.
     /// </summary>
@@ -63,14 +103,15 @@ public class WorkOrderHelper : IWorkOrderHelper
     /// <exception cref="NoContentException"></exception>
     public bool ShouldAutoTranscribe(long contentId)
     {
-        var content = _contentService.FindById(contentId);
-        return content?.ContentType == Entities.ContentType.AudioVideo &&
-            content.FileReferences.Any() &&
-            !content.IsApproved &&
-            (content.Source?.AutoTranscribe == true ||
-                content.Product?.AutoTranscribe == true ||
-                content.Contributor?.AutoTranscribe == true ||
-                content.Series?.AutoTranscribe == true);
+        if (this.Content == null || this.Content.Id != contentId)
+            this.Content = _contentService.FindById(contentId);
+        return this.Content?.ContentType == Entities.ContentType.AudioVideo &&
+            this.Content.FileReferences.Any() &&
+            !this.Content.IsApproved &&
+            (this.Content.Source?.AutoTranscribe == true ||
+                this.Content.Product?.AutoTranscribe == true ||
+                this.Content.Contributor?.AutoTranscribe == true ||
+                this.Content.Series?.AutoTranscribe == true);
     }
 
     /// <summary>
@@ -85,7 +126,8 @@ public class WorkOrderHelper : IWorkOrderHelper
     /// <exception cref="NotAuthorizedException"></exception>
     public async Task<Entities.WorkOrder> RequestTranscriptionAsync(long contentId, bool force = false)
     {
-        var content = _contentService.FindById(contentId) ?? throw new NoContentException("Content does not exist");
+        if (this.Content == null || this.Content.Id != contentId)
+            this.Content = _contentService.FindById(contentId) ?? throw new NoContentException("Content does not exist");
         if (String.IsNullOrWhiteSpace(_kafkaOptions.TranscriptionTopic)) throw new ConfigurationException("Kafka transcription topic not configured.");
 
         // Only allow one work order transcript request at a time.
@@ -95,7 +137,7 @@ public class WorkOrderHelper : IWorkOrderHelper
         {
             var username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
             var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-            var workOrder = _workOrderService.AddAndSave(new Entities.WorkOrder(Entities.WorkOrderType.Transcription, user, "", content));
+            var workOrder = _workOrderService.AddAndSave(new Entities.WorkOrder(Entities.WorkOrderType.Transcription, user, "", this.Content));
 
             await _kafkaMessenger.SendMessageAsync(_kafkaOptions.TranscriptionTopic, new TNO.Kafka.Models.TranscriptRequestModel(workOrder));
             return workOrder;
@@ -115,7 +157,8 @@ public class WorkOrderHelper : IWorkOrderHelper
     /// <exception cref="NotAuthorizedException"></exception>
     public async Task<Entities.WorkOrder> RequestNLPAsync(long contentId, bool force = false)
     {
-        var content = _contentService.FindById(contentId) ?? throw new NoContentException("Content does not exist");
+        if (this.Content == null || this.Content.Id != contentId)
+            this.Content = _contentService.FindById(contentId) ?? throw new NoContentException("Content does not exist");
         if (String.IsNullOrWhiteSpace(_kafkaOptions.TranscriptionTopic)) throw new ConfigurationException("Kafka transcription topic not configured.");
 
         // Only allow one work order nlp request at a time.
@@ -125,9 +168,39 @@ public class WorkOrderHelper : IWorkOrderHelper
         {
             var username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
             var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-            var workOrder = _workOrderService.AddAndSave(new Entities.WorkOrder(Entities.WorkOrderType.NaturalLanguageProcess, user, "", content));
+            var workOrder = _workOrderService.AddAndSave(new Entities.WorkOrder(Entities.WorkOrderType.NaturalLanguageProcess, user, "", this.Content));
 
             await _kafkaMessenger.SendMessageAsync(_kafkaOptions.NLPTopic, new TNO.Kafka.Models.NlpRequestModel(workOrder));
+            return workOrder;
+        }
+        return workOrders.OrderByDescending(w => w.CreatedOn).First();
+    }
+
+    /// <summary>
+    /// Request a FFmpeg for the specified 'contentId'.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="force">Whether to force a request regardless of the prior requests state</param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    /// <exception cref="ConfigurationException"></exception>
+    /// <exception cref="NotAuthorizedException"></exception>
+    public async Task<Entities.WorkOrder> RequestFFmpegAsync(long contentId, bool force = false)
+    {
+        if (this.Content == null || this.Content.Id != contentId)
+            this.Content = _contentService.FindById(contentId) ?? throw new NoContentException("Content does not exist");
+        if (String.IsNullOrWhiteSpace(_kafkaOptions.FFmpegTopic)) throw new ConfigurationException("Kafka FFmpeg topic not configured.");
+
+        // Only allow one work order transcript request at a time.
+        // TODO: Handle blocked work orders stuck in progress.
+        var workOrders = _workOrderService.FindByContentId(contentId);
+        if (force || !workOrders.Any(o => o.WorkType == Entities.WorkOrderType.FFmpeg || !WorkLimiterStatus.Contains(o.Status)))
+        {
+            var username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+
+            var workOrder = _workOrderService.AddAndSave(new Entities.WorkOrder(Entities.WorkOrderType.FFmpeg, user, "", this.Content, this.Content.Product?.Settings));
+            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.FFmpegTopic, new TNO.Kafka.Models.FFmpegRequestModel(workOrder, _serializerOptions));
             return workOrder;
         }
         return workOrders.OrderByDescending(w => w.CreatedOn).First();
