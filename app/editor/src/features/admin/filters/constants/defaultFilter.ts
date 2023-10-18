@@ -20,6 +20,7 @@ export const defaultFilter: IFilterModel = {
     contentTypes: [],
     tags: [],
     sentiment: [],
+    hasTopic: undefined,
   },
   sortOrder: 0,
   isEnabled: true,

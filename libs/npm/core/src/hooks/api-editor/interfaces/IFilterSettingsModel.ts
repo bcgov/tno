@@ -23,4 +23,6 @@ export interface IFilterSettingsModel extends Record<string, any> {
   contentTypes: ContentTypeName[];
   tags: string[];
   sentiment: number[];
+  hasTopic?: boolean;
+  status?: string;
 }

@@ -104,7 +104,9 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
                     ...filter,
                     pageIndex: 0,
                     contentTypes: values.some((o) => o.value === ShowOnlyValues.PrintContent)
-                      ? [...filter.contentTypes, ContentTypeName.PrintContent]
+                      ? !filter.contentTypes?.includes(ContentTypeName.PrintContent)
+                        ? [...filter.contentTypes, ContentTypeName.PrintContent]
+                        : [...filter.contentTypes]
                       : filter.contentTypes.filter((x) => x !== ContentTypeName.PrintContent),
                     hasTopic: values.some((o) => o.value === ShowOnlyValues.HasTopic),
                     commentary: values.some((o) => o.value === ShowOnlyValues.Commentary),

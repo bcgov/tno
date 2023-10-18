@@ -1,4 +1,4 @@
-import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
+import { KnnSearchResponse, MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
@@ -25,7 +25,7 @@ interface IContentController {
   findContentWithElasticsearch: (
     filter: MsearchMultisearchBody,
     includeUnpublishedContent: boolean,
-  ) => Promise<unknown>;
+  ) => Promise<KnnSearchResponse>;
   getContent: (id: number) => Promise<IContentModel | undefined>;
   addContent: (content: IContentModel) => Promise<IContentModel>;
   updateContent: (content: IContentModel) => Promise<IContentModel>;
@@ -67,7 +67,13 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         const response = await dispatch('find-contents-with-elasticsearch', () =>
           api.findContentWithElasticsearch(filter, includeUnpublishedContent),
         );
-        // TODO: store in redux
+        const items = response.data.hits?.hits?.map((h) => h._source as IContentModel);
+        actions.storeContent({
+          page: 1,
+          quantity: items.length,
+          total: items.length,
+          items: items,
+        });
         return response.data;
       },
       getContent: async (id: number) => {
