@@ -1,10 +1,15 @@
-import { IReportTemplateSettingsModel } from "tno-core";
-import { IReportSectionImportExportModel } from "./IReportSectionImportExportModel";
+import { IReportSettingsModel } from 'tno-core';
+
+import { IReportSectionImportExportModel } from './IReportSectionImportExportModel';
+import { IReportTemplateImportExportModel } from './IReportTemplateImportExportModel';
 
 export interface IReportImportExportModel {
-  name?: string;
+  name: string;
   description?: string;
-  settings: IReportTemplateSettingsModel;
+  isEnabled: boolean;
+  isPublic: boolean;
+  template: IReportTemplateImportExportModel;
+  settings: IReportSettingsModel;
   sections: IReportSectionImportExportModel[];
 }
 

@@ -8,17 +8,10 @@ import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
-import { useLookupOptions } from 'store/hooks';
-import {
-  Button,
-  ButtonVariant,
-  Col,
-  generateQuery,
-  IReportModel,
-  IReportSettingsModel,
-  Row,
-  Show,
-} from 'tno-core';
+import { useApp } from 'store/hooks';
+import { useFilters, useFolders, useReportTemplates } from 'store/hooks/admin';
+import { useAdminStore } from 'store/slices';
+import { Button, ButtonVariant, Col, IReportModel, Row, Show } from 'tno-core';
 
 import { exportReport, parseExportedReport } from './utils';
 
@@ -27,9 +20,12 @@ import { exportReport, parseExportedReport } from './utils';
  * @returns Component.
  */
 export const ReportFormImportExport: React.FC = () => {
-  const { values, setFieldValue, setValues } = useFormikContext<IReportModel>();
-  const [{ series, products, sources, contributors, actions }] = useLookupOptions();
-
+  const [{ userInfo }] = useApp();
+  const { values, setValues } = useFormikContext<IReportModel>();
+  const [{ reportTemplates }] = useAdminStore();
+  const [, { findAllReportTemplates }] = useReportTemplates();
+  const [{ filters }, { findAllFilters }] = useFilters();
+  const [{ folders }, { findAllFolders }] = useFolders();
   const [rawReport, setRawReport] = React.useState('{}');
 
   const parseImport = React.useCallback(
@@ -39,24 +35,32 @@ export const ReportFormImportExport: React.FC = () => {
 
         var importedReport = parseExportedReport(
           rawExportedReport,
-          actions,
-          contributors,
-          series,
-          sources,
-          products,
+          reportTemplates,
+          filters,
+          folders,
         );
-        setValues({ ...importedReport });
-
-        const query = generateQuery(importedReport.settings as IReportSettingsModel, null);
-        setFieldValue('query', query);
+        // only for debugging
+        // setRawReport(JSON.stringify(importedReport));
+        setValues({
+          ...importedReport,
+          ownerId: userInfo?.id ?? 0,
+        });
       } catch (ex) {
         const error = ex as Error;
         console.error(ex);
-        toast.error(error.message);
+        toast.error(`Report Import Failed - ${error.message}`);
       }
     },
-    [setValues, setFieldValue, actions, contributors, series, sources, products],
+    [setValues, userInfo, reportTemplates, filters, folders],
   );
+
+  React.useEffect(() => {
+    if (!reportTemplates.length) findAllReportTemplates();
+    if (!filters.length) findAllFilters();
+    if (!folders.length) findAllFolders();
+    // Only fetch items on initial load.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -66,14 +70,16 @@ export const ReportFormImportExport: React.FC = () => {
           <Col flex="1">
             <p>Import / Export.</p>
           </Col>
-          <Button
-            variant={ButtonVariant.secondary}
-            onClick={() => {
-              parseImport(rawReport);
-            }}
-          >
-            Import Report
-          </Button>
+          <Show visible={values?.id === 0}>
+            <Button
+              variant={ButtonVariant.secondary}
+              onClick={() => {
+                parseImport(rawReport);
+              }}
+            >
+              Import Report
+            </Button>
+          </Show>
           <Show visible={values?.id > 0}>
             <Button
               variant={ButtonVariant.secondary}
@@ -81,12 +87,11 @@ export const ReportFormImportExport: React.FC = () => {
                 var exportedReport = exportReport(
                   values.name,
                   values.description,
+                  values.isEnabled,
+                  values.isPublic,
                   values.settings,
-                  actions,
-                  contributors,
-                  series,
-                  sources,
-                  products,
+                  values.sections,
+                  values.template,
                 );
                 setRawReport(JSON.stringify(exportedReport));
               }}

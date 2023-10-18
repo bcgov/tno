@@ -1,103 +1,63 @@
-import {
-  IReportModel,
-  IReportTemplateModel,
-  IReportSettingsModel,
-  IReportSectionModel,
-} from 'tno-core';
+import { IFilterModel, IFolderModel, IReportModel, IReportTemplateModel } from 'tno-core';
+
+import { defaultReport, defaultReportSection } from '../constants';
+import { IReportImportExportModel } from './IReportImportExportModel';
 
 export const parseExportedReport = (
-  value: any,
-  template?: IReportTemplateModel,
-  settings: IReportSettingsModel,
-  sections: IReportSectionModel[],
+  value: IReportImportExportModel,
+  templates: IReportTemplateModel[],
+  filters: IFilterModel[],
+  folders: IFolderModel[],
 ): IReportModel => {
-  var importedModel = {};
-  if ('name' in value) {
-    importedModel = { ...importedModel, name: value.name };
-  }
-  if ('description' in value) {
-    importedModel = { ...importedModel, description: value.description };
-  }
-  if ('isEnabled' in value) {
-    importedModel = { ...importedModel, isEnabled: value.isEnabled };
-  }
-  var importedSettings = {};
-  if ('size' in value.settings) {
-    importedSettings = { ...importedSettings, size: value.settings.size ?? 10 };
-  }
-  if ('search' in value.settings) {
-    importedSettings = { ...importedSettings, search: value.settings.search };
-  }
-  if ('inHeadline' in value.settings) {
-    importedSettings = { ...importedSettings, inHeadline: value.settings.inHeadline };
-  }
-  if ('inStory' in value.settings) {
-    importedSettings = { ...importedSettings, inStory: value.settings.inStory };
-  }
-  if ('inByline' in value.settings) {
-    importedSettings = { ...importedSettings, inByline: value.settings.inByline };
-  }
-  if ('edition' in value.settings) {
-    importedSettings = { ...importedSettings, edition: value.settings.edition };
-  }
-  if ('section' in value.settings) {
-    importedSettings = { ...importedSettings, section: value.settings.section };
-  }
-  if ('page' in value.settings) {
-    importedSettings = { ...importedSettings, page: value.settings.page };
-  }
-  if ('contentTypes' in value.settings) {
-    importedSettings = { ...importedSettings, contentTypes: value.settings.contentTypes };
-  }
-  if ('tags' in value.settings) {
-    importedSettings = { ...importedSettings, tags: value.settings.tags };
-  }
-  if ('sentiment' in value.settings) {
-    importedSettings = { ...importedSettings, sentiment: value.settings.sentiment };
-  }
-  if ('dateOffset' in value.settings) {
-    importedSettings = { ...importedSettings, dateOffset: value.settings.dateOffset };
+  var importedModel = { ...defaultReport } as IReportModel;
+  importedModel.name = value.name;
+  importedModel.description = value.description ?? '';
+  importedModel.isEnabled = value.isEnabled;
+  importedModel.isPublic = value.isPublic;
+  importedModel.settings = value.settings;
+  var template = templates.find((rt) => rt.name === value.template.name);
+  if (template) {
+    importedModel.template = template;
+    importedModel.templateId = template.id;
   } else {
-    if ('startDate' in value.settings) {
-      importedSettings = { ...importedSettings, startDate: value.settings.startDate };
-    }
-    if ('endDate' in value) {
-      importedSettings = { ...importedSettings, endDate: value.settings.endDate };
-    }
+    throw new Error(`Could not find Template with name [${value.template.name}]`);
   }
 
-  // check the import JSON for values which may need to be mapped
-  if ('actionNames' in value.settings) {
-    const importedActions = actions
-      .filter((x) => value.settings.actionNames.some((y: string) => y === x.name))
-      .map((x) => ({ id: x.id, value: true, valueType: x.valueType }));
-    importedSettings = { ...importedSettings, actions: importedActions };
+  if (value.sections?.length) {
+    importedModel.sections = [];
+    value.sections.forEach((section) => {
+      var parsedSection = defaultReportSection(0);
+      parsedSection.description = section.description ?? '';
+      parsedSection.isEnabled = section.isEnabled;
+      parsedSection.sortOrder = section.sortOrder;
+      parsedSection.settings = section.settings;
+      parsedSection.chartTemplates = section.chartTemplates;
+      if (section.filterName) {
+        var filter = filters.find((f) => f.name === section.filterName);
+        if (filter) {
+          parsedSection.filter = filter;
+          parsedSection.filterId = filter.id;
+        } else {
+          throw new Error(`Could not find Filter with name [${section.filterName}]`);
+        }
+      }
+      if (section.folderName) {
+        var folder = folders.find((f) => f.name === section.folderName);
+        if (folder) {
+          parsedSection.folder = folder;
+          parsedSection.folderId = folder.id;
+        } else {
+          throw new Error(`Could not find Folder with name [${section.folderName}]`);
+        }
+      }
+      importedModel.sections.push(parsedSection);
+    });
   }
-  if ('seriesNames' in value.settings) {
-    const seriesIds = series
-      .filter((x) => value.settings.seriesNames.some((y: string) => y === x.name))
-      .map((x) => x.id);
-    importedSettings = { ...importedSettings, seriesIds: seriesIds };
-  }
-  if ('sourceCodes' in value.settings) {
-    const sourceIds = sources
-      .filter((x) => value.settings.sourceCodes.some((y: string) => y === x.code))
-      .map((x) => x.id);
-    importedSettings = { ...importedSettings, sourceIds: sourceIds };
-  }
-  if ('productNames' in value.settings) {
-    const productIds = products
-      .filter((x) => value.settings.productNames.some((y: string) => y === x.name))
-      .map((x) => x.id);
-    importedSettings = { ...importedSettings, productIds: productIds };
-  }
-  if ('contributorNames' in value.settings) {
-    const contributorIds = contributors
-      .filter((x) => value.settings.contributorNames.some((y: string) => y === x.name))
-      .map((x) => x.id);
-    importedSettings = { ...importedSettings, contributorIds: contributorIds };
-  }
-  importedModel = { ...importedModel, settings: importedSettings };
 
-  return importedModel as IReportModel;
+  /// zero these out as we aren't handling this yet...
+  importedModel.subscribers = [];
+  importedModel.schedules = [];
+  importedModel.instances = [];
+
+  return importedModel;
 };

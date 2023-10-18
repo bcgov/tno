@@ -20,6 +20,7 @@ import {
 
 import { defaultReport, generateScheduleName } from './constants';
 import { ReportFormDetails } from './ReportFormDetails';
+import { ReportFormImportExport } from './ReportFormImportExport';
 import { ReportFormInstance } from './ReportFormInstances';
 import { ReportFormPreview } from './ReportFormPreview';
 import { ReportFormScheduler } from './ReportFormScheduler';
@@ -167,6 +168,13 @@ const ReportForm: React.FC = () => {
                       />
                     </>
                   )}
+                  <Tab
+                    label="Import/Export"
+                    onClick={() => {
+                      setActive('importexport');
+                    }}
+                    active={active === 'importexport'}
+                  />
                 </>
               }
             >
@@ -191,6 +199,9 @@ const ReportForm: React.FC = () => {
                 </Show>
                 <Show visible={active === 'instances'}>
                   <ReportFormInstance />
+                </Show>
+                <Show visible={active === 'importexport'}>
+                  <ReportFormImportExport />
                 </Show>
                 <Row justifyContent="center" className="form-inputs">
                   <Button type="submit" disabled={isSubmitting}>
