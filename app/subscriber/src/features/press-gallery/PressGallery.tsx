@@ -19,18 +19,19 @@ import {
   Select,
 } from 'tno-core';
 
+import { IDateOptions, IPressMember } from './interfaces';
 import * as styled from './styled';
-import { createFilterSettings } from './utils';
+import { createFilterSettings, generateDates } from './utils';
 
 export const PressGallery: React.FC = () => {
   const navigate = useNavigate();
   const [{ filterAdvanced }, { findContentWithElasticsearch }] = useContent();
   const [, api] = useContributors();
-  const [results, setResults] = React.useState<any>([]);
-  const [pressMembers, setPressMembers] = React.useState<any[]>([]);
+  const [results, setResults] = React.useState<IContentModel[]>([]);
+  const [pressMembers, setPressMembers] = React.useState<IPressMember[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-  const [dateOptions, setDateOptions] = React.useState<any[]>([]);
-  const [aliases, setAliases] = React.useState<any[]>([]);
+  const [dateOptions, setDateOptions] = React.useState<IDateOptions[]>([]);
+  const [aliases, setAliases] = React.useState<string[]>([]);
 
   const [dateValue, setDateValue] = React.useState<IOptionItem | null>();
   const [pressValue, setPressValue] = React.useState<IOptionItem | null>();
@@ -50,14 +51,7 @@ export const PressGallery: React.FC = () => {
   );
 
   React.useEffect(() => {
-    // create for loop with a cap of 7 days
-    let dates: any[] = [];
-    for (let i = 0; i < 7; i++) {
-      dates.push({
-        label: `${moment().subtract(i, 'days').format('YYYY-MM-DD')}`,
-        value: `${moment().subtract(i, 'days')}`,
-      });
-    }
+    const dates = generateDates();
     setDateOptions(dates);
   }, []);
 
@@ -80,15 +74,17 @@ export const PressGallery: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    fetchResults(
-      generateQuery({
-        ...pressSettings,
-        defaultSearchOperator: 'or',
-        search: aliases.toString().split(',').join(' '),
-        startDate: `${moment().startOf('day').subtract(2, 'weeks')}`,
-        endDate: `${moment()}`,
-      }),
-    );
+    // only fetch once the aliases are ready
+    !!aliases.length &&
+      fetchResults(
+        generateQuery({
+          ...pressSettings,
+          defaultSearchOperator: 'or',
+          search: aliases.toString().split(',').join(' '),
+          startDate: `${moment().startOf('day').subtract(2, 'weeks')}`,
+          endDate: `${moment()}`,
+        }),
+      );
   }, [aliases, pressSettings, fetchResults]);
 
   React.useEffect(() => {
@@ -117,7 +113,7 @@ export const PressGallery: React.FC = () => {
           endDate: `${moment(date.value).endOf('day')}`,
         }),
         '',
-        date.value,
+        String(date.value),
       );
     });
     // only want to run when date options are loaded
@@ -180,7 +176,7 @@ export const PressGallery: React.FC = () => {
           options={pressMembers.map((c) => {
             return {
               label: `${c.name} (${c.hits ?? 0})`,
-              value: c.alias ?? c.name,
+              value: c.aliases ?? c.name,
             };
           })}
         />
@@ -197,6 +193,7 @@ export const PressGallery: React.FC = () => {
           placeholder={'Select a date'}
           clearValue={() => setDateValue(undefined)}
           onChange={(e: any) => {
+            console.log(e);
             if (!!e.value) {
               setDateValue(e);
               // can only use one of the two filters
