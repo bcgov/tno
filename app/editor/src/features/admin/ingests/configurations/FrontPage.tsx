@@ -55,7 +55,7 @@ export const FrontPage: React.FC = (props) => {
             name="configuration.timeZone"
             tooltip="Timezone of the source"
             options={TimeZones}
-            value={values.configuration.timeZone}
+            value={TimeZones.find((tz) => tz.value === values.configuration.timeZone) ?? ''}
           />
         </Col>
         <Col flex="1 1 0">

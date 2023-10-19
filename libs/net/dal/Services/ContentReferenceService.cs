@@ -35,14 +35,17 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
         if (filter.Status.HasValue)
             query = query.Where(c => c.Status == filter.Status);
 
-        if (!String.IsNullOrWhiteSpace(filter.Source))
-            query = query.Where(c => c.Source == filter.Source);
         if (filter.Sources?.Any() == true)
             query = query.Where(c => filter.Sources.Contains(c.Source));
         if (!String.IsNullOrWhiteSpace(filter.Uid))
             query = query.Where(c => EF.Functions.Like(c.Uid.ToLower(), $"%{filter.Uid.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Topic))
             query = query.Where(c => EF.Functions.Like(c.Topic.ToLower(), $"%{filter.Topic.ToLower()}%"));
+        if (filter.ProductIds?.Any() == true)
+            query = from cf in query
+                    join c in this.Context.Contents on cf.Uid equals c.Uid
+                    where filter.ProductIds.Contains(c.ProductId)
+                    select cf;
 
         if (filter.Offset.HasValue)
             query = query.Where(c => c.Offset == filter.Offset);

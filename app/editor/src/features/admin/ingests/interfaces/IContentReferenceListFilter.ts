@@ -5,8 +5,8 @@ import { ISortBy } from '.';
 export interface IContentReferenceListFilter {
   pageIndex: number;
   pageSize: number;
-  source?: string;
   sources: string[];
+  productIds: number[];
   uid: string;
   topic: string;
   status: WorkflowStatusName | '';
