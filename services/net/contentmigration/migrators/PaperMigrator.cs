@@ -104,7 +104,9 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
 
         if (!string.IsNullOrEmpty(newsItem.EodGroup) && !string.IsNullOrEmpty(newsItem.EodCategory))
         {
-            content.Topics = new[] { new Kafka.Models.Topic { Name = newsItem.EodCategory, TopicType = (TopicType)Enum.Parse(typeof(TopicType), newsItem.EodGroup) } };
+            // historic data has some values outside of the enum, just ignore them...
+            if (Enum.TryParse(newsItem.EodGroup, out TopicType topicType))
+                content.Topics = new[] { new Kafka.Models.Topic { Name = newsItem.EodCategory, TopicType = topicType } };
         }
 
         // Tags are in the Summary as they are added by an Editor
