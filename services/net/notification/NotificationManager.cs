@@ -368,15 +368,38 @@ public class NotificationManager : ServiceManager<NotificationOptions>
             Priority = EmailPriorities.Normal,
         };
 
-        var response = await this.Ches.SendEmailAsync(merge);
-        this.Logger.LogInformation("Notification sent to CHES.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
-
-        // Save the notification instance.
-        var instance = new NotificationInstance(notification.Id, content.Id)
+        try
         {
-            Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions))
-        };
-        await this.Api.AddNotificationInstanceAsync(new API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel(instance, _serializationOptions));
+            var response = await this.Ches.SendEmailAsync(merge);
+            this.Logger.LogInformation("Notification sent to CHES.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
+
+            // Save the notification instance.
+            // TODO: Add status of the notification.
+            var instance = new NotificationInstance(notification.Id, content.Id)
+            {
+                Status = NotificationStatus.Completed,
+                SentOn = DateTime.UtcNow,
+                Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions))
+            };
+            await this.Api.AddNotificationInstanceAsync(new API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel(instance, _serializationOptions));
+
+            // The alert has been sent, remove the flag from the content so that future alerts can be sent.
+            var alert = content.Actions.FirstOrDefault(a => a.Id == this.Options.AlertId);
+            if (alert != null && alert.Value == "true")
+            {
+                alert.Value = "false";
+                await this.Api.UpdateContentActionAsync(alert);
+            }
+        }
+        catch (ChesException ex)
+        {
+            var instance = new NotificationInstance(notification.Id, content.Id)
+            {
+                Status = NotificationStatus.Failed,
+                Response = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions))
+            };
+            await this.Api.AddNotificationInstanceAsync(new API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel(instance, _serializationOptions));
+        }
     }
 
     /// <summary>

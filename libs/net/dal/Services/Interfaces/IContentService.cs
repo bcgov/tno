@@ -29,4 +29,10 @@ public interface IContentService : IBaseService<Content, long>
     /// <returns></returns>
     Content UpdateStatusOnly(Content entity);
 
+    /// <summary>
+    /// Add or update the specified content 'action'.
+    /// </summary>
+    /// <param name="action"></param>
+    /// <returns></returns>
+    ContentAction AddOrUpdateContentAction(ContentAction action);
 }

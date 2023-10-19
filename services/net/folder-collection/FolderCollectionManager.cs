@@ -311,7 +311,8 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
     /// <returns>Whether the content is returned by the filter.</returns>
     private async Task<bool> RunFilterAsync(API.Areas.Services.Models.Content.ContentModel content, API.Areas.Services.Models.Folder.FilterModel filter)
     {
-        // TODO: Empty filters should be ignored as they will collect all content.
+        // Ignore empty Elasticsearch queries.
+        if (IsEmpty(filter.Query)) return false;
 
         var now = DateTime.Now.ToLocalTime();
 
@@ -353,6 +354,20 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
 
         // We passed all filter values so this content should be added to the folder.
         return await Task.FromResult(true);
+    }
+
+    /// <summary>
+    /// Check if the filter query is an empty query.
+    /// </summary>
+    /// <param name="query"></param>
+    /// <returns></returns>
+    private static bool IsEmpty(JsonDocument query)
+    {
+        var json = query.ToJson();
+        if (json == "{}") return true;
+        var node = JsonNode.Parse(json)?.AsObject();
+        if (node == null) return true;
+        return !node.ContainsKey("query");
     }
 
     /// <summary>

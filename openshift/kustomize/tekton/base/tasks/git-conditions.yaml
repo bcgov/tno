@@ -151,5 +151,7 @@ spec:
         build_service 'indexing'
         build_service 'notification'
         build_service 'scheduler'
+        build_service 'foldercollection'
+        build_service 'ffmpeg'
 
         cat build.env

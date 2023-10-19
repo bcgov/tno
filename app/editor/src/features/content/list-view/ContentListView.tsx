@@ -1,17 +1,20 @@
 import { NavigateOptions, useTab } from 'components/tab-control';
 import React, { lazy } from 'react';
 import { useParams } from 'react-router-dom';
-import { HubMethodName, useApiHub, useApp, useContent } from 'store/hooks';
+import { useApiHub, useApp, useContent, useLookup } from 'store/hooks';
 import { IContentSearchResult, useContentStore } from 'store/slices';
+import { castContentToSearchResult } from 'store/slices/content/utils';
 import {
   Col,
   ContentTypeName,
   FlexboxTable,
   IContentMessageModel,
+  IContentModel,
   ITableInternalRow,
   ITablePage,
   ITableSort,
   IWorkOrderMessageModel,
+  MessageTargetName,
   Page,
   Row,
   Show,
@@ -24,7 +27,7 @@ import { defaultPage } from './constants';
 import { useColumns } from './hooks';
 import { IContentListAdvancedFilter, IContentListFilter } from './interfaces';
 import * as styled from './styled';
-import { makeFilter, queryToFilter, queryToFilterAdvanced } from './utils';
+import { getFilter, queryToFilter, queryToFilterAdvanced } from './utils';
 
 const ContentForm = lazy(() => import('../form/ContentForm'));
 
@@ -39,11 +42,13 @@ const ContentListView: React.FC = () => {
   const [, { updateContent }] = useContentStore();
   const [
     { filter, filterAdvanced, content },
-    { findContent, getContent, storeFilter, storeFilterAdvanced },
+    { getContent, storeFilter, storeFilterAdvanced, findContentWithElasticsearch },
   ] = useContent();
   const { combined, formType } = useCombinedView();
   var hub = useApiHub();
   const { navigate } = useTab({ showNav: false });
+
+  const [{ actions }] = useLookup();
 
   const [contentId, setContentId] = React.useState(id);
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
@@ -76,8 +81,8 @@ const ContentListView: React.FC = () => {
           workOrder.workType,
         )
       ) {
-        if (!!workOrder.configuration.contentId) {
-          getContent(workOrder.configuration.contentId ?? 0).then((content) => {
+        if (!!workOrder.contentId) {
+          getContent(workOrder.contentId ?? 0).then((content) => {
             if (!!content) updateContent([content]);
           });
         }
@@ -86,7 +91,7 @@ const ContentListView: React.FC = () => {
     [getContent, updateContent],
   );
 
-  hub.useHubEffect(HubMethodName.WorkOrder, onWorkOrder);
+  hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
 
   const onContentUpdated = React.useCallback(
     async (message: IContentMessageModel) => {
@@ -101,7 +106,7 @@ const ContentListView: React.FC = () => {
     [content?.items, getContent, updateContent],
   );
 
-  hub.useHubEffect(HubMethodName.ContentUpdated, onContentUpdated);
+  hub.useHubEffect(MessageTargetName.ContentUpdated, onContentUpdated);
 
   React.useEffect(() => {
     // Required because the first time this page is loaded directly the user has not been set.
@@ -116,12 +121,11 @@ const ContentListView: React.FC = () => {
       try {
         if (!isLoading) {
           setIsLoading(true);
-          const data = await findContent(
-            makeFilter({
-              ...filter,
-            }),
+          const result = await findContentWithElasticsearch(getFilter(filter, actions), false);
+          const items = result.hits?.hits?.map((h) =>
+            castContentToSearchResult(h._source as IContentModel),
           );
-          const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
+          const page = new Page(1, items.length, items, items.length);
           return page;
         }
       } catch {
@@ -130,7 +134,7 @@ const ContentListView: React.FC = () => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [findContent],
+    [findContentWithElasticsearch],
   );
 
   const columns = useColumns({ fetch });
@@ -199,6 +203,7 @@ const ContentListView: React.FC = () => {
               rowId="id"
               columns={columns}
               data={page.items}
+              showPaging={false}
               manualPaging={true}
               pageIndex={filter.pageIndex}
               pageSize={filter.pageSize}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { HubMethodName, useApiHub, useWorkOrders } from 'store/hooks';
+import { useApiHub, useWorkOrders } from 'store/hooks';
 import {
   defaultPage,
   FlexboxTable,
@@ -10,6 +10,7 @@ import {
   IWorkOrderFilter,
   IWorkOrderMessageModel,
   IWorkOrderModel,
+  MessageTargetName,
   Page,
   WorkOrderTypeName,
 } from 'tno-core';
@@ -62,7 +63,7 @@ export const TranscriptionList: React.FC = () => {
     [page],
   );
 
-  hub.useHubEffect(HubMethodName.WorkOrder, onWorkOrder);
+  hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
 
   const handleCancel = React.useCallback(
     async (workOrder: IWorkOrderModel) => {

@@ -8,6 +8,7 @@ export interface IWorkOrderMessageModel {
   requestor?: IUserModel;
   assignedId?: number;
   assigned?: IUserModel;
+  contentId?: number;
   description: string;
   note: string;
   configuration: any;

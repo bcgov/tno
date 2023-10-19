@@ -191,45 +191,59 @@ spec:
           [dockerfile]="/services/net/scheduler/Dockerfile"
         )
 
+        declare -A COMPONENT14=(
+          [id]="foldercollection"
+          [image]="folder-collection-service"
+          [context]=""
+          [dockerfile]="/services/net/folder-collection/Dockerfile"
+        )
+
+        declare -A COMPONENT15=(
+          [id]="ffmpeg"
+          [image]="ffmpeg-service"
+          [context]=""
+          [dockerfile]="/services/net/ffmpeg/Dockerfile"
+        )
+
         # Applications
 
-        declare -A COMPONENT14=(
+        declare -A COMPONENT16=(
           [id]="api"
           [image]="api"
           [context]=""
           [dockerfile]="/api/net/Dockerfile.openshift"
         )
 
-        declare -A COMPONENT15=(
+        declare -A COMPONENT17=(
           [id]="charts-api"
           [image]="charts-api"
           [context]="/api/node"
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT16=(
+        declare -A COMPONENT18=(
           [id]="editor"
           [image]="editor"
           [context]="/app/editor"
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT17=(
+        declare -A COMPONENT19=(
           [id]="subscriber"
           [image]="subscriber"
           [context]="/app/subscriber"
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT18=(
+        declare -A COMPONENT20=(
           [id]="db"
           [image]="db-migration"
           [context]="/libs/net"
           [dockerfile]="/Dockerfile"
         )
 
-        declare -A COMPONENT19=(
-          [id]="elastic
+        declare -A COMPONENT21=(
+          [id]="elastic"
           [image]="elastic-migration"
           [context]=""
           [dockerfile]="/tools/elastic/migration/Dockerfile"
@@ -240,7 +254,7 @@ spec:
         # Loop through each component and build if required.
         for component in ${!COMPONENT@}; do
           # Dynamic variable to control what will be built.
-          TVAR='BUILD_'${component[id]}
+          TVAR="BUILD_${component[id]}"
           COMPONENT=${TVAR//\-/_}
           COMPONENT=${COMPONENT^^}
           echo $COMPONENT=${!COMPONENT}
@@ -248,8 +262,8 @@ spec:
           # Check if this image needs to be built.
           # If the component was auto built by the build step, or all components are to built, or a specific component was requested to be built.
           if [ "${!COMPONENT}" = true ] || [ "$(params.BUILD)" = "all" ] || [ "$(params.BUILD)" = "${component[id]}" ]; then
-            echo '============================'
-            echo '= Building: '${component[id]}
+            echo "============================"
+            echo "= Building ${component[id]}"
             if [ ! -z "$IMAGE_REGISTRY_USER" ];  then
               buildah login \
                 -u $IMAGE_REGISTRY_USER \
@@ -263,7 +277,7 @@ spec:
             # Push the image to the registry.
             buildah --storage-driver=$(params.STORAGE_DRIVER) push $(params.IMAGE_REGISTRY)/${component[image]}:$(params.IMAGE_TAG)
           else
-            echo '============================'
-            echo '= Not building: '${component[id]}
+            echo "============================"
+            echo "= Not building ${component[id]}"
           fi
         done

@@ -2879,6 +2879,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("sent_on");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -3027,6 +3031,12 @@ namespace TNO.DAL.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
+
+                    b.Property<JsonDocument>("Settings")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'{}'::jsonb");
 
                     b.Property<int>("SortOrder")
                         .ValueGeneratedOnAdd()
@@ -3207,6 +3217,10 @@ namespace TNO.DAL.Migrations
                     b.Property<DateTime?>("SentOn")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("sent_on");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
 
                     b.Property<string>("Subject")
                         .IsRequired()

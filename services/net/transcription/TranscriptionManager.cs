@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using Confluent.Kafka;
@@ -277,7 +276,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                         if (String.CompareOrdinal(original, content.Body) != 0) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", request.ContentId);
 
                         content.Body = GetFormattedTranscript(transcript);
-                        await this.Api.UpdateContentAsync(content, Headers); // TODO: This can result in an editor getting a optimistic concurrency error.
+                        await this.Api.UpdateContentAsync(content); // TODO: This can result in an editor getting a optimistic concurrency error.
                         this.Logger.LogInformation("Transcription updated.  Content ID: {Id}", request.ContentId);
 
                         await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
@@ -307,6 +306,11 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         }
     }
 
+    /// <summary>
+    /// Format the transcript to include newlines.
+    /// </summary>
+    /// <param name="transcript"></param>
+    /// <returns></returns>
     private static string GetFormattedTranscript(string transcript)
     {
         var result = transcript;
@@ -314,7 +318,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         {
             var pattern = @"\.[A-Z0-9]";
             var matches = Regex.Matches(result, pattern);
-            foreach (Match match in matches)
+            foreach (var match in matches.Cast<Match>())
             {
                 result = result.Replace(match.Value, match.Value[0] + Environment.NewLine + match.Value[1]);
             }
@@ -336,7 +340,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             if (workOrder != null && !_ignoreWorkOrders.Contains(workOrder.Status))
             {
                 workOrder.Status = status;
-                await this.Api.UpdateWorkOrderAsync(workOrder, Headers);
+                await this.Api.UpdateWorkOrderAsync(workOrder);
                 return true;
             }
         }
@@ -414,7 +418,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     {
         var destFile = srcFile.Replace(Path.GetExtension(srcFile), ".mp3");
         var process = new System.Diagnostics.Process();
-        process.StartInfo.Verb = $"Stream Type";
+        process.StartInfo.Verb = $"Convert File";
         process.StartInfo.FileName = "/bin/sh";
         process.StartInfo.Arguments = $"-c \"ffmpeg -i '{srcFile}' -y '{destFile}' 2>&1 \"";
         process.StartInfo.UseShellExecute = false;
@@ -426,7 +430,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         var result = process.ExitCode;
         if (result != 0)
         {
-            this.Logger.LogError("Speech conversion error. Error code: {errorcode}, Details: {details}", result, output);
+            this.Logger.LogError("File conversion error. Error code: {errorcode}, Details: {details}", result, output);
         }
         return result == 0 ? destFile : string.Empty;
     }

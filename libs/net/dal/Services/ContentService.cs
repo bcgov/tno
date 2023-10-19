@@ -551,6 +551,7 @@ public class ContentService : BaseService<Content, long>, IContentService
     public IEnumerable<NotificationInstance> GetNotificationsFor(long contentId)
     {
         return this.Context.NotificationInstances
+            .OrderByDescending(n => n.Id)
             .Where(n => n.ContentId == contentId);
     }
 
@@ -570,6 +571,27 @@ public class ContentService : BaseService<Content, long>, IContentService
         this.Context.ResetVersion(original);
 
         return base.UpdateAndSave(original);
+    }
+
+    /// <summary>
+    /// Update the content action.
+    /// </summary>
+    /// <param name="action"></param>
+    /// <returns></returns>
+    public ContentAction AddOrUpdateContentAction(ContentAction action)
+    {
+        var result = this.Context.ContentActions.Where(ca => ca.ContentId == action.ContentId && ca.ActionId == action.ActionId).FirstOrDefault();
+
+        if (result != null)
+        {
+            result.Value = action.Value;
+            result.Version = action.Version;
+        }
+        else
+            this.Context.Add(action);
+
+        this.CommitTransaction();
+        return action;
     }
     #endregion
 }

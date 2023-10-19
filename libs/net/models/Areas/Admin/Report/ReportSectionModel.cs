@@ -61,7 +61,7 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
     {
         this.ReportId = entity.ReportId;
         this.FolderId = entity.FolderId;
-        this.Folder = entity.Folder != null ? new FolderModel(entity.Folder) : null;
+        this.Folder = entity.Folder != null ? new FolderModel(entity.Folder, options) : null;
         this.FilterId = entity.FilterId;
         this.Filter = entity.Filter != null ? new FilterModel(entity.Filter, options) : null;
         this.Settings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(entity.Settings, options) ?? new();

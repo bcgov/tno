@@ -1,7 +1,7 @@
 import { IContentForm } from 'features/content/form/interfaces';
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { FaListAlt, FaTags } from 'react-icons/fa';
+import { FaListAlt } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
 import { Button, Col, FieldSize, IOptionItem, Row, Select } from 'tno-core';
 
@@ -48,7 +48,6 @@ export const Tags: React.FC<ITagsProps> = () => {
           <label>Tags</label>
         </Row>
         <Row>
-          <FaTags className="tags-icon" />
           <Select
             isMulti
             width={FieldSize.Big}

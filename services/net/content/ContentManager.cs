@@ -283,10 +283,10 @@ public class ContentManager : ServiceManager<ContentOptions>
                 SeriesId = null, // TODO: Provide default series from Data Source config settings.
                 OtherSeries = null, // TODO: Provide default series from Data Source config settings.
                 OwnerId = model.RequestedById ?? source?.OwnerId,
-                Headline = String.IsNullOrWhiteSpace(model.Title) ? "[TBD]" : model.Title,
+                Headline = model.Title,
                 Uid = model.Uid,
                 Page = model.Page[0..Math.Min(model.Page.Length, 10)], // TODO: Temporary workaround to deal FileMonitor Service.
-                Summary = String.IsNullOrWhiteSpace(model.Summary) ? "[TBD]" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
+                Summary = String.IsNullOrWhiteSpace(model.Summary) ? "" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
                 Body = !String.IsNullOrWhiteSpace(model.Body) ? StringExtensions.SanitizeContent(model.Body, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine) : model.ContentType == ContentType.AudioVideo ? "" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
                 SourceUrl = model.Link,
                 PublishedOn = model.PublishedOn,
@@ -393,7 +393,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                     content.UpdatedOn = originalContent.UpdatedOn;
                 }
 
-                content = await this.Api.UpdateContentAsync(content, null, updateSourceContent) ?? throw new InvalidOperationException($"Updating content failed {content.OtherSource}:{content.Uid}");
+                content = await this.Api.UpdateContentAsync(content, updateSourceContent) ?? throw new InvalidOperationException($"Updating content failed {content.OtherSource}:{content.Uid}");
                 this.Logger.LogInformation("Content Updated.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
             }
             else
@@ -444,7 +444,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                     if (reference.Status != newStatus)
                     {
                         reference.Status = newStatus;
-                        await Api.UpdateContentReferenceAsync(reference, Headers);
+                        await Api.UpdateContentReferenceAsync(reference);
                     }
                 }
                 catch

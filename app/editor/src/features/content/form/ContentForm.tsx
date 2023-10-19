@@ -1,20 +1,9 @@
-import { AxiosError } from 'axios';
 import { FormikForm } from 'components/formik';
-import { IStream } from 'features/storage/interfaces';
-import { FormikHelpers, FormikProps } from 'formik';
-import moment from 'moment';
-import React, { useCallback } from 'react';
+import { FormikProps } from 'formik';
+import React from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
-import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import {
-  HubMethodName,
-  useApiHub,
-  useApp,
-  useContent,
-  useLookupOptions,
-  useWorkOrders,
-} from 'store/hooks';
+import { useNavigate } from 'react-router-dom';
+import { useLookupOptions } from 'store/hooks';
 import { IAjaxRequest } from 'store/slices';
 import {
   Area,
@@ -34,16 +23,11 @@ import {
   FormikTextArea,
   FormPage,
   hasErrors,
-  IContentMessageModel,
-  IContentModel,
-  IResponseErrorModel,
-  IWorkOrderMessageModel,
   Modal,
   Row,
   Show,
   Tab,
   Tabs,
-  useCombinedView,
   useModal,
   useTabValidationToasts,
   WorkOrderStatusName,
@@ -54,11 +38,11 @@ import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
 import { ContentClipForm, ContentLabelsForm, ContentStoryForm, ContentTranscriptForm } from '.';
 import { ContentFormToolBar, IFile, Tags, TimeLogSection, ToningGroup, Upload } from './components';
-import { defaultFormValues } from './constants';
+import { useContentForm } from './hooks';
 import { ImageSection } from './ImageSection';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
-import { getContentPath, toForm, toModel, triggerFormikValidate } from './utils';
+import { toModel } from './utils';
 import { WorkOrderStatus } from './WorkOrderStatus';
 
 export interface IContentFormProps {
@@ -79,21 +63,35 @@ const ContentForm: React.FC<IContentFormProps> = ({
   contentType: initContentType = ContentTypeName.AudioVideo,
   combinedPath,
 }) => {
-  const hub = useApiHub();
   const navigate = useNavigate();
-  const [{ userInfo }] = useApp();
-  const { id } = useParams();
-  const [, { getContent, addContent, updateContent, deleteContent, upload, attach }] = useContent();
-  const [, { findWorkOrders, transcribe, nlp }] = useWorkOrders();
+  const {
+    userInfo,
+    form,
+    setForm,
+    fetchContent,
+    deleteContent,
+    handleSave,
+    handlePublish,
+    handleUnpublish,
+    handleTranscribe,
+    handleNLP,
+    goToNext,
+    file,
+    fileReference,
+    stream,
+    setStream,
+    download,
+  } = useContentForm({
+    contentType: initContentType,
+    combinedPath,
+  });
+  const [{ contributorOptions, sources, sourceOptions, productOptions }] = useLookupOptions();
+  const { setShowValidationToast } = useTabValidationToasts();
+
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
   const { isShowing: showTranscribeModal, toggle: toggleTranscribe } = useModal();
   const { isShowing: showNLPModal, toggle: toggleNLP } = useModal();
-  const [{ contributorOptions, sources, series, sourceOptions, productOptions }, { getSeries }] =
-    useLookupOptions();
-  const { combined, formType } = useCombinedView(initContentType);
-  const { setShowValidationToast } = useTabValidationToasts();
 
-  const [contentType, setContentType] = React.useState(formType ?? initContentType);
   const [size, setSize] = React.useState(1); // TODO: change this to use css media types instead.
   const [active, setActive] = React.useState('properties');
   const [savePressed, setSavePressed] = React.useState(false);
@@ -101,301 +99,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const [, setClipErrors] = React.useState<string>('');
   const [textDecorationStyle, setTextDecorationStyle] = React.useState('none');
   const [cursorStyle, setCursorStyle] = React.useState('text');
-  const [form, setForm] = React.useState<IContentForm>({
-    ...defaultFormValues(contentType),
-    id: parseInt(id ?? '0'),
-  });
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  const userId = userInfo?.id ?? '';
-
-  const [, contentApi] = useContent();
-  // TODO: The stream shouldn't be reset every time the users changes the tab.
-  const [stream, setStream] = React.useState<IStream>(); // TODO: Remove dependency coupling with storage component.
-  const [, { download }] = useContent();
-  const fileReference = form.fileReferences.length ? form.fileReferences[0] : undefined;
-  const path = fileReference?.path;
-  const file = !!fileReference
-    ? ({
-        name: fileReference.fileName,
-        size: fileReference.size,
-      } as IFile)
-    : undefined;
-
-  const setAvStream = useCallback(() => {
-    if (!!path) {
-      contentApi.stream(path).then((result) => {
-        setStream(
-          !!result
-            ? {
-                url: result,
-                type: fileReference?.contentType,
-              }
-            : undefined,
-        );
-      });
-    }
-  }, [contentApi, fileReference?.contentType, path]);
-
-  React.useEffect(() => {
-    setAvStream();
-  }, [setAvStream]);
-
-  const updateForm = React.useCallback(
-    async (content: IContentModel | undefined) => {
-      if (!!content) {
-        setForm(toForm(content));
-        const res = await findWorkOrders({ contentId: content.id });
-        setForm({ ...toForm(content), workOrders: res.data.items });
-        // If the form is loaded from the URL instead of clicking on the list view it defaults to the snippet form.
-        setContentType(content.contentType);
-      }
-    },
-    [findWorkOrders],
-  );
-
-  const fetchContent = React.useCallback(
-    async (id: number) => {
-      try {
-        const content = await getContent(id);
-        await updateForm(content);
-      } catch (error) {
-        const aError = error as AxiosError;
-        if (!!aError && !!aError.response?.data) {
-          const data = aError.response.data as IResponseErrorModel;
-          if (data.type === 'NoContentException') navigate('/contents');
-        }
-      }
-    },
-    [getContent, updateForm, navigate],
-  );
-
-  const resetForm = React.useCallback((values: IContentForm) => {
-    // Reset form for next record.
-    const parsedDate = moment(values.publishedOn);
-    const updatedDate = parsedDate.add(1, 'second');
-    setForm({
-      ...defaultFormValues(values.contentType),
-      sourceId: values.sourceId,
-      productId: values.productId,
-      otherSource: values.otherSource,
-      publishedOn: updatedDate.toLocaleString(),
-    });
-  }, []);
-
-  const onWorkOrder = React.useCallback(
-    (workOrder: IWorkOrderMessageModel) => {
-      if (form.id === workOrder.configuration.contentId)
-        // TODO: Don't overwrite the user's edits.
-        fetchContent(workOrder.configuration.contentId);
-    },
-    [fetchContent, form],
-  );
-
-  hub.useHubEffect(HubMethodName.WorkOrder, onWorkOrder);
-
-  const onContentUpdated = React.useCallback(
-    async (message: IContentMessageModel) => {
-      if (form.id === message.id && form.version !== message.version && !isSubmitting) {
-        try {
-          // TODO: Don't overwrite the user's edits.
-          fetchContent(message.id);
-        } catch {}
-      }
-    },
-    [fetchContent, form.id, form.version, isSubmitting],
-  );
-
-  hub.useHubEffect(HubMethodName.ContentUpdated, onContentUpdated);
-
-  React.useEffect(() => {
-    if (!!id && +id > 0) {
-      fetchContent(+id);
-    }
-  }, [id, fetchContent]);
-
-  const goToNext = React.useCallback(
-    (form: IContentForm) => {
-      navigate(getContentPath(combined, 0, form.contentType));
-      resetForm(form);
-    },
-    [combined, navigate, resetForm],
-  );
-
-  const handleSubmit = React.useCallback(
-    async (
-      values: IContentForm,
-      formikHelpers: FormikHelpers<IContentForm>,
-    ): Promise<IContentForm> => {
-      setIsSubmitting(true);
-      let contentResult: IContentModel | null = null;
-      const originalId = values.id;
-      let result = form;
-      try {
-        if (!values.id) {
-          // Only new content is initialized.
-          values.contentType = contentType;
-          values.ownerId = userId;
-        }
-
-        const model = toModel(values);
-        contentResult = !form.id ? await addContent(model) : await updateContent(model);
-
-        if (!!values.file) {
-          // TODO: Make it possible to upload on the initial save instead of a separate request.
-          // Upload the file if one has been added.
-          const content = await upload(contentResult, values.file);
-          setAvStream();
-          result = toForm({ ...content, tonePools: values.tonePools });
-        } else if (
-          !originalId &&
-          !!values.fileReferences.length &&
-          !values.fileReferences[0].isUploaded
-        ) {
-          // TODO: Make it possible to upload on the initial save instead of a separate request.
-          // A file was attached but hasn't been uploaded to the API.
-          const fileReference = values.fileReferences[0];
-          const content = await attach(contentResult.id, 0, fileReference.path);
-          result = toForm({ ...content, tonePools: values.tonePools });
-        } else {
-          result = toForm({ ...contentResult, tonePools: values.tonePools });
-        }
-        setForm({ ...result, workOrders: form.workOrders });
-
-        toast.success(`"${contentResult.headline}" has successfully been saved.`);
-
-        if (!!contentResult?.seriesId) {
-          // A dynamically added series has been added, fetch the latests series.
-          const newSeries = series.find((s) => s.id === contentResult?.seriesId);
-          if (!newSeries) getSeries();
-        }
-
-        if (!originalId) {
-          navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
-          // resetForm(result);
-        }
-      } catch {
-        // If the upload fails, we still need to update the form from the original update.
-        if (!!contentResult) {
-          result = toForm(contentResult);
-          setForm({ ...result, workOrders: form.workOrders });
-          if (!originalId)
-            navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
-        }
-      } finally {
-        setIsSubmitting(false);
-      }
-      return result;
-    },
-    [
-      addContent,
-      attach,
-      combined,
-      contentType,
-      form,
-      getSeries,
-      navigate,
-      series,
-      setAvStream,
-      updateContent,
-      upload,
-      userId,
-    ],
-  );
-
-  const handlePublish = React.useCallback(
-    async (
-      values: IContentForm,
-      formikHelpers: FormikHelpers<IContentForm>,
-    ): Promise<IContentForm> => {
-      if (
-        [
-          ContentStatusName.Draft,
-          ContentStatusName.Unpublish,
-          ContentStatusName.Unpublished,
-        ].includes(values.status)
-      )
-        values.status = ContentStatusName.Publish;
-
-      return await handleSubmit(values, formikHelpers);
-    },
-    [handleSubmit],
-  );
-
-  const handleUnpublish = React.useCallback(
-    async (props: FormikProps<IContentForm>) => {
-      if (
-        props.values.status === ContentStatusName.Publish ||
-        props.values.status === ContentStatusName.Published
-      ) {
-        triggerFormikValidate(props);
-        if (props.isValid) {
-          props.values.status = ContentStatusName.Unpublish;
-          await handleSubmit(props.values, props);
-        }
-      }
-    },
-    [handleSubmit],
-  );
-
-  const handleSave = React.useCallback(
-    async (props: FormikProps<IContentForm>) => {
-      triggerFormikValidate(props);
-      props.validateForm(props.values);
-      if (props.isValid) {
-        await handleSubmit(props.values, props);
-      }
-    },
-    [handleSubmit],
-  );
-
-  const handleTranscribe = React.useCallback(
-    async (values: IContentForm, formikHelpers: FormikHelpers<IContentForm>) => {
-      try {
-        // TODO: Only save when required.
-        // Save before submitting request.
-        const content = await handleSubmit(values, formikHelpers);
-        const response = await transcribe(toModel(values));
-        setForm({ ...content, workOrders: [response.data, ...form.workOrders] });
-
-        if (response.status === 200) toast.success('A transcript has been requested');
-        else if (response.status === 208) {
-          if (response.data.status === WorkOrderStatusName.Completed)
-            toast.warn('Content has already been transcribed');
-          else toast.warn(`An active request for transcription already exists`);
-        }
-      } catch {
-        // Ignore this failure it is handled by our global ajax requests.
-      }
-    },
-    [form.workOrders, handleSubmit, transcribe],
-  );
-
-  const handleNLP = React.useCallback(
-    async (values: IContentForm, formikHelpers: FormikHelpers<IContentForm>) => {
-      try {
-        // TODO: Only save when required.
-        // Save before submitting request.
-        const content = await handleSubmit(values, formikHelpers);
-        const response = await nlp(toModel(values));
-        setForm({ ...content, workOrders: [response.data, ...form.workOrders] });
-
-        if (response.status === 200) toast.success('An NLP has been requested');
-        else if (response.status === 208) {
-          if (response.data.status === WorkOrderStatusName.Completed)
-            toast.warn('Content has already been processed by NLP');
-          else toast.warn(`An active request for NLP already exists`);
-        }
-      } catch {
-        // Ignore this failure it is handled by our global ajax requests.
-      }
-    },
-    [form.workOrders, handleSubmit, nlp],
-  );
 
   return (
     <styled.ContentForm className="content-form">
-      <FormPage className={combined ? 'no-padding' : ''}>
+      <FormPage>
         <Area className="area">
           <FormikForm
             onSubmit={handlePublish}
@@ -447,7 +154,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                         </Col>
                         <Col>
                           {/* AudioVideo form */}
-                          <Show visible={contentType !== ContentTypeName.Image}>
+                          <Show visible={props.values.contentType !== ContentTypeName.Image}>
                             <Row>
                               <FormikSelect
                                 name="sourceId"
@@ -473,7 +180,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   props.values.sourceId,
                                 ).filter(
                                   (x) =>
-                                    contentType !== ContentTypeName.Image ||
+                                    props.values.contentType !== ContentTypeName.Image ||
                                     (typeof x.label === 'string'
                                       ? (x.label as string).includes('(TC)') ||
                                         (x.label as string).includes('(PROVINCE)') ||
@@ -518,10 +225,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
                         </Col>
                       </Row>
                       {/* Image form layout */}
-                      <Show visible={contentType === ContentTypeName.Image}>
+                      <Show visible={props.values.contentType === ContentTypeName.Image}>
                         <ImageSection />
                       </Show>
-                      <Show visible={contentType === ContentTypeName.PrintContent}>
+                      <Show visible={props.values.contentType === ContentTypeName.PrintContent}>
                         <Row>
                           <FormikText name="byline" label="Byline" required />
                           <FormikSelect
@@ -542,8 +249,8 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       </Show>
                       <Show
                         visible={
-                          contentType === ContentTypeName.AudioVideo ||
-                          contentType === ContentTypeName.Story
+                          props.values.contentType === ContentTypeName.AudioVideo ||
+                          props.values.contentType === ContentTypeName.Story
                         }
                       >
                         <Row>
@@ -605,15 +312,13 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     </Col>
                   </Show>
                 </Row>
-                <Row flex="1 1 100%" wrap="nowrap">
-                  <Show visible={contentType === ContentTypeName.Image}>
-                    <Col flex="1 1 0%">
-                      <ContentStoryForm contentType={ContentTypeName.Image} />
-                    </Col>
-                    <Col flex="1 1 0%">
+                <Row flex="1" wrap="nowrap" gap="0.5rem" className="section-upload">
+                  <Show visible={props.values.contentType === ContentTypeName.Image}>
+                    <ContentStoryForm contentType={ContentTypeName.Image} />
+                    <Col flex="1 1 0%" justifyContent="center">
                       <Upload
                         className="media"
-                        contentType={contentType}
+                        contentType={form.contentType}
                         id="upload"
                         name="file"
                         file={file}
@@ -641,8 +346,8 @@ const ContentForm: React.FC<IContentFormProps> = ({
                 <Row className="tab-section">
                   <Show
                     visible={
-                      contentType !== ContentTypeName.PrintContent &&
-                      contentType !== ContentTypeName.Image
+                      props.values.contentType !== ContentTypeName.PrintContent &&
+                      props.values.contentType !== ContentTypeName.Image
                     }
                   >
                     <Tabs
@@ -711,7 +416,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       }
                     >
                       <Show visible={active === 'properties'}>
-                        <ContentStoryForm contentType={contentType} />
+                        <ContentStoryForm contentType={props.values.contentType} />
                       </Show>
                       <Show visible={active === 'transcript'}>
                         <ContentTranscriptForm />
@@ -728,22 +433,48 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       </Show>
                     </Tabs>
                   </Show>
-                  <Show visible={contentType === ContentTypeName.PrintContent}>
-                    <ContentStoryForm contentType={contentType} />
+                  <Show visible={props.values.contentType === ContentTypeName.PrintContent}>
+                    <ContentStoryForm contentType={props.values.contentType} />
+                  </Show>
+                  <Show visible={props.values.contentType === ContentTypeName.AudioVideo}>
+                    <Upload
+                      className="media"
+                      contentType={props.values.contentType}
+                      id="upload"
+                      name="file"
+                      file={file}
+                      stream={stream}
+                      downloadable={fileReference?.isUploaded}
+                      onSelect={(e) => {
+                        const file = (e as IFile).name ? (e as IFile) : undefined;
+                        props.setFieldValue('file', file);
+                        // Remove file reference.
+                        props.setFieldValue('fileReferences', []);
+                      }}
+                      onDownload={() => {
+                        download(
+                          props.values.id,
+                          file?.name ?? `${props.values.otherSource}-${props.values.id}`,
+                        );
+                      }}
+                      onDelete={() => {
+                        setStream(undefined);
+                      }}
+                    />
                   </Show>
                 </Row>
                 <Row gap="0.5rem">
                   <Tags />
-                  <Show visible={contentType !== ContentTypeName.Image}>
+                  <Show visible={props.values.contentType !== ContentTypeName.Image}>
                     <ToningGroup fieldName="tonePools" />
                     <Show
                       visible={
-                        contentType === ContentTypeName.AudioVideo ||
-                        contentType === ContentTypeName.PrintContent
+                        props.values.contentType === ContentTypeName.AudioVideo ||
+                        props.values.contentType === ContentTypeName.PrintContent
                       }
                     >
                       <TimeLogSection
-                        prepTimeRequired={contentType === ContentTypeName.AudioVideo}
+                        prepTimeRequired={props.values.contentType === ContentTypeName.AudioVideo}
                       />
                     </Show>
                   </Show>
@@ -752,7 +483,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     <Col>
                       <Show
                         visible={
-                          contentType === ContentTypeName.AudioVideo &&
+                          props.values.contentType === ContentTypeName.AudioVideo &&
                           props.values.fileReferences.length === 0 &&
                           !props.values.file
                         }
@@ -774,7 +505,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                         disabled={
                           props.isSubmitting ||
                           ([ContentTypeName.AudioVideo, ContentTypeName.Image].includes(
-                            contentType,
+                            props.values.contentType,
                           ) &&
                             !allowPublishWithoutFile &&
                             props.values.fileReferences.length === 0 &&
@@ -796,7 +527,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                           variant={ButtonVariant.secondary}
                           disabled={
                             props.isSubmitting ||
-                            (contentType === ContentTypeName.AudioVideo &&
+                            (props.values.contentType === ContentTypeName.AudioVideo &&
                               props.values.fileReferences.length === 0 &&
                               !props.values.file)
                           }

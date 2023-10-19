@@ -57,6 +57,15 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   const source = sources.find((s) => s.id === values.sourceId);
   const program = series.find((s) => s.id === values.seriesId);
 
+  const setHours = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const date = new Date(values.publishedOn);
+    const hours = e.target.value?.split(':');
+    if (!!hours && !!e.target.value && !e.target.value.includes('_')) {
+      date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
+      setFieldValue('publishedOn', moment(date.toISOString()).format('MMM D, yyyy HH:mm:ss'));
+    }
+  };
+
   React.useEffect(() => {
     setFieldValue(
       'publishedOnTime',
@@ -114,50 +123,50 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
                 width="7em"
                 value={!!values.publishedOn ? values.publishedOnTime : ''}
                 placeholder={!!values.publishedOn ? values.publishedOnTime : 'HH:MM:SS'}
-                onChange={(e) => {
-                  const date = new Date(values.publishedOn);
-                  const hours = e.target.value?.split(':');
-                  if (!!hours && !!e.target.value && !e.target.value.includes('_')) {
-                    date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
-                    setFieldValue(
-                      'publishedOn',
-                      moment(date.toISOString()).format('MMM D, yyyy HH:mm:ss'),
-                    );
+                onBlur={(e) => {
+                  if (e.target.value.indexOf('_')) {
+                    e.target.value = e.target.value.replaceAll('_', '0');
+                    setHours(e);
                   }
+                }}
+                onChange={(e) => {
+                  setHours(e);
                 }}
               />
             </Show>
             <Show visible={contentType === ContentTypeName.AudioVideo}>
-              <FormikSelect
-                name="seriesId"
-                label="Show/Program"
-                width={FieldSize.Medium}
-                value={seriesOptions.find((s: any) => s.value === values.seriesId) ?? ''}
-                options={filterEnabledOptions(seriesOptions, values.seriesId)}
-                isDisabled={!!values.otherSeries}
-                onChange={(e) => {
-                  setFieldValue('otherSeries', '');
-                }}
-              />
-              <FormikText
-                name="otherSeries"
-                label="Other Show/Program"
-                width={FieldSize.Medium}
-                onChange={(e) => {
-                  const value = e.currentTarget.value;
-                  setFieldValue('otherSeries', value);
-                  if (!!value) setFieldValue('seriesId', undefined);
-                }}
-                onBlur={() => {
-                  const found = series.find(
-                    (s) => s.name.toLocaleLowerCase() === values.otherSeries.toLocaleLowerCase(),
-                  );
-                  if (!!found) {
-                    setFieldValue('seriesId', found.id);
+              <Row nowrap>
+                <FormikSelect
+                  name="seriesId"
+                  label="Show/Program"
+                  width={FieldSize.Medium}
+                  value={seriesOptions.find((s: any) => s.value === values.seriesId) ?? ''}
+                  options={filterEnabledOptions(seriesOptions, values.seriesId)}
+                  isDisabled={!!values.otherSeries}
+                  onChange={(e) => {
                     setFieldValue('otherSeries', '');
-                  }
-                }}
-              />
+                  }}
+                />
+                <FormikText
+                  name="otherSeries"
+                  label="Other Show/Program"
+                  width={FieldSize.Medium}
+                  onChange={(e) => {
+                    const value = e.currentTarget.value;
+                    setFieldValue('otherSeries', value);
+                    if (!!value) setFieldValue('seriesId', undefined);
+                  }}
+                  onBlur={() => {
+                    const found = series.find(
+                      (s) => s.name.toLocaleLowerCase() === values.otherSeries.toLocaleLowerCase(),
+                    );
+                    if (!!found) {
+                      setFieldValue('seriesId', found.id);
+                      setFieldValue('otherSeries', '');
+                    }
+                  }}
+                />
+              </Row>
             </Show>
           </Row>
         </Col>

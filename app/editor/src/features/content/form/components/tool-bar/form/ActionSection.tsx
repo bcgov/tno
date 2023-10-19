@@ -2,14 +2,8 @@ import { ContentActions } from 'features/content/form';
 import { IContentForm } from 'features/content/form/interfaces';
 import React from 'react';
 import { FaHighlighter } from 'react-icons/fa';
-import {
-  ActionName,
-  ContentTypeName,
-  IActionModel,
-  Row,
-  ToolBarSection,
-  ValueType,
-} from 'tno-core';
+import { useLookup } from 'store/hooks';
+import { Row, ToolBarSection } from 'tno-core';
 
 export interface IActionSectionProps {
   /** Form values. */
@@ -22,35 +16,21 @@ export interface IActionSectionProps {
  * @returns Component.
  */
 export const ActionSection: React.FC<IActionSectionProps> = ({ values }) => {
-  const determineActions = React.useCallback((contentType: ContentTypeName) => {
-    switch (contentType) {
-      case ContentTypeName.PrintContent:
-        return (a: IActionModel) =>
-          a.valueType === ValueType.Boolean && a.name !== ActionName.NonQualified;
-      case ContentTypeName.Image:
-        return (a: IActionModel) => a.name === ActionName.Homepage;
-      case ContentTypeName.AudioVideo:
-        return (a: IActionModel) => {
-          return a.valueType === ValueType.Boolean && a.name !== ActionName.TopStory;
-        };
-      default:
-        return (a: IActionModel) =>
-          a.valueType === ValueType.Boolean && a.name !== ActionName.Alert;
-    }
-  }, []);
+  const [{ settings }] = useLookup();
+
+  const alertId = settings.find((s) => s.name === 'AlertId')?.value ?? '0';
 
   return (
     <ToolBarSection
       label="HIGHLIGHT STORY"
       icon={<FaHighlighter />}
+      style={{ maxWidth: '50%' }}
       children={
-        <Row>
+        <Row gap="0.5rem" alignItems="center" justifyContent="center">
           <ContentActions
             init
-            filter={determineActions(values.contentType)}
-            contentType={values.contentType}
+            filter={(a) => a.id !== +alertId && a.contentTypes?.includes(values.contentType)}
           />
-          <ContentActions filter={(a) => a.valueType !== ValueType.Boolean} />
         </Row>
       }
     />

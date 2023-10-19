@@ -216,7 +216,8 @@ export const ViewContent: React.FC = () => {
       <Show visible={!!avStream && content?.contentType === ContentTypeName.AudioVideo}>
         <Row justifyContent="center">
           <Show visible={fileReference?.contentType.startsWith('audio/')}>
-            <audio src={avStream?.url} controls>
+            <audio controls>
+              <source src={avStream?.url} type={fileReference?.contentType} />
               HTML5 Audio is required
             </audio>
           </Show>
@@ -225,8 +226,11 @@ export const ViewContent: React.FC = () => {
               controls
               height={width! > 500 ? '270' : 135}
               width={width! > 500 ? 480 : 240}
-              src={!!avStream?.url ? avStream?.url : ''}
-            />
+              preload="metadata"
+            >
+              <source src={avStream?.url} type={fileReference?.contentType} />
+              HTML5 Audio is required
+            </video>
           </Show>
         </Row>
       </Show>

@@ -8,7 +8,6 @@ import {
   CellEllipsis,
   Checkbox,
   formatIdirUsername,
-  IContentModel,
   ITableHookColumn,
   LogicalOperator,
   Page,
@@ -22,7 +21,7 @@ import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
 export interface IColumnProps {
   fetch: (
     filter: IContentListFilter & Partial<IContentListAdvancedFilter>,
-  ) => Promise<Page<IContentModel> | undefined>;
+  ) => Promise<Page<IContentSearchResult> | undefined>;
 }
 
 export const useColumns = ({ fetch }: IColumnProps): ITableHookColumn<IContentSearchResult>[] => {

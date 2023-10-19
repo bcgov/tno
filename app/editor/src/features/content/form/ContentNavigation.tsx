@@ -44,7 +44,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
   const enableNext = indexPosition < (items.length ?? 0) - 1;
 
   return (
-    <Row>
+    <Row gap="0.15rem">
       <Show visible={!!values.id}>
         <Button
           variant={ButtonVariant.secondary}

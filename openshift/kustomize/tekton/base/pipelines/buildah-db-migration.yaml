@@ -134,7 +134,7 @@ spec:
           value: db-migration
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
-        - name: BUILD
+        - name: DEPLOY
           value: $(params.FORCE_BUILD)
         - name: DEPLOY_TO
           value: $(params.DEPLOY_TO)

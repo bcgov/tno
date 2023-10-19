@@ -116,7 +116,7 @@ public class ContentController : ControllerBase
     {
         var result = _contentService.FindById(id);
         if (result == null) return NoContent();
-        return new JsonResult(new ContentModel(result));
+        return new JsonResult(new ContentModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -135,7 +135,7 @@ public class ContentController : ControllerBase
     {
         var result = _contentService.FindByUid(uid, source);
         if (result == null) return NoContent();
-        return new JsonResult(new ContentModel(result));
+        return new JsonResult(new ContentModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -202,7 +202,7 @@ public class ContentController : ControllerBase
 
         if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
 
-        return new JsonResult(new ContentModel(content));
+        return new JsonResult(new ContentModel(content, _serializerOptions));
 
         // TODO: Figure out how to return a 201 for a route in a different controller.
         // return CreatedAtRoute("EditorContentFindById", new { id = content.Id }, new ContentModel(content));
@@ -226,7 +226,7 @@ public class ContentController : ControllerBase
     {
         var content = _contentService.UpdateAndSave((Content)model);
 
-        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentAdded, new[] { new ContentMessageModel(content) })));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content) })));
 
         if (index && !String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
@@ -256,8 +256,61 @@ public class ContentController : ControllerBase
 
         if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
 
-        return new JsonResult(new ContentModel(content));
+        return new JsonResult(new ContentModel(content, _serializerOptions));
     }
+
+    /// <summary>
+    /// Update content for the specified 'id'.
+    /// Publish message to kafka to index content in elasticsearch.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="index">Be careful this can result in a indexing loop.</param>
+    /// <param name="requestorId">The user ID who is requesting the update.</param>
+    /// <returns></returns>
+    [HttpPut("{id}/file")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> UpdateFileAsync(ContentModel model, bool index = false, int? requestorId = null)
+    {
+        var content = (Content)model;
+        var fileRef = model.FileReferences.FirstOrDefault() ?? throw new InvalidOperationException("File missing");
+        var file = _fileReferenceService.UpdateAndSave((FileReference)fileRef);
+
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content, "file") })));
+
+        if (index && !String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
+        {
+            Entities.User? user = null;
+            if (requestorId.HasValue)
+            {
+                user = _userService.FindById(requestorId.Value);
+            }
+            else
+            {
+                var username = User.GetUsername();
+                if (!String.IsNullOrWhiteSpace(username))
+                    user = _userService.FindByUsername(username);
+            }
+
+            // If a request is submitted to unpublish we do it regardless of the current state of the content.
+            if (content.Status == ContentStatus.Unpublish)
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user?.Id, IndexAction.Unpublish));
+            else if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user?.Id, IndexAction.Publish));
+            else
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user?.Id, IndexAction.Index));
+        }
+        else if (index)
+            _logger.LogWarning("Kafka indexing topic not configured.");
+
+
+        if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
+
+        return new JsonResult(new ContentModel(content, _serializerOptions));
+    }
+
     /// <summary>
     /// Update content for the specified 'id'.
     /// Will not trigger any re-index or audit trail update
@@ -273,9 +326,9 @@ public class ContentController : ControllerBase
     {
         var content = _contentService.UpdateStatusOnly((Content)model);
 
-        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content) })));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content, "status") })));
 
-        return new JsonResult(new ContentModel(content));
+        return new JsonResult(new ContentModel(content, _serializerOptions));
     }
 
     /// <summary>
@@ -309,11 +362,11 @@ public class ContentController : ControllerBase
         if (content.FileReferences.Any()) await _fileReferenceService.UploadAsync(content, files.First(), _storageOptions.GetUploadPath());
         else await _fileReferenceService.UploadAsync(new ContentFileReference(content, files.First()), _storageOptions.GetUploadPath());
 
-        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content) })));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content, "file") })));
 
         if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
 
-        return new JsonResult(new ContentModel(content));
+        return new JsonResult(new ContentModel(content, _serializerOptions));
     }
 
     /// <summary>
@@ -367,6 +420,40 @@ public class ContentController : ControllerBase
         var imageBytes = new byte[fileStream.Length];
         await fileStream.ReadAsync(imageBytes.AsMemory(0, (int)fileStream.Length));
         return new JsonResult(Convert.ToBase64String(imageBytes));
+    }
+
+    /// <summary>
+    /// Find the notifications that have been sent for the specified content 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/notifications")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<NotificationInstanceModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public IActionResult GetNotificationsFor(long id)
+    {
+        var notifications = _contentService.GetNotificationsFor(id);
+        return new JsonResult(notifications.Select(n => new NotificationInstanceModel(n, _serializerOptions)));
+    }
+
+    /// <summary>
+    /// Update content action.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut("{id}/actions/{actionId}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ContentActionModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> UpdateContentActionAsync(ContentActionModel model)
+    {
+        var action = _contentService.AddOrUpdateContentAction((ContentAction)model);
+
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentActionUpdated, new[] { new ContentActionMessageModel(action), })));
+
+        return new JsonResult(new ContentActionModel(action));
     }
 
     /// <summary>
@@ -426,21 +513,6 @@ public class ContentController : ControllerBase
             _logger.LogWarning("Kafka indexing topic not configured.");
 
         return new BadRequestResult();
-    }
-
-    /// <summary>
-    /// Find the notifications that have been sent for the specified content 'id'.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpGet("{id}/notifications")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IEnumerable<NotificationInstanceModel>), (int)HttpStatusCode.OK)]
-    [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult GetNotificationsFor(long id)
-    {
-        var notifications = _contentService.GetNotificationsFor(id);
-        return new JsonResult(notifications.Select(n => new NotificationInstanceModel(n, _serializerOptions)));
     }
     #endregion
 }

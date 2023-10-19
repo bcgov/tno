@@ -12,7 +12,7 @@ generatorOptions:
 patches:
   - target:
       kind: ConfigMap
-      name: capture-service
+      name: indexing-service
     patch: |-
       - op: replace
         path: /data/CHES_FROM

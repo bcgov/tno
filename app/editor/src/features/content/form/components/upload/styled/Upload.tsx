@@ -2,12 +2,11 @@ import styled from 'styled-components';
 
 export const Upload = styled.div`
   display: flex;
-  flex-direction: row;
-  width: fit-content;
+  flex-direction: column;
 
-  .indicator {
-    align-self: center;
-    padding-right: 0.25em;
+  > div:first-child {
+    justify-content: center;
+    flex: 1 1 100%;
   }
 
   .upload-image {
@@ -15,8 +14,13 @@ export const Upload = styled.div`
     width: 5rem;
     align-self: center;
   }
+
   .drop-box {
     label {
+      display: flex;
+      flex-direction: column;
+      align-content: center;
+      justify-content: center;
       height: 100%;
       width: 100%;
     }

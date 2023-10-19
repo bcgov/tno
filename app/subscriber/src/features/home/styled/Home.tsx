@@ -6,19 +6,35 @@ export const Home = styled.div`
   }
   /* table styling */
   .view-options {
+    .option {
+      margin-bottom: 0.5em;
+      label {
+        margin-left: 0.25em;
+      }
+    }
+    b {
+      margin-bottom: 0.25em;
+    }
     background-color: white;
     color: black;
     opacity: 1;
     /* add box shadow */
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+    input[type='checkbox'] {
+      accent-color: #6750a4;
+    }
+    input[type='radio'] {
+      accent-color: #6750a4;
+    }
     z-index: 999;
   }
   .more-options {
     margin-left: 1em;
     margin-top: 0.25em;
-    color: #3847aa;
+    color: #6750a4;
     &:hover {
       cursor: pointer;
+      transform: scale(1.1);
     }
   }
   .table {

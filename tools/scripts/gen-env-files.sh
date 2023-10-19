@@ -874,6 +874,28 @@ ELASTIC_PASSWORD=$password" >> ./services/net/folder-collection/.env
     echo "./services/net/folder-collection/.env created"
 fi
 
+## FFmpeg Service
+if test -f "./services/net/ffmpeg/.env"; then
+    echo "./services/net/ffmpeg/.env exists"
+else
+echo \
+"# Local
+ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+###########################################
+# Local
+###########################################
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+# Service__VolumePath=../data" >> ./services/net/ffmpeg/.env
+    echo "./services/net/ffmpeg/.env created"
+fi
+
 
 ###########################################################################
 # .NET Tools

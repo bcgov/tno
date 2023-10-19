@@ -3,4 +3,5 @@ export enum HomeFilterType {
   RadioTV = 'AudioVideo',
   Internet = 'internet',
   CPNews = 'cpNews',
+  All = 'all',
 }

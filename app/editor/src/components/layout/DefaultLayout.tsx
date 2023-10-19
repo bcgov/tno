@@ -4,11 +4,12 @@ import { NavBar } from 'features/navbar';
 import React from 'react';
 import { Link, Outlet, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { HubMethodName, IWorkOrderToast, useApiHub, useToastError } from 'store/hooks';
+import { IWorkOrderToast, useApiHub, useToastError } from 'store/hooks';
 import {
   Button,
   Header,
   IWorkOrderMessageModel,
+  MessageTargetName,
   Show,
   SummonContext,
   useKeycloakWrapper,
@@ -109,7 +110,7 @@ const DefaultLayout: React.FC<ILayoutProps> = ({
     [toastIds],
   );
 
-  hub.useHubEffect(HubMethodName.WorkOrder, onWorkOrderMessage);
+  hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrderMessage);
 
   return (
     <styled.Layout {...rest}>

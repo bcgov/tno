@@ -3,27 +3,33 @@ import { Moment } from 'moment';
 
 export const generateRangeForDates = (
   field: string,
-  values: string | Date | Moment | string[] | Date[] | Moment[],
+  gte?: string | Date | Moment | null,
+  lte?: string | Date | Moment | null,
 ) => {
-  if (values === undefined || values === null) return undefined;
-  if (Array.isArray(values)) {
-    const value1 = values[0];
-    const values2 = values.length > 1 ? values[1] : values[0];
+  if (!!gte && !!lte) {
     return {
       range: {
         [field]: {
-          gte: moment(value1),
-          lte: moment(values2),
+          gte: moment(gte),
+          lte: moment(lte),
           time_zone: 'US/Pacific',
         },
       },
     };
-  } else {
+  } else if (!!gte) {
     return {
       range: {
         [field]: {
-          gte: moment(values),
-          lte: moment(values),
+          gte: moment(gte),
+          time_zone: 'US/Pacific',
+        },
+      },
+    };
+  } else if (!!lte) {
+    return {
+      range: {
+        [field]: {
+          lte: moment(lte),
           time_zone: 'US/Pacific',
         },
       },

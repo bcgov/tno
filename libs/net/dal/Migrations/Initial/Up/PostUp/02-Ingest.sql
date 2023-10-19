@@ -483,9 +483,9 @@ INSERT INTO public.ingest (
   , (SELECT id FROM public.source WHERE code = 'POST') -- source_id
   , 'POST' -- topic
   , frontPageId -- product_id
-  , '{ "path": "binaryroot/<date>",
+  , '{ "path": "infomart/papers",
       "pathDateFormat": "yyyy/MM/dd",
-      "fileName": "NTNP.+",
+      "fileName": "NTNP.+\.(zip)|(jpg)|(jpeg)",
       "publishedOnExpression": "^NTNP(?<year>[0-9]{4})(?<month>[0-9]{2})(?<day>[0-9]{2})(?<hour>[0-9]{2})(?<minute>[0-9]{2})(?<second>[0-9]{2})",
       "post": true,
       "import": true }' -- configuration
@@ -503,9 +503,9 @@ INSERT INTO public.ingest (
   , (SELECT id FROM public.source WHERE code = 'PROVINCE') -- source_id
   , 'PROVINCE' -- topic
   , frontPageId -- product_id
-  , '{ "path": "binaryroot/<date>",
+  , '{ "path": "infomart/papers",
       "pathDateFormat": "yyyy/MM/dd",
-      "fileName": "VAPR.+",
+      "fileName": "VAPR.+\.(zip)|(jpg)|(jpeg)",
       "publishedOnExpression": "^VAPR(?<year>[0-9]{4})(?<month>[0-9]{2})(?<day>[0-9]{2})(?<hour>[0-9]{2})(?<minute>[0-9]{2})(?<second>[0-9]{2})",
       "post": true,
       "import": true }' -- configuration
@@ -523,9 +523,9 @@ INSERT INTO public.ingest (
   , (SELECT id FROM public.source WHERE code = 'TC') -- source_id
   , 'TC' -- topic
   , frontPageId -- product_id
-  , '{ "path": "binaryroot/<date>",
+  , '{ "path": "infomart/papers",
       "pathDateFormat": "yyyy/MM/dd",
-      "fileName": "VITC.+",
+      "fileName": "VITC.+\.(zip)|(jpg)|(jpeg)",
       "publishedOnExpression": "^VITC(?<year>[0-9]{4})(?<month>[0-9]{2})(?<day>[0-9]{2})(?<hour>[0-9]{2})(?<minute>[0-9]{2})(?<second>[0-9]{2})",
       "post": true,
       "import": true }' -- configuration
@@ -543,9 +543,9 @@ INSERT INTO public.ingest (
   , (SELECT id FROM public.source WHERE code = 'SUN') -- source_id
   , 'SUN' -- topic
   , frontPageId -- product_id
-  , '{ "path": "binaryroot/<date>",
+  , '{ "path": "infomart/papers",
       "pathDateFormat": "yyyy/MM/dd",
-      "fileName": "VASN.+",
+      "fileName": "VASN.+\.(zip)|(jpg)|(jpeg)",
       "publishedOnExpression": "^VASN(?<year>[0-9]{4})(?<month>[0-9]{2})(?<day>[0-9]{2})(?<hour>[0-9]{2})(?<minute>[0-9]{2})(?<second>[0-9]{2})",
       "post": true,
       "import": true }' -- configuration

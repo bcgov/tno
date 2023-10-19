@@ -20,14 +20,14 @@ patchesStrategicMerge:
 patches:
   - target:
       kind: ConfigMap
-      name: capture-service
+      name: reporting-service
     patch: |-
       - op: replace
         path: /data/CHES_FROM
         value: (TEST) Media Monitoring Insights <mmi@gov.bc.ca>
   - target:
       kind: DeploymentConfig
-      name: notification-service
+      name: reporting-service
     patch: |-
       - op: replace
         path: /spec/replicas
@@ -49,7 +49,7 @@ patches:
         value: notification-service:test
   - target:
       kind: ConfigMap
-      name: notification-service
+      name: reporting-service
     patch: |-
       - op: replace
         path: /data/CHES_EMAIL_ENABLED

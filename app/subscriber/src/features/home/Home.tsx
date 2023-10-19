@@ -13,11 +13,11 @@ import {
   Checkbox,
   Col,
   ContentStatus,
-  ContentTypeName,
   FlexboxTable,
   IContentModel,
   ITableInternalRow,
   Page,
+  Radio,
   Row,
   useWindowSize,
 } from 'tno-core';
@@ -46,8 +46,7 @@ export const Home: React.FC = () => {
         setLoading(true);
         const filters = makeFilter({
           ...filter,
-          contentTypes:
-            filter.contentTypes.length > 0 ? filter.contentTypes : [ContentTypeName.PrintContent],
+          contentTypes: filter.contentTypes.length > 0 ? filter.contentTypes : [],
           startDate: filter.startDate ? filter.startDate : new Date().toDateString(),
           status: ContentStatus.Published,
         });
@@ -92,10 +91,11 @@ export const Home: React.FC = () => {
         <Tooltip place="right" className="view-options" openOnClick id="view-options" clickable>
           <Col>
             <div className="show-section">
-              <b>Show:</b>
-              <Checkbox label={'TEASERS'} />
+              <b>SHOW:</b>
+              <Checkbox disabled className="option" label={'TEASERS'} />
               <Checkbox
                 label={'SENTIMENT'}
+                className="option"
                 defaultChecked={!disabledCols.includes('tone')}
                 onClick={(e) => {
                   if (!(e.target as HTMLInputElement).checked)
@@ -106,6 +106,7 @@ export const Home: React.FC = () => {
               />
               <Checkbox
                 label={'PAGE NUMBERS'}
+                className="option"
                 defaultChecked={!disabledCols.includes('sectionPage')}
                 onClick={(e) => {
                   if (!(e.target as HTMLInputElement).checked)
@@ -117,22 +118,29 @@ export const Home: React.FC = () => {
                 }}
               />
             </div>
-            <div className="sort-section">
-              <b>Sort:</b>
-              <Checkbox
-                defaultChecked={sortBy === 'source'}
-                onClick={(e) =>
-                  (e.target as HTMLInputElement).checked ? setSortBy('source') : setSortBy('')
-                }
-                label={'MEDIA SOURCE'}
-              />
-              <Checkbox
-                onClick={(e) =>
-                  (e.target as HTMLInputElement).checked ? setSortBy('time') : setSortBy('')
-                }
-                label={'TIME'}
-              />
-            </div>
+            <Col className="sort-section">
+              <b>GROUP BY:</b>
+              <Row className="option">
+                <Radio
+                  checked={sortBy === 'source'}
+                  onClick={(e) =>
+                    (e.target as HTMLInputElement).checked ? setSortBy('source') : setSortBy('')
+                  }
+                />
+                <label>MEDIA SOURCE</label>
+              </Row>
+              <Row className="option">
+                <Radio
+                  checked={sortBy === 'time'}
+                  disabled
+                  className="option"
+                  onClick={(e) =>
+                    (e.target as HTMLInputElement).checked ? setSortBy('time') : setSortBy('')
+                  }
+                />
+                <label>TIME</label>
+              </Row>
+            </Col>
           </Col>
         </Tooltip>
       </Row>
@@ -142,9 +150,13 @@ export const Home: React.FC = () => {
           rowId="id"
           columns={determineColumns(filter.contentTypes[0], width, disabledCols)}
           isMulti
-          groupBy={(item) =>
-            item.original.source?.name && sortBy === 'source' ? item.original.source?.name : ''
-          }
+          groupBy={(item) => {
+            if (item.original.source?.name && sortBy === 'source')
+              return item.original.source?.name;
+            else if (item.original.publishedOn && sortBy === 'time')
+              return item.original.publishedOn;
+            else return ' ';
+          }}
           onRowClick={(e: any) => {
             navigate(`/view/${e.original.id}`);
           }}

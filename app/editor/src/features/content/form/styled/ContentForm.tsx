@@ -4,6 +4,14 @@ export const ContentForm = styled.div`
   height: 100%;
   width: 100%;
 
+  .toolbar-status {
+    min-width: 150px;
+  }
+
+  .toolbar-alert {
+    max-width: 200px;
+  }
+
   .form-page {
     height: calc(100% - 1rem);
 
@@ -177,9 +185,12 @@ export const ContentForm = styled.div`
 
   .tab-section {
     flex-flow: row;
+    gap: 0.5rem;
   }
 
   .media {
-    align-self: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 `;

@@ -1,6 +1,8 @@
+using System.Text.Json;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
@@ -14,6 +16,7 @@ public abstract class TNOMigration : Migration
 {
     #region Variables
     private readonly IContentService _contentService;
+    private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
     #region  Constructors
@@ -22,9 +25,11 @@ public abstract class TNOMigration : Migration
     /// </summary>
     /// <param name="builder"></param>
     /// <param name="contentService"></param>
-    public TNOMigration(MigrationBuilder builder, IContentService contentService) : base(builder)
+    /// <param name="serializerOptions"></param>
+    public TNOMigration(MigrationBuilder builder, IContentService contentService, IOptions<JsonSerializerOptions> serializerOptions) : base(builder)
     {
         _contentService = contentService;
+        _serializerOptions = serializerOptions.Value;
     }
     #endregion
 
@@ -61,7 +66,7 @@ public abstract class TNOMigration : Migration
                 {
                     try
                     {
-                        var model = new ContentModel(item);
+                        var model = new ContentModel(item, _serializerOptions);
                         var unpublishedRequest = new IndexRequest<ContentModel>(model, $"{builder.MigrationOptions.UnpublishedIndex}_v{this.Version}", model.Id);
                         var response = await builder.IndexingClient.IndexAsync(unpublishedRequest, cancellationToken);
                         if (!response.IsValidResponse)

@@ -35,6 +35,11 @@ public class ReportInstanceModel : AuditColumnsModel
     public DateTime? SentOn { get; set; }
 
     /// <summary>
+    /// get/set - The report status.
+    /// </summary>
+    public Entities.ReportStatus Status { get; set; }
+
+    /// <summary>
     /// get/set - The compiled subject of the report.
     /// Used to recreate the report.
     /// </summary>
@@ -74,6 +79,7 @@ public class ReportInstanceModel : AuditColumnsModel
         this.ReportId = entity.ReportId;
         this.PublishedOn = entity.PublishedOn;
         this.SentOn = entity.SentOn;
+        this.Status = entity.Status;
         this.Response = entity.Response;
         this.Subject = entity.Subject;
         this.Body = entity.Body;
@@ -95,6 +101,7 @@ public class ReportInstanceModel : AuditColumnsModel
             OwnerId = model.OwnerId,
             PublishedOn = model.PublishedOn,
             SentOn = model.SentOn,
+            Status = model.Status,
             Response = model.Response,
             Subject = model.Subject,
             Body = model.Body,

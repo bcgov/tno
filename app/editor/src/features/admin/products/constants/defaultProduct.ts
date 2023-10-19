@@ -7,4 +7,5 @@ export const defaultProduct: IProductModel = {
   autoTranscribe: false,
   isEnabled: true,
   sortOrder: 0,
+  settings: {},
 };

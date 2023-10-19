@@ -47,6 +47,12 @@ public class NotificationInstance : AuditColumns
     public DateTime? SentOn { get; set; }
 
     /// <summary>
+    /// get/set - The status of this notification.
+    /// </summary>
+    [Column("status")]
+    public NotificationStatus Status { get; set; }
+
+    /// <summary>
     /// get/set - CHES response containing keys to find the status of a notification.
     /// </summary>
     [Column("response")]

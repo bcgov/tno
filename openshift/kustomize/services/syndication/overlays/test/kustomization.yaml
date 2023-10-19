@@ -17,7 +17,7 @@ generatorOptions:
 patches:
   - target:
       kind: ConfigMap
-      name: capture-service
+      name: syndication-service
     patch: |-
       - op: replace
         path: /data/CHES_FROM

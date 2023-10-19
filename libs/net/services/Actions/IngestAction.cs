@@ -1,8 +1,8 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Extensions;
@@ -95,7 +95,7 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
         if (reference != null)
         {
             if (reference.Status != (int)status) reference.Status = (int)status;
-            reference = await this.Api.UpdateContentReferenceAsync(reference, Headers);
+            reference = await this.Api.UpdateContentReferenceAsync(reference);
         }
         return reference;
     }

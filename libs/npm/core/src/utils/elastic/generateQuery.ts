@@ -1,5 +1,6 @@
 import { IFilterSettingsModel } from '../../hooks';
 import { generateQueryForActions } from './generateQueryForActions';
+import { generateQueryForExistCheck } from './generateQueryForExistCheck';
 import { generateRangeForArrayField } from './generateRangeForArrayField';
 import { generateRangeForDateOffset } from './generateRangeForDateOffset';
 import { generateRangeForDates } from './generateRangeForDates';
@@ -33,9 +34,11 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
           generateRangeForArrayField('tonePools.value', settings.sentiment),
           ...generateQueryForActions(settings.actions ?? []),
           generateTextQuery(settings),
-          generateTerm('edition', settings.edition),
-          generateTerm('section', settings.section),
-          generateTerm('page', settings.page),
+          settings.edition ? generateTerm('edition', `*${settings.edition}*`) : undefined,
+          settings.section ? generateTerm('section', `*${settings.section}*`) : undefined,
+          settings.page ? generateTerm('page', `*${settings.page}*`) : undefined,
+          settings.status ? generateTerm('status', settings.status) : undefined,
+          settings.hasTopic ? generateQueryForExistCheck('topics') : undefined,
         ].filter((v) => v !== undefined),
       },
     },
@@ -80,7 +83,7 @@ const generatePublishedOnQuery = (settings: IFilterSettingsModel) => {
   if (settings.dateOffset !== undefined)
     return generateRangeForDateOffset('publishedOn', settings.dateOffset);
   if (settings.startDate && settings.endDate)
-    return generateRangeForDates('publishedOn', [settings.startDate, settings.endDate]);
-  if (settings.startDate) return generateRangeForDates('publishedOn', [settings.startDate]);
-  if (settings.endDate) return generateRangeForDates('publishedOn', [settings.endDate]);
+    return generateRangeForDates('publishedOn', settings.startDate, settings.endDate);
+  if (settings.startDate) return generateRangeForDates('publishedOn', settings.startDate);
+  if (settings.endDate) return generateRangeForDates('publishedOn', null, settings.endDate);
 };

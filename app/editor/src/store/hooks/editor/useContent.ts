@@ -1,4 +1,4 @@
-import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
+import { KnnSearchResponse, MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
@@ -13,6 +13,7 @@ import {
   IContentFilter,
   IContentListModel,
   IContentModel,
+  INotificationInstanceModel,
   IPaged,
   useApiEditorContents,
 } from 'tno-core';
@@ -24,7 +25,7 @@ interface IContentController {
   findContentWithElasticsearch: (
     filter: MsearchMultisearchBody,
     includeUnpublishedContent: boolean,
-  ) => Promise<unknown>;
+  ) => Promise<KnnSearchResponse>;
   getContent: (id: number) => Promise<IContentModel | undefined>;
   addContent: (content: IContentModel) => Promise<IContentModel>;
   updateContent: (content: IContentModel) => Promise<IContentModel>;
@@ -44,6 +45,7 @@ interface IContentController {
   storeFilterPaperAdvanced: (
     filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
+  getNotificationsFor: (id: number) => Promise<INotificationInstanceModel[]>;
 }
 
 export const useContent = (props?: IContentProps): [IContentState, IContentController] => {
@@ -65,7 +67,13 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         const response = await dispatch('find-contents-with-elasticsearch', () =>
           api.findContentWithElasticsearch(filter, includeUnpublishedContent),
         );
-        // TODO: store in redux
+        const items = response.data.hits?.hits?.map((h) => h._source as IContentModel);
+        actions.storeContent({
+          page: 1,
+          quantity: items.length,
+          total: items.length,
+          items: items,
+        });
         return response.data;
       },
       getContent: async (id: number) => {
@@ -146,6 +154,11 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       },
       stream: async (path: string) => {
         return (await dispatch('stream-content', () => api.stream(path), 'content')).data;
+      },
+      getNotificationsFor: async (id: number) => {
+        return (
+          await dispatch('content-notifications', () => api.getNotificationsFor(id), 'content')
+        ).data;
       },
       storeFilter: actions.storeFilter,
       storeFilterAdvanced: actions.storeFilterAdvanced,
