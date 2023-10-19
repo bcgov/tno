@@ -16,6 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
