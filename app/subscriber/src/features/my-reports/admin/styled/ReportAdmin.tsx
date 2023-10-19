@@ -3,7 +3,7 @@ import styled from 'styled-components';
 export const ReportAdmin = styled.div`
   display: flex;
   flex-direction: column;
-  height: calc(100% + 50px);
+  /* height: calc(100% + 50px); */
 
   > div {
     height: 100%;

@@ -68,7 +68,7 @@ export const ReportAdminPreview: React.FC = () => {
                 </Col>
               </Row>
               <Row nowrap>
-                <Col alignItems="center">
+                <Col alignItems="center" className="preview-button">
                   <FaEye size={30} />
                   <h3>Preview</h3>
                 </Col>

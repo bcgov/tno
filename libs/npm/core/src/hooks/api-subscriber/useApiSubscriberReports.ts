@@ -6,6 +6,7 @@ import {
   defaultEnvelope,
   ILifecycleToasts,
   IReportFilter,
+  IReportInstanceModel,
   IReportModel,
   IReportResultModel,
   useApi,
@@ -30,6 +31,11 @@ export const useApiSubscriberReports = (
       const query = { ...filter };
       return api.get<never, AxiosResponse<IReportModel[]>, any>(
         `/subscriber/reports?${toQueryString(query)}`,
+      );
+    },
+    findInstancesForReportId: (id: number, ownerId: number | undefined = undefined) => {
+      return api.get<never, AxiosResponse<IReportInstanceModel[]>, any>(
+        `/subscriber/reports/${id}/instances?ownerId=${ownerId ? ownerId : ''}`,
       );
     },
     findMyReports: () => {

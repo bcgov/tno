@@ -1,5 +1,6 @@
 import { FormikForm } from 'components/formik';
 import { FormikProps } from 'formik';
+import { SearchWithLogout } from 'components/search-with-logout';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -100,6 +101,7 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
 
   return (
     <styled.ReportAdmin>
+      <SearchWithLogout />
       <FormikForm
         loading={false}
         initialValues={report}
