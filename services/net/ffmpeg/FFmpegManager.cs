@@ -2,6 +2,7 @@ using System.IO;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MimeTypes;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Models.Settings;
 using TNO.Core.Exceptions;
@@ -47,7 +48,7 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
         IApiService api,
         IOptions<FFmpegOptions> options,
         ILogger<FFmpegManager> logger)
-        : base(api, options, logger)
+            : base(api, options, logger)
     {
         this.Listener = listener;
         this.Listener.IsLongRunningJob = true;
@@ -255,8 +256,9 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
                 {
                     if (action.Action == FFmpegAction.Convert)
                     {
-                        var convertFrom = action.Arguments["from"];
-                        var convertTo = action.Arguments["to"];
+                        var convertFrom = action.Arguments.ContainsKey("from") ? action.Arguments["from"] : "";
+                        var convertTo = action.Arguments.ContainsKey("to") ? action.Arguments["to"] : "";
+                        var contentType = action.Arguments.ContainsKey("contentType") ? action.Arguments["contentType"] : MimeTypeMap.GetMimeType(convertTo.Replace(".", ""));
                         if (convertFrom.Equals(sourceExt, StringComparison.OrdinalIgnoreCase))
                         {
                             if (!String.IsNullOrWhiteSpace(convertTo))
@@ -267,6 +269,7 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
                                 {
                                     fileRef.Path = fileRef.Path.Replace(convertFrom, convertTo);
                                     fileRef.FileName = Path.GetFileName(fileRef.Path);
+                                    fileRef.ContentType = contentType;
                                 }
                                 else
                                 {

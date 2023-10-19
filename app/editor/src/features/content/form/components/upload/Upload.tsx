@@ -140,14 +140,20 @@ export const Upload: React.FC<IUploadProps> = ({
       <Show visible={!!stream && contentType === ContentTypeName.AudioVideo && !!fileReference}>
         <Show visible={fileReference?.contentType.startsWith('audio/')}>
           <Col flex="1">
-            <audio src={stream?.url} controls>
+            <audio controls>
+              {stream ? (
+                <source src={`${stream?.url}`} type={`${fileReference?.contentType}`} />
+              ) : null}
               HTML5 Audio is required
             </audio>
           </Col>
         </Show>
         <Show visible={fileReference?.contentType.startsWith('video/')}>
           <Col flex="1">
-            <video src={`${stream?.url}#t=0.5`} controls preload="metadata">
+            <video controls preload="metadata">
+              {stream ? (
+                <source src={`${stream?.url}#t=0.5`} type={`${fileReference?.contentType}`} />
+              ) : null}
               HTML5 Video is required
             </video>
           </Col>
