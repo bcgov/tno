@@ -13,3 +13,4 @@ resources:
   - nlp.yaml
   - syndication.yaml
   - transcription.yaml
+  - folder-collection.yaml

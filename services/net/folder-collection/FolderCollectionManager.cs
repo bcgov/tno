@@ -251,14 +251,15 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
         {
             // TODO: Review how we can cache filters so that we do not need to request them every time we index content.
             var folders = await this.Api.GetFoldersWithFiltersAsync() ?? Array.Empty<API.Areas.Services.Models.Folder.FolderModel>();
+            var activeFolders = folders.Where(f => f.Filter != null && f.Filter?.IsEnabled == true);
 
-            if (folders.Any())
-            {
+            if (activeFolders.Any())
                 this.Logger.LogInformation("Content being processed by folder filters.  Content ID: {contentId}", content.Id);
-            }
+            else
+                this.Logger.LogDebug("There are no active folder filters");
 
             // Check if content should be added to each folder.
-            foreach (var folder in folders.Where(f => f.Filter != null))
+            foreach (var folder in activeFolders)
             {
                 await ProcessFolderAsync(request, content, folder);
             }
@@ -299,6 +300,8 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
             // TODO: Sort order of content added to a folder should be configurable.
             await this.Api.AddContentToFolderAsync(content.Id, folder.Id);
         }
+        else
+            this.Logger.LogDebug("Folder filter rejected this content.  Content ID: {contentId}, Folder ID: {folderId}", content.Id, folder.Id);
     }
 
     /// <summary>
@@ -312,7 +315,11 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
     private async Task<bool> RunFilterAsync(API.Areas.Services.Models.Content.ContentModel content, API.Areas.Services.Models.Folder.FilterModel filter)
     {
         // Ignore empty Elasticsearch queries.
-        if (IsEmpty(filter.Query)) return false;
+        if (IsEmpty(filter.Query))
+        {
+            this.Logger.LogDebug("The folder filter query is empty.  Content ID: {contentId}, Filter ID: {filterId}", content.Id, filter.Id);
+            return false;
+        }
 
         var now = DateTime.Now.ToLocalTime();
 
