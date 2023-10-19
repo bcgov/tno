@@ -644,5 +644,20 @@ public class ReportService : BaseService<Report, int>, IReportService
 
         return JsonDocument.Parse(json.ToJsonString());
     }
+
+    public async Task<int> Unsubscribe(int userId)
+    {
+        var saveChanges = false;
+        var userReports = this.Context.UserReports.Where(x => x.UserId == userId);
+        userReports.ForEach(s =>
+        {
+            if (s.IsSubscribed)
+            {
+                s.IsSubscribed = !s.IsSubscribed;
+                if (!saveChanges) saveChanges = true;
+            }
+        });
+        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
+    }
     #endregion
 }
