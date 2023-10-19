@@ -60,6 +60,7 @@ export const AlertSection: React.FC<IAlertSectionProps> = ({ values }) => {
 
   return (
     <ToolBarSection
+      className="toolbar-alert"
       label="EMAIL ALERT"
       icon={<FaPaperPlane />}
       children={

@@ -20,7 +20,7 @@ patchesStrategicMerge:
 patches:
   - target:
       kind: DeploymentConfig
-      name: notification-service
+      name: reporting-service
     patch: |-
       - op: replace
         path: /spec/replicas
@@ -42,7 +42,7 @@ patches:
         value: notification-service:prod
   - target:
       kind: ConfigMap
-      name: notification-service
+      name: reporting-service
     patch: |-
       - op: replace
         path: /data/CHES_EMAIL_ENABLED

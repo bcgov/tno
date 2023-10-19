@@ -30,9 +30,9 @@ spec:
       type: string
       default: latest
 
-    - name: BUILD
-      description: Whether to force build the component [condition|yes].
-      default: "condition"
+    - name: DEPLOY
+      description: Whether to force build the component [*|yes|all|db].
+      default: "*"
 
     - name: DEPLOY_TO
       description: Which environment to deploy to
@@ -46,10 +46,16 @@ spec:
   steps:
     - name: run
       image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
-      resources: {}
+      resources:
+        limits:
+          cpu: "2"
+          memory: 2Gi
+        requests:
+          cpu: 250m
+          memory: 1Gi
       script: |
         #!/usr/bin/env bash
-        set -e
+        # set -e
 
         # Place config into environment variables.
         if test -f $(workspaces.conditions.path)/build.env; then
@@ -59,8 +65,8 @@ spec:
           exit 1;
         fi
 
-        # Check if this image needs to be built.
-        if [ "${BUILD_DB}" = "true" ] || [ "$(params.BUILD)" = "yes" ]; then
+        # Check if this image needs to run.
+        if [ "${BUILD_DB}" = "true" ] || [ "$(params.DEPLOY)" = "yes" ] || [ "$(params.DEPLOY)" = "all" ] || [ "$(params.DEPLOY)" = "db" ]; then
           echo "Fetching connection information"
 
           PROJECT=$(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
