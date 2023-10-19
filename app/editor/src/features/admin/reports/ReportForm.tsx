@@ -1,4 +1,5 @@
 import { FormikForm } from 'components/formik';
+import { FormikProps } from 'formik';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -8,6 +9,7 @@ import { useAdminStore } from 'store/slices';
 import {
   Button,
   ButtonVariant,
+  hasErrors,
   IconButton,
   IReportModel,
   Modal,
@@ -16,6 +18,7 @@ import {
   Tab,
   Tabs,
   useModal,
+  useTabValidationToasts,
 } from 'tno-core';
 
 import { defaultReport, generateScheduleName } from './constants';
@@ -28,6 +31,7 @@ import { ReportFormSubscribers } from './ReportFormSubscribers';
 import { ReportFormTemplate } from './ReportFormTemplate';
 import { ReportTemplateContextProvider } from './ReportTemplateContext';
 import * as styled from './styled';
+import { ReportFormSchema } from './validation/ReportFormSchema';
 
 /**
  * The page used to view and edit reports.
@@ -40,12 +44,15 @@ const ReportForm: React.FC = () => {
   const [, { addReport, deleteReport, getReport, updateReport, publishReport }] = useReports();
   const [{ reportTemplates }, { storeReportTemplates }] = useAdminStore();
   const { toggle, isShowing } = useModal();
+  const { setShowValidationToast } = useTabValidationToasts();
 
   const [report, setReport] = React.useState<IReportModel>({
     ...defaultReport,
     ownerId: userInfo?.id ?? 0,
   });
   const [active, setActive] = React.useState('report');
+
+  const [savePressed, setSavePressed] = React.useState(false);
 
   const reportId = Number(id);
 
@@ -104,18 +111,23 @@ const ReportForm: React.FC = () => {
       />
       <FormikForm
         initialValues={report}
+        validationSchema={ReportFormSchema}
+        validateOnChange={false}
         onSubmit={(values, { setSubmitting }) => {
           handleSubmit(values);
           setSubmitting(false);
         }}
       >
-        {({ isSubmitting, values }) => (
+        {(props: FormikProps<IReportModel>) => (
           <ReportTemplateContextProvider>
             <Tabs
               tabs={
                 <>
                   <Tab
                     label="Report"
+                    showErrorOnSave={{ value: true, savePressed: savePressed }}
+                    setShowValidationToast={setShowValidationToast}
+                    hasErrors={hasErrors(props.errors, ['name'])}
                     onClick={() => {
                       setActive('report');
                     }}
@@ -123,15 +135,21 @@ const ReportForm: React.FC = () => {
                   />
                   <Tab
                     label="Template"
+                    showErrorOnSave={{ value: true, savePressed: savePressed }}
+                    setShowValidationToast={setShowValidationToast}
+                    hasErrors={hasErrors(props.errors, ['templateId'])}
                     onClick={() => {
                       setActive('template');
                     }}
                     active={active === 'template'}
                   />
-                  {!!values.templateId && (
+                  {!!props.values.templateId && (
                     <>
                       <Tab
                         label="Sections"
+                        showErrorOnSave={{ value: true, savePressed: savePressed }}
+                        setShowValidationToast={setShowValidationToast}
+                        hasErrors={hasErrors(props.errors, ['settings'])}
                         onClick={() => {
                           setActive('sections');
                         }}
@@ -193,14 +211,27 @@ const ReportForm: React.FC = () => {
                   <ReportFormInstance />
                 </Show>
                 <Row justifyContent="center" className="form-inputs">
-                  <Button type="submit" disabled={isSubmitting}>
+                  <Button
+                    type="submit"
+                    disabled={props.isSubmitting}
+                    onClick={() => {
+                      setSavePressed(true);
+                    }}
+                  >
                     Save
                   </Button>
-                  <Button variant={ButtonVariant.secondary} onClick={() => handlePublish(values)}>
+                  <Button
+                    variant={ButtonVariant.secondary}
+                    onClick={() => handlePublish(props.values)}
+                  >
                     Send
                   </Button>
-                  <Show visible={!!values.id}>
-                    <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
+                  <Show visible={!!props.values.id}>
+                    <Button
+                      onClick={toggle}
+                      variant={ButtonVariant.danger}
+                      disabled={props.isSubmitting}
+                    >
                       Delete
                     </Button>
                   </Show>

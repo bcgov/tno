@@ -90,7 +90,6 @@ export const ReportFormTemplate: React.FC = () => {
         <Col className="editor subject">
           <Editor
             id="txa-subject-template"
-            required
             value={values.template?.subject ?? ''}
             onValueChange={(code) => setFieldValue('template.subject', code)}
             highlight={(code) => {
@@ -104,7 +103,6 @@ export const ReportFormTemplate: React.FC = () => {
         <Col className="editor body">
           <Editor
             id="txa-body-template"
-            required
             value={values.template?.body ?? ''}
             onValueChange={(code) => setFieldValue('template.body', code)}
             highlight={(code) => {
