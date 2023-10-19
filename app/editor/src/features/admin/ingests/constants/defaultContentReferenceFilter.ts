@@ -3,8 +3,8 @@ import { IContentReferenceListFilter } from '../interfaces';
 export const defaultContentReferenceFilter: IContentReferenceListFilter = {
   pageIndex: 0,
   pageSize: 100,
-  source: '',
   sources: [],
+  productIds: [],
   uid: '',
   topic: '',
   status: '',

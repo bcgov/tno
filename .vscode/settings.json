@@ -41,4 +41,5 @@
     "**/Thumbs.db": true,
     "**/node_modules": false
   },
+  "dotnet.defaultSolution": "./TNO.sln",
 }

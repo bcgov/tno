@@ -2,8 +2,8 @@ import { WorkflowStatusName } from '../constants';
 import { ISortPageFilter } from '.';
 
 export interface IContentReferenceFilter extends ISortPageFilter {
-  source?: string;
   sources?: string[];
+  productIds?: number[];
   uid?: string;
   topic?: string;
   status?: WorkflowStatusName;

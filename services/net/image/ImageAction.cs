@@ -365,7 +365,8 @@ public class ImageAction : IngestAction<ImageOptions>
             ingest.GetConfigurationValue<bool>("publish"))
         {
             StreamUrl = ingest.GetConfigurationValue("url"),
-            FilePath = GetOutputPath(ingest).CombineWith(fileName),
+            FilePath = (ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "")
+                .CombineWith($"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}/", fileName),
             Language = ingest.GetConfigurationValue("language")
         };
         return content;

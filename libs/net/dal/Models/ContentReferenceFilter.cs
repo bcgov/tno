@@ -10,8 +10,8 @@ public class ContentReferenceFilter : PageFilter
     public WorkflowStatus? Status { get; set; }
     public int? Offset { get; set; }
     public int? Partition { get; set; }
-    public string? Source { get; set; }
     public string[]? Sources { get; set; }
+    public int[]? ProductIds { get; set; }
     public string? Uid { get; set; }
     public string? Topic { get; set; }
     public DateTime? PublishedOn { get; set; }
@@ -32,8 +32,8 @@ public class ContentReferenceFilter : PageFilter
 
         this.Status = filter.GetEnumNullValue<WorkflowStatus>(nameof(this.Status));
 
-        this.Source = filter.GetStringValue(nameof(this.Source));
         this.Sources = filter.GetStringArrayValue(nameof(this.Sources));
+        this.ProductIds = filter.GetIntArrayValue(nameof(this.ProductIds));
         this.Uid = filter.GetStringValue(nameof(this.Uid));
         this.Topic = filter.GetStringValue(nameof(this.Topic));
 
