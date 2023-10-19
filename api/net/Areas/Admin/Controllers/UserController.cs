@@ -35,6 +35,8 @@ public class UserController : ControllerBase
     private readonly IUserService _userService;
     private readonly ICssHelper _cssHelper;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly INotificationService _notificationService;
+    private readonly IReportService _reportService;
     #endregion
 
     #region Constructors
@@ -44,11 +46,20 @@ public class UserController : ControllerBase
     /// <param name="userService"></param>
     /// <param name="cssHelper"></param>
     /// <param name="serializerOptions"></param>
-    public UserController(IUserService userService, ICssHelper cssHelper, IOptions<JsonSerializerOptions> serializerOptions)
+    /// <param name="notificationService"></param>
+    /// <param name="reportService"></param>
+    public UserController(
+        IUserService userService,
+        ICssHelper cssHelper,
+        IOptions<JsonSerializerOptions> serializerOptions,
+        INotificationService notificationService,
+        IReportService reportService)
     {
         _userService = userService;
         _cssHelper = cssHelper;
         _serializerOptions = serializerOptions.Value;
+        _notificationService = notificationService;
+        _reportService = reportService;
     }
     #endregion
 
@@ -119,6 +130,11 @@ public class UserController : ControllerBase
     {
         await _cssHelper.UpdateUserRolesAsync(model.Key, model.Roles.ToArray());
         var user = _userService.UpdateAndSave((Entities.User)model);
+        if (!model.IsEnabled)
+        {
+            await _notificationService.Unsubscribe(model.Id);
+            await _reportService.Unsubscribe(model.Id);
+        }
         return new JsonResult(new UserModel(user, _serializerOptions));
     }
 

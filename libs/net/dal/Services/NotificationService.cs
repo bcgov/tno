@@ -80,5 +80,20 @@ public class NotificationService : BaseService<Notification, int>, INotification
 
         return base.Update(original);
     }
+
+    public async Task<int> Unsubscribe(int userId)
+    {
+        var saveChanges = false;
+        var notifications = this.Context.UserNotifications.Where(x => x.UserId == userId);
+        notifications.ForEach(s =>
+        {
+            if (s.IsSubscribed)
+            {
+                s.IsSubscribed = !s.IsSubscribed;
+                if (!saveChanges) saveChanges = true;
+            }
+        });
+        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
+    }
     #endregion
 }
