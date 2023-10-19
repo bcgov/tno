@@ -66,14 +66,16 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
   const handleSubmit = React.useCallback(
     async (values: IReportForm) => {
       try {
-        const sameNameReport = await findReports({
-          name: values.name,
-          ownerId: values.ownerId,
-        });
+        const originalId = values.id;
+        const sameNameReport = originalId
+          ? []
+          : await findReports({
+              name: values.name,
+              ownerId: values.ownerId,
+            });
         if (sameNameReport.length > 0) {
           toast.error(`A report with the name '${values.name}' already exists.`);
         } else {
-          const originalId = values.id;
           const report = originalId ? await updateReport(values) : await addReport(values);
 
           if (!originalId) {
