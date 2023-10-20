@@ -101,7 +101,7 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
     {
         var schedule = scheduledEvent.Schedule ?? throw new InvalidOperationException($"Schedule is missing from event {scheduledEvent.Id}:{scheduledEvent.Name}");
 
-        var now = DateTime.Now;
+        var now = DateTime.Now.ToTimeZone(this.Options.TimeZone);
         var currentMonth = GetCurrentMonth(now);
         var currentWeekDay = GetDayOfWeek(now);
 
@@ -109,6 +109,9 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
 
         var requestSentOn = scheduledEvent.RequestSentOn?.ToTimeZone(this.Options.TimeZone);
         var nextRun = requestSentOn?.AddMilliseconds(schedule.DelayMS);
+
+        this.Logger.LogDebug("Scheduled event '{name}' is being verified for '{now}'", scheduledEvent.Name, now);
+
         // Delay must have expired.
         if (nextRun > now) return false;
         // Only run once per day.
