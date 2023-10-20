@@ -360,7 +360,7 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
                 const string LINE_BREAK_MARKER = "#linebreak#";
                 // replace "carriage return + line feed" OR "carriage return" OR "line feed" OR "|"
                 // with a placeholder first
-                string result = Regex.Replace(Regex.Unescape(sanitizedString), @"\r\n?|\n|\|", LINE_BREAK_MARKER);
+                string result = Regex.Replace(sanitizedString, @"\r\n?|\n|\|", LINE_BREAK_MARKER);
                 if (!result.Equals(sanitizedString, StringComparison.CurrentCultureIgnoreCase))
                 {
                     // found at least one linebreak placeholder
