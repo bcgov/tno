@@ -8,7 +8,7 @@ export const defaultFilter: IFilterModel = {
   query: {},
   settings: {
     searchUnpublished: false,
-    size: 0,
+    size: 100,
     inHeadline: false,
     inByline: false,
     inStory: false,

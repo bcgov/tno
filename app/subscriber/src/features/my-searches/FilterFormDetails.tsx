@@ -88,9 +88,9 @@ export const FilterFormDetails: React.FC = () => {
           label="Number of Stories"
           type="number"
           width="10ch"
-          value={values.settings.size ?? 10}
+          value={values.settings.size ?? 100}
           onChange={(e) => {
-            const value = !!e.target.value ? parseInt(e.target.value) : 10;
+            const value = !!e.target.value ? parseInt(e.target.value) : 100;
             updateQuery('size', value);
           }}
         />
