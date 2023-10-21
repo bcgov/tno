@@ -6,7 +6,7 @@
  */
 export const generateTerm = (field: string, value?: any) => {
   if (value === undefined || value === null) return undefined;
-  return value.includes('*')
+  return value.toString().includes('*')
     ? {
         wildcard: { [field]: value },
       }
