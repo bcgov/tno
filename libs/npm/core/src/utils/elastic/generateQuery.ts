@@ -38,6 +38,7 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
           settings.section ? generateTerm('section', `*${settings.section}*`) : undefined,
           settings.page ? generateTerm('page', `*${settings.page}*`) : undefined,
           settings.status ? generateTerm('status', settings.status) : undefined,
+          settings.userId ? generateTerm('ownerId', +settings.userId) : undefined,
           settings.hasTopic ? generateQueryForExistCheck('topics') : undefined,
         ].filter((v) => v !== undefined),
       },

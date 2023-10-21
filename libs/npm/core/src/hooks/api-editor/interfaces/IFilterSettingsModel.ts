@@ -25,4 +25,5 @@ export interface IFilterSettingsModel extends Record<string, any> {
   sentiment: number[];
   hasTopic?: boolean;
   status?: string;
+  userId?: number;
 }
