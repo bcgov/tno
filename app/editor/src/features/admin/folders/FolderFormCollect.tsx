@@ -1,5 +1,7 @@
 import { useFormikContext } from 'formik';
+import moment from 'moment';
 import React from 'react';
+import { FaEraser } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useContent } from 'store/hooks';
 import { useFilters } from 'store/hooks/admin';
@@ -8,6 +10,7 @@ import {
   ButtonVariant,
   Col,
   FormikCheckbox,
+  FormikDatePicker,
   FormikSelect,
   FormikStringEnumCheckbox,
   FormikText,
@@ -17,7 +20,6 @@ import {
   IContentRowModel,
   IFilterModel,
   OptionItem,
-  Overlay,
   Row,
   ScheduleWeekDayName,
   Show,
@@ -107,16 +109,15 @@ export const FolderFormCollect: React.FC = () => {
       </Col>
       <hr />
       <Col gap="1rem" style={{ position: 'relative' }}>
-        <Overlay title="Not Implemented Yet" />
         <Row gap="1rem">
           <p>Schedule when this folder will have content removed automatically.</p>
-          <Show visible={values.schedule === undefined}>
+          <Show visible={!values.events.length}>
             <Button
               variant={ButtonVariant.secondary}
               onClick={() =>
                 setValues({
                   ...values,
-                  schedule: createSchedule(values.name, values.description),
+                  events: [createSchedule(values.name, values.description)],
                 })
               }
             >
@@ -124,56 +125,73 @@ export const FolderFormCollect: React.FC = () => {
             </Button>
           </Show>
         </Row>
-        <Show visible={values.schedule !== undefined}>
+        <Show visible={!!values.events.length}>
           <Row gap="1rem">
             <Col gap="1rem">
-              <FormikCheckbox name={`schedule.isEnabled`} label="Enabled" value={true} />
+              <FormikCheckbox name={`events.0.isEnabled`} label="Enabled" value={true} />
               <FormikTimeInput
-                name={`schedule.startAt`}
-                label="Run At"
+                name={`events.0.startAt`}
+                label="Run at"
                 width="7em"
                 placeholder="HH:MM:SS"
               />
+              <FormikDatePicker
+                name="events.0.runOn"
+                label="Start after"
+                width="13em"
+                showTimeInput
+                showTimeSelect
+                dateFormat="MM/dd/yyyy HH:mm:ss"
+                value={
+                  values.events[0].runOn
+                    ? moment(values.events[0].runOn).format('MM/DD/yyyy HH:mm:ss')
+                    : undefined
+                }
+                onChange={(value) => {
+                  setFieldValue('events.0.runOn', value ? moment(value).toString() : undefined);
+                }}
+                isClearable
+              />
             </Col>
             <Col className="frm-in">
-              <label>Run On</label>
+              <label>Weekdays</label>
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Monday"
-                name={`schedule.runOnWeekDays`}
+                name={`events.0.runOnWeekDays`}
                 value={ScheduleWeekDayName.Monday}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Tuesday"
-                name={`schedule.runOnWeekDays`}
+                name={`events.0.runOnWeekDays`}
                 value={ScheduleWeekDayName.Tuesday}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Wednesday"
-                name={`schedule.runOnWeekDays`}
+                name={`events.0.runOnWeekDays`}
                 value={ScheduleWeekDayName.Wednesday}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Thursday"
-                name={`schedule.runOnWeekDays`}
+                name={`events.0.runOnWeekDays`}
                 value={ScheduleWeekDayName.Thursday}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Friday"
-                name={`schedule.runOnWeekDays`}
+                name={`events.0.runOnWeekDays`}
                 value={ScheduleWeekDayName.Friday}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Saturday"
-                name={`schedule.runOnWeekDays`}
+                name={`events.0.runOnWeekDays`}
                 value={ScheduleWeekDayName.Saturday}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Sunday"
-                name={`schedule.runOnWeekDays`}
+                name={`events.0.runOnWeekDays`}
                 value={ScheduleWeekDayName.Sunday}
               />
             </Col>
-            <Col>
+            <Col flex="1">
               <p>
                 When content is automatically removed from the folder, only remove content that is
                 older than the specified number of days. Use '0' to remove all content.
@@ -185,6 +203,18 @@ export const FolderFormCollect: React.FC = () => {
                   type="number"
                 />
               </Row>
+            </Col>
+            <Col>
+              <FormikText name={`events.0.requestSentOn`} label="Last Request Sent On" disabled>
+                <Button
+                  variant={ButtonVariant.danger}
+                  tooltip="Clear last request sent on"
+                  onClick={() => setFieldValue(`events.0.requestSentOn`, undefined)}
+                >
+                  <FaEraser />
+                </Button>
+              </FormikText>
+              <FormikText name={`events.0.lastRanOn`} label="Last Ran On" disabled />
             </Col>
           </Row>
         </Show>

@@ -20,7 +20,7 @@ export const defaultReportSchedule = (
   },
   delayMS: 30000,
   scheduleId: 0,
-  runOnlyOne: false,
+  runOnlyOnce: false,
   repeat: false,
   runOnWeekDays: ScheduleWeekDayName.NA,
   runOnMonths: ScheduleMonthName.NA,

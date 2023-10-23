@@ -153,6 +153,17 @@ public class ApiService : IApiService
         var url = this.Options.ApiUrl.Append($"kafka/producers/report");
         return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.ReportRequestModel>>(url, JsonContent.Create(request)));
     }
+
+    /// <summary>
+    /// Publish event schedule request to Kafka.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.EventScheduleRequestModel>?> SendMessageAsync(TNO.Kafka.Models.EventScheduleRequestModel request)
+    {
+        var url = this.Options.ApiUrl.Append($"kafka/producers/event");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.EventScheduleRequestModel>>(url, JsonContent.Create(request)));
+    }
     #endregion
 
     #region Lookup Methods
@@ -766,6 +777,17 @@ public class ApiService : IApiService
 
     #region Folders
     /// <summary>
+    /// Get the folder with the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.Folder.FolderModel?> GetFolderAsync(int id)
+    {
+        var url = this.Options.ApiUrl.Append($"services/folders/{id}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.Folder.FolderModel?>(url));
+    }
+
+    /// <summary>
     /// Removes the specified content from all folders.
     /// </summary>
     /// <param name="contentId"></param>
@@ -774,6 +796,17 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"services/folders/content/{contentId}");
         return await RetryRequestAsync(async () => await this.OpenClient.DeleteAsync(url));
+    }
+
+    /// <summary>
+    /// Removes the content from the folder based on the folder configuration settings.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<HttpResponseMessage> RemoveContentFromFolder(int id)
+    {
+        var url = this.Options.ApiUrl.Append($"services/folders/{id}/clean");
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync(url));
     }
 
     /// <summary>

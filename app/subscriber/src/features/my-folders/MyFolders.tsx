@@ -41,6 +41,7 @@ export const MyFolders = () => {
         id: 0,
         content: [],
         reports: [],
+        events: [],
       }).then((data) => {
         toast.success(`${data.name} created successfully`);
         setNewFolderName('');

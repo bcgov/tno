@@ -58,7 +58,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get/set - An array of event schedules to auto run this report.
     /// </summary>
-    public IEnumerable<ReportScheduleModel> Schedules { get; set; } = Array.Empty<ReportScheduleModel>();
+    public IEnumerable<ReportScheduleModel> Events { get; set; } = Array.Empty<ReportScheduleModel>();
     #endregion
 
     #region Constructors
@@ -83,7 +83,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
         this.Sections = entity.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s, options)).ToArray();
         this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!, s.IsSubscribed)).ToArray();
         this.Instances = entity.Instances.OrderByDescending(i => i.Id).Select(i => new ReportInstanceModel(i)).ToArray();
-        this.Schedules = entity.Schedules.Select(s => new ReportScheduleModel(s)).ToArray();
+        this.Events = entity.Events.Select(s => new ReportScheduleModel(s)).ToArray();
     }
     #endregion
 
@@ -196,7 +196,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
             IsSubscribed = us.IsSubscribed
         }));
 
-        entity.Schedules.AddRange(model.Schedules.Select(s =>
+        entity.Events.AddRange(model.Events.Select(s =>
         {
             return new Entities.EventSchedule(s.Name, Entities.EventScheduleType.Report, s.ScheduleId, s.Settings)
             {

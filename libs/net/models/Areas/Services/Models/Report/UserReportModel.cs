@@ -42,7 +42,7 @@ public class UserReportModel : AuditColumnsModel
     public UserReportModel(Entities.UserReport entity) : base(entity)
     {
         this.UserId = entity.UserId;
-        this.User = entity.User != null ? new UserModel(entity.User, entity.IsSubscribed) : null;
+        this.User = entity.User != null ? new UserModel(entity.User) : null;
         this.ReportId = entity.ReportId;
         this.IsSubscribed = entity.IsSubscribed;
     }

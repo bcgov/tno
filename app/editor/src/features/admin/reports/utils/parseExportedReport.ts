@@ -56,7 +56,7 @@ export const parseExportedReport = (
 
   /// zero these out as we aren't handling this yet...
   importedModel.subscribers = [];
-  importedModel.schedules = [];
+  importedModel.events = [];
   importedModel.instances = [];
 
   return importedModel;

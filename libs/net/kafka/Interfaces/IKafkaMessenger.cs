@@ -90,5 +90,13 @@ public interface IKafkaMessenger
     /// <param name="topic"></param>
     /// <param name="request"></param>
     /// <returns></returns>
+    public Task<DeliveryResult<string, EventScheduleRequestModel>?> SendMessageAsync(string topic, EventScheduleRequestModel request);
+
+    /// <summary>
+    /// Send a message to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
     public Task<DeliveryResult<string, FFmpegRequestModel>?> SendMessageAsync(string topic, FFmpegRequestModel request);
 }

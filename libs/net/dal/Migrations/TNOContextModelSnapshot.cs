@@ -1761,6 +1761,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("event_type");
 
+                    b.Property<int?>("FolderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("folder_id");
+
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
@@ -1818,6 +1822,8 @@ namespace TNO.DAL.Migrations
                         .HasDefaultValueSql("0");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FolderId");
 
                     b.HasIndex("NotificationId");
 
@@ -2048,10 +2054,6 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("owner_id");
 
-                    b.Property<int?>("ScheduleId")
-                        .HasColumnType("integer")
-                        .HasColumnName("schedule_id");
-
                     b.Property<JsonDocument>("Settings")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -2087,8 +2089,6 @@ namespace TNO.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("FilterId");
-
-                    b.HasIndex("ScheduleId");
 
                     b.HasIndex("OwnerId", "Name")
                         .IsUnique();
@@ -5408,13 +5408,18 @@ namespace TNO.DAL.Migrations
 
             modelBuilder.Entity("TNO.Entities.EventSchedule", b =>
                 {
+                    b.HasOne("TNO.Entities.Folder", "Folder")
+                        .WithMany("Events")
+                        .HasForeignKey("FolderId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("TNO.Entities.Notification", "Notification")
                         .WithMany("Schedules")
                         .HasForeignKey("NotificationId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TNO.Entities.Report", "Report")
-                        .WithMany("Schedules")
+                        .WithMany("Events")
                         .HasForeignKey("ReportId")
                         .OnDelete(DeleteBehavior.Cascade);
 
@@ -5423,6 +5428,8 @@ namespace TNO.DAL.Migrations
                         .HasForeignKey("ScheduleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Folder");
 
                     b.Navigation("Notification");
 
@@ -5464,16 +5471,9 @@ namespace TNO.DAL.Migrations
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("TNO.Entities.Schedule", "Schedule")
-                        .WithMany("Folders")
-                        .HasForeignKey("ScheduleId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.Navigation("Filter");
 
                     b.Navigation("Owner");
-
-                    b.Navigation("Schedule");
                 });
 
             modelBuilder.Entity("TNO.Entities.FolderContent", b =>
@@ -6064,6 +6064,8 @@ namespace TNO.DAL.Migrations
                 {
                     b.Navigation("ContentManyToMany");
 
+                    b.Navigation("Events");
+
                     b.Navigation("ReportSections");
                 });
 
@@ -6124,9 +6126,9 @@ namespace TNO.DAL.Migrations
 
             modelBuilder.Entity("TNO.Entities.Report", b =>
                 {
-                    b.Navigation("Instances");
+                    b.Navigation("Events");
 
-                    b.Navigation("Schedules");
+                    b.Navigation("Instances");
 
                     b.Navigation("Sections");
 
@@ -6153,8 +6155,6 @@ namespace TNO.DAL.Migrations
             modelBuilder.Entity("TNO.Entities.Schedule", b =>
                 {
                     b.Navigation("Events");
-
-                    b.Navigation("Folders");
 
                     b.Navigation("IngestsManyToMany");
                 });

@@ -10,9 +10,9 @@ export const ReportFormScheduler: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IReportModel>();
 
   React.useEffect(() => {
-    // Default to two schedules if they don't already exist.
-    if (values.schedules.length !== 2) {
-      setFieldValue('schedules', [
+    // Default to two events if they don't already exist.
+    if (values.events.length !== 2) {
+      setFieldValue('events', [
         defaultReportSchedule('Schedule 1', values),
         defaultReportSchedule('Schedule 2', values),
       ]);

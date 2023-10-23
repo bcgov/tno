@@ -6,8 +6,8 @@ import { IReportModel } from 'tno-core';
  * @returns The next send on date.
  */
 export const calcNextSend = (report: IReportModel) => {
-  const schedules = report.schedules.filter((s) => s.isEnabled && s.settings.autoSend);
-  if (!schedules.length) return 'NA';
+  const events = report.events.filter((s) => s.isEnabled && s.settings.autoSend);
+  if (!events.length) return 'NA';
 
   // const now = moment(Date.now());
   // const dayOfWeek = now.day;

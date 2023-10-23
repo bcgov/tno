@@ -531,3 +531,71 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+
+  scheduler:
+    image: tno:scheduler
+    profiles:
+      - all
+      - service
+    restart: "no"
+    container_name: tno-scheduler
+    build:
+      context: ./
+      dockerfile: services/net/scheduler/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
+    env_file:
+      - services/net/scheduler/.env
+    ports:
+      - ${SCHEDULER_PORT:-40035}:8081
+    depends_on:
+      - api
+      - broker
+    networks:
+      - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  event-handler:
+    image: tno:event-handler
+    profiles:
+      - all
+      - service
+    restart: "no"
+    container_name: tno-event-handler
+    build:
+      context: ./
+      dockerfile: services/net/event-handler/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
+    env_file:
+      - services/net/event-handler/.env
+    ports:
+      - ${EVENTHANDLER_PORT:-40036}:8081
+    depends_on:
+      - api
+      - broker
+    networks:
+      - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s

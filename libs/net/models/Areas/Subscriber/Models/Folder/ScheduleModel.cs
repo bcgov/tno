@@ -172,7 +172,7 @@ public class ScheduleModel : AuditColumnsModel
             Version = model.ScheduleVersion ?? 0
         };
 
-        return new Entities.EventSchedule(model.Name, EventScheduleType.Report, schedule, model.Settings)
+        return new Entities.EventSchedule(model.Name, EventScheduleType.CleanFolder, schedule, model.Settings)
         {
             Id = model.Id,
             Description = model.Description,

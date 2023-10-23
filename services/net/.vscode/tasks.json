@@ -612,6 +612,42 @@
         "${workspaceFolder}/ffmpeg/TNO.Services.FFmpeg.csproj"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-event-handler",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/event-handler/TNO.Services.EventHandler.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-event-handler",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/event-handler/TNO.Services.EventHandler.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-event-handler",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/event-handler/TNO.Services.EventHandler.csproj"
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

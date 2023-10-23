@@ -50,11 +50,6 @@ public class UserModel
     /// get/set - Whether the user email is verified.
     /// </summary>
     public bool EmailVerified { get; set; }
-
-    /// <summary>
-    /// get/set - Whether this user is subscribed to the report.
-    /// </summary>
-    public bool IsSubscribed { get; set; }
     #endregion
 
     #region Constructors
@@ -67,8 +62,7 @@ public class UserModel
     /// Creates a new instance of an UserModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    /// <param name="isSubscribed"></param>
-    public UserModel(Entities.User entity, bool isSubscribed)
+    public UserModel(Entities.User entity)
     {
         this.Id = entity.Id;
         this.Key = entity.Key;
@@ -79,7 +73,6 @@ public class UserModel
         this.LastName = entity.LastName;
         this.IsEnabled = entity.IsEnabled;
         this.EmailVerified = entity.EmailVerified;
-        this.EmailVerified = isSubscribed;
     }
     #endregion
 }

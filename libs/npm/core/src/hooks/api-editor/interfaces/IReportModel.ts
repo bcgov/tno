@@ -18,5 +18,5 @@ export interface IReportModel extends ISortableModel<number> {
   sections: IReportSectionModel[];
   subscribers: IUserModel[];
   instances: IReportInstanceModel[];
-  schedules: IReportScheduleModel[];
+  events: IReportScheduleModel[];
 }

@@ -91,6 +91,17 @@ public class EventSchedule : AuditColumns
     /// get/set - The notification this event is linked to.
     /// </summary>
     public Notification? Notification { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to the folder this event is linked to.
+    /// </summary>
+    [Column("folder_id")]
+    public int? FolderId { get; set; }
+
+    /// <summary>
+    /// get/set - The folder this event is linked to.
+    /// </summary>
+    public Folder? Folder { get; set; }
     #endregion
 
     #region Constructors

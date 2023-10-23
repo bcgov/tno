@@ -153,5 +153,6 @@ spec:
         build_service 'scheduler'
         build_service 'foldercollection'
         build_service 'ffmpeg'
+        build_service 'eventhandler'
 
         cat build.env

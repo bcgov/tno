@@ -48,7 +48,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get/set - An array of event schedules to auto run this report.
     /// </summary>
-    public IEnumerable<ReportScheduleModel> Schedules { get; set; } = Array.Empty<ReportScheduleModel>();
+    public IEnumerable<ReportScheduleModel> Events { get; set; } = Array.Empty<ReportScheduleModel>();
 
     /// <summary>
     /// get/set - An array of report instances.
@@ -76,7 +76,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
         this.Settings = new ReportSettingsModel(JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>(), options);
         this.Sections = entity.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s, options)).ToArray();
         this.Subscribers = entity.SubscribersManyToMany.Select(s => new UserReportModel(s)).ToArray();
-        this.Schedules = entity.Schedules.Select(s => new ReportScheduleModel(s)).ToArray();
+        this.Events = entity.Events.Select(s => new ReportScheduleModel(s)).ToArray();
         this.Instances = entity.Instances.OrderByDescending(i => i.Id).Select(s => new ReportInstanceModel(s)).ToArray();
     }
     #endregion
@@ -163,7 +163,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
             IsSubscribed = us.IsSubscribed
         }));
 
-        entity.Schedules.AddRange(model.Schedules.Select(s =>
+        entity.Events.AddRange(model.Events.Select(s =>
         {
             return new Entities.EventSchedule(s.Name, Entities.EventScheduleType.Report, s.ScheduleId, s.Settings)
             {

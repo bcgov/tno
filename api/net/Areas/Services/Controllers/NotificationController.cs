@@ -6,9 +6,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Notification;
 using TNO.API.Models;
-using TNO.Core.Exceptions;
 using TNO.DAL.Services;
-using TNO.Entities.Models;
 using TNO.Keycloak;
 
 namespace TNO.API.Areas.Services.Controllers;
@@ -48,12 +46,12 @@ public class NotificationController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Find a page of content for the specified query filter.
+    /// Return all notifications.
     /// </summary>
     /// <returns></returns>
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IPaged<NotificationModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<NotificationModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
     public IActionResult FindAll()
     {

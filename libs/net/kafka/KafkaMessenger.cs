@@ -176,6 +176,19 @@ public class KafkaMessenger : IKafkaMessenger
     /// <param name="topic"></param>
     /// <param name="request"></param>
     /// <returns></returns>
+    public async Task<DeliveryResult<string, EventScheduleRequestModel>?> SendMessageAsync(string topic, EventScheduleRequestModel request)
+    {
+        if (request == null) throw new ArgumentNullException(nameof(request));
+
+        return await SendMessageAsync(topic, $"event-{request.EventScheduleId}", request);
+    }
+
+    /// <summary>
+    /// Send a message to to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
     public async Task<DeliveryResult<string, FFmpegRequestModel>?> SendMessageAsync(string topic, FFmpegRequestModel request)
     {
         if (request == null) throw new ArgumentNullException(nameof(request));

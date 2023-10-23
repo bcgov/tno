@@ -11,4 +11,11 @@ public interface IFolderService : IBaseService<Folder, int>
     IEnumerable<Folder> GetFoldersWithFilters();
 
     void AddContentToFolder(long contentId, int folderId, bool toBottom = true);
+
+    /// <summary>
+    /// Clean content from the folder based on the folder's configuration settings.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <exception cref="NoContentException"></exception>
+    void CleanFolder(int id);
 }

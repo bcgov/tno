@@ -111,5 +111,20 @@ public class FolderController : ControllerBase
         _folderService.AddContentToFolder(contentId, folderId, bottom);
         return Ok();
     }
+
+    /// <summary>
+    /// Removes content from the folder based on the folder configuration settings.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpPut("{id}/clean")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Folder" })]
+    public IActionResult RemoveContentFromFolder(int id)
+    {
+        _folderService.CleanFolder(id);
+        return Ok();
+    }
     #endregion
 }

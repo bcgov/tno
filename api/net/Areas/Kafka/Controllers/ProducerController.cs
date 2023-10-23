@@ -60,7 +60,10 @@ public class ProducerController : ControllerBase
     public async Task<IActionResult> SendContentAsync(string topic, SourceContent model)
     {
         var result = (await _producer.SendMessageAsync(topic, model)) ?? throw new InvalidOperationException("An unknown error occurred when publishing message to Kafka");
-        return new JsonResult(new DeliveryResultModel<SourceContent>(result));
+        return new JsonResult(new DeliveryResultModel<SourceContent>(result))
+        {
+            StatusCode = 201
+        };
     }
 
     /// <summary>
@@ -76,7 +79,10 @@ public class ProducerController : ControllerBase
     public async Task<IActionResult> SendNotificationAsync(NotificationRequestModel model)
     {
         var result = (await _producer.SendMessageAsync(_kafkaOptions.NotificationTopic, model)) ?? throw new InvalidOperationException("An unknown error occurred when publishing message to Kafka");
-        return new JsonResult(new DeliveryResultModel<NotificationRequestModel>(result));
+        return new JsonResult(new DeliveryResultModel<NotificationRequestModel>(result))
+        {
+            StatusCode = 201
+        };
     }
 
     /// <summary>
@@ -92,7 +98,29 @@ public class ProducerController : ControllerBase
     public async Task<IActionResult> SendReportAsync(ReportRequestModel model)
     {
         var result = (await _producer.SendMessageAsync(_kafkaOptions.ReportingTopic, model)) ?? throw new InvalidOperationException("An unknown error occurred when publishing message to Kafka");
-        return new JsonResult(new DeliveryResultModel<ReportRequestModel>(result));
+        return new JsonResult(new DeliveryResultModel<ReportRequestModel>(result))
+        {
+            StatusCode = 201
+        };
+    }
+
+    /// <summary>
+    /// Publish a scheduled event request message to Kafka.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost("event")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(DeliveryResultModel<EventScheduleRequestModel>), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Kafka" })]
+    public async Task<IActionResult> SendEventAsync(EventScheduleRequestModel model)
+    {
+        var result = (await _producer.SendMessageAsync(_kafkaOptions.EventTopic, model)) ?? throw new InvalidOperationException("An unknown error occurred when publishing message to Kafka");
+        return new JsonResult(new DeliveryResultModel<EventScheduleRequestModel>(result))
+        {
+            StatusCode = 201
+        };
     }
     #endregion
 }

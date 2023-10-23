@@ -213,9 +213,19 @@ spec:
           [env]="dev test prod"
         )
 
+        declare -A COMPONENT15=(
+          [id]="eventhandler"
+          [name]="event-handler-service"
+          [type]="dc"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
         # Ingest Services
 
-        declare -A COMPONENT15=(
+        declare -A COMPONENT16=(
           [id]="syndication"
           [name]="syndication-service"
           [type]="dc"
@@ -225,7 +235,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT16=(
+        declare -A COMPONENT17=(
           [id]="filemonitor"
           [name]="filemonitor-service"
           [type]="dc"
@@ -235,7 +245,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT17=(
+        declare -A COMPONENT18=(
           [id]="image"
           [name]="image-service"
           [type]="dc"
@@ -245,7 +255,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT18=(
+        declare -A COMPONENT19=(
           [id]="capture"
           [name]="capture-service"
           [type]="dc"
@@ -255,7 +265,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT19=(
+        declare -A COMPONENT20=(
           [id]="clip"
           [name]="clip-service"
           [type]="dc"
@@ -265,7 +275,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT20=(
+        declare -A COMPONENT21=(
           [id]="contentmigration"
           [name]="contentmigration-service"
           [type]="dc"
@@ -275,7 +285,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT21=(
+        declare -A COMPONENT22=(
           [id]="contentmigration"
           [name]="contentmigration-service-historic"
           [type]="dc"

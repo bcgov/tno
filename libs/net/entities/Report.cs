@@ -71,7 +71,7 @@ public class Report : BaseType<int>
     /// <summary>
     /// get - Collection of event schedules for this report.
     /// </summary>
-    public virtual List<EventSchedule> Schedules { get; } = new List<EventSchedule>();
+    public virtual List<EventSchedule> Events { get; } = new List<EventSchedule>();
     #endregion
 
     #region Constructors
