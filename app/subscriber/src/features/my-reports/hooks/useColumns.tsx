@@ -1,8 +1,16 @@
-import { FaEdit, FaFileAlt, FaRegListAlt, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaEye, FaFileAlt, FaRegListAlt, FaTrash } from 'react-icons/fa';
 import { FaChartPie, FaGear } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { CellEllipsis, Checkbox, IReportModel, ITableHookColumn, Row, Show } from 'tno-core';
+import {
+  CellEllipsis,
+  Checkbox,
+  IReportInstanceModel,
+  IReportModel,
+  ITableHookColumn,
+  Row,
+  Show,
+} from 'tno-core';
 
 import { isAutoSend, isAutoSendDisabled, setAutoSend } from '../utils';
 
@@ -51,9 +59,9 @@ export const useColumns = (
       width: '100px',
       cell: (cell) => (
         <Row gap="0.5rem">
-          <FaRegListAlt
+          <FaEye
             className="btn-link"
-            onClick={() => navigate(`/reports/instances/${cell.original.id}`)}
+            onClick={() => navigate(`/report/instances/${cell.original.id}/view`)}
             title="Instances"
           />
           <FaGear

@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 export const ReportSnapshot = styled.div`
   height: calc(100% + 32px - 1rem);
-  /* padding: 0.25rem; */
 
   h2 {
     margin: 0;

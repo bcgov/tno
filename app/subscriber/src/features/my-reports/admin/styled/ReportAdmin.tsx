@@ -3,7 +3,6 @@ import styled from 'styled-components';
 export const ReportAdmin = styled.div`
   display: flex;
   flex-direction: column;
-  /* height: calc(100% + 50px); */
 
   > div {
     height: 100%;
@@ -41,15 +40,12 @@ export const ReportAdmin = styled.div`
   }
 
   .report-sections {
-    /* overflow-y: scroll; */
     margin-top: 1rem;
 
     > div {
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
-      /* height: calc(100vh - 450px); */
-      /* max-height: 100%; */
       break-before: column;
     }
   }
