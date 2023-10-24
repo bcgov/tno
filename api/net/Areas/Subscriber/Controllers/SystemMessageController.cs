@@ -47,6 +47,7 @@ public class SystemMessageController : ControllerBase
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<SystemMessageModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "System Message" })]
     public IActionResult FindSystemMessage()
     {

@@ -64,6 +64,7 @@ export const ToningGroup: React.FC<IToningGroupProps> = ({ fieldName }) => {
                 setFieldValue(
                   fieldName,
                   !!defaultTonePool ? [{ ...defaultTonePool, value: option }] : [],
+                  true,
                 );
               }}
             >

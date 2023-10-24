@@ -178,6 +178,8 @@ public class ContentController : ControllerBase
 
         var content = _contentService.AddAndSave((Content)model);
 
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentAdded, new[] { new ContentMessageModel(content) })));
+
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
             Entities.User? user = null;

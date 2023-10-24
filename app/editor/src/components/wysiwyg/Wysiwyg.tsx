@@ -12,11 +12,27 @@ import { Error } from 'tno-core';
 import { CustomToolbar } from './CustomToolbar';
 import * as styled from './styled';
 
+const FORMATS = [
+  'header',
+  'font',
+  'size',
+  'bold',
+  'italic',
+  'underline',
+  'strike',
+  'blockquote',
+  'list',
+  'bullet',
+  'indent',
+  'link',
+  'image',
+  'color',
+];
 export interface IWysiwygProps<T extends object> {
   /** The element class name */
   className?: string;
   /** the formik field that is being used within the WYSIWYG */
-  fieldName?: keyof T;
+  fieldName: keyof T;
   /** optional label to appear above the WYSIWYG */
   label?: string;
   /** whether or not it is a required field */
@@ -34,6 +50,7 @@ export interface IWysiwygProps<T extends object> {
     editor: ReactQuill.UnprivilegedEditor,
   ) => void;
 }
+
 /**
  * A WYSIWYG editor for the content summary form
  * @param fieldName The name of the field to edit, MUST BE of type string.
@@ -63,15 +80,13 @@ export const Wysiwyg = <T extends object>({
   const [showRaw, setShowRaw] = React.useState(false);
 
   React.useEffect(() => {
-    if (!!fieldName) {
-      const html = (values[fieldName] as string)?.replace(/\n+/g, '<br>') ?? '';
-      if (html !== state.html && (!height || !state.html)) {
-        setState({
-          ...state,
-          html: html,
-        });
-        updateTags(html);
-      }
+    const html = (values[fieldName] as string)?.replace(/\n+/g, '<br>') ?? '';
+    if (html !== state.html && (!height || !state.html)) {
+      setState({
+        ...state,
+        html: html,
+      });
+      updateTags(html);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, values, fieldName]);
@@ -95,23 +110,21 @@ export const Wysiwyg = <T extends object>({
 
   const stripHtml = () => {
     // strip html from string
-    if (!!fieldName) {
-      const doc = new DOMParser().parseFromString(
-        (values[fieldName] as string)
-          .replace(/<p\s*[^>]*>/g, '[p]')
-          .replaceAll('</p>', '[/p]')
-          .replace(/<br\s*\/?>/g, '[br]'),
-        'text/html',
-      );
-      const html =
-        doc.body.textContent
-          ?.replaceAll('[p]', '<p>')
-          .replaceAll('[/p]', '</p>')
-          .replaceAll('[br]', '<br>') || '';
-      if (html !== state.html) {
-        setState({ ...state, html: html });
-        setFieldValue(fieldName as string, html);
-      }
+    const doc = new DOMParser().parseFromString(
+      (values[fieldName] as string)
+        .replace(/<p\s*[^>]*>/g, '[p]')
+        .replaceAll('</p>', '[/p]')
+        .replace(/<br\s*\/?>/g, '[br]'),
+      'text/html',
+    );
+    const html =
+      doc.body.textContent
+        ?.replaceAll('[p]', '<p>')
+        .replaceAll('[/p]', '</p>')
+        .replaceAll('[br]', '<br>') || '';
+    if (html !== state.html) {
+      setState({ ...state, html: html });
+      setFieldValue(fieldName as string, html, true);
     }
   };
 
@@ -128,13 +141,14 @@ export const Wysiwyg = <T extends object>({
       : stringValue?.split(' ') ?? [];
     const currentTags = (values as any)?.tags;
     const newTags = extractTags(tagValues).filter((item) => !currentTags.includes(item));
-    if (newTags.length > 0) setFieldValue('tags', [...currentTags, ...newTags]);
+    if (newTags.length > 0) setFieldValue('tags', [...currentTags, ...newTags], true);
   };
 
   const handleChange = (html: string) => {
     if (html !== state.html) {
       setState({ ...state, html: html });
-      if (!!fieldName) setFieldValue(fieldName as string, html);
+      const value = html === '<p><br></p>' ? '' : html;
+      setFieldValue(fieldName as string, value, true);
       updateTags(html);
     }
   };
@@ -149,25 +163,8 @@ export const Wysiwyg = <T extends object>({
     return config;
   }, [toolBarNode]);
 
-  const formats = [
-    'header',
-    'font',
-    'size',
-    'bold',
-    'italic',
-    'underline',
-    'strike',
-    'blockquote',
-    'list',
-    'bullet',
-    'indent',
-    'link',
-    'image',
-    'color',
-  ];
-
   return (
-    <styled.Wysiwyg viewRaw={showRaw} height={height} className={className}>
+    <styled.Wysiwyg viewRaw={showRaw} height={height} className={className} fieldName={fieldName}>
       {label && <label className={required ? 'required' : ''}>{label}</label>}
       <CustomToolbar
         onClickRaw={onClickRaw}
@@ -187,7 +184,7 @@ export const Wysiwyg = <T extends object>({
             onChange={handleChange}
             theme="snow"
             modules={modules}
-            formats={formats}
+            formats={FORMATS}
             onBlur={onBlur}
           />
           <textarea
@@ -197,7 +194,7 @@ export const Wysiwyg = <T extends object>({
           />
         </>
       )}
-      <Error error={!!fieldName && touched[fieldName] ? (errors[fieldName] as string) : ''} />
+      <Error error={touched[fieldName] ? (errors[fieldName] as string) : ''} />
     </styled.Wysiwyg>
   );
 };

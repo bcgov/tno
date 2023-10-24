@@ -14,6 +14,7 @@ export interface IContentSearchResult {
   otherSource: string;
   product?: string;
   series?: string;
+  ownerId?: number;
   owner?: string;
   isHidden: boolean;
   isApproved: boolean;

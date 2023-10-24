@@ -48,11 +48,12 @@ public class SystemMessageController : ControllerBase
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<SystemMessageModel>), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "System Message" })]
     public IActionResult FindSystemMessage()
     {
-        var result = _service.FindSystemMessage() ?? throw new NoContentException();
+        var result = _service.FindSystemMessage();
+        if (result == null) return new NoContentResult();
         return new JsonResult(new SystemMessageModel(result));
     }
     #endregion

@@ -12,5 +12,5 @@ export interface IContentState {
   filterAdvanced: IContentListAdvancedFilter;
   filterPaper: IPaperFilter;
   filterPaperAdvanced: IContentListAdvancedFilter;
-  content?: IPaged<IContentSearchResult>;
+  searchResults?: IPaged<IContentSearchResult>;
 }

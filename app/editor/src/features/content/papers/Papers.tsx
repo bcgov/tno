@@ -2,7 +2,7 @@ import { NavigateOptions, useTab } from 'components/tab-control';
 import React, { lazy } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApiHub, useContent } from 'store/hooks';
+import { useApiHub, useApp, useContent } from 'store/hooks';
 import { IContentSearchResult, useContentStore } from 'store/slices';
 import {
   Col,
@@ -39,13 +39,14 @@ export interface IPapersProps extends React.HTMLAttributes<HTMLDivElement> {}
  * @returns Component.
  */
 const Papers: React.FC<IPapersProps> = (props) => {
+  const [{ userInfo }] = useApp();
   const { id } = useParams();
   const { combined, formType } = useCombinedView();
   const [
-    { filterPaper: filter, filterPaperAdvanced: filterAdvanced, content },
+    { filterPaper: filter, filterPaperAdvanced: filterAdvanced, searchResults },
     { findContent, storeFilterPaper, updateContent: updateStatus, getContent },
   ] = useContent();
-  const [, { updateContent }] = useContentStore();
+  const [, { addContent, updateContent }] = useContentStore();
   const { navigate } = useTab();
   var hub = useApiHub();
 
@@ -55,16 +56,32 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
 
+  const userId = userInfo?.id ?? '';
+
+  const onContentAdded = React.useCallback(
+    async (message: IContentMessageModel) => {
+      if (message.ownerId === userId) {
+        try {
+          const result = await getContent(message.id);
+          if (!!result) addContent([result]);
+        } catch {}
+      }
+    },
+    [userId, getContent, addContent],
+  );
+
+  hub.useHubEffect(MessageTargetName.ContentAdded, onContentAdded);
+
   const onContentUpdated = React.useCallback(
     async (message: IContentMessageModel) => {
-      if (content?.items.some((c) => c.id === message.id)) {
+      if (searchResults?.items.some((c) => c.id === message.id)) {
         try {
           const item = await getContent(message.id);
           if (!!item) updateContent([item]);
         } catch {}
       }
     },
-    [content?.items, getContent, updateContent],
+    [searchResults?.items, getContent, updateContent],
   );
 
   hub.useHubEffect(MessageTargetName.ContentUpdated, onContentUpdated);
@@ -89,10 +106,15 @@ const Papers: React.FC<IPapersProps> = (props) => {
 
   const page = React.useMemo(
     () =>
-      !!content
-        ? new Page(content.page - 1, content.quantity, content?.items, content.total)
+      !!searchResults
+        ? new Page(
+            searchResults.page - 1,
+            searchResults.quantity,
+            searchResults?.items,
+            searchResults.total,
+          )
         : defaultPage,
-    [content],
+    [searchResults],
   );
 
   const fetch = React.useCallback(
