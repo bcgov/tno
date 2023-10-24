@@ -27,8 +27,8 @@ public enum ScheduleWeekDay
     /// </summary>
     Wednesday = 8,
     /// <summary>
-    /// May
-    /// Thursdaysummary>
+    /// Thursday
+    /// </summary>
     Thursday = 16,
     /// <summary>
     /// Friday
