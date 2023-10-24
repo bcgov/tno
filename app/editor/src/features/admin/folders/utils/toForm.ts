@@ -5,17 +5,11 @@ import { IFolderForm } from '../interfaces';
 export const toForm = (model: IFolderModel): IFolderForm => {
   return {
     ...model,
-    schedule: model.schedule
-      ? {
-          ...model.schedule,
-          runOnWeekDays:
-            model.schedule.runOnWeekDays === ''
-              ? ScheduleWeekDayName.NA
-              : model.schedule.runOnWeekDays,
-          runOnMonths:
-            model.schedule.runOnMonths === '' ? ScheduleMonthName.NA : model.schedule.runOnMonths,
-        }
-      : undefined,
+    events: model.events.map((e) => ({
+      ...e,
+      runOnWeekDays: e.runOnWeekDays === '' ? ScheduleWeekDayName.NA : e.runOnWeekDays,
+      runOnMonths: e.runOnMonths === '' ? ScheduleMonthName.NA : e.runOnMonths,
+    })),
     content: model.content.map((item) => ({ ...item, content: item.content!, selected: false })),
   };
 };

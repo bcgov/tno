@@ -74,8 +74,8 @@ const ReportForm: React.FC = () => {
       // Update event schedule information because names must be unique.
       const report = {
         ...values,
-        schedules: [
-          ...values.schedules.map((s, i) => ({
+        events: [
+          ...values.events.map((s, i) => ({
             ...s,
             name: generateScheduleName(`Schedule ${i + 1}`, values),
             description: values.description,

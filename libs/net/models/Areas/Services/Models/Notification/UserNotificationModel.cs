@@ -29,6 +29,11 @@ public class UserNotificationModel : AuditColumnsModel
     /// This overrides the notification Resend rule.
     /// </summary>
     public ResendOption? Resend { get; set; }
+
+    /// <summary>
+    /// get/set - Whether the user is subscribed to this notification.
+    /// </summary>
+    public bool IsSubscribed { get; set; }
     #endregion
 
     #region Constructors
@@ -44,9 +49,10 @@ public class UserNotificationModel : AuditColumnsModel
     public UserNotificationModel(Entities.UserNotification entity) : base(entity)
     {
         this.UserId = entity.UserId;
-        this.User = entity.User != null ? new UserModel(entity.User, entity.IsSubscribed) : null;
+        this.User = entity.User != null ? new UserModel(entity.User) : null;
         this.NotificationId = entity.NotificationId;
         this.Resend = entity.Resend;
+        this.IsSubscribed = entity.IsSubscribed;
     }
     #endregion
 
@@ -57,7 +63,7 @@ public class UserNotificationModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.UserNotification(UserNotificationModel model)
     {
-        return new Entities.UserNotification(model.UserId, model.NotificationId)
+        return new Entities.UserNotification(model.UserId, model.NotificationId, model.IsSubscribed)
         {
             Resend = model.Resend,
             Version = model.Version ?? 0

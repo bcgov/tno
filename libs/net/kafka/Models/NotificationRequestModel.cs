@@ -2,7 +2,6 @@ namespace TNO.Kafka.Models;
 
 /// <summary>
 /// NotificationRequestModel class, provides a model for requesting a notification be sent.
-/// This is a generic model that can be used for sending different types of notifications within the solution.
 /// </summary>
 public class NotificationRequestModel
 {

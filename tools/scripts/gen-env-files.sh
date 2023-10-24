@@ -81,6 +81,9 @@ FILECOPY_PORT=$portFileCopy
 NOTIFICATION_PORT=$portNotification
 REPORTING_PORT=$portReporting
 FOLDER_COLLECTION_PORT=$portFolderCollection
+FFMPEG_PORT=$portFFmpeg
+SCHEDULER_PORT=$portScheduler
+EVENTHANDER_PORT=$portEventHandler
 
 #############################
 # Kafka Configuration
@@ -894,6 +897,31 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data" >> ./services/net/ffmpeg/.env
     echo "./services/net/ffmpeg/.env created"
+fi
+
+## Event Handler Service
+if test -f "./services/net/event-handler/.env"; then
+    echo "./services/net/event-handler/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
+
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}" >> ./services/net/event-handler/.env
+    echo "./services/net/event-handler/.env created"
 fi
 
 

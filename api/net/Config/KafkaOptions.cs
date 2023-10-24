@@ -37,6 +37,11 @@ public class KafkaOptions
     public string ReportingTopic { get; set; } = "";
 
     /// <summary>
+    /// get/set - The Kafka topic name to request a scheduled event to be executed.
+    /// </summary>
+    public string EventTopic { get; set; } = "";
+
+    /// <summary>
     /// get/set - The Kafka topic name to request FFmpeg processes.
     /// </summary>
     public string FFmpegTopic { get; set; } = "";

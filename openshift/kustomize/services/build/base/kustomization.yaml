@@ -15,3 +15,4 @@ resources:
   - transcription.yaml
   - folder-collection.yaml
   - scheduler.yaml
+  - event-handler.yaml

@@ -39,6 +39,7 @@ export * from './IFilterModel';
 export * from './IFilterSettingsModel';
 export * from './IFolderContentModel';
 export * from './IFolderModel';
+export * from './IFolderScheduleModel';
 export * from './IFolderSettingsModel';
 export * from './IHolidayModel';
 export * from './IIngestFilter';

@@ -183,7 +183,9 @@ export portNotification=40030
 export portReporting=40031
 export portContentMigration=40032
 export portFolderCollection=40033
-export portFFmpeg=40043
+export portFFmpeg=40034
+export portScheduler=40035
+export portEventHandler=40036
 
 export portKafkaZookeeper=40100
 export portKafkaBrokerAdvertisedHost=40101

@@ -30,7 +30,7 @@ public class FolderService : BaseService<Folder, int>, IFolderService
         return this.Context.Folders
             .Include(f => f.Owner)
             .Include(f => f.Filter)
-            .Include(f => f.Schedule)
+            .Include(f => f.Events).ThenInclude(f => f.Schedule)
             .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content)
             .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content).ThenInclude(c => c!.Source)
             .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content).ThenInclude(c => c!.Product)
@@ -65,8 +65,18 @@ public class FolderService : BaseService<Folder, int>, IFolderService
 
     public override Folder Add(Folder entity)
     {
-        if (entity.Schedule != null)
-            this.Context.Add(entity.Schedule);
+        if (entity.Events != null)
+        {
+            foreach (var folderEvent in entity.Events)
+            {
+                if (folderEvent.Schedule != null)
+                {
+                    folderEvent.Folder = entity;
+                    this.Context.Add(folderEvent.Schedule);
+                    this.Context.Add(folderEvent);
+                }
+            }
+        }
 
         return base.Add(entity);
     }
@@ -80,8 +90,6 @@ public class FolderService : BaseService<Folder, int>, IFolderService
         original.SortOrder = entity.SortOrder;
         original.IsEnabled = entity.IsEnabled;
         original.FilterId = entity.FilterId;
-        original.ScheduleId = entity.ScheduleId;
-        original.Schedule = entity.Schedule;
         original.OwnerId = entity.OwnerId;
         original.Settings = entity.Settings;
         original.UpdatedBy = entity.UpdatedBy;
@@ -109,15 +117,27 @@ public class FolderService : BaseService<Folder, int>, IFolderService
             }
         });
 
-        if (entity.Schedule != null)
+        if (entity.Events.Any())
         {
-            if (entity.Schedule.Id == 0)
+            foreach (var folderEvent in entity.Events)
             {
-                this.Context.Add(entity.Schedule);
-            }
-            else
-            {
-                this.Context.Update(entity.Schedule);
+                folderEvent.FolderId = entity.Id;
+                if (folderEvent.Id == 0)
+                {
+                    if (folderEvent.ScheduleId == 0 && folderEvent.Schedule != null)
+                    {
+                        this.Context.Add(folderEvent.Schedule);
+                    }
+                    this.Context.Add(folderEvent);
+                }
+                else
+                {
+                    if (folderEvent.Schedule != null)
+                    {
+                        this.Context.Update(folderEvent.Schedule);
+                    }
+                    this.Context.Update(folderEvent);
+                }
             }
         }
 
@@ -173,7 +193,7 @@ public class FolderService : BaseService<Folder, int>, IFolderService
     {
         return this.Context.Folders
             .Include(f => f.Filter)
-            .Include(f => f.Schedule)
+            .Include(f => f.Events).ThenInclude(f => f.Schedule)
             .Where(f => f.FilterId != null && f.IsEnabled && f.Filter!.IsEnabled)
             .ToArray();
     }
@@ -203,6 +223,29 @@ public class FolderService : BaseService<Folder, int>, IFolderService
                 this.Context.UpdateRange(folderContent);
             }
             this.CommitTransaction();
+        }
+    }
+
+    /// <summary>
+    /// Clean content from the folder based on the folder's configuration settings.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <exception cref="NoContentException"></exception>
+    public void CleanFolder(int id)
+    {
+        var folder = this.Context.Folders.Find(id) ?? throw new NoContentException();
+        var keepAgeLimit = folder.Settings.GetElementValue<int>(".keepAgeLimit", 0);
+        var now = DateTime.UtcNow.AddDays(keepAgeLimit * -1);
+
+        if (keepAgeLimit == 0)
+            this.Context.Database.ExecuteSql($"DELETE FROM public.folder_content WHERE \"folder_id\"={id};");
+        else
+        {
+            var sqlParams = new object[] {
+                new Npgsql.NpgsqlParameter("folderId", id),
+                new Npgsql.NpgsqlParameter("publishedOn", now),
+            };
+            this.Context.Database.ExecuteSqlRaw("DELETE FROM public.folder_content WHERE \"content_id\" IN (SELECT c.\"id\" FROM public.content c JOIN public.folder_content fc ON fc.\"folder_id\" = @folderId AND c.\"published_on\" < @publishedOn);", sqlParams);
         }
     }
     #endregion

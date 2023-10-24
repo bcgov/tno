@@ -205,44 +205,51 @@ spec:
           [dockerfile]="/services/net/ffmpeg/Dockerfile"
         )
 
+        declare -A COMPONENT16=(
+          [id]="eventhandler"
+          [image]="event-handler-service"
+          [context]=""
+          [dockerfile]="/services/net/event-handler/Dockerfile"
+        )
+
         # Applications
 
-        declare -A COMPONENT16=(
+        declare -A COMPONENT17=(
           [id]="api"
           [image]="api"
           [context]=""
           [dockerfile]="/api/net/Dockerfile.openshift"
         )
 
-        declare -A COMPONENT17=(
+        declare -A COMPONENT18=(
           [id]="charts-api"
           [image]="charts-api"
           [context]="/api/node"
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT18=(
+        declare -A COMPONENT19=(
           [id]="editor"
           [image]="editor"
           [context]="/app/editor"
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT19=(
+        declare -A COMPONENT20=(
           [id]="subscriber"
           [image]="subscriber"
           [context]="/app/subscriber"
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT20=(
+        declare -A COMPONENT21=(
           [id]="db"
           [image]="db-migration"
           [context]="/libs/net"
           [dockerfile]="/Dockerfile"
         )
 
-        declare -A COMPONENT21=(
+        declare -A COMPONENT22=(
           [id]="elastic"
           [image]="elastic-migration"
           [context]=""

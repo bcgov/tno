@@ -13,4 +13,8 @@ public enum EventScheduleType
     /// This event creates a notification.
     /// </summary>
     Notification = 1,
+    /// <summary>
+    /// This event cleans content from a folder.
+    /// </summary>
+    CleanFolder = 2,
 }

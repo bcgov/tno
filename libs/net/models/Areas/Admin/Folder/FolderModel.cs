@@ -32,16 +32,6 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
     public FilterModel? Filter { get; set; }
 
     /// <summary>
-    /// get/set - Foreign key to a schedule to clean this folder.
-    /// </summary>
-    public int? ScheduleId { get; set; }
-
-    /// <summary>
-    /// get/set - A schedule to clean this folder.
-    /// </summary>
-    public ScheduleModel? Schedule { get; set; }
-
-    /// <summary>
     /// get/set - The folder settings.
     /// </summary>
     public FolderSettingsModel Settings { get; set; } = new();
@@ -50,6 +40,11 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
     /// get/set - An array of content in this folder.
     /// </summary>
     public IEnumerable<FolderContentModel> Content { get; set; } = Array.Empty<FolderContentModel>();
+
+    /// <summary>
+    /// get/set - An array of event schedules.
+    /// </summary>
+    public IEnumerable<FolderScheduleModel> Events { get; set; } = Array.Empty<FolderScheduleModel>();
     #endregion
 
     #region Constructors
@@ -67,12 +62,11 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
     {
         this.OwnerId = entity.OwnerId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
-        this.ScheduleId = entity.ScheduleId;
-        this.Schedule = entity.Schedule != null ? new ScheduleModel(entity.Schedule) : null;
         this.FilterId = entity.FilterId;
         this.Filter = entity.Filter != null ? new FilterModel(entity.Filter, options) : null;
         this.Settings = JsonSerializer.Deserialize<FolderSettingsModel>(entity.Settings, options) ?? new();
         this.Content = entity.ContentManyToMany.Select(c => new FolderContentModel(c));
+        this.Events = entity.Events.Select(e => new FolderScheduleModel(e));
     }
     #endregion
 
@@ -103,13 +97,12 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
             OwnerId = model.OwnerId,
             FilterId = model.FilterId,
             Filter = model.Filter != null ? (Entities.Filter)model.Filter : null,
-            ScheduleId = model.ScheduleId,
-            Schedule = model.Schedule != null ? (Entities.Schedule)model.Schedule : null,
             SortOrder = model.SortOrder,
             Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
             Version = model.Version ?? 0
         };
 
+        entity.Events.AddRange(model.Events.Select(e => (Entities.EventSchedule)e));
         entity.ContentManyToMany.AddRange(model.Content.Select(c => new Entities.FolderContent(model.Id, c.ContentId, c.SortOrder)));
 
         return entity;

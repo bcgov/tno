@@ -16,9 +16,9 @@ export const toForm = (
       expand: form.sections.length > index ? form.sections[index].expand : expand,
     })),
     hideEmptySections: getHideEmpty(report.sections),
-    schedules:
-      report.schedules.length === 2
-        ? report.schedules
+    events:
+      report.events.length === 2
+        ? report.events
         : [
             defaultReportSchedule('Schedule 1', report),
             defaultReportSchedule('Schedule 2', report),

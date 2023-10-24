@@ -39,7 +39,7 @@ patches:
         value: 250Mi
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
-        value: notification-service:prod
+        value: reporting-service:prod
   - target:
       kind: ConfigMap
       name: reporting-service

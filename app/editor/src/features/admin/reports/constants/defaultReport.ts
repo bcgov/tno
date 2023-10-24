@@ -40,5 +40,5 @@ export const defaultReport: IReportModel = {
   sections: [],
   subscribers: [],
   instances: [],
-  schedules: [defaultReportSchedule('Schedule 1'), defaultReportSchedule('Schedule 2')],
+  events: [defaultReportSchedule('Schedule 1'), defaultReportSchedule('Schedule 2')],
 };

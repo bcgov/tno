@@ -341,7 +341,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     {
         await HandleChesEmailOverrideAsync(request);
 
-        var to = notification.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email)).Select(s => s.User!.Email).ToArray();
+        var to = notification.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email) && s.IsSubscribed).Select(s => s.User!.Email).ToArray();
         var contexts = new List<EmailContextModel>();
         if (!String.IsNullOrWhiteSpace(request.To))
         {

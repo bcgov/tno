@@ -33,17 +33,6 @@ public class Folder : BaseType<int>
     public Filter? Filter { get; set; }
 
     /// <summary>
-    /// get/set - Foreign key to a schedule to clean this folder.
-    /// </summary>
-    [Column("schedule_id")]
-    public int? ScheduleId { get; set; }
-
-    /// <summary>
-    /// get/set - A schedule to clean this folder.
-    /// </summary>
-    public Schedule? Schedule { get; set; }
-
-    /// <summary>
     /// get/set - The settings for this folder.
     /// </summary>
     [Column("settings")]
@@ -63,6 +52,11 @@ public class Folder : BaseType<int>
     /// get - List of report sections that use this folder.
     /// </summary>
     public virtual List<ReportSection> ReportSections { get; } = new List<ReportSection>();
+
+    /// <summary>
+    /// get - Collection of event schedules for this folder.
+    /// </summary>
+    public virtual List<EventSchedule> Events { get; } = new List<EventSchedule>();
     #endregion
 
     #region Constructors

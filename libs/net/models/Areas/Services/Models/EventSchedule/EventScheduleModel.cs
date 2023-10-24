@@ -56,6 +56,11 @@ public class EventScheduleModel : AuditColumnsModel
     public int? ReportId { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to the folder.
+    /// </summary>
+    public int? FolderId { get; set; }
+
+    /// <summary>
     /// get/set -
     /// </summary>
     public Dictionary<string, object> Settings { get; set; } = new Dictionary<string, object>();
@@ -93,6 +98,7 @@ public class EventScheduleModel : AuditColumnsModel
         this.Schedule = entity.Schedule != null ? new ScheduleModel(entity.Schedule) : null;
         this.NotificationId = entity.NotificationId;
         this.ReportId = entity.ReportId;
+        this.FolderId = entity.FolderId;
         this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
         this.RequestSentOn = entity.RequestSentOn;
         this.LastRanOn = entity.LastRanOn;
@@ -125,6 +131,7 @@ public class EventScheduleModel : AuditColumnsModel
             IsEnabled = model.IsEnabled,
             NotificationId = model.NotificationId,
             ReportId = model.ReportId,
+            FolderId = model.FolderId,
             Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
             LastRanOn = model.LastRanOn,
             RequestSentOn = model.RequestSentOn,

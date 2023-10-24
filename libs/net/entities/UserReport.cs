@@ -44,13 +44,14 @@ public class UserReport : AuditColumns
     /// </summary>
     /// <param name="user"></param>
     /// <param name="report"></param>
-    public UserReport(User user, Report report)
+    /// <param name="isSubscribed"></param>
+    public UserReport(User user, Report report, bool isSubscribed = true)
     {
         this.User = user ?? throw new ArgumentNullException(nameof(user));
         this.UserId = user.Id;
         this.Report = report ?? throw new ArgumentNullException(nameof(report));
         this.ReportId = report.Id;
-        this.IsSubscribed = true;
+        this.IsSubscribed = isSubscribed;
     }
 
     /// <summary>
@@ -58,11 +59,12 @@ public class UserReport : AuditColumns
     /// </summary>
     /// <param name="userId"></param>
     /// <param name="reportId"></param>
-    public UserReport(int userId, int reportId)
+    /// <param name="isSubscribed"></param>
+    public UserReport(int userId, int reportId, bool isSubscribed = true)
     {
         this.UserId = userId;
         this.ReportId = reportId;
-        this.IsSubscribed = true;
+        this.IsSubscribed = isSubscribed;
     }
     #endregion
 

@@ -107,7 +107,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             .Include(r => r.Sections).ThenInclude(s => s.Folder)
             .Include(r => r.Sections).ThenInclude(s => s.ChartTemplatesManyToMany).ThenInclude(c => c.ChartTemplate)
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
-            .Include(r => r.Schedules).ThenInclude(s => s.Schedule)
+            .Include(r => r.Events).ThenInclude(s => s.Schedule)
             .FirstOrDefault(r => r.Id == id);
     }
 
@@ -124,7 +124,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
             .Include(r => r.Sections)
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
-            .Include(r => r.Schedules).ThenInclude(s => s.Schedule)
+            .Include(r => r.Events).ThenInclude(s => s.Schedule)
             .Where(f => f.OwnerId == userId)
             .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
     }
@@ -194,12 +194,12 @@ public class ReportService : BaseService<Report, int>, IReportService
         }
         this.Context.AddRange(entity.Sections);
 
-        entity.Schedules.ForEach(schedule =>
+        entity.Events.ForEach(reportEvent =>
         {
-            if (schedule.Schedule != null)
+            if (reportEvent.Schedule != null)
             {
-                this.Context.Add(schedule.Schedule);
-                this.Context.Add(schedule);
+                this.Context.Add(reportEvent.Schedule);
+                this.Context.Add(reportEvent);
             }
         });
         return base.Add(entity);
@@ -234,43 +234,43 @@ public class ReportService : BaseService<Report, int>, IReportService
             }
         });
 
-        var originalSchedules = original.Schedules.ToArray();
-        originalSchedules.Except(entity.Schedules).ForEach(schedule =>
+        var originalEvents = original.Events.ToArray();
+        originalEvents.Except(entity.Events).ForEach(reportEvent =>
         {
-            this.Context.Entry(schedule).State = EntityState.Deleted;
+            this.Context.Entry(reportEvent).State = EntityState.Deleted;
         });
-        entity.Schedules.ForEach(schedule =>
+        entity.Events.ForEach(reportEvent =>
         {
-            var originalSchedule = originalSchedules.FirstOrDefault(s => s.Id == schedule.Id);
-            if (originalSchedule == null)
-                original.Schedules.Add(schedule);
+            var originalEvent = originalEvents.FirstOrDefault(s => s.Id == reportEvent.Id);
+            if (originalEvent == null)
+                original.Events.Add(reportEvent);
             else
             {
-                originalSchedule.Name = schedule.Name;
-                originalSchedule.Description = schedule.Description;
-                originalSchedule.IsEnabled = schedule.IsEnabled;
-                originalSchedule.RequestSentOn = schedule.RequestSentOn;
-                originalSchedule.LastRanOn = schedule.LastRanOn;
-                originalSchedule.EventType = schedule.EventType;
-                originalSchedule.Settings = schedule.Settings;
-                originalSchedule.ReportId = schedule.ReportId;
-                originalSchedule.NotificationId = schedule.NotificationId;
-                originalSchedule.ScheduleId = schedule.ScheduleId;
-                if (originalSchedule.Schedule != null && schedule.Schedule != null)
+                originalEvent.Name = reportEvent.Name;
+                originalEvent.Description = reportEvent.Description;
+                originalEvent.IsEnabled = reportEvent.IsEnabled;
+                originalEvent.RequestSentOn = reportEvent.RequestSentOn;
+                originalEvent.LastRanOn = reportEvent.LastRanOn;
+                originalEvent.EventType = reportEvent.EventType;
+                originalEvent.Settings = reportEvent.Settings;
+                originalEvent.ReportId = reportEvent.ReportId;
+                originalEvent.NotificationId = reportEvent.NotificationId;
+                originalEvent.ScheduleId = reportEvent.ScheduleId;
+                if (originalEvent.Schedule != null && reportEvent.Schedule != null)
                 {
-                    originalSchedule.Schedule.Name = schedule.Schedule.Name;
-                    originalSchedule.Schedule.Description = schedule.Schedule.Description;
-                    originalSchedule.Schedule.IsEnabled = schedule.Schedule.IsEnabled;
-                    originalSchedule.Schedule.DelayMS = schedule.Schedule.DelayMS;
-                    originalSchedule.Schedule.RunOn = schedule.Schedule.RunOn;
-                    originalSchedule.Schedule.StartAt = schedule.Schedule.StartAt;
-                    originalSchedule.Schedule.StopAt = schedule.Schedule.StopAt;
-                    originalSchedule.Schedule.RunOnlyOnce = schedule.Schedule.RunOnlyOnce;
-                    originalSchedule.Schedule.Repeat = schedule.Schedule.Repeat;
-                    originalSchedule.Schedule.RunOnWeekDays = schedule.Schedule.RunOnWeekDays;
-                    originalSchedule.Schedule.RunOnMonths = schedule.Schedule.RunOnMonths;
-                    originalSchedule.Schedule.DayOfMonth = schedule.Schedule.DayOfMonth;
-                    originalSchedule.Schedule.RequestedById = schedule.Schedule.RequestedById;
+                    originalEvent.Schedule.Name = reportEvent.Schedule.Name;
+                    originalEvent.Schedule.Description = reportEvent.Schedule.Description;
+                    originalEvent.Schedule.IsEnabled = reportEvent.Schedule.IsEnabled;
+                    originalEvent.Schedule.DelayMS = reportEvent.Schedule.DelayMS;
+                    originalEvent.Schedule.RunOn = reportEvent.Schedule.RunOn;
+                    originalEvent.Schedule.StartAt = reportEvent.Schedule.StartAt;
+                    originalEvent.Schedule.StopAt = reportEvent.Schedule.StopAt;
+                    originalEvent.Schedule.RunOnlyOnce = reportEvent.Schedule.RunOnlyOnce;
+                    originalEvent.Schedule.Repeat = reportEvent.Schedule.Repeat;
+                    originalEvent.Schedule.RunOnWeekDays = reportEvent.Schedule.RunOnWeekDays;
+                    originalEvent.Schedule.RunOnMonths = reportEvent.Schedule.RunOnMonths;
+                    originalEvent.Schedule.DayOfMonth = reportEvent.Schedule.DayOfMonth;
+                    originalEvent.Schedule.RequestedById = reportEvent.Schedule.RequestedById;
                 }
             }
         });

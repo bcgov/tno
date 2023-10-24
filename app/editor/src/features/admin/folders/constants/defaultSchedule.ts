@@ -1,7 +1,8 @@
-import { IScheduleModel, ScheduleMonthName, ScheduleWeekDayName } from 'tno-core';
+import { IFolderScheduleModel, ScheduleMonthName, ScheduleWeekDayName } from 'tno-core';
 
-export const defaultSchedule: IScheduleModel = {
+export const defaultSchedule: IFolderScheduleModel = {
   id: 0,
+  scheduleId: 0,
   name: '',
   description: '',
   isEnabled: true,
@@ -11,4 +12,5 @@ export const defaultSchedule: IScheduleModel = {
   runOnWeekDays: ScheduleWeekDayName.NA,
   runOnMonths: ScheduleMonthName.NA,
   dayOfMonth: 0,
+  settings: {},
 };

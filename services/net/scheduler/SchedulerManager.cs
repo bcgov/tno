@@ -71,6 +71,8 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
                                 await GenerateReportRequestAsync(scheduledEvent);
                             else if (ev.EventType == EventScheduleType.Notification)
                                 await GenerateNotificationRequestAsync(scheduledEvent);
+                            else
+                                await GenerateEventScheduleRequestAsync(scheduledEvent);
 
                             // Update event request sent on.
                             scheduledEvent.RequestSentOn = DateTime.UtcNow;
@@ -104,6 +106,7 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
         var now = DateTime.Now.ToTimeZone(this.Options.TimeZone);
         var currentMonth = GetCurrentMonth(now);
         var currentWeekDay = GetDayOfWeek(now);
+        var runOn = schedule.RunOn?.ToTimeZone(this.Options.TimeZone);
 
         if (!schedule.IsEnabled) return false;
 
@@ -123,7 +126,7 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
         // Only run on the specified day of the month.
         if (schedule.DayOfMonth != 0 && now.Day != schedule.DayOfMonth) return false;
         // Only run on and after the schedule begin process.
-        if (schedule.RunOn != null && schedule.RunOn < now) return false;
+        if (runOn != null && runOn > now) return false;
         // Only run on and after the start at time.
         if (schedule.StartAt != null && schedule.StartAt > now.TimeOfDay) return false;
         // Only run before the stop time.
@@ -176,10 +179,10 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
     {
         if (scheduledEvent.EventType != EventScheduleType.Notification) throw new InvalidOperationException("Only notification event types allowed");
 
+        var notificationId = scheduledEvent.NotificationId;
+        var requestorId = scheduledEvent.Schedule?.RequestedById;
         var destination = scheduledEvent.Settings.GetDictionaryJsonValue<NotificationDestination?>("destination") ?? NotificationDestination.NotificationService;
-        var notificationId = scheduledEvent.Settings.GetDictionaryJsonValue<int?>("notificationId");
         var contentId = scheduledEvent.Settings.GetDictionaryJsonValue<long?>("contentId");
-        var requestorId = scheduledEvent.Settings.GetDictionaryJsonValue<int?>("requestorId");
         var assignedId = scheduledEvent.Settings.GetDictionaryJsonValue<int?>("assignedId");
         var to = scheduledEvent.Settings.GetDictionaryJsonValue<string>("to") ?? "";
         var data = scheduledEvent.Settings.GetDictionaryJsonValue<object?>("data") ?? new { };
@@ -193,6 +196,19 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
             AssignedId = assignedId,
             To = to,
         };
+        await this.Api.SendMessageAsync(request);
+    }
+
+    /// <summary>
+    /// Send message to Kafka to request a generic event to be executed..
+    /// </summary>
+    /// <param name="scheduledEvent"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private async Task GenerateEventScheduleRequestAsync(EventScheduleModel scheduledEvent)
+    {
+        var data = scheduledEvent.Settings.GetDictionaryJsonValue<object?>("data") ?? new { };
+        var request = new EventScheduleRequestModel(scheduledEvent, data) { };
         await this.Api.SendMessageAsync(request);
     }
 

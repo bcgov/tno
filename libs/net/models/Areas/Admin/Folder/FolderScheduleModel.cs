@@ -5,15 +5,25 @@ using TNO.Entities;
 namespace TNO.API.Areas.Admin.Models.Folder;
 
 /// <summary>
-/// ScheduleModel class, provides a model that represents a subscriber to a report.
+/// FolderScheduleModel class, provides a model that represents a subscriber to a report.
 /// </summary>
-public class ScheduleModel : AuditColumnsModel
+public class FolderScheduleModel : AuditColumnsModel
 {
     #region Properties
     /// <summary>
-    /// get/set - The primary key.
+    /// get/set - The primary key for the event.
     /// </summary>
     public int Id { get; set; }
+
+    /// <summary>
+    /// get/set - The primary key to the schedule.
+    /// </summary>
+    public int ScheduleId { get; set; }
+
+    /// <summary>
+    /// get/set - The schedule version.
+    /// </summary>
+    public long? ScheduleVersion { get; set; }
 
     /// <summary>
     /// get/set - The name of the event schedule.
@@ -98,33 +108,43 @@ public class ScheduleModel : AuditColumnsModel
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of an ScheduleModel.
+    /// Creates a new instance of an FolderScheduleModel.
     /// </summary>
-    public ScheduleModel() { }
+    public FolderScheduleModel() { }
 
     /// <summary>
-    /// Creates a new instance of an ScheduleModel, initializes with specified parameter.
+    /// Creates a new instance of an FolderScheduleModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public ScheduleModel(Entities.Schedule entity) : base(entity)
+    public FolderScheduleModel(Entities.EventSchedule entity) : base(entity)
     {
-        if (entity == null) throw new ArgumentException("Argument 'entity' is required");
+        if (entity.Schedule == null) throw new ArgumentException("Argument 'Schedule' is required");
 
+        // Event properties
         this.Id = entity.Id;
         this.Name = entity.Name;
         this.Description = entity.Description;
         this.IsEnabled = entity.IsEnabled;
-        this.DelayMS = entity.DelayMS;
-        this.RunOn = entity.RunOn;
-        this.StartAt = entity.StartAt;
-        this.StopAt = entity.StopAt;
-        this.RunOnlyOnce = entity.RunOnlyOnce;
-        this.Repeat = entity.Repeat;
-        this.RunOnWeekDays = entity.RunOnWeekDays;
-        this.RunOnMonths = entity.RunOnMonths;
-        this.DayOfMonth = entity.DayOfMonth;
-        this.RequestedById = entity.RequestedById;
-        this.Version = entity.Version;
+        this.Settings = entity.Settings;
+        this.RequestSentOn = entity.RequestSentOn;
+        this.LastRanOn = entity.LastRanOn;
+
+        // Schedule properties
+        this.ScheduleId = entity.ScheduleId;
+        this.Name = entity.Name;
+        this.Description = entity.Description;
+        this.IsEnabled = entity.IsEnabled;
+        this.DelayMS = entity.Schedule.DelayMS;
+        this.RunOn = entity.Schedule.RunOn;
+        this.StartAt = entity.Schedule.StartAt;
+        this.StopAt = entity.Schedule.StopAt;
+        this.RunOnlyOnce = entity.Schedule.RunOnlyOnce;
+        this.Repeat = entity.Schedule.Repeat;
+        this.RunOnWeekDays = entity.Schedule.RunOnWeekDays;
+        this.RunOnMonths = entity.Schedule.RunOnMonths;
+        this.DayOfMonth = entity.Schedule.DayOfMonth;
+        this.RequestedById = entity.Schedule.RequestedById;
+        this.ScheduleVersion = entity.Schedule.Version;
     }
     #endregion
 
@@ -133,11 +153,11 @@ public class ScheduleModel : AuditColumnsModel
     /// Explicit conversion to entity.
     /// </summary>
     /// <param name="model"></param>
-    public static explicit operator Entities.Schedule(ScheduleModel model)
+    public static explicit operator Entities.EventSchedule(FolderScheduleModel model)
     {
         var schedule = new Entities.Schedule(model.Name, model.DelayMS)
         {
-            Id = model.Id,
+            Id = model.ScheduleId,
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             RunOn = model.RunOn,
@@ -149,10 +169,18 @@ public class ScheduleModel : AuditColumnsModel
             RunOnMonths = model.RunOnMonths,
             DayOfMonth = model.DayOfMonth,
             RequestedById = model.RequestedById,
-            Version = model.Version ?? 0
+            Version = model.ScheduleVersion ?? 0
         };
 
-        return schedule;
+        return new Entities.EventSchedule(model.Name, EventScheduleType.CleanFolder, schedule, model.Settings)
+        {
+            Id = model.Id,
+            Description = model.Description,
+            IsEnabled = model.IsEnabled,
+            RequestSentOn = model.RequestSentOn,
+            LastRanOn = model.LastRanOn,
+            Version = model.Version ?? 0
+        };
     }
     #endregion
 }

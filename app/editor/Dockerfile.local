@@ -14,7 +14,7 @@ RUN chmod 777 /usr/src/app/nginx/local.conf
 # For some reason a ConfigMap can't create the `.env` file.
 # So we using a `environment.env` file instead.
 RUN if [ -f environment.env ]; then mv -f environment.env .env; fi
-RUN yarn set version berry
+RUN yarn set version 3.x
 RUN npx browserslist@latest --update-db
 RUN yarn build
 

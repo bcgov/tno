@@ -39,9 +39,9 @@ export const defaultReport = (ownerId: number | undefined = 0): IReportForm => {
     sections: [],
     subscribers: [],
     instances: [],
-    schedules: [],
+    events: [],
   };
-  report.schedules = [
+  report.events = [
     defaultReportSchedule('Schedule 1', report),
     defaultReportSchedule('Schedule 2', report),
   ];

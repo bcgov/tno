@@ -37,6 +37,7 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
           id: 0,
           content: content,
           reports: [],
+          events: [],
         });
 
         toast.success(`${folderName} created and ${content.length} stories added to folder.`);

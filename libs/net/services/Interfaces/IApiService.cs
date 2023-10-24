@@ -40,6 +40,13 @@ public interface IApiService
     /// <param name="request"></param>
     /// <returns></returns>
     Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.ReportRequestModel>?> SendMessageAsync(TNO.Kafka.Models.ReportRequestModel request);
+
+    /// <summary>
+    /// Publish event schedule request to Kafka.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.EventScheduleRequestModel>?> SendMessageAsync(TNO.Kafka.Models.EventScheduleRequestModel request);
     #endregion
 
     #region Lookups
@@ -395,11 +402,25 @@ public interface IApiService
 
     #region Folders
     /// <summary>
+    /// Get the folder with the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.Folder.FolderModel?> GetFolderAsync(int id);
+
+    /// <summary>
     /// Removes the specified content from all folders.
     /// </summary>
     /// <param name="contentId"></param>
     /// <returns></returns>
     Task<HttpResponseMessage> RemoveContentFromFoldersAsync(long contentId);
+
+    /// <summary>
+    /// Removes the content from the folder based on the folder configuration settings.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<HttpResponseMessage> RemoveContentFromFolder(int id);
 
     /// <summary>
     /// Get all folders with enabled filters

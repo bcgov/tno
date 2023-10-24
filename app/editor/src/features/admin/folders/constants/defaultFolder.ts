@@ -8,7 +8,6 @@ export const defaultFolder: IFolderForm = {
   sortOrder: 0,
   isEnabled: true,
   filterId: undefined,
-  scheduleId: undefined,
   settings: {
     searchUnpublished: false,
     addAgeLimit: 0,
@@ -16,4 +15,5 @@ export const defaultFolder: IFolderForm = {
   },
   content: [],
   reports: [],
+  events: [],
 };
