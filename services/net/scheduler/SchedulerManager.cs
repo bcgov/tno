@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.EventSchedule;
+using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Kafka.Models;
@@ -63,10 +64,11 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
 
                     foreach (var ev in events.Where(e => e.IsEnabled && this.Options.EventTypes.Contains(e.EventType)))
                     {
-                        var scheduledEvent = await this.Api.GetEventScheduleAsync(ev.Id) ?? throw new InvalidOperationException($"Event does not exist {ev.Id}:{ev.Name}");
+                        var scheduledEvent = await this.Api.GetEventScheduleAsync(ev.Id) ?? throw new NoContentException($"Event does not exist {ev.Id}:{ev.Name}");
                         if (VerifySchedule(scheduledEvent))
                         {
                             this.Logger.LogInformation("Scheduled event '{name}' is running", scheduledEvent.Name);
+
                             if (ev.EventType == EventScheduleType.Report)
                                 await GenerateReportRequestAsync(scheduledEvent);
                             else if (ev.EventType == EventScheduleType.Notification)
@@ -74,7 +76,6 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
                             else
                                 await GenerateEventScheduleRequestAsync(scheduledEvent);
 
-                            // Update event request sent on.
                             scheduledEvent.RequestSentOn = DateTime.UtcNow;
                             await this.Api.UpdateEventScheduleAsync(scheduledEvent);
                         }
