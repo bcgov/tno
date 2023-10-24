@@ -3,6 +3,7 @@ import { IReportModel } from 'tno-core';
 export const isAutoSend = (report: IReportModel) => {
   return (
     report.isEnabled &&
+    report.events &&
     report.events.some(
       (schedule) =>
         schedule.isEnabled &&
