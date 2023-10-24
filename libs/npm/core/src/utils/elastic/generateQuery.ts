@@ -18,6 +18,7 @@ import { generateTermsForArrayField } from './generateTermsForArrayField';
 export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) => {
   var elastic = { ...query };
   if (settings.size) elastic = { ...elastic, size: settings.size };
+  if (settings.from) elastic = { ...elastic, from: settings.from };
 
   elastic = {
     ...elastic,

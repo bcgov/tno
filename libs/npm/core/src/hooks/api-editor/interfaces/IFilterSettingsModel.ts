@@ -4,6 +4,7 @@ import { IFilterActionSettingsModel } from '.';
 export interface IFilterSettingsModel extends Record<string, any> {
   searchUnpublished: boolean;
   size: number;
+  from: number;
   search?: string;
   defaultSearchOperator?: 'and' | 'or';
   inHeadline: boolean;
