@@ -261,6 +261,22 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
                 {folder?.description && <p>{folder?.description}</p>}
               </Col>
             </Row>
+            <Row>
+              <Col flex="1" className="description">
+                <FormikSelect
+                  label="Group Section Content By"
+                  name={`sections.${index}.settings.groupBy`}
+                  tooltip="Select a content field to group by within the section"
+                  options={groupByOptions}
+                  value={groupByOptions.find((o) => o.value === section.settings.groupBy) ?? ''}
+                  onChange={(newValue) => {
+                    const option = newValue as OptionItem;
+                    const groupBy = groupByOptions.find((f) => f.value === option?.value);
+                    setFieldValue(`sections.${index}.settings.groupBy`, groupBy?.value ?? '');
+                  }}
+                />
+              </Col>
+            </Row>
           </Col>
         </Show>
         <Show

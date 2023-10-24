@@ -94,14 +94,68 @@ public static class ReportExtensions
     public static string GetSentimentIcon(this ContentModel content, string format)
     {
         var tone = content.TonePools.FirstOrDefault()?.Value;
-        var icon = tone switch
+        var icon = GetSentimentIcon(tone);
+
+        return !String.IsNullOrEmpty(icon) ? String.Format(format, icon) : icon;
+    }
+
+    /// <summary>
+    /// Get the sentiment icon for the content.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="format"></param>
+    /// <returns></returns>
+    public static string GetSentimentIcon(int? tone)
+    {
+        return tone switch
         {
             0 => "😐",
             <= -3 => "☹️",
             >= 3 => "🙂",
             _ => "",
         };
-        return !String.IsNullOrEmpty(icon) ? String.Format(format, icon) : icon;
+    }
+
+    /// <summary>
+    /// Groups Content by the passed in property
+    /// </summary>
+    /// <param name="contentList"></param>
+    /// <param name="groupBy"></param>
+    /// <returns>a dictionary of key values plus the list of grouped Id's</returns>
+    public static Dictionary<string, List<long>> GetContentGroupings(this IEnumerable<ContentModel> contentList, string groupBy)
+    {
+        return contentList
+            .GroupBy(g => g.GetContentGroupByPropertyValue(groupBy))
+            .ToDictionary(
+                g => g.Key,
+                g => g.ToList().OrderBy(g => g.Headline).Select(i => i.Id).ToList()
+            );
+    }
+
+    /// <summary>
+    /// returns the value of the property on the ContentModel
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="groupBy"></param>
+    /// <returns></returns>
+    public static string GetContentGroupByPropertyValue(this ContentModel content, string groupBy)
+    {
+        switch (groupBy)
+        {
+            case "product":
+                return content.Product?.Name ?? "";
+            case "contentType":
+                return content.ContentType.ToString();
+            case "byline":
+                return content.Byline;
+            case "series":
+                return content.Series?.Name ?? "";
+            case "sentiment":
+                return GetSentimentIcon(content.TonePools.FirstOrDefault()?.Value ?? 0);
+            case "source":
+            default:
+                return content.OtherSource;
+        }
     }
     #endregion
 }
