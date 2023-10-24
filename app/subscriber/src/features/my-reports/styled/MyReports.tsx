@@ -56,6 +56,11 @@ export const MyReports = styled(Col)`
         box-shadow: none;
       }
     }
+    .rows {
+      svg:not(.error) {
+        color: #6750a4;
+      }
+    }
     .header {
       background-color: #f5f6fa;
       font-family: 'Roboto', sans-serif;

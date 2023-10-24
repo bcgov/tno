@@ -99,6 +99,23 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
+    /// Find all report instances for the specified report 'id' and 'ownerId'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
+    /// <returns></returns>
+    [HttpGet("{reportId}/instances")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<ReportInstanceModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult FindInstancesForReportId(int reportId, int? ownerId)
+    {
+        var result = _reportInstanceService.FindInstancesForReportId(reportId, ownerId);
+        return new JsonResult(result.Select(ri => new ReportInstanceModel(ri)));
+    }
+
+    /// <summary>
     /// Find all "my" reports.
     /// </summary>
     /// <returns></returns>

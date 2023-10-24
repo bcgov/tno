@@ -1,10 +1,17 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
-import { IReportFilter, IReportModel, IReportResultModel, useApiSubscriberReports } from 'tno-core';
+import {
+  IReportFilter,
+  IReportInstanceModel,
+  IReportModel,
+  IReportResultModel,
+  useApiSubscriberReports,
+} from 'tno-core';
 
 interface IReportController {
   findReports: (filter: IReportFilter) => Promise<IReportModel[]>;
   findMyReports: () => Promise<IReportModel[]>;
+  findInstancesForReportId: (id: number, ownerId?: number) => Promise<IReportInstanceModel[]>;
   getPublicReports: () => Promise<IReportModel[]>;
   getReport: (id: number) => Promise<IReportModel | undefined>;
   addReport: (model: IReportModel) => Promise<IReportModel>;
@@ -25,6 +32,12 @@ export const useReports = (): [IReportController] => {
       findReports: async (filter: IReportFilter) => {
         const response = await dispatch<IReportModel[]>('find-reports', () =>
           api.findReports(filter),
+        );
+        return response.data;
+      },
+      findInstancesForReportId: async (id: number, ownerId: number | undefined = undefined) => {
+        const response = await dispatch<IReportInstanceModel[]>('get-report-instances', () =>
+          api.findInstancesForReportId(id, ownerId),
         );
         return response.data;
       },

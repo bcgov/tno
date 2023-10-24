@@ -1,4 +1,5 @@
 import { FormikForm } from 'components/formik';
+import { SearchWithLogout } from 'components/search-with-logout';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useReports } from 'store/hooks';
@@ -50,6 +51,7 @@ export const ReportSnapshot: React.FC = () => {
 
   return (
     <styled.ReportSnapshot>
+      <SearchWithLogout />
       <FormikForm
         loading={false}
         initialValues={report}
