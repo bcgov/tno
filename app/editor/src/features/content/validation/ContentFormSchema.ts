@@ -1,7 +1,9 @@
 import { ContentTypeName } from 'tno-core';
 import { array, date, number, object, string } from 'yup';
 
-export const ContentFormSchema = object().shape(
+import { IContentForm } from '../form/interfaces';
+
+export const ContentFormSchema = object<IContentForm>().shape(
   {
     productId: number().required('Product is required.').notOneOf([0], 'Product is required.'),
     sourceId: number().when('tempSource', (value: number[]) => {
@@ -31,6 +33,7 @@ export const ContentFormSchema = object().shape(
       if (value[0] === ContentTypeName.AudioVideo || value[0] === ContentTypeName.Image) {
         return number().when('productId', (value: number[]) => {
           // Summary is not a required field when content is tagged as News Radio or Events product
+          // TODO: This will break eventually because of hardcoded values.
           if (value[0] !== 4 && value[0] !== 9)
             return string().trim().required('Summary is a required field.');
           return string();
@@ -40,13 +43,13 @@ export const ContentFormSchema = object().shape(
     }),
     body: string().when('contentType', (value: string[]) => {
       if (value[0] !== ContentTypeName.AudioVideo && value[0] !== ContentTypeName.Image)
-        return string().trim().required('Summary is a required field.');
+        return string().trim().required('Body is a required field.');
       return string();
     }),
     // TODO: Headline should not be empty.
     headline: string().required('Headline is a required field.'),
-    tonePools: string().when('contentType', (value: string[]) => {
-      if (value[0] !== ContentTypeName.Image) return array().min(1, 'Tone is a required field.');
+    tonePools: string().when('contentType', (values: string[]) => {
+      if (values[0] !== ContentTypeName.Image) return array().min(1, 'Tone is a required field.');
       return array();
     }),
     // TODO: validation for print content.

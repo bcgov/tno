@@ -39,14 +39,14 @@ const ContentForm = lazy(() => import('../form/ContentForm'));
 const ContentListView: React.FC = () => {
   const [{ userInfo }] = useApp();
   const { id } = useParams();
-  const [, { updateContent }] = useContentStore();
+  const [, { addContent, updateContent }] = useContentStore();
   const [
-    { filter, filterAdvanced, content },
+    { filter, filterAdvanced, searchResults },
     { getContent, storeFilter, storeFilterAdvanced, findContentWithElasticsearch },
   ] = useContent();
   const { combined, formType } = useCombinedView();
-  var hub = useApiHub();
   const { navigate } = useTab({ showNav: false });
+  const hub = useApiHub();
 
   const [{ actions }] = useLookup();
 
@@ -66,10 +66,15 @@ const ContentListView: React.FC = () => {
 
   const page = React.useMemo(
     () =>
-      !!content
-        ? new Page(content.page - 1, content.quantity, content?.items, content.total)
+      !!searchResults
+        ? new Page(
+            searchResults.page - 1,
+            searchResults.quantity,
+            searchResults?.items,
+            searchResults.total,
+          )
         : defaultPage,
-    [content],
+    [searchResults],
   );
   const userId = userInfo?.id ?? '';
   const isReady = !!userId && filter.userId !== '';
@@ -93,17 +98,31 @@ const ContentListView: React.FC = () => {
 
   hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
 
+  const onContentAdded = React.useCallback(
+    async (message: IContentMessageModel) => {
+      if (message.ownerId === userId) {
+        try {
+          const result = await getContent(message.id);
+          if (!!result) addContent([result]);
+        } catch {}
+      }
+    },
+    [userId, getContent, addContent],
+  );
+
+  hub.useHubEffect(MessageTargetName.ContentAdded, onContentAdded);
+
   const onContentUpdated = React.useCallback(
     async (message: IContentMessageModel) => {
       // Only update if the current page includes the updated content.
-      if (content?.items.some((c) => c.id === message.id)) {
+      if (searchResults?.items.some((c) => c.id === message.id)) {
         try {
           const result = await getContent(message.id);
           if (!!result) updateContent([result]);
         } catch {}
       }
     },
-    [content?.items, getContent, updateContent],
+    [searchResults?.items, getContent, updateContent],
   );
 
   hub.useHubEffect(MessageTargetName.ContentUpdated, onContentUpdated);

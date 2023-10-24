@@ -143,7 +143,7 @@ export const FolderFormCollect: React.FC = () => {
                 showTimeSelect
                 dateFormat="MM/dd/yyyy HH:mm:ss"
                 value={
-                  values.events[0].runOn
+                  values.events.length && values.events[0].runOn
                     ? moment(values.events[0].runOn).format('MM/DD/yyyy HH:mm:ss')
                     : undefined
                 }

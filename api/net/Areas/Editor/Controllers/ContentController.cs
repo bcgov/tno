@@ -212,6 +212,8 @@ public class ContentController : ControllerBase
         newContent.PostedOn = newContent.Status == ContentStatus.Publish || newContent.Status == ContentStatus.Published ? DateTime.UtcNow : null;
         var content = _contentService.AddAndSave(newContent);
 
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentAdded, new[] { new ContentMessageModel(content) })));
+
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
             if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)

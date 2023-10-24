@@ -38,7 +38,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
   setLoading,
   selected,
 }) => {
-  const [{ content }, { updateContentList }] = useContent();
+  const [{ searchResults }, { updateContentList }] = useContent();
   const [, { removeContent }] = useContentStore();
   const [{ holidays }] = useLookup();
 
@@ -54,7 +54,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
           actionValue: value,
           contentIds: selected.length
             ? selected.map((s) => s.id)
-            : content?.items.map((c) => c.id) ?? [],
+            : searchResults?.items.map((c) => c.id) ?? [],
         });
         if (value === 'false' || !value) {
           removeContent(items);
@@ -66,7 +66,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
         setLoading(false);
       }
     },
-    [setLoading, updateContentList, selected, content?.items, removeContent],
+    [setLoading, updateContentList, selected, searchResults?.items, removeContent],
   );
 
   return (

@@ -94,11 +94,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
 
   const [size, setSize] = React.useState(1); // TODO: change this to use css media types instead.
   const [active, setActive] = React.useState('properties');
-  const [savePressed, setSavePressed] = React.useState(false);
   const [allowPublishWithoutFile, setAllowPublishWithoutFile] = React.useState(false);
   const [, setClipErrors] = React.useState<string>('');
   const [textDecorationStyle, setTextDecorationStyle] = React.useState('none');
   const [cursorStyle, setCursorStyle] = React.useState('text');
+  const [savePressed, setSavePressed] = React.useState(false);
 
   return (
     <styled.ContentForm className="content-form">
