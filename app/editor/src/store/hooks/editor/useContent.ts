@@ -1,4 +1,8 @@
-import { KnnSearchResponse, MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
+import {
+  KnnSearchResponse,
+  MsearchMultisearchBody,
+  SearchTotalHits,
+} from '@elastic/elasticsearch/lib/api/types';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
@@ -70,8 +74,8 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         const items = response.data.hits?.hits?.map((h) => h._source as IContentModel);
         actions.storeContent({
           page: 1,
-          quantity: items.length,
-          total: items.length,
+          quantity: filter.size ?? 500,
+          total: (response.data.hits?.total as SearchTotalHits)?.value,
           items: items,
         });
         return response.data;

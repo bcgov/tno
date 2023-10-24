@@ -9,6 +9,7 @@ export const defaultFilter: IFilterModel = {
   settings: {
     searchUnpublished: false,
     size: 100,
+    from: 0,
     inHeadline: false,
     inByline: false,
     inStory: false,

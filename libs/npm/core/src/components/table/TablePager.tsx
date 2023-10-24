@@ -17,7 +17,7 @@ export interface ITablePagerProps<T extends object> {
  */
 export const TablePager = <T extends object>({ table }: ITablePagerProps<T>) => {
   const [pageSize, setPageSize] = React.useState(table.pageSize);
-  const pageCount = table.pageCount;
+  const pageCount = table.pageCount ? table.pageCount : 1;
   const pageButtons = table.pageButtons >= pageCount ? pageCount : table.pageButtons;
   const pageMiddleIndex = Math.round((pageButtons - 1) / 2);
   const startIndex =

@@ -16,6 +16,7 @@ import {
   IWorkOrderMessageModel,
   MessageTargetName,
   Page,
+  replaceQueryParams,
   Row,
   Show,
   useCombinedView,
@@ -69,12 +70,12 @@ const ContentListView: React.FC = () => {
       !!searchResults
         ? new Page(
             searchResults.page - 1,
-            searchResults.quantity,
+            filter.pageSize,
             searchResults?.items,
             searchResults.total,
           )
         : defaultPage,
-    [searchResults],
+    [filter.pageSize, searchResults],
   );
   const userId = userInfo?.id ?? '';
   const isReady = !!userId && filter.userId !== '';
@@ -144,7 +145,7 @@ const ContentListView: React.FC = () => {
           const items = result.hits?.hits?.map((h) =>
             castContentToSearchResult(h._source as IContentModel),
           );
-          const page = new Page(1, items.length, items, items.length);
+          const page = new Page(1, filter.pageSize, items, result.hits?.total as number);
           return page;
         }
       } catch {
@@ -168,12 +169,15 @@ const ContentListView: React.FC = () => {
 
   const handleChangePage = React.useCallback(
     (page: ITablePage) => {
-      if (filter.pageIndex !== page.pageIndex || filter.pageSize !== page.pageSize)
-        storeFilter({
+      if (filter.pageIndex !== page.pageIndex || filter.pageSize !== page.pageSize) {
+        const newFilter = {
           ...filter,
           pageIndex: page.pageIndex,
           pageSize: page.pageSize ?? filter.pageSize,
-        });
+        };
+        storeFilter(newFilter);
+        replaceQueryParams(newFilter, { includeEmpty: false });
+      }
     },
     [filter, storeFilter],
   );
@@ -222,7 +226,6 @@ const ContentListView: React.FC = () => {
               rowId="id"
               columns={columns}
               data={page.items}
-              showPaging={false}
               manualPaging={true}
               pageIndex={filter.pageIndex}
               pageSize={filter.pageSize}

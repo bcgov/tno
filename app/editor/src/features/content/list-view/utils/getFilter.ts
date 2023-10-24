@@ -24,6 +24,7 @@ export const getFilter = (
   const settings: IFilterSettingsModel = {
     searchUnpublished: !filter.onlyPublished,
     size: filter.pageSize,
+    from: filter.pageIndex * filter.pageSize,
     productIds: filter.productIds ?? undefined,
     sourceIds: filter.sourceIds ?? undefined,
     contentTypes: filter.contentTypes ?? [],
