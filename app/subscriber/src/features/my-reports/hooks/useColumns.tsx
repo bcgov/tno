@@ -1,16 +1,8 @@
-import { FaEdit, FaEye, FaFileAlt, FaRegListAlt, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaEye, FaFileAlt, FaTrash } from 'react-icons/fa';
 import { FaChartPie, FaGear } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import {
-  CellEllipsis,
-  Checkbox,
-  IReportInstanceModel,
-  IReportModel,
-  ITableHookColumn,
-  Row,
-  Show,
-} from 'tno-core';
+import { CellEllipsis, Checkbox, IReportModel, ITableHookColumn, Row, Show } from 'tno-core';
 
 import { isAutoSend, isAutoSendDisabled, setAutoSend } from '../utils';
 
