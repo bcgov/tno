@@ -10446,7 +10446,7 @@ __metadata:
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
     styled-components: 5.3.9
-    tno-core: 0.0.347
+    tno-core: 0.0.348
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -14495,9 +14495,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.0.347":
-  version: 0.0.347
-  resolution: "tno-core@npm:0.0.347"
+"tno-core@npm:0.0.348":
+  version: 0.0.348
+  resolution: "tno-core@npm:0.0.348"
   dependencies:
     "@elastic/elasticsearch": ^8.10.0
     "@fortawesome/free-solid-svg-icons": ^6.4.2
@@ -14527,7 +14527,7 @@ __metadata:
     react-tooltip: ^5.10.0
     styled-components: ^5.3.9
     yup: ^1.1.1
-  checksum: c1a20a044b086352e5e7413f1505bbc08ca758381f87935d4896987b424d1f712715a8e6dbeda1be673f0544b08ec9c7670920779f3a0fd9ff6a982bf97a30f0
+  checksum: e8d0367641241c35fcf665a8d293c96fec9dc10cba84e9eb0d86573a59c7b8e5b9047b1b9ede75d0483d6efe2793002211817b8a483e7631119450fd527cb117
   languageName: node
   linkType: hard
 
