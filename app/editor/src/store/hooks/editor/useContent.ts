@@ -74,7 +74,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         const items = response.data.hits?.hits?.map((h) => h._source as IContentModel);
         actions.storeContent({
           page: 1,
-          quantity: filter.size!,
+          quantity: filter.size ?? 500,
           total: (response.data.hits?.total as SearchTotalHits)?.value,
           items: items,
         });
