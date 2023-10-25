@@ -1,3 +1,4 @@
+import { faL, faLeaf } from '@fortawesome/free-solid-svg-icons';
 import { IReportModel } from 'tno-core';
 
 import { defaultReportSchedule } from './defaultReportSchedule';
@@ -17,6 +18,7 @@ export const defaultReport: IReportModel = {
       showTodaysDate: false,
     },
     headline: {
+      showByline: false,
       showSource: false,
       showShortName: false,
       showPublishedOn: false,
