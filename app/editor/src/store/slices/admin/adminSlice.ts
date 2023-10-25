@@ -33,27 +33,45 @@ import {
 import { IAdminState } from './interfaces';
 
 export const initialAdminState: IAdminState = {
+  actionFilter: '',
   actions: [],
   chartTemplates: [],
+  connectionFilter: '',
   connections: [],
+  contributorFilter: '',
   contributors: [],
+  dataLocationFilter: '',
   dataLocations: [],
+  folderFilter: '',
   folders: [],
+  filterFilter: '',
   filters: [],
+  ingestFilter: '',
   ingests: [],
+  ingestTypeFilter: '',
   ingestTypes: [],
+  licenseFilter: '',
   licenses: [],
+  ministerFilter: '',
   ministers: [],
+  organizationFilter: '',
   organizations: [],
+  notificationFilter: '',
   notifications: [],
+  productFilter: '',
   products: [],
+  reportFilter: '',
   reports: [],
   reportTemplates: [],
   rules: [],
+  seriesFilter: '',
   series: [],
+  sourceFilter: '',
   sources: [],
   systemMessages: [],
+  tagFilter: '',
   tags: [],
+  topicFilter: '',
   topics: [],
   userFilter: {
     pageIndex: 0,
@@ -77,47 +95,89 @@ export const adminSlice = createSlice({
   name: 'admin',
   initialState: initialAdminState,
   reducers: {
+    storeActionFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.actionFilter = action.payload;
+    },
     storeActions(state: IAdminState, action: PayloadAction<IActionModel[]>) {
       state.actions = action.payload;
     },
     storeChartTemplates(state: IAdminState, action: PayloadAction<IChartTemplateModel[]>) {
       state.chartTemplates = action.payload;
     },
+    storeConnectionFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.connectionFilter = action.payload;
+    },
     storeConnections(state: IAdminState, action: PayloadAction<IConnectionModel[]>) {
       state.connections = action.payload;
+    },
+    storeContributorFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.contributorFilter = action.payload;
     },
     storeContributors(state: IAdminState, action: PayloadAction<IContributorModel[]>) {
       state.contributors = action.payload;
     },
+    storeDataLocationFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.dataLocationFilter = action.payload;
+    },
     storeDataLocations(state: IAdminState, action: PayloadAction<IDataLocationModel[]>) {
       state.dataLocations = action.payload;
+    },
+    storeFolderFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.folderFilter = action.payload;
     },
     storeFolders(state: IAdminState, action: PayloadAction<IFolderModel[]>) {
       state.folders = action.payload;
     },
+    storeFilterFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.filterFilter = action.payload;
+    },
     storeFilters(state: IAdminState, action: PayloadAction<IFilterModel[]>) {
       state.filters = action.payload;
+    },
+    storeIngestFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.ingestFilter = action.payload;
     },
     storeIngests(state: IAdminState, action: PayloadAction<IIngestModel[]>) {
       state.ingests = action.payload;
     },
+    storeIngestTypeFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.ingestTypeFilter = action.payload;
+    },
     storeIngestTypes(state: IAdminState, action: PayloadAction<IIngestTypeModel[]>) {
       state.ingestTypes = action.payload;
+    },
+    storeLicenseFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.licenseFilter = action.payload;
     },
     storeLicenses(state: IAdminState, action: PayloadAction<ILicenseModel[]>) {
       state.licenses = action.payload;
     },
+    storeMinisterFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.ministerFilter = action.payload;
+    },
     storeMinisters(state: IAdminState, action: PayloadAction<IMinisterModel[]>) {
       state.ministers = action.payload;
+    },
+    storeNotificationFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.notificationFilter = action.payload;
     },
     storeNotifications(state: IAdminState, action: PayloadAction<INotificationModel[]>) {
       state.notifications = action.payload;
     },
+    storeOrganizationFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.organizationFilter = action.payload;
+    },
     storeOrganizations(state: IAdminState, action: PayloadAction<IOrganizationModel[]>) {
       state.organizations = action.payload;
     },
+    storeProductFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.productFilter = action.payload;
+    },
     storeProducts(state: IAdminState, action: PayloadAction<IProductModel[]>) {
       state.products = action.payload;
+    },
+    storeReportFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.reportFilter = action.payload;
     },
     storeReports(state: IAdminState, action: PayloadAction<IReportModel[]>) {
       state.reports = action.payload;
@@ -125,8 +185,14 @@ export const adminSlice = createSlice({
     storeReportTemplates(state: IAdminState, action: PayloadAction<IReportTemplateModel[]>) {
       state.reportTemplates = action.payload;
     },
+    storeSeriesFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.seriesFilter = action.payload;
+    },
     storeSeries(state: IAdminState, action: PayloadAction<ISeriesModel[]>) {
       state.series = action.payload;
+    },
+    storeSourceFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.sourceFilter = action.payload;
     },
     storeSources(state: IAdminState, action: PayloadAction<ISourceModel[]>) {
       state.sources = action.payload;
@@ -134,8 +200,14 @@ export const adminSlice = createSlice({
     storeSystemMessages(state: IAdminState, action: PayloadAction<ISystemMessageModel[]>) {
       state.systemMessages = action.payload;
     },
+    storeTagFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.tagFilter = action.payload;
+    },
     storeTags(state: IAdminState, action: PayloadAction<ITagModel[]>) {
       state.tags = action.payload;
+    },
+    storeTopicFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.topicFilter = action.payload;
     },
     storeTopics(state: IAdminState, action: PayloadAction<ITopicModel[]>) {
       state.topics = action.payload;
@@ -162,26 +234,44 @@ export const adminSlice = createSlice({
 });
 
 export const {
+  storeActionFilter: storeAdminActionFilter,
   storeActions: storeAdminActions,
   storeChartTemplates: storeAdminChartTemplates,
+  storeConnectionFilter: storeAdminConnectionFilter,
   storeConnections: storeAdminConnections,
+  storeContributorFilter: storeAdminContributorFilter,
   storeContributors: storeAdminContributors,
+  storeDataLocationFilter: storeAdminDataLocationFilter,
   storeDataLocations: storeAdminDataLocations,
+  storeFolderFilter: storeAdminFolderFilter,
   storeFolders: storeAdminFolders,
+  storeFilterFilter: storeAdminFilterFilter,
   storeFilters: storeAdminFilters,
+  storeIngestFilter: storeAdminIngestFilter,
   storeIngests: storeAdminIngests,
+  storeIngestTypeFilter: storeAdminIngestTypeFilter,
   storeIngestTypes: storeAdminIngestTypes,
+  storeLicenseFilter: storeAdminLicenseFilter,
   storeLicenses: storeAdminLicenses,
+  storeMinisterFilter: storeAdminMinisterFilter,
   storeMinisters: storeAdminMinisters,
+  storeNotificationFilter: storeAdminNotificationFilter,
   storeNotifications: storeAdminNotifications,
+  storeOrganizationFilter: storeAdminOrganizationFilter,
   storeOrganizations: storeAdminOrganizations,
+  storeProductFilter: storeAdminProductFilter,
   storeProducts: storeAdminProducts,
+  storeReportFilter: storeAdminReportFilter,
   storeReports: storeAdminReports,
   storeReportTemplates: storeAdminReportTemplates,
+  storeSeriesFilter: storeAdminSeriesFilter,
   storeSeries: storeAdminSeries,
+  storeSourceFilter: storeAdminSourceFilter,
   storeSources: storeAdminSources,
   storeSystemMessages: storeAdminSystemMessages,
+  storeTagFilter: storeAdminTagFilter,
   storeTags: storeAdminTags,
+  storeTopicFilter: storeAdminTopicFilter,
   storeTopics: storeAdminTopics,
   storeTopicScoreRules: storeAdminTopicScoreRules,
   storeUserFilter: storeAdminUserFilter,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useIngests } from 'store/hooks/admin';
+import { useAdminStore } from 'store/slices';
 import { Col, FlexboxTable, IconButton, Row } from 'tno-core';
 
 import { columns } from './constants';
@@ -13,16 +14,15 @@ interface IIngestListProps {}
 const IngestList: React.FC<IIngestListProps> = (props) => {
   const navigate = useNavigate();
   const [{ ingests }, { findAllIngests, updateIngest }] = useIngests();
-
-  const [filter, setFilter] = React.useState('');
+  const [{ ingestFilter }] = useAdminStore();
 
   const items = ingests.filter(
     (i) =>
-      i.name.toLocaleLowerCase().includes(filter) ||
-      i.source?.code.toLocaleLowerCase().includes(filter) ||
-      i.description.toLocaleLowerCase().includes(filter) ||
-      i.ingestType?.name.toLocaleLowerCase().includes(filter) ||
-      getStatus(i).toLocaleLowerCase().includes(filter),
+      i.name.toLocaleLowerCase().includes(ingestFilter) ||
+      i.source?.code.toLocaleLowerCase().includes(ingestFilter) ||
+      i.description.toLocaleLowerCase().includes(ingestFilter) ||
+      i.ingestType?.name.toLocaleLowerCase().includes(ingestFilter) ||
+      getStatus(i).toLocaleLowerCase().includes(ingestFilter),
   );
 
   React.useEffect(() => {
@@ -44,11 +44,7 @@ const IngestList: React.FC<IIngestListProps> = (props) => {
           onClick={() => navigate('/admin/ingests/0')}
         />
       </Row>
-      <IngestFilter
-        onFilterChange={(filter) => {
-          setFilter(filter);
-        }}
-      />
+      <IngestFilter />
       <FlexboxTable
         rowId="id"
         data={items}

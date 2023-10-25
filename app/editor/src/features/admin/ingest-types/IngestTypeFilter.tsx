@@ -1,28 +1,30 @@
 import React from 'react';
+import { useAdminStore } from 'store/slices';
 import { IconButton, Row, Text } from 'tno-core';
 
 interface IIngestTypeFilterProps {
-  onFilterChange: (value: string) => void;
+  onFilterChange?: (value: string) => void;
 }
 
 export const IngestTypeFilter: React.FC<IIngestTypeFilterProps> = ({ onFilterChange }) => {
-  const [filter, setFilter] = React.useState<string>('');
+  const [{ ingestTypeFilter }, { storeIngestTypeFilter }] = useAdminStore();
+
   return (
     <Row className="filter-bar" justifyContent="center">
       <Text
         onChange={(e) => {
-          setFilter(e.target.value);
-          onFilterChange(e.target.value);
+          storeIngestTypeFilter(e.target.value);
+          onFilterChange?.(e.target.value);
         }}
         placeholder="Search by keyword"
         name="search"
-        value={filter}
+        value={ingestTypeFilter}
       />
       <IconButton
         iconType="reset"
         onClick={() => {
-          setFilter('');
-          onFilterChange('');
+          storeIngestTypeFilter('');
+          onFilterChange?.('');
         }}
       />
     </Row>

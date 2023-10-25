@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAdminStore } from 'store/slices';
 import { IconButton, Row, Text } from 'tno-core';
 
 interface IAdminFilterProps {
@@ -7,26 +8,27 @@ interface IAdminFilterProps {
 }
 
 export const ListFilter: React.FC<IAdminFilterProps> = ({ onFilterChange, onSearch }) => {
-  const [filter, setFilter] = React.useState<string>('');
+  const [{ filterFilter }, { storeFilterFilter }] = useAdminStore();
+
   return (
     <Row className="filter-bar" justifyContent="center">
       <Text
         onChange={(e) => {
-          setFilter(e.target.value);
+          storeFilterFilter(e.target.value);
           onFilterChange?.(e.target.value);
         }}
         onKeyUp={(e) => {
-          if (e.code === 'Enter') onSearch?.(filter);
+          if (e.code === 'Enter') onSearch?.(filterFilter);
         }}
         placeholder="Search by keyword"
         name="search"
-        value={filter}
+        value={filterFilter}
       >
         {!!onSearch && (
           <IconButton
             iconType="search"
             onClick={() => {
-              onSearch?.(filter);
+              onSearch?.(filterFilter);
             }}
           />
         )}
@@ -34,7 +36,7 @@ export const ListFilter: React.FC<IAdminFilterProps> = ({ onFilterChange, onSear
       <IconButton
         iconType="reset"
         onClick={() => {
-          setFilter('');
+          storeFilterFilter('');
           onFilterChange?.('');
           onSearch?.('');
         }}

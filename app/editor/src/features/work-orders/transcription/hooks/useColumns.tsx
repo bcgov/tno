@@ -32,7 +32,9 @@ export const useColumns = ({ onCancel }: IColumnsProps): ITableHookColumn<IWorkO
             to={`/contents/${cell.original.contentId}`}
             target={options?.open === NavigateOptions.OnPage ? '_self' : '_blank'}
           >
-            {cell.original.configuration.headline}
+            {cell.original.configuration.headline
+              ? cell.original.configuration.headline
+              : `${cell.original.contentId} - Headline missing`}
           </Link>
         </CellEllipsis>
       ),
