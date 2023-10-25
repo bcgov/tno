@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
+const Dashboard = lazy(() => import('features/admin/dashboard/Dashboard'));
 const ActionForm = lazy(() => import('features/admin/actions/ActionForm'));
 const ActionList = lazy(() => import('features/admin/actions/ActionList'));
 const AVOverview = lazy(() => import('features/admin/av-overviews/AVOverview'));
@@ -59,6 +60,8 @@ export const AdminRouter: React.FC = () => {
     <Suspense fallback={<div>Loading...</div>}>
       <Routes>
         <Route index element={<Navigate to="users" />} />
+        <Route path="dashboard" element={<Dashboard />} />
+
         <Route path="users" element={<UserList />} />
         <Route path="users/:id" element={<UserForm />} />
 

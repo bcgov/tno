@@ -1,8 +1,9 @@
 import { IFilterSettingsModel } from 'tno-core';
 
 export const defaultFilterSettings: IFilterSettingsModel = {
-  searchUnpublished: false,
+  from: 0,
   size: 0,
+  searchUnpublished: false,
   inByline: true,
   inHeadline: true,
   inStory: true,
