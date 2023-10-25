@@ -51,11 +51,6 @@ export const useColumns = (
       width: '100px',
       cell: (cell) => (
         <Row gap="0.5rem">
-          <FaEye
-            className="btn-link"
-            onClick={() => navigate(`/report/instances/${cell.original.id}/view`)}
-            title="Instances"
-          />
           <FaGear
             className="btn-link"
             onClick={() => navigate(`/reports/${cell.original.id}`)}
