@@ -50,6 +50,7 @@ export const useColumns = ({ fetch }: IColumnProps): ITableHookColumn<IContentSe
         </Row>
       ),
       width: 5,
+      showSort: false,
     },
     {
       accessor: 'otherSource',

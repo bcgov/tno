@@ -9,7 +9,7 @@ import {
 
 import { AdvancedSearchKeys } from '../constants';
 import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
-import { applySortBy, getActions } from '.';
+import { getActions, getSortBy } from '.';
 
 /**
  * Creates a IContentFilter that can be passed to the API hook endpoint.
@@ -36,8 +36,9 @@ export const getFilter = (
     onlyPublished: filter.onlyPublished ? true : undefined,
     startDate: filter.startDate ? moment(filter.startDate).toISOString() : undefined,
     endDate: filter.endDate ? moment(filter.endDate).toISOString() : undefined,
-    dateOffset: filter.timeFrame ? +filter.timeFrame : undefined,
-    sort: applySortBy(filter.sort),
+    dateOffset:
+      filter.startDate || filter.endDate ? undefined : filter.timeFrame ? +filter.timeFrame : 0,
+    sort: getSortBy(filter.sort),
     search: filter.searchTerm,
     inHeadline: filter.fieldType === AdvancedSearchKeys.Headline,
     inByline: filter.fieldType === AdvancedSearchKeys.Byline,
@@ -49,7 +50,7 @@ export const getFilter = (
     sentiment: [],
   };
   if (filter.fieldType && filter.searchTerm) {
-    settings[filter.fieldType] =
+    settings[filter.fieldType !== AdvancedSearchKeys.Page ? filter.fieldType : 'page'] =
       filter.fieldType === AdvancedSearchKeys.Source ? [+filter.searchTerm] : filter.searchTerm;
   }
   if (settings.contentTypes.length === 0 && settings.contentType) {

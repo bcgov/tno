@@ -46,6 +46,8 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
     },
   };
 
+  elastic = { ...elastic, sort: settings.sort ? settings.sort : [{ publishedOn: 'desc' }] };
+
   // Remove any empty paths.
   if (elastic.query) {
     if (JSON.stringify(elastic.query.term) === '{}') elastic.query.term = undefined;
