@@ -1,5 +1,5 @@
 export const generateRangeForDateOffset = (field: string, value: number) => {
-  if (value === undefined || value === null) return undefined;
+  if (value === undefined || value === null || value === 3) return undefined;
   return {
     range: {
       [field]: {
