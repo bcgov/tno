@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFilters } from 'store/hooks/admin';
+import { useAdminStore } from 'store/slices';
 import { Col, FlexboxTable, FormPage, IconButton, IFilterModel, Row } from 'tno-core';
 
 import { filterColumns } from './constants';
@@ -10,20 +11,36 @@ import * as styled from './styled';
 export const FilterList: React.FC = () => {
   const navigate = useNavigate();
   const [{ initialized, filters }, { findAllFilters }] = useFilters();
+  const [{ filterFilter }] = useAdminStore();
 
   const [items, setItems] = React.useState<IFilterModel[]>(filters);
 
   React.useEffect(() => {
     if (!initialized) {
-      findAllFilters()
-        .then((data) => {
-          setItems(data);
-        })
-        .catch(() => {});
+      findAllFilters().catch(() => {});
     }
     // The api will cause a double render because findAllFilters(...) updates the store.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialized]);
+
+  React.useEffect(() => {
+    if (filterFilter && filterFilter.length) {
+      const value = filterFilter.toLocaleLowerCase();
+      setItems(
+        filters.filter(
+          (i) =>
+            i.name.toLocaleLowerCase().includes(value) ||
+            i.description.toLocaleLowerCase().includes(value) ||
+            i.owner?.username.toLocaleLowerCase().includes(value) ||
+            i.owner?.displayName.toLocaleLowerCase().includes(value) ||
+            i.owner?.firstName.toLocaleLowerCase().includes(value) ||
+            i.owner?.lastName.toLocaleLowerCase().includes(value),
+        ),
+      );
+    } else {
+      setItems(filters);
+    }
+  }, [filters, filterFilter]);
 
   return (
     <styled.FilterList>
@@ -36,26 +53,7 @@ export const FilterList: React.FC = () => {
             onClick={() => navigate(`/admin/filters/0`)}
           />
         </Row>
-        <ListFilter
-          onFilterChange={(filter) => {
-            if (filter && filter.length) {
-              const value = filter.toLocaleLowerCase();
-              setItems(
-                filters.filter(
-                  (i) =>
-                    i.name.toLocaleLowerCase().includes(value) ||
-                    i.description.toLocaleLowerCase().includes(value) ||
-                    i.owner?.username.toLocaleLowerCase().includes(value) ||
-                    i.owner?.displayName.toLocaleLowerCase().includes(value) ||
-                    i.owner?.firstName.toLocaleLowerCase().includes(value) ||
-                    i.owner?.lastName.toLocaleLowerCase().includes(value),
-                ),
-              );
-            } else {
-              setItems(filters);
-            }
-          }}
-        />
+        <ListFilter onFilterChange={(filter) => {}} />
         <FlexboxTable
           rowId="id"
           data={items}

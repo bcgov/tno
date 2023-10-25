@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useIngestTypes } from 'store/hooks/admin';
+import { useAdminStore } from 'store/slices';
 import { Col, FlexboxTable, IconButton, IIngestTypeModel, Row } from 'tno-core';
 
 import { columns } from './constants';
@@ -9,19 +10,33 @@ import * as styled from './styled';
 
 const IngestTypeList: React.FC = () => {
   const navigate = useNavigate();
-  const [{ ingestTypes }, api] = useIngestTypes();
+  const [{ ingestTypes }, { findAllIngestTypes }] = useIngestTypes();
+  const [{ ingestTypeFilter }] = useAdminStore();
 
-  const [items, setItems] = React.useState<IIngestTypeModel[]>([]);
+  const [items, setItems] = React.useState<IIngestTypeModel[]>(ingestTypes);
 
   React.useEffect(() => {
     if (!ingestTypes.length) {
-      api.findAllIngestTypes().then((data) => {
-        setItems(data);
-      });
+      findAllIngestTypes().catch(() => {});
+    }
+    // Only on init
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
+    if (ingestTypeFilter && ingestTypeFilter.length) {
+      const value = ingestTypeFilter.toLocaleLowerCase();
+      setItems(
+        ingestTypes.filter(
+          (i) =>
+            i.name.toLocaleLowerCase().includes(value) ||
+            i.description.toLocaleLowerCase().includes(value),
+        ),
+      );
     } else {
       setItems(ingestTypes);
     }
-  }, [api, ingestTypes]);
+  }, [ingestTypes, ingestTypeFilter]);
 
   return (
     <styled.IngestTypeList>
@@ -36,22 +51,7 @@ const IngestTypeList: React.FC = () => {
           onClick={() => navigate('/admin/ingest/types/0')}
         />
       </Row>
-      <IngestTypeFilter
-        onFilterChange={(filter) => {
-          if (filter && filter.length) {
-            const value = filter.toLocaleLowerCase();
-            setItems(
-              ingestTypes.filter(
-                (i) =>
-                  i.name.toLocaleLowerCase().includes(value) ||
-                  i.description.toLocaleLowerCase().includes(value),
-              ),
-            );
-          } else {
-            setItems(ingestTypes);
-          }
-        }}
-      />
+      <IngestTypeFilter />
       <FlexboxTable
         rowId="id"
         data={items}

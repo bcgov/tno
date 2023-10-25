@@ -1,12 +1,13 @@
 import React from 'react';
+import { useAdminStore } from 'store/slices';
 import { IconButton, Row, Text } from 'tno-core';
 
 interface IIngestFilterProps {
-  onFilterChange: (value: string) => void;
+  onFilterChange?: (value: string) => void;
 }
 
 export const IngestFilter = ({ onFilterChange }: IIngestFilterProps) => {
-  const [filter, setFilter] = React.useState<string>('');
+  const [{ ingestFilter }, { storeIngestFilter }] = useAdminStore();
 
   return (
     <Row className="filter" justifyContent="center">
@@ -14,16 +15,16 @@ export const IngestFilter = ({ onFilterChange }: IIngestFilterProps) => {
         name="search"
         placeholder="Search by keyword"
         onChange={(e) => {
-          setFilter(e.target.value);
-          onFilterChange(e.target.value);
+          storeIngestFilter(e.target.value);
+          onFilterChange?.(e.target.value);
         }}
-        value={filter}
+        value={ingestFilter}
       />
       <IconButton
         iconType="reset"
         onClick={() => {
-          setFilter('');
-          onFilterChange('');
+          storeIngestFilter('');
+          onFilterChange?.('');
         }}
       />
     </Row>

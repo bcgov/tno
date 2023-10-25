@@ -137,7 +137,13 @@ public class WorkOrderHelper : IWorkOrderHelper
         {
             var username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
             var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-            var workOrder = _workOrderService.AddAndSave(new Entities.WorkOrder(Entities.WorkOrderType.Transcription, user, "", this.Content));
+            var workOrder = _workOrderService.AddAndSave(
+                new Entities.WorkOrder(
+                    Entities.WorkOrderType.Transcription,
+                    user,
+                    "",
+                    this.Content,
+                    JsonDocument.Parse(JsonSerializer.Serialize(new { this.Content.Headline }, _serializerOptions))));
 
             await _kafkaMessenger.SendMessageAsync(_kafkaOptions.TranscriptionTopic, new TNO.Kafka.Models.TranscriptRequestModel(workOrder));
             return workOrder;
@@ -168,7 +174,13 @@ public class WorkOrderHelper : IWorkOrderHelper
         {
             var username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
             var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-            var workOrder = _workOrderService.AddAndSave(new Entities.WorkOrder(Entities.WorkOrderType.NaturalLanguageProcess, user, "", this.Content));
+            var workOrder = _workOrderService.AddAndSave(
+                new Entities.WorkOrder(
+                    Entities.WorkOrderType.NaturalLanguageProcess,
+                    user,
+                    "",
+                    this.Content,
+                    JsonDocument.Parse(JsonSerializer.Serialize(new { this.Content.Headline }, _serializerOptions))));
 
             await _kafkaMessenger.SendMessageAsync(_kafkaOptions.NLPTopic, new TNO.Kafka.Models.NlpRequestModel(workOrder));
             return workOrder;
@@ -199,7 +211,13 @@ public class WorkOrderHelper : IWorkOrderHelper
             var username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
             var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
 
-            var workOrder = _workOrderService.AddAndSave(new Entities.WorkOrder(Entities.WorkOrderType.FFmpeg, user, "", this.Content, this.Content.Product?.Settings));
+            var workOrder = _workOrderService.AddAndSave(
+                new Entities.WorkOrder(
+                    Entities.WorkOrderType.FFmpeg,
+                    user,
+                    "",
+                    this.Content,
+                    this.Content.Product?.Settings));
             await _kafkaMessenger.SendMessageAsync(_kafkaOptions.FFmpegTopic, new TNO.Kafka.Models.FFmpegRequestModel(workOrder, _serializerOptions));
             return workOrder;
         }

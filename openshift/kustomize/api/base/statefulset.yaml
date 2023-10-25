@@ -87,11 +87,11 @@ spec:
               mountPath: /mnt/ingest
           resources:
             limits:
-              cpu: 150m
-              memory: 550Mi
+              cpu: 100m
+              memory: 1Gi
             requests:
-              cpu: 50m
-              memory: 380Mi
+              cpu: 75m
+              memory: 450Mi
           env:
             - name: ASPNETCORE_URLS
               value: http://+:8080
