@@ -1,9 +1,7 @@
 import styled from 'styled-components';
 
 export const TopicList = styled.div`
-  width: 100%;
   display: flex;
-  justify-content: center;
 
   .form-page {
     display: flex;

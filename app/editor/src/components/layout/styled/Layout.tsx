@@ -13,7 +13,7 @@ export const Layout = styled.div`
     flex-direction: column;
     align-items: stretch;
     flex-grow: 1;
-    overflow: hidden;
+    overflow: auto;
 
     & > .navbar:first-child {
       border-bottom: solid 1px #65799e;
@@ -21,15 +21,13 @@ export const Layout = styled.div`
   }
 
   main {
+    flex: 1 1 100%;
+    display: flex;
+    flex-direction: column;
     background-color: #f2f2f2;
-    flex-grow: 1;
-    padding: 10px;
     position: relative;
-    overflow-y: auto;
     margin: 0px;
     padding: 0;
-    display: flex;
-    justify-content: center;
   }
 
   & > header {

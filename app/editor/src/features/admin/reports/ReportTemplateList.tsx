@@ -26,7 +26,7 @@ export const ReportTemplateList: React.FC = () => {
   return (
     <styled.ReportList>
       <FormPage>
-        <Row className="add-media" justifyContent="flex-end">
+        <Row justifyContent="flex-end">
           <Col flex="1 1 0">
             Templates use the Razor syntax to generate the report. Each template controls what
             configuration options are available.

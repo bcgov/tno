@@ -1,12 +1,11 @@
-import moment from 'moment';
 import { IIngestModel } from 'tno-core';
 
-export const getStatus = (data: IIngestModel) => {
-  if (data.failedAttempts >= data.retryLimit) return 'Failed';
-  else if (!data.isEnabled) return 'Disabled';
-  else if (!data.lastRanOn) return 'Never Run';
+import { isRunning } from './isRunning';
 
-  const lastDelay = moment();
-  const lastRanOn = moment(data.lastRanOn).add(5, 'minutes');
-  return lastRanOn.isValid() && lastRanOn >= lastDelay ? 'Running' : 'Waiting';
+export const getStatus = (ingest: IIngestModel) => {
+  if (ingest.failedAttempts >= ingest.retryLimit) return 'Failed';
+  else if (!ingest.isEnabled) return 'Disabled';
+  else if (!ingest.lastRanOn) return 'Never Run';
+
+  return isRunning(ingest) ? 'Running' : 'Not Running';
 };

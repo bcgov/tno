@@ -33,9 +33,7 @@ export const TopicScoreRuleList = styled.div`
     grid-template-columns: 3fr 3fr 2fr repeat(9, 1fr);
     align-items: center;
     grid-gap: 0.25em;
-    max-height: 750px;
     min-height: 200px;
-    overflow-y: auto;
 
     > div {
       &.center {

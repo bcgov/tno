@@ -7,8 +7,9 @@ export const defaultFilter: IFilterModel = {
   ownerId: undefined,
   query: {},
   settings: {
-    searchUnpublished: false,
+    from: 0,
     size: 100,
+    searchUnpublished: false,
     inHeadline: false,
     inByline: false,
     inStory: false,
