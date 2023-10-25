@@ -19,6 +19,7 @@ export const defaultReport = (ownerId: number | undefined = 0): IReportForm => {
         showTodaysDate: false,
       },
       headline: {
+        showByline: false,
         showSource: false,
         showShortName: false,
         showPublishedOn: false,

@@ -60,7 +60,7 @@ export const ReportAdminSettings: React.FC = () => {
               <FormikCheckbox name="settings.headline.showSource" label="Show source" />
               <FormikCheckbox name="settings.headline.showShortName" label="Show common call" />
               <FormikCheckbox name="settings.headline.showPublishedOn" label="Show published on" />
-              <FormikCheckbox name="settings.headline.showByline" label="Show byline" disabled />
+              <FormikCheckbox name="settings.headline.showByline" label="Show byline" />
               <FormikCheckbox name="settings.headline.showSentiment" label="Show sentiment" />
             </Col>
             <Col className="frm-in">

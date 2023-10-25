@@ -17,6 +17,7 @@ export const defaultReport: IReportModel = {
       showTodaysDate: false,
     },
     headline: {
+      showByline: false,
       showSource: false,
       showShortName: false,
       showPublishedOn: false,

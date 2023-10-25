@@ -147,6 +147,7 @@ export const ReportFormSections = () => {
               <FormikCheckbox label="Show Source" name="settings.headline.showSource" />
               <FormikCheckbox label="Show Common Call" name="settings.headline.showShortName" />
               <FormikCheckbox label="Show Published On" name="settings.headline.showPublishedOn" />
+              <FormikCheckbox label="Show Byline" name="settings.headline.showByline" />
               <FormikCheckbox label="Show Sentiment" name="settings.headline.showSentiment" />
             </Row>
           </Col>
