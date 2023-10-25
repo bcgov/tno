@@ -11,6 +11,8 @@ public class ReportSettingsModel
     public ReportHeadlineSettingsModel Headline { get; set; } = new();
     public ReportContentSettingsModel Content { get; set; } = new();
     public ReportSectionsSettingsModel Sections { get; set; } = new();
+    public bool HideEmpty { get; set; }
+    public bool IncludeStory { get; set; }
     #endregion
 
     #region Constructors
@@ -18,6 +20,8 @@ public class ReportSettingsModel
 
     public ReportSettingsModel(Dictionary<string, object> settings, JsonSerializerOptions options)
     {
+        this.HideEmpty = settings.GetDictionaryJsonValue("hideEmpty", false, options);
+        this.IncludeStory = settings.GetDictionaryJsonValue("includeStory", false, options);
         this.ViewOnWebOnly = settings.GetDictionaryJsonValue("viewOnWebOnly", false, options);
         this.Subject = settings.GetDictionaryJsonValue<ReportSubjectSettingsModel>("subject", new(), options)!;
         this.Headline = settings.GetDictionaryJsonValue<ReportHeadlineSettingsModel>("headline", new(), options)!;

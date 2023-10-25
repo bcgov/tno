@@ -10,6 +10,7 @@ public class ReportHeadlineSettingsModel
     public bool ShowShortName { get; set; }
     public bool ShowPublishedOn { get; set; }
     public bool ShowSentiment { get; set; }
+    public bool ShowByline { get; set; }
     #endregion
 
     #region Constructors
@@ -21,6 +22,7 @@ public class ReportHeadlineSettingsModel
         this.ShowShortName = settings.GetDictionaryJsonValue<bool>("showShortName", false, options)!;
         this.ShowPublishedOn = settings.GetDictionaryJsonValue<bool>("showPublishedOn", false, options)!;
         this.ShowSentiment = settings.GetDictionaryJsonValue<bool>("showSentiment", false, options)!;
+        this.ShowByline = settings.GetDictionaryJsonValue<bool>("showByline", false, options)!;
     }
     #endregion
 }
