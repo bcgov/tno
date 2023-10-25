@@ -1,4 +1,3 @@
-import { faL, faLeaf } from '@fortawesome/free-solid-svg-icons';
 import { IReportModel } from 'tno-core';
 
 import { defaultReportSchedule } from './defaultReportSchedule';
