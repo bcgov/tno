@@ -7,10 +7,13 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Ingest;
 using TNO.API.Models;
+using TNO.API.Models.SignalR;
 using TNO.Core.Exceptions;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Entities.Models;
+using TNO.Kafka;
+using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 
 namespace TNO.API.Areas.Admin.Controllers;
@@ -32,6 +35,8 @@ public class IngestController : ControllerBase
 {
     #region Variables
     private readonly IIngestService _service;
+    private readonly IKafkaMessenger _kafkaMessenger;
+    private readonly KafkaHubConfig _kafkaHubOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -40,10 +45,18 @@ public class IngestController : ControllerBase
     /// Creates a new instance of a IngestController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
+    /// <param name="kafkaMessenger"></param>
+    /// <param name="kafkaHubOptions"></param>
     /// <param name="serializerOptions"></param>
-    public IngestController(IIngestService service, IOptions<JsonSerializerOptions> serializerOptions)
+    public IngestController(
+        IIngestService service,
+      IKafkaMessenger kafkaMessenger,
+      IOptions<KafkaHubConfig> kafkaHubOptions,
+      IOptions<JsonSerializerOptions> serializerOptions)
     {
         _service = service;
+        _kafkaMessenger = kafkaMessenger;
+        _kafkaHubOptions = kafkaHubOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -122,10 +135,12 @@ public class IngestController : ControllerBase
     [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
-    public IActionResult Update(IngestModel model)
+    public async Task<IActionResult> UpdateAsync(IngestModel model)
     {
         var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions), true);
         result = _service.FindById(result.Id) ?? throw new NoContentException();
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic,
+            new KafkaHubMessage(HubEvent.SendGroup, "editor", new KafkaInvocationMessage(MessageTarget.IngestUpdated, new[] { new IngestMessageModel(result) })));
         return new JsonResult(new IngestModel(result, _serializerOptions));
     }
 

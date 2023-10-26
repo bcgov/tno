@@ -26,6 +26,10 @@ export interface IHubController {
   listen: (target: MessageTargetName, newMethod: (...args: any[]) => void) => () => void;
   /** Add event listener and return function to remove listener. */
   useHubEffect: (target: MessageTargetName, newMethod: (...args: any[]) => void) => void;
+  /** Send a message to the hub */
+  send: (target: string, args: any[]) => Promise<void>;
+  /** Invoke a message to the hub */
+  invoke: (target: string, args: any[]) => Promise<any>;
 }
 
 /**
@@ -34,12 +38,11 @@ export interface IHubController {
  * @returns Hook controller.
  */
 export const useApiHub = (): IHubController => {
-  const [state, setState] = React.useState(hub?.state ?? HubConnectionState.Disconnected);
-  const [, app] = useAppStore();
+  const [{ hubState }, { addError, changeHubState }] = useAppStore();
   const auth = useKeycloakWrapper();
 
   React.useEffect(() => {
-    if (hub === undefined) {
+    if (hub === undefined && auth.instance.token) {
       hub = new HubConnectionBuilder()
         .withUrl(url, {
           withCredentials: true,
@@ -49,32 +52,39 @@ export const useApiHub = (): IHubController => {
         .withAutomaticReconnect()
         .build();
       hub.onclose(() => {
-        setState(hub.state);
+        changeHubState(hub.state);
       });
       hub.onreconnected(() => {
-        setState(hub.state);
+        changeHubState(hub.state);
       });
       hub.onreconnecting(() => {
-        setState(hub.state);
+        changeHubState(hub.state);
       });
+      changeHubState(HubConnectionState.Connecting);
       hub
         .start()
         .then(() => {
-          setState(hub.state);
+          changeHubState(hub.state);
         })
         .catch((error) => {
-          setState(hub.state);
+          changeHubState(hub.state);
           console.error('signalR', error);
-          app.addError({
+          addError({
             statusText: error.errorType,
             message: error.message,
           });
         });
     }
-  }, [app, auth]);
+  }, [addError, auth.instance.token, changeHubState]);
 
   return {
-    state,
+    state: hubState,
+    send: async (target: string, args: any[]) => {
+      if (hub.state === HubConnectionState.Connected) await hub.send(target, ...args);
+    },
+    invoke: async (target: string, args: any[]) => {
+      if (hub.state === HubConnectionState.Connected) await hub.invoke(target, ...args);
+    },
     start: () => hub.start(),
     on: (target: string, callback: (...args: any[]) => void) => hub.on(target, callback),
     off: (target: string, callback: (...args: any[]) => void) => hub.off(target, callback),

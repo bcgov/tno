@@ -46,7 +46,7 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 3Gi
+            storage: 7Gi
         storageClassName: netapp-block-standard
       affinity:
         podAntiAffinity:
@@ -80,7 +80,7 @@ spec:
           limits:
             cpu: 250m
             memory: 1Gi
-      jobs: 
+      jobs:
         ttlSecondsAfterFinished: 100
       repos:
         - name: repo1

@@ -33,6 +33,6 @@ export interface IIngestModel extends IAuditColumnsModel {
   dataLocations: IDataLocationModel[];
 
   // State properties
-  lastRanOn?: Date;
+  lastRanOn?: string;
   failedAttempts: number;
 }

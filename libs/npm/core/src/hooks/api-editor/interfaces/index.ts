@@ -43,6 +43,7 @@ export * from './IFolderScheduleModel';
 export * from './IFolderSettingsModel';
 export * from './IHolidayModel';
 export * from './IIngestFilter';
+export * from './IIngestMessageModel';
 export * from './IIngestModel';
 export * from './IIngestScheduleModel';
 export * from './IIngestTypeFilter';
