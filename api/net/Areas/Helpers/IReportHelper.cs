@@ -21,10 +21,10 @@ public interface IReportHelper
     /// <param name="model"></param>
     /// <param name="index"></param>
     /// <param name="filter"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    Task<ChartResultModel> GenerateJsonAsync(ChartRequestModel model, string? index, JsonDocument? filter, bool updateCache = false);
+    Task<ChartResultModel> GenerateJsonAsync(ChartRequestModel model, string? index, JsonDocument? filter, bool isPreview = false);
 
     /// <summary>
     /// Executes the chart template provided to generate JSON, which is then sent with a request to the Charts API to generate a base 64 image.
@@ -32,9 +32,9 @@ public interface IReportHelper
     /// <param name="model"></param>
     /// <param name="index"></param>
     /// <param name="filter"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns>Returns the base64 image from the Charts API.</returns>
-    Task<string> GenerateBase64ImageAsync(ChartRequestModel model, string? index, JsonDocument? filter, bool updateCache = false);
+    Task<string> GenerateBase64ImageAsync(ChartRequestModel model, string? index, JsonDocument? filter, bool isPreview = false);
 
     /// <summary>
     /// Generate an instance of the report.
@@ -54,23 +54,23 @@ public interface IReportHelper
     /// Uses the content already in the report instance.
     /// </summary>
     /// <param name="model"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
     Task<ReportResultModel> GenerateReportAsync(
         Areas.Services.Models.ReportInstance.ReportInstanceModel model,
-        bool updateCache = false);
+        bool isPreview = false);
 
     /// <summary>
     /// Execute the report template to generate the subject and body.
     /// If the report sections contain charts it will also generate them and include them in the results.
     /// </summary>
     /// <param name="model"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    Task<ReportResultModel> GenerateReportAsync(Areas.Services.Models.Report.ReportModel model, bool updateCache = false);
+    Task<ReportResultModel> GenerateReportAsync(Areas.Services.Models.Report.ReportModel model, bool isPreview = false);
 
     /// <summary>
     /// Execute the report template to generate the subject and body.
@@ -78,12 +78,12 @@ public interface IReportHelper
     /// Fetch content from elasticsearch and folders.
     /// </summary>
     /// <param name="instance"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="NotImplementedException"></exception>
     Task<ReportResultModel> GenerateReportAsync(
         AVOverviewInstanceModel instance,
-        bool updateCache = false);
+        bool isPreview = false);
     #endregion
 }

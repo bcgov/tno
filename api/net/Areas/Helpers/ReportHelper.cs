@@ -75,14 +75,14 @@ public class ReportHelper : IReportHelper
     /// <param name="model"></param>
     /// <param name="index"></param>
     /// <param name="filter"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<ChartResultModel> GenerateJsonAsync(
         ChartRequestModel model,
         string? index = null,
         JsonDocument? filter = null,
-        bool updateCache = false)
+        bool isPreview = false)
     {
         var chart = model.ChartTemplate;
         SearchResultModel<Areas.Services.Models.Content.ContentModel>? searchResults = null;
@@ -94,7 +94,7 @@ public class ReportHelper : IReportHelper
         }
         chart.Content = content.ToArray();
 
-        var result = await _reportEngine.GenerateJsonAsync(model, updateCache);
+        var result = await _reportEngine.GenerateJsonAsync(model, isPreview);
         result.Results = searchResults != null ? JsonDocument.Parse(JsonSerializer.Serialize(searchResults)) : null;
         return result;
     }
@@ -105,16 +105,16 @@ public class ReportHelper : IReportHelper
     /// <param name="model"></param>
     /// <param name="index"></param>
     /// <param name="filter"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns>Returns the base64 image from the Charts API.</returns>
     public async Task<string> GenerateBase64ImageAsync(
         ChartRequestModel model,
         string? index = null,
         JsonDocument? filter = null,
-        bool updateCache = false)
+        bool isPreview = false)
     {
         // Get the Chart JSON data.
-        model.ChartData ??= (await this.GenerateJsonAsync(model, index, filter, updateCache)).Json;
+        model.ChartData ??= (await this.GenerateJsonAsync(model, index, filter, isPreview)).Json;
         return await _reportEngine.GenerateBase64ImageAsync(model);
     }
 
@@ -181,13 +181,13 @@ public class ReportHelper : IReportHelper
     /// Uses the content already in the report instance.
     /// </summary>
     /// <param name="model"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<ReportResultModel> GenerateReportAsync(
         Areas.Services.Models.ReportInstance.ReportInstanceModel model,
-        bool updateCache = false)
+        bool isPreview = false)
     {
         var reportModel = model.Report ?? throw new ArgumentException("Parameter 'model.Report' is required");
         if (model.Report.Template == null) throw new ArgumentException("Parameter 'model.Report.Template' is required");
@@ -203,7 +203,7 @@ public class ReportHelper : IReportHelper
             return new ReportSectionModel(section, content);
         });
 
-        return await GenerateReportAsync(reportModel, sections, updateCache);
+        return await GenerateReportAsync(reportModel, sections, isPreview);
     }
 
     /// <summary>
@@ -212,13 +212,13 @@ public class ReportHelper : IReportHelper
     /// Fetch content from elasticsearch and folders.
     /// </summary>
     /// <param name="model"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="NotImplementedException"></exception>
     public async Task<ReportResultModel> GenerateReportAsync(
         Areas.Services.Models.Report.ReportModel model,
-        bool updateCache = false)
+        bool isPreview = false)
     {
         if (model.Template == null) throw new ArgumentException("Parameter 'model.Template' is required");
 
@@ -234,7 +234,7 @@ public class ReportHelper : IReportHelper
             return new ReportSectionModel(section, content);
         });
 
-        var result = await GenerateReportAsync(model, sections, updateCache);
+        var result = await GenerateReportAsync(model, sections, isPreview);
         result.Data = elasticResults;
         return result;
 
@@ -246,16 +246,16 @@ public class ReportHelper : IReportHelper
     /// </summary>
     /// <param name="report"></param>
     /// <param name="sections"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     private async Task<ReportResultModel> GenerateReportAsync(
         Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sections,
-        bool updateCache = false)
+        bool isPreview = false)
     {
-        var subject = await _reportEngine.GenerateReportSubjectAsync(report, sections, updateCache);
-        var body = await _reportEngine.GenerateReportBodyAsync(report, sections, _storageOptions.GetUploadPath(), updateCache);
+        var subject = await _reportEngine.GenerateReportSubjectAsync(report, sections, isPreview);
+        var body = await _reportEngine.GenerateReportBodyAsync(report, sections, _storageOptions.GetUploadPath(), isPreview);
 
         return new ReportResultModel(subject, body);
     }
@@ -267,17 +267,17 @@ public class ReportHelper : IReportHelper
     /// Fetch content from elasticsearch and folders.
     /// </summary>
     /// <param name="instance"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="NotImplementedException"></exception>
     public async Task<ReportResultModel> GenerateReportAsync(
         AVOverviewInstanceModel instance,
-        bool updateCache = false)
+        bool isPreview = false)
     {
         var template = _overviewTemplateService.FindById(instance.TemplateType) ?? throw new InvalidOperationException($"AV overview template '{instance.TemplateType.GetName()}' not found.");
         if (template.Template == null) throw new InvalidOperationException($"Report template '{instance.TemplateType.GetName()}' not found.");
-        var result = await GenerateReportAsync(new Areas.Services.Models.AVOverview.ReportTemplateModel(template.Template, _serializerOptions), instance, updateCache);
+        var result = await GenerateReportAsync(new Areas.Services.Models.AVOverview.ReportTemplateModel(template.Template, _serializerOptions), instance, isPreview);
         result.Data = instance;
         return result;
     }
@@ -287,16 +287,16 @@ public class ReportHelper : IReportHelper
     /// </summary>
     /// <param name="reportTemplate"></param>
     /// <param name="instance"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     private async Task<ReportResultModel> GenerateReportAsync(
         Areas.Services.Models.AVOverview.ReportTemplateModel reportTemplate,
         AVOverviewInstanceModel instance,
-        bool updateCache = false)
+        bool isPreview = false)
     {
-        var subject = await _reportEngine.GenerateReportSubjectAsync(reportTemplate, instance, updateCache);
-        var body = await _reportEngine.GenerateReportBodyAsync(reportTemplate, instance, updateCache);
+        var subject = await _reportEngine.GenerateReportSubjectAsync(reportTemplate, instance, isPreview);
+        var body = await _reportEngine.GenerateReportBodyAsync(reportTemplate, instance, isPreview);
 
         return new ReportResultModel(subject, body);
     }

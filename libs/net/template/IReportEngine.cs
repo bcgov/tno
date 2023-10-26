@@ -11,30 +11,30 @@ public interface IReportEngine
     /// If the model includes a Filter it will make a request to Elasticsearch.
     /// </summary>
     /// <param name="model"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    Task<ChartResultModel> GenerateJsonAsync(ChartRequestModel model, bool updateCache = false);
+    Task<ChartResultModel> GenerateJsonAsync(ChartRequestModel model, bool isPreview = false);
 
     /// <summary>
     /// Executes the chart template provided to generate JSON, which is then sent with a request to the Charts API to generate a base64 image.
     /// </summary>
     /// <param name="model"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns>Returns the base64 image from the Charts API.</returns>
-    Task<string> GenerateBase64ImageAsync(ChartRequestModel model, bool updateCache = false);
+    Task<string> GenerateBase64ImageAsync(ChartRequestModel model, bool isPreview = false);
 
     /// <summary>
     /// Generate the output of the report with the Razor engine.
     /// </summary>
     /// <param name="report"></param>
     /// <param name="sectionContent"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     Task<string> GenerateReportSubjectAsync(
         API.Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sectionContent,
-        bool updateCache = false);
+        bool isPreview = false);
 
     /// <summary>
     /// Generate the output of the report with the Razor engine.
@@ -42,37 +42,37 @@ public interface IReportEngine
     /// <param name="report"></param>
     /// <param name="sectionContent"></param>
     /// <param name="uploadPath"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     Task<string> GenerateReportBodyAsync(
         API.Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sectionContent,
         string? uploadPath = null,
-        bool updateCache = false);
+        bool isPreview = false);
 
     /// <summary>
     /// Generate the output of the report with the Razor engine.
     /// </summary>
     /// <param name="reportTemplate"></param>
     /// <param name="eveningOverview"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     Task<string> GenerateReportSubjectAsync(
         API.Areas.Services.Models.AVOverview.ReportTemplateModel reportTemplate,
         AVOverviewInstanceModel eveningOverview,
-        bool updateCache = false);
+        bool isPreview = false);
 
     /// <summary>
     /// Generate the output of the report with the Razor engine.
     /// </summary>
     /// <param name="reportTemplate"></param>
     /// <param name="eveningOverview"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     Task<string> GenerateReportBodyAsync(
         API.Areas.Services.Models.AVOverview.ReportTemplateModel reportTemplate,
         AVOverviewInstanceModel eveningOverview,
-        bool updateCache = false);
+        bool isPreview = false);
 }
