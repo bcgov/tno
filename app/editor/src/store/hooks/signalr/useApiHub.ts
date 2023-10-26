@@ -9,7 +9,7 @@ import { useAppStore } from 'store/slices';
 import { MessageTargetName, Settings, useKeycloakWrapper } from 'tno-core';
 
 const url = Settings.ApiPath + '/hub';
-let hub: HubConnection;
+let hub: HubConnection | null = null;
 
 export interface IHubController {
   /** The state of the hub connection. */
@@ -42,7 +42,7 @@ export const useApiHub = (): IHubController => {
   const auth = useKeycloakWrapper();
 
   React.useEffect(() => {
-    if (hub === undefined && auth.instance.token) {
+    if (!hub && auth.instance.token) {
       hub = new HubConnectionBuilder()
         .withUrl(url, {
           withCredentials: true,
@@ -52,22 +52,22 @@ export const useApiHub = (): IHubController => {
         .withAutomaticReconnect()
         .build();
       hub.onclose(() => {
-        changeHubState(hub.state);
+        changeHubState(hub!.state);
       });
       hub.onreconnected(() => {
-        changeHubState(hub.state);
+        changeHubState(hub!.state);
       });
       hub.onreconnecting(() => {
-        changeHubState(hub.state);
+        changeHubState(hub!.state);
       });
       changeHubState(HubConnectionState.Connecting);
       hub
         .start()
         .then(() => {
-          changeHubState(hub.state);
+          changeHubState(hub!.state);
         })
         .catch((error) => {
-          changeHubState(hub.state);
+          changeHubState(hub!.state);
           console.error('signalR', error);
           addError({
             statusText: error.errorType,
@@ -80,26 +80,26 @@ export const useApiHub = (): IHubController => {
   return {
     state: hubState,
     send: async (target: string, args: any[]) => {
-      if (hub.state === HubConnectionState.Connected) await hub.send(target, ...args);
+      if (hub?.state === HubConnectionState.Connected) await hub.send(target, ...args);
     },
     invoke: async (target: string, args: any[]) => {
-      if (hub.state === HubConnectionState.Connected) await hub.invoke(target, ...args);
+      if (hub?.state === HubConnectionState.Connected) await hub.invoke(target, ...args);
     },
-    start: () => hub.start(),
-    on: (target: string, callback: (...args: any[]) => void) => hub.on(target, callback),
-    off: (target: string, callback: (...args: any[]) => void) => hub.off(target, callback),
-    stop: () => hub.stop(),
+    start: () => hub?.start() ?? Promise.resolve(),
+    on: (target: string, callback: (...args: any[]) => void) => hub?.on(target, callback),
+    off: (target: string, callback: (...args: any[]) => void) => hub?.off(target, callback),
+    stop: () => hub?.stop() ?? Promise.resolve(),
     listen: (target: MessageTargetName, callback: (...args: any[]) => void) => {
-      hub.on(target, callback);
+      hub?.on(target, callback);
       return () => {
-        hub.off(target, callback);
+        hub?.off(target, callback);
       };
     },
     useHubEffect: (target: MessageTargetName, callback: (...args: any[]) => void) => {
       React.useEffect(() => {
-        hub.on(target, callback);
+        hub?.on(target, callback);
         return () => {
-          hub.off(target, callback);
+          hub?.off(target, callback);
         };
       }, [target, callback]);
     },
