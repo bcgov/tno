@@ -3,34 +3,39 @@ export const generateQueryForAction = (
   value: string,
   valueType: string | undefined = 'Boolean',
 ) => {
+  let matches: any[] = [
+    {
+      match: {
+        'actions.id': id,
+      },
+    },
+    {
+      match: {
+        'actions.valueType': valueType,
+      },
+    },
+  ];
+  if (!!value)
+    matches = [
+      ...matches,
+      value === '*'
+        ? {
+            wildcard: {
+              'actions.valueLabel': value,
+            },
+          }
+        : {
+            match: {
+              'actions.valueLabel': value,
+            },
+          },
+    ];
   return {
     nested: {
       path: 'actions',
       query: {
         bool: {
-          must: [
-            {
-              match: {
-                'actions.id': id,
-              },
-            },
-            {
-              match: {
-                'actions.valueType': valueType,
-              },
-            },
-            value === '*'
-              ? {
-                  wildcard: {
-                    'actions.value': value,
-                  },
-                }
-              : {
-                  match: {
-                    'actions.value': value,
-                  },
-                },
-          ],
+          must: matches,
         },
       },
     },
