@@ -1,4 +1,4 @@
-FROM node:18-bullseye
+FROM node:18-bullseye-slim
 
 # RUN apt-get update && \
 #   apt-get install nano
