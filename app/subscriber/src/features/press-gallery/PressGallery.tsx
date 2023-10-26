@@ -193,7 +193,6 @@ export const PressGallery: React.FC = () => {
           placeholder={'Select a date'}
           clearValue={() => setDateValue(undefined)}
           onChange={(e: any) => {
-            console.log(e);
             if (!!e.value) {
               setDateValue(e);
               // can only use one of the two filters

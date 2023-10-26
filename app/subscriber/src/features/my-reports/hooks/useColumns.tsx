@@ -1,4 +1,4 @@
-import { FaEdit, FaEye, FaFileAlt, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaFileAlt, FaTrash } from 'react-icons/fa';
 import { FaChartPie, FaGear } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
@@ -51,11 +51,6 @@ export const useColumns = (
       width: '100px',
       cell: (cell) => (
         <Row gap="0.5rem">
-          <FaEye
-            className="btn-link"
-            onClick={() => navigate(`/report/instances/${cell.original.id}/view`)}
-            title="Instances"
-          />
           <FaGear
             className="btn-link"
             onClick={() => navigate(`/reports/${cell.original.id}`)}
