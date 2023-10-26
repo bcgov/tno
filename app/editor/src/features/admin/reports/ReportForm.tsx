@@ -69,7 +69,7 @@ const ReportForm: React.FC = () => {
         })
         .catch(() => {});
     }
-  }, [getReport, report?.id, reportId]);
+  }, [getReport, previewReport, report?.id, reportId]);
 
   const handleSubmit = async (values: IReportModel) => {
     try {
