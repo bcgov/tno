@@ -6,9 +6,9 @@ export class Page<T> implements IPage<T> {
   pageSize: number;
   pageCount: number;
   items: T[];
-  total: number;
+  total: number | undefined;
 
-  constructor(pageIndex: number, pageSize: number, items: T[], totalItems: number) {
+  constructor(pageIndex: number, pageSize: number, items: T[], totalItems?: number) {
     this.pageIndex = pageIndex;
     this.pageSize = pageSize;
     this.pageCount = calcPages(pageSize, totalItems);

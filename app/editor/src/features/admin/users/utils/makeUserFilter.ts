@@ -1,7 +1,6 @@
 import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
+import { ISortBy } from 'features/interfaces';
 import { IUserFilter } from 'tno-core';
-
-import { ISortBy } from '../../../content/list-view/interfaces'; // TODO: Move shared interface into better location
 
 /**
  * Creates a IUserFilter that can be passed to the API hook endpoint.

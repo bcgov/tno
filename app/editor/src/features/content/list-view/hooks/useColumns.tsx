@@ -1,5 +1,7 @@
 import { Status } from 'components/status';
 import { TabControl } from 'components/tab-control';
+import { AdvancedSearchKeys } from 'features/content/constants';
+import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
 import { FaFeather } from 'react-icons/fa';
 import { useContent } from 'store/hooks';
 import { IContentSearchResult } from 'store/slices';
@@ -14,9 +16,6 @@ import {
   Row,
   Show,
 } from 'tno-core';
-
-import { AdvancedSearchKeys } from '../constants';
-import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
 
 export interface IColumnProps {
   fetch: (

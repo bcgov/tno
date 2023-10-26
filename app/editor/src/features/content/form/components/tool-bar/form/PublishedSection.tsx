@@ -3,7 +3,7 @@ import React from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';
-import { Col, Row } from 'tno-core';
+import { Col, Row, Settings } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -14,7 +14,7 @@ export interface IPublishedSectionProps {
 
 export const PublishedSection: React.FC<IPublishedSectionProps> = ({ values }) => {
   const [{ settings }] = useLookup();
-  const subscriberUrl = settings.find((i) => i.name === 'SubscriberUrl')?.value;
+  const subscriberUrl = settings.find((i) => i.name === Settings.SubscriberUrl)?.value;
 
   return (
     <styled.PublishedSection

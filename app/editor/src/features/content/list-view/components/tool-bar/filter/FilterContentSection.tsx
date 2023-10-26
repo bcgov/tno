@@ -1,4 +1,4 @@
-import { IContentListFilter } from 'features/content/list-view/interfaces';
+import { IContentListFilter } from 'features/content/interfaces';
 import React from 'react';
 import { FaClock, FaFilter, FaIcons, FaUsers } from 'react-icons/fa';
 import { useApp, useContent, useLookupOptions } from 'store/hooks';

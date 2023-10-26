@@ -1,5 +1,5 @@
-import { AdvancedSearchKeys, advancedSearchOptions } from 'features/content/list-view/constants';
-import { IContentListAdvancedFilter } from 'features/content/list-view/interfaces';
+import { AdvancedSearchKeys, advancedSearchOptions } from 'features/content/constants';
+import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
 import { useContent } from 'store/hooks';
@@ -21,15 +21,13 @@ import {
   ToolBarSection,
 } from 'tno-core';
 
-import { IPaperFilter } from '../interfaces';
-
 export interface IAdvancedFilterProps {
   /** The current filter values. */
-  filter: IPaperFilter;
+  filter: IContentListFilter;
   /** Event when filter changes. */
-  onFilterChange: (filter: IPaperFilter) => void;
+  onFilterChange: (filter: IContentListFilter) => void;
   /** Event fire when user executes search. */
-  onSearch: (filter: IPaperFilter & IContentListAdvancedFilter) => void;
+  onSearch: (filter: IContentListFilter & IContentListAdvancedFilter) => void;
 }
 
 /**

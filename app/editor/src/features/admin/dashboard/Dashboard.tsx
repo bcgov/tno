@@ -33,7 +33,7 @@ const groupIngests = (ingests: IIngestModel[], typeId?: number) => {
 };
 
 export const Dashboard: React.FC = () => {
-  const [{ ingests }, { findAllIngests }] = useIngests();
+  const [{ ingests }, { findAllIngests, storeIngest }] = useIngests();
   const [, { findAllIngestTypes }] = useIngestTypes();
   const [{ ingestTypeOptions }] = useLookupOptions();
   const navigate = useNavigate();
@@ -77,13 +77,11 @@ export const Dashboard: React.FC = () => {
 
   hub.useHubEffect(MessageTargetName.IngestUpdated, (message: IIngestMessageModel) => {
     // Update the ingest status.
-    setGroups(
-      groupIngests(
-        ingests.map((i) =>
-          i.id === message.id
-            ? { ...i, lastRanOn: message.lastRanOn, isEnabled: message.isEnabled }
-            : i,
-        ),
+    storeIngest(
+      ingests.map((i) =>
+        i.id === message.id
+          ? { ...i, lastRanOn: message.lastRanOn, isEnabled: message.isEnabled }
+          : i,
       ),
     );
   });

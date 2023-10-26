@@ -1,7 +1,7 @@
 import { Status } from 'components/status';
 import { TabControl } from 'components/tab-control';
-import { AdvancedSearchKeys } from 'features/content/list-view/constants';
-import { IContentListAdvancedFilter } from 'features/content/list-view/interfaces';
+import { AdvancedSearchKeys } from 'features/content/constants';
+import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
 import { useContent } from 'store/hooks';
 import { IContentSearchResult } from 'store/slices';
 import {
@@ -14,11 +14,9 @@ import {
   Row,
 } from 'tno-core';
 
-import { IPaperFilter } from '../interfaces';
-
 export interface IColumnProps {
   fetch: (
-    filter: IPaperFilter & Partial<IContentListAdvancedFilter>,
+    filter: IContentListFilter & Partial<IContentListAdvancedFilter>,
   ) => Promise<Page<IContentModel>>;
   onClickUse: (content: IContentSearchResult) => void;
 }
@@ -27,7 +25,7 @@ export const useColumns = ({
   fetch,
   onClickUse,
 }: IColumnProps): ITableHookColumn<IContentSearchResult>[] => {
-  const [{ filterPaper, filterAdvanced }, { storeFilterAdvanced }] = useContent();
+  const [{ filterPaper, filterPaperAdvanced }, { storeFilterPaperAdvanced }] = useContent();
 
   return [
     {
@@ -38,6 +36,7 @@ export const useColumns = ({
           Headline
         </Row>
       ),
+      showSort: false,
       cell: (cell) => <CellEllipsis>{cell.original.headline}</CellEllipsis>,
       width: 6,
     },
@@ -60,17 +59,17 @@ export const useColumns = ({
           <Checkbox
             name="page"
             checked={
-              filterAdvanced.fieldType === AdvancedSearchKeys.Page &&
-              filterAdvanced.searchTerm === '?*'
+              filterPaperAdvanced.fieldType === AdvancedSearchKeys.Page &&
+              filterPaperAdvanced.searchTerm === '?*'
             }
             onChange={async (e) => {
               const values = {
-                ...filterAdvanced,
+                ...filterPaperAdvanced,
                 fieldType: AdvancedSearchKeys.Page,
                 searchTerm: e.target.checked ? '?*' : '',
                 logicalOperator: LogicalOperator.Equals,
               };
-              storeFilterAdvanced(values);
+              storeFilterPaperAdvanced(values);
               await fetch({ ...filterPaper, ...values });
             }}
           />

@@ -1,6 +1,6 @@
 import { OptionItem } from 'tno-core';
 
-import { ShowOnlyValues } from '.';
+import { ShowOnlyValues } from './ShowOnlyValues';
 
 export const showOnlyOptions = [
   new OptionItem(ShowOnlyValues.PrintContent, ShowOnlyValues.PrintContent),

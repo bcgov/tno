@@ -1,11 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AdvancedSearchKeys } from 'features/content/list-view/constants';
-import {
-  IContentListAdvancedFilter,
-  IContentListFilter,
-} from 'features/content/list-view/interfaces';
+import { AdvancedSearchKeys } from 'features/content/constants';
+import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
 import { defaultPaperFilter } from 'features/content/papers/constants';
-import { IPaperFilter } from 'features/content/papers/interfaces';
 import { IContentModel, IPaged, LogicalOperator, saveToLocalStorage } from 'tno-core';
 
 import { IContentState } from './interfaces';
@@ -16,8 +12,7 @@ export const initialContentState: IContentState = {
     pageIndex: 0,
     pageSize: 500,
     hasTopic: false,
-    includeHidden: false,
-    onlyHidden: false,
+    isHidden: false,
     onlyPublished: false,
     otherSource: '',
     ownerId: '',
@@ -56,7 +51,7 @@ export const contentSlice = createSlice({
     storeFilterAdvanced(state: IContentState, action: PayloadAction<IContentListAdvancedFilter>) {
       state.filterAdvanced = action.payload;
     },
-    storeFilterPaper(state: IContentState, action: PayloadAction<IPaperFilter>) {
+    storeFilterPaper(state: IContentState, action: PayloadAction<IContentListFilter>) {
       state.filterPaper = action.payload;
     },
     storeFilterPaperAdvanced(

@@ -21,14 +21,13 @@ import {
   useCombinedView,
 } from 'tno-core';
 
+import { useElasticsearch } from '../hooks';
+import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
 import { defaultPage } from '../list-view/constants';
-import { IContentListAdvancedFilter } from '../list-view/interfaces';
 import { ReportActions } from './components';
 import { useColumns } from './hooks';
-import { IPaperFilter } from './interfaces';
 import { PaperFilter } from './PaperFilter';
 import * as styled from './styled';
-import { makeFilter } from './utils';
 const ContentForm = lazy(() => import('../form/ContentForm'));
 
 export interface IPapersProps extends React.HTMLAttributes<HTMLDivElement> {}
@@ -44,11 +43,12 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const { combined, formType } = useCombinedView();
   const [
     { filterPaper: filter, filterPaperAdvanced: filterAdvanced, searchResults },
-    { findContent, storeFilterPaper, updateContent: updateStatus, getContent },
+    { findContentWithElasticsearch, storeFilterPaper, updateContent: updateStatus, getContent },
   ] = useContent();
   const [, { addContent, updateContent }] = useContentStore();
   const { navigate } = useTab();
-  var hub = useApiHub();
+  const hub = useApiHub();
+  const toFilter = useElasticsearch();
 
   const [contentId, setContentId] = React.useState(id);
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
@@ -69,7 +69,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
     },
     [userId, getContent, addContent],
   );
-
   hub.useHubEffect(MessageTargetName.ContentAdded, onContentAdded);
 
   const onContentUpdated = React.useCallback(
@@ -83,7 +82,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
     },
     [searchResults?.items, getContent, updateContent],
   );
-
   hub.useHubEffect(MessageTargetName.ContentUpdated, onContentUpdated);
 
   const handleClickUse = React.useCallback(
@@ -118,15 +116,17 @@ const Papers: React.FC<IPapersProps> = (props) => {
   );
 
   const fetch = React.useCallback(
-    async (filter: IPaperFilter & Partial<IContentListAdvancedFilter>) => {
+    async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
       try {
         setIsLoading(true);
-        const data = await findContent(
-          makeFilter({
-            ...filter,
-          }),
+        const results = await findContentWithElasticsearch(toFilter(filter), true);
+        const data = results.hits.hits.filter((h) => !!h._source).map((h) => h._source!);
+        const page = new Page(
+          filter.pageIndex,
+          filter.pageSize,
+          data,
+          results.hits.total as number,
         );
-        const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
         return page;
       } catch (error) {
         // TODO: Handle error
@@ -135,7 +135,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
         setIsLoading(false);
       }
     },
-    [findContent],
+    [findContentWithElasticsearch, toFilter],
   );
 
   const columns = useColumns({ fetch, onClickUse: handleClickUse });
@@ -144,7 +144,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
     fetch({ ...filter, ...filterAdvanced });
     // Do not want to fetch when the advanced filter changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, fetch]);
+  }, [filter]);
 
   const handleRowClick = (
     cell: ITableInternalCell<IContentSearchResult>,

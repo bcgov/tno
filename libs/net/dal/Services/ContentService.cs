@@ -92,10 +92,8 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         if (filter.HasTopic.HasValue)
             query = query.Where(c => c.TopicsManyToMany.Any());
-        if (!filter.IncludeHidden.HasValue || !filter.IncludeHidden.Value)
-            query = query.Where(c => !c.IsHidden); // Do not return hidden content.
-        if (filter.OnlyHidden == true)
-            query = query.Where(c => c.IsHidden); // Only Hidden.
+        if (filter.IsHidden.HasValue)
+            query = query.Where(c => c.IsHidden == filter.IsHidden);
         if (filter.OnlyPublished.HasValue && filter.OnlyPublished.Value)
             query = query.Where(c => _onlyPublished.Contains(c.Status));
 
@@ -327,11 +325,8 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (filter.OwnerId.HasValue)
             filterQueries.Add(s => s.Term(t => t.OwnerId, filter.OwnerId.Value));
 
-        if (!filter.IncludeHidden.HasValue || !filter.IncludeHidden.Value)
-            filterQueries.Add(s => s.Term(t => t.IsHidden, false)); // Do not include hidden content.
-
-        if (filter.OnlyHidden == true)
-            filterQueries.Add(s => s.Term(t => t.IsHidden, true)); // Only hidden content.
+        if (!filter.IsHidden.HasValue)
+            filterQueries.Add(s => s.Term(t => t.IsHidden, filter.IsHidden));
 
         if (filter.HasTopic == true)
             filterQueries.Add(s => s.Nested(n => n.IgnoreUnmapped().Path(f => f.Topics).Query(q => q.MatchAll())));

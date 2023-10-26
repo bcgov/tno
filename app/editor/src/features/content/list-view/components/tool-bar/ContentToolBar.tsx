@@ -1,8 +1,8 @@
+import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
 import React from 'react';
 import { useContent } from 'store/hooks';
 import { fromQueryString, ToolBar } from 'tno-core';
 
-import { IContentListAdvancedFilter, IContentListFilter } from '../../../list-view/interfaces';
 import {
   AdvancedSearchSection,
   CreateNewSection,

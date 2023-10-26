@@ -1,13 +1,12 @@
 import { IFilterSettingsModel } from '../../hooks';
+import { generatePublishedOnQuery } from './generatePublishedOnQuery';
 import { generateQueryForActions } from './generateQueryForActions';
 import { generateQueryForExistCheck } from './generateQueryForExistCheck';
 import { generateRangeForArrayField } from './generateRangeForArrayField';
-import { generateRangeForDateOffset } from './generateRangeForDateOffset';
-import { generateRangeForDates } from './generateRangeForDates';
-import { generateSimpleQueryString } from './generateSimpleQueryString';
 import { generateTerm } from './generateTerm';
 import { generateTerms } from './generateTerms';
 import { generateTermsForArrayField } from './generateTermsForArrayField';
+import { generateTextQuery } from './generateTextQuery';
 
 /**
  * Generates an Elasticsearch query based on specified 'query'.
@@ -20,6 +19,7 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
   if (settings.size) elastic = { ...elastic, size: settings.size };
   if (settings.from) elastic = { ...elastic, from: settings.from };
 
+  const actionFilters = generateQueryForActions(settings.actions);
   elastic = {
     ...elastic,
     query: {
@@ -33,7 +33,8 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
           generateTerms('contentType', settings.contentTypes),
           generateTermsForArrayField('tags.code', settings.tags),
           generateRangeForArrayField('tonePools.value', settings.sentiment),
-          ...generateQueryForActions(settings.actions ?? []),
+          actionFilters.length > 1 ? { bool: { should: actionFilters } } : undefined,
+          actionFilters.length === 1 ? actionFilters[0] : undefined,
           generateTextQuery(settings),
           settings.edition ? generateTerm('edition', settings.edition) : undefined,
           settings.section ? generateTerm('section', settings.section) : undefined,
@@ -41,6 +42,7 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
           settings.status ? generateTerm('status', settings.status) : undefined,
           settings.userId ? generateTerm('ownerId', +settings.userId) : undefined,
           settings.hasTopic ? generateQueryForExistCheck('topics') : undefined,
+          settings.isHidden !== undefined ? generateTerm('isHidden', settings.isHidden) : undefined,
         ].filter((v) => v !== undefined),
       },
     },
@@ -62,32 +64,4 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
   }
 
   return elastic;
-};
-
-const generateTextQuery = (settings: IFilterSettingsModel) => {
-  if (!settings.search) return undefined;
-  if (!!settings.inHeadline && !!settings.inByline && !!settings.inStory) {
-    // give an arbitrary weight to the headline, so if it's found there
-    // it gets a slightly higher score, as opposed to other fields
-    return generateSimpleQueryString(
-      ['headline^5', 'byline', 'summary', 'body'],
-      settings.search,
-      settings.defaultSearchOperator,
-    );
-  }
-
-  let fields: string[] = [];
-  if (!!settings.inByline) fields = [...fields, 'byline'];
-  if (!!settings.inStory) fields = [...fields, 'summary', 'body'];
-  if (!!settings.inHeadline) fields = [...fields, 'headline'];
-  return fields.length > 0 ? generateSimpleQueryString(fields, settings.search) : undefined;
-};
-
-const generatePublishedOnQuery = (settings: IFilterSettingsModel) => {
-  if (settings.dateOffset !== undefined)
-    return generateRangeForDateOffset('publishedOn', settings.dateOffset);
-  if (settings.startDate && settings.endDate)
-    return generateRangeForDates('publishedOn', settings.startDate, settings.endDate);
-  if (settings.startDate) return generateRangeForDates('publishedOn', settings.startDate);
-  if (settings.endDate) return generateRangeForDates('publishedOn', null, settings.endDate);
 };
