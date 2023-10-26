@@ -1,3 +1,4 @@
+import { HubConnectionState } from '@microsoft/signalr';
 import { IUserInfoModel } from 'tno-core';
 
 import { IAjaxRequest, IErrorModel, IUserOptions } from '.';
@@ -15,4 +16,6 @@ export interface IAppState {
   errors: IErrorModel[];
   /** User preference options */
   options?: IUserOptions;
+  /** SignalR hub state */
+  hubState: HubConnectionState;
 }

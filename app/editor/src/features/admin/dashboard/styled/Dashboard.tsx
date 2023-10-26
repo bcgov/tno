@@ -30,21 +30,25 @@ export const Dashboard = styled.div`
 
       & div:first-child {
         flex: 1 1 100%;
-        overflow: auto;
+        overflow: hidden;
 
         h3 {
           flex: 1 1 100%;
           padding: 0.25rem;
+          overflow: auto;
         }
 
         .icon {
-          padding: 0.25rem 0.5rem;
-          color: rgba(255, 255, 255, 0.75);
+          padding: 0.15rem 0.25rem;
+          color: rgba(0, 0, 0, 0.5);
+          background: rgba(255, 255, 255, 0.5);
+          border-bottom-right-radius: 0.5rem;
         }
 
         svg:last-child {
           cursor: pointer;
           background-color: white;
+          box-shadow: 0 3px 3px grey;
           padding: 0.25rem;
           border-radius: 0.25rem;
           margin: 0.25rem;

@@ -6,8 +6,11 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.API.Models;
+using TNO.API.Models.SignalR;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
+using TNO.Kafka;
+using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 
 namespace TNO.API.Areas.Services.Controllers;
@@ -31,6 +34,8 @@ public class IngestController : ControllerBase
     private readonly IIngestStateService _serviceIngestState;
     private readonly IIngestService _serviceIngest;
     private readonly IScheduleService _serviceSchedule;
+    private readonly IKafkaMessenger _kafkaMessenger;
+    private readonly KafkaHubConfig _kafkaHubOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -41,16 +46,22 @@ public class IngestController : ControllerBase
     /// <param name="serviceIngestState"></param>
     /// <param name="serviceIngest"></param>
     /// <param name="serviceSchedule"></param>
+    /// <param name="kafkaMessenger"></param>
+    /// <param name="kafkaHubOptions"></param>
     /// <param name="serializerOptions"></param>
     public IngestController(
       IIngestStateService serviceIngestState,
       IIngestService serviceIngest,
       IScheduleService serviceSchedule,
+      IKafkaMessenger kafkaMessenger,
+      IOptions<KafkaHubConfig> kafkaHubOptions,
       IOptions<JsonSerializerOptions> serializerOptions)
     {
         _serviceIngestState = serviceIngestState;
         _serviceIngest = serviceIngest;
         _serviceSchedule = serviceSchedule;
+        _kafkaMessenger = kafkaMessenger;
+        _kafkaHubOptions = kafkaHubOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -125,10 +136,12 @@ public class IngestController : ControllerBase
     [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
-    public IActionResult UpdateState(IngestModel model)
+    public async Task<IActionResult> UpdateStateAsync(IngestModel model)
     {
         _serviceIngestState.AddOrUpdate(model.ToEntity(_serializerOptions).State!);
         var result = _serviceIngest.FindById(model.Id) ?? throw new NoContentException();
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic,
+            new KafkaHubMessage(HubEvent.SendGroup, "editor", new KafkaInvocationMessage(MessageTarget.IngestUpdated, new[] { new IngestMessageModel(result) })));
         return new JsonResult(new IngestModel(result, _serializerOptions));
     }
 
@@ -142,14 +155,15 @@ public class IngestController : ControllerBase
     [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
-    public IActionResult UpdateConfiguration(IngestModel model)
+    public async Task<IActionResult> UpdateConfigurationAsync(IngestModel model)
     {
         var convertedEntity = model.ToEntity(_serializerOptions);
         var target = _serviceIngest.FindById(model.Id) ?? throw new NoContentException("Ingest does not exist");
         target.Configuration = convertedEntity.Configuration;
         _serviceIngest.UpdateAndSave(target);
-
         var result = _serviceIngest.FindById(model.Id) ?? throw new NoContentException();
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic,
+            new KafkaHubMessage(HubEvent.SendGroup, "editor", new KafkaInvocationMessage(MessageTarget.IngestUpdated, new[] { new IngestMessageModel(result) })));
         return new JsonResult(new IngestModel(result, _serializerOptions));
     }
 

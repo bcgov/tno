@@ -3,13 +3,24 @@ import moment from 'moment';
 import React from 'react';
 import { FaEdit } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { useLookupOptions } from 'store/hooks';
+import { useApiHub, useLookupOptions } from 'store/hooks';
 import { useIngests, useIngestTypes } from 'store/hooks/admin';
-import { Checkbox, Col, FormPage, IIngestModel, Row, Section, Select } from 'tno-core';
+import {
+  Checkbox,
+  Col,
+  FormPage,
+  IIngestMessageModel,
+  IIngestModel,
+  MessageTargetName,
+  Row,
+  Section,
+  Select,
+} from 'tno-core';
 
-import { getStatus, isRunning } from '../ingests/utils';
+import { getStatus } from '../ingests/utils';
 import { useIngestIcon } from './hooks';
 import * as styled from './styled';
+import { getClassName } from './utils';
 
 const groupIngests = (ingests: IIngestModel[], typeId?: number) => {
   return _.groupBy(
@@ -27,14 +38,15 @@ export const Dashboard: React.FC = () => {
   const [{ ingestTypeOptions }] = useLookupOptions();
   const navigate = useNavigate();
   const getIngestIcon = useIngestIcon();
+  const hub = useApiHub();
 
   const [showAll, setShowAll] = React.useState(false);
   const [type, setType] = React.useState('');
   const [groups, setGroups] = React.useState(groupIngests(ingests));
 
   React.useEffect(() => {
-    findAllIngests().catch(() => {});
-    findAllIngestTypes().catch(() => {});
+    if (!ingests.length) findAllIngests().catch(() => {});
+    if (!ingestTypeOptions.length) findAllIngestTypes().catch(() => {});
     // Only on init
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -42,6 +54,39 @@ export const Dashboard: React.FC = () => {
   React.useEffect(() => {
     setGroups(groupIngests(ingests, +type));
   }, [ingests, type]);
+
+  React.useEffect(() => {
+    // Join the room for editor messages.
+    hub.send('joinRoom', ['editor']);
+    return () => {
+      hub.send('leaveRoom', ['editor']);
+    };
+    // Only do this when state changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hub.state]);
+
+  React.useEffect(() => {
+    // Refresh the status of each ingest.
+    const intervalId = setInterval(() => {
+      setGroups(groupIngests(ingests, +type));
+    }, 30000);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [ingests, type]);
+
+  hub.useHubEffect(MessageTargetName.IngestUpdated, (message: IIngestMessageModel) => {
+    // Update the ingest status.
+    setGroups(
+      groupIngests(
+        ingests.map((i) =>
+          i.id === message.id
+            ? { ...i, lastRanOn: message.lastRanOn, isEnabled: message.isEnabled }
+            : i,
+        ),
+      ),
+    );
+  });
 
   return (
     <styled.Dashboard>
@@ -74,12 +119,7 @@ export const Dashboard: React.FC = () => {
                 {g[1]
                   .filter((i) => showAll || i.isEnabled)
                   .map((i) => (
-                    <Section
-                      key={i.id}
-                      className={`ingest${!i.isEnabled ? ' disabled' : ''}${
-                        isRunning(i) ? ' running' : ' warning'
-                      }${i.retryLimit <= i.failedAttempts ? ' error' : ''}`}
-                    >
+                    <Section key={i.id} className={`ingest ${getClassName(getStatus(i))}`}>
                       <Row nowrap>
                         {getIngestIcon(i)}
                         <h3>{i.name}</h3>

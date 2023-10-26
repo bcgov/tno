@@ -18,4 +18,10 @@ public enum MessageTarget
 
     [Display(Name = "content-action-updated")]
     ContentActionUpdated = 4,
+
+    [Display(Name = "ingest-updated")]
+    IngestUpdated = 5,
+
+    [Display(Name = "ingest-deleted")]
+    IngestDeleted = 6,
 }

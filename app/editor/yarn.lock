@@ -2450,16 +2450,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@microsoft/signalr@npm:7.0.4":
-  version: 7.0.4
-  resolution: "@microsoft/signalr@npm:7.0.4"
+"@microsoft/signalr@npm:7.0.12":
+  version: 7.0.12
+  resolution: "@microsoft/signalr@npm:7.0.12"
   dependencies:
     abort-controller: ^3.0.0
     eventsource: ^2.0.2
     fetch-cookie: ^2.0.3
     node-fetch: ^2.6.7
     ws: ^7.4.5
-  checksum: 461e9779c12784f63e26eb83ed77920e4cae70dba76d7198e530afe911ff90c8901b4d494401775fa7c9d67e5f0ec0ef4d41f41a85795d0a7a18760eb7d3db87
+  checksum: dde799b6f34e573195b0db0b7fac4547853d17e71889ac7218ad056a988ad5231b371f3ea40f268a40cd243a6f266ba9906f57fbeab8ffe23e7aacb6258443f9
   languageName: node
   linkType: hard
 
@@ -10365,7 +10365,7 @@ __metadata:
     "@fortawesome/free-solid-svg-icons": 6.4.2
     "@fortawesome/react-fontawesome": 0.2.0
     "@headlessui/react": 1.7.13
-    "@microsoft/signalr": 7.0.4
+    "@microsoft/signalr": 7.0.12
     "@react-keycloak/web": 3.4.0
     "@reduxjs/toolkit": 1.9.3
     "@simbathesailor/use-what-changed": 2.0.0
@@ -10446,7 +10446,7 @@ __metadata:
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
     styled-components: 5.3.9
-    tno-core: 0.0.350
+    tno-core: 0.0.351
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -14495,9 +14495,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.0.350":
-  version: 0.0.350
-  resolution: "tno-core@npm:0.0.350"
+"tno-core@npm:0.0.351":
+  version: 0.0.351
+  resolution: "tno-core@npm:0.0.351"
   dependencies:
     "@elastic/elasticsearch": ^8.10.0
     "@fortawesome/free-solid-svg-icons": ^6.4.2
@@ -14527,7 +14527,7 @@ __metadata:
     react-tooltip: ^5.10.0
     styled-components: ^5.3.9
     yup: ^1.1.1
-  checksum: 9012e89e3cc008039acc543d74f09822a0321d548a3fa375554db700b2e781498009279cfdd8d5108f4e1c2f4357045ead36bb579029ba2892c5e91cd2ad9f2f
+  checksum: 954226400fac56592e4689424912ba1be1542edb6e8b22aacb0e167574abaa29503885d88f6579dd3408df64821c4284ad9d7917a64221a0af4bab03f6d3a0ec
   languageName: node
   linkType: hard
 
