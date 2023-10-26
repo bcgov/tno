@@ -188,7 +188,7 @@ public class ReportController : ControllerBase
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) && // User is not subscribed to the report
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report"); // Report is not public
         var model = new Services.Models.Report.ReportModel(report, _serializerOptions);
-        var result = await _reportHelper.GenerateReportAsync(model);
+        var result = await _reportHelper.GenerateReportAsync(model, true);
         return new JsonResult(result);
     }
     #endregion
