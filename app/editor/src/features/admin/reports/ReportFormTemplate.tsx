@@ -2,7 +2,7 @@ import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
-import { useReportTemplates } from 'store/hooks/admin';
+import { useReports, useReportTemplates } from 'store/hooks/admin';
 import { useAdminStore } from 'store/slices';
 import { Button, ButtonVariant, Col, FormikSelect, IOptionItem, IReportModel, Row } from 'tno-core';
 
@@ -17,6 +17,8 @@ export const ReportFormTemplate: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IReportModel>();
   const [{ reportTemplates }] = useAdminStore();
   const [, { findAllReportTemplates }] = useReportTemplates();
+
+  const [, { previewReport }] = useReports();
 
   const [templateOptions, setTemplateOptions] = React.useState<IOptionItem[]>(
     getReportTemplateOptions(reportTemplates),
@@ -61,6 +63,8 @@ export const ReportFormTemplate: React.FC = () => {
                 if (template) {
                   setFieldValue('templateId', template.id);
                   setFieldValue('template', template);
+                  // this *should* trigger caching of a compiled template
+                  previewReport(values);
                 }
               } else {
                 setFieldValue('templateId', defaultReportTemplate.id);

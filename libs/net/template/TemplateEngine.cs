@@ -1,4 +1,7 @@
 using System.Collections.Concurrent;
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.Extensions.Logging;
 using RazorEngineCore;
 
 namespace TNO.TemplateEngine;
@@ -21,6 +24,7 @@ public class TemplateEngine<T> : ITemplateEngine<T>
             "TNO.TemplateEngine"
         };
     private readonly string[] _assemblyNames;
+    private readonly ILogger<TemplateEngine<T>> _logger;
     private readonly static ConcurrentDictionary<string, IRazorEngineCompiledTemplate<T>> _cache = new();
     #endregion
 
@@ -37,20 +41,18 @@ public class TemplateEngine<T> : ITemplateEngine<T>
     /// </summary>
     /// <param name="razorEngine"></param>
     /// <param name="assemblyNames"></param>
-    public TemplateEngine(IRazorEngine razorEngine)
-    {
-        this.RazorEngine = razorEngine;
-        _assemblyNames = DEFAULT_ASSEMBLIES;
-    }
+    public TemplateEngine(IRazorEngine razorEngine, ILogger<TemplateEngine<T>> logger)
+        :this(razorEngine, logger, DEFAULT_ASSEMBLIES) {}
 
     /// <summary>
     /// Creates a new instance of a TemplateEngine object, initializes with specified parameters.
     /// </summary>
     /// <param name="razorEngine"></param>
     /// <param name="assemblyNames"></param>
-    public TemplateEngine(IRazorEngine razorEngine, params string[] assemblyNames)
+    public TemplateEngine(IRazorEngine razorEngine, ILogger<TemplateEngine<T>> logger, params string[] assemblyNames)
     {
         this.RazorEngine = razorEngine;
+        _logger = logger;
         _assemblyNames = assemblyNames;
     }
     #endregion
@@ -79,6 +81,8 @@ public class TemplateEngine<T> : ITemplateEngine<T>
     public ICompiledTemplate<T> AddOrUpdateTemplateInMemory(string key, string templateText)
     {
         var compiledTemplate = Compile(templateText);
+        bool containsKey = _cache.ContainsKey(key);
+        _logger.LogTrace("TemplateEngine.AddOrUpdateTemplateInMemory: Cache contains key [{key}] = [{containsKey}]", key, containsKey);
         return new CompiledTemplate<T>(_cache.AddOrUpdate(key, compiledTemplate, (key, oldValue) => compiledTemplate));
     }
 
@@ -90,8 +94,15 @@ public class TemplateEngine<T> : ITemplateEngine<T>
     /// <returns></returns>
     public ICompiledTemplate<T> GetOrAddTemplateInMemory(string key, string templateText)
     {
+        var inputBytes = Encoding.UTF8.GetBytes(templateText);
+        var inputHash =Convert.ToHexString(SHA256.HashData(inputBytes));
+        key = $"{key}:{inputHash}";
+
+        bool containsKey = _cache.ContainsKey(key);
+        _logger.LogTrace("TemplateEngine.GetOrAddTemplateInMemory: Cache contains key [{key}] = [{containsKey}]", key, containsKey);
         return new CompiledTemplate<T>(_cache.GetOrAdd(key, i =>
         {
+            _logger.LogTrace("TemplateEngine.GetOrAddTemplateInMemory: Compiling [{key}] = [{containsKey}]", key, containsKey);
             return Compile(templateText);
         }));
     }
