@@ -194,7 +194,6 @@ public class ReportEngine : IReportEngine
             ?? throw new InvalidOperationException("Template does not exist");
 
         var model = new ReportEngineContentModel(sectionContent, report.Settings, uploadPath);
-        
         var body = await template.RunAsync(instance =>
         {
             instance.Model = model;
