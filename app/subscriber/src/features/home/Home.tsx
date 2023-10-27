@@ -1,22 +1,21 @@
+import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
-import {
-  IContentListAdvancedFilter,
-  IContentListFilter,
-} from 'features/content/list-view/interfaces';
+import { createFilterSettings } from 'features/press-gallery/utils';
+import moment from 'moment';
 import React from 'react';
 import { FaEllipsisVertical } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
-import { useContent } from 'store/hooks';
+import { useContent, useLookup } from 'store/hooks';
 import {
   Checkbox,
   Col,
-  ContentStatus,
   FlexboxTable,
+  generateQuery,
   IContentModel,
+  IFilterSettingsModel,
   ITableInternalRow,
-  Page,
   Radio,
   Row,
   useWindowSize,
@@ -25,46 +24,50 @@ import {
 import { determineColumns } from './constants';
 import { HomeFilters } from './home-filters';
 import * as styled from './styled';
-import { makeFilter } from './utils';
 
 /**
  * Home component that will be rendered when the user is logged in.
  */
 export const Home: React.FC = () => {
-  const [{ filter, filterAdvanced }, { findContent }] = useContent();
+  const [{ filter, filterAdvanced }, { findContent, findContentWithElasticsearch }] = useContent();
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [disabledCols, setDisabledCols] = React.useState<string[]>([]);
   const [sortBy, setSortBy] = React.useState<'source' | 'time' | ''>('source');
   const navigate = useNavigate();
   const { width } = useWindowSize();
+  const [settings] = React.useState<IFilterSettingsModel>(
+    createFilterSettings(
+      filterAdvanced.startDate ?? moment().startOf('day').toISOString(),
+      filterAdvanced.endDate ?? moment().endOf('day').toISOString(),
+    ),
+  );
 
   const [, setLoading] = React.useState(false);
-  const fetch = React.useCallback(
-    async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
+
+  const fetchResults = React.useCallback(
+    async (filter: MsearchMultisearchBody) => {
       try {
-        setLoading(true);
-        const filters = makeFilter({
-          ...filter,
-          contentTypes: filter.contentTypes.length > 0 ? filter.contentTypes : [],
-          startDate: filter.startDate ? filter.startDate : new Date().toDateString(),
-          status: ContentStatus.Published,
-        });
-        const data = await findContent({
-          ...filters,
-          sort: sortBy === 'time' ? ['publishedOn'] : ['source.sortOrder'],
-        });
-        setHomeItems(data.items);
-        return new Page(data.page - 1, data.quantity, data?.items, data.total);
-      } catch (error) {
-        // TODO: Handle error
-        throw error;
-      } finally {
-        setLoading(false);
-      }
+        const res: any = await findContentWithElasticsearch(filter, false);
+        setHomeItems(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
+      } catch {}
     },
-    [findContent, sortBy],
+    [findContentWithElasticsearch],
   );
+
+  React.useEffect(() => {
+    // only fetch once the aliases are ready
+    fetchResults(
+      generateQuery({
+        ...settings,
+        contentTypes: filter.contentTypes.length > 0 ? filter.contentTypes : [],
+        startDate: filterAdvanced.startDate ? filterAdvanced.startDate : new Date().toDateString(),
+        endDate: filterAdvanced.endDate ? filterAdvanced.endDate : new Date().toDateString(),
+        productIds: filter.productIds ?? [],
+        sourceIds: filter.sourceIds ?? [],
+      }),
+    );
+  }, [fetchResults, filterAdvanced, filter, settings]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
@@ -74,11 +77,6 @@ export const Home: React.FC = () => {
       setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
     }
   };
-
-  /** retrigger content fetch when change is applied */
-  React.useEffect(() => {
-    fetch({ ...filter, ...filterAdvanced });
-  }, [filter, filterAdvanced, fetch]);
 
   return (
     <styled.Home>

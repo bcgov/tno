@@ -15,12 +15,12 @@ export interface IHomeFilterProps {}
 export const HomeFilters: React.FC<IHomeFilterProps> = () => {
   const [active, setActive] = useState<HomeFilterType>(HomeFilterType.Papers);
   const [{ filter }, { storeFilter }] = useContent();
-  const [{ sources }] = useLookup();
+  const [{ sources, products }] = useLookup();
 
   const defaultFilter: Partial<IContentListFilter> = {
     contentTypes: [],
     sourceIds: [],
-    excludeSourceIds: [],
+    productIds: [],
   };
 
   const handleFilterClick = (type: HomeFilterType) => {
@@ -32,28 +32,32 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
         break;
       case HomeFilterType.RadioTV:
         updatedFilter.contentTypes = [ContentTypeName.AudioVideo];
+        updatedFilter.productIds = products.filter((p) => p.name !== 'Events').map((p) => p.id);
         break;
       case HomeFilterType.Internet:
         updatedFilter.contentTypes = [ContentTypeName.Story];
-        updatedFilter.excludeSourceIds = [sources.find((s) => s.code === 'CPNEWS')?.id ?? 0];
+        updatedFilter.sourceIds = sources.filter((s) => s.code !== 'CPNEWS').map((s) => s.id);
+        updatedFilter.productIds = products.filter((p) => p.name !== 'Events').map((p) => p.id);
         break;
       case HomeFilterType.CPNews:
         updatedFilter.contentTypes = [ContentTypeName.Story];
         updatedFilter.sourceIds = [sources.find((s) => s.code === 'CPNEWS')?.id ?? 0];
+        break;
+      case HomeFilterType.Events:
+        updatedFilter.productIds = [products.find((s) => s.name === 'Events')?.id ?? 0];
         break;
       case HomeFilterType.All:
         break;
       default:
         break;
     }
-
     storeFilter({ ...filter, ...updatedFilter });
   };
 
   const getClassName = (type: HomeFilterType) => (type === active ? 'active' : 'inactive');
 
   useEffect(() => {
-    if (!filter.contentTypes?.length) {
+    if (!filter.contentTypes?.length && !filter.productIds?.length) {
       setActive(HomeFilterType.All);
     } else {
       // currently only support one content type at a time (with the exception of the all filter)
@@ -65,10 +69,16 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
           setActive(HomeFilterType.RadioTV);
           break;
         case ContentTypeName.Story:
-          setActive(!!filter.sourceIds?.length ? HomeFilterType.CPNews : HomeFilterType.Internet);
+          if (filter.sourceIds?.length === 1) {
+            setActive(HomeFilterType.CPNews);
+            break;
+          } else {
+            setActive(HomeFilterType.Internet);
+            break;
+          }
           break;
         default:
-          setActive(HomeFilterType.All);
+          setActive(!!filter.productIds?.length ? HomeFilterType.Events : HomeFilterType.All);
       }
     }
   }, [filter]);
@@ -79,6 +89,7 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
     { type: HomeFilterType.RadioTV, label: 'RADIO/TV' },
     { type: HomeFilterType.Internet, label: 'INTERNET' },
     { type: HomeFilterType.CPNews, label: 'CP NEWS' },
+    { type: HomeFilterType.Events, label: 'EVENTS' },
   ];
 
   return (
