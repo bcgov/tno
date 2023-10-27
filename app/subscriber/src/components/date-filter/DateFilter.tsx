@@ -11,7 +11,9 @@ export interface IDateFilterProps {}
 export const DateFilter: React.FC<IDateFilterProps> = () => {
   const [{ filterAdvanced }, { storeFilterAdvanced }] = useContent();
   /** default to today's date or the filters previously saved date if present */
-  const [date, setDate] = React.useState<Date>(new Date(filterAdvanced.startDate ?? ''));
+  const [date, setDate] = React.useState<Date>(
+    !!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : new Date(),
+  );
   /** control state of open calendar from outside components. i.e custom calendar button */
   const [open, setOpen] = React.useState(false);
 
