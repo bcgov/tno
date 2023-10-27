@@ -351,8 +351,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         }
 
         var to = report.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email) && s.IsSubscribed).Select(s => s.User!.Email).ToArray();
-        var subject = await this.ReportEngine.GenerateReportSubjectAsync(report, sectionContent, request.UpdateCache);
-        var body = await this.ReportEngine.GenerateReportBodyAsync(report, sectionContent, null, request.UpdateCache);
+        var subject = await this.ReportEngine.GenerateReportSubjectAsync(report, sectionContent, false);
+        var body = await this.ReportEngine.GenerateReportBodyAsync(report, sectionContent, null, false);
 
         // Save the report instance.
         // Group content by the section name.
@@ -445,8 +445,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         }
 
         var to = report.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email) && s.IsSubscribed).Select(s => s.User!.Email).ToArray();
-        var subject = await this.ReportEngine.GenerateReportSubjectAsync(instance.Report, sectionContent, request.UpdateCache);
-        var body = await this.ReportEngine.GenerateReportBodyAsync(instance.Report, sectionContent, null, request.UpdateCache);
+        var subject = await this.ReportEngine.GenerateReportSubjectAsync(instance.Report, sectionContent, false);
+        var body = await this.ReportEngine.GenerateReportBodyAsync(instance.Report, sectionContent, null, false);
 
         // Send the email.
         if (request.SendToSubscribers && (to.Any() || !String.IsNullOrEmpty(request.To)))
@@ -488,8 +488,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         // No need to send an email if there are no subscribers.
         if (request.SendToSubscribers && (to.Length > 0 || !String.IsNullOrEmpty(request.To)))
         {
-            var subject = await this.ReportEngine.GenerateReportSubjectAsync(template, model, request.UpdateCache);
-            var body = await this.ReportEngine.GenerateReportBodyAsync(template, model, request.UpdateCache);
+            var subject = await this.ReportEngine.GenerateReportSubjectAsync(template, model, false);
+            var body = await this.ReportEngine.GenerateReportBodyAsync(template, model, false);
 
             // Send the email.
             var response = await SendEmailAsync(request, to, subject, body, $"{instance.TemplateType}-{instance.Id}");

@@ -42,7 +42,8 @@ const ReportForm: React.FC = () => {
   const navigate = useNavigate();
   const [{ userInfo }] = useApp();
   const { id } = useParams();
-  const [, { addReport, deleteReport, getReport, updateReport, publishReport }] = useReports();
+  const [, { addReport, deleteReport, getReport, updateReport, publishReport, previewReport }] =
+    useReports();
   const [{ reportTemplates }, { storeReportTemplates }] = useAdminStore();
   const { toggle, isShowing } = useModal();
   const { setShowValidationToast } = useTabValidationToasts();
@@ -63,10 +64,12 @@ const ReportForm: React.FC = () => {
       getReport(reportId)
         .then((data) => {
           setReport(data);
+          // this *should* trigger caching of a compiled template
+          previewReport(data);
         })
         .catch(() => {});
     }
-  }, [getReport, report?.id, reportId]);
+  }, [getReport, previewReport, report?.id, reportId]);
 
   const handleSubmit = async (values: IReportModel) => {
     try {

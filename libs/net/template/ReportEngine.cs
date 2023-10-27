@@ -1,6 +1,7 @@
 
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
@@ -44,6 +45,11 @@ public class ReportEngine : IReportEngine
     /// get - Charts options.
     /// </summary>
     protected ChartsOptions ChartsOptions { get; }
+
+    /// <summary>
+    ///  logger
+    /// </summary>
+    private readonly ILogger<ReportEngine> _logger;
     #endregion
 
     #region Constructors
@@ -61,7 +67,8 @@ public class ReportEngine : IReportEngine
         ITemplateEngine<ChartEngineContentModel> chartEngineContent,
         IHttpRequestClient httpClient,
         IOptions<ReportingOptions> reportingOptions,
-        IOptions<ChartsOptions> chartsOptions)
+        IOptions<ChartsOptions> chartsOptions,
+        ILogger<ReportEngine> logger)
     {
         this.ReportEngineContent = reportEngineContent;
         this.ReportEngineAVOverview = reportEngineAVOverview;
@@ -69,6 +76,7 @@ public class ReportEngine : IReportEngine
         this.HttpClient = httpClient;
         this.ReportingOptions = reportingOptions.Value;
         this.ChartsOptions = chartsOptions.Value;
+        _logger = logger;
     }
     #endregion
 
@@ -79,17 +87,15 @@ public class ReportEngine : IReportEngine
     /// If the model includes a Filter it will make a request to Elasticsearch.
     /// </summary>
     /// <param name="model"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<ChartResultModel> GenerateJsonAsync(
         ChartRequestModel model,
-        bool updateCache = false)
+        bool isPreview = false)
     {
-        var key = $"chart-template-{model.ChartTemplate.Id}";
-        var template = updateCache
-            ? this.ChartEngineContent.AddOrUpdateTemplateInMemory(key, model.ChartTemplate.Template)
-            : this.ChartEngineContent.GetOrAddTemplateInMemory(key, model.ChartTemplate.Template);
+        var key = (isPreview ? "PREVIEW" :"FINAL") + $"-chart-template-{model.ChartTemplate.Id}";
+        var template = this.ChartEngineContent.GetOrAddTemplateInMemory(key, model.ChartTemplate.Template);
 
         var json = await template.RunAsync(instance =>
         {
@@ -107,14 +113,14 @@ public class ReportEngine : IReportEngine
     /// Executes the chart template provided to generate JSON, which is then sent with a request to the Charts API to generate a base64 image.
     /// </summary>
     /// <param name="model"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns>Returns the base64 image from the Charts API.</returns>
     public async Task<string> GenerateBase64ImageAsync(
         ChartRequestModel model,
-        bool updateCache = false)
+        bool isPreview = false)
     {
         // Get the Chart JSON data.
-        var data = model.ChartData ?? (await this.GenerateJsonAsync(model, updateCache)).Json;
+        var data = model.ChartData ?? (await this.GenerateJsonAsync(model, isPreview)).Json;
         var dataJson = data.ToJson();
 
         var optionsJson = model.ChartTemplate.SectionSettings.Options != null ? JsonSerializer.Serialize(model.ChartTemplate.SectionSettings.Options) : "{}";
@@ -138,21 +144,19 @@ public class ReportEngine : IReportEngine
     /// </summary>
     /// <param name="report"></param>
     /// <param name="sectionContent"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<string> GenerateReportSubjectAsync(
         API.Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sectionContent,
-        bool updateCache = false)
+        bool isPreview = false)
     {
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
         if (report.Template.ReportType != Entities.ReportType.Content) throw new InvalidOperationException("The report does not use a evening overview template.");
 
-        var key = $"report-template-{report.Template.Id}-subject";
-        var template = (!updateCache ?
-            this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Subject) :
-            this.ReportEngineContent.AddOrUpdateTemplateInMemory(key, report.Template.Subject))
+        var key = (isPreview ? "PREVIEW" :"FINAL") + $"-report-template-{report.Template.Id}-subject";
+        var template = this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Subject)
             ?? throw new InvalidOperationException("Template does not exist");
 
         var model = new ReportEngineContentModel(sectionContent, report.Settings);
@@ -175,22 +179,20 @@ public class ReportEngine : IReportEngine
     /// <param name="report"></param>
     /// <param name="sectionContent"></param>
     /// <param name="uploadPath"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<string> GenerateReportBodyAsync(
         API.Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sectionContent,
         string? uploadPath = null,
-        bool updateCache = false)
+        bool isPreview = false)
     {
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
         if (report.Template.ReportType != Entities.ReportType.Content) throw new InvalidOperationException("The report does not use a evening overview template.");
 
-        var key = $"report-template-{report.Template.Id}-body";
-        var template = (!updateCache ?
-            this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Body) :
-            this.ReportEngineContent.AddOrUpdateTemplateInMemory(key, report.Template.Body))
+        var key = (isPreview ? "PREVIEW" :"FINAL") + $"-report-template-{report.Template.Id}-body";
+        var template = this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Body)
             ?? throw new InvalidOperationException("Template does not exist");
 
         var model = new ReportEngineContentModel(sectionContent, report.Settings, uploadPath);
@@ -250,18 +252,16 @@ public class ReportEngine : IReportEngine
     /// </summary>
     /// <param name="reportTemplate"></param>
     /// <param name="eveningOverview"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<string> GenerateReportSubjectAsync(
         API.Areas.Services.Models.AVOverview.ReportTemplateModel reportTemplate,
         AVOverviewInstanceModel eveningOverview,
-        bool updateCache = false)
+        bool isPreview = false)
     {
-        var key = $"report-template-{reportTemplate.Id}-subject";
-        var template = (!updateCache ?
-            this.ReportEngineAVOverview.GetOrAddTemplateInMemory(key, reportTemplate.Subject) :
-            this.ReportEngineAVOverview.AddOrUpdateTemplateInMemory(key, reportTemplate.Subject))
+        var key = (isPreview ? "PREVIEW" :"FINAL") + $"-report-template-{reportTemplate.Id}-subject";
+        var template = this.ReportEngineAVOverview.GetOrAddTemplateInMemory(key, reportTemplate.Subject)
             ?? throw new InvalidOperationException("Template does not exist");
 
         var model = new ReportEngineAVOverviewModel(eveningOverview, eveningOverview.Settings);
@@ -282,18 +282,16 @@ public class ReportEngine : IReportEngine
     /// </summary>
     /// <param name="reportTemplate"></param>
     /// <param name="eveningOverview"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<string> GenerateReportBodyAsync(
         API.Areas.Services.Models.AVOverview.ReportTemplateModel reportTemplate,
         AVOverviewInstanceModel eveningOverview,
-        bool updateCache = false)
+        bool isPreview = false)
     {
-        var key = $"report-template-{reportTemplate.Id}-body";
-        var template = (!updateCache ?
-            this.ReportEngineAVOverview.GetOrAddTemplateInMemory(key, reportTemplate.Body) :
-            this.ReportEngineAVOverview.AddOrUpdateTemplateInMemory(key, reportTemplate.Body))
+        var key = (isPreview ? "PREVIEW" :"FINAL") + $"-report-template-{reportTemplate.Id}-body";
+        var template = this.ReportEngineAVOverview.AddOrUpdateTemplateInMemory(key, reportTemplate.Body)
             ?? throw new InvalidOperationException("Template does not exist");
 
         var model = new ReportEngineAVOverviewModel(eveningOverview, eveningOverview.Settings);

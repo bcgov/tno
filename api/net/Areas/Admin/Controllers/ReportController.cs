@@ -193,7 +193,9 @@ public class ReportController : ControllerBase
         {
             RequestorId = user.Id,
             To = to,
-            UpdateCache = true,
+            // no longer utilized, the caching mechanism
+            // determines whether to update or not
+            // UpdateCache = true,
             GenerateInstance = false
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{report.Id}-test", request);
