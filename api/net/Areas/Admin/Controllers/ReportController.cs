@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Report;
+using TNO.API.BackgroundWorkItem;
 using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
@@ -40,6 +41,9 @@ public class ReportController : ControllerBase
     private readonly IReportHelper _reportHelper;
     private readonly IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
+    private readonly IBackgroundTaskQueue _backgroundWorkerQueue;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly ILogger<ReportController> _logger;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -52,6 +56,9 @@ public class ReportController : ControllerBase
     /// <param name="userService"></param>
     /// <param name="reportHelper"></param>
     /// <param name="kafkaProducer"></param>
+    /// <param name="backgroundWorkerQueue"></param>
+    /// <param name="serviceScopeFactory"></param>
+    /// <param name="logger"></param>
     /// <param name="kafkaOptions"></param>
     /// <param name="serializerOptions"></param>
     public ReportController(
@@ -60,6 +67,9 @@ public class ReportController : ControllerBase
         IUserService userService,
         IReportHelper reportHelper,
         IKafkaMessenger kafkaProducer,
+        IBackgroundTaskQueue backgroundWorkerQueue,
+        IServiceScopeFactory serviceScopeFactory,
+        ILogger<ReportController> logger,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
@@ -68,6 +78,9 @@ public class ReportController : ControllerBase
         _userService = userService;
         _reportHelper = reportHelper;
         _kafkaProducer = kafkaProducer;
+        _backgroundWorkerQueue = backgroundWorkerQueue;
+        _serviceScopeFactory = serviceScopeFactory;
+        _logger = logger;
         _kafkaOptions = kafkaOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
@@ -242,6 +255,29 @@ public class ReportController : ControllerBase
     {
         var result = await _reportHelper.GenerateReportAsync(new Areas.Services.Models.Report.ReportModel(model.ToEntity(_serializerOptions, true), _serializerOptions), true);
         return new JsonResult(result);
+    }
+    /// <summary>
+    /// Execute the report template and generate the results for previewing.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost("preview/prime")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportResultModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult PrimeReportCache(ReportModel model)
+    {
+        _backgroundWorkerQueue.QueueBackgroundWorkItem(async token =>
+        {
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                IReportHelper reportHelper = scope.ServiceProvider.GetRequiredService<IReportHelper>();
+                await reportHelper.GenerateReportAsync(new Areas.Services.Models.Report.ReportModel(model.ToEntity(_serializerOptions, true), _serializerOptions), true);
+            }
+        });
+
+        return Ok("Report template compilation in progress..");
     }
     #endregion
 }

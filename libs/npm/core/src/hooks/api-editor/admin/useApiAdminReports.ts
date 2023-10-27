@@ -63,5 +63,11 @@ export const useApiAdminReports = (
         model,
       );
     },
+    primeReportCache: (model: IReportModel) => {
+      return api.post<IReportModel, AxiosResponse<IReportResultModel>, any>(
+        `/admin/reports/preview/prime`,
+        model,
+      );
+    },
   }).current;
 };
