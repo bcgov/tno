@@ -8,5 +8,5 @@ export interface IPage<T> {
   /** Array of items on page. */
   items: T[];
   /** Total number of items in source. */
-  total: number;
+  total?: number;
 }

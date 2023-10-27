@@ -1,7 +1,7 @@
+import { IContentListFilter } from 'features/content/interfaces';
 import { defaultPage } from 'features/content/list-view/constants';
 import { ContentTypeName, ISourceModel } from 'tno-core';
 
-import { IPaperFilter } from '../interfaces';
 import { defaultSources } from '.';
 
 /**
@@ -9,14 +9,13 @@ import { defaultSources } from '.';
  * @param sources An array of sources.
  * @returns Paper filter.
  */
-export const defaultPaperFilter = (sources: ISourceModel[] = []): IPaperFilter => {
+export const defaultPaperFilter = (sources: ISourceModel[] = []): IContentListFilter => {
   return {
     pageIndex: defaultPage.pageIndex,
     pageSize: defaultPage.pageSize,
     contentTypes: [ContentTypeName.PrintContent, ContentTypeName.Image],
     hasTopic: false,
-    includeHidden: false,
-    onlyHidden: false,
+    isHidden: false,
     onlyPublished: false,
     otherSource: '',
     productIds: [],

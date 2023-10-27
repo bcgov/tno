@@ -1,1 +1,1 @@
-export * from './IPaperFilter';
+export * from './IReportInfo';

@@ -1,5 +1,6 @@
 export enum AdvancedSearchKeys {
   Headline = 'headline',
+  Story = 'story',
   Source = 'sourceIds',
   Byline = 'byline',
   Section = 'section',

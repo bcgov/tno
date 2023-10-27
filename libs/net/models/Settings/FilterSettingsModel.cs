@@ -32,17 +32,17 @@ public class FilterSettingsModel
     /// <summary>
     /// get/set - Search for the 'search' values in the headline.
     /// </summary>
-    public bool InHeadline { get; set; }
+    public bool? InHeadline { get; set; }
 
     /// <summary>
     /// get/set - Search for the 'search' values in the byline.
     /// </summary>
-    public bool InByline { get; set; }
+    public bool? InByline { get; set; }
 
     /// <summary>
     /// get/set - Search for the 'search' values in the abstract/body.
     /// </summary>
-    public bool InStory { get; set; }
+    public bool? InStory { get; set; }
 
     /// <summary>
     /// get/set - Filter content that was published on and after this date.
@@ -73,6 +73,16 @@ public class FilterSettingsModel
     /// get/set - Filter content with this page.
     /// </summary>
     public string? Page { get; set; }
+
+    /// <summary>
+    /// get/set - Filter content that has a topic.
+    /// </summary>
+    public bool? HasTopic { get; set; }
+
+    /// <summary>
+    /// get/set - Filter content that is hidden.
+    /// </summary>
+    public bool? IsHidden { get; set; }
 
     /// <summary>
     /// get/set - An array of source Id.
@@ -115,5 +125,10 @@ public class FilterSettingsModel
     /// Represents a range, from and to.
     /// </summary>
     public int[] Sentiment { get; set; } = Array.Empty<int>();
+
+    /// <summary>
+    /// get/set - An array of sort conditions (i.e. { name: 'desc' })
+    /// </summary>
+    public dynamic[] Sort { get; set; } = Array.Empty<dynamic>();
     #endregion
 }

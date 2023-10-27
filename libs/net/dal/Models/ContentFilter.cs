@@ -138,12 +138,7 @@ public class ContentFilter : PageFilter
     /// <summary>
     /// get/set - Whether to include hidden content.
     /// </summary>
-    public bool? IncludeHidden { get; set; }
-
-    /// <summary>
-    /// get/set - Whether to only return hidden content.
-    /// </summary>
-    public bool? OnlyHidden { get; set; }
+    public bool? IsHidden { get; set; }
 
     /// <summary>
     /// get/set - Whether to only included published or publishing content.
@@ -187,7 +182,7 @@ public class ContentFilter : PageFilter
     public string[] Sort { get; set; } = Array.Empty<string>();
 
     /// <summary>
-    /// get/set - The content sentitment.
+    /// get/set - The content sentiment.
     /// </summary>
     public int[] Sentiment { get; set; } = Array.Empty<int>();
 
@@ -225,8 +220,7 @@ public class ContentFilter : PageFilter
         this.HasTopic = filter.GetBoolNullValue(nameof(this.HasTopic));
         this.UseUnpublished = filter.GetBoolNullValue(nameof(this.UseUnpublished));
         this.HasFile = filter.GetBoolNullValue(nameof(this.HasFile));
-        this.IncludeHidden = filter.GetBoolNullValue(nameof(this.IncludeHidden));
-        this.OnlyHidden = filter.GetBoolNullValue(nameof(this.OnlyHidden));
+        this.IsHidden = filter.GetBoolNullValue(nameof(this.IsHidden));
         this.OnlyPublished = filter.GetBoolNullValue(nameof(this.OnlyPublished));
 
         this.ProductId = filter.GetIntNullValue(nameof(this.ProductId));

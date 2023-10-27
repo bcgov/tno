@@ -1,5 +1,5 @@
 export interface IFilterActionSettingsModel extends Record<string, any> {
   id: number;
-  valueType: string;
+  valueType?: string;
   value: string;
 }

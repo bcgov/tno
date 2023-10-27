@@ -1,7 +1,7 @@
 import { NavigateOptions, useTab } from 'components/tab-control';
 import React, { lazy } from 'react';
 import { useParams } from 'react-router-dom';
-import { useApiHub, useApp, useContent, useLookup } from 'store/hooks';
+import { useApiHub, useApp, useContent } from 'store/hooks';
 import { IContentSearchResult, useContentStore } from 'store/slices';
 import { castContentToSearchResult } from 'store/slices/content/utils';
 import {
@@ -23,12 +23,13 @@ import {
   WorkOrderTypeName,
 } from 'tno-core';
 
+import { useElasticsearch } from '../hooks';
+import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
 import { ContentToolBar } from './components';
 import { defaultPage } from './constants';
 import { useColumns } from './hooks';
-import { IContentListAdvancedFilter, IContentListFilter } from './interfaces';
 import * as styled from './styled';
-import { getFilter, queryToFilter, queryToFilterAdvanced } from './utils';
+import { queryToFilter, queryToFilterAdvanced } from './utils';
 
 const ContentForm = lazy(() => import('../form/ContentForm'));
 
@@ -48,8 +49,7 @@ const ContentListView: React.FC = () => {
   const { combined, formType } = useCombinedView();
   const { navigate } = useTab({ showNav: false });
   const hub = useApiHub();
-
-  const [{ actions }] = useLookup();
+  const toFilter = useElasticsearch();
 
   const [contentId, setContentId] = React.useState(id);
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
@@ -141,7 +141,7 @@ const ContentListView: React.FC = () => {
       try {
         if (!isLoading) {
           setIsLoading(true);
-          const result = await findContentWithElasticsearch(getFilter(filter, actions), true);
+          const result = await findContentWithElasticsearch(toFilter(filter), true);
           const items = result.hits?.hits?.map((h) =>
             castContentToSearchResult(h._source as IContentModel),
           );
@@ -153,8 +153,9 @@ const ContentListView: React.FC = () => {
         setIsLoading(false);
       }
     },
+    // 'isLoading' will result in an infinite loop for some reason.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [findContentWithElasticsearch],
+    [findContentWithElasticsearch, toFilter],
   );
 
   const columns = useColumns({ fetch });

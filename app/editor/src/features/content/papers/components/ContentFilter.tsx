@@ -1,3 +1,4 @@
+import { IContentListFilter } from 'features/content/interfaces';
 import { InputOption } from 'features/content/list-view/components/tool-bar/filter';
 import React from 'react';
 import { FaEye, FaFilter, FaIcons, FaNewspaper, FaWindowRestore } from 'react-icons/fa';
@@ -13,14 +14,13 @@ import {
 } from 'tno-core';
 
 import { defaultSources } from '../constants';
-import { IPaperFilter } from '../interfaces';
 import * as styled from './styled';
 
 export interface IContentFilter {
   /** The current filter values. */
-  filter: IPaperFilter;
+  filter: IContentListFilter;
   /** Event when filter changes. */
-  onFilterChange: (filter: IPaperFilter) => void;
+  onFilterChange: (filter: IContentListFilter) => void;
 }
 
 /**
@@ -46,8 +46,7 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
                     onFilterChange({
                       ...filter,
                       onlyPublished: false,
-                      includeHidden: false,
-                      onlyHidden: false,
+                      isHidden: false,
                       topStory: false,
                       commentary: false,
                       homepage: false,
@@ -59,8 +58,7 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
                     onFilterChange({
                       ...filter,
                       onlyPublished: false,
-                      includeHidden: false,
-                      onlyHidden: false,
+                      isHidden: false,
                       topStory: true,
                       commentary: true,
                       homepage: true,
@@ -73,8 +71,7 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
                       ...filter,
                       pageIndex: 0,
                       onlyPublished: false,
-                      includeHidden: true,
-                      onlyHidden: true,
+                      isHidden: true,
                       topStory: false,
                       commentary: false,
                       homepage: false,

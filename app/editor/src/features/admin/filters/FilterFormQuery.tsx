@@ -19,6 +19,7 @@ import {
   FormikText,
   FormikTextArea,
   generateQuery,
+  IFilterActionSettingsModel,
   IFilterModel,
   OptionItem,
   Row,
@@ -346,7 +347,7 @@ export const FilterFormQuery: React.FC = () => {
               value={
                 actionOptions.filter((mt) =>
                   values.settings.actions?.some(
-                    (p: { id: number; valueType: string; value: string }) => p.id === mt.value,
+                    (p: IFilterActionSettingsModel) => p.id === mt.value,
                   ),
                 ) ?? []
               }

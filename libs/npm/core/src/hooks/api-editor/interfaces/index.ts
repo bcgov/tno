@@ -86,6 +86,7 @@ export * from './ISeriesFilter';
 export * from './ISeriesModel';
 export * from './ISettingModel';
 export * from './ISortableModel';
+export * from './ISortField';
 export * from './ISortPageFilter';
 export * from './ISourceActionModel';
 export * from './ISourceModel';

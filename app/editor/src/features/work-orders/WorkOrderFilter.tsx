@@ -5,6 +5,7 @@ import {
   IconButton,
   IWorkOrderFilter,
   Row,
+  Settings,
   Show,
   Text,
   WorkOrderStatusName,
@@ -21,7 +22,7 @@ export const WorkOrderFilter = ({ filter, onFilterChange }: IWorkOrderFilterProp
 
   // Settings contains a link to the news radio products.
   const newsRadioProductFilter = (
-    settings.find((s) => s.name === 'NewsRadioProductFilter')?.value ?? ''
+    settings.find((s) => s.name === Settings.NewsRadioProductFilter)?.value ?? ''
   )
     .split(',')
     .filter((v) => v)

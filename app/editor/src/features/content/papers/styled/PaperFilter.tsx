@@ -12,7 +12,7 @@ export const PaperFilter = styled.div`
   }
 
   svg.action-button.btn-preview {
-    width: 3rem;
-    height: 3rem;
+    width: 2rem;
+    height: 2rem;
   }
 `;

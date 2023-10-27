@@ -1,6 +1,5 @@
-import { ShowOnlyValues } from 'features/content/form/constants';
-import { showOnlyOptions } from 'features/content/form/constants/showOnlyOptions';
-import { IContentListFilter } from 'features/content/list-view/interfaces';
+import { showOnlyOptions, ShowOnlyValues } from 'features/content/constants';
+import { IContentListFilter } from 'features/content/interfaces';
 import React from 'react';
 import { FaEye } from 'react-icons/fa';
 import { ActionDelegate } from 'store';
@@ -97,7 +96,7 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
               components={{
                 Option: InputOption,
               }}
-              onChange={(newValues, { action }) => {
+              onChange={(newValues) => {
                 const values = newValues as IOptionItem[];
                 onChange((filter) => {
                   return {

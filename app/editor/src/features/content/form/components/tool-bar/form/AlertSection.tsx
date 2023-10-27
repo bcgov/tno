@@ -11,6 +11,7 @@ import {
   MessageTargetName,
   NotificationStatusName,
   Row,
+  Settings,
   ToolBarSection,
 } from 'tno-core';
 
@@ -26,7 +27,7 @@ export const AlertSection: React.FC<IAlertSectionProps> = ({ values }) => {
 
   const [notifications, setNotifications] = React.useState<INotificationInstanceModel[]>([]);
 
-  const alertId = settings.find((s) => s.name === 'AlertId')?.value ?? '0';
+  const alertId = settings.find((s) => s.name === Settings.DefaultAlert)?.value ?? '0';
   const hasAlert =
     actions.find((a) => a.id === +alertId)?.contentTypes.includes(values.contentType) ?? false;
 

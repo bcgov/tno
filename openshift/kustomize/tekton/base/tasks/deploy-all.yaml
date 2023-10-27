@@ -36,6 +36,10 @@ spec:
     - name: DEPLOY
       description: Whether to deploy a component, or all [*|all|[name]].
       default: "*"
+
+    - name: WAIT
+      description: Whether to wait for each service pod to scale back up [yes|no].
+      default: "no"
   workspaces:
     - name: conditions
       mountPath: /data
@@ -346,13 +350,12 @@ spec:
         if [ "${BUILD_API}" = true ] || [ "$(params.DEPLOY)" = "api" ] || [ "$(params.DEPLOY)" = "all" ]; then
           for component in ${!COMPONENT@}; do
             environments=(${component[env]})
-            if [[ "${component[action]}" = "stop" ]] && [[ $environments =~ "$(params.ENV)" ]]; then
+            if [[ "${component[action]}" = "stop" ]] && [[ $environments =~ "$(params.ENV)" ]] && [[ "${component[replicas]}" -gt "0" ]]; then
               echo "Starting ${component[name]}"
-
-              if [ "${component[replicas]}" -gt "0" ]; then
-                oc scale ${component[type]} ${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV) --replicas=${component[replicas]}
+              oc scale ${component[type]} ${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV) --replicas=${component[replicas]}
+              # oc rollout status --watch --timeout=$(params.TIMEOUT) ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+              if [ "$(params.WAIT)" = "yes" ]; then
                 oc wait --for=condition=available --timeout=$(params.TIMEOUT) ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
-                # oc rollout status --watch --timeout=$(params.TIMEOUT) ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
               fi
             fi
           done

@@ -10,8 +10,7 @@ export interface IContentFilter extends ISortPageFilter {
   section?: string;
   status?: ContentStatus;
   hasTopic?: boolean;
-  includeHidden?: boolean;
-  onlyHidden?: boolean;
+  isHidden?: boolean;
   onlyPublished?: boolean;
   createdOn?: string;
   createdStartOn?: string;

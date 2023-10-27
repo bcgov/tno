@@ -1,23 +1,22 @@
+import { ISortBy } from 'features/interfaces';
 import { ContentTypeName } from 'tno-core';
 
-import { ISortBy } from '../../list-view/interfaces';
-
-export interface IPaperFilter {
+export interface IContentListFilter {
   pageIndex: number;
   pageSize: number;
-  hasTopic: boolean;
-  includeHidden: boolean;
-  onlyHidden: boolean;
   onlyPublished: boolean;
-  contentTypes: ContentTypeName[];
-  sourceIds: number[];
-  otherSource: string;
-  productIds: number[];
+  hasTopic: boolean;
+  isHidden: boolean | '';
   ownerId: number | '';
   userId: number | '';
   timeFrame: number | '';
+  otherSource: string;
+  contentTypes: ContentTypeName[];
+  productIds: number[];
+  sourceIds: number[];
   excludeSourceIds: number[];
   // Actions
+  showOnly?: string;
   onTicker: boolean;
   commentary: boolean;
   topStory: boolean;

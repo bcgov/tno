@@ -1,9 +1,5 @@
-import { AdvancedSearchKeys } from 'features/content/list-view/constants';
-import {
-  IContentListAdvancedFilter,
-  IContentListFilter,
-} from 'features/content/list-view/interfaces';
-import { IPaperFilter } from 'features/content/papers/interfaces';
+import { AdvancedSearchKeys } from 'features/content/constants';
+import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
 import React from 'react';
 import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
 import { IContentModel, IPaged } from 'tno-core';
@@ -29,7 +25,7 @@ export interface IContentStore {
   storeFilterAdvanced: (
     filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
-  storeFilterPaper: (filter: IPaperFilter | ActionDelegate<IPaperFilter>) => void;
+  storeFilterPaper: (filter: IContentListFilter | ActionDelegate<IContentListFilter>) => void;
   storeFilterPaperAdvanced: (
     filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
@@ -66,7 +62,7 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
           dispatch(storeContentFilterAdvanced(filter(filterAdvanced)));
         else dispatch(storeContentFilterAdvanced(filter));
       },
-      storeFilterPaper: (filter: IPaperFilter | ActionDelegate<IPaperFilter>) => {
+      storeFilterPaper: (filter: IContentListFilter | ActionDelegate<IContentListFilter>) => {
         if (typeof filter === 'function') dispatch(storeFilterPaper(filter(state.filterPaper)));
         else dispatch(storeFilterPaper(filter));
       },
