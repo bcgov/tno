@@ -92,7 +92,7 @@ export const TodaysFrontPages: React.FC = () => {
           fetchResults(data.query);
         });
       }
-    } else {
+    } else if (!!settings.length) {
       toast.error(`${Settings.FrontpageFilter} setting needs to be configured.`);
     }
   }, [fetchResults, filter?.id, getFilter, settings, filterAdvanced, filter]);

@@ -19,7 +19,7 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
   if (settings.size) elastic = { ...elastic, size: settings.size };
   if (settings.from) elastic = { ...elastic, from: settings.from };
 
-  const actionFilters = generateQueryForActions(settings.actions);
+  const actionFilters = generateQueryForActions(settings.actions ?? []);
   elastic = {
     ...elastic,
     query: {
