@@ -19,6 +19,7 @@ interface IReportController {
   sendReport: (model: IReportModel, to: string) => Promise<IReportModel>;
   publishReport: (model: IReportModel) => Promise<IReportModel>;
   previewReport: (model: IReportModel) => Promise<IReportResultModel>;
+  primeReportCache: (model: IReportModel) => Promise<IReportResultModel>;
   deleteReportInstance: (model: IReportInstanceModel) => Promise<IReportInstanceModel>;
   publishReportInstance: (model: IReportInstanceModel) => Promise<IReportInstanceModel>;
 }
@@ -114,6 +115,12 @@ export const useReports = (): [IAdminState & { initialized: boolean }, IReportCo
       previewReport: async (model: IReportModel) => {
         const response = await dispatch<IReportResultModel>('preview-report', () =>
           api.previewReport(model),
+        );
+        return response.data;
+      },
+      primeReportCache: async (model: IReportModel) => {
+        const response = await dispatch<IReportResultModel>('prime-report-cache', () =>
+          api.primeReportCache(model),
         );
         return response.data;
       },

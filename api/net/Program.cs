@@ -17,6 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Prometheus;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using TNO.API.BackgroundWorkItem;
 using TNO.API.Config;
 using TNO.API.CSS;
 using TNO.API.Helpers;
@@ -243,6 +244,9 @@ builder.Services.AddSignalR(options =>
         options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         options.PayloadSerializerOptions.Converters.Add(new Int32ToStringJsonConverter());
     });
+
+builder.Services.AddHostedService<QueuedHostedService>();
+builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 
 var app = builder.Build();
 

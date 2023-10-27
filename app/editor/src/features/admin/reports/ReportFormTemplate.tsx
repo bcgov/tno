@@ -18,7 +18,7 @@ export const ReportFormTemplate: React.FC = () => {
   const [{ reportTemplates }] = useAdminStore();
   const [, { findAllReportTemplates }] = useReportTemplates();
 
-  const [, { previewReport }] = useReports();
+  const [, { primeReportCache }] = useReports();
 
   const [templateOptions, setTemplateOptions] = React.useState<IOptionItem[]>(
     getReportTemplateOptions(reportTemplates),
@@ -63,8 +63,8 @@ export const ReportFormTemplate: React.FC = () => {
                 if (template) {
                   setFieldValue('templateId', template.id);
                   setFieldValue('template', template);
-                  // this *should* trigger caching of a compiled template
-                  previewReport(values);
+                  // trigger caching of a compiled template
+                  primeReportCache(values);
                 }
               } else {
                 setFieldValue('templateId', defaultReportTemplate.id);
