@@ -70,7 +70,7 @@ const generateTextQuery = (settings: IFilterSettingsModel) => {
     // give an arbitrary weight to the headline, so if it's found there
     // it gets a slightly higher score, as opposed to other fields
     return generateSimpleQueryString(
-      ['headline', 'byline', 'summary', 'body'],
+      ['headline^5', 'byline', 'summary', 'body'],
       settings.search,
       settings.defaultSearchOperator,
     );
