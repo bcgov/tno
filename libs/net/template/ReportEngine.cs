@@ -194,6 +194,7 @@ public class ReportEngine : IReportEngine
             ?? throw new InvalidOperationException("Template does not exist");
 
         var model = new ReportEngineContentModel(sectionContent, report.Settings, uploadPath);
+        
         var body = await template.RunAsync(instance =>
         {
             instance.Model = model;
@@ -205,7 +206,7 @@ public class ReportEngine : IReportEngine
             instance.ViewContentUrl = this.ReportingOptions.ViewContentUrl;
             instance.RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl;
         });
-
+        // body = body.Replace("story", "<mark>story highlighter</mark>");
         var aggregateSection = new Dictionary<string, ReportSectionModel>();
         // Find all charts and make a request to the Charts API to generate the image.
         await report.Sections.ForEachAsync(async section =>

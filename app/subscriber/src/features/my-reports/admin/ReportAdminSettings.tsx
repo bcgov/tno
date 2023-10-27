@@ -76,7 +76,6 @@ export const ReportAdminSettings: React.FC = () => {
               <FormikCheckbox
                 name="settings.content.highlightKeywords"
                 label="Highlight search terms in body text"
-                disabled
               />
             </Col>
           </Col>
