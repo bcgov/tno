@@ -7,7 +7,7 @@ import React from 'react';
 import { FaEllipsisVertical } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
-import { useContent, useLookup } from 'store/hooks';
+import { useContent } from 'store/hooks';
 import {
   Checkbox,
   Col,
@@ -29,7 +29,7 @@ import * as styled from './styled';
  * Home component that will be rendered when the user is logged in.
  */
 export const Home: React.FC = () => {
-  const [{ filter, filterAdvanced }, { findContent, findContentWithElasticsearch }] = useContent();
+  const [{ filter, filterAdvanced }, { findContentWithElasticsearch }] = useContent();
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [disabledCols, setDisabledCols] = React.useState<string[]>([]);
@@ -43,8 +43,6 @@ export const Home: React.FC = () => {
     ),
   );
 
-  const [, setLoading] = React.useState(false);
-
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
@@ -56,7 +54,6 @@ export const Home: React.FC = () => {
   );
 
   React.useEffect(() => {
-    // only fetch once the aliases are ready
     fetchResults(
       generateQuery({
         ...settings,

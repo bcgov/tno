@@ -76,7 +76,6 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
             setActive(HomeFilterType.Internet);
             break;
           }
-          break;
         default:
           setActive(!!filter.productIds?.length ? HomeFilterType.Events : HomeFilterType.All);
       }
