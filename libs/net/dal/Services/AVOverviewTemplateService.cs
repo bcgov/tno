@@ -83,8 +83,6 @@ public class AVOverviewTemplateService : BaseService<AVOverviewTemplate, AVOverv
                 originalSubscriber.IsSubscribed = s.IsSubscribed;
             }
         });
-        entity.SubscribersManyToMany.Clear();
-        entity.SubscribersManyToMany.AddRange(originalSubscribers);
 
         var originalSections = this.Context.AVOverviewTemplateSections.Where(s => s.TemplateType == entity.TemplateType).ToArray();
         originalSections.Except(entity.Sections).ForEach(s =>
@@ -93,7 +91,6 @@ public class AVOverviewTemplateService : BaseService<AVOverviewTemplate, AVOverv
         });
         entity.Sections.ForEach(section =>
         {
-            section.Template = entity;
             if (section.Id == 0)
             {
                 this.Context.Add(section);
