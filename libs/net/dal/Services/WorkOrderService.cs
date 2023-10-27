@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.DAL.Extensions;
-using TNO.DAL.Models;
+using TNO.Models.Filters;
 using TNO.Entities;
 using TNO.Entities.Models;
 

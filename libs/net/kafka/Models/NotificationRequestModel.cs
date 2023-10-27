@@ -47,9 +47,9 @@ public class NotificationRequestModel
     public string To { get; set; } = "";
 
     /// <summary>
-    /// get/set - Whether to update Razor template cache.
+    /// get/set - Whether this request is a preview request.  If it is it won't save a notification instance.
     /// </summary>
-    public bool UpdateCache { get; set; }
+    public bool IsPreview { get; set; }
 
     /// <summary>
     /// get/set - Whether to ignore the standard validation. This will ensure the notification is sent regardless of the normal rules.
@@ -202,6 +202,19 @@ public class NotificationRequestModel
     public NotificationRequestModel(NotificationDestination destination, int notificationId, long contentId, int requestorId, int assignedId, string to = "")
         : this(destination, notificationId, contentId, assignedId, to)
     {
+        this.RequestorId = requestorId;
+    }
+
+    /// <summary>
+    /// Creates a new instance of an NotificationRequestModel object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="destination"></param>
+    /// <param name="notificationId"></param>
+    /// <param name="requestorId"></param>
+    public NotificationRequestModel(NotificationDestination destination, int notificationId, int requestorId)
+    {
+        this.Destination = destination;
+        this.NotificationId = notificationId;
         this.RequestorId = requestorId;
     }
     #endregion

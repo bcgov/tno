@@ -45,7 +45,7 @@ const DataLocationForm: React.FC = () => {
   );
 
   const dataLocationId = Number(id);
-  const connectionOptions = getSortableOptions(connections, [
+  const connectionOptions = getSortableOptions(connections, dataLocation.connectionId, [
     new OptionItem('This data location does not have a connection', ''),
   ]);
 

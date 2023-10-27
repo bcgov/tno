@@ -11,12 +11,12 @@ using TNO.API.Models;
 using TNO.API.Models.SignalR;
 using TNO.API.SignalR;
 using TNO.Core.Exceptions;
-using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Entities.Models;
 using TNO.Kafka;
 using TNO.Kafka.SignalR;
 using TNO.Keycloak;
+using TNO.Models.Filters;
 
 namespace TNO.API.Areas.Admin.Controllers;
 

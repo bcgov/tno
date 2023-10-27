@@ -30,6 +30,12 @@ public class NotificationInstance : AuditColumns
     public Notification? Notification { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to user who owns this notification.
+    /// </summary>
+    [Column("owner_id")]
+    public int? OwnerId { get; set; }
+
+    /// <summary>
     /// get - Foreign key to the content related to the notification.
     /// </summary>
     [Column("content_id")]
@@ -57,6 +63,20 @@ public class NotificationInstance : AuditColumns
     /// </summary>
     [Column("response")]
     public JsonDocument Response { get; set; } = JsonDocument.Parse("{}");
+
+    /// <summary>
+    /// get/set - The compiled subject of the notification.
+    /// Used to recreate the notification.
+    /// </summary>
+    [Column("subject")]
+    public string Subject { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The compiled body of the notification.
+    /// Used to recreate the notification.
+    /// </summary>
+    [Column("body")]
+    public string Body { get; set; } = "";
     #endregion
 
     #region Constructors
@@ -70,12 +90,14 @@ public class NotificationInstance : AuditColumns
     /// </summary>
     /// <param name="notification"></param>
     /// <param name="content"></param>
-    public NotificationInstance(Notification notification, Content content)
+    /// <param name="ownerId"></param>
+    public NotificationInstance(Notification notification, Content content, int? ownerId = null)
     {
         this.Notification = notification ?? throw new ArgumentNullException(nameof(notification));
         this.NotificationId = notification.Id;
         this.Content = content ?? throw new ArgumentNullException(nameof(content));
         this.ContentId = content.Id;
+        this.OwnerId = ownerId;
     }
 
     /// <summary>
@@ -83,10 +105,12 @@ public class NotificationInstance : AuditColumns
     /// </summary>
     /// <param name="notificationId"></param>
     /// <param name="contentId"></param>
-    public NotificationInstance(int notificationId, long contentId)
+    /// <param name="ownerId"></param>
+    public NotificationInstance(int notificationId, long contentId, int? ownerId = null)
     {
         this.NotificationId = notificationId;
         this.ContentId = contentId;
+        this.OwnerId = ownerId;
     }
     #endregion
 }

@@ -11,6 +11,8 @@ export const ReportForm = styled(FormPage)`
   }
 
   .code {
+    position: relative;
+
     .editor {
       padding: 0.375rem 0.75rem;
       box-sizing: border-box;

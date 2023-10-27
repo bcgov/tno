@@ -8,10 +8,10 @@ using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.Ingest;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
-using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Entities.Models;
 using TNO.Keycloak;
+using TNO.Models.Filters;
 
 namespace TNO.API.Areas.Editor.Controllers;
 

@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
-using TNO.Entities.Validation;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Notification.Config;
+using TNO.Services.Notification.Validation;
 using TNO.Services.Runners;
 using TNO.TemplateEngine;
 using TNO.TemplateEngine.Config;
@@ -42,7 +42,7 @@ public class NotificationService : KafkaConsumerService
         base.ConfigureServices(services);
         services
             .Configure<NotificationOptions>(this.Configuration.GetSection("Service"))
-            .Configure<ReportingOptions>(this.Configuration.GetSection("Reporting"))
+            .Configure<TemplateOptions>(this.Configuration.GetSection("Reporting"))
             .AddTransient<IKafkaListener<string, NotificationRequestModel>, KafkaListener<string, NotificationRequestModel>>()
             .AddTransient<INotificationValidator, NotificationValidator>()
             .AddScoped<IServiceManager, NotificationManager>()

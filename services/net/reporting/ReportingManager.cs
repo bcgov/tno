@@ -15,6 +15,7 @@ using TNO.Kafka.Models;
 using TNO.Services.Managers;
 using TNO.Services.Reporting.Config;
 using TNO.TemplateEngine;
+using TNO.TemplateEngine.Models;
 using TNO.TemplateEngine.Models.Reports;
 
 namespace TNO.Services.Reporting;
@@ -329,7 +330,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     {
         // Fetch content for every section within the report.  This will include folders and filters.
         var sections = report.Sections.Select(s => new ReportSectionModel(s));
-        var searchResults = await this.Api.FindContentForReportIdAsync(report.Id);
+        var searchResults = await this.Api.FindContentForReportIdAsync(report.Id, request.RequestorId);
         var sectionContent = sections.ToDictionary(s => s.Name, section =>
         {
             if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
@@ -362,7 +363,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             sectionContent.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray()
             )
         {
-            OwnerId = request.RequestorId,
+            OwnerId = request.RequestorId ?? report.OwnerId,
             PublishedOn = DateTime.UtcNow,
             Subject = subject,
             Body = body,

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
-using TNO.DAL.Models;
 using TNO.Entities;
+using TNO.Models.Filters;
 
 namespace TNO.Test.DAL.Models;
 

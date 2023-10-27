@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
-import { INotificationModel, useApiAdminNotifications } from 'tno-core';
+import { INotificationModel, INotificationResultModel, useApiAdminNotifications } from 'tno-core';
 
 interface INotificationController {
   findAllNotifications: () => Promise<INotificationModel[]>;
@@ -9,10 +9,14 @@ interface INotificationController {
   addNotification: (model: INotificationModel) => Promise<INotificationModel>;
   updateNotification: (model: INotificationModel) => Promise<INotificationModel>;
   deleteNotification: (model: INotificationModel) => Promise<INotificationModel>;
-  sendNotification: (
+  previewNotification: (
     model: INotificationModel,
     contentId: number,
+  ) => Promise<INotificationResultModel>;
+  sendNotification: (
+    model: INotificationModel,
     to: string,
+    contentId?: number,
   ) => Promise<INotificationModel>;
 }
 
@@ -74,9 +78,15 @@ export const useNotifications = (): [IAdminState, INotificationController] => {
         await lookup.getLookups();
         return response.data;
       },
-      sendNotification: async (model: INotificationModel, contentId: number, to: string) => {
+      previewNotification: async (model: INotificationModel, contentId: number) => {
+        const response = await dispatch<INotificationResultModel>('preview-Notification', () =>
+          api.previewNotification(model, contentId),
+        );
+        return response.data;
+      },
+      sendNotification: async (model: INotificationModel, to: string, contentId?: number) => {
         const response = await dispatch<INotificationModel>('send-Notification', () =>
-          api.sendNotification(model, contentId, to),
+          api.sendNotification(model, to, contentId),
         );
         return response.data;
       },

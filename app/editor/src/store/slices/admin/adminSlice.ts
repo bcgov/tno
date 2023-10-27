@@ -14,6 +14,7 @@ import {
   ILicenseModel,
   IMinisterModel,
   INotificationModel,
+  INotificationTemplateModel,
   IOrganizationModel,
   IPaged,
   IProductModel,
@@ -58,6 +59,7 @@ export const initialAdminState: IAdminState = {
   organizations: [],
   notificationFilter: '',
   notifications: [],
+  notificationTemplates: [],
   productFilter: '',
   products: [],
   reportFilter: '',
@@ -164,6 +166,12 @@ export const adminSlice = createSlice({
     storeNotifications(state: IAdminState, action: PayloadAction<INotificationModel[]>) {
       state.notifications = action.payload;
     },
+    storeNotificationTemplates(
+      state: IAdminState,
+      action: PayloadAction<INotificationTemplateModel[]>,
+    ) {
+      state.notificationTemplates = action.payload;
+    },
     storeOrganizationFilter(state: IAdminState, action: PayloadAction<string>) {
       state.organizationFilter = action.payload;
     },
@@ -257,6 +265,7 @@ export const {
   storeMinisters: storeAdminMinisters,
   storeNotificationFilter: storeAdminNotificationFilter,
   storeNotifications: storeAdminNotifications,
+  storeNotificationTemplates: storeAdminNotificationTemplates,
   storeOrganizationFilter: storeAdminOrganizationFilter,
   storeOrganizations: storeAdminOrganizations,
   storeProductFilter: storeAdminProductFilter,

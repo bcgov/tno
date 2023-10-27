@@ -7,9 +7,10 @@ using Microsoft.Extensions.Options;
 using TNO.API.Models.Settings;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
-using TNO.DAL.Models;
+using TNO.DAL.Extensions;
 using TNO.Elastic;
 using TNO.Entities;
+using TNO.Models.Filters;
 
 namespace TNO.DAL.Services;
 
@@ -414,15 +415,15 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// If the section also references a folder it will make a request for the folder content too.
     /// </summary>
     /// <param name="report"></param>
-    /// <param name="index">Override the index that will be used for search.</param>
+    /// <param name="requestorId"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(Report report, string? index = null)
+    public async Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(Report report, int? requestorId)
     {
         var searchResults = new Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>();
         var reportSettings = JsonSerializer.Deserialize<ReportSettingsModel>(report.Settings.ToJson(), _serializerOptions) ?? new();
 
-        var ownerId = report.OwnerId; // TODO: Handle users generating instances for a report they do not own.
+        var ownerId = requestorId ?? report.OwnerId; // TODO: Handle users generating instances for a report they do not own.
         var prevInstance = GetPreviousReportInstance(report.Id, ownerId);
 
         // Fetch the current instance of this report to exclude any content within it.
@@ -485,15 +486,15 @@ public class ReportService : BaseService<Report, int>, IReportService
                 if (section.Filter == null) throw new InvalidOperationException($"Section '{section.Name}' filter is missing from report object.");
 
                 // Modify the query to exclude content.
-                var query = excludeContentIds.Any() ? AddExcludeContent(section.Filter.Query, excludeContentIds) : section.Filter.Query;
+                var query = excludeContentIds.Any() ? section.Filter.Query.AddExcludeContent(excludeContentIds) : section.Filter.Query;
 
                 // Only include content that has been posted since the last report instance.
                 if (reportSettings.Content.OnlyNewContent)
-                    query = IncludeOnlyLatestPosted(query, prevInstance?.PublishedOn);
+                    query = query.IncludeOnlyLatestPosted(prevInstance?.PublishedOn);
 
                 // Determine index.
                 var searchUnpublished = section.Filter.Settings.GetElementValue(".searchUnpublished", false);
-                var defaultIndex = index ?? (searchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex);
+                var defaultIndex = searchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
 
                 var content = await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
 
@@ -570,81 +571,10 @@ public class ReportService : BaseService<Report, int>, IReportService
     }
 
     /// <summary>
-    /// Modify the Elasticsearch 'query' and add a 'must_not' filter to exclude the specified 'contentIds'.
+    /// Unsubscribe the specified 'userId' from all reports.
     /// </summary>
-    /// <param name="query"></param>
-    /// <param name="contentIds"></param>
+    /// <param name="userId"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    private static JsonDocument AddExcludeContent(JsonDocument query, IEnumerable<long> contentIds)
-    {
-        var json = JsonNode.Parse(query.ToJson())?.AsObject();
-        if (json == null) return query;
-
-        var jMustNotTerms = JsonNode.Parse($"{{ \"terms\": {{ \"id\": [{String.Join(',', contentIds)}] }}}}")?.AsObject() ?? throw new InvalidOperationException("Failed to parse JSON");
-        if (json.TryGetPropertyValue("query", out JsonNode? jQuery))
-        {
-            if (jQuery?.AsObject().TryGetPropertyValue("bool", out JsonNode? jQueryBool) == true)
-            {
-                if (jQueryBool?.AsObject().TryGetPropertyValue("must_not", out JsonNode? jQueryBoolMustNot) == true)
-                {
-                    jQueryBoolMustNot?.AsArray().Add(jMustNotTerms);
-                }
-                else
-                {
-                    jQueryBool?.AsObject().Add("must_not", JsonNode.Parse($"[ {jMustNotTerms.ToJsonString()} ]"));
-                }
-            }
-            else
-            {
-                jQuery?.AsObject().Add("bool", JsonNode.Parse($"{{ \"must_not\": [ {jMustNotTerms.ToJsonString()} ]}}"));
-            }
-        }
-        else
-        {
-            json.Add("query", JsonNode.Parse($"{{ \"bool\": {{ \"must_not\": [ {jMustNotTerms.ToJsonString()} ] }}}}"));
-        }
-        return JsonDocument.Parse(json.ToJsonString());
-    }
-
-    /// <summary>
-    /// Modify the Elasticsearch 'query' and add a 'must' filter to exclude content posted before the last report instance published date.
-    /// </summary>
-    /// <param name="query"></param>
-    /// <param name="previousInstancePublishedOn"></param>
-    /// <returns></returns>
-    private static JsonDocument IncludeOnlyLatestPosted(JsonDocument query, DateTime? previousInstancePublishedOn)
-    {
-        var json = JsonNode.Parse(query.ToJson())?.AsObject();
-        if (json == null || previousInstancePublishedOn == null) return query;
-
-        var jIncludeOnlyLatestPosted = JsonNode.Parse($"{{ \"range\": {{ \"postedOn\": {{ \"gte\": \"{previousInstancePublishedOn.Value.ToLocalTime():yyyy-MM-dd}\", \"time_zone\": \"US/Pacific\", \"format\": \"yyyy-MM-DD\" }} }} }}");
-        if (json.TryGetPropertyValue("query", out JsonNode? jQuery))
-        {
-            if (jQuery?.AsObject().TryGetPropertyValue("bool", out JsonNode? jQueryBool) == true)
-            {
-                if (jQueryBool?.AsObject().TryGetPropertyValue("must", out JsonNode? jQueryBoolMust) == true)
-                {
-                    jQueryBoolMust?.AsArray().Add(jIncludeOnlyLatestPosted!);
-                }
-                else
-                {
-                    jQueryBool?.AsObject().Add("must", JsonNode.Parse($"[ {jIncludeOnlyLatestPosted!.ToJsonString()} ]"));
-                }
-            }
-            else
-            {
-                jQuery?.AsObject().Add("bool", JsonNode.Parse($"{{ \"must\": [ {jIncludeOnlyLatestPosted!.ToJsonString()} ]}}"));
-            }
-        }
-        else
-        {
-            json.Add("query", JsonNode.Parse($"{{ \"bool\": {{ \"must\": [ {jIncludeOnlyLatestPosted!.ToJsonString()} ] }}}}"));
-        }
-
-        return JsonDocument.Parse(json.ToJsonString());
-    }
-
     public async Task<int> Unsubscribe(int userId)
     {
         var saveChanges = false;

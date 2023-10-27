@@ -17,7 +17,6 @@ using TNO.API.SignalR;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
-using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Elastic;
 using TNO.Entities;
@@ -27,6 +26,7 @@ using TNO.Kafka.Models;
 using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 using TNO.Models.Extensions;
+using TNO.Models.Filters;
 
 namespace TNO.API.Areas.Editor.Controllers;
 

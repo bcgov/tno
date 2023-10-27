@@ -34,18 +34,20 @@ export const FolderFormCollect: React.FC = () => {
   const [{ filters }, { findAllFilters }] = useFilters();
   const [, { findContentWithElasticsearch }] = useContent();
 
-  const [filterOptions, setFilterOptions] = React.useState(getFilterOptions(filters));
+  const [filterOptions, setFilterOptions] = React.useState(
+    getFilterOptions(filters, values.filterId),
+  );
   const [filter, setFilter] = React.useState<IFilterModel>();
 
   React.useEffect(() => {
     if (!filters.length) {
       findAllFilters()
         .then((filters) => {
-          setFilterOptions(getFilterOptions(filters));
+          setFilterOptions(getFilterOptions(filters, values.filterId));
         })
         .catch(() => {});
     }
-  }, [filters, findAllFilters]);
+  }, [filters, findAllFilters, values.filterId]);
 
   const handleRun = React.useCallback(
     async (filter: IFilterModel) => {

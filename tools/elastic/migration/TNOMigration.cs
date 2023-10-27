@@ -4,7 +4,7 @@ using Elastic.Transport;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Content;
-using TNO.DAL.Models;
+using TNO.Models.Filters;
 using TNO.DAL.Services;
 
 namespace TNO.Elastic.Migration;

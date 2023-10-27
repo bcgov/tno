@@ -36,6 +36,7 @@ const IngestDetails: React.FC<IIngestDetailsProps> = () => {
 
   const sources = getSortableOptions(
     lookups.sources,
+    values.sourceId,
     [],
     (i) => new OptionItem(`(${i.code}) ${i.name}`, i.id),
   );

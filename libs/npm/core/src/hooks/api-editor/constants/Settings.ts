@@ -5,6 +5,7 @@ export const Settings = {
   // Use them to fetch values from the settings lookup.
   SubscriberUrl: 'SubscriberUrl',
   DefaultAlert: 'AlertId',
+  TopStoryAlert: 'TopStoryAlertId',
   MorningReport: 'MorningReportId',
   FrontPageImagesReport: 'FrontPageImagesReportId',
   NewsRadioProductFilter: 'NewsRadioProductFilterId',

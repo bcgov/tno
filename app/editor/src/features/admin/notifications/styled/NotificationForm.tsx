@@ -11,6 +11,8 @@ export const NotificationForm = styled(FormPage)`
   align-items: center;
 
   .code {
+    position: relative;
+
     .editor {
       padding: 0.375rem 0.75rem;
       box-sizing: border-box;
@@ -32,5 +34,27 @@ export const NotificationForm = styled(FormPage)`
 
   .form {
     width: 100%;
+  }
+
+  .preview-notification {
+    height: 100%;
+    border: solid 2px ${(props) => props.theme.css.primaryColor};
+    border-radius: 0.5rem;
+    display: flex;
+    flex-flow: column;
+    box-shadow: 0 3px 15px rgb(0 0 0 / 0.5);
+    margin-top: 1rem;
+
+    .preview-subject {
+      padding: 1rem;
+      background-color: ${(props) => props.theme.css.primaryLightColor};
+      color: #fff;
+    }
+
+    .preview-body {
+      padding: 1rem;
+      max-height: calc(100vh - 600px);
+      overflow-y: auto;
+    }
   }
 `;

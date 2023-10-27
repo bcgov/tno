@@ -12,6 +12,7 @@ export * from './useApiAdminIngestTypes';
 export * from './useApiAdminLicenses';
 export * from './useApiAdminMinisters';
 export * from './useApiAdminNotifications';
+export * from './useApiAdminNotificationTemplates';
 export * from './useApiAdminOrganizations';
 export * from './useApiAdminProducts';
 export * from './useApiAdminReportInstances';

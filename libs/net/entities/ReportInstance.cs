@@ -41,13 +41,13 @@ public class ReportInstance : AuditColumns
     public virtual User? Owner { get; set; }
 
     /// <summary>
-    /// get/set - The date and time the report was published on.
+    /// get/set - The date and time the report was published on (generated).
     /// </summary>
     [Column("published_on")]
     public DateTime? PublishedOn { get; set; }
 
     /// <summary>
-    /// get/set - The date and time the report was sent on.
+    /// get/set - The date and time the report was sent on (emailed out).
     /// </summary>
     [Column("sent_on")]
     public DateTime? SentOn { get; set; }

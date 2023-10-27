@@ -106,6 +106,7 @@ public class TNOContext : DbContext
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<NotificationInstance> NotificationInstances => Set<NotificationInstance>();
     public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
+    public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
     #endregion
     #endregion
 

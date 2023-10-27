@@ -1,5 +1,6 @@
 namespace TNO.TemplateEngine;
 
+using TemplateEngine.Models;
 using TemplateEngine.Models.Reports;
 
 /// <summary>
@@ -109,14 +110,14 @@ public static class ReportExtensions
         }
 
         char[] delimiterChars = { '|', '+', '-' };
-        string[] reservedStrings = new string[] {"*", "( and )", "~N", "\""};
+        string[] reservedStrings = new string[] { "*", "( and )", "~N", "\"" };
         foreach (var s in reservedStrings)
         {
-            keywords = keywords.Replace(s,"");
+            keywords = keywords.Replace(s, "");
         }
         foreach (string word in keywords.Split(delimiterChars))
         {
-            highlightedText = word != "" ? highlightedText.Replace(word.Trim(), "<mark>"+ word.Trim() +"</mark>") : highlightedText;
+            highlightedText = word != "" ? highlightedText.Replace(word.Trim(), "<mark>" + word.Trim() + "</mark>") : highlightedText;
         }
         return highlightedText;
     }

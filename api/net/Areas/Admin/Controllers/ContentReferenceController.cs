@@ -9,6 +9,7 @@ using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Entities.Models;
 using TNO.Keycloak;
+using TNO.Models.Filters;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -55,7 +56,7 @@ public class ContentReferenceController : ControllerBase
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        var result = _contentReferenceService.Find(new DAL.Models.ContentReferenceFilter(query));
+        var result = _contentReferenceService.Find(new ContentReferenceFilter(query));
         var page = new Paged<ContentReferenceModel>(result.Items.Select(cr => new ContentReferenceModel(cr)), result.Page, result.Quantity, result.Total);
         return new JsonResult(page);
     }

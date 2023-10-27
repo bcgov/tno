@@ -1,5 +1,5 @@
-using TNO.DAL.Models;
 using TNO.Entities;
+using TNO.Models.Filters;
 
 namespace TNO.DAL.Services;
 
@@ -30,10 +30,10 @@ public interface IReportService : IBaseService<Report, int>
     /// If the section also references a folder it will make a request for the folder content too.
     /// </summary>
     /// <param name="report"></param>
-    /// <param name="index">Override the index that will be used for search.</param>
+    /// <param name="requestorId"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(Report report, string? index = null);
+    Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(Report report, int? requestorId);
 
     /// <summary>
     /// Get the current instance for the specified report 'id'.

@@ -2,7 +2,7 @@ import { AxiosResponse } from 'axios';
 import React from 'react';
 
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { INotificationModel, useApi } from '..';
+import { INotificationModel, INotificationResultModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -45,9 +45,15 @@ export const useApiAdminNotifications = (
         },
       );
     },
-    sendNotification: (model: INotificationModel, contentId: number, to: string) => {
+    previewNotification: (model: INotificationModel, contentId: number) => {
+      return api.post<INotificationModel, AxiosResponse<INotificationResultModel>, any>(
+        `/admin/notifications/${model.id}/preview/${contentId}`,
+        model,
+      );
+    },
+    sendNotification: (model: INotificationModel, to: string, contentId?: number) => {
       return api.post<INotificationModel, AxiosResponse<INotificationModel>, any>(
-        `/admin/notifications/${model.id}/send/${contentId}?to=${to}`,
+        `/admin/notifications/${model.id}/send${contentId ? `/${contentId}` : ''}?to=${to}`,
       );
     },
   }).current;

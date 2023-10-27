@@ -1,4 +1,5 @@
 export interface IReportInfo {
   name: string;
-  reportId: number;
+  value: number;
+  action: 'report' | 'notification';
 }

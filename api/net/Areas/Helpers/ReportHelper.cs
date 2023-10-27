@@ -8,6 +8,7 @@ using TNO.DAL.Services;
 using TNO.Elastic;
 using TNO.Elastic.Models;
 using TNO.TemplateEngine;
+using TNO.TemplateEngine.Models;
 using TNO.TemplateEngine.Models.Charts;
 using TNO.TemplateEngine.Models.Reports;
 
@@ -24,7 +25,6 @@ public class ReportHelper : IReportHelper
     private readonly IReportService _reportService;
     private readonly IAVOverviewTemplateService _overviewTemplateService;
     private readonly IContentService _contentService;
-    private readonly IFileReferenceService _fileReferenceService;
     private readonly ElasticOptions _elasticOptions;
     private readonly StorageOptions _storageOptions;
     private readonly JsonSerializerOptions _serializerOptions;
@@ -41,7 +41,6 @@ public class ReportHelper : IReportHelper
     /// <param name="reportService"></param>
     /// <param name="overviewTemplateService"></param>
     /// <param name="contentService"></param>
-    /// <param name="fileReferenceService"></param>
     /// <param name="elasticOptions"></param>
     /// <param name="storageOptions"></param>
     /// <param name="serializerOptions"></param>
@@ -50,7 +49,6 @@ public class ReportHelper : IReportHelper
         IReportService reportService,
         IAVOverviewTemplateService overviewTemplateService,
         IContentService contentService,
-        IFileReferenceService fileReferenceService,
         IOptions<ElasticOptions> elasticOptions,
         IOptions<StorageOptions> storageOptions,
         IOptions<JsonSerializerOptions> serializerOptions)
@@ -59,7 +57,6 @@ public class ReportHelper : IReportHelper
         _reportService = reportService;
         _overviewTemplateService = overviewTemplateService;
         _contentService = contentService;
-        _fileReferenceService = fileReferenceService;
         _elasticOptions = elasticOptions.Value;
         _storageOptions = storageOptions.Value;
         _serializerOptions = serializerOptions.Value;
@@ -119,27 +116,6 @@ public class ReportHelper : IReportHelper
     }
 
     /// <summary>
-    /// Generate a base 64 string for the image associated with the specified 'contentId'.
-    /// </summary>
-    /// <param name="contentId"></param>
-    /// <returns></returns>
-    public async Task<string?> GetImageAsync(long contentId)
-    {
-        var fileReference = _fileReferenceService.FindByContentId(contentId).FirstOrDefault();
-        if (fileReference == null) return null;
-
-        var safePath = Path.Combine(
-            _storageOptions.GetUploadPath(),
-            HttpUtility.UrlDecode(fileReference.Path).MakeRelativePath());
-        if (!safePath.FileExists()) return null;
-
-        using var fileStream = new FileStream(safePath, FileMode.Open, FileAccess.Read);
-        var imageBytes = new byte[fileStream.Length];
-        await fileStream.ReadAsync(imageBytes.AsMemory(0, (int)fileStream.Length));
-        return Convert.ToBase64String(imageBytes);
-    }
-
-    /// <summary>
     /// Generate an instance of the report.
     /// </summary>
     /// <param name="model"></param>
@@ -153,7 +129,7 @@ public class ReportHelper : IReportHelper
     {
         // Fetch content for every section within the report.  This will include folders and filters.
         var sections = model.Sections.Select(s => new ReportSectionModel(s));
-        var searchResults = await _reportService.FindContentWithElasticsearchAsync((Entities.Report)model);
+        var searchResults = await _reportService.FindContentWithElasticsearchAsync((Entities.Report)model, requestorId);
         var sectionContent = sections.ToDictionary(s => s.Name, section =>
         {
             if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
@@ -212,18 +188,20 @@ public class ReportHelper : IReportHelper
     /// Fetch content from elasticsearch and folders.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="requestorId"></param>
     /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="NotImplementedException"></exception>
     public async Task<ReportResultModel> GenerateReportAsync(
         Areas.Services.Models.Report.ReportModel model,
+        int? requestorId = null,
         bool isPreview = false)
     {
         if (model.Template == null) throw new ArgumentException("Parameter 'model.Template' is required");
 
         // Fetch all content for this report.
-        var elasticResults = await _reportService.FindContentWithElasticsearchAsync(model.ToEntity(_serializerOptions));
+        var elasticResults = await _reportService.FindContentWithElasticsearchAsync(model.ToEntity(_serializerOptions), requestorId);
 
         // Link each result with the section name.
         var sections = model.Sections.ToDictionary(section => section.Name, section =>

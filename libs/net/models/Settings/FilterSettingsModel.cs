@@ -20,6 +20,21 @@ public class FilterSettingsModel
     public int Size { get; set; } = 10;
 
     /// <summary>
+    /// get/set - The way to do paging.
+    /// </summary>
+    public int? From { get; set; }
+
+    /// <summary>
+    /// get/set - Filter on the content which is owned.
+    /// </summary>
+    public int? OwnerId { get; set; }
+
+    /// <summary>
+    /// get/set - Filter on the content which is owned, created, or updated by this user.
+    /// </summary>
+    public int? UserId { get; set; }
+
+    /// <summary>
     /// get/set - Keyword search support Elasticsearch query syntax.
     /// </summary>
     public string? Search { get; set; }
@@ -85,50 +100,65 @@ public class FilterSettingsModel
     public bool? IsHidden { get; set; }
 
     /// <summary>
+    /// get/set - Filter content by other source.
+    /// </summary>
+    public string? OtherSource { get; set; }
+
+    /// <summary>
+    /// get/set - Filter content based on status.
+    /// </summary>
+    public ContentStatus? Status { get; set; }
+
+    /// <summary>
     /// get/set - An array of source Id.
     /// </summary>
-    public int[] SourceIds { get; set; } = Array.Empty<int>();
+    public int[]? SourceIds { get; set; }
 
     /// <summary>
     /// get/set - An array of product Id.
     /// </summary>
-    public int[] ProductIds { get; set; } = Array.Empty<int>();
+    public int[]? ProductIds { get; set; }
 
     /// <summary>
     /// get/set - An array of series Id.
     /// </summary>
-    public int[] SeriesIds { get; set; } = Array.Empty<int>();
+    public int[]? SeriesIds { get; set; }
 
     /// <summary>
     /// get/set - An array of contributor Id.
     /// </summary>
-    public int[] ContributorIds { get; set; } = Array.Empty<int>();
+    public int[]? ContributorIds { get; set; }
 
     /// <summary>
     /// get/set - An array of actions.
     /// Includes the value of the action to filter on.
     /// </summary>
-    public FilterActionSettingsModel[] Actions { get; set; } = Array.Empty<FilterActionSettingsModel>();
+    public FilterActionSettingsModel[]? Actions { get; set; }
 
     /// <summary>
     /// get/set - An array of content types.
     /// </summary>
-    public ContentType[] ContentTypes { get; set; } = Array.Empty<ContentType>();
+    public ContentType[]? ContentTypes { get; set; }
 
     /// <summary>
     /// get/set - An array of tags.
     /// </summary>
-    public string[] Tags { get; set; } = Array.Empty<string>();
+    public string[]? Tags { get; set; }
 
     /// <summary>
     /// get/set - An array of source Id.
     /// Represents a range, from and to.
     /// </summary>
-    public int[] Sentiment { get; set; } = Array.Empty<int>();
+    public int[]? Sentiment { get; set; }
+
+    /// <summary>
+    /// get/set - An array of content Id.
+    /// </summary>
+    public long[]? ContentIds { get; set; }
 
     /// <summary>
     /// get/set - An array of sort conditions (i.e. { name: 'desc' })
     /// </summary>
-    public dynamic[] Sort { get; set; } = Array.Empty<dynamic>();
+    public dynamic[]? Sort { get; set; }
     #endregion
 }

@@ -10,7 +10,7 @@ import { IReportForm } from '../interfaces';
 
 export const ReportSnapshotView: React.FC = () => {
   const { values, isSubmitting, setFieldValue } = useFormikContext<IReportForm>();
-  const [{ previewReportInstance, sendReportInstance }] = useReportInstances();
+  const [{ viewReportInstance, sendReportInstance }] = useReportInstances();
   const [{ requests }] = useAppStore();
 
   const [preview, setPreview] = React.useState<IReportResultModel>();
@@ -20,21 +20,21 @@ export const ReportSnapshotView: React.FC = () => {
 
   React.useEffect(() => {
     if (instanceId)
-      previewReportInstance(instanceId)
+      viewReportInstance(instanceId)
         .then((result) => {
           setPreview(result);
         })
         .catch(() => {});
-  }, [previewReportInstance, instanceId]);
+  }, [viewReportInstance, instanceId]);
 
   const handleRefresh = React.useCallback(
     async (instanceId: number) => {
       try {
-        const result = await previewReportInstance(instanceId);
+        const result = await viewReportInstance(instanceId);
         setPreview(result);
       } catch {}
     },
-    [previewReportInstance],
+    [viewReportInstance],
   );
 
   const handleSend = React.useCallback(

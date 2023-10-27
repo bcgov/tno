@@ -15,6 +15,7 @@ import {
   ILicenseModel,
   IMinisterModel,
   INotificationModel,
+  INotificationTemplateModel,
   IOrganizationModel,
   IPaged,
   IProductModel,
@@ -55,6 +56,7 @@ import {
   storeAdminMinisters,
   storeAdminNotificationFilter,
   storeAdminNotifications,
+  storeAdminNotificationTemplates,
   storeAdminOrganizationFilter,
   storeAdminOrganizations,
   storeAdminProductFilter,
@@ -111,6 +113,9 @@ export interface IAdminStore {
   storeNotificationFilter: (filter: string | ActionDelegate<string>) => void;
   storeNotifications: (
     notifications: INotificationModel[] | ActionDelegate<INotificationModel[]>,
+  ) => void;
+  storeNotificationTemplates: (
+    templates: INotificationTemplateModel[] | ActionDelegate<INotificationTemplateModel[]>,
   ) => void;
   storeOrganizationFilter: (filter: string | ActionDelegate<string>) => void;
   storeOrganizations: (
@@ -277,6 +282,13 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminNotifications(notifications(state.notifications)));
         } else dispatch(storeAdminNotifications(notifications));
       },
+      storeNotificationTemplates: (
+        templates: INotificationTemplateModel[] | ActionDelegate<INotificationTemplateModel[]>,
+      ) => {
+        if (typeof templates === 'function') {
+          dispatch(storeAdminNotificationTemplates(templates(state.notificationTemplates)));
+        } else dispatch(storeAdminNotificationTemplates(templates));
+      },
       storeOrganizationFilter: (filter: string | ActionDelegate<string>) => {
         if (typeof filter === 'function') {
           dispatch(storeAdminOrganizationFilter(filter(state.organizationFilter)));
@@ -425,6 +437,7 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       state.ministers,
       state.notificationFilter,
       state.notifications,
+      state.notificationTemplates,
       state.organizationFilter,
       state.organizations,
       state.productFilter,

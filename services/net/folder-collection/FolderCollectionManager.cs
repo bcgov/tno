@@ -324,20 +324,20 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
         var now = DateTime.Now.ToLocalTime();
 
         if (!filter.Settings.SearchUnpublished && content.Status == Entities.ContentStatus.Draft) return false;
-        if (filter.Settings.ContentTypes.Any() && !filter.Settings.ContentTypes.Contains(content.ContentType)) return false;
-        if (filter.Settings.SourceIds.Any() && content.SourceId.HasValue && !filter.Settings.SourceIds.Contains(content.SourceId.Value)) return false;
-        if (filter.Settings.ProductIds.Any() && !filter.Settings.ProductIds.Contains(content.ProductId)) return false;
-        if (filter.Settings.ContributorIds.Any() && content.ContributorId.HasValue && !filter.Settings.ContributorIds.Contains(content.ContributorId.Value)) return false;
-        if (filter.Settings.SeriesIds.Any() && content.SeriesId.HasValue && !filter.Settings.SeriesIds.Contains(content.SeriesId.Value)) return false;
-        if (filter.Settings.Tags.Any() && !filter.Settings.Tags.Any(st => content.Tags.Any(t => t.Code.Equals(st, StringComparison.OrdinalIgnoreCase)))) return false;
-        if (filter.Settings.Sentiment.Any())
+        if (filter.Settings.ContentTypes?.Any() == true && !filter.Settings.ContentTypes.Contains(content.ContentType)) return false;
+        if (filter.Settings.SourceIds?.Any() == true && content.SourceId.HasValue && !filter.Settings.SourceIds.Contains(content.SourceId.Value)) return false;
+        if (filter.Settings.ProductIds?.Any() == true && !filter.Settings.ProductIds.Contains(content.ProductId)) return false;
+        if (filter.Settings.ContributorIds?.Any() == true && content.ContributorId.HasValue && !filter.Settings.ContributorIds.Contains(content.ContributorId.Value)) return false;
+        if (filter.Settings.SeriesIds?.Any() == true && content.SeriesId.HasValue && !filter.Settings.SeriesIds.Contains(content.SeriesId.Value)) return false;
+        if (filter.Settings.Tags?.Any() == true && !filter.Settings.Tags.Any(st => content.Tags.Any(t => t.Code.Equals(st, StringComparison.OrdinalIgnoreCase)))) return false;
+        if (filter.Settings.Sentiment?.Any() == true)
         {
             var min = filter.Settings.Sentiment.Min();
             var max = filter.Settings.Sentiment.Max();
             // TODO: Need to handle custom tone pools.
             if (!content.TonePools.Any(tp => tp.Value >= min && tp.Value <= max)) return false;
         };
-        if (filter.Settings.Actions.Any() && !filter.Settings.Actions.Any(fa => content.Actions.Any(a => a.Id == fa.Id && a.Value == fa.Value))) return false;
+        if (filter.Settings.Actions?.Any() == true && !filter.Settings.Actions.Any(fa => content.Actions.Any(a => a.Id == fa.Id && a.Value == fa.Value))) return false;
 
         var publishedOn = content.PublishedOn?.ToLocalTime();
 

@@ -1,8 +1,9 @@
 import { getSortableOptions, IFilterModel, OptionItem } from 'tno-core';
 
-export const getFilterOptions = (filters: IFilterModel[]) => {
+export const getFilterOptions = (filters: IFilterModel[], currentFilterId?: number) => {
   return getSortableOptions(
     filters,
+    currentFilterId,
     undefined,
     (item) =>
       new OptionItem(

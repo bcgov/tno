@@ -293,8 +293,9 @@ public interface IApiService
     /// <summary>
     /// Make a request to the API to fetch all the notifications.
     /// </summary>
+    /// <param name="filter"></param>
     /// <returns></returns>
-    Task<IEnumerable<API.Areas.Services.Models.Notification.NotificationModel>> GetAllNotificationsAsync();
+    Task<IEnumerable<API.Areas.Services.Models.Notification.NotificationModel>> FindNotificationsAsync(TNO.Models.Filters.NotificationFilter filter);
 
     /// <summary>
     /// Make a request to the API to fetch the notification with the specified 'id'.
@@ -309,6 +310,14 @@ public interface IApiService
     /// <param name="instance"></param>
     /// <returns></returns>
     Task<API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel?> AddNotificationInstanceAsync(API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel instance);
+
+    /// <summary>
+    /// Make a request to the API to fetch the content for the specified notification 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>?> FindContentForNotificationIdAsync(int id, int? requestorId);
     #endregion
 
     #region Reports
@@ -323,8 +332,9 @@ public interface IApiService
     /// Make a request to the API to fetch the content for the specified report 'id'.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="requestorId"></param>
     /// <returns></returns>
-    Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentForReportIdAsync(int id);
+    Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentForReportIdAsync(int id, int? requestorId);
 
     /// <summary>
     /// Make a request to the API to fetch the report instance with the specified 'id'.

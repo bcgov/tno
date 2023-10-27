@@ -18,14 +18,14 @@ import {
 import * as styled from './styled';
 
 const AVOverviewPreview: React.FC = () => {
-  const [{ getAVOverview, previewAVOverview, publishAVOverview }] = useAVOverviewInstances();
+  const [{ getAVOverview, viewAVOverview, publishAVOverview }] = useAVOverviewInstances();
   const { toggle, isShowing } = useModal();
   const { id } = useParams();
   const instanceId = parseInt(id ?? '');
 
   const [isLoading, setIsLoading] = React.useState(true);
   const [instance, setInstance] = React.useState<IAVOverviewInstanceModel>();
-  const [preview, setPreview] = React.useState<IReportResultModel | undefined>();
+  const [view, setView] = React.useState<IReportResultModel | undefined>();
 
   const handlePreviewReport = React.useCallback(
     async (instanceId: number) => {
@@ -33,14 +33,14 @@ const AVOverviewPreview: React.FC = () => {
         setIsLoading(true);
         const instance = await getAVOverview(instanceId);
         setInstance(instance);
-        const preview = await previewAVOverview(instanceId);
-        setPreview(preview);
+        const view = await viewAVOverview(instanceId);
+        setView(view);
       } catch {
       } finally {
         setIsLoading(false);
       }
     },
-    [getAVOverview, previewAVOverview],
+    [getAVOverview, viewAVOverview],
   );
 
   React.useEffect(() => {
@@ -71,11 +71,11 @@ const AVOverviewPreview: React.FC = () => {
         <Col className="preview-report">
           <div
             className="preview-subject"
-            dangerouslySetInnerHTML={{ __html: preview?.subject ?? '' }}
+            dangerouslySetInnerHTML={{ __html: view?.subject ?? '' }}
           ></div>
           <div
             className="preview-body"
-            dangerouslySetInnerHTML={{ __html: preview?.body ?? '' }}
+            dangerouslySetInnerHTML={{ __html: view?.body ?? '' }}
           ></div>
         </Col>
       </Show>

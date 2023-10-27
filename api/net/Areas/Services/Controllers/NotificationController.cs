@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
@@ -8,6 +9,7 @@ using TNO.API.Areas.Services.Models.Notification;
 using TNO.API.Models;
 using TNO.DAL.Services;
 using TNO.Keycloak;
+using TNO.Models.Filters;
 
 namespace TNO.API.Areas.Services.Controllers;
 
@@ -53,9 +55,26 @@ public class NotificationController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<NotificationModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
-    public IActionResult FindAll()
+    public IActionResult Find()
     {
-        return new JsonResult(_service.FindAll().Select(ds => new NotificationModel(ds, _serializerOptions)));
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        var results = _service.Find(new NotificationFilter(query));
+        return new JsonResult(results.Select(ds => new NotificationModel(ds, _serializerOptions)));
+    }
+
+    /// <summary>
+    /// Return all notifications.
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost("find")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<NotificationModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Notification" })]
+    public IActionResult Find(NotificationFilter filter)
+    {
+        var results = _service.Find(filter);
+        return new JsonResult(results.Select(ds => new NotificationModel(ds, _serializerOptions)));
     }
 
     /// <summary>
@@ -74,6 +93,26 @@ public class NotificationController : ControllerBase
         var result = _service.FindById(id);
         if (result == null) return NoContent();
         return new JsonResult(new NotificationModel(result, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Make a request to Elasticsearch for content that matches the specified report 'id' filter.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/content")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Notification" })]
+    public async Task<IActionResult> FindContentForNotificationIdAsync(int id, int? requestorId)
+    {
+        var notification = _service.FindById(id);
+        if (notification == null) return NoContent();
+        var results = await _service.FindContentWithElasticsearchAsync(notification, requestorId);
+        return new JsonResult(results);
     }
     #endregion
 }

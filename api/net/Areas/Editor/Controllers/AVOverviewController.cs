@@ -164,16 +164,16 @@ public class AVOverviewController : ControllerBase
     /// </summary>
     /// <param name="instanceId"></param>
     /// <returns></returns>
-    [HttpPost("{instanceId}/preview")]
+    [HttpPost("{instanceId}/view")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(TemplateEngine.Models.Reports.ReportResultModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public async Task<IActionResult> Preview(int instanceId)
+    public async Task<IActionResult> View(int instanceId)
     {
         var instance = _overviewInstanceService.FindById(instanceId) ?? throw new NoContentException($"AV overview instance '{instanceId}' not found");
         var model = new TemplateEngine.Models.Reports.AVOverviewInstanceModel(instance);
-        var result = await _reportHelper.GenerateReportAsync(model, true);
+        var result = await _reportHelper.GenerateReportAsync(model, false);
         return new JsonResult(result);
     }
 
@@ -184,7 +184,7 @@ public class AVOverviewController : ControllerBase
     /// <returns></returns>
     [HttpPost("{instanceId}/publish")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(AVOverviewInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> Publish(int instanceId)
@@ -198,7 +198,7 @@ public class AVOverviewController : ControllerBase
             RequestorId = user.Id
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{instance.Id}", request);
-        return new JsonResult(new AVOverviewInstanceModel(instance));
+        return new OkResult();
     }
     #endregion
 }

@@ -3,7 +3,7 @@ import { useAjaxWrapper } from 'store/hooks';
 import { IReportResultModel, useApiEditorReportInstances } from 'tno-core';
 
 interface IReportInstanceController {
-  previewReportInstance: (reportInstanceId: number) => Promise<IReportResultModel>;
+  viewReportInstance: (reportInstanceId: number) => Promise<IReportResultModel>;
 }
 
 export const useReportInstances = (): [IReportInstanceController] => {
@@ -12,9 +12,9 @@ export const useReportInstances = (): [IReportInstanceController] => {
 
   const controller = React.useMemo(
     () => ({
-      previewReportInstance: async (reportInstanceId: number) => {
-        const response = await dispatch<IReportResultModel>('preview-report-instance', () =>
-          api.previewReportInstance(reportInstanceId),
+      viewReportInstance: async (reportInstanceId: number) => {
+        const response = await dispatch<IReportResultModel>('view-report-instance', () =>
+          api.viewReportInstance(reportInstanceId),
         );
         return response.data;
       },

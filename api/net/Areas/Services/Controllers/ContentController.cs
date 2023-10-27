@@ -15,13 +15,13 @@ using TNO.API.Models;
 using TNO.API.Models.SignalR;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
-using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Kafka.SignalR;
 using TNO.Keycloak;
+using TNO.Models.Filters;
 
 namespace TNO.API.Areas.Services.Controllers;
 

@@ -1,12 +1,11 @@
-﻿using RazorEngineCore;
-using TNO.API.Models.Settings;
+﻿using TNO.API.Models.Settings;
 
 namespace TNO.TemplateEngine.Models.Reports;
 
 /// <summary>
 /// ReportEngineAVOverviewModel class, provides a model to pass to the razor engine for reports.
 /// </summary>
-public class ReportEngineAVOverviewModel : RazorEngineTemplateBase
+public class ReportEngineAVOverviewModel : BaseTemplateModel<AVOverviewInstanceModel>
 {
     #region Properties
     /// <summary>
@@ -18,26 +17,6 @@ public class ReportEngineAVOverviewModel : RazorEngineTemplateBase
     /// get/set - The report settings.
     /// </summary>
     public AVOverviewSettingsModel Settings { get; set; } = new();
-
-    /// <summary>
-    /// get/set - The Subscriber app URL.
-    /// </summary>
-    public Uri? SubscriberAppUrl { get; set; }
-
-    /// <summary>
-    /// get/set - The view content URL.
-    /// </summary>
-    public Uri? ViewContentUrl { get; set; }
-
-    /// <summary>
-    /// get/set - The request transcript URL.
-    /// </summary>
-    public Uri? RequestTranscriptUrl { get; set; }
-
-    /// <summary>
-    /// get/set - The add to report URL.
-    /// </summary>
-    public Uri? AddToReportUrl { get; set; }
     #endregion
 
     #region Constructors
@@ -45,6 +24,7 @@ public class ReportEngineAVOverviewModel : RazorEngineTemplateBase
     /// Creates a new instance of a ReportEngineAVOverviewModel.
     /// </summary>
     public ReportEngineAVOverviewModel()
+        : base(new())
     {
     }
 
@@ -54,6 +34,7 @@ public class ReportEngineAVOverviewModel : RazorEngineTemplateBase
     /// <param name="instance"></param>
     /// <param name="settings"></param>
     public ReportEngineAVOverviewModel(AVOverviewInstanceModel instance, AVOverviewSettingsModel settings)
+        : base(instance)
     {
         this.Instance = instance;
         this.Settings = settings;

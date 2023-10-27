@@ -1,12 +1,11 @@
 import { NavigateOptions, useTab } from 'components/tab-control';
-import React, { lazy } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApiHub, useApp, useContent } from 'store/hooks';
 import { IContentSearchResult, useContentStore } from 'store/slices';
 import {
   Col,
-  ContentTypeName,
   FlexboxTable,
   IContentMessageModel,
   ITableInternalCell,
@@ -17,8 +16,6 @@ import {
   Page,
   replaceQueryParams,
   Row,
-  Show,
-  useCombinedView,
 } from 'tno-core';
 
 import { useElasticsearch } from '../hooks';
@@ -26,9 +23,8 @@ import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
 import { defaultPage } from '../list-view/constants';
 import { ReportActions } from './components';
 import { useColumns } from './hooks';
-import { PaperFilter } from './PaperFilter';
+import { PaperToolbar } from './PaperToolbar';
 import * as styled from './styled';
-const ContentForm = lazy(() => import('../form/ContentForm'));
 
 export interface IPapersProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -40,7 +36,6 @@ export interface IPapersProps extends React.HTMLAttributes<HTMLDivElement> {}
 const Papers: React.FC<IPapersProps> = (props) => {
   const [{ userInfo }] = useApp();
   const { id } = useParams();
-  const { combined, formType } = useCombinedView();
   const [
     { filterPaper: filter, filterPaperAdvanced: filterAdvanced, searchResults },
     { findContentWithElasticsearch, storeFilterPaper, updateContent: updateStatus, getContent },
@@ -51,7 +46,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const toFilter = useElasticsearch();
 
   const [contentId, setContentId] = React.useState(id);
-  const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
@@ -152,7 +146,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
     event: React.MouseEvent<Element, MouseEvent>,
   ) => {
     if (cell.index > 0 && cell.index !== 5) {
-      setContentType(row.original.contentType);
       setContentId(row.original.id.toString());
       if (event.ctrlKey) navigate(row.original.id, '/contents', NavigateOptions.NewTab);
       else navigate(row.original.id);
@@ -193,7 +186,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
   return (
     <styled.Papers>
       <Col wrap="nowrap">
-        <PaperFilter onSearch={fetch} />
+        <PaperToolbar onSearch={fetch} />
         <Row className="content-list">
           <FlexboxTable
             rowId="id"
@@ -215,16 +208,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
           />
         </Row>
         <ReportActions setLoading={setIsLoading} selected={selected} filter={filter} />
-        <Show visible={combined}>
-          <hr />
-          <Row className="bottom-pane" id="bottom-pane">
-            <ContentForm
-              contentType={contentType}
-              scrollToContent={false}
-              combinedPath="/papers/combined"
-            />
-          </Row>
-        </Show>
       </Col>
     </styled.Papers>
   );

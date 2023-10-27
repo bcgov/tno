@@ -8,7 +8,7 @@ interface IAVOverviewController {
   addAVOverview: (model: IAVOverviewInstanceModel) => Promise<IAVOverviewInstanceModel>;
   updateAVOverview: (model: IAVOverviewInstanceModel) => Promise<IAVOverviewInstanceModel>;
   deleteAVOverview: (model: IAVOverviewInstanceModel) => Promise<IAVOverviewInstanceModel>;
-  previewAVOverview: (instanceId: number) => Promise<IReportResultModel>;
+  viewAVOverview: (instanceId: number) => Promise<IReportResultModel>;
   publishAVOverview: (instanceId: number) => Promise<IAVOverviewInstanceModel>;
 }
 
@@ -50,9 +50,9 @@ export const useAVOverviewInstances = (): [IAVOverviewController] => {
         );
         return response.data;
       },
-      previewAVOverview: async (instanceId: number) => {
-        const response = await dispatch<IReportResultModel>('preview-av-overview', () =>
-          api.previewAVOverview(instanceId),
+      viewAVOverview: async (instanceId: number) => {
+        const response = await dispatch<IReportResultModel>('view-av-overview', () =>
+          api.viewAVOverview(instanceId),
         );
         return response.data;
       },

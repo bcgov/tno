@@ -56,6 +56,8 @@ export * from './IMetricModel';
 export * from './IMinisterModel';
 export * from './INotificationInstanceModel';
 export * from './INotificationModel';
+export * from './INotificationResultModel';
+export * from './INotificationTemplateModel';
 export * from './IOrganizationModel';
 export * from './IPaged';
 export * from './IPageFilter';

@@ -592,13 +592,14 @@ public class ApiService : IApiService
 
     #region Notifications
     /// <summary>
-    /// Make a request to the API to fetch all the notifications.
+    /// Make a request to the API to fetch all the notifications for the specified filter.
     /// </summary>
+    /// <param name="filter"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<API.Areas.Services.Models.Notification.NotificationModel>> GetAllNotificationsAsync()
+    public async Task<IEnumerable<API.Areas.Services.Models.Notification.NotificationModel>> FindNotificationsAsync(TNO.Models.Filters.NotificationFilter filter)
     {
-        var url = this.Options.ApiUrl.Append($"services/notifications");
-        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Notification.NotificationModel>>(url)) ?? Array.Empty<API.Areas.Services.Models.Notification.NotificationModel>();
+        var url = this.Options.ApiUrl.Append($"services/notifications/find");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<IEnumerable<API.Areas.Services.Models.Notification.NotificationModel>>(url, JsonContent.Create(filter))) ?? Array.Empty<API.Areas.Services.Models.Notification.NotificationModel>();
     }
 
     /// <summary>
@@ -622,6 +623,19 @@ public class ApiService : IApiService
         var url = this.Options.ApiUrl.Append($"services/notification/instances");
         return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel>(url, JsonContent.Create(instance)));
     }
+
+
+    /// <summary>
+    /// Make a request to the API to fetch the content for the specified notification 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    public async Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>?> FindContentForNotificationIdAsync(int id, int? requestorId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/notifications/{id}/content{(requestorId != null ? $"?requestorId={requestorId}" : "")}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>(url));
+    }
     #endregion
 
     #region Reports
@@ -640,10 +654,11 @@ public class ApiService : IApiService
     /// Make a request to the API to fetch the content for the specified report 'id'.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="requestorId"></param>
     /// <returns></returns>
-    public async Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentForReportIdAsync(int id)
+    public async Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentForReportIdAsync(int id, int? requestorId)
     {
-        var url = this.Options.ApiUrl.Append($"services/reports/{id}/content");
+        var url = this.Options.ApiUrl.Append($"services/reports/{id}/content{(requestorId != null ? $"?requestorId={requestorId}" : "")}");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>>(url)) ?? new Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>();
     }
 

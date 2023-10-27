@@ -1,11 +1,11 @@
 import React from 'react';
+import { useAVOverviewInstances } from 'store/hooks';
 import { Col, IAVOverviewInstanceModel, IReportResultModel, Loading, Show } from 'tno-core';
 
-import { useAVOverviewInstances } from './hooks/useAVOverviewInstances';
 import * as styled from './styled';
 
 const AVOverviewPreview: React.FC = () => {
-  const [{ findAVOverview, previewAVOverview }] = useAVOverviewInstances();
+  const [{ findAVOverview, viewAVOverview }] = useAVOverviewInstances();
 
   const [isLoading, setIsLoading] = React.useState(true);
   const [, setInstance] = React.useState<IAVOverviewInstanceModel>();
@@ -17,14 +17,14 @@ const AVOverviewPreview: React.FC = () => {
       setIsLoading(true);
       const instance = await findAVOverview(new Date().toISOString());
       setInstance(instance);
-      const preview = await previewAVOverview(instance?.id ?? 0);
+      const preview = await viewAVOverview(instance?.id ?? 0);
       setIsPublished(instance?.isPublished ?? false);
       setPreview(preview);
     } catch {
     } finally {
       setIsLoading(false);
     }
-  }, [findAVOverview, previewAVOverview]);
+  }, [findAVOverview, viewAVOverview]);
 
   React.useEffect(() => {
     handlePreviewReport();

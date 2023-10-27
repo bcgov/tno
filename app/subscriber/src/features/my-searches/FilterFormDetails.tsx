@@ -15,6 +15,7 @@ import {
   generateQuery,
   IFilterActionSettingsModel,
   IFilterModel,
+  IFilterSettingsModel,
   OptionItem,
   Row,
   Select,
@@ -53,7 +54,7 @@ export const FilterFormDetails: React.FC = () => {
   }, [tags]);
 
   const updateQuery = React.useCallback(
-    (key: string, value: any) => {
+    <T extends keyof IFilterSettingsModel>(key: T, value: any) => {
       var settings = { ...values.settings };
       settings[key] = value;
       if (key === 'dateOffset') {

@@ -58,7 +58,7 @@ export const ReportFormInstance: React.FC = () => {
   );
 
   const handlePreview = React.useCallback((model: IReportInstanceModel) => {
-    window.open(`/report/instances/${model.id}/preview`, '_blank');
+    window.open(`/report/instances/${model.id}/view`, '_blank');
   }, []);
 
   return (

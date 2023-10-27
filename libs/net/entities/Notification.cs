@@ -19,18 +19,6 @@ public class Notification : BaseType<int>
     public NotificationType NotificationType { get; set; }
 
     /// <summary>
-    /// get/set - Whether content must be alerted to be included in this notification (default: true).
-    /// </summary>
-    [Column("require_alert")]
-    public bool RequireAlert { get; set; } = true;
-
-    /// <summary>
-    /// get/set - The default filter for this notification.
-    /// </summary>
-    [Column("filter")]
-    public JsonDocument Filter { get; set; } = JsonDocument.Parse("{}");
-
-    /// <summary>
     /// get/set - When to resend the notification.
     /// </summary>
     [Column("resend")]
@@ -40,7 +28,7 @@ public class Notification : BaseType<int>
     /// get/set - Foreign key to user who owns this notification.
     /// </summary>
     [Column("owner_id")]
-    public int OwnerId { get; set; }
+    public int? OwnerId { get; set; }
 
     /// <summary>
     /// get/set - The user who owns this notification.
@@ -54,16 +42,33 @@ public class Notification : BaseType<int>
     public bool IsPublic { get; set; } = false;
 
     /// <summary>
-    /// get/set - The notification settings to control the output.
+    /// get/set - Whether this notification is automatically run when the content is indexed.
+    /// </summary>
+    [Column("alert_on_index")]
+    public bool AlertOnIndex { get; set; } = false;
+
+    /// <summary>
+    /// get/set - Foreign key to notification template.
+    /// </summary>
+    [Column("notification_template_id")]
+    public int TemplateId { get; set; }
+
+    /// <summary>
+    /// get/set - The notification template containing the razor template.
+    /// </summary>
+    public NotificationTemplate? Template { get; set; }
+
+    /// <summary>
+    /// get/set - The notification settings to control the output and filter.
     /// </summary>
     [Column("settings")]
     public JsonDocument Settings { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
-    /// get/set - The Razor template to generate the notification.
+    /// get/set - The elasticsearch query that is used when sending out multiple notifications.
     /// </summary>
-    [Column("template")]
-    public string Template { get; set; } = "";
+    [Column("query")]
+    public JsonDocument Query { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get - List of users who are subscribed to this notification (many-to-many).
@@ -98,10 +103,13 @@ public class Notification : BaseType<int>
     /// <param name="name"></param>
     /// <param name="type"></param>
     /// <param name="owner"></param>
-    public Notification(string name, NotificationType type, User owner)
-        : this(0, name, type, owner?.Id ?? throw new ArgumentNullException(nameof(owner)))
+    /// <param name="templateId"></param>
+    public Notification(string name, NotificationType type, User owner, NotificationTemplate template)
+        : this(0, name, type, owner?.Id ?? throw new ArgumentNullException(nameof(owner)), template?.Id ?? throw new ArgumentNullException(nameof(template)))
     {
         this.Owner = owner;
+        this.Template = template;
+        this.TemplateId = template.Id;
     }
 
     /// <summary>
@@ -111,10 +119,39 @@ public class Notification : BaseType<int>
     /// <param name="name"></param>
     /// <param name="type"></param>
     /// <param name="ownerId"></param>
-    public Notification(int id, string name, NotificationType type, int ownerId) : base(id, name)
+    /// <param name="templateId"></param>
+    public Notification(int id, string name, NotificationType type, int ownerId, int templateId) : base(id, name)
     {
         this.NotificationType = type;
         this.OwnerId = ownerId;
+        this.TemplateId = templateId;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a Notification object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="type"></param>
+    /// <param name="templateId"></param>
+    public Notification(string name, NotificationType type, NotificationTemplate template)
+        : this(0, name, type, template?.Id ?? throw new ArgumentNullException(nameof(template)))
+    {
+        this.Template = template;
+        this.TemplateId = template.Id;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a Notification object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="name"></param>
+    /// <param name="type"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="templateId"></param>
+    public Notification(int id, string name, NotificationType type, int templateId) : base(id, name)
+    {
+        this.NotificationType = type;
+        this.TemplateId = templateId;
     }
     #endregion
 }
