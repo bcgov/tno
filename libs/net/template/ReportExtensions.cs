@@ -87,7 +87,7 @@ public static class ReportExtensions
     {
         string keywords = "";
         string highlightedText = text;
-        if (filter.Query != null)
+        if (filter?.Query != null)
         {
             var musts = filter.Query.RootElement.GetProperty("query").GetProperty("bool").GetProperty("must");
             foreach (var c in musts.EnumerateArray())
@@ -116,7 +116,7 @@ public static class ReportExtensions
         }
         foreach (string word in keywords.Split(delimiterChars))
         {
-            highlightedText = highlightedText.Replace(word.Trim(), "<mark>"+ word.Trim() +"</mark>");
+            highlightedText = word != "" ? highlightedText.Replace(word.Trim(), "<mark>"+ word.Trim() +"</mark>") : highlightedText;
         }
         return highlightedText;
     }

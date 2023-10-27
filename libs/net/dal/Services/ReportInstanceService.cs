@@ -30,6 +30,7 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
             .Include(ri => ri.Owner)
             .Include(ri => ri.Report).ThenInclude(r => r!.Template)
             .Include(ri => ri.Report).ThenInclude(r => r!.SubscribersManyToMany).ThenInclude(sm2m => sm2m.User)
+            .Include(ri => ri.Report).ThenInclude(r => r!.Sections).ThenInclude(s => s.Filter)
             .Include(ri => ri.Report).ThenInclude(r => r!.Sections).ThenInclude(s => s.ChartTemplatesManyToMany).ThenInclude(ct => ct.ChartTemplate)
             .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content)
             .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Source)
