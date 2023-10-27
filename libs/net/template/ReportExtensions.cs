@@ -76,26 +76,46 @@ public static class ReportExtensions
     }
 
     /// <summary>
-    /// Get the body or summary of the specified content.
-    /// If a transcript is available then get the body.
-    /// If the content is audio or video get the summary.
+    /// Highlight a string with the HTML <mark> tag with the query's keywords based on the field type.
     /// Otherwise get the body.
     /// </summary>
-    /// <param name="content"></param>
+    /// <param name="filter">Section filter object</param>
+    /// <param name="text">Text to be high lighted</param>
+    /// <param name="field">Field to be highlighted (headline, byline or story)</param>
     /// <returns></returns>
     public static string HighlightKeyWords(this FilterModel filter, string text, string field)
     {
         string keywords = "";
         string highlightedText = text;
-        char[] delimiterChars = { '|', '+', '-' };
-        if (filter.Query != null) {
+        if (filter.Query != null)
+        {
             var musts = filter.Query.RootElement.GetProperty("query").GetProperty("bool").GetProperty("must");
-            foreach (var c in musts.EnumerateArray()) {
+            foreach (var c in musts.EnumerateArray())
+            {
                 keywords += c.GetProperty("simple_query_string").GetProperty("query");
-                // var fields = c.GetProperty("simple_query_string").GetProperty("fields").EnumerateArray().ToArray<string>();
+                bool fieldExists = false;
+                foreach (var f in c.GetProperty("simple_query_string").GetProperty("fields").EnumerateArray())
+                {
+                    if (f.ToString() == field)
+                    {
+                        fieldExists = true;
+                    }
+                }
+                if (!fieldExists)
+                {
+                    return text;
+                }
             }
         }
-        foreach (string word in keywords.Split(delimiterChars)) {
+
+        char[] delimiterChars = { '|', '+', '-' };
+        string[] reservedStrings = new string[] {"*", "( and )", "~N", "\""};
+        foreach (var s in reservedStrings)
+        {
+            keywords = keywords.Replace(s,"");
+        }
+        foreach (string word in keywords.Split(delimiterChars))
+        {
             highlightedText = highlightedText.Replace(word.Trim(), "<mark>"+ word.Trim() +"</mark>");
         }
         return highlightedText;
