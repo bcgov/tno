@@ -91,7 +91,6 @@ public class AVOverviewTemplateService : BaseService<AVOverviewTemplate, AVOverv
         });
         entity.Sections.ForEach(section =>
         {
-            section.Template = entity;
             if (section.Id == 0)
             {
                 this.Context.Add(section);
