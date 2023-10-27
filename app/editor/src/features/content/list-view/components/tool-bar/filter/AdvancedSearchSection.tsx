@@ -1,4 +1,4 @@
-import { AdvancedSearchKeys, advancedSearchOptions } from 'features/content/list-view/constants';
+import { AdvancedSearchKeys, advancedSearchOptions } from 'features/content/constants';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
 import { FaX } from 'react-icons/fa6';

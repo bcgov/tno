@@ -7,7 +7,14 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
-import { FlexboxTable, IContentModel, IFilterModel, ITableInternalRow, Row } from 'tno-core';
+import {
+  FlexboxTable,
+  IContentModel,
+  IFilterModel,
+  ITableInternalRow,
+  Row,
+  Settings,
+} from 'tno-core';
 
 import { defaultFilter } from './constants';
 import * as styled from './styled';
@@ -74,7 +81,7 @@ export const TodaysFrontPages: React.FC = () => {
         },
       },
     };
-    const filterId = settings.find((s) => s.name === 'FrontpageFilter')?.value;
+    const filterId = settings.find((s) => s.name === Settings.FrontpageFilter)?.value;
     if (filterId) {
       const id: number = parseInt(filterId);
       if (filter?.id !== id) {
@@ -85,8 +92,8 @@ export const TodaysFrontPages: React.FC = () => {
           fetchResults(data.query);
         });
       }
-    } else {
-      toast.error('FrontpageFilter setting needs to be configured.');
+    } else if (!!settings.length) {
+      toast.error(`${Settings.FrontpageFilter} setting needs to be configured.`);
     }
   }, [fetchResults, filter?.id, getFilter, settings, filterAdvanced, filter]);
 

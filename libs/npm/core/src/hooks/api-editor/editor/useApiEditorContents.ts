@@ -42,7 +42,7 @@ export const useApiEditorContents = (
       filter: MsearchMultisearchBody,
       includeUnpublishedContent: boolean = false,
     ) => {
-      return api.post<MsearchMultisearchBody, AxiosResponse<KnnSearchResponse>, any>(
+      return api.post<MsearchMultisearchBody, AxiosResponse<KnnSearchResponse<IContentModel>>, any>(
         `/editor/contents/search${
           includeUnpublishedContent ? `?includeUnpublishedContent=${includeUnpublishedContent}` : ''
         }`,

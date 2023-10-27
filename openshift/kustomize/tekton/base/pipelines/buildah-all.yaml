@@ -36,6 +36,9 @@ spec:
         Identify the components to build and deploy [*|all|[name]].
       type: string
       default: "*"
+    - name: WAIT
+      description: Whether to wait for each service pod to scale back up [yes|no].
+      default: "no"
 
     - name: IMAGE_TAG
       description: >-
@@ -197,6 +200,8 @@ spec:
           value: $(params.DEPLOY_TO)
         - name: DEPLOY
           value: $(params.COMPONENT)
+        - name: WAIT
+          value: $(params.WAIT)
       workspaces:
         - name: conditions
           workspace: conditions

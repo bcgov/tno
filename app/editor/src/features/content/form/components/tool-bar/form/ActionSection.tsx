@@ -3,7 +3,7 @@ import { IContentForm } from 'features/content/form/interfaces';
 import React from 'react';
 import { FaHighlighter } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
-import { Row, ToolBarSection } from 'tno-core';
+import { Row, Settings, ToolBarSection } from 'tno-core';
 
 export interface IActionSectionProps {
   /** Form values. */
@@ -18,7 +18,7 @@ export interface IActionSectionProps {
 export const ActionSection: React.FC<IActionSectionProps> = ({ values }) => {
   const [{ settings }] = useLookup();
 
-  const alertId = settings.find((s) => s.name === 'AlertId')?.value ?? '0';
+  const alertId = settings.find((s) => s.name === Settings.DefaultAlert)?.value ?? '0';
 
   return (
     <ToolBarSection

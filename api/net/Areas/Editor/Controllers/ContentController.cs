@@ -294,7 +294,6 @@ public class ContentController : ControllerBase
         {
             Quantity = model.ContentIds.Count(),
             ContentIds = model.ContentIds.ToArray(),
-            IncludeHidden = true
         }, false).Items;
 
         foreach (var content in items)

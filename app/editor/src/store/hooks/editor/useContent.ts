@@ -3,11 +3,7 @@ import {
   MsearchMultisearchBody,
   SearchTotalHits,
 } from '@elastic/elasticsearch/lib/api/types';
-import {
-  IContentListAdvancedFilter,
-  IContentListFilter,
-} from 'features/content/list-view/interfaces';
-import { IPaperFilter } from 'features/content/papers/interfaces';
+import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
 import React from 'react';
 import { ActionDelegate } from 'store';
 import { useContentStore } from 'store/slices';
@@ -29,7 +25,7 @@ interface IContentController {
   findContentWithElasticsearch: (
     filter: MsearchMultisearchBody,
     includeUnpublishedContent: boolean,
-  ) => Promise<KnnSearchResponse>;
+  ) => Promise<KnnSearchResponse<IContentModel>>;
   getContent: (id: number) => Promise<IContentModel | undefined>;
   addContent: (content: IContentModel) => Promise<IContentModel>;
   updateContent: (content: IContentModel) => Promise<IContentModel>;
@@ -45,7 +41,7 @@ interface IContentController {
   storeFilterAdvanced: (
     filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
-  storeFilterPaper: (filter: IPaperFilter | ActionDelegate<IPaperFilter>) => void;
+  storeFilterPaper: (filter: IContentListFilter | ActionDelegate<IContentListFilter>) => void;
   storeFilterPaperAdvanced: (
     filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;

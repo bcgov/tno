@@ -1,5 +1,6 @@
 import { FormikForm } from 'components/formik';
 import { FormikProps } from 'formik';
+import moment from 'moment';
 import React from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -17,17 +18,21 @@ import {
   FieldSize,
   filterEnabledOptions,
   FormikCheckbox,
+  FormikDatePicker,
   FormikHidden,
   FormikSelect,
   FormikText,
   FormikTextArea,
   FormPage,
   hasErrors,
+  IOptionItem,
   Modal,
+  OptionItem,
   Row,
   Show,
   Tab,
   Tabs,
+  TimeInput,
   useModal,
   useTabValidationToasts,
   WorkOrderStatusName,
@@ -37,7 +42,15 @@ import {
 import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
 import { ContentClipForm, ContentLabelsForm, ContentStoryForm, ContentTranscriptForm } from '.';
-import { ContentFormToolBar, IFile, Tags, TimeLogSection, ToningGroup, Upload } from './components';
+import {
+  ContentFormToolBar,
+  IFile,
+  Tags,
+  TimeLogSection,
+  ToningGroup,
+  Topic,
+  Upload,
+} from './components';
 import { useContentForm } from './hooks';
 import { ImageSection } from './ImageSection';
 import { IContentForm } from './interfaces';
@@ -85,7 +98,8 @@ const ContentForm: React.FC<IContentFormProps> = ({
     contentType: initContentType,
     combinedPath,
   });
-  const [{ contributorOptions, sources, sourceOptions, productOptions }] = useLookupOptions();
+  const [{ contributorOptions, sources, series, sourceOptions, productOptions }] =
+    useLookupOptions();
   const { setShowValidationToast } = useTabValidationToasts();
 
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
@@ -93,12 +107,46 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const { isShowing: showNLPModal, toggle: toggleNLP } = useModal();
 
   const [size, setSize] = React.useState(1); // TODO: change this to use css media types instead.
-  const [active, setActive] = React.useState('properties');
+  const [active, setActive] = React.useState('summary');
   const [allowPublishWithoutFile, setAllowPublishWithoutFile] = React.useState(false);
   const [, setClipErrors] = React.useState<string>('');
   const [textDecorationStyle, setTextDecorationStyle] = React.useState('none');
   const [cursorStyle, setCursorStyle] = React.useState('text');
   const [savePressed, setSavePressed] = React.useState(false);
+
+  const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
+
+  const source = sources.find((s) => s.id === form.sourceId);
+  const program = series.find((s) => s.id === form.seriesId);
+
+  const setHours = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const date = new Date(form.publishedOn);
+    const hours = e.target.value?.split(':');
+    if (!!hours && !!e.target.value && !e.target.value.includes('_')) {
+      date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
+      setForm({ ...form, publishedOn: moment(date.toISOString()).format('MMM D, yyyy HH:mm:ss') });
+    }
+  };
+
+  React.useEffect(() => {
+    setForm({
+      ...form,
+      publishedOnTime: !!form.publishedOn ? moment(form.publishedOn).format('HH:mm:ss') : '',
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.publishedOn, setForm]);
+
+  /** set default value to todays date */
+  React.useEffect(() => {
+    if (!form.publishedOn) {
+      setForm({ ...form, publishedOn: moment().format('MMM D, yyyy HH:mm:ss') });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.publishedOn, setForm]);
+
+  React.useEffect(() => {
+    setSeriesOptions(series.map((m: any) => new OptionItem(m.name, m.id, m.isEnabled)));
+  }, [series]);
 
   return (
     <styled.ContentForm className="content-form">
@@ -309,6 +357,124 @@ const ContentForm: React.FC<IContentFormProps> = ({
                           </Col>
                         </Row>
                       </Show>
+                      <Row>
+                        <Col>
+                          <Row alignContent="flex-start" alignItems="flex-start">
+                            <Show visible={props.values.contentType !== ContentTypeName.Image}>
+                              <FormikDatePicker
+                                name="publishedOn"
+                                label="Published On"
+                                required
+                                autoComplete="false"
+                                width={FieldSize.Medium}
+                                selectedDate={
+                                  !!props.values.publishedOn
+                                    ? moment(props.values.publishedOn).toString()
+                                    : undefined
+                                }
+                                value={
+                                  !!props.values.publishedOn
+                                    ? moment(props.values.publishedOn).format('MMM D, yyyy')
+                                    : ''
+                                }
+                                onChange={(date) => {
+                                  if (!!props.values.publishedOnTime) {
+                                    const hours = props.values.publishedOnTime?.split(':');
+                                    if (!!hours && !!date) {
+                                      date.setHours(
+                                        Number(hours[0]),
+                                        Number(hours[1]),
+                                        Number(hours[2]),
+                                      );
+                                    }
+                                  }
+                                  props.setFieldValue(
+                                    'publishedOn',
+                                    moment(date).format('MMM D, yyyy HH:mm:ss'),
+                                  );
+                                }}
+                              />
+                              <TimeInput
+                                name="publishedOnTime"
+                                label="Time"
+                                disabled={!props.values.publishedOn}
+                                width="7em"
+                                value={
+                                  !!props.values.publishedOn ? props.values.publishedOnTime : ''
+                                }
+                                placeholder={
+                                  !!props.values.publishedOn
+                                    ? props.values.publishedOnTime
+                                    : 'HH:MM:SS'
+                                }
+                                onBlur={(e) => {
+                                  if (e.target.value.indexOf('_')) {
+                                    e.target.value = e.target.value.replaceAll('_', '0');
+                                    setHours(e);
+                                  }
+                                }}
+                                onChange={(e) => {
+                                  setHours(e);
+                                }}
+                              />
+                            </Show>
+                            <Show visible={props.values.contentType === ContentTypeName.AudioVideo}>
+                              <Row nowrap>
+                                <FormikSelect
+                                  name="seriesId"
+                                  label="Show/Program"
+                                  width={FieldSize.Medium}
+                                  value={
+                                    seriesOptions.find(
+                                      (s: any) => s.value === props.values.seriesId,
+                                    ) ?? ''
+                                  }
+                                  options={filterEnabledOptions(
+                                    seriesOptions,
+                                    props.values.seriesId,
+                                  )}
+                                  isDisabled={!!props.values.otherSeries}
+                                  onChange={(e) => {
+                                    props.setFieldValue('otherSeries', '');
+                                  }}
+                                />
+                                <FormikText
+                                  name="otherSeries"
+                                  label="Other Show/Program"
+                                  width={FieldSize.Medium}
+                                  onChange={(e) => {
+                                    const value = e.currentTarget.value;
+                                    props.setFieldValue('otherSeries', value);
+                                    if (!!value) props.setFieldValue('seriesId', undefined);
+                                  }}
+                                  onBlur={() => {
+                                    const found = series.find(
+                                      (s) =>
+                                        s.name.toLocaleLowerCase() ===
+                                        props.values.otherSeries.toLocaleLowerCase(),
+                                    );
+                                    if (!!found) {
+                                      props.setFieldValue('seriesId', found.id);
+                                      props.setFieldValue('otherSeries', '');
+                                    }
+                                  }}
+                                />
+                              </Row>
+                            </Show>
+                          </Row>
+                        </Col>
+                        <Show
+                          visible={
+                            props.values.contentType !== ContentTypeName.Image &&
+                            (source?.useInTopics || program?.useInTopics)
+                          }
+                        >
+                          <Row>
+                            <div className="vl" />
+                            <Topic />
+                          </Row>
+                        </Show>
+                      </Row>
                     </Col>
                   </Show>
                 </Row>
@@ -355,14 +521,14 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       tabs={
                         <>
                           <Tab
-                            label="Properties"
+                            label="Summary"
                             onClick={() => {
-                              setActive('properties');
+                              setActive('summary');
                             }}
-                            active={active === 'properties'}
+                            active={active === 'summary'}
                             hasErrors={
                               hasErrors(props.errors, ['publishedOn', 'tone', 'summary']) &&
-                              active !== 'properties'
+                              active !== 'summary'
                             }
                             showErrorOnSave={{ value: true, savePressed: savePressed }}
                             setShowValidationToast={setShowValidationToast}
@@ -415,7 +581,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                         </>
                       }
                     >
-                      <Show visible={active === 'properties'}>
+                      <Show visible={active === 'summary'}>
                         <ContentStoryForm contentType={props.values.contentType} />
                       </Show>
                       <Show visible={active === 'transcript'}>

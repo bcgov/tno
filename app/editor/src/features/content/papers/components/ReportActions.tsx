@@ -1,6 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AxiosError } from 'axios';
 import { getDefaultCommentaryExpiryValue } from 'features/content/form/utils';
+import { IContentListFilter } from 'features/content/interfaces';
 import * as React from 'react';
 import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
@@ -16,12 +17,11 @@ import {
   Show,
 } from 'tno-core';
 
-import { IPaperFilter } from '../interfaces';
 import * as styled from './styled';
 
 interface IReportActionProps {
   /** The current filter. */
-  filter: IPaperFilter;
+  filter: IContentListFilter;
   /** Whether content is loading. */
   setLoading: (loading: boolean) => void;
   /** An array of selected content. */
@@ -71,7 +71,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
 
   return (
     <styled.ReportActions>
-      <Show visible={!filter.includeHidden}>
+      <Show visible={!filter.isHidden}>
         <Button
           variant={ButtonVariant.warning}
           disabled={
@@ -82,7 +82,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
           Hide
         </Button>
       </Show>
-      <Show visible={filter.includeHidden}>
+      <Show visible={!!filter.isHidden}>
         <Button
           variant={ButtonVariant.warning}
           disabled={!selected.length}
