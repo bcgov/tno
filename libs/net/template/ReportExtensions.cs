@@ -96,7 +96,7 @@ public static class ReportExtensions
                 bool fieldExists = false;
                 foreach (var f in c.GetProperty("simple_query_string").GetProperty("fields").EnumerateArray())
                 {
-                    if (f.ToString() == field)
+                    if (f.ToString().StartsWith(field))
                     {
                         fieldExists = true;
                     }
