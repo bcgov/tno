@@ -76,6 +76,52 @@ public static class ReportExtensions
     }
 
     /// <summary>
+    /// Highlight a string with the HTML <mark> tag with the query's keywords based on the field type.
+    /// Otherwise get the body.
+    /// </summary>
+    /// <param name="filter">Section filter object</param>
+    /// <param name="text">Text to be high lighted</param>
+    /// <param name="field">Field to be highlighted (headline, byline or story)</param>
+    /// <returns></returns>
+    public static string HighlightKeyWords(this FilterModel filter, string text, string field)
+    {
+        string keywords = "";
+        string highlightedText = text;
+        if (filter?.Query != null)
+        {
+            var musts = filter.Query.RootElement.GetProperty("query").GetProperty("bool").GetProperty("must");
+            foreach (var c in musts.EnumerateArray())
+            {
+                keywords += c.GetProperty("simple_query_string").GetProperty("query");
+                bool fieldExists = false;
+                foreach (var f in c.GetProperty("simple_query_string").GetProperty("fields").EnumerateArray())
+                {
+                    if (f.ToString().StartsWith(field))
+                    {
+                        fieldExists = true;
+                    }
+                }
+                if (!fieldExists)
+                {
+                    return text;
+                }
+            }
+        }
+
+        char[] delimiterChars = { '|', '+', '-' };
+        string[] reservedStrings = new string[] {"*", "( and )", "~N", "\""};
+        foreach (var s in reservedStrings)
+        {
+            keywords = keywords.Replace(s,"");
+        }
+        foreach (string word in keywords.Split(delimiterChars))
+        {
+            highlightedText = word != "" ? highlightedText.Replace(word.Trim(), "<mark>"+ word.Trim() +"</mark>") : highlightedText;
+        }
+        return highlightedText;
+    }
+
+    /// <summary>
     /// Get the transcription icon for the content.
     /// </summary>
     /// <param name="content"></param>
