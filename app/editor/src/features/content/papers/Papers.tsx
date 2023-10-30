@@ -107,12 +107,12 @@ const Papers: React.FC<IPapersProps> = (props) => {
       !!searchResults
         ? new Page(
             searchResults.page - 1,
-            searchResults.quantity,
+            filter.pageSize,
             searchResults?.items,
             searchResults.total,
           )
         : defaultPage,
-    [searchResults],
+    [filter.pageSize, searchResults],
   );
 
   const fetch = React.useCallback(
@@ -204,6 +204,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
             pageIndex={filter.pageIndex}
             pageSize={filter.pageSize}
             pageCount={page.pageCount}
+            totalItems={page.total}
             showSort={true}
             activeRowId={contentId}
             isLoading={isLoading}
