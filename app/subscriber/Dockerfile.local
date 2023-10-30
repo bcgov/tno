@@ -15,7 +15,7 @@ RUN chmod 777 /usr/src/app/nginx/local.conf
 # So we using a `environment.env` file instead.
 RUN if [ -f environment.env ]; then mv -f environment.env .env; fi
 RUN yarn set version 3.x
-RUN npx browserslist@latest --update-db
+RUN npx update-browserslist-db@latest
 RUN yarn build
 
 # Final image with production build.
