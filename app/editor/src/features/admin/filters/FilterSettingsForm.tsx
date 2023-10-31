@@ -65,10 +65,11 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
       var values = { ...settings };
       values[key] = value;
       if (key === 'dateOffset') {
-        values = { ...settings, startDate: undefined, endDate: undefined };
+        values = { ...values, startDate: undefined, endDate: undefined };
       } else if (key === 'startDate' || key === 'endDate') {
-        values = { ...settings, dateOffset: undefined };
+        values = { ...values, dateOffset: undefined };
       }
+      values = { ...values, validDateOffset: key === 'dateOffset' && value === 3 };
       if (defaultPath) setFieldValue(defaultPath, values);
       else setValues(values);
       onChange?.(values);

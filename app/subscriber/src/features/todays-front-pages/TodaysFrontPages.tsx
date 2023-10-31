@@ -61,6 +61,7 @@ export const TodaysFrontPages: React.FC = () => {
             publishedOn: {
               gte: moment(filterAdvanced.startDate).toISOString(),
               lte: moment(filterAdvanced.endDate).toISOString(),
+              time_zone: 'US/Pacific',
             },
           },
         };
@@ -78,6 +79,7 @@ export const TodaysFrontPages: React.FC = () => {
         publishedOn: {
           gte: moment(filterAdvanced.startDate).toISOString(),
           lte: moment(filterAdvanced.endDate).toISOString(),
+          time_zone: 'US/Pacific',
         },
       },
     };
