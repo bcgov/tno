@@ -55,8 +55,8 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
         var publishedOnInUtc = publishedOnInDefaultTimeZone.ToUniversalTime();
         Logger.LogDebug("NewItem.RSN: {rsn}, PublishedDateTime: {publishedDateTime}, ToUtc: {publishedDateTimeInUtc}", newsItem.RSN, publishedOnInDefaultTimeZone, publishedOnInUtc);
 
-        var sanitizedSummary = SanitizeLineBreaks(newsItem.Summary);
-        var sanitizedBody = SanitizeLineBreaks(newsItem.Transcript);
+        var sanitizedSummary = TNO.Core.Extensions.StringExtensions.ConvertTextToParagraphs(newsItem.Summary, @"\r\n?|\n|\|");
+        var sanitizedBody = TNO.Core.Extensions.StringExtensions.ConvertTextToParagraphs(newsItem.Transcript, @"\r\n?|\n|\|");
 
         var content = new SourceContent(
             this.Options.DataLocation,

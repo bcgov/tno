@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.ServiceModel.Syndication;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 using HtmlAgilityPack;
@@ -198,7 +199,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 }
                 else
                 {
-                    var content = new TextSyndicationContent(text, TextSyndicationContentKind.Html);
+                    var content = new TextSyndicationContent(StringExtensions.ConvertTextToParagraphs(text, @"[\r\n]+"), TextSyndicationContentKind.Html);
                     // Only update the summary if it's empty.
                     if (string.IsNullOrWhiteSpace(item.Summary.Text)) item.Summary = content;
                     item.Content = content;
@@ -245,8 +246,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             ingest.ProductId,
             uid,
             title,
-            summary,
-            body,
+            StringExtensions.ConvertTextToParagraphs(summary, @"[\r\n]+"),
+            StringExtensions.ConvertTextToParagraphs(body, @"[\r\n]+"),
             publishedOn)
         {
             Link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri.ToString() ?? "",

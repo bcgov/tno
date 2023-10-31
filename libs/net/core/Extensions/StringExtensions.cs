@@ -263,42 +263,36 @@ public static class StringExtensions
     }
 
     /// <summary>
-    /// remove specified tags.
+    /// uses a regular expression to find all the points in text which are ends of paragraphs
+    /// the wraps content in paragraph tags
     /// </summary>
-    /// <param name="articleContent">HTML encoded news article</param>
-    /// <param name="tagName">html tag that needs to be removed, for example, <p>|</p> for paragraph tags</param>
-    /// <param name="replaceString">replacement</param>
-    /// <returns>Article text only with specified tags removed</returns>
-    public static string SanitizeContent(string articleContent, string tagName, string replaceString = "")
+    /// <param name="text"></param>
+    /// <param name="paragraphRegex">regular expression that targets paragraph breaks</param>
+    /// <returns>formatted body string</returns>
+    public static string ConvertTextToParagraphs(string? text, string paragraphRegex)
     {
-        Regex rgx = new Regex(tagName);
-        var res = rgx.Replace(articleContent.Replace(@"<p><br><\/p>", string.Empty), replaceString).Trim();
-        // remove extra news lines
-        res = Regex.Replace(res, @"^\s+$[" + Environment.NewLine + "]*", string.Empty, RegexOptions.Multiline);
-        return SanitizeContent(res, new Regex(@"[.?]'?”?“?[A-Z]"));
-    }
+        string sanitizedString = string.IsNullOrEmpty(text) ? string.Empty : text;
 
-    private static string SanitizeContent(string articleContent, Regex regex)
-    {
-        var result = articleContent;
-        var matches = regex.Matches(articleContent);
-        foreach (var match in matches.Cast<Match>())
+        if (!string.IsNullOrEmpty(sanitizedString))
         {
-            var index = match.Index + match.Value.Length;
-            if (articleContent.Length > index && articleContent[index] != '.')
+            // pattern for any matching pair of tags
+            Regex tagRegex = new Regex(@"<\s*([^ >]+)[^>]*>.*?<\s*/\s*\1\s*>");
+
+            // if the input string is not markup, sanitize it
+            if (!tagRegex.IsMatch(sanitizedString))
             {
-                // Add a new line between the period and the following capitalized character for each match,
-                // and based on the match pattern to determine if the new line should be right before the
-                // capitalized character or right after the period.
-                result = result.Replace(
-                    match.Value,
-                    match.Value.Contains('“') ?
-                    match.Value[..1] + "\n" + match.Value[1..] :
-                    match.Value[..^1] + "\n" + match.Value[^1..]
-                    );
+                const string PARAGRAPH_MARKER = "##paragraph_end##`";
+                // replace "carriage return + line feed" OR "carriage return" OR "line feed"
+                // with a placeholder first
+                string result = Regex.Replace(sanitizedString, paragraphRegex, PARAGRAPH_MARKER);
+                if (!result.Equals(sanitizedString, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    // found at least one paragraph placeholder
+                    sanitizedString = $"<p>{result.Replace(PARAGRAPH_MARKER, "</p><p>")}</p>";
+                }
             }
         }
-        return result;
+        return sanitizedString;
     }
 
     /// <summary>

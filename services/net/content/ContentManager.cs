@@ -286,8 +286,8 @@ public class ContentManager : ServiceManager<ContentOptions>
                 Headline = model.Title,
                 Uid = model.Uid,
                 Page = model.Page[0..Math.Min(model.Page.Length, 10)], // TODO: Temporary workaround to deal FileMonitor Service.
-                Summary = String.IsNullOrWhiteSpace(model.Summary) ? "" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
-                Body = !String.IsNullOrWhiteSpace(model.Body) ? StringExtensions.SanitizeContent(model.Body, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine) : model.ContentType == ContentType.AudioVideo ? "" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
+                Summary = String.IsNullOrWhiteSpace(model.Summary) ? "" : model.Summary,
+                Body = !String.IsNullOrWhiteSpace(model.Body) ? model.Body : model.ContentType == ContentType.AudioVideo ? "" : model.Summary,
                 SourceUrl = model.Link,
                 PublishedOn = model.PublishedOn,
                 Section = model.Section,
