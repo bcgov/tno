@@ -13,7 +13,7 @@ export interface ICustomSidebarProps extends React.HTMLAttributes<HTMLDivElement
  * CustomSidebar uses react-pro-sidebar to display a sidebar with a menu of selectable menu items. Incorporates the subscriber look and feel.
  * @returns Sidebar component.
  */
-export const CustomSidebar: React.FC<ICustomSidebarProps> = ({}) => {
+export const CustomSidebar: React.FC<ICustomSidebarProps> = () => {
   const { collapseSidebar, collapsed } = useProSidebar();
   const navigate = useNavigate();
   return (
