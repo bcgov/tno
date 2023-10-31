@@ -140,28 +140,31 @@ public class ImageAction : IngestAction<ImageOptions>
                 }
             }
 
-            // We're only interested in the files that were copied.
-            var localFiles = Directory.GetFiles(outputPath);
-            localFiles = localFiles.Where(path => match.Match(path).Success).ToArray();
-            foreach (var path in localFiles)
-            {
-                var fileName = Path.GetFileName(path);
-                var newReference = CreateContentReference(manager.Ingest, fileName);
-                var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, newReference.Uid);
-                if (reference == null)
+            // Directy gets created as part of unzip action, if it doesnt exist, then no files will be there...
+            if (Directory.Exists(outputPath)) {
+                // We're only interested in the files that were copied.
+                var localFiles = Directory.GetFiles(outputPath);
+                localFiles = localFiles.Where(path => match.Match(path).Success).ToArray();
+                foreach (var path in localFiles)
                 {
-                    reference = await this.Api.AddContentReferenceAsync(newReference);
-                }
-                else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
-                {
-                    // If another process has it in progress only attempt to do an import if it's
-                    // more than an 5 minutes old. Assumption is that it is stuck.
-                    reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
-                }
-                else continue;
+                    var fileName = Path.GetFileName(path);
+                    var newReference = CreateContentReference(manager.Ingest, fileName);
+                    var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, newReference.Uid);
+                    if (reference == null)
+                    {
+                        reference = await this.Api.AddContentReferenceAsync(newReference);
+                    }
+                    else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
+                    {
+                        // If another process has it in progress only attempt to do an import if it's
+                        // more than an 5 minutes old. Assumption is that it is stuck.
+                        reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
+                    }
+                    else continue;
 
-                reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
-                if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, fileName));
+                    reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
+                    if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, fileName));
+                }
             }
         }
         catch
