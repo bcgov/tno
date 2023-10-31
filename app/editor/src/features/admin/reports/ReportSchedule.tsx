@@ -52,7 +52,7 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ label, index })
             showTimeSelect
             dateFormat="MM/dd/yyyy HH:mm:ss"
             value={
-              values.events[index].runOn
+              values.events.length && values.events[index].runOn
                 ? moment(values.events[index].runOn).format('MM/DD/yyyy HH:mm:ss')
                 : undefined
             }

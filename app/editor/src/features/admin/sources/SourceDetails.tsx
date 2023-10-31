@@ -25,8 +25,10 @@ const SourceDetails: React.FC<ISourceDetailsProps> = () => {
   const [lookups] = useLookup();
 
   const users = getUserOptions(lookups.users);
-  const licenses = getSortableOptions(lookups.licenses);
-  const products = getSortableOptions(lookups.products, [new OptionItem('None', '')]);
+  const licenses = getSortableOptions(lookups.licenses, values.licenseId);
+  const products = getSortableOptions(lookups.products, values.productId, [
+    new OptionItem('None', ''),
+  ]);
 
   React.useEffect(() => {
     const license = lookups.licenses.find((mt) => mt.id === values.licenseId);

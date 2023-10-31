@@ -7,10 +7,10 @@ using Nest;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Extensions;
-using TNO.DAL.Models;
 using TNO.Elastic;
 using TNO.Entities;
 using TNO.Entities.Models;
+using TNO.Models.Filters;
 
 namespace TNO.DAL.Services;
 

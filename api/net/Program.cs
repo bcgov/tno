@@ -192,6 +192,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services
     .Configure<ApiOptions>(config.GetSection("API"))
     .AddScoped<IConnectionHelper, ConnectionHelper>()
+    .AddScoped<INotificationHelper, NotificationHelper>()
     .AddScoped<IReportHelper, ReportHelper>()
     .AddScoped<IWorkOrderHelper, WorkOrderHelper>()
     .AddTNOServices(config, env)

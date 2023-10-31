@@ -19,12 +19,13 @@ public static class ServiceCollectionExtensions
     {
         return services
             .Configure<ChartsOptions>(config.GetSection("Charts"))
-            .Configure<ReportingOptions>(config.GetSection("Reporting"))
+            .Configure<TemplateOptions>(config.GetSection("Reporting"))
             .AddScoped<IRazorEngine, RazorEngine>()
-            .AddScoped<ITemplateEngine<Models.Notifications.TemplateModel>, TemplateEngine<Models.Notifications.TemplateModel>>()
+            .AddScoped<ITemplateEngine<Models.Notifications.NotificationEngineContentModel>, TemplateEngine<Models.Notifications.NotificationEngineContentModel>>()
             .AddScoped<ITemplateEngine<Models.Reports.ReportEngineContentModel>, TemplateEngine<Models.Reports.ReportEngineContentModel>>()
             .AddScoped<ITemplateEngine<Models.Reports.ReportEngineAVOverviewModel>, TemplateEngine<Models.Reports.ReportEngineAVOverviewModel>>()
             .AddScoped<ITemplateEngine<Models.Reports.ChartEngineContentModel>, TemplateEngine<Models.Reports.ChartEngineContentModel>>()
+            .AddScoped<INotificationEngine, NotificationEngine>()
             .AddScoped<IReportEngine, ReportEngine>();
     }
 }

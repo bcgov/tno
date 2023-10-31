@@ -12,6 +12,7 @@ export * from './useIngestTypes';
 export * from './useLicenses';
 export * from './useMinisters';
 export * from './useNotifications';
+export * from './useNotificationTemplates';
 export * from './useOrganizations';
 export * from './useProducts';
 export * from './useReports';

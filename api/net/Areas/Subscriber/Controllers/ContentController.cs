@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
 using System.Web;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -9,14 +10,13 @@ using TNO.API.Areas.Subscriber.Models.Content;
 using TNO.API.Areas.Subscriber.Models.Storage;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
-using System.Text.Json;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
-using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Elastic;
 using TNO.Entities.Models;
 using TNO.Keycloak;
+using TNO.Models.Filters;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
 
@@ -103,7 +103,7 @@ public class ContentController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-     public async Task<IActionResult> FindWithElasticsearchAsync([FromBody] JsonDocument filter, [FromQuery] bool includeUnpublishedContent = false)
+    public async Task<IActionResult> FindWithElasticsearchAsync([FromBody] JsonDocument filter, [FromQuery] bool includeUnpublishedContent = false)
     {
         var result = await _contentService.FindWithElasticsearchAsync(includeUnpublishedContent ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex, filter);
         return new JsonResult(result);

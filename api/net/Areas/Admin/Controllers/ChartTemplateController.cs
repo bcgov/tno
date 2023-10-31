@@ -147,7 +147,7 @@ public class ChartTemplateController : ControllerBase
             Template = model.Template,
             SectionSettings = model.Settings
         };
-        var chartTemplate = new TemplateEngine.Models.Reports.ChartEngineContentModel("test", chart, model.Content?.Select(c => new TemplateEngine.Models.Reports.ContentModel(c)));
+        var chartTemplate = new TemplateEngine.Models.Reports.ChartEngineContentModel("test", chart, model.Content?.Select(c => new TemplateEngine.Models.ContentModel(c)));
         var preview = await _reportHelper.GenerateJsonAsync(new TemplateEngine.Models.Charts.ChartRequestModel(chartTemplate, model.ChartData), model.Index, model.Filter, true);
         return new JsonResult(preview);
     }
@@ -169,7 +169,7 @@ public class ChartTemplateController : ControllerBase
             Template = model.Template,
             SectionSettings = model.Settings
         };
-        var chartTemplate = new TemplateEngine.Models.Reports.ChartEngineContentModel("test", chart, model.Content?.Select(c => new TemplateEngine.Models.Reports.ContentModel(c)));
+        var chartTemplate = new TemplateEngine.Models.Reports.ChartEngineContentModel("test", chart, model.Content?.Select(c => new TemplateEngine.Models.ContentModel(c)));
         var base64Image = await _reportHelper.GenerateBase64ImageAsync(new TemplateEngine.Models.Charts.ChartRequestModel(chartTemplate, model.ChartData), model.Index, model.Filter, true);
         return Ok(base64Image);
     }

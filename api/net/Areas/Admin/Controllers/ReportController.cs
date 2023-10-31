@@ -253,9 +253,14 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> Preview(ReportModel model)
     {
-        var result = await _reportHelper.GenerateReportAsync(new Areas.Services.Models.Report.ReportModel(model.ToEntity(_serializerOptions, true), _serializerOptions), true);
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+
+        var report = new Areas.Services.Models.Report.ReportModel(model.ToEntity(_serializerOptions, true), _serializerOptions);
+        var result = await _reportHelper.GenerateReportAsync(report, user.Id, true);
         return new JsonResult(result);
     }
+
     /// <summary>
     /// Execute the report template and generate the results for previewing.
     /// </summary>
@@ -268,16 +273,19 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult PrimeReportCache(ReportModel model)
     {
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+
         _backgroundWorkerQueue.QueueBackgroundWorkItem(async token =>
         {
-            using (var scope = _serviceScopeFactory.CreateScope())
-            {
-                IReportHelper reportHelper = scope.ServiceProvider.GetRequiredService<IReportHelper>();
-                await reportHelper.GenerateReportAsync(new Areas.Services.Models.Report.ReportModel(model.ToEntity(_serializerOptions, true), _serializerOptions), true);
-            }
+            using var scope = _serviceScopeFactory.CreateScope();
+
+            var reportHelper = scope.ServiceProvider.GetRequiredService<IReportHelper>();
+            var report = new Areas.Services.Models.Report.ReportModel(model.ToEntity(_serializerOptions, true), _serializerOptions);
+            await reportHelper.GenerateReportAsync(report, user.Id, true);
         });
 
-        return Ok("Report template compilation in progress..");
+        return Ok("Report template compilation in progress.");
     }
     #endregion
 }

@@ -67,10 +67,14 @@ public interface IReportHelper
     /// If the report sections contain charts it will also generate them and include them in the results.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="requestorId"></param>
     /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    Task<ReportResultModel> GenerateReportAsync(Areas.Services.Models.Report.ReportModel model, bool isPreview = false);
+    Task<ReportResultModel> GenerateReportAsync(
+        Areas.Services.Models.Report.ReportModel model,
+        int? requestorId = null,
+        bool isPreview = false);
 
     /// <summary>
     /// Execute the report template to generate the subject and body.

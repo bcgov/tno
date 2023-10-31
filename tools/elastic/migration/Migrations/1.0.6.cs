@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.Options;
-using TNO.DAL.Models;
 using TNO.DAL.Services;
+using TNO.Models.Filters;
 
 namespace TNO.Elastic.Migration;
 

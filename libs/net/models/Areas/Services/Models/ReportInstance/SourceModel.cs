@@ -34,6 +34,16 @@ public class SourceModel : BaseTypeModel<int>
     /// get/set -
     /// </summary>
     public int? ProductId { get; set; }
+
+    /// <summary>
+    /// get/set - Whether this source auto transcribes A/V files.
+    /// </summary>
+    public bool AutoTranscribe { get; set; }
+
+    /// <summary>
+    /// get/set - Whether this source disabled transcription requests.
+    /// </summary>
+    public bool DisableTranscribe { get; set; }
     #endregion
 
     #region Constructors
@@ -53,6 +63,8 @@ public class SourceModel : BaseTypeModel<int>
         this.LicenseId = entity.LicenseId;
         this.OwnerId = entity.OwnerId;
         this.ProductId = entity.ProductId;
+        this.AutoTranscribe = entity.AutoTranscribe;
+        this.DisableTranscribe = entity.DisableTranscribe;
     }
 
     /// <summary>
@@ -71,6 +83,8 @@ public class SourceModel : BaseTypeModel<int>
         this.LicenseId = model.LicenseId;
         this.OwnerId = model.OwnerId;
         this.ProductId = model.ProductId;
+        this.AutoTranscribe = model.AutoTranscribe;
+        this.DisableTranscribe = model.DisableTranscribe;
     }
     #endregion
 }

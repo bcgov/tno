@@ -6,13 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.Report;
+using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
-using TNO.DAL.Models;
 using TNO.DAL.Services;
+using TNO.Kafka;
+using TNO.Kafka.Models;
 using TNO.Keycloak;
+using TNO.Models.Filters;
 using TNO.TemplateEngine.Models.Reports;
 
 namespace TNO.API.Areas.Editor.Controllers;
@@ -36,6 +39,8 @@ public class ReportController : ControllerBase
     private readonly IReportService _reportService;
     private readonly IUserService _userService;
     private readonly IReportHelper _reportHelper;
+    private readonly IKafkaMessenger _kafkaProducer;
+    private readonly KafkaOptions _kafkaOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -46,16 +51,22 @@ public class ReportController : ControllerBase
     /// <param name="reportService"></param>
     /// <param name="userService"></param>
     /// <param name="reportHelper"></param>
+    /// <param name="kafkaProducer"></param>
+    /// <param name="kafkaOptions"></param>
     /// <param name="serializerOptions"></param>
     public ReportController(
         IReportService reportService,
         IUserService userService,
         IReportHelper reportHelper,
+        IKafkaMessenger kafkaProducer,
+        IOptions<KafkaOptions> kafkaOptions,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _reportService = reportService;
         _userService = userService;
         _reportHelper = reportHelper;
+        _kafkaProducer = kafkaProducer;
+        _kafkaOptions = kafkaOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -188,8 +199,34 @@ public class ReportController : ControllerBase
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) && // User is not subscribed to the report
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report"); // Report is not public
         var model = new Services.Models.Report.ReportModel(report, _serializerOptions);
-        var result = await _reportHelper.GenerateReportAsync(model, true);
+        var result = await _reportHelper.GenerateReportAsync(model, user.Id, true);
         return new JsonResult(result);
+    }
+
+    /// <summary>
+    /// Publish the report and send to all subscribers.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpPost("{id}/publish")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public async Task<IActionResult> Publish(int id)
+    {
+        var report = _reportService.FindById(id) ?? throw new NoContentException();
+
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+
+        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, report.Id, new { })
+        {
+            RequestorId = user.Id
+        };
+        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{report.Id}", request);
+        return new OkResult();
     }
     #endregion
 }

@@ -13,6 +13,7 @@ import {
   ILicenseModel,
   IMinisterModel,
   INotificationModel,
+  INotificationTemplateModel,
   IOrganizationModel,
   IPaged,
   IProductModel,
@@ -53,6 +54,7 @@ export interface IAdminState {
   ministers: IMinisterModel[];
   notificationFilter: string;
   notifications: INotificationModel[];
+  notificationTemplates: INotificationTemplateModel[];
   organizationFilter: string;
   organizations: IOrganizationModel[];
   productFilter: string;

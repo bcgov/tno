@@ -77,7 +77,7 @@ spec:
           memory: 1Gi
           cpu: 1
         limits:
-          memory: 6656Mi
+          memory: 7Gi
           cpu: 2
       script: |
         #!/usr/bin/env bash

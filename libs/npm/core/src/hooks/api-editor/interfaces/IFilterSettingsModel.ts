@@ -1,10 +1,11 @@
-import { ContentTypeName } from '../constants';
+import { ContentStatusName, ContentTypeName } from '../constants';
 import { IFilterActionSettingsModel, ISortField } from '.';
 
-export interface IFilterSettingsModel extends Record<string, any> {
+export interface IFilterSettingsModel {
   searchUnpublished: boolean;
   size: number;
-  from: number;
+  from?: number;
+  status?: ContentStatusName;
   search?: string;
   defaultSearchOperator?: 'and' | 'or';
   inHeadline?: boolean;
@@ -18,15 +19,17 @@ export interface IFilterSettingsModel extends Record<string, any> {
   page?: string;
   hasTopic?: boolean;
   isHidden?: boolean;
-  sourceIds: number[];
-  productIds: number[];
-  seriesIds: number[];
-  contributorIds: number[];
-  actions: IFilterActionSettingsModel[];
-  contentTypes: ContentTypeName[];
-  tags: string[];
-  sentiment: number[];
-  status?: string;
+  otherSource?: string;
+  ownerId?: number;
   userId?: number;
+  contentIds?: number[];
+  sourceIds?: number[];
+  productIds?: number[];
+  seriesIds?: number[];
+  contributorIds?: number[];
+  actions?: IFilterActionSettingsModel[];
+  contentTypes?: ContentTypeName[];
+  tags?: string[];
+  sentiment?: number[];
   sort?: ISortField[];
 }

@@ -9,6 +9,7 @@ interface IReportController {
   updateReport: (model: IReportModel) => Promise<IReportModel>;
   deleteReport: (model: IReportModel) => Promise<IReportModel>;
   previewReport: (reportId: number) => Promise<IReportResultModel>;
+  publishReport: (reportId: number) => Promise<never>;
 }
 
 export const useReports = (): [IReportController] => {
@@ -53,6 +54,10 @@ export const useReports = (): [IReportController] => {
         const response = await dispatch<IReportResultModel>('preview-report', () =>
           api.previewReport(reportId),
         );
+        return response.data;
+      },
+      publishReport: async (reportId: number) => {
+        const response = await dispatch<never>('publish-report', () => api.publishReport(reportId));
         return response.data;
       },
     }),

@@ -7,7 +7,7 @@ import { Col, IReportResultModel, Loading, Show } from 'tno-core';
 import * as styled from './styled';
 
 const ReportInstancePreview: React.FC = () => {
-  const [{ previewReportInstance }] = useReportInstances();
+  const [{ viewReportInstance }] = useReportInstances();
   const { id } = useParams();
   const reportId = parseInt(id ?? '');
 
@@ -18,14 +18,14 @@ const ReportInstancePreview: React.FC = () => {
     async (reportId: number) => {
       try {
         setIsLoading(true);
-        const response = await previewReportInstance(reportId);
+        const response = await viewReportInstance(reportId);
         setPreview(response);
       } catch {
       } finally {
         setIsLoading(false);
       }
     },
-    [previewReportInstance, setPreview],
+    [viewReportInstance, setPreview],
   );
 
   React.useEffect(() => {

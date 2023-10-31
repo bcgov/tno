@@ -1,19 +1,22 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Notification;
 using TNO.API.Config;
+using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Services;
-using TNO.Entities.Models;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Keycloak;
+using TNO.Models.Filters;
+using TNO.TemplateEngine.Models.Notifications;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -34,7 +37,9 @@ public class NotificationController : ControllerBase
 {
     #region Variables
     private readonly INotificationService _notificationService;
+    private readonly IContentService _contentService;
     private readonly IUserService _userService;
+    private readonly INotificationHelper _notificationHelper;
     private readonly IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
     private readonly JsonSerializerOptions _serializerOptions;
@@ -45,14 +50,25 @@ public class NotificationController : ControllerBase
     /// Creates a new instance of a NotificationController object, initializes with specified parameters.
     /// </summary>
     /// <param name="notificationService"></param>
+    /// <param name="contentService"></param>
     /// <param name="userService"></param>
+    /// <param name="notificationHelper"></param>
     /// <param name="kafkaProducer"></param>
     /// <param name="kafkaOptions"></param>
     /// <param name="serializerOptions"></param>
-    public NotificationController(INotificationService notificationService, IUserService userService, IKafkaMessenger kafkaProducer, IOptions<KafkaOptions> kafkaOptions, IOptions<JsonSerializerOptions> serializerOptions)
+    public NotificationController(
+        INotificationService notificationService,
+        IContentService contentService,
+        IUserService userService,
+        INotificationHelper notificationHelper,
+        IKafkaMessenger kafkaProducer,
+        IOptions<KafkaOptions> kafkaOptions,
+        IOptions<JsonSerializerOptions> serializerOptions)
     {
         _notificationService = notificationService;
+        _contentService = contentService;
         _userService = userService;
+        _notificationHelper = notificationHelper;
         _kafkaProducer = kafkaProducer;
         _kafkaOptions = kafkaOptions.Value;
         _serializerOptions = serializerOptions.Value;
@@ -61,20 +77,23 @@ public class NotificationController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Find a page of content for the specified query filter.
+    /// Find all notifications for the specified query filter.
     /// </summary>
     /// <returns></returns>
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IPaged<NotificationModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<NotificationModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
-    public IActionResult FindAll()
+    public IActionResult Find()
     {
-        return new JsonResult(_notificationService.FindAll().Select(ds => new NotificationModel(ds, _serializerOptions)));
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        var results = _notificationService.Find(new NotificationFilter(query));
+        return new JsonResult(results.Select(ds => new NotificationModel(ds, _serializerOptions)));
     }
 
     /// <summary>
-    /// Find content for the specified 'id'.
+    /// Find notification for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -90,7 +109,7 @@ public class NotificationController : ControllerBase
     }
 
     /// <summary>
-    /// Add content for the specified 'id'.
+    /// Add notification.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -106,7 +125,7 @@ public class NotificationController : ControllerBase
     }
 
     /// <summary>
-    /// Update content for the specified 'id'.
+    /// Update notification for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -117,13 +136,13 @@ public class NotificationController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Notification" })]
     public IActionResult Update(NotificationModel model)
     {
-        var result = _notificationService.UpdateAndSave(model.ToEntity(_serializerOptions));
+        var result = _notificationService.UpdateAndSave(model.ToEntity(_serializerOptions, true));
         var notification = _notificationService.FindById(result.Id) ?? throw new NoContentException();
         return new JsonResult(new NotificationModel(notification, _serializerOptions));
     }
 
     /// <summary>
-    /// Delete content for the specified 'id'.
+    /// Delete notification for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -139,20 +158,41 @@ public class NotificationController : ControllerBase
     }
 
     /// <summary>
+    /// Execute the notification template and generate the results for previewing.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    [HttpPost("{id}/preview/{contentId}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(NotificationResultModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Notification" })]
+    public async Task<IActionResult> Preview(NotificationModel model, long contentId)
+    {
+        var content = _contentService.FindById(contentId) ?? throw new NoContentException();
+        var notification = new Areas.Services.Models.Notification.NotificationModel(model.ToEntity(_serializerOptions, true), _serializerOptions);
+        var contentModel = new TNO.TemplateEngine.Models.ContentModel(content);
+        var result = await _notificationHelper.GenerateNotificationAsync(notification, contentModel, true);
+        return new JsonResult(result);
+    }
+
+    /// <summary>
     /// Send the notification to the specified email address.
     /// </summary>
-    /// <param name="notificationId"></param>
+    /// <param name="id"></param>
     /// <param name="contentId"></param>
     /// <param name="to"></param>
     /// <returns></returns>
-    [HttpPost("{notificationId}/send/{contentId}")]
+    [HttpPost("{id}/send")]
+    [HttpPost("{id}/send/{contentId}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(NotificationModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
-    public async Task<IActionResult> SendToAsync(int notificationId, long contentId, string to)
+    public async Task<IActionResult> SendToAsync(int id, long? contentId, string to)
     {
-        var notification = _notificationService.FindById(notificationId) ?? throw new NoContentException();
+        var notification = _notificationService.FindById(id) ?? throw new NoContentException();
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
@@ -163,7 +203,7 @@ public class NotificationController : ControllerBase
             ContentId = contentId,
             RequestorId = user.Id,
             To = to,
-            UpdateCache = true,
+            IsPreview = true,
             IgnoreValidation = true,
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, $"notification-{notification.Id}-test", request);

@@ -28,9 +28,13 @@ import { chartTypeOptions, groupByOptions } from '../charts/constants';
 import { sectionOptions } from './constants';
 import * as styled from './styled';
 
-const getSortableItems = <T extends IFolderModel | IFilterModel>(items: T[]) => {
+const getSortableItems = <T extends IFolderModel | IFilterModel>(
+  items: T[],
+  currentItem?: number,
+) => {
   return getSortableOptions(
     items,
+    currentItem,
     [],
     (f) =>
       new OptionItem(

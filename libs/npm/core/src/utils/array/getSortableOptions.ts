@@ -18,7 +18,10 @@ export const sortSortable = <T extends ISortableModel<any>>(a: T, b: T) => {
 
 /**
  * Sorts provided items into options.
+ * Removes disabled options.
+ * Keeps currently selected option even if it is disabled.
  * @param items An array of items to return as sorted options.
+ * @param currentSelected The currently selected option.
  * @param prepend An array of options to prepend to array.
  * @param map How to map the items to options.
  * @param sort How to sort items.
@@ -26,9 +29,10 @@ export const sortSortable = <T extends ISortableModel<any>>(a: T, b: T) => {
  */
 export const getSortableOptions = <T extends ISortableModel<any>>(
   items: T[],
+  currentSelected: string | number | undefined = undefined,
   prepend: IOptionItem[] = [],
   map: (item: T) => IOptionItem = (i) => new OptionItem(i.name, i.id, i.isEnabled),
   sort: (a: T, b: T) => number = sortSortable,
 ) => {
-  return prepend.concat(filterEnabledOptions([...items].sort(sort).map(map)));
+  return prepend.concat(filterEnabledOptions([...items].sort(sort).map(map), currentSelected));
 };

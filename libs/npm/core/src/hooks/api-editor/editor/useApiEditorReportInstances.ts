@@ -19,9 +19,9 @@ export const useApiEditorReportInstances = (
   const api = useApi(options);
 
   return React.useRef({
-    previewReportInstance: (reportInstanceId: number) => {
+    viewReportInstance: (reportInstanceId: number) => {
       return api.post<never, AxiosResponse<IReportResultModel>, any>(
-        `/editor/report/instances/${reportInstanceId}/preview`,
+        `/editor/report/instances/${reportInstanceId}/view`,
       );
     },
   }).current;

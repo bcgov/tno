@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Core.Exceptions;
 using TNO.DAL.Extensions;
-using TNO.DAL.Models;
 using TNO.Entities;
 using TNO.Entities.Models;
+using TNO.Models.Filters;
 
 namespace TNO.DAL.Services;
 

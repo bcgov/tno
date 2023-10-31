@@ -33,15 +33,17 @@ public class QueuedHostedService : BackgroundService
         while (!cancellationToken.IsCancellationRequested)
         {
             var workItem = await _taskQueue.DequeueAsync(cancellationToken);
-
-            try
+            if (workItem != null)
             {
-                await workItem(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex,
-                    "Error occurred executing {WorkItem}.", nameof(workItem));
+                try
+                {
+                    await workItem(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex,
+                        "Error occurred executing {WorkItem}.", nameof(workItem));
+                }
             }
         }
 

@@ -8,15 +8,13 @@ using TNO.Ches.Configuration;
 using TNO.Ches.Models;
 using TNO.Core.Exceptions;
 using TNO.Entities;
-using TNO.Entities.Validation;
 using TNO.Kafka;
 using TNO.Kafka.Models;
-using TNO.Models.Extensions;
 using TNO.Services.Managers;
 using TNO.Services.Notification.Config;
+using TNO.Services.Notification.Validation;
 using TNO.TemplateEngine;
 using TNO.TemplateEngine.Config;
-using TNO.TemplateEngine.Models.Notifications;
 
 namespace TNO.Services.Notification;
 
@@ -41,9 +39,9 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     protected IKafkaListener<string, NotificationRequestModel> Listener { get; }
 
     /// <summary>
-    /// get - Razor template engine.
+    /// get - Razor report template engine.
     /// </summary>
-    protected ITemplateEngine<TemplateModel> TemplateEngine { get; }
+    protected INotificationEngine NotificationEngine { get; }
 
     /// <summary>
     /// get - CHES service.
@@ -56,9 +54,9 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     protected ChesOptions ChesOptions { get; }
 
     /// <summary>
-    /// get - Reporting options.
+    /// get - Template options.
     /// </summary>
-    protected ReportingOptions ReportingOptions { get; }
+    protected TemplateOptions TemplateOptions { get; }
 
     /// <summary>
     /// get - Notification validator.
@@ -73,7 +71,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <param name="listener"></param>
     /// <param name="api"></param>
     /// <param name="user"></param>
-    /// <param name="templateEngine"></param>
+    /// <param name="notificationEngine"></param>
     /// <param name="chesService"></param>
     /// <param name="chesOptions"></param>
     /// <param name="serializationOptions"></param>
@@ -85,21 +83,21 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         IKafkaListener<string, NotificationRequestModel> listener,
         IApiService api,
         ClaimsPrincipal user,
-        ITemplateEngine<TemplateModel> templateEngine,
+        INotificationEngine notificationEngine,
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
         IOptions<NotificationOptions> notificationOptions,
-        IOptions<ReportingOptions> reportingOptions,
+        IOptions<TemplateOptions> reportingOptions,
         INotificationValidator notificationValidator,
         ILogger<NotificationManager> logger)
         : base(api, notificationOptions, logger)
     {
         _user = user;
-        this.TemplateEngine = templateEngine;
+        this.NotificationEngine = notificationEngine;
         this.Ches = chesService;
         this.ChesOptions = chesOptions.Value;
-        this.ReportingOptions = reportingOptions.Value;
+        this.TemplateOptions = reportingOptions.Value;
         _serializationOptions = serializationOptions.Value;
         this.NotificationValidator = notificationValidator as NotificationValidator ?? throw new ArgumentException("NotificationValidator must be of the correct type");
         this.Listener = listener;
@@ -287,43 +285,82 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     private async Task ProcessNotificationAsync(ConsumeResult<string, NotificationRequestModel> result)
     {
         var request = result.Message.Value;
-        if (request.Destination.HasFlag(NotificationDestination.NotificationService) && request.ContentId.HasValue)
+        if (request.Destination.HasFlag(NotificationDestination.NotificationService))
         {
-            var content = await this.Api.FindContentByIdAsync(request.ContentId.Value);
-            if (content != null)
+            if (request.ContentId.HasValue)
             {
-                // If the request specified a notification then use it, otherwise test all notifications.
-                if (request.NotificationId.HasValue)
+                var content = await this.Api.FindContentByIdAsync(request.ContentId.Value);
+                if (content != null)
                 {
-                    var notification = await this.Api.GetNotificationAsync(request.NotificationId.Value);
-                    if (notification != null)
+                    // If the request specified a notification then use it, otherwise test all notifications.
+                    if (request.NotificationId.HasValue)
                     {
-                        await this.NotificationValidator.InitializeAsync(notification, content, this.Options.AlertId);
-                        if (request.IgnoreValidation || this.NotificationValidator.ConfirmSend())
-                            await SendNotificationAsync(request, notification, content);
+                        var notification = await this.Api.GetNotificationAsync(request.NotificationId.Value);
+                        if (notification != null)
+                        {
+                            if (notification.IsEnabled)
+                            {
+                                await this.NotificationValidator.InitializeAsync(notification, content);
+                                if (request.IgnoreValidation || this.NotificationValidator.ConfirmSend())
+                                    await SendNotificationAsync(request, notification, content);
+                                else
+                                    this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
+                            }
+                            else
+                                this.Logger.LogDebug("Notification is disabled.  Notification: {notification}", notification.Id);
+                        }
                         else
-                            this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
+                            this.Logger.LogDebug("Notification does not exist.  Notification: {notification}", request.NotificationId);
                     }
                     else
-                        this.Logger.LogDebug("Notification does not exist.  Notification: {notification}", request.NotificationId);
+                    {
+                        // Only fetch notifications that are configured to alert on index.
+                        var notifications = await this.Api.FindNotificationsAsync(new TNO.Models.Filters.NotificationFilter()
+                        {
+                            AlertOnIndex = true
+                        });
+                        foreach (var notification in notifications)
+                        {
+                            await this.NotificationValidator.InitializeAsync(notification, content);
+                            if (request.IgnoreValidation || this.NotificationValidator.ConfirmSend())
+                                await SendNotificationAsync(request, notification, content);
+                            else
+                                this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
+                        }
+                    }
                 }
                 else
                 {
-                    var notifications = await this.Api.GetAllNotificationsAsync();
-                    foreach (var notification in notifications)
-                    {
-                        await this.NotificationValidator.InitializeAsync(notification, content, this.Options.AlertId);
-                        if (request.IgnoreValidation || this.NotificationValidator.ConfirmSend())
-                            await SendNotificationAsync(request, notification, content);
-                        else
-                            this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
-                    }
+                    // Identify requests for notification for content that does not exist.
+                    this.Logger.LogWarning("Content does not exist for this message. Key: {Key}, Content ID: {ContentId}", result.Message.Key, request.ContentId);
                 }
             }
-            else
+            else if (request.NotificationId.HasValue)
             {
-                // Identify requests for notification for content that does not exist.
-                this.Logger.LogWarning("Content does not exist for this message. Key: {Key}, Content ID: {ContentId}", result.Message.Key, request.ContentId);
+                // A notification with no content will execute its filter to find content.
+                // It will only return content posted on after the prior instance.
+                var notification = await this.Api.GetNotificationAsync(request.NotificationId.Value);
+                if (notification != null)
+                {
+                    if (notification.IsEnabled)
+                    {
+                        // Fetch content.
+                        var results = await this.Api.FindContentForNotificationIdAsync(request.NotificationId.Value, request.RequestorId);
+                        if (results != null && results.Hits.Hits.Any() == true)
+                        {
+                            foreach (var content in results.Hits.Hits.Select(h => h.Source).Where(c => c != null))
+                            {
+                                await SendNotificationAsync(request, notification, content);
+                            }
+                        }
+                        else
+                            this.Logger.LogDebug("Notifications not sent.  No content found.  Notification: {notification}", notification.Id);
+                    }
+                    else
+                        this.Logger.LogDebug("Notification is disabled.  Notification: {notification}", notification.Id);
+                }
+                else
+                    this.Logger.LogDebug("Notification does not exist.  Notification: {notification}", request.NotificationId);
             }
         }
     }
@@ -358,8 +395,8 @@ public class NotificationManager : ServiceManager<NotificationOptions>
             }).ToList());
         }
 
-        var subject = await GenerateNotificationSubjectAsync(notification, content);
-        var body = await GenerateNotificationBodyAsync(notification, content);
+        var subject = await GenerateNotificationSubjectAsync(notification, content, request.IsPreview);
+        var body = await GenerateNotificationBodyAsync(notification, content, null, request.IsPreview);
         var merge = new EmailMergeModel(this.ChesOptions.From, contexts, subject, body)
         {
             // TODO: Extract values from notification settings.
@@ -373,32 +410,43 @@ public class NotificationManager : ServiceManager<NotificationOptions>
             var response = await this.Ches.SendEmailAsync(merge);
             this.Logger.LogInformation("Notification sent to CHES.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
 
-            // Save the notification instance.
-            // TODO: Add status of the notification.
-            var instance = new NotificationInstance(notification.Id, content.Id)
+            if (!request.IsPreview)
             {
-                Status = NotificationStatus.Completed,
-                SentOn = DateTime.UtcNow,
-                Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions))
-            };
-            await this.Api.AddNotificationInstanceAsync(new API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel(instance, _serializationOptions));
+                // Save the notification instance.
+                var instance = new NotificationInstance(notification.Id, content.Id)
+                {
+                    Status = NotificationStatus.Completed,
+                    SentOn = DateTime.UtcNow,
+                    OwnerId = request.RequestorId ?? notification.OwnerId,
+                    Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions)),
+                    Subject = subject,
+                    Body = body,
+                };
+                await this.Api.AddNotificationInstanceAsync(new API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel(instance, _serializationOptions));
 
-            // The alert has been sent, remove the flag from the content so that future alerts can be sent.
-            var alert = content.Actions.FirstOrDefault(a => a.Id == this.Options.AlertId);
-            if (alert != null && alert.Value == "true")
-            {
-                alert.Value = "false";
-                await this.Api.UpdateContentActionAsync(alert);
+                // The alert has been sent, remove the flag from the content so that future alerts can be sent.
+                var alert = content.Actions.FirstOrDefault(a => a.Id == this.Options.AlertId);
+                if (alert != null && alert.Value == "true")
+                {
+                    alert.Value = "false";
+                    await this.Api.UpdateContentActionAsync(alert);
+                }
             }
         }
         catch (ChesException ex)
         {
-            var instance = new NotificationInstance(notification.Id, content.Id)
+            if (!request.IsPreview)
             {
-                Status = NotificationStatus.Failed,
-                Response = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions))
-            };
-            await this.Api.AddNotificationInstanceAsync(new API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel(instance, _serializationOptions));
+                var instance = new NotificationInstance(notification.Id, content.Id)
+                {
+                    Status = NotificationStatus.Failed,
+                    OwnerId = request.RequestorId ?? notification.OwnerId,
+                    Response = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions)),
+                    Subject = subject,
+                    Body = body,
+                };
+                await this.Api.AddNotificationInstanceAsync(new API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel(instance, _serializationOptions));
+            }
         }
     }
 
@@ -426,33 +474,13 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// </summary>
     /// <param name="notification"></param>
     /// <param name="content"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
-    private async Task<string> GenerateNotificationSubjectAsync(API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content, bool updateCache = false)
+    private async Task<string> GenerateNotificationSubjectAsync(API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content, bool isPreview = false)
     {
-        // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
-        var key = $"notification_{notification.Id}_subject";
-        var model = new TemplateModel(content)
-        {
-            SubscriberAppUrl = this.ReportingOptions.SubscriberAppUrl,
-            ViewContentUrl = this.ReportingOptions.ViewContentUrl,
-            RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl,
-            AddToReportUrl = this.ReportingOptions.AddToReportUrl,
-        };
-        var templateText = notification.Settings.GetDictionaryJsonValue<string>("subject") ?? "";
-        var template = (!updateCache ?
-            this.TemplateEngine.GetOrAddTemplateInMemory(key, templateText) :
-            this.TemplateEngine.AddOrUpdateTemplateInMemory(key, templateText))
-            ?? throw new InvalidOperationException("Template does not exist");
-        return await template.RunAsync(instance =>
-        {
-            instance.Model = model;
-            instance.Content = model.Content;
-            instance.SubscriberAppUrl = model.SubscriberAppUrl;
-            instance.ViewContentUrl = model.ViewContentUrl;
-            instance.RequestTranscriptUrl = model.RequestTranscriptUrl;
-            instance.AddToReportUrl = model.AddToReportUrl;
-        });
+        if (notification.Template == null) throw new InvalidOperationException("Notification template cannot be null.  Update endpoint model serialization.");
+
+        return await this.NotificationEngine.GenerateNotificationSubjectAsync(notification, new TNO.TemplateEngine.Models.ContentModel(content), isPreview);
     }
 
     /// <summary>
@@ -460,32 +488,18 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// </summary>
     /// <param name="notification"></param>
     /// <param name="content"></param>
-    /// <param name="updateCache"></param>
+    /// <param name="uploadPath"></param>
+    /// <param name="isPreview"></param>
     /// <returns></returns>
-    private async Task<string> GenerateNotificationBodyAsync(API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content, bool updateCache = false)
+    private async Task<string> GenerateNotificationBodyAsync(
+        API.Areas.Services.Models.Notification.NotificationModel notification,
+        API.Areas.Services.Models.Content.ContentModel content,
+        string? uploadPath = null,
+        bool isPreview = false)
     {
-        // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
-        var key = $"notification_{notification.Id}";
-        var model = new TemplateModel(content)
-        {
-            AddToReportUrl = this.ReportingOptions.AddToReportUrl,
-            SubscriberAppUrl = this.ReportingOptions.SubscriberAppUrl,
-            ViewContentUrl = this.ReportingOptions.ViewContentUrl != null ? new Uri(this.ReportingOptions.ViewContentUrl, content.Id.ToString()) : null,
-            RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl
-        };
-        var template = (!updateCache ?
-            this.TemplateEngine.GetOrAddTemplateInMemory(key, notification.Template) :
-            this.TemplateEngine.AddOrUpdateTemplateInMemory(key, notification.Template))
-            ?? throw new InvalidOperationException("Template does not exist");
-        return await template.RunAsync(instance =>
-        {
-            instance.Model = model;
-            instance.Content = model.Content;
-            instance.AddToReportUrl = model.AddToReportUrl;
-            instance.SubscriberAppUrl = model.SubscriberAppUrl;
-            instance.ViewContentUrl = model.ViewContentUrl;
-            instance.RequestTranscriptUrl = model.RequestTranscriptUrl;
-        });
+        if (notification.Template == null) throw new InvalidOperationException("Notification template cannot be null.  Update endpoint model serialization.");
+
+        return await this.NotificationEngine.GenerateNotificationBodyAsync(notification, new TNO.TemplateEngine.Models.ContentModel(content), uploadPath, isPreview);
     }
     #endregion
 }

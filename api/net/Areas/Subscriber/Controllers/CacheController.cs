@@ -14,7 +14,7 @@ namespace TNO.API.Areas.Subscriber.Controllers;
 /// </summary>
 [ClientRoleAuthorize(ClientRole.Subscriber)]
 [ApiController]
-[Area("editor")]
+[Area("subscriber")]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[area]/cache")]
 [Route("api/[area]/cache")]

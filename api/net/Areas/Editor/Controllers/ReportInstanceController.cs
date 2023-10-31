@@ -59,16 +59,16 @@ public class ReportInstanceController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Execute the report instance template and generate the results for previewing.
+    /// Execute the report instance template and generate the results for viewing.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    [HttpPost("{id}/preview")]
+    [HttpPost("{id}/view")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportResultModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public async Task<IActionResult> Preview(int id)
+    public async Task<IActionResult> View(int id)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
@@ -79,7 +79,7 @@ public class ReportInstanceController : ControllerBase
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) && // User is not subscribed to the report
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report"); // Report is not public
         var model = new Services.Models.ReportInstance.ReportInstanceModel(instance, _serializerOptions);
-        var result = await _reportHelper.GenerateReportAsync(model, true);
+        var result = await _reportHelper.GenerateReportAsync(model, false);
         return new JsonResult(result);
     }
     #endregion

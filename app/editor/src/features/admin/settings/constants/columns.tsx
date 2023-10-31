@@ -10,13 +10,13 @@ export const columns: ITableHookColumn<ISettingModel>[] = [
   {
     label: 'Description',
     accessor: 'description',
-    width: 5,
+    width: 2,
     cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {
     label: 'Value',
     accessor: 'value',
-    width: 1,
+    width: 2,
     hAlign: 'center',
     cell: (cell) => cell.original.value,
   },

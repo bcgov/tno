@@ -51,13 +51,13 @@ export const useApiEditorAVOverviews = (
         { data: instance },
       );
     },
-    previewAVOverview: (instanceId: number) => {
-      return api.post<IAVOverviewInstanceModel, AxiosResponse<IReportResultModel>, any>(
-        `/editor/reports/av/overviews/${instanceId}/preview`,
+    viewAVOverview: (instanceId: number) => {
+      return api.post<never, AxiosResponse<IReportResultModel>, any>(
+        `/editor/reports/av/overviews/${instanceId}/view`,
       );
     },
     publishAVOverview: (instanceId: number) => {
-      return api.post<IAVOverviewInstanceModel, AxiosResponse<IAVOverviewInstanceModel>, any>(
+      return api.post<never, AxiosResponse<IAVOverviewInstanceModel>, any>(
         `/editor/reports/av/overviews/${instanceId}/publish`,
       );
     },

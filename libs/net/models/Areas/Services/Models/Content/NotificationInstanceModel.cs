@@ -24,6 +24,11 @@ public class NotificationInstanceModel
     public long ContentId { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to user who owns this notification.
+    /// </summary>
+    public int? OwnerId { get; set; }
+
+    /// <summary>
     /// get/set  When the notification was sent.
     /// </summary>
     public DateTime? SentOn { get; set; }
@@ -55,6 +60,7 @@ public class NotificationInstanceModel
         this.Id = entity.Id;
         this.NotificationId = entity.NotificationId;
         this.ContentId = entity.ContentId;
+        this.OwnerId = entity.OwnerId;
         this.SentOn = entity.SentOn;
         this.Status = entity.Status;
         this.Response = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Response, options) ?? new Dictionary<string, object>();
@@ -80,7 +86,7 @@ public class NotificationInstanceModel
     /// <param name="model"></param>
     public static explicit operator Entities.NotificationInstance(NotificationInstanceModel model)
     {
-        var entity = new Entities.NotificationInstance(model.NotificationId, model.ContentId)
+        var entity = new Entities.NotificationInstance(model.NotificationId, model.ContentId, model.OwnerId)
         {
             Id = model.Id,
             SentOn = model.SentOn,

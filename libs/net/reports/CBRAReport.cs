@@ -1,9 +1,9 @@
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
-using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Entities;
+using TNO.Models.Filters;
 
 namespace TNO.Reports;
 

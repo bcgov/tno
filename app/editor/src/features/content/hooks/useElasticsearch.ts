@@ -54,7 +54,7 @@ export const useElasticsearch = () => {
           settings.inHeadline = filter.fieldType === AdvancedSearchKeys.Headline;
           settings.inByline = filter.fieldType === AdvancedSearchKeys.Byline;
           settings.inStory = filter.fieldType === AdvancedSearchKeys.Story;
-        } else settings[filter.fieldType] = filter.searchTerm;
+        } else (settings as any)[filter.fieldType] = filter.searchTerm; // TODO: Remove 'any' and resolve remaining filter types.
       }
       return generateQuery(settings);
     },

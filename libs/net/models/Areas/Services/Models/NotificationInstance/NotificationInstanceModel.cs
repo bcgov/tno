@@ -25,6 +25,11 @@ public class NotificationInstanceModel : AuditColumnsModel
     public long ContentId { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to user who owns this notification.
+    /// </summary>
+    public int? OwnerId { get; set; }
+
+    /// <summary>
     /// get/set  When the notification was sent.
     /// </summary>
     public DateTime? SentOn { get; set; }
@@ -38,6 +43,16 @@ public class NotificationInstanceModel : AuditColumnsModel
     /// get/set - CHES response containing keys to find the status of a notification.
     /// </summary>
     public Dictionary<string, object> Response { get; set; } = new Dictionary<string, object>();
+
+    /// <summary>
+    /// get - The compiled subject of the notification.
+    /// </summary>
+    public string Subject { get; set; } = "";
+
+    /// <summary>
+    /// get - The compiled body of the notification.
+    /// </summary>
+    public string Body { get; set; } = "";
     #endregion
 
     #region Constructors
@@ -56,9 +71,12 @@ public class NotificationInstanceModel : AuditColumnsModel
         this.Id = entity.Id;
         this.NotificationId = entity.NotificationId;
         this.ContentId = entity.ContentId;
+        this.OwnerId = entity.OwnerId;
         this.SentOn = entity.SentOn;
         this.Status = entity.Status;
         this.Response = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Response, options) ?? new Dictionary<string, object>();
+        this.Subject = entity.Subject;
+        this.Body = entity.Body;
     }
     #endregion
 
@@ -80,12 +98,14 @@ public class NotificationInstanceModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.NotificationInstance(NotificationInstanceModel model)
     {
-        var entity = new Entities.NotificationInstance(model.NotificationId, model.ContentId)
+        var entity = new Entities.NotificationInstance(model.NotificationId, model.ContentId, model.OwnerId)
         {
             Id = model.Id,
             SentOn = model.SentOn,
             Status = model.Status,
             Response = JsonDocument.Parse(JsonSerializer.Serialize(model.Response)),
+            Subject = model.Subject,
+            Body = model.Body,
             Version = model.Version ?? 0
         };
         return entity;

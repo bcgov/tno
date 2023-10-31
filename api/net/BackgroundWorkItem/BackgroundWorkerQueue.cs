@@ -5,34 +5,17 @@ namespace TNO.API.BackgroundWorkItem;
 /// <summary>
 ///
 /// </summary>
-public interface IBackgroundTaskQueue
-{
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task<Func<CancellationToken, Task>> DequeueAsync(CancellationToken cancellationToken);
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="workItem"></param>
-    void QueueBackgroundWorkItem(Func<CancellationToken, Task> workItem);
-}
-/// <summary>
-///
-/// </summary>
 public class BackgroundTaskQueue : IBackgroundTaskQueue
 {
-    private ConcurrentQueue<Func<CancellationToken, Task>> _workItems = new ConcurrentQueue<Func<CancellationToken, Task>>();
-    private SemaphoreSlim _signal = new SemaphoreSlim(0);
+    private readonly ConcurrentQueue<Func<CancellationToken, Task>> _workItems = new();
+    private readonly SemaphoreSlim _signal = new(0);
 
     /// <summary>
     ///
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<Func<CancellationToken, Task>> DequeueAsync(CancellationToken cancellationToken)
+    public async Task<Func<CancellationToken, Task>?> DequeueAsync(CancellationToken cancellationToken)
     {
         await _signal.WaitAsync(cancellationToken);
         _workItems.TryDequeue(out var workItem);

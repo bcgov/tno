@@ -116,17 +116,22 @@ public class TnoTestContext : TNOContext
                 v => JsonDocumentToString(v),
                 v => JsonDocument.Parse(v, new JsonDocumentOptions()));
 
-        modelBuilder.Entity<Entities.Notification>().Property(p => p.Filter)
-            .HasConversion(
-                v => JsonDocumentToString(v),
-                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
-
         modelBuilder.Entity<Entities.Notification>().Property(p => p.Settings)
             .HasConversion(
                 v => JsonDocumentToString(v),
                 v => JsonDocument.Parse(v, new JsonDocumentOptions()));
 
+        modelBuilder.Entity<Entities.Notification>().Property(p => p.Query)
+            .HasConversion(
+                v => JsonDocumentToString(v),
+                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
         modelBuilder.Entity<Entities.NotificationInstance>().Property(p => p.Response)
+            .HasConversion(
+                v => JsonDocumentToString(v),
+                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<Entities.NotificationTemplate>().Property(p => p.Settings)
             .HasConversion(
                 v => JsonDocumentToString(v),
                 v => JsonDocument.Parse(v, new JsonDocumentOptions()));

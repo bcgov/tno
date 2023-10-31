@@ -31,6 +31,7 @@ export const Topic: React.FC<ITopicProps> = () => {
     setTopicOptions(
       getSortableOptions(
         topics,
+        values.topics?.length ? values.topics[0].id : undefined,
         [],
         (item) =>
           new OptionItem(
@@ -55,7 +56,7 @@ export const Topic: React.FC<ITopicProps> = () => {
         },
       ),
     );
-  }, [topics]);
+  }, [topics, values.topics]);
 
   return (
     <Row>

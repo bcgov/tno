@@ -125,7 +125,7 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
           <Route path="transcriptions" element={<TranscriptionList />} />
 
           <Route
-            path="report/instances/:id/preview"
+            path="report/instances/:id/view"
             element={
               <PrivateRoute
                 claims={Claim.editor}

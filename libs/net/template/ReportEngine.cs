@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
 using TNO.TemplateEngine.Config;
+using TNO.TemplateEngine.Models;
 using TNO.TemplateEngine.Models.Charts;
 using TNO.TemplateEngine.Models.Reports;
 
@@ -21,6 +22,7 @@ public class ReportEngine : IReportEngine
     /// get - Report template engine for content.
     /// </summary>
     protected ITemplateEngine<ReportEngineContentModel> ReportEngineContent { get; }
+
     /// <summary>
     /// get - Report template engine for evening overview.
     /// </summary>
@@ -37,9 +39,9 @@ public class ReportEngine : IReportEngine
     protected IHttpRequestClient HttpClient { get; }
 
     /// <summary>
-    /// get - Charts options.
+    /// get - Template options.
     /// </summary>
-    protected ReportingOptions ReportingOptions { get; }
+    protected TemplateOptions TemplateOptions { get; }
 
     /// <summary>
     /// get - Charts options.
@@ -49,7 +51,7 @@ public class ReportEngine : IReportEngine
     /// <summary>
     ///  logger
     /// </summary>
-    private readonly ILogger<ReportEngine> _logger;
+    protected ILogger<ReportEngine> Logger { get; }
     #endregion
 
     #region Constructors
@@ -60,13 +62,15 @@ public class ReportEngine : IReportEngine
     /// <param name="reportEngineAVOverview"></param>
     /// <param name="chartEngineContent"></param>
     /// <param name="httpClient"></param>
+    /// <param name="templateOptions"></param>
     /// <param name="chartsOptions"></param>
+    /// <param name="logger"></param>
     public ReportEngine(
         ITemplateEngine<ReportEngineContentModel> reportEngineContent,
         ITemplateEngine<ReportEngineAVOverviewModel> reportEngineAVOverview,
         ITemplateEngine<ChartEngineContentModel> chartEngineContent,
         IHttpRequestClient httpClient,
-        IOptions<ReportingOptions> reportingOptions,
+        IOptions<TemplateOptions> templateOptions,
         IOptions<ChartsOptions> chartsOptions,
         ILogger<ReportEngine> logger)
     {
@@ -74,9 +78,9 @@ public class ReportEngine : IReportEngine
         this.ReportEngineAVOverview = reportEngineAVOverview;
         this.ChartEngineContent = chartEngineContent;
         this.HttpClient = httpClient;
-        this.ReportingOptions = reportingOptions.Value;
+        this.TemplateOptions = templateOptions.Value;
         this.ChartsOptions = chartsOptions.Value;
-        _logger = logger;
+        this.Logger = logger;
     }
     #endregion
 
@@ -94,7 +98,7 @@ public class ReportEngine : IReportEngine
         ChartRequestModel model,
         bool isPreview = false)
     {
-        var key = (isPreview ? "PREVIEW" :"FINAL") + $"-chart-template-{model.ChartTemplate.Id}";
+        var key = (isPreview ? "PREVIEW" : "FINAL") + $"-chart-template-{model.ChartTemplate.Id}";
         var template = this.ChartEngineContent.GetOrAddTemplateInMemory(key, model.ChartTemplate.Template);
 
         var json = await template.RunAsync(instance =>
@@ -155,7 +159,7 @@ public class ReportEngine : IReportEngine
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
         if (report.Template.ReportType != Entities.ReportType.Content) throw new InvalidOperationException("The report does not use a evening overview template.");
 
-        var key = (isPreview ? "PREVIEW" :"FINAL") + $"-report-template-{report.Template.Id}-subject";
+        var key = (isPreview ? "PREVIEW" : "FINAL") + $"-report-template-{report.Template.Id}-subject";
         var template = this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Subject)
             ?? throw new InvalidOperationException("Template does not exist");
 
@@ -167,9 +171,9 @@ public class ReportEngine : IReportEngine
             instance.Content = model.Content;
             instance.Sections = model.Sections;
 
-            instance.SubscriberAppUrl = this.ReportingOptions.SubscriberAppUrl;
-            instance.ViewContentUrl = this.ReportingOptions.ViewContentUrl;
-            instance.RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl;
+            instance.SubscriberAppUrl = this.TemplateOptions.SubscriberAppUrl;
+            instance.ViewContentUrl = this.TemplateOptions.ViewContentUrl;
+            instance.RequestTranscriptUrl = this.TemplateOptions.RequestTranscriptUrl;
         });
     }
 
@@ -191,7 +195,7 @@ public class ReportEngine : IReportEngine
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
         if (report.Template.ReportType != Entities.ReportType.Content) throw new InvalidOperationException("The report does not use a evening overview template.");
 
-        var key = (isPreview ? "PREVIEW" :"FINAL") + $"-report-template-{report.Template.Id}-body";
+        var key = (isPreview ? "PREVIEW" : "FINAL") + $"-report-template-{report.Template.Id}-body";
         var template = this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Body)
             ?? throw new InvalidOperationException("Template does not exist");
 
@@ -203,9 +207,10 @@ public class ReportEngine : IReportEngine
             instance.Content = model.Content;
             instance.Sections = model.Sections;
 
-            instance.SubscriberAppUrl = this.ReportingOptions.SubscriberAppUrl;
-            instance.ViewContentUrl = this.ReportingOptions.ViewContentUrl;
-            instance.RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl;
+            instance.SubscriberAppUrl = this.TemplateOptions.SubscriberAppUrl;
+            instance.ViewContentUrl = this.TemplateOptions.ViewContentUrl;
+            instance.RequestTranscriptUrl = this.TemplateOptions.RequestTranscriptUrl;
+            instance.AddToReportUrl = this.TemplateOptions.AddToReportUrl;
         });
 
         var aggregateSection = new Dictionary<string, ReportSectionModel>();
@@ -260,7 +265,7 @@ public class ReportEngine : IReportEngine
         AVOverviewInstanceModel eveningOverview,
         bool isPreview = false)
     {
-        var key = (isPreview ? "PREVIEW" :"FINAL") + $"-report-template-{reportTemplate.Id}-subject";
+        var key = (isPreview ? "PREVIEW" : "FINAL") + $"-report-template-{reportTemplate.Id}-subject";
         var template = this.ReportEngineAVOverview.GetOrAddTemplateInMemory(key, reportTemplate.Subject)
             ?? throw new InvalidOperationException("Template does not exist");
 
@@ -269,11 +274,13 @@ public class ReportEngine : IReportEngine
         {
             instance.Model = model;
             instance.Settings = model.Settings;
+            instance.Content = model.Content;
             instance.Instance = model.Instance;
 
-            instance.SubscriberAppUrl = this.ReportingOptions.SubscriberAppUrl;
-            instance.ViewContentUrl = this.ReportingOptions.ViewContentUrl;
-            instance.RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl;
+            instance.SubscriberAppUrl = this.TemplateOptions.SubscriberAppUrl;
+            instance.ViewContentUrl = this.TemplateOptions.ViewContentUrl;
+            instance.RequestTranscriptUrl = this.TemplateOptions.RequestTranscriptUrl;
+            instance.AddToReportUrl = this.TemplateOptions.AddToReportUrl;
         });
     }
 
@@ -290,7 +297,7 @@ public class ReportEngine : IReportEngine
         AVOverviewInstanceModel eveningOverview,
         bool isPreview = false)
     {
-        var key = (isPreview ? "PREVIEW" :"FINAL") + $"-report-template-{reportTemplate.Id}-body";
+        var key = (isPreview ? "PREVIEW" : "FINAL") + $"-report-template-{reportTemplate.Id}-body";
         var template = this.ReportEngineAVOverview.AddOrUpdateTemplateInMemory(key, reportTemplate.Body)
             ?? throw new InvalidOperationException("Template does not exist");
 
@@ -299,11 +306,13 @@ public class ReportEngine : IReportEngine
         {
             instance.Model = model;
             instance.Settings = model.Settings;
+            instance.Content = model.Content;
             instance.Instance = model.Instance;
 
-            instance.SubscriberAppUrl = this.ReportingOptions.SubscriberAppUrl;
-            instance.ViewContentUrl = this.ReportingOptions.ViewContentUrl;
-            instance.RequestTranscriptUrl = this.ReportingOptions.RequestTranscriptUrl;
+            instance.SubscriberAppUrl = this.TemplateOptions.SubscriberAppUrl;
+            instance.ViewContentUrl = this.TemplateOptions.ViewContentUrl;
+            instance.RequestTranscriptUrl = this.TemplateOptions.RequestTranscriptUrl;
+            instance.AddToReportUrl = this.TemplateOptions.AddToReportUrl;
         });
     }
     #endregion

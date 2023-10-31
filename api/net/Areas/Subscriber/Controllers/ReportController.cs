@@ -11,11 +11,11 @@ using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
-using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Keycloak;
+using TNO.Models.Filters;
 using TNO.TemplateEngine.Models.Reports;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
@@ -261,7 +261,7 @@ public class ReportController : ControllerBase
         if (report.OwnerId != user.Id && // User does not own the report
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report"); // Report is not public
-        var result = await _reportHelper.GenerateReportAsync(new Services.Models.Report.ReportModel(report, _serializerOptions), true);
+        var result = await _reportHelper.GenerateReportAsync(new Services.Models.Report.ReportModel(report, _serializerOptions), user.Id, true);
         return new JsonResult(result);
     }
 
@@ -346,8 +346,7 @@ public class ReportController : ControllerBase
     /// <returns></returns>
     [HttpPost("{id}/publish")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> Publish(int id)
@@ -362,7 +361,7 @@ public class ReportController : ControllerBase
             RequestorId = user.Id
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{report.Id}", request);
-        return new JsonResult(new ReportModel(report, _serializerOptions));
+        return new OkResult();
     }
     #endregion
 }

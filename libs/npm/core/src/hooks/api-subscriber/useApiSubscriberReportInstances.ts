@@ -47,9 +47,9 @@ export const useApiSubscriberReportInstances = (
         { data: report },
       );
     },
-    previewReportInstance: (instanceId: number) => {
+    viewReportInstance: (instanceId: number) => {
       return api.post<never, AxiosResponse<IReportResultModel>, any>(
-        `/subscriber/report/instances/${instanceId}/preview`,
+        `/subscriber/report/instances/${instanceId}/view`,
       );
     },
     sendReportInstance: (reportId: number, to: string) => {

@@ -49,5 +49,8 @@ export const useApiEditorReports = (
         `/editor/reports/${reportId}/preview`,
       );
     },
+    publishReport: (reportId: number) => {
+      return api.post<never, AxiosResponse<never>, any>(`/editor/reports/${reportId}/publish`);
+    },
   }).current;
 };
