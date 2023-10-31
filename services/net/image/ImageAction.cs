@@ -140,7 +140,7 @@ public class ImageAction : IngestAction<ImageOptions>
                 }
             }
 
-            // Directy gets created as part of unzip action, if it doesnt exist, then no files will be there...
+            // Directory gets created as part of unzip action, if it doesnt exist, then no files will be there...
             if (Directory.Exists(outputPath)) {
                 // We're only interested in the files that were copied.
                 var localFiles = Directory.GetFiles(outputPath);
