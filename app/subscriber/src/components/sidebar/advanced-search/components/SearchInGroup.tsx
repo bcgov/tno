@@ -36,7 +36,7 @@ export const SearchInGroup: React.FC<ISearchInGroupProps> = ({
 
   return (
     <Show visible={searchExpanded}>
-      <Row justifyContent="space-evenly" className="options expanded space-top">
+      <Row className="options expanded space-top">
         <label>Headline</label>
         <Checkbox
           checked={advancedSearch.inHeadline}

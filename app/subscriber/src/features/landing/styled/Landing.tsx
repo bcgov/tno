@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Col } from 'tno-core';
 
-export const Landing = styled(Col)`
+export const Landing = styled(Col)<{ advSearchExpanded: boolean }>`
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'BCSans', 'Noto Sans', Arial, 'sans serif';
   display: flex;
@@ -53,7 +53,8 @@ export const Landing = styled(Col)`
   /* container containing both panels */
   .contents-container {
     overflow-y: auto;
-    max-height: calc(100vh - 6.5em);
+    max-height: ${(props) =>
+      props.advSearchExpanded ? 'calc(100vh - 36.5em)' : 'calc(100vh - 6.5em)'};
     margin-left: 0.5em;
   }
 

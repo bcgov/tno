@@ -4,33 +4,16 @@ import { Menu, useProSidebar } from 'react-pro-sidebar';
 import { useNavigate } from 'react-router';
 import { Row, Show } from 'tno-core';
 
-import { AdvancedSearch } from './advanced-search/AdvancedSearch';
 import { SelectableMenuItems } from './SelectableMenuItems';
 import * as styled from './styled';
 
-export interface ICustomSidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-  /**
-   * Whether advanced search is active or not
-   * @default false
-   */
-  advancedSearch: boolean;
-  /**
-   * Event when advanced search is toggled.
-   * @param expanded Whether advanced search is expanded or not.
-   * @default false
-   * @returns void
-   */
-  setAdvancedSearch: (expanded: boolean) => void;
-}
+export interface ICustomSidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 /**
  * CustomSidebar uses react-pro-sidebar to display a sidebar with a menu of selectable menu items. Incorporates the subscriber look and feel.
  * @returns Sidebar component.
  */
-export const CustomSidebar: React.FC<ICustomSidebarProps> = ({
-  advancedSearch,
-  setAdvancedSearch,
-}) => {
+export const CustomSidebar: React.FC<ICustomSidebarProps> = () => {
   const { collapseSidebar, collapsed } = useProSidebar();
   const navigate = useNavigate();
   return (
@@ -42,12 +25,9 @@ export const CustomSidebar: React.FC<ICustomSidebarProps> = ({
             src={!collapsed ? '/assets/mminsights_logo.svg' : '/assets/mm_logo.svg'}
           />
         </Row>
-        <Show visible={!collapsed}>
-          <AdvancedSearch expanded={advancedSearch} setExpanded={setAdvancedSearch} />
-        </Show>
-        {!advancedSearch && <SelectableMenuItems />}
+        <SelectableMenuItems />
       </Menu>
-      <Show visible={!collapsed && !advancedSearch}>
+      <Show visible={!collapsed}>
         <FaAngleDoubleLeft className="collapse" onClick={() => collapseSidebar()} />
       </Show>
       <Show visible={collapsed}>

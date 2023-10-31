@@ -24,7 +24,6 @@ export interface ILayoutProps extends React.HTMLAttributes<HTMLDivElement> {
  */
 export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => {
   const keycloak = useKeycloakWrapper();
-  const [advancedSearch, setAdvancedSearch] = React.useState(false);
   const { setToken } = React.useContext(SummonContext);
   useToastError();
 
@@ -52,10 +51,10 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
 
   // check if width is mobile and if so collapse the sidebar or when window is being resized
   React.useEffect(() => {
-    if (width && width < 768 && !collapsed && !advancedSearch) {
+    if (width && width < 768 && !collapsed) {
       collapseSidebar();
     }
-  }, [width, collapseSidebar, collapsed, advancedSearch]);
+  }, [width, collapseSidebar, collapsed]);
 
   return (
     <styled.Layout collapsed={collapsed} {...rest}>
@@ -64,10 +63,7 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
         <Show visible={keycloak.hasClaim()}>
           <div className="grid-container">
             <div className="nav-bar">
-              <CustomSidebar
-                advancedSearch={advancedSearch}
-                setAdvancedSearch={setAdvancedSearch}
-              />
+              <CustomSidebar />
             </div>
             <div className="main-contents">
               <LayoutErrorBoundary>
