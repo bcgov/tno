@@ -120,7 +120,8 @@ public class NotificationController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Notification" })]
     public IActionResult Add(NotificationModel model)
     {
-        var result = _notificationService.AddAndSave(model.ToEntity(_serializerOptions));
+        var result = _notificationService.AddAndSave(model.ToEntity(_serializerOptions, true));
+        result = _notificationService.FindById(result.Id) ?? throw new NoContentException();
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new NotificationModel(result, _serializerOptions));
     }
 
@@ -137,8 +138,8 @@ public class NotificationController : ControllerBase
     public IActionResult Update(NotificationModel model)
     {
         var result = _notificationService.UpdateAndSave(model.ToEntity(_serializerOptions, true));
-        var notification = _notificationService.FindById(result.Id) ?? throw new NoContentException();
-        return new JsonResult(new NotificationModel(notification, _serializerOptions));
+        result = _notificationService.FindById(result.Id) ?? throw new NoContentException();
+        return new JsonResult(new NotificationModel(result, _serializerOptions));
     }
 
     /// <summary>

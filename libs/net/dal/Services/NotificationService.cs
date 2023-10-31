@@ -93,6 +93,17 @@ public class NotificationService : BaseService<Notification, int>, INotification
     public override Notification Add(Notification entity)
     {
         this.Context.AddRange(entity.SubscribersManyToMany);
+
+        // Add/Update the report template.
+        if (entity.Template != null)
+        {
+            if (entity.Template.Id == 0)
+            {
+                // A new template has been provided.
+                this.Context.Add(entity.Template);
+            }
+        }
+
         return base.Add(entity);
     }
 
@@ -171,6 +182,24 @@ public class NotificationService : BaseService<Notification, int>, INotification
         this.Context.ResetVersion(original);
 
         return base.Update(original);
+    }
+
+    /// <summary>
+    /// Delete the notification and the template if no other notification uses it.
+    /// </summary>
+    /// <param name="entity"></param>
+    public override void Delete(Notification entity)
+    {
+        // If the template isn't being used by anything else, delete it.
+        var isTemplateUsed = this.Context.Notifications.Any(nt => nt.Id != entity.Id && nt.TemplateId == entity.TemplateId);
+        if (!isTemplateUsed)
+        {
+            var template = this.Context.NotificationTemplates.Find(entity.TemplateId);
+            if (template != null)
+                this.Context.Remove(template);
+        }
+
+        base.Delete(entity);
     }
 
     /// <summary>
