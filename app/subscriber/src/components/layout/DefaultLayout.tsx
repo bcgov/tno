@@ -64,10 +64,7 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
         <Show visible={keycloak.hasClaim()}>
           <div className="grid-container">
             <div className="nav-bar">
-              <CustomSidebar
-                advancedSearch={advancedSearch}
-                setAdvancedSearch={setAdvancedSearch}
-              />
+              <CustomSidebar />
             </div>
             <div className="main-contents">
               <LayoutErrorBoundary>

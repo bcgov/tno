@@ -3,12 +3,25 @@ import { Row } from 'tno-core';
 
 export const AdvancedSearch = styled(Row)`
   background-color: white;
+  margin-bottom: 0.25em;
+  margin-left: 0.25em;
+  margin-right: 0.25em;
+  box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.2);
+  width: 100%;
+  border-radius: 0.75em;
+
   padding: 0.5em;
 
   .top-bar {
+    .title {
+      color: ${(props) => props.theme.css.redHeadingColor};
+      font-weight: bold;
+    }
     width: 100%;
+    border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
+    margin-bottom: 0.5em;
     .reset {
-      margin-left: auto;
+      margin-left: 0.5em;
       align-self: center;
       cursor: pointer;
       &:hover {
@@ -18,7 +31,23 @@ export const AdvancedSearch = styled(Row)`
     }
   }
 
+  .label {
+    align-self: center;
+    margin-right: 0.5em;
+    font-size: 0.8em;
+  }
+
+  .label-expanded {
+    margin-right: 0.5em;
+    font-size: 0.8em;
+  }
+
+  .text-area {
+    width: 40em;
+  }
+
   .search-icon {
+    color: ${(props) => props.theme.css.inputGrey};
     &:hover {
       color: ${(props) => props.theme.css.subscriberPurple};
       cursor: pointer;
@@ -31,7 +60,10 @@ export const AdvancedSearch = styled(Row)`
     }
   }
   .search-bar {
-    background-color: ${(props) => props.theme.css.inputGrey};
+    align-self: center;
+    border-color: ${(props) => props.theme.css.inputGrey};
+    border-style: solid;
+    border-width: 1px;
     border-radius: 1.3em;
     padding: 0.3em;
     .frm-in {
@@ -46,7 +78,7 @@ export const AdvancedSearch = styled(Row)`
   }
   .search-input {
     border: none;
-    background-color: ${(props) => props.theme.css.inputGrey};
+    width: 30.5em;
     margin-top: auto;
     margin-bottom: auto;
     padding: 0;
@@ -58,6 +90,7 @@ export const AdvancedSearch = styled(Row)`
 
   .use-text {
     margin-left: auto;
+    margin-top: 1.05em;
     color: red;
     &:hover {
       text-decoration: underline;
@@ -67,16 +100,13 @@ export const AdvancedSearch = styled(Row)`
   }
 
   .back-text {
+    margin-left: auto;
     color: red;
     &:hover {
       text-decoration: underline;
     }
     font-size: 0.8em;
     cursor: pointer;
-  }
-
-  .space-top {
-    margin-top: 0.5em;
   }
 
   .search-in-group {
@@ -100,6 +130,7 @@ export const AdvancedSearch = styled(Row)`
     .options {
       label {
         align-self: center;
+        margin-left: 0.5em;
       }
       margin-top: 0.5em;
       font-size: 0.8em;
@@ -164,11 +195,34 @@ export const AdvancedSearch = styled(Row)`
   }
 
   .search-button {
-    margin-left: auto;
-    margin-top: 2em;
+    height: 30px;
+    margin-left: 0.5em;
+    align-self: center;
+    font-weight: 200;
+    font-size: 0.8em;
     background-color: ${(props) => props.theme.css.subscriberPurple};
-    border-radius: 2em;
+    border-radius: 0.5em;
     border: none;
+    svg {
+      align-self: center;
+      margin-left: 0.5em;
+    }
+  }
+
+  .search-button-expanded {
+    height: 30px;
+    margin-top: 0.5em;
+    margin-left: auto;
+    align-self: center;
+    font-weight: 200;
+    font-size: 0.8em;
+    background-color: ${(props) => props.theme.css.subscriberPurple};
+    border-radius: 0.5em;
+    border: none;
+    svg {
+      align-self: center;
+      margin-left: 0.5em;
+    }
   }
 
   .date-range {

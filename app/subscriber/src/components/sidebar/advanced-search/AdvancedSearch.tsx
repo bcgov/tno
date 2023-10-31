@@ -1,7 +1,7 @@
 import { makeFilter } from 'features';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
-import { FaRegSmile, FaSearch } from 'react-icons/fa';
+import { FaPlay, FaRegSmile, FaSearch } from 'react-icons/fa';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import {
   IoIosArrowDropdownCircle,
@@ -11,7 +11,7 @@ import {
 } from 'react-icons/io';
 import { useNavigate } from 'react-router';
 import { useParams } from 'react-router-dom';
-import { Button, Col, Row, Show, Text, toQueryString } from 'tno-core';
+import { Button, Col, Row, Show, Text, TextArea, toQueryString } from 'tno-core';
 
 import {
   DateSection,
@@ -112,8 +112,9 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
     <styled.AdvancedSearch>
       <Show visible={expanded}>
         <Row className="top-bar">
+          <div className="title">Advanced Search</div>
           <p onClick={() => setExpanded(false)} className="back-text">
-            {`<< Back to basic search`}
+            BACK TO BASIC
           </p>
           <IoMdRefresh
             className="reset"
@@ -125,22 +126,43 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
           />
         </Row>
       </Show>
-      <Row className="search-bar space-top">
-        <GiHamburgerMenu />
-        <Text
-          width="10.5em"
-          className="search-input"
-          placeholder="Search for..."
-          onKeyDown={enterPressed}
-          value={advancedSearch?.searchTerm}
-          name="search"
-          onChange={(e) => setAdvancedSearch({ ...advancedSearch, searchTerm: e.target.value })}
-        />
-        <FaSearch onClick={() => handleSearch()} className="search-icon" />
+      <Row className="search-for-row">
+        <label className={expanded ? 'label-expanded' : 'label'}>SEARCH FOR: </label>
+        <Show visible={!expanded}>
+          <Row className="search-bar space-top">
+            <FaSearch onClick={() => handleSearch()} className="search-icon" />
+            <Text
+              className="search-input"
+              onKeyDown={enterPressed}
+              value={advancedSearch?.searchTerm}
+              name="search"
+              onChange={(e) => setAdvancedSearch({ ...advancedSearch, searchTerm: e.target.value })}
+            />
+          </Row>
+        </Show>
+        <Show visible={expanded}>
+          <TextArea
+            value={advancedSearch?.searchTerm}
+            className="text-area"
+            onKeyDown={enterPressed}
+            name="search"
+            onChange={(e) => setAdvancedSearch({ ...advancedSearch, searchTerm: e.target.value })}
+          />
+        </Show>
+        <Show visible={!expanded}>
+          <Button
+            className="search-button"
+            onClick={() => {
+              handleSearch();
+            }}
+          >
+            Search <FaPlay />
+          </Button>
+        </Show>
       </Row>
       <Show visible={!expanded}>
         <p onClick={() => setExpanded(true)} className="use-text">
-          Use advanced search
+          GO ADVANCED
         </p>
       </Show>
       <Show visible={expanded}>
@@ -273,9 +295,10 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ expanded, setEx
           onClick={() => {
             handleSearch();
           }}
-          className="search-button"
+          className="search-button-expanded"
         >
           Search
+          <FaPlay />
         </Button>
       </Show>
     </styled.AdvancedSearch>

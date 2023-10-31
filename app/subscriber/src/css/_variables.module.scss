@@ -1,6 +1,5 @@
 @import './_colors';
 @import './_fonts';
-
 :export {
   actionButtonColor: $action-button-color;
   backgroundColor: $background-color;
@@ -29,12 +28,11 @@
   borderColor: $border-color;
   actionIconColor: $action-icon-color;
   activeTabColor: $active-tab-color;
-
   productionBackgroundColor: $production-background-color;
   developmentBackgroundColor: $development-background-color;
   testBackgroundColor: $test-background-color;
-
   // Subscriber
+  redHeadingColor: $red-heading-color;
   beigeBackgroundColor: $beige-background-color;
   darkHeaderColor: $dark-header-color;
   itemActiveColor: $item-active-color;
@@ -51,18 +49,15 @@
   bsGray500: $bs-gray-500;
   searchItemHover: $search-item-hover;
   subscriberPurple: $subscriber-purple;
-
   // Table
   tableColor: $table-color;
   tableHeaderColor: $table-header-color;
   tableEvenRowColor: $table-even-row-color;
   tableOddRowColor: $table-odd-row-color;
-
   // Form
   formBackgroundColor: $form-background-color;
   dropdownBackgroundColor: $dropdown-background-color;
   inputRequiredBorderColor: $input-required-border-color;
-
   primary: $bs-primary;
   secondary: $bs-secondary;
   success: $bs-success;
@@ -71,7 +66,6 @@
   danger: $bs-danger;
   light: $bs-light;
   dark: $bs-dark;
-
   primaryRgb: $bs-primary-rgb;
   secondaryRgb: $bs-secondary-rgb;
   successRgb: $bs-success-rgb;
@@ -83,6 +77,5 @@
   whiteRgb: $bs-white-rgb;
   blackRgb: $bs-black-rgb;
   textOpacity: $bs-text-opacity;
-
   bcSans: $bc-sans;
 }
