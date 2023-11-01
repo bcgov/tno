@@ -144,6 +144,8 @@ public class ImageAction : IngestAction<ImageOptions>
 
             // Directory gets created as part of unzip action, if it doesnt exist, then no files will be there...
             if (Directory.Exists(outputPath)) {
+                bool isNewSourceContent = false;
+                bool isUpdatedSourceContent = false;
                 // We're only interested in the files that were copied.
                 var localFiles = Directory.GetFiles(outputPath);
                 localFiles = localFiles.Where(path => match.Match(path).Success).ToArray();
@@ -154,18 +156,35 @@ public class ImageAction : IngestAction<ImageOptions>
                     var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, newReference.Uid);
                     if (reference == null)
                     {
+                        isNewSourceContent = true;
                         reference = await this.Api.AddContentReferenceAsync(newReference);
+                        Logger.LogDebug($"Image Ingest : ADD NEW : [{manager.Ingest.IngestType?.Name ?? "Image"} - {manager.Ingest.Name}] : {path}");
+                    } else {
+                        // if we already have a contentReference, check if this is actually an update to the image
+                        if (newReference.PublishedOn > reference.PublishedOn)
+                        {
+                            isUpdatedSourceContent = true;
+                            // update the existing refernce published on date with the new date
+                            reference.PublishedOn = newReference.PublishedOn;
+
+                            Logger.LogDebug($"Image Ingest : UPDATE : [{manager.Ingest.IngestType?.Name ?? "Image"} - {manager.Ingest.Name}] : {path}");
+                        } else {
+                            Logger.LogDebug($"Image Ingest : SKIP EXISTING : [{manager.Ingest.IngestType?.Name ?? "Image"} - {manager.Ingest.Name}] : {path}");
+                        }
                     }
-                    else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
+
+                    if (isUpdatedSourceContent || (reference != null && reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow))
                     {
                         // If another process has it in progress only attempt to do an import if it's
                         // more than an 5 minutes old. Assumption is that it is stuck.
                         reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
                     }
-                    else continue;
 
-                    reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
-                    if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, fileName));
+                    if (isNewSourceContent || isUpdatedSourceContent) {
+                        reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
+                        if (reference != null)
+                            await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, fileName));
+                    }
                 }
             }
         }
@@ -335,7 +354,7 @@ public class ImageAction : IngestAction<ImageOptions>
         return new ContentReferenceModel()
         {
             Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code."),
-            Uid = GetContentHash(ingest.Source.Code, filename, publishedOn),
+            Uid = GetContentHash(ingest.Source.Code, $"{ingest.IngestType?.Name ?? "Image"} : {ingest.Name}", publishedOn),
             PublishedOn = publishedOn,
             Topic = ingest.Topic,
             Status = (int)WorkflowStatus.InProgress,
@@ -356,6 +375,8 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <returns></returns>
     new string GetContentHash(string source, string headline, DateTime? publishedOn)
     {
+        // if we get to a stage where we can ingest multiple DIFFERENT
+        // images per day from an ingest this has will have to be changed
         var date = publishedOn.HasValue ? $"{publishedOn:yyyy-MM-dd}" : "";
         string hashInput = $"{source}:{headline}:{date}";
         var inputBytes = Encoding.UTF8.GetBytes(hashInput);
