@@ -2,13 +2,7 @@ import { Sentiment } from 'components/sentiment';
 import { useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
-import {
-  DragDropContext,
-  Draggable,
-  Droppable,
-  DropResult,
-  ResponderProvided,
-} from 'react-beautiful-dnd';
+import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaGripVertical } from 'react-icons/fa';
 import { FaX } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
@@ -57,29 +51,6 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
       },
       [setFieldValue, updateReportInstance, values.instances],
     );
-
-    /** function that runs after a user drops an item in the list */
-    const handleDrop = React.useCallback(
-      (result: DropResult, provided: ResponderProvided) => {
-        if (!result.destination) {
-          return;
-        }
-        if (instance) {
-          var instanceContent = instance.content.filter((ci) => ci.sectionName !== section.name);
-          var sourceItems = instance.content.filter((ic) => ic.sectionName === section.name);
-          const [reorderedItem] = sourceItems.splice(result.source.index, 1);
-          sourceItems.splice(result.destination.index, 0, reorderedItem);
-          const reorderedContent = sourceItems.map((item, index) => ({
-            ...item,
-            sortOrder: index,
-          }));
-          instanceContent = [...instanceContent, ...reorderedContent];
-          setFieldValue(`instances.0.content`, instanceContent);
-        }
-      },
-      [instance, section.name, setFieldValue],
-    );
-
     return (
       <Col gap="0.5rem">
         <Show visible={showForm}>
@@ -93,73 +64,69 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
           <p>Folder is empty.</p>
         </Show>
         <Show visible={!!instance?.content.length}>
-          <DragDropContext onDragEnd={handleDrop}>
-            <Droppable droppableId={section.name}>
-              {(provided) => (
-                <div
-                  className="section-container"
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                >
-                  {instance?.content
-                    .filter((ic) => ic.sectionName === section.name)
-                    .map((ic, index) => {
-                      return (
-                        <Draggable key={index} draggableId={index.toString()} index={index}>
-                          {(provided) => (
-                            <div
-                              key={`${section.id}-${index}`}
-                              className="content-row"
-                              ref={provided.innerRef}
-                              {...provided.dragHandleProps}
-                              {...provided.draggableProps}
-                            >
-                              <Row
-                                key={`${section.id}-${ic.contentId}`}
-                                className="section-content"
-                              >
-                                <div>
-                                  <FaGripVertical />
-                                </div>
-                                <div>
-                                  {ic.content?.byline
-                                    ? ic.content.byline
-                                    : ic.content?.contributor?.name}
-                                </div>
-                                <div>{ic.content?.headline}</div>
-                                <div>{ic.content?.otherSource}</div>
-                                <div>
-                                  {ic.content?.section}
-                                  {ic.content?.page ? `:${ic.content.page}` : ''}
-                                </div>
-                                <div>
-                                  {ic.content?.publishedOn
-                                    ? moment(ic.content?.publishedOn).format('yyyy-MM-DD')
-                                    : ''}
-                                </div>
-                                <div>
-                                  <Sentiment
-                                    value={ic.content?.tonePools?.[0]?.value}
-                                    title={`${ic.content?.tonePools?.[0]?.value ?? ''}`}
-                                  />
-                                </div>
-                                <div>
-                                  <FaX
-                                    className="btn btn-link error"
-                                    onClick={() => handleRemoveContent(instance, ic)}
-                                    title="Remove"
-                                  />
-                                </div>
-                              </Row>
-                            </div>
-                          )}
-                        </Draggable>
-                      );
-                    })}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+          <Droppable droppableId={section.name}>
+            {(droppableProvided) => (
+              <div
+                className="section-container"
+                {...droppableProvided.droppableProps}
+                ref={droppableProvided.innerRef}
+              >
+                {instance?.content
+                  .filter((ic) => ic.sectionName === section.name)
+                  .map((ic, index) => {
+                    return (
+                      <Draggable key={ic.contentId} draggableId={`${ic.contentId}`} index={index}>
+                        {(provided) => (
+                          <div
+                            key={`${section.id}-${index}`}
+                            className="content-row"
+                            ref={provided.innerRef}
+                            {...provided.dragHandleProps}
+                            {...provided.draggableProps}
+                          >
+                            <Row key={`${section.id}-${ic.contentId}`} className="section-content">
+                              <div>
+                                <FaGripVertical />
+                              </div>
+                              <div>
+                                {ic.content?.byline
+                                  ? ic.content.byline
+                                  : ic.content?.contributor?.name}
+                              </div>
+                              <div>{ic.content?.headline}</div>
+                              <div>{ic.content?.otherSource}</div>
+                              <div>
+                                {ic.content?.section}
+                                {ic.content?.page ? `:${ic.content.page}` : ''}
+                              </div>
+                              <div>
+                                {ic.content?.publishedOn
+                                  ? moment(ic.content?.publishedOn).format('yyyy-MM-DD')
+                                  : ''}
+                              </div>
+                              <div>
+                                <Sentiment
+                                  value={ic.content?.tonePools?.[0]?.value}
+                                  title={`${ic.content?.tonePools?.[0]?.value ?? ''}`}
+                                />
+                              </div>
+                              <div>
+                                <FaX
+                                  className="btn btn-link error"
+                                  onClick={() => handleRemoveContent(instance, ic)}
+                                  title="Remove"
+                                />
+                              </div>
+                            </Row>
+                          </div>
+                        )}
+                      </Draggable>
+                    );
+                  })}
+                {droppableProvided.placeholder}
+              </div>
+            )}
+          </Droppable>
         </Show>
       </Col>
     );
