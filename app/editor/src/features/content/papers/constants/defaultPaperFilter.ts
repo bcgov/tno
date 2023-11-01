@@ -13,7 +13,7 @@ export const defaultPaperFilter = (sources: ISourceModel[] = []): IContentListFi
   return {
     pageIndex: defaultPage.pageIndex,
     pageSize: defaultPage.pageSize,
-    contentTypes: [ContentTypeName.PrintContent, ContentTypeName.Image],
+    contentTypes: [ContentTypeName.PrintContent],
     hasTopic: false,
     isHidden: false,
     onlyPublished: false,
