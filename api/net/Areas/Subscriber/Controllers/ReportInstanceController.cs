@@ -164,7 +164,7 @@ public class ReportInstanceController : ControllerBase
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    [HttpPost("{id}/preview")]
+    [HttpPost("{id}/view")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportResultModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
