@@ -1,5 +1,5 @@
-using System.Text.Json;
 using System.Collections.Concurrent;
+using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -168,7 +168,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
             var consumeResult = this.Consumer!.Consume(cancellationToken);
             if (consumeResult != null)
             {
-                _logger.LogInformation("Message received from Kafka topic: '{topic}' key:'{key}'", consumeResult.Topic, consumeResult.Message.Key);
+                _logger.LogDebug("Message received from Kafka topic: '{topic}' key:'{key}'", consumeResult.Topic, consumeResult.Message.Key);
                 if (this.IsLongRunningJob)
                 {
                     var current = consumeResult;
