@@ -119,13 +119,14 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const source = sources.find((s) => s.id === form.sourceId);
   const program = series.find((s) => s.id === form.seriesId);
 
-  const setHours = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const getHours = (e: React.ChangeEvent<HTMLInputElement>) => {
     const date = new Date(form.publishedOn);
     const hours = e.target.value?.split(':');
     if (!!hours && !!e.target.value && !e.target.value.includes('_')) {
       date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
-      setForm({ ...form, publishedOn: moment(date.toISOString()).format('MMM D, yyyy HH:mm:ss') });
+      return date;
     }
+    return null;
   };
 
   React.useEffect(() => {
@@ -410,11 +411,23 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                 onBlur={(e) => {
                                   if (e.target.value.indexOf('_')) {
                                     e.target.value = e.target.value.replaceAll('_', '0');
-                                    setHours(e);
+                                  }
+                                  const date = getHours(e);
+                                  if (!!date) {
+                                    props.setFieldValue(
+                                      'publishedOnTime',
+                                      moment(date).format('HH:mm:ss'),
+                                    );
                                   }
                                 }}
                                 onChange={(e) => {
-                                  setHours(e);
+                                  const date = getHours(e);
+                                  if (!!date) {
+                                    props.setFieldValue(
+                                      'publishedOnTime',
+                                      moment(date).format('HH:mm:ss'),
+                                    );
+                                  }
                                 }}
                               />
                             </Show>
