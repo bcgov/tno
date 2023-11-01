@@ -69,7 +69,6 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
       } else if (key === 'startDate' || key === 'endDate') {
         values = { ...values, dateOffset: undefined };
       }
-      values = { ...values, validDateOffset: key === 'dateOffset' && value === 3 };
       if (defaultPath) setFieldValue(defaultPath, values);
       else setValues(values);
       onChange?.(values);

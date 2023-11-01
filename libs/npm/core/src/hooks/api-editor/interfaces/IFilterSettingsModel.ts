@@ -32,5 +32,4 @@ export interface IFilterSettingsModel {
   tags?: string[];
   sentiment?: number[];
   sort?: ISortField[];
-  validDateOffset?: boolean;
 }
