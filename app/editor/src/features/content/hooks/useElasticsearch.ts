@@ -31,7 +31,11 @@ export const useElasticsearch = () => {
         startDate: filter.startDate ? moment(filter.startDate).toISOString() : undefined,
         endDate: filter.endDate ? moment(filter.endDate).toISOString() : undefined,
         dateOffset:
-          filter.startDate || filter.endDate ? undefined : filter.timeFrame ? +filter.timeFrame : 0,
+          filter.startDate || filter.endDate || filter.timeFrame === 3
+            ? undefined
+            : filter.timeFrame
+            ? +filter.timeFrame
+            : 0,
         actions: getActionFilters(filter, actions),
         seriesIds: [],
         contributorIds: [],
