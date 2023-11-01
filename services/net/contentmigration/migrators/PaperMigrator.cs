@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.CommandLine.Parsing;
+using System.Net;
 using LinqKit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -49,8 +50,8 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         Logger.LogDebug("NewItem.RSN: {rsn}, PublishedDateTime: {publishedDateTime}, ToUtc: {publishedDateTimeInUtc}", newsItem.RSN, publishedOnInDefaultTimeZone, publishedOnInUtc);
 
         var newsItemTitle = newsItem.GetTitle();
-        var sanitizedSummary = SanitizeLineBreaks(newsItem.Summary);
-        var sanitizedBody = SanitizeLineBreaks(newsItem.Text);
+        var sanitizedSummary = TNO.Core.Extensions.StringExtensions.ConvertTextToParagraphs(newsItem.Summary, @"\r\n?|\n|\|");
+        var sanitizedBody = TNO.Core.Extensions.StringExtensions.ConvertTextToParagraphs(newsItem.Text, @"\r\n?|\n|\|");
         if (string.IsNullOrEmpty(sanitizedBody)) sanitizedBody = sanitizedSummary;
 
         var content = new SourceContent(

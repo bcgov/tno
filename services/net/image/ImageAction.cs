@@ -1,6 +1,8 @@
 using System;
 using System.Globalization;
 using System.IO.Compression;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -341,6 +343,24 @@ public class ImageAction : IngestAction<ImageOptions>
                 { ContentReferenceMetaDataKeys.MetadataKeyIngestSource, ingest.Source!.Code }
             }
         };
+    }
+
+
+    /// <summary>
+    /// Create a unique hash for the specified 'source', 'headline', and 'publishedOn'
+    /// Override the base method here as we dont want to be quite so specific with the date
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="headline"></param>
+    /// <param name="publishedOn"></param>
+    /// <returns></returns>
+    new string GetContentHash(string source, string headline, DateTime? publishedOn)
+    {
+        var date = publishedOn.HasValue ? $"{publishedOn:yyyy-MM-dd}" : "";
+        string hashInput = $"{source}:{headline}:{date}";
+        var inputBytes = Encoding.UTF8.GetBytes(hashInput);
+        var inputHash = SHA256.HashData(inputBytes);
+        return Convert.ToHexString(inputHash);
     }
 
     /// <summary>

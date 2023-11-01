@@ -400,12 +400,10 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 var cleaned = matches[0].Groups[1].Value
                     .ReplaceLast("&nbsp;", "")
                     .Replace("\r", "");
-                var paragraphs = cleaned.Split("\n\n|").Where(t => !String.IsNullOrWhiteSpace(t)).ToArray();
-                cleaned = String.Join("", (paragraphs.Length > 1) ? paragraphs.Select(t => $"<p>{t}</p>") : paragraphs);
 
-                paragraphs = cleaned.Split("\n\n").Where(t => !String.IsNullOrWhiteSpace(t)).ToArray();
-                cleaned = String.Join("", (paragraphs.Length > 1) ? paragraphs.Select(t => t.StartsWith("<p>") ? t : $"<p>{t}</p>") : paragraphs);
+                cleaned = StringExtensions.ConvertTextToParagraphs(cleaned, @"\n{2,}\|?");
 
+                // remove any single new-line characters with space as extraneous
                 return cleaned.Replace("\n", " ").Trim();
             }
             else
