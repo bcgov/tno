@@ -22,7 +22,7 @@ import {
   useModal,
 } from 'tno-core';
 
-import { defaultNotification } from './constants';
+import { defaultNotification, defaultNotificationTemplate } from './constants';
 import { NotificationFilterForm } from './NotificationFilterForm';
 import { NotificationFormDetails } from './NotificationFormDetails';
 import { NotificationFormPreview } from './NotificationFormPreview';
@@ -45,7 +45,7 @@ const NotificationForm: React.FC = () => {
   const { toggle, isShowing } = useModal();
 
   const [Notification, setNotification] = React.useState<INotificationModel>(
-    (state as any)?.Notification ?? { ...defaultNotification, ownerId: userInfo?.id ?? 0 },
+    (state as any)?.Notification ?? { ...defaultNotification, ownerId: userInfo?.id },
   );
   const [active, setActive] = React.useState('Notification');
 
@@ -64,15 +64,24 @@ const NotificationForm: React.FC = () => {
     async (values: INotificationModel) => {
       try {
         const originalId = values.id;
+        const notification: INotificationModel = values.templateId
+          ? values
+          : {
+              ...values,
+              template: {
+                ...(values.template ?? defaultNotificationTemplate),
+                name: `${values.name}-${Date.now().toString()}`,
+              },
+            };
         const result = !Notification.id
-          ? await addNotification(values)
-          : await updateNotification(values);
+          ? await addNotification({ ...notification, ownerId: userInfo?.id })
+          : await updateNotification(notification);
         setNotification(result);
         toast.success(`${result.name} has successfully been saved.`);
         if (!originalId) navigate(`/admin/Notifications/${result.id}`);
       } catch {}
     },
-    [Notification.id, addNotification, navigate, updateNotification],
+    [Notification.id, addNotification, navigate, updateNotification, userInfo?.id],
   );
 
   return (
