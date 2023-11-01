@@ -167,14 +167,13 @@ public class ImageAction : IngestAction<ImageOptions>
                             // update the existing refernce published on date with the new date
                             reference.PublishedOn = newReference.PublishedOn;
 
-                            // What about the worst case scenario: one Editor changes it in MMI and another Editor changes it in TNO?
                             Logger.LogDebug($"Image Ingest : UPDATE : [{manager.Ingest.IngestType?.Name ?? "Image"} - {manager.Ingest.Name}] : {path}");
                         } else {
                             Logger.LogDebug($"Image Ingest : SKIP EXISTING : [{manager.Ingest.IngestType?.Name ?? "Image"} - {manager.Ingest.Name}] : {path}");
                         }
                     }
 
-                    if (isUpdatedSourceContent || (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow))
+                    if (isUpdatedSourceContent || (reference != null && reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow))
                     {
                         // If another process has it in progress only attempt to do an import if it's
                         // more than an 5 minutes old. Assumption is that it is stuck.
@@ -183,7 +182,8 @@ public class ImageAction : IngestAction<ImageOptions>
 
                     if (isNewSourceContent || isUpdatedSourceContent) {
                         reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
-                        await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, fileName));
+                        if (reference != null)
+                            await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, fileName));
                     }
                 }
             }
