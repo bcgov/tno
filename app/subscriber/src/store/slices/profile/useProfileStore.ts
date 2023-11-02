@@ -31,7 +31,6 @@ export interface IProfileStore {
   storeSystemMessages: (
     ministers: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
   ) => void;
-  storeSources: (sources: ISourceModel[] | ActionDelegate<ISourceModel[]>) => void;
 }
 
 export const useProfileStore = (): [IProfileState, IProfileStore] => {
@@ -73,10 +72,6 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
         if (typeof systemMessages === 'function') {
           dispatch(storeSystemMessages(systemMessages(state.systemMessages)));
         } else dispatch(storeSystemMessages(systemMessages));
-      },
-      storeSources: (sources: ISourceModel[] | ActionDelegate<ISourceModel[]>) => {
-        if (typeof sources === 'function') {
-        } else dispatch(storeSources(sources));
       },
     }),
     [

@@ -50,6 +50,24 @@ export const PressGallery: React.FC = () => {
     [findContentWithElasticsearch],
   );
 
+  /** separate requests to find total hits for each press member */
+  const fetchResultHits = React.useCallback(
+    async (filter: MsearchMultisearchBody, name?: string, date?: string) => {
+      try {
+        const res: any = await findContentWithElasticsearch(filter, false);
+        if (!!name)
+          setPressMembers((pressMembers) =>
+            pressMembers.map((c) => (c.name === name ? { ...c, hits: res.hits.total.value } : c)),
+          );
+        if (!!date)
+          setDateOptions((dates) =>
+            dates.map((d) => (d.value === date ? { ...d, hits: res.hits.total.value } : d)),
+          );
+      } catch {}
+    },
+    [findContentWithElasticsearch],
+  );
+
   React.useEffect(() => {
     const dates = generateDates();
     setDateOptions(dates);
@@ -75,6 +93,7 @@ export const PressGallery: React.FC = () => {
 
   React.useEffect(() => {
     // only fetch once the aliases are ready
+    console.log(aliases);
     !!aliases.length &&
       fetchResults(
         generateQuery({
@@ -104,39 +123,21 @@ export const PressGallery: React.FC = () => {
   }, [pressMembers.length]);
 
   React.useEffect(() => {
-    dateOptions.forEach((date) => {
-      fetchResultHits(
-        generateQuery({
-          ...pressSettings,
-          search: aliases.toString().split(',').join(' '),
-          startDate: `${moment(date.value).startOf('day')}`,
-          endDate: `${moment(date.value).endOf('day')}`,
-        }),
-        '',
-        String(date.value),
-      );
-    });
-    // only want to run when date options are loaded
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dateOptions.length]);
-
-  /** separate requests to find total hits for each press member */
-  const fetchResultHits = React.useCallback(
-    async (filter: MsearchMultisearchBody, name?: string, date?: string) => {
-      try {
-        const res: any = await findContentWithElasticsearch(filter, false);
-        if (!!name)
-          setPressMembers((pressMembers) =>
-            pressMembers.map((c) => (c.name === name ? { ...c, hits: res.hits.total.value } : c)),
-          );
-        if (!!date)
-          setDateOptions((dates) =>
-            dates.map((d) => (d.value === date ? { ...d, hits: res.hits.total.value } : d)),
-          );
-      } catch {}
-    },
-    [findContentWithElasticsearch],
-  );
+    !!aliases.length &&
+      dateOptions.forEach((date) => {
+        fetchResultHits(
+          generateQuery({
+            ...pressSettings,
+            defaultSearchOperator: 'or',
+            search: aliases.toString().split(',').join(' '),
+            startDate: `${moment(date.value).startOf('day')}`,
+            endDate: `${moment(date.value).endOf('day')}`,
+          }),
+          '',
+          String(date.value),
+        );
+      });
+  }, [dateOptions.length, aliases, pressSettings, fetchResultHits]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
