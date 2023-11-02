@@ -53,14 +53,14 @@ export interface ILookupStore {
   updateCache: (cache: ICacheModel) => void;
   storeActions: (actions: IActionModel[]) => void;
   storeTopics: (topics: ITopicModel[]) => void;
-  storeProducts: (contentTypes: IProductModel[]) => void;
+  storeProducts: (products: IProductModel[]) => void;
   storeSources: (sources: ISourceModel[]) => void;
   storeLicenses: (licenses: ILicenseModel[]) => void;
   storeSeries: (series: ISeriesModel[]) => void;
   storeContributors: (contributors: IContributorModel[]) => void;
   storeSourceActions: (actions: ISourceActionModel[]) => void;
   storeTags: (tags: ITagModel[]) => void;
-  storeTonePools: (contentTypes: ITonePoolModel[]) => void;
+  storeTonePools: (tonePools: ITonePoolModel[]) => void;
   storeHolidays: (users: IHolidayModel[]) => void;
   storeMinisters: (ministers: IMinisterModel[]) => void;
   storeTopicScoreRules: (topicScores: ITopicScoreRuleModel[]) => void;
@@ -93,8 +93,8 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       storeTopicScoreRules: (rules: ITopicScoreRuleModel[]) => {
         dispatch(storeRules(rules));
       },
-      storeProducts: (contentTypes: IProductModel[]) => {
-        dispatch(storeProducts(contentTypes));
+      storeProducts: (products: IProductModel[]) => {
+        dispatch(storeProducts(products));
       },
       storeSources: (sources: ISourceModel[]) => {
         dispatch(storeSources(sources));

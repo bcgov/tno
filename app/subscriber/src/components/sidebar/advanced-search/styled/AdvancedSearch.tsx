@@ -42,10 +42,6 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     font-size: 0.8em;
   }
 
-  .text-area {
-    /* width: 40em; */
-  }
-
   .search-icon {
     color: ${(props) => props.theme.css.inputGrey};
     &:hover {
@@ -117,6 +113,14 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   .option-row {
     &:hover {
       cursor: pointer;
+    }
+  }
+
+  .initial-row {
+    width: 100%;
+    display: flex;
+    .drop-icon {
+      margin-left: auto;
     }
   }
 

@@ -76,7 +76,6 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
       },
       storeSources: (sources: ISourceModel[] | ActionDelegate<ISourceModel[]>) => {
         if (typeof sources === 'function') {
-          dispatch(storeSources(sources(state.sources)));
         } else dispatch(storeSources(sources));
       },
     }),
@@ -88,7 +87,6 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
       state.myMinisters,
       state.systemMessages,
       state.contributors,
-      state.sources,
     ],
   );
 

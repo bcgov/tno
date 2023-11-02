@@ -1,3 +1,10 @@
 {
-  "frontPageId": 11
+  "frontPageId": 11,
+  "dailyPrintId": 1,
+  "weeklyPrintId": 2,
+  "onlinePrintId": 3,
+  "newsRadioId": 4,
+  "talkRadioId": 5,
+  "televisionId": 6,
+  "cpWireId": 7
 }

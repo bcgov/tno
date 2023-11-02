@@ -13,7 +13,7 @@ import React from 'react';
 import { FaPlay, FaSave, FaStop } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useContent, useFilters } from 'store/hooks';
+import { useContent, useFilters, useLookup } from 'store/hooks';
 import {
   Checkbox,
   Col,
@@ -36,6 +36,7 @@ export const SearchPage: React.FC = () => {
   const [, { findContentWithElasticsearch }] = useContent();
   const navigate = useNavigate();
   const [, { addFilter }] = useFilters();
+  const [{ actions }] = useLookup();
 
   const params = useParams();
   const [searchItems, setSearchItems] = React.useState<IContentModel[]>([]);
@@ -78,7 +79,7 @@ export const SearchPage: React.FC = () => {
         endDate: urlParams.get('publishedEndOn') ?? '',
         storyText: urlParams.get('storyText') ?? '',
         boldKeywords: urlParams.get('boldKeywords') === 'true' ?? '',
-        topStory: urlParams.get('actions') === 'Top Story' ?? '',
+        topStory: urlParams.get('actions') === 'Top Story' ?? false,
         sort: [],
       };
       // only want this to update when the query changes
@@ -135,8 +136,8 @@ export const SearchPage: React.FC = () => {
   const saveSearch = React.useCallback(async () => {
     const data = await addFilter({
       name: searchName,
-      query: generateQuery(filterFormat(advancedSubscriberFilter)),
-      settings: { ...filterFormat(advancedSubscriberFilter) },
+      query: generateQuery(filterFormat(advancedSubscriberFilter, actions)),
+      settings: { ...filterFormat(advancedSubscriberFilter, actions) },
       id: 0,
       sortOrder: 0,
       description: '',
@@ -145,11 +146,11 @@ export const SearchPage: React.FC = () => {
       folders: [],
     });
     toast.success(`${data.name} has successfully been saved.`);
-  }, [advancedSubscriberFilter, searchName, addFilter]);
+  }, [advancedSubscriberFilter, searchName, addFilter, actions]);
 
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
-    fetchResults(generateQuery(filterFormat(advancedSubscriberFilter)));
+    fetchResults(generateQuery(filterFormat(advancedSubscriberFilter, actions)));
     // only run when query changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.query]);

@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const SearchPage = styled.div`
-  max-height: calc(100vh);
+  max-height: 100vh;
   overflow: none;
   .add-page {
     margin-left: auto;

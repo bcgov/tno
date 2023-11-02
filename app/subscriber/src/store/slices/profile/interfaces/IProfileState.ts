@@ -3,7 +3,6 @@ import {
   IFilterModel,
   IFolderModel,
   IMinisterModel,
-  ISourceModel,
   ISystemMessageModel,
   IUserModel,
 } from 'tno-core';
@@ -15,5 +14,4 @@ export interface IProfileState {
   myMinisters: IMinisterModel[];
   contributors: IContributorModel[];
   systemMessages: ISystemMessageModel[];
-  sources: ISourceModel[];
 }

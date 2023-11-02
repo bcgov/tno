@@ -228,7 +228,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
             />
           </Col>
           <Col className={`sentiment-group ${sentimentExpanded ? 'expanded' : ''}`}>
-            <Row className="option-row">
+            <Row className="option-row" onClick={() => setSentimentExpanded(!sentimentExpanded)}>
               <FaRegSmile />
               Sentiment
               {!sentimentExpanded ? (
@@ -254,19 +254,21 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
           <Col className="section">
             <b>Display options:</b>
             <Row className="search-options-group option-row">
-              <IoIosCog />
-              Search result options
-              {!optionsExpanded ? (
-                <IoIosArrowDroprightCircle
-                  className="drop-icon"
-                  onClick={() => setOptionsExpanded(true)}
-                />
-              ) : (
-                <IoIosArrowDropdownCircle
-                  onClick={() => setOptionsExpanded(false)}
-                  className="drop-icon"
-                />
-              )}
+              <div className="initial-row" onClick={() => setOptionsExpanded(!optionsExpanded)}>
+                <IoIosCog />
+                Search result options
+                {!optionsExpanded ? (
+                  <IoIosArrowDroprightCircle
+                    className="drop-icon"
+                    onClick={() => setOptionsExpanded(true)}
+                  />
+                ) : (
+                  <IoIosArrowDropdownCircle
+                    onClick={() => setOptionsExpanded(false)}
+                    className="drop-icon"
+                  />
+                )}
+              </div>
               <MoreOptions
                 advancedSearch={advancedSearch}
                 setAdvancedSearch={setAdvancedSearch}

@@ -1,24 +1,29 @@
 import React from 'react';
-import { useSources } from 'store/hooks/subscriber/useSources';
-import { ISourceModel } from 'tno-core';
+import { useLookup } from 'store/hooks';
 
 export const useFilterOptions = () => {
-  const [, api] = useSources();
-  const [sources, setSources] = React.useState<ISourceModel[]>([]);
+  const [{ sources }] = useLookup();
+  const [constants, setConstants] = React.useState<any>({});
 
   React.useEffect(() => {
-    api.findAllSources().then((res) => setSources(res));
+    fetch('/constants.json')
+      .then((res) => res.json())
+      .then((data) => {
+        setConstants(data);
+      });
     // only run once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const dailyPrint = sources.filter((source) => source.productId === 1);
-  const weeklyPrint = sources.filter((source) => source.productId === 2);
-  const cpWire = sources.filter((source) => source.productId === 7);
-  const talkRadio = sources.filter((source) => source.productId === 5);
-  const onlinePrint = sources.filter((source) => source.productId === 3);
-  const newsRadio = sources.filter((source) => source.productId === 4);
-  const television = sources.filter((source) => source.productId === 6);
+  React.useEffect(() => {}, []);
+
+  const dailyPrint = sources.filter((source) => source.productId === constants?.dailyPrintId);
+  const weeklyPrint = sources.filter((source) => source.productId === constants?.weeklyPrintId);
+  const cpWire = sources.filter((source) => source.productId === constants?.cpWireId);
+  const talkRadio = sources.filter((source) => source.productId === constants?.talkRadioId);
+  const onlinePrint = sources.filter((source) => source.productId === constants?.onlinePrintId);
+  const newsRadio = sources.filter((source) => source.productId === constants?.newsRadioId);
+  const television = sources.filter((source) => source.productId === constants?.televisionId);
   return {
     dailyPrint,
     weeklyPrint,
