@@ -137,7 +137,7 @@ export const PressGallery: React.FC = () => {
           String(date.value),
         );
       });
-  }, [dateOptions.length, aliases, pressSettings, fetchResultHits]);
+  }, [dateOptions.length, aliases, pressSettings, fetchResultHits, dateOptions]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {

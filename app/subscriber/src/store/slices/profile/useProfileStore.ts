@@ -5,12 +5,11 @@ import {
   IFilterModel,
   IFolderModel,
   IMinisterModel,
-  ISourceModel,
   ISystemMessageModel,
   IUserModel,
 } from 'tno-core';
 
-import { storeContributors, storeSources } from '../lookup';
+import { storeContributors } from '../lookup';
 import {
   storeMyFilters,
   storeMyFolders,
