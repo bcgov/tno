@@ -93,7 +93,6 @@ export const PressGallery: React.FC = () => {
 
   React.useEffect(() => {
     // only fetch once the aliases are ready
-    console.log(aliases);
     !!aliases.length &&
       fetchResults(
         generateQuery({
