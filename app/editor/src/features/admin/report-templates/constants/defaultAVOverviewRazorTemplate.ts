@@ -71,14 +71,14 @@ export const defaultAVOverviewBodyRazorTemplate = `@inherits RazorEngineCore.Raz
           AVOverviewItemType.Ad => "",
           _ => $"{item.Time}",
         };
-        var summary = String.IsNullOrEmpty(item.Summary) ? "---" : item.Summary;
+        var summary = String.IsNullOrEmpty(item.Summary) ? "---" : item.Summary.Replace("\n", "<br/>");
         <tr>
           <td class="small">@placement</td>
           <td class="small">@time</td>
           <td>
             @if (item.ContentId.HasValue)
             {
-              <a href="@($"{ViewContentUrl}{item.ContentId}")">@item.Summary</a>
+              <a href="@($"{ViewContentUrl}{item.ContentId}")">@summary</a>
             }
             else
             {
