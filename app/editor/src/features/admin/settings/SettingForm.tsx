@@ -82,7 +82,7 @@ const SettingForm: React.FC = () => {
             <Col className="form-inputs">
               <FormikText width={FieldSize.Large} name="name" label="Name" />
               <FormikTextArea name="description" label="Description" width={FieldSize.Large} />
-              <FormikText name="value" label="Value" />
+              <FormikTextArea name="value" label="Value" />
               <FormikText
                 width={FieldSize.Tiny}
                 name="sortOrder"
