@@ -1,4 +1,5 @@
 import React from 'react';
+import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';
 
 export const useFilterOptions = () => {
@@ -17,8 +18,17 @@ export const useFilterOptions = () => {
 
   React.useEffect(() => {
     if (settings.length) {
-      setMediaIds(JSON.parse(settings.find((s) => s.name === 'MediaIds')?.value ?? ''));
-      setPrintIds(JSON.parse(settings.find((s) => s.name === 'PrintIds')?.value ?? ''));
+      if (!settings.find((s) => s.name === 'MediaIds'))
+        toast.error(
+          'MediaIds not found, please contact support to set these through the editor app.',
+        );
+      if (!settings.find((s) => s.name === 'PrintIds'))
+        toast.error(
+          'PrintIds not found, please contact support to set these through the editor app.',
+        );
+
+      setMediaIds(JSON.parse(settings.find((s) => s.name === 'MediaIds')?.value ?? '{}'));
+      setPrintIds(JSON.parse(settings.find((s) => s.name === 'PrintIds')?.value ?? '{}'));
     }
   }, [settings]);
 
