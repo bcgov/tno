@@ -1,5 +1,5 @@
 import React from 'react';
-import { Checkbox, Row, Show } from 'tno-core';
+import { Checkbox, Row } from 'tno-core';
 
 import { IAdvancedSearchFilter } from '../interfaces';
 
@@ -35,26 +35,25 @@ export const SearchInGroup: React.FC<ISearchInGroupProps> = ({
   }, [searchInOptions]);
 
   return (
-    <Show visible={searchExpanded}>
-      <Row className="options expanded space-top">
-        <label>Headline</label>
-        <Checkbox
-          checked={advancedSearch.inHeadline}
-          onChange={(e) => {
-            setSearchInOptions({ ...searchInOptions, headline: e.target.checked });
-          }}
-        />
-        <label>Byline</label>
-        <Checkbox
-          checked={advancedSearch.inByline}
-          onChange={(e) => setSearchInOptions({ ...searchInOptions, byline: e.target.checked })}
-        />
-        <label>Story text</label>
-        <Checkbox
-          checked={advancedSearch.inStory}
-          onChange={(e) => setSearchInOptions({ ...searchInOptions, storyText: e.target.checked })}
-        />
-      </Row>
-    </Show>
+    <Row className="options expanded space-top">
+      <label className="search-in-label">Search in: </label>
+      <Checkbox
+        checked={advancedSearch.inHeadline}
+        onChange={(e) => {
+          setSearchInOptions({ ...searchInOptions, headline: e.target.checked });
+        }}
+      />
+      <label>Headline</label>
+      <Checkbox
+        checked={advancedSearch.inByline}
+        onChange={(e) => setSearchInOptions({ ...searchInOptions, byline: e.target.checked })}
+      />
+      <label>Byline</label>
+      <Checkbox
+        checked={advancedSearch.inStory}
+        onChange={(e) => setSearchInOptions({ ...searchInOptions, storyText: e.target.checked })}
+      />
+      <label>Story text</label>
+    </Row>
   );
 };

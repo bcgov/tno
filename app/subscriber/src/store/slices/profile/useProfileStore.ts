@@ -5,11 +5,12 @@ import {
   IFilterModel,
   IFolderModel,
   IMinisterModel,
+  ISourceModel,
   ISystemMessageModel,
   IUserModel,
 } from 'tno-core';
 
-import { storeContributors } from '../lookup';
+import { storeContributors, storeSources } from '../lookup';
 import {
   storeMyFilters,
   storeMyFolders,
@@ -30,6 +31,7 @@ export interface IProfileStore {
   storeSystemMessages: (
     ministers: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
   ) => void;
+  storeSources: (sources: ISourceModel[] | ActionDelegate<ISourceModel[]>) => void;
 }
 
 export const useProfileStore = (): [IProfileState, IProfileStore] => {
@@ -72,6 +74,11 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
           dispatch(storeSystemMessages(systemMessages(state.systemMessages)));
         } else dispatch(storeSystemMessages(systemMessages));
       },
+      storeSources: (sources: ISourceModel[] | ActionDelegate<ISourceModel[]>) => {
+        if (typeof sources === 'function') {
+          dispatch(storeSources(sources(state.sources)));
+        } else dispatch(storeSources(sources));
+      },
     }),
     [
       dispatch,
@@ -81,6 +88,7 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
       state.myMinisters,
       state.systemMessages,
       state.contributors,
+      state.sources,
     ],
   );
 

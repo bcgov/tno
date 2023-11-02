@@ -22,6 +22,7 @@ export const filterFormat = (filter: IContentListFilter & Partial<IContentListAd
     inStory: filter.inStory ?? false,
     sourceIds: filter.sourceIds ?? [],
     productIds: filter.productIds ?? [],
+    topStory: filter.topStory ?? false,
     search: filter.searchTerm,
     seriesIds: [],
     contributorIds: [],

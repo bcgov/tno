@@ -1,13 +1,13 @@
 import styled from 'styled-components';
 import { Row } from 'tno-core';
 
-export const AdvancedSearch = styled(Row)`
+export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   background-color: white;
   margin-bottom: 0.25em;
   margin-left: 0.25em;
   margin-right: 0.25em;
   box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.2);
-  width: 100%;
+  width: ${(props) => (!props.expanded ? '100%' : '')};
   border-radius: 0.75em;
 
   padding: 0.5em;
@@ -21,7 +21,7 @@ export const AdvancedSearch = styled(Row)`
     border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
     margin-bottom: 0.5em;
     .reset {
-      margin-left: 0.5em;
+      margin-left: auto;
       align-self: center;
       cursor: pointer;
       &:hover {
@@ -43,7 +43,7 @@ export const AdvancedSearch = styled(Row)`
   }
 
   .text-area {
-    width: 40em;
+    /* width: 40em; */
   }
 
   .search-icon {
@@ -109,11 +109,22 @@ export const AdvancedSearch = styled(Row)`
     cursor: pointer;
   }
 
-  .search-in-group {
-    /* add bottom underline */
-    border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
-    padding-bottom: 0.5em;
-    margin-top: 0.5em;
+  .search-in-label {
+    font-weight: bold;
+    margin-right: 0.5em;
+  }
+
+  .option-row {
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .options {
+    label {
+      margin-right: 0.5em;
+    }
+    accent-color: #6750a4;
     width: 100%;
   }
 

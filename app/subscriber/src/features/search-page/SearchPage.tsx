@@ -2,6 +2,7 @@ import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { SearchWithLogout } from 'components/search-with-logout';
 import { Sentiment } from 'components/sentiment';
+import { AdvancedSearch } from 'components/sidebar/advanced-search';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
@@ -77,6 +78,7 @@ export const SearchPage: React.FC = () => {
         endDate: urlParams.get('publishedEndOn') ?? '',
         storyText: urlParams.get('storyText') ?? '',
         boldKeywords: urlParams.get('boldKeywords') === 'true' ?? '',
+        topStory: urlParams.get('actions') === 'Top Story' ?? '',
         sort: [],
       };
       // only want this to update when the query changes
@@ -155,92 +157,101 @@ export const SearchPage: React.FC = () => {
   return (
     <styled.SearchPage>
       <SearchWithLogout />
-      <Row className="save-bar">
-        <div className="label">Name this search: </div>
-        <Text
-          onChange={(e) => {
-            setSearchName(e.target.value);
-          }}
-          name="searchName"
-        />
-        <FaSave className="save-button" onClick={() => saveSearch()} />
-        <FolderSubMenu selectedContent={selected} />
-      </Row>
-      <Row>
-        <div className={playerOpen ? 'scroll minimized' : 'scroll'}>
-          <Col className={'search-items'}>
-            {searchItems.map((item) => {
-              return (
-                <Row key={item.id} className="rows">
-                  <Col className="cols">
-                    <Row>
-                      <Col alignItems="center">
-                        <Checkbox
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelected([...selected, item]);
-                            } else {
-                              setSelected(selected.filter((i) => i.id !== item.id));
-                            }
-                          }}
-                          className="checkbox"
-                        />
-                      </Col>
-                      <Col className="tone-date">
+      <Row className="search-container">
+        <Col className="adv-search-container">
+          <AdvancedSearch onSearchPage expanded={true} />
+        </Col>
+        <Col className="result-container">
+          <Row className="save-bar">
+            <div className="label">Name this search: </div>
+            <Text
+              onChange={(e) => {
+                setSearchName(e.target.value);
+              }}
+              name="searchName"
+            />
+            <FaSave className="save-button" onClick={() => saveSearch()} />
+            <FolderSubMenu selectedContent={selected} />
+          </Row>
+          <Row>
+            <div className={playerOpen ? 'scroll minimized' : 'scroll'}>
+              <Col className={'search-items'}>
+                {searchItems.map((item) => {
+                  return (
+                    <Row key={item.id} className="rows">
+                      <Col className="cols">
                         <Row>
-                          <Sentiment value={item.tonePools?.length ? item.tonePools[0].value : 0} />
-                          <div className="date text-content">
-                            {new Date(item.publishedOn).toDateString()}
-                          </div>
+                          <Col alignItems="center">
+                            <Checkbox
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelected([...selected, item]);
+                                } else {
+                                  setSelected(selected.filter((i) => i.id !== item.id));
+                                }
+                              }}
+                              className="checkbox"
+                            />
+                          </Col>
+                          <Col className="tone-date">
+                            <Row>
+                              <Sentiment
+                                value={item.tonePools?.length ? item.tonePools[0].value : 0}
+                              />
+                              <div className="date text-content">
+                                {new Date(item.publishedOn).toDateString()}
+                              </div>
+                            </Row>
+                          </Col>
                         </Row>
+                        <div
+                          className="headline text-content"
+                          onClick={() => navigate(`/view/${item.id}`)}
+                        >
+                          {formatSearch(item.headline)}
+                        </div>
+                        {/* TODO: Extract text around keyword searched and preview that text rather than the first 50 words */}
+                        <div className="summary text-content">
+                          {formatSearch(determinePreview(item))}
+                        </div>
+                        <Show visible={!!item.fileReferences?.length}>
+                          <button
+                            onClick={() => {
+                              !playerOpen && setPlayerOpen(true);
+                              item.fileReferences && setActiveContent(item);
+                            }}
+                            className={
+                              playerOpen && activeContent?.id === item.id
+                                ? 'playing media-button'
+                                : 'show media-button'
+                            }
+                          >
+                            {playerOpen && activeContent?.id === item.id ? (
+                              <Row>
+                                <div>NOW PLAYING</div> <FaStop />
+                              </Row>
+                            ) : (
+                              <Row>
+                                <div>PLAY MEDIA</div> <FaPlay />
+                              </Row>
+                            )}
+                          </button>
+                        </Show>
                       </Col>
                     </Row>
-                    <div
-                      className="headline text-content"
-                      onClick={() => navigate(`/view/${item.id}`)}
-                    >
-                      {formatSearch(item.headline)}
-                    </div>
-                    {/* TODO: Extract text around keyword searched and preview that text rather than the first 50 words */}
-                    <div className="summary text-content">
-                      {formatSearch(determinePreview(item))}
-                    </div>
-                    <Show visible={!!item.fileReferences?.length}>
-                      <button
-                        onClick={() => {
-                          !playerOpen && setPlayerOpen(true);
-                          item.fileReferences && setActiveContent(item);
-                        }}
-                        className={
-                          playerOpen && activeContent?.id === item.id
-                            ? 'playing media-button'
-                            : 'show media-button'
-                        }
-                      >
-                        {playerOpen && activeContent?.id === item.id ? (
-                          <Row>
-                            <div>NOW PLAYING</div> <FaStop />
-                          </Row>
-                        ) : (
-                          <Row>
-                            <div>PLAY MEDIA</div> <FaPlay />
-                          </Row>
-                        )}
-                      </button>
-                    </Show>
-                  </Col>
-                </Row>
-              );
-            })}
-          </Col>
-        </div>
-        <Show visible={playerOpen}>
-          <Col className="player">
-            <Player setPlayerOpen={setPlayerOpen} content={activeContent} />
-          </Col>
-        </Show>
+                  );
+                })}
+              </Col>
+            </div>
+            <Show visible={playerOpen}>
+              <Col className="player">
+                <Player setPlayerOpen={setPlayerOpen} content={activeContent} />
+              </Col>
+            </Show>
+          </Row>
+          {isLoading && <Loading />}
+        </Col>
       </Row>
-      {isLoading && <Loading />}
     </styled.SearchPage>
   );
 };

@@ -16,6 +16,7 @@ export const initialProfileState: IProfileState = {
   myFolders: [],
   myMinisters: [],
   systemMessages: [],
+  sources: [],
 };
 
 export const profileSlice = createSlice({

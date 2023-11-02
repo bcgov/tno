@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const SearchPage = styled.div`
-  max-height: 100vh - 6.5em;
+  max-height: calc(100vh);
   overflow: none;
   .add-page {
     margin-left: auto;
@@ -10,6 +10,15 @@ export const SearchPage = styled.div`
     height: 1.5em;
     width: 1.5em;
     margin-top: 0.25em;
+  }
+
+  .search-container {
+    width: 100%;
+  }
+
+  .adv-search-container,
+  .result-container {
+    width: 50%;
   }
   .save-bar {
     background-color: rgb(233, 236, 239);
@@ -43,9 +52,7 @@ export const SearchPage = styled.div`
   }
   .scroll {
     overflow-y: auto;
-    max-height: calc(100vh - 6.5em);
-    padding-left: 1em;
-    padding-right: 1em;
+    max-height: calc(100vh - 8.5em);
     width: 100%;
   }
 
