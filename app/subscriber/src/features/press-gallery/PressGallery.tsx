@@ -45,14 +45,16 @@ export const PressGallery: React.FC = () => {
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
-        if (!loading) setLoading(true);
-        const res = await findContentWithElasticsearch(filter, false);
-        setResults(
-          res.hits.hits.map((r) => {
-            const content = r._source as IContentModel;
-            return castToSearchResult(content);
-          }),
-        );
+        if (!loading) {
+          setLoading(true);
+          const res = await findContentWithElasticsearch(filter, false);
+          setResults(
+            res.hits.hits.map((r) => {
+              const content = r._source as IContentModel;
+              return castToSearchResult(content);
+            }),
+          );
+        }
       } catch {
       } finally {
         setLoading(false);
