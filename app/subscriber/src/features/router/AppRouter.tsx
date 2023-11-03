@@ -3,8 +3,7 @@ import { AccessRequest } from 'features/access-request';
 import { Landing } from 'features/landing';
 import { Login } from 'features/login';
 import { ManageFolder } from 'features/manage-folder';
-import { ReportAdmin, ReportSnapshot } from 'features/my-reports';
-import ReportInstancePreview from 'features/my-reports/view/ReportInstancePreview';
+import { ReportAdmin, ReportSnapshot, ViewReportInstance } from 'features/my-reports';
 import SearchForm from 'features/my-searches/SearchForm';
 import { SearchPage } from 'features/search-page/SearchPage';
 import React from 'react';
@@ -56,15 +55,6 @@ export const AppRouter: React.FC<IAppRouter> = () => {
           }
         />
         <Route
-          path="report/instances/:id/view"
-          element={
-            <PrivateRoute
-              claims={Claim.subscriber}
-              element={<ReportInstancePreview />}
-            ></PrivateRoute>
-          }
-        />
-        <Route
           path="/view/:id"
           element={<PrivateRoute claims={Claim.subscriber} element={<Landing />}></PrivateRoute>}
         />
@@ -79,12 +69,9 @@ export const AppRouter: React.FC<IAppRouter> = () => {
           }
         />
         <Route
-          path="/myreports/:id"
+          path="/myreports/view/:id"
           element={
-            <PrivateRoute
-              claims={Claim.subscriber}
-              element={<ReportInstancePreview />}
-            ></PrivateRoute>
+            <PrivateRoute claims={Claim.subscriber} element={<ViewReportInstance />}></PrivateRoute>
           }
         />
         <Route

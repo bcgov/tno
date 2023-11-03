@@ -75,7 +75,7 @@ export const MyReport: React.FC = () => {
           rowId={'id'}
           data={myReports}
           showActive={false}
-          onRowClick={(report) => navigate(`/myreports/${report.original.id}`)}
+          onRowClick={(report) => navigate(`/myreports/view/${report.original.id}`)}
           isLoading={requests.some((r) => r.url.includes('find-my-reports'))}
         />
         <Col className="info">
@@ -90,7 +90,7 @@ export const MyReport: React.FC = () => {
           columns={reportProductColumns}
           rowId={'id'}
           data={allReports}
-          onRowClick={(report) => navigate(`/myreports/${report.original.id}`)}
+          onRowClick={(report) => navigate(`/myreports/view/${report.original.id}`)}
           showActive={false}
           isLoading={requests.some((r) => r.url.includes('get-public-reports'))}
         />
