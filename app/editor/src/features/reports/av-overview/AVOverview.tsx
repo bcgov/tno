@@ -86,9 +86,12 @@ const AVOverview: React.FC = () => {
       <Row className="page-header">
         <h1>Evening Overview</h1>
         <div className="buttons">
-          <Button disabled={!instance.id} onClick={() => navigate(`${instance.id}`)}>
+          <Button
+            disabled={!instance.id}
+            onClick={() => window.open(`evening-overview/${instance.id}`, '_blank')}
+          >
             Preview <FaBinoculars className="icon" />
-          </Button>
+          </Button>{' '}
           <Button disabled={!instance.id} onClick={() => toggle()}>
             Publish <FaPaperPlane className="icon" />
           </Button>
