@@ -15,7 +15,7 @@ metadata:
     component: indexing-service
     managed-by: kustomize
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     name: indexing-service
     part-of: tno
@@ -45,10 +45,10 @@ spec:
               protocol: TCP
           resources:
             limits:
-              cpu: 100m
-              memory: 350Mi
+              cpu: 150m
+              memory: 400Mi
             requests:
-              cpu: 50m
+              cpu: 100m
               memory: 150Mi
           env:
             # .NET Configuration
