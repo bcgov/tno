@@ -1,6 +1,7 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { determineColumns } from 'features/home/constants';
+import { castToSearchResult } from 'features/utils';
 import moment from 'moment';
 import React from 'react';
 import { FiRefreshCcw } from 'react-icons/fi';
@@ -27,7 +28,7 @@ export const PressGallery: React.FC = () => {
   const navigate = useNavigate();
   const [{ filterAdvanced }, { findContentWithElasticsearch }] = useContent();
   const [, api] = useContributors();
-  const [results, setResults] = React.useState<IContentModel[]>([]);
+  const [results, setResults] = React.useState<IContentModel[]>();
   const [pressMembers, setPressMembers] = React.useState<IPressMember[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [dateOptions, setDateOptions] = React.useState<IDateOptions[]>([]);
@@ -43,8 +44,15 @@ export const PressGallery: React.FC = () => {
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
-        const res: any = await findContentWithElasticsearch(filter, false);
-        setResults(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
+        const res = await findContentWithElasticsearch(filter, false);
+        console.log(res);
+        setResults(
+          res.hits.hits.map((r) => {
+            const content = r._source as IContentModel;
+            return castToSearchResult(content);
+          }),
+        );
+        // setResults(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
       } catch {}
     },
     [findContentWithElasticsearch],
@@ -54,14 +62,18 @@ export const PressGallery: React.FC = () => {
   const fetchResultHits = React.useCallback(
     async (filter: MsearchMultisearchBody, name?: string, date?: string) => {
       try {
-        const res: any = await findContentWithElasticsearch(filter, false);
+        const res = await findContentWithElasticsearch(filter, false);
         if (!!name)
           setPressMembers((pressMembers) =>
-            pressMembers.map((c) => (c.name === name ? { ...c, hits: res.hits.total.value } : c)),
+            pressMembers.map((c) =>
+              c.name === name ? { ...c, hits: (res.hits.total as any).value } : c,
+            ),
           );
         if (!!date)
           setDateOptions((dates) =>
-            dates.map((d) => (d.value === date ? { ...d, hits: res.hits.total.value } : d)),
+            dates.map((d) =>
+              d.value === date ? { ...d, hits: (res.hits.total as any).value } : d,
+            ),
           );
       } catch {}
     },
@@ -136,7 +148,9 @@ export const PressGallery: React.FC = () => {
           String(date.value),
         );
       });
-  }, [dateOptions.length, aliases, pressSettings, fetchResultHits, dateOptions]);
+    // only want to run when date options/ aliases are loaded
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateOptions.length, aliases, pressSettings]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
@@ -238,7 +252,7 @@ export const PressGallery: React.FC = () => {
           onRowClick={(e: any) => {
             navigate(`/view/${e.original.id}`);
           }}
-          data={results}
+          data={results !== undefined ? results : []}
           pageButtons={5}
           onSelectedChanged={handleSelectedRowsChanged}
           showPaging={false}
