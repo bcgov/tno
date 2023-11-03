@@ -33,6 +33,7 @@ export const PressGallery: React.FC = () => {
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [dateOptions, setDateOptions] = React.useState<IDateOptions[]>([]);
   const [aliases, setAliases] = React.useState<string[]>([]);
+  const [loading, setLoading] = React.useState(false);
 
   const [dateValue, setDateValue] = React.useState<IOptionItem | null>();
   const [pressValue, setPressValue] = React.useState<IOptionItem | null>();
@@ -79,6 +80,11 @@ export const PressGallery: React.FC = () => {
   );
 
   React.useEffect(() => {
+    if (!results?.length) setLoading(true);
+    setLoading(false);
+  }, [results?.length, loading]);
+
+  React.useEffect(() => {
     const dates = generateDates();
     setDateOptions(dates);
   }, []);
@@ -108,7 +114,7 @@ export const PressGallery: React.FC = () => {
         generateQuery({
           ...pressSettings,
           defaultSearchOperator: 'or',
-          search: aliases.toString().split(',').join(' OR '),
+          search: aliases.toString().split(',').join(' '),
           startDate: `${moment().startOf('day').subtract(2, 'weeks')}`,
           endDate: `${moment()}`,
         }),
@@ -138,7 +144,7 @@ export const PressGallery: React.FC = () => {
           generateQuery({
             ...pressSettings,
             defaultSearchOperator: 'or',
-            search: aliases.toString().split(',').join(' OR '),
+            search: aliases.toString().split(',').join(' '),
             startDate: `${moment(date.value).startOf('day')}`,
             endDate: `${moment(date.value).endOf('day')}`,
           }),
@@ -212,7 +218,7 @@ export const PressGallery: React.FC = () => {
                 generateQuery({
                   ...pressSettings,
                   defaultSearchOperator: 'or',
-                  search: aliases.toString().split(',').join(' OR '),
+                  search: aliases.toString().split(',').join(' '),
                   startDate: `${moment(e.value).startOf('day')}`,
                   endDate: `${moment(e.value).endOf('day')}`,
                 }),
@@ -231,7 +237,7 @@ export const PressGallery: React.FC = () => {
               generateQuery({
                 ...pressSettings,
                 defaultSearchOperator: 'or',
-                search: aliases.toString().split(',').join(' OR '),
+                search: aliases.toString().split(',').join(' '),
                 startDate: `${moment(filterAdvanced.startDate).subtract(2, 'weeks')}`,
                 endDate: `${moment()}`,
               }),
@@ -244,6 +250,7 @@ export const PressGallery: React.FC = () => {
         <FlexboxTable
           rowId="id"
           columns={determineColumns('all')}
+          isLoading={loading}
           isMulti
           groupBy={(item) => item.original.source?.name ?? ''}
           onRowClick={(e: any) => {
