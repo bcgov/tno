@@ -1,6 +1,7 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { determineColumns } from 'features/home/constants';
+import { castToSearchResult } from 'features/utils';
 import moment from 'moment';
 import React from 'react';
 import { FiRefreshCcw } from 'react-icons/fi';
@@ -27,7 +28,7 @@ export const PressGallery: React.FC = () => {
   const navigate = useNavigate();
   const [{ filterAdvanced }, { findContentWithElasticsearch }] = useContent();
   const [, api] = useContributors();
-  const [results, setResults] = React.useState<IContentModel[]>([]);
+  const [results, setResults] = React.useState<IContentModel[]>();
   const [pressMembers, setPressMembers] = React.useState<IPressMember[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [dateOptions, setDateOptions] = React.useState<IDateOptions[]>([]);
@@ -43,8 +44,35 @@ export const PressGallery: React.FC = () => {
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
-        const res: any = await findContentWithElasticsearch(filter, false);
-        setResults(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
+        const res = await findContentWithElasticsearch(filter, false);
+        setResults(
+          res.hits.hits.map((r) => {
+            const content = r._source as IContentModel;
+            return castToSearchResult(content);
+          }),
+        );
+      } catch {}
+    },
+    [findContentWithElasticsearch],
+  );
+
+  /** separate requests to find total hits for each press member */
+  const fetchResultHits = React.useCallback(
+    async (filter: MsearchMultisearchBody, name?: string, date?: string) => {
+      try {
+        const res = await findContentWithElasticsearch(filter, false);
+        if (!!name)
+          setPressMembers((pressMembers) =>
+            pressMembers.map((c) =>
+              c.name === name ? { ...c, hits: (res.hits.total as any).value } : c,
+            ),
+          );
+        if (!!date)
+          setDateOptions((dates) =>
+            dates.map((d) =>
+              d.value === date ? { ...d, hits: (res.hits.total as any).value } : d,
+            ),
+          );
       } catch {}
     },
     [findContentWithElasticsearch],
@@ -67,7 +95,7 @@ export const PressGallery: React.FC = () => {
             return contributor.name;
           }
         });
-      setAliases(allAliases);
+      setAliases(allAliases.map((alias) => `"${alias}"`));
     });
     // run on init
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -80,7 +108,7 @@ export const PressGallery: React.FC = () => {
         generateQuery({
           ...pressSettings,
           defaultSearchOperator: 'or',
-          search: aliases.toString().split(',').join(' '),
+          search: aliases.toString().split(',').join(' OR '),
           startDate: `${moment().startOf('day').subtract(2, 'weeks')}`,
           endDate: `${moment()}`,
         }),
@@ -104,39 +132,23 @@ export const PressGallery: React.FC = () => {
   }, [pressMembers.length]);
 
   React.useEffect(() => {
-    dateOptions.forEach((date) => {
-      fetchResultHits(
-        generateQuery({
-          ...pressSettings,
-          search: aliases.toString().split(',').join(' '),
-          startDate: `${moment(date.value).startOf('day')}`,
-          endDate: `${moment(date.value).endOf('day')}`,
-        }),
-        '',
-        String(date.value),
-      );
-    });
-    // only want to run when date options are loaded
+    !!aliases.length &&
+      dateOptions.forEach((date) => {
+        fetchResultHits(
+          generateQuery({
+            ...pressSettings,
+            defaultSearchOperator: 'or',
+            search: aliases.toString().split(',').join(' OR '),
+            startDate: `${moment(date.value).startOf('day')}`,
+            endDate: `${moment(date.value).endOf('day')}`,
+          }),
+          '',
+          String(date.value),
+        );
+      });
+    // only want to run when date options/ aliases are loaded
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dateOptions.length]);
-
-  /** separate requests to find total hits for each press member */
-  const fetchResultHits = React.useCallback(
-    async (filter: MsearchMultisearchBody, name?: string, date?: string) => {
-      try {
-        const res: any = await findContentWithElasticsearch(filter, false);
-        if (!!name)
-          setPressMembers((pressMembers) =>
-            pressMembers.map((c) => (c.name === name ? { ...c, hits: res.hits.total.value } : c)),
-          );
-        if (!!date)
-          setDateOptions((dates) =>
-            dates.map((d) => (d.value === date ? { ...d, hits: res.hits.total.value } : d)),
-          );
-      } catch {}
-    },
-    [findContentWithElasticsearch],
-  );
+  }, [dateOptions.length, aliases, pressSettings]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
@@ -201,7 +213,7 @@ export const PressGallery: React.FC = () => {
                 generateQuery({
                   ...pressSettings,
                   defaultSearchOperator: 'or',
-                  search: aliases.toString().split(',').join(' '),
+                  search: aliases.toString().split(',').join(' OR '),
                   startDate: `${moment(e.value).startOf('day')}`,
                   endDate: `${moment(e.value).endOf('day')}`,
                 }),
@@ -220,7 +232,7 @@ export const PressGallery: React.FC = () => {
               generateQuery({
                 ...pressSettings,
                 defaultSearchOperator: 'or',
-                search: aliases.toString().split(',').join(' '),
+                search: aliases.toString().split(',').join(' OR '),
                 startDate: `${moment(filterAdvanced.startDate).subtract(2, 'weeks')}`,
                 endDate: `${moment()}`,
               }),
@@ -238,7 +250,7 @@ export const PressGallery: React.FC = () => {
           onRowClick={(e: any) => {
             navigate(`/view/${e.original.id}`);
           }}
-          data={results}
+          data={results !== undefined ? results : []}
           pageButtons={5}
           onSelectedChanged={handleSelectedRowsChanged}
           showPaging={false}

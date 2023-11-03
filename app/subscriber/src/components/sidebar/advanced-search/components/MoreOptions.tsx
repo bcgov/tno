@@ -48,11 +48,6 @@ export const MoreOptions: React.FC<IMoreOptionsProps> = ({
             onChange={(e) => setAdvancedSearch({ ...advancedSearch, frontPage: e.target.checked })}
           />
           <Checkbox
-            label="includes an image"
-            checked={Boolean(advancedSearch.hasFile)}
-            onChange={(e) => setAdvancedSearch({ ...advancedSearch, hasFile: e.target.checked })}
-          />
-          <Checkbox
             label={'bold keywords on search page'}
             checked={Boolean(advancedSearch.boldKeywords)}
             onChange={(e) =>

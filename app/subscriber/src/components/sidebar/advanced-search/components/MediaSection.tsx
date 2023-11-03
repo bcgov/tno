@@ -18,7 +18,7 @@ export interface IMediaSectionProps {
   advancedSearch: IAdvancedSearchFilter;
 }
 
-/** Componenet that contains the media sources for various different media types. Used to filter in the advanced search bar */
+/** Component that contains the media sources for various different media types. Used to filter in the advanced search bar */
 export const MediaSection: React.FC<IMediaSectionProps> = ({
   mediaExpanded,
   mediaGroupExpandedStates,
@@ -26,11 +26,30 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
   setAdvancedSearch,
   advancedSearch,
 }) => {
-  const { dailyPrint, sources } = useFilterOptions();
+  const {
+    dailyPrint,
+    sources,
+    weeklyPrint,
+    cpWire,
+    talkRadio,
+    onlinePrint,
+    television,
+    newsRadio,
+  } = useFilterOptions();
+
   return (
     <Show visible={mediaExpanded}>
       <Col className="expanded media-section space-top">
-        {SubMediaGroups(dailyPrint, sources).map((mediaGroup, index) => (
+        {SubMediaGroups(
+          dailyPrint,
+          weeklyPrint,
+          cpWire,
+          talkRadio,
+          onlinePrint,
+          newsRadio,
+          television,
+          sources,
+        ).map((mediaGroup, index) => (
           <Col key={`${mediaGroup.key}-${index}`} className="sub-group">
             <Row>
               {`${mediaGroup.label} (${mediaGroup.options.length})`}

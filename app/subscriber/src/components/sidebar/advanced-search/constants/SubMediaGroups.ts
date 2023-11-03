@@ -12,6 +12,12 @@ export interface ISubMediaGroupItem {
  */
 export const SubMediaGroups = (
   dailyPrint: ISourceModel[],
+  weeklyPrint: ISourceModel[],
+  cpWire: ISourceModel[],
+  talkRadio: ISourceModel[],
+  onlinePrint: ISourceModel[],
+  newsRadio: ISourceModel[],
+  television: ISourceModel[],
   all: ISourceModel[],
 ): ISubMediaGroupItem[] => {
   return [
@@ -23,7 +29,7 @@ export const SubMediaGroups = (
     {
       key: 'weeklyPrint',
       label: 'Weekly Print',
-      options: [],
+      options: weeklyPrint,
     },
     {
       key: 'dailyPrint',
@@ -33,27 +39,27 @@ export const SubMediaGroups = (
     {
       key: 'talkRadio',
       label: 'Talk Radio',
-      options: [],
+      options: talkRadio,
     },
     {
       key: 'television',
       label: 'Television',
-      options: [],
+      options: television,
     },
     {
       key: 'online',
       label: 'Online',
-      options: [],
+      options: onlinePrint,
     },
     {
       key: 'cpNews',
       label: 'CP News',
-      options: [],
+      options: cpWire,
     },
     {
       key: 'newsRadio',
       label: 'News Radio',
-      options: [],
+      options: newsRadio,
     },
   ];
 };

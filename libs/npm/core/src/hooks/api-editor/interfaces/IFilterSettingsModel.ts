@@ -18,6 +18,7 @@ export interface IFilterSettingsModel {
   section?: string;
   page?: string;
   hasTopic?: boolean;
+  topStory?: boolean;
   isHidden?: boolean;
   otherSource?: string;
   ownerId?: number;

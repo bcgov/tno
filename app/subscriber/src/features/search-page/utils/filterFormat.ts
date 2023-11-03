@@ -3,9 +3,14 @@ import {
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
 import moment from 'moment';
-import { IFilterSettingsModel } from 'tno-core';
+import { IActionModel, IFilterSettingsModel } from 'tno-core';
 
-export const filterFormat = (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
+import { getActionFilters } from './getActionFilter';
+
+export const filterFormat = (
+  filter: IContentListFilter & Partial<IContentListAdvancedFilter>,
+  actions: IActionModel[],
+) => {
   const settings: IFilterSettingsModel = {
     from: 0,
     size: 100,
@@ -22,10 +27,11 @@ export const filterFormat = (filter: IContentListFilter & Partial<IContentListAd
     inStory: filter.inStory ?? false,
     sourceIds: filter.sourceIds ?? [],
     productIds: filter.productIds ?? [],
+    topStory: filter.topStory ?? false,
     search: filter.searchTerm,
     seriesIds: [],
     contributorIds: [],
-    actions: [],
+    actions: getActionFilters(filter, actions),
     contentTypes: filter.contentTypes,
     tags: [],
   };
