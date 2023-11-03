@@ -45,14 +45,12 @@ export const PressGallery: React.FC = () => {
     async (filter: MsearchMultisearchBody) => {
       try {
         const res = await findContentWithElasticsearch(filter, false);
-        console.log(res);
         setResults(
           res.hits.hits.map((r) => {
             const content = r._source as IContentModel;
             return castToSearchResult(content);
           }),
         );
-        // setResults(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
       } catch {}
     },
     [findContentWithElasticsearch],
@@ -97,7 +95,7 @@ export const PressGallery: React.FC = () => {
             return contributor.name;
           }
         });
-      setAliases(allAliases);
+      setAliases(allAliases.map((alias) => `"${alias}"`));
     });
     // run on init
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -110,7 +108,7 @@ export const PressGallery: React.FC = () => {
         generateQuery({
           ...pressSettings,
           defaultSearchOperator: 'or',
-          search: aliases.toString().split(',').join(' '),
+          search: aliases.toString().split(',').join(' OR '),
           startDate: `${moment().startOf('day').subtract(2, 'weeks')}`,
           endDate: `${moment()}`,
         }),
@@ -140,7 +138,7 @@ export const PressGallery: React.FC = () => {
           generateQuery({
             ...pressSettings,
             defaultSearchOperator: 'or',
-            search: aliases.toString().split(',').join(' '),
+            search: aliases.toString().split(',').join(' OR '),
             startDate: `${moment(date.value).startOf('day')}`,
             endDate: `${moment(date.value).endOf('day')}`,
           }),
@@ -215,7 +213,7 @@ export const PressGallery: React.FC = () => {
                 generateQuery({
                   ...pressSettings,
                   defaultSearchOperator: 'or',
-                  search: aliases.toString().split(',').join(' '),
+                  search: aliases.toString().split(',').join(' OR '),
                   startDate: `${moment(e.value).startOf('day')}`,
                   endDate: `${moment(e.value).endOf('day')}`,
                 }),
@@ -234,7 +232,7 @@ export const PressGallery: React.FC = () => {
               generateQuery({
                 ...pressSettings,
                 defaultSearchOperator: 'or',
-                search: aliases.toString().split(',').join(' '),
+                search: aliases.toString().split(',').join(' OR '),
                 startDate: `${moment(filterAdvanced.startDate).subtract(2, 'weeks')}`,
                 endDate: `${moment()}`,
               }),
