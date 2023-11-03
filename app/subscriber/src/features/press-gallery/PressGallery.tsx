@@ -37,8 +37,8 @@ export const PressGallery: React.FC = () => {
   const [dateValue, setDateValue] = React.useState<IOptionItem | null>();
   const [pressValue, setPressValue] = React.useState<IOptionItem | null>();
 
-  const [pressSettings] = React.useState<IFilterSettingsModel>(
-    createFilterSettings(`${moment().startOf('day')}`, `${moment().subtract('2', 'weeks')}`),
+  const [pressSettings, setPressSettings] = React.useState<IFilterSettingsModel>(
+    createFilterSettings(`${moment().startOf('day')}`, `${moment().subtract('2', 'weeks')}`, 500),
   );
 
   const fetchResults = React.useCallback(
@@ -177,7 +177,6 @@ export const PressGallery: React.FC = () => {
               fetchResults(
                 generateQuery({
                   ...pressSettings,
-                  defaultSearchOperator: 'or',
                   search: pressMembers.find((c) => c.name === e.value)?.aliases ?? '',
                   startDate: `${moment().subtract(2, 'weeks')}`,
                   endDate: `${moment()}`,
