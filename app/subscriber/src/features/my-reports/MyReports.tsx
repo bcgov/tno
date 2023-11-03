@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useReports } from 'store/hooks';
 import { useAppStore } from 'store/slices';
@@ -14,6 +14,7 @@ export const MyReport: React.FC = () => {
   const [{ getPublicReports, findMyReports, deleteReport, updateReport }] = useReports();
   const { toggle, isShowing } = useModal();
   const [{ requests }] = useAppStore();
+  const navigate = useNavigate();
 
   const [myReports, setMyReports] = React.useState<IReportModel[]>([]);
   const [allReports, setAllReports] = React.useState<IReportModel[]>([]);
@@ -74,6 +75,7 @@ export const MyReport: React.FC = () => {
           rowId={'id'}
           data={myReports}
           showActive={false}
+          onRowClick={(report) => navigate(`/myreports/${report.original.id}`)}
           isLoading={requests.some((r) => r.url.includes('find-my-reports'))}
         />
         <Col className="info">
@@ -88,6 +90,7 @@ export const MyReport: React.FC = () => {
           columns={reportProductColumns}
           rowId={'id'}
           data={allReports}
+          onRowClick={(report) => navigate(`/myreports/${report.original.id}`)}
           showActive={false}
           isLoading={requests.some((r) => r.url.includes('get-public-reports'))}
         />

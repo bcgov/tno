@@ -53,17 +53,26 @@ export const useColumns = (
         <Row gap="0.5rem">
           <FaGear
             className="btn-link"
-            onClick={() => navigate(`/reports/${cell.original.id}`)}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/reports/${cell.original.id}`);
+            }}
             title="Configure"
           />
           <FaEdit
             className="btn-link"
-            onClick={() => navigate(`/reports/${cell.original.id}/edit`)}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/reports/${cell.original.id}/edit`);
+            }}
             title="Edit"
           />
           <FaTrash
             className="btn-link error"
-            onClick={() => handleDelete(cell.original)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(cell.original);
+            }}
             title="Delete"
           />
         </Row>

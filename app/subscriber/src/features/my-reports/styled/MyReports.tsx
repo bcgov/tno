@@ -60,6 +60,9 @@ export const MyReports = styled(Col)`
       svg:not(.error) {
         color: #6750a4;
       }
+      &:hover {
+        cursor: pointer;
+      }
     }
     .header {
       background-color: #f5f6fa;

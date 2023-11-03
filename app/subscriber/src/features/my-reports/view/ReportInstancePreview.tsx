@@ -1,13 +1,13 @@
 import { SearchWithLogout } from 'components/search-with-logout';
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { useReportInstances } from 'store/hooks';
+import { useReports } from 'store/hooks';
 import { Col, IReportResultModel, Loading, Show } from 'tno-core';
 
 import * as styled from './styled';
 
 const ReportInstancePreview: React.FC = () => {
-  const [{ viewReportInstance }] = useReportInstances();
+  const [{ previewReport }] = useReports();
   const { id } = useParams();
   const reportId = parseInt(id ?? '');
 
@@ -18,14 +18,14 @@ const ReportInstancePreview: React.FC = () => {
     async (reportId: number) => {
       try {
         setIsLoading(true);
-        const response = await viewReportInstance(reportId);
+        const response = await previewReport(reportId);
         setPreview(response);
       } catch {
       } finally {
         setIsLoading(false);
       }
     },
-    [viewReportInstance, setPreview],
+    [previewReport, setPreview],
   );
 
   React.useEffect(() => {

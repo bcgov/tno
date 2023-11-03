@@ -79,6 +79,15 @@ export const AppRouter: React.FC<IAppRouter> = () => {
           }
         />
         <Route
+          path="/myreports/:id"
+          element={
+            <PrivateRoute
+              claims={Claim.subscriber}
+              element={<ReportInstancePreview />}
+            ></PrivateRoute>
+          }
+        />
+        <Route
           path="/reports/:id/edit"
           element={
             <PrivateRoute claims={Claim.subscriber} element={<ReportSnapshot />}></PrivateRoute>
