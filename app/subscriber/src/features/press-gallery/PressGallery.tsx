@@ -60,6 +60,8 @@ export const PressGallery: React.FC = () => {
         setLoading(false);
       }
     },
+    // do not want to trigger on loading change, will cause infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [findContentWithElasticsearch],
   );
 
