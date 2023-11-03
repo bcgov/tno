@@ -5,7 +5,7 @@ COPY .yarn ./.yarn
 COPY package*.json yarn.lock .yarnrc.yml ./
 
 RUN yarn set version berry
-RUN npx browserslist@latest --update-db
+RUN npx update-browserslist-db@latest
 RUN yarn
 COPY . .
 RUN yarn run build
