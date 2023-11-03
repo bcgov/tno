@@ -45,6 +45,7 @@ export const PressGallery: React.FC = () => {
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
+        if (!loading) setLoading(true);
         const res = await findContentWithElasticsearch(filter, false);
         setResults(
           res.hits.hits.map((r) => {
@@ -52,7 +53,10 @@ export const PressGallery: React.FC = () => {
             return castToSearchResult(content);
           }),
         );
-      } catch {}
+      } catch {
+      } finally {
+        setLoading(false);
+      }
     },
     [findContentWithElasticsearch],
   );
@@ -78,11 +82,6 @@ export const PressGallery: React.FC = () => {
     },
     [findContentWithElasticsearch],
   );
-
-  React.useEffect(() => {
-    if (!results?.length) setLoading(true);
-    setLoading(false);
-  }, [results?.length, loading]);
 
   React.useEffect(() => {
     const dates = generateDates();
