@@ -1,0 +1,1 @@
+FROM owlab/kafka-arm64:latest
