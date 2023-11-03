@@ -30,7 +30,6 @@ import { getIsEditable } from './utils';
 /** Evening overview section, contains table of items, and list of overview sections */
 const AVOverview: React.FC = () => {
   const [api] = useAVOverviewInstances();
-  const navigate = useNavigate();
   const [params] = useSearchParams();
   const { toggle, isShowing } = useModal();
   const queryDate = params.get('date') ? moment(params.get('date')) : moment(Date.now());
