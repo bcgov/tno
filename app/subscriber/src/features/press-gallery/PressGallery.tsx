@@ -37,7 +37,7 @@ export const PressGallery: React.FC = () => {
   const [dateValue, setDateValue] = React.useState<IOptionItem | null>();
   const [pressValue, setPressValue] = React.useState<IOptionItem | null>();
 
-  const [pressSettings, setPressSettings] = React.useState<IFilterSettingsModel>(
+  const [pressSettings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(`${moment().startOf('day')}`, `${moment().subtract('2', 'weeks')}`, 500),
   );
 
