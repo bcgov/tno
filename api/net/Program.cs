@@ -154,6 +154,7 @@ builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, TNO.API.Conf
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
     options.EnableAnnotations(false, true);
     options.CustomSchemaIds(o => o.FullName);
     options.OperationFilter<TNO.API.Config.Swagger.SwaggerDefaultValues>();
