@@ -160,7 +160,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                 <FormikTextArea
                                   key={itemIndex + `textarea`}
                                   name={`sections.${index}.items.${itemIndex}.summary`}
-                                  rows={1}
+                                  rows={item.itemType === AVOverviewItemTypeName.Intro ? 3 : 1}
                                   disabled={!editable}
                                   maxLength={
                                     item.itemType === AVOverviewItemTypeName.Story ? 80 : undefined

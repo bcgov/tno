@@ -1,4 +1,4 @@
-import { useFormikContext } from 'formik';
+import { getIn, useFormikContext } from 'formik';
 import React from 'react';
 import { FaEyeSlash } from 'react-icons/fa';
 import { MdEdit } from 'react-icons/md';
@@ -103,7 +103,14 @@ export const EditBroadcastDetails: React.FC<IEditBroadcastDetailsProps> = ({
         <Button className="edit-button" onClick={() => setOpen(!open)}>
           {open ? <FaEyeSlash className="minimize" /> : <MdEdit className="icon" />}
         </Button>
-        <h3>{section.name ? section.name : 'Update broadcast details'}</h3>
+        <h3>
+          {section.name
+            ? section.name +
+              (!!getIn(values, `sections.${index}.anchors`)
+                ? ' - ' + getIn(values, `sections.${index}.anchors`)
+                : '')
+            : 'Update broadcast details'}
+        </h3>
       </Row>
       <Show visible={open}>
         <Row className={`edit-contents ${open ? 'in' : 'out'}`} justifyContent="space-evenly">

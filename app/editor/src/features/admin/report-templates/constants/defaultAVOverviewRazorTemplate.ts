@@ -48,6 +48,7 @@ export const defaultAVOverviewBodyRazorTemplate = `@inherits RazorEngineCore.Raz
   <div class="section">
     <div class="section-header">
       @section.Name @section.StartTime hr
+      @if (!String.IsNullOrEmpty(section.Anchors)) { <span> - @section.Anchors</span> }
     </div>
     <table>
       <thead>
@@ -74,7 +75,7 @@ export const defaultAVOverviewBodyRazorTemplate = `@inherits RazorEngineCore.Raz
         var summary = String.IsNullOrEmpty(item.Summary) ? "---" : item.Summary.Replace("\n", "<br/>");
         <tr>
           <td class="small">@placement</td>
-          <td class="small">@time</td>
+          <td class="small">@(time?.Length == 8 ? time.Substring(0, 5) : time)</td>
           <td>
             @if (item.ContentId.HasValue)
             {
