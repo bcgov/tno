@@ -58,7 +58,7 @@ public class TranscriptRequestModel : WorkOrderModel
     /// Creates a new instance of an TranscriptRequestModel object, initializes with specified parameters.
     /// </summary>
     /// <param name="workOrder"></param>
-    public TranscriptRequestModel(WorkOrder workOrder) : base(workOrder.Id, workOrder.WorkType, workOrder.RequestorId, workOrder.Requestor?.DisplayName ?? "", workOrder.CreatedOn)
+    public TranscriptRequestModel(WorkOrder workOrder) : base(workOrder)
     {
         if (workOrder.ContentId.HasValue)
             this.ContentId = workOrder.ContentId.Value;
