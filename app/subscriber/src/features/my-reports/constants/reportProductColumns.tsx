@@ -1,4 +1,4 @@
-import { CellEllipsis, Checkbox, IReportModel, ITableHookColumn } from 'tno-core';
+import { Checkbox, IReportModel, ITableHookColumn, Link } from 'tno-core';
 
 export const reportProductColumns: ITableHookColumn<IReportModel>[] = [
   {
@@ -11,7 +11,11 @@ export const reportProductColumns: ITableHookColumn<IReportModel>[] = [
     label: 'Name',
     accessor: 'name',
     width: 2,
-    cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
+    cell: (cell) => (
+      <Link to={`/reports/${cell.original.id}/view`} title="Edit">
+        {cell.original.name}
+      </Link>
+    ),
   },
   {
     label: 'Start time',

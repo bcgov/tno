@@ -105,6 +105,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             .Include(r => r.Owner)
             .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
             .Include(r => r.Sections).ThenInclude(s => s.Filter)
+            .Include(r => r.Instances)
             .Include(r => r.Sections).ThenInclude(s => s.Folder)
             .Include(r => r.Sections).ThenInclude(s => s.ChartTemplatesManyToMany).ThenInclude(c => c.ChartTemplate)
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)

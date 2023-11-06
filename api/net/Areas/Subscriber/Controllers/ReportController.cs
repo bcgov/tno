@@ -158,7 +158,7 @@ public class ReportController : ControllerBase
         var result = _reportService.FindById(id) ?? throw new NoContentException();
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        if (result.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to view this report");
+        if (result.OwnerId != user.Id && !result.IsPublic) throw new NotAuthorizedException("Not authorized to view this report");
 
         return new JsonResult(new ReportModel(result, _serializerOptions));
     }
