@@ -142,8 +142,7 @@ public class WorkOrderHelper : IWorkOrderHelper
                     Entities.WorkOrderType.Transcription,
                     user,
                     "",
-                    this.Content,
-                    JsonDocument.Parse(JsonSerializer.Serialize(new { this.Content.Headline }, _serializerOptions))));
+                    this.Content));
 
             await _kafkaMessenger.SendMessageAsync(_kafkaOptions.TranscriptionTopic, new TNO.Kafka.Models.TranscriptRequestModel(workOrder));
             return workOrder;
@@ -179,8 +178,7 @@ public class WorkOrderHelper : IWorkOrderHelper
                     Entities.WorkOrderType.NaturalLanguageProcess,
                     user,
                     "",
-                    this.Content,
-                    JsonDocument.Parse(JsonSerializer.Serialize(new { this.Content.Headline }, _serializerOptions))));
+                    this.Content));
 
             await _kafkaMessenger.SendMessageAsync(_kafkaOptions.NLPTopic, new TNO.Kafka.Models.NlpRequestModel(workOrder));
             return workOrder;

@@ -3,10 +3,10 @@ using System.Net.Mime;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Config;
+using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.API.Models.SignalR;
 using TNO.Core.Exceptions;
@@ -37,6 +37,7 @@ namespace TNO.API.Areas.Subscriber.Controllers;
 public class WorkOrderController : ControllerBase
 {
     #region Variables
+    private readonly IWorkOrderHelper _workOrderHelper;
     private readonly IWorkOrderService _workOrderService;
     private readonly IContentService _contentService;
     private readonly IUserService _userService;
@@ -54,6 +55,7 @@ public class WorkOrderController : ControllerBase
     /// Creates a new instance of a WorkOrderController object, initializes with specified parameters.
     /// </summary>
     /// <param name="workOrderService"></param>
+    /// <param name="workOrderHelper"></param>
     /// <param name="contentService"></param>
     /// <param name="userService"></param>
     /// <param name="kafkaMessenger"></param>
@@ -62,6 +64,7 @@ public class WorkOrderController : ControllerBase
     /// <param name="serializerOptions"></param>
     public WorkOrderController(
         IWorkOrderService workOrderService,
+        IWorkOrderHelper workOrderHelper,
         IContentService contentService,
         IUserService userService,
         IKafkaMessenger kafkaMessenger,
@@ -70,6 +73,7 @@ public class WorkOrderController : ControllerBase
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _workOrderService = workOrderService;
+        _workOrderHelper = workOrderHelper;
         _contentService = contentService;
         _userService = userService;
         _kafkaMessenger = kafkaMessenger;
@@ -108,34 +112,16 @@ public class WorkOrderController : ControllerBase
     [ProducesResponseType(typeof(WorkOrderMessageModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Content" })]
+    [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public async Task<IActionResult> RequestTranscriptionAsync(long contentId)
     {
-        var content = _contentService.FindById(contentId) ?? throw new InvalidOperationException("Content does not exist");
-        if (String.IsNullOrWhiteSpace(_kafkaOptions.TranscriptionTopic)) throw new ConfigurationException("Kafka transcription topic not configured.");
-
-        // Only allow one work order transcript request at a time.
-        // TODO: Handle blocked work orders stuck in progress.
-        var workOrders = _workOrderService.FindByContentId(contentId);
-        if (workOrders.Any(o => o.WorkType == WorkOrderType.Transcription && _workLimiterStatus.Contains(o.Status)))
-            return new JsonResult(new WorkOrderMessageModel(workOrders.First(o => o.WorkType == WorkOrderType.Transcription && _workLimiterStatus.Contains(o.Status)), _serializerOptions))
+        var workOrder = await _workOrderHelper.RequestTranscriptionAsync(contentId, true);
+        if (workOrder.Status != WorkOrderStatus.Submitted)
+            return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions))
             {
                 StatusCode = (int)HttpStatusCode.AlreadyReported
             };
 
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        var workOrder = _workOrderService.AddAndSave(new WorkOrder(WorkOrderType.Transcription, user, "", content));
-
-        var result = await _kafkaMessenger.SendMessageAsync(_kafkaOptions.TranscriptionTopic, new TNO.Kafka.Models.TranscriptRequestModel(workOrder));
-        if (result == null)
-        {
-            workOrder.Status = WorkOrderStatus.Failed;
-            workOrder.Note = "Transcript request to Kafka failed";
-            workOrder = _workOrderService.UpdateAndSave(workOrder);
-            await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.WorkOrder, new[] { new WorkOrderMessageModel(workOrder, _serializerOptions) })));
-            throw new BadRequestException("Transcription request failed");
-        }
         return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions));
     }
     #endregion
