@@ -90,7 +90,7 @@ const AVOverview: React.FC = () => {
             onClick={() => window.open(`evening-overview/${instance.id}`, '_blank')}
           >
             Preview <FaBinoculars className="icon" />
-          </Button>{' '}
+          </Button>
           <Button disabled={!instance.id} onClick={() => toggle()}>
             Publish <FaPaperPlane className="icon" />
           </Button>

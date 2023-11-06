@@ -37,6 +37,8 @@ export const AVOverview = styled(FormPage)`
 
   .buttons {
     margin-left: auto;
+    display: flex;
+    gap: 0.5rem;
 
     .save-items {
       margin-left: auto;
