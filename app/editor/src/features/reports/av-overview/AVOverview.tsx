@@ -3,7 +3,7 @@ import moment, { Moment } from 'moment';
 import React from 'react';
 import { FaBinoculars, FaPaperPlane, FaSpinner } from 'react-icons/fa';
 import { MdAdd, MdSave } from 'react-icons/md';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAVOverviewInstances } from 'store/hooks';
 import {
@@ -30,7 +30,6 @@ import { getIsEditable } from './utils';
 /** Evening overview section, contains table of items, and list of overview sections */
 const AVOverview: React.FC = () => {
   const [api] = useAVOverviewInstances();
-  const navigate = useNavigate();
   const [params] = useSearchParams();
   const { toggle, isShowing } = useModal();
   const queryDate = params.get('date') ? moment(params.get('date')) : moment(Date.now());
@@ -86,7 +85,10 @@ const AVOverview: React.FC = () => {
       <Row className="page-header">
         <h1>Evening Overview</h1>
         <div className="buttons">
-          <Button disabled={!instance.id} onClick={() => navigate(`${instance.id}`)}>
+          <Button
+            disabled={!instance.id}
+            onClick={() => window.open(`evening-overview/${instance.id}`, '_blank')}
+          >
             Preview <FaBinoculars className="icon" />
           </Button>
           <Button disabled={!instance.id} onClick={() => toggle()}>

@@ -7,8 +7,10 @@ import {
   Button,
   ButtonVariant,
   IAVOverviewInstanceModel,
+  Modal,
   Row,
   Show,
+  useModal,
 } from 'tno-core';
 
 import { defaultAVOverviewSectionItem } from './constants';
@@ -24,7 +26,7 @@ export interface IOverviewSectionProps {
 /** This section includes the overview grid, as well as the broadcast details. */
 export const OverviewSection: React.FC<IOverviewSectionProps> = ({ editable = true, index }) => {
   const { values, setFieldValue } = useFormikContext<IAVOverviewInstanceModel>();
-
+  const { toggle, isShowing } = useModal();
   const section = values.sections[index];
 
   const handleDeleteSection = (index: number) => {
@@ -71,7 +73,7 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({ editable = tr
             </Button>
             <Button
               variant={ButtonVariant.danger}
-              onClick={() => handleClearItems(index)}
+              onClick={() => toggle()}
               disabled={!section.items.length}
             >
               Clear all story text <MdClear className="icon" />
@@ -89,6 +91,21 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({ editable = tr
             <FaTrash className="delete" />
           </Button>
         </Row>
+        <Modal
+          headerText="Confirm Removal"
+          body="Are you sure you wish to clear all story text?"
+          isShowing={isShowing}
+          hide={toggle}
+          type="delete"
+          confirmText="Yes, Remove It"
+          onConfirm={() => {
+            try {
+              handleClearItems(index);
+            } finally {
+              toggle();
+            }
+          }}
+        />
       </Show>
     </styled.OverviewSection>
   );

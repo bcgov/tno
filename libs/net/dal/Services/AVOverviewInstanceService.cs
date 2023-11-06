@@ -88,6 +88,11 @@ public class AVOverviewInstanceService : BaseService<AVOverviewInstance, int>, I
             }
             else
             {
+                var originalItems = this.Context.AVOverviewSectionItems.Where(s => s.SectionId == section.Id).ToArray();
+                originalItems.Except(section.Items).ForEach(s =>
+                {
+                    this.Context.Entry(s).State = EntityState.Deleted;
+                });
                 this.Context.Update(section);
                 section.Items.ForEach(item =>
                 {
