@@ -3,7 +3,7 @@ import moment, { Moment } from 'moment';
 import React from 'react';
 import { FaBinoculars, FaPaperPlane, FaSpinner } from 'react-icons/fa';
 import { MdAdd, MdSave } from 'react-icons/md';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAVOverviewInstances } from 'store/hooks';
 import {
