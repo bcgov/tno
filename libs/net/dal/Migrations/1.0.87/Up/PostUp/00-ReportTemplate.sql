@@ -3,6 +3,7 @@ BEGIN
 
 UPDATE public.report_template SET
     "body" = '
+        
         @inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportTemplateModel>
         @using System
         @using System.Linq
@@ -27,7 +28,7 @@ UPDATE public.report_template SET
         }
         else
         {
-          var loopCount = 0;
+          var contentCount = 0;
           var allContent = Content.ToArray();
           foreach (var section in Sections)
           {
@@ -59,7 +60,7 @@ UPDATE public.report_template SET
                 @if (section.Value.Settings.SectionType == ReportSectionType.Content)
                 {
                   @* Section Table of Contents *@
-                  var indexPosition = 0;
+                  var positionInTOC = 0;
                   if (section.Value.Settings.ShowHeadlines)
                   {
                       @if (section.Value.Settings.GroupBy != "")
@@ -74,8 +75,8 @@ UPDATE public.report_template SET
                             {
                               var content = sectionContent.FirstOrDefault(c => c.Id == contentId);
                               var headline = $"{(Settings.Headline.ShowSentiment ? content.GetSentimentIcon("{0} - ") : "")}{content.Headline}{(Settings.Headline.ShowShortName && !String.IsNullOrEmpty(content.Source?.ShortName) ? $" - {content.Source?.ShortName}" : (Settings.Headline.ShowSource ? $" - {content.OtherSource}": ""))}{(Settings.Headline.ShowPublishedOn ? $" - {content.PublishedOn?.AddHours(utcOffset):dd-MMM-yyyy}" : "")}";
-                              var headLineLink = loopCount + indexPosition;
-                              indexPosition++;
+                              var headLineLink = contentCount + positionInTOC;
+                              positionInTOC++;
                               if (section.Value.Settings.ShowFullStory)
                               {
                                 <li><a href="#item-@headLineLink">@headline</a></li>
@@ -95,8 +96,8 @@ UPDATE public.report_template SET
                         @foreach (var content in sectionContent)
                         {
                           var headline = $"{(Settings.Headline.ShowSentiment ? content.GetSentimentIcon("{0} - ") : "")}{content.Headline}{(Settings.Headline.ShowShortName && !String.IsNullOrEmpty(content.Source?.ShortName) ? $" - {content.Source?.ShortName}" : (Settings.Headline.ShowSource ? $" - {content.OtherSource}": ""))}{(Settings.Headline.ShowPublishedOn ? $" - {content.PublishedOn?.AddHours(utcOffset):dd-MMM-yyyy}" : "")}";
-                          var headLineLink = loopCount + indexPosition;
-                          indexPosition++;
+                          var headLineLink = contentCount + positionInTOC;
+                          positionInTOC++;
                             @if (section.Value.Settings.ShowFullStory)
                             {
                               <li><a href="#item-@headLineLink">@headline</a></li>
@@ -119,12 +120,12 @@ UPDATE public.report_template SET
                       var headline= Settings.Content.HighlightKeywords ? section.Value.Filter.HighlightKeyWords(content.Headline, "headline")  : content.Headline;
                       var body = Settings.Content.HighlightKeywords ? section.Value.Filter.HighlightKeyWords(content.GetBody(), "body")  : content.GetBody();
                       var byline= Settings.Content.HighlightKeywords ? section.Value.Filter.HighlightKeyWords(content.Byline, "byline")  : content.Byline;
-                      var hasPrev = loopCount > 0;
-                      var prev = hasPrev ? loopCount - 1 : 0;
-                      var hasNext = (loopCount  + 1) < allContent.Length;
-                      var next = hasNext ? loopCount + 1 : 0;
-                      var itemPosition = loopCount;
-                      loopCount++;
+                      var hasPrev = contentCount > 0;
+                      var prev = hasPrev ? contentCount - 1 : 0;
+                      var hasNext = (contentCount  + 1) < allContent.Length;
+                      var next = hasNext ? contentCount + 1 : 0;
+                      var itemPosition = contentCount;
+                      contentCount++;
                       <div>
                         <div id="item-@itemPosition" style="display: flex; align-items: center;">
                           <a name="item-@content.Id"></a>
@@ -184,8 +185,8 @@ UPDATE public.report_template SET
                           @foreach (var content in tableSection.Value.Content)
                           {
                             var headline = $"{(Settings.Headline.ShowSentiment ? content.GetSentimentIcon("{0} - ") : "")}{content.Headline}{(Settings.Headline.ShowShortName && !String.IsNullOrEmpty(content.Source?.ShortName) ? $" - {content.Source?.ShortName}" : (Settings.Headline.ShowSource ? $" - {content.OtherSource}": ""))}{(Settings.Headline.ShowPublishedOn ? $" - {content.PublishedOn?.AddHours(utcOffset):dd-MMM-yyyy}" : "")}";
-                            var itemPosition = loopCount;
-                            loopCount++;
+                            var itemPosition = contentCount;
+                            contentCount++;
                             <li><a href="#item-@itemPosition">@headline</a></li>
                           }
                         </ul>
@@ -211,7 +212,6 @@ UPDATE public.report_template SET
           Terms of Use - This summary is a service provided by Government Communications and Public Engagement and is only intended for original addressee. All content is the copyrighted property of a third party creator of the material.
           Copying, retransmitting, archiving, redistributing, selling, licensing, or emailing the material to any third party or any employee of the Province who is not authorized to access the material is prohibited.
         </p>
-    
     '
 WHERE "name" = 'Custom Report';
 
