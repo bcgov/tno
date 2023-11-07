@@ -17,9 +17,11 @@ const AVOverviewPreview: React.FC = () => {
       setIsLoading(true);
       const instance = await findAVOverview(new Date().toISOString());
       setInstance(instance);
-      const preview = await viewAVOverview(instance?.id ?? 0);
-      setIsPublished(instance?.isPublished ?? false);
-      setPreview(preview);
+      if (!!instance?.id) {
+        const preview = await viewAVOverview(instance.id);
+        setIsPublished(instance.isPublished);
+        setPreview(preview);
+      }
     } catch {
     } finally {
       setIsLoading(false);
