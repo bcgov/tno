@@ -39,10 +39,8 @@ public class ContentService : KafkaConsumerService
         base.ConfigureServices(services);
         services
             .Configure<ContentOptions>(this.Configuration.GetSection("Service"))
-            .Configure<ProducerConfig>(this.Configuration.GetSection("Kafka:Producer"))
             .Configure<AdminClientConfig>(this.Configuration.GetSection("Kafka:Admin"))
-            .AddTransient<IKafkaAdmin, KafkaAdmin>()
-            .AddTransient<IKafkaMessenger, KafkaMessenger>()
+            .AddSingleton<IKafkaAdmin, KafkaAdmin>()
             .AddScoped<IServiceManager, ContentManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
