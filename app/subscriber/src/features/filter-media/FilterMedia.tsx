@@ -30,7 +30,7 @@ export const FilterMedia: React.FC = () => {
   const [productValue, setProductValue] = React.useState<IOptionItem | null>();
   const [sourceValue, setSourceValue] = React.useState<IOptionItem | null>();
 
-  const [settings] = React.useState<IFilterSettingsModel>(
+  const [settings, setSettings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(
       filterAdvanced.startDate ?? moment().startOf('day').toISOString(),
       filterAdvanced.endDate ?? moment().endOf('day').toISOString(),
@@ -46,6 +46,15 @@ export const FilterMedia: React.FC = () => {
     },
     [findContentWithElasticsearch],
   );
+
+  React.useEffect(() => {
+    setSettings(
+      createFilterSettings(
+        filterAdvanced.startDate ?? moment().startOf('day').toISOString(),
+        filterAdvanced.endDate ?? moment().endOf('day').toISOString(),
+      ),
+    );
+  }, [filterAdvanced?.startDate, filterAdvanced?.endDate]);
 
   return (
     <styled.FilterMedia>
@@ -88,8 +97,6 @@ export const FilterMedia: React.FC = () => {
                 defaultSearchOperator: 'and',
                 productIds: [products.find((p) => p.name === productValue?.label)?.id ?? 0],
                 sourceIds: [sources.find((s) => s.id === sourceValue?.value)?.id ?? 0],
-                startDate: `${moment(filterAdvanced?.startDate).startOf('day')}`,
-                endDate: `${moment(filterAdvanced?.endDate).endOf('day')}`,
               }),
             );
           }}
