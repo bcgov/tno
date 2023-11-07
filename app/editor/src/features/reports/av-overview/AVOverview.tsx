@@ -125,7 +125,7 @@ const AVOverview: React.FC = () => {
                 onClick={() => {}}
                 variant={ButtonVariant.success}
                 type="submit"
-                disabled={!values.sections.length || !isEditable}
+                disabled={!values.sections?.length || !isEditable}
                 className="save-items"
               >
                 Save Evening Overview
@@ -136,7 +136,7 @@ const AVOverview: React.FC = () => {
                 )}
               </Button>
             </Row>
-            {values.sections.map((section, index) => (
+            {values.sections?.map((section, index) => (
               <OverviewSection key={index} index={index} editable={isEditable} />
             ))}
             <Row className="buttons">
@@ -152,7 +152,7 @@ const AVOverview: React.FC = () => {
               >
                 New broadcast section <MdAdd className="icon" />
               </Button>
-              <Show visible={!!values.sections.length}>
+              <Show visible={!!values.sections?.length}>
                 <Button
                   onClick={() => {}}
                   variant={ButtonVariant.success}
