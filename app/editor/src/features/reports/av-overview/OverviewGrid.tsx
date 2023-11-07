@@ -61,6 +61,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
               .toISOString()
           : moment().startOf('day').toISOString(),
         contentTypes: [],
+        sort: ['publishedOn asc'],
       }).then((data) =>
         setClips(data.items.map((c) => new OptionItem(c.headline, c.id)) as IOptionItem[]),
       );
