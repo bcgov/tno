@@ -14,6 +14,7 @@ export const defaultSource: ISourceForm = {
   useInTopics: false,
   ownerId: '',
   productId: '',
+  productSearchGroupId: '',
   configuration: {
     timeZone: '',
   },

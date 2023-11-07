@@ -63,6 +63,12 @@ public class SourceModel
     /// </summary>
     public int? ProductId { get; set; }
 
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public int? ProductSearchGroupId { get; set; }
+
     /// <summary>
     /// get/set -
     /// </summary>
@@ -104,6 +110,7 @@ public class SourceModel
         this.License = entity.License?.Name ?? "";
         this.OwnerId = entity.OwnerId;
         this.ProductId = entity.ProductId;
+        this.ProductSearchGroupId = entity.ProductSearchGroupId;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
         this.UseInTopics = entity.UseInTopics;

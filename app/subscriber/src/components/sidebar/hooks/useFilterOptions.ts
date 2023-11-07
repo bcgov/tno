@@ -32,13 +32,25 @@ export const useFilterOptions = () => {
     }
   }, [settings]);
 
-  const dailyPrint = sources.filter((source) => source.productId === printIds?.dailyPrintId);
-  const weeklyPrint = sources.filter((source) => source.productId === printIds?.weeklyPrintId);
-  const cpWire = sources.filter((source) => source.productId === mediaIds?.cpWireId);
-  const talkRadio = sources.filter((source) => source.productId === mediaIds?.talkRadioId);
-  const onlinePrint = sources.filter((source) => source.productId === printIds?.onlinePrintId);
-  const newsRadio = sources.filter((source) => source.productId === mediaIds?.newsRadioId);
-  const television = sources.filter((source) => source.productId === mediaIds?.televisionId);
+  const dailyPrint = sources.filter(
+    (source) => source.productSearchGroupId === printIds?.dailyPrintId,
+  );
+  const weeklyPrint = sources.filter(
+    (source) => source.productSearchGroupId === printIds?.weeklyPrintId,
+  );
+  const cpWire = sources.filter((source) => source.productSearchGroupId === mediaIds?.cpWireId);
+  const talkRadio = sources.filter(
+    (source) => source.productSearchGroupId === mediaIds?.talkRadioId,
+  );
+  const onlinePrint = sources.filter(
+    (source) => source.productSearchGroupId === printIds?.onlinePrintId,
+  );
+  const newsRadio = sources.filter(
+    (source) => source.productSearchGroupId === mediaIds?.newsRadioId,
+  );
+  const television = sources.filter(
+    (source) => source.productSearchGroupId === mediaIds?.televisionId,
+  );
   return {
     dailyPrint,
     weeklyPrint,
