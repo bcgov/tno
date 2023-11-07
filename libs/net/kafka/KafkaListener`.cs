@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
@@ -20,7 +19,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     private readonly ILogger _logger;
     private bool _disposed = false;
     private bool _open = false;
-    private readonly ConcurrentDictionary<ConsumeResult<TKey, TValue>, bool> _consumeResults = new();
+    private int _resultConsumerTracker = 0;
     #endregion
 
     #region Properties
@@ -53,7 +52,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// <summary>
     /// get - Determine if max threads has been reached.
     /// </summary>
-    private bool ReachOrOverLimit => _consumeResults.Count >= _config.MaxThreads;
+    private bool ReachOrOverLimit => _resultConsumerTracker >= _config.MaxThreads;
     #endregion
 
     #region Events
@@ -171,8 +170,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
                 _logger.LogDebug("Message received from Kafka topic: '{topic}' key:'{key}'", consumeResult.Topic, consumeResult.Message.Key);
                 if (this.IsLongRunningJob)
                 {
-                    var current = consumeResult;
-                    _consumeResults[current] = false;
+                    Interlocked.Increment(ref _resultConsumerTracker);
                     if (!this.IsPaused && ReachOrOverLimit) Pause();
 
                     // Cannot await for the action to complete because if it takes too long the Kafka consumer will leave the group.
@@ -183,7 +181,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
                     {
                         try
                         {
-                            await action(current);
+                            await action(consumeResult);
                         }
                         catch (Exception ex)
                         {
@@ -244,7 +242,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
         this.Consumer?.Commit(result);
         _logger.LogDebug("Message committed from topic:'{topic}' key:'{key}'", result.Topic, result.Message.Key);
 
-        if (this.IsLongRunningJob) _consumeResults.TryRemove(result, out _);
+        if (this.IsLongRunningJob) Interlocked.Decrement(ref _resultConsumerTracker);
     }
 
     /// <summary>

@@ -37,11 +37,6 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     protected IKafkaListener<string, IndexRequestModel> Listener { get; private set; }
 
     /// <summary>
-    /// get - Kafka message producer.
-    /// </summary>
-    protected IKafkaMessenger Producer { get; private set; }
-
-    /// <summary>
     /// get - The Elasticsearch client.
     /// </summary>
     protected ElasticsearchClient Client { get; private set; }
@@ -52,23 +47,21 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// Creates a new instance of a IndexingManager object, initializes with specified parameters.
     /// </summary>
     /// <param name="kafkaAdmin"></param>
-    /// <param name="consumer"></param>
-    /// <param name="producer"></param>
+    /// <param name="listener"></param>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public IndexingManager(
         IKafkaAdmin kafkaAdmin,
-        IKafkaListener<string, IndexRequestModel> consumer,
-        IKafkaMessenger producer,
+        IKafkaListener<string, IndexRequestModel> listener,
         IApiService api,
         IOptions<IndexingOptions> options,
         ILogger<IndexingManager> logger)
         : base(api, options, logger)
     {
         this.KafkaAdmin = kafkaAdmin;
-        this.Producer = producer;
-        this.Listener = consumer;
+        this.Listener = listener;
+        this.Listener.IsLongRunningJob = false;
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
 
@@ -109,12 +102,12 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             {
                 try
                 {
+                    var topics = this.Options.Topics.Split(',', StringSplitOptions.RemoveEmptyEntries);
                     // Only include topics that exist.
-                    var topics = this.Options.GetTopics();
                     var kafkaTopics = this.KafkaAdmin.ListTopics();
                     topics = topics.Except(topics.Except(kafkaTopics)).ToArray();
 
-                    if (topics.Length > 0)
+                    if (topics.Length != 0)
                     {
                         this.Listener.Subscribe(topics);
                         ConsumeMessages();
@@ -135,7 +128,6 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             // With a minimum delay for all data source schedules, it could mean some data sources are pinged more often then required.
             // It could also result in a longer than planned delay if the action manager is awaited (currently it is).
             this.Logger.LogDebug("Service sleeping for {delay:n0} ms", delay);
-            // await Thread.Sleep(new TimeSpan(0, 0, 0, delay));
             await Task.Delay(delay);
         }
     }
@@ -148,6 +140,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     {
         if (_consumer == null || _notRunning.Contains(_consumer.Status))
         {
+            this.Logger.LogDebug("ConsumeMessages:_consumer is null");
             // Make sure the prior task is cancelled before creating a new one.
             if (_cancelToken?.IsCancellationRequested == false)
                 _cancelToken?.Cancel();
@@ -165,10 +158,12 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         while (this.State.Status == ServiceStatus.Running &&
             _cancelToken?.IsCancellationRequested == false)
         {
+            this.Logger.LogDebug("ListenerHandlerAsync:AWAIT");
             await this.Listener.ConsumeAsync(HandleMessageAsync, _cancelToken.Token);
         }
 
         // The service is stopping or has stopped, consume should stop too.
+        this.Logger.LogDebug("ListenerHandlerAsync:STOP");
         this.Listener.Stop();
     }
 
@@ -181,6 +176,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns>True if the consumer should retry the message.</returns>
     private void ListenerErrorHandler(object sender, ErrorEventArgs e)
     {
+        this.Logger.LogDebug("ListenerErrorHandler:BEGIN");
+        this.Logger.LogDebug($"ListenerErrorHandler: Retries={_retries}");
         // Only the first retry will count as a failure.
         if (_retries == 0)
             this.State.RecordFailure();
@@ -188,8 +185,12 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         if (e.GetException() is ConsumeException consume)
         {
             if (consume.Error.IsFatal)
+            {
                 this.Listener.Stop();
+                this.Logger.LogDebug("ListenerErrorHandler: Stop on IsFatal");
+            }
         }
+        this.Logger.LogDebug("ListenerErrorHandler:END");
     }
 
     /// <summary>
@@ -199,17 +200,19 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <param name="e"></param>
     private void ListenerStopHandler(object sender, EventArgs e)
     {
+        this.Logger.LogDebug("ListenerStopHandler:BEGIN");
         if (_consumer != null &&
             !_notRunning.Contains(_consumer.Status) &&
             _cancelToken != null && !_cancelToken.IsCancellationRequested)
         {
+            this.Logger.LogDebug("ListenerStopHandler.Cancel");
             _cancelToken.Cancel();
         }
+        this.Logger.LogDebug("ListenerStopHandler:END");
     }
 
     /// <summary>
-    /// Import the content.
-    /// Copy any file associated with source content.
+    /// Add/Update/remove the content index.
     /// </summary>
     /// <param name="result"></param>
     /// <returns></returns>
@@ -218,41 +221,78 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     {
         try
         {
-            this.Logger.LogInformation("Indexing content from Topic: {Topic}, Content ID: {Key}", result.Topic, result.Message.Key);
-            var model = result.Message.Value;
-
-            if (model.Action == IndexAction.Delete)
+            // The service has stopped, so to should consuming messages.
+            if (this.State.Status != ServiceStatus.Running)
             {
-                await DeleteContentAsync(model.ContentId);
+                this.Listener.Stop();
+                this.State.Stop();
             }
             else
             {
-                // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
-                var content = await this.Api.FindContentByIdAsync(result.Message.Value.ContentId);
-                if (content != null)
-                {
-                    if (model.Action == IndexAction.Publish)
-                        content = await PublishContentAsync(content);
-                    else if (model.Action == IndexAction.Unpublish)
-                        content = await UnpublishContentAsync(content);
+                await ProcessIndexRequestAsync(result);
 
-                    // Update the unpublished content with the latest data and status.
-                    await IndexContentAsync(result.Message.Value, content);
-                }
-                else
-                {
-                    this.Logger.LogWarning("Content does not exists. Content ID: {ContentId}", result.Message.Value.ContentId);
-                }
+                // Inform Kafka this message is completed.
+                this.Listener.Commit(result);
+
+                // Successful run clears any errors.
+                this.State.ResetFailures();
+                _retries = 0;
             }
-
-            // Successful run clears any errors.
-            this.State.ResetFailures();
-            _retries = 0;
         }
-        catch (HttpClientRequestException ex)
+        catch (Exception ex)
         {
-            this.Logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"] ?? "");
+            if (ex is HttpClientRequestException httpEx)
+            {
+                this.Logger.LogError(ex, "HTTP exception while consuming. {response}", httpEx.Data["body"] ?? "");
+            }
+            else
+            {
+                this.Logger.LogError(ex, "Failed to handle message");
+            }
+            ListenerErrorHandler(this, new ErrorEventArgs(ex));
         }
+        finally
+        {
+            if (State.Status == ServiceStatus.Running) Listener.Resume();
+        }
+    }
+
+    /// <summary>
+    /// Process the index update request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    private async Task ProcessIndexRequestAsync(ConsumeResult<string, IndexRequestModel> result)
+    {
+        this.Logger.LogDebug($"ProcessIndexRequestAsync:BEGIN:{result.Message.Key}");
+
+        this.Logger.LogInformation("Indexing content from Topic: {Topic}, Content ID: {Key}", result.Topic, result.Message.Key);
+        var model = result.Message.Value;
+
+        if (model.Action == IndexAction.Delete)
+        {
+            await DeleteContentAsync(model.ContentId);
+        }
+        else
+        {
+            // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
+            var content = await this.Api.FindContentByIdAsync(result.Message.Value.ContentId);
+            if (content != null)
+            {
+                if (model.Action == IndexAction.Publish)
+                    content = await PublishContentAsync(content);
+                else if (model.Action == IndexAction.Unpublish)
+                    content = await UnpublishContentAsync(content);
+
+                // Update the unpublished content with the latest data and status.
+                await IndexContentAsync(result.Message.Value, content);
+            }
+            else
+            {
+                this.Logger.LogWarning("Content does not exists. Content ID: {ContentId}", result.Message.Value.ContentId);
+            }
+        }
+        this.Logger.LogDebug($"ProcessIndexRequestAsync:END:{result.Message.Key}");
     }
 
     /// <summary>
@@ -262,6 +302,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task IndexContentAsync(IndexRequestModel request, ContentModel content)
     {
+        this.Logger.LogDebug($"IndexContentAsync:BEGIN:{content.Id}");
+
         var document = new IndexRequest<ContentModel>(content, this.Options.UnpublishedIndex, content.Id);
         var response = await this.Client.IndexAsync(document);
         if (response.IsSuccess())
@@ -277,6 +319,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             if (response.TryGetOriginalException(out Exception? ex))
                 this.Logger.LogError(ex, "Content failed to index.  Content ID: {id}, Index: {index}", content.Id, this.Options.UnpublishedIndex);
         }
+        this.Logger.LogDebug($"IndexContentAsync:END:{content.Id}");
     }
 
     /// <summary>
@@ -290,6 +333,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task<ContentModel> PublishContentAsync(ContentModel content)
     {
+        this.Logger.LogDebug($"PublishContentAsync:BEGIN:{content.Id}");
         // Update the status of the content to indicate it has been published.
         if (content.Status != ContentStatus.Published)
         {
@@ -314,6 +358,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 this.Logger.LogError(ex, "Content failed to publish.  Content ID: {id}, Index: {index}", content.Id, this.Options.PublishedIndex);
         }
 
+        this.Logger.LogDebug($"PublishContentAsync:END:{content.Id}");
         return content;
     }
 
@@ -326,6 +371,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task<ContentModel> UnpublishContentAsync(ContentModel content)
     {
+        this.Logger.LogDebug($"UnpublishContentAsync:BEGIN:{content.Id}");
+
         // Update the status of the content to indicate it has been unpublished.
         if (content.Status != ContentStatus.Unpublished)
         {
@@ -345,6 +392,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             if (response.TryGetOriginalException(out Exception? ex))
                 this.Logger.LogError(ex, "Content failed to unpublish.  Content ID: {id}, Index: {index}", content.Id, this.Options.PublishedIndex);
         }
+        this.Logger.LogDebug($"UnpublishContentAsync:END:{content.Id}");
         return content;
     }
 
@@ -355,8 +403,12 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task DeleteContentAsync(long contentId)
     {
+        this.Logger.LogDebug($"DeleteContentAsync:BEGIN:{contentId}");
+
         await DeleteContentAsync(contentId, this.Options.PublishedIndex);
         await DeleteContentAsync(contentId, this.Options.UnpublishedIndex);
+
+        this.Logger.LogDebug($"DeleteContentAsync:END:{contentId}");
     }
 
     /// <summary>
@@ -367,6 +419,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task DeleteContentAsync(long contentId, string index)
     {
+        this.Logger.LogDebug($"DeleteContentAsync:BEGIN:{contentId}:{index}");
         var request = new DeleteRequest<ContentModel>(index, contentId);
         var response = await this.Client.DeleteAsync(request);
         if (response.IsSuccess())
@@ -379,6 +432,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             if (response.TryGetOriginalException(out Exception? ex))
                 this.Logger.LogError(ex, "Content failed to delete.  Content ID: {id}, Index: {index}", contentId, index);
         }
+        this.Logger.LogDebug($"DeleteContentAsync:END:{contentId}:{index}");
     }
 
     /// <summary>
@@ -391,6 +445,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <exception cref="InvalidOperationException"></exception>
     private async Task SendNotifications(IndexRequestModel request, ContentModel content)
     {
+        this.Logger.LogDebug($"SendNotifications:BEGIN:{content.Id}");
+
         if (!String.IsNullOrWhiteSpace(this.Options.NotificationTopic))
         {
             // TODO: Make request to API to determine what notifications should be sent.
@@ -399,9 +455,10 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             {
                 RequestorId = request.RequestorId
             };
-            _ = await this.Producer.SendMessageAsync(this.Options.NotificationTopic, $"content-{content.Id}", notification)
+            _ = await this.Api.SendMessageAsync(notification)
                 ?? throw new HttpClientRequestException($"Failed to receive result from Kafka when sending message.  Topic: {this.Options.NotificationTopic}, Content ID: {content.Id}");
         }
+        this.Logger.LogDebug($"SendNotifications:END:{content.Id}");
     }
     #endregion
 }
