@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Entities;
 
@@ -12,6 +13,7 @@ public class NotificationValidator : INotificationValidator
     #region Variables
     private static readonly ContentStatus[] _onlyPublished = new[] { ContentStatus.Publish, ContentStatus.Published };
     private readonly JsonSerializerOptions _serializationOptions;
+    private readonly ILogger _logger;
     #endregion
 
     #region Properties
@@ -37,10 +39,12 @@ public class NotificationValidator : INotificationValidator
     /// </summary>
     /// <param name="api"></param>
     /// <param name="serializationOptions"></param>
-    public NotificationValidator(IApiService api, IOptions<JsonSerializerOptions> serializationOptions)
+    /// <param name="logger"></param>
+    public NotificationValidator(IApiService api, IOptions<JsonSerializerOptions> serializationOptions, ILogger<NotificationValidator> logger)
     {
         this.Api = api;
         _serializationOptions = serializationOptions.Value;
+        _logger = logger;
     }
 
     /// <summary>
@@ -50,11 +54,14 @@ public class NotificationValidator : INotificationValidator
     /// <param name="notification"></param>
     /// <param name="content"></param>
     /// <param name="serializationOptions"></param>
+    /// <param name="logger"></param>
     public NotificationValidator(
         IApiService api,
         API.Areas.Services.Models.Notification.NotificationModel notification,
         API.Areas.Services.Models.Content.ContentModel content,
-        IOptions<JsonSerializerOptions> serializationOptions) : this(api, serializationOptions)
+        IOptions<JsonSerializerOptions> serializationOptions,
+        ILogger<NotificationValidator> logger)
+        : this(api, serializationOptions, logger)
     {
         this.Notification = notification;
         this.Content = content;
@@ -112,7 +119,7 @@ public class NotificationValidator : INotificationValidator
     {
         if (this.Notification == null || this.Content == null) throw new InvalidOperationException("Notification and Content properties cannot be null");
 
-        var resend = this.Notification.Resend switch
+        var send = this.Notification.AlertOnIndex && (this.Notification.Resend switch
         {
             // Never resend after the first published alert.
             Entities.ResendOption.Never => this.Content.Status == Entities.ContentStatus.Published &&
@@ -127,9 +134,10 @@ public class NotificationValidator : INotificationValidator
             // Send every time published an approved transcript
             Entities.ResendOption.Transcribed => this.Content.Status == Entities.ContentStatus.Published && this.Content.IsApproved,
             _ => false,
-        };
-        return resend && (!this.Notification.AlertOnIndex);
+        });
 
+        if (!send) _logger.LogDebug("Notification '{name}' with content '{contentId}' resend rule did not pass.", this.Notification.Name, this.Content.Id);
+        return send;
     }
 
     /// <summary>
@@ -141,8 +149,10 @@ public class NotificationValidator : INotificationValidator
     {
         if (this.Notification == null || this.Content == null) throw new InvalidOperationException("Notification and Content properties cannot be null");
 
-        return this.Notification.IsEnabled &&
-            (this.Notification.Subscribers.Any() || this.Notification.Subscribers.Any());
+        var send = this.Notification.IsEnabled && this.Notification.Subscribers.Any();
+
+        if (!send) _logger.LogDebug("Notification '{name}' is not enabled or does not have subscribers.", this.Notification.Name);
+        return send;
     }
 
     /// <summary>
@@ -158,10 +168,11 @@ public class NotificationValidator : INotificationValidator
 
         var result =
             (!filter.SearchUnpublished || _onlyPublished.Contains(Content.Status)) &&
-            (filter.IsHidden.HasValue || Content.IsHidden == filter.IsHidden) &&
+            (!filter.IsHidden.HasValue || Content.IsHidden == filter.IsHidden) &&
             (!filter.Status.HasValue || filter.Status == Content.Status) &&
             (!filter.UserId.HasValue || filter.UserId == Content.OwnerId) && // TODO: Created or Updated by this user.
             (!filter.OwnerId.HasValue || filter.OwnerId == Content.OwnerId) &&
+            (!filter.HasTopic.HasValue || Content.Topics.Any()) &&
 
             ((!filter.StartDate.HasValue && !filter.EndDate.HasValue) ||
              (filter.StartDate.HasValue && filter.EndDate.HasValue &&
@@ -180,16 +191,16 @@ public class NotificationValidator : INotificationValidator
             (string.IsNullOrWhiteSpace(filter.Section) || Content.Section.ToLower().Contains(filter.Section.ToLower())) &&
             (string.IsNullOrWhiteSpace(filter.Edition) || Content.Edition.ToLower().Contains(filter.Edition.ToLower())) &&
 
-            (filter.ProductIds?.Any() == false || filter.ProductIds?.Contains(Content.ProductId) == true) &&
-            (filter.SourceIds?.Any() == false || (Content.SourceId.HasValue && filter.SourceIds?.Contains(Content.SourceId.Value) == true)) &&
-            (filter.ContentIds?.Any() == false || filter.ContentIds?.Contains(Content.Id) == true) &&
-            (filter.ContentTypes?.Any() == false || filter.ContentTypes?.Contains(Content.ContentType) == true) &&
-            (filter.HasTopic.HasValue || Content.Topics.Any()) &&
-            (filter.Actions?.Any() == false || Content.Actions.Any(
+            (filter.ProductIds == null || filter.ProductIds.Any() == false || filter.ProductIds?.Contains(Content.ProductId) == true) &&
+            (filter.SourceIds == null || filter.SourceIds?.Any() == false || (Content.SourceId.HasValue && filter.SourceIds?.Contains(Content.SourceId.Value) == true)) &&
+            (filter.ContentIds == null || filter.ContentIds?.Any() == false || filter.ContentIds?.Contains(Content.Id) == true) &&
+            (filter.ContentTypes == null || filter.ContentTypes?.Any() == false || filter.ContentTypes?.Contains(Content.ContentType) == true) &&
+            (filter.Actions == null || filter.Actions?.Any() == false || Content.Actions.Any(
                 ca => filter.Actions?.Any(a => a.Id == ca.Id) == true &&
                 ((ca.ValueType == Entities.ValueType.Boolean && ca.Value == "true") ||
                  (ca.ValueType != Entities.ValueType.Boolean && !string.IsNullOrWhiteSpace(ca.Value)))));
 
+        if (!result) _logger.LogDebug("Notification '{name}' with content '{id}' did not pass the filter.", this.Notification.Name, this.Content.Id);
         return result;
     }
 
