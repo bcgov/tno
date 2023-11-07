@@ -13,8 +13,8 @@ using TNO.DAL;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20231107161622_1.0.86")]
-    partial class _1086
+    [Migration("20231107194039_1.0.87")]
+    partial class _1087
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -4163,6 +4163,10 @@ namespace TNO.DAL.Migrations
                     b.Property<int?>("ProductId")
                         .HasColumnType("integer")
                         .HasColumnName("product_id");
+
+                    b.Property<int?>("ProductSearchGroupId")
+                        .HasColumnType("integer")
+                        .HasColumnName("product_search_group_id");
 
                     b.Property<string>("ShortName")
                         .IsRequired()

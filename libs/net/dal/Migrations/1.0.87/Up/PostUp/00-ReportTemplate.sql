@@ -184,7 +184,9 @@ UPDATE public.report_template SET
                           @foreach (var content in tableSection.Value.Content)
                           {
                             var headline = $"{(Settings.Headline.ShowSentiment ? content.GetSentimentIcon("{0} - ") : "")}{content.Headline}{(Settings.Headline.ShowShortName && !String.IsNullOrEmpty(content.Source?.ShortName) ? $" - {content.Source?.ShortName}" : (Settings.Headline.ShowSource ? $" - {content.OtherSource}": ""))}{(Settings.Headline.ShowPublishedOn ? $" - {content.PublishedOn?.AddHours(utcOffset):dd-MMM-yyyy}" : "")}";
-                            <li><a href="#item-@content.Id">@headline</a></li>
+                            var itemPosition = loopCount;
+                            loopCount++;
+                            <li><a href="#item-@itemPosition">@headline</a></li>
                           }
                         </ul>
                       }
