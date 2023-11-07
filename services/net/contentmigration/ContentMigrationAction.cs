@@ -374,6 +374,9 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             }
 
             var sourceContent = contentMigrator.CreateSourceContent(lookups, source!, product, manager.Ingest.IngestType!.ContentType, newsItem, defaultTimeZone);
+            if (this.Options.TagForMigratedContent != "") {
+                sourceContent.Tags = sourceContent.Tags.Append(new TNO.Kafka.Models.Tag(this.Options.TagForMigratedContent, ""));
+            }
             bool isNewSourceContent = false;
             bool isUpdatedSourceContent = false;
             var reference = await this.FindContentReferenceAsync(source?.Code, sourceContent.Uid);

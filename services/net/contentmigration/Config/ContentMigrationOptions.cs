@@ -75,5 +75,10 @@ public class ContentMigrationOptions : IngestServiceOptions
     /// </summary>
     public bool GenerateAlertsOnContentMigration { get; set; } = true;
 
+    /// <summary>
+    /// get/set - The Migration Type to do Historic|Recent
+    /// </summary>
+    public string TagForMigratedContent { get; set; } = "";
+
     #endregion
 }
