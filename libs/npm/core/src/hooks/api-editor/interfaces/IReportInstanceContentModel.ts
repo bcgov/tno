@@ -1,7 +1,7 @@
 import { IAuditColumnsModel, IContentModel } from '.';
 
 export interface IReportInstanceContentModel extends IAuditColumnsModel {
-  reportInstanceId: number;
+  instanceId: number;
   contentId: number;
   content?: IContentModel;
   sectionName: string;

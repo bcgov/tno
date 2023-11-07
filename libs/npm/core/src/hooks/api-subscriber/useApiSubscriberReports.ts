@@ -48,9 +48,9 @@ export const useApiSubscriberReports = (
         `/subscriber/reports/public`,
       );
     },
-    getReport: (id: number) => {
+    getReport: (id: number, generate: boolean = false) => {
       return api.get<never, AxiosResponse<IReportModel | undefined>, any>(
-        `/subscriber/reports/${id}`,
+        `/subscriber/reports/${id}?generate=${generate}`,
       );
     },
     addReport: (report: IReportModel) => {

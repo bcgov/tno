@@ -30,6 +30,7 @@ import {
   storeDataLocations,
   storeHolidays,
   storeIngestTypes,
+  storeIsReady,
   storeLicenses,
   storeMediaTypes,
   storeMetrics,
@@ -49,6 +50,7 @@ import {
 import { ILookupState } from './interfaces';
 
 export interface ILookupStore {
+  storeIsReady: (isReady: boolean) => void;
   storeCache: (cache: ICacheModel[]) => void;
   updateCache: (cache: ICacheModel) => void;
   storeActions: (actions: IActionModel[]) => void;
@@ -78,6 +80,9 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
 
   const controller = React.useMemo(
     () => ({
+      storeIsReady: (isReady: boolean) => {
+        dispatch(storeIsReady(isReady));
+      },
       storeCache: (cache: ICacheModel[]) => {
         dispatch(storeCache(cache));
       },

@@ -14,6 +14,7 @@ import {
   IContentTagModel,
   IContentTonePoolModel,
   IContentTopicModel,
+  IContentVersionModel,
   IContributorModel,
   IFileReferenceModel,
   ISourceModel,
@@ -44,12 +45,14 @@ export interface IContentModel extends IAuditColumnsModel {
   edition: string;
   section: string;
   page: string;
+  postedOn?: string;
   publishedOn: string;
   summary: string;
   body?: string;
   sourceUrl?: string;
   isHidden: boolean;
   isApproved: boolean;
+  isPrivate: boolean;
   actions?: IContentActionModel[];
   tags?: IContentTagModel[];
   labels?: IContentLabelModel[];
@@ -58,6 +61,7 @@ export interface IContentModel extends IAuditColumnsModel {
   timeTrackings?: ITimeTrackingModel[];
   fileReferences?: IFileReferenceModel[];
   links?: IContentLinkModel[];
+  versions?: Record<number, IContentVersionModel>;
 
   // React-Table Properties
   // TODO: Should not be part of the API interface.

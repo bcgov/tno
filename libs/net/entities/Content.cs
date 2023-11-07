@@ -186,6 +186,20 @@ public class Content : AuditColumns
     public bool IsApproved { get; set; }
 
     /// <summary>
+    /// get/set - Private content is not searchable.
+    /// </summary>
+    [Column("is_private")]
+    public bool IsPrivate { get; set; }
+
+    /// <summary>
+    /// get - Dictionary of versions associated with this content.
+    /// This provides subscribers the ability to customize the content.
+    /// The key is the user's ID.
+    /// </summary>
+    [Column("versions")]
+    public Dictionary<int, Models.ContentVersion> Versions { get; set; } = new();
+
+    /// <summary>
     /// get - Collection of logs associated with this content.
     /// </summary>
     public virtual List<ContentLog> Logs { get; } = new List<ContentLog>();

@@ -25,6 +25,7 @@ import {
 import { ILookupState } from './interfaces';
 
 export const initialLookupState: ILookupState = {
+  isReady: false,
   cache: [],
   actions: [],
   topics: [],
@@ -51,6 +52,9 @@ export const lookupSlice = createSlice({
   name: 'lookup',
   initialState: initialLookupState,
   reducers: {
+    storeIsReady(state: ILookupState, action: PayloadAction<boolean>) {
+      state.isReady = action.payload;
+    },
     storeCache(state: ILookupState, action: PayloadAction<ICacheModel[]>) {
       state.cache = action.payload;
     },
@@ -126,6 +130,7 @@ export const lookupSlice = createSlice({
 });
 
 export const {
+  storeIsReady,
   storeCache,
   updateCache,
   storeActions,

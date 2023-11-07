@@ -460,6 +460,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       init: async () => {
         // TODO: Handle failures
         await controller.getLookups();
+        store.storeIsReady(true);
       },
     }),
     [

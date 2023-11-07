@@ -29,7 +29,6 @@ export const Link: React.FC<ILinkProps> = ({
     <styled.Link
       className={`link${className ? ` ${className}` : ''}`}
       onClick={(e) => {
-        console.debug(e);
         if (e.ctrlKey) window.open(to, '_blank');
         else navigate(to, options);
       }}

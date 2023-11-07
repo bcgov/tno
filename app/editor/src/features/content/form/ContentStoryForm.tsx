@@ -1,9 +1,17 @@
 import 'react-quill/dist/quill.snow.css';
 
-import { Wysiwyg } from 'components/wysiwyg';
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { Button, ButtonVariant, ContentTypeName, Modal, Show, useWindowSize } from 'tno-core';
+import { useLookup } from 'store/hooks';
+import {
+  Button,
+  ButtonVariant,
+  ContentTypeName,
+  FormikContentWysiwyg,
+  Modal,
+  Show,
+  useWindowSize,
+} from 'tno-core';
 
 import { IContentForm } from './interfaces';
 import { MediaSummary } from './MediaSummary';
@@ -27,6 +35,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   const { values } = useFormikContext<IContentForm>();
   const [showExpandModal, setShowExpandModal] = React.useState(false);
   const { height } = useWindowSize();
+  const [{ tags }] = useLookup();
 
   const [summaryRequired, setSummaryRequired] = React.useState(
     initSummaryRequired ?? isSummaryRequired(values),
@@ -52,16 +61,17 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           contentType !== ContentTypeName.AudioVideo && contentType !== ContentTypeName.Image
         }
       >
-        <Wysiwyg
+        <FormikContentWysiwyg
           className="content-body"
           label="Story"
-          fieldName="body"
+          name="body"
           expandModal={setShowExpandModal}
+          tags={tags}
         />
       </Show>
       <Modal
         body={
-          <Wysiwyg
+          <FormikContentWysiwyg
             className="modal-quill"
             label={
               contentType === ContentTypeName.PrintContent || contentType === ContentTypeName.Story
@@ -70,11 +80,12 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
             }
             required={summaryRequired}
             height={height}
-            fieldName={
+            name={
               contentType === ContentTypeName.PrintContent || contentType === ContentTypeName.Story
                 ? 'body'
                 : 'summary'
             }
+            tags={tags}
           />
         }
         isShowing={showExpandModal}

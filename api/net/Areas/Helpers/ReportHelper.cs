@@ -135,7 +135,7 @@ public class ReportHelper : IReportHelper
             if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
             {
                 var sortOrder = 0;
-                section.Content = results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder)).ToArray();
+                section.Content = results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).ToArray();
             }
             return section;
         });

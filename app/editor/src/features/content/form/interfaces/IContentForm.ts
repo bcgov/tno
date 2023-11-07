@@ -37,6 +37,7 @@ export interface IContentForm {
   body: string;
   isHidden: boolean;
   isApproved: boolean;
+  isPrivate: boolean;
   actions: IContentActionModel[];
   topics: IContentTopicModel[];
   tags: IContentTagModel[];
@@ -47,6 +48,7 @@ export interface IContentForm {
   file?: File | null;
   links: IContentLinkModel[];
   workOrders: IWorkOrderModel[];
+  postedOn?: string;
   publishedOn: string;
   publishedOnTime: string;
   version?: number;

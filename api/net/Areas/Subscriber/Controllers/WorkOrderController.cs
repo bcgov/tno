@@ -5,17 +5,12 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
-using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.API.Models.SignalR;
-using TNO.Core.Exceptions;
-using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Entities.Models;
-using TNO.Kafka;
-using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 using TNO.Models.Filters;
 
@@ -39,15 +34,7 @@ public class WorkOrderController : ControllerBase
     #region Variables
     private readonly IWorkOrderHelper _workOrderHelper;
     private readonly IWorkOrderService _workOrderService;
-    private readonly IContentService _contentService;
-    private readonly IUserService _userService;
-    private readonly IKafkaMessenger _kafkaMessenger;
-    private readonly KafkaOptions _kafkaOptions;
-    private readonly KafkaHubConfig _kafkaHubOptions;
     private readonly JsonSerializerOptions _serializerOptions;
-
-    // The following work order status ensure only a single request can be completed for content.
-    private readonly IEnumerable<WorkOrderStatus> _workLimiterStatus = new[] { WorkOrderStatus.Submitted, WorkOrderStatus.InProgress };
     #endregion
 
     #region Constructors
@@ -56,29 +43,14 @@ public class WorkOrderController : ControllerBase
     /// </summary>
     /// <param name="workOrderService"></param>
     /// <param name="workOrderHelper"></param>
-    /// <param name="contentService"></param>
-    /// <param name="userService"></param>
-    /// <param name="kafkaMessenger"></param>
-    /// <param name="kafkaOptions"></param>
-    /// <param name="kafkaHubOptions"></param>
     /// <param name="serializerOptions"></param>
     public WorkOrderController(
         IWorkOrderService workOrderService,
         IWorkOrderHelper workOrderHelper,
-        IContentService contentService,
-        IUserService userService,
-        IKafkaMessenger kafkaMessenger,
-        IOptions<KafkaOptions> kafkaOptions,
-        IOptions<KafkaHubConfig> kafkaHubOptions,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _workOrderService = workOrderService;
         _workOrderHelper = workOrderHelper;
-        _contentService = contentService;
-        _userService = userService;
-        _kafkaMessenger = kafkaMessenger;
-        _kafkaOptions = kafkaOptions.Value;
-        _kafkaHubOptions = kafkaHubOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion

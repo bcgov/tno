@@ -1,5 +1,6 @@
 namespace TNO.TemplateEngine;
 
+using System.Text.Json;
 using TemplateEngine.Models;
 using TemplateEngine.Models.Reports;
 
@@ -88,23 +89,31 @@ public static class ReportExtensions
     {
         string keywords = "";
         string highlightedText = text;
-        if (filter?.Query != null)
+        if (filter?.Query != null &&
+            filter.Query.RootElement.TryGetProperty("query", out JsonElement query) &&
+            query.TryGetProperty("bool", out JsonElement queryBool) &&
+            queryBool.TryGetProperty("must", out JsonElement queryBoolMust))
         {
-            var musts = filter.Query.RootElement.GetProperty("query").GetProperty("bool").GetProperty("must");
-            foreach (var c in musts.EnumerateArray())
+            foreach (var c in queryBoolMust.EnumerateArray())
             {
-                keywords += c.GetProperty("simple_query_string").GetProperty("query");
-                bool fieldExists = false;
-                foreach (var f in c.GetProperty("simple_query_string").GetProperty("fields").EnumerateArray())
+                if (c.TryGetProperty("simple_query_string", out JsonElement simpleQueryString) && simpleQueryString.TryGetProperty("query", out JsonElement simpleQueryStringValue))
                 {
-                    if (f.ToString().StartsWith(field))
+                    keywords += simpleQueryStringValue;
+                    bool fieldExists = false;
+                    if (simpleQueryString.TryGetProperty("fields", out JsonElement simpleQueryStringFields))
                     {
-                        fieldExists = true;
+                        foreach (var f in simpleQueryStringFields.EnumerateArray())
+                        {
+                            if (f.ToString().StartsWith(field))
+                            {
+                                fieldExists = true;
+                            }
+                        }
                     }
-                }
-                if (!fieldExists)
-                {
-                    return text;
+                    if (!fieldExists)
+                    {
+                        return text;
+                    }
                 }
             }
         }

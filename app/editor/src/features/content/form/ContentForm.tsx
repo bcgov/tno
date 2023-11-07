@@ -4,7 +4,7 @@ import moment from 'moment';
 import React from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { useLookupOptions } from 'store/hooks';
+import { useLookup, useLookupOptions } from 'store/hooks';
 import { IAjaxRequest } from 'store/slices';
 import {
   Area,
@@ -21,6 +21,7 @@ import {
   FormikDatePicker,
   FormikHidden,
   FormikSelect,
+  FormikSentiment,
   FormikText,
   FormikTextArea,
   FormPage,
@@ -42,15 +43,7 @@ import {
 import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
 import { ContentClipForm, ContentLabelsForm, ContentStoryForm, ContentTranscriptForm } from '.';
-import {
-  ContentFormToolBar,
-  IFile,
-  Tags,
-  TimeLogSection,
-  ToningGroup,
-  Topic,
-  Upload,
-} from './components';
+import { ContentFormToolBar, IFile, Tags, TimeLogSection, Topic, Upload } from './components';
 import { useContentForm } from './hooks';
 import { ImageSection } from './ImageSection';
 import { IContentForm } from './interfaces';
@@ -100,6 +93,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
   });
   const [{ contributorOptions, sources, series, sourceOptions, mediaTypeOptions }] =
     useLookupOptions();
+  const [{ tonePools }] = useLookup();
   const { setShowValidationToast } = useTabValidationToasts();
 
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
@@ -150,10 +144,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
   }, [series]);
 
   return (
-    <styled.ContentForm className="content-form">
-      <FormPage>
-        <Area className="area">
+    <styled.ContentForm className="content-form fvh">
+      <FormPage className="fvh">
+        <Area className="area fvh">
           <FormikForm
+            className="fvh"
             onSubmit={handlePublish}
             validationSchema={ContentFormSchema}
             validateOnChange={false}
@@ -163,10 +158,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
             }
           >
             {(props: FormikProps<IContentForm>) => (
-              <Col className="content-col">
+              <Col className="content-col fvh">
                 <ContentFormToolBar fetchContent={fetchContent} combinedPath={combinedPath} />
                 <FormikHidden name="uid" />
-                <Row alignItems="flex-start" className="content-details">
+                <Row alignItems="flex-start" className="content-details fvh">
                   <Show visible={size === 0}>
                     <Row flex="1 1 100%" wrap="nowrap">
                       <Col flex="1 1 0%">
@@ -522,7 +517,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     </Col>
                   </Show>
                 </Row>
-                <Row className="tab-section">
+                <Row className="tab-section fvh">
                   <Show
                     visible={
                       props.values.contentType !== ContentTypeName.PrintContent &&
@@ -530,7 +525,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     }
                   >
                     <Tabs
-                      className={`'expand'} ${size === 1 ? 'small' : 'large'}`}
+                      className={`fvh ${size === 1 ? 'small' : 'large'}`}
                       tabs={
                         <>
                           <Tab
@@ -645,7 +640,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                 <Row gap="0.5rem">
                   <Tags />
                   <Show visible={props.values.contentType !== ContentTypeName.Image}>
-                    <ToningGroup fieldName="tonePools" />
+                    <FormikSentiment name="tonePools" options={tonePools} required />
                     <Show
                       visible={
                         props.values.contentType === ContentTypeName.AudioVideo ||

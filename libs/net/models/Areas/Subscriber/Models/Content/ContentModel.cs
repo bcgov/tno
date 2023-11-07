@@ -154,6 +154,16 @@ public class ContentModel : AuditColumnsModel
     public bool IsApproved { get; set; }
 
     /// <summary>
+    /// get/set - Private content is not searchable.
+    /// </summary>
+    public bool IsPrivate { get; set; }
+
+    /// <summary>
+    /// get/set - When an editor posted the content.
+    /// </summary>
+    public DateTime? PostedOn { get; set; }
+
+    /// <summary>
     /// get/set - When the content has been or will be published.
     /// </summary>
     public DateTime? PublishedOn { get; set; }
@@ -165,27 +175,34 @@ public class ContentModel : AuditColumnsModel
     public List<IFormFile>? Files { get; set; }
 
     /// <summary>
+    /// get - Dictionary of versions associated with this content.
+    /// This provides subscribers the ability to customize the content.
+    /// The key is the user's ID.
+    /// </summary>
+    public Dictionary<int, Entities.Models.ContentVersion> Versions { get; set; } = new();
+
+    /// <summary>
     /// get - An array of actions.
     /// </summary>
     public IEnumerable<ContentActionModel> Actions { get; set; } = Array.Empty<ContentActionModel>();
 
     /// <summary>
-    /// get - An array of categories.
+    /// get/set - An array of categories.
     /// </summary>
     public IEnumerable<ContentTopicModel> Topics { get; set; } = Array.Empty<ContentTopicModel>();
 
     /// <summary>
-    /// get - An array of tags.
+    /// get/set - An array of tags.
     /// </summary>
     public IEnumerable<ContentTagModel> Tags { get; set; } = Array.Empty<ContentTagModel>();
 
     /// <summary>
-    /// get - An array of labels.
+    /// get/set - An array of labels.
     /// </summary>
     public IEnumerable<ContentLabelModel> Labels { get; set; } = Array.Empty<ContentLabelModel>();
 
     /// <summary>
-    /// get - An array of tone pools.
+    /// get/set - An array of tone pools.
     /// </summary>
     public IEnumerable<ContentTonePoolModel> TonePools { get; set; } = Array.Empty<ContentTonePoolModel>();
     #endregion
@@ -226,9 +243,11 @@ public class ContentModel : AuditColumnsModel
         this.Summary = entity.Summary;
         this.Body = entity.Body;
         this.SourceUrl = entity.SourceUrl;
+        this.PostedOn = entity.PostedOn;
         this.PublishedOn = entity.PublishedOn;
         this.IsHidden = entity.IsHidden;
         this.IsApproved = entity.IsApproved;
+        this.IsPrivate = entity.IsPrivate;
 
         this.Actions = entity.ActionsManyToMany.Select(e => new ContentActionModel(e));
         this.Topics = entity.TopicsManyToMany.Select(e => new ContentTopicModel(e));
@@ -236,6 +255,7 @@ public class ContentModel : AuditColumnsModel
         this.FileReferences = entity.FileReferences.Select(e => new FileReferenceModel(e));
         this.Labels = entity.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = entity.TonePoolsManyToMany.Select(e => new ContentTonePoolModel(e));
+        this.Versions = entity.Versions;
     }
     #endregion
 
@@ -256,12 +276,15 @@ public class ContentModel : AuditColumnsModel
             Edition = model.Edition,
             Section = model.Section,
             Page = model.Page,
+            PostedOn = model.PostedOn,
             PublishedOn = model.PublishedOn,
             Summary = model.Summary,
             Body = model.Body,
             SourceUrl = model.SourceUrl,
             IsHidden = model.IsHidden,
             IsApproved = model.IsApproved,
+            IsPrivate = model.IsPrivate,
+            Versions = model.Versions,
             Version = model.Version ?? 0,
         };
 

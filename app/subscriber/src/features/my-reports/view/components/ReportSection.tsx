@@ -1,11 +1,14 @@
 import { Box } from 'components/box';
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { FaListOl, FaNewspaper, FaRegFolder, FaTasks } from 'react-icons/fa';
+import { FaListOl, FaNewspaper, FaPlus, FaRegFolder, FaTasks } from 'react-icons/fa';
 import { FaA, FaChartSimple, FaFilter } from 'react-icons/fa6';
+import { toast } from 'react-toastify';
+import { useApp, useLookup } from 'store/hooks';
 import { ReportSectionTypeName, Row, Show } from 'tno-core';
 
 import { IReportForm } from '../../interfaces';
+import { createReportInstanceContent, sortContent } from '../../utils';
 import { ReportSectionContent } from './ReportSectionContent';
 import { ReportSectionSummary } from './ReportSectionSummary';
 import { ReportSectionTableOfContents } from './ReportSectionTableOfContents';
@@ -25,10 +28,52 @@ export interface IReportSectionProps extends React.AllHTMLAttributes<HTMLDivElem
 export const ReportSection = React.forwardRef<HTMLDivElement, IReportSectionProps>(
   ({ index, showForm, ...rest }, ref) => {
     const { values, setFieldValue } = useFormikContext<IReportForm>();
+    const [{ userInfo }] = useApp();
+    const [{ isReady, settings }] = useLookup();
+
+    const [show, setShow] = React.useState(showForm);
+    const [defaultLicenseId, setDefaultLicenseId] = React.useState(0);
+    const [defaultProductId, setDefaultProductId] = React.useState(0);
 
     const section = values.sections[index];
+    const userId = userInfo?.id ?? 0;
 
-    const [show, setShow] = React.useState(showForm ?? (!section.filterId && !section.folderId));
+    React.useEffect(() => {
+      if (isReady) {
+        const defaultLicenseId = settings.find(
+          (s) => s.name === 'DefaultSubscriberContentLicenseId',
+        )?.value;
+        if (defaultLicenseId) setDefaultLicenseId(+defaultLicenseId);
+        else toast.error("Configuration settings 'DefaultSubscriberContentLicenseId' is required.");
+      }
+    }, [isReady, settings]);
+
+    React.useEffect(() => {
+      if (isReady) {
+        const defaultProductId = settings.find(
+          (s) => s.name === 'DefaultSubscriberContentProductId',
+        )?.value;
+        if (defaultProductId) setDefaultProductId(+defaultProductId);
+        else toast.error("Configuration settings 'DefaultSubscriberContentProductId' is required.");
+      }
+    }, [isReady, settings]);
+
+    const addStory = React.useCallback(
+      (instanceId: number, sectionName: string) => {
+        const content = sortContent([
+          createReportInstanceContent(
+            instanceId,
+            sectionName,
+            userId,
+            defaultLicenseId,
+            defaultProductId,
+          ),
+          ...values.instances[0].content,
+        ]);
+        setFieldValue(`instances.0.content`, content);
+      },
+      [defaultLicenseId, defaultProductId, setFieldValue, userId, values.instances],
+    );
 
     return (
       <Box
@@ -90,8 +135,13 @@ export const ReportSection = React.forwardRef<HTMLDivElement, IReportSectionProp
           return expand;
         }}
         actions={
-          <Show visible={!!section.filterId || !!section.folderId}>
-            <Row gap="0.25rem">
+          <Show visible={section.settings.sectionType === ReportSectionTypeName.Content}>
+            <Row gap="1rem">
+              <FaPlus
+                className="btn btn-link"
+                title="Add story"
+                onClick={() => addStory(values.instances[0].id, section.name)}
+              />
               <FaTasks className="btn btn-link" title="Edit" onClick={() => setShow(!show)} />
             </Row>
           </Show>
@@ -105,7 +155,7 @@ export const ReportSection = React.forwardRef<HTMLDivElement, IReportSectionProp
           <ReportSectionContent index={index} showForm={show} />
         </Show>
         <Show visible={section.settings.sectionType === ReportSectionTypeName.Summary}>
-          <ReportSectionSummary index={index} showForm={show} />
+          <ReportSectionSummary index={index} showForm={true} />
         </Show>
       </Box>
     );

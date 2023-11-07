@@ -22,6 +22,7 @@ import {
 } from 'tno-core';
 
 export interface ILookupState {
+  isReady: boolean;
   cache: ICacheModel[];
   actions: IActionModel[];
   topics: ITopicModel[];
