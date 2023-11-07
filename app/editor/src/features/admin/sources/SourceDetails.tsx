@@ -82,6 +82,13 @@ const SourceDetails: React.FC<ISourceDetailsProps> = () => {
           options={products}
         />
         <FormikSelect
+          label="Product Search Group"
+          name="productSearchGroupId"
+          tooltip="The field is used to help group media sources by their product."
+          value={products.find((o) => o.value === values.productSearchGroupId) ?? ''}
+          options={products}
+        />
+        <FormikSelect
           label="Timezone Override"
           name="configuration.timeZone"
           tooltip="Timezone of the source (overrides the value in the ingest)"

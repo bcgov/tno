@@ -162,9 +162,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                   name={`sections.${index}.items.${itemIndex}.summary`}
                                   rows={item.itemType === AVOverviewItemTypeName.Intro ? 3 : 1}
                                   disabled={!editable}
-                                  maxLength={
-                                    item.itemType === AVOverviewItemTypeName.Story ? 80 : undefined
-                                  }
+                                  maxLength={80}
                                 />
                               </Col>
                               <FormikSelect

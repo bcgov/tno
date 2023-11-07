@@ -39,10 +39,6 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// </summary>
     protected IKafkaListener<string, SourceContent> Listener { get; private set; }
 
-    /// <summary>
-    /// get - Kafka message producer.
-    /// </summary>
-    protected IKafkaMessenger Producer { get; private set; }
     #endregion
 
     #region Constructors
@@ -51,22 +47,20 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// </summary>
     /// <param name="kafkaAdmin"></param>
     /// <param name="kafkaListener"></param>
-    /// <param name="kafkaMessenger"></param>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public ContentManager(
         IKafkaAdmin kafkaAdmin,
         IKafkaListener<string, SourceContent> kafkaListener,
-        IKafkaMessenger kafkaMessenger,
         IApiService api,
         IOptions<ContentOptions> options,
         ILogger<ContentManager> logger)
         : base(api, options, logger)
     {
         this.KafkaAdmin = kafkaAdmin;
-        this.Producer = kafkaMessenger;
         this.Listener = kafkaListener;
+        this.Listener.IsLongRunningJob = false;
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
     }
@@ -117,7 +111,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                     var kafkaTopics = this.KafkaAdmin.ListTopics();
                     topics = topics.Except(topics.Except(kafkaTopics)).ToArray();
 
-                    if (topics.Length > 0)
+                    if (topics.Length != 0)
                     {
                         this.Listener.Subscribe(topics);
                         ConsumeMessages();
@@ -138,7 +132,6 @@ public class ContentManager : ServiceManager<ContentOptions>
             // With a minimum delay for all data source schedules, it could mean some data sources are pinged more often then required.
             // It could also result in a longer than planned delay if the action manager is awaited (currently it is).
             this.Logger.LogDebug("Service sleeping for {delay:n0} ms", delay);
-            // await Thread.Sleep(new TimeSpan(0, 0, 0, delay));
             await Task.Delay(delay);
         }
     }
@@ -151,6 +144,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     {
         if (_consumer == null || _notRunning.Contains(_consumer.Status))
         {
+            this.Logger.LogDebug("ConsumeMessages:_consumer is null");
             // Make sure the prior task is cancelled before creating a new one.
             if (_cancelToken?.IsCancellationRequested == false)
                 _cancelToken?.Cancel();
@@ -168,10 +162,12 @@ public class ContentManager : ServiceManager<ContentOptions>
         while (this.State.Status == ServiceStatus.Running &&
             _cancelToken?.IsCancellationRequested == false)
         {
+            this.Logger.LogDebug("ListenerHandlerAsync:AWAIT");
             await this.Listener.ConsumeAsync(HandleMessageAsync, _cancelToken.Token);
         }
 
         // The service is stopping or has stopped, consume should stop too.
+        this.Logger.LogDebug("ListenerHandlerAsync:STOP");
         this.Listener.Stop();
     }
 
@@ -184,6 +180,8 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <returns>True if the consumer should retry the message.</returns>
     private void ListenerErrorHandler(object sender, ErrorEventArgs e)
     {
+        this.Logger.LogDebug("ListenerErrorHandler:BEGIN");
+        this.Logger.LogDebug($"ListenerErrorHandler: Retries={_retries}");
         // Only the first retry will count as a failure.
         if (_retries == 0)
             this.State.RecordFailure();
@@ -191,8 +189,12 @@ public class ContentManager : ServiceManager<ContentOptions>
         if (e.GetException() is ConsumeException consume)
         {
             if (consume.Error.IsFatal)
+            {
                 this.Listener.Stop();
+                this.Logger.LogDebug("ListenerErrorHandler: Stop on IsFatal");
+            }
         }
+        this.Logger.LogDebug("ListenerErrorHandler:END");
     }
 
     /// <summary>
@@ -202,13 +204,15 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <param name="e"></param>
     private void ListenerStopHandler(object sender, EventArgs e)
     {
+        this.Logger.LogDebug("ListenerStopHandler:BEGIN");
         if (_consumer != null &&
             !_notRunning.Contains(_consumer.Status) &&
-            _cancelToken?.IsCancellationRequested == false)
+            _cancelToken != null && !_cancelToken.IsCancellationRequested)
         {
-            this.Logger.LogDebug("Listener thread is being cancelled");
+            this.Logger.LogDebug("ListenerStopHandler.Cancel");
             _cancelToken.Cancel();
         }
+        this.Logger.LogDebug("ListenerStopHandler:END");
     }
 
     /// <summary>
@@ -221,7 +225,48 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <exception cref="InvalidOperationException"></exception>
     private async Task HandleMessageAsync(ConsumeResult<string, SourceContent> result)
     {
-        this.Logger.LogDebug("Importing Content from Topic: {topic}, Uid: {key}", result.Topic, result.Message.Key);
+        try
+        {
+            // The service has stopped, so to should consuming messages.
+            if (this.State.Status != ServiceStatus.Running)
+            {
+                this.Listener.Stop();
+                this.State.Stop();
+            }
+            else
+            {
+                await ProcessSourceContentAsync(result);
+
+                // Inform Kafka this message is completed.
+                this.Listener.Commit(result);
+
+                // Successful run clears any errors.
+                this.State.ResetFailures();
+                _retries = 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            if (ex is HttpClientRequestException httpEx)
+            {
+                this.Logger.LogError(ex, "HTTP exception while consuming. {response}", httpEx.Data["body"] ?? "");
+            }
+            else
+            {
+                this.Logger.LogError(ex, "Failed to handle message");
+            }
+            ListenerErrorHandler(this, new ErrorEventArgs(ex));
+        }
+        finally
+        {
+            if (State.Status == ServiceStatus.Running) Listener.Resume();
+        }
+    }
+
+    private async Task ProcessSourceContentAsync(ConsumeResult<string, SourceContent> result)
+    {
+        this.Logger.LogDebug($"ProcessSourceContentAsync:BEGIN:{result.Message.Key}");
+        this.Logger.LogInformation("Importing Content from Topic: {topic}, Uid: {key}", result.Topic, result.Message.Key);
         var model = result.Message.Value;
         bool updateSourceContent = false;
         long? existingContentId = null;
@@ -465,10 +510,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             // TODO: Content could be updated by source, however this could overwrite local editor changes.  Need a way to handle this.
             this.Logger.LogWarning("Content already exists. Content Source: {source}, UID: {uid}", model.Source, model.Uid);
         }
-
-        // Successful run clears any errors.
-        this.State.ResetFailures();
-        _retries = 0;
+        this.Logger.LogDebug($"ProcessSourceContentAsync:END:{result.Message.Key}");
     }
 
     /// <summary>

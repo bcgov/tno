@@ -42,9 +42,8 @@ public class IndexingService : KafkaConsumerService
             .Configure<IndexingOptions>(this.Configuration.GetSection("Service"))
             .Configure<ProducerConfig>(this.Configuration.GetSection("Kafka:Producer"))
             .Configure<AdminClientConfig>(this.Configuration.GetSection("Kafka:Admin"))
-            .AddTransient<IKafkaAdmin, KafkaAdmin>()
+            .AddSingleton<IKafkaAdmin, KafkaAdmin>()
             .AddTransient<IKafkaListener<string, IndexRequestModel>, KafkaListener<string, IndexRequestModel>>()
-            .AddTransient<IKafkaMessenger, KafkaMessenger>()
             .AddScoped<IServiceManager, IndexingManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.

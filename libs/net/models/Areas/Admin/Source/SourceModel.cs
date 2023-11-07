@@ -45,6 +45,11 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
     public int? ProductId { get; set; }
 
     /// <summary>
+    /// get/set -
+    /// </summary>
+    public int? ProductSearchGroupId { get; set; }
+
+    /// <summary>
     /// get/set - Whether content should be automatically transcribed.
     /// </summary>
     public bool AutoTranscribe { get; set; }
@@ -94,6 +99,7 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
         this.License = entity.License != null ? new LicenseModel(entity.License) : null;
         this.OwnerId = entity.OwnerId;
         this.ProductId = entity.ProductId;
+        this.ProductSearchGroupId = entity.ProductSearchGroupId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
@@ -131,6 +137,7 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
             OwnerId = model.OwnerId,
             SortOrder = model.SortOrder,
             ProductId = model.ProductId,
+            ProductSearchGroupId = model.ProductSearchGroupId,
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
             UseInTopics = model.UseInTopics,

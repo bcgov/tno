@@ -45,11 +45,11 @@ spec:
               protocol: TCP
           resources:
             limits:
-              cpu: 150m
-              memory: 400Mi
+              cpu: 50m
+              memory: 256Mi
             requests:
-              cpu: 100m
-              memory: 150Mi
+              cpu: 25m
+              memory: 128Mi
           env:
             # .NET Configuration
             - name: ASPNETCORE_ENVIRONMENT

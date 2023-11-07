@@ -7,6 +7,7 @@ import { AdvancedSearch } from 'components/sidebar/advanced-search';
 import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
 import AVOverviewPreview from 'features/daily-overview/AVOverviewPreview';
+import { FilterMedia } from 'features/filter-media';
 import { FrontPages } from 'features/front-pages';
 import { Home } from 'features/home';
 import { MyFolders } from 'features/my-folders';
@@ -91,6 +92,9 @@ export const Landing: React.FC = () => {
             </Show>
             <Show visible={activeItem === SidebarMenuItems.pressGallery.label}>
               <PressGallery />
+            </Show>
+            <Show visible={activeItem === SidebarMenuItems.filterMedia.label}>
+              <FilterMedia />
             </Show>
             <Show visible={activeItem === SidebarMenuItems.mySearches.label}>
               <MySearches />

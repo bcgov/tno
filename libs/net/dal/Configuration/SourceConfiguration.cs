@@ -16,6 +16,7 @@ public class SourceConfiguration : BaseTypeConfiguration<Source, int>
         builder.Property(m => m.Description).IsRequired().HasMaxLength(2000).HasDefaultValueSql("''");
         builder.Property(m => m.OwnerId);
         builder.Property(m => m.ProductId);
+        builder.Property(m => m.ProductSearchGroupId);
         builder.Property(m => m.LicenseId).IsRequired();
         builder.Property(m => m.AutoTranscribe).IsRequired();
         builder.Property(m => m.DisableTranscribe).IsRequired();
