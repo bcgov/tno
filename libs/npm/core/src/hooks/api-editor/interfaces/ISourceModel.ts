@@ -7,6 +7,7 @@ export interface ISourceModel extends ISortableModel<number> {
   license?: ILicenseModel;
   ownerId?: number;
   productId?: number;
+  productSearchGroupId?: number;
   owner?: IUserModel;
   autoTranscribe: boolean;
   disableTranscribe: boolean;

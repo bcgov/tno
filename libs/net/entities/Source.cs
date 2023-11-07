@@ -53,6 +53,12 @@ public class Source : BaseType<int>
     public int? ProductId { get; set; }
 
     /// <summary>
+    /// get/set - The default product search group id.
+    /// </summary>
+    [Column("product_search_group_id")]
+    public int? ProductSearchGroupId { get; set; }
+
+    /// <summary>
     /// get/set - The default product designation.
     /// </summary>
     public virtual Product? Product { get; set; }
