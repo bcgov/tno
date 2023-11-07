@@ -29,7 +29,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     #endregion
 
     #region Properties
-/// <summary>
+    /// <summary>
     /// get - Kafka admin client.
     /// </summary>
     protected IKafkaAdmin KafkaAdmin { get; private set; }
@@ -45,13 +45,13 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <summary>
     /// Creates a new instance of a ContentManager object, initializes with specified parameters.
     /// </summary>
-/// <param name="kafkaAdmin"></param>
+    /// <param name="kafkaAdmin"></param>
     /// <param name="kafkaListener"></param>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public ContentManager(
-IKafkaAdmin kafkaAdmin,
+        IKafkaAdmin kafkaAdmin,
         IKafkaListener<string, SourceContent> kafkaListener,
         IApiService api,
         IOptions<ContentOptions> options,
