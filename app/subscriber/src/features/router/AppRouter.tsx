@@ -6,7 +6,6 @@ import { ManageFolder } from 'features/manage-folder';
 import { ReportAdmin, ReportSnapshot } from 'features/my-reports';
 import ReportInstancePreview from 'features/my-reports/view/ReportInstancePreview';
 import { ViewReport } from 'features/my-reports/view/ViewReport';
-import SearchForm from 'features/my-searches/SearchForm';
 import { SearchPage } from 'features/search-page/SearchPage';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
@@ -82,10 +81,6 @@ export const AppRouter: React.FC<IAppRouter> = () => {
         <Route
           path="/reports/:id/view"
           element={<PrivateRoute claims={Claim.subscriber} element={<ViewReport />}></PrivateRoute>}
-        />
-        <Route
-          path="/filters/:id"
-          element={<PrivateRoute claims={Claim.subscriber} element={<SearchForm />}></PrivateRoute>}
         />
         <Route
           path="/reports/:id/:path"

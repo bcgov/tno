@@ -2,8 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
-import { useFilters } from 'store/hooks';
-import { Col, FlexboxTable, IFilterModel, Modal, Row, useModal } from 'tno-core';
+import { useFilters, useLookup } from 'store/hooks';
+import { Col, FlexboxTable, IFilterModel, Modal, Row, toQueryString, useModal } from 'tno-core';
 
 import { columns } from './constants/columns';
 import * as styled from './styled';
@@ -12,11 +12,13 @@ import * as styled from './styled';
 export const MySearches = () => {
   const [, { findMyFilters, updateFilter, deleteFilter }] = useFilters();
   const { toggle, isShowing } = useModal();
+  const [{ actions }] = useLookup();
   const navigate = useNavigate();
   const [myFilters, setMyFilters] = React.useState<IFilterModel[]>([]);
   const [active, setActive] = React.useState<IFilterModel>();
   const [editable, setEditable] = React.useState<string>('');
-  const [actionName, setActionName] = React.useState<'empty' | 'delete'>('delete');
+  const [actionName, setActionName] = React.useState<'delete'>('delete');
+  const topStoryId = actions.find((action) => action.name === 'Top Story')?.id ?? 0;
 
   React.useEffect(() => {
     findMyFilters().then((data) => {
@@ -25,6 +27,31 @@ export const MySearches = () => {
     // Only do this on init.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleSearch = async (advancedSearch: IFilterModel, searchId: number) => {
+    navigate(
+      `/search/${toQueryString({
+        searchTerm: advancedSearch.settings.search,
+        inByline: advancedSearch.settings.inByline,
+        inHeadline: advancedSearch.settings.inHeadline,
+        inStory: advancedSearch.settings.inStory,
+        publishedStartOn: advancedSearch.settings.startDate,
+        publishedEndOn: advancedSearch.settings.endDate,
+        sourceIds: advancedSearch.settings.sourceIds,
+        sentiment: advancedSearch.settings.sentiment,
+        savedSearchId: searchId,
+        productIds: advancedSearch.settings.productIds,
+        actions: advancedSearch.settings.actions?.find((action) => action.id === topStoryId)
+          ? 'Top Story'
+          : '',
+      })}`,
+    );
+  };
+
+  const handleDelete = () => {
+    setActionName('delete');
+    toggle();
+  };
 
   const handleSave = () => {
     if (!!active) {
@@ -40,9 +67,12 @@ export const MySearches = () => {
       <Row>
         <FlexboxTable
           pagingEnabled={false}
-          columns={columns(setActive, editable, handleSave, active)}
+          columns={columns(setActive, editable, handleSave, handleDelete, active)}
           rowId={'id'}
-          onRowClick={(e) => navigate(`/filters/${e.original.id}`)}
+          onRowClick={(e) => {
+            setActive(e.original);
+            handleSearch({ ...e.original }, e.original.id);
+          }}
           data={myFilters}
           showActive={false}
         />
@@ -50,22 +80,13 @@ export const MySearches = () => {
           clickable
           openOnClick
           place="right"
-          id="options"
+          id="edit-name"
           variant="light"
           className="options"
         >
           <Col className="filter-container">
             <div className="option" onClick={() => setEditable(active?.name ?? '')}>
               Edit filter name
-            </div>
-            <div
-              className="option"
-              onClick={() => {
-                setActionName('delete');
-                toggle();
-              }}
-            >
-              Delete this filter
             </div>
           </Col>
         </Tooltip>
@@ -80,6 +101,7 @@ export const MySearches = () => {
         onConfirm={() => {
           try {
             if (!!active) {
+              alert('active');
               if (actionName === 'delete') {
                 deleteFilter(active).then(() => {
                   toast.success(`${active.name} deleted successfully`);

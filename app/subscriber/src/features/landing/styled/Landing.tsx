@@ -5,7 +5,6 @@ export const Landing = styled(Col)<{ advSearchExpanded: boolean }>`
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'BCSans', 'Noto Sans', Arial, 'sans serif';
   display: flex;
-
   .search-links {
     color: #3847aa;
     text-decoration: underline;
@@ -28,18 +27,13 @@ export const Landing = styled(Col)<{ advSearchExpanded: boolean }>`
 
   /* The panel containing Commentary and front pages */
   .right-panel {
+    max-height: calc(100vh - 6.5em);
     @media (min-width: 1702px) {
       max-width: 44%;
     }
     margin-left: auto;
     flex-grow: 1;
     margin-right: auto;
-    .title {
-      background-color: ${(props) => props.theme.css.darkHeaderColor};
-      padding: 0.5em;
-      font-size: 1.25em;
-      color: white;
-    }
 
     display: flex;
 
@@ -53,11 +47,18 @@ export const Landing = styled(Col)<{ advSearchExpanded: boolean }>`
   /* container containing both panels */
   .contents-container {
     overflow-y: auto;
-    max-height: ${(props) =>
-      props.advSearchExpanded ? 'calc(100vh - 36.5em)' : 'calc(100vh - 6.5em)'};
     margin-left: 0.5em;
+    max-height: calc(100vh - 9em);
   }
 
+  .title {
+    background-color: white;
+    padding: 0.5em;
+    font-size: 1.35em;
+    color: #971d29;
+    font-weight: bold;
+    border-bottom: 1px solid #56537a;
+  }
   /* The panel containing the media list */
   .main-panel {
     /* switch between max width and min width depending on screen size in order to maximize screen real estate */
@@ -70,14 +71,8 @@ export const Landing = styled(Col)<{ advSearchExpanded: boolean }>`
     flex-grow: 1;
     margin-bottom: 0.5em;
 
-    .title {
-      background-color: ${(props) => props.theme.css.darkHeaderColor};
-      padding: 0.5em;
-      font-size: 1.75em;
-      color: white;
-    }
     .content {
-      background-color: ${(props) => props.theme.css.lightGray};
+      background-color: white;
       @media (max-width: 500px) {
         padding: 0.25em;
       }

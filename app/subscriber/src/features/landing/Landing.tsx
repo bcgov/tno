@@ -107,7 +107,7 @@ export const Landing: React.FC = () => {
             </Show>
           </div>
         </Col>
-        {/* unsure of whether these items will change depedning on selected item */}
+        {/* unsure of whether these items will change depending on selected item */}
         <Col className="right-panel">
           <Commentary />
           <FrontPages />
