@@ -26,8 +26,10 @@ export const initialContentState: IContentState = {
     logicalOperator: LogicalOperator.Contains,
     searchTerm: '',
   },
-  dateFilter: null,
-  pressFilter: null,
+  pressGalleryFilter: {
+    dateFilter: null,
+    pressFilter: null,
+  },
 };
 
 export const contentSlice = createSlice({
@@ -35,10 +37,10 @@ export const contentSlice = createSlice({
   initialState: initialContentState,
   reducers: {
     storeGalleryPressFilter(state: IContentState, action: PayloadAction<IOptionItem | null>) {
-      state.pressFilter = action.payload;
+      state.pressGalleryFilter.pressFilter = action.payload;
     },
     storeGalleryDateFilter(state: IContentState, action: PayloadAction<IOptionItem | null>) {
-      state.dateFilter = action.payload;
+      state.pressGalleryFilter.dateFilter = action.payload;
     },
     storeFilter(state: IContentState, action: PayloadAction<IContentListFilter>) {
       state.filter = action.payload;

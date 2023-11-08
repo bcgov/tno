@@ -8,6 +8,8 @@ export interface IContentState {
   filter: IContentListFilter;
   filterAdvanced: IContentListAdvancedFilter;
   content?: IPaged<IContentModel>;
-  dateFilter?: IOptionItem | null;
-  pressFilter?: IOptionItem | null;
+  pressGalleryFilter: {
+    dateFilter?: IOptionItem | null;
+    pressFilter?: IOptionItem | null;
+  };
 }
