@@ -35,8 +35,8 @@ export const PressGallery: React.FC = () => {
   const [aliases, setAliases] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(false);
 
-  const [dateValue, setDateValue] = React.useState<IOptionItem | null>();
-  const [pressValue, setPressValue] = React.useState<IOptionItem | null>();
+  const [{ dateFilter }, { storeGalleryDateFilter }] = useContent();
+  const [{ pressFilter }, { storeGalleryPressFilter }] = useContent();
 
   const [pressSettings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(`${moment().startOf('day')}`, `${moment().subtract('2', 'weeks')}`, 500),
@@ -111,18 +111,30 @@ export const PressGallery: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
+    var startDate = `${moment().startOf('day').subtract(2, 'weeks')}`;
+    var endDate = `${moment()}`;
+    // check if the date filters are persisted to run the initial query
+    if (!!dateFilter) {
+      startDate = `${moment(dateFilter.value).startOf('day')}`;
+      endDate = `${moment(dateFilter.value).endOf('day')}`;
+    }
     // only fetch once the aliases are ready
-    !!aliases.length &&
+    if (!!aliases.length) {
+      var aliasesFilter = aliases.toString().split(',').join(' ');
+      if (!!pressFilter) {
+        aliasesFilter = pressMembers.find((c) => c.name === pressFilter.value)?.aliases ?? '';
+      }
       fetchResults(
         generateQuery({
           ...pressSettings,
           defaultSearchOperator: 'or',
-          search: aliases.toString().split(',').join(' '),
-          startDate: `${moment().startOf('day').subtract(2, 'weeks')}`,
-          endDate: `${moment()}`,
+          search: aliasesFilter,
+          startDate,
+          endDate,
         }),
       );
-  }, [aliases, pressSettings, fetchResults]);
+    }
+  }, [aliases, pressSettings, fetchResults, dateFilter, pressFilter, pressMembers]);
 
   React.useEffect(() => {
     pressMembers.forEach((contributor) => {
@@ -176,22 +188,20 @@ export const PressGallery: React.FC = () => {
           name="select-press-member"
           placeholder={'Select a press member'}
           isClearable={false}
-          clearValue={() => setPressValue(null)}
-          value={pressValue}
+          clearValue={() => storeGalleryPressFilter(null)}
+          value={pressFilter}
           onChange={(e: any) => {
-            if (!!e.value) {
-              setPressValue(e);
-              // can only use one of the two filters
-              setDateValue(null);
-              fetchResults(
-                generateQuery({
-                  ...pressSettings,
-                  search: pressMembers.find((c) => c.name === e.value)?.aliases ?? '',
-                  startDate: `${moment().subtract(2, 'weeks')}`,
-                  endDate: `${moment()}`,
-                }),
-              );
-            }
+            storeGalleryDateFilter(null);
+            storeGalleryPressFilter(e);
+            // can only use one of the two filters
+            fetchResults(
+              generateQuery({
+                ...pressSettings,
+                search: pressMembers.find((c) => c.name === e.value)?.aliases ?? '',
+                startDate: `${moment().subtract(2, 'weeks')}`,
+                endDate: `${moment()}`,
+              }),
+            );
           }}
           options={pressMembers.map((c) => {
             return {
@@ -202,7 +212,7 @@ export const PressGallery: React.FC = () => {
         />
         <p className="or">or</p>
         <Select
-          value={dateValue}
+          value={dateFilter}
           isClearable={false}
           options={dateOptions.map((d) => {
             return {
@@ -211,12 +221,12 @@ export const PressGallery: React.FC = () => {
             };
           })}
           placeholder={'Select a date'}
-          clearValue={() => setDateValue(undefined)}
+          clearValue={() => storeGalleryDateFilter(null)}
           onChange={(e: any) => {
             if (!!e.value) {
-              setDateValue(e);
+              storeGalleryDateFilter(e);
               // can only use one of the two filters
-              setPressValue(null);
+              storeGalleryPressFilter(null);
               fetchResults(
                 generateQuery({
                   ...pressSettings,
@@ -234,8 +244,8 @@ export const PressGallery: React.FC = () => {
         <FiRefreshCcw
           className="reset"
           onClick={() => {
-            setDateValue(null);
-            setPressValue(null);
+            storeGalleryDateFilter(null);
+            storeGalleryPressFilter(null);
             fetchResults(
               generateQuery({
                 ...pressSettings,
