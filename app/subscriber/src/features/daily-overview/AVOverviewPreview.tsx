@@ -15,7 +15,12 @@ const AVOverviewPreview: React.FC = () => {
   const handlePreviewReport = React.useCallback(async () => {
     try {
       setIsLoading(true);
-      const instance = await findAVOverview(new Date().toISOString());
+      const date = new Date();
+      let instance = await findAVOverview(date.toISOString());
+      if (!instance?.id) {
+        date.setDate(date.getDate() - 1);
+        instance = await findAVOverview(date.toISOString());
+      }
       setInstance(instance);
       if (!!instance?.id) {
         const preview = await viewAVOverview(instance.id);
