@@ -14,7 +14,6 @@ import {
   generateQuery,
   IContentModel,
   IFilterSettingsModel,
-  IOptionItem,
   ITableInternalRow,
   Row,
   Select,
