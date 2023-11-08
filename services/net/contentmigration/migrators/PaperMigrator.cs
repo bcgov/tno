@@ -50,8 +50,8 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         Logger.LogDebug("NewItem.RSN: {rsn}, PublishedDateTime: {publishedDateTime}, ToUtc: {publishedDateTimeInUtc}", newsItem.RSN, publishedOnInDefaultTimeZone, publishedOnInUtc);
 
         var newsItemTitle = newsItem.GetTitle();
-        var sanitizedSummary = TNO.Core.Extensions.StringExtensions.ConvertTextToParagraphs(newsItem.Summary, @"[\r\n]+|(\s\|)");
-        var sanitizedBody = TNO.Core.Extensions.StringExtensions.ConvertTextToParagraphs(newsItem.Text, @"[\r\n]+|(\s\|)");
+        var sanitizedSummary = TNO.Core.Extensions.StringExtensions.ConvertTextToParagraphs(newsItem.Summary, @"\r\n?|\n|(\s\|)");
+        var sanitizedBody = TNO.Core.Extensions.StringExtensions.ConvertTextToParagraphs(newsItem.Text, @"\r\n?|\n|(\s\|)");
         if (string.IsNullOrEmpty(sanitizedBody)) sanitizedBody = sanitizedSummary;
 
         var content = new SourceContent(
