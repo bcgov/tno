@@ -1,4 +1,4 @@
-import { useFormikContext } from 'formik';
+import { getIn, useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
@@ -96,6 +96,18 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
     );
   };
 
+  const handleSelectionChanged = (itemIndex: number) => {
+    const summary: string = getIn(values, `sections.${index}.items.${itemIndex}.summary`);
+    const regex = /(?:timestamp|time stamp)(?:\s+is)?\s+(\d{1,2}:\d{2})/g;
+    const match = regex.exec(summary);
+    if (match) {
+      setFieldValue(
+        `sections.${index}.items.${itemIndex}.time`,
+        match[1].length === 5 ? `${match[1]}:00` : `0${match[1]}:00`,
+      );
+    }
+  };
+
   return (
     <styled.OverviewGrid>
       <Show visible={!items.length}>
@@ -172,6 +184,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                 options={clips ?? []}
                                 width={FieldSize.Medium}
                                 isDisabled={!editable}
+                                onChange={() => handleSelectionChanged(itemIndex)}
                               />
                               <FaTrash
                                 className="clear-item"
