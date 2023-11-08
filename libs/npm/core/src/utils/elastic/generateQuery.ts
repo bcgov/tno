@@ -27,7 +27,7 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
         must: [
           generatePublishedOnQuery(settings),
           generateTerms('sourceId', settings.sourceIds),
-          generateTerms('productId', settings.productIds),
+          generateTerms('mediaTypeId', settings.mediaTypeIds),
           generateTerms('seriesId', settings.seriesIds),
           generateTerms('contributorId', settings.contributorIds),
           generateTerms('contentType', settings.contentTypes),

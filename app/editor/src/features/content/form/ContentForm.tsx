@@ -98,7 +98,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
     contentType: initContentType,
     combinedPath,
   });
-  const [{ contributorOptions, sources, series, sourceOptions, productOptions }] =
+  const [{ contributorOptions, sources, series, sourceOptions, mediaTypeOptions }] =
     useLookupOptions();
   const { setShowValidationToast } = useTabValidationToasts();
 
@@ -220,8 +220,8 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                     props.setFieldValue('otherSource', source?.code ?? '');
                                     if (!!source?.licenseId)
                                       props.setFieldValue('licenseId', source.licenseId);
-                                    if (!!source?.productId)
-                                      props.setFieldValue('productId', source.productId);
+                                    if (!!source?.mediaTypeId)
+                                      props.setFieldValue('mediaTypeId', source.mediaTypeId);
                                   }
                                 }}
                                 options={filterEnabledOptions(
@@ -244,15 +244,15 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                 isDisabled={!!props.values.tempSource}
                               />
                               <FormikSelect
-                                name="productId"
+                                name="mediaTypeId"
                                 value={
-                                  productOptions.find(
-                                    (mt) => mt.value === props.values.productId,
+                                  mediaTypeOptions.find(
+                                    (mt) => mt.value === props.values.mediaTypeId,
                                   ) ?? ''
                                 }
-                                label="Product"
+                                label="Media Type"
                                 width={FieldSize.Small}
-                                options={productOptions}
+                                options={mediaTypeOptions}
                                 required
                               />
                               <FormikHidden name="otherSource" />

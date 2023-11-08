@@ -57,7 +57,7 @@ public class SourceModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public int? ProductId { get; set; }
+    public int? MediaTypeId { get; set; }//fixed
 
     /// <summary>
     /// get/set -
@@ -96,7 +96,7 @@ public class SourceModel : AuditColumnsModel
         this.LicenseId = entity.LicenseId;
         this.License = entity.License != null ? new LicenseModel(entity.License) : null;
         this.OwnerId = entity.OwnerId;
-        this.ProductId = entity.ProductId;
+        this.MediaTypeId = entity.MediaTypeId;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
         this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
@@ -128,7 +128,7 @@ public class SourceModel : AuditColumnsModel
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             OwnerId = model.OwnerId,
-            ProductId = model.ProductId,
+            MediaTypeId = model.MediaTypeId,
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
             Configuration = JsonDocument.Parse(JsonSerializer.Serialize(model.Configuration)),

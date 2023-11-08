@@ -16,7 +16,7 @@ export const castContentToSearchResult = (content: IContentModel): IContentSearc
     source: content.source?.code,
     otherSource: content.otherSource,
     series: content.series?.name,
-    product: content.product?.name,
+    mediaType: content.mediaType?.name,
     owner: content.owner?.username,
     isHidden: content.isHidden,
     isApproved: content.isApproved,

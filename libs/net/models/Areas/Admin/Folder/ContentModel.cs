@@ -59,9 +59,9 @@ public class ContentModel
     public SortableModel<int>? Source { get; set; }
 
     /// <summary>
-    /// get/set - The product.
+    /// get/set - The media type.
     /// </summary>
-    public SortableModel<int>? Product { get; set; }
+    public SortableModel<int>? MediaType { get; set; }
 
     /// <summary>
     /// get/set - The series.
@@ -106,7 +106,7 @@ public class ContentModel
         this.Page = entity.Page;
         this.PublishedOn = entity.PublishedOn;
         this.Source = entity.Source != null ? new SortableModel<int>(entity.Source) : null;
-        this.Product = entity.Product != null ? new SortableModel<int>(entity.Product) : null;
+        this.MediaType = entity.MediaType != null ? new SortableModel<int>(entity.MediaType) : null;
         this.Series = entity.Series != null ? new SortableModel<int>(entity.Series) : null;
         this.Contributor = entity.Contributor != null ? new SortableModel<int>(entity.Contributor) : null;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;

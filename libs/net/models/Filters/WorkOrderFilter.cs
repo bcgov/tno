@@ -36,9 +36,9 @@ public class WorkOrderFilter : PageFilter
     public long? ContentId { get; set; }
 
     /// <summary>
-    /// get/set - An array of products to filter on.
+    /// get/set - An array of mediat types to filter on.
     /// </summary>
-    public int[] ProductIds { get; set; } = Array.Empty<int>();
+    public int[] MediaTypeIds { get; set; } = Array.Empty<int>();
 
     /// <summary>
     /// get/set - An array of serries/program/show to filter on.
@@ -128,7 +128,7 @@ public class WorkOrderFilter : PageFilter
         this.UpdatedStartOn = filter.GetDateTimeNullValue(nameof(this.UpdatedStartOn));
         this.UpdatedEndOn = filter.GetDateTimeNullValue(nameof(this.UpdatedEndOn));
 
-        this.ProductIds = filter.GetIntArrayValue(nameof(this.ProductIds));
+        this.MediaTypeIds = filter.GetIntArrayValue(nameof(this.MediaTypeIds));
         this.SeriesIds = filter.GetIntArrayValue(nameof(this.SeriesIds));
         this.SourceIds = filter.GetIntArrayValue(nameof(this.SourceIds));
 

@@ -42,7 +42,7 @@ const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
   const [filter, setFilter] = React.useState<IContentReferenceListFilter>({
     ...defaultContentReferenceFilter,
     sources: sources,
-    productIds: [values.productId],
+    mediaTypeIds: [values.mediaTypeId],
   });
   const [page, setPage] = React.useState<IPage<IContentReferenceModel>>(
     defaultContentReferencePage,
@@ -55,7 +55,7 @@ const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
           page: filter.pageIndex + 1,
           quantity: filter.pageSize,
           sources: filter.sources,
-          productIds: filter.productIds,
+          mediaTypeIds: filter.mediaTypeIds,
           uid: filter.uid,
           status: filter.status ? filter.status : undefined,
           publishedOn: filter.publishedOn ? moment(filter.publishedOn).toISOString() : undefined,

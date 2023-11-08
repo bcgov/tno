@@ -27,9 +27,9 @@ public class ContentModel
     public bool IsApproved { get; set; }
 
     /// <summary>
-    /// get/set - The product name.
+    /// get/set - The media type name.
     /// </summary>
-    public string? Product { get; set; }
+    public string? MediaType { get; set; }
 
     /// <summary>
     /// get/set - The series name.
@@ -58,7 +58,7 @@ public class ContentModel
         this.Headline = entity.Headline;
         this.OtherSource = entity.OtherSource;
         this.IsApproved = entity.IsApproved;
-        this.Product = entity.Product?.Name;
+        this.MediaType = entity.MediaType?.Name;
         this.Series = entity.Series?.Name;
         this.Contributor = entity.Contributor?.Name;
     }

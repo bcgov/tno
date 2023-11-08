@@ -46,9 +46,9 @@ export const useColumns = ({
       cell: (cell) => <CellEllipsis>{cell.original.otherSource}</CellEllipsis>,
     },
     {
-      accessor: 'product',
-      label: 'Product',
-      cell: (cell) => <CellEllipsis>{cell.original.product}</CellEllipsis>,
+      accessor: 'mediaType',
+      label: 'Media Type',
+      cell: (cell) => <CellEllipsis>{cell.original.mediaType}</CellEllipsis>,
       width: 2,
     },
     {

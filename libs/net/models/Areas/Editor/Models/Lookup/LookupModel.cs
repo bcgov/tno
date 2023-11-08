@@ -24,9 +24,9 @@ public class LookupModel
     public IEnumerable<TopicScoreRule.TopicScoreRuleModel> Rules { get; set; } = Array.Empty<TopicScoreRule.TopicScoreRuleModel>();
 
     /// <summary>
-    /// get/set - An array of all products.
+    /// get/set - An array of all media types.
     /// </summary>
-    public IEnumerable<Product.ProductModel> Products { get; set; } = Array.Empty<Product.ProductModel>();
+    public IEnumerable<MediaType.MediaTypeModel> MediaTypes { get; set; } = Array.Empty<MediaType.MediaTypeModel>();
 
     /// <summary>
     /// get/set - An array of all sources.
@@ -107,7 +107,7 @@ public class LookupModel
     /// <param name="topics"></param>
     /// <param name="rules"></param>
     /// <param name="claims"></param>
-    /// <param name="products"></param>
+    /// <param name="mediaTypes"></param>
     /// <param name="sources"></param>
     /// <param name="license"></param>
     /// <param name="ingestTypes"></param>
@@ -126,7 +126,7 @@ public class LookupModel
         IEnumerable<Entities.Action> actions,
         IEnumerable<Entities.Topic> topics,
         IEnumerable<Entities.TopicScoreRule> rules,
-        IEnumerable<Entities.Product> products,
+        IEnumerable<Entities.MediaType> mediaTypes,
         IEnumerable<Entities.Source> sources,
         IEnumerable<Entities.License> license,
         IEnumerable<Entities.IngestType> ingestTypes,
@@ -145,7 +145,7 @@ public class LookupModel
         this.Actions = actions.Select(a => new Action.ActionModel(a));
         this.Topics = topics.Select(a => new Topic.TopicModel(a));
         this.Rules = rules.Select(a => new TopicScoreRule.TopicScoreRuleModel(a));
-        this.Products = products.Select(a => new Product.ProductModel(a));
+        this.MediaTypes = mediaTypes.Select(a => new MediaType.MediaTypeModel(a));
         this.Sources = sources.Select(a => new Source.SourceModel(a, options));
         this.Licenses = license.Select(a => new License.LicenseModel(a));
         this.IngestTypes = ingestTypes.Select(a => new IngestType.IngestTypeModel(a));

@@ -45,8 +45,8 @@ export const useColumns = ({ onCancel }: IColumnsProps): ITableHookColumn<IWorkO
       width: 1,
     },
     {
-      label: 'Product',
-      accessor: 'content.product',
+      label: 'Media Type',
+      accessor: 'content.mediaType',
       width: 1,
     },
     {

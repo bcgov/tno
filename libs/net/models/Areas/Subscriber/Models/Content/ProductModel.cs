@@ -3,9 +3,9 @@ using TNO.API.Models;
 namespace TNO.API.Areas.Subscriber.Content;
 
 /// <summary>
-/// ProductModel class, provides a model that represents an content type.
+/// MediaTypeModel class, provides a model that represents an content type.
 /// </summary>
-public class ProductModel : BaseTypeModel<int>
+public class MediaTypeModel : BaseTypeModel<int>
 {
     #region Properties
     /// <summary>
@@ -16,15 +16,15 @@ public class ProductModel : BaseTypeModel<int>
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of an ProductModel.
+    /// Creates a new instance of an MediaTypeModel.
     /// </summary>
-    public ProductModel() { }
+    public MediaTypeModel() { }
 
     /// <summary>
-    /// Creates a new instance of an ProductModel, initializes with specified parameter.
+    /// Creates a new instance of an MediaTypeModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public ProductModel(Entities.Product entity) : base(entity)
+    public MediaTypeModel(Entities.MediaType entity) : base(entity)
     {
         this.AutoTranscribe = entity.AutoTranscribe;
     }

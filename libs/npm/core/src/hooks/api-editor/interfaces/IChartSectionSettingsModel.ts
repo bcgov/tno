@@ -5,7 +5,7 @@ export interface IChartSectionSettingsModel {
   height?: number;
   /** The chart type to generate [bar|line|pie|doughnut|scatter|bubble|radar|polararea] */
   chartType: string;
-  /** The property to group results in [otherSource|series|product|contentType|sentiment] */
+  /** The property to group results in [otherSource|series|mediaType|contentType|sentiment] */
   groupBy: string;
   /** Override the chart title. */
   title: string;

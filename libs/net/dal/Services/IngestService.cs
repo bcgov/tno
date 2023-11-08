@@ -42,7 +42,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     {
         var result = this.Context.Ingests
             .AsNoTracking()
-            .Include(i => i.Product)
+            .Include(i => i.MediaType)
             .Include(i => i.IngestType)
             .Include(i => i.Source)
             .Include(i => i.State)
@@ -73,7 +73,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     {
         var query = this.Context.Ingests
             .AsNoTracking()
-            .Include(i => i.Product)
+            .Include(i => i.MediaType)
             .Include(i => i.IngestType)
             .Include(i => i.Source)
             .Include(i => i.State)
@@ -92,8 +92,8 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
             query = query.Where(i => filter.IngestTypeId.Contains(i.IngestTypeId));
         if (filter.SourceId.HasValue)
             query = query.Where(i => i.SourceId == filter.SourceId);
-        if (filter.ProductId.HasValue)
-            query = query.Where(i => i.ProductId == filter.ProductId);
+        if (filter.MediaTypeId.HasValue)
+            query = query.Where(i => i.MediaTypeId == filter.MediaTypeId);
         if (filter.SourceConnectionId.HasValue)
             query = query.Where(i => i.SourceConnectionId == filter.SourceConnectionId);
         if (filter.DestinationConnectionId.HasValue)
@@ -133,7 +133,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     {
         var result = this.Context.Ingests
             .AsNoTracking()
-            .Include(i => i.Product)
+            .Include(i => i.MediaType)
             .Include(i => i.IngestType)
             .Include(i => i.Source)
             .Include(i => i.State)
@@ -164,7 +164,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     {
         var result = this.Context.Ingests
             .AsNoTracking()
-            .Include(i => i.Product)
+            .Include(i => i.MediaType)
             .Include(i => i.IngestType)
             .Include(i => i.Source)
             .Include(i => i.State)
@@ -193,7 +193,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     public override Ingest? FindById(int id)
     {
         return this.Context.Ingests
-            .Include(i => i.Product)
+            .Include(i => i.MediaType)
             .Include(i => i.IngestType)
             .Include(i => i.Source)
             .Include(i => i.State)

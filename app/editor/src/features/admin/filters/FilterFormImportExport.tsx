@@ -28,7 +28,7 @@ import { exportFilter, parseExportedFilter } from './utils';
  */
 export const FilterFormImportExport: React.FC = () => {
   const { values, setFieldValue, setValues } = useFormikContext<IFilterModel>();
-  const [{ series, products, sources, contributors, actions }] = useLookupOptions();
+  const [{ series, mediaTypes, sources, contributors, actions }] = useLookupOptions();
 
   const [rawFilter, setRawFilter] = React.useState('{}');
 
@@ -43,7 +43,7 @@ export const FilterFormImportExport: React.FC = () => {
           contributors,
           series,
           sources,
-          products,
+          mediaTypes,
         );
         setValues({ ...importedFilter });
 
@@ -55,7 +55,7 @@ export const FilterFormImportExport: React.FC = () => {
         toast.error(error.message);
       }
     },
-    [setValues, setFieldValue, actions, contributors, series, sources, products],
+    [setValues, setFieldValue, actions, contributors, series, sources, mediaTypes],
   );
 
   return (
@@ -86,7 +86,7 @@ export const FilterFormImportExport: React.FC = () => {
                   contributors,
                   series,
                   sources,
-                  products,
+                  mediaTypes,
                 );
                 setRawFilter(JSON.stringify(exportedFilter));
               }}

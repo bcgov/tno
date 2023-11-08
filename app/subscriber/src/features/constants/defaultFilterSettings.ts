@@ -8,7 +8,7 @@ export const defaultFilterSettings: IFilterSettingsModel = {
   inHeadline: true,
   inStory: true,
   sourceIds: [],
-  productIds: [],
+  mediaTypeIds: [],
   seriesIds: [],
   contributorIds: [],
   actions: [],

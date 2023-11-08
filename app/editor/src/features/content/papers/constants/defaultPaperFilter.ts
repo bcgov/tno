@@ -18,7 +18,7 @@ export const defaultPaperFilter = (sources: ISourceModel[] = []): IContentListFi
     isHidden: false,
     onlyPublished: false,
     otherSource: '',
-    productIds: [],
+    mediaTypeIds: [],
     excludeSourceIds: [],
     sourceIds: defaultSources(sources).map((s) => s.id),
     ownerId: 0,

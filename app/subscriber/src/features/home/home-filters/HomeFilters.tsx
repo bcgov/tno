@@ -15,12 +15,12 @@ export interface IHomeFilterProps {}
 export const HomeFilters: React.FC<IHomeFilterProps> = () => {
   const [active, setActive] = useState<HomeFilterType>(HomeFilterType.Papers);
   const [{ filter }, { storeFilter }] = useContent();
-  const [{ sources, products }] = useLookup();
+  const [{ sources, mediaTypes }] = useLookup();
 
   const defaultFilter: Partial<IContentListFilter> = {
     contentTypes: [],
     sourceIds: [],
-    productIds: [],
+    mediaTypeIds: [],
   };
 
   const handleFilterClick = (type: HomeFilterType) => {
@@ -32,19 +32,19 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
         break;
       case HomeFilterType.RadioTV:
         updatedFilter.contentTypes = [ContentTypeName.AudioVideo];
-        updatedFilter.productIds = products.filter((p) => p.name !== 'Events').map((p) => p.id);
+        updatedFilter.mediaTypeIds = mediaTypes.filter((p) => p.name !== 'Events').map((p) => p.id);
         break;
       case HomeFilterType.Internet:
         updatedFilter.contentTypes = [ContentTypeName.Story];
         updatedFilter.sourceIds = sources.filter((s) => s.code !== 'CPNEWS').map((s) => s.id);
-        updatedFilter.productIds = products.filter((p) => p.name !== 'Events').map((p) => p.id);
+        updatedFilter.mediaTypeIds = mediaTypes.filter((p) => p.name !== 'Events').map((p) => p.id);
         break;
       case HomeFilterType.CPNews:
         updatedFilter.contentTypes = [ContentTypeName.Story];
         updatedFilter.sourceIds = [sources.find((s) => s.code === 'CPNEWS')?.id ?? 0];
         break;
       case HomeFilterType.Events:
-        updatedFilter.productIds = [products.find((s) => s.name === 'Events')?.id ?? 0];
+        updatedFilter.mediaTypeIds = [mediaTypes.find((s) => s.name === 'Events')?.id ?? 0];
         break;
       case HomeFilterType.All:
         break;
@@ -57,7 +57,7 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
   const getClassName = (type: HomeFilterType) => (type === active ? 'active' : 'inactive');
 
   useEffect(() => {
-    if (!filter.contentTypes?.length && !filter.productIds?.length) {
+    if (!filter.contentTypes?.length && !filter.mediaTypeIds?.length) {
       setActive(HomeFilterType.All);
     } else {
       // currently only support one content type at a time (with the exception of the all filter)
@@ -77,7 +77,7 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
             break;
           }
         default:
-          setActive(!!filter.productIds?.length ? HomeFilterType.Events : HomeFilterType.All);
+          setActive(!!filter.mediaTypeIds?.length ? HomeFilterType.Events : HomeFilterType.All);
       }
     }
   }, [filter]);

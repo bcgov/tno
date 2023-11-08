@@ -13,7 +13,7 @@ export const defaultDateRazorTemplate = `@inherits RazorEngineCore.RazorEngineTe
   var groups = Content
     .GroupBy(
       c => Settings.GroupBy switch {
-        "product" => c.Product?.Name,
+        "mediaType" => c.MediaType?.Name,
         "contentType" => c.ContentType.ToString(),
         "byline" => c.Byline,
         "series" => c.Series?.Name,
@@ -46,7 +46,7 @@ export const defaultCountRazorTemplate = `@inherits RazorEngineCore.RazorEngineT
 @{
   var group = Settings.GroupBy switch
   {
-    "product" => Content.GroupBy(c => c.Product?.Name).OrderBy(group => group.Key),
+    "mediaType" => Content.GroupBy(c => c.MediaType?.Name).OrderBy(group => group.Key),
     "contentType" => Content.GroupBy(c => c.ContentType.ToString()).OrderBy(group => group.Key),
     "byline" => Content.GroupBy(c => c.Byline).OrderBy(group => group.Key),
     "series" => Content.GroupBy(c => c.SeriesId.ToString()).OrderBy(group => group.Key),

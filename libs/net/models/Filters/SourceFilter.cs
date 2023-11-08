@@ -11,7 +11,7 @@ public class SourceFilter : PageFilter
     public string? ShortName { get; set; }
     public int? LicenseId { get; set; }
     public int? OwnerId { get; set; }
-    public int? ProductId { get; set; }
+    public int? MediaTypeId { get; set; }
     public string[] Sort { get; set; } = Array.Empty<string>();
     #endregion
 
@@ -28,7 +28,7 @@ public class SourceFilter : PageFilter
 
         this.LicenseId = filter.GetIntNullValue(nameof(this.LicenseId));
         this.OwnerId = filter.GetIntNullValue(nameof(this.OwnerId));
-        this.ProductId = filter.GetIntNullValue(nameof(this.ProductId));
+        this.MediaTypeId = filter.GetIntNullValue(nameof(this.MediaTypeId));
 
         this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }

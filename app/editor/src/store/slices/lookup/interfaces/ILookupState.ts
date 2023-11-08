@@ -6,9 +6,9 @@ import {
   IHolidayModel,
   IIngestTypeModel,
   ILicenseModel,
+  IMediaTypeModel,
   IMetricModel,
   IMinisterModel,
-  IProductModel,
   IRoleModel,
   ISeriesModel,
   ISettingModel,
@@ -26,7 +26,7 @@ export interface ILookupState {
   actions: IActionModel[];
   topics: ITopicModel[];
   rules: ITopicScoreRuleModel[];
-  products: IProductModel[];
+  mediaTypes: IMediaTypeModel[];
   licenses: ILicenseModel[];
   ingestTypes: IIngestTypeModel[];
   roles: IRoleModel[];

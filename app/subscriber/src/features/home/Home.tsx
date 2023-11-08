@@ -60,7 +60,7 @@ export const Home: React.FC = () => {
         contentTypes: filter.contentTypes.length > 0 ? filter.contentTypes : [],
         startDate: filterAdvanced.startDate ? filterAdvanced.startDate : new Date().toDateString(),
         endDate: filterAdvanced.endDate ? filterAdvanced.endDate : new Date().toDateString(),
-        productIds: filter.productIds ?? [],
+        mediaTypeIds: filter.mediaTypeIds ?? [],
         sourceIds: filter.sourceIds ?? [],
       }),
     );

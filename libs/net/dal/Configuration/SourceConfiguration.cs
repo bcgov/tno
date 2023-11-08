@@ -15,8 +15,8 @@ public class SourceConfiguration : BaseTypeConfiguration<Source, int>
         builder.Property(m => m.ShortName).IsRequired().HasMaxLength(100).HasDefaultValueSql("''");
         builder.Property(m => m.Description).IsRequired().HasMaxLength(2000).HasDefaultValueSql("''");
         builder.Property(m => m.OwnerId);
-        builder.Property(m => m.ProductId);
-        builder.Property(m => m.ProductSearchGroupId);
+        builder.Property(m => m.MediaTypeId);
+        builder.Property(m => m.MediaTypeSearchGroupId);
         builder.Property(m => m.LicenseId).IsRequired();
         builder.Property(m => m.AutoTranscribe).IsRequired();
         builder.Property(m => m.DisableTranscribe).IsRequired();
@@ -26,7 +26,7 @@ public class SourceConfiguration : BaseTypeConfiguration<Source, int>
         builder.HasOne(m => m.Owner).WithMany().HasForeignKey(m => m.OwnerId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(m => m.License).WithMany(m => m.Sources).HasForeignKey(m => m.LicenseId).OnDelete(DeleteBehavior.Restrict);
         builder.HasMany(m => m.Metrics).WithMany(m => m.Sources).UsingEntity<SourceMetric>();
-        builder.HasOne(m => m.Product).WithMany(m => m.Sources).HasForeignKey(m => m.ProductId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(m => m.MediaType).WithMany(m => m.Sources).HasForeignKey(m => m.MediaTypeId).OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(m => m.Name, "IX_source_name").IsUnique();
         builder.HasIndex(m => m.Code, "IX_source_code").IsUnique();

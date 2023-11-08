@@ -64,7 +64,7 @@ public class TNOContext : DbContext
     public DbSet<Contributor> Contributors => Set<Contributor>();
     public DbSet<ContentTypeAction> ContentTypeActions => Set<ContentTypeAction>();
     public DbSet<Tag> Tags => Set<Tag>();
-    public DbSet<Product> Products => Set<Product>();
+    public DbSet<MediaType> MediaTypes => Set<MediaType>();
     public DbSet<Entities.Action> Actions => Set<Entities.Action>();
     public DbSet<TonePool> TonePools => Set<TonePool>();
     public DbSet<Topic> Topics => Set<Topic>();

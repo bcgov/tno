@@ -2,7 +2,7 @@
 namespace TNO.API.Models.Settings;
 
 /// <summary>
-/// FFmpegActionSettingsModel class, provides a model to control product convert settings consistently.
+/// FFmpegActionSettingsModel class, provides a model to control media type convert settings consistently.
 /// </summary>
 public class FFmpegActionSettingsModel
 {

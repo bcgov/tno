@@ -23,7 +23,7 @@ interface IImageSectionProps {}
 /** Contains form field in a layout specific to the image snippet. */
 export const ImageSection: React.FunctionComponent<IImageSectionProps> = (props) => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
-  const [{ sources, productOptions }] = useLookupOptions();
+  const [{ sources, mediaTypeOptions }] = useLookupOptions();
 
   const [sourceOptions, setSourceOptions] = React.useState<IOptionItem[]>([]);
 
@@ -46,7 +46,7 @@ export const ImageSection: React.FunctionComponent<IImageSectionProps> = (props)
             setFieldValue('sourceId', newValue.value);
             setFieldValue('otherSource', source?.code ?? '');
             if (!!source?.licenseId) setFieldValue('licenseId', source.licenseId);
-            if (!!source?.productId) setFieldValue('productId', source.productId);
+            if (!!source?.mediaTypeId) setFieldValue('mediaTypeId', source.mediaTypeId);
           }
         }}
         options={filterEnabledOptions(sourceOptions, values.sourceId)}
@@ -54,11 +54,11 @@ export const ImageSection: React.FunctionComponent<IImageSectionProps> = (props)
         isDisabled={!!values.tempSource}
       />
       <FormikSelect
-        name="productId"
-        value={productOptions.find((mt) => mt.value === values.productId) ?? ''}
-        label="Product"
+        name="mediaTypeId"
+        value={mediaTypeOptions.find((mt) => mt.value === values.mediaTypeId) ?? ''}
+        label="Media Type"
         width={FieldSize.Small}
-        options={productOptions}
+        options={mediaTypeOptions}
         required
       />
       <FormikDatePicker

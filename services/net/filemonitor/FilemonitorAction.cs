@@ -442,7 +442,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                     {
                         var paperName = GetXmlData(story, Fields.PaperName, ingest);
                         var code = GetItemSourceCode(ingest, paperName, sources);
-                        var productId = await GetProductIdAsync(ingest, code, sources);
+                        var mediaTypeId = await GetMediaTypeIdAsync(ingest, code, sources);
                         var headline = GetXmlData(story, Fields.Headline, ingest);
                         var publishedOn = GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest, this.Options);
                         var contentHash = GetContentHash(code, headline, publishedOn);
@@ -451,7 +451,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                             this.Options.DataLocation,
                             code,
                             ContentType.PrintContent,
-                            productId,
+                            mediaTypeId,
                             contentHash,
                             headline,
                             GetXmlData(story, Fields.Summary, ingest),
@@ -526,12 +526,12 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
 
                         if (!String.IsNullOrEmpty(code)) // This is a valid newspaper source
                         {
-                            var productId = await GetProductIdAsync(ingest, code, sources);
+                            var mediaTypeId = await GetMediaTypeIdAsync(ingest, code, sources);
                             var item = new SourceContent(
                                 this.Options.DataLocation,
                                 code,
                                 ContentType.PrintContent,
-                                productId,
+                                mediaTypeId,
                                 GetFmsData(entry, Fields.Id, ingest),
                                 GetFmsData(entry, Fields.Headline, ingest),
                                 GetFmsData(entry, Fields.Summary, ingest),
@@ -564,30 +564,30 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     }
 
     /// <summary>
-    /// Get the "productId" value for the current source. If the ingest is selfPublished (relates to only one publication) the sources
-    /// dictionary will be empty and the productId for the ingest will be returned. If sources is not empty the source for the "code"
-    /// parameter will be retrieved and if the source's override productId is not null it will be returned.
+    /// Get the "mediaTypeId" value for the current source. If the ingest is selfPublished (relates to only one publication) the sources
+    /// dictionary will be empty and the mediaTypeId for the ingest will be returned. If sources is not empty the source for the "code"
+    /// parameter will be retrieved and if the source's override mediaTypeId is not null it will be returned.
     /// </summary>
     /// <param name="ingest"></param>
     /// <param name="code"></param>
     /// <param name="sources"></param>
     /// <returns></returns>
-    private async Task<int> GetProductIdAsync(IngestModel ingest, string code, Dictionary<string, string> sources)
+    private async Task<int> GetMediaTypeIdAsync(IngestModel ingest, string code, Dictionary<string, string> sources)
     {
         if (sources.Count == 0) // Self published
         {
-            return ingest.ProductId;
+            return ingest.MediaTypeId;
         }
         else
         {
             var source = await this.Api.GetSourceForCodeAsync(code);
             if (source == null)
             {
-                return ingest.ProductId;
+                return ingest.MediaTypeId;
             }
             else
             {
-                return source.ProductId ?? ingest.ProductId;
+                return source.MediaTypeId ?? ingest.MediaTypeId;
             }
         }
     }

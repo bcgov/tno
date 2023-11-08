@@ -4,7 +4,7 @@ using TNO.API.Models;
 namespace TNO.API.Areas.Admin.Models.Ingest;
 
 /// <summary>
-/// DataLocationModel class, provides a model that represents an product.
+/// DataLocationModel class, provides a model that represents an data location.
 /// </summary>
 public class DataLocationModel : BaseTypeWithAuditColumnsModel<int>
 {

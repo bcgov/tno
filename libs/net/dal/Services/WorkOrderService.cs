@@ -65,8 +65,8 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
             query = query.Where(c => filter.SourceIds.Contains(c.Content!.SourceId ?? 0));
         if (filter.SeriesIds.Any())
             query = query.Where(c => filter.SeriesIds.Contains(c.Content!.SeriesId ?? 0));
-        if (filter.ProductIds.Any())
-            query = query.Where(c => filter.ProductIds.Contains(c.Content!.ProductId));
+        if (filter.MediaTypeIds.Any())
+            query = query.Where(c => filter.MediaTypeIds.Contains(c.Content!.MediaTypeId));
 
         if (filter.CreatedOn.HasValue)
             query = query.Where(c => c.CreatedOn == filter.CreatedOn.Value.ToUniversalTime());
@@ -126,7 +126,7 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
         var query = from wo in this.Context.WorkOrders
                         .AsNoTracking()
                         .Include(w => w.Requestor)
-                        .Include(w => w.Content).ThenInclude(c => c!.Product)
+                        .Include(w => w.Content).ThenInclude(c => c!.MediaType)
                         .Include(w => w.Content).ThenInclude(c => c!.Series)
                         .Include(w => w.Content).ThenInclude(c => c!.Source)
                     where gQuery.Contains(wo.Id)
@@ -155,8 +155,8 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
             query = query.Where(c => filter.SourceIds.Contains(c.Content!.SourceId ?? 0));
         if (filter.SeriesIds.Any())
             query = query.Where(c => filter.SeriesIds.Contains(c.Content!.SeriesId ?? 0));
-        if (filter.ProductIds.Any())
-            query = query.Where(c => filter.ProductIds.Contains(c.Content!.ProductId));
+        if (filter.MediaTypeIds.Any())
+            query = query.Where(c => filter.MediaTypeIds.Contains(c.Content!.MediaTypeId));
 
         if (filter.CreatedOn.HasValue)
             query = query.Where(c => c.CreatedOn == filter.CreatedOn.Value.ToUniversalTime());

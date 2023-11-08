@@ -35,7 +35,7 @@ public class LookupController : ControllerBase
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly IActionService _actionService;
     private readonly ITopicService _topicService;
-    private readonly IProductService _productService;
+    private readonly IMediaTypeService _mediaTypeService;
     private readonly ISourceService _sourceService;
     private readonly IMinisterService _ministerService;
     private readonly ILicenseService _licenseService;
@@ -55,7 +55,7 @@ public class LookupController : ControllerBase
     /// </summary>
     /// <param name="actionService"></param>
     /// <param name="topicService"></param>
-    /// <param name="productService"></param>
+    /// <param name="mediaTypeService"></param>
     /// <param name="sourceService"></param>
     /// <param name="licenseService"></param>
     /// <param name="seriesService"></param>
@@ -72,7 +72,7 @@ public class LookupController : ControllerBase
         IActionService actionService,
         ITopicService topicService,
         IMinisterService ministerService,
-        IProductService productService,
+        IMediaTypeService mediaTypeService,
         ISourceService sourceService,
         ILicenseService licenseService,
         IContributorService contributorService,
@@ -88,7 +88,7 @@ public class LookupController : ControllerBase
         _actionService = actionService;
         _topicService = topicService;
         _ministerService = ministerService;
-        _productService = productService;
+        _mediaTypeService = mediaTypeService;
         _sourceService = sourceService;
         _licenseService = licenseService;
         _seriesService = seriesService;
@@ -123,7 +123,7 @@ public class LookupController : ControllerBase
         var actions = _actionService.FindAll();
         var contributors = _contributorService.FindAll();
         var topics = _topicService.FindAll();
-        var products = _productService.FindAll();
+        var mediaTypes = _mediaTypeService.FindAll();
         var sources = _sourceService.FindAll();
         var license = _licenseService.FindAll();
         var series = _seriesService.FindAll();
@@ -134,7 +134,7 @@ public class LookupController : ControllerBase
         return new JsonResult(new LookupModel(
             actions,
             topics,
-            products,
+            mediaTypes,
             sources,
             license,
             series,

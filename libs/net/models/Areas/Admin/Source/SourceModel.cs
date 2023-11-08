@@ -42,12 +42,12 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get/set -
     /// </summary>
-    public int? ProductId { get; set; }
+    public int? MediaTypeId { get; set; }
 
     /// <summary>
     /// get/set -
     /// </summary>
-    public int? ProductSearchGroupId { get; set; }
+    public int? MediaTypeSearchGroupId { get; set; }
 
     /// <summary>
     /// get/set - Whether content should be automatically transcribed.
@@ -98,8 +98,8 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
         this.LicenseId = entity.LicenseId;
         this.License = entity.License != null ? new LicenseModel(entity.License) : null;
         this.OwnerId = entity.OwnerId;
-        this.ProductId = entity.ProductId;
-        this.ProductSearchGroupId = entity.ProductSearchGroupId;
+        this.MediaTypeId = entity.MediaTypeId;
+        this.MediaTypeSearchGroupId = entity.MediaTypeSearchGroupId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
@@ -136,8 +136,8 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
             IsEnabled = model.IsEnabled,
             OwnerId = model.OwnerId,
             SortOrder = model.SortOrder,
-            ProductId = model.ProductId,
-            ProductSearchGroupId = model.ProductSearchGroupId,
+            MediaTypeId = model.MediaTypeId,
+            MediaTypeSearchGroupId = model.MediaTypeSearchGroupId,
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
             UseInTopics = model.UseInTopics,

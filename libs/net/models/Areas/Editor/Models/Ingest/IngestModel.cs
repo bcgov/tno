@@ -38,7 +38,7 @@ public class IngestModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public int ProductId { get; set; }
+    public int MediaTypeId { get; set; }
 
     /// <summary>
     /// get/set -
@@ -121,7 +121,7 @@ public class IngestModel : AuditColumnsModel
         this.IngestType = entity.IngestType != null ? new IngestTypeModel(entity.IngestType) : null;
         this.SourceId = entity.SourceId;
         this.Source = entity.Source != null ? new SourceModel(entity.Source) : null;
-        this.ProductId = entity.ProductId;
+        this.MediaTypeId = entity.MediaTypeId;
         this.SourceConnectionId = entity.SourceConnectionId;
         this.DestinationConnectionId = entity.DestinationConnectionId;
 
@@ -149,7 +149,7 @@ public class IngestModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.Ingest(IngestModel model)
     {
-        var entity = new Entities.Ingest(model.Name, model.Topic, model.SourceId, model.IngestTypeId, model.ProductId, model.SourceConnectionId, model.DestinationConnectionId)
+        var entity = new Entities.Ingest(model.Name, model.Topic, model.SourceId, model.IngestTypeId, model.MediaTypeId, model.SourceConnectionId, model.DestinationConnectionId)
         {
             Id = model.Id,
             Description = model.Description,

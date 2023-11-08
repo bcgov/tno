@@ -5,7 +5,9 @@ import { IContentForm } from '../form/interfaces';
 
 export const ContentFormSchema = object<IContentForm>().shape(
   {
-    productId: number().required('Product is required.').notOneOf([0], 'Product is required.'),
+    mediaTypeId: number()
+      .required('Media Type is required.')
+      .notOneOf([0], 'Media Type is required.'),
     sourceId: number().when('tempSource', (value: number[]) => {
       if (value[0] === undefined)
         return number().required('Either source or other source is required.');
@@ -31,8 +33,8 @@ export const ContentFormSchema = object<IContentForm>().shape(
     // TODO: Summary should not be empty.
     summary: string().when('contentType', (value: string[]) => {
       if (value[0] === ContentTypeName.AudioVideo || value[0] === ContentTypeName.Image) {
-        return number().when('productId', (value: number[]) => {
-          // Summary is not a required field when content is tagged as News Radio or Events product
+        return number().when('mediaTypeId', (value: number[]) => {
+          // Summary is not a required field when content is tagged as News Radio or Events media type
           // TODO: This will break eventually because of hardcoded values.
           if (value[0] !== 4 && value[0] !== 9)
             return string().trim().required('Summary is a required field.');

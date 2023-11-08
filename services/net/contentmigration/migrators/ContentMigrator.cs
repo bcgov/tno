@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Editor.Models.Lookup;
-using TNO.API.Areas.Editor.Models.Product;
+using TNO.API.Areas.Editor.Models.MediaType;
 using TNO.API.Areas.Editor.Models.Source;
 using TNO.API.Areas.Editor.Models.Topic;
 using TNO.API.Areas.Services.Models.ContentReference;
@@ -94,12 +94,12 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// </summary>
     /// <param name="lookups"></param>
     /// <param name="source"></param>
-    /// <param name="product"></param>
+    /// <param name="mediaType"></param>
     /// <param name="contentType"></param>
     /// <param name="newsItem"></param>
     /// <param name="defaultTimeZone"></param>
     /// <returns></returns>
-    public virtual SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string defaultTimeZone) => throw new NotImplementedException();
+    public virtual SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, MediaTypeModel mediaType, ContentType contentType, NewsItem newsItem, string defaultTimeZone) => throw new NotImplementedException();
 
     #endregion
 
@@ -202,21 +202,21 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     ///
     /// </summary>
     /// <param name="lookup"></param>
-    /// <param name="newsItemProduct"></param>
+    /// <param name="newsItemMediaType"></param>
     /// <returns></returns>
-    public ProductModel? GetProductMapping(IEnumerable<ProductModel> lookup, string newsItemProduct)
+    public MediaTypeModel? GetMediaTypeMapping(IEnumerable<MediaTypeModel> lookup, string newsItemMediaType)
     {
         // TODO: KGM - what to do if we have no mapping - make nullable so we can skip it on migration
-        ProductModel? product = lookup.Where(s => s.Name == newsItemProduct).FirstOrDefault();
+        MediaTypeModel? mediaType = lookup.Where(s => s.Name == newsItemMediaType).FirstOrDefault();
 
-        // if the Name doesn't match one of our products, use the extra mappings from the config
-        if (product == null)
+        // if the Name doesn't match one of our media types, use the extra mappings from the config
+        if (mediaType == null)
         {
-            this.MigratorOptions.ProductMappings.TryGetValue(newsItemProduct, out string? customMapping);
-            product = lookup.Where(s => s.Name == customMapping).FirstOrDefault();
+            this.MigratorOptions.MediaTypeMappings.TryGetValue(newsItemMediaType, out string? customMapping);
+            mediaType = lookup.Where(s => s.Name == customMapping).FirstOrDefault();
         }
 
-        return product;
+        return mediaType;
     }
 
     /// <summary>

@@ -14,7 +14,7 @@ export const defaultFilter: IFilterModel = {
     inByline: false,
     inStory: false,
     sourceIds: [],
-    productIds: [],
+    mediaTypeIds: [],
     seriesIds: [],
     contributorIds: [],
     actions: [],

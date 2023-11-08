@@ -14,7 +14,7 @@ export interface IContentListFilter {
   ownerId?: number | '';
   pageIndex: number;
   pageSize: number;
-  productIds?: number[];
+  mediaTypeIds?: number[];
   showOnly?: string;
   sort: ISortBy[];
   sourceIds?: number[];

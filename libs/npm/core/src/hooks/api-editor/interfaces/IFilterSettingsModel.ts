@@ -25,7 +25,7 @@ export interface IFilterSettingsModel {
   userId?: number;
   contentIds?: number[];
   sourceIds?: number[];
-  productIds?: number[];
+  mediaTypeIds?: number[];
   seriesIds?: number[];
   contributorIds?: number[];
   actions?: IFilterActionSettingsModel[];

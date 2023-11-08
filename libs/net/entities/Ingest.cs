@@ -9,7 +9,7 @@ namespace TNO.Entities;
 /// <summary>
 /// Ingest class, provides an entity model which enabled configuring different ingestion services.
 /// An ingestion service fetches content for a specified source, source connection, and ingest type.
-/// It will the provide a way to import content to the specified product and destination connection.
+/// It will the provide a way to import content to the specified media type and destination connection.
 /// </summary>
 [Cache("ingests", "lookups")]
 [Table("ingest")]
@@ -71,15 +71,15 @@ public class Ingest : AuditColumns
     public virtual IngestType? IngestType { get; set; }
 
     /// <summary>
-    /// get/set - Foreign key to product.
+    /// get/set - Foreign key to media type.
     /// </summary>
-    [Column("product_id")]
-    public int ProductId { get; set; }
+    [Column("media_type_id")]
+    public int MediaTypeId { get; set; }
 
     /// <summary>
-    /// get/set - The product.
+    /// get/set - The media type.
     /// </summary>
-    public virtual Product? Product { get; set; }
+    public virtual MediaType? MediaType { get; set; }
 
     /// <summary>
     /// get/set - Foreign key to the source connection.
@@ -160,12 +160,12 @@ public class Ingest : AuditColumns
     /// <param name="topic"></param>
     /// <param name="sourceId"></param>
     /// <param name="ingestTypeId"></param>
-    /// <param name="productId"></param>
+    /// <param name="mediaTypeId"></param>
     /// <param name="sourceConnectionId"></param>
     /// <param name="destinationConnectionId"></param>
     /// <param name="scheduleType"></param>
-    public Ingest(string name, string topic, int sourceId, int ingestTypeId, int productId, int sourceConnectionId, int destinationConnectionId, ScheduleType scheduleType)
-        : this(name, topic, sourceId, ingestTypeId, productId, sourceConnectionId, destinationConnectionId)
+    public Ingest(string name, string topic, int sourceId, int ingestTypeId, int mediaTypeId, int sourceConnectionId, int destinationConnectionId, ScheduleType scheduleType)
+        : this(name, topic, sourceId, ingestTypeId, mediaTypeId, sourceConnectionId, destinationConnectionId)
     {
         this.ScheduleType = scheduleType;
     }
@@ -177,11 +177,11 @@ public class Ingest : AuditColumns
     /// <param name="topic"></param>
     /// <param name="sourceId"></param>
     /// <param name="ingestTypeId"></param>
-    /// <param name="productId"></param>
+    /// <param name="mediaTypeId"></param>
     /// <param name="sourceConnectionId"></param>
     /// <param name="destinationConnectionId"></param>
     /// <exception cref="ArgumentException"></exception>
-    public Ingest(string name, string topic, int sourceId, int ingestTypeId, int productId, int sourceConnectionId, int destinationConnectionId)
+    public Ingest(string name, string topic, int sourceId, int ingestTypeId, int mediaTypeId, int sourceConnectionId, int destinationConnectionId)
     {
         if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(name));
         if (String.IsNullOrWhiteSpace(topic)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(topic));
@@ -190,7 +190,7 @@ public class Ingest : AuditColumns
         this.Topic = topic;
         this.SourceId = sourceId;
         this.IngestTypeId = ingestTypeId;
-        this.ProductId = productId;
+        this.MediaTypeId = mediaTypeId;
         this.SourceConnectionId = sourceConnectionId;
         this.DestinationConnectionId = destinationConnectionId;
         this.ScheduleType = ScheduleType.None;
@@ -203,12 +203,12 @@ public class Ingest : AuditColumns
     /// <param name="name"></param>
     /// <param name="source"></param>
     /// <param name="ingestType"></param>
-    /// <param name="product"></param>
+    /// <param name="mediaType"></param>
     /// <param name="sourceConnection"></param>
     /// <param name="destinationConnection"></param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
-    public Ingest(string name, Source source, IngestType ingestType, Product product, Connection sourceConnection, Connection destinationConnection)
+    public Ingest(string name, Source source, IngestType ingestType, MediaType mediaType, Connection sourceConnection, Connection destinationConnection)
     {
         if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(name));
 
@@ -216,8 +216,8 @@ public class Ingest : AuditColumns
         this.Topic = source?.Code ?? throw new ArgumentNullException(nameof(source));
         this.IngestTypeId = ingestType?.Id ?? throw new ArgumentNullException(nameof(ingestType));
         this.IngestType = ingestType;
-        this.ProductId = product?.Id ?? throw new ArgumentNullException(nameof(product));
-        this.Product = product;
+        this.MediaTypeId = mediaType?.Id ?? throw new ArgumentNullException(nameof(mediaType));
+        this.MediaType = mediaType;
         this.SourceId = source?.Id ?? throw new ArgumentNullException(nameof(source));
         this.Source = source;
         this.SourceConnectionId = sourceConnection?.Id ?? throw new ArgumentNullException(nameof(sourceConnection));

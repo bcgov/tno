@@ -16,7 +16,7 @@ export const getSortBy = (sortBy?: ISortBy[]) => {
     if (column === 'section') {
       sort.push({ page: value });
       sort.push({ [column]: value });
-    } else if (column === 'product') {
+    } else if (column === 'mediaType') {
       sort.push({ [column + '.name.keyword']: value });
     } else if (column === 'owner') {
       sort.push({ [column + '.username.keyword']: value });

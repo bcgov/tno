@@ -15,7 +15,7 @@ export const IngestSchema = object().shape({
 
   sourceId: number().integer().min(1, 'Source required').required(),
   ingestTypeId: number().integer().min(1, 'Ingest Type required').required(),
-  productId: number().integer().min(1, 'Product required').required(),
+  mediaTypeId: number().integer().min(1, 'Media Type required').required(),
   sourceConnectionId: number().integer().min(1, 'Source connection required').required(),
   destinationConnectionId: number().integer().min(1, 'Destination connection required').required(),
   schedules: array().when('scheduleType', (value) => {

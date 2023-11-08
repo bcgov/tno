@@ -206,7 +206,7 @@ public class ClipAction : CommandAction<ClipOptions>
             this.Options.DataLocation,
             reference.Source,
             contentType,
-            ingest.ProductId,
+            ingest.MediaTypeId,
             reference.Uid,
             $"{schedule.Name} {schedule.StartAt:c}-{schedule.StopAt:c}",
             "",

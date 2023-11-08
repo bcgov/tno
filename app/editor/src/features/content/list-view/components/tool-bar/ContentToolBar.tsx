@@ -31,7 +31,7 @@ export const ContentToolBar: React.FC<IContentToolBarProps> = ({ onSearch }) => 
         }
       });
     }
-    // parse productIds for each one and put into array
+    // parse mediaTypeIds for each one and put into array
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

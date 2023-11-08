@@ -33,7 +33,7 @@ public class SourceModel : BaseTypeModel<int>
     /// <summary>
     /// get/set -
     /// </summary>
-    public int? ProductId { get; set; }
+    public int? MediaTypeId { get; set; } //fixed
 
     /// <summary>
     /// get/set - Whether this source auto transcribes A/V files.
@@ -62,7 +62,7 @@ public class SourceModel : BaseTypeModel<int>
         this.ShortName = entity.ShortName;
         this.LicenseId = entity.LicenseId;
         this.OwnerId = entity.OwnerId;
-        this.ProductId = entity.ProductId;
+        this.MediaTypeId = entity.MediaTypeId;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
     }
@@ -82,7 +82,7 @@ public class SourceModel : BaseTypeModel<int>
         this.ShortName = model.ShortName;
         this.LicenseId = model.LicenseId;
         this.OwnerId = model.OwnerId;
-        this.ProductId = model.ProductId;
+        this.MediaTypeId = model.MediaTypeId;
         this.AutoTranscribe = model.AutoTranscribe;
         this.DisableTranscribe = model.DisableTranscribe;
     }
@@ -102,7 +102,7 @@ public class SourceModel : BaseTypeModel<int>
         this.ShortName = model.ShortName;
         this.LicenseId = model.LicenseId;
         this.OwnerId = model.OwnerId;
-        this.ProductId = model.ProductId;
+        this.MediaTypeId = model.MediaTypeId;
         this.AutoTranscribe = model.AutoTranscribe;
         this.DisableTranscribe = model.DisableTranscribe;
     }
@@ -122,7 +122,7 @@ public class SourceModel : BaseTypeModel<int>
         this.ShortName = model.ShortName;
         this.LicenseId = model.LicenseId;
         this.OwnerId = model.OwnerId;
-        this.ProductId = model.ProductId;
+        this.MediaTypeId = model.MediaTypeId;
         this.AutoTranscribe = model.AutoTranscribe;
         this.DisableTranscribe = model.DisableTranscribe;
     }

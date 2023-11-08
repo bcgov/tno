@@ -31,7 +31,7 @@ public class SourceContent : ContentBase
     /// <param name="dataLocation"></param>
     /// <param name="source"></param>
     /// <param name="contentType"></param>
-    /// <param name="productId"></param>
+    /// <param name="mediaTypeId"></param>
     /// <param name="uid"></param>
     /// <param name="title"></param>
     /// <param name="summary"></param>
@@ -39,9 +39,9 @@ public class SourceContent : ContentBase
     /// <param name="publishedOn"></param>
     /// <param name="publish"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public SourceContent(string dataLocation, string source, ContentType contentType, int productId,
+    public SourceContent(string dataLocation, string source, ContentType contentType, int mediaTypeId,
         string uid, string title, string summary, string body, DateTime? publishedOn, bool publish = false)
-        : base(dataLocation, source, contentType, productId, uid, title, summary, publishedOn)
+        : base(dataLocation, source, contentType, mediaTypeId, uid, title, summary, publishedOn)
     {
         this.Body = body ?? throw new ArgumentNullException(nameof(body));
         if (publish) Status = ContentStatus.Publish;

@@ -51,7 +51,7 @@ public class SourceModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public int? ProductId { get; set; }
+    public int? MediaTypeId { get; set; }
     #endregion
 
     #region Constructors
@@ -74,7 +74,7 @@ public class SourceModel : AuditColumnsModel
         this.IsEnabled = entity.IsEnabled;
         this.LicenseId = entity.LicenseId;
         this.OwnerId = entity.OwnerId;
-        this.ProductId = entity.ProductId;
+        this.MediaTypeId = entity.MediaTypeId;
     }
     #endregion
 
@@ -102,7 +102,7 @@ public class SourceModel : AuditColumnsModel
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             OwnerId = model.OwnerId,
-            ProductId = model.ProductId,
+            MediaTypeId = model.MediaTypeId,
             Version = model.Version ?? 0
         };
 

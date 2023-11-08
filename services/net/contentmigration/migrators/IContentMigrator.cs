@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 using TNO.API.Areas.Editor.Models.Lookup;
-using TNO.API.Areas.Editor.Models.Product;
+using TNO.API.Areas.Editor.Models.MediaType;
 using TNO.API.Areas.Editor.Models.Source;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.Entities;
@@ -40,7 +40,7 @@ public interface IContentMigrator
     /// <param name="lookup"></param>
     /// <param name="newsItemType"></param>
     /// <returns></returns>
-    ProductModel? GetProductMapping(IEnumerable<ProductModel> lookup, string newsItemType);
+    MediaTypeModel? GetMediaTypeMapping(IEnumerable<MediaTypeModel> lookup, string newsItemType);
 
     /// <summary>
     /// Creates an ContentReferenceModel from a NewsItem
@@ -58,12 +58,12 @@ public interface IContentMigrator
     /// </summary>
     /// <param name="lookups"></param>
     /// <param name="source"></param>
-    /// <param name="product"></param>
+    /// <param name="mediaType"></param>
     /// <param name="contentType"></param>
     /// <param name="newsItem"></param>
     /// <param name="defaultTimeZone"></param>
     /// <returns></returns>
-    SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string defaultTimeZone);
+    SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, MediaTypeModel mediaType, ContentType contentType, NewsItem newsItem, string defaultTimeZone);
 
     /// <summary>
     /// Copies a file from the TNO store to a location where it can be picked up by MMI Content service

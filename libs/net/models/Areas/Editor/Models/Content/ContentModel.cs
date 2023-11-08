@@ -27,14 +27,14 @@ public class ContentModel : AuditColumnsModel
     public ContentType ContentType { get; set; } = ContentType.AudioVideo;
 
     /// <summary>
-    /// get/set - Foreign key to product.
+    /// get/set - Foreign key to media type.
     /// </summary>
-    public int ProductId { get; set; }
+    public int MediaTypeId { get; set; }
 
     /// <summary>
-    /// get/set - The product.
+    /// get/set - The media type.
     /// </summary>
-    public ProductModel? Product { get; set; }
+    public MediaTypeModel? MediaType { get; set; }
 
     /// <summary>
     /// get/set - Foreign key to license.
@@ -237,8 +237,8 @@ public class ContentModel : AuditColumnsModel
     {
         this.Id = entity?.Id ?? throw new ArgumentNullException(nameof(entity));
         this.Status = entity.Status;
-        this.ProductId = entity.ProductId;
-        this.Product = entity.Product != null ? new ProductModel(entity.Product) : null;
+        this.MediaTypeId = entity.MediaTypeId;
+        this.MediaType = entity.MediaType != null ? new MediaTypeModel(entity.MediaType) : null;
         this.ContentType = entity.ContentType;
         this.LicenseId = entity.LicenseId;
         this.License = entity.License != null ? new LicenseModel(entity.License) : null;
@@ -284,7 +284,7 @@ public class ContentModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.Content(ContentModel model)
     {
-        var entity = new Entities.Content(model.Uid, model.Headline, model.OtherSource, model.SourceId, model.ContentType, model.LicenseId, model.ProductId, model.OwnerId)
+        var entity = new Entities.Content(model.Uid, model.Headline, model.OtherSource, model.SourceId, model.ContentType, model.LicenseId, model.MediaTypeId, model.OwnerId)
         {
             Id = model.Id,
             Status = model.Status,

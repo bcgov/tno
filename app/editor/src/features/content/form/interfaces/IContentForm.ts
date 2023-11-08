@@ -8,7 +8,7 @@ import {
   IContentTonePoolModel,
   IContentTopicModel,
   IFileReferenceModel,
-  IProductModel,
+  IMediaTypeModel,
   ITimeTrackingModel,
   IUserModel,
   IWorkOrderModel,
@@ -23,8 +23,8 @@ export interface IContentForm {
   contentType: ContentTypeName;
   ownerId: number | '';
   owner?: IUserModel;
-  productId: number;
-  product?: IProductModel;
+  mediaTypeId: number;
+  mediaType?: IMediaTypeModel;
   licenseId: number;
   sourceId?: number;
   otherSource: string;

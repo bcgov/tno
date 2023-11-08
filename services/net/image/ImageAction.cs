@@ -379,7 +379,7 @@ public class ImageAction : IngestAction<ImageOptions>
         // images per day from an ingest this has will have to be changed
         var date = publishedOn.HasValue ? $"{publishedOn:yyyy-MM-dd}" : "";
         string hashInput = $"{source}:{headline}:{date}";
-        var inputBytes = Encoding.UTF8.GetBytes(hashInput);
+        var inputByMediaTypencoding.UTF8.GetBytes(hashInput);
         var inputHash = SHA256.HashData(inputBytes);
         return Convert.ToHexString(inputHash);
     }
@@ -400,7 +400,7 @@ public class ImageAction : IngestAction<ImageOptions>
             this.Options.DataLocation,
             reference.Source,
             contentType,
-            ingest.ProductId,
+            ingest.MediaTypeId,
             reference.Uid,
             $"{ingest.Name} Frontpage",
             "",

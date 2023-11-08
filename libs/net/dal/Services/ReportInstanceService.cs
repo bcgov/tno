@@ -34,7 +34,7 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
             .Include(ri => ri.Report).ThenInclude(r => r!.Sections).ThenInclude(s => s.ChartTemplatesManyToMany).ThenInclude(ct => ct.ChartTemplate)
             .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content)
             .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Source)
-            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Product)
+            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.MediaType)
             .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Series)
             .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Contributor)
             .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.ActionsManyToMany).ThenInclude(c => c.Action)

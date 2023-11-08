@@ -23,7 +23,7 @@ export interface ISubscriberContentFilter extends ISortPageFilter {
   otherSource?: string;
   ownerId?: number;
   pageName?: string;
-  productIds?: number[];
+  mediaTypeIds?: number[];
   publishedEndOn?: string;
   publishedOn?: string;
   publishedStartOn?: string;
