@@ -20,7 +20,7 @@ export const WorkOrderFilter = ({ filter, onFilterChange }: IWorkOrderFilterProp
   const [keywords, setKeywords] = React.useState<string>('');
   const [{ settings }] = useLookup();
 
-  // Settings contains a link to the news radio products.
+  // Settings contains a link to the news radio media types.
   const newsRadioMediaTypeFilter = (
     settings.find((s) => s.name === Settings.NewsRadioMediaTypeFilter)?.value ?? ''
   )
