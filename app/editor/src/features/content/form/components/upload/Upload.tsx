@@ -62,10 +62,10 @@ export const Upload: React.FC<IUploadProps> = ({
   const [, { ffmpeg }] = useWorkOrders();
   const { isShowing: showFFmpegModal, toggle: toggleFFmpeg } = useModal();
 
-  const [file, setFile] = React.useState<IFile | undefined>();
+  const [file, setFile] = React.useState<IFile>();
 
-  const [fileName, setFileName] = React.useState<string | undefined>();
-  const [fileBlobUrl, setFileBlobUrl] = React.useState<string | undefined>();
+  const [fileName, setFileName] = React.useState<string>();
+  const [fileBlobUrl, setFileBlobUrl] = React.useState<string>();
   const fileReference = values.fileReferences.length ? values.fileReferences[0] : undefined;
   const processing = values.workOrders.some(
     (wo) =>
@@ -78,6 +78,7 @@ export const Upload: React.FC<IUploadProps> = ({
       setFile(initFile);
       setFileName(newFileName);
     }
+    // Only update when initFile changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initFile]);
 
