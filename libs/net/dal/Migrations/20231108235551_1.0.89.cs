@@ -28,10 +28,16 @@ namespace TNO.DAL.Migrations
                 name: "FK_source_product_product_id",
                 table: "source");
 
-            // migrationBuilder.DropTable(
-            //     name: "product");
+            migrationBuilder.DropPrimaryKey(
+                name: "PK_product",
+                table: "product");
 
-            migrationBuilder.RenameTable("product","media_type");
+            migrationBuilder.RenameTable("product","public","media_type","public");
+
+            migrationBuilder.AddPrimaryKey(
+                name: "PK_media_type",
+                table: "media_type",
+                column: "id");
 
             migrationBuilder.RenameIndex(
                 name: "IX_product_is_enabled",
@@ -53,11 +59,6 @@ namespace TNO.DAL.Migrations
                 table: "source",
                 newName: "IX_source_media_type_id");
 
-            migrationBuilder.RenameIndex(
-                name: "IX_name6",
-                table: "metric",
-                newName: "IX_name7");
-
             migrationBuilder.RenameColumn(
                 name: "product_id",
                 table: "ingest",
@@ -77,40 +78,6 @@ namespace TNO.DAL.Migrations
                 name: "IX_content_product_id",
                 table: "content",
                 newName: "IX_content_media_type_id");
-
-            // migrationBuilder.CreateTable(
-            //     name: "media_type",
-            //     columns: table => new
-            //     {
-            //         id = table.Column<int>(type: "integer", nullable: false)
-            //             .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-            //         auto_transcribe = table.Column<bool>(type: "boolean", nullable: false),
-            //         Settings = table.Column<JsonDocument>(type: "jsonb", nullable: false, defaultValueSql: "'{}'::jsonb"),
-            //         created_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-            //         created_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-            //         updated_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-            //         updated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-            //         version = table.Column<long>(type: "bigint", nullable: false, defaultValueSql: "0"),
-            //         name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-            //         description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false, defaultValueSql: "''"),
-            //         is_enabled = table.Column<bool>(type: "boolean", nullable: false),
-            //         sort_order = table.Column<int>(type: "integer", nullable: false, defaultValue: 0)
-            //     },
-            //     constraints: table =>
-            //     {
-            //         table.PrimaryKey("PK_media_type", x => x.id);
-            //     });
-
-            // migrationBuilder.CreateIndex(
-            //     name: "IX_mediatype_is_enabled",
-            //     table: "media_type",
-            //     columns: new[] { "is_enabled", "name" });
-
-            // migrationBuilder.CreateIndex(
-            //     name: "IX_name6",
-            //     table: "media_type",
-            //     column: "name",
-            //     unique: true);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_content_media_type_media_type_id",
@@ -156,10 +123,17 @@ namespace TNO.DAL.Migrations
                 name: "FK_source_media_type_media_type_id",
                 table: "source");
 
-        //    migrationBuilder.DropTable(
-        //        name: "media_type");
+            migrationBuilder.DropPrimaryKey(
+                name: "PK_media_type",
+                table: "media_type");
 
-            migrationBuilder.RenameTable("media_type","product");
+            migrationBuilder.RenameTable("media_type","public","product","public");
+
+            migrationBuilder.AddPrimaryKey(
+                name: "PK_product",
+                table: "product",
+                column: "id");
+
             migrationBuilder.RenameIndex(
                 name: "IX_media_type_is_enabled",
                 table: "media_type",
@@ -180,11 +154,6 @@ namespace TNO.DAL.Migrations
                 table: "source",
                 newName: "IX_source_product_id");
 
-            migrationBuilder.RenameIndex(
-                name: "IX_name7",
-                table: "metric",
-                newName: "IX_name6");
-
             migrationBuilder.RenameColumn(
                 name: "media_type_id",
                 table: "ingest",
@@ -204,40 +173,6 @@ namespace TNO.DAL.Migrations
                 name: "IX_content_media_type_id",
                 table: "content",
                 newName: "IX_content_product_id");
-
-            // migrationBuilder.CreateTable(
-            //     name: "product",
-            //     columns: table => new
-            //     {
-            //         id = table.Column<int>(type: "integer", nullable: false)
-            //             .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-            //         auto_transcribe = table.Column<bool>(type: "boolean", nullable: false),
-            //         created_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-            //         created_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-            //         description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false, defaultValueSql: "''"),
-            //         is_enabled = table.Column<bool>(type: "boolean", nullable: false),
-            //         name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-            //         Settings = table.Column<JsonDocument>(type: "jsonb", nullable: false, defaultValueSql: "'{}'::jsonb"),
-            //         sort_order = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
-            //         updated_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-            //         updated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-            //         version = table.Column<long>(type: "bigint", nullable: false, defaultValueSql: "0")
-            //     },
-            //     constraints: table =>
-            //     {
-            //         table.PrimaryKey("PK_product", x => x.id);
-            //     });
-
-            // migrationBuilder.CreateIndex(
-            //     name: "IX_name7",
-            //     table: "product",
-            //     column: "name",
-            //     unique: true);
-
-            // migrationBuilder.CreateIndex(
-            //     name: "IX_product_is_enabled",
-            //     table: "product",
-            //     columns: new[] { "is_enabled", "name" });
 
             migrationBuilder.AddForeignKey(
                 name: "FK_content_product_product_id",
