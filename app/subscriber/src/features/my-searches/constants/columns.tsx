@@ -1,30 +1,38 @@
-import { FiMoreHorizontal, FiSave } from 'react-icons/fi';
-import { CellEllipsis, IFilterModel, ITableHookColumn, Text } from 'tno-core';
+import { FaBookmark, FaTrash } from 'react-icons/fa';
+import { FaGear } from 'react-icons/fa6';
+import { FiSave } from 'react-icons/fi';
+import { IFilterModel, ITableHookColumn, Row, Text } from 'tno-core';
 
 export const columns = (
   setActive: (folder: IFilterModel) => void,
   editable: string,
   handleSave: () => void,
+  handleDelete: () => void,
   active?: IFilterModel,
 ): ITableHookColumn<IFilterModel>[] => [
   {
-    label: 'My Searches',
+    label: 'Search Name',
     accessor: 'name',
-    width: 2,
+    width: 15,
     cell: (cell) => (
-      <CellEllipsis>
+      <Row>
+        <FaBookmark className="bookmark-icon" />
         {active && editable === cell.original.name ? (
           <Text
             className="re-name"
             name="name"
             value={active.name}
-            onChange={(e) => setActive({ ...active, name: e.target.value })}
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) => {
+              e.stopPropagation();
+              setActive({ ...active, name: e.target.value });
+            }}
             key={active.id}
           />
         ) : (
           cell.original.name
         )}
-      </CellEllipsis>
+      </Row>
     ),
   },
   {
@@ -34,17 +42,36 @@ export const columns = (
     cell: (cell) => (
       <>
         {editable === cell.original.name ? (
-          <FiSave onClick={() => handleSave()} className="elips" />
-        ) : (
-          <FiMoreHorizontal
+          <FiSave
             onClick={(e) => {
-              // stop the row click event from firing
               e.stopPropagation();
-              setActive(cell.original);
+              handleSave();
             }}
-            data-tooltip-id="options"
             className="elips"
           />
+        ) : (
+          <div className="search-row-options">
+            {/* upcoming sprint these are used */}
+            {/* <FaBinoculars data-tooltip-id="binocs" className="binocs" /> */}
+            <FaGear
+              onClick={(e) => {
+                // stop the row click event from firing
+                e.stopPropagation();
+                setActive(cell.original);
+              }}
+              data-tooltip-id="edit-name"
+              className="gear"
+            />
+            <FaTrash
+              className="trash"
+              data-tooltip-id="delete"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActive(cell.original);
+                handleDelete();
+              }}
+            />
+          </div>
         )}
       </>
     ),

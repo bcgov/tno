@@ -10,12 +10,52 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   width: ${(props) => (!props.expanded ? '100%' : '')};
   border-radius: 0.75em;
 
-  padding: 0.5em;
+  /* padding: 0.5em; */
+
+  .adv-toolbar {
+    background-color: #e8e9f1;
+    color: #847379;
+    width: 100%;
+    padding: 0.5em;
+    align-items: center;
+    border-bottom-left-radius: 0.75em;
+    border-bottom-right-radius: 0.75em;
+    .save-cloud {
+      margin-right: 0.5em;
+      max-height: 30px;
+      background-color: white;
+      border-color: #6750a4;
+      border-width: 1px;
+      border-radius: 0.25em;
+      svg {
+        height: 1.25em;
+        width: 1.25em;
+        margin-top: 0.15em;
+        color: #6750a4;
+      }
+      &:hover {
+        cursor: pointer;
+      }
+    }
+    .label {
+      font-size: 0.85em;
+    }
+    input {
+      margin-top: 0.5em;
+      max-height: 30px;
+    }
+  }
+
+  .main-search-body {
+    width: 100%;
+    padding: 0.5em;
+  }
 
   .top-bar {
     .title {
       color: ${(props) => props.theme.css.redHeadingColor};
       font-weight: bold;
+      font-size: 1.35em;
     }
     width: 100%;
     border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
@@ -23,6 +63,8 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     .reset {
       margin-left: auto;
       align-self: center;
+      height: 1.25em;
+      width: 1.25em;
       cursor: pointer;
       &:hover {
         color: ${(props) => props.theme.css.subscriberPurple};
@@ -226,9 +268,7 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
 
   .search-button-expanded {
     height: 30px;
-    margin-top: 0.5em;
     margin-left: auto;
-    align-self: center;
     font-weight: 200;
     font-size: 0.8em;
     background-color: ${(props) => props.theme.css.subscriberPurple};

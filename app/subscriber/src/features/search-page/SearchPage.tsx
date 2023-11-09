@@ -3,30 +3,15 @@ import { FolderSubMenu } from 'components/folder-sub-menu';
 import { SearchWithLogout } from 'components/search-with-logout';
 import { Sentiment } from 'components/sentiment';
 import { AdvancedSearch } from 'components/sidebar/advanced-search';
-import {
-  IContentListAdvancedFilter,
-  IContentListFilter,
-} from 'features/content/list-view/interfaces';
 import { determinePreview } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
-import { FaPlay, FaSave, FaStop } from 'react-icons/fa';
+import { FaPlay, FaStop } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
-import {
-  Checkbox,
-  Col,
-  convertTo,
-  fromQueryString,
-  generateQuery,
-  IContentModel,
-  Loading,
-  Row,
-  Show,
-  Text,
-} from 'tno-core';
+import { Checkbox, Col, generateQuery, IContentModel, Loading, Row, Show } from 'tno-core';
 
+import { useParamsToFilter } from './hooks';
 import { Player } from './player/Player';
 import * as styled from './styled';
 import { filterFormat } from './utils';
@@ -35,56 +20,26 @@ import { filterFormat } from './utils';
 export const SearchPage: React.FC = () => {
   const [, { findContentWithElasticsearch }] = useContent();
   const navigate = useNavigate();
-  const [, { addFilter }] = useFilters();
   const [{ actions }] = useLookup();
+  const [, { getFilter }] = useFilters();
 
   const params = useParams();
   const [searchItems, setSearchItems] = React.useState<IContentModel[]>([]);
   const [activeContent, setActiveContent] = React.useState<IContentModel | null>(null);
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
-  const [searchName, setSearchName] = React.useState<string>('');
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const [searchName, setSearchName] = React.useState<string>();
   const [isLoading, setIsLoading] = React.useState(false);
-
+  const { advancedSubscriberFilter } = useParamsToFilter();
   const urlParams = new URLSearchParams(params.query);
 
-  const search = React.useMemo(
-    () =>
-      fromQueryString(params.query, {
-        arrays: ['sourceIds', 'sentiment', 'productIds', 'actions'],
-        numbers: ['sourceIds', 'sentiment', 'productIds'],
-      }),
-    [params.query],
-  );
-
-  const advancedSubscriberFilter: IContentListFilter & Partial<IContentListAdvancedFilter> =
-    React.useMemo(() => {
-      return {
-        useUnpublished: urlParams.get('useUnpublished') === 'true' ?? false,
-        keyword: urlParams.get('keyword') ?? '',
-        searchTerm: urlParams.get('searchTerm') ?? '',
-        inByline: urlParams.get('inByline') === 'true' ?? false,
-        inHeadline: urlParams.get('inHeadline') === 'true' ?? false,
-        inStory: urlParams.get('inStory') === 'true' ?? false,
-        contentTypes: [],
-        actions: search.actions?.map((v: any) => convertTo(v, 'string', undefined)),
-        hasFile: urlParams.get('hasFile') === 'true' ?? false,
-        headline: urlParams.get('headline') ?? '',
-        pageIndex: convertTo(urlParams.get('pageIndex'), 'number', 0),
-        pageSize: convertTo(urlParams.get('pageSize'), 'number', 100),
-        sourceIds: search.sourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
-        productIds: search.productIds?.map((v: any) => convertTo(v, 'number', undefined)),
-        sentiment: search.sentiment?.map((v: any) => convertTo(v, 'number', undefined)),
-        startDate: urlParams.get('publishedStartOn') ?? '',
-        endDate: urlParams.get('publishedEndOn') ?? '',
-        storyText: urlParams.get('storyText') ?? '',
-        boldKeywords: urlParams.get('boldKeywords') === 'true' ?? '',
-        topStory: urlParams.get('actions') === 'Top Story' ?? false,
-        sort: [],
-      };
-      // only want this to update when the query changes
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [params.query]);
+  const savedSearchId = Number(urlParams.get('savedSearchId'));
+  React.useEffect(() => {
+    if (!!savedSearchId && !searchName)
+      getFilter(savedSearchId)
+        .then((s) => setSearchName(s.name))
+        .catch();
+  });
 
   // function that bolds the searched text only if advanced filter is enabled for it
   const formatSearch = React.useCallback(
@@ -133,21 +88,6 @@ export const SearchPage: React.FC = () => {
     [findContentWithElasticsearch],
   );
 
-  const saveSearch = React.useCallback(async () => {
-    const data = await addFilter({
-      name: searchName,
-      query: generateQuery(filterFormat(advancedSubscriberFilter, actions)),
-      settings: { ...filterFormat(advancedSubscriberFilter, actions) },
-      id: 0,
-      sortOrder: 0,
-      description: '',
-      isEnabled: true,
-      reports: [],
-      folders: [],
-    });
-    toast.success(`${data.name} has successfully been saved.`);
-  }, [advancedSubscriberFilter, searchName, addFilter, actions]);
-
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
     fetchResults(generateQuery(filterFormat(advancedSubscriberFilter, actions)));
@@ -164,14 +104,8 @@ export const SearchPage: React.FC = () => {
         </Col>
         <Col className="result-container">
           <Row className="save-bar">
-            <div className="label">Name this search: </div>
-            <Text
-              onChange={(e) => {
-                setSearchName(e.target.value);
-              }}
-              name="searchName"
-            />
-            <FaSave className="save-button" onClick={() => saveSearch()} />
+            <div className="title">{`Search Results (${searchName})`}</div>
+
             <FolderSubMenu selectedContent={selected} />
           </Row>
           <Row>

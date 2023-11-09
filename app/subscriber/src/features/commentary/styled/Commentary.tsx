@@ -26,7 +26,7 @@ export const Commentary = styled.div`
 
   .content {
     padding-top: 0.5em;
-    background-color: ${(props) => props.theme.css.lightGray};
+    background-color: white;
     min-height: 10em;
     max-height: 20em;
     overflow-y: auto;
