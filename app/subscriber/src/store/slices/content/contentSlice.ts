@@ -4,7 +4,7 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { IContentModel, IPaged, LogicalOperator } from 'tno-core';
+import { IContentModel, IOptionItem, IPaged, LogicalOperator } from 'tno-core';
 
 import { IContentState } from './interfaces';
 
@@ -26,12 +26,22 @@ export const initialContentState: IContentState = {
     logicalOperator: LogicalOperator.Contains,
     searchTerm: '',
   },
+  pressGalleryFilter: {
+    dateFilter: null,
+    pressFilter: null,
+  },
 };
 
 export const contentSlice = createSlice({
   name: 'content',
   initialState: initialContentState,
   reducers: {
+    storeGalleryPressFilter(state: IContentState, action: PayloadAction<IOptionItem | null>) {
+      state.pressGalleryFilter.pressFilter = action.payload;
+    },
+    storeGalleryDateFilter(state: IContentState, action: PayloadAction<IOptionItem | null>) {
+      state.pressGalleryFilter.dateFilter = action.payload;
+    },
     storeFilter(state: IContentState, action: PayloadAction<IContentListFilter>) {
       state.filter = action.payload;
     },
@@ -69,4 +79,6 @@ export const {
   storeContent,
   updateContent,
   removeContent,
+  storeGalleryDateFilter,
+  storeGalleryPressFilter,
 } = contentSlice.actions;

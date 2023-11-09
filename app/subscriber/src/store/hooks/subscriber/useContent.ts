@@ -6,7 +6,13 @@ import {
 import React from 'react';
 import { useContentStore } from 'store/slices';
 import { IContentProps, IContentState } from 'store/slices/content';
-import { IContentFilter, IContentModel, IPaged, useApiSubscriberContents } from 'tno-core';
+import {
+  IContentFilter,
+  IContentModel,
+  IOptionItem,
+  IPaged,
+  useApiSubscriberContents,
+} from 'tno-core';
 
 import { useAjaxWrapper } from '..';
 
@@ -21,6 +27,8 @@ interface IContentController {
   download: (id: number, fileName: string) => Promise<unknown>;
   storeFilter: (filter: IContentListFilter) => void;
   storeFilterAdvanced: (filter: IContentListAdvancedFilter) => void;
+  storeGalleryDateFilter: (dateFilter: IOptionItem | null) => void;
+  storeGalleryPressFilter: (pressFilter: IOptionItem | null) => void;
   stream: (path: string) => Promise<string>;
 }
 
@@ -62,6 +70,8 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       },
       storeFilter: actions.storeFilter,
       storeFilterAdvanced: actions.storeFilterAdvanced,
+      storeGalleryDateFilter: actions.storeGalleryDateFilter,
+      storeGalleryPressFilter: actions.storeGalleryPressFilter,
     }),
     [actions, api, dispatch],
   );

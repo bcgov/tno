@@ -4,7 +4,7 @@ import {
 } from 'features/content/list-view/interfaces';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
-import { IContentModel, IPaged } from 'tno-core';
+import { IContentModel, IOptionItem, IPaged } from 'tno-core';
 
 import {
   addContent,
@@ -12,6 +12,8 @@ import {
   storeContent,
   storeFilter,
   storeFilterAdvanced,
+  storeGalleryDateFilter,
+  storeGalleryPressFilter,
   updateContent,
 } from '.';
 import { IContentState } from './interfaces';
@@ -21,6 +23,8 @@ export interface IContentProps {
 }
 
 export interface IContentStore {
+  storeGalleryDateFilter: (date: IOptionItem | null) => void;
+  storeGalleryPressFilter: (filter: IOptionItem | null) => void;
   storeFilter: (filter: IContentListFilter) => void;
   storeFilterAdvanced: (filter: IContentListAdvancedFilter) => void;
   storeContent: (content: IPaged<IContentModel>) => void;
@@ -35,6 +39,12 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
 
   const controller = React.useMemo(
     () => ({
+      storeGalleryPressFilter: (filter: IOptionItem | null) => {
+        dispatch(storeGalleryPressFilter(filter));
+      },
+      storeGalleryDateFilter: (date: IOptionItem | null) => {
+        dispatch(storeGalleryDateFilter(date));
+      },
       storeFilter: (filter: IContentListFilter) => {
         dispatch(storeFilter(filter));
       },
