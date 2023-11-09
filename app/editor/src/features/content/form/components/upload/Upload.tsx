@@ -57,7 +57,6 @@ export const Upload: React.FC<IUploadProps> = ({
   stream,
   ...rest
 }) => {
-  const [loading, setLoading] = React.useState(true);
   const { isShowing, toggle } = useModal();
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [, { ffmpeg }] = useWorkOrders();
@@ -74,10 +73,10 @@ export const Upload: React.FC<IUploadProps> = ({
   );
 
   React.useEffect(() => {
-    if (!!initFile && loading) {
+    const newFileName = generateName(initFile);
+    if (!!initFile && newFileName !== fileName) {
       setFile(initFile);
-      setFileName(generateName(initFile));
-      setLoading(false);
+      setFileName(newFileName);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initFile]);
