@@ -17,7 +17,7 @@ const AVOverviewPreview: React.FC = () => {
       setIsLoading(true);
       const date = new Date();
       let instance = await findAVOverview(date.toISOString());
-      if (!instance?.id) {
+      if (!instance?.id || !instance.isPublished) {
         date.setDate(date.getDate() - 1);
         instance = await findAVOverview(date.toISOString());
       }
