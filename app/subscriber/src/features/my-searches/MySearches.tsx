@@ -101,7 +101,6 @@ export const MySearches = () => {
         onConfirm={() => {
           try {
             if (!!active) {
-              alert('active');
               if (actionName === 'delete') {
                 deleteFilter(active).then(() => {
                   toast.success(`${active.name} deleted successfully`);

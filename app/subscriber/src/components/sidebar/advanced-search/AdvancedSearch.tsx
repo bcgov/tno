@@ -111,7 +111,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   );
 
   const saveSearch = React.useCallback(async () => {
-    const data = await addFilter({
+    await addFilter({
       name: searchName,
       query: generateQuery(filterFormat(advancedSubscriberFilter, actions)),
       settings: { ...filterFormat(advancedSubscriberFilter, actions) },
@@ -121,8 +121,9 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
       isEnabled: true,
       reports: [],
       folders: [],
-    });
-    toast.success(`${data.name} has successfully been saved.`);
+    })
+      .then((data) => toast.success(`${data.name} has successfully been saved.`))
+      .catch();
   }, [advancedSubscriberFilter, searchName, addFilter, actions]);
 
   const handleSearch = async () => {
