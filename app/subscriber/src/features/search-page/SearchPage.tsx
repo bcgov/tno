@@ -8,7 +8,7 @@ import parse from 'html-react-parser';
 import React from 'react';
 import { FaPlay, FaStop } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useContent, useLookup } from 'store/hooks';
+import { useContent, useFilters, useLookup } from 'store/hooks';
 import { Checkbox, Col, generateQuery, IContentModel, Loading, Row, Show } from 'tno-core';
 
 import { useParamsToFilter } from './hooks';
@@ -21,14 +21,26 @@ export const SearchPage: React.FC = () => {
   const [, { findContentWithElasticsearch }] = useContent();
   const navigate = useNavigate();
   const [{ actions }] = useLookup();
+  const [, { getFilter }] = useFilters();
 
   const params = useParams();
   const [searchItems, setSearchItems] = React.useState<IContentModel[]>([]);
   const [activeContent, setActiveContent] = React.useState<IContentModel | null>(null);
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const [searchName, setSearchName] = React.useState<string>();
   const [isLoading, setIsLoading] = React.useState(false);
   const { advancedSubscriberFilter } = useParamsToFilter();
+  const urlParams = new URLSearchParams(params.query);
+
+  const savedSearchId = Number(urlParams.get('savedSearchId'));
+  React.useEffect(() => {
+    if (!!savedSearchId && !searchName)
+      getFilter(savedSearchId)
+        .then((s) => setSearchName(s.name))
+        .catch();
+  });
+
   // function that bolds the searched text only if advanced filter is enabled for it
   const formatSearch = React.useCallback(
     (text: string) => {
@@ -92,7 +104,7 @@ export const SearchPage: React.FC = () => {
         </Col>
         <Col className="result-container">
           <Row className="save-bar">
-            <div className="title">Search Results</div>
+            <div className="title">{`Search Results (${searchName})`}</div>
 
             <FolderSubMenu selectedContent={selected} />
           </Row>
