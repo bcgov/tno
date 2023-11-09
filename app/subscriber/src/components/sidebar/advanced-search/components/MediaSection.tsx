@@ -51,7 +51,15 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
           sources,
         ).map((mediaGroup, index) => (
           <Col key={`${mediaGroup.key}-${index}`} className="sub-group">
-            <Row>
+            <Row
+              className="sub-group-title"
+              onClick={() => {
+                setmediaGroupExpandedStates({
+                  ...mediaGroupExpandedStates,
+                  [mediaGroup.key]: !mediaGroupExpandedStates[mediaGroup.key],
+                });
+              }}
+            >
               {`${mediaGroup.label} (${mediaGroup.options.length})`}
               {!mediaGroupExpandedStates[mediaGroup.key] ? (
                 <IoIosArrowDroprightCircle

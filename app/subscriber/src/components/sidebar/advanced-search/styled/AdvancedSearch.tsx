@@ -156,6 +156,12 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     font-size: 0.8em;
   }
 
+  .sub-group-title {
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
   .date-range-group,
   .media-group,
   .search-in-group,
