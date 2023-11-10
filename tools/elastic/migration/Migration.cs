@@ -193,6 +193,8 @@ public abstract class Migration
 
         TaskId? task = null;
 
+        // you can not use these settings to identify the to/from if you want
+        // to also run a script.  You must use the RAW method...
         if (!String.IsNullOrWhiteSpace(source) && !String.IsNullOrWhiteSpace(dest))
         {
             var response = await builder.Client.ReindexOnServerAsync(s => s
@@ -210,6 +212,8 @@ public abstract class Migration
         }
         else
         {
+            // Data element must follow structure as per guidelines at link below
+            // https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html
             if (step.Data == null) throw new InvalidOperationException($"Migration step '{path}' is missing required property 'data'.");
 
             var data = PostData.String(JsonSerializer.Serialize(step.Data, builder.SerializerOptions));
