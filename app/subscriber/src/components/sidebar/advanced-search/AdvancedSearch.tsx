@@ -78,6 +78,8 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
     if (query) setAdvancedSearch(queryToState(query.toString()));
   }, [query]);
 
+  console.log(advancedSearch.startDate);
+
   React.useEffect(() => {
     fetch('/constants.json')
       .then((res) => res.json())

@@ -1,7 +1,7 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
-import { createFilterSettings } from 'features/press-gallery/utils';
+import { createFilterSettings } from 'features/utils';
 import moment from 'moment';
 import React from 'react';
 import { FaEllipsisVertical } from 'react-icons/fa6';
