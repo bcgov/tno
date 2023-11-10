@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Entities;
@@ -69,11 +70,10 @@ public class AVOverviewInstanceService : BaseService<AVOverviewInstance, int>, I
     public override AVOverviewInstance Update(AVOverviewInstance entity)
     {
         var originalSections = this.Context.AVOverviewSections.Where(s => s.InstanceId == entity.Id).ToArray();
-        var deletedSections = originalSections.Where(x => !entity.Sections.Any(y => y.Id == x.Id)).ToArray();
-        foreach (var s in deletedSections)
+        originalSections.Except(entity.Sections).ForEach(s =>
         {
             this.Context.Entry(s).State = EntityState.Deleted;
-        }
+        });
         entity.Sections.ForEach(section =>
         {
             section.Instance = entity;
@@ -89,11 +89,10 @@ public class AVOverviewInstanceService : BaseService<AVOverviewInstance, int>, I
             else
             {
                 var originalItems = this.Context.AVOverviewSectionItems.Where(s => s.SectionId == section.Id).ToArray();
-                var deletedItems = originalItems.Where(x => !section.Items.Any(y => y.Id == x.Id)).ToArray();
-                foreach (var s in deletedItems)
+                originalItems.Except(section.Items).ForEach(s =>
                 {
                     this.Context.Entry(s).State = EntityState.Deleted;
-                }
+                });
                 this.Context.Entry(originalSections.First(x => x.Id == section.Id)).State = EntityState.Detached;
                 this.Context.Entry(section).State = EntityState.Modified;
                 section.Items.ForEach(item =>
