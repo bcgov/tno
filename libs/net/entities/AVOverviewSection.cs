@@ -239,4 +239,15 @@ public class AVOverviewSection : AuditColumns
         this.Items.AddRange(section.Items.Select(i => new AVOverviewSectionItem(this.Id, i)));
     }
     #endregion
+
+    #region Methods
+    public bool Equals(AVOverviewSection? other)
+    {
+        if (other == null) return false;
+        return this.Id == other.Id;
+    }
+
+    public override bool Equals(object? obj) => Equals(obj as AVOverviewSection);
+    public override int GetHashCode() => (this.Id).GetHashCode();
+    #endregion
 }
