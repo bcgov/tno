@@ -85,7 +85,6 @@ export const SearchPage: React.FC = () => {
           toast.warn(
             'Search returned 500+ results, only showing first 500. Please consider refining your search.',
           );
-        console.log(res);
       } catch {
       } finally {
         setIsLoading(false);
