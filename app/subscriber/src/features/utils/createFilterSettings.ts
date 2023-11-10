@@ -1,10 +1,10 @@
+import { defaultFilterSettings } from 'features/constants';
 import { IFilterSettingsModel } from 'tno-core';
-
-import { defaultFilterSettings } from '../constants';
 
 export const createFilterSettings = (
   startDate: string,
   endDate: string,
+  // defaults to 500, manual override provided
   defaultSize?: number,
 ): IFilterSettingsModel => {
   return {

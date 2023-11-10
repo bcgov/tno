@@ -8,6 +8,7 @@ import parse from 'html-react-parser';
 import React from 'react';
 import { FaPlay, FaStop } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
 import { Checkbox, Col, generateQuery, IContentModel, Loading, Row, Show } from 'tno-core';
 
@@ -80,6 +81,10 @@ export const SearchPage: React.FC = () => {
         setIsLoading(true);
         const res: any = await findContentWithElasticsearch(filter, false);
         setSearchItems(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
+        if (res.hits.total.value >= 500)
+          toast.warn(
+            'Search returned 500+ results, only showing first 500. Please consider refining your search.',
+          );
       } catch {
       } finally {
         setIsLoading(false);
@@ -104,7 +109,7 @@ export const SearchPage: React.FC = () => {
         </Col>
         <Col className="result-container">
           <Row className="save-bar">
-            <div className="title">{`Search Results (${searchName})`}</div>
+            <div className="title">{`Search Results ${!!searchName ? `(${searchName})` : ''}`}</div>
 
             <FolderSubMenu selectedContent={selected} />
           </Row>
