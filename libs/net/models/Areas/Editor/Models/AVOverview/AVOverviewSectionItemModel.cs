@@ -92,6 +92,8 @@ public class AVOverviewSectionItemModel : AuditColumnsModel
             SortOrder = model.SortOrder,
             Version = model.Version ?? 0
         };
+        if (!string.IsNullOrEmpty(model.UpdatedBy)) entity.UpdatedBy = model.UpdatedBy;
+        if (model.UpdatedOn.HasValue) entity.UpdatedOn = model.UpdatedOn.Value;
 
         return entity;
     }

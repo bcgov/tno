@@ -85,6 +85,8 @@ public class AVOverviewInstanceModel : AuditColumnsModel
             Response = model.Response,
             Version = model.Version ?? 0
         };
+        if (!string.IsNullOrEmpty(model.UpdatedBy)) entity.UpdatedBy = model.UpdatedBy;
+        if (model.UpdatedOn.HasValue) entity.UpdatedOn = model.UpdatedOn.Value;
 
         entity.Sections.AddRange(model.Sections.OrderBy(s => s.SortOrder).Select(s => (Entities.AVOverviewSection)s));
 

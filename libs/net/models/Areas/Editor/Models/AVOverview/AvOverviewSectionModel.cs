@@ -118,6 +118,8 @@ public class AVOverviewSectionModel : AuditColumnsModel
             SortOrder = model.SortOrder,
             Version = model.Version ?? 0
         };
+        if (!string.IsNullOrEmpty(model.UpdatedBy)) entity.UpdatedBy = model.UpdatedBy;
+        if (model.UpdatedOn.HasValue) entity.UpdatedOn = model.UpdatedOn.Value;
 
         entity.Items.AddRange(model.Items.OrderBy(s => s.SortOrder).Select(i => (Entities.AVOverviewSectionItem)i));
 

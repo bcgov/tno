@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Entities;
@@ -70,10 +69,11 @@ public class AVOverviewInstanceService : BaseService<AVOverviewInstance, int>, I
     public override AVOverviewInstance Update(AVOverviewInstance entity)
     {
         var originalSections = this.Context.AVOverviewSections.Where(s => s.InstanceId == entity.Id).ToArray();
-        originalSections.Except(entity.Sections).ForEach(s =>
+        var deletedSections = originalSections.Where(x => !entity.Sections.Any(y => y.Id == x.Id)).ToArray();
+        foreach (var s in deletedSections)
         {
             this.Context.Entry(s).State = EntityState.Deleted;
-        });
+        }
         entity.Sections.ForEach(section =>
         {
             section.Instance = entity;
@@ -89,19 +89,23 @@ public class AVOverviewInstanceService : BaseService<AVOverviewInstance, int>, I
             else
             {
                 var originalItems = this.Context.AVOverviewSectionItems.Where(s => s.SectionId == section.Id).ToArray();
-                originalItems.Except(section.Items).ForEach(s =>
+                var deletedItems = originalItems.Where(x => !section.Items.Any(y => y.Id == x.Id)).ToArray();
+                foreach (var s in deletedItems)
                 {
                     this.Context.Entry(s).State = EntityState.Deleted;
-                });
-                this.Context.Update(section);
+                }
+                this.Context.Entry(originalSections.First(x => x.Id == section.Id)).State = EntityState.Detached;
+                this.Context.Entry(section).State = EntityState.Modified;
                 section.Items.ForEach(item =>
                 {
                     item.Section = section;
                     if (item.Id == 0)
                         this.Context.Add(item);
                     else
-                        this.Context.Update(item);
-
+                    {
+                        this.Context.Entry(originalItems.First(x => x.Id == item.Id)).State = EntityState.Detached;
+                        this.Context.Entry(item).State = EntityState.Modified;
+                    }
                 });
             }
         });
