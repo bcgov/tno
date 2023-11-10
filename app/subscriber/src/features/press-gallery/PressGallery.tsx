@@ -1,7 +1,7 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { determineColumns } from 'features/home/constants';
-import { castToSearchResult } from 'features/utils';
+import { castToSearchResult, createFilterSettings } from 'features/utils';
 import moment from 'moment';
 import React from 'react';
 import { FiRefreshCcw } from 'react-icons/fi';
@@ -21,7 +21,7 @@ import {
 
 import { IDateOptions, IPressMember } from './interfaces';
 import * as styled from './styled';
-import { createFilterSettings, generateDates } from './utils';
+import { generateDates } from './utils';
 
 export const PressGallery: React.FC = () => {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ export const PressGallery: React.FC = () => {
     useContent();
 
   const [pressSettings] = React.useState<IFilterSettingsModel>(
-    createFilterSettings(`${moment().startOf('day')}`, `${moment().subtract('2', 'weeks')}`, 500),
+    createFilterSettings(`${moment().startOf('day')}`, `${moment().subtract('2', 'weeks')}`),
   );
 
   const fetchResults = React.useCallback(

@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 import { IAdvancedSearchFilter } from '../interfaces';
 
 export const defaultAdvancedSearch: IAdvancedSearchFilter = {
@@ -5,8 +7,8 @@ export const defaultAdvancedSearch: IAdvancedSearchFilter = {
   inByline: true,
   inHeadline: true,
   inStory: true,
-  startDate: '',
-  endDate: '',
+  startDate: moment().startOf('day').subtract('7', 'days').toISOString(),
+  endDate: moment().endOf('day').toISOString(),
   topStory: false,
   frontPage: false,
   hasFile: false,

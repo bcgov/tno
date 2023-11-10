@@ -1,6 +1,7 @@
 import ReactDatePicker from 'react-datepicker';
 import { Row, Show } from 'tno-core';
 
+import { defaultAdvancedSearch } from '../constants';
 import { IAdvancedSearchFilter } from '../interfaces';
 
 export interface IDateSectionProps {
@@ -22,10 +23,22 @@ export const DateSection: React.FC<IDateSectionProps> = ({
       <Row className="expanded date-range">
         <ReactDatePicker
           className="date-picker"
-          startDate={advancedSearch?.startDate ? new Date(advancedSearch.startDate) : new Date()}
-          selected={advancedSearch?.startDate ? new Date(advancedSearch.startDate) : undefined}
+          startDate={
+            advancedSearch?.startDate
+              ? new Date(advancedSearch.startDate)
+              : new Date(defaultAdvancedSearch.startDate)
+          }
+          selected={
+            advancedSearch?.startDate
+              ? new Date(advancedSearch.startDate)
+              : new Date(defaultAdvancedSearch.startDate)
+          }
           selectsStart
-          endDate={advancedSearch?.endDate ? new Date(advancedSearch.endDate) : new Date()}
+          endDate={
+            advancedSearch?.endDate
+              ? new Date(advancedSearch.endDate)
+              : new Date(defaultAdvancedSearch.endDate)
+          }
           onChange={(date) =>
             setAdvancedSearch({ ...advancedSearch, startDate: date?.toISOString() ?? '' })
           }
@@ -33,10 +46,22 @@ export const DateSection: React.FC<IDateSectionProps> = ({
         <p>to</p>
         <ReactDatePicker
           className="date-picker"
-          startDate={advancedSearch?.startDate ? new Date(advancedSearch.startDate) : new Date()}
-          selected={advancedSearch?.endDate ? new Date(advancedSearch.endDate) : undefined}
+          startDate={
+            advancedSearch?.startDate
+              ? new Date(advancedSearch.startDate)
+              : new Date(defaultAdvancedSearch.startDate)
+          }
+          selected={
+            advancedSearch?.endDate
+              ? new Date(advancedSearch.endDate)
+              : new Date(defaultAdvancedSearch.endDate)
+          }
           selectsEnd
-          endDate={advancedSearch?.endDate ? new Date(advancedSearch.endDate) : new Date()}
+          endDate={
+            advancedSearch?.endDate
+              ? new Date(advancedSearch.endDate)
+              : new Date(defaultAdvancedSearch.endDate)
+          }
           onChange={(date) =>
             setAdvancedSearch({ ...advancedSearch, endDate: date?.toISOString() ?? '' })
           }
