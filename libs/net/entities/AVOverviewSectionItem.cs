@@ -140,4 +140,15 @@ public class AVOverviewSectionItem : AuditColumns
         this.ContentId = contentId;
     }
     #endregion
+
+    #region Methods
+    public bool Equals(AVOverviewSectionItem? other)
+    {
+        if (other == null) return false;
+        return this.Id == other.Id;
+    }
+
+    public override bool Equals(object? obj) => Equals(obj as AVOverviewSectionItem);
+    public override int GetHashCode() => (this.Id).GetHashCode();
+    #endregion
 }

@@ -69,7 +69,7 @@ public class AVOverviewInstanceService : BaseService<AVOverviewInstance, int>, I
 
     public override AVOverviewInstance Update(AVOverviewInstance entity)
     {
-        var originalSections = this.Context.AVOverviewSections.Where(s => s.InstanceId == entity.Id).ToArray();
+        var originalSections = this.Context.AVOverviewSections.AsNoTracking().Where(s => s.InstanceId == entity.Id).ToArray();
         originalSections.Except(entity.Sections).ForEach(s =>
         {
             this.Context.Entry(s).State = EntityState.Deleted;
@@ -88,20 +88,21 @@ public class AVOverviewInstanceService : BaseService<AVOverviewInstance, int>, I
             }
             else
             {
-                var originalItems = this.Context.AVOverviewSectionItems.Where(s => s.SectionId == section.Id).ToArray();
+                var originalItems = this.Context.AVOverviewSectionItems.AsNoTracking().Where(s => s.SectionId == section.Id).ToArray();
                 originalItems.Except(section.Items).ForEach(s =>
                 {
                     this.Context.Entry(s).State = EntityState.Deleted;
                 });
-                this.Context.Update(section);
+                this.Context.Entry(section).State = EntityState.Modified;
                 section.Items.ForEach(item =>
                 {
                     item.Section = section;
                     if (item.Id == 0)
                         this.Context.Add(item);
                     else
-                        this.Context.Update(item);
-
+                    {
+                        this.Context.Entry(item).State = EntityState.Modified;
+                    }
                 });
             }
         });
