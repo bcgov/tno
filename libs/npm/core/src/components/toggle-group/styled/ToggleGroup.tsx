@@ -2,11 +2,11 @@ import styled from 'styled-components';
 
 import { Row } from '../../flex';
 
-export const ToggleGroup = styled(Row)`
+export const ToggleGroup = styled(Row)<{ activeColor?: string }>`
   padding: 0.25em;
   // position: relative;
   .active {
-    background-color: ${(props) => props.theme.css.actionButtonColor};
+    background-color: ${(props) => props.activeColor ?? props.theme.css.actionButtonColor};
     color: ${(props) => props.theme.css.backgroundColor};
   }
   .toggle-item {
@@ -23,7 +23,7 @@ export const ToggleGroup = styled(Row)`
         width: 15em;
         color: black;
         :hover {
-          background-color: ${(props) => props.theme.css.actionButtonColor};
+          background-color: ${(props) => props.activeColor ?? props.theme.css.actionButtonColor};
           color: ${(props) => props.theme.css.backgroundColor};
         }
       }
@@ -58,7 +58,7 @@ export const ToggleGroup = styled(Row)`
   }
   .toggle-item:hover {
     color: ${(props) => props.theme.css.backgroundColor};
-    background-color: ${(props) => props.theme.css.actionButtonColor};
+    background-color: ${(props) => props.activeColor ?? props.theme.css.actionButtonColor};
   }
   label {
     margin-right: 1em;

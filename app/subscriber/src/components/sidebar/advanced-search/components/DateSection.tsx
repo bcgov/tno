@@ -1,26 +1,59 @@
+import moment from 'moment';
+import React from 'react';
 import ReactDatePicker from 'react-datepicker';
-import { Row, Show } from 'tno-core';
+import { FaX } from 'react-icons/fa6';
+import { Row, ToggleGroup } from 'tno-core';
 
 import { defaultAdvancedSearch } from '../constants';
 import { IAdvancedSearchFilter } from '../interfaces';
 
 export interface IDateSectionProps {
-  /** variable that keeps track of whether the sub-menu is expanded or not */
-  dateExpanded: boolean;
   /** function that will update the startOn/endOn for the advanced filter */
   setAdvancedSearch: (advancedSearch: IAdvancedSearchFilter) => void;
   /** advanced search object, may start as undefined if nothing is set */
   advancedSearch: IAdvancedSearchFilter;
 }
 
-export const DateSection: React.FC<IDateSectionProps> = ({
-  dateExpanded,
-  advancedSearch,
-  setAdvancedSearch,
-}) => {
+export const DateSection: React.FC<IDateSectionProps> = ({ advancedSearch, setAdvancedSearch }) => {
+  // disable quick picker when user selects a date on react-date-picker
+  const [disableQuickPick, setDisableQuickPick] = React.useState(false);
+  const filterDate = (range: 'today' | '24' | '48' | 'week') => {
+    switch (range) {
+      case 'today':
+        setAdvancedSearch({
+          ...advancedSearch,
+          startDate: moment().startOf('day').toISOString(),
+          endDate: moment().endOf('day').toISOString(),
+        });
+        break;
+      case '24':
+        setAdvancedSearch({
+          ...advancedSearch,
+          startDate: moment().subtract(24, 'hours').toISOString(),
+          endDate: moment().toISOString(),
+        });
+        break;
+      case '48':
+        setAdvancedSearch({
+          ...advancedSearch,
+          startDate: moment().subtract(48, 'hours').toISOString(),
+          endDate: moment().toISOString(),
+        });
+        break;
+      case 'week':
+        setAdvancedSearch({
+          ...advancedSearch,
+          startDate: moment().subtract(7, 'days').toISOString(),
+          endDate: moment().toISOString(),
+        });
+        break;
+      default:
+        break;
+    }
+  };
   return (
-    <Show visible={dateExpanded}>
-      <Row className="expanded date-range">
+    <Row className="expanded date-range">
+      <Row className="picker">
         <ReactDatePicker
           className="date-picker"
           startDate={
@@ -39,9 +72,10 @@ export const DateSection: React.FC<IDateSectionProps> = ({
               ? new Date(advancedSearch.endDate)
               : new Date(defaultAdvancedSearch.endDate)
           }
-          onChange={(date) =>
-            setAdvancedSearch({ ...advancedSearch, startDate: date?.toISOString() ?? '' })
-          }
+          onChange={(date) => {
+            setAdvancedSearch({ ...advancedSearch, startDate: date?.toISOString() ?? '' });
+            setDisableQuickPick(true);
+          }}
         />
         <p>to</p>
         <ReactDatePicker
@@ -62,11 +96,31 @@ export const DateSection: React.FC<IDateSectionProps> = ({
               ? new Date(advancedSearch.endDate)
               : new Date(defaultAdvancedSearch.endDate)
           }
-          onChange={(date) =>
-            setAdvancedSearch({ ...advancedSearch, endDate: date?.toISOString() ?? '' })
-          }
+          onChange={(date) => {
+            setDisableQuickPick(true);
+            setAdvancedSearch({ ...advancedSearch, endDate: date?.toISOString() ?? '' });
+          }}
+        />
+        <FaX
+          className="clear"
+          onClick={() => {
+            setAdvancedSearch({ ...advancedSearch, endDate: '', startDate: '' });
+            setDisableQuickPick(false);
+          }}
         />
       </Row>
-    </Show>
+      <ToggleGroup
+        className="date-range-toggle"
+        disabled={disableQuickPick}
+        defaultSelected="7 DAYS"
+        options={[
+          { label: 'TODAY', onClick: () => filterDate('today') },
+          { label: '24 HOURS', onClick: () => filterDate('24') },
+          { label: '48 HOURS', onClick: () => filterDate('48') },
+          { label: '7 DAYS', onClick: () => filterDate('week') },
+        ]}
+        activeColor="#6750a4"
+      />
+    </Row>
   );
 };

@@ -18,6 +18,7 @@ export interface IToggleGroupProps extends IRowProps {
   options: IToggleOption[];
   defaultSelected?: string | number;
   disabled?: boolean;
+  activeColor?: string;
 }
 
 /**
