@@ -1,7 +1,7 @@
 {
   "action": "createIndex",
   "settings": {
-    "indexName": "content"
+    "indexName": "content_v1.0.9"
   },
   "data": {
     "settings": {
@@ -19,7 +19,7 @@
         "status": { "type": "keyword" },
         "contentType": { "type": "keyword" },
         "licenseId": { "type": "integer" },
-        "productId": { "type": "integer", "index": false },
+        "mediaTypeId": { "type": "integer" },
         "seriesId": { "type": "integer" },
         "otherSeries": { "type": "text" },
         "ownerId": { "type": "integer" },
@@ -43,7 +43,8 @@
         "tags": {
           "type": "nested",
           "properties": {
-            "id": { "type": "keyword" },
+            "id": { "type": "integer" },
+            "code": { "type": "keyword" },
             "name": { "type": "keyword" }
           }
         },
@@ -56,12 +57,12 @@
             "value": { "type": "integer" }
           }
         },
-        "categories": {
+        "topics": {
           "type": "nested",
           "properties": {
             "id": { "type": "integer" },
             "name": { "type": "keyword" },
-            "categoryType": { "type": "keyword" },
+            "topicType": { "type": "keyword" },
             "score": { "type": "integer" }
           }
         },
@@ -70,7 +71,6 @@
           "properties": {
             "id": { "type": "integer" },
             "name": { "type": "keyword" },
-            "valueType": { "type": "keyword" },
             "value": { "type": "text" }
           }
         },

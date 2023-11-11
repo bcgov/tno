@@ -5,7 +5,7 @@ using TNO.DAL.Services;
 namespace TNO.Elastic.Migration;
 
 /// <summary>
-/// Migration_108 class, provides a way to migration elastic to version 1.0.8.
+/// Migration_109 class, provides a way to migration elastic to version 1.0.9.
 /// </summary>
 [Migration("1.0.9")]
 public class Migration_109 : TNOMigration

@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text.Json;
+using Elasticsearch.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Nest;
@@ -396,7 +397,6 @@ public class ContentService : BaseService<Content, long>, IContentService
             filterQueries.Add(s => s.DateRange(m => m
                 .Field(p => p.PublishedOn)
                 .LessThanOrEquals(filter.PublishedEndOn.Value.ToUniversalTime().ToString("s") + "Z")));
-
         var response = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(s =>
         {
             var result = s
@@ -439,6 +439,9 @@ public class ContentService : BaseService<Content, long>, IContentService
             {
                 result = result.Sort(s => s.Descending(p => p.PublishedOn).Descending(p => p.Id));
             }
+
+            // uncomment this to see the raw query that will be sent to ElasticSearch
+            // var json = _client.RequestResponseSerializer.SerializeToString(result);
 
             return result;
         });
