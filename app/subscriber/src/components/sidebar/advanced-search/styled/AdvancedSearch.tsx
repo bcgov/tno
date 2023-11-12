@@ -236,6 +236,11 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     margin-left: 0.1em;
     border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
 
+    .rs__value-container {
+      max-height: 33.6px;
+      overflow-y: auto;
+    }
+
     .sub-options {
       font-size: 0.8em;
       max-width: 100%;
@@ -272,6 +277,12 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     }
   }
 
+  .rs__control {
+    margin-top: 0.25em;
+    margin-left: 0.5em;
+    min-width: 100%;
+  }
+
   .search-button-expanded {
     height: 30px;
     margin-left: auto;
@@ -301,9 +312,14 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     }
   }
 
+  .sub-group-title {
+    max-height: 100%;
+    /* margin-top: auto; */
+    min-width: 15em;
+  }
   .sub-container {
     max-height: 10em;
-    max-width: 13.8em;
+    max-width: 80%;
     overflow-y: auto;
     overflow-x: hidden;
   }
