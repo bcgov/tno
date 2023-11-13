@@ -2,8 +2,8 @@ import { NavigateOptions, useTab } from 'components/tab-control';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApiHub, useApp, useContent } from 'store/hooks';
-import { IContentSearchResult, useContentStore } from 'store/slices';
+import { useApiHub, useApp, useContent, useLookup } from 'store/hooks';
+import { IContentSearchResult, storeContentFilterAdvanced, useContentStore } from 'store/slices';
 import {
   Col,
   FlexboxTable,
@@ -18,10 +18,13 @@ import {
   Row,
 } from 'tno-core';
 
+import { AdvancedSearchKeys } from '../constants';
 import { useElasticsearch } from '../hooks';
 import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
 import { defaultPage } from '../list-view/constants';
+import { queryToFilter, queryToFilterAdvanced } from '../list-view/utils';
 import { ReportActions } from './components';
+import { defaultPaperFilter } from './constants';
 import { useColumns } from './hooks';
 import { PaperToolbar } from './PaperToolbar';
 import * as styled from './styled';
@@ -40,6 +43,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
     { filterPaper: filter, filterPaperAdvanced: filterAdvanced, searchResults },
     { findContentWithElasticsearch, storeFilterPaper, updateContent: updateStatus, getContent },
   ] = useContent();
+  const [{ sources }] = useLookup();
   const [, { addContent, updateContent }] = useContentStore();
   const { navigate } = useTab();
   const hub = useApiHub();
@@ -48,6 +52,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const [contentId, setContentId] = React.useState(id);
 
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isFilterLoading, setIsFilterLoading] = React.useState(true);
   const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
 
   const userId = userInfo?.id ?? '';
@@ -135,10 +140,36 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const columns = useColumns({ fetch, onClickUse: handleClickUse });
 
   React.useEffect(() => {
+    // Extract query string values and place them into redux store.
+    if (!window.location.search) {
+      replaceQueryParams(defaultPaperFilter(sources), { includeEmpty: false });
+    }
+    storeFilterPaper({
+      ...queryToFilter(
+        {
+          ...defaultPaperFilter(sources),
+        },
+        window.location.search,
+      ),
+    });
+    storeContentFilterAdvanced(
+      queryToFilterAdvanced(
+        { ...filterAdvanced, fieldType: AdvancedSearchKeys.Headline },
+        window.location.search,
+      ),
+    );
+    setIsFilterLoading(false);
+    // Only want this to run on the first load.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
+    // Do not want to fetch while the default paper filter is still loading
+    if (isFilterLoading) return;
     fetch({ ...filter, ...filterAdvanced });
     // Do not want to fetch when the advanced filter changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter]);
+  }, [filter, isFilterLoading]);
 
   const handleRowClick = (
     cell: ITableInternalCell<IContentSearchResult>,
@@ -200,7 +231,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
             totalItems={page.total}
             showSort={true}
             activeRowId={contentId}
-            isLoading={isLoading}
+            isLoading={isLoading || isFilterLoading}
             onPageChange={handleChangePage}
             onSortChange={handleChangeSort}
             onCellClick={handleRowClick}
