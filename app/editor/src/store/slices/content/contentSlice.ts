@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AdvancedSearchKeys } from 'features/content/constants';
 import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
-import { defaultPaperFilter } from 'features/content/papers/constants';
 import { IContentModel, IPaged, LogicalOperator, saveToLocalStorage } from 'tno-core';
 
 import { IContentState } from './interfaces';
@@ -33,7 +32,26 @@ export const initialContentState: IContentState = {
     logicalOperator: LogicalOperator.Contains,
     searchTerm: '',
   },
-  filterPaper: defaultPaperFilter(),
+  filterPaper: {
+    pageIndex: 0,
+    pageSize: 500,
+    hasTopic: false,
+    isHidden: false,
+    onlyPublished: false,
+    otherSource: '',
+    ownerId: '',
+    userId: 0,
+    contentTypes: [],
+    productIds: [],
+    sourceIds: [],
+    excludeSourceIds: [],
+    timeFrame: 0,
+    onTicker: false,
+    commentary: false,
+    topStory: false,
+    homepage: false,
+    sort: [],
+  },
   filterPaperAdvanced: {
     fieldType: AdvancedSearchKeys.Headline,
     logicalOperator: LogicalOperator.Contains,
