@@ -42,7 +42,7 @@ export const initialContentState: IContentState = {
     ownerId: '',
     userId: 0,
     contentTypes: [],
-    productIds: [],
+    mediaTypeIds: [],
     sourceIds: [],
     excludeSourceIds: [],
     timeFrame: 0,
