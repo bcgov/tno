@@ -191,8 +191,11 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// <returns></returns>
     /// <exception cref="ConfigurationException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
-    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
+        // This ingest has just begun running.
+        await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
+
         ImportMigrationType importMigrationType = manager.Ingest.GetConfigurationValue<ImportMigrationType>("importMigrationType", ImportMigrationType.Unknown);
         if (importMigrationType == ImportMigrationType.Unknown)
         {
@@ -300,6 +303,9 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                     {
                         await MigrateNewsItemAsync(manager, contentMigrator, lookups, newsItem, defaultTimeZone);
                         creationDateOfLastImport = newsItem.UpdatedOn;
+
+                        // This ingest has just processed a story.
+                        await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
                     });
                 }
 
@@ -340,7 +346,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// <param name="defaultTimeZone"></param>
     /// <returns></returns>
     public async Task MigrateNewsItemAsync(
-        IIngestServiceActionManager manager,
+        IIngestActionManager manager,
         IContentMigrator contentMigrator,
         API.Areas.Editor.Models.Lookup.LookupModel? lookups,
         NewsItem newsItem,
@@ -374,7 +380,8 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             }
 
             var sourceContent = contentMigrator.CreateSourceContent(lookups, source!, mediaType, manager.Ingest.IngestType!.ContentType, newsItem, defaultTimeZone);
-            if (this.Options.TagForMigratedContent != "") {
+            if (this.Options.TagForMigratedContent != "")
+            {
                 sourceContent.Tags = sourceContent.Tags.Append(new TNO.Kafka.Models.Tag(this.Options.TagForMigratedContent, ""));
             }
             bool isNewSourceContent = false;

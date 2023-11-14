@@ -3,28 +3,34 @@ using TNO.API.Areas.Services.Models.Ingest;
 namespace TNO.Services;
 
 /// <summary>
-/// IIngestServiceActionManager interface, provides a way to manage a single ingestion service.
+/// IIngestActionManager interface, provides a way to manage a single ingestion service.
 /// </summary>
-public interface IIngestServiceActionManager : IServiceActionManager
+public interface IIngestActionManager : IServiceActionManager
 {
     #region Properties
     /// <summary>
     /// get - The ingest managed by this object.
     /// </summary>
-    public IngestModel Ingest { get; }
+    IngestModel Ingest { get; set; }
 
     /// <summary>
     /// get - A dictionary of values that can be stored with this manager.
     /// </summary>
-    public Dictionary<string, object> Values { get; }
+    Dictionary<string, object> Values { get; }
     #endregion
 
     #region Methods
     /// <summary>
+    /// Make AJAX request and update the ingest.
+    /// </summary>
+    /// <returns></returns>
+    Task<IngestModel> UpdateIngestStateAsync(int failedAttempts = 0);
+
+    /// <summary>
     /// Verify that the specified ingest ingestion action should be run.
     /// </summary>
     /// <returns></returns>
-    public bool VerifyIngest();
+    bool VerifyIngest();
 
     /// <summary>
     /// Determine if the schedule allows for the process to run at the specified 'date'.
@@ -32,7 +38,7 @@ public interface IIngestServiceActionManager : IServiceActionManager
     /// </summary>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifySchedule(ScheduleModel schedule);
+    bool VerifySchedule(ScheduleModel schedule);
 
     /// <summary>
     /// Determine if the schedule allows for the process to run at the specified 'date'.
@@ -41,7 +47,7 @@ public interface IIngestServiceActionManager : IServiceActionManager
     /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifySchedule(DateTime date, ScheduleModel schedule);
+    bool VerifySchedule(DateTime date, ScheduleModel schedule);
 
     /// <summary>
     /// Determine if the schedule allows for the process to run at the specified 'date'.
@@ -51,7 +57,7 @@ public interface IIngestServiceActionManager : IServiceActionManager
     /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifyDelay(DateTime date, ScheduleModel schedule);
+    bool VerifyDelay(DateTime date, ScheduleModel schedule);
 
     /// <summary>
     /// Determine if the schedule allows for the process to run at the specified 'date'.
@@ -59,7 +65,7 @@ public interface IIngestServiceActionManager : IServiceActionManager
     /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifyRunOn(DateTime date, ScheduleModel schedule);
+    bool VerifyRunOn(DateTime date, ScheduleModel schedule);
 
     /// <summary>
     /// Determine if the schedule allows for the process to run at the specified 'date' and time.
@@ -68,7 +74,7 @@ public interface IIngestServiceActionManager : IServiceActionManager
     /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifyStartAt(DateTime date, ScheduleModel schedule);
+    bool VerifyStartAt(DateTime date, ScheduleModel schedule);
 
     /// <summary>
     /// Determine if the schedule allows for the process to run at the specified 'date'.
@@ -76,7 +82,7 @@ public interface IIngestServiceActionManager : IServiceActionManager
     /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifyDayOfMonth(DateTime date, ScheduleModel schedule);
+    bool VerifyDayOfMonth(DateTime date, ScheduleModel schedule);
 
     /// <summary>
     /// Determine if the schedule allows for the process to run at the specified 'date'.
@@ -84,7 +90,7 @@ public interface IIngestServiceActionManager : IServiceActionManager
     /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifyWeekDay(DateTime date, ScheduleModel schedule);
+    bool VerifyWeekDay(DateTime date, ScheduleModel schedule);
 
     /// <summary>
     /// Determine if the schedule allows for the process to run at the specified 'date'.
@@ -92,6 +98,6 @@ public interface IIngestServiceActionManager : IServiceActionManager
     /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifyMonth(DateTime date, ScheduleModel schedule);
+    bool VerifyMonth(DateTime date, ScheduleModel schedule);
     #endregion
 }

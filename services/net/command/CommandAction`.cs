@@ -39,7 +39,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
 
@@ -147,7 +147,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected virtual ICommandProcess GetProcess(IIngestServiceActionManager manager, ScheduleModel schedule)
+    protected virtual ICommandProcess GetProcess(IIngestActionManager manager, ScheduleModel schedule)
     {
         var key = GenerateProcessKey(manager.Ingest, schedule);
         if (manager.Values.GetValueOrDefault(key) is not ICommandProcess value)
@@ -183,7 +183,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected virtual Task<ICommandProcess> GetProcessAsync(IIngestServiceActionManager manager, ScheduleModel schedule)
+    protected virtual Task<ICommandProcess> GetProcessAsync(IIngestActionManager manager, ScheduleModel schedule)
     {
         return Task.FromResult(GetProcess(manager, schedule));
     }
@@ -193,7 +193,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// </summary>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
-    protected virtual void RemoveProcess(IIngestServiceActionManager manager, ScheduleModel schedule)
+    protected virtual void RemoveProcess(IIngestActionManager manager, ScheduleModel schedule)
     {
         manager.Values.Remove(GenerateProcessKey(manager.Ingest, schedule));
     }
@@ -204,7 +204,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="sender"></param>
     /// <param name="manager"></param>
     /// <param name="e"></param>
-    protected virtual void OnOutputReceived(object? sender, IIngestServiceActionManager? manager, DataReceivedEventArgs e)
+    protected virtual void OnOutputReceived(object? sender, IIngestActionManager? manager, DataReceivedEventArgs e)
     {
         if (!String.IsNullOrWhiteSpace(e.Data))
         {
@@ -219,7 +219,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="sender"></param>
     /// <param name="manager"></param>
     /// <param name="e"></param>
-    protected virtual void OnErrorReceived(object? sender, IIngestServiceActionManager? manager, System.Diagnostics.DataReceivedEventArgs e)
+    protected virtual void OnErrorReceived(object? sender, IIngestActionManager? manager, System.Diagnostics.DataReceivedEventArgs e)
     {
         if (!String.IsNullOrWhiteSpace(e.Data))
         {
@@ -237,7 +237,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="sender"></param>
     /// <param name="manager"></param>
     /// <param name="e"></param>
-    protected async Task OnExitedAsync(object? sender, IIngestServiceActionManager manager, EventArgs e)
+    protected async Task OnExitedAsync(object? sender, IIngestActionManager manager, EventArgs e)
     {
         if (sender is System.Diagnostics.Process process)
         {
@@ -285,7 +285,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected virtual string GenerateCommandArguments(ICommandProcess process, IIngestServiceActionManager manager, ScheduleModel schedule)
+    protected virtual string GenerateCommandArguments(ICommandProcess process, IIngestActionManager manager, ScheduleModel schedule)
     {
         // TODO: This should be only arguments.
         return GetCommand(manager.Ingest)?.Replace("\"", "'") ?? "";
@@ -298,7 +298,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected virtual Task<string> GenerateCommandArgumentsAsync(ICommandProcess process, IIngestServiceActionManager manager, ScheduleModel schedule)
+    protected virtual Task<string> GenerateCommandArgumentsAsync(ICommandProcess process, IIngestActionManager manager, ScheduleModel schedule)
     {
         return Task.FromResult(GenerateCommandArguments(process, manager, schedule));
     }

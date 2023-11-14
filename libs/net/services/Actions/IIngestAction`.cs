@@ -20,6 +20,6 @@ public interface IIngestAction<TOptions> : IServiceAction<TOptions>
     /// <param name="name"></param>
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
-    public Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class;
+    public Task<ServiceActionResult> PerformActionAsync<T>(IIngestActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class;
     #endregion
 }
