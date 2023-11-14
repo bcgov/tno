@@ -49,7 +49,7 @@ public class SourceModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public int? MediaTypeId { get; set; } //fixed
+    public int? MediaTypeId { get; set; }
 
     /// <summary>
     /// get/set - Whether content should be automatically transcribed.
