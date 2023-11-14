@@ -287,17 +287,29 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   }
 
   .date-range {
+    padding: 0.25em;
     margin-top: 0.5em;
-    justify-content: center;
+    .picker {
+      margin-right: 0.5em;
+    }
     p {
-      margin: 0.2em 0.35em;
+      margin: 0.35em 0.35em;
     }
     .react-datepicker-wrapper {
       max-width: fit-content;
+      margin-top: 0.25em;
     }
     .date-picker {
       width: 5.5em;
       border-radius: 0.25em;
+      border: 1px solid #a8aab3;
+    }
+    .clear {
+      margin-left: 0.25em;
+      &:hover {
+        cursor: pointer;
+        transform: scale(1.1, 1.1);
+      }
     }
   }
 

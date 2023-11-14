@@ -216,23 +216,8 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
             <Col className={`date-range-group space-top ${dateExpanded ? 'expanded' : ''}`}>
               <Row className="option-row" onClick={() => setDateExpanded(!dateExpanded)}>
                 <BsCalendarEvent /> Date range
-                {!dateExpanded ? (
-                  <IoIosArrowDroprightCircle
-                    onClick={() => setDateExpanded(true)}
-                    className="drop-icon"
-                  />
-                ) : (
-                  <IoIosArrowDropdownCircle
-                    onClick={() => setDateExpanded(false)}
-                    className="drop-icon"
-                  />
-                )}
               </Row>
-              <DateSection
-                advancedSearch={advancedSearch}
-                dateExpanded={dateExpanded}
-                setAdvancedSearch={setAdvancedSearch}
-              />
+              <DateSection advancedSearch={advancedSearch} setAdvancedSearch={setAdvancedSearch} />
             </Col>
             <Col className={`media-group ${mediaExpanded ? 'expanded' : ''}`}>
               <Row className="option-row" onClick={() => setMediaExpanded(!mediaExpanded)}>
