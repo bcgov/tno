@@ -881,6 +881,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("license_id");
 
+                    b.Property<int>("MediaTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("media_type_id");
+
                     b.Property<string>("OtherSource")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -900,10 +904,6 @@ namespace TNO.DAL.Migrations
                     b.Property<DateTime?>("PostedOn")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("posted_on");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer")
-                        .HasColumnName("product_id");
 
                     b.Property<DateTime?>("PublishedOn")
                         .HasColumnType("timestamp with time zone")
@@ -971,9 +971,9 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("LicenseId");
 
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("MediaTypeId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("OwnerId");
 
                     b.HasIndex("SeriesId");
 
@@ -2198,15 +2198,15 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
 
+                    b.Property<int>("MediaTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("media_type_id");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("name");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer")
-                        .HasColumnName("product_id");
 
                     b.Property<int>("RetryLimit")
                         .ValueGeneratedOnAdd()
@@ -2257,7 +2257,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("DestinationConnectionId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("MediaTypeId");
 
                     b.HasIndex("SourceConnectionId");
 
@@ -2555,6 +2555,91 @@ namespace TNO.DAL.Migrations
                     b.ToTable("license");
                 });
 
+            modelBuilder.Entity("TNO.Entities.MediaType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AutoTranscribe")
+                        .HasColumnType("boolean")
+                        .HasColumnName("auto_transcribe");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<JsonDocument>("Settings")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_mediatype_is_enabled");
+
+                    b.HasIndex(new[] { "Name" }, "IX_name")
+                        .IsUnique()
+                        .HasDatabaseName("IX_name6");
+
+                    b.ToTable("media_type");
+                });
+
             modelBuilder.Entity("TNO.Entities.Metric", b =>
                 {
                     b.Property<int>("Id")
@@ -2625,7 +2710,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "Name" }, "IX_name")
                         .IsUnique()
-                        .HasDatabaseName("IX_name6");
+                        .HasDatabaseName("IX_name7");
 
                     b.ToTable("metric");
                 });
@@ -3099,91 +3184,6 @@ namespace TNO.DAL.Migrations
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_organization_is_enabled");
 
                     b.ToTable("organization");
-                });
-
-            modelBuilder.Entity("TNO.Entities.Product", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("AutoTranscribe")
-                        .HasColumnType("boolean")
-                        .HasColumnName("auto_transcribe");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("description")
-                        .HasDefaultValueSql("''");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_enabled");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
-
-                    b.Property<JsonDocument>("Settings")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("jsonb")
-                        .HasDefaultValueSql("'{}'::jsonb");
-
-                    b.Property<int>("SortOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("sort_order");
-
-                    b.Property<string>("UpdatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("updated_by");
-
-                    b.Property<DateTime>("UpdatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("version")
-                        .HasDefaultValueSql("0");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex(new[] { "Name" }, "IX_name")
-                        .IsUnique()
-                        .HasDatabaseName("IX_name7");
-
-                    b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_product_is_enabled");
-
-                    b.ToTable("product");
                 });
 
             modelBuilder.Entity("TNO.Entities.Report", b =>
@@ -4147,6 +4147,14 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("license_id");
 
+                    b.Property<int?>("MediaTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("media_type_id");
+
+                    b.Property<int?>("MediaTypeSearchGroupId")
+                        .HasColumnType("integer")
+                        .HasColumnName("media_type_search_group_id");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -4156,14 +4164,6 @@ namespace TNO.DAL.Migrations
                     b.Property<int?>("OwnerId")
                         .HasColumnType("integer")
                         .HasColumnName("owner_id");
-
-                    b.Property<int?>("ProductId")
-                        .HasColumnType("integer")
-                        .HasColumnName("product_id");
-
-                    b.Property<int?>("ProductSearchGroupId")
-                        .HasColumnType("integer")
-                        .HasColumnName("product_search_group_id");
 
                     b.Property<string>("ShortName")
                         .IsRequired()
@@ -4206,9 +4206,9 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("LicenseId");
 
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("MediaTypeId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("OwnerId");
 
                     b.HasIndex(new[] { "Code" }, "IX_source_code")
                         .IsUnique();
@@ -5329,16 +5329,16 @@ namespace TNO.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("TNO.Entities.MediaType", "MediaType")
+                        .WithMany("Contents")
+                        .HasForeignKey("MediaTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("TNO.Entities.User", "Owner")
                         .WithMany("Contents")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("TNO.Entities.Product", "Product")
-                        .WithMany("Contents")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.HasOne("TNO.Entities.Series", "Series")
                         .WithMany("Contents")
@@ -5354,9 +5354,9 @@ namespace TNO.DAL.Migrations
 
                     b.Navigation("License");
 
-                    b.Navigation("Owner");
+                    b.Navigation("MediaType");
 
-                    b.Navigation("Product");
+                    b.Navigation("Owner");
 
                     b.Navigation("Series");
 
@@ -5625,9 +5625,9 @@ namespace TNO.DAL.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("TNO.Entities.Product", "Product")
+                    b.HasOne("TNO.Entities.MediaType", "MediaType")
                         .WithMany("Ingests")
-                        .HasForeignKey("ProductId")
+                        .HasForeignKey("MediaTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -5647,7 +5647,7 @@ namespace TNO.DAL.Migrations
 
                     b.Navigation("IngestType");
 
-                    b.Navigation("Product");
+                    b.Navigation("MediaType");
 
                     b.Navigation("Source");
 
@@ -5906,21 +5906,21 @@ namespace TNO.DAL.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("TNO.Entities.MediaType", "MediaType")
+                        .WithMany("Sources")
+                        .HasForeignKey("MediaTypeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("TNO.Entities.User", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("TNO.Entities.Product", "Product")
-                        .WithMany("Sources")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.Navigation("License");
 
-                    b.Navigation("Owner");
+                    b.Navigation("MediaType");
 
-                    b.Navigation("Product");
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("TNO.Entities.SourceMetric", b =>
@@ -6215,6 +6215,15 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Sources");
                 });
 
+            modelBuilder.Entity("TNO.Entities.MediaType", b =>
+                {
+                    b.Navigation("Contents");
+
+                    b.Navigation("Ingests");
+
+                    b.Navigation("Sources");
+                });
+
             modelBuilder.Entity("TNO.Entities.Metric", b =>
                 {
                     b.Navigation("SourcesManyToMany");
@@ -6241,15 +6250,6 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Ministers");
 
                     b.Navigation("UsersManyToMany");
-                });
-
-            modelBuilder.Entity("TNO.Entities.Product", b =>
-                {
-                    b.Navigation("Contents");
-
-                    b.Navigation("Ingests");
-
-                    b.Navigation("Sources");
                 });
 
             modelBuilder.Entity("TNO.Entities.Report", b =>

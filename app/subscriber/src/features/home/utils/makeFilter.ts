@@ -26,7 +26,7 @@ export const makeFilter = (
     hasFile: filter.hasFile,
     keyword: filter.keyword ?? undefined,
     names: filter.names ?? undefined,
-    productIds: filter.productIds ?? undefined,
+    mediaTypeIds: filter.mediaTypeIds ?? undefined,
     publishedEndOn: filter.endDate ? filter.endDate : undefined,
     publishedStartOn: filter.startDate ? filter.startDate : undefined,
     sentiment: filter.sentiment,

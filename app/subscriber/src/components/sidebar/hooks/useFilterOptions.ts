@@ -33,23 +33,23 @@ export const useFilterOptions = () => {
   }, [settings]);
 
   const dailyPrint = sources.filter(
-    (source) => source.productSearchGroupId === printIds?.dailyPrintId,
+    (source) => source.mediaTypeSearchGroupId === printIds?.dailyPrintId,
   );
   const weeklyPrint = sources.filter(
-    (source) => source.productSearchGroupId === printIds?.weeklyPrintId,
+    (source) => source.mediaTypeSearchGroupId === printIds?.weeklyPrintId,
   );
-  const cpWire = sources.filter((source) => source.productSearchGroupId === mediaIds?.cpWireId);
+  const cpWire = sources.filter((source) => source.mediaTypeSearchGroupId === mediaIds?.cpWireId);
   const talkRadio = sources.filter(
-    (source) => source.productSearchGroupId === mediaIds?.talkRadioId,
+    (source) => source.mediaTypeSearchGroupId === mediaIds?.talkRadioId,
   );
   const onlinePrint = sources.filter(
-    (source) => source.productSearchGroupId === printIds?.onlinePrintId,
+    (source) => source.mediaTypeSearchGroupId === printIds?.onlinePrintId,
   );
   const newsRadio = sources.filter(
-    (source) => source.productSearchGroupId === mediaIds?.newsRadioId,
+    (source) => source.mediaTypeSearchGroupId === mediaIds?.newsRadioId,
   );
   const television = sources.filter(
-    (source) => source.productSearchGroupId === mediaIds?.televisionId,
+    (source) => source.mediaTypeSearchGroupId === mediaIds?.televisionId,
   );
   return {
     dailyPrint,

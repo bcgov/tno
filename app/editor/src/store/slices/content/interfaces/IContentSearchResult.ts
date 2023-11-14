@@ -12,7 +12,7 @@ export interface IContentSearchResult {
   publishedOn: string;
   source?: string;
   otherSource: string;
-  product?: string;
+  mediaType?: string;
   series?: string;
   ownerId?: number;
   owner?: string;

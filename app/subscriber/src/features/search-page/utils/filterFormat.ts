@@ -26,7 +26,7 @@ export const filterFormat = (
     sentiment: filter.sentiment ?? [],
     inStory: filter.inStory ?? false,
     sourceIds: filter.sourceIds ?? [],
-    productIds: filter.productIds ?? [],
+    mediaTypeIds: filter.mediaTypeIds ?? [],
     topStory: filter.topStory ?? false,
     search: filter.searchTerm,
     seriesIds: [],

@@ -69,14 +69,14 @@ public class WorkOrderHelper : IWorkOrderHelper
 
     #region Methods
     /// <summary>
-    /// Get the FFmpeg actions configured for the specified product.
+    /// Get the FFmpeg actions configured for the specified mediaType.
     /// </summary>
-    /// <param name="product"></param>
+    /// <param name="mediaType"></param>
     /// <returns></returns>
-    private IEnumerable<FFmpegActionSettingsModel> GetFFmpegActions(Entities.Product? product)
+    private IEnumerable<FFmpegActionSettingsModel> GetFFmpegActions(Entities.MediaType? mediaType)
     {
-        if (product == null) return Array.Empty<FFmpegActionSettingsModel>();
-        var settings = JsonSerializer.Deserialize<ProductSettingsModel>(product.Settings, _serializerOptions);
+        if (mediaType == null) return Array.Empty<FFmpegActionSettingsModel>();
+        var settings = JsonSerializer.Deserialize<MediaTypeSettingsModel>(mediaType.Settings, _serializerOptions);
         return settings?.FFmpeg ?? Array.Empty<FFmpegActionSettingsModel>();
     }
 
@@ -92,7 +92,7 @@ public class WorkOrderHelper : IWorkOrderHelper
 
         return this.Content?.ContentType == Entities.ContentType.AudioVideo &&
             this.Content.FileReferences.Any() &&
-            GetFFmpegActions(this.Content.Product).Any();
+            GetFFmpegActions(this.Content.MediaType).Any();
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ public class WorkOrderHelper : IWorkOrderHelper
             this.Content.FileReferences.Any() &&
             !this.Content.IsApproved &&
             (this.Content.Source?.AutoTranscribe == true ||
-                this.Content.Product?.AutoTranscribe == true ||
+                this.Content.MediaType?.AutoTranscribe == true ||
                 this.Content.Contributor?.AutoTranscribe == true ||
                 this.Content.Series?.AutoTranscribe == true);
     }
@@ -215,7 +215,7 @@ public class WorkOrderHelper : IWorkOrderHelper
                     user,
                     "",
                     this.Content,
-                    this.Content.Product?.Settings));
+                    this.Content.MediaType?.Settings));
             await _kafkaMessenger.SendMessageAsync(_kafkaOptions.FFmpegTopic, new TNO.Kafka.Models.FFmpegRequestModel(workOrder, _serializerOptions));
             return workOrder;
         }

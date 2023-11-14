@@ -6,7 +6,7 @@ export interface IContentReferenceListFilter {
   pageIndex: number;
   pageSize: number;
   sources: string[];
-  productIds: number[];
+  mediaTypeIds: number[];
   uid: string;
   topic: string;
   status: WorkflowStatusName | '';

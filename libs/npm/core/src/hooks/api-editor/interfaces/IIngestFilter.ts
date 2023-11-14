@@ -5,7 +5,7 @@ export interface IIngestFilter extends ISortPageFilter {
   topic?: string;
   ingestTypeId?: number[];
   sourceId?: number;
-  productId?: number;
+  mediaTypeId?: number;
   serviceType?: string;
   sourceConnectionId?: number;
   destinationConnectionId?: number;

@@ -5,7 +5,7 @@ using TNO.Entities;
 namespace TNO.API.Areas.Admin.Models.DataLocation;
 
 /// <summary>
-/// ConnectionModel class, provides a model that represents an product.
+/// ConnectionModel class, provides a model that represents an connection.
 /// </summary>
 public class ConnectionModel : BaseTypeWithAuditColumnsModel<int>
 {

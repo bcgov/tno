@@ -79,17 +79,17 @@ public class CBRAReport
         content = page.Items.Select(i => contentService.FindById(i.Id)!).ToList();
 
         // TODO: Hardcoding isn't good.
-        talkRadio = content.Where(c => c.Product?.Name == "Talk Radio").ToList();
+        talkRadio = content.Where(c => c.MediaType?.Name == "Talk Radio").ToList();
         talkRadioSeries = talkRadio.GroupBy(c => c.Series?.Name).ToDictionary(g => g.Key ?? "NOT SET", g => g.ToList());
         talkRadioKeys = talkRadioSeries.Keys.ToArray();
 
         // TODO: Hardcoding isn't good.
-        newsRadio = content.Where(c => c.Product?.Name == "News Radio").ToList();
+        newsRadio = content.Where(c => c.MediaType?.Name == "News Radio").ToList();
         newsRadioSources = newsRadio.GroupBy(c => c.OtherSource).ToDictionary(g => g.Key ?? "NOT SET", g => g.ToList());
         newsRadioKeys = newsRadioSources.Keys.ToArray();
 
         // TODO: Hardcoding isn't good.
-        television = content.Where(c => c.Product?.Name == "Television").ToList();
+        television = content.Where(c => c.MediaType?.Name == "Television").ToList();
         televisionSeries = television.GroupBy(c => c.Series?.Name).ToDictionary(g => g.Key ?? "NOT SET", g => g.ToList());
         televisionKeys = televisionSeries.Keys.ToArray();
 

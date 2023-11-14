@@ -58,15 +58,15 @@ public class Content : AuditColumns
     public virtual License? License { get; set; }
 
     /// <summary>
-    /// get/set - Foreign key to the product.
+    /// get/set - Foreign key to the media type.
     /// </summary>
-    [Column("product_id")]
-    public int ProductId { get; set; }
+    [Column("media_type_id")]
+    public int MediaTypeId { get; set; }
 
     /// <summary>
-    /// get/set - The product this content will be placed in.
+    /// get/set - The media type this content will be placed in.
     /// </summary>
-    public virtual Product? Product { get; set; }
+    public virtual MediaType? MediaType { get; set; }
 
     /// <summary>
     /// get/set - Foreign key to the series.
@@ -294,11 +294,11 @@ public class Content : AuditColumns
     /// <param name="headline"></param>
     /// <param name="contentType"></param>
     /// <param name="license"></param>
-    /// <param name="product"></param>
+    /// <param name="mediaType"></param>
     /// <param name="owner"></param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
-    private Content(string uid, string headline, ContentType contentType, License license, Product product, User? owner = null)
+    private Content(string uid, string headline, ContentType contentType, License license, MediaType mediaType, User? owner = null)
     {
         if (String.IsNullOrWhiteSpace(headline)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(headline));
 
@@ -307,8 +307,8 @@ public class Content : AuditColumns
         this.ContentType = contentType;
         this.LicenseId = license?.Id ?? throw new ArgumentNullException(nameof(license));
         this.License = license;
-        this.ProductId = product?.Id ?? throw new ArgumentNullException(nameof(product));
-        this.Product = product;
+        this.MediaTypeId = mediaType?.Id ?? throw new ArgumentNullException(nameof(mediaType));
+        this.MediaType = mediaType;
         this.OwnerId = owner?.Id;
         this.Owner = owner;
         this.IsApproved = contentType != ContentType.AudioVideo;
@@ -322,12 +322,12 @@ public class Content : AuditColumns
     /// <param name="source"></param>
     /// <param name="contentType"></param>
     /// <param name="license"></param>
-    /// <param name="product"></param>
+    /// <param name="mediaType"></param>
     /// <param name="owner"></param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
-    public Content(string uid, string headline, string source, ContentType contentType, License license, Product product, User? owner = null)
-        : this(uid, headline, contentType, license, product, owner)
+    public Content(string uid, string headline, string source, ContentType contentType, License license, MediaType mediaType, User? owner = null)
+        : this(uid, headline, contentType, license, mediaType, owner)
     {
         if (String.IsNullOrWhiteSpace(source)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(source));
 
@@ -341,11 +341,11 @@ public class Content : AuditColumns
     /// <param name="headline"></param>
     /// <param name="contentType"></param>
     /// <param name="licenseId"></param>
-    /// <param name="productId"></param>
+    /// <param name="mediaTypeId"></param>
     /// <param name="ownerId"></param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
-    private Content(string uid, string headline, ContentType contentType, int licenseId, int productId, int? ownerId = null)
+    private Content(string uid, string headline, ContentType contentType, int licenseId, int mediaTypeId, int? ownerId = null)
     {
         if (String.IsNullOrWhiteSpace(headline)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(headline));
 
@@ -353,7 +353,7 @@ public class Content : AuditColumns
         this.Headline = headline;
         this.ContentType = contentType;
         this.LicenseId = licenseId;
-        this.ProductId = productId;
+        this.MediaTypeId = mediaTypeId;
         this.OwnerId = ownerId;
         this.IsApproved = contentType != ContentType.AudioVideo;
     }
@@ -366,12 +366,12 @@ public class Content : AuditColumns
     /// <param name="source"></param>
     /// <param name="contentType"></param>
     /// <param name="licenseId"></param>
-    /// <param name="productId"></param>
+    /// <param name="mediaTypeId"></param>
     /// <param name="ownerId"></param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
-    public Content(string uid, string headline, string source, ContentType contentType, int licenseId, int productId, int? ownerId = null)
-        : this(uid, headline, contentType, licenseId, productId, ownerId)
+    public Content(string uid, string headline, string source, ContentType contentType, int licenseId, int mediaTypeId, int? ownerId = null)
+        : this(uid, headline, contentType, licenseId, mediaTypeId, ownerId)
     {
         if (String.IsNullOrWhiteSpace(source)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(source));
 
@@ -386,11 +386,11 @@ public class Content : AuditColumns
     /// <param name="source"></param>
     /// <param name="contentType"></param>
     /// <param name="license"></param>
-    /// <param name="product"></param>
+    /// <param name="mediaType"></param>
     /// <param name="owner"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public Content(string uid, string headline, Source source, ContentType contentType, License license, Product product, User? owner = null)
-        : this(uid, headline, contentType, license, product, owner)
+    public Content(string uid, string headline, Source source, ContentType contentType, License license, MediaType mediaType, User? owner = null)
+        : this(uid, headline, contentType, license, mediaType, owner)
     {
         this.SourceId = source?.Id ?? throw new ArgumentNullException(nameof(source));
         this.Source = source;
@@ -406,11 +406,11 @@ public class Content : AuditColumns
     /// <param name="sourceId"></param>
     /// <param name="contentType"></param>
     /// <param name="licenseId"></param>
-    /// <param name="productId"></param>
+    /// <param name="mediaTypeId"></param>
     /// <param name="ownerId"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public Content(string uid, string headline, string otherSource, int? sourceId, ContentType contentType, int licenseId, int productId, int? ownerId = null)
-        : this(uid, headline, otherSource, contentType, licenseId, productId, ownerId)
+    public Content(string uid, string headline, string otherSource, int? sourceId, ContentType contentType, int licenseId, int mediaTypeId, int? ownerId = null)
+        : this(uid, headline, otherSource, contentType, licenseId, mediaTypeId, ownerId)
     {
         this.SourceId = sourceId;
     }
@@ -425,11 +425,11 @@ public class Content : AuditColumns
     /// <param name="source"></param>
     /// <param name="contentType"></param>
     /// <param name="license"></param>
-    /// <param name="product"></param>
+    /// <param name="mediaType"></param>
     /// <param name="owner"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public Content(string uid, string headline, string otherSource, Source source, ContentType contentType, License license, Product product, User? owner = null)
-        : this(uid, headline, otherSource, contentType, license, product, owner)
+    public Content(string uid, string headline, string otherSource, Source source, ContentType contentType, License license, MediaType mediaType, User? owner = null)
+        : this(uid, headline, otherSource, contentType, license, mediaType, owner)
     {
         this.SourceId = source?.Id ?? throw new ArgumentNullException(nameof(source));
         this.Source = source;

@@ -8,6 +8,6 @@ export const Settings = {
   TopStoryAlert: 'TopStoryAlertId',
   MorningReport: 'MorningReportId',
   FrontPageImagesReport: 'FrontPageImagesReportId',
-  NewsRadioProductFilter: 'NewsRadioProductFilterId',
+  NewsRadioMediaTypeFilter: 'NewsRadioMediaTypeFilterId',
   FrontpageFilter: 'FrontpageFilterId',
 };

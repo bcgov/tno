@@ -36,13 +36,13 @@ export interface IPaperToolbarProps {
 export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
   const navigate = useNavigate();
   const [{ filterPaper: filter }, { storeFilterPaper }] = useContent();
-  const [{ productOptions: pOptions }] = useLookupOptions();
+  const [{ mediaTypeOptions }] = useLookupOptions();
   const [{ publishReport }] = useReports();
   const [{ publishNotification }] = useNotifications();
   const [{ settings }] = useLookup();
   const { toggle, isShowing } = useModal();
 
-  const [, setProductOptions] = React.useState<IOptionItem[]>([]);
+  const [, setMediaTypeOptions] = React.useState<IOptionItem[]>([]);
   const [morningReportId, setMorningReportId] = React.useState('');
   const [frontPageImagesReportId, setFrontPageImagesReportId] = React.useState('');
   const [topStoryAlertId, setTopStoryAlertId] = React.useState('');
@@ -57,8 +57,8 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
   }, [settings]);
 
   React.useEffect(() => {
-    setProductOptions([new OptionItem<number>('Any', 0), ...pOptions]);
-  }, [pOptions]);
+    setMediaTypeOptions([new OptionItem<number>('Any', 0), ...mediaTypeOptions]);
+  }, [mediaTypeOptions]);
 
   const onFilterChange = (filter: IContentListFilter) => {
     const newFilter = { ...filter, pageIndex: 0 };

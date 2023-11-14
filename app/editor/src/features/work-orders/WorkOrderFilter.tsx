@@ -20,9 +20,9 @@ export const WorkOrderFilter = ({ filter, onFilterChange }: IWorkOrderFilterProp
   const [keywords, setKeywords] = React.useState<string>('');
   const [{ settings }] = useLookup();
 
-  // Settings contains a link to the news radio products.
-  const newsRadioProductFilter = (
-    settings.find((s) => s.name === Settings.NewsRadioProductFilter)?.value ?? ''
+  // Settings contains a link to the news radio media types.
+  const newsRadioMediaTypeFilter = (
+    settings.find((s) => s.name === Settings.NewsRadioMediaTypeFilter)?.value ?? ''
   )
     .split(',')
     .filter((v) => v)
@@ -42,15 +42,15 @@ export const WorkOrderFilter = ({ filter, onFilterChange }: IWorkOrderFilterProp
           })
         }
       />
-      <Show visible={!!newsRadioProductFilter.length}>
+      <Show visible={!!newsRadioMediaTypeFilter.length}>
         <Checkbox
           name="newsRadio"
           label="News Radio"
-          checked={!!filter.productIds?.length}
+          checked={!!filter.mediaTypeIds?.length}
           onChange={(e) =>
             onFilterChange({
               ...filter,
-              productIds: e.target.checked ? newsRadioProductFilter : undefined,
+              mediaTypeIds: e.target.checked ? newsRadioMediaTypeFilter : undefined,
             })
           }
         />

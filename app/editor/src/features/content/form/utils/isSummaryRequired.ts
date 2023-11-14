@@ -6,5 +6,5 @@ import { IContentForm } from '../interfaces';
  * @returns True if the content.summary field is required.
  */
 export const isSummaryRequired = (values: IContentForm) => {
-  return values.product?.name !== 'News Radio' && values.product?.name !== 'Events';
+  return values.mediaType?.name !== 'News Radio' && values.mediaType?.name !== 'Events';
 };

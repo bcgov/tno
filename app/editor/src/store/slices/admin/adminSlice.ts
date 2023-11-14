@@ -12,12 +12,12 @@ import {
   IIngestModel,
   IIngestTypeModel,
   ILicenseModel,
+  IMediaTypeModel,
   IMinisterModel,
   INotificationModel,
   INotificationTemplateModel,
   IOrganizationModel,
   IPaged,
-  IProductModel,
   IReportModel,
   IReportTemplateModel,
   ISeriesModel,
@@ -60,8 +60,8 @@ export const initialAdminState: IAdminState = {
   notificationFilter: '',
   notifications: [],
   notificationTemplates: [],
-  productFilter: '',
-  products: [],
+  mediaTypeFilter: '',
+  mediaTypes: [],
   reportFilter: '',
   reports: [],
   reportTemplates: [],
@@ -178,11 +178,11 @@ export const adminSlice = createSlice({
     storeOrganizations(state: IAdminState, action: PayloadAction<IOrganizationModel[]>) {
       state.organizations = action.payload;
     },
-    storeProductFilter(state: IAdminState, action: PayloadAction<string>) {
-      state.productFilter = action.payload;
+    storeMediaTypeFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.mediaTypeFilter = action.payload;
     },
-    storeProducts(state: IAdminState, action: PayloadAction<IProductModel[]>) {
-      state.products = action.payload;
+    storeMediaTypes(state: IAdminState, action: PayloadAction<IMediaTypeModel[]>) {
+      state.mediaTypes = action.payload;
     },
     storeReportFilter(state: IAdminState, action: PayloadAction<string>) {
       state.reportFilter = action.payload;
@@ -268,8 +268,8 @@ export const {
   storeNotificationTemplates: storeAdminNotificationTemplates,
   storeOrganizationFilter: storeAdminOrganizationFilter,
   storeOrganizations: storeAdminOrganizations,
-  storeProductFilter: storeAdminProductFilter,
-  storeProducts: storeAdminProducts,
+  storeMediaTypeFilter: storeAdminMediaTypeFilter,
+  storeMediaTypes: storeAdminMediaTypes,
   storeReportFilter: storeAdminReportFilter,
   storeReports: storeAdminReports,
   storeReportTemplates: storeAdminReportTemplates,

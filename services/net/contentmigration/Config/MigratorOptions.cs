@@ -22,7 +22,7 @@ public class MigratorOptions
     /// Stores a mapping to be used where the TNO 1.0 database 'Type' field value
     /// doesn't match the Code or Name of any MMI Source
     /// The Key should be the "TNO 1.0 Type"
-    /// The Value should be the "MMI Product Name"
+    /// The Value should be the "MMI Media Type Name"
     /// </summary>
-    public Dictionary<string, string> ProductMappings { get; set; } = new Dictionary<string, string>();
+    public Dictionary<string, string> MediaTypeMappings { get; set; } = new Dictionary<string, string>();
 }

@@ -8,9 +8,9 @@ import {
   IHolidayModel,
   IIngestTypeModel,
   ILicenseModel,
+  IMediaTypeModel,
   IMetricModel,
   IMinisterModel,
-  IProductModel,
   IRoleModel,
   ISeriesModel,
   ISettingModel,
@@ -31,9 +31,9 @@ import {
   storeHolidays,
   storeIngestTypes,
   storeLicenses,
+  storeMediaTypes,
   storeMetrics,
   storeMinisters,
-  storeProducts,
   storeRoles,
   storeSeries,
   storeSettings,
@@ -54,7 +54,7 @@ export interface ILookupStore {
   storeActions: (actions: IActionModel[]) => void;
   storeTopics: (topics: ITopicModel[]) => void;
   storeTopicScoreRules: (rules: ITopicScoreRuleModel[]) => void;
-  storeProducts: (contentTypes: IProductModel[]) => void;
+  storeMediaTypes: (contentTypes: IMediaTypeModel[]) => void;
   storeSources: (sources: ISourceModel[]) => void;
   storeLicenses: (licenses: ILicenseModel[]) => void;
   storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => void;
@@ -93,8 +93,8 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       storeTopicScoreRules: (rules: ITopicScoreRuleModel[]) => {
         dispatch(storeTopicScoreRules(rules));
       },
-      storeProducts: (contentTypes: IProductModel[]) => {
-        dispatch(storeProducts(contentTypes));
+      storeMediaTypes: (contentTypes: IMediaTypeModel[]) => {
+        dispatch(storeMediaTypes(contentTypes));
       },
       storeSources: (sources: ISourceModel[]) => {
         dispatch(storeSources(sources));

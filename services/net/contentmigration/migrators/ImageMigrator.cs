@@ -3,7 +3,7 @@ using LinqKit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Editor.Models.Lookup;
-using TNO.API.Areas.Editor.Models.Product;
+using TNO.API.Areas.Editor.Models.MediaType;
 using TNO.API.Areas.Editor.Models.Source;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.Entities;
@@ -35,12 +35,12 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     /// </summary>
     /// <param name="lookups"></param>
     /// <param name="source"></param>
-    /// <param name="product"></param>
+    /// <param name="mediaType"></param>
     /// <param name="contentType"></param>
     /// <param name="newsItem"></param>
     /// <param name="defaultTimeZone"></param>
     /// <returns></returns>
-    public override SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, ProductModel product, ContentType contentType, NewsItem newsItem, string defaultTimeZone)
+    public override SourceContent CreateSourceContent(LookupModel lookups, SourceModel source, MediaTypeModel mediaType, ContentType contentType, NewsItem newsItem, string defaultTimeZone)
     {
         // var authors = GetAuthors(lookups.Contributors)
         var publishedOnInDefaultTimeZone = this.GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone);
@@ -56,7 +56,7 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             this.Options.DataLocation,
             source.Code,
             contentType,
-            product.Id,
+            mediaType.Id,
             GetContentHash(source.Code, newsItem.GetTitle(), publishedOnInUtc),
             newsItemTitle,
             "",

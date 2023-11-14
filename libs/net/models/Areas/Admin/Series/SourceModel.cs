@@ -49,7 +49,7 @@ public class SourceModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public int? ProductId { get; set; }
+    public int? MediaTypeId { get; set; }
 
     /// <summary>
     /// get/set - Whether content should be automatically transcribed.
@@ -87,7 +87,7 @@ public class SourceModel
         this.IsEnabled = entity.IsEnabled;
         this.LicenseId = entity.LicenseId;
         this.OwnerId = entity.OwnerId;
-        this.ProductId = entity.ProductId;
+        this.MediaTypeId = entity.MediaTypeId;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
         this.UseInTopics = entity.UseInTopics;

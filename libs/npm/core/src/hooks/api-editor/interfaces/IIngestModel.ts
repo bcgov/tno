@@ -4,7 +4,7 @@ import {
   IConnectionModel,
   IDataLocationModel,
   IIngestTypeModel,
-  IProductModel,
+  IMediaTypeModel,
   IScheduleModel,
   ISourceModel,
 } from '.';
@@ -20,8 +20,8 @@ export interface IIngestModel extends IAuditColumnsModel {
   source?: ISourceModel;
   ingestTypeId: number;
   ingestType?: IIngestTypeModel;
-  productId: number;
-  product?: IProductModel;
+  mediaTypeId: number;
+  mediaType?: IMediaTypeModel;
   scheduleType: ScheduleTypeName;
   configuration: any;
   retryLimit: number;

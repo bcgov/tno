@@ -23,11 +23,11 @@ import * as styled from './styled';
 export const FilterMedia: React.FC = () => {
   const navigate = useNavigate();
   const [{ filterAdvanced }, { findContentWithElasticsearch }] = useContent();
-  const [{ productOptions, sourceOptions }] = useLookupOptions();
-  const [{ sources, products }] = useLookup();
+  const [{ mediaTypeOptions, sourceOptions }] = useLookupOptions();
+  const [{ sources, mediaTypes }] = useLookup();
   const [results, setResults] = React.useState<IContentModel[]>([]);
 
-  const [productValue, setProductValue] = React.useState<IOptionItem | null>();
+  const [mediaTypeValue, setMediaTypeValue] = React.useState<IOptionItem | null>();
   const [sourceValue, setSourceValue] = React.useState<IOptionItem | null>();
 
   const [settings, setSettings] = React.useState<IFilterSettingsModel>(
@@ -61,17 +61,17 @@ export const FilterMedia: React.FC = () => {
       <Row className="tool-bar">
         <Select
           width={FieldSize.Medium}
-          name="select-product"
+          name="select-media-type"
           placeholder={'Select a media type'}
           isClearable={false}
-          clearValue={() => setProductValue(null)}
-          value={productValue}
+          clearValue={() => setMediaTypeValue(null)}
+          value={mediaTypeValue}
           onChange={(e: any) => {
             if (!!e.value) {
-              setProductValue(e);
+              setMediaTypeValue(e);
             }
           }}
-          options={productOptions}
+          options={mediaTypeOptions}
         />
         <Select
           value={sourceValue}
@@ -95,7 +95,7 @@ export const FilterMedia: React.FC = () => {
               generateQuery({
                 ...settings,
                 defaultSearchOperator: 'and',
-                productIds: [products.find((p) => p.name === productValue?.label)?.id ?? 0],
+                mediaTypeIds: [mediaTypes.find((p) => p.name === mediaTypeValue?.label)?.id ?? 0],
                 sourceIds: [sources.find((s) => s.id === sourceValue?.value)?.id ?? 0],
               }),
             );

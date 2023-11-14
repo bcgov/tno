@@ -310,11 +310,11 @@ public class ContentManager : ServiceManager<ContentOptions>
             IEnumerable<API.Areas.Editor.Models.Topic.TopicModel>? topics = lookups?.Topics;
             IEnumerable<API.Areas.Editor.Models.Series.SeriesModel>? series = lookups?.Series;
 
-            if (model.ProductId == 0)
+            if (model.MediaTypeId == 0)
             {
                 // Messages in Kafka are missing information, replace with best guess.
                 var ingests = await this.Api.GetIngestsForTopicAsync(result.Topic);
-                model.ProductId = ingests.FirstOrDefault()?.ProductId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
+                model.MediaTypeId = ingests.FirstOrDefault()?.MediaTypeId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
             }
 
             content = new ContentModel()
@@ -323,7 +323,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 SourceId = source?.Id,
                 OtherSource = model.Source,
                 ContentType = model.ContentType,
-                ProductId = model.ProductId,
+                MediaTypeId = model.MediaTypeId,
                 LicenseId = source?.LicenseId ?? 1,  // TODO: Default license by configuration.
                 SeriesId = null, // TODO: Provide default series from Data Source config settings.
                 OtherSeries = null, // TODO: Provide default series from Data Source config settings.
@@ -430,7 +430,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 {
                     content.Id = originalContent.Id;
                     content.Source = originalContent.Source;
-                    content.Product = originalContent.Product;
+                    content.MediaType = originalContent.MediaType;
                     content.Version = originalContent.Version;
                     content.CreatedBy = originalContent.CreatedBy;
                     content.CreatedOn = originalContent.CreatedOn;

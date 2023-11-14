@@ -33,7 +33,7 @@ public class FolderService : BaseService<Folder, int>, IFolderService
             .Include(f => f.Events).ThenInclude(f => f.Schedule)
             .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content)
             .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content).ThenInclude(c => c!.Source)
-            .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content).ThenInclude(c => c!.Product)
+            .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content).ThenInclude(c => c!.MediaType)
             .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content).ThenInclude(c => c!.Series)
             .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content).ThenInclude(c => c!.TonePools)
             .FirstOrDefault(f => f.Id == id);
@@ -52,7 +52,7 @@ public class FolderService : BaseService<Folder, int>, IFolderService
     {
         return this.Context.FolderContents
             .Include(fc => fc.Content!.Source)
-            .Include(fc => fc.Content!.Product)
+            .Include(fc => fc.Content!.MediaType)
             .Include(fc => fc.Content!.Series)
             .Include(fc => fc.Content!.Contributor)
             .Include(fc => fc.Content!.Owner)

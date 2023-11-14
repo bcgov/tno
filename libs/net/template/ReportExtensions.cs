@@ -189,8 +189,8 @@ public static class ReportExtensions
     {
         switch (groupBy)
         {
-            case "product":
-                return content.Product?.Name ?? "";
+            case "mediaType":
+                return content.MediaType?.Name ?? "";
             case "contentType":
                 return content.ContentType.ToString();
             case "byline":

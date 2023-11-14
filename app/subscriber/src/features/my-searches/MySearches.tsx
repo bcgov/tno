@@ -40,7 +40,7 @@ export const MySearches = () => {
         sourceIds: advancedSearch.settings.sourceIds,
         sentiment: advancedSearch.settings.sentiment,
         savedSearchId: searchId,
-        productIds: advancedSearch.settings.productIds,
+        mediaTypeIds: advancedSearch.settings.mediaTypeIds,
         actions: advancedSearch.settings.actions?.find((action) => action.id === topStoryId)
           ? 'Top Story'
           : '',

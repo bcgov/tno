@@ -10,7 +10,7 @@ public class IngestFilter : PageFilter
     public string? Topic { get; set; }
     public int[]? IngestTypeId { get; set; }
     public int? SourceId { get; set; }
-    public int? ProductId { get; set; }
+    public int? MediaTypeId { get; set; }
     public string? ServiceType { get; set; }
     public int? SourceConnectionId { get; set; }
     public int? DestinationConnectionId { get; set; }
@@ -31,7 +31,7 @@ public class IngestFilter : PageFilter
 
         this.IngestTypeId = filter.GetIntArrayValue(nameof(this.IngestTypeId));
         this.SourceId = filter.GetIntNullValue(nameof(this.SourceId));
-        this.ProductId = filter.GetIntNullValue(nameof(this.ProductId));
+        this.MediaTypeId = filter.GetIntNullValue(nameof(this.MediaTypeId));
         this.SourceConnectionId = filter.GetIntNullValue(nameof(this.SourceConnectionId));
         this.DestinationConnectionId = filter.GetIntNullValue(nameof(this.DestinationConnectionId));
         this.IsEnabled = filter.GetBoolNullValue(nameof(this.IsEnabled));

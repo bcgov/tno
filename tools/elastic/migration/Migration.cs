@@ -148,6 +148,8 @@ public abstract class Migration
                         await DeleteAliasAsync(builder, step, path);
                     else if (step.Action == MigrationAction.CreatePipeline)
                         await CreateOrUpdatePipelineAsync(builder, step, path);
+                    else if (step.Action == MigrationAction.UpdateByQuery)
+                        await UpdateByQueryAsync(builder, step, path);
                 }
                 catch (ElasticsearchClientException ex)
                 {
@@ -193,6 +195,8 @@ public abstract class Migration
 
         TaskId? task = null;
 
+        // you can not use these settings to identify the to/from if you want
+        // to also run a script.  You must use the RAW method...
         if (!String.IsNullOrWhiteSpace(source) && !String.IsNullOrWhiteSpace(dest))
         {
             var response = await builder.Client.ReindexOnServerAsync(s => s
@@ -210,6 +214,8 @@ public abstract class Migration
         }
         else
         {
+            // Data element must follow structure as per guidelines at link below
+            // https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html
             if (step.Data == null) throw new InvalidOperationException($"Migration step '{path}' is missing required property 'data'.");
 
             var data = PostData.String(JsonSerializer.Serialize(step.Data, builder.SerializerOptions));
@@ -322,6 +328,18 @@ public abstract class Migration
         if (!response.Success)
         {
             builder.Logger.LogError(response.OriginalException, "Failed to create/update pipeline '{index}'.  Error: {error}", name, response.Body);
+            throw response.OriginalException;
+        }
+    }
+    private static async Task UpdateByQueryAsync(MigrationBuilder builder, MigrationStep step, string path)
+    {
+        var name = step.Settings.GetDictionaryJsonValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
+        if (step.Data == null) throw new InvalidOperationException($"Migration step '{path}' is missing required property 'data'.");
+
+        var response = await builder.Client.LowLevel.UpdateByQueryAsync<StringResponse>(name, PostData.String(JsonSerializer.Serialize(step.Data, builder.SerializerOptions)));
+        if (!response.Success)
+        {
+            builder.Logger.LogError(response.OriginalException, "Failed to update index '{index}' using query.  Error: {error}", name, response.Body);
             throw response.OriginalException;
         }
     }

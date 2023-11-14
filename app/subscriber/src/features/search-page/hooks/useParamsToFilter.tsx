@@ -13,8 +13,8 @@ export const useParamsToFilter = () => {
   const search = React.useMemo(
     () =>
       fromQueryString(params.query, {
-        arrays: ['sourceIds', 'sentiment', 'productIds', 'actions'],
-        numbers: ['sourceIds', 'sentiment', 'productIds'],
+        arrays: ['sourceIds', 'sentiment', 'mediaTypeIds', 'actions'],
+        numbers: ['sourceIds', 'sentiment', 'mediaTypeIds'],
       }),
     [params.query],
   );
@@ -34,7 +34,7 @@ export const useParamsToFilter = () => {
         pageIndex: convertTo(urlParams.get('pageIndex'), 'number', 0),
         pageSize: convertTo(urlParams.get('pageSize'), 'number', 100),
         sourceIds: search.sourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
-        productIds: search.productIds?.map((v: any) => convertTo(v, 'number', undefined)),
+        mediaTypeIds: search.mediaTypeIds?.map((v: any) => convertTo(v, 'number', undefined)),
         sentiment: search.sentiment?.map((v: any) => convertTo(v, 'number', undefined)),
         startDate: urlParams.get('publishedStartOn') ?? '',
         endDate: urlParams.get('publishedEndOn') ?? '',

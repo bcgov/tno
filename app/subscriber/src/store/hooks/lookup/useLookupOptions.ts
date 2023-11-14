@@ -5,7 +5,7 @@ import { getSortableOptions, getSourceOptions, IOptionItem } from 'tno-core';
 
 export interface ILookupOptionsState extends ILookupState {
   ingestTypeOptions: IOptionItem[];
-  productOptions: IOptionItem[];
+  mediaTypeOptions: IOptionItem[];
   sourceOptions: IOptionItem[];
   seriesOptions: IOptionItem[];
   contributorOptions: IOptionItem[];
@@ -22,7 +22,7 @@ export const useLookupOptions = (): [ILookupOptionsState, ILookupController] => 
   const [sourceOptions, setSourceOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
   const [contributorOptions, setContributorOptions] = React.useState<IOptionItem[]>([]);
-  const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
+  const [mediaTypeOptions, setMediaTypeOptions] = React.useState<IOptionItem[]>([]);
   const [userOptions] = React.useState<IOptionItem[]>([]);
   const [ingestTypeOptions, setIngestTypeOptions] = React.useState<IOptionItem[]>([]);
 
@@ -39,8 +39,8 @@ export const useLookupOptions = (): [ILookupOptionsState, ILookupController] => 
   }, [state.contributors]);
 
   React.useEffect(() => {
-    setProductOptions(getSortableOptions(state.products));
-  }, [state.products]);
+    setMediaTypeOptions(getSortableOptions(state.mediaTypes));
+  }, [state.mediaTypes]);
 
   React.useEffect(() => {
     setIngestTypeOptions(getSortableOptions(state.ingestTypes));
@@ -50,7 +50,7 @@ export const useLookupOptions = (): [ILookupOptionsState, ILookupController] => 
     {
       ...state,
       ingestTypeOptions,
-      productOptions,
+      mediaTypeOptions: mediaTypeOptions,
       sourceOptions,
       seriesOptions,
       contributorOptions,

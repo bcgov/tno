@@ -115,9 +115,9 @@ public class FilterSettingsModel
     public int[]? SourceIds { get; set; }
 
     /// <summary>
-    /// get/set - An array of product Id.
+    /// get/set - An array of media type Id.
     /// </summary>
-    public int[]? ProductIds { get; set; }
+    public int[]? MediaTypeIds { get; set; }
 
     /// <summary>
     /// get/set - An array of series Id.

@@ -17,7 +17,7 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.Property(m => m.SourceId);
         builder.Property(m => m.OtherSource).IsRequired().HasMaxLength(100);
         builder.Property(m => m.LicenseId).IsRequired();
-        builder.Property(m => m.ProductId).IsRequired();
+        builder.Property(m => m.MediaTypeId).IsRequired();
         builder.Property(m => m.SeriesId);
         builder.Property(m => m.ContributorId);
         builder.Property(m => m.Edition).IsRequired().HasMaxLength(100);
@@ -35,7 +35,7 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.Property(m => m.Body).IsRequired().HasColumnType("text");
 
         builder.HasOne(m => m.Source).WithMany(m => m.Contents).HasForeignKey(m => m.SourceId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne(m => m.Product).WithMany(m => m.Contents).HasForeignKey(m => m.ProductId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(m => m.MediaType).WithMany(m => m.Contents).HasForeignKey(m => m.MediaTypeId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.License).WithMany(m => m.Contents).HasForeignKey(m => m.LicenseId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.Series).WithMany(m => m.Contents).HasForeignKey(m => m.SeriesId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.Contributor).WithMany(m => m.Contents).HasForeignKey(m => m.ContributorId).OnDelete(DeleteBehavior.Cascade);

@@ -3,7 +3,7 @@ import {
   ContentTypeName,
   IAuditColumnsModel,
   ILicenseModel,
-  IProductModel,
+  IMediaTypeModel,
   ISeriesModel,
   IUserModel,
 } from '..';
@@ -29,8 +29,8 @@ export interface IContentModel extends IAuditColumnsModel {
   sourceId?: number;
   source?: ISourceModel;
   otherSource: string;
-  productId: number;
-  product?: IProductModel;
+  mediaTypeId: number;
+  mediaType?: IMediaTypeModel;
   seriesId?: number;
   series?: ISeriesModel;
   contributorId?: number;

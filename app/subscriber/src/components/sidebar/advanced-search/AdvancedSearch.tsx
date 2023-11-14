@@ -95,7 +95,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
         inHeadline: advancedSearch?.inHeadline,
         inStory: advancedSearch?.inStory,
         searchTerm: advancedSearch?.searchTerm,
-        productIds: advancedSearch?.frontPage ? [constants?.frontPageId] : [],
+        mediaTypeIds: advancedSearch?.frontPage ? [constants?.frontPageId] : [],
         startDate: advancedSearch?.startDate,
         sourceIds: advancedSearch?.sourceIds,
         sentiment: advancedSearch?.sentiment,

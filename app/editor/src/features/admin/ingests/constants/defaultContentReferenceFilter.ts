@@ -4,7 +4,7 @@ export const defaultContentReferenceFilter: IContentReferenceListFilter = {
   pageIndex: 0,
   pageSize: 100,
   sources: [],
-  productIds: [],
+  mediaTypeIds: [],
   uid: '',
   topic: '',
   status: '',

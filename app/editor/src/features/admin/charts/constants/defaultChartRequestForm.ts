@@ -6,7 +6,7 @@ export const defaultChartRequestForm: IChartRequestForm = {
     width: 500,
     height: 500,
     chartType: 'bar',
-    groupBy: 'product',
+    groupBy: 'mediaType',
     options: defaultChartJSOptions,
     title: '',
     isHorizontal: false,

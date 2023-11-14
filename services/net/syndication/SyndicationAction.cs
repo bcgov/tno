@@ -243,7 +243,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             this.Options.DataLocation,
             source,
             contentType,
-            ingest.ProductId,
+            ingest.MediaTypeId,
             uid,
             title,
             StringExtensions.ConvertTextToParagraphs(summary, @"[\r\n]+"),

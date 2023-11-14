@@ -12,8 +12,8 @@ export const queryToFilter = (
   queryString: string,
 ): IContentListFilter => {
   const search = fromQueryString(queryString, {
-    arrays: ['contentTypes', 'sourceIds', 'productIds', 'sort'],
-    numbers: ['sourceIds', 'productIds'],
+    arrays: ['contentTypes', 'sourceIds', 'mediaTypeIds', 'sort'],
+    numbers: ['sourceIds', 'mediaTypeIds'],
   });
 
   if (!!Object.keys(search).length) {
@@ -29,7 +29,7 @@ export const queryToFilter = (
       timeFrame: convertTo(search.timeFrame, 'number', filter.timeFrame),
       excludeSourceIds: search.excludeSourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
       contentTypes: search.contentTypes ?? [],
-      productIds: search.productIds?.map((v: any) => convertTo(v, 'number', undefined)),
+      mediaTypeIds: search.mediaTypeIds?.map((v: any) => convertTo(v, 'number', undefined)),
       sourceIds: search.sourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
       // Actions
       onTicker: convertTo(search.onTicker, 'boolean', filter.onTicker),

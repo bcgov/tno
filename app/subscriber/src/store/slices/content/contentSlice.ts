@@ -15,7 +15,7 @@ export const initialContentState: IContentState = {
     otherSource: '',
     ownerId: '',
     userId: 0,
-    productIds: [],
+    mediaTypeIds: [],
     sourceIds: [],
     excludeSourceIds: [],
     contentTypes: [],

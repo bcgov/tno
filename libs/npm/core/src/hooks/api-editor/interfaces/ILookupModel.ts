@@ -7,7 +7,7 @@ import {
   ILicenseModel,
   IMetricModel,
   IMinisterModel,
-  IProductModel,
+  IMediaTypeModel,
   IRoleModel,
   ISeriesModel,
   ISettingModel,
@@ -24,7 +24,7 @@ export interface ILookupModel {
   actions: IActionModel[];
   topics: ITopicModel[];
   rules: ITopicScoreRuleModel[];
-  products: IProductModel[];
+  mediaTypes: IMediaTypeModel[];
   sources: ISourceModel[];
   licenses: ILicenseModel[];
   ingestTypes: IIngestTypeModel[];

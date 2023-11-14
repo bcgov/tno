@@ -29,7 +29,7 @@ export interface IContentFilter {
  * @returns Component.
  */
 export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter }) => {
-  const [{ productOptions, sourceOptions, sources }] = useLookupOptions();
+  const [{ mediaTypeOptions, sourceOptions, sources }] = useLookupOptions();
 
   return (
     <styled.ContentFilter label="FILTER CONTENT" icon={<FaFilter />}>
@@ -85,24 +85,24 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
             <FaIcons className="icon-indicator" height="2em" width="2em" />
             <Col>
               <Select
-                name="productIds"
+                name="mediaTypeIds"
                 className="select"
-                placeholder="Product"
+                placeholder="Media Type"
                 isMulti
                 closeMenuOnSelect={false}
                 hideSelectedOptions={false}
-                options={filterEnabledOptions(productOptions)}
+                options={filterEnabledOptions(mediaTypeOptions)}
                 components={{
                   Option: InputOption,
                 }}
                 onChange={(newValues) => {
-                  const productIds = Array.isArray(newValues)
+                  const mediaTypeIds = Array.isArray(newValues)
                     ? newValues.map((opt) => opt.value)
                     : [0];
                   onFilterChange({
                     ...filter,
                     pageIndex: 0,
-                    productIds: productIds,
+                    mediaTypeIds: mediaTypeIds,
                   });
                 }}
               />

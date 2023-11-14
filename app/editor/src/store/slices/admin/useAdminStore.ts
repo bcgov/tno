@@ -13,12 +13,12 @@ import {
   IIngestModel,
   IIngestTypeModel,
   ILicenseModel,
+  IMediaTypeModel,
   IMinisterModel,
   INotificationModel,
   INotificationTemplateModel,
   IOrganizationModel,
   IPaged,
-  IProductModel,
   IReportModel,
   IReportTemplateModel,
   ISeriesModel,
@@ -52,6 +52,8 @@ import {
   storeAdminIngestTypes,
   storeAdminLicenseFilter,
   storeAdminLicenses,
+  storeAdminMediaTypeFilter,
+  storeAdminMediaTypes,
   storeAdminMinisterFilter,
   storeAdminMinisters,
   storeAdminNotificationFilter,
@@ -59,8 +61,6 @@ import {
   storeAdminNotificationTemplates,
   storeAdminOrganizationFilter,
   storeAdminOrganizations,
-  storeAdminProductFilter,
-  storeAdminProducts,
   storeAdminReportFilter,
   storeAdminReports,
   storeAdminReportTemplates,
@@ -121,8 +121,8 @@ export interface IAdminStore {
   storeOrganizations: (
     organizations: IOrganizationModel[] | ActionDelegate<IOrganizationModel[]>,
   ) => void;
-  storeProductFilter: (filter: string | ActionDelegate<string>) => void;
-  storeProducts: (products: IProductModel[] | ActionDelegate<IProductModel[]>) => void;
+  storeMediaTypeFilter: (filter: string | ActionDelegate<string>) => void;
+  storeMediaTypes: (mediaTypes: IMediaTypeModel[] | ActionDelegate<IMediaTypeModel[]>) => void;
   storeReportFilter: (filter: string | ActionDelegate<string>) => void;
   storeReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => void;
   storeReportTemplates: (
@@ -301,15 +301,15 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminOrganizations(organizations(state.organizations)));
         } else dispatch(storeAdminOrganizations(organizations));
       },
-      storeProductFilter: (filter: string | ActionDelegate<string>) => {
+      storeMediaTypeFilter: (filter: string | ActionDelegate<string>) => {
         if (typeof filter === 'function') {
-          dispatch(storeAdminProductFilter(filter(state.productFilter)));
-        } else dispatch(storeAdminProductFilter(filter));
+          dispatch(storeAdminMediaTypeFilter(filter(state.mediaTypeFilter)));
+        } else dispatch(storeAdminMediaTypeFilter(filter));
       },
-      storeProducts: (products: IProductModel[] | ActionDelegate<IProductModel[]>) => {
-        if (typeof products === 'function') {
-          dispatch(storeAdminProducts(products(state.products)));
-        } else dispatch(storeAdminProducts(products));
+      storeMediaTypes: (mediaTypes: IMediaTypeModel[] | ActionDelegate<IMediaTypeModel[]>) => {
+        if (typeof mediaTypes === 'function') {
+          dispatch(storeAdminMediaTypes(mediaTypes(state.mediaTypes)));
+        } else dispatch(storeAdminMediaTypes(mediaTypes));
       },
       storeReportFilter: (filter: string | ActionDelegate<string>) => {
         if (typeof filter === 'function') {
@@ -440,8 +440,8 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       state.notificationTemplates,
       state.organizationFilter,
       state.organizations,
-      state.productFilter,
-      state.products,
+      state.mediaTypeFilter,
+      state.mediaTypes,
       state.reportFilter,
       state.reports,
       state.reportTemplates,

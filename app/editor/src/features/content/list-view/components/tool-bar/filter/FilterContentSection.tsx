@@ -28,7 +28,7 @@ export interface IFilterContentSectionProps {}
  */
 export const FilterContentSection: React.FC<IFilterContentSectionProps> = () => {
   const [{ filter, filterAdvanced }, { storeFilter }] = useContent();
-  const [{ productOptions, users }] = useLookupOptions();
+  const [{ mediaTypeOptions, users }] = useLookupOptions();
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
   const [{ userInfo }] = useApp();
 
@@ -136,29 +136,30 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = () => 
               <FaIcons className="icon-indicator" height="2em" width="2em" />
               <Select
                 className="select"
-                name="productIds"
-                placeholder="Product"
+                name="mediaTypeIds"
+                placeholder="Media Type"
                 isMulti
                 closeMenuOnSelect={false}
                 hideSelectedOptions={false}
-                options={filterEnabledOptions(productOptions)}
+                options={filterEnabledOptions(mediaTypeOptions)}
                 value={
-                  filter.productIds?.map((id) => productOptions.find((opt) => opt.value === id)) ??
-                  ''
+                  filter.mediaTypeIds?.map((id) =>
+                    mediaTypeOptions.find((opt) => opt.value === id),
+                  ) ?? ''
                 }
                 width={FieldSize.Big}
-                defaultValue={productOptions[0]}
+                defaultValue={mediaTypeOptions[0]}
                 components={{
                   Option: InputOption,
                 }}
                 onChange={(newValues) => {
-                  const productIds = Array.isArray(newValues)
+                  const mediaTypeIds = Array.isArray(newValues)
                     ? newValues.map((opt) => opt.value)
                     : [0];
                   onChange({
                     ...filter,
                     pageIndex: 0,
-                    productIds: productIds,
+                    mediaTypeIds: mediaTypeIds,
                   });
                 }}
               />

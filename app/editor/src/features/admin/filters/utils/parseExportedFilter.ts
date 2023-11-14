@@ -2,7 +2,7 @@ import {
   IActionModel,
   IContributorModel,
   IFilterModel,
-  IProductModel,
+  IMediaTypeModel,
   ISeriesModel,
   ISourceModel,
 } from 'tno-core';
@@ -13,7 +13,7 @@ export const parseExportedFilter = (
   contributors: IContributorModel[],
   series: ISeriesModel[],
   sources: ISourceModel[],
-  products: IProductModel[],
+  mediaTypes: IMediaTypeModel[],
 ): IFilterModel => {
   var importedModel = {};
   if ('name' in value) {
@@ -89,11 +89,11 @@ export const parseExportedFilter = (
       .map((x) => x.id);
     importedSettings = { ...importedSettings, sourceIds: sourceIds };
   }
-  if ('productNames' in value.settings) {
-    const productIds = products
-      .filter((x) => value.settings.productNames.some((y: string) => y === x.name))
+  if ('mediaTypeNames' in value.settings) {
+    const mediaTypeIds = mediaTypes
+      .filter((x) => value.settings.mediaTypeNames.some((y: string) => y === x.name))
       .map((x) => x.id);
-    importedSettings = { ...importedSettings, productIds: productIds };
+    importedSettings = { ...importedSettings, mediaTypeIds: mediaTypeIds };
   }
   if ('contributorNames' in value.settings) {
     const contributorIds = contributors

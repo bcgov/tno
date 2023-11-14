@@ -7,7 +7,7 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Switch to root for package installs
 USER 0
-RUN dotnet tool install --global dotnet-ef
+RUN dotnet tool install --global dotnet-ef --version 7.0.13
 
 WORKDIR /src
 COPY . .

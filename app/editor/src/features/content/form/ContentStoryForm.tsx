@@ -34,9 +34,9 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
 
   React.useEffect(() => {
     setSummaryRequired(isSummaryRequired(values));
-    // Only interested in changing this value when the product changes.
+    // Only interested in changing this value when the media type changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [values.productId]);
+  }, [values.mediaTypeId]);
 
   return (
     <styled.ContentStoryForm className="content-properties">

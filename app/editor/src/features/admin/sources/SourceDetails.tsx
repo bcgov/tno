@@ -26,7 +26,7 @@ const SourceDetails: React.FC<ISourceDetailsProps> = () => {
 
   const users = getUserOptions(lookups.users);
   const licenses = getSortableOptions(lookups.licenses, values.licenseId);
-  const products = getSortableOptions(lookups.products, values.productId, [
+  const mediaTypes = getSortableOptions(lookups.mediaTypes, values.mediaTypeId, [
     new OptionItem('None', ''),
   ]);
 
@@ -75,18 +75,18 @@ const SourceDetails: React.FC<ISourceDetailsProps> = () => {
           options={filterEnabledOptions(users)}
         />
         <FormikSelect
-          label="Product Override"
-          name="productId"
-          tooltip="The product designation the source content will be assigned (overrides the value in the ingest)"
-          value={products.find((o) => o.value === values.productId) ?? ''}
-          options={products}
+          label="Media Type Override"
+          name="mediaTypeId"
+          tooltip="The media type designation the source content will be assigned (overrides the value in the ingest)"
+          value={mediaTypes.find((o) => o.value === values.mediaTypeId) ?? ''}
+          options={mediaTypes}
         />
         <FormikSelect
-          label="Product Search Group"
-          name="productSearchGroupId"
-          tooltip="The field is used to help group media sources by their product."
-          value={products.find((o) => o.value === values.productSearchGroupId) ?? ''}
-          options={products}
+          label="Media Type Search Group"
+          name="mediaTypeSearchGroupId"
+          tooltip="The field is used to help group media sources by their media type."
+          value={mediaTypes.find((o) => o.value === values.mediaTypeSearchGroupId) ?? ''}
+          options={mediaTypes}
         />
         <FormikSelect
           label="Timezone Override"

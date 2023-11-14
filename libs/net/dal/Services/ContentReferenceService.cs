@@ -41,10 +41,10 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
             query = query.Where(c => EF.Functions.Like(c.Uid.ToLower(), $"%{filter.Uid.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Topic))
             query = query.Where(c => EF.Functions.Like(c.Topic.ToLower(), $"%{filter.Topic.ToLower()}%"));
-        if (filter.ProductIds?.Any() == true)
+        if (filter.MediaTypeIds?.Any() == true)
             query = from cf in query
                     join c in this.Context.Contents on cf.Uid equals c.Uid
-                    where filter.ProductIds.Contains(c.ProductId)
+                    where filter.MediaTypeIds.Contains(c.MediaTypeId)
                     select cf;
 
         if (filter.Offset.HasValue)

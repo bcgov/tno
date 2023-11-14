@@ -2,7 +2,7 @@ using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.API.Areas.Editor.Models.Product;
+using TNO.API.Areas.Editor.Models.MediaType;
 using TNO.API.Areas.Editor.Models.Source;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.Core.Exceptions;
@@ -366,14 +366,14 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                     return;
                 }
             }
-            ProductModel? product = contentMigrator.GetProductMapping(lookups.Products, newsItem.Type);
-            if (product == null)
+            MediaTypeModel? mediaType = contentMigrator.GetMediaTypeMapping(lookups.MediaTypes, newsItem.Type);
+            if (mediaType == null)
             {
-                this.Logger.LogWarning("Couldn't map to Product for NewsItem with type '{sourceName}'", newsItem.Type);
+                this.Logger.LogWarning("Couldn't map to Media Type for NewsItem with type '{sourceName}'", newsItem.Type);
                 return;
             }
 
-            var sourceContent = contentMigrator.CreateSourceContent(lookups, source!, product, manager.Ingest.IngestType!.ContentType, newsItem, defaultTimeZone);
+            var sourceContent = contentMigrator.CreateSourceContent(lookups, source!, mediaType, manager.Ingest.IngestType!.ContentType, newsItem, defaultTimeZone);
             if (this.Options.TagForMigratedContent != "") {
                 sourceContent.Tags = sourceContent.Tags.Append(new TNO.Kafka.Models.Tag(this.Options.TagForMigratedContent, ""));
             }

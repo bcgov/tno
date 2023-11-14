@@ -16,14 +16,14 @@ public class ContentFilter : PageFilter
     public ContentStatus? Status { get; set; }
 
     /// <summary>
-    /// get/set - Only include content with this product.
+    /// get/set - Only include content with this media type.
     /// </summary>
-    public string? Product { get; set; }
+    public string? MediaType { get; set; }
 
     /// <summary>
-    /// get/set - Only include content with this product.
+    /// get/set - Only include content with this media type.
     /// </summary>
-    public int? ProductId { get; set; }
+    public int? MediaTypeId { get; set; }
 
     /// <summary>
     /// get/set - Only the series id
@@ -169,7 +169,7 @@ public class ContentFilter : PageFilter
     /// <summary>
     /// get/set - An array of content IDs.
     /// </summary>
-    public long[] ProductIds { get; set; } = Array.Empty<long>();
+    public long[] MediaTypeIds { get; set; } = Array.Empty<long>();
 
     /// <summary>
     /// get/set - Only include content with the specified actions.
@@ -204,7 +204,7 @@ public class ContentFilter : PageFilter
     {
         var filter = new Dictionary<string, StringValues>(queryParams, StringComparer.OrdinalIgnoreCase);
 
-        this.Product = filter.GetStringValue(nameof(this.Product));
+        this.MediaType = filter.GetStringValue(nameof(this.MediaType));
         this.OtherSource = filter.GetStringValue(nameof(this.OtherSource));
         this.Headline = filter.GetStringValue(nameof(this.Headline));
         this.Section = filter.GetStringValue(nameof(this.Section));
@@ -223,7 +223,7 @@ public class ContentFilter : PageFilter
         this.IsHidden = filter.GetBoolNullValue(nameof(this.IsHidden));
         this.OnlyPublished = filter.GetBoolNullValue(nameof(this.OnlyPublished));
 
-        this.ProductId = filter.GetIntNullValue(nameof(this.ProductId));
+        this.MediaTypeId = filter.GetIntNullValue(nameof(this.MediaTypeId));
         this.SeriesId = filter.GetIntNullValue(nameof(this.SeriesId));
         this.OwnerId = filter.GetIntNullValue(nameof(this.OwnerId));
         this.UserId = filter.GetIntNullValue(nameof(this.UserId));
@@ -243,7 +243,7 @@ public class ContentFilter : PageFilter
 
         this.ContentTypes = filter.GetEnumArrayValue<ContentType>(nameof(this.ContentTypes));
         this.ContentIds = filter.GetLongArrayValue(nameof(this.ContentIds));
-        this.ProductIds = filter.GetLongArrayValue(nameof(this.ProductIds));
+        this.MediaTypeIds = filter.GetLongArrayValue(nameof(this.MediaTypeIds));
         this.SourceIds = filter.GetLongArrayValue(nameof(this.SourceIds));
         this.Sentiment = filter.GetIntArrayValue(nameof(this.Sentiment));
         this.ExcludeSourceIds = filter.GetIntArrayValue(nameof(this.ExcludeSourceIds));

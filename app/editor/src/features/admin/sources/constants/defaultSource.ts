@@ -13,8 +13,8 @@ export const defaultSource: ISourceForm = {
   disableTranscribe: false,
   useInTopics: false,
   ownerId: '',
-  productId: '',
-  productSearchGroupId: '',
+  mediaTypeId: '',
+  mediaTypeSearchGroupId: '',
   configuration: {
     timeZone: '',
   },

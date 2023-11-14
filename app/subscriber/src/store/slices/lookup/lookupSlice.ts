@@ -8,8 +8,8 @@ import {
   IHolidayModel,
   IIngestTypeModel,
   ILicenseModel,
+  IMediaTypeModel,
   IMetricModel,
-  IProductModel,
   IRoleModel,
   ISeriesModel,
   ISettingModel,
@@ -28,7 +28,7 @@ export const initialLookupState: ILookupState = {
   cache: [],
   actions: [],
   topics: [],
-  products: [],
+  mediaTypes: [],
   licenses: [],
   series: [],
   contributors: [],
@@ -77,8 +77,8 @@ export const lookupSlice = createSlice({
     storeMinisters(state: ILookupState, action: PayloadAction<IMinisterModel[]>) {
       state.ministers = action.payload;
     },
-    storeProducts(state: ILookupState, action: PayloadAction<IProductModel[]>) {
-      state.products = action.payload;
+    storeMediaTypes(state: ILookupState, action: PayloadAction<IMediaTypeModel[]>) {
+      state.mediaTypes = action.payload;
     },
     storeSources(state: ILookupState, action: PayloadAction<ISourceModel[]>) {
       state.sources = action.payload;
@@ -131,7 +131,7 @@ export const {
   storeActions,
   storeTopics,
   storeRules,
-  storeProducts,
+  storeMediaTypes,
   storeLicenses,
   storeSeries,
   storeContributors,
