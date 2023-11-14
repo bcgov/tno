@@ -36,7 +36,7 @@ export interface IPaperToolbarProps {
 export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
   const navigate = useNavigate();
   const [{ filterPaper: filter }, { storeFilterPaper }] = useContent();
-  const [{ mediaTypeOptions: mediaTypeOptions }] = useLookupOptions();
+  const [{ mediaTypeOptions }] = useLookupOptions();
   const [{ publishReport }] = useReports();
   const [{ publishNotification }] = useNotifications();
   const [{ settings }] = useLookup();
