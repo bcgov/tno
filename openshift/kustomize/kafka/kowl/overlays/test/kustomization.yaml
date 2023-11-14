@@ -16,7 +16,7 @@ patches:
         value: 1
       - op: replace
         path: /spec/template/spec/containers/0/image
-        value: quay.io/cloudhut/kowl:v1.5.0
+        value: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/kafka:v1.5.0
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 15m
