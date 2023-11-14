@@ -188,9 +188,10 @@ spec:
     - name: elastic-migration
       runAfter:
         - db-migration
-#      taskRef:
+      taskRef:
 #        name: elastic-migration-conditional
-#        kind: Task
+        name: elastic-migration
+        kind: Task
       params:
         - name: DB_SECRET_NAME
           value: crunchy-pguser-admin
