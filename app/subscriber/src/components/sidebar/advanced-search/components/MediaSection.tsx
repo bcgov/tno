@@ -1,6 +1,6 @@
 import { useFilterOptions } from 'components/sidebar/hooks';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle } from 'react-icons/io';
-import { Col, Row, Show } from 'tno-core';
+import { Col, Row, Select, Show } from 'tno-core';
 
 import { SubMediaGroups } from '../constants';
 import { IAdvancedSearchFilter, ISubMediaGroupExpanded } from '../interfaces';
@@ -87,28 +87,26 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
               <Show
                 visible={!!mediaGroup.options.length && mediaGroupExpandedStates[mediaGroup.key]}
               >
-                {mediaGroup.options.map((option, index) => (
-                  <Row key={`${option.name}-${index}`} className="sub-options">
-                    <input
-                      type="checkbox"
-                      checked={advancedSearch?.sourceIds?.includes(option.id)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setAdvancedSearch({
-                            ...advancedSearch,
-                            sourceIds: [...(advancedSearch?.sourceIds ?? []), option.id],
-                          });
-                        } else {
-                          setAdvancedSearch({
-                            ...advancedSearch,
-                            sourceIds: advancedSearch?.sourceIds?.filter((id) => id !== option.id),
-                          });
-                        }
-                      }}
-                    />
-                    {option.name.length < 28 ? option.name : option.name.slice(0, 28) + '...'}
-                  </Row>
-                ))}
+                <Select
+                  isMulti
+                  options={mediaGroup.options
+                    .map((option) => ({
+                      label: option.name,
+                      value: option.id,
+                      sortOrder: option.sortOrder,
+                    }))
+                    .sort((a, b) => a.sortOrder - b.sortOrder)}
+                  name="opts"
+                  onChange={(newValues) => {
+                    Array.isArray(newValues) &&
+                      setAdvancedSearch({
+                        ...advancedSearch,
+                        sourceIds: newValues.map((v) => v.value),
+                      });
+                  }}
+                  menuPortalTarget={document.body}
+                  menuPosition={'fixed'}
+                />
               </Show>
             </div>
           </Col>
