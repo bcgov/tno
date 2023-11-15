@@ -5,7 +5,7 @@ import { FaListOl, FaNewspaper, FaPlus, FaRegFolder, FaTasks } from 'react-icons
 import { FaA, FaChartSimple, FaFilter } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useLookup } from 'store/hooks';
-import { ReportSectionTypeName, Row, Show } from 'tno-core';
+import { ReportSectionTypeName, Row, Settings, Show } from 'tno-core';
 
 import { IReportForm } from '../../interfaces';
 import { createReportInstanceContent, sortContent } from '../../utils';
@@ -33,7 +33,7 @@ export const ReportSection = React.forwardRef<HTMLDivElement, IReportSectionProp
 
     const [show, setShow] = React.useState(showForm);
     const [defaultLicenseId, setDefaultLicenseId] = React.useState(0);
-    const [defaultProductId, setDefaultProductId] = React.useState(0);
+    const [defaultMediaTypeId, setDefaultMediaTypeId] = React.useState(0);
 
     const section = values.sections[index];
     const userId = userInfo?.id ?? 0;
@@ -41,20 +41,26 @@ export const ReportSection = React.forwardRef<HTMLDivElement, IReportSectionProp
     React.useEffect(() => {
       if (isReady) {
         const defaultLicenseId = settings.find(
-          (s) => s.name === 'DefaultSubscriberContentLicenseId',
+          (s) => s.name === Settings.DefaultSubscriberContentLicense,
         )?.value;
         if (defaultLicenseId) setDefaultLicenseId(+defaultLicenseId);
-        else toast.error("Configuration settings 'DefaultSubscriberContentLicenseId' is required.");
+        else
+          toast.error(
+            `Configuration settings '${Settings.DefaultSubscriberContentLicense}' is required.`,
+          );
       }
     }, [isReady, settings]);
 
     React.useEffect(() => {
       if (isReady) {
-        const defaultProductId = settings.find(
-          (s) => s.name === 'DefaultSubscriberContentProductId',
+        const defaultMediaTypeId = settings.find(
+          (s) => s.name === Settings.DefaultSubscriberContentMediaType,
         )?.value;
-        if (defaultProductId) setDefaultProductId(+defaultProductId);
-        else toast.error("Configuration settings 'DefaultSubscriberContentProductId' is required.");
+        if (defaultMediaTypeId) setDefaultMediaTypeId(+defaultMediaTypeId);
+        else
+          toast.error(
+            `Configuration settings '${Settings.DefaultSubscriberContentMediaType}' is required.`,
+          );
       }
     }, [isReady, settings]);
 
@@ -66,13 +72,13 @@ export const ReportSection = React.forwardRef<HTMLDivElement, IReportSectionProp
             sectionName,
             userId,
             defaultLicenseId,
-            defaultProductId,
+            defaultMediaTypeId,
           ),
           ...values.instances[0].content,
         ]);
         setFieldValue(`instances.0.content`, content);
       },
-      [defaultLicenseId, defaultProductId, setFieldValue, userId, values.instances],
+      [defaultLicenseId, defaultMediaTypeId, setFieldValue, userId, values.instances],
     );
 
     return (

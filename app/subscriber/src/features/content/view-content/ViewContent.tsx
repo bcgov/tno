@@ -84,10 +84,6 @@ export const ViewContent: React.FC = () => {
           x.name,
           // first letter of first name whole last name separated by a period
           x.name.charAt(0) + '.' + x.name.split(' ').slice(-1),
-          // ...x.aliases
-          //   .split(',')
-          //   .filter((element) => element) // remove empty entries
-          //   .map((a) => a.trim()),
         ]);
       setAliases(selectedAliases);
     }
@@ -266,7 +262,8 @@ export const ViewContent: React.FC = () => {
         <Show
           visible={
             content?.contentType === ContentTypeName.AudioVideo &&
-            !content?.source?.disableTranscribe
+            !content?.source?.disableTranscribe &&
+            !content.isApproved
           }
         >
           <Button

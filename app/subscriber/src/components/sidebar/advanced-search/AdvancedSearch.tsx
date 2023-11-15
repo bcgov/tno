@@ -239,7 +239,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
                 advancedSearch={advancedSearch}
                 setAdvancedSearch={setAdvancedSearch}
                 mediaExpanded={mediaExpanded}
-                setmediaGroupExpandedStates={setMediaGroupExpandedStates}
+                setMediaGroupExpandedStates={setMediaGroupExpandedStates}
                 mediaGroupExpandedStates={mediaGroupExpandedStates}
               />
             </Col>
