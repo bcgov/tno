@@ -64,6 +64,11 @@ export const useColumns = ({ fetch }: IColumnProps): ITableHookColumn<IContentSe
     },
     {
       accessor: 'section',
+      sort: (row) => {
+        return `${row.original.page ? row.original.page : ''}:${
+          row.original.section ? row.original.section : ''
+        }`;
+      },
       label: (
         <Row nowrap>
           Page:Section
