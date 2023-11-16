@@ -267,7 +267,17 @@ public class ContentManager : ServiceManager<ContentOptions>
     {
         this.Logger.LogDebug($"ProcessSourceContentAsync:BEGIN:{result.Message.Key}");
         this.Logger.LogInformation("Importing Content from Topic: {topic}, Uid: {key}", result.Topic, result.Message.Key);
+
         var model = result.Message.Value;
+
+        // We *should* never get data which has no title as we use the title to generate the hash.
+        // A record with no title will never be valid because we can't match it to an updated record.
+        if (string.IsNullOrEmpty(model.Title))
+        {
+            Logger.LogWarning("Skipping bad data: Content has no Title : {source}:{key}", model.Source, result.Message.Key);
+            return;
+        }
+
         bool updateSourceContent = false;
         long? existingContentId = null;
 
