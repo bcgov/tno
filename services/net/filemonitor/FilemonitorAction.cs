@@ -685,15 +685,9 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             var xmlTxt = ReadFileContents(filePath, ingest);
             if (xmlTxt != null)
             {
-                // Files regularly have the 'last' story corrupting in the <story> node.
-                // This results in the whole file being invalid.
-                // Check for and fix the common failure.
-                if (!_storyTag.Match(xmlTxt).Success)
-                {
-                    xmlTxt = $"{xmlTxt}</story><date>{DateTime.Now:MM-dd-yyyy}</date></bcng>";
-                    File.WriteAllText(filePath, xmlTxt);
-                    this.Logger.LogError("The file '{path}' is missing data", filePath);
-                }
+                var fixBlacks = ingest.GetConfigurationValue<bool>(Fields.FixBlacksXml);
+                if (fixBlacks)
+                    xmlTxt = FixBlacksNewsgroupXml(filePath, xmlTxt);
 
                 // BCNG files have multiple top-level objects which need to be wrapped in a single pair of tags.
                 var addParent = ingest.GetConfigurationValue<bool>(Fields.AddParent);
@@ -723,6 +717,27 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             this.Logger.LogError(e, "Failed to ingest item from file '{path}'", filePath);
             throw e;
         }
+    }
+
+    /// <summary>
+    /// Fix the Blacks Newsgroup XML issue.
+    /// </summary>
+    /// <param name="filePath"></param>
+    /// <param name="xml"></param>
+    /// <returns></returns>
+    private string FixBlacksNewsgroupXml(string filePath, string xml)
+    {
+        // Files regularly have the 'last' story corrupting in the <story> node.
+        // This results in the whole file being invalid.
+        // Check for and fix the common failure.
+        if (!_storyTag.Match(xml).Success)
+        {
+            xml = $"{xml}</story><date>{DateTime.Now:MM-dd-yyyy}</date></bcng>";
+            File.WriteAllText(filePath, xml);
+            this.Logger.LogError("The file '{path}' is missing data", filePath);
+        }
+
+        return xml;
     }
 
     /// <summary>
