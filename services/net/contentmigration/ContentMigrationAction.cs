@@ -85,7 +85,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         DateTime? updatedDateOfNewsItem, double importOffsetInHours = 0)
     {
         // KGM : Do NOT remove these null filters.  They exclude bad data
-        predicate = predicate.And(ni => ((ni.ItemDate != null) && (ni.Source != null)));
+        predicate = predicate.And(ni => ((ni.ItemDate != null) && (ni.Source != null) && (ni.Title != null)));
 
         DateTime offsetFromNow = DateTime.MaxValue;
         if (importOffsetInHours > 0)
@@ -157,7 +157,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         int skip, int count, double importOffsetInHours = 0)
     {
         // KGM : Do NOT remove these null filters.  They exclude bad data
-        predicate = predicate.And(ni => ((ni.ItemDate != null) && (ni.Source != null)));
+        predicate = predicate.And(ni => ((ni.ItemDate != null) && (ni.Source != null) && (ni.Title != null)));
 
         // KGM : Only return Published items
         predicate = predicate.And(ni => ((ni.Published)));
