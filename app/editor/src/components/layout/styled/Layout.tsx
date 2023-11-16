@@ -14,6 +14,7 @@ export const Layout = styled.div`
     align-items: stretch;
     flex-grow: 1;
     overflow: auto;
+    height: 100%;
 
     & > .navbar:first-child {
       border-bottom: solid 1px #65799e;

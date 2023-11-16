@@ -69,11 +69,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           />
         </div>
       </Show>
-      {to ? (
-        <Link to={`/contents/${row.content.id}`}>{row.content.headline}</Link>
-      ) : (
-        <div>{row.content.headline}</div>
-      )}
+      {to ? <Link to={to}>{row.content.headline}</Link> : <div>{row.content.headline}</div>}
       <div>{row.content.byline ? row.content.byline : row.content.contributor?.name}</div>
       <div>
         {row.content.section}

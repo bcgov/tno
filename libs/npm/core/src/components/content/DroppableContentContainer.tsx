@@ -11,6 +11,10 @@ export interface IDroppableContentContainerProps
   droppableId?: string;
   /** An array of content. */
   data: IContentRowModel[];
+  /** Function to generate route for navigating to content. */
+  to?: (row: IContentRowModel) => string;
+  /** Function to generate unique id for each row. */
+  draggableId?: (row: IContentRowModel) => string;
   /** Whether to show the grip column. */
   showGrip?: boolean;
   /** Whether to show the checkbox for selecting rows. */
@@ -29,8 +33,10 @@ export interface IDroppableContentContainerProps
 
 export const DroppableContentContainer: React.FC<IDroppableContentContainerProps> = ({
   droppableId = 'content-container',
+  draggableId = (row) => row.content.id.toString(),
   data,
   className,
+  to,
   showGrip = true,
   showCheckbox,
   showSortOrder,
@@ -55,10 +61,11 @@ export const DroppableContentContainer: React.FC<IDroppableContentContainerProps
             .map((row, index) => {
               return (
                 <DraggableContentRow
-                  key={`row-${row.content.id}`}
+                  key={`${droppableId}-${row.content.id}-${index}`}
+                  draggableId={draggableId(row)}
                   index={index}
                   row={row}
-                  to={`/contents/${row.content.id}`}
+                  to={to?.(row)}
                   onRemove={onRemove}
                   onChange={onChange}
                   onSelected={onSelected}

@@ -34,22 +34,27 @@ public class ContentModel
     public string OtherSource { get; set; } = "";
 
     /// <summary>
-    /// get/set - Other edition.
+    /// get/set - The edition.
     /// </summary>
     public string Edition { get; set; } = "";
 
     /// <summary>
-    /// get/set - Other section.
+    /// get/set - The section.
     /// </summary>
     public string Section { get; set; } = "";
 
     /// <summary>
-    /// get/set - Other page.
+    /// get/set - The page.
     /// </summary>
     public string Page { get; set; } = "";
 
     /// <summary>
-    /// get/set - Other published on.
+    /// get/set - When content was posted to MMI.
+    /// </summary>
+    public DateTime? PostedOn { get; set; }
+
+    /// <summary>
+    /// get/set - When content was published on.
     /// </summary>
     public DateTime? PublishedOn { get; set; }
 
@@ -79,6 +84,11 @@ public class ContentModel
     public UserModel? Owner { get; set; }
 
     /// <summary>
+    /// get/set - Private content is not searchable.
+    /// </summary>
+    public bool IsPrivate { get; set; }
+
+    /// <summary>
     /// get/set - An array of tone pools.
     /// </summary>
     public IEnumerable<TonePoolModel> TonePools { get; set; } = Array.Empty<TonePoolModel>();
@@ -104,7 +114,9 @@ public class ContentModel
         this.Section = entity.Section;
         this.Edition = entity.Edition;
         this.Page = entity.Page;
+        this.PostedOn = entity.PostedOn;
         this.PublishedOn = entity.PublishedOn;
+        this.IsPrivate = entity.IsPrivate;
         this.Source = entity.Source != null ? new SortableModel<int>(entity.Source) : null;
         this.MediaType = entity.MediaType != null ? new SortableModel<int>(entity.MediaType) : null;
         this.Series = entity.Series != null ? new SortableModel<int>(entity.Series) : null;

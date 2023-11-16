@@ -28,6 +28,7 @@ export * from './IContentReferenceModel';
 export * from './IContentTagModel';
 export * from './IContentTonePoolModel';
 export * from './IContentTopicModel';
+export * from './IContentVersionModel';
 export * from './IContributorModel';
 export * from './IDataLocationModel';
 export * from './IDirectoryModel';

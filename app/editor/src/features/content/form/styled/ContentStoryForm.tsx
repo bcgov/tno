@@ -1,6 +1,9 @@
 import styled from 'styled-components';
 
 export const ContentStoryForm = styled.div`
+  display: flex;
+  flex-direction: column;
+
   .row-margins {
     margin-top: 2%;
   }
@@ -68,15 +71,15 @@ export const ContentStoryForm = styled.div`
   .content-body {
     display: flex;
     flex-flow: column;
-    max-height: 300px;
+    min-height: 100%;
     overflow: hidden;
-  }
 
-  .quill {
-    max-height: 20em;
-    overflow: scroll;
+    .quill {
+      flex: 1;
 
-    .ql-container {
+      .ql-editor {
+        height: 400px;
+      }
     }
   }
 `;

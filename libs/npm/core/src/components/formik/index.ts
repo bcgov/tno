@@ -4,6 +4,8 @@ export * from './error';
 export * from './hidden';
 export * from './radio';
 export * from './select';
+export * from './sentiment';
 export * from './text';
 export * from './textarea';
 export * from './timeinput';
+export * from './wysiwyg';

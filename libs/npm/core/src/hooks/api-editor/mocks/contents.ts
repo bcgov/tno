@@ -22,6 +22,7 @@ export const mockContents: IContentModel[] = [
     summary: '',
     isHidden: false,
     isApproved: true,
+    isPrivate: true,
   },
   {
     id: 2,
@@ -43,6 +44,7 @@ export const mockContents: IContentModel[] = [
     summary: '',
     isHidden: false,
     isApproved: true,
+    isPrivate: true,
   },
   {
     id: 3,
@@ -64,6 +66,7 @@ export const mockContents: IContentModel[] = [
     summary: '',
     isHidden: false,
     isApproved: true,
+    isPrivate: true,
   },
   {
     id: 4,
@@ -85,6 +88,7 @@ export const mockContents: IContentModel[] = [
     summary: '',
     isHidden: false,
     isApproved: true,
+    isPrivate: true,
   },
   {
     id: 5,
@@ -106,6 +110,7 @@ export const mockContents: IContentModel[] = [
     summary: '',
     isHidden: false,
     isApproved: true,
+    isPrivate: true,
   },
   {
     id: 6,
@@ -127,5 +132,6 @@ export const mockContents: IContentModel[] = [
     summary: '',
     isHidden: false,
     isApproved: true,
+    isPrivate: true,
   },
 ];

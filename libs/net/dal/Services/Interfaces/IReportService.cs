@@ -39,10 +39,10 @@ public interface IReportService : IBaseService<Report, int>
     /// Get the current instance for the specified report 'id'.
     /// </summary>
     /// <param name="id"></param>
-    /// <param name="ownerId"></param>
-    /// <param name="isActive"></param>
+    /// <param name="ownerId">The owner of the instance.</param>
+    /// <param name="isSent">Whether to get the instance that was sent.</param>
     /// <returns></returns>
-    ReportInstance? GetLatestInstance(int id, int? ownerId = null, bool? isActive = null);
+    ReportInstance? GetLatestInstance(int id, int? ownerId = null, bool? isSent = null);
 
     /// <summary>
     /// Get the content from the current report instance for the specified 'reportId'.

@@ -28,6 +28,7 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     publishedOnTime: '',
     isHidden: false,
     isApproved: contentType !== ContentTypeName.AudioVideo,
+    isPrivate: false,
     actions: [],
     topics: [],
     tags: [],

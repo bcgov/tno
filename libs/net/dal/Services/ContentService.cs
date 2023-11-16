@@ -170,6 +170,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         return new Paged<Content>(items, filter.Page, filter.Quantity, total);
     }
 
+    // TODO: Delete this function
     /// <summary>
     /// Find most recent front pages (5 of them).
     /// </summary>
@@ -199,9 +200,9 @@ public class ContentService : BaseService<Content, long>, IContentService
 
     }
 
+    // TODO: Delete this function
     /// <summary>
     /// Find content that matches the specified 'filter'.
-    /// TODO: Change to a raw JSON query.
     /// </summary>
     /// <param name="filter">Filter to apply to the query.</param>
     /// <returns>A page of content items that match the filter.</returns>
@@ -464,6 +465,11 @@ public class ContentService : BaseService<Content, long>, IContentService
         return await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, filter);
     }
 
+    /// <summary>
+    /// Get the content for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     public override Content? FindById(long id)
     {
         return this.Context.Contents
@@ -484,6 +490,12 @@ public class ContentService : BaseService<Content, long>, IContentService
             .FirstOrDefault(c => c.Id == id);
     }
 
+    /// <summary>
+    /// Get the content for the specified 'uid' and 'source'.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <param name="source"></param>
+    /// <returns></returns>
     public Content? FindByUid(string uid, string? source)
     {
         var query = this.Context.Contents
@@ -532,7 +544,6 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// <param name="entity"></param>
     /// <returns></returns>
     /// <exception cref="NoContentException"></exception>
-    /// TODO: Switch to not found exception throughout services.
     public override Content UpdateAndSave(Content entity)
     {
         var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
@@ -559,7 +570,6 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// <param name="updated"></param>
     /// <returns></returns>
     /// <exception cref="NoContentException"></exception>
-    /// TODO: Switch to not found exception throughout services.
     public Content UpdateStatusOnly(Content updated)
     {
         var original = FindById(updated.Id) ?? throw new NoContentException("Entity does not exist");

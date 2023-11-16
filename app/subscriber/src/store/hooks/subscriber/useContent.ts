@@ -30,6 +30,9 @@ interface IContentController {
   storeGalleryDateFilter: (dateFilter: IOptionItem | null) => void;
   storeGalleryPressFilter: (pressFilter: IOptionItem | null) => void;
   stream: (path: string) => Promise<string>;
+  addContent: (content: IContentModel) => Promise<IContentModel | undefined>;
+  updateContent: (content: IContentModel) => Promise<IContentModel | undefined>;
+  deleteContent: (content: IContentModel) => Promise<IContentModel | undefined>;
 }
 
 export const useContent = (props?: IContentProps): [IContentState, IContentController] => {
@@ -72,6 +75,26 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       storeFilterAdvanced: actions.storeFilterAdvanced,
       storeGalleryDateFilter: actions.storeGalleryDateFilter,
       storeGalleryPressFilter: actions.storeGalleryPressFilter,
+      addContent: async (content: IContentModel) => {
+        const response = await dispatch('add-content', () => api.addContent(content), 'content');
+        return response.data;
+      },
+      updateContent: async (content: IContentModel) => {
+        const response = await dispatch(
+          'update-content',
+          () => api.updateContent(content),
+          'content',
+        );
+        return response.data;
+      },
+      deleteContent: async (content: IContentModel) => {
+        const response = await dispatch(
+          'delete-content',
+          () => api.deleteContent(content),
+          'content',
+        );
+        return response.data;
+      },
     }),
     [actions, api, dispatch],
   );

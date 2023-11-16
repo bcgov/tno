@@ -105,14 +105,12 @@ public class ReportService : BaseService<Report, int>, IReportService
             .Include(r => r.Owner)
             .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
             .Include(r => r.Sections).ThenInclude(s => s.Filter)
-            .Include(r => r.Instances)
             .Include(r => r.Sections).ThenInclude(s => s.Folder)
             .Include(r => r.Sections).ThenInclude(s => s.ChartTemplatesManyToMany).ThenInclude(c => c.ChartTemplate)
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
             .Include(r => r.Events).ThenInclude(s => s.Schedule)
             .FirstOrDefault(r => r.Id == id);
     }
-
 
     /// <summary>
     /// Find the reports for the specified user.
@@ -135,10 +133,10 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// Get the current instance for the specified report 'id'.
     /// </summary>
     /// <param name="id"></param>
-    /// <param name="ownerId"></param>
-    /// <param name="isActive"></param>
+    /// <param name="ownerId">The owner of the instance.</param>
+    /// <param name="isSent">Whether to get the instance that was sent.</param>
     /// <returns></returns>
-    public ReportInstance? GetLatestInstance(int id, int? ownerId = null, bool? isActive = null)
+    public ReportInstance? GetLatestInstance(int id, int? ownerId = null, bool? isSent = null)
     {
         var query = this.Context.ReportInstances
             .Include(ri => ri.Owner)
@@ -162,9 +160,9 @@ public class ReportService : BaseService<Report, int>, IReportService
         if (ownerId.HasValue)
             query = query.Where(ri => ri.OwnerId == ownerId);
 
-        if (isActive.HasValue && isActive == false)
+        if (isSent.HasValue && isSent == false)
             query = query.Where(ri => ri.SentOn == null);
-        else if (isActive.HasValue)
+        else if (isSent.HasValue)
             query = query.Where(ri => ri.SentOn != null);
 
         return query
@@ -374,6 +372,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         original.OwnerId = entity.OwnerId;
         original.Settings = entity.Settings;
         original.Version = entity.Version;
+        this.Context.ResetVersion(original);
 
         return base.Update(original);
     }
@@ -504,6 +503,14 @@ public class ReportService : BaseService<Report, int>, IReportService
 
                 if (excludeContentIds.Any())
                     content.Hits.Hits = content.Hits.Hits.Where(c => !excludeContentIds.Contains(c.Source.Id));
+
+                // Fetch custom content versions for the requestor.
+                var contentIds = content.Hits.Hits.Select(h => h.Source).Select(c => c.Id).Distinct().ToArray();
+                var results = this.Context.Contents.Where(c => contentIds.Contains(c.Id)).Select(c => new { c.Id, c.Versions }).ToArray();
+                content.Hits.Hits.ForEach(h =>
+                {
+                    h.Source.Versions = results.FirstOrDefault(r => r.Id == h.Source.Id)?.Versions ?? new();
+                });
 
                 searchResults.Add(section.Name, content);
                 excludeAboveSectionContentIds.AddRange(content.Hits.Hits.Select(c => c.Source.Id).ToArray());

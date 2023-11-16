@@ -167,6 +167,11 @@ public class ContentModel : AuditColumnsModel
     public bool IsApproved { get; set; }
 
     /// <summary>
+    /// get/set - Private content is not searchable.
+    /// </summary>
+    public bool IsPrivate { get; set; }
+
+    /// <summary>
     /// get/set - When an editor posted the content.
     /// </summary>
     public DateTime? PostedOn { get; set; }
@@ -181,6 +186,13 @@ public class ContentModel : AuditColumnsModel
     /// </summary>
     [DataType(DataType.Upload)]
     public List<IFormFile>? Files { get; set; }
+
+    /// <summary>
+    /// get - Dictionary of versions associated with this content.
+    /// This provides subscribers the ability to customize the content.
+    /// The key is the user's ID.
+    /// </summary>
+    public Dictionary<int, Entities.Models.ContentVersion> Versions { get; set; } = new();
 
     /// <summary>
     /// get - An array of actions.
@@ -265,6 +277,7 @@ public class ContentModel : AuditColumnsModel
         this.PublishedOn = entity.PublishedOn;
         this.IsHidden = entity.IsHidden;
         this.IsApproved = entity.IsApproved;
+        this.IsPrivate = entity.IsPrivate;
 
         this.Actions = entity.ActionsManyToMany.Select(e => new ContentActionModel(e));
         this.Topics = entity.TopicsManyToMany.Select(e => new ContentTopicModel(e));
@@ -274,6 +287,7 @@ public class ContentModel : AuditColumnsModel
         this.FileReferences = entity.FileReferences.Select(e => new FileReferenceModel(e));
         this.TimeTrackings = entity.TimeTrackings.Select(e => new TimeTrackingModel(e));
         this.Links = entity.Links.Select(e => new ContentLinkModel(e));
+        this.Versions = entity.Versions;
     }
     #endregion
 
@@ -301,6 +315,8 @@ public class ContentModel : AuditColumnsModel
             SourceUrl = model.SourceUrl,
             IsHidden = model.IsHidden,
             IsApproved = model.IsApproved,
+            IsPrivate = model.IsPrivate,
+            Versions = model.Versions,
             Version = model.Version ?? 0,
         };
 

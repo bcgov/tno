@@ -44,6 +44,11 @@ public class ContentModel
     public int MediaTypeId { get; set; }
 
     /// <summary>
+    /// get/set - The media type.
+    /// </summary>
+    public MediaTypeModel? MediaType { get; set; }
+
+    /// <summary>
     /// get/set - Foreign key to license.
     /// </summary>
     public int LicenseId { get; set; }
@@ -129,6 +134,11 @@ public class ContentModel
     public string SourceUrl { get; set; } = "";
 
     /// <summary>
+    /// get/set - When the content was posted to MMI.
+    /// </summary>
+    public DateTime? PostedOn { get; set; }
+
+    /// <summary>
     /// get/set - When the content has been or will be published.
     /// </summary>
     public DateTime? PublishedOn { get; set; }
@@ -144,9 +154,9 @@ public class ContentModel
     public bool IsApproved { get; set; }
 
     /// <summary>
-    /// get/set - The media type.
+    /// get/set - Private content is not searchable.
     /// </summary>
-    public MediaTypeModel? MediaType { get; set; }
+    public bool IsPrivate { get; set; }
 
     /// <summary>
     /// get/set - The position this content will be presented in.
@@ -231,9 +241,11 @@ public class ContentModel
         this.Summary = entity.Summary;
         this.Body = entity.Body;
         this.SourceUrl = entity.SourceUrl;
+        this.PostedOn = entity.PostedOn;
         this.PublishedOn = entity.PublishedOn;
         this.IsHidden = entity.IsHidden;
         this.IsApproved = entity.IsApproved;
+        this.IsPrivate = entity.IsPrivate;
         this.SortOrder = sortOrder;
 
         this.Actions = entity.ActionsManyToMany.Select(e => new ContentActionModel(e));
@@ -276,9 +288,11 @@ public class ContentModel
         this.Summary = model.Summary;
         this.Body = model.Body;
         this.SourceUrl = model.SourceUrl;
+        this.PostedOn = model.PostedOn;
         this.PublishedOn = model.PublishedOn;
         this.IsHidden = model.IsHidden;
         this.IsApproved = model.IsApproved;
+        this.IsPrivate = model.IsPrivate;
         this.SortOrder = sortOrder;
 
         this.Actions = model.Actions.Select(e => new ContentActionModel(e));
@@ -321,9 +335,11 @@ public class ContentModel
         this.Summary = model.Summary;
         this.Body = model.Body;
         this.SourceUrl = model.SourceUrl;
+        this.PostedOn = model.PostedOn;
         this.PublishedOn = model.PublishedOn;
         this.IsHidden = model.IsHidden;
         this.IsApproved = model.IsApproved;
+        this.IsPrivate = model.IsPrivate;
         this.SortOrder = sortOrder;
 
         this.Actions = model.Actions.Select(e => new ContentActionModel(e));
@@ -366,9 +382,11 @@ public class ContentModel
         this.Summary = model.Summary;
         this.Body = model.Body;
         this.SourceUrl = model.SourceUrl;
+        this.PostedOn = model.PostedOn;
         this.PublishedOn = model.PublishedOn;
         this.IsHidden = model.IsHidden;
         this.IsApproved = model.IsApproved;
+        this.IsPrivate = model.IsPrivate;
         this.SortOrder = sortOrder;
 
         this.Actions = model.Actions.Select(e => new ContentActionModel(e));

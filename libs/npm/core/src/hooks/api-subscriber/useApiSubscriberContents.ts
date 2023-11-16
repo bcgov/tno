@@ -88,5 +88,23 @@ export const useApiSubscriberContents = (
       response.data = window.URL.createObjectURL(new Blob([response.data]));
       return response;
     },
+    addContent: (content: IContentModel) => {
+      return api.post<IContentModel, AxiosResponse<IContentModel | undefined>, any>(
+        `/subscriber/contents`,
+        content,
+      );
+    },
+    updateContent: (content: IContentModel) => {
+      return api.put<IContentModel, AxiosResponse<IContentModel | undefined>, any>(
+        `/subscriber/contents/${content.id}`,
+        content,
+      );
+    },
+    deleteContent: (content: IContentModel) => {
+      return api.delete<IContentModel, AxiosResponse<IContentModel | undefined>, any>(
+        `/subscriber/contents/${content.id}`,
+        { data: content },
+      );
+    },
   }).current;
 };

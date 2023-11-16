@@ -13,7 +13,7 @@ interface IReportController {
   findMyReports: () => Promise<IReportModel[]>;
   findInstancesForReportId: (id: number, ownerId?: number) => Promise<IReportInstanceModel[]>;
   getPublicReports: () => Promise<IReportModel[]>;
-  getReport: (id: number) => Promise<IReportModel | undefined>;
+  getReport: (id: number, generate?: boolean) => Promise<IReportModel | undefined>;
   addReport: (model: IReportModel) => Promise<IReportModel>;
   updateReport: (model: IReportModel, updateInstances?: boolean) => Promise<IReportModel>;
   deleteReport: (model: IReportModel) => Promise<IReportModel>;
@@ -53,9 +53,9 @@ export const useReports = (): [IReportController] => {
         );
         return response.data;
       },
-      getReport: async (id: number) => {
+      getReport: async (id: number, generate: boolean = false) => {
         const response = await dispatch<IReportModel | undefined>('get-report', () =>
-          api.getReport(id),
+          api.getReport(id, generate),
         );
         return response.data;
       },
