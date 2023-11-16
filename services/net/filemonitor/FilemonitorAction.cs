@@ -49,16 +49,16 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
 
+        // This ingest has just begun running.
+        await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
+
         var dir = GetOutputPath(manager.Ingest);
 
-        if (String.IsNullOrEmpty(dir))
-        {
-            throw new InvalidOperationException($"No import directory defined for ingest '{manager.Ingest.Name}'");
-        }
+        if (String.IsNullOrEmpty(dir)) throw new InvalidOperationException($"No import directory defined for ingest '{manager.Ingest.Name}'");
 
         await FetchFilesFromRemoteAsync(manager);
         var format = manager.Ingest.GetConfigurationValue(Fields.FileFormat);
@@ -87,7 +87,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="manager"></param>
     /// <returns></returns>
     /// <exception cref="ConfigurationException"></exception>
-    public async Task FetchFilesFromRemoteAsync(IIngestServiceActionManager manager)
+    public async Task FetchFilesFromRemoteAsync(IIngestActionManager manager)
     {
         // Extract the source connection configuration settings.
         var remotePath = manager.Ingest.SourceConnection?.GetConfigurationValue("path");
@@ -134,7 +134,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="remotePath"></param>
     /// <param name="manager"></param>
     /// <returns></returns>
-    private async Task FetchFiles(ConnectionInfo connectionInfo, string remotePath, IIngestServiceActionManager manager)
+    private async Task FetchFiles(ConnectionInfo connectionInfo, string remotePath, IIngestActionManager manager)
     {
         // Extract the ingest configuration settings
         var code = manager.Ingest.Source?.Code ?? "";
@@ -243,7 +243,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="manager"></param>
     /// <param name="content"></param>
     /// <returns></returns>
-    private async Task ImportArticleAsync(IIngestServiceActionManager manager, SourceContent content)
+    private async Task ImportArticleAsync(IIngestActionManager manager, SourceContent content)
     {
         try
         {
@@ -422,7 +422,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="sources"></param>
     /// <returns></returns>
     /// <exception cref="FormatException"></exception>
-    private async Task GetXmlArticlesAsync(string dir, IIngestServiceActionManager manager, Dictionary<string, string> sources)
+    private async Task GetXmlArticlesAsync(string dir, IIngestActionManager manager, Dictionary<string, string> sources)
     {
         var ingest = manager.Ingest;
         var fileList = GetFileList(dir);
@@ -478,6 +478,11 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}', File: {file}", ingest.Name, path);
                 await manager.RecordFailureAsync(ex);
             }
+            finally
+            {
+                // This ingest has just completed running for one content item.
+                await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
+            }
         }
     }
 
@@ -500,7 +505,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="sources"></param>
     /// <returns></returns>
     /// <exception cref="FormatException"></exception>
-    private async Task GetFmsArticlesAsync(string dir, IIngestServiceActionManager manager, Dictionary<string, string> sources)
+    private async Task GetFmsArticlesAsync(string dir, IIngestActionManager manager, Dictionary<string, string> sources)
     {
         var ingest = manager.Ingest;
         var fileList = GetFileList(dir);

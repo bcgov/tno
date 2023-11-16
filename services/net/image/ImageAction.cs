@@ -58,9 +58,12 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="ConfigurationException"></exception>
-    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
+
+        // This ingest has just begun running.
+        await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
 
         // Extract the ingest configuration settings.
         var fileNameExp = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("fileName")) ? manager.Ingest.Source?.Code : manager.Ingest.GetConfigurationValue("fileName");
@@ -143,7 +146,8 @@ public class ImageAction : IngestAction<ImageOptions>
             }
 
             // Directory gets created as part of unzip action, if it doesnt exist, then no files will be there...
-            if (Directory.Exists(outputPath)) {
+            if (Directory.Exists(outputPath))
+            {
                 bool isNewSourceContent = false;
                 bool isUpdatedSourceContent = false;
                 // We're only interested in the files that were copied.
@@ -159,16 +163,20 @@ public class ImageAction : IngestAction<ImageOptions>
                         isNewSourceContent = true;
                         reference = await this.Api.AddContentReferenceAsync(newReference);
                         Logger.LogDebug($"Image Ingest : ADD NEW : [{manager.Ingest.IngestType?.Name ?? "Image"} - {manager.Ingest.Name}] : {path}");
-                    } else {
+                    }
+                    else
+                    {
                         // if we already have a contentReference, check if this is actually an update to the image
                         if (newReference.PublishedOn > reference.PublishedOn)
                         {
                             isUpdatedSourceContent = true;
-                            // update the existing refernce published on date with the new date
+                            // update the existing reference published on date with the new date
                             reference.PublishedOn = newReference.PublishedOn;
 
                             Logger.LogDebug($"Image Ingest : UPDATE : [{manager.Ingest.IngestType?.Name ?? "Image"} - {manager.Ingest.Name}] : {path}");
-                        } else {
+                        }
+                        else
+                        {
                             Logger.LogDebug($"Image Ingest : SKIP EXISTING : [{manager.Ingest.IngestType?.Name ?? "Image"} - {manager.Ingest.Name}] : {path}");
                         }
                     }
@@ -180,11 +188,15 @@ public class ImageAction : IngestAction<ImageOptions>
                         reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
                     }
 
-                    if (isNewSourceContent || isUpdatedSourceContent) {
+                    if (isNewSourceContent || isUpdatedSourceContent)
+                    {
                         reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
                         if (reference != null)
                             await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, fileName));
                     }
+
+                    // This ingest has just imported a story.
+                    await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
                 }
             }
         }
@@ -367,19 +379,19 @@ public class ImageAction : IngestAction<ImageOptions>
 
     /// <summary>
     /// Create a unique hash for the specified 'source', 'headline', and 'publishedOn'
-    /// Override the base method here as we dont want to be quite so specific with the date
+    /// Override the base method here as we don't want to be quite so specific with the date
     /// </summary>
     /// <param name="source"></param>
     /// <param name="headline"></param>
     /// <param name="publishedOn"></param>
     /// <returns></returns>
-    new string GetContentHash(string source, string headline, DateTime? publishedOn)
+    private new static string GetContentHash(string source, string headline, DateTime? publishedOn)
     {
         // if we get to a stage where we can ingest multiple DIFFERENT
         // images per day from an ingest this has will have to be changed
         var date = publishedOn.HasValue ? $"{publishedOn:yyyy-MM-dd}" : "";
         string hashInput = $"{source}:{headline}:{date}";
-        var inputByMediaTypencoding.UTF8.GetBytes(hashInput);
+        var inputBytes = Encoding.UTF8.GetBytes(hashInput);
         var inputHash = SHA256.HashData(inputBytes);
         return Convert.ToHexString(inputHash);
     }

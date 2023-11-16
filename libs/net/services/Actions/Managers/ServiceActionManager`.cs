@@ -133,6 +133,7 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     protected virtual async Task<ServiceActionResult> PerformActionAsync<T>(string? name = null, T? data = null)
         where T : class
     {
+
         // Perform configured action.
         return await _action.PerformActionAsync(this, name, data);
     }

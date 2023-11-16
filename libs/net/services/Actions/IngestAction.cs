@@ -55,18 +55,18 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     /// <param name="manager"></param>
     /// <param name="name"></param>
     /// <param name="cancellationToken"></param>
-    public abstract Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class;
+    public abstract Task<ServiceActionResult> PerformActionAsync<T>(IIngestActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class;
 
     /// <summary>
     /// Perform the action for the specified data source.
-    /// Override the PerformActionAsync(IIngestServiceActionManager manager) method instead of this one.
+    /// Override the PerformActionAsync(IIngestActionManager manager) method instead of this one.
     /// </summary>
     /// <param name="manager"></param>
     /// <param name="name"></param>
     /// <param name="cancellationToken"></param>
     public override Task<ServiceActionResult> PerformActionAsync<T>(IServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
-        return PerformActionAsync((IIngestServiceActionManager)manager, name, data, cancellationToken);
+        return PerformActionAsync((IIngestActionManager)manager, name, data, cancellationToken);
     }
 
     /// <summary>
@@ -108,7 +108,7 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     /// <param name="reference"></param>
     /// <param name="content"></param>
     /// <returns></returns>
-    protected virtual async Task<ContentReferenceModel?> ContentReceivedAsync(IIngestServiceActionManager manager, ContentReferenceModel? reference, SourceContent? content)
+    protected virtual async Task<ContentReferenceModel?> ContentReceivedAsync(IIngestActionManager manager, ContentReferenceModel? reference, SourceContent? content)
     {
         if (reference != null &&
             reference.Status != (int)WorkflowStatus.Received &&

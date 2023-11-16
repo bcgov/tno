@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -6,12 +7,11 @@ using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
-using TNO.Models.Extensions;
 using TNO.Kafka.Models;
+using TNO.Models.Extensions;
+using TNO.Services.Actions;
 using TNO.Services.Clip.Config;
 using TNO.Services.Command;
-using System.Diagnostics;
-using TNO.Services.Actions;
 
 namespace TNO.Services.Clip;
 
@@ -55,9 +55,12 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
+
+        // This ingest has just begun running.
+        await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
 
         // Each schedule will have its own process.
         foreach (var schedule in GetSchedules(manager.Ingest))
@@ -112,6 +115,11 @@ public class ClipAction : CommandAction<ClipOptions>
 
                 throw;
             }
+            finally
+            {
+                // This ingest has just completed running for one content item.
+                await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
+            }
         }
 
         return ServiceActionResult.Success;
@@ -133,7 +141,7 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <param name="sender"></param>
     /// <param name="manager"></param>
     /// <param name="e"></param>
-    protected override void OnErrorReceived(object? sender, IIngestServiceActionManager? manager, DataReceivedEventArgs e)
+    protected override void OnErrorReceived(object? sender, IIngestActionManager? manager, DataReceivedEventArgs e)
     {
         if (!String.IsNullOrWhiteSpace(e.Data))
         {
@@ -265,7 +273,7 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    private bool FileExists(IIngestServiceActionManager manager, ScheduleModel schedule)
+    private bool FileExists(IIngestActionManager manager, ScheduleModel schedule)
     {
         var output = GetOutput(manager.Ingest, schedule);
         return File.Exists(output);
@@ -278,7 +286,7 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected override async Task<string> GenerateCommandArgumentsAsync(ICommandProcess process, IIngestServiceActionManager manager, ScheduleModel schedule)
+    protected override async Task<string> GenerateCommandArgumentsAsync(ICommandProcess process, IIngestActionManager manager, ScheduleModel schedule)
     {
         if (schedule == null) throw new InvalidOperationException($"Ingest schedule '{manager.Ingest.Name}' is required");
 

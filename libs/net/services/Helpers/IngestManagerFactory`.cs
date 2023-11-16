@@ -7,8 +7,8 @@ namespace TNO.Services;
 /// <summary>
 /// IngestManagerFactory class, provides a way to create IngestManager objects.
 /// </summary>
-public class IngestManagerFactory<TIngestServiceActionManager, TOption>
-    where TIngestServiceActionManager : IIngestServiceActionManager
+public class IngestManagerFactory<TActionManager, TOption>
+    where TActionManager : IIngestActionManager
     where TOption : IngestServiceOptions
 {
     #region Variables
@@ -33,10 +33,10 @@ public class IngestManagerFactory<TIngestServiceActionManager, TOption>
     /// <param name="ingest"></param>
     /// <param name="serviceScope"></param>
     /// <returns></returns>
-    public TIngestServiceActionManager Create(IngestModel ingest, IServiceScope? serviceScope = null)
+    public TActionManager Create(IngestModel ingest, IServiceScope? serviceScope = null)
     {
         // var type = typeof(TIngestManager).MakeGenericType(new[] { typeof(IngestModel), typeof(IIngestAction<TOption>), typeof(IApiService), typeof(ILogger<TIngestManager>) });]
-        var type = typeof(TIngestServiceActionManager);
+        var type = typeof(TActionManager);
         var con = type.GetConstructors().First();
 
         var args = new List<object>();
@@ -53,7 +53,7 @@ public class IngestManagerFactory<TIngestServiceActionManager, TOption>
                 args.Add(_serviceProvider.GetRequiredService(cparam.ParameterType));
         }
 
-        return (TIngestServiceActionManager)(Activator.CreateInstance(type, args.ToArray())
+        return (TActionManager)(Activator.CreateInstance(type, args.ToArray())
             ?? throw new InvalidOperationException($"Unable to create instance of type '{type.Name}'"));
     }
     #endregion
