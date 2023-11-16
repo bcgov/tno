@@ -381,7 +381,7 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   }
   .sub-container {
     max-height: 10em;
-    max-width: 80%;
+    max-width: 100%;
     overflow-y: auto;
     overflow-x: hidden;
   }
