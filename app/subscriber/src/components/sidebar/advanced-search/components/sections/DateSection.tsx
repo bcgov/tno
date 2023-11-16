@@ -4,17 +4,13 @@ import ReactDatePicker from 'react-datepicker';
 import { FaX } from 'react-icons/fa6';
 import { Row, ToggleGroup } from 'tno-core';
 
-import { defaultAdvancedSearch } from '../constants';
-import { IAdvancedSearchFilter } from '../interfaces';
+import { defaultAdvancedSearch } from '../../constants';
+import { IExpandedSectionProps } from '../../interfaces';
 
-export interface IDateSectionProps {
-  /** function that will update the startOn/endOn for the advanced filter */
-  setAdvancedSearch: (advancedSearch: IAdvancedSearchFilter) => void;
-  /** advanced search object, may start as undefined if nothing is set */
-  advancedSearch: IAdvancedSearchFilter;
-}
-
-export const DateSection: React.FC<IDateSectionProps> = ({ advancedSearch, setAdvancedSearch }) => {
+export const DateSection: React.FC<IExpandedSectionProps> = ({
+  advancedSearch,
+  setAdvancedSearch,
+}) => {
   // disable quick picker when user selects a date on react-date-picker
   const [disableQuickPick, setDisableQuickPick] = React.useState(false);
   const filterDate = (range: 'today' | '24' | '48' | 'week') => {

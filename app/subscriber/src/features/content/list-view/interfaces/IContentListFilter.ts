@@ -27,4 +27,10 @@ export interface IContentListFilter {
   inHeadline?: boolean;
   inByline?: boolean;
   inStory?: boolean;
+  section?: string;
+  page?: string;
+  edition?: string;
+  contributorIds?: number[];
+  seriesIds?: number[];
+  tags?: string[];
 }

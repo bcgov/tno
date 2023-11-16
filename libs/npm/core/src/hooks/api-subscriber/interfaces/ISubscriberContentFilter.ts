@@ -39,4 +39,9 @@ export interface ISubscriberContentFilter extends ISortPageFilter {
   updatedStartOn?: string;
   userId?: number;
   useUnpublished?: boolean;
+  paperPage?: string;
+  edition?: string;
+  contributorIds?: number[];
+  seriesIds?: number[];
+  tags?: string[];
 }

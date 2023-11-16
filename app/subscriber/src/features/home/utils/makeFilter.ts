@@ -33,6 +33,12 @@ export const makeFilter = (
     sourceIds: filter.sourceIds ?? undefined,
     status: filter.status ?? undefined,
     useUnpublished: filter.useUnpublished,
+    section: filter.section ?? undefined,
+    paperPage: filter.page ?? undefined,
+    edition: filter.edition ?? undefined,
+    contributorIds: filter.contributorIds ?? undefined,
+    seriesIds: filter.seriesIds ?? undefined,
+    tags: filter.tags ?? undefined,
   };
   return result;
 };

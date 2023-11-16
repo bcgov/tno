@@ -14,4 +14,12 @@ export const defaultAdvancedSearch: IAdvancedSearchFilter = {
   hasFile: false,
   boldKeywords: true,
   useUnpublished: false,
+  page: '',
+  section: '',
+  edition: '',
+  contentTypes: [],
+  contributorIds: [],
+  productIds: [],
+  seriesIds: [],
+  tags: [],
 };

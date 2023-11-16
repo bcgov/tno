@@ -1,3 +1,5 @@
+import { ContentTypeName } from 'tno-core';
+
 export interface IAdvancedSearchFilter {
   /** array of actions to filter by */
   actions?: string[];
@@ -25,4 +27,18 @@ export interface IAdvancedSearchFilter {
   boldKeywords?: boolean;
   /** index to control whether content is published or unpublished */
   useUnpublished?: boolean;
+  /** papers filter */
+  section?: string;
+  page?: string;
+  edition?: string;
+  /** control which content type to be returned */
+  contentTypes?: ContentTypeName[];
+  /** control content to be returned based off of the contributors */
+  contributorIds?: number[];
+  /** control content to be returned based off of the product associated to it */
+  productIds?: number[];
+  /** control content to be returned based off of the series associated to it */
+  seriesIds?: number[];
+  /** control content to be returned based off of the tags associated to it */
+  tags?: string[];
 }
