@@ -22,10 +22,16 @@ export const SearchPage = styled.div`
     width: 100%;
   }
 
-  .adv-search-container,
-  .result-container {
-    width: 50%;
+  .adv-search-container {
+    width: 45%;
+    max-height: 90vh;
+    overflow-y: auto;
   }
+
+  .result-container {
+    width: 55%;
+  }
+
   .save-bar {
     background-color: white;
     border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};

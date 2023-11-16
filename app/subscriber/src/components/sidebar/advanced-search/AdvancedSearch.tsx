@@ -4,13 +4,8 @@ import { filterFormat } from 'features/search-page/utils';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
 import { FaPlay, FaRegSmile, FaSearch } from 'react-icons/fa';
-import { FaCloudArrowUp } from 'react-icons/fa6';
-import {
-  IoIosArrowDropdownCircle,
-  IoIosArrowDroprightCircle,
-  IoIosCog,
-  IoMdRefresh,
-} from 'react-icons/io';
+import { FaCloudArrowUp, FaIcons, FaNewspaper, FaTags, FaTv, FaUsers } from 'react-icons/fa6';
+import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -18,11 +13,18 @@ import { useFilters, useLookup } from 'store/hooks';
 import { Button, Col, generateQuery, Row, Show, Text, TextArea, toQueryString } from 'tno-core';
 
 import {
+  ContentSection,
+  ContributorSection,
   DateSection,
+  ExpandableRow,
   MediaSection,
   MoreOptions,
+  PaperSection,
+  ProductSection,
   SearchInGroup,
   SentimentSection,
+  SeriesSection,
+  TagSection,
 } from './components';
 import { defaultAdvancedSearch } from './constants';
 import {
@@ -54,19 +56,9 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   const [{ actions }] = useLookup();
   const { advancedSubscriberFilter } = useParamsToFilter();
   const { query } = useParams();
-  /** determines whether the date filter section is shown or not */
-  const [dateExpanded, setDateExpanded] = React.useState(false);
-  /** determines whether the additional options are expanded  */
-  const [optionsExpanded, setOptionsExpanded] = React.useState(false);
-  /** determines whether the search in section is shown or not */
-  const [searchExpanded] = React.useState(false);
-  /** controls the parent group "Media Sources" expansion */
-  const [mediaExpanded, setMediaExpanded] = React.useState(false);
   /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
   const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
     React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);
-  /** controls the sub group state for sentiment */
-  const [sentimentExpanded, setSentimentExpanded] = React.useState(false);
   const [searchName, setSearchName] = React.useState<string>('');
   /** the object that will eventually be converted to a query and be passed to elastic search */
   const [advancedSearch, setAdvancedSearch] =
@@ -91,6 +83,8 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
       makeFilter({
         actions: advancedSearch?.topStory ? ['Top Story'] : [],
         boldKeywords: advancedSearch?.boldKeywords,
+        contentTypes: advancedSearch?.contentTypes ?? [],
+        contributorIds: advancedSearch?.contributorIds,
         inByline: advancedSearch?.inByline,
         inHeadline: advancedSearch?.inHeadline,
         inStory: advancedSearch?.inStory,
@@ -101,11 +95,15 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
         sentiment: advancedSearch?.sentiment,
         endDate: advancedSearch?.endDate,
         topStory: advancedSearch?.topStory,
-        contentTypes: [],
+        section: advancedSearch?.section,
+        seriesIds: advancedSearch?.seriesIds,
+        page: advancedSearch?.page,
+        edition: advancedSearch?.edition,
         sort: [],
         pageIndex: 0,
         pageSize: 100,
         useUnpublished: advancedSearch?.useUnpublished,
+        tags: advancedSearch?.tags,
       }),
     [advancedSearch, constants?.frontPageId],
   );
@@ -175,7 +173,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
             </Row>
           </Show>
           <Show visible={expanded}>
-            <Col>
+            <Col className="text-area-container">
               <TextArea
                 value={advancedSearch?.searchTerm}
                 className="text-area"
@@ -187,7 +185,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
               />
               <SearchInGroup
                 advancedSearch={advancedSearch}
-                searchExpanded={searchExpanded}
                 setAdvancedSearch={setAdvancedSearch}
               />
             </Col>
@@ -211,86 +208,95 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
 
         <Show visible={expanded}>
           <div className="search-in-group space-top"></div>
-          <Col className="section narrow">
+          <Col className="section top-spacer">
             <b>Narrow your results by: </b>
-            <Col className={`date-range-group space-top ${dateExpanded ? 'expanded' : ''}`}>
-              <Row className="option-row" onClick={() => setDateExpanded(!dateExpanded)}>
+            <Col className={`date-range-group space-top`}>
+              <Row className="option-row">
                 <BsCalendarEvent /> Date range
               </Row>
               <DateSection advancedSearch={advancedSearch} setAdvancedSearch={setAdvancedSearch} />
             </Col>
-            <Col className={`media-group ${mediaExpanded ? 'expanded' : ''}`}>
-              <Row className="option-row" onClick={() => setMediaExpanded(!mediaExpanded)}>
-                <BsSun />
-                Media source
-                {!mediaExpanded ? (
-                  <IoIosArrowDroprightCircle
-                    onClick={() => setMediaExpanded(true)}
-                    className="drop-icon"
-                  />
-                ) : (
-                  <IoIosArrowDropdownCircle
-                    onClick={() => setMediaExpanded(false)}
-                    className="drop-icon"
-                  />
-                )}
-              </Row>
-              <MediaSection
-                advancedSearch={advancedSearch}
-                setAdvancedSearch={setAdvancedSearch}
-                mediaExpanded={mediaExpanded}
-                setMediaGroupExpandedStates={setMediaGroupExpandedStates}
-                mediaGroupExpandedStates={mediaGroupExpandedStates}
-              />
+            <Col className={`media-group`}>
+              <ExpandableRow icon={<BsSun />} title="Media source">
+                <MediaSection
+                  advancedSearch={advancedSearch}
+                  setAdvancedSearch={setAdvancedSearch}
+                  setMediaGroupExpandedStates={setMediaGroupExpandedStates}
+                  mediaGroupExpandedStates={mediaGroupExpandedStates}
+                />
+              </ExpandableRow>
             </Col>
-            <Col className={`sentiment-group ${sentimentExpanded ? 'expanded' : ''}`}>
-              <Row className="option-row" onClick={() => setSentimentExpanded(!sentimentExpanded)}>
-                <FaRegSmile />
-                Sentiment
-                {!sentimentExpanded ? (
-                  <IoIosArrowDroprightCircle
-                    onClick={() => setSentimentExpanded(true)}
-                    className="drop-icon"
-                  />
-                ) : (
-                  <IoIosArrowDropdownCircle
-                    onClick={() => setSentimentExpanded(false)}
-                    className="drop-icon"
-                  />
-                )}
-              </Row>
-              <SentimentSection
-                sentimentExpanded={sentimentExpanded}
-                advancedSearch={advancedSearch}
-                setAdvancedSearch={setAdvancedSearch}
-              />
+            {/* SENTIMENT SECTION */}
+            <Col className={`sentiment-group`}>
+              <ExpandableRow icon={<FaRegSmile />} title="Sentiment">
+                <SentimentSection
+                  advancedSearch={advancedSearch}
+                  setAdvancedSearch={setAdvancedSearch}
+                />
+              </ExpandableRow>
+            </Col>
+            {/* PAPER SECTION */}
+            <Col className="paper-attributes">
+              <ExpandableRow icon={<FaNewspaper />} title="Paper attributes">
+                <PaperSection
+                  setAdvancedSearch={setAdvancedSearch}
+                  advancedSearch={advancedSearch}
+                />
+              </ExpandableRow>
+            </Col>
+            {/* CONTENT TYPE SECTION */}
+            <Col className="expandable-section">
+              <ExpandableRow icon={<FaTv />} title="Content Type">
+                <ContentSection
+                  setAdvancedSearch={setAdvancedSearch}
+                  advancedSearch={advancedSearch}
+                />
+              </ExpandableRow>
+            </Col>
+            {/* CONTRIBUTOR SECTION */}
+            <Col className="expandable-section">
+              <ExpandableRow icon={<FaUsers />} title="Columnists/Anchors">
+                <ContributorSection
+                  setAdvancedSearch={setAdvancedSearch}
+                  advancedSearch={advancedSearch}
+                />
+              </ExpandableRow>
+            </Col>
+            {/* PRODUCT SECTION */}
+            <Col className="expandable-section">
+              <ExpandableRow icon={<FaIcons />} title="Product">
+                <ProductSection
+                  setAdvancedSearch={setAdvancedSearch}
+                  advancedSearch={advancedSearch}
+                />
+              </ExpandableRow>
+            </Col>
+            {/* SHOW/PROGRAM SECTION */}
+            <Col className="expandable-section">
+              <ExpandableRow icon={<FaPlay />} title="Show/Program">
+                <SeriesSection
+                  setAdvancedSearch={setAdvancedSearch}
+                  advancedSearch={advancedSearch}
+                />
+              </ExpandableRow>
+            </Col>
+            <Col>
+              <ExpandableRow icon={<FaTags />} title="Tags">
+                <TagSection setAdvancedSearch={setAdvancedSearch} advancedSearch={advancedSearch} />
+              </ExpandableRow>
             </Col>
           </Col>
-          <Row className="section">
-            <Col className="section">
+
+          <Row>
+            <Col className="section top-spacer">
               <b>Display options:</b>
-              <Row className="search-options-group option-row">
-                <div className="initial-row" onClick={() => setOptionsExpanded(!optionsExpanded)}>
-                  <IoIosCog />
-                  Search result options
-                  {!optionsExpanded ? (
-                    <IoIosArrowDroprightCircle
-                      className="drop-icon"
-                      onClick={() => setOptionsExpanded(true)}
-                    />
-                  ) : (
-                    <IoIosArrowDropdownCircle
-                      onClick={() => setOptionsExpanded(false)}
-                      className="drop-icon"
-                    />
-                  )}
-                </div>
+              {/* SEARCH RESULT SETTINGS SECTION */}
+              <ExpandableRow icon={<IoIosCog />} title="Search result options">
                 <MoreOptions
                   advancedSearch={advancedSearch}
                   setAdvancedSearch={setAdvancedSearch}
-                  optionsExpanded={optionsExpanded}
                 />
-              </Row>
+              </ExpandableRow>
             </Col>
           </Row>
         </Show>

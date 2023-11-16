@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { Row } from 'tno-core';
 
 export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
+  /* ADVANCED SEARCH CONTAINER */
   background-color: white;
   margin-bottom: 0.25em;
   margin-left: 0.25em;
@@ -10,8 +11,7 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   width: ${(props) => (!props.expanded ? '100%' : '')};
   border-radius: 0.75em;
 
-  /* padding: 0.5em; */
-
+  /* BOTTOM SEARCH BAR */
   .adv-toolbar {
     background-color: #e8e9f1;
     color: #847379;
@@ -46,11 +46,13 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     }
   }
 
+  /* ALL BUT SEARCH TOOLBAR AT BOTTOM */
   .main-search-body {
     width: 100%;
     padding: 0.5em;
   }
 
+  /* HEADER OF THE ADVANCED SEARCH COMPONENT */
   .top-bar {
     .title {
       color: ${(props) => props.theme.css.redHeadingColor};
@@ -73,6 +75,15 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     }
   }
 
+  .search-icon {
+    color: ${(props) => props.theme.css.inputGrey};
+    &:hover {
+      color: ${(props) => props.theme.css.subscriberPurple};
+      cursor: pointer;
+    }
+  }
+
+  /* LABEL STYLING */
   .label {
     align-self: center;
     margin-right: 0.5em;
@@ -84,19 +95,14 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     font-size: 0.8em;
   }
 
-  .search-icon {
-    color: ${(props) => props.theme.css.inputGrey};
-    &:hover {
-      color: ${(props) => props.theme.css.subscriberPurple};
-      cursor: pointer;
-    }
-  }
-
+  /* SENTIMENT SLIDER */
   .slider {
     .tone-icon {
       margin: 0;
     }
   }
+
+  /* SEARCH BAR WHEN NOT IN ADVANCED EXPANDED STATE */
   .search-bar {
     align-self: center;
     border-color: ${(props) => props.theme.css.inputGrey};
@@ -147,42 +153,21 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     cursor: pointer;
   }
 
+  /* LABEL FOR THE TEXT AREA IN FIRST SECTION */
   .search-in-label {
     font-weight: bold;
     margin-right: 0.5em;
   }
 
-  .option-row {
-    &:hover {
-      cursor: pointer;
-    }
-  }
-
-  .initial-row {
-    width: 100%;
-    display: flex;
-    .drop-icon {
-      margin-left: auto;
-    }
-  }
-
+  /* CHECKBOX OPTIONS PASSED IN THE SEARCH IN GROUP SECTION */
   .options {
     label {
       margin-right: 0.5em;
     }
     accent-color: #6750a4;
     width: 100%;
+    margin-bottom: 0.5em;
   }
-
-  .date-navigator {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .narrow {
-    margin-top: 1em;
-  }
-
   .search-in-group {
     .options {
       label {
@@ -194,26 +179,23 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     }
   }
 
-  .more-options {
-    font-size: 0.8em;
-  }
-
-  .sub-group-title {
-    &:hover {
-      cursor: pointer;
+  /* TEXT AREA IN SEARCH IN GROUP */
+  .text-area-container {
+    width: 100%;
+    .text-area {
+      resize: vertical;
     }
   }
 
-  .date-range-group,
-  .media-group,
-  .search-in-group,
-  .sentiment-group,
-  .search-options-group,
-  .story-options-group {
-    padding: 0.5em;
+  /* EXPANDABLE ROW IN THE ADVANCED SEARCH */
+  .option-row {
     width: 100%;
-    &:hover:not(.expanded) {
-      background-color: ${(props) => props.theme.css.searchItemHover};
+    padding: 0.5em 0 0.5em 0.5em;
+    &:hover {
+      cursor: pointer;
+      &:hover:not(.expanded) {
+        background-color: ${(props) => props.theme.css.searchItemHover};
+      }
     }
     .drop-icon {
       margin-left: auto;
@@ -223,6 +205,69 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
       margin-right: 0.5em;
       align-self: center;
     }
+  }
+
+  /* FOR THE DATE PICKER SECTION */
+  .date-navigator {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .date-range-toggle {
+    padding: 0;
+    margin-top: auto;
+  }
+
+  .date-range {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .date-picker {
+    height: 1.75em;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px;
+    font-size: 0.75em;
+    padding: 0.25em 0.5em;
+  }
+
+  /* GENERIC CLASS TO ADD SPACE AT TOP OF NODE */
+  .top-spacer {
+    margin-top: 0.5em;
+  }
+
+  .more-options {
+    font-size: 0.8em;
+    margin-left: 0.5em;
+  }
+
+  .sub-group-title {
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .paper-attributes-container,
+  .content-types-container {
+    margin-top: 0.5em;
+  }
+
+  .content-types,
+  .contributors {
+    .rs__value-container {
+      max-height: 40px;
+      overflow-y: auto;
+    }
+  }
+
+  .date-range-group,
+  .media-group,
+  .search-in-group,
+  .sentiment-group,
+  .search-options-group,
+  .story-options-group,
+  .paper-attributes,
+  .expandable-section {
+    width: 100%;
     border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
   }
   .toggles {
@@ -237,7 +282,7 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
 
     .rs__value-container {
-      max-height: 33.6px;
+      max-height: 40px;
       overflow-y: auto;
     }
 
@@ -252,14 +297,21 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     }
   }
 
-  .section,
   .story-options-group,
   .search-options-group {
     width: 100%;
   }
 
   .section {
-    margin-top: 0.5em;
+    width: 100%;
+    .drop-icon {
+      margin-left: auto;
+      cursor: pointer;
+    }
+    svg {
+      margin-right: 0.5em;
+      align-self: center;
+    }
   }
 
   .search-button {
@@ -279,7 +331,7 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
 
   .rs__control {
     margin-top: 0.25em;
-    margin-left: 0.5em;
+    margin-left: auto;
     min-width: 100%;
   }
 
@@ -299,7 +351,6 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
 
   .date-range {
     padding: 0.25em;
-    margin-top: 0.5em;
     .picker {
       margin-right: 0.5em;
     }
@@ -326,7 +377,6 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
 
   .sub-group-title {
     max-height: 100%;
-    /* margin-top: auto; */
     min-width: 15em;
   }
   .sub-container {

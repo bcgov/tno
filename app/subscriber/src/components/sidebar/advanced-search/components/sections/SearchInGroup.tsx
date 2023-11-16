@@ -1,11 +1,9 @@
 import React from 'react';
 import { Checkbox, Row } from 'tno-core';
 
-import { IAdvancedSearchFilter } from '../interfaces';
+import { IAdvancedSearchFilter } from '../../interfaces';
 
 export interface ISearchInGroupProps {
-  /** variable that keeps track of whether the sub-menu is expanded or not */
-  searchExpanded: boolean;
   /** function that will update the search in terms */
   setAdvancedSearch: (advancedSearch: IAdvancedSearchFilter) => void;
   /** advanced search object, may start as undefined if nothing is set */
@@ -13,7 +11,6 @@ export interface ISearchInGroupProps {
 }
 
 export const SearchInGroup: React.FC<ISearchInGroupProps> = ({
-  searchExpanded,
   advancedSearch,
   setAdvancedSearch,
 }) => {
