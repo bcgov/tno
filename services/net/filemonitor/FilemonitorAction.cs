@@ -470,6 +470,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                         await ImportArticleAsync(manager, item);
                     }
                 }
+                // This ingest has just completed running for one content item.
+                await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
             }
             catch (Exception ex)
             {
@@ -479,11 +481,6 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
 
                 this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}', File: {file}", ingest.Name, path);
                 await manager.RecordFailureAsync(ex);
-            }
-            finally
-            {
-                // This ingest has just completed running for one content item.
-                await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
             }
         }
     }
@@ -671,6 +668,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// in the file based on the shortcomings of the ingest. Fixes are indicated by Connection string entries.
     /// The following fixes are supported:
     ///
+    ///     "fixBlacksXML" - The BCNG files regularly are corrupt and are missing the bottom of the XML.
     ///     "addParent" - The BCNG files lack a single parent tag so one is inserted.
     ///     "escapeContent" - BCNG stories contain parsing errors, so they are stored as CDATA.
     ///
@@ -680,42 +678,31 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <returns></returns>
     private XmlDocument? GetValidXmlDocument(string filePath, IngestModel ingest)
     {
-        try
+        var xmlTxt = ReadFileContents(filePath, ingest);
+        if (xmlTxt != null)
         {
-            var xmlTxt = ReadFileContents(filePath, ingest);
-            if (xmlTxt != null)
-            {
-                var fixBlacks = ingest.GetConfigurationValue<bool>(Fields.FixBlacksXml);
-                if (fixBlacks)
-                    xmlTxt = FixBlacksNewsgroupXml(filePath, xmlTxt);
+            // BCNG files regularly are corrupt and are missing the bottom of the XML.
+            var fixBlacks = ingest.GetConfigurationValue<bool>(Fields.FixBlacksXml);
+            if (fixBlacks)
+                xmlTxt = FixBlacksNewsgroupXml(filePath, xmlTxt);
 
-                // BCNG files have multiple top-level objects which need to be wrapped in a single pair of tags.
-                var addParent = ingest.GetConfigurationValue<bool>(Fields.AddParent);
-                if (addParent)
-                {
-                    xmlTxt = FixParentTag(xmlTxt);
-                }
+            // BCNG files have multiple top-level objects which need to be wrapped in a single pair of tags.
+            var addParent = ingest.GetConfigurationValue<bool>(Fields.AddParent);
+            if (addParent)
+                xmlTxt = FixParentTag(xmlTxt);
 
-                // BCNG stories contain invalid XHTML content which must be escaped to parse the document.
-                var escapeContent = ingest.GetConfigurationValue<bool>(Fields.EscapeContent);
-                if (escapeContent)
-                {
-                    xmlTxt = StoryToCdata(xmlTxt, ingest);
-                }
+            // BCNG stories contain invalid XHTML content which must be escaped to parse the document.
+            var escapeContent = ingest.GetConfigurationValue<bool>(Fields.EscapeContent);
+            if (escapeContent)
+                xmlTxt = StoryToCdata(xmlTxt, ingest);
 
-                var xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(xmlTxt);
-                return xmlDoc;
-            }
-            else
-            {
-                return null;
-            }
+            var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(xmlTxt);
+            return xmlDoc;
         }
-        catch (System.Xml.XmlException e)
+        else
         {
-            this.Logger.LogError(e, "Failed to ingest item from file '{path}'", filePath);
-            throw e;
+            return null;
         }
     }
 
