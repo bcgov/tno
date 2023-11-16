@@ -1,6 +1,6 @@
 import { useFilterOptions } from 'components/sidebar/hooks';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle } from 'react-icons/io';
-import { Col, Row, Select, Show } from 'tno-core';
+import { Col, FieldSize, Row, Select, Show } from 'tno-core';
 
 import { SubMediaGroups } from '../../constants';
 import { IAdvancedSearchFilter, ISubMediaGroupExpanded } from '../../interfaces';
@@ -79,10 +79,11 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
               />
             )}
           </Row>
-          <div className="sub-container">
+          <Row className="sub-container" justifyContent="center">
             <Show visible={!!mediaGroup.options.length && mediaGroupExpandedStates[mediaGroup.key]}>
               <Select
                 isMulti
+                width={FieldSize.Big}
                 options={mediaGroup.options
                   .map((option) => ({
                     label: option.name,
@@ -102,7 +103,7 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
                 menuPosition={'fixed'}
               />
             </Show>
-          </div>
+          </Row>
         </Col>
       ))}
     </Col>
