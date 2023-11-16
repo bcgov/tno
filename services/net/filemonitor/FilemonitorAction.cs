@@ -24,7 +24,9 @@ namespace TNO.Services.FileMonitor;
 /// </summary>
 public class FileMonitorAction : IngestAction<FileMonitorOptions>
 {
-    #region Properties
+    #region Variables
+    // Regex to find the story closing tag.
+    private readonly Regex _storyTag = new Regex(@"</story\>[\t\s\n]*<date>[0-9]{2}\-[0-9]{2}\-[0-9]{4}</date>[\t\s\n]*<page>.*</page>[\t\s\n]*</bcng>[\t\s\n]*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     #endregion
 
     #region Constructors
@@ -683,6 +685,16 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             var xmlTxt = ReadFileContents(filePath, ingest);
             if (xmlTxt != null)
             {
+                // Files regularly have the 'last' story corrupting in the <story> node.
+                // This results in the whole file being invalid.
+                // Check for and fix the common failure.
+                if (!_storyTag.Match(xmlTxt).Success)
+                {
+                    xmlTxt = $"{xmlTxt}</story><date>{DateTime.Now:MM-dd-yyyy}</date></bcng>";
+                    File.WriteAllText(filePath, xmlTxt);
+                    this.Logger.LogError("The file '{path}' is missing data", filePath);
+                }
+
                 // BCNG files have multiple top-level objects which need to be wrapped in a single pair of tags.
                 var addParent = ingest.GetConfigurationValue<bool>(Fields.AddParent);
                 if (addParent)
