@@ -194,8 +194,8 @@ public class ContentController : ControllerBase
         if (!safePath.FileExists()) throw new NoContentException("File does not exist");
 
         var info = new ItemModel(safePath);
-        var filestream = System.IO.File.OpenRead(safePath);
-        return File(filestream, info.MimeType!);
+        var fileStream = System.IO.File.OpenRead(safePath);
+        return File(fileStream, info.MimeType!);
     }
 
     /// <summary>

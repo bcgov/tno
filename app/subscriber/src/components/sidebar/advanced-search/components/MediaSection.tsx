@@ -11,7 +11,7 @@ export interface IMediaSectionProps {
   /** the object that contains the expansion states of the media subgroups  */
   mediaGroupExpandedStates: ISubMediaGroupExpanded;
   /** function that controls the expanded state of the media sub-menu items */
-  setmediaGroupExpandedStates: (expanded: ISubMediaGroupExpanded) => void;
+  setMediaGroupExpandedStates: (expanded: ISubMediaGroupExpanded) => void;
   /** change the state of the advanced search */
   setAdvancedSearch: (advancedSearch: IAdvancedSearchFilter) => void;
   /** use the current state of advanced search */
@@ -22,7 +22,7 @@ export interface IMediaSectionProps {
 export const MediaSection: React.FC<IMediaSectionProps> = ({
   mediaExpanded,
   mediaGroupExpandedStates,
-  setmediaGroupExpandedStates,
+  setMediaGroupExpandedStates,
   setAdvancedSearch,
   advancedSearch,
 }) => {
@@ -54,7 +54,7 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
             <Row
               className="sub-group-title"
               onClick={() => {
-                setmediaGroupExpandedStates({
+                setMediaGroupExpandedStates({
                   ...mediaGroupExpandedStates,
                   [mediaGroup.key]: !mediaGroupExpandedStates[mediaGroup.key],
                 });
@@ -65,7 +65,7 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
                 <IoIosArrowDroprightCircle
                   className="drop-icon"
                   onClick={() =>
-                    setmediaGroupExpandedStates({
+                    setMediaGroupExpandedStates({
                       ...mediaGroupExpandedStates,
                       [mediaGroup.key]: true,
                     })
@@ -75,7 +75,7 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
                 <IoIosArrowDropdownCircle
                   className="drop-icon"
                   onClick={() =>
-                    setmediaGroupExpandedStates({
+                    setMediaGroupExpandedStates({
                       ...mediaGroupExpandedStates,
                       [mediaGroup.key]: false,
                     })

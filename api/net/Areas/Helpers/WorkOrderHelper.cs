@@ -19,7 +19,7 @@ public class WorkOrderHelper : IWorkOrderHelper
     /// <summary>
     /// The following work order status ensure only a single request can be completed for content.
     /// </summary>
-    public static readonly IEnumerable<Entities.WorkOrderStatus> WorkLimiterStatus = new[] { Entities.WorkOrderStatus.Submitted, Entities.WorkOrderStatus.InProgress, Entities.WorkOrderStatus.Completed };
+    public static readonly Entities.WorkOrderStatus[] WorkLimiterStatus = new[] { Entities.WorkOrderStatus.Submitted, Entities.WorkOrderStatus.InProgress, Entities.WorkOrderStatus.Completed };
 
     private readonly ClaimsPrincipal _principal;
     private readonly IContentService _contentService;
