@@ -6,7 +6,6 @@ export const Layout = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  height: 100vh;
 
   .main-window {
     display: flex;
@@ -14,7 +13,6 @@ export const Layout = styled.div`
     align-items: stretch;
     flex-grow: 1;
     overflow: auto;
-    height: 100%;
 
     & > .navbar:first-child {
       border-bottom: solid 1px #65799e;
