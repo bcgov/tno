@@ -385,7 +385,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     model.Id = instanceModel.Id;
                     model.Version = instanceModel.Version ?? 0;
                     model.SentOn = DateTime.UtcNow;
-                    model.Status = ReportStatus.Completed;
+                    model.Status = ReportStatus.Accepted;
                     model.Content.ForEach(ric => ric.InstanceId = model.Id);
                     model.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
                     await this.Api.UpdateReportInstanceAsync(model);
@@ -452,15 +452,25 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         // Send the email.
         if (request.SendToSubscribers && (to.Any() || !String.IsNullOrEmpty(request.To)))
         {
-            var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
+            try
+            {
+                var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
 
-            // Update the report instance.
-            instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
-            instance.Subject = subject;
-            instance.Body = body;
-            instance.SentOn = DateTime.UtcNow;
-            if (instance.PublishedOn == null) instance.PublishedOn = DateTime.UtcNow;
-            await this.Api.UpdateReportInstanceAsync(instance);
+                // Update the report instance.
+                instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+                instance.Subject = subject;
+                instance.Body = body;
+                instance.SentOn = DateTime.UtcNow;
+                instance.Status = ReportStatus.Accepted;
+                if (instance.PublishedOn == null) instance.PublishedOn = DateTime.UtcNow;
+                await this.Api.UpdateReportInstanceAsync(instance);
+            }
+            catch (ChesException ex)
+            {
+                instance.Status = ReportStatus.Failed;
+                instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
+                await this.Api.UpdateReportInstanceAsync(instance);
+            }
         }
 
         if (report.Settings.Content.ClearFolders)

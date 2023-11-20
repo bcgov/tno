@@ -97,14 +97,14 @@ namespace TNO.API.Middleware
                 message = exception?.Message;
                 details = exception?.InnerException?.Message;
 
-                _logger.LogWarning(ex, "Unable to validate authentication information.", ex.Message);
+                _logger.LogWarning(ex, "Unable to validate authentication information.  {error}", ex.Message);
             }
             else if (ex is NotAuthorizedException)
             {
                 code = HttpStatusCode.Forbidden;
                 message = "User is not authorized to perform this action.";
 
-                _logger.LogWarning(ex, "Not authorized error", ex.Message);
+                _logger.LogWarning(ex, "Not authorized error.  {error}", ex.Message);
             }
             else if (ex is DbUpdateConcurrencyException)
             {
@@ -123,53 +123,53 @@ namespace TNO.API.Middleware
                 else
                     message = "A database error occurred while updating.";
 
-                _logger.LogDebug(ex, "Database update error", ex.Message);
+                _logger.LogDebug(ex, "Database update error.  {error}", ex.Message);
             }
             else if (ex is KeyNotFoundException)
             {
                 code = HttpStatusCode.BadRequest;
                 message = ex.Message;
 
-                _logger.LogDebug(ex, "Key not found", ex.Message);
+                _logger.LogDebug(ex, "Key not found.  {error}", ex.Message);
             }
             else if (ex is NoContentException)
             {
                 code = HttpStatusCode.BadRequest;
                 message = ex.Message;
 
-                _logger.LogDebug(ex, "Content not found.", ex.Message);
+                _logger.LogDebug(ex, "Content not found.  {error}", ex.Message);
             }
             else if (ex is RowVersionMissingException)
             {
                 code = HttpStatusCode.BadRequest;
                 message = "Item cannot be updated without a row version.";
 
-                _logger.LogDebug(ex, "Row version missing error", ex.Message);
+                _logger.LogDebug(ex, "Row version missing error.  {error}", ex.Message);
             }
             else if (ex is ArgumentException)
             {
                 code = HttpStatusCode.BadRequest;
                 message = ex.Message;
 
-                _logger.LogDebug(ex, "Middleware caught unhandled exception.", ex.Message);
+                _logger.LogDebug(ex, "Middleware caught unhandled exception. {error}", ex.Message);
             }
             else if (ex is BadRequestException || ex is InvalidOperationException)
             {
                 code = HttpStatusCode.BadRequest;
                 message = ex.Message;
 
-                _logger.LogError(ex, "Invalid operation or bad request details.", ex.Message);
+                _logger.LogError(ex, "Invalid operation or bad request details. {error}", ex.Message);
             }
             else if (ex is ConfigurationException)
             {
                 code = HttpStatusCode.InternalServerError;
                 message = "Application configuration details invalid or missing.";
 
-                _logger.LogError(ex, "Configuration error", ex.Message);
+                _logger.LogError(ex, "Configuration error.  {error}", ex.Message);
             }
             else
             {
-                _logger.LogError(ex, "Middleware caught unhandled exception.", ex.GetAllMessages());
+                _logger.LogError(ex, "Middleware caught unhandled exception. {error}", ex.GetAllMessages());
             }
 
             if (!context.Response.HasStarted)

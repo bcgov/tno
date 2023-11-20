@@ -13,4 +13,6 @@ export enum MessageTargetName {
   IngestUpdated = 'ingest-updated',
   /** Ingest deleted */
   IngestDeleted = 'ingest-deleted',
+  /** Report status updated */
+  ReportStatus = 'report-status',
 }

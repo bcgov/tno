@@ -134,9 +134,9 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// </summary>
     /// <param name="id"></param>
     /// <param name="ownerId">The owner of the instance.</param>
-    /// <param name="isSent">Whether to get the instance that was sent.</param>
+    /// <param name="limit">Number of instances to return.</param>
     /// <returns></returns>
-    public ReportInstance? GetLatestInstance(int id, int? ownerId = null, bool? isSent = null)
+    public IEnumerable<ReportInstance> GetLatestInstances(int id, int? ownerId = null, int limit = 2)
     {
         var query = this.Context.ReportInstances
             .Include(ri => ri.Owner)
@@ -160,14 +160,10 @@ public class ReportService : BaseService<Report, int>, IReportService
         if (ownerId.HasValue)
             query = query.Where(ri => ri.OwnerId == ownerId);
 
-        if (isSent.HasValue && isSent == false)
-            query = query.Where(ri => ri.SentOn == null);
-        else if (isSent.HasValue)
-            query = query.Where(ri => ri.SentOn != null);
-
         return query
             .OrderByDescending(ri => ri.Id)
-            .FirstOrDefault();
+            .Take(limit)
+            .ToArray();
     }
 
     /// <summary>

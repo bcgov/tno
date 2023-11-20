@@ -42,7 +42,7 @@ export const ReportSnapshotView: React.FC = () => {
       try {
         const result = await sendReportInstance(id, to);
         setFieldValue('instances.0', result);
-        toast.success('Report has successfully been submitted.  Email will be sent shortly.');
+        toast.success('Report has been submitted.');
       } catch {}
     },
     [sendReportInstance, setFieldValue],

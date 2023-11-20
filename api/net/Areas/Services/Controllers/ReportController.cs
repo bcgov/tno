@@ -115,8 +115,8 @@ public class ReportController : ControllerBase
     {
         var report = _service.FindById(id);
         if (report == null) return NoContent();
-        var results = _service.ClearFoldersInReport(report);
-        return new JsonResult(results);
+        var result = _service.ClearFoldersInReport(report) ?? throw new NoContentException();
+        return new JsonResult(new ReportModel(result, _serializerOptions));
     }
     #endregion
 }

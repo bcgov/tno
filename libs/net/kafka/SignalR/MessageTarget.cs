@@ -24,4 +24,7 @@ public enum MessageTarget
 
     [Display(Name = "ingest-deleted")]
     IngestDeleted = 6,
+
+    [Display(Name = "report-status")]
+    ReportStatus = 7,
 }
