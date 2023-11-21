@@ -10,7 +10,6 @@ import {
   IReportModel,
   IReportResultModel,
   useApi,
-  useDownload,
 } from '..';
 
 /**
@@ -26,7 +25,6 @@ export const useApiSubscriberReports = (
   } = {},
 ) => {
   const api = useApi(options);
-  const download = useDownload(api);
 
   return React.useRef({
     findReports: (filter?: IReportFilter) => {
@@ -86,13 +84,6 @@ export const useApiSubscriberReports = (
           regenerate !== undefined ? `?regenerate=${regenerate}` : ''
         }`,
       );
-    },
-    exportReport: (reportId: number) => {
-      return download({
-        url: `/subscriber/reports/${reportId}/export`,
-        method: 'post',
-        fileName: `myreport${reportId}.xlsx`,
-      });
     },
     sendReport: (reportId: number, to: string) => {
       return api.post<never, AxiosResponse<IReportModel>, any>(

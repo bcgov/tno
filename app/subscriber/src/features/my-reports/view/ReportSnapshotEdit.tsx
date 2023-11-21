@@ -5,7 +5,7 @@ import { FaRegClock, FaSave } from 'react-icons/fa';
 import { FaArrowsSpin, FaFileExcel, FaGear } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useReports } from 'store/hooks';
+import { useReportInstances, useReports } from 'store/hooks';
 import { Button, ButtonVariant, Col, Modal, Row, Show, useModal } from 'tno-core';
 
 import { IReportForm } from '../interfaces';
@@ -17,7 +17,9 @@ export const ReportSnapshotEdit: React.FC = () => {
   const navigate = useNavigate();
   const { values, isSubmitting, setValues, setFieldValue, submitForm } =
     useFormikContext<IReportForm>();
-  const [{ generateReport, exportReport }] = useReports();
+  const [{ generateReport }] = useReports();
+  const [{ exportReport }] = useReportInstances();
+
   const { isShowing, toggle } = useModal();
 
   const instance = values.instances.length ? values.instances[0] : null;
@@ -36,14 +38,15 @@ export const ReportSnapshotEdit: React.FC = () => {
   const handleExport = React.useCallback(async () => {
     try {
       if (instance?.id) {
-        await toast.promise(exportReport(instance?.id), {
+        const filename = values.name.replace(/[^a-zA-Z0-9 ]/g, '');
+        await toast.promise(exportReport(instance?.id, filename), {
           pending: 'Downloading file',
           success: 'Download complete',
           error: 'Download failed',
         });
       }
     } catch {}
-  }, [exportReport, instance?.id]);
+  }, [exportReport, instance?.id, values.name]);
 
   /** function that runs after a user drops an item in the list */
   const handleDrop = React.useCallback(

@@ -64,8 +64,8 @@ public class ReportXlsExport
   private readonly JsonSerializerOptions _serializerOptions;
   private readonly XSSFSheet sheet;
   private readonly XSSFColor green = new();
-  private ICellStyle regularStyle;
-  private ICellStyle boldStyle;
+  private readonly ICellStyle regularStyle;
+  private readonly ICellStyle boldStyle;
   #endregion
 
   #region Constructors
@@ -90,10 +90,10 @@ public class ReportXlsExport
         /// </summary>
         /// <param name="id"></param>
         /// <returns>XSSFWorkbook</returns>
-        public XSSFWorkbook GenerateReport(int id)
+        public XSSFWorkbook GenerateExcel(int instanceId)
         {
             int totalColumns = 0;
-            var instance = _reportInstanceService.FindById(id);
+            var instance = _reportInstanceService.FindById(instanceId);
             var serialized = instance != null ? new ReportInstanceModel(instance, _serializerOptions) : null;
 
              if (serialized == null) {
@@ -134,7 +134,7 @@ public class ReportXlsExport
               if (g.Key.PublishedOn != null)
               {
                 return new GroupResult(
-                  g.Key.Name == null ? "" : g.Key.Name,
+                  (g.Key.Name == "" || g.Key.Name == null) ? "" : g.Key.Name,
                   g.Key.PublishedOn.Value.ToString("yyyy-MM"),
                   g.Count(),
                   g.Sum(x => (x != null && x.TonePools != null) ? x.TonePools.Sum(y => y.Value) : 0)
@@ -172,7 +172,7 @@ public class ReportXlsExport
               if (g.Key.PublishedOn != null)
               {
                 return new GroupResult(
-                  g.Key.Section == null ? "No Section" : g.Key.Section,
+                  (g.Key.Section == "" || g.Key.Section == null) ? "No Section" : g.Key.Section,
                   g.Key.PublishedOn.Value.ToString("yyyy-MM"),
                   g.Count(),
                   g.Sum(x => (x != null && x.TonePools != null) ? x.TonePools.Sum(y => y.Value) : 0)
@@ -192,7 +192,7 @@ public class ReportXlsExport
             var sectionHeaders = sectionTable.GroupBy(t => t.Name).Select(g => g.Key).ToList();
             var sectionDateRows = sectionTable.GroupBy(t => t.Date).Select(g => g.Key).ToList();
 
-            totalColumns = sectionHeaders.Count() >= productHeaders.Count() ? sectionHeaders.Count() : productHeaders.Count();
+            totalColumns = sectionHeaders.Count >= productHeaders.Count ? sectionHeaders.Count : productHeaders.Count;
 
             index = BuildTable(index, sectionHeaders, sectionDateRows, groupedBySectiontDate, tonesCount);
 
@@ -247,17 +247,17 @@ public class ReportXlsExport
             {
                 cellIndex = 0;
                 IRow row1 = sheet.CreateRow(rowIndex);
-            AddNumberCell(row1, cellIndex, regularStyle, r.Tone);
+                AddNumberCell(row1, cellIndex, regularStyle, r.Tone);
                 cellIndex++;
-            AddTextCell(row1, cellIndex, regularStyle, r.Date);
+                AddTextCell(row1, cellIndex, regularStyle, r.Date);
                 cellIndex++;
-            AddTextCell(row1, cellIndex, regularStyle, r.Headline);
+                AddTextCell(row1, cellIndex, regularStyle, r.Headline);
                 cellIndex++;
-            AddTextCell(row1, cellIndex, regularStyle, r.Type);
+                AddTextCell(row1, cellIndex, regularStyle, r.Type);
                 cellIndex++;
-            AddTextCell(row1, cellIndex, regularStyle, r.Source);
+                AddTextCell(row1, cellIndex, regularStyle, r.Source);
                 cellIndex++;
-            AddTextCell(row1, cellIndex, regularStyle, r.Series);
+                AddTextCell(row1, cellIndex, regularStyle, r.Series);
                 rowIndex++;
             }
         }
@@ -328,35 +328,35 @@ public class ReportXlsExport
             int cellIndex = columnIndex;
             IRow row1 = sheet.CreateRow(rowIndex);
 
-        AddTextCell(row1, cellIndex, regularStyle, "Date");
+            AddTextCell(row1, cellIndex, regularStyle, "Date");
             cellIndex++;
             foreach(string h in headers)
             {
             AddTextCell(row1, cellIndex, boldStyle, h);
                 cellIndex++;
             }
-        AddTextCell(row1, cellIndex, boldStyle, "Total");
+            AddTextCell(row1, cellIndex, boldStyle, "Total");
             cellIndex++;
-        AddTextCell(row1, cellIndex, boldStyle, "Average");
+            AddTextCell(row1, cellIndex, boldStyle, "Average");
             cellIndex++;
-        AddTextCell(row1, cellIndex, boldStyle, "Mean");
+            AddTextCell(row1, cellIndex, boldStyle, "Mean");
             cellIndex++;
-        AddTextCell(row1, cellIndex, boldStyle, "Date");
+            AddTextCell(row1, cellIndex, boldStyle, "Date");
             cellIndex++;
-        AddTextCell(row1, cellIndex, boldStyle, "Combined");
+            AddTextCell(row1, cellIndex, boldStyle, "Combined");
             cellIndex++;
-        AddTextCell(row1, cellIndex, boldStyle, "Date");
+            AddTextCell(row1, cellIndex, boldStyle, "Date");
             cellIndex++;
             foreach(string h in headers)
             {
             AddTextCell(row1, cellIndex, boldStyle, h);
                 cellIndex++;
             }
-        AddTextCell(row1, cellIndex, boldStyle, "Total");
+            AddTextCell(row1, cellIndex, boldStyle, "Total");
             cellIndex++;
-        AddTextCell(row1, cellIndex, boldStyle, "Average");
+            AddTextCell(row1, cellIndex, boldStyle, "Average");
             cellIndex++;
-        AddTextCell(row1, cellIndex, boldStyle, "Mean");
+            AddTextCell(row1, cellIndex, boldStyle, "Mean");
         }
 
         private int BuildTable(int rowIndex, List<string> headers, List<string> dates, List<GroupResult> groups, TonesCount tonesCount)
@@ -373,7 +373,7 @@ public class ReportXlsExport
             {
                 int index = 0;
                 IRow row1 = sheet.CreateRow(rowIndex);
-            AddTextCell(row1, index, regularStyle, d);
+                AddTextCell(row1, index, regularStyle, d);
                 bool isFirstCell = true;
                 foreach(var h in headers)
                 {
@@ -399,23 +399,23 @@ public class ReportXlsExport
                 CellAddress formulaBottomAdress = new(lastCellCount.Row, lastCellCount.Column);
                 // Add the Sum column
                 index++;
-            AddFormulaCell(row1, index, regularStyle, string.Format("SUM({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
+                AddFormulaCell(row1, index, regularStyle, string.Format("SUM({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
                 // Add the Average column
                 index++;
-            AddFormulaCell(row1, index, regularStyle, string.Format("AVERAGE({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
+                AddFormulaCell(row1, index, regularStyle, string.Format("AVERAGE({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
                 // Add the Median column
                 index++;
-            AddFormulaCell(row1, index, regularStyle, string.Format("MEDIAN({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
+                AddFormulaCell(row1, index, regularStyle, string.Format("MEDIAN({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
                 // Repeat Date Column
                 index++;
-            AddTextCell(row1, index, regularStyle, d);
+                AddTextCell(row1, index, regularStyle, d);
                 // Repeat the Sum for the combined Column
                 index++;
                 combinedCellIndex = index;
-            AddFormulaCell(row1, index, regularStyle, string.Format("SUM({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
+                AddFormulaCell(row1, index, regularStyle, string.Format("SUM({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
                 // Repeat Date Column Again
                 index++;
-            AddTextCell(row1, index, regularStyle, d);
+                AddTextCell(row1, index, regularStyle, d);
                 rowIndex++;
                 // Roll again but calculating the tones
                 isFirstCell = true;
@@ -443,13 +443,13 @@ public class ReportXlsExport
                 formulaBottomAdress = new (lastCellTone.Row, lastCellTone.Column);
                 // Add the Sum column
                 index++;
-            AddFormulaCell(row1, index, regularStyle, string.Format("SUM({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
+                AddFormulaCell(row1, index, regularStyle, string.Format("SUM({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
                 // Add the Average column
                 index++;
-            AddFormulaCell(row1, index, regularStyle, string.Format("AVERAGE({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
+                AddFormulaCell(row1, index, regularStyle, string.Format("AVERAGE({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
                 // Add the Median column
                 index++;
-            AddFormulaCell(row1, index, regularStyle, string.Format("MEDIAN({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
+                AddFormulaCell(row1, index, regularStyle, string.Format("MEDIAN({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
             }
             int cellIndex = 0;
             IRow rowTotal = sheet.CreateRow(rowIndex);
@@ -458,15 +458,15 @@ public class ReportXlsExport
             rowIndex++;
             IRow rowMedian = sheet.CreateRow(rowIndex);
             rowIndex++;
-        AddTextCell(rowTotal, cellIndex, boldStyle, "Total");
-        AddTextCell(rowAverage, cellIndex, boldStyle, "Average");
-        AddTextCell(rowMedian, cellIndex, boldStyle, "Mean");
+            AddTextCell(rowTotal, cellIndex, boldStyle, "Total");
+            AddTextCell(rowAverage, cellIndex, boldStyle, "Average");
+            AddTextCell(rowMedian, cellIndex, boldStyle, "Mean");
             cellIndex++;
             foreach(var h in headers)
             {
                 CellAddress formulaTopAdress = new (firstDataRow, firstCellCount.Column + (cellIndex - 1));
                 CellAddress formulaBottomAdress = new (lastCellCount.Row, firstCellCount.Column + (cellIndex - 1));
-            AddFormulaCell(rowTotal, cellIndex, boldStyle, string.Format("SUM({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
+                AddFormulaCell(rowTotal, cellIndex, boldStyle, string.Format("SUM({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
                 cellIndex++;
             }
             cellIndex = 0;
@@ -475,7 +475,7 @@ public class ReportXlsExport
             {
                 CellAddress formulaTopAdress = new (firstDataRow, firstCellCount.Column + (cellIndex - 1));
                 CellAddress formulaBottomAdress = new (lastCellCount.Row, firstCellCount.Column + (cellIndex - 1));
-            AddFormulaCell(rowAverage, cellIndex, boldStyle, string.Format("AVERAGE({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
+                AddFormulaCell(rowAverage, cellIndex, boldStyle, string.Format("AVERAGE({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
                 cellIndex++;
             }
             cellIndex = 0;
@@ -484,15 +484,15 @@ public class ReportXlsExport
             {
                 CellAddress formulaTopAdress = new (firstDataRow, firstCellCount.Column + (cellIndex - 1));
                 CellAddress formulaBottomAdress = new (lastCellCount.Row, firstCellCount.Column + (cellIndex - 1));
-            AddFormulaCell(rowMedian, cellIndex, boldStyle, string.Format("MEDIAN({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
+                AddFormulaCell(rowMedian, cellIndex, boldStyle, string.Format("MEDIAN({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
                 cellIndex++;
             }
 
             cellIndex+= 5;
             int cellStartIndex = cellIndex;
-        AddTextCell(rowTotal, cellIndex, boldStyle, "Total");
-        AddTextCell(rowAverage, cellIndex, boldStyle, "Average");
-        AddTextCell(rowMedian, cellIndex, boldStyle, "Mean");
+            AddTextCell(rowTotal, cellIndex, boldStyle, "Total");
+            AddTextCell(rowAverage, cellIndex, boldStyle, "Average");
+            AddTextCell(rowMedian, cellIndex, boldStyle, "Mean");
 
             // Add Row Tone total
             cellIndex++;
@@ -500,7 +500,7 @@ public class ReportXlsExport
             {
                 CellAddress formulaTopAdress = new (firstDataRow, firstCellTone.Column + (cellIndex - (headers.Count + 7)));
                 CellAddress formulaBottomAdress = new (lastCellTone.Row, firstCellTone.Column + (cellIndex - (headers.Count + 7)));
-            AddFormulaCell(rowTotal, cellIndex, regularStyle, string.Format("SUM({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
+                AddFormulaCell(rowTotal, cellIndex, regularStyle, string.Format("SUM({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
                 cellIndex++;
             }
 
@@ -511,7 +511,7 @@ public class ReportXlsExport
             {
                 CellAddress formulaTopAdress = new (firstDataRow, firstCellTone.Column + (cellIndex - (headers.Count + 7)));
                 CellAddress formulaBottomAdress = new (lastCellTone.Row, firstCellTone.Column + (cellIndex - (headers.Count + 7)));
-            AddFormulaCell(rowAverage, cellIndex, regularStyle, string.Format("AVERAGE({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
+                AddFormulaCell(rowAverage, cellIndex, regularStyle, string.Format("AVERAGE({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
                 cellIndex++;
             }
 
@@ -522,19 +522,19 @@ public class ReportXlsExport
             {
                 CellAddress formulaTopAdress = new (firstDataRow, firstCellTone.Column + (cellIndex - (headers.Count + 7)));
                 CellAddress formulaBottomAdress = new (lastCellTone.Row, firstCellTone.Column + (cellIndex - (headers.Count + 7)));
-            AddFormulaCell(rowMedian, cellIndex, regularStyle, string.Format("MEDIAN({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
+                AddFormulaCell(rowMedian, cellIndex, regularStyle, string.Format("MEDIAN({0}:{1})",formulaTopAdress.ToString(), formulaBottomAdress.ToString()));
                 cellIndex++;
             }
 
             IRow toneCountLabels = sheet.CreateRow(rowIndex);
-        AddTextCell(toneCountLabels, combinedCellIndex, boldStyle, "Positive");
-        AddTextCell(toneCountLabels, combinedCellIndex+1, boldStyle, "Neutral");
-        AddTextCell(toneCountLabels, combinedCellIndex+2, boldStyle, "Negative");
+            AddTextCell(toneCountLabels, combinedCellIndex, boldStyle, "Positive");
+            AddTextCell(toneCountLabels, combinedCellIndex+1, boldStyle, "Neutral");
+            AddTextCell(toneCountLabels, combinedCellIndex+2, boldStyle, "Negative");
             rowIndex++;
             IRow toneCount = sheet.CreateRow(rowIndex);
-        AddNumberCell(toneCount, combinedCellIndex, regularStyle, tonesCount.Positive);
-        AddNumberCell(toneCount, combinedCellIndex+1, regularStyle, tonesCount.Neutral);
-        AddNumberCell(toneCount, combinedCellIndex+2, regularStyle, tonesCount.Negative);
+            AddNumberCell(toneCount, combinedCellIndex, regularStyle, tonesCount.Positive);
+            AddNumberCell(toneCount, combinedCellIndex+1, regularStyle, tonesCount.Neutral);
+            AddNumberCell(toneCount, combinedCellIndex+2, regularStyle, tonesCount.Negative);
 
             return rowIndex;
         }

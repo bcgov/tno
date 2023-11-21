@@ -19,7 +19,6 @@ interface IReportController {
   deleteReport: (model: IReportModel) => Promise<IReportModel>;
   previewReport: (id: number) => Promise<IReportResultModel>;
   generateReport: (id: number, regenerate?: boolean) => Promise<IReportModel>;
-  exportReport: (id: number) => Promise<IReportModel>;
   sendReport: (id: number, to: string) => Promise<IReportModel>;
   publishReport: (id: number) => Promise<IReportModel>;
 }
@@ -86,10 +85,6 @@ export const useReports = (): [IReportController] => {
         const response = await dispatch<IReportModel>('generate-report', () =>
           api.generateReport(id, regenerate),
         );
-        return response.data;
-      },
-      exportReport: async (id: number) => {
-        const response = await dispatch<IReportModel>('export-report', () => api.exportReport(id));
         return response.data;
       },
       sendReport: async (id: number, to: string) => {

@@ -14,6 +14,7 @@ interface IReportInstanceController {
   viewReportInstance: (id: number) => Promise<IReportResultModel>;
   sendReportInstance: (id: number, to: string) => Promise<IReportInstanceModel>;
   publishReportInstance: (id: number) => Promise<IReportInstanceModel>;
+  exportReport: (id: number, reportName: string) => Promise<IReportInstanceModel>;
 }
 
 export const useReportInstances = (): [IReportInstanceController] => {
@@ -62,6 +63,12 @@ export const useReportInstances = (): [IReportInstanceController] => {
       publishReportInstance: async (id: number) => {
         const response = await dispatch<IReportInstanceModel>('publish-report-instance', () =>
           api.publishReportInstance(id),
+        );
+        return response.data;
+      },
+      exportReport: async (id: number, reportName: string) => {
+        const response = await dispatch<IReportInstanceModel>('export-report', () =>
+          api.exportReport(id, reportName),
         );
         return response.data;
       },
