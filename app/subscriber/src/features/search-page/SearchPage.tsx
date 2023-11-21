@@ -7,12 +7,11 @@ import { determinePreview } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
 import { FaPlay, FaStop } from 'react-icons/fa';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
 import { Checkbox, Col, generateQuery, IContentModel, Loading, Row, Show } from 'tno-core';
 
-import { useParamsToFilter } from './hooks';
 import { Player } from './player/Player';
 import * as styled from './styled';
 import { filterFormat } from './utils';
@@ -24,17 +23,16 @@ export const SearchPage: React.FC = () => {
   const [{ actions }] = useLookup();
   const [, { getFilter }] = useFilters();
 
-  const params = useParams();
   const [searchItems, setSearchItems] = React.useState<IContentModel[]>([]);
   const [activeContent, setActiveContent] = React.useState<IContentModel | null>(null);
+  const [searchClicked, setSearchClicked] = React.useState<boolean>(false);
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [searchName, setSearchName] = React.useState<string>();
   const [isLoading, setIsLoading] = React.useState(false);
-  const { advancedSubscriberFilter } = useParamsToFilter();
-  const urlParams = new URLSearchParams(params.query);
+  const [{ filter }] = useContent();
+  const savedSearchId = filter.savedSearchId;
 
-  const savedSearchId = Number(urlParams.get('savedSearchId'));
   React.useEffect(() => {
     if (!!savedSearchId && !searchName)
       getFilter(savedSearchId)
@@ -47,7 +45,7 @@ export const SearchPage: React.FC = () => {
     (text: string) => {
       let tempText = text;
       let parseText = () => {
-        if (advancedSubscriberFilter.searchTerm) return advancedSubscriberFilter.searchTerm;
+        if (filter.searchTerm) return filter.searchTerm;
         else return '';
       };
       parseText()
@@ -69,10 +67,10 @@ export const SearchPage: React.FC = () => {
             tempText = tempText.replace(regex, `<b>${matches[0]}</b>`);
           }
         });
-      if (!advancedSubscriberFilter.boldKeywords) return parse(text);
+      if (!filter.boldKeywords) return parse(text);
       return parse(tempText);
     },
-    [advancedSubscriberFilter.searchTerm, advancedSubscriberFilter.boldKeywords],
+    [filter.searchTerm, filter.boldKeywords],
   );
 
   const fetchResults = React.useCallback(
@@ -88,6 +86,7 @@ export const SearchPage: React.FC = () => {
       } catch {
       } finally {
         setIsLoading(false);
+        setSearchClicked(false);
       }
     },
     [findContentWithElasticsearch],
@@ -95,27 +94,31 @@ export const SearchPage: React.FC = () => {
 
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
-    fetchResults(generateQuery(filterFormat(advancedSubscriberFilter, actions)));
+    searchClicked && fetchResults(generateQuery(filterFormat(filter, actions)));
     // only run when query changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.query]);
+  }, [searchClicked]);
 
   return (
     <styled.SearchPage>
       <SearchWithLogout />
       <Row className="search-container">
         <Col className="adv-search-container">
-          <AdvancedSearch onSearchPage expanded={true} />
+          <AdvancedSearch onSearchPage expanded={true} setSearchClicked={setSearchClicked} />
         </Col>
         <Col className="result-container">
           <Row className="save-bar">
-            <div className="title">{`Search Results ${!!searchName ? `(${searchName})` : ''}`}</div>
-
+            <div className="title">{`Search Results`}</div>
             <FolderSubMenu selectedContent={selected} />
           </Row>
           <Row>
             <div className={playerOpen ? 'scroll minimized' : 'scroll'}>
               <Col className={'search-items'}>
+                <Show visible={!searchItems.length}>
+                  <Row className="helper-text" justifyContent="center">
+                    Please refine search criteria and click "search".
+                  </Row>
+                </Show>
                 {searchItems.map((item) => {
                   return (
                     <Row key={item.id} className="rows">

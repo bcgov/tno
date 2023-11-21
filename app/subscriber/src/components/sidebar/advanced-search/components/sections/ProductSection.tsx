@@ -1,29 +1,39 @@
-import { useLookupOptions } from 'store/hooks';
+import { useMemo } from 'react';
+import { useContent, useLookupOptions } from 'store/hooks';
 import { Row, Select } from 'tno-core';
 
-import { IExpandedSectionProps } from '../../interfaces';
-
 /** component that allows user to filter down the advanced search based on products */
-export const ProductSection: React.FC<IExpandedSectionProps> = ({
-  advancedSearch,
-  setAdvancedSearch,
-}) => {
-  const [{ mediaTypeOptions }] = useLookupOptions();
+export const ProductSection: React.FC = () => {
+  const [{ filter }, { storeFilter }] = useContent();
+  const [{ mediaTypes }] = useLookupOptions();
+
+  const mediaTypeOptions = useMemo(
+    () =>
+      mediaTypes.map((t) => {
+        return { value: t.id, label: t.name };
+      }),
+    [mediaTypes],
+  );
+
   return (
     <Row justifyContent="center">
       <Select
         name="productIds"
         isMulti
         width="25em"
+        key={filter.mediaTypeIds?.join(',')}
         className="products"
         onChange={(newValues) => {
           Array.isArray(newValues) &&
-            setAdvancedSearch({
-              ...advancedSearch,
-              productIds: newValues.map((v) => v.value),
+            storeFilter({
+              ...filter,
+              mediaTypeIds: newValues.map((v) => v.value),
             });
         }}
         options={mediaTypeOptions}
+        defaultValue={mediaTypeOptions.filter((o) => {
+          return filter.mediaTypeIds?.includes(o.value);
+        })}
       />
     </Row>
   );

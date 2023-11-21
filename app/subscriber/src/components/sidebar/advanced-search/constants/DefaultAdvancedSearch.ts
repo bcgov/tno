@@ -1,25 +1,23 @@
-import moment from 'moment';
-
-import { IAdvancedSearchFilter } from '../interfaces';
-
-export const defaultAdvancedSearch: IAdvancedSearchFilter = {
-  searchTerm: '',
+export const defaultAdvancedSearch = {
+  boldKeywords: true,
+  contentTypes: [],
+  contributorIds: [],
+  dateOffset: 1,
+  edition: '',
+  frontPage: false,
+  hasFile: false,
   inByline: true,
   inHeadline: true,
   inStory: true,
-  startDate: moment().startOf('day').subtract('7', 'days').toISOString(),
-  endDate: moment().endOf('day').toISOString(),
-  topStory: false,
-  frontPage: false,
-  hasFile: false,
-  boldKeywords: true,
-  useUnpublished: false,
+  mediaTypeIds: [],
   page: '',
+  publishedEndOn: '',
+  publishedStartOn: '',
+  searchTerm: '',
   section: '',
-  edition: '',
-  contentTypes: [],
-  contributorIds: [],
-  productIds: [],
   seriesIds: [],
+  sourceIds: [],
   tags: [],
+  topStory: false,
+  useUnpublished: false,
 };

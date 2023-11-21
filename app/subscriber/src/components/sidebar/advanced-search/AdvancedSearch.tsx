@@ -1,5 +1,3 @@
-import { makeFilter } from 'features';
-import { useParamsToFilter } from 'features/search-page/hooks';
 import { filterFormat } from 'features/search-page/utils';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
@@ -9,7 +7,7 @@ import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useFilters, useLookup } from 'store/hooks';
+import { useContent, useFilters, useLookup } from 'store/hooks';
 import { Button, Col, generateQuery, Row, Show, Text, TextArea, toQueryString } from 'tno-core';
 
 import {
@@ -39,6 +37,7 @@ export interface IAdvancedSearchProps {
   expanded: boolean;
   setExpanded?: (expanded: boolean) => void;
   onSearchPage?: boolean;
+  setSearchClicked?: (clicked: boolean) => void;
 }
 
 /***
@@ -50,69 +49,22 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   expanded,
   setExpanded,
   onSearchPage,
+  setSearchClicked,
 }) => {
   const navigate = useNavigate();
   const [, { addFilter }] = useFilters();
   const [{ actions }] = useLookup();
-  const { advancedSubscriberFilter } = useParamsToFilter();
-  const { query } = useParams();
+  const [{ filter }, { storeFilter }] = useContent();
   /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
   const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
     React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);
   const [searchName, setSearchName] = React.useState<string>('');
-  /** the object that will eventually be converted to a query and be passed to elastic search */
-  const [advancedSearch, setAdvancedSearch] =
-    React.useState<IAdvancedSearchFilter>(defaultAdvancedSearch);
-  const [constants, setConstants] = React.useState<any>({});
-
-  // update state when query changes, necessary to keep state in sync with url when navigating directly
-  React.useEffect(() => {
-    if (query) setAdvancedSearch(queryToState(query.toString()));
-  }, [query]);
-
-  React.useEffect(() => {
-    fetch('/constants.json')
-      .then((res) => res.json())
-      .then((data) => {
-        setConstants(data);
-      });
-  }, []);
-
-  const advancedFilter = React.useMemo(
-    () =>
-      makeFilter({
-        actions: advancedSearch?.topStory ? ['Top Story'] : [],
-        boldKeywords: advancedSearch?.boldKeywords,
-        contentTypes: advancedSearch?.contentTypes ?? [],
-        contributorIds: advancedSearch?.contributorIds,
-        inByline: advancedSearch?.inByline,
-        inHeadline: advancedSearch?.inHeadline,
-        inStory: advancedSearch?.inStory,
-        searchTerm: advancedSearch?.searchTerm,
-        mediaTypeIds: advancedSearch?.frontPage ? [constants?.frontPageId] : [],
-        startDate: advancedSearch?.startDate,
-        sourceIds: advancedSearch?.sourceIds,
-        sentiment: advancedSearch?.sentiment,
-        endDate: advancedSearch?.endDate,
-        topStory: advancedSearch?.topStory,
-        section: advancedSearch?.section,
-        seriesIds: advancedSearch?.seriesIds,
-        page: advancedSearch?.page,
-        edition: advancedSearch?.edition,
-        sort: [],
-        pageIndex: 0,
-        pageSize: 100,
-        useUnpublished: advancedSearch?.useUnpublished,
-        tags: advancedSearch?.tags,
-      }),
-    [advancedSearch, constants?.frontPageId],
-  );
 
   const saveSearch = React.useCallback(async () => {
     await addFilter({
       name: searchName,
-      query: generateQuery(filterFormat(advancedSubscriberFilter, actions)),
-      settings: { ...filterFormat(advancedSubscriberFilter, actions) },
+      query: generateQuery(filterFormat(filter, actions)),
+      settings: { ...filterFormat(filter, actions) },
       id: 0,
       sortOrder: 0,
       description: '',
@@ -122,10 +74,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
     })
       .then((data) => toast.success(`${data.name} has successfully been saved.`))
       .catch();
-  }, [advancedSubscriberFilter, searchName, addFilter, actions]);
+  }, [filter, searchName, addFilter, actions]);
 
   const handleSearch = async () => {
-    navigate(`/search/${toQueryString(advancedFilter, { includeEmpty: false })}`);
+    navigate(`/search`);
+    setSearchClicked && setSearchClicked(true);
   };
 
   /** allow user to hit enter while searching */
@@ -151,7 +104,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
               data-tooltip-id="main-tooltip"
               data-tooltip-content="Reset filters"
               onClick={() => {
-                setAdvancedSearch(defaultAdvancedSearch);
+                storeFilter({ ...filter, ...defaultAdvancedSearch });
               }}
             />
           </Row>
@@ -164,29 +117,23 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
               <Text
                 className="search-input"
                 onKeyDown={enterPressed}
-                value={advancedSearch?.searchTerm}
                 name="search"
-                onChange={(e) =>
-                  setAdvancedSearch({ ...advancedSearch, searchTerm: e.target.value })
-                }
+                onChange={(e) => {
+                  storeFilter({ ...filter, searchTerm: e.target.value });
+                }}
               />
             </Row>
           </Show>
           <Show visible={expanded}>
             <Col className="text-area-container">
               <TextArea
-                value={advancedSearch?.searchTerm}
+                value={filter?.searchTerm}
                 className="text-area"
                 onKeyDown={enterPressed}
                 name="search"
-                onChange={(e) =>
-                  setAdvancedSearch({ ...advancedSearch, searchTerm: e.target.value })
-                }
+                onChange={(e) => storeFilter({ ...filter, searchTerm: e.target.value })}
               />
-              <SearchInGroup
-                advancedSearch={advancedSearch}
-                setAdvancedSearch={setAdvancedSearch}
-              />
+              <SearchInGroup />
             </Col>
           </Show>
           <Show visible={!expanded}>
@@ -214,13 +161,12 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
               <Row className="option-row">
                 <BsCalendarEvent /> Date range
               </Row>
-              <DateSection advancedSearch={advancedSearch} setAdvancedSearch={setAdvancedSearch} />
+              <DateSection />
             </Col>
+            {/* MEDIA SOURCE SECTION */}
             <Col className={`media-group`}>
               <ExpandableRow icon={<BsSun />} title="Media source">
                 <MediaSection
-                  advancedSearch={advancedSearch}
-                  setAdvancedSearch={setAdvancedSearch}
                   setMediaGroupExpandedStates={setMediaGroupExpandedStates}
                   mediaGroupExpandedStates={mediaGroupExpandedStates}
                 />
@@ -229,60 +175,43 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
             {/* SENTIMENT SECTION */}
             <Col className={`sentiment-group`}>
               <ExpandableRow icon={<FaRegSmile />} title="Sentiment">
-                <SentimentSection
-                  advancedSearch={advancedSearch}
-                  setAdvancedSearch={setAdvancedSearch}
-                />
+                <SentimentSection />
               </ExpandableRow>
             </Col>
             {/* PAPER SECTION */}
             <Col className="paper-attributes">
               <ExpandableRow icon={<FaNewspaper />} title="Paper attributes">
-                <PaperSection
-                  setAdvancedSearch={setAdvancedSearch}
-                  advancedSearch={advancedSearch}
-                />
+                <PaperSection />
               </ExpandableRow>
             </Col>
             {/* CONTENT TYPE SECTION */}
             <Col className="expandable-section">
               <ExpandableRow icon={<FaTv />} title="Content Type">
-                <ContentSection
-                  setAdvancedSearch={setAdvancedSearch}
-                  advancedSearch={advancedSearch}
-                />
+                <ContentSection />
               </ExpandableRow>
             </Col>
             {/* CONTRIBUTOR SECTION */}
             <Col className="expandable-section">
               <ExpandableRow icon={<FaUsers />} title="Columnists/Anchors">
-                <ContributorSection
-                  setAdvancedSearch={setAdvancedSearch}
-                  advancedSearch={advancedSearch}
-                />
+                <ContributorSection />
               </ExpandableRow>
             </Col>
             {/* PRODUCT SECTION */}
             <Col className="expandable-section">
               <ExpandableRow icon={<FaIcons />} title="Product">
-                <ProductSection
-                  setAdvancedSearch={setAdvancedSearch}
-                  advancedSearch={advancedSearch}
-                />
+                <ProductSection />
               </ExpandableRow>
             </Col>
             {/* SHOW/PROGRAM SECTION */}
             <Col className="expandable-section">
               <ExpandableRow icon={<FaPlay />} title="Show/Program">
-                <SeriesSection
-                  setAdvancedSearch={setAdvancedSearch}
-                  advancedSearch={advancedSearch}
-                />
+                <SeriesSection />
               </ExpandableRow>
             </Col>
+            {/* TAG SECTION */}
             <Col>
               <ExpandableRow icon={<FaTags />} title="Tags">
-                <TagSection setAdvancedSearch={setAdvancedSearch} advancedSearch={advancedSearch} />
+                <TagSection />
               </ExpandableRow>
             </Col>
           </Col>
@@ -292,10 +221,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
               <b>Display options:</b>
               {/* SEARCH RESULT SETTINGS SECTION */}
               <ExpandableRow icon={<IoIosCog />} title="Search result options">
-                <MoreOptions
-                  advancedSearch={advancedSearch}
-                  setAdvancedSearch={setAdvancedSearch}
-                />
+                <MoreOptions />
               </ExpandableRow>
             </Col>
           </Row>

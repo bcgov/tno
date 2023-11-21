@@ -32,7 +32,7 @@ export const makeFilter = (
     sentiment: filter.sentiment,
     sourceIds: filter.sourceIds ?? undefined,
     status: filter.status ?? undefined,
-    useUnpublished: filter.useUnpublished,
+    searchUnpublished: filter.searchUnpublished,
     section: filter.section ?? undefined,
     paperPage: filter.page ?? undefined,
     edition: filter.edition ?? undefined,
