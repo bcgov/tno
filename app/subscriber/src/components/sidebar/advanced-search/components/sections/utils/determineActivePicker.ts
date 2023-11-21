@@ -1,5 +1,3 @@
-import moment from 'moment';
-
 import { QuickPickerNames } from '../constants';
 
 /**
@@ -7,26 +5,17 @@ import { QuickPickerNames } from '../constants';
  * @param publishedStartOn ISO string value of the published start date
  * @param publishedEndOn ISO string value of the published end date
  */
-export const determineActivePicker = (publishedStartOn?: string, publishedEndOn?: string) => {
-  // need to ensure end on date is today which means they are can be using the quick picker
-  if (moment(publishedEndOn).endOf('day').isSame(moment().endOf('day'))) {
-    if (moment(publishedStartOn).endOf('day').isSame(moment(publishedEndOn).endOf('day'))) {
+export const determineActivePicker = (dateOffset: number) => {
+  switch (dateOffset) {
+    case 0:
       return QuickPickerNames.Today;
-    } else if (
-      moment(publishedStartOn).endOf('day').isSame(moment().subtract(24, 'hours').endOf('day'))
-    ) {
+    case 1:
       return QuickPickerNames.TwentyFourHours;
-    } else if (
-      moment(publishedStartOn).endOf('day').isSame(moment().subtract(7, 'day').endOf('day'))
-    ) {
-      return QuickPickerNames.SevenDays;
-    } else if (
-      moment(publishedStartOn).endOf('day').isSame(moment().subtract(48, 'hours').endOf('day'))
-    ) {
+    case 2:
       return QuickPickerNames.FortyEightHours;
-    }
-  } else {
-    // custom picker
-    return QuickPickerNames.Custom;
+    case 3:
+      return QuickPickerNames.SevenDays;
+    default:
+      return QuickPickerNames.Custom;
   }
 };

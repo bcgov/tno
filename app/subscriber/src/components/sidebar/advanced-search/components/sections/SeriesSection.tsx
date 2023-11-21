@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useContent, useLookup, useLookupOptions } from 'store/hooks';
-import { OptionItem, Row, Select } from 'tno-core';
+import { FieldSize, OptionItem, Row, Select } from 'tno-core';
 
 /** allows user to filter based off of show/programs */
 export const SeriesSection: React.FC = () => {
@@ -16,7 +16,7 @@ export const SeriesSection: React.FC = () => {
   return (
     <Row justifyContent="center">
       <Select
-        width="25em"
+        width={FieldSize.Stretch}
         key={filter.seriesIds?.join(',')}
         isMulti
         options={seriesOptions}

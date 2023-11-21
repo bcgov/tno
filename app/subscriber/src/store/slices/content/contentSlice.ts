@@ -10,6 +10,7 @@ export const initialContentState: IContentState = {
     pageSize: 100,
     otherSource: '',
     ownerId: '',
+    dateOffset: 1,
     userId: 0,
     inByline: true,
     inHeadline: true,

@@ -12,6 +12,11 @@ export const DateSection: React.FC = ({}) => {
   const [disableQuickPick, setDisableQuickPick] = React.useState(false);
   const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
 
+  // ensure that date offset is cleared when using the custom date picker
+  React.useEffect(() => {
+    disableQuickPick && storeFilter({ ...filter, dateOffset: undefined });
+  }, [disableQuickPick]);
+
   return (
     <Row className="expanded date-range">
       <Row className="picker">
@@ -49,7 +54,7 @@ export const DateSection: React.FC = ({}) => {
       <ToggleGroup
         className="date-range-toggle"
         disabled={disableQuickPick}
-        defaultSelected={determineActivePicker(filter.publishedStartOn, filter.publishedEndOn)}
+        defaultSelected={determineActivePicker(filter.dateOffset ?? 0)}
         options={[
           {
             label: QuickPickerNames.Today,

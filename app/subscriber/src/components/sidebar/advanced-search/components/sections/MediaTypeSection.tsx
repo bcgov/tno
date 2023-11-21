@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useContent, useLookupOptions } from 'store/hooks';
-import { Row, Select } from 'tno-core';
+import { FieldSize, Row, Select } from 'tno-core';
 
 /** component that allows user to filter down the advanced search based on products */
 export const MediaTypeSection: React.FC = () => {
@@ -20,7 +20,7 @@ export const MediaTypeSection: React.FC = () => {
       <Select
         name="productIds"
         isMulti
-        width="25em"
+        width={FieldSize.Stretch}
         key={filter.mediaTypeIds?.join(',')}
         className="products"
         onChange={(newValues) => {

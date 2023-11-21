@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useContent, useLookup, useLookupOptions } from 'store/hooks';
-import { OptionItem, Row, Select } from 'tno-core';
+import { FieldSize, OptionItem, Row, Select } from 'tno-core';
 
 /** Section for advanced filter that allows users to select contributors they want to filter content off of. */
 export const ContributorSection: React.FC = () => {
@@ -19,7 +19,7 @@ export const ContributorSection: React.FC = () => {
         name="contributorIds"
         isMulti
         key={filter.contributorIds?.join(',')}
-        width="25em"
+        width={FieldSize.Stretch}
         className="contributors"
         options={contributorOptions}
         defaultValue={contributorOptions.filter((o) => {
