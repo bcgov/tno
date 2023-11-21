@@ -25,8 +25,8 @@ interface IContentController {
   getContent: (id: number) => Promise<IContentModel | undefined>;
   getFrontPages: () => Promise<IPaged<IContentModel>>;
   download: (id: number, fileName: string) => Promise<unknown>;
-  storeFilter: (filter: IContentListFilter) => void;
-  storeFilterAdvanced: (filter: IContentListAdvancedFilter) => void;
+  storeSearchFilter: (filter: IContentListFilter) => void;
+  storeHomeFilter: (filter: IContentListFilter) => void;
   storeGalleryDateFilter: (dateFilter: IOptionItem | null) => void;
   storeGalleryPressFilter: (pressFilter: IOptionItem | null) => void;
   stream: (path: string) => Promise<string>;
@@ -71,8 +71,8 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       stream: async (path: string) => {
         return (await dispatch('stream-content', () => api.stream(path), 'content')).data;
       },
-      storeFilter: actions.storeFilter,
-      storeFilterAdvanced: actions.storeFilterAdvanced,
+      storeSearchFilter: actions.storeSearchFilter,
+      storeHomeFilter: actions.storeHomeFilter,
       storeGalleryDateFilter: actions.storeGalleryDateFilter,
       storeGalleryPressFilter: actions.storeGalleryPressFilter,
       addContent: async (content: IContentModel) => {

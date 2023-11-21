@@ -5,8 +5,8 @@ import {
 import { IContentModel, IOptionItem, IPaged } from 'tno-core';
 
 export interface IContentState {
-  filter: IContentListFilter;
-  filterAdvanced: IContentListAdvancedFilter;
+  searchFilter: IContentListFilter;
+  homeFilter: IContentListFilter;
   content?: IPaged<IContentModel>;
   pressGalleryFilter: {
     dateFilter?: IOptionItem | null;

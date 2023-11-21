@@ -5,7 +5,7 @@ import { OptionItem, Row, Select } from 'tno-core';
 /** Section for advanced filter that allows users to select contributors they want to filter content off of. */
 export const ContributorSection: React.FC = () => {
   const [{ contributors }] = useLookup();
-  const [{ filter }, { storeFilter }] = useContent();
+  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
   const contributorOptions = useMemo(
     () =>
       contributors.map((c) => {

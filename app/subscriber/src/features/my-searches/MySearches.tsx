@@ -15,7 +15,7 @@ export const MySearches = () => {
   const { toggle, isShowing } = useModal();
   const [{ actions }] = useLookup();
   const navigate = useNavigate();
-  const [{ filter }, { storeFilter }] = useContent();
+  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
   const [myFilters, setMyFilters] = React.useState<IFilterModel[]>([]);
   const [active, setActive] = React.useState<IFilterModel>();
   const [editable, setEditable] = React.useState<string>('');

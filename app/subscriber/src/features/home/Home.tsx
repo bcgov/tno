@@ -29,7 +29,7 @@ import * as styled from './styled';
  * Home component that will be rendered when the user is logged in.
  */
 export const Home: React.FC = () => {
-  const [{ filter, filterAdvanced }, { findContentWithElasticsearch }] = useContent();
+  const [{ homeFilter: filter }, { findContentWithElasticsearch }] = useContent();
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [disabledCols, setDisabledCols] = React.useState<string[]>([]);
@@ -38,8 +38,8 @@ export const Home: React.FC = () => {
   const { width } = useWindowSize();
   const [settings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(
-      filterAdvanced.startDate ?? moment().startOf('day').toISOString(),
-      filterAdvanced.endDate ?? moment().endOf('day').toISOString(),
+      filter.publishedStartOn ?? moment().startOf('day').toISOString(),
+      filter.publishedEndOn ?? moment().endOf('day').toISOString(),
     ),
   );
 
@@ -58,13 +58,13 @@ export const Home: React.FC = () => {
       generateQuery({
         ...settings,
         contentTypes: filter.contentTypes.length > 0 ? filter.contentTypes : [],
-        startDate: filterAdvanced.startDate ? filterAdvanced.startDate : new Date().toDateString(),
-        endDate: filterAdvanced.endDate ? filterAdvanced.endDate : new Date().toDateString(),
+        startDate: filter.publishedStartOn ? filter.publishedStartOn : new Date().toDateString(),
+        endDate: filter.publishedEndOn ? filter.publishedEndOn : new Date().toDateString(),
         mediaTypeIds: filter.mediaTypeIds ?? [],
         sourceIds: filter.sourceIds ?? [],
       }),
     );
-  }, [fetchResults, filterAdvanced, filter, settings]);
+  }, [fetchResults, filter, settings]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {

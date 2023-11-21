@@ -4,7 +4,7 @@ import { OptionItem, Row, Select } from 'tno-core';
 
 /** allows user to filter based off of show/programs */
 export const SeriesSection: React.FC = () => {
-  const [{ filter }, { storeFilter }] = useContent();
+  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
   const [{ series }] = useLookup();
   const seriesOptions = useMemo(
     () =>

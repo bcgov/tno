@@ -1,9 +1,7 @@
-import moment from 'moment';
 import React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { FaX } from 'react-icons/fa6';
 import { useContent } from 'store/hooks';
-import { storeFilter } from 'store/slices';
 import { Row, ToggleGroup } from 'tno-core';
 
 import { QuickPickerNames } from './constants';
@@ -12,7 +10,7 @@ import { determineActivePicker } from './utils';
 export const DateSection: React.FC = ({}) => {
   // disable quick picker when user selects a date on react-date-picker
   const [disableQuickPick, setDisableQuickPick] = React.useState(false);
-  const [{ filter }, { storeFilter }] = useContent();
+  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
 
   return (
     <Row className="expanded date-range">

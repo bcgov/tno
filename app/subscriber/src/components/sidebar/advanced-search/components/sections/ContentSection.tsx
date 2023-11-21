@@ -3,7 +3,7 @@ import { ContentTypeName, Row, Select } from 'tno-core';
 
 /** section that allows you to filter down based on content type with a drop down menu */
 export const ContentSection: React.FC = () => {
-  const [{ filter }, { storeFilter }] = useContent();
+  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
   const typeOptions = [
     { label: 'Audio/Video', value: ContentTypeName.AudioVideo },
     { label: 'Print Content', value: ContentTypeName.PrintContent },

@@ -14,7 +14,7 @@ export interface IHomeFilterProps {}
  */
 export const HomeFilters: React.FC<IHomeFilterProps> = () => {
   const [active, setActive] = useState<HomeFilterType>(HomeFilterType.Papers);
-  const [{ filter }, { storeFilter }] = useContent();
+  const [{ homeFilter: filter }, { storeHomeFilter: storeFilter }] = useContent();
   const [{ sources, mediaTypes }] = useLookup();
 
   const defaultFilter: Partial<IContentListFilter> = {

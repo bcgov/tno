@@ -4,7 +4,7 @@ import { Row, Select } from 'tno-core';
 
 /** component that allows user to filter down the advanced search based on products */
 export const MediaTypeSection: React.FC = () => {
-  const [{ filter }, { storeFilter }] = useContent();
+  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
   const [{ mediaTypes }] = useLookupOptions();
 
   const mediaTypeOptions = useMemo(

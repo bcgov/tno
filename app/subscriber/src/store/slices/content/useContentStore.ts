@@ -10,10 +10,10 @@ import {
   addContent,
   removeContent,
   storeContent,
-  storeFilter,
-  storeFilterAdvanced,
   storeGalleryDateFilter,
   storeGalleryPressFilter,
+  storeHomeFilter,
+  storeSearchFilter,
   updateContent,
 } from '.';
 import { IContentState } from './interfaces';
@@ -25,8 +25,8 @@ export interface IContentProps {
 export interface IContentStore {
   storeGalleryDateFilter: (date: IOptionItem | null) => void;
   storeGalleryPressFilter: (filter: IOptionItem | null) => void;
-  storeFilter: (filter: IContentListFilter) => void;
-  storeFilterAdvanced: (filter: IContentListAdvancedFilter) => void;
+  storeSearchFilter: (filter: IContentListFilter) => void;
+  storeHomeFilter: (filter: IContentListFilter) => void;
   storeContent: (content: IPaged<IContentModel>) => void;
   addContent: (content: IContentModel[]) => void;
   updateContent: (content: IContentModel[]) => void;
@@ -45,11 +45,11 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
       storeGalleryDateFilter: (date: IOptionItem | null) => {
         dispatch(storeGalleryDateFilter(date));
       },
-      storeFilter: (filter: IContentListFilter) => {
-        dispatch(storeFilter(filter));
+      storeSearchFilter: (filter: IContentListFilter) => {
+        dispatch(storeSearchFilter(filter));
       },
-      storeFilterAdvanced: (filter: IContentListAdvancedFilter) => {
-        dispatch(storeFilterAdvanced(filter));
+      storeHomeFilter: (filter: IContentListFilter) => {
+        dispatch(storeHomeFilter(filter));
       },
       storeContent: (content: IPaged<IContentModel>) => {
         dispatch(storeContent(content));

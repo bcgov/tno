@@ -21,7 +21,7 @@ import * as styled from './styled';
 
 /** Component that displays front pages defaulting to today's date and adjustable via a date filter. */
 export const TodaysFrontPages: React.FC = () => {
-  const [{ filterAdvanced }, { findContentWithElasticsearch }] = useContent();
+  const [{ homeFilter }, { findContentWithElasticsearch }] = useContent();
   const navigate = useNavigate();
   const [frontpages, setFrontPages] = React.useState<IContentModel[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
@@ -53,14 +53,14 @@ export const TodaysFrontPages: React.FC = () => {
 
   React.useEffect(() => {
     if (!!filter.query.query) {
-      const calendarStartDate = moment(filterAdvanced.startDate).toISOString();
+      const calendarStartDate = moment(homeFilter.publishedStartOn).toISOString();
       const filterStartDate = filter.query.query.bool.must[0].range.publishedOn.gte;
       if (calendarStartDate !== filterStartDate) {
         const range = {
           range: {
             publishedOn: {
-              gte: moment(filterAdvanced.startDate).toISOString(),
-              lte: moment(filterAdvanced.endDate).toISOString(),
+              gte: moment(homeFilter.publishedStartOn).toISOString(),
+              lte: moment(homeFilter.publishedEndOn).toISOString(),
               time_zone: 'US/Pacific',
             },
           },
@@ -71,14 +71,14 @@ export const TodaysFrontPages: React.FC = () => {
         fetchResults(newFilter.query);
       }
     }
-  }, [fetchResults, filter, filterAdvanced]);
+  }, [fetchResults, filter, homeFilter]);
 
   React.useEffect(() => {
     const range = {
       range: {
         publishedOn: {
-          gte: moment(filterAdvanced.startDate).toISOString(),
-          lte: moment(filterAdvanced.endDate).toISOString(),
+          gte: moment(homeFilter.publishedStartOn).toISOString(),
+          lte: moment(homeFilter.publishedEndOn).toISOString(),
           time_zone: 'US/Pacific',
         },
       },
@@ -97,7 +97,7 @@ export const TodaysFrontPages: React.FC = () => {
     } else if (!!settings.length) {
       toast.error(`${Settings.FrontpageFilter} setting needs to be configured.`);
     }
-  }, [fetchResults, filter?.id, getFilter, settings, filterAdvanced, filter]);
+  }, [fetchResults, filter?.id, getFilter, settings, homeFilter, filter]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {

@@ -54,7 +54,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   const navigate = useNavigate();
   const [, { addFilter }] = useFilters();
   const [{ actions }] = useLookup();
-  const [{ filter }, { storeFilter }] = useContent();
+  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
   /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
   const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
     React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);

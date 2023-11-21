@@ -29,7 +29,7 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
     television,
     newsRadio,
   } = useFilterOptions();
-  const [{ filter }, { storeFilter }] = useContent();
+  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
 
   return (
     <Col className="expanded media-section space-top">

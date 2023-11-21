@@ -3,7 +3,7 @@ import { Row, Select } from 'tno-core';
 
 /** allows user to filter based off of show/programs */
 export const TagSection: React.FC = () => {
-  const [{ filter }, { storeFilter }] = useContent();
+  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
   const [{ tags }] = useLookupOptions();
   const tagOptions = tags.map((t) => {
     return { value: t.code, label: t.name };

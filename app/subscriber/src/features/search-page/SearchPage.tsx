@@ -30,7 +30,7 @@ export const SearchPage: React.FC = () => {
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [searchName, setSearchName] = React.useState<string>();
   const [isLoading, setIsLoading] = React.useState(false);
-  const [{ filter }] = useContent();
+  const [{ searchFilter: filter }] = useContent();
   const savedSearchId = filter.savedSearchId;
 
   React.useEffect(() => {
