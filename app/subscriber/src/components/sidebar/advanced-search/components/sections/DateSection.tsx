@@ -7,7 +7,7 @@ import { Row, ToggleGroup } from 'tno-core';
 import { QuickPickerNames } from './constants';
 import { determineActivePicker } from './utils';
 
-export const DateSection: React.FC = ({}) => {
+export const DateSection: React.FC = () => {
   // disable quick picker when user selects a date on react-date-picker
   const [disableQuickPick, setDisableQuickPick] = React.useState(false);
   const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
@@ -15,6 +15,8 @@ export const DateSection: React.FC = ({}) => {
   // ensure that date offset is cleared when using the custom date picker
   React.useEffect(() => {
     disableQuickPick && storeFilter({ ...filter, dateOffset: undefined });
+    // only run when flag changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disableQuickPick]);
 
   return (

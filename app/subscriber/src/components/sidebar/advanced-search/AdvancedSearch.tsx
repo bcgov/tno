@@ -5,10 +5,9 @@ import { FaPlay, FaRegSmile, FaSearch } from 'react-icons/fa';
 import { FaCloudArrowUp, FaIcons, FaNewspaper, FaTags, FaTv, FaUsers } from 'react-icons/fa6';
 import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router';
-import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
-import { Button, Col, generateQuery, Row, Show, Text, TextArea, toQueryString } from 'tno-core';
+import { Button, Col, generateQuery, Row, Show, Text, TextArea } from 'tno-core';
 
 import {
   ContentSection,
@@ -25,13 +24,8 @@ import {
   TagSection,
 } from './components';
 import { defaultAdvancedSearch } from './constants';
-import {
-  defaultSubMediaGroupExpanded,
-  IAdvancedSearchFilter,
-  ISubMediaGroupExpanded,
-} from './interfaces';
+import { defaultSubMediaGroupExpanded, ISubMediaGroupExpanded } from './interfaces';
 import * as styled from './styled';
-import { queryToState } from './utils/queryToState';
 
 export interface IAdvancedSearchProps {
   expanded: boolean;

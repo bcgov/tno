@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useContent, useLookup, useLookupOptions } from 'store/hooks';
+import { useContent, useLookup } from 'store/hooks';
 import { FieldSize, OptionItem, Row, Select } from 'tno-core';
 
 /** Section for advanced filter that allows users to select contributors they want to filter content off of. */

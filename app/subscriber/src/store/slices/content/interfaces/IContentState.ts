@@ -1,7 +1,4 @@
-import {
-  IContentListAdvancedFilter,
-  IContentListFilter,
-} from 'features/content/list-view/interfaces';
+import { IContentListFilter } from 'features/content/list-view/interfaces';
 import { IContentModel, IOptionItem, IPaged } from 'tno-core';
 
 export interface IContentState {

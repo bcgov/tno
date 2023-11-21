@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { useContent, useFilters, useLookup } from 'store/hooks';
-import { Col, FlexboxTable, IFilterModel, Modal, Row, toQueryString, useModal } from 'tno-core';
+import { Col, FlexboxTable, IFilterModel, Modal, Row, useModal } from 'tno-core';
 
 import { columns } from './constants/columns';
 import * as styled from './styled';
@@ -15,7 +15,7 @@ export const MySearches = () => {
   const { toggle, isShowing } = useModal();
   const [{ actions }] = useLookup();
   const navigate = useNavigate();
-  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
+  const [, { storeSearchFilter: storeFilter }] = useContent();
   const [myFilters, setMyFilters] = React.useState<IFilterModel[]>([]);
   const [active, setActive] = React.useState<IFilterModel>();
   const [editable, setEditable] = React.useState<string>('');

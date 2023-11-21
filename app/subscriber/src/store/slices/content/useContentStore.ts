@@ -1,7 +1,4 @@
-import {
-  IContentListAdvancedFilter,
-  IContentListFilter,
-} from 'features/content/list-view/interfaces';
+import { IContentListFilter } from 'features/content/list-view/interfaces';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
 import { IContentModel, IOptionItem, IPaged } from 'tno-core';

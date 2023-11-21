@@ -1,6 +1,6 @@
 import { useFilterOptions } from 'components/sidebar/hooks';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle } from 'react-icons/io';
-import { Col, Row, Select, Show } from 'tno-core';
+import { Col, Row, Show } from 'tno-core';
 
 import { SubMediaGroups } from '../constants';
 import { ISubMediaGroupExpanded } from '../interfaces';
