@@ -106,7 +106,7 @@ public class ReportXlsExport
 
             content.
             Select(s => new {
-                s.Content?.Product?.Name,
+                s.Content?.MediaType?.Name,
                 s.Content?.PublishedOn,
                 s.Content?.TonePools
             }).ToList().ForEach((i) => {
@@ -126,7 +126,7 @@ public class ReportXlsExport
 
             var productTable = content.
             Select(s => new {
-                s.Content?.Product?.Name,
+                s.Content?.MediaType?.Name,
                 s.Content?.PublishedOn,
                 s.Content?.TonePools
             }).
