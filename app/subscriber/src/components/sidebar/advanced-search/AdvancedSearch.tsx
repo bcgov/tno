@@ -16,9 +16,9 @@ import {
   DateSection,
   ExpandableRow,
   MediaSection,
+  MediaTypeSection,
   MoreOptions,
   PaperSection,
-  ProductSection,
   SearchInGroup,
   SentimentSection,
   SeriesSection,
@@ -196,10 +196,10 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
                 <ContributorSection />
               </ExpandableRow>
             </Col>
-            {/* PRODUCT SECTION */}
+            {/* MEDIA TYPES SECTION */}
             <Col className="expandable-section">
-              <ExpandableRow icon={<FaIcons />} title="Product">
-                <ProductSection />
+              <ExpandableRow icon={<FaIcons />} title="Media Types">
+                <MediaTypeSection />
               </ExpandableRow>
             </Col>
             {/* SHOW/PROGRAM SECTION */}
