@@ -9,7 +9,7 @@ namespace TNO.API.Areas.Subscriber.Models.Report;
 /// </summary>
 public class FilterModel : BaseTypeWithAuditColumnsModel<int>
 {
-     #region Properties
+    #region Properties
 
     /// <summary>
     /// get/set - Foreign key to user who owns this report.
@@ -48,7 +48,7 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
         this.OwnerId = entity.OwnerId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.Query = entity.Query;
-        this.Settings = JsonSerializer.Deserialize<FilterSettingsModel>(JsonSerializer.Serialize(entity.Settings, options)) ?? new();
+        this.Settings = JsonSerializer.Deserialize<FilterSettingsModel>(JsonSerializer.Serialize(entity.Settings, options), options) ?? new();
     }
     #endregion
 

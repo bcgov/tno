@@ -5,6 +5,15 @@ import { IReportForm } from '../interfaces';
 import { getHideEmpty } from './getHideEmpty';
 import { sortContent } from './sortContent';
 
+/**
+ * TODO: This is an ugly implementation and confusing.
+ * Converts a report model into a form.
+ * The form is passed in to extract which sections were expanded.
+ * @param report Latest report information.
+ * @param form The current form information.
+ * @param expand Whether to expand sections.
+ * @returns a new form.
+ */
 export const toForm = (
   report: IReportModel,
   form: IReportForm,
