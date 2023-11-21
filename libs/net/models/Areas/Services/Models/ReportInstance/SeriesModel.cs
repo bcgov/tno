@@ -27,6 +27,11 @@ public class SeriesModel : BaseTypeModel<int>
     public SeriesModel(Entities.Series entity) : base(entity)
     {
         this.SourceId = entity.SourceId;
+        this.Name = entity.Name;
+        this.Description = entity.Description;
+        this.IsEnabled = entity.IsEnabled;
+        this.SortOrder = entity.SortOrder;
+        this.SourceId = entity.SourceId;
     }
 
     /// <summary>

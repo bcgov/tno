@@ -7,7 +7,7 @@ import {
   ResponderProvided,
 } from 'react-beautiful-dnd';
 import { FaRegClock, FaSave } from 'react-icons/fa';
-import { FaArrowsSpin, FaGear } from 'react-icons/fa6';
+import { FaArrowsSpin, FaFileExcel, FaGear } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useReports } from 'store/hooks';
@@ -30,7 +30,7 @@ import { ReportSection } from './components';
 export const ReportSnapshotEdit: React.FC = () => {
   const navigate = useNavigate();
   const { values, isSubmitting, setValues, setFieldValue } = useFormikContext<IReportForm>();
-  const [{ generateReport }] = useReports();
+  const [{ generateReport, exportReport }] = useReports();
   const { isShowing, toggle } = useModal();
 
   const instance = values.instances.length ? values.instances[0] : null;
@@ -44,6 +44,18 @@ export const ReportSnapshotEdit: React.FC = () => {
     },
     [generateReport, setValues],
   );
+
+  const handleExport = React.useCallback(async () => {
+    try {
+      if (instance?.id) {
+        await toast.promise(exportReport(instance?.id), {
+          pending: 'Downloading file',
+          success: 'Download complete',
+          error: 'Download failed',
+        });
+      }
+    } catch {}
+  }, [exportReport, instance?.id]);
 
   const getDestinationIndex = (
     items: IReportInstanceContentModel[],
@@ -100,6 +112,14 @@ export const ReportSnapshotEdit: React.FC = () => {
           <Col flex="1">
             <h2>Edit Report</h2>
           </Col>
+          <Button
+            variant={ButtonVariant.secondary}
+            disabled={isSubmitting}
+            title="Export to Excel"
+            onClick={() => handleExport()}
+          >
+            <FaFileExcel />
+          </Button>
           <Button
             variant={ButtonVariant.secondary}
             disabled={isSubmitting}

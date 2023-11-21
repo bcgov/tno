@@ -16,6 +16,7 @@ using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Keycloak;
 using TNO.Models.Filters;
+using TNO.Reports;
 using TNO.TemplateEngine.Models.Reports;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
@@ -308,6 +309,28 @@ public class ReportController : ControllerBase
         }
 
         return new JsonResult(new ReportModel(report, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Generate an Excel document report.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpPost("{id}/export")]
+    [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public FileResult Generate(int id)
+    {
+        var helper = new ReportXlsExport(_reportInstanceService, _serializerOptions);
+
+        var report = helper.GenerateReport(id);
+
+        using var stream = new MemoryStream();
+        report.Write(stream);
+        var bytes = stream.ToArray();
+
+        return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "cbra.xlsx");
     }
 
     /// <summary>
