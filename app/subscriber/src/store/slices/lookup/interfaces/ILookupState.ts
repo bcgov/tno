@@ -7,8 +7,8 @@ import {
   IHolidayModel,
   IIngestTypeModel,
   ILicenseModel,
+  IMediaTypeModel,
   IMetricModel,
-  IProductModel,
   IRoleModel,
   ISeriesModel,
   ISettingModel,
@@ -22,11 +22,12 @@ import {
 } from 'tno-core';
 
 export interface ILookupState {
+  isReady: boolean;
   cache: ICacheModel[];
   actions: IActionModel[];
   topics: ITopicModel[];
   ministers: IMinisterModel[];
-  products: IProductModel[];
+  mediaTypes: IMediaTypeModel[];
   licenses: ILicenseModel[];
   series: ISeriesModel[];
   contributors: IContributorModel[];

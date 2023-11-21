@@ -1,14 +1,16 @@
 import styled from 'styled-components';
-import { Row } from 'tno-core';
 
-export const MediaSummary = styled(Row)`
+export const MediaSummary = styled.div`
+  flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
   flex-wrap: wrap-reverse;
 
   hr {
     height: 0.05em;
   }
 
-  .summary {
+  .quill-summary {
     flex: 1;
     display: flex;
     flex-flow: column;
@@ -17,6 +19,11 @@ export const MediaSummary = styled(Row)`
 
     .quill {
       flex: 1;
+
+      .ql-editor {
+        // TODO: Use Flexbox instead.
+        height: 400px;
+      }
     }
   }
 

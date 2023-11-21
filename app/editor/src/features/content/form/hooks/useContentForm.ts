@@ -173,7 +173,7 @@ export const useContentForm = ({
     setForm({
       ...defaultFormValues(values.contentType),
       sourceId: values.sourceId,
-      productId: values.productId,
+      mediaTypeId: values.mediaTypeId,
       otherSource: values.otherSource,
       publishedOn: updatedDate.toLocaleString(),
     });

@@ -54,7 +54,6 @@ public class ContentController : ControllerBase
     private readonly IActionService _actionService;
     private readonly StorageOptions _storageOptions;
     private readonly IConnectionHelper _connection;
-    private readonly IHubContext<MessageHub> _hub;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
     private readonly KafkaHubConfig _kafkaHubOptions;
@@ -74,7 +73,6 @@ public class ContentController : ControllerBase
     /// <param name="workOrderHelper"></param>
     /// <param name="userService"></param>
     /// <param name="actionService"></param>
-    /// <param name="hub"></param>
     /// <param name="connection"></param>
     /// <param name="storageOptions"></param>
     /// <param name="kafkaMessenger"></param>
@@ -90,7 +88,6 @@ public class ContentController : ControllerBase
         IWorkOrderHelper workOrderHelper,
         IUserService userService,
         IActionService actionService,
-        IHubContext<MessageHub> hub,
         IConnectionHelper connection,
         IOptions<StorageOptions> storageOptions,
         IOptions<ElasticOptions> elasticOptions,
@@ -107,7 +104,6 @@ public class ContentController : ControllerBase
         _userService = userService;
         _actionService = actionService;
         _storageOptions = storageOptions.Value;
-        _hub = hub;
         _connection = connection;
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;

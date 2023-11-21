@@ -34,7 +34,7 @@ public class SourceModel : BaseTypeModel<int>
     /// <summary>
     /// get/set -
     /// </summary>
-    public int? ProductId { get; set; }
+    public int? MediaTypeId { get; set; }
 
     /// <summary>
     /// get/set -
@@ -78,7 +78,7 @@ public class SourceModel : BaseTypeModel<int>
         this.SortOrder = entity.SortOrder;
         this.LicenseId = entity.LicenseId;
         this.OwnerId = entity.OwnerId;
-        this.ProductId = entity.ProductId;
+        this.MediaTypeId = entity.MediaTypeId;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
         this.UseInTopics = entity.UseInTopics;
@@ -101,7 +101,7 @@ public class SourceModel : BaseTypeModel<int>
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
             OwnerId = model.OwnerId,
-            ProductId = model.ProductId,
+            MediaTypeId = model.MediaTypeId,
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
             UseInTopics = model.UseInTopics,

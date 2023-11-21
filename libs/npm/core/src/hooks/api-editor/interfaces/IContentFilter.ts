@@ -24,7 +24,7 @@ export interface IContentFilter extends ISortPageFilter {
   contentTypes?: ContentTypeName[];
   keyword?: string;
   actions?: string[];
-  productIds?: number[];
+  mediaTypeIds?: number[];
   sourceIds?: number[];
   seriesId?: number;
   excludeSourceIds?: number[];

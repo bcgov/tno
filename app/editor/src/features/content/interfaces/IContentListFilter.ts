@@ -12,7 +12,7 @@ export interface IContentListFilter {
   timeFrame: number | '';
   otherSource: string;
   contentTypes: ContentTypeName[];
-  productIds: number[];
+  mediaTypeIds: number[];
   sourceIds: number[];
   excludeSourceIds: number[];
   // Actions

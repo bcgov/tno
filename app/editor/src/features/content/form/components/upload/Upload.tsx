@@ -64,7 +64,8 @@ export const Upload: React.FC<IUploadProps> = ({
 
   const [file, setFile] = React.useState<IFile>();
 
-  const fileName = generateName(file) ?? generateName(initFile);
+  const [fileName, setFileName] = React.useState<string>();
+  const [fileBlobUrl, setFileBlobUrl] = React.useState<string>();
   const fileReference = values.fileReferences.length ? values.fileReferences[0] : undefined;
   const processing = values.workOrders.some(
     (wo) =>
@@ -72,10 +73,27 @@ export const Upload: React.FC<IUploadProps> = ({
   );
 
   React.useEffect(() => {
-    if (!!initFile) {
-      setFile(undefined);
+    const newFileName = generateName(initFile);
+    if (!!initFile && newFileName !== fileName) {
+      setFile(initFile);
+      setFileName(newFileName);
     }
+    // Only update when initFile changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initFile]);
+
+  React.useEffect(() => {
+    const updatedFileName = generateName(file);
+    setFileName(updatedFileName);
+    async function updateFileBlobUrl() {
+      const buffer = await file?.arrayBuffer?.();
+      if (buffer) {
+        const newBlob = new Blob([buffer], { type: file?.type });
+        setFileBlobUrl(URL.createObjectURL(newBlob));
+      }
+    }
+    updateFileBlobUrl();
+  }, [file]);
 
   const handleDelete = () => {
     if (!!file || values.fileReferences.length > 0) {
@@ -132,9 +150,20 @@ export const Upload: React.FC<IUploadProps> = ({
           />
         </Col>
       </Show>
-      <Show visible={!!stream && contentType === ContentTypeName.Image}>
+      <Show
+        visible={
+          (!!stream && contentType === ContentTypeName.Image) ||
+          (!!file && !!fileBlobUrl && file.type?.includes('image'))
+        }
+      >
         <Col flex="1">
-          <img height="300" width="500" alt="" className="object-fit" src={stream?.url}></img>
+          <img
+            height="300"
+            width="500"
+            alt=""
+            className="image"
+            src={stream?.url || fileBlobUrl}
+          ></img>
         </Col>
       </Show>
       <Show visible={!!stream && contentType === ContentTypeName.AudioVideo && !!fileReference}>

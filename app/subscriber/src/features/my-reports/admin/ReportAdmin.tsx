@@ -6,7 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useReports, useReportTemplates } from 'store/hooks';
 import { useAppStore } from 'store/slices';
-import { Col, Container, Row } from 'tno-core';
+import { Col, Container, Loading, Row } from 'tno-core';
 
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
@@ -40,13 +40,15 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
 
   React.useEffect(() => {
     const reportId = parseInt(id ?? '0');
-    if (reportId && !report.id)
+    if (reportId)
       getReport(reportId)
         .then((result) => {
           if (result) setReport(toForm(result, report));
         })
         .catch(() => {});
-  }, [getReport, id, report]);
+    // Only make a request when 'id' changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   React.useEffect(() => {
     if (userInfo) setReport((report) => ({ ...report, ownerId: userInfo.id }));
@@ -102,29 +104,36 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
   return (
     <styled.ReportAdmin>
       <SearchWithLogout />
-      <FormikForm
-        loading={false}
-        initialValues={report}
-        validationSchema={ReportFormSchema}
-        validateOnChange={false}
-        onSubmit={async (values, { setSubmitting }) => {
-          await handleSubmit(values);
-          setSubmitting(false);
-        }}
-      >
-        {(props: FormikProps<IReportForm>) => (
-          <Row className="report-layout" gap="1rem">
-            <Col flex="1" className="edit">
-              <Container isLoading={requests.some((r) => loading.includes(r.url))}>
-                <ReportAdminEdit />
-              </Container>
-            </Col>
-            <Col flex="1" className="preview">
-              <ReportAdminPreview />
-            </Col>
-          </Row>
-        )}
-      </FormikForm>
+
+      {id && !report.id ? (
+        <Row className="loader">
+          <Loading />
+        </Row>
+      ) : (
+        <FormikForm
+          loading={false}
+          initialValues={report}
+          validationSchema={ReportFormSchema}
+          validateOnChange={false}
+          onSubmit={async (values, { setSubmitting }) => {
+            await handleSubmit(values);
+            setSubmitting(false);
+          }}
+        >
+          {(props: FormikProps<IReportForm>) => (
+            <Row className="report-layout" gap="1rem">
+              <Col flex="1" className="edit">
+                <Container isLoading={requests.some((r) => loading.includes(r.url))}>
+                  <ReportAdminEdit />
+                </Container>
+              </Col>
+              <Col flex="1" className="preview">
+                <ReportAdminPreview />
+              </Col>
+            </Row>
+          )}
+        </FormikForm>
+      )}
     </styled.ReportAdmin>
   );
 };

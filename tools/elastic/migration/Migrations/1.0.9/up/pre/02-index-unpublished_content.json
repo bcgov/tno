@@ -1,0 +1,87 @@
+{
+  "action": "createIndex",
+  "settings": {
+    "indexName": "unpublished_content_v1.0.9"
+  },
+  "data": {
+    "settings": {
+      "index": {
+        "number_of_shards": 1,
+        "number_of_replicas": 3
+      }
+    },
+    "mappings": {
+      "properties": {
+        "id": { "type": "long" },
+        "uid": { "type": "text" },
+        "sourceId": { "type": "integer" },
+        "otherSource": { "type": "keyword" },
+        "status": { "type": "keyword" },
+        "contentType": { "type": "keyword" },
+        "licenseId": { "type": "integer" },
+        "mediaTypeId": { "type": "integer" },
+        "seriesId": { "type": "integer" },
+        "otherSeries": { "type": "text" },
+        "ownerId": { "type": "integer" },
+        "headline": { "type": "text" },
+        "byline": { "type": "text" },
+        "sourceUrl": { "type": "text", "index": false },
+        "summary": { "type": "text" },
+        "body": { "type": "text" },
+        "edition": { "type": "keyword" },
+        "section": { "type": "keyword" },
+        "page": { "type": "keyword" },
+        "storyType": { "type": "keyword" },
+        "isHidden": { "type": "boolean" },
+        "isApproved": { "type": "boolean" },
+        "publishedOn": { "type": "date" },
+        "createdBy": { "type": "text", "index": false },
+        "createdOn": { "type": "date" },
+        "updatedBy": { "type": "text", "index": false },
+        "updatedOn": { "type": "date" },
+        "version": { "type": "long", "index": false },
+        "tags": {
+          "type": "nested",
+          "properties": {
+            "id": { "type": "integer" },
+            "code": { "type": "keyword" },
+            "name": { "type": "keyword" }
+          }
+        },
+        "tonePools": {
+          "type": "nested",
+          "properties": {
+            "id": { "type": "integer" },
+            "name": { "type": "keyword" },
+            "ownerId": { "type": "integer" },
+            "value": { "type": "integer" }
+          }
+        },
+        "topics": {
+          "type": "nested",
+          "properties": {
+            "id": { "type": "integer" },
+            "name": { "type": "keyword" },
+            "topicType": { "type": "keyword" },
+            "score": { "type": "integer" }
+          }
+        },
+        "actions": {
+          "type": "nested",
+          "properties": {
+            "id": { "type": "integer" },
+            "name": { "type": "keyword" },
+            "value": { "type": "text" }
+          }
+        },
+        "labels": {
+          "type": "nested",
+          "properties": {
+            "key": { "type": "keyword" },
+            "value": { "type": "text" }
+          }
+        }
+      }
+    }
+  }
+}

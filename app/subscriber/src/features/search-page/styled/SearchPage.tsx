@@ -3,6 +3,12 @@ import styled from 'styled-components';
 export const SearchPage = styled.div`
   max-height: 100vh;
   overflow: none;
+
+  .title {
+    color: ${(props) => props.theme.css.redHeadingColor};
+    font-weight: bold;
+    font-size: 1.35em;
+  }
   .add-page {
     margin-left: auto;
   }
@@ -16,17 +22,25 @@ export const SearchPage = styled.div`
     width: 100%;
   }
 
-  .adv-search-container,
-  .result-container {
-    width: 50%;
+  .adv-search-container {
+    width: 45%;
+    max-height: 90vh;
+    overflow-y: auto;
   }
+
+  .result-container {
+    width: 55%;
+  }
+
   .save-bar {
-    background-color: rgb(233, 236, 239);
+    background-color: white;
+    border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
     padding-top: 0.5em;
     box-shadow: 0 0.5em 0.5em -0.4em rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.02);
-    padding-left: 1.5em;
     padding-right: 1.5em;
-    padding-bottom: 0.5em;
+    padding-left: 0.5em;
+    border-radius: 0.75em 0.75em 0 0;
+
     .folder-sub-menu {
       margin-left: auto;
     }

@@ -5,8 +5,8 @@ export const queryToState = (queryString: string) => {
   const urlParams = new URLSearchParams(queryString);
 
   const search = fromQueryString(queryString, {
-    arrays: ['sourceIds', 'sentiment'],
-    numbers: ['sourceIds', 'sentiment'],
+    arrays: ['sourceIds', 'sentiment', 'contributorIds', 'productIds', 'seriesIds', 'tags'],
+    numbers: ['sourceIds', 'sentiment', 'contributorIds', 'productIds', 'seriesIds'],
   });
 
   return {
@@ -17,13 +17,19 @@ export const queryToState = (queryString: string) => {
     inHeadline: search.inHeadline === 'true',
     inStory: search.inStory === 'true',
     inByline: search.inByline === 'true',
-    frontPage: search.productIds?.includes(11) || false,
+    frontPage: search.mediaTypeIds?.includes(11) || false,
     topStory: search.actions?.includes('Top Story') || false,
     sourceIds: search.sourceIds?.map((v: any) => Number(v)),
-    productIds: search.productIds,
+    mediaTypeIds: search.productId?.map((v: any) => Number(v)),
     startDate: urlParams.get('publishedStartOn') || '',
     endDate: urlParams.get('publishedEndOn') || '',
     sentiment: search.sentiment?.map((v: any) => Number(v)),
     useUnpublished: search.useUnpublished === 'true',
+    section: search.section,
+    seriesIds: search.seriesIds?.map((v: any) => Number(v)),
+    page: search.paperPage,
+    edition: search.edition,
+    contributorIds: search.contributorIds?.map((v: any) => Number(v)),
+    tags: search.tags?.map((v: any) => String(v)),
   };
 };

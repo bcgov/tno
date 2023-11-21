@@ -47,21 +47,21 @@ public class Source : BaseType<int>
     public virtual User? Owner { get; set; }
 
     /// <summary>
-    /// get/set - Foreign key to product that content will be defaulted to.
+    /// get/set - Foreign key to media that content will be defaulted to.
     /// </summary>
-    [Column("product_id")]
-    public int? ProductId { get; set; }
+    [Column("media_type_id")]
+    public int? MediaTypeId { get; set; }
 
     /// <summary>
-    /// get/set - The default product search group id.
+    /// get/set - The default media type search group id.
     /// </summary>
-    [Column("product_search_group_id")]
-    public int? ProductSearchGroupId { get; set; }
+    [Column("media_type_search_group_id")]
+    public int? MediaTypeSearchGroupId { get; set; }
 
     /// <summary>
-    /// get/set - The default product designation.
+    /// get/set - The default media type designation.
     /// </summary>
-    public virtual Product? Product { get; set; }
+    public virtual MediaType? MediaType { get; set; }
 
     /// <summary>
     /// get/set - Whether content with this series should automatically be transcribed.

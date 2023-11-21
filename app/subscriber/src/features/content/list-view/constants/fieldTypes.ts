@@ -7,7 +7,7 @@ export const fieldTypes = [
   new OptionItem('Source', 'otherSource'),
   new OptionItem('Section', 'section'),
   new OptionItem('Edition', 'edition'),
-  new OptionItem('Product', 'product'),
+  new OptionItem('Media Type', 'mediaType'),
   new OptionItem('Byline', 'byline'),
   new OptionItem('Content Type', 'contentType'),
   new OptionItem('Published On', 'publishedOn'),

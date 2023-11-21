@@ -31,7 +31,7 @@ import { contentTypeOptions } from './constants';
 export const FilterFormDetails: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IFilterModel>();
 
-  const [{ productOptions, sourceOptions, seriesOptions, contributorOptions, actions, tags }] =
+  const [{ mediaTypeOptions, sourceOptions, seriesOptions, contributorOptions, actions, tags }] =
     useLookupOptions();
 
   const [, setFilter] = React.useState(JSON.stringify(values.query, null, 2));
@@ -212,18 +212,18 @@ export const FilterFormDetails: React.FC = () => {
         </Col>
         <Col flex="1">
           <Select
-            name="productIds"
-            label="Products"
+            name="mediaTypeIds"
+            label="Media Types"
             isMulti
-            options={productOptions}
+            options={mediaTypeOptions}
             value={
-              productOptions.filter((mt) =>
-                values.settings.productIds?.some((p: number) => p === mt.value),
+              mediaTypeOptions.filter((mt) =>
+                values.settings.mediaTypeIds?.some((p: number) => p === mt.value),
               ) ?? []
             }
             onChange={(newValue: any) => {
-              const productIds = newValue.map((v: OptionItem) => v.value);
-              updateQuery('productIds', productIds);
+              const mediaTypeIds = newValue.map((v: OptionItem) => v.value);
+              updateQuery('mediaTypeIds', mediaTypeIds);
             }}
           />
         </Col>

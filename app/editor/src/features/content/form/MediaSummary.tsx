@@ -1,5 +1,6 @@
-import { Wysiwyg } from 'components/wysiwyg';
 import React from 'react';
+import { useLookup } from 'store/hooks';
+import { FormikContentWysiwyg } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -16,14 +17,17 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
   setShowExpandModal,
   isSummaryRequired,
 }) => {
+  const [{ tags }] = useLookup();
+
   return (
     <styled.MediaSummary>
-      <Wysiwyg
-        className="summary"
+      <FormikContentWysiwyg
+        className="quill-summary"
         label="Summary"
         required={isSummaryRequired}
-        fieldName="summary"
+        name="summary"
         expandModal={setShowExpandModal}
+        tags={tags}
       />
     </styled.MediaSummary>
   );

@@ -24,7 +24,9 @@ namespace TNO.Services.FileMonitor;
 /// </summary>
 public class FileMonitorAction : IngestAction<FileMonitorOptions>
 {
-    #region Properties
+    #region Variables
+    // Regex to find the story closing tag.
+    private readonly Regex _storyTag = new Regex(@"</story\>[\t\s\n]*<date>[0-9]{2}\-[0-9]{2}\-[0-9]{4}</date>[\t\s\n]*<page>.*</page>[\t\s\n]*</bcng>[\t\s\n]*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     #endregion
 
     #region Constructors
@@ -49,16 +51,16 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
 
+        // This ingest has just begun running.
+        await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
+
         var dir = GetOutputPath(manager.Ingest);
 
-        if (String.IsNullOrEmpty(dir))
-        {
-            throw new InvalidOperationException($"No import directory defined for ingest '{manager.Ingest.Name}'");
-        }
+        if (String.IsNullOrEmpty(dir)) throw new InvalidOperationException($"No import directory defined for ingest '{manager.Ingest.Name}'");
 
         await FetchFilesFromRemoteAsync(manager);
         var format = manager.Ingest.GetConfigurationValue(Fields.FileFormat);
@@ -87,7 +89,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="manager"></param>
     /// <returns></returns>
     /// <exception cref="ConfigurationException"></exception>
-    public async Task FetchFilesFromRemoteAsync(IIngestServiceActionManager manager)
+    public async Task FetchFilesFromRemoteAsync(IIngestActionManager manager)
     {
         // Extract the source connection configuration settings.
         var remotePath = manager.Ingest.SourceConnection?.GetConfigurationValue("path");
@@ -134,7 +136,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="remotePath"></param>
     /// <param name="manager"></param>
     /// <returns></returns>
-    private async Task FetchFiles(ConnectionInfo connectionInfo, string remotePath, IIngestServiceActionManager manager)
+    private async Task FetchFiles(ConnectionInfo connectionInfo, string remotePath, IIngestActionManager manager)
     {
         // Extract the ingest configuration settings
         var code = manager.Ingest.Source?.Code ?? "";
@@ -243,7 +245,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="manager"></param>
     /// <param name="content"></param>
     /// <returns></returns>
-    private async Task ImportArticleAsync(IIngestServiceActionManager manager, SourceContent content)
+    private async Task ImportArticleAsync(IIngestActionManager manager, SourceContent content)
     {
         try
         {
@@ -422,7 +424,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="sources"></param>
     /// <returns></returns>
     /// <exception cref="FormatException"></exception>
-    private async Task GetXmlArticlesAsync(string dir, IIngestServiceActionManager manager, Dictionary<string, string> sources)
+    private async Task GetXmlArticlesAsync(string dir, IIngestActionManager manager, Dictionary<string, string> sources)
     {
         var ingest = manager.Ingest;
         var fileList = GetFileList(dir);
@@ -442,7 +444,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                     {
                         var paperName = GetXmlData(story, Fields.PaperName, ingest);
                         var code = GetItemSourceCode(ingest, paperName, sources);
-                        var productId = await GetProductIdAsync(ingest, code, sources);
+                        var mediaTypeId = await GetMediaTypeIdAsync(ingest, code, sources);
                         var headline = GetXmlData(story, Fields.Headline, ingest);
                         var publishedOn = GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest, this.Options);
                         var contentHash = GetContentHash(code, headline, publishedOn);
@@ -451,7 +453,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                             this.Options.DataLocation,
                             code,
                             ContentType.PrintContent,
-                            productId,
+                            mediaTypeId,
                             contentHash,
                             headline,
                             GetXmlData(story, Fields.Summary, ingest),
@@ -468,6 +470,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                         await ImportArticleAsync(manager, item);
                     }
                 }
+                // This ingest has just completed running for one content item.
+                await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
             }
             catch (Exception ex)
             {
@@ -500,7 +504,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="sources"></param>
     /// <returns></returns>
     /// <exception cref="FormatException"></exception>
-    private async Task GetFmsArticlesAsync(string dir, IIngestServiceActionManager manager, Dictionary<string, string> sources)
+    private async Task GetFmsArticlesAsync(string dir, IIngestActionManager manager, Dictionary<string, string> sources)
     {
         var ingest = manager.Ingest;
         var fileList = GetFileList(dir);
@@ -526,12 +530,12 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
 
                         if (!String.IsNullOrEmpty(code)) // This is a valid newspaper source
                         {
-                            var productId = await GetProductIdAsync(ingest, code, sources);
+                            var mediaTypeId = await GetMediaTypeIdAsync(ingest, code, sources);
                             var item = new SourceContent(
                                 this.Options.DataLocation,
                                 code,
                                 ContentType.PrintContent,
-                                productId,
+                                mediaTypeId,
                                 GetFmsData(entry, Fields.Id, ingest),
                                 GetFmsData(entry, Fields.Headline, ingest),
                                 GetFmsData(entry, Fields.Summary, ingest),
@@ -564,30 +568,30 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     }
 
     /// <summary>
-    /// Get the "productId" value for the current source. If the ingest is selfPublished (relates to only one publication) the sources
-    /// dictionary will be empty and the productId for the ingest will be returned. If sources is not empty the source for the "code"
-    /// parameter will be retrieved and if the source's override productId is not null it will be returned.
+    /// Get the "mediaTypeId" value for the current source. If the ingest is selfPublished (relates to only one publication) the sources
+    /// dictionary will be empty and the mediaTypeId for the ingest will be returned. If sources is not empty the source for the "code"
+    /// parameter will be retrieved and if the source's override mediaTypeId is not null it will be returned.
     /// </summary>
     /// <param name="ingest"></param>
     /// <param name="code"></param>
     /// <param name="sources"></param>
     /// <returns></returns>
-    private async Task<int> GetProductIdAsync(IngestModel ingest, string code, Dictionary<string, string> sources)
+    private async Task<int> GetMediaTypeIdAsync(IngestModel ingest, string code, Dictionary<string, string> sources)
     {
         if (sources.Count == 0) // Self published
         {
-            return ingest.ProductId;
+            return ingest.MediaTypeId;
         }
         else
         {
             var source = await this.Api.GetSourceForCodeAsync(code);
             if (source == null)
             {
-                return ingest.ProductId;
+                return ingest.MediaTypeId;
             }
             else
             {
-                return source.ProductId ?? ingest.ProductId;
+                return source.MediaTypeId ?? ingest.MediaTypeId;
             }
         }
     }
@@ -664,6 +668,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// in the file based on the shortcomings of the ingest. Fixes are indicated by Connection string entries.
     /// The following fixes are supported:
     ///
+    ///     "fixBlacksXML" - The BCNG files regularly are corrupt and are missing the bottom of the XML.
     ///     "addParent" - The BCNG files lack a single parent tag so one is inserted.
     ///     "escapeContent" - BCNG stories contain parsing errors, so they are stored as CDATA.
     ///
@@ -673,39 +678,53 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <returns></returns>
     private XmlDocument? GetValidXmlDocument(string filePath, IngestModel ingest)
     {
-        try
+        var xmlTxt = ReadFileContents(filePath, ingest);
+        if (xmlTxt != null)
         {
-            var xmlTxt = ReadFileContents(filePath, ingest);
-            if (xmlTxt != null)
-            {
-                // BCNG files have multiple top-level objects which need to be wrapped in a single pair of tags.
-                var addParent = ingest.GetConfigurationValue<bool>(Fields.AddParent);
-                if (addParent)
-                {
-                    xmlTxt = FixParentTag(xmlTxt);
-                }
+            // BCNG files regularly are corrupt and are missing the bottom of the XML.
+            var fixBlacks = ingest.GetConfigurationValue<bool>(Fields.FixBlacksXml);
+            if (fixBlacks)
+                xmlTxt = FixBlacksNewsgroupXml(filePath, xmlTxt);
 
-                // BCNG stories contain invalid XHTML content which must be escaped to parse the document.
-                var escapeContent = ingest.GetConfigurationValue<bool>(Fields.EscapeContent);
-                if (escapeContent)
-                {
-                    xmlTxt = StoryToCdata(xmlTxt, ingest);
-                }
+            // BCNG files have multiple top-level objects which need to be wrapped in a single pair of tags.
+            var addParent = ingest.GetConfigurationValue<bool>(Fields.AddParent);
+            if (addParent)
+                xmlTxt = FixParentTag(xmlTxt);
 
-                var xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(xmlTxt);
-                return xmlDoc;
-            }
-            else
-            {
-                return null;
-            }
+            // BCNG stories contain invalid XHTML content which must be escaped to parse the document.
+            var escapeContent = ingest.GetConfigurationValue<bool>(Fields.EscapeContent);
+            if (escapeContent)
+                xmlTxt = StoryToCdata(xmlTxt, ingest);
+
+            var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(xmlTxt);
+            return xmlDoc;
         }
-        catch (System.Xml.XmlException e)
+        else
         {
-            this.Logger.LogError(e, "Failed to ingest item from file '{path}'", filePath);
-            throw e;
+            return null;
         }
+    }
+
+    /// <summary>
+    /// Fix the Blacks Newsgroup XML issue.
+    /// </summary>
+    /// <param name="filePath"></param>
+    /// <param name="xml"></param>
+    /// <returns></returns>
+    private string FixBlacksNewsgroupXml(string filePath, string xml)
+    {
+        // Files regularly have the 'last' story corrupting in the <story> node.
+        // This results in the whole file being invalid.
+        // Check for and fix the common failure.
+        if (!_storyTag.Match(xml).Success)
+        {
+            xml = $"{xml}</story><date>{DateTime.Now:MM-dd-yyyy}</date></bcng>";
+            File.WriteAllText(filePath, xml);
+            this.Logger.LogError("The file '{path}' is missing data", filePath);
+        }
+
+        return xml;
     }
 
     /// <summary>

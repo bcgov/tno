@@ -34,24 +34,34 @@ public class ContentModel
     public string OtherSource { get; set; } = "";
 
     /// <summary>
-    /// get/set - Other edition.
+    /// get/set - The edition.
     /// </summary>
     public string Edition { get; set; } = "";
 
     /// <summary>
-    /// get/set - Other section.
+    /// get/set - The section.
     /// </summary>
     public string Section { get; set; } = "";
 
     /// <summary>
-    /// get/set - Other page.
+    /// get/set - The page.
     /// </summary>
     public string Page { get; set; } = "";
 
     /// <summary>
-    /// get/set - Other published on.
+    /// get/set - When content was posted to MMI.
+    /// </summary>
+    public DateTime? PostedOn { get; set; }
+
+    /// <summary>
+    /// get/set - The published on.
     /// </summary>
     public DateTime? PublishedOn { get; set; }
+
+    /// <summary>
+    /// get/set - Private content is not searchable.
+    /// </summary>
+    public bool IsPrivate { get; set; }
 
     /// <summary>
     /// get/set - The source.
@@ -59,9 +69,9 @@ public class ContentModel
     public SortableModel<int>? Source { get; set; }
 
     /// <summary>
-    /// get/set - The product.
+    /// get/set - The media type.
     /// </summary>
-    public SortableModel<int>? Product { get; set; }
+    public SortableModel<int>? MediaType { get; set; }
 
     /// <summary>
     /// get/set - The series.
@@ -99,9 +109,11 @@ public class ContentModel
         this.Section = entity.Section;
         this.Edition = entity.Edition;
         this.Page = entity.Page;
+        this.PostedOn = entity.PostedOn;
         this.PublishedOn = entity.PublishedOn;
+        this.IsPrivate = entity.IsPrivate;
         this.Source = entity.Source != null ? new SortableModel<int>(entity.Source) : null;
-        this.Product = entity.Product != null ? new SortableModel<int>(entity.Product) : null;
+        this.MediaType = entity.MediaType != null ? new SortableModel<int>(entity.MediaType) : null;
         this.Series = entity.Series != null ? new SortableModel<int>(entity.Series) : null;
         this.Contributor = entity.Contributor != null ? new SortableModel<int>(entity.Contributor) : null;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;

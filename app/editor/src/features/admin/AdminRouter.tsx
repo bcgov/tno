@@ -30,8 +30,8 @@ const MinisterForm = lazy(() => import('features/admin/ministers/MinisterForm'))
 const MinisterList = lazy(() => import('features/admin/ministers/MinisterList'));
 const NotificationForm = lazy(() => import('features/admin/notifications/NotificationForm'));
 const NotificationList = lazy(() => import('features/admin/notifications/NotificationList'));
-const ProductForm = lazy(() => import('features/admin/products/ProductForm'));
-const ProductList = lazy(() => import('features/admin/products/ProductList'));
+const MediaTypeForm = lazy(() => import('features/admin/media-types/MediaTypeForm'));
+const MediaTypeList = lazy(() => import('features/admin/media-types/MediaTypeList'));
 const ReachEarnedMedia = lazy(() => import('features/admin/sources/ReachEarnedMedia'));
 const ReportAdmin = lazy(() => import('features/admin/reports/ReportAdmin'));
 const ReportForm = lazy(() => import('features/admin/reports/ReportForm'));
@@ -81,8 +81,8 @@ export const AdminRouter: React.FC = () => {
         <Route path="contributors" element={<ContributorList />} />
         <Route path="contributors/:id" element={<ContributorForm />} />
 
-        <Route path="products" element={<ProductList />} />
-        <Route path="products/:id" element={<ProductForm />} />
+        <Route path="media-types" element={<MediaTypeList />} />
+        <Route path="media-types/:id" element={<MediaTypeForm />} />
 
         <Route path="actions" element={<ActionList />} />
         <Route path="actions/:id" element={<ActionForm />} />

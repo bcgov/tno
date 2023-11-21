@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text.Json;
+using Elasticsearch.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Nest;
@@ -55,7 +56,7 @@ public class ContentService : BaseService<Content, long>, IContentService
     public IPaged<Content> FindWithDatabase(ContentFilter filter, bool asNoTracking = true)
     {
         var query = this.Context.Contents
-            .Include(c => c.Product)
+            .Include(c => c.MediaType)
             .Include(c => c.Source)
             .Include(c => c.Series)
             .Include(c => c.Contributor)
@@ -77,8 +78,8 @@ public class ContentService : BaseService<Content, long>, IContentService
             query = query.Where(c => EF.Functions.Like(c.Page.ToLower(), $"%{filter.PageName.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Section))
             query = query.Where(c => EF.Functions.Like(c.Section.ToLower(), $"%{filter.Section.ToLower()}%"));
-        if (!String.IsNullOrWhiteSpace(filter.Product))
-            query = query.Where(c => EF.Functions.Like(c.Product!.Name.ToLower(), $"%{filter.Product.ToLower()}%"));
+        if (!String.IsNullOrWhiteSpace(filter.MediaType))
+            query = query.Where(c => EF.Functions.Like(c.MediaType!.Name.ToLower(), $"%{filter.MediaType.ToLower()}%"));
 
         if (!String.IsNullOrWhiteSpace(filter.Edition))
             query = query.Where(c => EF.Functions.Like(c.Edition.ToLower(), $"%{filter.Edition.ToLower()}%"));
@@ -97,8 +98,8 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (filter.OnlyPublished.HasValue && filter.OnlyPublished.Value)
             query = query.Where(c => _onlyPublished.Contains(c.Status));
 
-        if (filter.ProductId.HasValue)
-            query = query.Where(c => c.ProductId == filter.ProductId);
+        if (filter.MediaTypeId.HasValue)
+            query = query.Where(c => c.MediaTypeId == filter.MediaTypeId);
         if (filter.OwnerId.HasValue)
             query = query.Where(c => c.OwnerId == filter.OwnerId);
         if (filter.UserId.HasValue)
@@ -138,8 +139,8 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (filter.ContentIds.Any())
             query = query.Where(c => filter.ContentIds.Contains(c.Id));
 
-        if (filter.ProductIds?.Any() == true)
-            query = query.Where(c => filter.ProductIds.Contains(c.ProductId));
+        if (filter.MediaTypeIds?.Any() == true)
+            query = query.Where(c => filter.MediaTypeIds.Contains(c.MediaTypeId));
 
         if (filter.SourceIds?.Any() == true)
             query = query.Where(c => filter.SourceIds.Contains((int)c.SourceId!));
@@ -169,15 +170,16 @@ public class ContentService : BaseService<Content, long>, IContentService
         return new Paged<Content>(items, filter.Page, filter.Quantity, total);
     }
 
+    // TODO: Delete this function
     /// <summary>
     /// Find most recent front pages (5 of them).
     /// </summary>
     /// <returns> Up to 5 front pages.</returns>
     public async Task<IPaged<API.Areas.Services.Models.Content.ContentModel>> FindFrontPages(string index)
     {
-        var productQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
+        var mediaTypeQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
         var today = DateTime.Today.ToUniversalTime();
-        productQueries.Add(q => q.Raw(@"{""match"": {""productId"": 11}}"));
+        mediaTypeQueries.Add(q => q.Raw(@"{""match"": {""mediaTypeId"": 11}}")); //FIXME
         var response = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(s =>
        {
            var result = s
@@ -185,7 +187,7 @@ public class ContentService : BaseService<Content, long>, IContentService
                .Index(index)
                .Size(5);
            result = result.Query(q =>
-               productQueries.Any() ? q.Bool(b => b.Should(productQueries)) : new QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>()
+               mediaTypeQueries.Any() ? q.Bool(b => b.Should(mediaTypeQueries)) : new QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>()
            );
            result = result.Sort(s => s.Descending(p => p.PublishedOn).Descending(p => p.Id));
            return result;
@@ -198,9 +200,9 @@ public class ContentService : BaseService<Content, long>, IContentService
 
     }
 
+    // TODO: Delete this function
     /// <summary>
     /// Find content that matches the specified 'filter'.
-    /// TODO: Change to a raw JSON query.
     /// </summary>
     /// <param name="filter">Filter to apply to the query.</param>
     /// <returns>A page of content items that match the filter.</returns>
@@ -219,8 +221,8 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (filter.Sentiment.Any())
             filterQueries.Add(s => s.Nested(n => n.Path(p => p.TonePools).Query(y => y.Range(m => m.Field("tonePools.value").GreaterThanOrEquals(filter.Sentiment.First()).LessThanOrEquals(filter.Sentiment.Last())))));
 
-        if (filter.ProductIds.Any())
-            filterQueries.Add(s => s.Terms(t => t.Field(f => f.ProductId).Terms(filter.ProductIds)));
+        if (filter.MediaTypeIds.Any())
+            filterQueries.Add(s => s.Terms(t => t.Field(f => f.MediaTypeId).Terms(filter.MediaTypeIds)));
 
         if (filter.ContentTypes.Any())
             filterQueries.Add(s => s.Terms(t => t.Field(f => f.ContentType).Terms(filter.ContentTypes.Select(ct => ct.GetName()))));
@@ -396,7 +398,6 @@ public class ContentService : BaseService<Content, long>, IContentService
             filterQueries.Add(s => s.DateRange(m => m
                 .Field(p => p.PublishedOn)
                 .LessThanOrEquals(filter.PublishedEndOn.Value.ToUniversalTime().ToString("s") + "Z")));
-
         var response = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(s =>
         {
             var result = s
@@ -421,7 +422,7 @@ public class ContentService : BaseService<Content, long>, IContentService
                     var order = value.EndsWith(" desc") == true ? SortOrder.Descending : SortOrder.Ascending;
 
                     if (field == "id") predicate = p => p.Id;
-                    if (field == "productId") predicate = p => p.ProductId;
+                    if (field == "mediaTypeId") predicate = p => p.MediaTypeId;
                     if (field == "ownerId") predicate = p => p.OwnerId!;
                     if (field == "publishedOn") predicate = p => p.PublishedOn!;
                     if (field == "otherSource") predicate = p => p.OtherSource;
@@ -439,6 +440,9 @@ public class ContentService : BaseService<Content, long>, IContentService
             {
                 result = result.Sort(s => s.Descending(p => p.PublishedOn).Descending(p => p.Id));
             }
+
+            // uncomment this to see the raw query that will be sent to ElasticSearch
+            // var json = _client.RequestResponseSerializer.SerializeToString(result);
 
             return result;
         });
@@ -461,10 +465,15 @@ public class ContentService : BaseService<Content, long>, IContentService
         return await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, filter);
     }
 
+    /// <summary>
+    /// Get the content for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     public override Content? FindById(long id)
     {
         return this.Context.Contents
-            .Include(c => c.Product)
+            .Include(c => c.MediaType)
             .Include(c => c.Series)
             .Include(c => c.Contributor)
             .Include(c => c.License)
@@ -481,10 +490,16 @@ public class ContentService : BaseService<Content, long>, IContentService
             .FirstOrDefault(c => c.Id == id);
     }
 
+    /// <summary>
+    /// Get the content for the specified 'uid' and 'source'.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <param name="source"></param>
+    /// <returns></returns>
     public Content? FindByUid(string uid, string? source)
     {
         var query = this.Context.Contents
-            .Include(c => c.Product)
+            .Include(c => c.MediaType)
             .Include(c => c.Series)
             .Include(c => c.Contributor)
             .Include(c => c.License)
@@ -529,7 +544,6 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// <param name="entity"></param>
     /// <returns></returns>
     /// <exception cref="NoContentException"></exception>
-    /// TODO: Switch to not found exception throughout services.
     public override Content UpdateAndSave(Content entity)
     {
         var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
@@ -556,7 +570,6 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// <param name="updated"></param>
     /// <returns></returns>
     /// <exception cref="NoContentException"></exception>
-    /// TODO: Switch to not found exception throughout services.
     public Content UpdateStatusOnly(Content updated)
     {
         var original = FindById(updated.Id) ?? throw new NoContentException("Entity does not exist");

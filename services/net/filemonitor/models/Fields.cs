@@ -104,4 +104,9 @@ public static class Fields
     /// FMS story delimiter string.
     /// </summary>
     public const string FmsEntryEnd = "</story>";
+
+    /// <summary>
+    /// Whether to fix the Blacks XML issue.
+    /// </summary>
+    public const string FixBlacksXml = "fixBlacksXml";
 }

@@ -77,7 +77,7 @@ public class FFmpegRequestModel : WorkOrderModel
             this.ContentId = workOrder.ContentId.Value;
         else throw new ArgumentException("Work order must be for an FFmpeg and contain 'contentId' property.");
 
-        var settings = workOrder.Configuration.RootElement.GetElementValue<ProductSettingsModel>("ffmpeg", null, options);
+        var settings = workOrder.Configuration.RootElement.GetElementValue<MediaTypeSettingsModel>("ffmpeg", null, options);
         this.Actions = settings?.FFmpeg ?? Array.Empty<FFmpegActionSettingsModel>();
     }
     #endregion

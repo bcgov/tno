@@ -5,9 +5,9 @@ import { ISourceForm } from '../interfaces';
 export const toForm = (model: ISourceModel): ISourceForm => {
   return {
     ...model,
-    productId: model.productId === undefined ? '' : model.productId,
-    productSearchGroupId:
-      model.productSearchGroupId === undefined ? '' : model.productSearchGroupId,
+    mediaTypeId: model.mediaTypeId === undefined ? '' : model.mediaTypeId,
+    mediaTypeSearchGroupId:
+      model.mediaTypeSearchGroupId === undefined ? '' : model.mediaTypeSearchGroupId,
     ownerId: model.ownerId === undefined ? '' : model.ownerId,
     configuration: {
       ...model.configuration,

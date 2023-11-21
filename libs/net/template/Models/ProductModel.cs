@@ -3,9 +3,9 @@
 namespace TNO.TemplateEngine.Models;
 
 /// <summary>
-/// ProductModel class, provides a model that represents an content type.
+/// MediaTypeModel class, provides a model that represents an content type.
 /// </summary>
-public class ProductModel : BaseTypeModel<int>
+public class MediaTypeModel : BaseTypeModel<int>
 {
     #region Properties
     /// <summary>
@@ -16,37 +16,23 @@ public class ProductModel : BaseTypeModel<int>
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of an ProductModel.
+    /// Creates a new instance of an MediaTypeModel.
     /// </summary>
-    public ProductModel() { }
+    public MediaTypeModel() { }
 
     /// <summary>
-    /// Creates a new instance of an ProductModel, initializes with specified parameter.
+    /// Creates a new instance of an MediaTypeModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public ProductModel(Entities.Product entity) : base(entity)
+    public MediaTypeModel(Entities.MediaType entity) : base(entity)
     {
     }
 
     /// <summary>
-    /// Creates a new instance of an ProductModel, initializes with specified parameter.
+    /// Creates a new instance of an MediaTypeModel, initializes with specified parameter.
     /// </summary>
     /// <param name="model"></param>
-    public ProductModel(TNO.API.Areas.Editor.Models.Content.ProductModel model)
-    {
-        this.Id = model.Id;
-        this.Name = model.Name;
-        this.Description = model.Description;
-        this.AutoTranscribe = model.AutoTranscribe;
-        this.IsEnabled = model.IsEnabled;
-        this.SortOrder = model.SortOrder;
-    }
-
-    /// <summary>
-    /// Creates a new instance of an ProductModel, initializes with specified parameter.
-    /// </summary>
-    /// <param name="model"></param>
-    public ProductModel(TNO.API.Areas.Services.Models.Content.ProductModel model)
+    public MediaTypeModel(TNO.API.Areas.Editor.Models.Content.MediaTypeModel model)
     {
         this.Id = model.Id;
         this.Name = model.Name;
@@ -57,10 +43,24 @@ public class ProductModel : BaseTypeModel<int>
     }
 
     /// <summary>
-    /// Creates a new instance of an ProductModel, initializes with specified parameter.
+    /// Creates a new instance of an MediaTypeModel, initializes with specified parameter.
     /// </summary>
     /// <param name="model"></param>
-    public ProductModel(TNO.API.Areas.Services.Models.ReportInstance.ProductModel model)
+    public MediaTypeModel(TNO.API.Areas.Services.Models.Content.MediaTypeModel model)
+    {
+        this.Id = model.Id;
+        this.Name = model.Name;
+        this.Description = model.Description;
+        this.AutoTranscribe = model.AutoTranscribe;
+        this.IsEnabled = model.IsEnabled;
+        this.SortOrder = model.SortOrder;
+    }
+
+    /// <summary>
+    /// Creates a new instance of an MediaTypeModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
+    public MediaTypeModel(TNO.API.Areas.Services.Models.ReportInstance.MediaTypeModel model)
     {
         this.Id = model.Id;
         this.Name = model.Name;

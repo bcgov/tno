@@ -183,4 +183,10 @@ export const ReportAdmin = styled.div`
       }
     }
   }
+
+  .loader {
+    justify-content: center;
+    position: relative;
+    height: 100%;
+  }
 `;

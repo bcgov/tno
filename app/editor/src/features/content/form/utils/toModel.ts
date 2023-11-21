@@ -17,7 +17,7 @@ export function toModel(values: IContentForm): IContentModel {
     sourceUrl: values.sourceUrl,
     status: values.status,
     contentType: values.contentType,
-    productId: values.productId,
+    mediaTypeId: values.mediaTypeId,
     licenseId: values.licenseId,
     ownerId: !!values.ownerId ? values.ownerId : undefined,
     seriesId: values.seriesId,
@@ -32,6 +32,7 @@ export function toModel(values: IContentForm): IContentModel {
     body: values.body,
     isHidden: values.isHidden,
     isApproved: values.isApproved,
+    isPrivate: values.isPrivate,
     actions: values.actions,
     topics: values.topics,
     tags: values.tags,
@@ -49,6 +50,7 @@ export function toModel(values: IContentForm): IContentModel {
     // Print Content
     edition: values.edition,
     section: values.section,
+    postedOn: values.postedOn ? moment(values.publishedOn).toISOString() : undefined,
     publishedOn: moment(values.publishedOn).toISOString(),
     version: values.version,
   };

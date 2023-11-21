@@ -326,7 +326,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
         if (!filter.Settings.SearchUnpublished && content.Status == Entities.ContentStatus.Draft) return false;
         if (filter.Settings.ContentTypes?.Any() == true && !filter.Settings.ContentTypes.Contains(content.ContentType)) return false;
         if (filter.Settings.SourceIds?.Any() == true && content.SourceId.HasValue && !filter.Settings.SourceIds.Contains(content.SourceId.Value)) return false;
-        if (filter.Settings.ProductIds?.Any() == true && !filter.Settings.ProductIds.Contains(content.ProductId)) return false;
+        if (filter.Settings.MediaTypeIds?.Any() == true && !filter.Settings.MediaTypeIds.Contains(content.MediaTypeId)) return false;
         if (filter.Settings.ContributorIds?.Any() == true && content.ContributorId.HasValue && !filter.Settings.ContributorIds.Contains(content.ContributorId.Value)) return false;
         if (filter.Settings.SeriesIds?.Any() == true && content.SeriesId.HasValue && !filter.Settings.SeriesIds.Contains(content.SeriesId.Value)) return false;
         if (filter.Settings.Tags?.Any() == true && !filter.Settings.Tags.Any(st => content.Tags.Any(t => t.Code.Equals(st, StringComparison.OrdinalIgnoreCase)))) return false;

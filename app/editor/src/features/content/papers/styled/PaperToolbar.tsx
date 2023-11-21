@@ -4,7 +4,7 @@ export const PaperToolbar = styled.div`
   .select {
     max-width: 32em;
 
-    &#sel-productIds {
+    &#sel-mediaTypeIds {
       .rs__value-container {
         max-width: 220px;
       }

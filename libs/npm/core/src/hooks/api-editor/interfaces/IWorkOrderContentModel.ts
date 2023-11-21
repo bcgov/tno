@@ -3,7 +3,7 @@ export interface IWorkOrderContentModel {
   headline: string;
   otherSource: string;
   isApproved: boolean;
-  product?: string;
+  mediaType?: string;
   series?: string;
   contributor?: string;
 }

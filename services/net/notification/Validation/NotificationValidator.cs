@@ -191,7 +191,7 @@ public class NotificationValidator : INotificationValidator
             (string.IsNullOrWhiteSpace(filter.Section) || Content.Section.ToLower().Contains(filter.Section.ToLower())) &&
             (string.IsNullOrWhiteSpace(filter.Edition) || Content.Edition.ToLower().Contains(filter.Edition.ToLower())) &&
 
-            (filter.ProductIds == null || filter.ProductIds.Any() == false || filter.ProductIds?.Contains(Content.ProductId) == true) &&
+            (filter.MediaTypeIds == null || filter.MediaTypeIds.Any() == false || filter.MediaTypeIds?.Contains(Content.MediaTypeId) == true) &&
             (filter.SourceIds == null || filter.SourceIds?.Any() == false || (Content.SourceId.HasValue && filter.SourceIds?.Contains(Content.SourceId.Value) == true)) &&
             (filter.ContentIds == null || filter.ContentIds?.Any() == false || filter.ContentIds?.Contains(Content.Id) == true) &&
             (filter.ContentTypes == null || filter.ContentTypes?.Any() == false || filter.ContentTypes?.Contains(Content.ContentType) == true) &&

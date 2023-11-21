@@ -12,22 +12,6 @@ export const ContentForm = styled.div`
     max-width: 200px;
   }
 
-  .form-page {
-    height: calc(100% - 1rem);
-
-    > div {
-      height: 100%;
-
-      .form {
-        height: 100%;
-
-        > form {
-          height: 100%;
-        }
-      }
-    }
-  }
-
   .minimize-details {
     margin: 1em 0 0 0;
     padding: 0;
@@ -114,12 +98,6 @@ export const ContentForm = styled.div`
   .tabs.large {
     .tab-container {
       height: 100%;
-    }
-  }
-
-  .tabs.expand {
-    .tab-container {
-      margin-bottom: 3em;
     }
   }
 

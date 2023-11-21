@@ -41,7 +41,7 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
   onChange,
 }) => {
   const { values, setFieldValue, setValues } = useFormikContext();
-  const [{ productOptions, sourceOptions, seriesOptions, contributorOptions, actions, tags }] =
+  const [{ mediaTypeOptions, sourceOptions, seriesOptions, contributorOptions, actions, tags }] =
     useLookupOptions();
 
   const [actionOptions, setActionOptions] = React.useState(getActionOptions(actions));
@@ -268,18 +268,18 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
         </Col>
         <Col flex="1">
           <FormikSelect
-            name={`${path}productIds`}
-            label="Products"
+            name={`${path}mediaTypeIds`}
+            label="Media Types"
             isMulti
-            options={productOptions}
+            options={mediaTypeOptions}
             value={
-              productOptions.filter((mt) =>
-                settings.productIds?.some((p: number) => p === mt.value),
+              mediaTypeOptions.filter((mt) =>
+                settings.mediaTypeIds?.some((p: number) => p === mt.value),
               ) ?? []
             }
             onChange={(newValue: any) => {
-              const productIds = newValue.map((v: OptionItem) => v.value);
-              updateSettings('productIds', productIds);
+              const mediaTypeIds = newValue.map((v: OptionItem) => v.value);
+              updateSettings('mediaTypeIds', mediaTypeIds);
             }}
           />
         </Col>

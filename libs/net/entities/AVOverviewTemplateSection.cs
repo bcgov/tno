@@ -64,7 +64,7 @@ public class AVOverviewTemplateSection : AuditColumns
     public int? SeriesId { get; set; }
 
     /// <summary>
-    /// get/set - The series (product/show).
+    /// get/set - The series (show).
     /// </summary>
     public Series? Series { get; set; }
 

@@ -14,7 +14,7 @@ export * from './useApiAdminMinisters';
 export * from './useApiAdminNotifications';
 export * from './useApiAdminNotificationTemplates';
 export * from './useApiAdminOrganizations';
-export * from './useApiAdminProducts';
+export * from './useApiAdminMediaTypes';
 export * from './useApiAdminReportInstances';
 export * from './useApiAdminReports';
 export * from './useApiAdminReportTemplates';

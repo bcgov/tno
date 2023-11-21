@@ -1,7 +1,7 @@
 import { OptionItem } from 'tno-core';
 
 export const groupByOptions = [
-  new OptionItem('Product', 'product'),
+  new OptionItem('Media Type', 'mediaType'),
   new OptionItem('Source', 'source'),
   new OptionItem('Program/Show', 'series'),
   new OptionItem('Byline', 'byline'),

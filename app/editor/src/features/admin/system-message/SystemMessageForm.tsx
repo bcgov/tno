@@ -1,5 +1,4 @@
 import { FormikForm } from 'components/formik';
-import { Wysiwyg } from 'components/wysiwyg';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -22,6 +21,7 @@ import {
   Row,
   Show,
   useModal,
+  Wysiwyg,
 } from 'tno-core';
 
 import { defaultSystemMessage } from './constants';
@@ -84,7 +84,7 @@ const SystemMessageForm: React.FC = () => {
                 width={FieldSize.Large}
                 value={defaultSystemMessage.description}
               />
-              <Wysiwyg label="Message" fieldName="message" />
+              <Wysiwyg label="Message" name="message" />
 
               <FormikCheckbox
                 labelPosition={LabelPosition.Top}

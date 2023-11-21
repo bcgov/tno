@@ -6,7 +6,6 @@ export const Layout = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  height: 100vh;
 
   .main-window {
     display: flex;

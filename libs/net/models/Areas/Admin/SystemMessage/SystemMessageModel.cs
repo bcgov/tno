@@ -3,7 +3,7 @@ using TNO.API.Models;
 namespace TNO.API.Areas.Admin.Models.SystemMessage;
 
 /// <summary>
-/// SystemMessageModel class, provides a model that represents an product.
+/// SystemMessageModel class, provides a model that represents an system message.
 /// </summary>
 public class SystemMessageModel : BaseTypeWithAuditColumnsModel<int>
 {

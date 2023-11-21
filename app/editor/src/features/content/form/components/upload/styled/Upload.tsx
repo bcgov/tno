@@ -67,6 +67,10 @@ export const Upload = styled.div`
     margin-bottom: 1rem;
   }
 
+  .image {
+    object-fit: contain;
+  }
+
   audio {
     margin: auto;
     width: 100%;

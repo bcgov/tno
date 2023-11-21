@@ -53,8 +53,8 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
   const dispatch = useAjaxWrapper();
   const api = useApiEditorContents();
 
-  const controller = React.useMemo(
-    () => ({
+  const controller = React.useMemo(() => {
+    return {
       findContent: async (filter: IContentFilter) => {
         const response = await dispatch('find-contents', () => api.findContent(filter));
         actions.storeContent(response.data);
@@ -164,9 +164,8 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       storeFilterAdvanced: actions.storeFilterAdvanced,
       storeFilterPaper: actions.storeFilterPaper,
       storeFilterPaperAdvanced: actions.storeFilterPaperAdvanced,
-    }),
-    [actions, api, dispatch],
-  );
+    };
+  }, [actions, api, dispatch]);
 
   return [state, controller];
 };

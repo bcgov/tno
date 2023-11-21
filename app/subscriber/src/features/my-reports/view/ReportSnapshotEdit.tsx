@@ -1,39 +1,27 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import {
-  DragDropContext,
-  DraggableLocation,
-  DropResult,
-  ResponderProvided,
-} from 'react-beautiful-dnd';
+import { DragDropContext, DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { FaRegClock, FaSave } from 'react-icons/fa';
 import { FaArrowsSpin, FaFileExcel, FaGear } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useReports } from 'store/hooks';
-import {
-  Button,
-  ButtonVariant,
-  Col,
-  IReportInstanceContentModel,
-  Modal,
-  Row,
-  Show,
-  useModal,
-} from 'tno-core';
+import { Button, ButtonVariant, Col, Modal, Row, Show, useModal } from 'tno-core';
 
 import { IReportForm } from '../interfaces';
-import { getLastPublishedOn, getLastSent, toForm } from '../utils';
+import { getLastPublishedOn, getLastSent, moveContent, toForm } from '../utils';
 import { calcNextSend } from './../utils/calcNextSend';
 import { ReportSection } from './components';
 
 export const ReportSnapshotEdit: React.FC = () => {
   const navigate = useNavigate();
-  const { values, isSubmitting, setValues, setFieldValue } = useFormikContext<IReportForm>();
+  const { values, isSubmitting, setValues, setFieldValue, submitForm } =
+    useFormikContext<IReportForm>();
   const [{ generateReport, exportReport }] = useReports();
   const { isShowing, toggle } = useModal();
 
   const instance = values.instances.length ? values.instances[0] : null;
+
   const handleRegenerate = React.useCallback(
     async (values: IReportForm) => {
       try {
@@ -57,48 +45,11 @@ export const ReportSnapshotEdit: React.FC = () => {
     } catch {}
   }, [exportReport, instance?.id]);
 
-  const getDestinationIndex = (
-    items: IReportInstanceContentModel[],
-    destination: DraggableLocation,
-  ) => {
-    const result = items.reduce((acc: any, { sectionName }) => {
-      acc[sectionName] = acc[sectionName] || { count: 0 };
-      acc[sectionName]['count'] += 1;
-      return acc;
-    }, {});
-    const keys = Object.keys(result);
-    let positionCount = 0;
-    keys.every((k) => {
-      if (k === destination.droppableId) {
-        return false;
-      }
-      positionCount += result[k].count;
-      return true;
-    });
-    return positionCount + destination.index;
-  };
-
   /** function that runs after a user drops an item in the list */
   const handleDrop = React.useCallback(
     (result: DropResult, provided: ResponderProvided) => {
-      if (!result.destination) {
-        return;
-      }
       if (instance) {
-        const newItems = Array.from(instance.content);
-        const sourceIndex = newItems
-          .map((i) => i.contentId)
-          .indexOf(Number.parseInt(result.draggableId));
-        const destinationIndex = getDestinationIndex(newItems, result.destination);
-        const [reOrdered] = newItems.splice(sourceIndex, 1);
-        newItems.splice(destinationIndex, 0, reOrdered);
-        if (result.destination.droppableId !== result.source.droppableId) {
-          newItems.forEach((i) => {
-            if (i.contentId === Number.parseInt(result.draggableId)) {
-              i.sectionName = result.destination ? result.destination.droppableId : i.sectionName;
-            }
-          });
-        }
+        const newItems = moveContent(result, instance.content);
         setFieldValue(`instances.0.content`, newItems);
       }
     },
@@ -138,9 +89,9 @@ export const ReportSnapshotEdit: React.FC = () => {
           </Button>
           <Button
             variant={ButtonVariant.success}
-            type="submit"
             disabled={isSubmitting}
             title="Save changes"
+            onClick={() => submitForm()}
           >
             <FaSave />
           </Button>
@@ -191,9 +142,9 @@ export const ReportSnapshotEdit: React.FC = () => {
         <Row justifyContent="flex-end">
           <Button
             variant={ButtonVariant.success}
-            type="submit"
             disabled={isSubmitting}
             title="Save changes"
+            onClick={() => submitForm()}
           >
             <FaSave />
           </Button>

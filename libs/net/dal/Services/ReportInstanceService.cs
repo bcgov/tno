@@ -34,7 +34,7 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
             .Include(ri => ri.Report).ThenInclude(r => r!.Sections).ThenInclude(s => s.ChartTemplatesManyToMany).ThenInclude(ct => ct.ChartTemplate)
             .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content)
             .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Source)
-            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Product)
+            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.MediaType)
             .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Series)
             .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Contributor)
             .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.ActionsManyToMany).ThenInclude(c => c.Action)
@@ -99,33 +99,80 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
     {
         // Fetch all content currently belonging to this report instance.
         var original = this.Context.ReportInstances.FirstOrDefault(ri => ri.Id == entity.Id) ?? throw new InvalidOperationException("Report instance does not exist");
-        var originalContent = this.Context.ReportInstanceContents.Where(ric => ric.InstanceId == entity.Id).ToArray();
-
-        // Elasticsearch can contain content that does not exist in the database regrettably.
-        // While this should not occur, it's possible.
-        // Extract any content that does not exist in the database.
-        var contentIds = entity.ContentManyToMany.Select(c => c.ContentId).Distinct().ToArray();
-        var existingContentIds = this.Context.Contents.Where(c => contentIds.Contains(c.Id)).Select(c => c.Id).Distinct().ToArray();
+        var originalInstanceContent = this.Context.ReportInstanceContents
+            .Include(ic => ic.Content)
+            .Where(ric => ric.InstanceId == entity.Id).ToArray();
 
         // Delete removed content and add new content.
-        originalContent.Except(entity.ContentManyToMany).Where(ric => existingContentIds.Contains(ric.ContentId)).ForEach(ric =>
+        originalInstanceContent.Except(entity.ContentManyToMany).ForEach(ric =>
         {
             this.Context.Entry(ric).State = EntityState.Deleted;
+            // Content that is private will only exist on a single report.
+            // If it's removed from the report we can remove it from the database.
+            if (ric.Content?.IsPrivate == true) this.Context.Entry(ric.Content).State = EntityState.Deleted;
         });
-        entity.ContentManyToMany.Where(ric => existingContentIds.Contains(ric.ContentId)).ForEach(ric =>
+        entity.ContentManyToMany.ForEach(ric =>
         {
-            var current = originalContent.FirstOrDefault(o => o.ContentId == ric.ContentId && o.SectionName == ric.SectionName);
-            if (current == null)
+            var existingInstanceContent = originalInstanceContent.FirstOrDefault(o => o.ContentId == ric.ContentId && o.SectionName == ric.SectionName);
+            if (existingInstanceContent == null)
             {
-                ric.Content = null;
+                // If the content is new too, upload it to the database.
+                if (ric.Content?.Id == 0)
+                {
+                    ric.Content.IsPrivate = true;
+                    ric.Content.GuaranteeUid();
+                    ric.Content.AddToContext(this.Context);
+                    this.Context.Add(ric.Content);
+                }
+                else
+                {
+                    // Make certain the content exists in the database.
+                    if (!this.Context.Contents.Any(c => c.Id == ric.ContentId)) throw new InvalidOperationException($"Content '{ric.ContentId}' does not exist.");
+
+                    // Do not allow updating content not owned by the user.
+                    if (ric.Content != null)
+                    {
+                        // TODO: Small security issue as the JSON could lie about this data.
+                        if (ric.Content.IsPrivate)
+                            this.Context.Entry(ric.Content).State = EntityState.Modified;
+                        else
+                            this.Context.Entry(ric.Content).State = EntityState.Unchanged;
+                    }
+                }
+
+                // Add new content to the report.
                 ric.Instance = null;
                 ric.InstanceId = entity.Id;
                 this.Context.ReportInstanceContents.Add(ric);
             }
-            else if (current.SortOrder != ric.SortOrder)
+            else
             {
-                current.SortOrder = ric.SortOrder;
-                this.Context.Entry(current).State = EntityState.Modified;
+                if (ric.Content != null &&
+                    existingInstanceContent.Content != null &&
+                    entity.OwnerId.HasValue)
+                {
+                    // TODO: Small security issue as the JSON could lie about this data.
+                    if (ric.Content.IsPrivate)
+                    {
+                        if (ric.Content.GuaranteeUid() && existingInstanceContent.Content.Uid != ric.Content.Uid) existingInstanceContent.Content.Uid = ric.Content.Uid;
+                        this.Context.UpdateContext(existingInstanceContent.Content, ric.Content);
+                        this.Context.Update(existingInstanceContent.Content);
+                    }
+                    else if (ric.Content.Versions.ContainsKey(entity.OwnerId.Value))
+                    {
+                        // Update the content versions if they have been provided.
+                        if (existingInstanceContent.Content.Versions.ContainsKey(entity.OwnerId.Value))
+                            existingInstanceContent.Content.Versions[entity.OwnerId.Value] = ric.Content.Versions[entity.OwnerId.Value];
+                        else
+                            existingInstanceContent.Content.Versions.Add(entity.OwnerId.Value, ric.Content.Versions[entity.OwnerId.Value]);
+                        this.Context.Update(existingInstanceContent.Content);
+                    }
+                }
+                if (existingInstanceContent.SortOrder != ric.SortOrder)
+                {
+                    existingInstanceContent.SortOrder = ric.SortOrder;
+                    this.Context.Update(existingInstanceContent);
+                }
             }
         });
 

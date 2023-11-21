@@ -43,23 +43,25 @@ export const ReportSnapshot = styled.div`
         flex-direction: column;
         gap: 0.25rem;
 
-        .content-row {
+        .drag-row {
           border: solid 1px ${(props) => props.theme.css.lightVariantColor};
           border-radius: 0.25rem;
           background-color: white;
-
-          .section-content {
-            flex-wrap: nowrap;
-            gap: 0.25rem;
-            align-items: center;
-            padding: 0.5rem;
-
-            & div:nth-child(3) {
-              flex: 1 1 100%;
-            }
-          }
         }
       }
+    }
+
+    .edit-content {
+      padding: 0 0 0 0.5rem;
+      position: relative;
+
+      .bottom-actions {
+        padding: 0 0.5rem 0.5rem 0;
+      }
+    }
+
+    .ql-editor {
+      min-height: 12rem;
     }
   }
 
@@ -119,5 +121,11 @@ export const ReportSnapshot = styled.div`
         }
       }
     }
+  }
+
+  .loader {
+    justify-content: center;
+    position: relative;
+    height: 100%;
   }
 `;

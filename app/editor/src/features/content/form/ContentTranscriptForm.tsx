@@ -1,6 +1,6 @@
-import { Wysiwyg } from 'components/wysiwyg';
 import React from 'react';
-import { Button, ButtonVariant, Modal, useWindowSize } from 'tno-core';
+import { useLookup } from 'store/hooks';
+import { Button, ButtonVariant, FormikContentWysiwyg, Modal, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -12,11 +12,20 @@ export const ContentTranscriptForm: React.FC = () => {
   const [showExpandModal, setShowExpandModal] = React.useState(false);
   const onCloseOrHide = () => setShowExpandModal(!showExpandModal);
   const { height } = useWindowSize();
+  const [{ tags }] = useLookup();
+
   return (
     <styled.ContentTranscriptForm>
-      <Wysiwyg fieldName="body" expandModal={setShowExpandModal} />
+      <FormikContentWysiwyg
+        className="quill-body"
+        name="body"
+        expandModal={setShowExpandModal}
+        tags={tags}
+      />
       <Modal
-        body={<Wysiwyg className="modal-quill" fieldName="body" height={height} />}
+        body={
+          <FormikContentWysiwyg className="modal-quill" name="body" height={height} tags={tags} />
+        }
         isShowing={showExpandModal}
         hide={onCloseOrHide}
         className="modal-full"

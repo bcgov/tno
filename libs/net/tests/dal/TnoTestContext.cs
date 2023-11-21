@@ -41,6 +41,11 @@ public class TnoTestContext : TNOContext
         //         v => JsonConvert.DeserializeObject<WellDefinedJsonProperty>(v));
 
         // TODO: Find a way to automate this so that we don't have to manually add them each time.
+        modelBuilder.Entity<Entities.Content>().Property(p => p.Versions)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, JsonSerializerOptions.Default),
+                v => JsonSerializer.Deserialize<Dictionary<int, Entities.Models.ContentVersion>>(v, JsonSerializerOptions.Default) ?? new());
+
         modelBuilder.Entity<Entities.Connection>().Property(p => p.Configuration)
             .HasConversion(
                 v => JsonDocumentToString(v),
@@ -146,7 +151,7 @@ public class TnoTestContext : TNOContext
                 v => JsonDocumentToString(v!), //KGM: Ignoring this for TestContext
                 v => JsonDocument.Parse(v, new JsonDocumentOptions()));
 
-        modelBuilder.Entity<Entities.Product>().Property(p => p.Settings)
+        modelBuilder.Entity<Entities.MediaType>().Property(p => p.Settings)
             .HasConversion(
                 v => JsonDocumentToString(v),
                 v => JsonDocument.Parse(v, new JsonDocumentOptions()));

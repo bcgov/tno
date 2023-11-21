@@ -5,6 +5,7 @@ import React from 'react';
 import { useProSidebar } from 'react-pro-sidebar';
 import { Outlet } from 'react-router-dom';
 import { useToastError } from 'store/hooks';
+import { useApiHub } from 'store/hooks/signalr';
 import { Show, SummonContext, useKeycloakWrapper, useWindowSize } from 'tno-core';
 
 import { LayoutErrorBoundary } from '.';
@@ -26,6 +27,7 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
   const keycloak = useKeycloakWrapper();
   const { setToken } = React.useContext(SummonContext);
   useToastError();
+  useApiHub();
 
   React.useEffect(() => {
     keycloak.instance.onTokenExpired = () => {

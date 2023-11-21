@@ -1,7 +1,7 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
-import { createFilterSettings } from 'features/press-gallery/utils';
+import { createFilterSettings } from 'features/utils';
 import moment from 'moment';
 import React from 'react';
 import { FaEllipsisVertical } from 'react-icons/fa6';
@@ -60,7 +60,7 @@ export const Home: React.FC = () => {
         contentTypes: filter.contentTypes.length > 0 ? filter.contentTypes : [],
         startDate: filterAdvanced.startDate ? filterAdvanced.startDate : new Date().toDateString(),
         endDate: filterAdvanced.endDate ? filterAdvanced.endDate : new Date().toDateString(),
-        productIds: filter.productIds ?? [],
+        mediaTypeIds: filter.mediaTypeIds ?? [],
         sourceIds: filter.sourceIds ?? [],
       }),
     );

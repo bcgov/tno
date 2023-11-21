@@ -79,12 +79,12 @@ export const useApiEditorContents = (
       );
     },
     transcribe: (content: IContentModel) => {
-      return api.put<IWorkOrderModel, AxiosResponse<IWorkOrderModel>, any>(
+      return api.put<never, AxiosResponse<IWorkOrderModel>, any>(
         `/editor/contents/${content.id}/transcribe`,
       );
     },
     nlp: (content: IContentModel) => {
-      return api.put<IWorkOrderModel, AxiosResponse<IWorkOrderModel>, any>(
+      return api.put<never, AxiosResponse<IWorkOrderModel>, any>(
         `/editor/contents/${content.id}/nlp`,
       );
     },
@@ -135,7 +135,7 @@ export const useApiEditorContents = (
       const params = {
         path,
       };
-      return api.put<IContentModel, AxiosResponse<IContentModel>, any>(
+      return api.put<never, AxiosResponse<IContentModel>, any>(
         `/editor/contents/${contentId}/${locationId}/attach?${toQueryString(params)}`,
       );
     },

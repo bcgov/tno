@@ -47,9 +47,12 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
+
+        // This ingest has just started to run
+        await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
 
         // Each schedule will have its own process.
         foreach (var schedule in GetSchedules(manager.Ingest))
@@ -77,6 +80,9 @@ public class CaptureAction : CommandAction<CaptureOptions>
                 // Do not wait for process to exit.
                 // This allows multiple schedules and data sources to be running in parallel.
                 RunProcess(process);
+
+                // This ingest has just completed running for one content item.
+                await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
             }
             else if (name == "stop")
             {
@@ -96,7 +102,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <param name="sender"></param>
     /// <param name="manager"></param>
     /// <param name="e"></param>
-    protected override void OnErrorReceived(object? sender, IIngestServiceActionManager? manager, DataReceivedEventArgs e)
+    protected override void OnErrorReceived(object? sender, IIngestActionManager? manager, DataReceivedEventArgs e)
     {
         if (!String.IsNullOrWhiteSpace(e.Data))
         {
@@ -144,7 +150,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
             this.Options.DataLocation,
             reference.Source,
             contentType,
-            ingest.ProductId,
+            ingest.MediaTypeId,
             reference.Uid,
             $"{schedule.Name} {schedule.StartAt:c}-{schedule.StopAt:c}",
             "",
@@ -231,7 +237,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected override string GenerateCommandArguments(ICommandProcess process, IIngestServiceActionManager manager, ScheduleModel schedule)
+    protected override string GenerateCommandArguments(ICommandProcess process, IIngestActionManager manager, ScheduleModel schedule)
     {
         var logLevel = GetArgumentValue(manager.Ingest, "logLevel", "-loglevel", "warning");
         var input = GetInput(manager.Ingest);

@@ -31,9 +31,9 @@ public abstract class ContentBase
     public ContentStatus Status { get; set; } = ContentStatus.Draft;
 
     /// <summary>
-    /// get/set - Foreign key to the product the content will be assigned by default.
+    /// get/set - Foreign key to the media type the content will be assigned by default.
     /// </summary>
-    public int ProductId { get; set; }
+    public int MediaTypeId { get; set; }
 
     /// <summary>
     /// get/set - A URL to the content.
@@ -156,16 +156,16 @@ public abstract class ContentBase
     /// <param name="dataLocation"></param>
     /// <param name="source"></param>
     /// <param name="contentType"></param>
-    /// <param name="productId"></param>
+    /// <param name="mediaTypeId"></param>
     /// <param name="uid"></param>
     /// <param name="title"></param>
     /// <param name="summary"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ContentBase(string dataLocation, string source, ContentType contentType, int productId, string uid, string title, string summary)
+    public ContentBase(string dataLocation, string source, ContentType contentType, int mediaTypeId, string uid, string title, string summary)
     {
         this.DataLocation = dataLocation;
         this.ContentType = contentType;
-        this.ProductId = productId;
+        this.MediaTypeId = mediaTypeId;
         this.Source = source ?? throw new ArgumentNullException(nameof(source));
         this.Uid = uid ?? throw new ArgumentNullException(nameof(uid));
         this.Title = title ?? throw new ArgumentNullException(nameof(title));
@@ -178,13 +178,13 @@ public abstract class ContentBase
     /// <param name="dataLocation"></param>
     /// <param name="source"></param>
     /// <param name="contentType"></param>
-    /// <param name="productId"></param>
+    /// <param name="mediaTypeId"></param>
     /// <param name="uid"></param>
     /// <param name="title"></param>
     /// <param name="summary"></param>
     /// <param name="publishedOn"></param>
-    public ContentBase(string dataLocation, string source, ContentType contentType, int productId, string uid, string title, string summary, DateTime? publishedOn)
-        : this(dataLocation, source, contentType, productId, uid, title, summary)
+    public ContentBase(string dataLocation, string source, ContentType contentType, int mediaTypeId, string uid, string title, string summary, DateTime? publishedOn)
+        : this(dataLocation, source, contentType, mediaTypeId, uid, title, summary)
     {
         this.PublishedOn = publishedOn;
     }

@@ -2,7 +2,7 @@ using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.API.Areas.Editor.Models.Product;
+using TNO.API.Areas.Editor.Models.MediaType;
 using TNO.API.Areas.Editor.Models.Source;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.Core.Exceptions;
@@ -85,7 +85,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         DateTime? updatedDateOfNewsItem, double importOffsetInHours = 0)
     {
         // KGM : Do NOT remove these null filters.  They exclude bad data
-        predicate = predicate.And(ni => ((ni.ItemDate != null) && (ni.Source != null)));
+        predicate = predicate.And(ni => ((ni.ItemDate != null) && (ni.Source != null) && (ni.Title != null)));
 
         DateTime offsetFromNow = DateTime.MaxValue;
         if (importOffsetInHours > 0)
@@ -157,7 +157,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         int skip, int count, double importOffsetInHours = 0)
     {
         // KGM : Do NOT remove these null filters.  They exclude bad data
-        predicate = predicate.And(ni => ((ni.ItemDate != null) && (ni.Source != null)));
+        predicate = predicate.And(ni => ((ni.ItemDate != null) && (ni.Source != null) && (ni.Title != null)));
 
         // KGM : Only return Published items
         predicate = predicate.And(ni => ((ni.Published)));
@@ -191,8 +191,11 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// <returns></returns>
     /// <exception cref="ConfigurationException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
-    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
+        // This ingest has just begun running.
+        await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
+
         ImportMigrationType importMigrationType = manager.Ingest.GetConfigurationValue<ImportMigrationType>("importMigrationType", ImportMigrationType.Unknown);
         if (importMigrationType == ImportMigrationType.Unknown)
         {
@@ -300,6 +303,9 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                     {
                         await MigrateNewsItemAsync(manager, contentMigrator, lookups, newsItem, defaultTimeZone);
                         creationDateOfLastImport = newsItem.UpdatedOn;
+
+                        // This ingest has just processed a story.
+                        await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
                     });
                 }
 
@@ -340,7 +346,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// <param name="defaultTimeZone"></param>
     /// <returns></returns>
     public async Task MigrateNewsItemAsync(
-        IIngestServiceActionManager manager,
+        IIngestActionManager manager,
         IContentMigrator contentMigrator,
         API.Areas.Editor.Models.Lookup.LookupModel? lookups,
         NewsItem newsItem,
@@ -366,15 +372,16 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                     return;
                 }
             }
-            ProductModel? product = contentMigrator.GetProductMapping(lookups.Products, newsItem.Type);
-            if (product == null)
+            MediaTypeModel? mediaType = contentMigrator.GetMediaTypeMapping(lookups.MediaTypes, newsItem.Type);
+            if (mediaType == null)
             {
-                this.Logger.LogWarning("Couldn't map to Product for NewsItem with type '{sourceName}'", newsItem.Type);
+                this.Logger.LogWarning("Couldn't map to Media Type for NewsItem with type '{sourceName}'", newsItem.Type);
                 return;
             }
 
-            var sourceContent = contentMigrator.CreateSourceContent(lookups, source!, product, manager.Ingest.IngestType!.ContentType, newsItem, defaultTimeZone);
-            if (this.Options.TagForMigratedContent != "") {
+            var sourceContent = contentMigrator.CreateSourceContent(lookups, source!, mediaType, manager.Ingest.IngestType!.ContentType, newsItem, defaultTimeZone);
+            if (this.Options.TagForMigratedContent != "")
+            {
                 sourceContent.Tags = sourceContent.Tags.Append(new TNO.Kafka.Models.Tag(this.Options.TagForMigratedContent, ""));
             }
             bool isNewSourceContent = false;

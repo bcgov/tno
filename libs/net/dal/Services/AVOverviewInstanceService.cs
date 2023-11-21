@@ -69,16 +69,23 @@ public class AVOverviewInstanceService : BaseService<AVOverviewInstance, int>, I
 
     public override AVOverviewInstance Update(AVOverviewInstance entity)
     {
-        var originalSections = this.Context.AVOverviewSections.Where(s => s.InstanceId == entity.Id).ToArray();
+        // Make a request for the original sections so that they can be compared and updated correctly.
+        var originalSections = this.Context.AVOverviewSections
+            .AsNoTracking()
+            .Include(s => s.Items)
+            .Where(s => s.InstanceId == entity.Id).ToArray();
         originalSections.Except(entity.Sections).ForEach(s =>
         {
+            // Delete sections that are no longer referenced in this update.
             this.Context.Entry(s).State = EntityState.Deleted;
         });
         entity.Sections.ForEach(section =>
         {
+            // Add or update sections that are referenced in this update.
             section.Instance = entity;
             if (section.Id == 0)
             {
+                // Add the new section and items in the section.
                 this.Context.Add(section);
                 section.Items.ForEach(item =>
                 {
@@ -88,21 +95,24 @@ public class AVOverviewInstanceService : BaseService<AVOverviewInstance, int>, I
             }
             else
             {
-                var originalItems = this.Context.AVOverviewSectionItems.Where(s => s.SectionId == section.Id).ToArray();
-                originalItems.Except(section.Items).ForEach(s =>
+                // Update the section and remove/add/update items in the section.
+                var originalSection = originalSections.FirstOrDefault(s => s.Id == section.Id);
+                if (originalSection != null)
                 {
-                    this.Context.Entry(s).State = EntityState.Deleted;
-                });
-                this.Context.Update(section);
-                section.Items.ForEach(item =>
-                {
-                    item.Section = section;
-                    if (item.Id == 0)
-                        this.Context.Add(item);
-                    else
-                        this.Context.Update(item);
-
-                });
+                    originalSection.Items.Except(section.Items).ForEach(s =>
+                    {
+                        this.Context.Entry(s).State = EntityState.Deleted;
+                    });
+                    section.Items.ForEach(item =>
+                    {
+                        item.Section = section;
+                        if (item.Id == 0)
+                            this.Context.Add(item);
+                        else
+                            this.Context.Update(item);
+                    });
+                    this.Context.Update(section);
+                }
             }
         });
         return base.Update(entity);

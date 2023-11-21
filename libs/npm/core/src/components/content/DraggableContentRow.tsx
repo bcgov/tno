@@ -1,34 +1,41 @@
 import React from 'react';
-import { Draggable } from 'react-beautiful-dnd';
+import { Draggable, DraggableProps } from 'react-beautiful-dnd';
 
 import { ContentRow, IContentRowProps } from '.';
 
-export interface IDraggableContentRowProps extends IContentRowProps {
-  index: number;
-  children?: React.ReactNode;
+export interface IDraggableContentRowProps
+  extends Omit<DraggableProps, 'children'>,
+    IContentRowProps {
+  className?: string;
+  children?: ((props: IDraggableContentRowProps) => React.ReactNode) | React.ReactNode;
 }
 
 export const DraggableContentRow: React.FC<IDraggableContentRowProps> = ({
+  draggableId,
   index,
+  className,
   children,
   ...rest
 }) => {
   if (!rest.row.content) return null;
+
   return (
-    <Draggable
-      key={`content-${rest.row.content.id}`}
-      draggableId={`content-${rest.row.content.id}`}
-      index={index}
-    >
+    <Draggable draggableId={draggableId} index={index}>
       {(draggable) => (
         <div
-          key={rest.row.content.id}
-          className="drag-row"
+          className={`drag-row${className ? ` ${className}` : ''}`}
           ref={draggable.innerRef}
           {...draggable.dragHandleProps}
           {...draggable.draggableProps}
         >
-          {children ?? <ContentRow {...rest} />}
+          {typeof children === 'function'
+            ? (children as (props: IDraggableContentRowProps) => React.ReactNode)({
+                draggableId,
+                index,
+                className,
+                ...rest,
+              })
+            : children ?? <ContentRow {...rest} />}
         </div>
       )}
     </Draggable>

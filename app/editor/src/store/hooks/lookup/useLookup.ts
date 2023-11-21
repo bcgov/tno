@@ -12,9 +12,9 @@ import {
   IIngestTypeModel,
   ILicenseModel,
   ILookupModel,
+  IMediaTypeModel,
   IMetricModel,
   IMinisterModel,
-  IProductModel,
   IRoleModel,
   ISeriesModel,
   ISettingModel,
@@ -26,6 +26,7 @@ import {
   ITopicScoreRuleModel,
   IUserModel,
   saveToLocalStorage,
+  StorageKeys,
   useApiEditorActions,
   useApiEditorCache,
   useApiEditorContributors,
@@ -33,9 +34,9 @@ import {
   useApiEditorIngestTypes,
   useApiEditorLicenses,
   useApiEditorLookups,
+  useApiEditorMediaTypes,
   useApiEditorMetrics,
   useApiEditorMinisters,
-  useApiEditorProducts,
   useApiEditorRoles,
   useApiEditorSeries,
   useApiEditorSettings,
@@ -58,7 +59,7 @@ export interface ILookupController {
   getMetrics: (refresh?: boolean) => Promise<IMetricModel[]>;
   getTopics: (refresh?: boolean) => Promise<ITopicModel[]>;
   getTopicScoreRules: (refresh?: boolean) => Promise<ITopicScoreRuleModel[]>;
-  getProducts: (refresh?: boolean) => Promise<IProductModel[]>;
+  getMediaTypes: (refresh?: boolean) => Promise<IMediaTypeModel[]>;
   getLicenses: (refresh?: boolean) => Promise<ILicenseModel[]>;
   getIngestTypes: (refresh?: boolean) => Promise<IIngestTypeModel[]>;
   getSources: (refresh?: boolean) => Promise<ISourceModel[]>;
@@ -81,7 +82,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
   const actions = useApiEditorActions();
   const topics = useApiEditorTopics();
   const rules = useApiEditorTopicScoreRules();
-  const products = useApiEditorProducts();
+  const mediaTypes = useApiEditorMediaTypes();
   const sources = useApiEditorSources();
   const licenses = useApiEditorLicenses();
   const ingestTypes = useApiEditorIngestTypes();
@@ -111,52 +112,77 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           (etag) => lookups.getLookups(etag),
           (results) => {
             if (!!results) {
-              saveToLocalStorage('actions', results.actions, store.storeActions);
-              saveToLocalStorage('topics', results.topics, store.storeTopics);
-              saveToLocalStorage('rules', results.rules, store.storeTopicScoreRules);
-              saveToLocalStorage('products', results.products, store.storeProducts);
-              saveToLocalStorage('sources', results.sources, store.storeSources);
-              saveToLocalStorage('ingest_types', results.ingestTypes, store.storeIngestTypes);
-              saveToLocalStorage('licenses', results.licenses, store.storeLicenses);
-              saveToLocalStorage('roles', results.roles, store.storeRoles);
-              saveToLocalStorage('series', results.series, store.storeSeries);
-              saveToLocalStorage('contributors', results.contributors, store.storeContributors);
-              saveToLocalStorage('source_actions', results.sourceActions, store.storeSourceActions);
-              saveToLocalStorage('metrics', results.metrics, store.storeMetrics);
-              saveToLocalStorage('tags', results.tags, store.storeTags);
-              saveToLocalStorage('tone_pools', results.tonePools, store.storeTonePools);
-              saveToLocalStorage('users', results.users, store.storeUsers);
-              saveToLocalStorage('dataLocations', results.dataLocations, store.storeDataLocations);
-              saveToLocalStorage('settings', results.settings, store.storeSettings);
-              saveToLocalStorage('holidays', results.holidays, store.storeHolidays);
-              saveToLocalStorage('ministers', results.ministers, store.storeMinisters);
+              saveToLocalStorage(StorageKeys.Actions, results.actions, store.storeActions);
+              saveToLocalStorage(StorageKeys.Topics, results.topics, store.storeTopics);
+              saveToLocalStorage(StorageKeys.Rules, results.rules, store.storeTopicScoreRules);
+              saveToLocalStorage(StorageKeys.MediaTypes, results.mediaTypes, store.storeMediaTypes);
+              saveToLocalStorage(StorageKeys.Sources, results.sources, store.storeSources);
+              saveToLocalStorage(
+                StorageKeys.IngestTypes,
+                results.ingestTypes,
+                store.storeIngestTypes,
+              );
+              saveToLocalStorage(StorageKeys.Licenses, results.licenses, store.storeLicenses);
+              saveToLocalStorage(StorageKeys.Roles, results.roles, store.storeRoles);
+              saveToLocalStorage(StorageKeys.Series, results.series, store.storeSeries);
+              saveToLocalStorage(
+                StorageKeys.Contributors,
+                results.contributors,
+                store.storeContributors,
+              );
+              saveToLocalStorage(
+                StorageKeys.SourceActions,
+                results.sourceActions,
+                store.storeSourceActions,
+              );
+              saveToLocalStorage(StorageKeys.Metrics, results.metrics, store.storeMetrics);
+              saveToLocalStorage(StorageKeys.Tags, results.tags, store.storeTags);
+              saveToLocalStorage(StorageKeys.TonePools, results.tonePools, store.storeTonePools);
+              saveToLocalStorage(StorageKeys.Users, results.users, store.storeUsers);
+              saveToLocalStorage(
+                StorageKeys.DataLocations,
+                results.dataLocations,
+                store.storeDataLocations,
+              );
+              saveToLocalStorage(StorageKeys.Settings, results.settings, store.storeSettings);
+              saveToLocalStorage(StorageKeys.Holidays, results.holidays, store.storeHolidays);
+              saveToLocalStorage(StorageKeys.Ministers, results.ministers, store.storeMinisters);
               return results;
             } else {
               const lookups = {
-                actions: getFromLocalStorage<IActionModel[]>('actions', []),
-                topics: getFromLocalStorage<ITopicModel[]>('topics', []),
-                rules: getFromLocalStorage<ITopicScoreRuleModel[]>('rules', []),
-                products: getFromLocalStorage<IProductModel[]>('products', []),
-                sources: getFromLocalStorage<ISourceModel[]>('sources', []),
-                ingestTypes: getFromLocalStorage<IIngestTypeModel[]>('ingest_types', []),
-                licenses: getFromLocalStorage<ILicenseModel[]>('licenses', []),
-                roles: getFromLocalStorage<IRoleModel[]>('roles', []),
-                series: getFromLocalStorage<ISeriesModel[]>('series', []),
-                contributors: getFromLocalStorage<IContributorModel[]>('contributors', []),
-                sourceActions: getFromLocalStorage<ISourceActionModel[]>('source_actions', []),
-                metrics: getFromLocalStorage<IMetricModel[]>('metrics', []),
-                tags: getFromLocalStorage<ITagModel[]>('tags', []),
-                tonePools: getFromLocalStorage<ITonePoolModel[]>('tone_pools', []),
-                users: getFromLocalStorage<IUserModel[]>('users', []),
-                dataLocations: getFromLocalStorage<IDataLocationModel[]>('dataLocations', []),
-                settings: getFromLocalStorage<ISettingModel[]>('settings', []),
-                holidays: getFromLocalStorage<IHolidayModel[]>('holidays', []),
-                ministers: getFromLocalStorage<IMinisterModel[]>('ministers', []),
+                actions: getFromLocalStorage<IActionModel[]>(StorageKeys.Actions, []),
+                topics: getFromLocalStorage<ITopicModel[]>(StorageKeys.Topics, []),
+                rules: getFromLocalStorage<ITopicScoreRuleModel[]>(StorageKeys.Rules, []),
+                mediaTypes: getFromLocalStorage<IMediaTypeModel[]>(StorageKeys.MediaTypes, []),
+                sources: getFromLocalStorage<ISourceModel[]>(StorageKeys.Sources, []),
+                ingestTypes: getFromLocalStorage<IIngestTypeModel[]>(StorageKeys.IngestTypes, []),
+                licenses: getFromLocalStorage<ILicenseModel[]>(StorageKeys.Licenses, []),
+                roles: getFromLocalStorage<IRoleModel[]>(StorageKeys.Roles, []),
+                series: getFromLocalStorage<ISeriesModel[]>(StorageKeys.Series, []),
+                contributors: getFromLocalStorage<IContributorModel[]>(
+                  StorageKeys.Contributors,
+                  [],
+                ),
+                sourceActions: getFromLocalStorage<ISourceActionModel[]>(
+                  StorageKeys.SourceActions,
+                  [],
+                ),
+                metrics: getFromLocalStorage<IMetricModel[]>(StorageKeys.Metrics, []),
+                tags: getFromLocalStorage<ITagModel[]>(StorageKeys.Tags, []),
+                tonePools: getFromLocalStorage<ITonePoolModel[]>(StorageKeys.TonePools, []),
+                users: getFromLocalStorage<IUserModel[]>(StorageKeys.Users, []),
+                dataLocations: getFromLocalStorage<IDataLocationModel[]>(
+                  StorageKeys.DataLocations,
+                  [],
+                ),
+                settings: getFromLocalStorage<ISettingModel[]>(StorageKeys.Settings, []),
+                holidays: getFromLocalStorage<IHolidayModel[]>(StorageKeys.Holidays, []),
+                ministers: getFromLocalStorage<IMinisterModel[]>(StorageKeys.Ministers, []),
               };
               store.storeActions(lookups.actions);
               store.storeTopics(lookups.topics);
               store.storeTopicScoreRules(lookups.rules);
-              store.storeProducts(lookups.products);
+              store.storeMediaTypes(lookups.mediaTypes);
               store.storeSources(lookups.sources);
               store.storeIngestTypes(lookups.ingestTypes);
               store.storeLicenses(lookups.licenses);
@@ -181,7 +207,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getActions: async () => {
         return await fetchIfNoneMatch<IActionModel[]>(
-          'actions',
+          StorageKeys.Actions,
           dispatch,
           (etag) => actions.getActions(etag),
           (results) => {
@@ -195,7 +221,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getTopics: async () => {
         return await fetchIfNoneMatch<ITopicModel[]>(
-          'topics',
+          StorageKeys.Topics,
           dispatch,
           (etag) => topics.getTopics(etag),
           (results) => {
@@ -209,7 +235,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getTopicScoreRules: async () => {
         return await fetchIfNoneMatch<ITopicScoreRuleModel[]>(
-          'rules',
+          StorageKeys.Rules,
           dispatch,
           (etag) => rules.getTopicScoreRules(etag),
           (results) => {
@@ -221,14 +247,14 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           'lookup',
         );
       },
-      getProducts: async () => {
-        return await fetchIfNoneMatch<IProductModel[]>(
-          'products',
+      getMediaTypes: async () => {
+        return await fetchIfNoneMatch<IMediaTypeModel[]>(
+          StorageKeys.MediaTypes,
           dispatch,
-          (etag) => products.getProducts(etag),
+          (etag) => mediaTypes.getMediaTypes(etag),
           (results) => {
             const values = results ?? [];
-            store.storeProducts(values);
+            store.storeMediaTypes(values);
             return values;
           },
           true,
@@ -237,7 +263,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getSources: async () => {
         return await fetchIfNoneMatch<ISourceModel[]>(
-          'sources',
+          StorageKeys.Sources,
           dispatch,
           (etag) => sources.getSources(etag),
           (results) => {
@@ -251,7 +277,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getLicenses: async () => {
         return await fetchIfNoneMatch<ILicenseModel[]>(
-          'licenses',
+          StorageKeys.Licenses,
           dispatch,
           (etag) => licenses.getLicenses(etag),
           (results) => {
@@ -265,7 +291,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getIngestTypes: async () => {
         return await fetchIfNoneMatch<IIngestTypeModel[]>(
-          'ingest_types',
+          StorageKeys.IngestTypes,
           dispatch,
           (etag) => ingestTypes.getIngestTypes(etag),
           (results) => {
@@ -279,7 +305,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getRoles: async () => {
         return await fetchIfNoneMatch<IRoleModel[]>(
-          'roles',
+          StorageKeys.Roles,
           dispatch,
           (etag) => roles.getRoles(etag),
           (results) => {
@@ -293,7 +319,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getSeries: async () => {
         return await fetchIfNoneMatch<ISeriesModel[]>(
-          'series',
+          StorageKeys.Series,
           dispatch,
           (etag) => series.getSeries(etag),
           (results) => {
@@ -307,7 +333,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getContributors: async () => {
         return await fetchIfNoneMatch<IContributorModel[]>(
-          'contributors',
+          StorageKeys.Contributors,
           dispatch,
           (etag) => contributors.getContributors(etag),
           (results) => {
@@ -321,7 +347,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getSourceActions: async () => {
         return await fetchIfNoneMatch<ISourceActionModel[]>(
-          'source_actions',
+          StorageKeys.SourceActions,
           dispatch,
           (etag) => sourceActions.getActions(etag),
           (results) => {
@@ -335,7 +361,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getMetrics: async () => {
         return await fetchIfNoneMatch<IMetricModel[]>(
-          'metrics',
+          StorageKeys.Metrics,
           dispatch,
           (etag) => sourceMetrics.getMetrics(etag),
           (results) => {
@@ -349,7 +375,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getTags: async () => {
         return await fetchIfNoneMatch<ITagModel[]>(
-          'tags',
+          StorageKeys.Tags,
           dispatch,
           (etag) => tags.getTags(etag),
           (results) => {
@@ -363,7 +389,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getTonePools: async () => {
         return await fetchIfNoneMatch<ITonePoolModel[]>(
-          'tone_pools',
+          StorageKeys.TonePools,
           dispatch,
           (etag) => tonePools.getTonePools(etag),
           (results) => {
@@ -377,7 +403,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getUsers: async () => {
         return await fetchIfNoneMatch<IUserModel[]>(
-          'users',
+          StorageKeys.Users,
           dispatch,
           (etag) => users.getUsers(etag),
           (results) => {
@@ -391,7 +417,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getDataLocations: async () => {
         return await fetchIfNoneMatch<IDataLocationModel[]>(
-          'data_locations',
+          StorageKeys.DataLocations,
           dispatch,
           (etag) => dataLocations.getDataLocations(etag),
           (results) => {
@@ -405,7 +431,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getSettings: async () => {
         return await fetchIfNoneMatch<ISettingModel[]>(
-          'settings',
+          StorageKeys.Settings,
           dispatch,
           (etag) => settings.getSettings(etag),
           (results) => {
@@ -419,7 +445,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       },
       getMinisters: async () => {
         return await fetchIfNoneMatch<IMinisterModel[]>(
-          'ministers',
+          StorageKeys.Ministers,
           dispatch,
           (etag) => ministers.getMinisters(etag),
           (results) => {
@@ -434,6 +460,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       init: async () => {
         // TODO: Handle failures
         await controller.getLookups();
+        store.storeIsReady(true);
       },
     }),
     [
@@ -444,7 +471,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       actions,
       topics,
       rules,
-      products,
+      mediaTypes,
       sources,
       licenses,
       ingestTypes,

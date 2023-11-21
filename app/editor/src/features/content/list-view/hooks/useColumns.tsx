@@ -57,13 +57,18 @@ export const useColumns = ({ fetch }: IColumnProps): ITableHookColumn<IContentSe
       cell: (cell) => <CellEllipsis>{cell.original.otherSource}</CellEllipsis>,
     },
     {
-      accessor: 'product',
-      label: 'Product',
-      cell: (cell) => <CellEllipsis>{cell.original.product}</CellEllipsis>,
+      accessor: 'mediaType',
+      label: 'Media Type',
+      cell: (cell) => <CellEllipsis>{cell.original.mediaType}</CellEllipsis>,
       width: 1,
     },
     {
       accessor: 'section',
+      sort: (row) => {
+        return `${row.original.page ? row.original.page : ''}:${
+          row.original.section ? row.original.section : ''
+        }`;
+      },
       label: (
         <Row nowrap>
           Page:Section

@@ -15,7 +15,7 @@ public class IngestConfiguration : AuditColumnsConfiguration<Ingest>
         builder.Property(m => m.Description).IsRequired().HasMaxLength(2000).HasDefaultValueSql("''");
         builder.Property(m => m.IngestTypeId).IsRequired();
         builder.Property(m => m.SourceId).IsRequired();
-        builder.Property(m => m.ProductId).IsRequired();
+        builder.Property(m => m.MediaTypeId).IsRequired();
         builder.Property(m => m.Configuration).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
         builder.Property(m => m.RetryLimit).IsRequired().HasDefaultValue(3);
         builder.Property(m => m.ScheduleType).HasDefaultValue(ScheduleType.None);
@@ -23,7 +23,7 @@ public class IngestConfiguration : AuditColumnsConfiguration<Ingest>
         builder.Property(m => m.DestinationConnectionId).IsRequired();
 
         builder.HasOne(m => m.IngestType).WithMany(m => m.Ingests).HasForeignKey(m => m.IngestTypeId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne(m => m.Product).WithMany(m => m.Ingests).HasForeignKey(m => m.ProductId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(m => m.MediaType).WithMany(m => m.Ingests).HasForeignKey(m => m.MediaTypeId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(m => m.Source).WithMany(m => m.Ingests).HasForeignKey(m => m.SourceId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(m => m.SourceConnection).WithMany(m => m.SourceIngests).HasForeignKey(m => m.SourceConnectionId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.DestinationConnection).WithMany(m => m.DestinationIngests).HasForeignKey(m => m.DestinationConnectionId).OnDelete(DeleteBehavior.Restrict);

@@ -1,7 +1,10 @@
 @import './css/_colors';
 
-body {
+html,
+body,
+main {
   margin: 0;
+  height: 100%;
 }
 
 body,
@@ -60,6 +63,17 @@ h4 {
   height: 0;
 }
 
+.fvh {
+  height: 100%;
+}
+
+#root {
+  height: 100%;
+
+  &>div {
+    height: 100%;
+  }
+}
 
 // *************************************************
 // Button Customization
@@ -157,12 +171,29 @@ h4 {
 .modal,
 .modal-full {
   .modal-quill {
+    flex: 1;
+
     .ql-editor {
       resize: both;
-      max-width: 100%;
-      min-width: 100%;
+      // TODO: Figure out flexbox implementation.
+      // I can't figure out how to make this expand.
+      width: calc(100vw - 10em);
+      height: calc(100vh - 15em);
     }
   }
+}
+
+// *************************************************
+// Tooltip
+// *************************************************
+#main-tooltip {
+  height: unset !important;
+  z-index: 999;
+}
+
+#main-tooltip-right {
+  height: unset !important;
+  z-index: 999;
 }
 
 // *************************************************

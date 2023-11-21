@@ -11,13 +11,13 @@ namespace TNO.Services.Managers;
 /// It will fetch all ingests for the configured ingest types.
 /// It will ensure all ingests are being run based on their schedules.
 /// </summary>
-public abstract class IngestManager<TIngestServiceActionManager, TOption> : ServiceManager<TOption>, IIngestManager, IDisposable
-    where TIngestServiceActionManager : IIngestServiceActionManager
+public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TOption>, IIngestManager, IDisposable
+    where TActionManager : IIngestActionManager
     where TOption : IngestServiceOptions
 {
     #region Variables
-    private readonly IngestManagerFactory<TIngestServiceActionManager, TOption> _factory;
-    private readonly Dictionary<int, TIngestServiceActionManager> _ingests = new();
+    private readonly IngestManagerFactory<TActionManager, TOption> _factory;
+    private readonly Dictionary<int, TActionManager> _ingests = new();
     private readonly IServiceScope _serviceScope;
     #endregion
 
@@ -39,9 +39,9 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
     public IngestManager(
         IServiceProvider serviceProvider,
         IApiService api,
-        IngestManagerFactory<TIngestServiceActionManager, TOption> factory,
+        IngestManagerFactory<TActionManager, TOption> factory,
         IOptions<TOption> options,
-        ILogger<IngestManager<TIngestServiceActionManager, TOption>> logger)
+        ILogger<IngestManager<TActionManager, TOption>> logger)
         : base(api, options, logger)
     {
         _factory = factory;
@@ -70,7 +70,7 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
         {
             if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause)
             {
-                await StopAllAsync(this.Ingests);
+                await StopAllAsync();
                 this.State.Stop();
             }
 
@@ -80,43 +80,49 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
             }
             else if (!this.Ingests.Any(ds => ds.IsEnabled))
             {
-                await StopAllAsync(this.Ingests);
+                await StopAllAsync();
                 // If there are no ingests, then we need to keep the service alive.
                 this.Logger.LogWarning("There are no configured ingests for this data location '{Location}'", this.Options.DataLocation);
             }
             else
             {
-                foreach (var ingest in this.Ingests)
+                for (var index = 0; index < this.Ingests.Count; index++)
                 {
+                    var ingest = this.Ingests[index];
+
                     // Update the delay if a schedule has changed and is less than the original value.
                     var delayMS = ingest.IngestSchedules.Where(s => s.Schedule?.DelayMS > 0).Min(s => s.Schedule?.DelayMS) ?? delay;
                     delay = delayMS < delay ? delayMS : delay;
 
                     // Maintain a dictionary of managers for each ingest.
                     // Fire event for the ingest scheduler.
-                    var hasKey = _ingests.ContainsKey(ingest.Id);
-                    if (!hasKey) _ingests.Add(ingest.Id, _factory.Create(ingest, _serviceScope));
+                    if (!_ingests.ContainsKey(ingest.Id)) _ingests.Add(ingest.Id, _factory.Create(ingest, _serviceScope));
                     var manager = _ingests[ingest.Id];
 
                     // Ask all live threads to stop.
                     if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause)
                     {
-                        await StopAllAsync(_ingests.Values);
+                        await StopAllAsync();
                         this.State.Stop();
                         break;
                     }
                     else
                     {
                         // Fetch the latest version of the ingest for checking if the location is still valid or not.
-                        var theLatest = await Api.GetIngestAsync(ingest.Id);
-
-                        if (theLatest == null ||
-                            !theLatest.IsEnabled ||
-                            !theLatest.IngestSchedules.Any(d => d.Schedule?.IsEnabled == true) ||
-                            !theLatest.DataLocations.Any(d => d.Name.ToLower() == Options.DataLocation.ToLower()))
+                        var theLatest = await this.Api.HandleRequestFailure(async () => await this.Api.GetIngestAsync(ingest.Id), this.Options.ReuseIngests, ingest);
+                        if (theLatest != null)
                         {
-                            await manager.StopAsync();
-                            continue;
+                            // Update local array.
+                            this.Ingests[index] = theLatest;
+                            manager.Ingest = theLatest;
+
+                            if (!theLatest.IsEnabled ||
+                                !theLatest.IngestSchedules.Any(d => d.Schedule?.IsEnabled == true) ||
+                                !theLatest.DataLocations.Any(d => d.Name.ToLower() == Options.DataLocation.ToLower()))
+                            {
+                                await manager.StopAsync();
+                                continue;
+                            }
                         }
                     }
 
@@ -162,25 +168,50 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
             this.Logger.LogDebug("Service sleeping for {delay:n0} ms", delay);
             await Task.Delay(delay);
 
-            // Fetch all ingests again to determine if there are any changes to the list.
-            var ingests = await GetIngestsAsync();
-            this.Ingests.Clear();
-            this.Ingests.AddRange(ingests);
+            await RefreshIngestsAsync();
         }
     }
 
-    private async Task StopAllAsync(List<IngestModel> ingests)
+    /// <summary>
+    /// Fetch the latest ingests from the API.
+    /// Update the local list and dictionary with the latest ingest configuration updates.
+    /// </summary>
+    /// <returns></returns>
+    private async Task RefreshIngestsAsync()
     {
-        foreach (var ingest in ingests)
+        // Fetch all ingests again to determine if there are any changes to the list.
+        var ingests = (await GetIngestsAsync()).ToArray();
+        for (var index = 0; index < ingests.Length; index++)
         {
-            if (!_ingests.ContainsKey(ingest.Id)) _ingests.Add(ingest.Id, _factory.Create(ingest));
+            var latestIngest = ingests[index];
+            var currentIngestIndex = this.Ingests.FindIndex(i => i.Id == latestIngest.Id);
+            if (currentIngestIndex != -1)
+            {
+                var currentIngest = this.Ingests[currentIngestIndex];
+                if (latestIngest.Version > currentIngest.Version)
+                {
+                    this.Ingests[currentIngestIndex] = latestIngest;
+
+                    if (_ingests.ContainsKey(latestIngest.Id))
+                        _ingests[latestIngest.Id].Ingest = latestIngest;
+                }
+            }
+            else
+            {
+                this.Ingests.Add(latestIngest);
+            }
         }
-        await StopAllAsync(_ingests.Values);
+        this.Ingests.Clear();
+        this.Ingests.AddRange(ingests);
     }
 
-    private async Task StopAllAsync(Dictionary<int, TIngestServiceActionManager>.ValueCollection managers)
+    /// <summary>
+    /// Tell all ingests to stop.
+    /// </summary>
+    /// <returns></returns>
+    private async Task StopAllAsync()
     {
-        foreach (var manager in managers)
+        foreach (var manager in _ingests.Values)
         {
             await manager.StopAsync();
         }
@@ -215,31 +246,12 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
     }
 
     /// <summary>
-    /// Make an HTTP request to the api to fetch ingests for the configured ingest type.
-    /// If the API fails it will configured to use the existing ingests if configured to do so.
+    /// Dispose this object.
     /// </summary>
-    /// <param name="ingestType"></param>
-    /// <returns></returns>
-    protected virtual async Task<IEnumerable<IngestModel>> GetOrReuseIngestsAsync(string ingestType)
-    {
-        try
-        {
-            return await this.Api.GetIngestsForIngestTypeAsync(ingestType);
-        }
-        catch (Exception ex)
-        {
-            // If configured to reuse existing ingests it will ignore the error and continue running.
-            if (!this.Options.ReuseIngests)
-                throw;
-
-            this.Logger.LogError(ex, "Ignoring error and reusing existing ingests");
-            return this.Ingests.ToArray();
-        }
-    }
-
     public void Dispose()
     {
         _serviceScope.Dispose();
+        GC.SuppressFinalize(this);
     }
     #endregion
 }

@@ -50,14 +50,8 @@ function App() {
         </LayoutAnonymous>
       </Show>
       <ToastContainer />
-      <Tooltip style={{ zIndex: '999' }} variant="info" id="main-tooltip" place="top" float />
-      <Tooltip
-        style={{ zIndex: '999' }}
-        variant="info"
-        id="main-tooltip-right"
-        place="right"
-        float
-      />
+      <Tooltip variant="info" id="main-tooltip" place="top" float />
+      <Tooltip variant="info" id="main-tooltip-right" place="right" float />
     </BrowserRouter>
   );
 }

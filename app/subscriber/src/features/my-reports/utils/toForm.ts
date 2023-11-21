@@ -3,6 +3,7 @@ import { IReportModel } from 'tno-core';
 import { defaultReportSchedule } from '../constants';
 import { IReportForm } from '../interfaces';
 import { getHideEmpty } from './getHideEmpty';
+import { sortContent } from './sortContent';
 
 export const toForm = (
   report: IReportModel,
@@ -23,5 +24,6 @@ export const toForm = (
             defaultReportSchedule('Schedule 1', report),
             defaultReportSchedule('Schedule 2', report),
           ],
+    instances: report.instances.map((i) => ({ ...i, content: sortContent(i.content) })),
   };
 };

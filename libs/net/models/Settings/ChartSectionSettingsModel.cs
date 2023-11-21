@@ -28,9 +28,9 @@ public class ChartSectionSettingsModel
     public string ChartType { get; set; } = "bar";
 
     /// <summary>
-    /// get/set - Which property to group by [contentType|otherSource|product|series|byline].
+    /// get/set - Which property to group by [contentType|otherSource|mediaType|series|byline].
     /// </summary>
-    public string GroupBy { get; set; } = "product";
+    public string GroupBy { get; set; } = "mediaType";
 
     /// <summary>
     /// get/set - An override title to include with the chart.

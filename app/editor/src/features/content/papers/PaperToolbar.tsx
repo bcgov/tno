@@ -4,7 +4,6 @@ import { FaFileArrowUp } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useLookup, useLookupOptions, useNotifications, useReports } from 'store/hooks';
-import { storeContentFilterAdvanced } from 'store/slices';
 import {
   ContentTypeName,
   IOptionItem,
@@ -17,13 +16,10 @@ import {
   useModal,
 } from 'tno-core';
 
-import { AdvancedSearchKeys } from '../constants';
 import { IContentListFilter } from '../interfaces';
 import { CreateNewSection } from '../list-view/components/tool-bar/filter';
-import { queryToFilter, queryToFilterAdvanced } from '../list-view/utils';
 import { getPreviewReportRoute } from '../utils';
 import { AdvancedFilter, ContentFilter } from './components';
-import { defaultPaperFilter } from './constants';
 import { IReportInfo } from './interfaces';
 import * as styled from './styled';
 
@@ -39,41 +35,18 @@ export interface IPaperToolbarProps {
  */
 export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
   const navigate = useNavigate();
-  const [{ filterPaper: filter, filterAdvanced }, { storeFilterPaper }] = useContent();
-  const [{ productOptions: pOptions }] = useLookupOptions();
+  const [{ filterPaper: filter }, { storeFilterPaper }] = useContent();
+  const [{ mediaTypeOptions }] = useLookupOptions();
   const [{ publishReport }] = useReports();
   const [{ publishNotification }] = useNotifications();
-  const [{ sources, settings }] = useLookup();
+  const [{ settings }] = useLookup();
   const { toggle, isShowing } = useModal();
 
-  const [, setProductOptions] = React.useState<IOptionItem[]>([]);
+  const [, setMediaTypeOptions] = React.useState<IOptionItem[]>([]);
   const [morningReportId, setMorningReportId] = React.useState('');
   const [frontPageImagesReportId, setFrontPageImagesReportId] = React.useState('');
   const [topStoryAlertId, setTopStoryAlertId] = React.useState('');
   const [sendInfo, setSendInfo] = React.useState<IReportInfo>();
-
-  React.useEffect(() => {
-    // Extract query string values and place them into redux store.
-    if (!window.location.search) {
-      replaceQueryParams(defaultPaperFilter(sources), { includeEmpty: false });
-    }
-    storeFilterPaper(
-      queryToFilter(
-        {
-          ...defaultPaperFilter(sources),
-        },
-        window.location.search,
-      ),
-    );
-    storeContentFilterAdvanced(
-      queryToFilterAdvanced(
-        { ...filterAdvanced, fieldType: AdvancedSearchKeys.Headline },
-        window.location.search,
-      ),
-    );
-    // Only want this to run on the first load.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   React.useEffect(() => {
     setMorningReportId(settings.find((s) => s.name === Settings.MorningReport)?.value ?? '');
@@ -84,8 +57,8 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
   }, [settings]);
 
   React.useEffect(() => {
-    setProductOptions([new OptionItem<number>('Any', 0), ...pOptions]);
-  }, [pOptions]);
+    setMediaTypeOptions([new OptionItem<number>('Any', 0), ...mediaTypeOptions]);
+  }, [mediaTypeOptions]);
 
   const onFilterChange = (filter: IContentListFilter) => {
     const newFilter = { ...filter, pageIndex: 0 };

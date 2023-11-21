@@ -114,7 +114,7 @@ const IngestForm: React.FC<IIngestProps> = (props) => {
                       label="Details"
                       exact
                       activePaths={[`${id}`]}
-                      hasErrors={hasErrors(errors, ['name', 'topic', 'sourceId', 'productId'])}
+                      hasErrors={hasErrors(errors, ['name', 'topic', 'sourceId', 'mediaTypeId'])}
                     />
                     <Tab
                       navigateTo="settings"

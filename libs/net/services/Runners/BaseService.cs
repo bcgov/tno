@@ -174,16 +174,13 @@ public abstract class BaseService
             var tasks = new[] { RunApiAsync(), RunServiceAsync() };
             var task = await Task.WhenAny(tasks);
             if (task.Status == TaskStatus.Faulted) throw task.Exception ?? new Exception("An unhandled exception has occurred.");
+            _logger.LogInformation("Service stopped");
             return 0;
         }
         catch (Exception ex)
         {
             _logger.LogCritical(ex, "An unhandled error has occurred.");
             return 1;
-        }
-        finally
-        {
-            _logger.LogInformation("Service stopped");
         }
     }
 

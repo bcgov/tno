@@ -9,11 +9,13 @@ using TNO.API.Areas.Subscriber.Models.Report;
 using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
+using TNO.API.Models.SignalR;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Kafka;
 using TNO.Kafka.Models;
+using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 using TNO.Models.Filters;
 using TNO.Reports;
@@ -43,6 +45,7 @@ public class ReportController : ControllerBase
     private readonly IReportHelper _reportHelper;
     private readonly IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
+    private readonly KafkaHubConfig _kafkaHubOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -56,6 +59,7 @@ public class ReportController : ControllerBase
     /// <param name="reportHelper"></param>
     /// <param name="kafkaProducer"></param>
     /// <param name="kafkaOptions"></param>
+    /// <param name="kafkaHubOptions"></param>
     /// <param name="serializerOptions"></param>
     public ReportController(
         IReportService reportService,
@@ -64,6 +68,7 @@ public class ReportController : ControllerBase
         IReportHelper reportHelper,
         IKafkaMessenger kafkaProducer,
         IOptions<KafkaOptions> kafkaOptions,
+        IOptions<KafkaHubConfig> kafkaHubOptions,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _reportService = reportService;
@@ -72,6 +77,7 @@ public class ReportController : ControllerBase
         _reportHelper = reportHelper;
         _kafkaProducer = kafkaProducer;
         _kafkaOptions = kafkaOptions.Value;
+        _kafkaHubOptions = kafkaHubOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -146,22 +152,40 @@ public class ReportController : ControllerBase
 
     /// <summary>
     /// Find report for the specified 'id'.
+    /// Also includes the user's unsent report instance.
+    /// If request includes 'generate=true' then make sure to return an unsent instance.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="generate">If an unsent instance does not exist, generate one.</param>
     /// <returns></returns>
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult FindById(int id)
+    public async Task<IActionResult> FindByIdAsync(int id, bool generate = false)
     {
-        var result = _reportService.FindById(id) ?? throw new NoContentException();
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        if (result.OwnerId != user.Id && !result.IsPublic) throw new NotAuthorizedException("Not authorized to view this report");
 
-        return new JsonResult(new ReportModel(result, _serializerOptions));
+        var report = _reportService.FindById(id) ?? throw new NoContentException();
+        if (report.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to view this report");
+
+        var instance = _reportService.GetLatestInstance(id, user.Id, false);
+        if (generate && instance == null)
+        {
+            // Generate a new instance of this report.
+            instance = await _reportHelper.GenerateReportInstanceAsync(new Services.Models.Report.ReportModel(report, _serializerOptions), user.Id);
+            _reportInstanceService.AddAndSave(instance);
+            instance = _reportService.GetLatestInstance(report.Id, user.Id, false) ?? throw new NoContentException("Report does not exist");
+        }
+        if (instance != null)
+        {
+            report.Instances.Clear();
+            report.Instances.Add(instance);
+        }
+
+        return new JsonResult(new ReportModel(report, _serializerOptions));
     }
 
     /// <summary>
@@ -188,7 +212,7 @@ public class ReportController : ControllerBase
 
         var result = _reportService.AddAndSave(model.ToEntity(_serializerOptions));
         var report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
-        return CreatedAtAction(nameof(FindById), new { id = report.Id }, new ReportModel(report, _serializerOptions));
+        return CreatedAtAction(nameof(FindByIdAsync), new { id = report.Id }, new ReportModel(report, _serializerOptions));
     }
 
     /// <summary>
@@ -202,23 +226,36 @@ public class ReportController : ControllerBase
     [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult Update(ReportModel model, [FromQuery] bool updateInstances = false)
+    public async Task<IActionResult> UpdateAsync(ReportModel model, [FromQuery] bool updateInstances = false)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
         var result = _reportService.FindById(model.Id) ?? throw new NoContentException("Report does not exist");
         if (result?.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to update this report");
         _reportService.ClearChangeTracker(); // Remove the report from context.
-        result = _reportService.UpdateAndSave(model.ToEntity(_serializerOptions));
+        result = _reportService.Update(model.ToEntity(_serializerOptions));
         if (updateInstances && model.Instances.Any())
         {
-            model.Instances.ForEach(i =>
+            // There should only ever be one instance returned for the current user.
+            model.Instances.ForEach(instance =>
             {
-                _reportInstanceService.Update((Entities.ReportInstance)i);
+                var updatedInstance = _reportInstanceService.Update((Entities.ReportInstance)instance);
             });
-            _reportInstanceService.CommitTransaction();
         }
+        _reportInstanceService.CommitTransaction();
         var report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
+
+        if (updateInstances && model.Instances.Any())
+        {
+            // Inform other users of the updated content.
+            var instanceContent = report.Instances.FirstOrDefault()?.ContentManyToMany.ToArray() ?? Array.Empty<Entities.ReportInstanceContent>();
+            foreach (var content in instanceContent)
+            {
+                // Inform other users of the updated content.
+                if (content.Content != null && !content.Content.IsPrivate)
+                    await _kafkaProducer.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content.Content) })));
+            }
+        }
         return new JsonResult(new ReportModel(report, _serializerOptions));
     }
 
@@ -293,12 +330,17 @@ public class ReportController : ControllerBase
             // Generate a new instance of this report.
             var regeneratedInstance = await _reportHelper.GenerateReportInstanceAsync(new Services.Models.Report.ReportModel(report, _serializerOptions), user.Id, instance.Id);
             _reportInstanceService.ClearChangeTracker();
-            instance.ContentManyToMany.Clear();
-            instance.ContentManyToMany.AddRange(regeneratedInstance.ContentManyToMany);
+            instance.ContentManyToMany.RemoveAll(c => c.Content?.IsPrivate == false);
+            var count = 0;
+            instance.ContentManyToMany.ForEach(c => c.SortOrder = count++);
+            var newContent = regeneratedInstance.ContentManyToMany.Select(c =>
+            {
+                c.SortOrder = count++;
+                return c;
+            });
+            instance.ContentManyToMany.AddRange(newContent);
             _reportInstanceService.UpdateAndSave(instance);
             instance = _reportService.GetLatestInstance(id, user.Id, false) ?? throw new NoContentException("Report does not exist");
-            report.Instances.Clear();
-            report.Instances.Add(instance);
         }
         else if (instance == null || instance.SentOn.HasValue)
         {
@@ -307,6 +349,8 @@ public class ReportController : ControllerBase
             _reportInstanceService.AddAndSave(instance);
             instance = _reportService.GetLatestInstance(id, user.Id, false) ?? throw new NoContentException("Report does not exist");
         }
+        report.Instances.Clear();
+        report.Instances.Add(instance);
 
         return new JsonResult(new ReportModel(report, _serializerOptions));
     }

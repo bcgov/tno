@@ -1,3 +1,4 @@
+import { HubConnectionState } from '@microsoft/signalr';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IUserInfoModel } from 'tno-core';
 
@@ -7,6 +8,7 @@ const defaultState: IAppState = {
   requests: [],
   showErrors: false,
   errors: [],
+  hubState: HubConnectionState.Disconnected,
 };
 
 /**
@@ -18,6 +20,9 @@ export const appSlice = createSlice({
   name: 'app',
   initialState: defaultState,
   reducers: {
+    changeHubState(state: IAppState, action: PayloadAction<HubConnectionState>) {
+      state.hubState = action.payload;
+    },
     storeUserInfo(state: IAppState, action: PayloadAction<IUserInfoModel | undefined>) {
       state.userInfo = action.payload;
     },
@@ -48,6 +53,7 @@ export const appSlice = createSlice({
 });
 
 export const {
+  changeHubState,
   storeUserInfo,
   addRequest,
   removeRequest,

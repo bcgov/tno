@@ -41,4 +41,8 @@ public enum MigrationAction
     /// Create a pipeline.
     /// </summary>
     CreatePipeline,
+    /// <summary>
+    /// Create a Update index using query.
+    /// </summary>
+    UpdateByQuery,
 }

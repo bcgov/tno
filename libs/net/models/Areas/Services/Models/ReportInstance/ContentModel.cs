@@ -39,9 +39,14 @@ public class ContentModel
     public string OtherSource { get; set; } = "";
 
     /// <summary>
-    /// get/set - Foreign key to product.
+    /// get/set - Foreign key to media type.
     /// </summary>
-    public int ProductId { get; set; }
+    public int MediaTypeId { get; set; }
+
+    /// <summary>
+    /// get/set - The media type.
+    /// </summary>
+    public MediaTypeModel? MediaType { get; set; }
 
     /// <summary>
     /// get/set - Foreign key to license.
@@ -149,9 +154,9 @@ public class ContentModel
     public bool IsApproved { get; set; }
 
     /// <summary>
-    /// get/set - The product.
+    /// get/set - Private content is not searchable.
     /// </summary>
-    public ProductModel? Product { get; set; }
+    public bool IsPrivate { get; set; }
 
     /// <summary>
     /// get/set - The first file reference's image content if available.
@@ -212,8 +217,8 @@ public class ContentModel
         this.SourceId = entity.SourceId;
         this.Source = entity.Source != null ? new SourceModel(entity.Source) : null;
         this.OtherSource = entity.OtherSource;
-        this.ProductId = entity.ProductId;
-        this.Product = entity.Product != null ? new ProductModel(entity.Product) : null;
+        this.MediaTypeId = entity.MediaTypeId;
+        this.MediaType = entity.MediaType != null ? new MediaTypeModel(entity.MediaType) : null;
         this.LicenseId = entity.LicenseId;
         this.SeriesId = entity.SeriesId;
         this.Series = entity.Series != null ? new SeriesModel(entity.Series) : null;
@@ -234,6 +239,7 @@ public class ContentModel
         this.PublishedOn = entity.PublishedOn;
         this.IsHidden = entity.IsHidden;
         this.IsApproved = entity.IsApproved;
+        this.IsPrivate = entity.IsPrivate;
 
         this.Actions = entity.ActionsManyToMany.Select(e => new ContentActionModel(e));
         this.Topics = entity.TopicsManyToMany.Select(e => new ContentTopicModel(e));
@@ -256,8 +262,8 @@ public class ContentModel
         this.SourceId = model.SourceId;
         this.Source = model.Source != null ? new SourceModel(model.Source) : null;
         this.OtherSource = model.OtherSource;
-        this.ProductId = model.ProductId;
-        this.Product = model.Product != null ? new ProductModel(model.Product) : null;
+        this.MediaTypeId = model.MediaTypeId;
+        this.MediaType = model.MediaType != null ? new MediaTypeModel(model.MediaType) : null;
         this.LicenseId = model.LicenseId;
         this.SeriesId = model.SeriesId;
         this.Series = model.Series != null ? new SeriesModel(model.Series) : null;
@@ -278,6 +284,7 @@ public class ContentModel
         this.PublishedOn = model.PublishedOn;
         this.IsHidden = model.IsHidden;
         this.IsApproved = model.IsApproved;
+        this.IsPrivate = model.IsPrivate;
 
         this.Actions = model.Actions.Select(e => new ContentActionModel(e));
         this.Topics = model.Topics.Select(e => new ContentTopicModel(e));

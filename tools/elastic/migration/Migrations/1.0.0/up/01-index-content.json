@@ -70,6 +70,7 @@
           "properties": {
             "id": { "type": "integer" },
             "name": { "type": "keyword" },
+            "valueType": { "type": "keyword" },
             "value": { "type": "text" }
           }
         },

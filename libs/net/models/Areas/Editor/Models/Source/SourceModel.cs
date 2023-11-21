@@ -61,12 +61,12 @@ public class SourceModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public int? ProductId { get; set; }
+    public int? MediaTypeId { get; set; }
 
     /// <summary>
     /// get/set -
     /// </summary>
-    public int? ProductSearchGroupId { get; set; }    
+    public int? MediaTypeSearchGroupId { get; set; }
 
     /// <summary>
     /// get/set -
@@ -112,8 +112,8 @@ public class SourceModel
         this.LicenseId = entity.LicenseId;
         this.License = entity.License?.Name ?? "";
         this.OwnerId = entity.OwnerId;
-        this.ProductId = entity.ProductId;
-        this.ProductSearchGroupId = entity.ProductSearchGroupId;
+        this.MediaTypeId = entity.MediaTypeId;
+        this.MediaTypeSearchGroupId = entity.MediaTypeSearchGroupId;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
         this.UseInTopics = entity.UseInTopics;

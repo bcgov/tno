@@ -59,9 +59,13 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
+
+        // This ingest has just begun running.
+        await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
+
         var url = GetUrl(manager.Ingest);
 
         var feed = await GetFeedAsync(url, manager);
@@ -79,7 +83,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <param name="manager"></param>
     /// <param name="feed"></param>
     /// <returns></returns>
-    private async Task ImportFeedAsync(IIngestServiceActionManager manager, SyndicationFeed feed)
+    private async Task ImportFeedAsync(IIngestActionManager manager, SyndicationFeed feed)
     {
         foreach (var item in feed.Items)
         {
@@ -128,6 +132,11 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
 
                 this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}'", manager.Ingest.Name);
                 await manager.RecordFailureAsync(ex);
+            }
+            finally
+            {
+                // This ingest has just completed running for one content item.
+                await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
             }
         }
     }
@@ -243,7 +252,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             this.Options.DataLocation,
             source,
             contentType,
-            ingest.ProductId,
+            ingest.MediaTypeId,
             uid,
             title,
             StringExtensions.ConvertTextToParagraphs(summary, @"[\r\n]+"),
@@ -347,7 +356,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <param name="item"></param>
     /// <param name="sourceContent"></param>
     /// <returns></returns>
-    private async Task<ContentReferenceModel?> ContentReceivedAsync(IIngestServiceActionManager manager, ContentReferenceModel? reference, SyndicationItem item, SourceContent sourceContent)
+    private async Task<ContentReferenceModel?> ContentReceivedAsync(IIngestActionManager manager, ContentReferenceModel? reference, SyndicationItem item, SourceContent sourceContent)
     {
         if (reference != null)
         {
@@ -364,7 +373,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <param name="url"></param>
     /// <param name="manager"></param>
     /// <returns></returns>
-    private async Task<SyndicationFeed> GetFeedAsync(Uri url, IIngestServiceActionManager manager)
+    private async Task<SyndicationFeed> GetFeedAsync(Uri url, IIngestActionManager manager)
     {
         var response = await _httpClient.GetAsync(url);
         if (!response.IsSuccessStatusCode)

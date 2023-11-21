@@ -1,23 +1,13 @@
-import { Sentiment } from 'components/sentiment';
 import { useFormikContext } from 'formik';
-import moment from 'moment';
 import React from 'react';
-import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { FaGripVertical } from 'react-icons/fa';
-import { FaX } from 'react-icons/fa6';
-import { toast } from 'react-toastify';
-import { useReportInstances } from 'store/hooks';
-import {
-  Col,
-  FormikText,
-  FormikTextArea,
-  IReportInstanceContentModel,
-  IReportInstanceModel,
-  Row,
-  Show,
-} from 'tno-core';
+import { Droppable } from 'react-beautiful-dnd';
+import { FaEdit } from 'react-icons/fa';
+import { useApp } from 'store/hooks';
+import { Col, ContentRow, DraggableContentRow, FormikText, FormikTextArea, Show } from 'tno-core';
 
 import { IReportForm } from '../../interfaces';
+import { sortContent } from '../../utils';
+import { ContentForm, UserContentForm } from '.';
 import { IReportSectionProps } from './ReportSection';
 
 /**
@@ -28,29 +18,37 @@ import { IReportSectionProps } from './ReportSection';
 export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSectionProps>(
   ({ index, showForm, ...rest }, ref) => {
     const { values, setFieldValue } = useFormikContext<IReportForm>();
-    const [{ updateReportInstance }] = useReportInstances();
+    const [{ userInfo }] = useApp();
+
+    const [activeRowIndex, setActiveRowIndex] = React.useState<number>();
 
     const section = values.sections[index];
     const instance = values.instances.length ? values.instances[0] : null;
+    const userId = userInfo?.id ?? 0;
+    const sectionContent = values.instances[0].content
+      .filter((c) => c.sectionName === section.name)
+      .map((c) => ({
+        ...c,
+        originalIndex: values.instances[0].content.findIndex(
+          (oi) => oi.contentId === c.contentId && oi.sectionName === c.sectionName,
+        ),
+      }));
 
     const handleRemoveContent = React.useCallback(
-      async (instance: IReportInstanceModel, content: IReportInstanceContentModel) => {
-        try {
-          const result = await updateReportInstance({
-            ...instance,
-            content: instance.content.filter(
-              (c) => c.sectionName !== content.sectionName || c.contentId !== content.contentId,
-            ),
-          });
-          setFieldValue(
-            'instances',
-            values.instances.map((i) => (i.id === result.id ? result : i)),
-          );
-          toast.success(`Content removed from folder`);
-        } catch {}
+      async (index: number) => {
+        if (instance) {
+          var newItems = [...instance.content];
+          newItems.splice(index, 1);
+          newItems = newItems.map((c, index) => ({ ...c, sortOrder: index }));
+          setActiveRowIndex(undefined);
+          setFieldValue('instances.0.content', sortContent(newItems));
+        }
       },
-      [setFieldValue, updateReportInstance, values.instances],
+      [instance, setFieldValue],
     );
+
+    if (instance == null) return null;
+
     return (
       <Col gap="0.5rem">
         <Show visible={showForm}>
@@ -63,7 +61,7 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
         <Show visible={!!section.folder && !instance?.content.length}>
           <p>Folder is empty.</p>
         </Show>
-        <Show visible={!!instance?.content.length}>
+        <Show visible={!!instance.content.length}>
           <Droppable droppableId={section.name}>
             {(droppableProvided) => (
               <div
@@ -71,58 +69,79 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
                 {...droppableProvided.droppableProps}
                 ref={droppableProvided.innerRef}
               >
-                {instance?.content
-                  .filter((ic) => ic.sectionName === section.name)
-                  .map((ic, index) => {
-                    return (
-                      <Draggable key={ic.contentId} draggableId={`${ic.contentId}`} index={index}>
-                        {(provided) => (
-                          <div
-                            key={`${section.id}-${index}`}
-                            className="content-row"
-                            ref={provided.innerRef}
-                            {...provided.dragHandleProps}
-                            {...provided.draggableProps}
-                          >
-                            <Row key={`${section.id}-${ic.contentId}`} className="section-content">
-                              <div>
-                                <FaGripVertical />
-                              </div>
-                              <div>
-                                {ic.content?.byline
-                                  ? ic.content.byline
-                                  : ic.content?.contributor?.name}
-                              </div>
-                              <div>{ic.content?.headline}</div>
-                              <div>{ic.content?.otherSource}</div>
-                              <div>
-                                {ic.content?.section}
-                                {ic.content?.page ? `:${ic.content.page}` : ''}
-                              </div>
-                              <div>
-                                {ic.content?.publishedOn
-                                  ? moment(ic.content?.publishedOn).format('yyyy-MM-DD')
-                                  : ''}
-                              </div>
-                              <div>
-                                <Sentiment
-                                  value={ic.content?.tonePools?.[0]?.value}
-                                  title={`${ic.content?.tonePools?.[0]?.value ?? ''}`}
-                                />
-                              </div>
-                              <div>
-                                <FaX
-                                  className="btn btn-link error"
-                                  onClick={() => handleRemoveContent(instance, ic)}
-                                  title="Remove"
-                                />
-                              </div>
-                            </Row>
-                          </div>
-                        )}
-                      </Draggable>
-                    );
-                  })}
+                {sectionContent.map((ic, sectionIndex) => {
+                  // Only display content in this section.
+                  // The original index is needed to provide the ability to drag+drop content into other sections.
+                  if (ic.content == null) return null;
+                  return (
+                    <DraggableContentRow
+                      key={`${ic.sectionName}-${ic.contentId}-${ic.originalIndex}`}
+                      draggableId={`${ic.sectionName}__${ic.contentId}__${ic.originalIndex}`}
+                      index={sectionIndex++}
+                      row={{
+                        content: ic.content,
+                        sortOrder: ic.sortOrder,
+                        selected: false,
+                      }}
+                      to={ic.contentId ? `/view/${ic.contentId}` : undefined}
+                      onRemove={(content) => {
+                        handleRemoveContent(ic.originalIndex);
+                      }}
+                      onChange={(row) => {
+                        const content = instance.content.map((ic) =>
+                          ic.contentId !== row.content.id
+                            ? ic
+                            : {
+                                ...ic,
+                                sortOrder: row.sortOrder,
+                              },
+                        );
+                        setFieldValue(`instances.0.content`, content);
+                      }}
+                      onSelected={(content) => {}}
+                      showGrip={true}
+                      showSortOrder={true}
+                      showCheckbox={false}
+                      actions={
+                        <Show visible={!!ic.contentId}>
+                          <FaEdit
+                            className="btn btn-link"
+                            onClick={() =>
+                              activeRowIndex !== ic.originalIndex
+                                ? setActiveRowIndex(ic.originalIndex)
+                                : setActiveRowIndex(undefined)
+                            }
+                          />
+                        </Show>
+                      }
+                    >
+                      {({ row, ...rest }) => {
+                        const headline = row.content.versions?.[userId]?.headline
+                          ? row.content.versions[userId].headline ?? ''
+                          : row.content.headline;
+                        const show =
+                          activeRowIndex === ic.originalIndex || row.content.id === 0
+                            ? 'all'
+                            : showForm
+                            ? 'summary'
+                            : 'none';
+                        return (
+                          <>
+                            <ContentRow
+                              row={{ ...row, content: { ...row.content, headline: headline } }}
+                              {...rest}
+                            />
+                            {row.content.ownerId === userId && row.content.isPrivate ? (
+                              <UserContentForm index={ic.originalIndex} show={show} />
+                            ) : (
+                              <ContentForm index={ic.originalIndex} show={show} />
+                            )}
+                          </>
+                        );
+                      }}
+                    </DraggableContentRow>
+                  );
+                })}
                 {droppableProvided.placeholder}
               </div>
             )}

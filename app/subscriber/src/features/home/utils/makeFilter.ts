@@ -26,13 +26,19 @@ export const makeFilter = (
     hasFile: filter.hasFile,
     keyword: filter.keyword ?? undefined,
     names: filter.names ?? undefined,
-    productIds: filter.productIds ?? undefined,
+    mediaTypeIds: filter.mediaTypeIds ?? undefined,
     publishedEndOn: filter.endDate ? filter.endDate : undefined,
     publishedStartOn: filter.startDate ? filter.startDate : undefined,
     sentiment: filter.sentiment,
     sourceIds: filter.sourceIds ?? undefined,
     status: filter.status ?? undefined,
     useUnpublished: filter.useUnpublished,
+    section: filter.section ?? undefined,
+    paperPage: filter.page ?? undefined,
+    edition: filter.edition ?? undefined,
+    contributorIds: filter.contributorIds ?? undefined,
+    seriesIds: filter.seriesIds ?? undefined,
+    tags: filter.tags ?? undefined,
   };
   return result;
 };

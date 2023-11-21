@@ -23,7 +23,7 @@ export interface ISubscriberContentFilter extends ISortPageFilter {
   otherSource?: string;
   ownerId?: number;
   pageName?: string;
-  productIds?: number[];
+  mediaTypeIds?: number[];
   publishedEndOn?: string;
   publishedOn?: string;
   publishedStartOn?: string;
@@ -39,4 +39,9 @@ export interface ISubscriberContentFilter extends ISortPageFilter {
   updatedStartOn?: string;
   userId?: number;
   useUnpublished?: boolean;
+  paperPage?: string;
+  edition?: string;
+  contributorIds?: number[];
+  seriesIds?: number[];
+  tags?: string[];
 }

@@ -1,64 +1,88 @@
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';
+import { ISourceModel, Settings } from 'tno-core';
 
-export const useFilterOptions = () => {
-  const [{ sources, settings }] = useLookup();
-  const [printIds, setPrintIds] = React.useState<{
-    dailyPrintId: number;
-    weeklyPrintId: number;
-    onlinePrintId: number;
-  }>();
-  const [mediaIds, setMediaIds] = React.useState<{
-    cpWireId: number;
-    talkRadioId: number;
-    newsRadioId: number;
-    televisionId: number;
-  }>();
+export interface IMediaTypeGroupIds {
+  cpWireId: number;
+  talkRadioId: number;
+  newsRadioId: number;
+  televisionId: number;
+  dailyPrintId: number;
+  weeklyPrintId: number;
+  onlinePrintId: number;
+}
+
+export interface IMediaTypeGroups {
+  dailyPrint: ISourceModel[];
+  weeklyPrint: ISourceModel[];
+  cpWire: ISourceModel[];
+  talkRadio: ISourceModel[];
+  onlinePrint: ISourceModel[];
+  newsRadio: ISourceModel[];
+  television: ISourceModel[];
+  sources: ISourceModel[];
+}
+
+const defaultMediaTypeGroups: IMediaTypeGroups = {
+  dailyPrint: [],
+  weeklyPrint: [],
+  cpWire: [],
+  talkRadio: [],
+  onlinePrint: [],
+  newsRadio: [],
+  television: [],
+  sources: [],
+};
+
+export const useFilterOptions = (): IMediaTypeGroups => {
+  const [{ isReady, sources, settings }] = useLookup();
+  const [mediaTypeGroups, setMediaTypeGroups] = React.useState<IMediaTypeGroups>({
+    ...defaultMediaTypeGroups,
+    sources,
+  });
 
   React.useEffect(() => {
-    if (settings.length) {
-      if (!settings.find((s) => s.name === 'MediaIds'))
+    if (isReady) {
+      var advancedSearchMediaTypeGroups = settings.find(
+        (s) => s.name === Settings.AdvancedSearchMediaTypeGroups,
+      )?.value;
+      if (advancedSearchMediaTypeGroups) {
+        try {
+          const values = JSON.parse(advancedSearchMediaTypeGroups);
+          setMediaTypeGroups({
+            dailyPrint: sources.filter(
+              (source) => source.mediaTypeSearchGroupId === values.dailyPrintId,
+            ),
+            weeklyPrint: sources.filter(
+              (source) => source.mediaTypeSearchGroupId === values.weeklyPrintId,
+            ),
+            cpWire: sources.filter((source) => source.mediaTypeSearchGroupId === values.cpWireId),
+            talkRadio: sources.filter(
+              (source) => source.mediaTypeSearchGroupId === values.talkRadioId,
+            ),
+            onlinePrint: sources.filter(
+              (source) => source.mediaTypeSearchGroupId === values.onlinePrintId,
+            ),
+            newsRadio: sources.filter(
+              (source) => source.mediaTypeSearchGroupId === values.newsRadioId,
+            ),
+            television: sources.filter(
+              (source) => source.mediaTypeSearchGroupId === values.televisionId,
+            ),
+            sources,
+          });
+        } catch {
+          toast.error(
+            `Configuration '${Settings.AdvancedSearchMediaTypeGroups}' is invalid, please contact support to set these through the editor app.`,
+          );
+        }
+      } else
         toast.error(
-          'MediaIds not found, please contact support to set these through the editor app.',
+          `Configuration '${Settings.AdvancedSearchMediaTypeGroups}' not found, please contact support to set these through the editor app.`,
         );
-      if (!settings.find((s) => s.name === 'PrintIds'))
-        toast.error(
-          'PrintIds not found, please contact support to set these through the editor app.',
-        );
-
-      setMediaIds(JSON.parse(settings.find((s) => s.name === 'MediaIds')?.value ?? '{}'));
-      setPrintIds(JSON.parse(settings.find((s) => s.name === 'PrintIds')?.value ?? '{}'));
     }
-  }, [settings]);
+  }, [isReady, settings, sources]);
 
-  const dailyPrint = sources.filter(
-    (source) => source.productSearchGroupId === printIds?.dailyPrintId,
-  );
-  const weeklyPrint = sources.filter(
-    (source) => source.productSearchGroupId === printIds?.weeklyPrintId,
-  );
-  const cpWire = sources.filter((source) => source.productSearchGroupId === mediaIds?.cpWireId);
-  const talkRadio = sources.filter(
-    (source) => source.productSearchGroupId === mediaIds?.talkRadioId,
-  );
-  const onlinePrint = sources.filter(
-    (source) => source.productSearchGroupId === printIds?.onlinePrintId,
-  );
-  const newsRadio = sources.filter(
-    (source) => source.productSearchGroupId === mediaIds?.newsRadioId,
-  );
-  const television = sources.filter(
-    (source) => source.productSearchGroupId === mediaIds?.televisionId,
-  );
-  return {
-    dailyPrint,
-    weeklyPrint,
-    cpWire,
-    talkRadio,
-    onlinePrint,
-    newsRadio,
-    television,
-    sources,
-  };
+  return mediaTypeGroups;
 };

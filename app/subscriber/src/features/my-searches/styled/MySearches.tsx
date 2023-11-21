@@ -27,6 +27,28 @@ export const MySearches = styled(Col)`
   .table {
     width: 100%;
     overflow: hidden;
+    .bookmark-icon {
+      margin-right: 0.25em;
+      height: 1.25em;
+      width: 1.25em;
+      color: #6750a4;
+    }
+
+    .search-row-options {
+      svg {
+        height: 1.25em;
+        width: 1.25em;
+        margin-right: 0.25em;
+      }
+    }
+    .row {
+      font-size: 1em;
+      font-weight: bold;
+      color: #646293;
+      &:hover {
+        cursor: pointer;
+      }
+    }
     .re-name {
       height: 1.5em;
       padding: 0;
@@ -35,19 +57,17 @@ export const MySearches = styled(Col)`
       }
     }
     .header {
-      background-color: #f5f6fa;
+      background-color: white;
       font-family: 'Roboto', sans-serif;
-      font-size: 0.8em;
+      color: #231F20
+      font-size: 1em;
       /* box shadow only on bottom */
       box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
       border: none;
-      color: #7c7e8a;
 
-      .column {
-        background-color: #f5f6fa;
       }
     }
-    .elips {
+    .binocs, .gear, .trash {
       &:hover {
         color: ${(props) => props.theme.css.sidebarIconHoverColor};
         transform: scale(1.1);

@@ -11,12 +11,12 @@ import {
   IIngestModel,
   IIngestTypeModel,
   ILicenseModel,
+  IMediaTypeModel,
   IMinisterModel,
   INotificationModel,
   INotificationTemplateModel,
   IOrganizationModel,
   IPaged,
-  IProductModel,
   IReportModel,
   IReportTemplateModel,
   ISeriesModel,
@@ -57,8 +57,8 @@ export interface IAdminState {
   notificationTemplates: INotificationTemplateModel[];
   organizationFilter: string;
   organizations: IOrganizationModel[];
-  productFilter: string;
-  products: IProductModel[];
+  mediaTypeFilter: string;
+  mediaTypes: IMediaTypeModel[];
   reportFilter: string;
   reports: IReportModel[];
   reportTemplates: IReportTemplateModel[];

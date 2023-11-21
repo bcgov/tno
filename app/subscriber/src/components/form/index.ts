@@ -1,1 +1,1 @@
-export * from './wysiwyg';
+export * from './tags';

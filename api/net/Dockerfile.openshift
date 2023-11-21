@@ -11,7 +11,7 @@ EXPOSE 443 8080
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 
 ENV PATH="$PATH:/root/.dotnet/tools"
-RUN dotnet tool install --global dotnet-ef --version 7.0.1
+RUN dotnet tool install --global dotnet-ef --version 7.0.13
 
 WORKDIR /src/api/net
 COPY api/net/ .

@@ -8,8 +8,8 @@ import {
   IHolidayModel,
   IIngestTypeModel,
   ILicenseModel,
+  IMediaTypeModel,
   IMetricModel,
-  IProductModel,
   IRoleModel,
   ISeriesModel,
   ISettingModel,
@@ -25,10 +25,11 @@ import {
 import { ILookupState } from './interfaces';
 
 export const initialLookupState: ILookupState = {
+  isReady: false,
   cache: [],
   actions: [],
   topics: [],
-  products: [],
+  mediaTypes: [],
   licenses: [],
   series: [],
   contributors: [],
@@ -51,6 +52,9 @@ export const lookupSlice = createSlice({
   name: 'lookup',
   initialState: initialLookupState,
   reducers: {
+    storeIsReady(state: ILookupState, action: PayloadAction<boolean>) {
+      state.isReady = action.payload;
+    },
     storeCache(state: ILookupState, action: PayloadAction<ICacheModel[]>) {
       state.cache = action.payload;
     },
@@ -77,8 +81,8 @@ export const lookupSlice = createSlice({
     storeMinisters(state: ILookupState, action: PayloadAction<IMinisterModel[]>) {
       state.ministers = action.payload;
     },
-    storeProducts(state: ILookupState, action: PayloadAction<IProductModel[]>) {
-      state.products = action.payload;
+    storeMediaTypes(state: ILookupState, action: PayloadAction<IMediaTypeModel[]>) {
+      state.mediaTypes = action.payload;
     },
     storeSources(state: ILookupState, action: PayloadAction<ISourceModel[]>) {
       state.sources = action.payload;
@@ -126,12 +130,13 @@ export const lookupSlice = createSlice({
 });
 
 export const {
+  storeIsReady,
   storeCache,
   updateCache,
   storeActions,
   storeTopics,
   storeRules,
-  storeProducts,
+  storeMediaTypes,
   storeLicenses,
   storeSeries,
   storeContributors,

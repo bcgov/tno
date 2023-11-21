@@ -40,7 +40,7 @@ const IngestDetails: React.FC<IIngestDetailsProps> = () => {
     [],
     (i) => new OptionItem(`(${i.code}) ${i.name}`, i.id),
   );
-  const products = getSortableOptions(lookups.products);
+  const mediaTypes = getSortableOptions(lookups.mediaTypes);
 
   React.useEffect(() => {
     if (loading && dataLocations.length === 0) {
@@ -57,9 +57,9 @@ const IngestDetails: React.FC<IIngestDetailsProps> = () => {
 
   React.useEffect(() => {
     // Ensures the connection settings can display the correct form on initial load.
-    const product = lookups.products.find((mt) => mt.id === values.productId);
-    setFieldValue('product', product);
-  }, [lookups.products, setFieldValue, values.productId, values.product]);
+    const mediaType = lookups.mediaTypes.find((mt) => mt.id === values.mediaTypeId);
+    setFieldValue('mediaType', mediaType);
+  }, [lookups.mediaTypes, setFieldValue, values.mediaTypeId, values.mediaType]);
 
   return (
     <styled.IngestDetails>
@@ -145,10 +145,10 @@ const IngestDetails: React.FC<IIngestDetailsProps> = () => {
           />
         </Row>
         <FormikSelect
-          label="Product"
-          name="productId"
-          tooltip="The product designation the ingested content will be assigned"
-          options={products}
+          label="Media Type"
+          name="mediaTypeId"
+          tooltip="The media type designation the ingested content will be assigned"
+          options={mediaTypes}
           required
           isClearable={false}
         />

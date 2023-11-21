@@ -9,8 +9,8 @@ import {
   IIngestTypeModel,
   ILicenseModel,
   ILookupModel,
+  IMediaTypeModel,
   IMetricModel,
-  IProductModel,
   IRoleModel,
   ISeriesModel,
   ISettingModel,
@@ -21,6 +21,7 @@ import {
   ITopicModel,
   ITopicScoreRuleModel,
   IUserModel,
+  StorageKeys,
   useApiSubscriberCache,
   useApiSubscriberMinisters,
 } from 'tno-core';
@@ -57,44 +58,57 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           (etag) => lookups.getLookups(etag),
           (results) => {
             if (!!results) {
-              saveToLocalStorage('actions', results.actions, store.storeActions);
-              saveToLocalStorage('contributors', results.contributors, store.storeContributors);
-              saveToLocalStorage('ministers', results.ministers, store.storeMinisters);
-              saveToLocalStorage('topics', results.topics, store.storeTopics);
-              saveToLocalStorage('products', results.products, store.storeProducts);
-              saveToLocalStorage('sources', results.sources, store.storeSources);
-              saveToLocalStorage('licenses', results.licenses, store.storeLicenses);
-              saveToLocalStorage('series', results.series, store.storeSeries);
-              saveToLocalStorage('tags', results.tags, store.storeTags);
-              saveToLocalStorage('settings', results.settings, store.storeSettings);
-              saveToLocalStorage('tone_pools', results.tonePools, store.storeTonePools);
+              saveToLocalStorage(StorageKeys.Actions, results.actions, store.storeActions);
+              saveToLocalStorage(
+                StorageKeys.Contributors,
+                results.contributors,
+                store.storeContributors,
+              );
+              saveToLocalStorage(StorageKeys.Ministers, results.ministers, store.storeMinisters);
+              saveToLocalStorage(StorageKeys.Topics, results.topics, store.storeTopics);
+              saveToLocalStorage(StorageKeys.MediaTypes, results.mediaTypes, store.storeMediaTypes);
+              saveToLocalStorage(StorageKeys.Sources, results.sources, store.storeSources);
+              saveToLocalStorage(StorageKeys.Licenses, results.licenses, store.storeLicenses);
+              saveToLocalStorage(StorageKeys.Series, results.series, store.storeSeries);
+              saveToLocalStorage(StorageKeys.Tags, results.tags, store.storeTags);
+              saveToLocalStorage(StorageKeys.Settings, results.settings, store.storeSettings);
+              saveToLocalStorage(StorageKeys.TonePools, results.tonePools, store.storeTonePools);
               return results;
             } else {
               const lookups: ILookupModel = {
-                actions: getFromLocalStorage<IActionModel[]>('actions', []),
-                topics: getFromLocalStorage<ITopicModel[]>('topics', []),
-                products: getFromLocalStorage<IProductModel[]>('products', []),
-                sources: getFromLocalStorage<ISourceModel[]>('sources', []),
-                licenses: getFromLocalStorage<ILicenseModel[]>('licenses', []),
-                series: getFromLocalStorage<ISeriesModel[]>('series', []),
-                ministers: getFromLocalStorage<IMinisterModel[]>('ministers', []),
-                tags: getFromLocalStorage<ITagModel[]>('tags', []),
-                tonePools: getFromLocalStorage<ITonePoolModel[]>('tone_pools', []),
-                rules: getFromLocalStorage<ITopicScoreRuleModel[]>('rules', []),
-                ingestTypes: getFromLocalStorage<IIngestTypeModel[]>('ingest_types', []),
-                roles: getFromLocalStorage<IRoleModel[]>('roles', []),
-                contributors: getFromLocalStorage<IContributorModel[]>('contributors', []),
-                sourceActions: getFromLocalStorage<ISourceActionModel[]>('source_actions', []),
-                metrics: getFromLocalStorage<IMetricModel[]>('metrics', []),
-                users: getFromLocalStorage<IUserModel[]>('users', []),
-                dataLocations: getFromLocalStorage<IDataLocationModel[]>('data_locations', []),
-                settings: getFromLocalStorage<ISettingModel[]>('settings', []),
-                holidays: getFromLocalStorage<IHolidayModel[]>('holidays', []),
+                actions: getFromLocalStorage<IActionModel[]>(StorageKeys.Actions, []),
+                topics: getFromLocalStorage<ITopicModel[]>(StorageKeys.Topics, []),
+                mediaTypes: getFromLocalStorage<IMediaTypeModel[]>(StorageKeys.MediaTypes, []),
+                sources: getFromLocalStorage<ISourceModel[]>(StorageKeys.Sources, []),
+                licenses: getFromLocalStorage<ILicenseModel[]>(StorageKeys.Licenses, []),
+                series: getFromLocalStorage<ISeriesModel[]>(StorageKeys.Series, []),
+                ministers: getFromLocalStorage<IMinisterModel[]>(StorageKeys.Ministers, []),
+                tags: getFromLocalStorage<ITagModel[]>(StorageKeys.Tags, []),
+                tonePools: getFromLocalStorage<ITonePoolModel[]>(StorageKeys.TonePools, []),
+                rules: getFromLocalStorage<ITopicScoreRuleModel[]>(StorageKeys.Rules, []),
+                ingestTypes: getFromLocalStorage<IIngestTypeModel[]>(StorageKeys.IngestTypes, []),
+                roles: getFromLocalStorage<IRoleModel[]>(StorageKeys.Roles, []),
+                contributors: getFromLocalStorage<IContributorModel[]>(
+                  StorageKeys.Contributors,
+                  [],
+                ),
+                sourceActions: getFromLocalStorage<ISourceActionModel[]>(
+                  StorageKeys.SourceActions,
+                  [],
+                ),
+                metrics: getFromLocalStorage<IMetricModel[]>(StorageKeys.Metrics, []),
+                users: getFromLocalStorage<IUserModel[]>(StorageKeys.Users, []),
+                dataLocations: getFromLocalStorage<IDataLocationModel[]>(
+                  StorageKeys.DataLocations,
+                  [],
+                ),
+                settings: getFromLocalStorage<ISettingModel[]>(StorageKeys.Settings, []),
+                holidays: getFromLocalStorage<IHolidayModel[]>(StorageKeys.Holidays, []),
               };
               store.storeActions(lookups.actions);
               store.storeTopics(lookups.topics);
               store.storeTopicScoreRules(lookups.rules);
-              store.storeProducts(lookups.products);
+              store.storeMediaTypes(lookups.mediaTypes);
               store.storeSources(lookups.sources);
               store.storeLicenses(lookups.licenses);
               store.storeSeries(lookups.series);
@@ -134,6 +148,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       init: async () => {
         // TODO: Handle failures
         await controller.getLookups();
+        store.storeIsReady(true);
       },
     }),
     [cache, dispatch, lookups, ministers, store],

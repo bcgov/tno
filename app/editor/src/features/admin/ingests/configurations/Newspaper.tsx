@@ -83,6 +83,7 @@ export const Newspaper: React.FC = (props) => {
         <Col flex="1 1 0">
           <FormikCheckbox label="Escape Content" name="configuration.escapeContent" />
           <FormikCheckbox label="Add Parent" name="configuration.addParent" />
+          <FormikCheckbox label="Fix Blacks Newsgroup XML" name="configuration.fixBlacksXml" />
         </Col>
         <Col flex="1 1 0"></Col>
       </Row>

@@ -3,7 +3,7 @@ import { ISortPageFilter } from '.';
 
 export interface IContentReferenceFilter extends ISortPageFilter {
   sources?: string[];
-  productIds?: number[];
+  mediaTypeIds?: number[];
   uid?: string;
   topic?: string;
   status?: WorkflowStatusName;

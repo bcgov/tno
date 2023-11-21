@@ -27,14 +27,14 @@ public class ContentModel : AuditColumnsModel
     public ContentType ContentType { get; set; } = ContentType.AudioVideo;
 
     /// <summary>
-    /// get/set - Foreign key to product.
+    /// get/set - Foreign key to media type.
     /// </summary>
-    public int ProductId { get; set; }
+    public int MediaTypeId { get; set; }
 
     /// <summary>
-    /// get/set - The product.
+    /// get/set - The media type.
     /// </summary>
-    public ProductModel? Product { get; set; }
+    public MediaTypeModel? MediaType { get; set; }
 
     /// <summary>
     /// get/set - Foreign key to license.
@@ -167,6 +167,11 @@ public class ContentModel : AuditColumnsModel
     public bool IsApproved { get; set; }
 
     /// <summary>
+    /// get/set - Private content is not searchable.
+    /// </summary>
+    public bool IsPrivate { get; set; }
+
+    /// <summary>
     /// get/set - When an editor posted the content.
     /// </summary>
     public DateTime? PostedOn { get; set; }
@@ -181,6 +186,13 @@ public class ContentModel : AuditColumnsModel
     /// </summary>
     [DataType(DataType.Upload)]
     public List<IFormFile>? Files { get; set; }
+
+    /// <summary>
+    /// get - Dictionary of versions associated with this content.
+    /// This provides subscribers the ability to customize the content.
+    /// The key is the user's ID.
+    /// </summary>
+    public Dictionary<int, Entities.Models.ContentVersion> Versions { get; set; } = new();
 
     /// <summary>
     /// get - An array of actions.
@@ -237,8 +249,8 @@ public class ContentModel : AuditColumnsModel
     {
         this.Id = entity?.Id ?? throw new ArgumentNullException(nameof(entity));
         this.Status = entity.Status;
-        this.ProductId = entity.ProductId;
-        this.Product = entity.Product != null ? new ProductModel(entity.Product) : null;
+        this.MediaTypeId = entity.MediaTypeId;
+        this.MediaType = entity.MediaType != null ? new MediaTypeModel(entity.MediaType) : null;
         this.ContentType = entity.ContentType;
         this.LicenseId = entity.LicenseId;
         this.License = entity.License != null ? new LicenseModel(entity.License) : null;
@@ -265,6 +277,7 @@ public class ContentModel : AuditColumnsModel
         this.PublishedOn = entity.PublishedOn;
         this.IsHidden = entity.IsHidden;
         this.IsApproved = entity.IsApproved;
+        this.IsPrivate = entity.IsPrivate;
 
         this.Actions = entity.ActionsManyToMany.Select(e => new ContentActionModel(e));
         this.Topics = entity.TopicsManyToMany.Select(e => new ContentTopicModel(e));
@@ -274,6 +287,7 @@ public class ContentModel : AuditColumnsModel
         this.FileReferences = entity.FileReferences.Select(e => new FileReferenceModel(e));
         this.TimeTrackings = entity.TimeTrackings.Select(e => new TimeTrackingModel(e));
         this.Links = entity.Links.Select(e => new ContentLinkModel(e));
+        this.Versions = entity.Versions;
     }
     #endregion
 
@@ -284,7 +298,7 @@ public class ContentModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.Content(ContentModel model)
     {
-        var entity = new Entities.Content(model.Uid, model.Headline, model.OtherSource, model.SourceId, model.ContentType, model.LicenseId, model.ProductId, model.OwnerId)
+        var entity = new Entities.Content(model.Uid, model.Headline, model.OtherSource, model.SourceId, model.ContentType, model.LicenseId, model.MediaTypeId, model.OwnerId)
         {
             Id = model.Id,
             Status = model.Status,
@@ -301,6 +315,8 @@ public class ContentModel : AuditColumnsModel
             SourceUrl = model.SourceUrl,
             IsHidden = model.IsHidden,
             IsApproved = model.IsApproved,
+            IsPrivate = model.IsPrivate,
+            Versions = model.Versions,
             Version = model.Version ?? 0,
         };
 

@@ -1,5 +1,6 @@
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { debounce } from 'lodash';
 import { InputHTMLAttributes } from 'react';
 import React from 'react';
 
@@ -53,6 +54,18 @@ export const TextArea: React.FC<ITextAreaProps> = ({
   rows,
   ...rest
 }) => {
+  const handleInput = debounce((e) => {
+    const input = e.target as HTMLInputElement;
+    input.setCustomValidity('');
+  }, 500);
+
+  const handleInvalid = debounce((e) => {
+    const input = e.target as HTMLInputElement;
+    if (rest.required && input.validity.valueMissing) {
+      input.setCustomValidity(error ?? 'required');
+    }
+  }, 500);
+
   return (
     <styled.TextArea className="frm-in">
       <Show visible={!!label}>
@@ -77,19 +90,11 @@ export const TextArea: React.FC<ITextAreaProps> = ({
         rows={rows}
         onInput={(e) => {
           if (onInput) onInput(e);
-          else {
-            const input = e.target as HTMLInputElement;
-            input.setCustomValidity('');
-          }
+          else handleInput(e);
         }}
         onInvalid={(e) => {
           if (onInvalid) return onInvalid(e);
-          else {
-            const input = e.target as HTMLInputElement;
-            if (rest.required && input.validity.valueMissing) {
-              input.setCustomValidity(error ?? 'required');
-            }
-          }
+          else handleInvalid(e);
         }}
         {...rest}
       >

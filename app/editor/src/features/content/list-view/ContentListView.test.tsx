@@ -11,7 +11,7 @@ jest.mock('store', () => ({
 
 const mockUseLookups = [
   {
-    products: [{ name: 'Product 1', id: 1 }],
+    mediaTypes: [{ name: 'Media Type 1', id: 1 }],
     licenses: [{ name: 'License 1', id: 1 }],
     ingestTypes: [{ name: 'Ingest 1', id: 1 }],
     users: [{ name: 'user', id: 1, displayName: 'displayName', username: 'test' }],
@@ -20,12 +20,12 @@ const mockUseLookups = [
 
 const mockUseLookupOptions = [
   {
-    products: [{ name: 'Product 1', id: 1 }],
+    mediaTypes: [{ name: 'Media Type 1', id: 1 }],
     licenses: [{ name: 'License 1', id: 1 }],
     ingestTypes: [{ name: 'Ingest 1', id: 1 }],
     users: [{ name: 'user', id: 1, displayName: 'displayName', username: 'test' }],
     ingestTypeOptions: [],
-    productOptions: [],
+    mediaTypeOptions: [],
     sourceOptions: [],
     userOptions: [],
   },
@@ -44,7 +44,7 @@ const mockUseContent = [
           createdOn: '2022-05-12T16:11:15.756251Z',
           contentType: ContentTypeName.AudioVideo,
           status: ContentStatusName.Publish,
-          product: {
+          mediaType: {
             name: 'News',
           },
           page: 'A32',
@@ -119,13 +119,13 @@ it('displays the Source column', async () => {
   await waitFor(() => expect(getByText('Source')).toBeInTheDocument());
 });
 
-it('displays the Product column', async () => {
+it('displays the Media Type column', async () => {
   const { getByText } = render(
     <TestWrapper>
       <ContentListView />
     </TestWrapper>,
   );
-  await waitFor(() => expect(getByText('Product')).toBeInTheDocument());
+  await waitFor(() => expect(getByText('Media Type')).toBeInTheDocument());
 });
 
 it('displays the status column', async () => {

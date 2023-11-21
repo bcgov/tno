@@ -46,8 +46,8 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
   const [statusOptions] = React.useState(getEnumStringOptions(ContentStatusName));
 
   const search = fromQueryString(window.location.search, {
-    arrays: ['contentTypes', 'sourceIds', 'productIds', 'sort'],
-    numbers: ['sourceIds', 'productIds'],
+    arrays: ['contentTypes', 'sourceIds', 'mediaTypeIds', 'sort'],
+    numbers: ['sourceIds', 'mediaTypeIds'],
   });
 
   /** initialize advanced search section with query values or new */

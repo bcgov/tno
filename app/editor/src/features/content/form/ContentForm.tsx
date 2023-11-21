@@ -4,7 +4,7 @@ import moment from 'moment';
 import React from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { useLookupOptions } from 'store/hooks';
+import { useLookup, useLookupOptions } from 'store/hooks';
 import { IAjaxRequest } from 'store/slices';
 import {
   Area,
@@ -21,6 +21,7 @@ import {
   FormikDatePicker,
   FormikHidden,
   FormikSelect,
+  FormikSentiment,
   FormikText,
   FormikTextArea,
   FormPage,
@@ -42,15 +43,7 @@ import {
 import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
 import { ContentClipForm, ContentLabelsForm, ContentStoryForm, ContentTranscriptForm } from '.';
-import {
-  ContentFormToolBar,
-  IFile,
-  Tags,
-  TimeLogSection,
-  ToningGroup,
-  Topic,
-  Upload,
-} from './components';
+import { ContentFormToolBar, IFile, Tags, TimeLogSection, Topic, Upload } from './components';
 import { useContentForm } from './hooks';
 import { ImageSection } from './ImageSection';
 import { IContentForm } from './interfaces';
@@ -98,8 +91,9 @@ const ContentForm: React.FC<IContentFormProps> = ({
     contentType: initContentType,
     combinedPath,
   });
-  const [{ contributorOptions, sources, series, sourceOptions, productOptions }] =
+  const [{ contributorOptions, sources, series, sourceOptions, mediaTypeOptions }] =
     useLookupOptions();
+  const [{ tonePools }] = useLookup();
   const { setShowValidationToast } = useTabValidationToasts();
 
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
@@ -113,6 +107,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const [textDecorationStyle, setTextDecorationStyle] = React.useState('none');
   const [cursorStyle, setCursorStyle] = React.useState('text');
   const [savePressed, setSavePressed] = React.useState(false);
+  const [isEditing, setIsEditing] = React.useState(false);
 
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
 
@@ -149,11 +144,16 @@ const ContentForm: React.FC<IContentFormProps> = ({
     setSeriesOptions(series.map((m: any) => new OptionItem(m.name, m.id, m.isEnabled)));
   }, [series]);
 
+  React.useEffect(() => {
+    if (form.id) setIsEditing(true);
+  }, [form.id]);
+
   return (
-    <styled.ContentForm className="content-form">
-      <FormPage>
-        <Area className="area">
+    <styled.ContentForm className="content-form fvh">
+      <FormPage className="fvh">
+        <Area className="area fvh">
           <FormikForm
+            className="fvh"
             onSubmit={handlePublish}
             validationSchema={ContentFormSchema}
             validateOnChange={false}
@@ -163,10 +163,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
             }
           >
             {(props: FormikProps<IContentForm>) => (
-              <Col className="content-col">
+              <Col className="content-col fvh">
                 <ContentFormToolBar fetchContent={fetchContent} combinedPath={combinedPath} />
                 <FormikHidden name="uid" />
-                <Row alignItems="flex-start" className="content-details">
+                <Row alignItems="flex-start" className="content-details fvh">
                   <Show visible={size === 0}>
                     <Row flex="1 1 100%" wrap="nowrap">
                       <Col flex="1 1 0%">
@@ -220,8 +220,8 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                     props.setFieldValue('otherSource', source?.code ?? '');
                                     if (!!source?.licenseId)
                                       props.setFieldValue('licenseId', source.licenseId);
-                                    if (!!source?.productId)
-                                      props.setFieldValue('productId', source.productId);
+                                    if (!!source?.mediaTypeId)
+                                      props.setFieldValue('mediaTypeId', source.mediaTypeId);
                                   }
                                 }}
                                 options={filterEnabledOptions(
@@ -244,15 +244,15 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                 isDisabled={!!props.values.tempSource}
                               />
                               <FormikSelect
-                                name="productId"
+                                name="mediaTypeId"
                                 value={
-                                  productOptions.find(
-                                    (mt) => mt.value === props.values.productId,
+                                  mediaTypeOptions.find(
+                                    (mt) => mt.value === props.values.mediaTypeId,
                                   ) ?? ''
                                 }
-                                label="Product"
+                                label="Media Type"
                                 width={FieldSize.Small}
-                                options={productOptions}
+                                options={mediaTypeOptions}
                                 required
                               />
                               <FormikHidden name="otherSource" />
@@ -279,7 +279,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       </Show>
                       <Show visible={props.values.contentType === ContentTypeName.PrintContent}>
                         <Row>
-                          <FormikText name="byline" label="Byline" required />
+                          <FormikText name="byline" label="Byline" required={!isEditing} />
                           <FormikSelect
                             name="contributorId"
                             value={
@@ -292,7 +292,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                             options={contributorOptions}
                           />
                           <FormikText name="edition" label="Edition" />
-                          <FormikText name="section" label="Section" required />
+                          <FormikText name="section" label="Section" required={!isEditing} />
                           <FormikText name="page" label="Page" />
                         </Row>
                       </Show>
@@ -522,7 +522,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     </Col>
                   </Show>
                 </Row>
-                <Row className="tab-section">
+                <Row className="tab-section fvh">
                   <Show
                     visible={
                       props.values.contentType !== ContentTypeName.PrintContent &&
@@ -530,7 +530,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     }
                   >
                     <Tabs
-                      className={`'expand'} ${size === 1 ? 'small' : 'large'}`}
+                      className={`fvh ${size === 1 ? 'small' : 'large'}`}
                       tabs={
                         <>
                           <Tab
@@ -645,7 +645,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                 <Row gap="0.5rem">
                   <Tags />
                   <Show visible={props.values.contentType !== ContentTypeName.Image}>
-                    <ToningGroup fieldName="tonePools" />
+                    <FormikSentiment name="tonePools" options={tonePools} required />
                     <Show
                       visible={
                         props.values.contentType === ContentTypeName.AudioVideo ||

@@ -185,9 +185,33 @@ spec:
         - name: conditions
           workspace: conditions
 
-    - name: deploy-all
+    - name: elastic-migration
       runAfter:
         - db-migration
+      taskRef:
+#        name: elastic-migration-conditional
+        name: elastic-migration
+        kind: Task
+      params:
+        - name: DB_SECRET_NAME
+          value: crunchy-pguser-admin
+        - name: API_NAME
+          value: api
+        - name: IMAGE
+          value: elastic-migration
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: DEPLOY
+          value: $(params.COMPONENT)
+        - name: DEPLOY_TO
+          value: $(params.DEPLOY_TO)
+      workspaces:
+        - name: conditions
+          workspace: conditions
+
+    - name: deploy-all
+      runAfter:
+        - elastic-migration
       taskRef:
         name: deploy-all
         kind: Task

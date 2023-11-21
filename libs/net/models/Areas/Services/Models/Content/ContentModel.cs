@@ -44,14 +44,14 @@ public class ContentModel : AuditColumnsModel
     public string OtherSource { get; set; } = "";
 
     /// <summary>
-    /// get/set - Foreign key to product.
+    /// get/set - Foreign key to media type.
     /// </summary>
-    public int ProductId { get; set; }
+    public int MediaTypeId { get; set; }
 
     /// <summary>
-    /// get/set - The product.
+    /// get/set - The media type.
     /// </summary>
-    public ProductModel? Product { get; set; }
+    public MediaTypeModel? MediaType { get; set; }
 
     /// <summary>
     /// get/set - Foreign key to license.
@@ -173,10 +173,27 @@ public class ContentModel : AuditColumnsModel
     public bool IsApproved { get; set; }
 
     /// <summary>
+    /// get/set - Private content is not searchable.
+    /// </summary>
+    public bool IsPrivate { get; set; }
+
+    /// <summary>
+    /// get/set - The first file reference's image content if available.
+    /// </summary>
+    public string? ImageContent { get; set; }
+
+    /// <summary>
     /// get/set - Upload files with content.
     /// </summary>
     [DataType(DataType.Upload)]
     public List<IFormFile>? Files { get; set; }
+
+    /// <summary>
+    /// get - Dictionary of versions associated with this content.
+    /// This provides subscribers the ability to customize the content.
+    /// The key is the user's ID.
+    /// </summary>
+    public Dictionary<int, Entities.Models.ContentVersion> Versions { get; set; } = new();
 
     /// <summary>
     /// get/set - An array of actions.
@@ -217,11 +234,6 @@ public class ContentModel : AuditColumnsModel
     /// get/set - An array of notification instances.
     /// </summary>
     public IEnumerable<NotificationInstanceModel> Notifications { get; set; } = Array.Empty<NotificationInstanceModel>();
-
-    /// <summary>
-    /// get/set - The first file reference's image content if available.
-    /// </summary>
-    public string? ImageContent { get; set; }
     #endregion
 
     #region Constructors
@@ -243,8 +255,8 @@ public class ContentModel : AuditColumnsModel
         this.SourceId = entity.SourceId;
         this.Source = entity.Source != null ? new SourceModel(entity.Source) : null;
         this.OtherSource = entity.OtherSource;
-        this.ProductId = entity.ProductId;
-        this.Product = entity.Product != null ? new ProductModel(entity.Product, options) : null;
+        this.MediaTypeId = entity.MediaTypeId;
+        this.MediaType = entity.MediaType != null ? new MediaTypeModel(entity.MediaType, options) : null;
         this.LicenseId = entity.LicenseId;
         this.SeriesId = entity.SeriesId;
         this.Series = entity.Series != null ? new SeriesModel(entity.Series) : null;
@@ -266,6 +278,7 @@ public class ContentModel : AuditColumnsModel
         this.PublishedOn = entity.PublishedOn;
         this.IsHidden = entity.IsHidden;
         this.IsApproved = entity.IsApproved;
+        this.IsPrivate = entity.IsPrivate;
 
         this.Actions = entity.ActionsManyToMany.Select(e => new ContentActionModel(e));
         this.Topics = entity.TopicsManyToMany.Select(e => new ContentTopicModel(e));
@@ -274,6 +287,7 @@ public class ContentModel : AuditColumnsModel
         this.Labels = entity.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = entity.TonePoolsManyToMany.Select(e => new ContentTonePoolModel(e));
         this.FileReferences = entity.FileReferences.Select(e => new FileReferenceModel(e));
+        this.Versions = entity.Versions;
     }
     #endregion
 
@@ -284,7 +298,7 @@ public class ContentModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.Content(ContentModel model)
     {
-        var entity = new Entities.Content(model.Uid, model.Headline, model.OtherSource, model.SourceId, model.ContentType, model.LicenseId, model.ProductId, model.OwnerId)
+        var entity = new Entities.Content(model.Uid, model.Headline, model.OtherSource, model.SourceId, model.ContentType, model.LicenseId, model.MediaTypeId, model.OwnerId)
         {
             Id = model.Id,
             Status = model.Status,
@@ -301,6 +315,8 @@ public class ContentModel : AuditColumnsModel
             SourceUrl = model.SourceUrl,
             IsHidden = model.IsHidden,
             IsApproved = model.IsApproved,
+            IsPrivate = model.IsPrivate,
+            Versions = model.Versions,
             Version = model.Version ?? 0,
         };
 

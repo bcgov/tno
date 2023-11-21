@@ -13,14 +13,14 @@ namespace TNO.Services.Actions.Managers;
 /// <summary>
 /// IngestActionManager class, provides a way to manage the ingestion process for this ingest.
 /// </summary>
-public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIngestServiceActionManager
+public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIngestActionManager
     where TOptions : IngestServiceOptions
 {
     #region Properties
     /// <summary>
     /// get - The ingest managed by this object.
     /// </summary>
-    public IngestModel Ingest { get; private set; }
+    public IngestModel Ingest { get; set; }
 
     /// <summary>
     /// get - A dictionary of values that can be stored with this manager.
@@ -65,14 +65,11 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// Verify that the schedule should run the action.
     /// </summary>
     /// <returns></returns>
-    protected override async Task<bool> PreRunAsync()
+    protected override Task<bool> PreRunAsync()
     {
-        // Always fetch the latest version of the ingest and update this manager with it.
-        var ingest = await this.Api.HandleRequestFailure(async () => await this.Api.GetIngestAsync(this.Ingest.Id), this.Options.ReuseIngests, this.Ingest);
-        if (ingest != null)
-            this.Ingest = ingest;
+        var result = VerifyIngest() && this.Ingest.IngestSchedules.Where(s => s.Schedule != null).Any(s => VerifySchedule(s.Schedule!));
 
-        return VerifyIngest() && this.Ingest.IngestSchedules.Where(s => s.Schedule != null).Any(s => VerifySchedule(s.Schedule!));
+        return Task.FromResult(result);
     }
 
     /// <summary>
@@ -118,11 +115,12 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// Make AJAX request and update the ingest.
     /// </summary>
     /// <returns></returns>
-    private async Task<IngestModel> UpdateIngestStateAsync(int failedAttempts = 0)
+    public async Task<IngestModel> UpdateIngestStateAsync(int failedAttempts = 0)
     {
         this.Ingest.LastRanOn = DateTime.UtcNow;
         this.Ingest.FailedAttempts = failedAttempts;
-        return await this.Api.UpdateIngestStateAsync(Ingest) ?? Ingest;
+        this.Ingest = await this.Api.UpdateIngestStateAsync(Ingest) ?? this.Ingest;
+        return this.Ingest;
     }
 
     /// <summary>
@@ -134,7 +132,7 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     public override async Task UpdateIngestConfigAsync(string propName, object propValue)
     {
         this.Ingest.Configuration[propName] = propValue;
-        this.Ingest = await this.Api.UpdateIngestConfigAsync(Ingest) ?? Ingest;
+        this.Ingest = await this.Api.UpdateIngestConfigAsync(Ingest) ?? this.Ingest;
     }
 
     /// <summary>
