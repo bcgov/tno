@@ -168,24 +168,8 @@ public class ProductService : BaseService<Product, int>, IProductService
         return base.Update(original);
     }
 
-    // /// <summary>
-    // /// Delete product and related entities.
-    // /// </summary>
-    // /// <param name="entity"></param>
-    // public override void Delete(Product entity)
-    // {
-    //     var schedules = this.Context.EventSchedules
-    //         .Include(es => es.Schedule)
-    //         .Where(es => es.ProductId == entity.Id)
-    //         .Select(es => es.Schedule!)
-    //         .ToArray();
-
-    //     this.Context.RemoveRange(schedules);
-    //     base.Delete(entity);
-    // }
-
     /// <summary>
-    /// Unsubscribe the specified 'userId' from the target report.
+    /// Unsubscribe the specified 'userId' from the target product.
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
@@ -198,6 +182,34 @@ public class ProductService : BaseService<Product, int>, IProductService
         {
             this.Context.Entry(s).State = EntityState.Deleted;
         });
+        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
+    }
+
+    /// <summary>
+    /// Subscribe the specified 'userId' to the specified product.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="productId"></param>
+    /// <returns></returns>
+    public async Task<int> Subscribe(int userId, int productId)
+    {
+        var saveChanges = false;
+        var targetProduct = FindById(productId) ?? throw new NoContentException("Report does not exist");
+        var subscriberRecord = targetProduct.Subscribers.FirstOrDefault(s => s.Id == userId);
+        if (subscriberRecord != null) {
+            var userProducts = this.Context.UserProducts.Where(x => x.UserId == userId && x.ProductId == productId);
+            userProducts.ForEach(s =>
+            {
+                if (s.IsSubscribed)
+                {
+                    s.IsSubscribed = true;
+                    if (!saveChanges) saveChanges = true;
+                }
+            });
+        } else {
+            this.Context.UserProducts.Add(new UserProduct(userId, productId, true));
+            saveChanges = true;
+        }
         return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
     }
     #endregion

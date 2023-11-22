@@ -77,7 +77,7 @@ public class ProductController : ControllerBase
     }
 
     /// <summary>
-    /// Add product.
+    /// Create a subscribe request for the current user to a product.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -92,12 +92,14 @@ public class ProductController : ControllerBase
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
         var result = _productService.FindById(model.Id) ?? throw new NoContentException("Product does not exist");
 
-        // If the current user is not already subscribed, add them to the list of subscribers but not in a subscribed state.
-        if (!result.Subscribers.Exists(s => s.Id == user.Id))
-        {
-            _productService.ClearChangeTracker(); // Remove the report from context.
-            model.Subscribers = model.Subscribers.Append(new UserProductModel() { UserId = user.Id, ProductId = model.Id, IsSubscribed = false });
-            _productService.UpdateAndSave(model.ToEntity());
+        // If the current user is not already subscribed, add them to the list of subscribers.
+        if (result.SubscribersManyToMany.Exists(s => s.UserId == user.Id && !s.IsSubscribed)) {
+            throw new NotAuthorizedException("User is already subscribed");
+        } else {
+            // This is the self-serve model for initial testing
+            // TODO: Replace with Notification via Kafka
+            _productService.Subscribe(user.Id, result.Id);
+
             // TODO: Send Notification to Subscription manager via Kafka
             /*
             var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, report.Id, new { })
@@ -117,9 +119,8 @@ public class ProductController : ControllerBase
 
     }
 
-
     /// <summary>
-    /// Delete product.
+    /// Create an un-subscribe request for the current user to a product.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -134,13 +135,30 @@ public class ProductController : ControllerBase
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
         var result = _productService.FindById(model.Id) ?? throw new NoContentException("Product does not exist");
 
-        // If there are no subscribers, add the owner as a subscriber.
-        if (!result.Subscribers.Exists(s => s.Id == user.Id)) throw new NotAuthorizedException("User not currently subscribed");
+        // Add the current user as a subscriber if they are not already subscribed.
+        if (!result.SubscribersManyToMany.Exists(s => s.UserId == user.Id && s.IsSubscribed)) {
+            throw new NotAuthorizedException("User not currently subscribed");
+        } else {
 
-        if (result?.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to delete this product");
-        _productService.ClearChangeTracker(); // Remove the product from context.
+            // This is the self-serve model for initial testing
+            // TODO: Replace with Notification via Kafka
+            _productService.Unsubscribe(user.Id, result.Id);
 
-        _productService.DeleteAndSave(model.ToEntity());
+            // TODO: Send Notification to Subscription manager via Kafka
+            /*
+            var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, report.Id, new { })
+            {
+                RequestorId = user.Id,
+                To = to,
+                // no longer utilized, the caching mechanism
+                // determines whether to update or not
+                // UpdateCache = true,
+                GenerateInstance = false
+            };
+            await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{report.Id}-test", request);
+            */
+        }
+        var product = _productService.FindById(model.Id) ?? throw new NoContentException("Report does not exist");
         return new JsonResult(model);
     }
     #endregion

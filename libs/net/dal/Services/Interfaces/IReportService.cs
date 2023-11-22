@@ -76,6 +76,22 @@ public interface IReportService : IBaseService<Report, int>
     Report? ClearFoldersInReport(Report report);
 
     /// <summary>
+    /// Subscribe the specified user to the specified report
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="reportId"></param>
+    /// <returns></returns>
+    Task<int> Subscribe(int userId, int reportId);
+
+    /// <summary>
+    /// Unsubscribe the specified user from the specified report
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="reportId"></param>
+    /// <returns></returns>
+    Task<int> Unsubscribe(int userId, int reportId);
+
+    /// <summary>
     /// Unsubscribe all reports for the specified user.
     /// </summary>
     /// <param name="userId"></param>

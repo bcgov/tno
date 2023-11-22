@@ -25,7 +25,14 @@ public interface IProductService : IBaseService<Product, int>
     IEnumerable<Product> Find(ProductFilter filter);
 
     /// <summary>
-    /// Unsubscribe all products for the specified user.
+    /// Subscribe the specified user to the product.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<int> Subscribe(int userId, int productId);
+
+    /// <summary>
+    /// Unsubscribe product for the specified user.
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
