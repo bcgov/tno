@@ -1,4 +1,4 @@
-import { IProductModel, ProductType, ProductTypeName } from 'tno-core';
+import { IProductModel, ProductTypeName } from 'tno-core';
 
 export const defaultProduct: IProductModel = {
   id: 0,
@@ -6,7 +6,7 @@ export const defaultProduct: IProductModel = {
   description: '',
   isEnabled: true,
   sortOrder: 0,
-  targetProductId: 0,
   productType: ProductTypeName.Report,
+  targetProductId: 0,
   subscribers: [],
 };

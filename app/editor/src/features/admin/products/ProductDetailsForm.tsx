@@ -14,10 +14,8 @@ import {
   FormikTextArea,
   getEnumStringOptions,
   getUserOptions,
-  INotificationModel,
   IOptionItem,
   IProductModel,
-  IReportModel,
   OptionItem,
   ProductTypeName,
   Row,
@@ -32,11 +30,11 @@ export const ProductDetailsForm: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IProductModel>();
   const [{ userInfo }] = useApp();
   const [{ users }, { findUsers }] = useUsers();
+
+  const [{}, apiNotifications] = useNotifications();
+  const [{}, apiReports] = useReports();
   const [targetProductOptions, setTargetProductOptions] = React.useState<IOptionItem[]>([]);
-  const [{ notifications }, apiNotifications] = useNotifications();
-  const [notificationItems, setNotificationItems] = React.useState<INotificationModel[]>([]);
-  const [{ reports }, apiReports] = useReports();
-  const [reportItems, setReportItems] = React.useState<IReportModel[]>([]);
+  const [isProductListVisible, setIsProductListVisible] = React.useState<boolean>(false);
 
   const [userOptions, setUserOptions] = React.useState(getUserOptions(users.items));
 
@@ -50,34 +48,15 @@ export const ProductDetailsForm: React.FC = () => {
         })
         .catch(() => {});
     }
-    if (values?.productType) {
-      changeTargetProduct(values.productType);
-    }
     // Only fire on initial load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo?.id, values?.productType]);
+  }, [userInfo?.id]);
 
-  // pull list of notifications that could be set up as Products
   React.useEffect(() => {
-    if (!notifications.length) {
-      apiNotifications.findAllNotifications().then((data) => {
-        setNotificationItems(data);
-      });
-    } else {
-      setNotificationItems(notifications);
+    if (values?.productType && values?.targetProductId >= 0) {
+      changeTargetProduct(values.productType);
     }
-  }, [apiNotifications, notifications]);
-
-  // pull list of reports that could be set up as Products
-  React.useEffect(() => {
-    if (!reports.length) {
-      apiReports.findAllReports().then((data) => {
-        setReportItems(data);
-      });
-    } else {
-      setReportItems(reports);
-    }
-  }, [apiReports, reports]);
+  }, [values?.productType, values?.targetProductId]);
 
   const handleFindUsers = debounce(async (text: string) => {
     const results = await findUsers({ quantity: 50, username: text }, true);
@@ -91,20 +70,27 @@ export const ProductDetailsForm: React.FC = () => {
       switch (targetProduct) {
         case ProductTypeName.Report:
           // set using reports
-          setTargetProductOptions(reportItems.map((s) => new OptionItem(s.name, s.id)));
+          apiReports.findAllReports().then((data) => {
+            setTargetProductOptions(data.map((s) => new OptionItem(s.name, s.id)));
+          });
+          setIsProductListVisible(true);
           break;
         case ProductTypeName.EveningOverview:
           // set list to empty
+          setIsProductListVisible(false);
           setTargetProductOptions([]);
           setFieldValue('targetProductId', -1);
           break;
         case ProductTypeName.Notification:
           // set using notifications
-          setTargetProductOptions(notificationItems.map((s) => new OptionItem(s.name, s.id)));
+          apiNotifications.findAllNotifications().then((data) => {
+            setTargetProductOptions(data.map((s) => new OptionItem(s.name, s.id)));
+          });
+          setIsProductListVisible(true);
           break;
       }
     },
-    [targetProductOptions, reportItems, notificationItems],
+    [targetProductOptions, apiReports, apiNotifications],
   );
 
   return (
@@ -119,12 +105,12 @@ export const ProductDetailsForm: React.FC = () => {
           value={productTypeOptions.find((o) => o.value === values.productType)}
           onChange={(e: any) => changeTargetProduct(e?.value)}
         />
-        <Show visible={values.productType !== ProductTypeName.EveningOverview}>
+        <Show visible={isProductListVisible}>
           <FormikSelect
             name="targetProduct"
             label="Target Product"
             options={targetProductOptions}
-            value={targetProductOptions.find((o) => o.value === values.targetProductId)}
+            value={targetProductOptions.find((o) => o.value === values.targetProductId) || ''}
             onChange={(e: any) => {
               setFieldValue('targetProductId', e?.value);
             }}
