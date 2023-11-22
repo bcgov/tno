@@ -31,37 +31,13 @@ export const ProductDetailsForm: React.FC = () => {
   const [{ userInfo }] = useApp();
   const [{ users }, { findUsers }] = useUsers();
 
-  const [{}, apiNotifications] = useNotifications();
-  const [{}, apiReports] = useReports();
+  const [, apiNotifications] = useNotifications();
+  const [, apiReports] = useReports();
   const [targetProductOptions, setTargetProductOptions] = React.useState<IOptionItem[]>([]);
 
   const [userOptions, setUserOptions] = React.useState(getUserOptions(users.items));
 
   const productTypeOptions = getEnumStringOptions(ProductTypeName);
-
-  React.useEffect(() => {
-    if (userInfo?.id) {
-      findUsers({ quantity: 50, includeUserId: values.ownerId })
-        .then((results) => {
-          setUserOptions(getUserOptions(results.items));
-        })
-        .catch(() => {});
-    }
-    // Only fire on initial load.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo?.id]);
-
-  React.useEffect(() => {
-    if (values?.productType && values?.targetProductId >= 0) {
-      changeTargetProduct(values.productType);
-    }
-  }, [values?.productType, values?.targetProductId]);
-
-  const handleFindUsers = debounce(async (text: string) => {
-    const results = await findUsers({ quantity: 50, username: text }, true);
-    setUserOptions(getUserOptions(results.items));
-    return results;
-  }, 500);
 
   const changeTargetProduct = React.useCallback(
     (targetProduct: ProductTypeName | undefined) => {
@@ -86,8 +62,32 @@ export const ProductDetailsForm: React.FC = () => {
           break;
       }
     },
-    [targetProductOptions, apiReports, apiNotifications],
+    [apiReports, apiNotifications, setFieldValue],
   );
+
+  React.useEffect(() => {
+    if (userInfo?.id) {
+      findUsers({ quantity: 50, includeUserId: values.ownerId })
+        .then((results) => {
+          setUserOptions(getUserOptions(results.items));
+        })
+        .catch(() => {});
+    }
+    // Only fire on initial load.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userInfo?.id]);
+
+  React.useEffect(() => {
+    if (values?.productType && values?.targetProductId >= 0) {
+      changeTargetProduct(values.productType);
+    }
+  }, [values?.productType, values?.targetProductId, changeTargetProduct]);
+
+  const handleFindUsers = debounce(async (text: string) => {
+    const results = await findUsers({ quantity: 50, username: text }, true);
+    setUserOptions(getUserOptions(results.items));
+    return results;
+  }, 500);
 
   return (
     <>
