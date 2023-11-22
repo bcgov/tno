@@ -7,7 +7,7 @@ import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
-import { Button, Col, generateQuery, Row, Show, Text, TextArea } from 'tno-core';
+import { Button, Col, generateQuery, Row, Show, Text, TextArea, toQueryString } from 'tno-core';
 
 import {
   ContentSection,
@@ -31,7 +31,6 @@ export interface IAdvancedSearchProps {
   expanded: boolean;
   setExpanded?: (expanded: boolean) => void;
   onSearchPage?: boolean;
-  setSearchClicked?: (clicked: boolean) => void;
 }
 
 /***
@@ -43,7 +42,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   expanded,
   setExpanded,
   onSearchPage,
-  setSearchClicked,
 }) => {
   const navigate = useNavigate();
   const [, { addFilter }] = useFilters();
@@ -71,8 +69,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   }, [filter, searchName, addFilter, actions]);
 
   const handleSearch = async () => {
-    navigate(`/search`);
-    setSearchClicked && setSearchClicked(true);
+    navigate(`/search?${toQueryString(filterFormat(filter, actions))}`);
   };
 
   /** allow user to hit enter while searching */
@@ -141,7 +138,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
             </Button>
           </Show>
           <Show visible={!expanded}>
-            <p onClick={() => handleSearch()} className="use-text">
+            <p onClick={() => navigate('/search')} className="use-text">
               GO ADVANCED
             </p>
           </Show>

@@ -25,7 +25,6 @@ export const SearchPage: React.FC = () => {
 
   const [searchItems, setSearchItems] = React.useState<IContentModel[]>([]);
   const [activeContent, setActiveContent] = React.useState<IContentModel | null>(null);
-  const [searchClicked, setSearchClicked] = React.useState<boolean>(false);
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [searchName, setSearchName] = React.useState<string>();
@@ -86,7 +85,6 @@ export const SearchPage: React.FC = () => {
       } catch {
       } finally {
         setIsLoading(false);
-        setSearchClicked(false);
       }
     },
     [findContentWithElasticsearch],
@@ -94,17 +92,17 @@ export const SearchPage: React.FC = () => {
 
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
-    searchClicked && fetchResults(generateQuery(filterFormat(filter, actions)));
-    // only run when query changes
+    !!window.location.search && fetchResults(generateQuery(filterFormat(filter, actions)));
+    // only run when query  and is present
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchClicked]);
+  }, [window.location.search]);
 
   return (
     <styled.SearchPage>
       <SearchWithLogout />
       <Row className="search-container">
         <Col className="adv-search-container">
-          <AdvancedSearch onSearchPage expanded={true} setSearchClicked={setSearchClicked} />
+          <AdvancedSearch onSearchPage expanded />
         </Col>
         <Col className="result-container">
           <Row className="save-bar">

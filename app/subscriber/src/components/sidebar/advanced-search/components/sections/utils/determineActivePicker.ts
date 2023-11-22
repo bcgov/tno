@@ -13,7 +13,7 @@ export const determineActivePicker = (dateOffset: number) => {
       return QuickPickerNames.TwentyFourHours;
     case 2:
       return QuickPickerNames.FortyEightHours;
-    case 3:
+    case 7:
       return QuickPickerNames.SevenDays;
     default:
       return QuickPickerNames.Custom;
