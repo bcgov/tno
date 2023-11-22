@@ -12,9 +12,9 @@ export interface IAdvancedSearchFilter {
   /** array of sources to filter by */
   sourceIds?: number[];
   /** date range start date */
-  startDate: string;
+  publishedStartOn: string;
   /** date range end date */
-  endDate: string;
+  publishedEndOn: string;
   /** sentiment min max */
   sentiment?: number[];
   /** whether content was tagged as top story or not */

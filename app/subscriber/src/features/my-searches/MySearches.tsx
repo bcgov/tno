@@ -2,11 +2,12 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
-import { useFilters, useLookup } from 'store/hooks';
-import { Col, FlexboxTable, IFilterModel, Modal, Row, toQueryString, useModal } from 'tno-core';
+import { useContent, useFilters, useLookup } from 'store/hooks';
+import { Col, FlexboxTable, IFilterModel, Modal, Row, useModal } from 'tno-core';
 
 import { columns } from './constants/columns';
 import * as styled from './styled';
+import { settingsToFilter } from './utils';
 
 /** contains a list of the user's filters, allows for edit and viewing */
 export const MySearches = () => {
@@ -14,6 +15,7 @@ export const MySearches = () => {
   const { toggle, isShowing } = useModal();
   const [{ actions }] = useLookup();
   const navigate = useNavigate();
+  const [, { storeSearchFilter: storeFilter }] = useContent();
   const [myFilters, setMyFilters] = React.useState<IFilterModel[]>([]);
   const [active, setActive] = React.useState<IFilterModel>();
   const [editable, setEditable] = React.useState<string>('');
@@ -27,26 +29,6 @@ export const MySearches = () => {
     // Only do this on init.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleSearch = async (advancedSearch: IFilterModel, searchId: number) => {
-    navigate(
-      `/search/${toQueryString({
-        searchTerm: advancedSearch.settings.search,
-        inByline: advancedSearch.settings.inByline,
-        inHeadline: advancedSearch.settings.inHeadline,
-        inStory: advancedSearch.settings.inStory,
-        publishedStartOn: advancedSearch.settings.startDate,
-        publishedEndOn: advancedSearch.settings.endDate,
-        sourceIds: advancedSearch.settings.sourceIds,
-        sentiment: advancedSearch.settings.sentiment,
-        savedSearchId: searchId,
-        mediaTypeIds: advancedSearch.settings.mediaTypeIds,
-        actions: advancedSearch.settings.actions?.find((action) => action.id === topStoryId)
-          ? 'Top Story'
-          : '',
-      })}`,
-    );
-  };
 
   const handleDelete = () => {
     setActionName('delete');
@@ -71,7 +53,8 @@ export const MySearches = () => {
           rowId={'id'}
           onRowClick={(e) => {
             setActive(e.original);
-            handleSearch({ ...e.original }, e.original.id);
+            storeFilter(settingsToFilter(e.original, e.original.id, topStoryId));
+            navigate('/search');
           }}
           data={myFilters}
           showActive={false}

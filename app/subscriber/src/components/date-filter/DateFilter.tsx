@@ -9,10 +9,10 @@ export interface IDateFilterProps {}
 
 /** Custom date filter for the subscriber home page. Control the calendar state with custom button, custom styling also applied. Also allows user to navigate a day at a time via arrow buttons. */
 export const DateFilter: React.FC<IDateFilterProps> = () => {
-  const [{ filterAdvanced }, { storeFilterAdvanced }] = useContent();
+  const [{ homeFilter }, { storeHomeFilter }] = useContent();
   /** default to today's date or the filters previously saved date if present */
   const [date, setDate] = React.useState<Date>(
-    !!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : new Date(),
+    !!homeFilter.publishedStartOn ? new Date(homeFilter.publishedStartOn) : new Date(),
   );
   /** control state of open calendar from outside components. i.e custom calendar button */
   const [open, setOpen] = React.useState(false);
@@ -24,10 +24,10 @@ export const DateFilter: React.FC<IDateFilterProps> = () => {
 
   /** update state variable when date changes, can be controlled via date picker or arrows */
   React.useEffect(() => {
-    storeFilterAdvanced({
-      ...filterAdvanced,
-      startDate: date.toDateString(),
-      endDate: endOfDay(date),
+    storeHomeFilter({
+      ...homeFilter,
+      publishedStartOn: date.toDateString(),
+      publishedEndOn: endOfDay(date),
     });
     // only want the above to trigger when date changes, not when filterAdvanced changes
     // eslint-disable-next-line react-hooks/exhaustive-deps

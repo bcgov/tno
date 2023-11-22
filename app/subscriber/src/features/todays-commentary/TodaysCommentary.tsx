@@ -11,7 +11,7 @@ import * as styled from './styled';
 
 /** Component that displays commentary defaulting to today's date and adjustable via a date filter. */
 export const TodaysCommentary: React.FC = () => {
-  const [{ filterAdvanced }, { findContent }] = useContent();
+  const [{ homeFilter: filter }, { findContent }] = useContent();
   const navigate = useNavigate();
   const [commentary, setCommentary] = React.useState<IContentModel[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
@@ -20,11 +20,11 @@ export const TodaysCommentary: React.FC = () => {
     findContent({
       actions: [ActionName.Commentary],
       contentTypes: [],
-      publishedStartOn: moment(filterAdvanced.startDate).toISOString(),
-      publishedEndOn: moment(filterAdvanced.endDate).toISOString(),
+      publishedStartOn: moment(filter.publishedStartOn).toISOString(),
+      publishedEndOn: moment(filter.publishedEndOn).toISOString(),
       quantity: 100,
     }).then((data) => setCommentary(data.items));
-  }, [findContent, filterAdvanced]);
+  }, [findContent, filter]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {

@@ -15,7 +15,7 @@ import { FlexboxTable, IContentModel, ITableInternalRow, Page, Row } from 'tno-c
 import * as styled from './styled';
 
 export const MyMinister: React.FC = () => {
-  const [{ filter, filterAdvanced }, { findContent }] = useContent();
+  const [{ homeFilter: filter }, { findContent }] = useContent();
   const [{ userInfo }] = useApp();
   const [, api] = useMinisters();
   const navigate = useNavigate();
@@ -81,7 +81,6 @@ export const MyMinister: React.FC = () => {
     if (!ministerNames.length) return;
     fetch({
       ...filter,
-      ...filterAdvanced,
       names: ministerNames.toString(),
     }).then((data) => {
       setHomeItems(data.items);

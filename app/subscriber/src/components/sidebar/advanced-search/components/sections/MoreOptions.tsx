@@ -1,11 +1,10 @@
-import { Checkbox, Col } from 'tno-core';
+import { useContent, useLookup } from 'store/hooks';
+import { Checkbox, Col, Settings } from 'tno-core';
 
-import { IExpandedSectionProps } from '../../interfaces';
-
-export const MoreOptions: React.FC<IExpandedSectionProps> = ({
-  setAdvancedSearch,
-  advancedSearch,
-}) => {
+export const MoreOptions: React.FC = () => {
+  const [{ settings }] = useLookup();
+  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
+  var frontPageId = settings.find((s) => s.name === Settings.FrontpageFilter)?.value;
   return (
     <div className="more-options">
       <p>
@@ -16,30 +15,37 @@ export const MoreOptions: React.FC<IExpandedSectionProps> = ({
       <Col>
         <Checkbox
           label="featured on the MMI home page"
-          checked={!advancedSearch.useUnpublished}
+          checked={!filter.searchUnpublished}
           onChange={(e) => {
-            setAdvancedSearch({
-              ...advancedSearch,
-              useUnpublished: !e.target.checked,
+            storeFilter({
+              ...filter,
+              searchUnpublished: !e.target.checked,
             });
           }}
         />
         <Checkbox
           label="are marked as top stories"
-          checked={Boolean(advancedSearch.topStory)}
+          checked={Boolean(filter.topStory)}
           onChange={(e) => {
-            setAdvancedSearch({ ...advancedSearch, topStory: e.target.checked });
+            storeFilter({ ...filter, topStory: e.target.checked });
           }}
         />
         <Checkbox
           label="are marked as a front page"
-          checked={Boolean(advancedSearch.frontPage)}
-          onChange={(e) => setAdvancedSearch({ ...advancedSearch, frontPage: e.target.checked })}
+          checked={filter.mediaTypeIds?.includes(Number(frontPageId))}
+          onChange={(e) =>
+            storeFilter({
+              ...filter,
+              mediaTypeIds: e.target.checked
+                ? [...[Number(frontPageId)], ...(filter.mediaTypeIds ?? [])]
+                : filter.mediaTypeIds?.filter((id) => id !== Number(frontPageId)),
+            })
+          }
         />
         <Checkbox
           label={'bold keywords on search page'}
-          checked={Boolean(advancedSearch.boldKeywords)}
-          onChange={(e) => setAdvancedSearch({ ...advancedSearch, boldKeywords: e.target.checked })}
+          checked={Boolean(filter.boldKeywords)}
+          onChange={(e) => storeFilter({ ...filter, boldKeywords: e.target.checked })}
         />
       </Col>
     </div>
