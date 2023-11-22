@@ -34,7 +34,6 @@ export const ProductDetailsForm: React.FC = () => {
   const [{}, apiNotifications] = useNotifications();
   const [{}, apiReports] = useReports();
   const [targetProductOptions, setTargetProductOptions] = React.useState<IOptionItem[]>([]);
-  const [isProductListVisible, setIsProductListVisible] = React.useState<boolean>(false);
 
   const [userOptions, setUserOptions] = React.useState(getUserOptions(users.items));
 
@@ -73,11 +72,9 @@ export const ProductDetailsForm: React.FC = () => {
           apiReports.findAllReports().then((data) => {
             setTargetProductOptions(data.map((s) => new OptionItem(s.name, s.id)));
           });
-          setIsProductListVisible(true);
           break;
         case ProductTypeName.EveningOverview:
           // set list to empty
-          setIsProductListVisible(false);
           setTargetProductOptions([]);
           setFieldValue('targetProductId', -1);
           break;
@@ -86,7 +83,6 @@ export const ProductDetailsForm: React.FC = () => {
           apiNotifications.findAllNotifications().then((data) => {
             setTargetProductOptions(data.map((s) => new OptionItem(s.name, s.id)));
           });
-          setIsProductListVisible(true);
           break;
       }
     },
@@ -96,19 +92,21 @@ export const ProductDetailsForm: React.FC = () => {
   return (
     <>
       <Col className="form-inputs">
-        <FormikText name="name" label="Name" placeholder="Enter unique product name" />
+        <FormikText name="name" label="Name" placeholder="Enter unique product name" required />
         <FormikTextArea name="description" label="Description" />
         <FormikSelect
           name="productType"
           label="Product Type"
+          required
           options={productTypeOptions}
           value={productTypeOptions.find((o) => o.value === values.productType)}
           onChange={(e: any) => changeTargetProduct(e?.value)}
         />
-        <Show visible={isProductListVisible}>
+        <Show visible={targetProductOptions.length >= 1}>
           <FormikSelect
             name="targetProduct"
             label="Target Product"
+            required={targetProductOptions.length >= 1}
             options={targetProductOptions}
             value={targetProductOptions.find((o) => o.value === values.targetProductId) || ''}
             onChange={(e: any) => {
