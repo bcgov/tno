@@ -17,9 +17,9 @@ export const ReportList: React.FC = () => {
 
   React.useEffect(() => {
     if (!initialized) {
-      api.findAllReports().catch(() => {});
+      api.findAllReportsHeadersOnly().catch(() => {});
     }
-    // The api will cause a double render because findAllReports(...) updates the store.
+    // The api will cause a double render because findAllReportsHeadersOnly(...) updates the store.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialized]);
 

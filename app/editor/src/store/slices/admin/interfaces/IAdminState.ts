@@ -17,6 +17,7 @@ import {
   INotificationTemplateModel,
   IOrganizationModel,
   IPaged,
+  IProductModel,
   IReportModel,
   IReportTemplateModel,
   ISeriesModel,
@@ -50,6 +51,8 @@ export interface IAdminState {
   ingestTypes: IIngestTypeModel[];
   licenseFilter: string;
   licenses: ILicenseModel[];
+  mediaTypeFilter: string;
+  mediaTypes: IMediaTypeModel[];
   ministerFilter: string;
   ministers: IMinisterModel[];
   notificationFilter: string;
@@ -57,8 +60,8 @@ export interface IAdminState {
   notificationTemplates: INotificationTemplateModel[];
   organizationFilter: string;
   organizations: IOrganizationModel[];
-  mediaTypeFilter: string;
-  mediaTypes: IMediaTypeModel[];
+  productFilter: string;
+  products: IProductModel[];
   reportFilter: string;
   reports: IReportModel[];
   reportTemplates: IReportTemplateModel[];

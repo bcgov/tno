@@ -7,6 +7,7 @@ public class ProductFilter : PageFilter
 {
     #region Properties
     public string? Name { get; set; }
+    public int? OwnerId { get; set; }
     public string[] Sort { get; set; } = Array.Empty<string>();
     #endregion
 
@@ -18,6 +19,7 @@ public class ProductFilter : PageFilter
         var filter = new Dictionary<string, StringValues>(queryParams, StringComparer.OrdinalIgnoreCase);
 
         this.Name = filter.GetStringValue(nameof(this.Name));
+        this.OwnerId = filter.GetIntValue(nameof(this.OwnerId));
 
         this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }

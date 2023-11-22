@@ -19,6 +19,8 @@ export * from './NotificationStatus';
 export * from './NotificationStatusName';
 export * from './NotificationType';
 export * from './NotificationTypeName';
+export * from './ProductType';
+export * from './ProductTypeName';
 export * from './ReportSectionType';
 export * from './ReportSectionTypeName';
 export * from './ReportStatus';

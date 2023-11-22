@@ -15,6 +15,7 @@ export * from './useMinisters';
 export * from './useNotifications';
 export * from './useNotificationTemplates';
 export * from './useOrganizations';
+export * from './useProducts';
 export * from './useReports';
 export * from './useReportTemplates';
 export * from './useSeries';

@@ -9,7 +9,8 @@ public interface IReportService : IBaseService<Report, int>
     /// Find all reports.
     /// </summary>
     /// <returns></returns>
-    IEnumerable<Report> FindAll();
+    // IEnumerable<Report> FindAll();
+    IEnumerable<Report> FindAll(bool populateFullModel = true);
 
     /// <summary>
     /// Find all public reports.

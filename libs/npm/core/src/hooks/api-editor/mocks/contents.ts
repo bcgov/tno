@@ -1,5 +1,5 @@
 import { ContentStatusName, ContentTypeName, IContentModel } from '..';
-import { mockLicenses, mockMediaTypes as mockMediaTypes, mockUsers } from '.';
+import { mockLicenses, mockMediaTypes, mockUsers } from '.';
 
 export const mockContents: IContentModel[] = [
   {

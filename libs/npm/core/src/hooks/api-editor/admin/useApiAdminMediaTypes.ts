@@ -26,7 +26,10 @@ export const useApiAdminMediaTypes = (
       return api.get<never, AxiosResponse<IMediaTypeModel>, any>(`/admin/media-types/${id}`);
     },
     addMediaType: (model: IMediaTypeModel) => {
-      return api.post<IMediaTypeModel, AxiosResponse<IMediaTypeModel>, any>(`/admin/media-types`, model);
+      return api.post<IMediaTypeModel, AxiosResponse<IMediaTypeModel>, any>(
+        `/admin/media-types`,
+        model,
+      );
     },
     updateMediaType: (model: IMediaTypeModel) => {
       return api.put<IMediaTypeModel, AxiosResponse<IMediaTypeModel>, any>(

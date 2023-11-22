@@ -43,15 +43,22 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// Find all the reports.
     /// </summary>
     /// <returns></returns>
-    public IEnumerable<Report> FindAll()
+    public IEnumerable<Report> FindAll(bool populateFullModel = true)
     {
-        return this.Context.Reports
-            .AsNoTracking()
-            .Include(r => r.Owner)
-            .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
-            .Include(r => r.Sections)
-            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
-            .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
+        if (populateFullModel) {
+            return this.Context.Reports
+                .AsNoTracking()
+                .Include(r => r.Owner)
+                .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
+                .Include(r => r.Sections)
+                .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
+                .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
+        } else {
+            return this.Context.Reports
+                .AsNoTracking()
+                .Include(r => r.Owner)
+                .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
+        }
     }
 
     /// <summary>
