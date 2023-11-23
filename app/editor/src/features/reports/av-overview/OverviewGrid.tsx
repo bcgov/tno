@@ -31,7 +31,7 @@ export interface IOverviewGridProps {
 /** OverviewGrid contains the table of items displayed for each overview section. */
 export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, index }) => {
   const { values, setFieldValue } = useFormikContext<IAVOverviewInstanceModel>();
-  const [, { findContent }] = useContent();
+  const [content, { findContent }] = useContent();
 
   const [clips, setClips] = React.useState<IOptionItem[]>();
   const eveningOverviewItemTypeOptions = castEnumToOptions(AVOverviewItemTypeName);
@@ -96,7 +96,8 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
     );
   };
 
-  const handleSelectionChanged = (itemIndex: number) => {
+  const handleSelectionChanged = (itemIndex: number, newValue: IOptionItem | undefined) => {
+    if (newValue === undefined) return;
     const summary: string = getIn(values, `sections.${index}.items.${itemIndex}.summary`);
     const regex = /(?:timestamp|time stamp)(?:\s+is)?\s+(\d{1,2}:\d{2})/g;
     const match = regex.exec(summary);
@@ -105,6 +106,10 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
         `sections.${index}.items.${itemIndex}.time`,
         match[1].length === 5 ? `${match[1]}:00` : `0${match[1]}:00`,
       );
+    } else {
+      const selectedClip = content.searchResults?.items?.find((s) => s.id === newValue?.value);
+      const publishedOn = moment(selectedClip?.publishedOn).format('HH:mm:ss');
+      setFieldValue(`sections.${index}.items.${itemIndex}.time`, publishedOn);
     }
   };
 
@@ -184,7 +189,9 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                 options={clips ?? []}
                                 width={FieldSize.Medium}
                                 isDisabled={!editable}
-                                onChange={() => handleSelectionChanged(itemIndex)}
+                                onChange={(newValue) =>
+                                  handleSelectionChanged(itemIndex, newValue as IOptionItem)
+                                }
                               />
                               <FaTrash
                                 className="clear-item"
