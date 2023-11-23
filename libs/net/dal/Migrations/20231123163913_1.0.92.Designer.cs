@@ -15,7 +15,7 @@ using TNO.Entities.Models;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20231120194938_1.0.92")]
+    [Migration("20231123163913_1.0.92")]
     partial class _1092
     {
         /// <inheritdoc />
@@ -3235,15 +3235,15 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
 
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_public");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
-
-                    b.Property<int?>("OwnerId")
-                        .HasColumnType("integer")
-                        .HasColumnName("owner_id");
 
                     b.Property<int>("ProductType")
                         .HasColumnType("integer")
@@ -3280,7 +3280,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OwnerId", "Name", "TargetProductId", "ProductType")
+                    b.HasIndex("Name", "TargetProductId", "ProductType")
                         .IsUnique();
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_product_is_enabled");
@@ -5903,15 +5903,6 @@ namespace TNO.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("TNO.Entities.Product", b =>
-                {
-                    b.HasOne("TNO.Entities.User", "Owner")
-                        .WithMany()
-                        .HasForeignKey("OwnerId");
-
-                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("TNO.Entities.Report", b =>

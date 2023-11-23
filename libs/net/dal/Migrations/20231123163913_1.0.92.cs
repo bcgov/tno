@@ -20,9 +20,9 @@ namespace TNO.DAL.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    owner_id = table.Column<int>(type: "integer", nullable: true),
                     product_type = table.Column<int>(type: "integer", nullable: false),
                     target_product_id = table.Column<int>(type: "integer", nullable: false),
+                    is_public = table.Column<bool>(type: "boolean", nullable: false),
                     created_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
                     created_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     updated_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
@@ -36,11 +36,6 @@ namespace TNO.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_product", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_product_user_owner_id",
-                        column: x => x.owner_id,
-                        principalTable: "user",
-                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -79,9 +74,9 @@ namespace TNO.DAL.Migrations
                 columns: new[] { "is_enabled", "name" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_product_owner_id_name_target_product_id_product_type",
+                name: "IX_product_name_target_product_id_product_type",
                 table: "product",
-                columns: new[] { "owner_id", "name", "target_product_id", "product_type" },
+                columns: new[] { "name", "target_product_id", "product_type" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
