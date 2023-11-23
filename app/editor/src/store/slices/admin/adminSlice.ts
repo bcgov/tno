@@ -18,6 +18,7 @@ import {
   INotificationTemplateModel,
   IOrganizationModel,
   IPaged,
+  IProductModel,
   IReportModel,
   IReportTemplateModel,
   ISeriesModel,
@@ -53,15 +54,17 @@ export const initialAdminState: IAdminState = {
   ingestTypes: [],
   licenseFilter: '',
   licenses: [],
+  mediaTypeFilter: '',
+  mediaTypes: [],
   ministerFilter: '',
   ministers: [],
   organizationFilter: '',
   organizations: [],
+  productFilter: '',
+  products: [],
   notificationFilter: '',
   notifications: [],
   notificationTemplates: [],
-  mediaTypeFilter: '',
-  mediaTypes: [],
   reportFilter: '',
   reports: [],
   reportTemplates: [],
@@ -154,6 +157,12 @@ export const adminSlice = createSlice({
     storeLicenses(state: IAdminState, action: PayloadAction<ILicenseModel[]>) {
       state.licenses = action.payload;
     },
+    storeMediaTypeFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.mediaTypeFilter = action.payload;
+    },
+    storeMediaTypes(state: IAdminState, action: PayloadAction<IMediaTypeModel[]>) {
+      state.mediaTypes = action.payload;
+    },
     storeMinisterFilter(state: IAdminState, action: PayloadAction<string>) {
       state.ministerFilter = action.payload;
     },
@@ -178,11 +187,11 @@ export const adminSlice = createSlice({
     storeOrganizations(state: IAdminState, action: PayloadAction<IOrganizationModel[]>) {
       state.organizations = action.payload;
     },
-    storeMediaTypeFilter(state: IAdminState, action: PayloadAction<string>) {
-      state.mediaTypeFilter = action.payload;
+    storeProductFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.productFilter = action.payload;
     },
-    storeMediaTypes(state: IAdminState, action: PayloadAction<IMediaTypeModel[]>) {
-      state.mediaTypes = action.payload;
+    storeProducts(state: IAdminState, action: PayloadAction<IProductModel[]>) {
+      state.products = action.payload;
     },
     storeReportFilter(state: IAdminState, action: PayloadAction<string>) {
       state.reportFilter = action.payload;
@@ -261,6 +270,8 @@ export const {
   storeIngestTypes: storeAdminIngestTypes,
   storeLicenseFilter: storeAdminLicenseFilter,
   storeLicenses: storeAdminLicenses,
+  storeMediaTypeFilter: storeAdminMediaTypeFilter,
+  storeMediaTypes: storeAdminMediaTypes,
   storeMinisterFilter: storeAdminMinisterFilter,
   storeMinisters: storeAdminMinisters,
   storeNotificationFilter: storeAdminNotificationFilter,
@@ -268,8 +279,8 @@ export const {
   storeNotificationTemplates: storeAdminNotificationTemplates,
   storeOrganizationFilter: storeAdminOrganizationFilter,
   storeOrganizations: storeAdminOrganizations,
-  storeMediaTypeFilter: storeAdminMediaTypeFilter,
-  storeMediaTypes: storeAdminMediaTypes,
+  storeProductFilter: storeAdminProductFilter,
+  storeProducts: storeAdminProducts,
   storeReportFilter: storeAdminReportFilter,
   storeReports: storeAdminReports,
   storeReportTemplates: storeAdminReportTemplates,

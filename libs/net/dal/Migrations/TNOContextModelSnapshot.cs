@@ -3199,6 +3199,92 @@ namespace TNO.DAL.Migrations
                     b.ToTable("organization");
                 });
 
+            modelBuilder.Entity("TNO.Entities.Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_public");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("ProductType")
+                        .HasColumnType("integer")
+                        .HasColumnName("product_type");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("sort_order");
+
+                    b.Property<int>("TargetProductId")
+                        .HasColumnType("integer")
+                        .HasColumnName("target_product_id");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name", "TargetProductId", "ProductType")
+                        .IsUnique();
+
+                    b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_product_is_enabled");
+
+                    b.ToTable("product");
+                });
+
             modelBuilder.Entity("TNO.Entities.Report", b =>
                 {
                     b.Property<int>("Id")
@@ -5081,6 +5167,49 @@ namespace TNO.DAL.Migrations
                     b.ToTable("user_organization");
                 });
 
+            modelBuilder.Entity("TNO.Entities.UserProduct", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer")
+                        .HasColumnName("product_id");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on");
+
+                    b.Property<bool>("IsSubscribed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_subscribed");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on");
+
+                    b.Property<long>("Version")
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("ProductId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("user_product");
+                });
+
             modelBuilder.Entity("TNO.Entities.UserReport", b =>
                 {
                     b.Property<int>("UserId")
@@ -6060,6 +6189,25 @@ namespace TNO.DAL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TNO.Entities.UserProduct", b =>
+                {
+                    b.HasOne("TNO.Entities.Product", "Product")
+                        .WithMany("SubscribersManyToMany")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TNO.Entities.User", "User")
+                        .WithMany("ProductSubscriptionsManyToMany")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TNO.Entities.UserReport", b =>
                 {
                     b.HasOne("TNO.Entities.Report", "Report")
@@ -6265,6 +6413,11 @@ namespace TNO.DAL.Migrations
                     b.Navigation("UsersManyToMany");
                 });
 
+            modelBuilder.Entity("TNO.Entities.Product", b =>
+                {
+                    b.Navigation("SubscribersManyToMany");
+                });
+
             modelBuilder.Entity("TNO.Entities.Report", b =>
                 {
                     b.Navigation("Events");
@@ -6354,6 +6507,8 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Notifications");
 
                     b.Navigation("OrganizationsManyToMany");
+
+                    b.Navigation("ProductSubscriptionsManyToMany");
 
                     b.Navigation("ReportInstances");
 

@@ -13,6 +13,7 @@ export * from './licenses';
 export * from './media-types';
 export * from './ministers';
 export * from './notifications';
+export * from './products';
 export * from './report-templates';
 export * from './reports';
 export * from './series';

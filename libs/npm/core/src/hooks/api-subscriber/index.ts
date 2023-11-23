@@ -9,7 +9,7 @@ export * from './useApiSubscriberMinisters';
 export * from './useApiSubscriberReportInstances';
 export * from './useApiSubscriberReports';
 export * from './useApiSubscriberReportTemplates';
+export * from './useApiSubscriberSources';
 export * from './useApiSubscriberSystemMessages';
 export * from './useApiSubscriberUsers';
 export * from './useApiSubscriberWorkOrders';
-export * from './useApiSubscriberSources';
