@@ -199,12 +199,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
                 <SeriesSection />
               </ExpandableRow>
             </Col>
-            {/* TAG SECTION */}
-            <Col>
-              <ExpandableRow icon={<FaTags />} title="Tags">
-                <TagSection />
-              </ExpandableRow>
-            </Col>
           </Col>
 
           <Row>

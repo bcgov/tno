@@ -263,14 +263,6 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     margin-top: 0.5em;
   }
 
-  .content-types,
-  .contributors {
-    .rs__value-container {
-      max-height: 40px;
-      overflow-y: auto;
-    }
-  }
-
   .date-range-group,
   .media-group,
   .search-in-group,
@@ -292,11 +284,6 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     padding: 0.1em;
     margin-left: 0.1em;
     border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
-
-    .rs__value-container {
-      max-height: 40px;
-      overflow-y: auto;
-    }
 
     .sub-options {
       font-size: 0.8em;
