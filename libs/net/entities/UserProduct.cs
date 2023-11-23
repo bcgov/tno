@@ -32,7 +32,7 @@ public class UserProduct : AuditColumns
     public Product? Product { get; set; }
 
     /// <summary>
-    /// get/set - Whether the user is subscribed to this product.
+    /// get/set - The target subscription status for the product.
     /// </summary>
     [Column("is_subscribed")]
     public bool IsSubscribed { get; set; }

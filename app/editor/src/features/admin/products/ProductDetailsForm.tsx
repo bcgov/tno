@@ -1,9 +1,8 @@
 import { useFormikContext } from 'formik';
-import { debounce, noop } from 'lodash';
+import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
-import { useApp } from 'store/hooks';
-import { useNotifications, useReports, useUsers } from 'store/hooks/admin';
+import { useNotifications, useReports } from 'store/hooks/admin';
 import {
   Col,
   FieldSize,
@@ -13,7 +12,6 @@ import {
   FormikText,
   FormikTextArea,
   getEnumStringOptions,
-  getUserOptions,
   IOptionItem,
   IProductModel,
   OptionItem,
@@ -28,14 +26,10 @@ import {
  */
 export const ProductDetailsForm: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IProductModel>();
-  const [{ userInfo }] = useApp();
-  const [{ users }, { findUsers }] = useUsers();
 
   const [, apiNotifications] = useNotifications();
   const [, apiReports] = useReports();
   const [targetProductOptions, setTargetProductOptions] = React.useState<IOptionItem[]>([]);
-
-  const [userOptions, setUserOptions] = React.useState(getUserOptions(users.items));
 
   const productTypeOptions = getEnumStringOptions(ProductTypeName);
 
@@ -62,32 +56,16 @@ export const ProductDetailsForm: React.FC = () => {
           break;
       }
     },
-    [apiReports, apiNotifications, setFieldValue],
-  );
-
-  React.useEffect(() => {
-    if (userInfo?.id) {
-      findUsers({ quantity: 50, includeUserId: values.ownerId })
-        .then((results) => {
-          setUserOptions(getUserOptions(results.items));
-        })
-        .catch(() => {});
-    }
-    // Only fire on initial load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo?.id]);
+    [apiReports, apiNotifications], // KGM: Skipped 'setFieldValue' to avoid circular dependecy issue
+  );
 
   React.useEffect(() => {
     if (values?.productType && values?.targetProductId >= 0) {
       changeTargetProduct(values.productType);
     }
-  }, [values?.productType, values?.targetProductId, changeTargetProduct]);
-
-  const handleFindUsers = debounce(async (text: string) => {
-    const results = await findUsers({ quantity: 50, username: text }, true);
-    setUserOptions(getUserOptions(results.items));
-    return results;
-  }, 500);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [values?.productType, values?.targetProductId]); // KGM: Skipped 'changeTargetProduct' to avoid circular dependecy issue
 
   return (
     <>
@@ -114,23 +92,6 @@ export const ProductDetailsForm: React.FC = () => {
             }}
           />
         </Show>
-        <FormikSelect
-          name="ownerId"
-          label="Owner"
-          options={userOptions}
-          value={userOptions.find((u) => u.value === values.ownerId) || ''}
-          onChange={(e) => {
-            const option = e as OptionItem;
-            setFieldValue(
-              'values.ownerId',
-              option?.value ? parseInt(option.value.toString()) : undefined,
-            );
-          }}
-          onInputChange={(newValue) => {
-            // TODO: Does not need to fire when an option is manually selected.
-            handleFindUsers(newValue);
-          }}
-        />
         <Row alignItems="center">
           <FormikText
             width={FieldSize.Tiny}
@@ -140,6 +101,13 @@ export const ProductDetailsForm: React.FC = () => {
             className="sort-order"
           />
           <FormikCheckbox label="Is Enabled" name="isEnabled" />
+        </Row>
+        <Row alignItems="center">
+          <FormikCheckbox label="Is Public" name="isPublic" />
+          <p>
+            A public report will show up in the list for ALL subscribers to see and request access
+            to.
+          </p>
         </Row>
         <hr />
         <Row>

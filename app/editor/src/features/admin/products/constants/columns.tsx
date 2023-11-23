@@ -21,6 +21,13 @@ export const columns: ITableHookColumn<IProductModel>[] = [
     cell: (cell) => cell.original.sortOrder,
   },
   {
+    label: 'Public',
+    accessor: 'isPublic',
+    width: 1,
+    hAlign: 'center',
+    cell: (cell) => <CellCheckbox checked={cell.original.isPublic} />,
+  },
+  {
     label: 'Enabled',
     accessor: 'isEnabled',
     width: 1,

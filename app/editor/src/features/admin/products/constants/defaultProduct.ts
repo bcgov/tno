@@ -9,4 +9,5 @@ export const defaultProduct: IProductModel = {
   productType: ProductTypeName.Report,
   targetProductId: 0,
   subscribers: [],
+  isPublic: false,
 };

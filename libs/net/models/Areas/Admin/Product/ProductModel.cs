@@ -21,16 +21,6 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
     public int TargetProductId { get; set; }
 
     /// <summary>
-    /// get/set - Foreign key to user who owns this product.
-    /// </summary>
-    public int? OwnerId { get; set; }
-
-    /// <summary>
-    /// get/set - The owner of this product.
-    /// </summary>
-    public UserModel? Owner { get; set; }
-
-    /// <summary>
     /// get/set - List of users who are subscribed to this product (many-to-many).
     /// </summary>
     public IEnumerable<UserModel> Subscribers { get; set; } = Array.Empty<UserModel>();
@@ -52,8 +42,6 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
     {
         this.TargetProductId = entity.TargetProductId;
         this.ProductType = entity.ProductType;
-        this.OwnerId = entity.OwnerId;
-        this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!, s.IsSubscribed)).ToArray();
     }
     #endregion
@@ -77,7 +65,7 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
     /// <param name="model"></param>
     public static explicit operator Entities.Product(ProductModel model)
     {
-        var entity = new Entities.Product(model.Id, model.Name, model.ProductType, model.TargetProductId, model.OwnerId)
+        var entity = new Entities.Product(model.Id, model.Name, model.ProductType, model.TargetProductId)
         {
             Id = model.Id,
             Description = model.Description,
@@ -88,7 +76,7 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
 
         entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us => new Entities.UserProduct(us.Id, entity.Id)
         {
-            IsSubscribed = us.IsSubscribed
+            IsSubscribed = us.IsSubscribed,
         }));
 
         return entity;

@@ -9,14 +9,13 @@ public class ProductConfiguration : BaseTypeConfiguration<Product, int>
     public override void Configure(EntityTypeBuilder<Product> builder)
     {
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
-        builder.Property(m => m.OwnerId);
         builder.Property(m => m.TargetProductId).IsRequired();
         builder.Property(m => m.ProductType).IsRequired();
+        builder.Property(m => m.IsPublic).IsRequired();
 
-        builder.HasOne(m => m.Owner);
         builder.HasMany(m => m.Subscribers).WithMany(m => m.ProductSubscriptions).UsingEntity<UserProduct>();
 
-        builder.HasIndex(m => new { m.OwnerId, m.Name, m.TargetProductId, m.ProductType }).IsUnique();
+        builder.HasIndex(m => new { m.Name, m.TargetProductId, m.ProductType }).IsUnique();
 
         base.Configure(builder);
     }

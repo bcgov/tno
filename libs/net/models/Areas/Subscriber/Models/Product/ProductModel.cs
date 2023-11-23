@@ -11,13 +11,6 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
 {
     #region Properties
     /// <summary>
-    /// get/set - Foreign key to user who owns this product.
-    /// Also a unique index with the product name.
-    /// Cannot have a product with the same name as another product for a single owner.
-    /// </summary>
-    public int? OwnerId { get; set; }
-
-    /// <summary>
     /// get/set - Each type of product is this.
     /// </summary>
     public ProductType ProductType { get; set; }
@@ -71,7 +64,7 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
     /// <param name="model"></param>
     public static explicit operator Entities.Product(ProductModel model)
     {
-        var entity = new Entities.Product(model.Id, model.Name, model.ProductType, model.TargetProductId, model.OwnerId)
+        var entity = new Entities.Product(model.Id, model.Name, model.ProductType, model.TargetProductId)
         {
             Id = model.Id,
             Description = model.Description,

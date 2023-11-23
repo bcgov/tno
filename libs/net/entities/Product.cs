@@ -9,19 +9,6 @@ namespace TNO.Entities;
 public class Product : BaseType<int> {
 
     /// <summary>
-    /// get/set - Foreign key to user who owns this product.
-    /// Also a unique index with the product name.
-    /// Cannot have a product with the same name as another product for a single owner.
-    /// </summary>
-    [Column("owner_id")]
-    public int? OwnerId { get; set; }
-
-    /// <summary>
-    /// get/set - The user who owns this product.
-    /// </summary>
-    public virtual User? Owner { get; set; }
-
-    /// <summary>
     /// get/set - Each type of product is this.
     /// </summary>
     [Column("product_type")]
@@ -43,6 +30,12 @@ public class Product : BaseType<int> {
     /// </summary>
     public virtual List<User> Subscribers { get; } = new List<User>();
 
+    /// <summary>
+    /// get/set - Whether this product is public to all users.
+    /// </summary>
+    [Column("is_public")]
+    public bool IsPublic { get; set; } = false;
+
     #region Constructors
     /// <summary>
     /// Creates a new instance of a Product object.
@@ -58,11 +51,10 @@ public class Product : BaseType<int> {
     /// <param name="targetProductId"></param>
     /// <param name="ownerId"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public Product(int id, string name, ProductType productType, int targetProductId, int? ownerId = null) : base(id, name)
+    public Product(int id, string name, ProductType productType, int targetProductId) : base(id, name)
     {
         this.ProductType = productType;
         this.TargetProductId = targetProductId;
-        this.OwnerId = ownerId;
     }
     #endregion
 }

@@ -40,36 +40,32 @@ public class ProductService : BaseService<Product, int>, IProductService
 
     #region Methods
     /// <summary>
-    /// Find all the reports.
+    /// Find all the products.
     /// </summary>
     /// <returns></returns>
     public IEnumerable<Product> FindAll()
     {
         return this.Context.Products
             .AsNoTracking()
-            .Include(r => r.Owner)
-            // .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
-            // .Include(r => r.Sections)
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
             .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
     }
 
     /// <summary>
-    /// Find all the public reports.
+    /// Find all the public products.
     /// </summary>
     /// <returns></returns>
     public IEnumerable<Product> FindPublic()
     {
         return this.Context.Products
             .AsNoTracking()
-            .Include(r => r.Owner)
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
-            // .Where(r => r.IsPublic == true)
+            .Where(r => r.IsPublic)
             .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
     }
 
     /// <summary>
-    /// Find all reports that match the filter.
+    /// Find all products that match the filter.
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
@@ -77,9 +73,6 @@ public class ProductService : BaseService<Product, int>, IProductService
     {
         var query = this.Context.Products
             .AsNoTracking();
-
-        if (filter.OwnerId.HasValue)
-            query = query.Where(r => r.OwnerId == filter.OwnerId);
 
         if (!String.IsNullOrWhiteSpace(filter.Name))
             query = query.Where(r => EF.Functions.Like(r.Name, $"%{filter.Name}%"));
@@ -95,22 +88,20 @@ public class ProductService : BaseService<Product, int>, IProductService
     public override Product? FindById(int id)
     {
         return this.Context.Products
-            .Include(r => r.Owner)
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
             .FirstOrDefault(r => r.Id == id);
     }
 
     /// <summary>
-    /// Find the reports for the specified user.
+    /// Find the products for the specified user.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
     public IEnumerable<Product> FindProductsByUser(int userId)
     {
         return this.Context.Products
-            .Include(f => f.Owner)
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
-            .Where(f => f.OwnerId == userId)
+            .Where(f => f.SubscribersManyToMany.Exists(s => s.UserId == userId && s.IsSubscribed))
             .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
     }
 
@@ -161,7 +152,6 @@ public class ProductService : BaseService<Product, int>, IProductService
         original.TargetProductId = entity.TargetProductId;
         original.IsEnabled = entity.IsEnabled;
         original.SortOrder = entity.SortOrder;
-        original.OwnerId = entity.OwnerId;
         original.Version = entity.Version;
         this.Context.ResetVersion(original);
 
