@@ -71,11 +71,24 @@ public class ProductService : BaseService<Product, int>, IProductService
     /// <returns></returns>
     public IEnumerable<Product> Find(ProductFilter filter)
     {
+        // return this.Context.Products
+        //     .AsNoTracking()
+        //     .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
+        //     .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
+
         var query = this.Context.Products
+            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
             .AsNoTracking();
 
         if (!String.IsNullOrWhiteSpace(filter.Name))
             query = query.Where(r => EF.Functions.Like(r.Name, $"%{filter.Name}%"));
+
+        if (filter.IsPublic.HasValue)
+            query = query.Where(r => r.IsPublic == filter.IsPublic.Value);
+
+        // brings back products which the user is subscriber to but are not public
+        // if (filter.SubscriberUserId.HasValue)
+        //     query = query.Where(r => r.SubscribersManyToMany.Exists(s => s.UserId == filter.SubscriberUserId.Value && s.IsSubscribed));
 
         return query.ToArray();
     }
@@ -163,16 +176,21 @@ public class ProductService : BaseService<Product, int>, IProductService
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    public async Task<int> Unsubscribe(int userId, int productId)
+    public async Task<Product> Unsubscribe(int userId, int productId)
     {
         var saveChanges = false;
-        var userProducts = this.Context.UserProducts.Where(x => x.UserId == userId && x.ProductId == productId);
+        var userProducts = this.Context.UserProducts.Where(x => x.UserId == userId && x.ProductId == productId && x.IsSubscribed);
 
         userProducts.ForEach(s =>
         {
-            this.Context.Entry(s).State = EntityState.Deleted;
+            s.IsSubscribed = false;
+            if (!saveChanges) saveChanges = true;
         });
-        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
+        this.Context.UpdateRange(userProducts);
+        this.CommitTransaction();
+
+        // return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
+        return FindById(productId);
     }
 
     /// <summary>
@@ -181,26 +199,27 @@ public class ProductService : BaseService<Product, int>, IProductService
     /// <param name="userId"></param>
     /// <param name="productId"></param>
     /// <returns></returns>
-    public async Task<int> Subscribe(int userId, int productId)
+    public async Task<Product> Subscribe(int userId, int productId)
     {
-        var saveChanges = false;
         var targetProduct = FindById(productId) ?? throw new NoContentException("Report does not exist");
         var subscriberRecord = targetProduct.Subscribers.FirstOrDefault(s => s.Id == userId);
         if (subscriberRecord != null) {
             var userProducts = this.Context.UserProducts.Where(x => x.UserId == userId && x.ProductId == productId);
             userProducts.ForEach(s =>
             {
-                if (s.IsSubscribed)
+                if (!s.IsSubscribed)
                 {
                     s.IsSubscribed = true;
-                    if (!saveChanges) saveChanges = true;
                 }
             });
+            this.Context.UpdateRange(userProducts);
+            this.CommitTransaction();
         } else {
             this.Context.UserProducts.Add(new UserProduct(userId, productId, true));
-            saveChanges = true;
+            this.CommitTransaction();
         }
-        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
+
+        return FindById(productId);
     }
     #endregion
 }

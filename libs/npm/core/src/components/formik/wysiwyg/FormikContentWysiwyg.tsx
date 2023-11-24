@@ -4,9 +4,8 @@ import { useFormikContext } from 'formik';
 import _ from 'lodash';
 import React from 'react';
 
-import { IContentModel, ITagModel } from '../../../hooks/api-editor';
-import { IFormikWysiwygProps } from './FormikWysiwyg';
-import { FormikWysiwyg } from './FormikWysiwyg';
+import { IContentModel, ITagModel } from '../../../hooks/api';
+import { FormikWysiwyg, IFormikWysiwygProps } from './FormikWysiwyg';
 
 const tagMatch = /\[.*?\]/g;
 

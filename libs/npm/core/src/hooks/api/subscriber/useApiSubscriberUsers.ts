@@ -1,13 +1,14 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
-import { defaultEnvelope, ILifecycleToasts, ISystemMessageModel, useApi } from '../..';
+import { defaultEnvelope, ILifecycleToasts } from '../../summon';
+import { IUserModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
  * @returns CustomAxios object setup for the API.
  */
-export const useApiSubscriberSystemMessages = (
+export const useApiSubscriberUsers = (
   options: {
     lifecycleToasts?: ILifecycleToasts;
     selector?: Function;
@@ -18,8 +19,11 @@ export const useApiSubscriberSystemMessages = (
   const api = useApi(options);
 
   return React.useRef({
-    findSystemMessage: () => {
-      return api.get<never, AxiosResponse<ISystemMessageModel>, any>(`/subscriber/system-message`);
+    updateUser: (model: IUserModel) => {
+      return api.put<IUserModel, AxiosResponse<IUserModel>, any>(
+        `/subscriber/users/${model.id}`,
+        model,
+      );
     },
   }).current;
 };

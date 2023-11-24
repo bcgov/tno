@@ -1,4 +1,5 @@
-import { ContentStatus, ContentTypeName, ISortPageFilter } from 'hooks/api-editor';
+import { ContentStatus, ContentTypeName } from '../constants';
+import { ISortPageFilter } from '.';
 
 export interface ISubscriberContentFilter extends ISortPageFilter {
   actions?: string[];

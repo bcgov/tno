@@ -2,7 +2,7 @@ import { KnnSearchResponse, MsearchMultisearchBody } from '@elastic/elasticsearc
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
-import { toQueryString } from '../../utils';
+import { toQueryString } from '../../../utils';
 import {
   defaultEnvelope,
   IContentFilter,
@@ -10,7 +10,7 @@ import {
   ILifecycleToasts,
   IPaged,
   useApi,
-} from '..';
+} from '../..';
 
 /**
  * Common hook to make requests to the API.
