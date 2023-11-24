@@ -9,6 +9,12 @@ public class ProductFilter : PageFilter
     public string? Name { get; set; }
     public string[] Sort { get; set; } = Array.Empty<string>();
     public bool? IsPublic { get; set; }
+
+    /// <summary>
+    /// get/set - Only include content owned by this user.
+    /// </summary>
+    public int? SubscriberUserId { get; set; }
+
     #endregion
 
     #region Constructors
@@ -19,7 +25,9 @@ public class ProductFilter : PageFilter
         var filter = new Dictionary<string, StringValues>(queryParams, StringComparer.OrdinalIgnoreCase);
 
         this.Name = filter.GetStringValue(nameof(this.Name));
+        this.SubscriberUserId = filter.GetIntNullValue(nameof(this.SubscriberUserId));
         this.IsPublic = filter.GetBoolNullValue(nameof(this.IsPublic));
+
         this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }
     #endregion

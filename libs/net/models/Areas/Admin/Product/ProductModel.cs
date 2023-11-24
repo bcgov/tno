@@ -25,6 +25,11 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
     /// </summary>
     public IEnumerable<UserModel> Subscribers { get; set; } = Array.Empty<UserModel>();
 
+    /// <summary>
+    /// get/set - Is this product, visible to all subscribers.
+    /// </summary>
+    public bool IsPublic { get; set; }
+
     #endregion
 
     #region Constructors
@@ -42,6 +47,7 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
     {
         this.TargetProductId = entity.TargetProductId;
         this.ProductType = entity.ProductType;
+        this.IsPublic = entity.IsPublic;
         this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!, s.IsSubscribed)).ToArray();
     }
     #endregion
@@ -70,6 +76,7 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
             Id = model.Id,
             Description = model.Description,
             IsEnabled = model.IsEnabled,
+            IsPublic = model.IsPublic,
             SortOrder = model.SortOrder,
             Version = model.Version ?? 0
         };

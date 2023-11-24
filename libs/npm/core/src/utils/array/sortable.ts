@@ -1,4 +1,4 @@
-import { ISortableModel } from '../../hooks/api-editor';
+import { ISortableModel } from '../../hooks/api';
 
 /**
  * Provides default sorting to sortable models.
