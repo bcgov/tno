@@ -176,6 +176,7 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
             }
         });
 
+        original.Status = entity.Status;
         original.OwnerId = entity.OwnerId;
         original.PublishedOn = entity.PublishedOn;
         original.SentOn = entity.SentOn;

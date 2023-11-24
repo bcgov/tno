@@ -48,7 +48,7 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
         this.OwnerId = entity.OwnerId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.Query = entity.Query;
-        this.Settings = JsonSerializer.Deserialize<FilterSettingsModel>(JsonSerializer.Serialize(entity.Settings, options)) ?? new();
+        this.Settings = JsonSerializer.Deserialize<FilterSettingsModel>(JsonSerializer.Serialize(entity.Settings, options), options) ?? new();
     }
     #endregion
 

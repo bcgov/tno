@@ -1,106 +1,54 @@
-import moment from 'moment';
 import React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { FaX } from 'react-icons/fa6';
+import { useContent } from 'store/hooks';
 import { Row, ToggleGroup } from 'tno-core';
 
-import { defaultAdvancedSearch } from '../../constants';
-import { IExpandedSectionProps } from '../../interfaces';
+import { QuickPickerNames } from './constants';
+import { determineActivePicker } from './utils';
 
-export const DateSection: React.FC<IExpandedSectionProps> = ({
-  advancedSearch,
-  setAdvancedSearch,
-}) => {
+export const DateSection: React.FC = () => {
   // disable quick picker when user selects a date on react-date-picker
   const [disableQuickPick, setDisableQuickPick] = React.useState(false);
-  const filterDate = (range: 'today' | '24' | '48' | 'week') => {
-    switch (range) {
-      case 'today':
-        setAdvancedSearch({
-          ...advancedSearch,
-          startDate: moment().startOf('day').toISOString(),
-          endDate: moment().endOf('day').toISOString(),
-        });
-        break;
-      case '24':
-        setAdvancedSearch({
-          ...advancedSearch,
-          startDate: moment().subtract(24, 'hours').toISOString(),
-          endDate: moment().toISOString(),
-        });
-        break;
-      case '48':
-        setAdvancedSearch({
-          ...advancedSearch,
-          startDate: moment().subtract(48, 'hours').toISOString(),
-          endDate: moment().toISOString(),
-        });
-        break;
-      case 'week':
-        setAdvancedSearch({
-          ...advancedSearch,
-          startDate: moment().subtract(7, 'days').toISOString(),
-          endDate: moment().toISOString(),
-        });
-        break;
-      default:
-        break;
-    }
-  };
+  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
+
+  // ensure that date offset is cleared when using the custom date picker
+  React.useEffect(() => {
+    disableQuickPick && storeFilter({ ...filter, dateOffset: undefined });
+    // only run when flag changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [disableQuickPick]);
+
   return (
     <Row className="expanded date-range">
       <Row className="picker">
         <ReactDatePicker
           className="date-picker"
-          startDate={
-            advancedSearch?.startDate
-              ? new Date(advancedSearch.startDate)
-              : new Date(defaultAdvancedSearch.startDate)
-          }
-          selected={
-            advancedSearch?.startDate
-              ? new Date(advancedSearch.startDate)
-              : new Date(defaultAdvancedSearch.startDate)
-          }
+          startDate={filter?.publishedStartOn ? new Date(filter.publishedStartOn) : null}
+          selected={filter?.publishedStartOn ? new Date(filter.publishedStartOn) : null}
           selectsStart
-          endDate={
-            advancedSearch?.endDate
-              ? new Date(advancedSearch.endDate)
-              : new Date(defaultAdvancedSearch.endDate)
-          }
+          endDate={filter?.publishedEndOn ? new Date(filter.publishedEndOn) : null}
           onChange={(date) => {
-            setAdvancedSearch({ ...advancedSearch, startDate: date?.toISOString() ?? '' });
+            storeFilter({ ...filter, publishedStartOn: date?.toISOString() ?? '' });
             setDisableQuickPick(true);
           }}
         />
         <p>to</p>
         <ReactDatePicker
           className="date-picker"
-          startDate={
-            advancedSearch?.startDate
-              ? new Date(advancedSearch.startDate)
-              : new Date(defaultAdvancedSearch.startDate)
-          }
-          selected={
-            advancedSearch?.endDate
-              ? new Date(advancedSearch.endDate)
-              : new Date(defaultAdvancedSearch.endDate)
-          }
+          startDate={filter?.publishedStartOn ? new Date(filter.publishedStartOn) : null}
+          selected={filter?.publishedEndOn ? new Date(filter.publishedEndOn) : null}
           selectsEnd
-          endDate={
-            advancedSearch?.endDate
-              ? new Date(advancedSearch.endDate)
-              : new Date(defaultAdvancedSearch.endDate)
-          }
+          endDate={filter?.publishedEndOn ? new Date(filter.publishedEndOn) : null}
           onChange={(date) => {
             setDisableQuickPick(true);
-            setAdvancedSearch({ ...advancedSearch, endDate: date?.toISOString() ?? '' });
+            storeFilter({ ...filter, publishedEndOn: date?.toISOString() ?? '' });
           }}
         />
         <FaX
           className="clear"
           onClick={() => {
-            setAdvancedSearch({ ...advancedSearch, endDate: '', startDate: '' });
+            storeFilter({ ...filter, publishedEndOn: '', publishedStartOn: '' });
             setDisableQuickPick(false);
           }}
         />
@@ -108,12 +56,24 @@ export const DateSection: React.FC<IExpandedSectionProps> = ({
       <ToggleGroup
         className="date-range-toggle"
         disabled={disableQuickPick}
-        defaultSelected="7 DAYS"
+        defaultSelected={determineActivePicker(filter.dateOffset ?? 0)}
         options={[
-          { label: 'TODAY', onClick: () => filterDate('today') },
-          { label: '24 HOURS', onClick: () => filterDate('24') },
-          { label: '48 HOURS', onClick: () => filterDate('48') },
-          { label: '7 DAYS', onClick: () => filterDate('week') },
+          {
+            label: QuickPickerNames.Today,
+            onClick: () => storeFilter({ ...filter, dateOffset: 0 }),
+          },
+          {
+            label: QuickPickerNames.TwentyFourHours,
+            onClick: () => storeFilter({ ...filter, dateOffset: 1 }),
+          },
+          {
+            label: QuickPickerNames.FortyEightHours,
+            onClick: () => storeFilter({ ...filter, dateOffset: 2 }),
+          },
+          {
+            label: QuickPickerNames.SevenDays,
+            onClick: () => storeFilter({ ...filter, dateOffset: 7 }),
+          },
         ]}
         activeColor="#6750a4"
       />

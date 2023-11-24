@@ -22,7 +22,7 @@ import * as styled from './styled';
 
 export const FilterMedia: React.FC = () => {
   const navigate = useNavigate();
-  const [{ filterAdvanced }, { findContentWithElasticsearch }] = useContent();
+  const [{ homeFilter: filter }, { findContentWithElasticsearch }] = useContent();
   const [{ mediaTypeOptions, sourceOptions }] = useLookupOptions();
   const [{ sources, mediaTypes }] = useLookup();
   const [results, setResults] = React.useState<IContentModel[]>([]);
@@ -32,8 +32,8 @@ export const FilterMedia: React.FC = () => {
 
   const [settings, setSettings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(
-      filterAdvanced.startDate ?? moment().startOf('day').toISOString(),
-      filterAdvanced.endDate ?? moment().endOf('day').toISOString(),
+      filter.publishedStartOn ?? moment().startOf('day').toISOString(),
+      filter.publishedEndOn ?? moment().endOf('day').toISOString(),
     ),
   );
 
@@ -50,11 +50,11 @@ export const FilterMedia: React.FC = () => {
   React.useEffect(() => {
     setSettings(
       createFilterSettings(
-        filterAdvanced.startDate ?? moment().startOf('day').toISOString(),
-        filterAdvanced.endDate ?? moment().endOf('day').toISOString(),
+        filter.publishedStartOn ?? moment().startOf('day').toISOString(),
+        filter.publishedEndOn ?? moment().endOf('day').toISOString(),
       ),
     );
-  }, [filterAdvanced?.startDate, filterAdvanced?.endDate]);
+  }, [filter.publishedStartOn, filter.publishedEndOn]);
 
   return (
     <styled.FilterMedia>

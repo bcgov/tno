@@ -11,7 +11,7 @@ import * as styled from './styled';
 
 /** Component that displays top stories defaulting to today's date and adjustable via a date filter. */
 export const TopStories: React.FC = () => {
-  const [{ filterAdvanced }, { findContent }] = useContent();
+  const [{ homeFilter }, { findContent }] = useContent();
   const navigate = useNavigate();
   const [topStories, setTopStories] = React.useState<IContentModel[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
@@ -20,14 +20,14 @@ export const TopStories: React.FC = () => {
     findContent({
       actions: [ActionName.TopStory],
       contentTypes: [],
-      publishedStartOn: moment(filterAdvanced.startDate).toISOString(),
-      publishedEndOn: moment(filterAdvanced.endDate).toISOString(),
+      publishedStartOn: moment(homeFilter.publishedStartOn).toISOString(),
+      publishedEndOn: moment(homeFilter.publishedEndOn).toISOString(),
       quantity: 100,
       sort: ['source.sortOrder'],
     })
       .then((data) => setTopStories(data.items))
       .catch(() => {});
-  }, [findContent, filterAdvanced]);
+  }, [findContent, homeFilter]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {

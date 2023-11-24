@@ -237,7 +237,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
             }
             catch (Exception ex)
             {
-                this.Logger.LogError(ex, "Failed to fetch ingests for ingest type", ingestType);
+                this.Logger.LogError(ex, "Failed to fetch ingests for ingest type '{type}'", ingestType);
                 this.State.RecordFailure();
             }
         }

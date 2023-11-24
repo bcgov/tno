@@ -64,8 +64,8 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
         this.OwnerId = entity.OwnerId;
         this.IsPublic = entity.IsPublic;
         this.Settings = JsonSerializer.Deserialize<ReportSettingsModel>(entity.Settings, options) ?? new();
-        this.Sections = entity.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s, options));
-        this.Subscribers = entity.SubscribersManyToMany.Select(s => new UserReportModel(s));
+        this.Sections = entity.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s, options)).ToArray();
+        this.Subscribers = entity.SubscribersManyToMany.Select(s => new UserReportModel(s)).ToArray(); ;
     }
     #endregion
 

@@ -11,6 +11,7 @@ import {
 
 interface IReportController {
   findAllReports: () => Promise<IReportModel[]>;
+  findAllReportsHeadersOnly: () => Promise<IReportModel[]>;
   findInstancesForReportId: (id: number, ownerId?: number) => Promise<IReportInstanceModel[]>;
   getReport: (id: number) => Promise<IReportModel>;
   addReport: (model: IReportModel) => Promise<IReportModel>;
@@ -37,6 +38,14 @@ export const useReports = (): [IAdminState & { initialized: boolean }, IReportCo
       findAllReports: async () => {
         const response = await dispatch<IReportModel[]>('find-all-reports', () =>
           api.findAllReports(),
+        );
+        store.storeReports(response.data);
+        setInitialized(true);
+        return response.data;
+      },
+      findAllReportsHeadersOnly: async () => {
+        const response = await dispatch<IReportModel[]>('find-all-report-headers', () =>
+          api.findAllReportsHeadersOnly(),
         );
         store.storeReports(response.data);
         setInitialized(true);

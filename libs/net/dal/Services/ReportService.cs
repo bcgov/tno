@@ -43,15 +43,22 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// Find all the reports.
     /// </summary>
     /// <returns></returns>
-    public IEnumerable<Report> FindAll()
+    public IEnumerable<Report> FindAll(bool populateFullModel = true)
     {
-        return this.Context.Reports
-            .AsNoTracking()
-            .Include(r => r.Owner)
-            .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
-            .Include(r => r.Sections)
-            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
-            .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
+        if (populateFullModel) {
+            return this.Context.Reports
+                .AsNoTracking()
+                .Include(r => r.Owner)
+                .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
+                .Include(r => r.Sections)
+                .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
+                .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
+        } else {
+            return this.Context.Reports
+                .AsNoTracking()
+                .Include(r => r.Owner)
+                .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
+        }
     }
 
     /// <summary>
@@ -134,9 +141,9 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// </summary>
     /// <param name="id"></param>
     /// <param name="ownerId">The owner of the instance.</param>
-    /// <param name="isSent">Whether to get the instance that was sent.</param>
+    /// <param name="limit">Number of instances to return.</param>
     /// <returns></returns>
-    public ReportInstance? GetLatestInstance(int id, int? ownerId = null, bool? isSent = null)
+    public IEnumerable<ReportInstance> GetLatestInstances(int id, int? ownerId = null, int limit = 2)
     {
         var query = this.Context.ReportInstances
             .Include(ri => ri.Owner)
@@ -160,14 +167,10 @@ public class ReportService : BaseService<Report, int>, IReportService
         if (ownerId.HasValue)
             query = query.Where(ri => ri.OwnerId == ownerId);
 
-        if (isSent.HasValue && isSent == false)
-            query = query.Where(ri => ri.SentOn == null);
-        else if (isSent.HasValue)
-            query = query.Where(ri => ri.SentOn != null);
-
         return query
             .OrderByDescending(ri => ri.Id)
-            .FirstOrDefault();
+            .Take(limit)
+            .ToArray();
     }
 
     /// <summary>
@@ -579,10 +582,57 @@ public class ReportService : BaseService<Report, int>, IReportService
     }
 
     /// <summary>
-    /// Unsubscribe the specified 'userId' from all reports.
+    /// Subscribe the specified 'userId' to the specified report.
     /// </summary>
     /// <param name="userId"></param>
+    /// <param name="reportId"></param>
     /// <returns></returns>
+    public async Task<int> Subscribe(int userId, int reportId)
+    {
+        var saveChanges = false;
+        var targetReport = FindById(reportId) ?? throw new NoContentException("Report does not exist");
+        var subscriberRecord = targetReport.Subscribers.FirstOrDefault(s => s.Id == userId);
+        if (subscriberRecord != null) {
+            var userReports = this.Context.UserReports.Where(x => x.UserId == userId && x.ReportId == reportId);
+            userReports.ForEach(s =>
+            {
+                if (s.IsSubscribed)
+                {
+                    s.IsSubscribed = true;
+                    if (!saveChanges) saveChanges = true;
+                }
+            });
+        } else {
+            this.Context.UserReports.Add(new UserReport(userId, reportId, true));
+            saveChanges = true;
+        }
+        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
+    }
+    /// <summary>
+    /// Unsubscribe the specified 'userId' to the specified report.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="reportId"></param>
+    /// <returns></returns>
+    public async Task<int> Unsubscribe(int userId, int reportId)
+    {
+        var saveChanges = false;
+        var targetReport = FindById(reportId) ?? throw new NoContentException("Report does not exist");
+        var subscriberRecord = targetReport.Subscribers.FirstOrDefault(s => s.Id == userId);
+        if (subscriberRecord != null) {
+            var userReports = this.Context.UserReports.Where(x => x.UserId == userId && x.ReportId == reportId);
+            userReports.ForEach(s =>
+            {
+                if (s.IsSubscribed)
+                {
+                    s.IsSubscribed = false;
+                    if (!saveChanges) saveChanges = true;
+                }
+            });
+        }
+        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
+    }
+
     public async Task<int> Unsubscribe(int userId)
     {
         var saveChanges = false;

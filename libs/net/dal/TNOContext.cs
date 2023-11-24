@@ -108,6 +108,12 @@ public class TNOContext : DbContext
     public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
     public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
     #endregion
+
+    #region Products
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<UserProduct> UserProducts => Set<UserProduct>();
+    #endregion
+
     #endregion
 
     #region Constructors

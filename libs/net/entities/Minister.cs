@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using TNO.Core.Data;
 
 namespace TNO.Entities;
-
 /// <summary>
 /// Minister class, provides a database entity model to manage a list of ministers.
 /// </summary>

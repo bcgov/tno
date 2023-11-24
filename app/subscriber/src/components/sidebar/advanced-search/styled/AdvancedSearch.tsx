@@ -191,6 +191,7 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   .option-row {
     width: 100%;
     padding: 0.5em 0 0.5em 0.5em;
+
     &:hover {
       cursor: pointer;
       &:hover:not(.expanded) {
@@ -204,6 +205,12 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     svg {
       margin-right: 0.5em;
       align-self: center;
+    }
+  }
+
+  .option-children {
+    .frm-in {
+      width: 100%;
     }
   }
 
@@ -246,17 +253,14 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     }
   }
 
+  .paper-attributes-container {
+    .frm-in {
+      max-width: fit-content;
+    }
+  }
   .paper-attributes-container,
   .content-types-container {
     margin-top: 0.5em;
-  }
-
-  .content-types,
-  .contributors {
-    .rs__value-container {
-      max-height: 40px;
-      overflow-y: auto;
-    }
   }
 
   .date-range-group,
@@ -280,11 +284,6 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     padding: 0.1em;
     margin-left: 0.1em;
     border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
-
-    .rs__value-container {
-      max-height: 40px;
-      overflow-y: auto;
-    }
 
     .sub-options {
       font-size: 0.8em;

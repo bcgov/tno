@@ -272,7 +272,7 @@ public abstract class Migration
                     if (ex.Response.HttpStatusCode != 502)
                     {
                         if (this.Failures >= builder.MigrationOptions.ReindexFailureLimit)
-                            throw ex;
+                            throw;
                     }
                     Thread.Sleep(builder.MigrationOptions.ReindexDelay);
                 }

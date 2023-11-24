@@ -270,6 +270,7 @@ app.UseSwaggerUI(options =>
         options.SwaggerEndpoint(String.Format(config.GetValue<string>("Swagger:EndpointPath") ?? "", description.GroupName), description.GroupName);
     }
     options.RoutePrefix = config.GetValue<string>("Swagger:RoutePrefix");
+    options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
 });
 
 app.UsePathBase(config.GetValue<string>("BaseUrl"));

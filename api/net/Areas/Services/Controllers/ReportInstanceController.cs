@@ -6,8 +6,11 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.ReportInstance;
 using TNO.API.Models;
+using TNO.API.Models.SignalR;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
+using TNO.Kafka;
+using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 
 namespace TNO.API.Areas.Services.Controllers;
@@ -29,6 +32,9 @@ public class ReportInstanceController : ControllerBase
 {
     #region Variables
     private readonly IReportInstanceService _reportInstanceService;
+    private readonly IUserService _userService;
+    private readonly IKafkaMessenger _kafkaMessenger;
+    private readonly KafkaHubConfig _kafkaHubOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -37,10 +43,21 @@ public class ReportInstanceController : ControllerBase
     /// Creates a new instance of a ReportInstanceController object, initializes with specified parameters.
     /// </summary>
     /// <param name="reportInstanceService"></param>
+    /// <param name="userService"></param>
+    /// <param name="kafkaMessenger"></param>
+    /// <param name="kafkaHubOptions"></param>
     /// <param name="serializerOptions"></param>
-    public ReportInstanceController(IReportInstanceService reportInstanceService, IOptions<JsonSerializerOptions> serializerOptions)
+    public ReportInstanceController(
+        IReportInstanceService reportInstanceService,
+        IUserService userService,
+        IKafkaMessenger kafkaMessenger,
+        IOptions<KafkaHubConfig> kafkaHubOptions,
+        IOptions<JsonSerializerOptions> serializerOptions)
     {
         _reportInstanceService = reportInstanceService;
+        _userService = userService;
+        _kafkaMessenger = kafkaMessenger;
+        _kafkaHubOptions = kafkaHubOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -90,9 +107,16 @@ public class ReportInstanceController : ControllerBase
     [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public IActionResult Update(ReportInstanceModel model)
+    public async Task<IActionResult> UpdateAsync(ReportInstanceModel model)
     {
-        var result = _reportInstanceService.UpdateAndSave((Entities.ReportInstance)model);
+        var result = _reportInstanceService.UpdateAndSave((Entities.ReportInstance)model) ?? throw new NoContentException();
+        var ownerId = result.OwnerId ?? result.Report?.OwnerId;
+        if (ownerId.HasValue)
+        {
+            var user = _userService.FindById(ownerId.Value) ?? throw new NotAuthorizedException();
+            await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendUser, user.Username, new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel(result) })));
+        }
+
         return new JsonResult(new ReportInstanceModel(result, _serializerOptions));
     }
 

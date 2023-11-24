@@ -167,6 +167,16 @@ public class User : AuditColumns
     public virtual List<Report> ReportSubscriptions { get; } = new List<Report>();
 
     /// <summary>
+    /// get - Collection of report subscriptions (many-to-many).
+    /// </summary>
+    public virtual List<UserProduct> ProductSubscriptionsManyToMany { get; } = new List<UserProduct>();
+
+    /// <summary>
+    /// get - Collection of report subscriptions.
+    /// </summary>
+    public virtual List<Product> ProductSubscriptions { get; } = new List<Product>();
+
+    /// <summary>
     /// get - Collection of av evening overview report subscriptions (many-to-many).
     /// </summary>
     public virtual List<UserAVOverview> AVOverviewSubscriptionsManyToMany { get; } = new List<UserAVOverview>();
