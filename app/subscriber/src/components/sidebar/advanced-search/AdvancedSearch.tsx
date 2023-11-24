@@ -2,7 +2,7 @@ import { filterFormat } from 'features/search-page/utils';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
 import { FaPlay, FaRegSmile, FaSearch } from 'react-icons/fa';
-import { FaCloudArrowUp, FaIcons, FaNewspaper, FaTags, FaTv, FaUsers } from 'react-icons/fa6';
+import { FaCloudArrowUp, FaIcons, FaNewspaper, FaTv, FaUsers } from 'react-icons/fa6';
 import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -21,7 +21,6 @@ import {
   SearchInGroup,
   SentimentSection,
   SeriesSection,
-  TagSection,
 } from './components';
 import { defaultAdvancedSearch } from './constants';
 import { defaultSubMediaGroupExpanded, ISubMediaGroupExpanded } from './interfaces';
