@@ -215,7 +215,7 @@ public class ReportInstanceController : ControllerBase
     /// </summary>
     /// <param name="instanceId"></param>
     /// <returns></returns>
-    [HttpPost("{instanceId}/export")]
+    [HttpGet("{instanceId}/export")]
     [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Report" })]

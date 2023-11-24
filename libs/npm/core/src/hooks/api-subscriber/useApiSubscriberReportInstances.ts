@@ -57,7 +57,7 @@ export const useApiSubscriberReportInstances = (
     exportReport: (reportId: number, reportName: string) => {
       return download({
         url: `/subscriber/report/instances/${reportId}/export`,
-        method: 'post',
+        method: 'get',
         fileName: `${reportName}.xlsx`,
       });
     },
