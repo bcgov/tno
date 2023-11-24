@@ -13,7 +13,7 @@ import { ReportSnapshotEdit } from './ReportSnapshotEdit';
 import { ReportSnapshotView } from './ReportSnapshotView';
 import * as styled from './styled';
 
-const loading = ['generate-report', 'update-report', 'delete-report'];
+const loading = ['generate-report', 'update-report', 'delete-report', 'export-report'];
 
 export const ReportSnapshot: React.FC = () => {
   const { id } = useParams();
