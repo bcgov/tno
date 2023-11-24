@@ -1,8 +1,8 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
-import { defaultEnvelope, IAVOverviewInstanceModel, ILifecycleToasts, useApi } from '../../hooks';
-import { toQueryString } from '../../utils';
+import { toQueryString } from '../../../utils';
+import { defaultEnvelope, IAVOverviewInstanceModel, ILifecycleToasts, useApi } from '../..';
 
 /**
  * Common hook to make requests to the API.

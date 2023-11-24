@@ -29,12 +29,12 @@ public interface IProductService : IBaseService<Product, int>
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<int> Subscribe(int userId, int productId);
+    Task<Product> Subscribe(int userId, int productId);
 
     /// <summary>
     /// Unsubscribe product for the specified user.
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<int> Unsubscribe(int userId, int productId);
+    Task<Product> Unsubscribe(int userId, int productId);
 }

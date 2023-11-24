@@ -7,7 +7,7 @@ import {
   IReportInstanceModel,
   IReportResultModel,
   useApi,
-} from '..';
+} from '../..';
 
 /**
  * Common hook to make requests to the API.

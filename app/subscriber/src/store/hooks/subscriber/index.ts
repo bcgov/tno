@@ -3,6 +3,7 @@ export * from './useContent';
 export * from './useFilters';
 export * from './useFolders';
 export * from './useNavigateAndScroll';
+export * from './useProducts';
 export * from './useReportInstances';
 export * from './useReports';
 export * from './useReportTemplates';

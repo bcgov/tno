@@ -1,4 +1,4 @@
-import { ISortableModel } from '../../hooks/api-editor';
+import { ISortableModel } from '../../hooks/api';
 
 export const sortable = <IdT extends string | number, ST extends ISortableModel<IdT>>(
   a: ST,

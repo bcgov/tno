@@ -1,13 +1,13 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
-import { defaultEnvelope, ICacheModel, ILifecycleToasts, useApi } from '..';
+import { defaultEnvelope, ILifecycleToasts, ISystemMessageModel, useApi } from '../../..';
 
 /**
- * Common hook to make requests to the APi.
+ * Common hook to make requests to the API.
  * @returns CustomAxios object setup for the API.
  */
-export const useApiSubscriberCache = (
+export const useApiSubscriberSystemMessages = (
   options: {
     lifecycleToasts?: ILifecycleToasts;
     selector?: Function;
@@ -18,8 +18,8 @@ export const useApiSubscriberCache = (
   const api = useApi(options);
 
   return React.useRef({
-    getCache: () => {
-      return api.get<ICacheModel[], AxiosResponse<ICacheModel[]>, any>(`/subscriber/cache`);
+    findSystemMessage: () => {
+      return api.get<never, AxiosResponse<ISystemMessageModel>, any>(`/subscriber/system-message`);
     },
   }).current;
 };
