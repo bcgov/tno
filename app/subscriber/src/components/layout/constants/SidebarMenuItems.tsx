@@ -58,7 +58,7 @@ export const SidebarMenuItems: ISideBarMenuItems = {
     icon: <FaMoon />,
   },
   filterMedia: {
-    label: 'Filter media type',
+    label: 'Filter by media type',
     path: 'landing/filtermedia',
     icon: <FaSlidersH />,
   },
@@ -75,7 +75,7 @@ export const SidebarMenuItems: ISideBarMenuItems = {
     secondaryIconRoute: '/landing/settings',
   },
   mySearches: {
-    label: 'My Searches',
+    label: 'My Saved Searches',
     path: 'landing/mysearches',
     icon: <FaSearch />,
   },
