@@ -46,7 +46,7 @@ export const AppRouter: React.FC<IAppRouter> = () => {
           element={<PrivateRoute claims={Claim.subscriber} element={<Landing />}></PrivateRoute>}
         />
         <Route
-          path="/search/:query"
+          path="/search"
           element={<PrivateRoute claims={Claim.subscriber} element={<SearchPage />}></PrivateRoute>}
         />
         <Route

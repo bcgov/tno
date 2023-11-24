@@ -1,15 +1,27 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { fieldTypes } from 'features/content/list-view/constants';
-import {
-  IContentListAdvancedFilter,
-  IContentListFilter,
-} from 'features/content/list-view/interfaces';
-import { IContentModel, IOptionItem, IPaged, LogicalOperator } from 'tno-core';
+import { IContentListFilter } from 'features/content/list-view/interfaces';
+import { IContentModel, IOptionItem, IPaged } from 'tno-core';
 
 import { IContentState } from './interfaces';
 
 export const initialContentState: IContentState = {
-  filter: {
+  searchFilter: {
+    pageIndex: 0,
+    pageSize: 100,
+    otherSource: '',
+    ownerId: '',
+    dateOffset: 1,
+    userId: 0,
+    inByline: true,
+    inHeadline: true,
+    inStory: true,
+    mediaTypeIds: [],
+    sourceIds: [],
+    excludeSourceIds: [],
+    contentTypes: [],
+    sort: [],
+  },
+  homeFilter: {
     pageIndex: 0,
     pageSize: 100,
     otherSource: '',
@@ -20,11 +32,6 @@ export const initialContentState: IContentState = {
     excludeSourceIds: [],
     contentTypes: [],
     sort: [],
-  },
-  filterAdvanced: {
-    fieldType: fieldTypes[3].value,
-    logicalOperator: LogicalOperator.Contains,
-    searchTerm: '',
   },
   pressGalleryFilter: {
     dateFilter: null,
@@ -42,11 +49,11 @@ export const contentSlice = createSlice({
     storeGalleryDateFilter(state: IContentState, action: PayloadAction<IOptionItem | null>) {
       state.pressGalleryFilter.dateFilter = action.payload;
     },
-    storeFilter(state: IContentState, action: PayloadAction<IContentListFilter>) {
-      state.filter = action.payload;
+    storeSearchFilter(state: IContentState, action: PayloadAction<IContentListFilter>) {
+      state.searchFilter = action.payload;
     },
-    storeFilterAdvanced(state: IContentState, action: PayloadAction<IContentListAdvancedFilter>) {
-      state.filterAdvanced = action.payload;
+    storeHomeFilter(state: IContentState, action: PayloadAction<IContentListFilter>) {
+      state.homeFilter = action.payload;
     },
     storeContent(state: IContentState, action: PayloadAction<IPaged<IContentModel> | undefined>) {
       state.content = action.payload;
@@ -73,8 +80,8 @@ export const contentSlice = createSlice({
 });
 
 export const {
-  storeFilter,
-  storeFilterAdvanced,
+  storeSearchFilter,
+  storeHomeFilter,
   addContent,
   storeContent,
   updateContent,

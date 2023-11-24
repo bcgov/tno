@@ -1,29 +1,31 @@
+import { useContent } from 'store/hooks';
 import { ContentTypeName, Row, Select } from 'tno-core';
 
-import { IExpandedSectionProps } from '../../interfaces';
-
 /** section that allows you to filter down based on content type with a drop down menu */
-export const ContentSection: React.FC<IExpandedSectionProps> = ({
-  setAdvancedSearch,
-  advancedSearch,
-}) => {
+export const ContentSection: React.FC = () => {
+  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
+  const typeOptions = [
+    { label: 'Audio/Video', value: ContentTypeName.AudioVideo },
+    { label: 'Print Content', value: ContentTypeName.PrintContent },
+    { label: 'Image', value: ContentTypeName.Image },
+    { label: 'Story', value: ContentTypeName.Story },
+  ];
   return (
     <Row className="content-types-container" justifyContent="center">
       <Select
         name="content-types"
         isMulti
+        key={filter.contentTypes?.join(',')}
         className="content-types centered"
         width="25em"
-        options={[
-          { label: 'Audio/Video', value: ContentTypeName.AudioVideo },
-          { label: 'Print Content', value: ContentTypeName.PrintContent },
-          { label: 'Image', value: ContentTypeName.Image },
-          { label: 'Story', value: ContentTypeName.Story },
-        ]}
+        defaultValue={typeOptions.filter((t) => {
+          return filter.contentTypes?.includes(t.value);
+        })}
+        options={typeOptions}
         onChange={(newValues) => {
           Array.isArray(newValues) &&
-            setAdvancedSearch({
-              ...advancedSearch,
+            storeFilter({
+              ...filter,
               contentTypes: newValues.map((v) => v.value),
             });
         }}

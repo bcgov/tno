@@ -22,6 +22,9 @@ export const useApiAdminReports = (
     findAllReports: () => {
       return api.get<never, AxiosResponse<IReportModel[]>, any>(`/admin/reports`);
     },
+    findAllReportsHeadersOnly: () => {
+      return api.get<never, AxiosResponse<IReportModel[]>, any>(`/admin/reports/headers`);
+    },
     findInstancesForReportId: (id: number, ownerId: number | undefined = undefined) => {
       return api.get<never, AxiosResponse<IReportInstanceModel[]>, any>(
         `/admin/reports/${id}/instances?ownerId=${ownerId ? ownerId : ''}`,

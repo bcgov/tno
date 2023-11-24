@@ -26,12 +26,14 @@ const IngestTypeForm = lazy(() => import('features/admin/ingest-types/IngestType
 const IngestTypeList = lazy(() => import('features/admin/ingest-types/IngestTypeList'));
 const LicenseForm = lazy(() => import('features/admin/licenses/LicenseForm'));
 const LicenseList = lazy(() => import('features/admin/licenses/LicenseList'));
+const MediaTypeForm = lazy(() => import('features/admin/media-types/MediaTypeForm'));
+const MediaTypeList = lazy(() => import('features/admin/media-types/MediaTypeList'));
 const MinisterForm = lazy(() => import('features/admin/ministers/MinisterForm'));
 const MinisterList = lazy(() => import('features/admin/ministers/MinisterList'));
 const NotificationForm = lazy(() => import('features/admin/notifications/NotificationForm'));
 const NotificationList = lazy(() => import('features/admin/notifications/NotificationList'));
-const MediaTypeForm = lazy(() => import('features/admin/media-types/MediaTypeForm'));
-const MediaTypeList = lazy(() => import('features/admin/media-types/MediaTypeList'));
+const ProductForm = lazy(() => import('features/admin/products/ProductForm'));
+const ProductList = lazy(() => import('features/admin/products/ProductList'));
 const ReachEarnedMedia = lazy(() => import('features/admin/sources/ReachEarnedMedia'));
 const ReportAdmin = lazy(() => import('features/admin/reports/ReportAdmin'));
 const ReportForm = lazy(() => import('features/admin/reports/ReportForm'));
@@ -117,6 +119,9 @@ export const AdminRouter: React.FC = () => {
           <Route path="settings" element={<IngestSettings />} />
           <Route path="ingesting" element={<ContentReferenceList />} />
         </Route>
+
+        <Route path="products" element={<ProductList />} />
+        <Route path="products/:id" element={<ProductForm />} />
 
         <Route path="reports" element={<ReportAdmin />} />
         <Route path="reports/:id" element={<ReportForm />} />

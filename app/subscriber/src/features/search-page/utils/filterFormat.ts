@@ -12,31 +12,32 @@ export const filterFormat = (
   actions: IActionModel[],
 ) => {
   const settings: IFilterSettingsModel = {
-    from: 0,
-    size: 100,
-    startDate: !!filter.startDate ? filter.startDate : undefined,
-    endDate: filter.endDate
-      ? filter.endDate
-      : filter.startDate
-      ? `${moment(filter.startDate).endOf('day')}`
-      : undefined,
-    searchUnpublished: filter.useUnpublished ?? false,
-    inHeadline: filter.inHeadline ?? false,
-    inByline: filter.inByline ?? false,
-    sentiment: filter.sentiment ?? [],
-    section: filter.section ?? '',
-    edition: filter.edition ?? '',
-    page: filter.page ?? '',
-    seriesIds: filter.seriesIds ?? [],
-    inStory: filter.inStory ?? false,
-    sourceIds: filter.sourceIds ?? [],
-    mediaTypeIds: filter.mediaTypeIds ?? [],
-    topStory: filter.topStory ?? false,
-    search: filter.searchTerm,
-    contributorIds: filter.contributorIds ?? [],
     actions: getActionFilters(filter, actions),
     contentTypes: filter.contentTypes,
+    contributorIds: filter.contributorIds ?? [],
+    dateOffset: filter.dateOffset ?? 0,
+    edition: filter.edition ?? '',
+    endDate: filter.publishedEndOn
+      ? filter.publishedEndOn
+      : filter.publishedStartOn
+      ? `${moment(filter.publishedStartOn).endOf('day')}`
+      : undefined,
+    from: 0,
+    inByline: filter.inByline ?? false,
+    inHeadline: filter.inHeadline ?? false,
+    inStory: filter.inStory ?? false,
+    mediaTypeIds: filter.mediaTypeIds ?? [],
+    page: filter.page ?? '',
+    search: filter.searchTerm,
+    searchUnpublished: filter.searchUnpublished ?? false,
+    section: filter.section ?? '',
+    sentiment: filter.sentiment ?? [],
+    seriesIds: filter.seriesIds ?? [],
+    size: 100,
+    sourceIds: filter.sourceIds ?? [],
+    startDate: !!filter.publishedStartOn ? filter.publishedStartOn : undefined,
     tags: filter.tags ?? [],
+    topStory: filter.topStory ?? false,
   };
 
   return settings;

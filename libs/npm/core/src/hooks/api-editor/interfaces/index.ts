@@ -64,6 +64,7 @@ export * from './INotificationTemplateModel';
 export * from './IOrganizationModel';
 export * from './IPaged';
 export * from './IPageFilter';
+export * from './IProductModel';
 export * from './IRegisterModel';
 export * from './IReportContentSettingsModel';
 export * from './IReportFilter';

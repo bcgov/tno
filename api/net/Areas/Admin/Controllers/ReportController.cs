@@ -99,6 +99,18 @@ public class ReportController : ControllerBase
     {
         return new JsonResult(_reportService.FindAll().Select(ds => new ReportModel(ds, _serializerOptions)));
     }
+    /// <summary>
+    /// Find all reports - only return partial model.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("headers")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<ReportModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult FindAllHeadersOnly()
+    {
+        return new JsonResult(_reportService.FindAll(false).Select(ds => new ReportModel(ds, _serializerOptions)));
+    }
 
     /// <summary>
     /// Find report for the specified 'id'.
