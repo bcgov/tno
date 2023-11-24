@@ -107,7 +107,7 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
                 label="My saved searches"
                 options={filterOptions}
                 value={filterOptions.find((o) => o.value === section.filterId) ?? ''}
-                onChange={(newValue) => {
+                onChange={(newValue: any) => {
                   const option = newValue as OptionItem;
                   const filter = filters.find((f) => f.id === option?.value);
                   if (filter) setFieldValue(`sections.${index}.filter`, filter);
@@ -121,7 +121,7 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
                 label="My folders"
                 options={folderOptions}
                 value={folderOptions.find((o) => o.value === section.folderId) ?? ''}
-                onChange={(newValue) => {
+                onChange={(newValue: any) => {
                   const option = newValue as OptionItem;
                   const folder = folders.find((f) => f.id === option?.value);
                   if (folder) setFieldValue(`sections.${index}.folder`, folder);
@@ -162,7 +162,7 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
               label="Order by"
               options={orderOptions}
               value={orderOptions.find((o) => o.value === section.settings.orderByField) ?? ''}
-              onChange={(newValue) => {
+              onChange={(newValue: any) => {
                 const option = newValue as OptionItem;
                 const order = orderOptions.find((f) => f.value === option?.value);
                 if (order) setFieldValue(`sections.${index}.settings.orderByField`, order.value);
