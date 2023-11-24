@@ -14,6 +14,7 @@ using TNO.DAL.Services;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Keycloak;
+using TNO.Reports;
 using TNO.TemplateEngine.Models.Reports;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
@@ -207,6 +208,28 @@ public class ReportInstanceController : ControllerBase
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{instance.ReportId}-test", request);
         return new JsonResult(new ReportInstanceModel(instance));
+    }
+
+    /// <summary>
+    /// Generate an Excel document report.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <returns></returns>
+    [HttpGet("{instanceId}/export")]
+    [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public FileResult GenerateExcel(int instanceId)
+    {
+        var helper = new ReportXlsExport(_reportInstanceService, _serializerOptions);
+
+        var report = helper.GenerateExcel(instanceId);
+
+        using var stream = new MemoryStream();
+        report.Write(stream);
+        var bytes = stream.ToArray();
+
+        return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
 
     /// <summary>
