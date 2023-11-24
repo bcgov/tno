@@ -10,10 +10,12 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
+  getReportSectionOrderByOptions,
   getSortableOptions,
   IChartTemplateModel,
   IFilterModel,
   IFolderModel,
+  IOptionItem,
   IReportModel,
   IReportSectionChartTemplateModel,
   OptionItem,
@@ -81,6 +83,7 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
   const section = values.sections[index];
   const folder = folders.find((f) => f.id === section.folderId);
   const filter = filters.find((f) => f.id === section.filterId);
+  const [orderOptions] = React.useState<IOptionItem[]>(getReportSectionOrderByOptions());
 
   React.useEffect(() => {
     if (!filters.length)
@@ -224,6 +227,19 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
                 )}
               </Show>
             </Col>
+          </Col>
+          <Col flex="1">
+            <FormikSelect
+              name={`sections.${index}.settings.orderByField`}
+              label="Order by"
+              options={orderOptions}
+              value={orderOptions.find((o) => o.value === section.settings.orderByField) ?? ''}
+              onChange={(newValue) => {
+                const option = newValue as OptionItem;
+                const order = orderOptions.find((f) => f.value === option?.value);
+                if (order) setFieldValue(`sections.${index}.settings.orderByField`, order.value);
+              }}
+            />
           </Col>
         </Row>
         <Show visible={[ReportSectionTypeName.Content].includes(section.settings.sectionType)}>

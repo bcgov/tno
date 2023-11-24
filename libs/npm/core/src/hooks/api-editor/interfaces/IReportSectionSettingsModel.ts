@@ -13,4 +13,5 @@ export interface IReportSectionSettingsModel {
   hideEmpty: boolean;
   groupBy: string;
   sortBy: string;
+  orderByField: string;
 }

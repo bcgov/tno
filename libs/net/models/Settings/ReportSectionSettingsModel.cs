@@ -18,6 +18,7 @@ public class ReportSectionSettingsModel
     public bool HideEmpty { get; set; }
     public string GroupBy { get; set; } = "";
     public string SortBy { get; set; } = "";
+    public string OrderByField { get; set; } = "";
     #endregion
 
     #region Constructors
@@ -36,6 +37,7 @@ public class ReportSectionSettingsModel
         this.HideEmpty = settings.GetDictionaryJsonValue("hideEmpty", false, options)!;
         this.GroupBy = settings.GetDictionaryJsonValue("groupBy", "", options)!;
         this.SortBy = settings.GetDictionaryJsonValue("sortBy", "", options)!;
+        this.OrderByField = settings.GetDictionaryJsonValue("orderByField", "", options)!;
     }
 
     public ReportSectionSettingsModel(JsonDocument settings, JsonSerializerOptions options)
@@ -51,6 +53,7 @@ public class ReportSectionSettingsModel
         this.HideEmpty = settings.GetElementValue("hideEmpty", false, options)!;
         this.GroupBy = settings.GetElementValue("groupBy", "", options)!;
         this.SortBy = settings.GetElementValue("sortBy", "", options)!;
+        this.OrderByField = settings.GetElementValue("orderByField", "", options)!;
     }
     #endregion
 }
