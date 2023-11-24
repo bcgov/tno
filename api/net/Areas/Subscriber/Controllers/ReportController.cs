@@ -83,45 +83,6 @@ public class ReportController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Find an array of report for the specified query filter.
-    /// Only returns reports owned by the current user.
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IEnumerable<ReportModel>), (int)HttpStatusCode.OK)]
-    [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult Find()
-    {
-        var uri = new Uri(this.Request.GetDisplayUrl());
-        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        var filter = new ReportFilter(query)
-        {
-            OwnerId = user.Id
-        };
-        return new JsonResult(_reportService.Find(filter).Select(ds => new ReportModel(ds, _serializerOptions)));
-    }
-
-    /// <summary>
-    /// Find all report instances for the specified report 'id' and 'ownerId'.
-    /// </summary>
-    /// <param name="reportId"></param>
-    /// <param name="ownerId"></param>
-    /// <returns></returns>
-    [HttpGet("{reportId}/instances")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IEnumerable<ReportInstanceModel>), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
-    [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult FindInstancesForReportId(int reportId, int? ownerId)
-    {
-        var result = _reportInstanceService.FindInstancesForReportId(reportId, ownerId);
-        return new JsonResult(result.Select(ri => new ReportInstanceModel(ri)));
-    }
-
-    /// <summary>
     /// Find all "my" reports.
     /// </summary>
     /// <returns></returns>
@@ -131,9 +92,16 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult FindMyReports()
     {
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        return new JsonResult(_reportService.FindMyReports(user.Id).Select(ds => new ReportModel(ds, _serializerOptions)));
+
+        var filter = new ReportFilter(query)
+        {
+            OwnerId = user.Id
+        };
+        return new JsonResult(_reportService.Find(filter).Select(ds => new ReportModel(ds, _serializerOptions)));
     }
 
     /// <summary>
@@ -144,9 +112,16 @@ public class ReportController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<ReportModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult GetPublicReports()
+    public IActionResult FindPublicReports()
     {
-        return new JsonResult(_reportService.FindPublic().Select(ds => new ReportModel(ds, _serializerOptions)));
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+        var filter = new ReportFilter(query)
+        {
+            IsPublic = true
+        };
+        return new JsonResult(_reportService.Find(filter).Select(ds => new ReportModel(ds, _serializerOptions)));
     }
 
     /// <summary>
@@ -174,6 +149,23 @@ public class ReportController : ControllerBase
         report.Instances.AddRange(instances);
 
         return new JsonResult(new ReportModel(report, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Find all report instances for the specified report 'id' and 'ownerId'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
+    /// <returns></returns>
+    [HttpGet("{reportId}/instances")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<ReportInstanceModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult FindInstancesForReportId(int reportId, int? ownerId)
+    {
+        var result = _reportInstanceService.FindInstancesForReportId(reportId, ownerId);
+        return new JsonResult(result.Select(ri => new ReportInstanceModel(ri)));
     }
 
     /// <summary>

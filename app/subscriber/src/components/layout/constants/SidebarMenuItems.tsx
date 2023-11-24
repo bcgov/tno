@@ -28,64 +28,64 @@ export interface ISideBarMenuItems {
 export const SidebarMenuItems: ISideBarMenuItems = {
   home: {
     label: 'Home',
-    path: 'home',
+    path: 'landing/home',
     icon: <FaHome />,
   },
   topStories: {
     label: 'Top Stories',
-    path: 'topstories',
+    path: 'landing/topstories',
     icon: <FaFire />,
   },
   myMinister: {
     label: 'My Minister',
-    path: 'myminister',
+    path: 'landing/myminister',
     icon: <FaUserTie />,
     secondaryIcon: <FaCog />,
     secondaryIconRoute: '/landing/settings',
   },
   todaysCommentary: {
     label: "Today's Commentary",
-    path: 'todayscommentary',
+    path: 'landing/todayscommentary',
     icon: <FaComment />,
   },
   todaysFrontPages: {
     label: "Today's Front Pages",
-    path: 'todaysfrontpages',
+    path: 'landing/todaysfrontpages',
     icon: <FaNewspaper />,
   },
   pressGallery: {
     label: 'Press Gallery',
-    path: 'pressgallery',
+    path: 'landing/pressgallery',
     icon: <FaUsers />,
   },
   filterMedia: {
     label: 'Filter media type',
-    path: 'filtermedia',
+    path: 'landing/filtermedia',
     icon: <FaSlidersH />,
   },
   folders: {
     label: 'My Folders',
-    path: 'folders',
+    path: 'landing/folders',
     icon: <FaFolder />,
   },
   myReports: {
     label: 'My Reports',
-    path: 'myreports',
+    path: 'reports',
     icon: <FaClipboard />,
   },
   mySearches: {
     label: 'My Searches',
-    path: 'mysearches',
+    path: 'landing/mysearches',
     icon: <FaSearch />,
   },
   eveningOverview: {
     label: 'Evening Overview',
-    path: 'eveningoverview',
+    path: 'landing/eveningoverview',
     icon: <FaMoon />,
   },
   settings: {
     label: 'Settings',
-    path: 'settings',
+    path: 'landing/settings',
     icon: <FaCogs />,
   },
 };

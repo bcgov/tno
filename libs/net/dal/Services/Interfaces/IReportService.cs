@@ -8,22 +8,17 @@ public interface IReportService : IBaseService<Report, int>
     /// <summary>
     /// Find all reports.
     /// </summary>
+    /// <param name="populateFullModel"></param>
     /// <returns></returns>
-    // IEnumerable<Report> FindAll();
     IEnumerable<Report> FindAll(bool populateFullModel = true);
-
-    /// <summary>
-    /// Find all public reports.
-    /// </summary>
-    /// <returns></returns>
-    IEnumerable<Report> FindPublic();
 
     /// <summary>
     /// Find all reports that match the filter.
     /// </summary>
     /// <param name="filter"></param>
+    /// <param name="populateFullModel"></param>
     /// <returns></returns>
-    IEnumerable<Report> Find(ReportFilter filter);
+    IEnumerable<Report> Find(ReportFilter filter, bool populateFullModel = true);
 
     /// <summary>
     /// Make a request to Elasticsearch to find content for the specified 'report'.
@@ -61,12 +56,6 @@ public interface IReportService : IBaseService<Report, int>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     IEnumerable<long> GetRelatedReportInstanceContentToExclude(int reportId);
-
-    /// <summary>
-    /// Find all my reports.
-    /// </summary>
-    /// <returns></returns>
-    IEnumerable<Report> FindMyReports(int userId);
 
     /// <summary>
     /// Clears all content from all folders in any section of the specified 'report'.

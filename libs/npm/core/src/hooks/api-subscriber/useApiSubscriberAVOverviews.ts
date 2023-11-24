@@ -24,7 +24,7 @@ export const useApiSubscriberAVOverviews = (
         publishedOn,
       };
       return api.get<never, AxiosResponse<IAVOverviewInstanceModel | undefined>, any>(
-        `/editor/reports/av/overviews?${toQueryString(params)}`,
+        `/subscriber/reports/av/overviews?${toQueryString(params)}`,
       );
     },
     viewAVOverview: (instanceId: number) => {

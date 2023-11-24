@@ -12,10 +12,9 @@ export const sortContent = (content: IReportInstanceContentModel[]) => {
     a.sectionName < b.sectionName ? -1 : a.sectionName > b.sectionName ? 1 : 0,
   );
   var sectionIndex = -1;
-  rows.forEach((i, index) => {
-    sectionIndex =
-      index === 0 || rows[index - 1].sectionName !== i.sectionName ? 0 : sectionIndex + 1;
-    i.sortOrder = sectionIndex;
-  });
-  return rows;
+  const results = rows.map((i, index) => ({
+    ...i,
+    sortOrder: index === 0 || rows[index - 1].sectionName !== i.sectionName ? 0 : sectionIndex + 1,
+  }));
+  return results;
 };

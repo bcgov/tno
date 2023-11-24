@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using TNO.API.Areas.Subscriber.Models.AVOverview;
 using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
@@ -27,6 +28,7 @@ public class AVOverviewController : ControllerBase
 {
     #region Variables
     private readonly IAVOverviewInstanceService _overviewInstanceService;
+    private readonly IAVOverviewTemplateService _overviewTemplateService;
     private readonly IReportHelper _reportHelper;
     #endregion
 
@@ -35,17 +37,38 @@ public class AVOverviewController : ControllerBase
     /// Creates a new instance of a AVOverviewController object, initializes with specified parameters.
     /// </summary>
     /// <param name="overviewInstanceService"></param>
+    /// <param name="overviewTemplateService"></param>
     /// <param name="reportHelper"></param>
     public AVOverviewController(
         IAVOverviewInstanceService overviewInstanceService,
+        IAVOverviewTemplateService overviewTemplateService,
         IReportHelper reportHelper)
     {
         _overviewInstanceService = overviewInstanceService;
+        _overviewTemplateService = overviewTemplateService;
         _reportHelper = reportHelper;
     }
     #endregion
 
     #region Endpoints
+    /// <summary>
+    /// Find evening overviews for the specified 'publishedOn'.
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    [HttpGet]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(AVOverviewInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Evening Overview" })]
+    public IActionResult FindByDate(DateTime publishedOn)
+    {
+        var instance = _overviewInstanceService.FindByDate(publishedOn);
+
+        if (instance == null) return new NoContentResult();
+        return new JsonResult(new AVOverviewInstanceModel(instance));
+    }
+
     /// <summary>
     /// Execute the report template and generate the results for previewing.
     /// </summary>

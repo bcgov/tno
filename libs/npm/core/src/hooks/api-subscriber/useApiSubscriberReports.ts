@@ -27,30 +27,26 @@ export const useApiSubscriberReports = (
   const api = useApi(options);
 
   return React.useRef({
-    findReports: (filter?: IReportFilter) => {
+    findMyReports: (filter?: IReportFilter) => {
       const query = { ...filter };
-      return api.get<never, AxiosResponse<IReportModel[]>, any>(
-        `/subscriber/reports?${toQueryString(query)}`,
-      );
-    },
-    findInstancesForReportId: (id: number, ownerId: number | undefined = undefined) => {
-      return api.get<never, AxiosResponse<IReportInstanceModel[]>, any>(
-        `/subscriber/reports/${id}/instances?ownerId=${ownerId ? ownerId : ''}`,
-      );
-    },
-    findMyReports: () => {
       return api.get<IReportModel[], AxiosResponse<IReportModel[]>, any>(
-        `/subscriber/reports/my-reports`,
+        `/subscriber/reports/my-reports?${toQueryString(query)}`,
       );
     },
-    getPublicReports: () => {
+    findPublicReports: (filter?: IReportFilter) => {
+      const query = { ...filter };
       return api.get<IReportModel[], AxiosResponse<IReportModel[]>, any>(
-        `/subscriber/reports/public`,
+        `/subscriber/reports/public?${toQueryString(query)}`,
       );
     },
     getReport: (id: number) => {
       return api.get<never, AxiosResponse<IReportModel | undefined>, any>(
         `/subscriber/reports/${id}`,
+      );
+    },
+    findInstancesForReportId: (id: number, ownerId: number | undefined = undefined) => {
+      return api.get<never, AxiosResponse<IReportInstanceModel[]>, any>(
+        `/subscriber/reports/${id}/instances?ownerId=${ownerId ? ownerId : ''}`,
       );
     },
     addReport: (report: IReportModel) => {

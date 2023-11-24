@@ -1,109 +1,93 @@
 import styled from 'styled-components';
-import { Col } from 'tno-core';
 
-export const MyReports = styled(Col)`
-  .info {
-    margin-top: 1em;
-    margin-bottom: 1em;
-  }
+export const MyReports = styled.div`
+  .txt-filter {
+    flex-direction: row;
+    align-items: center;
+    flex: 1;
 
-  .header {
-    .create-new {
-      margin-left: auto;
-      color: red;
-      &:hover {
-        text-decoration: underline;
-        cursor: pointer;
+    @media only screen and (max-width: 500px) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    label {
+      color: ${(props) => props.theme.css.fPrimaryColor};
+      font-weight: 400;
+    }
+
+    > div {
+      flex: 1;
+      flex-wrap: nowrap;
+      gap: 1rem;
+
+      input {
+        min-width: 200px;
       }
     }
   }
 
-  .react-tooltip {
-    z-index: 999;
-  }
+  .report-schedule {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
 
-  .options {
-    box-shadow: 0 0 0.5rem #c7c7c7;
-    opacity: 1;
-    padding-left: 1.5em;
-    padding-right: 1.5em;
-    .option {
-      &:hover {
-        text-decoration: underline;
-        color: ${(props) => props.theme.css.sidebarIconHoverColor};
-        cursor: pointer;
+    > div:first-child {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      width: 50px;
+
+      svg {
+        color: ${(props) => props.theme.css.iconSecondaryColor};
+        height: 40px;
+        max-height: 40px;
+        min-height: 40px;
+        width: 40px;
+        max-width: 40px;
+        min-width: 40px;
       }
     }
+
+    & label {
+      text-transform: uppercase;
+    }
   }
 
-  .folder-name {
-    height: 1.5em;
-    margin-left: 0.5em;
-  }
+  .report-instance {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
 
-  .create-new {
-    margin-left: auto;
-  }
+    > div:first-child {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      width: 50px;
 
-  /* table styling */
-  .table {
-    width: 100%;
-    overflow: hidden;
-    .re-name {
-      height: 1.5em;
-      padding: 0;
-      &:focus {
-        box-shadow: none;
+      svg {
+        color: ${(props) => props.theme.css.iconSecondaryColor};
+        height: 30px;
+        max-height: 30px;
+        min-height: 30px;
+        width: 30px;
+        max-width: 30px;
+        min-width: 30px;
       }
     }
-    .rows {
-      svg:not(.error) {
-        color: #6750a4;
-      }
-    }
-    .header {
-      background-color: #f5f6fa;
-      font-family: 'Roboto', sans-serif;
-      font-size: 0.8em;
-      /* box shadow only on bottom */
-      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
-      border: none;
-      color: #7c7e8a;
 
-      .column {
-        background-color: #f5f6fa;
-      }
-    }
-    .elips {
-      &:hover {
-        color: ${(props) => props.theme.css.sidebarIconHoverColor};
-        transform: scale(1.1);
-      }
+    & label {
+      text-transform: uppercase;
     }
   }
 
-  .folder-add {
-    &:focus {
-      outline: none;
-    }
-    cursor: pointer;
-    align-self: center;
-    margin-bottom: 0.5rem;
-    height: 1.6rem;
-    width: 2.5rem;
-    color: ${(props) => props.theme.css.sidebarIconColor};
-    padding-bottom: 0.25em;
-    &:hover {
-      transform: scale(1.1);
-      color: ${(props) => props.theme.css.sidebarIconHoverColor};
-    }
+  .b7 {
+    font-weight: 700;
   }
 
-  .primary-light-color {
-    color: ${(props) => props.theme.css.primaryLightColor};
-  }
-
-  .table {
-    min-height: 100px;
+  .fs1 {
+    font-size: 0.75rem;
   }
 `;

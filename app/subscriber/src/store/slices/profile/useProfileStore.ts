@@ -5,6 +5,7 @@ import {
   IFilterModel,
   IFolderModel,
   IMinisterModel,
+  IReportModel,
   ISystemMessageModel,
   IUserModel,
 } from 'tno-core';
@@ -15,6 +16,8 @@ import {
   storeMyFolders,
   storeMyMinisters,
   storeMyProfile,
+  storeMyReports,
+  storeReportsFilter,
   storeSystemMessages,
 } from '.';
 import { IProfileState } from './interfaces';
@@ -27,6 +30,8 @@ export interface IProfileStore {
     contributors: IContributorModel[] | ActionDelegate<IContributorModel[]>,
   ) => void;
   storeMyMinisters: (ministers: IMinisterModel[] | ActionDelegate<IMinisterModel[]>) => void;
+  storeMyReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => void;
+  storeReportsFilter: (filter: string | ActionDelegate<string>) => void;
   storeSystemMessages: (
     ministers: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
   ) => void;
@@ -58,6 +63,16 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
           dispatch(storeMyMinisters(ministers(state.myMinisters)));
         } else dispatch(storeMyMinisters(ministers));
       },
+      storeMyReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => {
+        if (typeof reports === 'function') {
+          dispatch(storeMyReports(reports(state.myReports)));
+        } else dispatch(storeMyReports(reports));
+      },
+      storeReportsFilter: (filter: string | ActionDelegate<string>) => {
+        if (typeof filter === 'function') {
+          dispatch(storeReportsFilter(filter(state.reportsFilter)));
+        } else dispatch(storeReportsFilter(filter));
+      },
       storeContributors: (
         contributors: IContributorModel[] | ActionDelegate<IContributorModel[]>,
       ) => {
@@ -79,8 +94,10 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
       state.myFilters,
       state.myFolders,
       state.myMinisters,
-      state.systemMessages,
+      state.myReports,
+      state.reportsFilter,
       state.contributors,
+      state.systemMessages,
     ],
   );
 

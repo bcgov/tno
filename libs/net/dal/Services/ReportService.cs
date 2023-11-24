@@ -42,50 +42,48 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <summary>
     /// Find all the reports.
     /// </summary>
+    /// <param name="populateFullModel"></param>
     /// <returns></returns>
     public IEnumerable<Report> FindAll(bool populateFullModel = true)
     {
-        if (populateFullModel) {
-            return this.Context.Reports
-                .AsNoTracking()
-                .Include(r => r.Owner)
+        var query = this.Context.Reports
+            .AsNoTracking()
+            .Include(f => f.Owner)
+            .AsQueryable();
+
+        if (populateFullModel)
+            query = query
                 .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
                 .Include(r => r.Sections)
                 .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
-                .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
-        } else {
-            return this.Context.Reports
-                .AsNoTracking()
-                .Include(r => r.Owner)
-                .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
-        }
-    }
+                .Include(r => r.Events).ThenInclude(s => s.Schedule)
+                .AsQueryable();
 
-    /// <summary>
-    /// Find all the public reports.
-    /// </summary>
-    /// <returns></returns>
-    public IEnumerable<Report> FindPublic()
-    {
-        return this.Context.Reports
-            .AsNoTracking()
-            .Include(r => r.Owner)
-            .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
-            .Include(r => r.Sections)
-            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
-            .Where(r => r.IsPublic == true)
-            .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
+        return query
+            .OrderBy(r => r.SortOrder).ThenBy(r => r.Name)
+            .ToArray();
     }
 
     /// <summary>
     /// Find all reports that match the filter.
     /// </summary>
     /// <param name="filter"></param>
+    /// <param name="populateFullModel"></param>
     /// <returns></returns>
-    public IEnumerable<Report> Find(ReportFilter filter)
+    public IEnumerable<Report> Find(ReportFilter filter, bool populateFullModel = true)
     {
         var query = this.Context.Reports
-            .AsNoTracking();
+            .AsNoTracking()
+            .Include(f => f.Owner)
+            .AsQueryable();
+
+        if (populateFullModel)
+            query = query
+                .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
+                .Include(r => r.Sections)
+                .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
+                .Include(r => r.Events).ThenInclude(s => s.Schedule)
+                .AsQueryable();
 
         if (filter.IsPublic.HasValue)
             query = query.Where(r => r.IsPublic);
@@ -98,7 +96,9 @@ public class ReportService : BaseService<Report, int>, IReportService
         if (!String.IsNullOrWhiteSpace(filter.Name))
             query = query.Where(r => EF.Functions.Like(r.Name, $"%{filter.Name}%"));
 
-        return query.ToArray();
+        return query
+            .OrderBy(r => r.SortOrder).ThenBy(r => r.Name)
+            .ToArray();
     }
 
     /// <summary>
@@ -117,23 +117,6 @@ public class ReportService : BaseService<Report, int>, IReportService
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
             .Include(r => r.Events).ThenInclude(s => s.Schedule)
             .FirstOrDefault(r => r.Id == id);
-    }
-
-    /// <summary>
-    /// Find the reports for the specified user.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    public IEnumerable<Report> FindMyReports(int userId)
-    {
-        return this.Context.Reports
-            .Include(f => f.Owner)
-            .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
-            .Include(r => r.Sections)
-            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
-            .Include(r => r.Events).ThenInclude(s => s.Schedule)
-            .Where(f => f.OwnerId == userId)
-            .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
     }
 
     /// <summary>
@@ -592,7 +575,8 @@ public class ReportService : BaseService<Report, int>, IReportService
         var saveChanges = false;
         var targetReport = FindById(reportId) ?? throw new NoContentException("Report does not exist");
         var subscriberRecord = targetReport.Subscribers.FirstOrDefault(s => s.Id == userId);
-        if (subscriberRecord != null) {
+        if (subscriberRecord != null)
+        {
             var userReports = this.Context.UserReports.Where(x => x.UserId == userId && x.ReportId == reportId);
             userReports.ForEach(s =>
             {
@@ -602,7 +586,9 @@ public class ReportService : BaseService<Report, int>, IReportService
                     if (!saveChanges) saveChanges = true;
                 }
             });
-        } else {
+        }
+        else
+        {
             this.Context.UserReports.Add(new UserReport(userId, reportId, true));
             saveChanges = true;
         }
@@ -619,7 +605,8 @@ public class ReportService : BaseService<Report, int>, IReportService
         var saveChanges = false;
         var targetReport = FindById(reportId) ?? throw new NoContentException("Report does not exist");
         var subscriberRecord = targetReport.Subscribers.FirstOrDefault(s => s.Id == userId);
-        if (subscriberRecord != null) {
+        if (subscriberRecord != null)
+        {
             var userReports = this.Context.UserReports.Where(x => x.UserId == userId && x.ReportId == reportId);
             userReports.ForEach(s =>
             {

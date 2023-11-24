@@ -1,15 +1,14 @@
 import { ScreenSizes } from 'components/layout';
+import { UserProfile } from 'components/user-profile';
 import React from 'react';
-import { BiLogOut } from 'react-icons/bi';
-import { FaSearch, FaUserCircle } from 'react-icons/fa';
+import { FaSearch } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { Button, Row, Show, Text, useKeycloakWrapper, useWindowSize } from 'tno-core';
+import { Button, Row, Show, Text, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
 
 /** The component containing the search bar and the logout button for the subscriber application. Responsive and adjusts to the viewing device*/
 export const SearchWithLogout: React.FC = () => {
-  const keycloak = useKeycloakWrapper();
   const [searchItem, setSearchItem] = React.useState<string>('');
   const navigate = useNavigate();
   const { width } = useWindowSize();
@@ -54,15 +53,7 @@ export const SearchWithLogout: React.FC = () => {
           </Button>
         </Show>
       </Row>
-      <div onClick={() => keycloak.instance.logout()} className="logout">
-        <Show visible={!!width && width > ScreenSizes.Mobile}>
-          <FaUserCircle />
-          Logout
-        </Show>
-        <Show visible={!!width && width < ScreenSizes.Mobile}>
-          <BiLogOut className="logout-icon" />
-        </Show>
-      </div>
+      <UserProfile />
     </styled.SearchWithLogout>
   );
 };

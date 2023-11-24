@@ -27,7 +27,7 @@ export const SelectableMenuItems: React.FC<ISelectableMenuItemProps> = () => {
             key={item.label}
             icon={item.icon}
             onClick={() => {
-              navigate(`landing/${item.path}` ?? '');
+              navigate(item.path);
               setSelected(item.label);
             }}
           >

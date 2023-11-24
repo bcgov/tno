@@ -3,6 +3,7 @@ import {
   IFilterModel,
   IFolderModel,
   IMinisterModel,
+  IReportModel,
   ISystemMessageModel,
   IUserModel,
 } from 'tno-core';
@@ -12,6 +13,8 @@ export interface IProfileState {
   myFilters: IFilterModel[];
   myFolders: IFolderModel[];
   myMinisters: IMinisterModel[];
+  myReports: IReportModel[];
+  reportsFilter: string;
   contributors: IContributorModel[];
   systemMessages: ISystemMessageModel[];
 }

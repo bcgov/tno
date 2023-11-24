@@ -4,7 +4,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useApiHub, useReportInstances, useReports } from 'store/hooks';
 import { useAppStore } from 'store/slices';
-import { Col, Container, IReportMessageModel, Loading, MessageTargetName, Row } from 'tno-core';
+import { Col, Container, IReportMessageModel, MessageTargetName, Row } from 'tno-core';
 
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
@@ -68,33 +68,27 @@ export const ReportSnapshot: React.FC = () => {
   return (
     <styled.ReportSnapshot>
       <SearchWithLogout />
-      {id && !report.id ? (
-        <Row className="loader">
-          <Loading />
-        </Row>
-      ) : (
-        <FormikForm
-          loading={false}
-          initialValues={report}
-          onSubmit={async (values, { setSubmitting }) => {
-            await handleSubmit(values);
-            setSubmitting(false);
-          }}
-        >
-          {({ isSubmitting, values }) => (
-            <Row gap="1rem">
-              <Col className="edit">
-                <Container isLoading={requests.some((r) => loading.includes(r.url))}>
-                  <ReportSnapshotEdit />
-                </Container>
-              </Col>
-              <Col className="preview">
-                <ReportSnapshotView />
-              </Col>
-            </Row>
-          )}
-        </FormikForm>
-      )}
+      <FormikForm
+        loading={false}
+        initialValues={report}
+        onSubmit={async (values, { setSubmitting }) => {
+          await handleSubmit(values);
+          setSubmitting(false);
+        }}
+      >
+        {({ isSubmitting, values }) => (
+          <Row gap="1rem">
+            <Col className="edit">
+              <Container isLoading={requests.some((r) => loading.includes(r.url))}>
+                <ReportSnapshotEdit />
+              </Container>
+            </Col>
+            <Col className="preview">
+              <ReportSnapshotView />
+            </Col>
+          </Row>
+        )}
+      </FormikForm>
     </styled.ReportSnapshot>
   );
 };
