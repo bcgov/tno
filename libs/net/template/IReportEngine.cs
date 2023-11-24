@@ -1,5 +1,6 @@
 using TNO.TemplateEngine.Models.Charts;
 using TNO.TemplateEngine.Models.Reports;
+using TNO.TemplateEngine.Models;
 
 namespace TNO.TemplateEngine;
 
@@ -15,6 +16,15 @@ public interface IReportEngine
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     Task<ChartResultModel> GenerateJsonAsync(ChartRequestModel model, bool isPreview = false);
+
+    /// <summary>
+    /// Order the content based on the session field.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="orderByField"></param>
+    /// <returns>Ordered Content</returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    ContentModel[] OrderBySectionField(ContentModel[] content, string orderByField);
 
     /// <summary>
     /// Executes the chart template provided to generate JSON, which is then sent with a request to the Charts API to generate a base64 image.

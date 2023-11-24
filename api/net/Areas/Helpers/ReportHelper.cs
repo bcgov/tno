@@ -65,29 +65,6 @@ public class ReportHelper : IReportHelper
 
     #region Methods
     /// <summary>
-    /// Order the content based on the session field.
-    /// </summary>
-    /// <param name="content"></param>
-    /// <param name="orderByField"></param>
-    /// <returns>Ordered Content</returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public static ContentModel[] OrderBySectionField(ContentModel[] content, string orderByField)
-    {
-        return orderByField switch
-        {
-            "PublishedOn" => content.OrderBy(c => c.PublishedOn).ToArray(),
-            "MediaType" => content.OrderBy(c => c.MediaType?.Name).ToArray(),
-            "Series" => content.OrderBy(c => c.Series?.Name).ToArray(),
-            "Source" => content.OrderBy(c => c.Source?.Name).ToArray(),
-            "Sentiment" => content.OrderBy(c => c.TonePools.Select(s => s.Value).Sum(v => v)).ToArray(),
-            "Byline" => content.OrderBy(c => c.Byline).ToArray(),
-            "Contributor" => content.OrderBy(c => c.Contributor?.Name).ToArray(),
-            "Topic" =>  content.OrderBy(c => string.Join(",", c.Topics.Select(x => x.Name).ToList())).ToArray(),
-            _ => content.OrderBy(c => c.SortOrder).ToArray(),
-        };
-    }
-
-    /// <summary>
     /// Makes a request to Elasticsearch if required to fetch content.
     /// Generate the Chart JSON for the specified 'model' containing a template and content.
     /// If the model includes a Filter it will make a request to Elasticsearch.
@@ -159,7 +136,7 @@ public class ReportHelper : IReportHelper
             {
                 var sortOrder = 0;
                 
-                section.Content = OrderBySectionField(results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).ToArray(), section.Settings.OrderByField);
+                section.Content = _reportEngine.OrderBySectionField(results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).ToArray(), section.Settings.OrderByField);
             }
             return section;
         });
