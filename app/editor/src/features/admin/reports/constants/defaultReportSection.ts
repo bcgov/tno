@@ -22,6 +22,7 @@ export const defaultReportSection = (reportId: number): IReportSectionModel => {
       chartDirection: 'row',
       groupBy: '',
       sortBy: '',
+      orderByField: '',
     },
   };
 };

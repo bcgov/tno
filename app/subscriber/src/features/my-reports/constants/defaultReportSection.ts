@@ -37,6 +37,7 @@ export const defaultReportSection = (
         : hideEmpty,
     groupBy: '',
     sortBy: '',
+    orderByField: '',
   },
   chartTemplates: [],
   expand: true,

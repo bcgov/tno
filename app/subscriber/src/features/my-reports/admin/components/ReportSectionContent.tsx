@@ -8,6 +8,7 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
+  getReportSectionOrderByOptions,
   getSortableOptions,
   IOptionItem,
   OptionItem,
@@ -37,6 +38,7 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
     const [filterOptions, setFilterOptions] = React.useState<IOptionItem[]>(
       getSortableOptions(filters),
     );
+    const [orderOptions] = React.useState<IOptionItem[]>(getReportSectionOrderByOptions());
 
     const section = values.sections[index];
 
@@ -105,7 +107,7 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
                 label="My saved searches"
                 options={filterOptions}
                 value={filterOptions.find((o) => o.value === section.filterId) ?? ''}
-                onChange={(newValue) => {
+                onChange={(newValue: any) => {
                   const option = newValue as OptionItem;
                   const filter = filters.find((f) => f.id === option?.value);
                   if (filter) setFieldValue(`sections.${index}.filter`, filter);
@@ -119,7 +121,7 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
                 label="My folders"
                 options={folderOptions}
                 value={folderOptions.find((o) => o.value === section.folderId) ?? ''}
-                onChange={(newValue) => {
+                onChange={(newValue: any) => {
                   const option = newValue as OptionItem;
                   const folder = folders.find((f) => f.id === option?.value);
                   if (folder) setFieldValue(`sections.${index}.folder`, folder);
@@ -129,29 +131,45 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
             </Col>
           </Row>
         </Col>
-
-        <FormikCheckbox
-          name={`sections.${index}.settings.removeDuplicates`}
-          label="Remove Duplicate Content"
-          tooltip="Remove content from this section that is in above sections"
-        />
-        <Show visible={!section.settings.showCharts}>
-          <FormikCheckbox
-            name={`sections.${index}.settings.showHeadlines`}
-            label="Show Headlines"
-            tooltip="Display the story headline for each content item in this section"
-          />
-          <FormikCheckbox
-            name={`sections.${index}.settings.showFullStory`}
-            label="Show Full Story"
-            tooltip="Display the full story for each content item in this section"
-          />
-          <FormikCheckbox
-            name={`sections.${index}.settings.showImage`}
-            label="Show Image"
-            tooltip="Display the image for each content item in this section (if there is an image)"
-          />
-        </Show>
+        <Row>
+          <Col flex="1" className="description">
+            <FormikCheckbox
+              name={`sections.${index}.settings.removeDuplicates`}
+              label="Remove Duplicate Content"
+              tooltip="Remove content from this section that is in above sections"
+            />
+            <Show visible={!section.settings.showCharts}>
+              <FormikCheckbox
+                name={`sections.${index}.settings.showHeadlines`}
+                label="Show Headlines"
+                tooltip="Display the story headline for each content item in this section"
+              />
+              <FormikCheckbox
+                name={`sections.${index}.settings.showFullStory`}
+                label="Show Full Story"
+                tooltip="Display the full story for each content item in this section"
+              />
+              <FormikCheckbox
+                name={`sections.${index}.settings.showImage`}
+                label="Show Image"
+                tooltip="Display the image for each content item in this section (if there is an image)"
+              />
+            </Show>
+          </Col>
+          <Col flex="1" className="description">
+            <FormikSelect
+              name={`sections.${index}.settings.orderByField`}
+              label="Order by"
+              options={orderOptions}
+              value={orderOptions.find((o) => o.value === section.settings.orderByField) ?? ''}
+              onChange={(newValue: any) => {
+                const option = newValue as OptionItem;
+                const order = orderOptions.find((f) => f.value === option?.value);
+                if (order) setFieldValue(`sections.${index}.settings.orderByField`, order.value);
+              }}
+            />
+          </Col>
+        </Row>
         <Show visible={section.settings.showCharts}>
           <ReportSectionCharts index={index} />
         </Show>

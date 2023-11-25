@@ -112,6 +112,29 @@ public class ReportEngine : IReportEngine
 
         return new ChartResultModel(json);
     }
+    
+    /// <summary>
+    /// Order the content based on the session field.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="orderByField"></param>
+    /// <returns>Ordered Content</returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public ContentModel[] OrderBySectionField(ContentModel[] content, string orderByField)
+    {
+        return orderByField switch
+        {
+            "PublishedOn" => content.OrderBy(c => c.PublishedOn).ToArray(),
+            "MediaType" => content.OrderBy(c => c.MediaType?.Name).ToArray(),
+            "Series" => content.OrderBy(c => c.Series?.Name).ToArray(),
+            "Source" => content.OrderBy(c => c.Source?.Name).ToArray(),
+            "Sentiment" => content.OrderBy(c => c.TonePools.Select(s => s.Value).Sum(v => v)).ToArray(),
+            "Byline" => content.OrderBy(c => c.Byline).ToArray(),
+            "Contributor" => content.OrderBy(c => c.Contributor?.Name).ToArray(),
+            "Topic" =>  content.OrderBy(c => string.Join(",", c.Topics.Select(x => x.Name).ToList())).ToArray(),
+            _ => content.OrderBy(c => c.SortOrder).ToArray(),
+        };
+    }
 
     /// <summary>
     /// Executes the chart template provided to generate JSON, which is then sent with a request to the Charts API to generate a base64 image.
