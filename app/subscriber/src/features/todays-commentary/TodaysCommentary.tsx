@@ -1,30 +1,57 @@
 import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { determineColumns } from 'features/home/constants';
+import { filterFormat } from 'features/search-page/utils';
+import { castToSearchResult } from 'features/utils';
 import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useContent } from 'store/hooks';
-import { ActionName, FlexboxTable, IContentModel, ITableInternalRow, Row } from 'tno-core';
+import { useContent, useLookup } from 'store/hooks';
+import { FlexboxTable, generateQuery, IContentModel, ITableInternalRow, Row } from 'tno-core';
 
 import * as styled from './styled';
 
 /** Component that displays commentary defaulting to today's date and adjustable via a date filter. */
 export const TodaysCommentary: React.FC = () => {
-  const [{ homeFilter: filter }, { findContent }] = useContent();
+  const [
+    {
+      todaysCommentary: { filter },
+    },
+    { findContentWithElasticsearch, storeTodayCommentaryFilter: storeFilter },
+  ] = useContent();
   const navigate = useNavigate();
   const [commentary, setCommentary] = React.useState<IContentModel[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-
+  const [{ actions }] = useLookup();
   React.useEffect(() => {
-    findContent({
-      actions: [ActionName.Commentary],
-      contentTypes: [],
-      publishedStartOn: moment(filter.publishedStartOn).toISOString(),
-      publishedEndOn: moment(filter.publishedEndOn).toISOString(),
-      quantity: 100,
-    }).then((data) => setCommentary(data.items));
-  }, [findContent, filter]);
+    findContentWithElasticsearch(
+      generateQuery(
+        filterFormat(
+          {
+            commentary: true,
+            contentTypes: [],
+            startDate: moment(filter.startDate).toISOString(),
+            endDate: moment(filter.endDate).toISOString(),
+            searchUnpublished: false,
+            size: 500,
+          },
+          actions,
+        ),
+      ),
+      false,
+    )
+      .then((res) => {
+        setCommentary(
+          res.hits.hits.map((r) => {
+            const content = r._source as IContentModel;
+            return castToSearchResult(content);
+          }),
+        );
+      })
+      .catch();
+    // only run this effect when the filter changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
@@ -38,7 +65,7 @@ export const TodaysCommentary: React.FC = () => {
   return (
     <styled.TodaysCommentary>
       <FolderSubMenu selectedContent={selected} />
-      <DateFilter />
+      <DateFilter filter={filter} storeFilter={storeFilter} />
       <Row className="table-container">
         <FlexboxTable
           rowId="id"

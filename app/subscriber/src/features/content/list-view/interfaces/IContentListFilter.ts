@@ -1,11 +1,16 @@
-import { ContentStatus, ContentTypeName } from 'tno-core';
-
-import { ISortBy } from './ISortBy';
+import {
+  ContentStatusName,
+  ContentTypeName,
+  IFilterActionSettingsModel,
+  ISortField,
+} from 'tno-core';
 
 export interface IContentListFilter {
-  actions?: string[];
+  actions?: IFilterActionSettingsModel[];
   boldKeywords?: boolean;
+  commentary?: boolean;
   contentTypes: ContentTypeName[];
+  contentIds?: number[];
   contributorIds?: number[];
   dateOffset?: number;
   edition?: string;
@@ -19,7 +24,7 @@ export interface IContentListFilter {
   mediaTypeIds?: number[];
   names?: string;
   otherSource?: string | '';
-  ownerId?: number | '';
+  ownerId?: number;
   page?: string;
   pageIndex: number;
   pageSize: number;
@@ -32,10 +37,10 @@ export interface IContentListFilter {
   sentiment?: number[];
   seriesIds?: number[];
   showOnly?: string;
-  sort: ISortBy[];
+  sort: ISortField[];
   sourceIds?: number[];
-  status?: ContentStatus;
+  status?: ContentStatusName;
   tags?: string[];
   topStory?: boolean;
-  userId?: number | '';
+  userId?: number;
 }

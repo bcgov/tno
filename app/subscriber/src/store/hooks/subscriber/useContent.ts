@@ -1,11 +1,10 @@
 import { KnnSearchResponse, MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
-import { IContentListFilter } from 'features/content/list-view/interfaces';
 import React from 'react';
 import { useContentStore } from 'store/slices';
 import { IContentProps, IContentState } from 'store/slices/content';
 import {
-  IContentFilter,
   IContentModel,
+  IFilterSettingsModel,
   IOptionItem,
   IPaged,
   useApiSubscriberContents,
@@ -14,18 +13,22 @@ import {
 import { useAjaxWrapper } from '..';
 
 interface IContentController {
-  findContent: (filter: IContentFilter) => Promise<IPaged<IContentModel>>;
   findContentWithElasticsearch: (
     filter: MsearchMultisearchBody,
     includeUnpublishedContent: boolean,
+    store?: keyof IContentState,
   ) => Promise<KnnSearchResponse<IContentModel>>;
   getContent: (id: number) => Promise<IContentModel | undefined>;
   getFrontPages: () => Promise<IPaged<IContentModel>>;
   download: (id: number, fileName: string) => Promise<unknown>;
-  storeSearchFilter: (filter: IContentListFilter) => void;
-  storeHomeFilter: (filter: IContentListFilter) => void;
+  storeSearchFilter: (filter: IFilterSettingsModel) => void;
+  storeHomeFilter: (filter: IFilterSettingsModel) => void;
+  storeTopStoriesFilter: (filter: IFilterSettingsModel) => void;
+  storeFrontPageFilter: (filter: IFilterSettingsModel) => void;
+  storeTodayCommentaryFilter: (filter: IFilterSettingsModel) => void;
   storeGalleryDateFilter: (dateFilter: IOptionItem | null) => void;
   storeGalleryPressFilter: (pressFilter: IOptionItem | null) => void;
+  storeMediaTypeFilter: (filter: IFilterSettingsModel) => void;
   stream: (path: string) => Promise<string>;
   addContent: (content: IContentModel) => Promise<IContentModel | undefined>;
   updateContent: (content: IContentModel) => Promise<IContentModel | undefined>;
@@ -39,18 +42,39 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
 
   const controller = React.useMemo(
     () => ({
-      findContent: async (filter: IContentFilter) => {
-        const response = await dispatch('find-contents', () => api.findContent(filter));
-        actions.storeContent(response.data);
-        return response.data;
-      },
       findContentWithElasticsearch: async (
         filter: MsearchMultisearchBody,
         includeUnpublishedContent: boolean,
+        store?: keyof IContentState,
       ) => {
         const response = await dispatch('find-contents-with-elasticsearch', () =>
           api.findContentWithElasticsearch(filter, includeUnpublishedContent),
         );
+        if (!!store) {
+          switch (store) {
+            case 'frontPage':
+              actions.storeFrontPageContent(response.data);
+              break;
+            case 'home':
+              actions.storeHomeContent(response.data);
+              break;
+            case 'mediaType':
+              actions.storeMediaTypeContent(response.data);
+              break;
+            case 'myMinister':
+              actions.storeMyMinisterContent(response.data);
+              break;
+            case 'search':
+              actions.storeSearchContent(response.data);
+              break;
+            case 'todaysCommentary':
+              actions.storeTodaysCommentaryContent(response.data);
+              break;
+            case 'topStories':
+              actions.storeTopStoriesContent(response.data);
+              break;
+          }
+        }
         return response.data;
       },
       getFrontPages: async () => {
@@ -70,8 +94,12 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       },
       storeSearchFilter: actions.storeSearchFilter,
       storeHomeFilter: actions.storeHomeFilter,
+      storeTopStoriesFilter: actions.storeTopStoriesFilter,
+      storeTodayCommentaryFilter: actions.storeTodaysCommentaryFilter,
       storeGalleryDateFilter: actions.storeGalleryDateFilter,
       storeGalleryPressFilter: actions.storeGalleryPressFilter,
+      storeFrontPageFilter: actions.storeFrontPageFilter,
+      storeMediaTypeFilter: actions.storeMediaTypeFilter,
       addContent: async (content: IContentModel) => {
         const response = await dispatch('add-content', () => api.addContent(content), 'content');
         return response.data;

@@ -3,7 +3,12 @@ import { Checkbox, Col, Settings } from 'tno-core';
 
 export const MoreOptions: React.FC = () => {
   const [{ settings }] = useLookup();
-  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
+  const [
+    {
+      search: { filter },
+    },
+    { storeSearchFilter: storeFilter },
+  ] = useContent();
   var frontPageId = settings.find((s) => s.name === Settings.FrontpageFilter)?.value;
   return (
     <div className="more-options">

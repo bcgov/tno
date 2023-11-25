@@ -1,21 +1,30 @@
 import { FolderSubMenu } from 'components/folder-sub-menu';
-import {
-  IContentListAdvancedFilter,
-  IContentListFilter,
-} from 'features/content/list-view/interfaces';
 import { determineColumns } from 'features/home/constants';
-import { makeFilter } from 'features/home/utils';
+import { filterFormat } from 'features/search-page/utils';
+import { castToSearchResult } from 'features/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp, useContent } from 'store/hooks';
+import { useApp, useContent, useLookup } from 'store/hooks';
 import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import { useMinisters } from 'store/hooks/subscriber/useMinisters';
-import { FlexboxTable, IContentModel, ITableInternalRow, Page, Row } from 'tno-core';
+import {
+  FlexboxTable,
+  generateQuery,
+  IContentModel,
+  IFilterSettingsModel,
+  ITableInternalRow,
+  Row,
+} from 'tno-core';
 
 import * as styled from './styled';
 
 export const MyMinister: React.FC = () => {
-  const [{ homeFilter: filter }, { findContent }] = useContent();
+  const [
+    {
+      myMinister: { filter },
+    },
+    { findContentWithElasticsearch },
+  ] = useContent();
   const [{ userInfo }] = useApp();
   const [, api] = useMinisters();
   const navigate = useNavigate();
@@ -24,6 +33,7 @@ export const MyMinister: React.FC = () => {
   const [ministerNames, setMinisterNames] = React.useState<string[]>([]);
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
   const [, setLoading] = React.useState(false);
+  const [{ actions }] = useLookup();
 
   React.useEffect(() => {
     if (!ministers.length) {
@@ -43,19 +53,27 @@ export const MyMinister: React.FC = () => {
   };
 
   const fetch = React.useCallback(
-    async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
+    async (filter: IFilterSettingsModel) => {
       try {
         setLoading(true);
-        const data = await findContent(
-          makeFilter({
-            ...filter,
-            startDate: '',
-            contentTypes: [],
-            endDate: '',
-          }),
+        const res = await findContentWithElasticsearch(
+          generateQuery(
+            filterFormat(
+              {
+                ...filter,
+                startDate: '',
+                contentTypes: [],
+                endDate: '',
+              },
+              actions,
+            ),
+          ),
+          false,
         );
-        // don't want to keyword fetch when there is nothing to fetch
-        return new Page(data.page - 1, data.quantity, data?.items, data.total);
+        return res.hits.hits.map((r) => {
+          const content = r._source as IContentModel;
+          return castToSearchResult(content);
+        });
       } catch (error) {
         // TODO: Handle error
         throw error;
@@ -63,7 +81,8 @@ export const MyMinister: React.FC = () => {
         setLoading(false);
       }
     },
-    [findContent],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [findContentWithElasticsearch],
   );
 
   React.useEffect(() => {
@@ -74,7 +93,7 @@ export const MyMinister: React.FC = () => {
         .map((x) => x.name);
       setMinisterNames(selectedMinisters);
     }
-  }, [ministers, userInfo?.preferences?.myMinisters]);
+  }, [ministers, userInfo?.preferences?.myMinisters, actions]);
 
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
@@ -83,7 +102,7 @@ export const MyMinister: React.FC = () => {
       ...filter,
       names: ministerNames.toString(),
     }).then((data) => {
-      setHomeItems(data.items);
+      setHomeItems(data);
     });
     // only want the effect to trigger when aliases is populated, not every time the filter changes
     // eslint-disable-next-line react-hooks/exhaustive-deps

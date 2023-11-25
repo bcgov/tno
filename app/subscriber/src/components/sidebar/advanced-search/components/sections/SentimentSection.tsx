@@ -3,7 +3,12 @@ import { Col, SentimentSlider } from 'tno-core';
 
 /** section that contains the sentiment slider to filter content on tone values */
 export const SentimentSection: React.FC = () => {
-  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
+  const [
+    {
+      search: { filter },
+    },
+    { storeSearchFilter: storeFilter },
+  ] = useContent();
   return (
     <Col justifyItems="stretch">
       <SentimentSlider

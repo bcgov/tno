@@ -22,7 +22,6 @@ export const SearchPage: React.FC = () => {
   const [, { findContentWithElasticsearch }] = useContent();
   const navigate = useNavigate();
   const [{ actions }] = useLookup();
-  const [{ searchFilter: filter }] = useContent();
   const [searchParams] = useSearchParams();
 
   const searchName = React.useMemo(() => searchParams.get('name'), [searchParams]);
@@ -31,13 +30,18 @@ export const SearchPage: React.FC = () => {
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [
+    {
+      search: { filter },
+    },
+  ] = useContent();
 
   // function that bolds the searched text only if advanced filter is enabled for it
   const formatSearch = React.useCallback(
     (text: string) => {
       let tempText = text;
       let parseText = () => {
-        if (filter.searchTerm) return filter.searchTerm;
+        if (filter.search) return filter.search;
         else return '';
       };
       parseText()
@@ -62,14 +66,14 @@ export const SearchPage: React.FC = () => {
       if (!filter.boldKeywords) return parse(text);
       return parse(tempText);
     },
-    [filter.searchTerm, filter.boldKeywords],
+    [filter.search, filter.boldKeywords],
   );
 
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
         setIsLoading(true);
-        const res: any = await findContentWithElasticsearch(filter, false);
+        const res: any = await findContentWithElasticsearch(filter, false, 'search');
         setSearchItems(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
         if (res.hits.total.value >= 500)
           toast.warn(

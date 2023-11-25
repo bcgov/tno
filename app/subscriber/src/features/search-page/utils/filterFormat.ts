@@ -1,26 +1,21 @@
-import {
-  IContentListAdvancedFilter,
-  IContentListFilter,
-} from 'features/content/list-view/interfaces';
 import moment from 'moment';
 import { IActionModel, IFilterSettingsModel } from 'tno-core';
 
 import { getActionFilters } from './getActionFilter';
 
-export const filterFormat = (
-  filter: IContentListFilter & Partial<IContentListAdvancedFilter>,
-  actions: IActionModel[],
-) => {
+export const filterFormat = (filter: IFilterSettingsModel, actions?: IActionModel[]) => {
+  console.log(filter.endDate, filter.startDate);
   const settings: IFilterSettingsModel = {
-    actions: getActionFilters(filter, actions),
-    contentTypes: filter.contentTypes,
+    actions: getActionFilters(filter, actions ?? []),
+    contentTypes: filter.contentTypes ?? [],
+    contentIds: filter.contentIds ?? [],
     contributorIds: filter.contributorIds ?? [],
-    dateOffset: filter.dateOffset ?? 0,
+    dateOffset: filter.dateOffset,
     edition: filter.edition ?? '',
-    endDate: filter.publishedEndOn
-      ? filter.publishedEndOn
-      : filter.publishedStartOn
-      ? `${moment(filter.publishedStartOn).endOf('day')}`
+    endDate: filter.endDate
+      ? filter.endDate
+      : filter.startDate
+      ? `${moment(filter.startDate).endOf('day')}`
       : undefined,
     from: 0,
     inByline: filter.inByline ?? false,
@@ -28,17 +23,16 @@ export const filterFormat = (
     inStory: filter.inStory ?? false,
     mediaTypeIds: filter.mediaTypeIds ?? [],
     page: filter.page ?? '',
-    search: filter.searchTerm,
+    search: filter.search,
     searchUnpublished: filter.searchUnpublished ?? false,
     section: filter.section ?? '',
     sentiment: filter.sentiment ?? [],
     seriesIds: filter.seriesIds ?? [],
-    size: 100,
+    size: 500,
     sourceIds: filter.sourceIds ?? [],
-    startDate: !!filter.publishedStartOn ? filter.publishedStartOn : undefined,
+    startDate: !!filter.startDate ? filter.startDate : undefined,
     tags: filter.tags ?? [],
     topStory: filter.topStory ?? false,
   };
-
   return settings;
 };

@@ -5,7 +5,8 @@ import { FieldSize, OptionItem, Row, Select } from 'tno-core';
 /** Section for advanced filter that allows users to select contributors they want to filter content off of. */
 export const ContributorSection: React.FC = () => {
   const [{ contributors }] = useLookup();
-  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
+  const [{ search }, { storeSearchFilter: storeFilter }] = useContent();
+  const filter = search.filter;
   const contributorOptions = useMemo(
     () =>
       contributors.map((c) => {
@@ -18,7 +19,7 @@ export const ContributorSection: React.FC = () => {
       <Select
         name="contributorIds"
         isMulti
-        key={filter.contributorIds?.join(',')}
+        key={search.filter.contributorIds?.join(',')}
         width={FieldSize.Stretch}
         className="contributors"
         options={contributorOptions}

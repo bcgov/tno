@@ -4,7 +4,12 @@ import { FieldSize, Row, Select } from 'tno-core';
 
 /** component that allows user to filter down the advanced search based on products */
 export const MediaTypeSection: React.FC = () => {
-  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
+  const [
+    {
+      search: { filter },
+    },
+    { storeSearchFilter: storeFilter },
+  ] = useContent();
   const [{ mediaTypes }] = useLookupOptions();
 
   const mediaTypeOptions = useMemo(

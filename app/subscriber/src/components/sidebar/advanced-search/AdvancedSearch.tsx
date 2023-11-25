@@ -56,12 +56,17 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   const navigate = useNavigate();
   const [, { addFilter, getFilter, updateFilter }] = useFilters();
   const [{ actions }] = useLookup();
-  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
   const [searchParams] = useSearchParams();
 
   const filterId = React.useMemo(() => Number(searchParams.get('modify')), [searchParams]);
   const [searchName, setSearchName] = React.useState<string>('');
   const [viewedFilter, setViewedFilter] = React.useState<IFilterModel>();
+  const [
+    {
+      search: { filter },
+    },
+    { storeSearchFilter: storeFilter },
+  ] = useContent();
   /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
   const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
     React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);
@@ -160,7 +165,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
                 onKeyDown={enterPressed}
                 name="search"
                 onChange={(e) => {
-                  storeFilter({ ...filter, searchTerm: e.target.value });
+                  storeFilter({ ...filter, search: e.target.value });
                 }}
               />
             </Row>
@@ -168,11 +173,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
           <Show visible={expanded}>
             <Col className="text-area-container">
               <TextArea
-                value={filter?.searchTerm}
+                value={filter?.search}
                 className="text-area"
                 onKeyDown={enterPressed}
                 name="search"
-                onChange={(e) => storeFilter({ ...filter, searchTerm: e.target.value })}
+                onChange={(e) => storeFilter({ ...filter, search: e.target.value })}
               />
               <SearchInGroup />
             </Col>

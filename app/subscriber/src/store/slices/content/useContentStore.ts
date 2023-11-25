@@ -1,17 +1,26 @@
+import { KnnSearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { IContentListFilter } from 'features/content/list-view/interfaces';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
-import { IContentModel, IOptionItem, IPaged } from 'tno-core';
+import { IContentModel, IFilterSettingsModel, IOptionItem } from 'tno-core';
 
 import {
-  addContent,
-  removeContent,
-  storeContent,
+  storeFrontPageContent,
+  storeFrontPageFilter,
   storeGalleryDateFilter,
   storeGalleryPressFilter,
+  storeHomeContent,
   storeHomeFilter,
+  storeMediaTypeContent,
+  storeMediaTypeFilter,
+  storeMyMinisterContent,
+  storeMyMinisterFilter,
+  storeSearchContent,
   storeSearchFilter,
-  updateContent,
+  storeTodaysCommentaryContent,
+  storeTodaysCommentaryFilter,
+  storeTopStoriesContent,
+  storeTopStoriesFilter,
 } from '.';
 import { IContentState } from './interfaces';
 
@@ -22,12 +31,20 @@ export interface IContentProps {
 export interface IContentStore {
   storeGalleryDateFilter: (date: IOptionItem | null) => void;
   storeGalleryPressFilter: (filter: IOptionItem | null) => void;
-  storeSearchFilter: (filter: IContentListFilter) => void;
-  storeHomeFilter: (filter: IContentListFilter) => void;
-  storeContent: (content: IPaged<IContentModel>) => void;
-  addContent: (content: IContentModel[]) => void;
-  updateContent: (content: IContentModel[]) => void;
-  removeContent: (content: IContentModel[]) => void;
+  storeFrontPageFilter: (filter: IFilterSettingsModel) => void;
+  storeMediaTypeFilter: (filter: IFilterSettingsModel) => void;
+  storeSearchFilter: (filter: IFilterSettingsModel) => void;
+  storeMyMinisterFilter: (filter: IFilterSettingsModel) => void;
+  storeTodaysCommentaryFilter: (filter: IFilterSettingsModel) => void;
+  storeHomeFilter: (filter: IFilterSettingsModel) => void;
+  storeTopStoriesFilter: (filter: IFilterSettingsModel) => void;
+  storeSearchContent: (content: KnnSearchResponse<IContentModel>) => void;
+  storeFrontPageContent: (content: KnnSearchResponse<IContentModel>) => void;
+  storeHomeContent: (content: KnnSearchResponse<IContentModel>) => void;
+  storeMediaTypeContent: (content: KnnSearchResponse<IContentModel>) => void;
+  storeMyMinisterContent: (content: KnnSearchResponse<IContentModel>) => void;
+  storeTodaysCommentaryContent: (content: KnnSearchResponse<IContentModel>) => void;
+  storeTopStoriesContent: (content: KnnSearchResponse<IContentModel>) => void;
 }
 
 export const useContentStore = (props?: IContentProps): [IContentState, IContentStore] => {
@@ -42,23 +59,47 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
       storeGalleryDateFilter: (date: IOptionItem | null) => {
         dispatch(storeGalleryDateFilter(date));
       },
-      storeSearchFilter: (filter: IContentListFilter) => {
+      storeSearchFilter: (filter: IFilterSettingsModel) => {
         dispatch(storeSearchFilter(filter));
       },
-      storeHomeFilter: (filter: IContentListFilter) => {
+      storeTodaysCommentaryFilter: (filter: IFilterSettingsModel) => {
+        dispatch(storeTodaysCommentaryFilter(filter));
+      },
+      storeHomeFilter: (filter: IFilterSettingsModel) => {
         dispatch(storeHomeFilter(filter));
       },
-      storeContent: (content: IPaged<IContentModel>) => {
-        dispatch(storeContent(content));
+      storeMyMinisterFilter: (filter: IFilterSettingsModel) => {
+        dispatch(storeMyMinisterFilter(filter));
       },
-      addContent: (content: IContentModel[]) => {
-        dispatch(addContent(content));
+      storeFrontPageFilter: (filter: IFilterSettingsModel) => {
+        dispatch(storeFrontPageFilter(filter));
       },
-      updateContent: (content: IContentModel[]) => {
-        dispatch(updateContent(content));
+      storeTopStoriesFilter: (filter: IFilterSettingsModel) => {
+        dispatch(storeTopStoriesFilter(filter));
       },
-      removeContent: (content: IContentModel[]) => {
-        dispatch(removeContent(content));
+      storeMediaTypeFilter: (filter: IFilterSettingsModel) => {
+        dispatch(storeMediaTypeFilter(filter));
+      },
+      storeSearchContent: (content: KnnSearchResponse<IContentModel>) => {
+        dispatch(storeSearchContent(content));
+      },
+      storeFrontPageContent: (content: KnnSearchResponse<IContentModel>) => {
+        dispatch(storeFrontPageContent(content));
+      },
+      storeHomeContent: (content: KnnSearchResponse<IContentModel>) => {
+        dispatch(storeHomeContent(content));
+      },
+      storeMediaTypeContent: (content: KnnSearchResponse<IContentModel>) => {
+        dispatch(storeMediaTypeContent(content));
+      },
+      storeMyMinisterContent: (content: KnnSearchResponse<IContentModel>) => {
+        dispatch(storeMyMinisterContent(content));
+      },
+      storeTodaysCommentaryContent: (content: KnnSearchResponse<IContentModel>) => {
+        dispatch(storeTodaysCommentaryContent(content));
+      },
+      storeTopStoriesContent: (content: KnnSearchResponse<IContentModel>) => {
+        dispatch(storeTopStoriesContent(content));
       },
     }),
     [dispatch],

@@ -25,7 +25,12 @@ import { generateDates } from './utils';
 
 export const PressGallery: React.FC = () => {
   const navigate = useNavigate();
-  const [{ homeFilter: filter }, { findContentWithElasticsearch }] = useContent();
+  const [
+    {
+      home: { filter },
+    },
+    { findContentWithElasticsearch },
+  ] = useContent();
   const [, api] = useContributors();
   const [results, setResults] = React.useState<IContentModel[]>();
   const [pressMembers, setPressMembers] = React.useState<IPressMember[]>([]);
@@ -61,7 +66,7 @@ export const PressGallery: React.FC = () => {
     },
     // do not want to trigger on loading change, will cause infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [findContentWithElasticsearch],
+    [],
   );
 
   /** separate requests to find total hits for each press member */
@@ -142,7 +147,7 @@ export const PressGallery: React.FC = () => {
         generateQuery({
           ...pressSettings,
           search: contributor.aliases,
-          startDate: `${moment(filter.publishedStartOn).subtract(2, 'weeks')}`,
+          startDate: `${moment(filter.startDate).subtract(2, 'weeks')}`,
           endDate: `${moment()}`,
         }),
         contributor.name,
@@ -251,7 +256,7 @@ export const PressGallery: React.FC = () => {
                 ...pressSettings,
                 defaultSearchOperator: 'or',
                 search: aliases.toString().split(',').join(' '),
-                startDate: `${moment(filter.publishedStartOn).subtract(2, 'weeks')}`,
+                startDate: `${moment(filter.startDate).subtract(2, 'weeks')}`,
                 endDate: `${moment()}`,
               }),
             );

@@ -1,12 +1,39 @@
-import { IContentListFilter } from 'features/content/list-view/interfaces';
-import { IContentModel, IOptionItem, IPaged } from 'tno-core';
+import { KnnSearchResponse } from '@elastic/elasticsearch/lib/api/types';
+import { IContentModel, IFilterSettingsModel, IOptionItem } from 'tno-core';
 
 export interface IContentState {
-  searchFilter: IContentListFilter;
-  homeFilter: IContentListFilter;
-  content?: IPaged<IContentModel>;
+  // each page has own content and filter state
+  frontPage: {
+    content?: KnnSearchResponse<IContentModel>;
+    filter: IFilterSettingsModel;
+  };
+  home: {
+    content?: KnnSearchResponse<IContentModel>;
+    filter: IFilterSettingsModel;
+  };
+  mediaType: {
+    content?: KnnSearchResponse<IContentModel>;
+    filter: IFilterSettingsModel;
+  };
+
+  myMinister: {
+    content?: KnnSearchResponse<IContentModel>;
+    filter: IFilterSettingsModel;
+  };
   pressGalleryFilter: {
     dateFilter?: IOptionItem | null;
     pressFilter?: IOptionItem | null;
+  };
+  search: {
+    content?: KnnSearchResponse<IContentModel>;
+    filter: IFilterSettingsModel;
+  };
+  todaysCommentary: {
+    content?: KnnSearchResponse<IContentModel>;
+    filter: IFilterSettingsModel;
+  };
+  topStories: {
+    content?: KnnSearchResponse<IContentModel>;
+    filter: IFilterSettingsModel;
   };
 }

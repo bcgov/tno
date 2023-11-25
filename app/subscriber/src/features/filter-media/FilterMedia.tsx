@@ -1,41 +1,40 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
 import { determineColumns } from 'features/home/constants';
-import { createFilterSettings } from 'features/utils';
 import moment from 'moment';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FiRefreshCcw } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { useContent, useLookup, useLookupOptions } from 'store/hooks';
-import {
-  FieldSize,
-  FlexboxTable,
-  generateQuery,
-  IContentModel,
-  IFilterSettingsModel,
-  IOptionItem,
-  Row,
-  Select,
-} from 'tno-core';
+import { useContent, useLookup } from 'store/hooks';
+import { FieldSize, FlexboxTable, generateQuery, IContentModel, Row, Select } from 'tno-core';
 
 import * as styled from './styled';
 
 export const FilterMedia: React.FC = () => {
   const navigate = useNavigate();
-  const [{ homeFilter: filter }, { findContentWithElasticsearch }] = useContent();
-  const [{ mediaTypeOptions, sourceOptions }] = useLookupOptions();
-  const [{ sources, mediaTypes }] = useLookup();
-  const [results, setResults] = React.useState<IContentModel[]>([]);
+  const [{ mediaTypes, sources }] = useLookup();
+  const [
+    {
+      mediaType: { filter },
+    },
+    { findContentWithElasticsearch, storeMediaTypeFilter: storeFilter },
+  ] = useContent();
 
-  const [mediaTypeValue, setMediaTypeValue] = React.useState<IOptionItem | null>();
-  const [sourceValue, setSourceValue] = React.useState<IOptionItem | null>();
-
-  const [settings, setSettings] = React.useState<IFilterSettingsModel>(
-    createFilterSettings(
-      filter.publishedStartOn ?? moment().startOf('day').toISOString(),
-      filter.publishedEndOn ?? moment().endOf('day').toISOString(),
-    ),
+  const mediaTypeOptions = useMemo(
+    () =>
+      mediaTypes.map((t) => {
+        return { value: t.id, label: t.name };
+      }),
+    [mediaTypes],
   );
+
+  const sourceOptions = useMemo(() => {
+    return sources.map((s) => {
+      return { value: s.id, label: s.name };
+    });
+  }, [sources]);
+
+  const [results, setResults] = React.useState<IContentModel[]>([]);
 
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
@@ -44,61 +43,69 @@ export const FilterMedia: React.FC = () => {
         setResults(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
       } catch {}
     },
-    [findContentWithElasticsearch],
+    // only run on filter change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [filter],
   );
 
   React.useEffect(() => {
-    setSettings(
-      createFilterSettings(
-        filter.publishedStartOn ?? moment().startOf('day').toISOString(),
-        filter.publishedEndOn ?? moment().endOf('day').toISOString(),
-      ),
+    fetchResults(
+      generateQuery({
+        ...filter,
+        mediaTypeIds: filter.mediaTypeIds ?? [],
+        sourceIds: filter.sourceIds ?? [],
+      }),
     );
-  }, [filter.publishedStartOn, filter.publishedEndOn]);
+    // only run on filter change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
 
   return (
     <styled.FilterMedia>
       <Row className="tool-bar">
         <Select
           width={FieldSize.Medium}
+          key={`${filter.mediaTypeIds?.length}-media`}
           name="select-media-type"
           placeholder={'Select a media type'}
+          defaultValue={mediaTypeOptions.filter((o) => {
+            return filter.mediaTypeIds?.includes(Number(o.value));
+          })}
           isClearable={false}
-          clearValue={() => setMediaTypeValue(null)}
-          value={mediaTypeValue}
           onChange={(e: any) => {
             if (!!e.value) {
-              setMediaTypeValue(e);
+              storeFilter({ ...filter, mediaTypeIds: [e.value] });
             }
           }}
           options={mediaTypeOptions}
         />
         <Select
-          value={sourceValue}
           isClearable={false}
           options={sourceOptions}
           placeholder={'Select a source'}
-          clearValue={() => setSourceValue(null)}
+          key={`${filter.sourceIds?.length}-source`}
+          defaultValue={sourceOptions.filter((o) => {
+            return filter.sourceIds?.includes(Number(o.value));
+          })}
           onChange={(e: any) => {
             if (!!e.value) {
-              setSourceValue(e);
+              storeFilter({ ...filter, sourceIds: [e.value] });
             }
           }}
           name="source-select"
           width={FieldSize.Medium}
         />
-        <DateFilter />
+        <DateFilter filter={filter} storeFilter={storeFilter} />
         <FiRefreshCcw
           className="reset"
           onClick={() => {
-            fetchResults(
-              generateQuery({
-                ...settings,
-                defaultSearchOperator: 'and',
-                mediaTypeIds: [mediaTypes.find((p) => p.name === mediaTypeValue?.label)?.id ?? 0],
-                sourceIds: [sources.find((s) => s.id === sourceValue?.value)?.id ?? 0],
-              }),
-            );
+            storeFilter({
+              ...filter,
+              mediaTypeIds: [],
+              sourceIds: [],
+              startDate: moment().startOf('day').toISOString(),
+              endDate: moment().endOf('day').toISOString(),
+            });
           }}
         />
       </Row>
