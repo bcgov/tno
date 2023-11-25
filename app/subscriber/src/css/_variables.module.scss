@@ -1,6 +1,44 @@
-@import './_colors';
-@import './_fonts';
+@import './_variables';
+
 :export {
+  // The purpose of this file is to help us create a theme so that when UI colour changes we can control them in one place.
+
+  // Shadows
+  dropShadow: $drop-shadow;
+  boxShadow: $box-shadow;
+
+  // Backgrounds
+  bkPrimary: $bk-primary;
+  bkSecondary: $bk-secondary;
+  bkTertiary: $bk-tertiary;
+
+  // Fonts
+  fPrimary: $f-primary;
+  fSecondary: $f-secondary;
+  fPrimaryColor: $f-primary-color;
+  hPrimaryColor: $h-primary-color;
+
+  // Links
+  linkPrimaryColor: $link-primary-color;
+  linkPrimaryHoverColor: $link-primary-hover-color;
+  linkPrimaryActiveColor: $link-primary-active-color;
+
+  // Icons
+  iconPrimaryColor: $icon-primary-color;
+  iconSecondaryColor: $icon-secondary-color;
+
+  // Buttons
+  btnBkPrimary: $btn-bk-primary;
+  btnPrimaryColor: $btn-primary-color;
+
+  // Lines
+  linePrimaryColor: $line-primary-color;
+  lineSecondaryColor: $line-secondary-color;
+
+  /////////////////////////////////////
+  //  STOP USING ANYTHING BELOW THIS!
+  /////////////////////////////////////
+
   actionButtonColor: $action-button-color;
   backgroundColor: $background-color;
   primaryColor: $primary-color;
@@ -77,5 +115,5 @@
   whiteRgb: $bs-white-rgb;
   blackRgb: $bs-black-rgb;
   textOpacity: $bs-text-opacity;
-  bcSans: $bc-sans;
+  bcSans: $f-primary;
 }

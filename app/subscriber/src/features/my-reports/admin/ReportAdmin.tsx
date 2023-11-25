@@ -5,8 +5,8 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useReports, useReportTemplates } from 'store/hooks';
-import { useAppStore } from 'store/slices';
-import { Col, Container, Loading, Row } from 'tno-core';
+import { useAppStore, useProfileStore } from 'store/slices';
+import { Col, Container, Row } from 'tno-core';
 
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
@@ -32,18 +32,29 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
   const [{ userInfo }] = useApp();
   const navigate = useNavigate();
   const { id, path = defaultPath } = useParams();
-  const [{ getReport, addReport, updateReport, findReports }] = useReports();
+  const [{ myReports }] = useProfileStore();
+  const [{ getReport, addReport, updateReport, findMyReports }] = useReports();
   const [{ getReportTemplates }] = useReportTemplates();
   const [{ requests }] = useAppStore();
 
   const [report, setReport] = React.useState<IReportForm>(defaultReport(userInfo?.id));
 
   React.useEffect(() => {
+    if (!myReports.length) {
+      findMyReports().catch(() => {});
+    }
+    // Only do this on init.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
     const reportId = parseInt(id ?? '0');
     if (reportId)
       getReport(reportId)
         .then((result) => {
-          if (result) setReport(toForm(result, report));
+          if (result) {
+            setReport(toForm(result, report));
+          }
         })
         .catch(() => {});
     // Only make a request when 'id' changes.
@@ -70,13 +81,10 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
     async (values: IReportForm) => {
       try {
         const originalId = values.id;
-        const sameNameReport = originalId
-          ? []
-          : await findReports({
-              name: values.name,
-              ownerId: values.ownerId,
-            });
-        if (sameNameReport.length > 0) {
+        const sameNameReport = myReports.some(
+          (r) => r.name.trim().toLocaleLowerCase() === values.name.trim().toLocaleLowerCase(),
+        );
+        if (sameNameReport) {
           toast.error(`A report with the name '${values.name}' already exists.`);
         } else {
           const report = originalId ? await updateReport(values) : await addReport(values);
@@ -98,42 +106,34 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
         }
       } catch {}
     },
-    [addReport, findReports, navigate, path, updateReport],
+    [addReport, myReports, navigate, path, updateReport],
   );
 
   return (
     <styled.ReportAdmin>
       <SearchWithLogout />
-
-      {id && !report.id ? (
-        <Row className="loader">
-          <Loading />
-        </Row>
-      ) : (
-        <FormikForm
-          loading={false}
-          initialValues={report}
-          validationSchema={ReportFormSchema}
-          validateOnChange={false}
-          onSubmit={async (values, { setSubmitting }) => {
-            await handleSubmit(values);
-            setSubmitting(false);
-          }}
-        >
-          {(props: FormikProps<IReportForm>) => (
-            <Row className="report-layout" gap="1rem">
-              <Col flex="1" className="edit">
-                <Container isLoading={requests.some((r) => loading.includes(r.url))}>
-                  <ReportAdminEdit />
-                </Container>
-              </Col>
-              <Col flex="1" className="preview">
-                <ReportAdminPreview />
-              </Col>
-            </Row>
-          )}
-        </FormikForm>
-      )}
+      <FormikForm
+        initialValues={report}
+        validationSchema={ReportFormSchema}
+        validateOnChange={false}
+        onSubmit={async (values, { setSubmitting }) => {
+          await handleSubmit(values);
+          setSubmitting(false);
+        }}
+      >
+        {(props: FormikProps<IReportForm>) => (
+          <Row className="report-layout" gap="1rem">
+            <Col flex="1" className="edit">
+              <Container isLoading={requests.some((r) => loading.includes(r.url))}>
+                <ReportAdminEdit />
+              </Container>
+            </Col>
+            <Col flex="1" className="preview">
+              <ReportAdminPreview />
+            </Col>
+          </Row>
+        )}
+      </FormikForm>
     </styled.ReportAdmin>
   );
 };

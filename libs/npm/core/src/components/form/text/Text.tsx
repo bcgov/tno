@@ -62,7 +62,7 @@ export const Text: React.FC<ITextProps> = ({
   ...rest
 }) => {
   return (
-    <styled.Text className="frm-in">
+    <styled.Text className={`frm-in${className ? ` ${className}` : ''}`}>
       {label && (
         <label
           data-tooltip-id="main-tooltip"
@@ -79,7 +79,7 @@ export const Text: React.FC<ITextProps> = ({
           id={id}
           type={type}
           variant={variant}
-          className={`txt ${className ?? ''}`}
+          className="txt"
           data-tooltip-id="main-tooltip"
           width={width}
           role={error ? 'alert' : 'none'}

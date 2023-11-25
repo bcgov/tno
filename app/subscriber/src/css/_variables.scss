@@ -1,11 +1,64 @@
+// The purpose of this file is to help us create a theme so that when UI colour changes we can control them in one place.
+
+// Background
+$bk-primary: linear-gradient(#F0EEEE, #D9D9D9);
+$bk-secondary: linear-gradient(0deg, #FFFFFF, #FFFFFF),
+linear-gradient(0deg, #F0EEEE, #F0EEEE);
+$bk-tertiary: #E8E9F1;
+
+// Shadows
+$drop-shadow: drop-shadow(0 2px 6px 1px rgba(0, 0, 0, 25%));
+$box-shadow: 0 4px 6px 1px rgba(0, 0, 0, 25%);
+
+// Fonts
+$f-primary: 'Source Sans Pro',
+'BCSans',
+'Noto Sans',
+Arial,
+sans serif;
+$f-secondary: 'BCSans',
+'Noto Sans',
+Arial,
+sans serif;
+$f-primary-color: #41393B;
+$h-primary-color: #971D29;
+
+// Links
+$link-primary-color: #646293;
+$link-primary-hover-color:#565a8b;
+$link-primary-active-color:#b3a5d3;
+
+// Icons
+$icon-primary-color: #8084B1;
+$icon-secondary-color: #DED9DA;
+
+// Buttons
+$btn-bk-primary: #6750A4;
+$btn-primary-color: #fff;
+
+// Lines
+$line-primary-color: #807E9B;
+$line-secondary-color: #F0EEEE;
+
+
+/////////////////////////////////////
+//  STOP USING ANYTHING BELOW THIS!
+/////////////////////////////////////
+
 $action-button-color: #007af5;
 $background-color: white;
 $primary-color: #003366;
-$primary-color-rgb: 0, 51, 102;
+$primary-color-rgb: 0,
+51,
+102;
 $primary-light-color: #38598a;
-$primary-light-color-rgb: 56, 89, 138;
+$primary-light-color-rgb: 56,
+89,
+138;
 $secondary-variant-color: #428bca;
-$secondary-variant-color-rgb: 66, 139, 202;
+$secondary-variant-color-rgb: 66,
+139,
+202;
 $light-variant-color: #606060;
 $dark-variant-color: #121212;
 $text-color: #494949;
@@ -86,15 +139,39 @@ $bs-warning: #ffc107;
 $bs-danger: #dc3545;
 $bs-light: #f8f9fa;
 $bs-dark: #212529;
-$bs-primary-rgb: 13, 110, 253;
-$bs-secondary-rgb: 108, 117, 125;
-$bs-success-rgb: 25, 135, 84;
-$bs-info-rgb: 13, 202, 240;
-$bs-warning-rgb: 255, 193, 7;
-$bs-danger-rgb: 220, 53, 69;
-$bs-light-rgb: 248, 249, 250;
-$bs-dark-rgb: 33, 37, 41;
-$bs-white-rgb: 255, 255, 255;
-$bs-black-rgb: 0, 0, 0;
-$bs-body-color-rgb: 33, 37, 41;
-$bs-body-bg-rgb: 255, 255, 255;
+$bs-primary-rgb: 13,
+110,
+253;
+$bs-secondary-rgb: 108,
+117,
+125;
+$bs-success-rgb: 25,
+135,
+84;
+$bs-info-rgb: 13,
+202,
+240;
+$bs-warning-rgb: 255,
+193,
+7;
+$bs-danger-rgb: 220,
+53,
+69;
+$bs-light-rgb: 248,
+249,
+250;
+$bs-dark-rgb: 33,
+37,
+41;
+$bs-white-rgb: 255,
+255,
+255;
+$bs-black-rgb: 0,
+0,
+0;
+$bs-body-color-rgb: 33,
+37,
+41;
+$bs-body-bg-rgb: 255,
+255,
+255;

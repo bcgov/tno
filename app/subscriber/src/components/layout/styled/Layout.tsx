@@ -14,7 +14,7 @@ export const Layout = styled.div<ILayoutProps>`
 
   /* 2 column base grid, sidebar left column, main content right column */
   .grid-container {
-    background-color: ${(props) => props.theme.css.beigeBackgroundColor};
+    background-color: ${(props) => props.theme.css.bkPrimary};
     /* overflow: hidden; */
     display: grid;
     /* media query for screens bigger than 500 */
@@ -36,6 +36,6 @@ export const Layout = styled.div<ILayoutProps>`
     }
     /* should never be scrolling from main contents, always scroll within components */
     overflow: hidden;
-    background-color: ${(props) => props.theme.css.beigeBackgroundColor};
+    background-color: ${(props) => props.theme.css.bkPrimaryColor};
   }
 `;

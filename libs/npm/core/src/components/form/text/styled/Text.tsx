@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
-import { Col } from '../../../flex';
-
-export const Text = styled(Col)`
+export const Text = styled.div`
+  display: flex;
+  flex-direction: column;
   padding-right: 0.5em;
 
   p[role='alert'] {

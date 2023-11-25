@@ -46,7 +46,7 @@ export const ReportAdminEdit: React.FC<IReportAdminProps> = ({
       try {
         await deleteReport(values);
         toast.success(`Report '${values.name}' has been deleted.`);
-        navigate('/landing/myreports');
+        navigate('/reports');
       } catch {}
     },
     [deleteReport, navigate],

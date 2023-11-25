@@ -1,19 +1,27 @@
-@import './css/_colors';
+@import './css/_variables';
 
 body {
   margin: 0;
   background-color: #efebdf;
-  // overflow: hidden;
 }
 
 body,
 button,
 input,
 textarea {
-  font-family: -apple-system, BlinkMacSystemFont, 'BCSans', 'Noto Sans', Arial, 'sans serif';
   font-size: 1em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body,
+button {
+  font-family: -apple-system, BlinkMacSystemFont, $f-primary;
+}
+
+input,
+textarea {
+  font-family: -apple-system, BlinkMacSystemFont, $f-secondary;
 }
 
 code {
