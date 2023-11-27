@@ -96,7 +96,7 @@ export const MyProducts: React.FC = () => {
         </div>
       </PageSection>
       <Modal
-        headerText="Confirm Subscription Status Change"
+        headerText={`Confirm ${product?.isSubscribed ? 'Unsubscribe' : 'Subscribe'}`}
         body={`Are you sure you wish to ${
           product?.isSubscribed ? 'Unsubscribe from' : 'Subscribe to'
         } "${product?.name}"?`}

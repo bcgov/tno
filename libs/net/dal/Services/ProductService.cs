@@ -164,6 +164,7 @@ public class ProductService : BaseService<Product, int>, IProductService
         original.ProductType = entity.ProductType;
         original.TargetProductId = entity.TargetProductId;
         original.IsEnabled = entity.IsEnabled;
+        original.IsPublic = entity.IsPublic;
         original.SortOrder = entity.SortOrder;
         original.Version = entity.Version;
         this.Context.ResetVersion(original);
