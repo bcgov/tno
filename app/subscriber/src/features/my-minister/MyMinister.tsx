@@ -8,14 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp, useContent, useLookup } from 'store/hooks';
 import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import { useMinisters } from 'store/hooks/subscriber/useMinisters';
-import {
-  FlexboxTable,
-  generateQuery,
-  IContentModel,
-  IFilterSettingsModel,
-  ITableInternalRow,
-  Row,
-} from 'tno-core';
+import { FlexboxTable, generateQuery, IContentModel, ITableInternalRow, Row } from 'tno-core';
 
 import * as styled from './styled';
 
