@@ -3,6 +3,7 @@ import { AccessRequest } from 'features/access-request';
 import { Landing } from 'features/landing';
 import { Login } from 'features/login';
 import { ManageFolder } from 'features/manage-folder';
+import { MyProducts } from 'features/my-products';
 import { ReportAdmin, ReportSnapshot } from 'features/my-reports';
 import { MyReports } from 'features/my-reports';
 import ReportInstancePreview from 'features/my-reports/view/ReportInstancePreview';
@@ -63,6 +64,10 @@ export const AppRouter: React.FC<IAppRouter> = () => {
         <Route
           path="/view/my-minister/:id"
           element={<PrivateRoute claims={Claim.subscriber} element={<Landing />}></PrivateRoute>}
+        />
+        <Route
+          path="/products"
+          element={<PrivateRoute claims={Claim.subscriber} element={<MyProducts />}></PrivateRoute>}
         />
         <Route
           path="/reports"
