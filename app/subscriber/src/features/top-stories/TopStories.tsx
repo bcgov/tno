@@ -24,6 +24,8 @@ export const TopStories: React.FC = () => {
   const [{ actions }] = useLookup();
 
   React.useEffect(() => {
+    // stops invalid requests before filter is synced with date
+    if (!actions.length || !filter.startDate) return;
     findContentWithElasticsearch(
       generateQuery(
         filterFormat(

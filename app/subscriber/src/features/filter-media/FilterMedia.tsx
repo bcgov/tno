@@ -49,6 +49,8 @@ export const FilterMedia: React.FC = () => {
   );
 
   React.useEffect(() => {
+    // stops invalid requests before filter is synced with date
+    if (!filter.startDate) return;
     fetchResults(
       generateQuery({
         ...filter,

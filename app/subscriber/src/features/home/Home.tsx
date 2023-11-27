@@ -63,12 +63,14 @@ export const Home: React.FC = () => {
   );
 
   React.useEffect(() => {
+    // stops invalid requests before filter is synced with date
+    if (!filter.startDate) return;
     fetchResults(
       generateQuery({
         ...settings,
         contentTypes: !!contentType ? filter.contentTypes : [],
-        startDate: filter.startDate ? filter.startDate : new Date().toDateString(),
-        endDate: filter.endDate ? filter.endDate : new Date().toDateString(),
+        startDate: filter.startDate,
+        endDate: filter.endDate,
         mediaTypeIds: filter.mediaTypeIds ?? [],
         sourceIds: filter.sourceIds ?? [],
       }),
