@@ -1,4 +1,3 @@
-import { Bar } from 'components/bar';
 import { Header } from 'components/header';
 import { PageSection } from 'components/section';
 import React from 'react';
