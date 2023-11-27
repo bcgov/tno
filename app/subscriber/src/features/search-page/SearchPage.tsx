@@ -19,7 +19,12 @@ import { filterFormat } from './utils';
 
 // Simple component to display users search results
 export const SearchPage: React.FC = () => {
-  const [, { findContentWithElasticsearch }] = useContent();
+  const [
+    {
+      search: { filter },
+    },
+    { findContentWithElasticsearch },
+  ] = useContent();
   const navigate = useNavigate();
   const [{ actions }] = useLookup();
   const [searchParams] = useSearchParams();
@@ -30,11 +35,6 @@ export const SearchPage: React.FC = () => {
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [
-    {
-      search: { filter },
-    },
-  ] = useContent();
 
   // function that bolds the searched text only if advanced filter is enabled for it
   const formatSearch = React.useCallback(

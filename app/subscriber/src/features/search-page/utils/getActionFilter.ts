@@ -8,7 +8,6 @@ import { IActionModel, IFilterActionSettingsModel, IFilterSettingsModel } from '
  */
 export const getActionFilters = (filter: IFilterSettingsModel, actions: IActionModel[]) => {
   const result: IFilterActionSettingsModel[] = [];
-  console.log(filter.topStory);
   if (filter.topStory) {
     const action = actions.find((x) => x.name === 'Top Story');
     if (action)
@@ -19,7 +18,6 @@ export const getActionFilters = (filter: IFilterSettingsModel, actions: IActionM
   }
   if (filter.commentary) {
     const action = actions.find((x) => x.name === 'Commentary');
-    console.log('here', actions);
     if (action)
       result.push({
         id: action.id,

@@ -23,8 +23,6 @@ export const TopStories: React.FC = () => {
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [{ actions }] = useLookup();
 
-  console.log(filter);
-
   React.useEffect(() => {
     findContentWithElasticsearch(
       generateQuery(

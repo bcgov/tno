@@ -4,13 +4,13 @@ import { IActionModel, IFilterSettingsModel } from 'tno-core';
 import { getActionFilters } from './getActionFilter';
 
 export const filterFormat = (filter: IFilterSettingsModel, actions?: IActionModel[]) => {
-  console.log(filter.endDate, filter.startDate);
   const settings: IFilterSettingsModel = {
     actions: getActionFilters(filter, actions ?? []),
     contentTypes: filter.contentTypes ?? [],
     contentIds: filter.contentIds ?? [],
     contributorIds: filter.contributorIds ?? [],
     dateOffset: filter.dateOffset,
+    defaultSearchOperator: filter.defaultSearchOperator ?? 'and',
     edition: filter.edition ?? '',
     endDate: filter.endDate
       ? filter.endDate

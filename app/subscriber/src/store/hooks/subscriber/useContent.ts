@@ -23,6 +23,7 @@ interface IContentController {
   download: (id: number, fileName: string) => Promise<unknown>;
   storeSearchFilter: (filter: IFilterSettingsModel) => void;
   storeHomeFilter: (filter: IFilterSettingsModel) => void;
+  storeMyMinisterFilter: (filter: IFilterSettingsModel) => void;
   storeTopStoriesFilter: (filter: IFilterSettingsModel) => void;
   storeFrontPageFilter: (filter: IFilterSettingsModel) => void;
   storeTodayCommentaryFilter: (filter: IFilterSettingsModel) => void;
@@ -100,6 +101,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       storeGalleryPressFilter: actions.storeGalleryPressFilter,
       storeFrontPageFilter: actions.storeFrontPageFilter,
       storeMediaTypeFilter: actions.storeMediaTypeFilter,
+      storeMyMinisterFilter: actions.storeMyMinisterFilter,
       addContent: async (content: IContentModel) => {
         const response = await dispatch('add-content', () => api.addContent(content), 'content');
         return response.data;

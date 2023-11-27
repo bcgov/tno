@@ -62,8 +62,6 @@ export const Home: React.FC = () => {
     [findContentWithElasticsearch],
   );
 
-  console.log(filter);
-
   React.useEffect(() => {
     fetchResults(
       generateQuery({
