@@ -84,7 +84,7 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
         const sameNameReport = myReports.some(
           (r) => r.name.trim().toLocaleLowerCase() === values.name.trim().toLocaleLowerCase(),
         );
-        if (sameNameReport) {
+        if (sameNameReport && !originalId) {
           toast.error(`A report with the name '${values.name}' already exists.`);
         } else {
           const report = originalId ? await updateReport(values) : await addReport(values);
