@@ -1,17 +1,17 @@
+import { Bar } from 'components/bar';
+import { Header } from 'components/header';
+import { PageSection } from 'components/section';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useProducts } from 'store/hooks';
-import { useAppStore } from 'store/slices';
-// import { Col, FlexboxTable, IProductSubscriberModel, Row } from 'tno-core';
-import { Col, FlexboxTable, IProductSubscriberModel, Modal, Row, useModal } from 'tno-core';
+import { IProductSubscriberModel, Modal, Show, useModal } from 'tno-core';
 
-import { useColumns } from './hooks';
+import { ProductCard } from './ProductCard';
 import * as styled from './styled';
 
 export const MyProducts: React.FC = () => {
   const [{ getProducts, toggleSubscription }] = useProducts();
   const { toggle, isShowing } = useModal();
-  const [{ requests }] = useAppStore();
 
   const [products, setProducts] = React.useState<IProductSubscriberModel[]>([]);
   const [product, setProduct] = React.useState<IProductSubscriberModel>();
@@ -44,37 +44,62 @@ export const MyProducts: React.FC = () => {
     [toggleSubscription, products],
   );
 
-  const columns = useColumns(async (product) => {
-    try {
-      setProduct(product);
-      toggle();
-    } catch {}
-  });
-
   return (
     <styled.MyProducts>
-      <Col className="my-reports">
-        <Col className="info">
-          <Row>Media Monitoring products</Row>
-          <Row>
-            The following products are available for subscription. Subscribed products delivered by
-            email.
-          </Row>
-        </Col>
-        <FlexboxTable
-          pagingEnabled={false}
-          columns={columns}
-          rowId={'id'}
-          data={products}
-          showActive={false}
-          isLoading={requests.some((r) => r.url.includes('get-products'))}
-        />
-      </Col>
+      <Header />
+      <Show visible={products.some((p) => p.isSubscribed)}>
+        <PageSection header="MMI Products: Subscribed">
+          <Bar>
+            You are currently subscribed to the following products. Clicking on the Unsubscribe
+            action action will unsubscribe you from that product.
+          </Bar>
+          <div>
+            {products
+              .filter((product) => product.isSubscribed)
+              .map((product) => {
+                return (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onToggleSubscription={(product) => {
+                      setProduct(product);
+                      toggle();
+                    }}
+                  />
+                );
+              })}
+          </div>
+        </PageSection>
+      </Show>
+      <PageSection header="Available products">
+        <Bar>
+          <p>
+            You may request subscription to the following automated products. Susbscribed products
+            are sent by email on a scheduled basis.
+          </p>
+        </Bar>
+        <div>
+          {products
+            .filter((product) => !product.isSubscribed)
+            .map((product) => {
+              return (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onToggleSubscription={(product) => {
+                    setProduct(product);
+                    toggle();
+                  }}
+                />
+              );
+            })}
+        </div>
+      </PageSection>
       <Modal
         headerText="Confirm Subscription Status Change"
         body={`Are you sure you wish to ${
-          product?.isSubscribed ? 'Unsubscribe' : 'Subscribe'
-        } to the "${product?.name}" report?`}
+          product?.isSubscribed ? 'Unsubscribe from' : 'Subscribe to'
+        } "${product?.name}"?`}
         isShowing={isShowing}
         hide={toggle}
         type="default"

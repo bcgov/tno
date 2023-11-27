@@ -35,7 +35,14 @@ export const MyProducts = styled(Col)`
       }
     }
   }
-
+  .action-subscribe > svg,
+  .action-subscribe > label {
+    color: green;
+  }
+  .action-unsubscribe > svg,
+  .action-unsubscribe > label {
+    color: red;
+  }
   .folder-name {
     height: 1.5em;
     margin-left: 0.5em;

@@ -90,9 +90,6 @@ export const Landing: React.FC = () => {
             <Show visible={activeItem === SidebarMenuItems.myProducts.label}>
               <MyProducts />
             </Show>
-            <Show visible={activeItem === SidebarMenuItems.myProducts.label}>
-              <MyProducts />
-            </Show>
             <Show visible={activeItem === SidebarMenuItems.pressGallery.label}>
               <PressGallery />
             </Show>

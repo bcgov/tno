@@ -64,7 +64,7 @@ export const SidebarMenuItems: ISideBarMenuItems = {
   },
   myProducts: {
     label: 'MMI Products',
-    path: 'myproducts',
+    path: 'products',
     icon: <FaEnvelope />,
   },
   myMinister: {
