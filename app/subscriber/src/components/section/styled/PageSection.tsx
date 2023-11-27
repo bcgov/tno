@@ -19,7 +19,9 @@ export const PageSection = styled.div`
     border-bottom: solid 1px ${(props) => props.theme.css.linePrimaryColor};
     margin-bottom: 1rem;
   }
-
+  .page-section-icon {
+    padding-right: 1rem;
+  }
   > div:last-child {
     display: flex;
     flex-direction: column;

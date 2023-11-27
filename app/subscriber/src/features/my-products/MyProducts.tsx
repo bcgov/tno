@@ -2,9 +2,10 @@ import { Bar } from 'components/bar';
 import { Header } from 'components/header';
 import { PageSection } from 'components/section';
 import React from 'react';
+import { FaEnvelope, FaUserPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useProducts } from 'store/hooks';
-import { IProductSubscriberModel, Modal, Show, useModal } from 'tno-core';
+import { IProductSubscriberModel, Modal, Row, Show, useModal } from 'tno-core';
 
 import { ProductCard } from './ProductCard';
 import * as styled from './styled';
@@ -47,15 +48,43 @@ export const MyProducts: React.FC = () => {
   return (
     <styled.MyProducts>
       <Header />
-      <Show visible={products.some((p) => p.isSubscribed)}>
-        <PageSection header="MMI Products: Subscribed">
-          <Bar>
-            You are currently subscribed to the following products. Clicking on the Unsubscribe
-            action action will unsubscribe you from that product.
-          </Bar>
+      <PageSection header="MMI Products">
+        <div>
+          <Show visible={products.some((p) => p.isSubscribed)}>
+            <Row className="page-section-title">
+              <FaEnvelope className="page-section-icon" /> Subscribed
+            </Row>
+            <p>
+              You are currently subscribed to the following products. Clicking on the Unsubscribe
+              action action will unsubscribe you from that product.
+            </p>
+            <div>
+              {products
+                .filter((product) => product.isSubscribed)
+                .map((product) => {
+                  return (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onToggleSubscription={(product) => {
+                        setProduct(product);
+                        toggle();
+                      }}
+                    />
+                  );
+                })}
+            </div>
+          </Show>
+          <Row className="page-section-title">
+            <FaUserPlus className="page-section-icon" /> Available products
+          </Row>
+          <p>
+            You may request subscription to the following automated products. Susbscribed products
+            are sent by email on a scheduled basis.
+          </p>
           <div>
             {products
-              .filter((product) => product.isSubscribed)
+              .filter((product) => !product.isSubscribed)
               .map((product) => {
                 return (
                   <ProductCard
@@ -69,30 +98,6 @@ export const MyProducts: React.FC = () => {
                 );
               })}
           </div>
-        </PageSection>
-      </Show>
-      <PageSection header="Available products">
-        <Bar>
-          <p>
-            You may request subscription to the following automated products. Susbscribed products
-            are sent by email on a scheduled basis.
-          </p>
-        </Bar>
-        <div>
-          {products
-            .filter((product) => !product.isSubscribed)
-            .map((product) => {
-              return (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onToggleSubscription={(product) => {
-                    setProduct(product);
-                    toggle();
-                  }}
-                />
-              );
-            })}
         </div>
       </PageSection>
       <Modal
