@@ -103,11 +103,12 @@ export const ProductDetailsForm: React.FC = () => {
           <FormikCheckbox label="Is Enabled" name="isEnabled" />
         </Row>
         <Row alignItems="center">
-          <FormikCheckbox label="Is Public" name="isPublic" />
-          <p>
-            A public report will show up in the list for ALL subscribers to see and request access
-            to.
-          </p>
+          <FormikCheckbox
+            label="Is Public"
+            name="isPublic"
+            tooltip="A public report will show up in the list for ALL subscribers to see and request access
+            to."
+          />
         </Row>
         <hr />
         <Row>
