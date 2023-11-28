@@ -57,16 +57,16 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   const [, { addFilter, getFilter, updateFilter }] = useFilters();
   const [{ actions }] = useLookup();
   const [searchParams] = useSearchParams();
-
-  const filterId = React.useMemo(() => Number(searchParams.get('modify')), [searchParams]);
-  const [searchName, setSearchName] = React.useState<string>('');
-  const [viewedFilter, setViewedFilter] = React.useState<IFilterModel>();
   const [
     {
       search: { filter },
     },
     { storeSearchFilter: storeFilter },
   ] = useContent();
+
+  const filterId = React.useMemo(() => Number(searchParams.get('modify')), [searchParams]);
+  const [searchName, setSearchName] = React.useState<string>('');
+  const [viewedFilter, setViewedFilter] = React.useState<IFilterModel>();
   /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
   const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
     React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);
