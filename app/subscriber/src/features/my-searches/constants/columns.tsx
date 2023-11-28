@@ -13,7 +13,6 @@ export const columns = (
   {
     label: 'Search Name',
     accessor: 'name',
-    width: 15,
     cell: (cell) => (
       <Row>
         <FaBookmark className="darker-icon" />
@@ -38,7 +37,6 @@ export const columns = (
   {
     label: '',
     accessor: 'options',
-    width: 1.5,
     cell: (cell) => (
       <>
         {editable === cell.original.name ? (

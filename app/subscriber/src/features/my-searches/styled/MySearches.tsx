@@ -9,4 +9,9 @@ export const MySearches = styled(Col)`
       text-decoration: underline;
     }
   }
+
+  .search-row-options {
+    display: flex;
+    margin-left: auto;
+  }
 `;
