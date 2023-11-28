@@ -3,6 +3,7 @@ import { AccessRequest } from 'features/access-request';
 import { Landing } from 'features/landing';
 import { Login } from 'features/login';
 import { ManageFolder } from 'features/manage-folder';
+import { MyColleagues } from 'features/my-colleagues';
 import { MyProducts } from 'features/my-products';
 import { MyReports, ReportAdmin, ReportEdit, ReportView } from 'features/my-reports';
 import { SearchPage } from 'features/search-page/SearchPage';
@@ -52,6 +53,12 @@ export const AppRouter: React.FC<IAppRouter> = () => {
           path="/folders/:id"
           element={
             <PrivateRoute claims={Claim.subscriber} element={<ManageFolder />}></PrivateRoute>
+          }
+        />
+        <Route
+          path="/colleagues"
+          element={
+            <PrivateRoute claims={Claim.subscriber} element={<MyColleagues />}></PrivateRoute>
           }
         />
         <Route
