@@ -3,6 +3,7 @@ import {
   FaCog,
   FaCogs,
   FaComment,
+  FaEnvelope,
   FaFire,
   FaFolder,
   FaHome,
@@ -36,13 +37,6 @@ export const SidebarMenuItems: ISideBarMenuItems = {
     path: 'landing/topstories',
     icon: <FaFire />,
   },
-  myMinister: {
-    label: 'My Minister',
-    path: 'landing/myminister',
-    icon: <FaUserTie />,
-    secondaryIcon: <FaCog />,
-    secondaryIconRoute: '/landing/settings',
-  },
   todaysCommentary: {
     label: "Today's Commentary",
     path: 'landing/todayscommentary',
@@ -58,10 +52,32 @@ export const SidebarMenuItems: ISideBarMenuItems = {
     path: 'landing/pressgallery',
     icon: <FaUsers />,
   },
+  eveningOverview: {
+    label: 'Evening Overview',
+    path: 'landing/eveningoverview',
+    icon: <FaMoon />,
+  },
   filterMedia: {
-    label: 'Filter media type',
+    label: 'Filter by media type',
     path: 'landing/filtermedia',
     icon: <FaSlidersH />,
+  },
+  myProducts: {
+    label: 'MMI Products',
+    path: 'products',
+    icon: <FaEnvelope />,
+  },
+  myMinister: {
+    label: 'My Minister',
+    path: 'landing/myminister',
+    icon: <FaUserTie />,
+    secondaryIcon: <FaCog />,
+    secondaryIconRoute: '/landing/settings',
+  },
+  mySearches: {
+    label: 'My Saved Searches',
+    path: 'landing/mysearches',
+    icon: <FaSearch />,
   },
   folders: {
     label: 'My Folders',
@@ -72,16 +88,6 @@ export const SidebarMenuItems: ISideBarMenuItems = {
     label: 'My Reports',
     path: 'reports',
     icon: <FaClipboard />,
-  },
-  mySearches: {
-    label: 'My Searches',
-    path: 'landing/mysearches',
-    icon: <FaSearch />,
-  },
-  eveningOverview: {
-    label: 'Evening Overview',
-    path: 'landing/eveningoverview',
-    icon: <FaMoon />,
   },
   settings: {
     label: 'Settings',

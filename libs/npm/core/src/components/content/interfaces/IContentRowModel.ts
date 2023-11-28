@@ -1,5 +1,4 @@
-import { IContentModel } from '../../../hooks/api-editor';
-
+import { IContentModel } from '../../../hooks/api';
 export interface IContentRowModel {
   sortOrder: number;
   content: IContentModel;

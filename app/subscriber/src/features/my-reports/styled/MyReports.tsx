@@ -5,6 +5,7 @@ export const MyReports = styled.div`
     flex-direction: row;
     align-items: center;
     flex: 1;
+    text-transform: uppercase;
 
     @media only screen and (max-width: 500px) {
       flex-direction: column;

@@ -12,6 +12,7 @@ import { FrontPages } from 'features/front-pages';
 import { Home } from 'features/home';
 import { MyFolders } from 'features/my-folders';
 import { MyMinister } from 'features/my-minister/MyMinister';
+import { MyProducts } from 'features/my-products';
 import { MySearches } from 'features/my-searches';
 import { PressGallery } from 'features/press-gallery';
 import { MyMinisterSettings } from 'features/settings';
@@ -85,6 +86,9 @@ export const Landing: React.FC = () => {
             </Show>
             <Show visible={activeItem === SidebarMenuItems.topStories.label}>
               <TopStories />
+            </Show>
+            <Show visible={activeItem === SidebarMenuItems.myProducts.label}>
+              <MyProducts />
             </Show>
             <Show visible={activeItem === SidebarMenuItems.pressGallery.label}>
               <PressGallery />

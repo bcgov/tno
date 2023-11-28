@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ContentTypeName } from './api-editor';
+import { ContentTypeName } from './api';
 
 /**
  * If the URL path contains the path value '/combined/' then this page is a combined view.

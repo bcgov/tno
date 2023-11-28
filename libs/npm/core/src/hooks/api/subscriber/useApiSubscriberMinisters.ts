@@ -1,13 +1,13 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
-import { defaultEnvelope, ILifecycleToasts, ISourceModel, useApi } from '..';
+import { defaultEnvelope, ILifecycleToasts, IMinisterModel, useApi } from '../..';
 
 /**
  * Common hook to make requests to the API.
  * @returns CustomAxios object setup for the API.
  */
-export const useApiSubscriberSources = (
+export const useApiSubscriberMinisters = (
   options: {
     lifecycleToasts?: ILifecycleToasts;
     selector?: Function;
@@ -18,8 +18,9 @@ export const useApiSubscriberSources = (
   const api = useApi(options);
 
   return React.useRef({
-    findAllSources: () => {
-      return api.get<never, AxiosResponse<ISourceModel[]>, any>(`/subscriber/sources`);
+    getMinisters: (etag: string | undefined = undefined) => {
+      const config = { headers: { 'If-None-Match': etag ?? '' } };
+      return api.get<never, AxiosResponse<IMinisterModel[]>, any>(`/subscriber/ministers`, config);
     },
   }).current;
 };
