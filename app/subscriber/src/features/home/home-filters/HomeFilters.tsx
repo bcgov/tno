@@ -91,7 +91,7 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
         }
       }
     }
-  }, [filter]);
+  }, [filter, mediaTypes]);
 
   const filters = [
     { type: HomeFilterType.All, label: 'ALL' },
