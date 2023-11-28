@@ -177,21 +177,16 @@ public class ProductService : BaseService<Product, int>, IProductService
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    public async Task<Product> Unsubscribe(int userId, int productId)
+    public async Task<int> Unsubscribe(int userId, int productId)
     {
         var saveChanges = false;
-        var userProducts = this.Context.UserProducts.Where(x => x.UserId == userId && x.ProductId == productId && x.IsSubscribed);
+        UserProduct? userProduct = await this.Context.UserProducts.FirstOrDefaultAsync(x => x.UserId == userId && x.ProductId == productId && x.IsSubscribed);
 
-        userProducts.ForEach(s =>
-        {
-            s.IsSubscribed = false;
-            if (!saveChanges) saveChanges = true;
-        });
-        this.Context.UpdateRange(userProducts);
-        this.CommitTransaction();
-
-        // return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
-        return FindById(productId);
+        if (userProduct != null) {
+            userProduct.IsSubscribed = false;
+            saveChanges = true;
+        }
+        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
     }
 
     /// <summary>

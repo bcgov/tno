@@ -36,5 +36,5 @@ public interface IProductService : IBaseService<Product, int>
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<Product> Unsubscribe(int userId, int productId);
+    Task<int> Unsubscribe(int userId, int productId);
 }

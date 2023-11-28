@@ -94,7 +94,8 @@ public class ProductController : ControllerBase
         if (isCurrentlySubscribed) {
             // This is the self-serve model for initial testing
             // TODO: Replace with Notification via Kafka
-            productWithUpdatedSubscription = await _productService.Unsubscribe(user.Id, result.Id);
+            await _productService.Unsubscribe(user.Id, result.Id);
+            productWithUpdatedSubscription = _productService.FindById(result.Id) ?? throw new NoContentException("Product does not exist");
 
         } else {
             // This is the self-serve model for initial testing
