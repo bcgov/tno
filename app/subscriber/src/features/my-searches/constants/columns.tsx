@@ -1,4 +1,4 @@
-import { FaBookmark, FaTrash } from 'react-icons/fa';
+import { FaBinoculars, FaBookmark, FaTrash } from 'react-icons/fa';
 import { FaGear } from 'react-icons/fa6';
 import { FiSave } from 'react-icons/fi';
 import { IFilterModel, ITableHookColumn, Row, Text } from 'tno-core';
@@ -16,7 +16,7 @@ export const columns = (
     width: 15,
     cell: (cell) => (
       <Row>
-        <FaBookmark className="bookmark-icon" />
+        <FaBookmark className="darker-icon" />
         {active && editable === cell.original.name ? (
           <Text
             className="re-name"
@@ -38,7 +38,7 @@ export const columns = (
   {
     label: '',
     accessor: 'options',
-    width: 1,
+    width: 1.5,
     cell: (cell) => (
       <>
         {editable === cell.original.name ? (
@@ -52,7 +52,7 @@ export const columns = (
         ) : (
           <div className="search-row-options">
             {/* upcoming sprint these are used */}
-            {/* <FaBinoculars data-tooltip-id="binocs" className="binocs" /> */}
+            <FaBinoculars data-tooltip-id="binocs" className="darker-icon" />
             <FaGear
               onClick={(e) => {
                 // stop the row click event from firing

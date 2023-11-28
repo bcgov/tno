@@ -1,9 +1,10 @@
+import { SubscriberTableContainer } from 'components/table';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { useContent, useFilters, useLookup } from 'store/hooks';
-import { Col, FlexboxTable, IFilterModel, Modal, Row, useModal } from 'tno-core';
+import { Col, FlexboxTable, IFilterModel, Modal, useModal } from 'tno-core';
 
 import { columns } from './constants/columns';
 import * as styled from './styled';
@@ -46,7 +47,7 @@ export const MySearches = () => {
   };
   return (
     <styled.MySearches>
-      <Row>
+      <SubscriberTableContainer>
         <FlexboxTable
           pagingEnabled={false}
           columns={columns(setActive, editable, handleSave, handleDelete, active)}
@@ -68,12 +69,16 @@ export const MySearches = () => {
           className="options"
         >
           <Col className="filter-container">
+            {/* TODO: Upcoming ticket will change this to allow users to modify selected search */}
             <div className="option" onClick={() => setEditable(active?.name ?? '')}>
               Edit filter name
             </div>
           </Col>
         </Tooltip>
-      </Row>
+        <Tooltip place="top" id="binocs" variant="dark">
+          View filter
+        </Tooltip>
+      </SubscriberTableContainer>
       <Modal
         headerText="Confirm Removal"
         body={`Are you sure you wish to ${actionName} this filter?`}
