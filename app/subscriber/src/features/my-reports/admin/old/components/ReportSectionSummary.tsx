@@ -2,7 +2,7 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { Checkbox, FormikText, FormikTextArea, ReportSectionTypeName, Show } from 'tno-core';
 
-import { IReportForm } from '../../interfaces';
+import { IReportForm } from '../../../interfaces';
 import { IReportSectionProps } from './ReportSection';
 import { ReportSectionCharts } from './ReportSectionCharts';
 

@@ -3,6 +3,7 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaFileInvoice, FaSyncAlt } from 'react-icons/fa';
 import { useReports } from 'store/hooks/subscriber/useReports';
+import { useProfileStore } from 'store/slices';
 import {
   Button,
   Col,
@@ -16,27 +17,28 @@ import {
   Row,
 } from 'tno-core';
 
-import { IReportForm } from '../interfaces';
-import { hideEmptySections } from '../utils';
+import { IReportForm } from '../../interfaces';
+import { hideEmptySections } from '../../utils';
 import { ReportSchedule } from './components';
 
 export const ReportAdminSettings: React.FC = () => {
   const { values, setFieldValue, setValues } = useFormikContext<IReportForm>();
+  const [{ myReports }] = useProfileStore();
   const [{ findMyReports }] = useReports();
 
   const [reportOptions, setReportOptions] = React.useState<IOptionItem[]>([]);
 
-  const fetchMyReports = async () => {
+  const fetchMyReports = React.useCallback(async () => {
     try {
       const reports = await findMyReports();
       setReportOptions(getSortableOptions(reports));
-    } catch (error) {
-      throw error;
-    }
-  };
+    } catch {}
+  }, [findMyReports]);
 
   React.useEffect(() => {
-    fetchMyReports().catch(() => {});
+    if (!myReports.length) {
+      fetchMyReports().catch(() => {});
+    }
     // Initialize first time this component loads.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

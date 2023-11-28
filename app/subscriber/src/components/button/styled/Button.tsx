@@ -10,9 +10,13 @@ export const Button = styled.button`
   background: ${(props) => props.theme.css.btnBkPrimary};
   color: ${(props) => props.theme.css.btnPrimaryColor};
   border: none;
-  font: inherit;
   outline: inherit;
   cursor: pointer;
+
+  font-size: 1rem;
+  line-height: unset;
+  font-weight: 400;
+  max-height: 26px;
 
   svg {
     flex-shrink: 0;

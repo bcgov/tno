@@ -1,11 +1,18 @@
 import styled from 'styled-components';
 
-export const Action = styled.div`
+import { IActionProps } from '../Action';
+
+export const Action = styled.div<IActionProps>`
   display: flex;
-  flex-direction: row;
+  flex-direction: ${(props) => props.direction ?? 'row'};
   gap: 0.5rem;
   align-items: center;
   cursor: pointer;
+
+  font-size: 1rem;
+  line-height: unset;
+  font-weight: 400;
+  max-height: 26px;
 
   &:hover * {
     color: ${(props) => props.theme.css.linkPrimaryHoverColor};

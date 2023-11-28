@@ -17,7 +17,7 @@ import {
   useTabValidationToasts,
 } from 'tno-core';
 
-import { IReportForm } from '../interfaces';
+import { IReportForm } from '../../interfaces';
 import { ReportAdminSections } from './ReportAdminSections';
 import { ReportAdminSettings } from './ReportAdminSettings';
 

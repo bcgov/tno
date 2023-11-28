@@ -12,8 +12,8 @@ import {
   Show,
 } from 'tno-core';
 
-import { IReportForm } from '../../interfaces';
-import { getBlockName } from '../../utils';
+import { IReportForm } from '../../../interfaces';
+import { getBlockName } from '../../../utils';
 import { ReportSectionContent } from './ReportSectionContent';
 import { ReportSectionSummary } from './ReportSectionSummary';
 import { ReportSectionTableOfContents } from './ReportSectionTableOfContents';

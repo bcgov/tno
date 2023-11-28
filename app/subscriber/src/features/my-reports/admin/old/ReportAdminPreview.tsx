@@ -7,7 +7,7 @@ import { useReports } from 'store/hooks';
 import { useAppStore } from 'store/slices';
 import { Button, ButtonVariant, Col, Container, IReportResultModel, Row, Show } from 'tno-core';
 
-import { IReportForm } from '../interfaces';
+import { IReportForm } from '../../interfaces';
 
 export const ReportAdminPreview: React.FC = () => {
   const { values, isSubmitting } = useFormikContext<IReportForm>();

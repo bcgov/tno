@@ -5,6 +5,10 @@ export interface IActionProps extends React.HTMLAttributes<HTMLDivElement> {
   label?: string;
   /** An icon to display */
   icon?: React.ReactNode;
+  /** The action is disabled */
+  disabled?: boolean;
+  /** Flex direction */
+  direction?: 'row' | 'row-reverse' | 'column' | 'column-reverse';
 }
 
 /**
@@ -12,9 +16,22 @@ export interface IActionProps extends React.HTMLAttributes<HTMLDivElement> {
  * @param param0 Component properties.
  * @returns Component
  */
-export const Action: React.FC<IActionProps> = ({ label, icon, children, ...rest }) => {
+export const Action: React.FC<IActionProps> = ({
+  label,
+  icon,
+  className,
+  children,
+  onClick,
+  ...rest
+}) => {
   return (
-    <styled.Action {...rest}>
+    <styled.Action
+      className={`action${className ? ` ${className}` : ''}`}
+      onClick={(e) => {
+        if (!rest.disabled) onClick?.(e);
+      }}
+      {...rest}
+    >
       {icon}
       {label && <label>{label}</label>}
       {children}

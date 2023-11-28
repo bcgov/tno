@@ -16,8 +16,8 @@ import {
   Show,
 } from 'tno-core';
 
-import { chartTypeOptions, groupByOptions } from '../../constants';
-import { IReportForm } from '../../interfaces';
+import { chartTypeOptions, groupByOptions } from '../../../constants';
+import { IReportForm } from '../../../interfaces';
 import { IReportSectionProps } from './ReportSection';
 
 export const ReportSectionCharts = React.forwardRef<HTMLDivElement, IReportSectionProps>(
