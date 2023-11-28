@@ -91,4 +91,11 @@ export const MyReports = styled.div`
   .fs1 {
     font-size: 0.75rem;
   }
+
+  .loading {
+    position: relative;
+    align-content: center;
+    justify-content: center;
+    min-height: 100px;
+  }
 `;

@@ -32,18 +32,6 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
             .Include(ri => ri.Report).ThenInclude(r => r!.SubscribersManyToMany).ThenInclude(sm2m => sm2m.User)
             .Include(ri => ri.Report).ThenInclude(r => r!.Sections).ThenInclude(s => s.Filter)
             .Include(ri => ri.Report).ThenInclude(r => r!.Sections).ThenInclude(s => s.ChartTemplatesManyToMany).ThenInclude(ct => ct.ChartTemplate)
-            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content)
-            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Source)
-            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.MediaType)
-            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Series)
-            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Contributor)
-            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.ActionsManyToMany).ThenInclude(c => c.Action)
-            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.TopicsManyToMany).ThenInclude(c => c.Topic)
-            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Labels)
-            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.Tags)
-            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.TimeTrackings)
-            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.FileReferences)
-            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content).ThenInclude(c => c!.TonePools)
             .FirstOrDefault(ri => ri.Id == id);
     }
 
@@ -66,6 +54,31 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         query = query.OrderByDescending(ri => ri.Id);
 
         return query.ToArray();
+    }
+
+    /// <summary>
+    /// Get all the content items for the specified instance.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public IEnumerable<ReportInstanceContent> GetContentForInstance(long id)
+    {
+        return this.Context.ReportInstanceContents
+            .AsNoTracking()
+            .Include(cm2m => cm2m.Content)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.Source)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.MediaType)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.Series)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.Contributor)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.ActionsManyToMany).ThenInclude(c => c.Action)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TopicsManyToMany).ThenInclude(c => c.Topic)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.Labels)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.Tags)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TimeTrackings)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.FileReferences)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TonePools)
+            .Where(ric => ric.ContentId == id)
+            .ToArray();
     }
 
     /// <summary>

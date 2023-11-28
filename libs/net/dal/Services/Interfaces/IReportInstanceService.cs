@@ -11,4 +11,12 @@ public interface IReportInstanceService : IBaseService<ReportInstance, long>
     /// <param name="ownerId"></param>
     /// <returns></returns>
     IEnumerable<ReportInstance> FindInstancesForReportId(int reportId, int? ownerId);
+
+
+    /// <summary>
+    /// Get all the content items for the specified instance.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    IEnumerable<ReportInstanceContent> GetContentForInstance(long id);
 }

@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Report;
-using TNO.API.BackgroundWorkItem;
 using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;

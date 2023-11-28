@@ -18,7 +18,9 @@ interface ISchedule {
 
 function getNextReportSend(report: IReportModel): string {
   // Set constants with the last sent info. If it's null consider the actual date
-  const sentOn: string | Date | undefined = report.instances[0].sentOn;
+  const sentOn: string | Date | undefined = report.instances.length
+    ? report.instances[0].sentOn
+    : undefined;
 
   const lastSent: Date = sentOn === undefined ? new Date() : new Date(sentOn);
 
@@ -50,7 +52,7 @@ function getNextReportSend(report: IReportModel): string {
 
   sends.sort((a, b) => a.weekDayNum - b.weekDayNum || a.time.localeCompare(b.time));
 
-  // Run through the availiable schedule day, and add the proper to the variable
+  // Run through the available schedule day, and add the proper to the variable
   // Calculate the day difference between the last send/future send
   let nextSend: ISchedule | null = null;
   let daysToAdd: number = 0;
@@ -69,7 +71,7 @@ function getNextReportSend(report: IReportModel): string {
       }
     }
     if (nextSend === null) {
-      // Advance one week and set to the first availiable day
+      // Advance one week and set to the first available day
       daysToAdd = sends[0].weekDayNum + 7 - WeekDays[lastWeekDay];
       nextSend = sends[0];
     }

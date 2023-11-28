@@ -45,8 +45,10 @@ export const useReports = (): [IReportController] => {
         return response.data;
       },
       getReport: async (id: number) => {
-        const response = await dispatch<IReportModel | undefined>('get-report', () =>
-          api.getReport(id),
+        const response = await dispatch<IReportModel | undefined>(
+          `get-report-${id}`,
+          () => api.getReport(id),
+          'get-report',
         );
         if (response.data) {
           storeMyReports((reports) => {
