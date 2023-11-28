@@ -330,6 +330,11 @@ public class ReportController : ControllerBase
             _reportInstanceService.AddAndSave(currentInstance);
             instances = _reportService.GetLatestInstances(id, user.Id);
         }
+        else
+        {
+            // Get the content for the current instance.
+            currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
+        }
         report.Instances.Clear();
         report.Instances.AddRange(instances);
 

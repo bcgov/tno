@@ -132,8 +132,8 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult GetContentForReportInstanceIdAsync(long id)
     {
-        var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException();
-        return new JsonResult(instance.ContentManyToMany.Select(c => new ReportInstanceContentModel(c)));
+        var content = _reportInstanceService.GetContentForInstance(id);
+        return new JsonResult(content.Select(c => new ReportInstanceContentModel(c)));
     }
     #endregion
 }

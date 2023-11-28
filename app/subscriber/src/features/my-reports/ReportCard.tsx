@@ -12,8 +12,8 @@ import {
   FaTrashCan,
 } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
-import { useReports } from 'store/hooks';
-import { Col, IReportModel, Row } from 'tno-core';
+import { useApp, useReports } from 'store/hooks';
+import { Col, IReportModel, Row, Spinner } from 'tno-core';
 
 import { calcNextSend, getLastSent } from './utils';
 
@@ -32,6 +32,7 @@ export interface IReportCardProps {
 export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => {
   const navigate = useNavigate();
   const [{ getReport }] = useReports();
+  const [{ requests }] = useApp();
 
   const fetchReport = React.useCallback(
     async (id: number) => {
@@ -41,6 +42,8 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => 
     },
     [getReport],
   );
+
+  const isLoading = requests.some((r) => r.url === `get-report-${report.id}`);
 
   return (
     <Section
@@ -69,40 +72,47 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => 
       }
       onChange={(open) => open && fetchReport(report.id)}
     >
-      <Col gap="1rem">
-        {report.description && <div>{report.description}</div>}
-        <div className="report-schedule">
-          <div>
-            <FaRegCalendarDays />
+      <Row>
+        <Col gap="1rem" flex="1">
+          {report.description && <div>{report.description}</div>}
+          <div className="report-schedule">
+            <div>
+              <FaRegCalendarDays />
+            </div>
+            <Col>
+              <Row gap="1rem" className="fs1">
+                <label className="b7">Last sent:</label>
+                <span>{getLastSent(report)}</span>
+              </Row>
+              <Row gap="1rem" className="fs1">
+                <label className="b7">Next scheduled send:</label>
+                <span>{calcNextSend(report)}</span>
+              </Row>
+            </Col>
           </div>
-          <Col>
-            <Row gap="1rem" className="fs1">
-              <label className="b7">Last sent:</label>
-              <span>{getLastSent(report)}</span>
-            </Row>
-            <Row gap="1rem" className="fs1">
-              <label className="b7">Next scheduled send:</label>
-              <span>{calcNextSend(report)}</span>
-            </Row>
+          <div className="report-instance">
+            <div>
+              <FaFileLines />
+            </div>
+            <label className="b7 fs1">Current instance created:</label>
+            {report.instances.length ? (
+              <Row gap="1rem" alignItems="center">
+                <span className="fs1">
+                  {moment(report.instances[0].publishedOn).format('DD-MMM-YYYY h:mm:ss a')}
+                </span>
+                <Action label={'VIEW'} onClick={() => navigate(`/reports/${report.id}/view`)} />
+              </Row>
+            ) : (
+              'NA'
+            )}
+          </div>
+        </Col>
+        {isLoading && (
+          <Col alignContent="center" justifyContent="center">
+            <Spinner />
           </Col>
-        </div>
-        <div className="report-instance">
-          <div>
-            <FaFileLines />
-          </div>
-          <label className="b7 fs1">Current instance created:</label>
-          {report.instances.length ? (
-            <Row gap="1rem" alignItems="center">
-              <span className="fs1">
-                {moment(report.instances[0].publishedOn).format('DD-MMM-YYYY h:mm:ss a')}
-              </span>
-              <Action label={'VIEW'} onClick={() => navigate(`/reports/${report.id}/view`)} />
-            </Row>
-          ) : (
-            'NA'
-          )}
-        </div>
-      </Col>
+        )}
+      </Row>
     </Section>
   );
 };

@@ -6,9 +6,9 @@ import React from 'react';
 import { FaClipboard } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useReports } from 'store/hooks';
+import { useApp, useReports } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { IReportModel, Modal, Row, useModal } from 'tno-core';
+import { Col, IReportModel, Loading, Modal, Row, useModal } from 'tno-core';
 
 import { ReportCard } from './ReportCard';
 import { ReportFilter } from './ReportFilter';
@@ -19,6 +19,7 @@ export const MyReports: React.FC = () => {
   const [{ findMyReports, deleteReport }] = useReports();
   const { toggle, isShowing } = useModal();
   const navigate = useNavigate();
+  const [{ requests }] = useApp();
 
   const [report, setReport] = React.useState<IReportModel>();
 
@@ -47,6 +48,8 @@ export const MyReports: React.FC = () => {
     [deleteReport],
   );
 
+  const isLoading = requests.some((r) => r.url === 'find-my-reports');
+
   return (
     <styled.MyReports>
       <Header />
@@ -62,6 +65,11 @@ export const MyReports: React.FC = () => {
           </Row>
         </Bar>
         <div>
+          {isLoading && (
+            <Col className="loading">
+              <Loading />
+            </Col>
+          )}
           {applyFilter(myReports, reportsFilter).map((report) => {
             return (
               <ReportCard
