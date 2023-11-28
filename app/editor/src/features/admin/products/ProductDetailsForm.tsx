@@ -39,7 +39,7 @@ export const ProductDetailsForm: React.FC = () => {
       switch (targetProduct) {
         case ProductTypeName.Report:
           // set using reports
-          apiReports.findAllReports().then((data) => {
+          apiReports.findAllReportsHeadersOnly().then((data) => {
             setTargetProductOptions(data.map((s) => new OptionItem(s.name, s.id)));
           });
           break;
