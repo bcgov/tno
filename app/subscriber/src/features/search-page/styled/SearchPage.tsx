@@ -4,6 +4,25 @@ export const SearchPage = styled.div`
   max-height: 100vh;
   overflow: none;
 
+  /* RIBBON CONTAINING SEARCH NAME IF MODIFYING */
+  .viewed-name {
+    display: flex;
+    border-bottom: 1px solid ${(props) => props.theme.css.linePrimaryColor};
+    background-color: ${(props) => props.theme.css.bkWhite};
+    padding-bottom: 0.5em;
+    padding-top: 0.5em;
+    svg {
+      color: ${(props) => props.theme.css.iconPrimaryColor};
+    }
+
+    text-transform: uppercase;
+    .filter-name {
+      margin-left: 0.5em;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+  }
+
   .title {
     color: ${(props) => props.theme.css.redHeadingColor};
     font-weight: bold;
@@ -137,5 +156,16 @@ export const SearchPage = styled.div`
     &:nth-child(even) {
       background-color: rgb(233, 236, 239);
     }
+  }
+
+  .padding-left {
+    padding-left: 0.5em;
+  }
+
+  .helper-text {
+    background-color: ${(props) => props.theme.css.bkWhite};
+    padding: 0.5em;
+    border-bottom-left-radius: 0.5em;
+    border-bottom-right-radius: 0.5em;
   }
 `;

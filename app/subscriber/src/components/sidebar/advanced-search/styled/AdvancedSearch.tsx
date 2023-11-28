@@ -61,7 +61,6 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     }
     width: 100%;
     border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
-    margin-bottom: 0.5em;
     .reset {
       margin-left: auto;
       align-self: center;
@@ -123,6 +122,9 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   .search-input {
     border: none;
     width: 30.5em;
+    input {
+      border: none;
+    }
     margin-top: auto;
     margin-bottom: auto;
     padding: 0;

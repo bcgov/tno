@@ -1,6 +1,6 @@
+import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
 import { FaShield } from 'react-icons/fa6';
-import { Tooltip } from 'react-tooltip';
 import { Col } from 'tno-core';
 
 import * as styled from './styled';
@@ -9,7 +9,7 @@ export const InfoShield: React.FC = () => {
   return (
     <styled.InfoShield className="info-shield">
       <FaShield data-tooltip-id="info-shield" />
-      <Tooltip clickable className="react-tooltip" id="info-shield" place="top" delayHide={800}>
+      <TooltipMenu clickable className="react-tooltip" id="info-shield" place="top" delayHide={800}>
         <Col>
           <a
             href="https://www2.gov.bc.ca/gov/content?id=79F93E018712422FBC8E674A67A70535"
@@ -52,7 +52,7 @@ export const InfoShield: React.FC = () => {
             Contact Us
           </a>
         </Col>
-      </Tooltip>
+      </TooltipMenu>
     </styled.InfoShield>
   );
 };

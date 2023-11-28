@@ -59,7 +59,7 @@ export const columns = (
                 e.stopPropagation();
                 setActive(cell.original);
               }}
-              data-tooltip-id="edit-name"
+              data-tooltip-id="modify"
               className="gear"
             />
             <FaTrash
