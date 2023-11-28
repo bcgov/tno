@@ -1,5 +1,4 @@
 import { KnnSearchResponse } from '@elastic/elasticsearch/lib/api/types';
-import { IContentListFilter } from 'features/content/list-view/interfaces';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
 import { IContentModel, IFilterSettingsModel, IOptionItem } from 'tno-core';
@@ -25,7 +24,7 @@ import {
 import { IContentState } from './interfaces';
 
 export interface IContentProps {
-  filter: IContentListFilter;
+  filter: IFilterSettingsModel;
 }
 
 export interface IContentStore {

@@ -1,7 +1,6 @@
-import { IContentListFilter } from 'features/content/list-view/interfaces';
 import React, { useEffect, useState } from 'react';
 import { useContent, useLookup } from 'store/hooks';
-import { Button, ButtonHeight, ContentTypeName } from 'tno-core';
+import { Button, ButtonHeight, ContentTypeName, IFilterSettingsModel } from 'tno-core';
 
 import { HomeFilterType } from '../constants';
 import * as styled from './styled';
@@ -22,7 +21,7 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
   ] = useContent();
   const [{ sources, mediaTypes }] = useLookup();
 
-  const defaultFilter: Partial<IContentListFilter> = {
+  const defaultFilter: Partial<IFilterSettingsModel> = {
     contentTypes: [],
     sourceIds: [],
     mediaTypeIds: [],

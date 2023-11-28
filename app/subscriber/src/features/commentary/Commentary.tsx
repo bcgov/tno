@@ -27,30 +27,31 @@ export const Commentary: React.FC = () => {
   };
 
   React.useEffect(() => {
-    findContentWithElasticsearch(
-      generateQuery(
-        filterFormat(
-          {
-            searchUnpublished: false,
-            startDate: determineCommentaryTime(),
-            commentary: true,
-            size: 100,
-          },
-          actions,
+    !!actions.length &&
+      findContentWithElasticsearch(
+        generateQuery(
+          filterFormat(
+            {
+              searchUnpublished: false,
+              startDate: determineCommentaryTime(),
+              commentary: true,
+              size: 100,
+            },
+            actions,
+          ),
         ),
-      ),
-      false,
-    ).then((res) => {
-      setCommentary(
-        res.hits.hits.map((r) => {
-          const content = r._source as IContentModel;
-          return castToSearchResult(content);
-        }),
-      );
-    });
+        false,
+      ).then((res) => {
+        setCommentary(
+          res.hits.hits.map((r) => {
+            const content = r._source as IContentModel;
+            return castToSearchResult(content);
+          }),
+        );
+      });
     // only run once
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [actions]);
 
   return (
     <styled.Commentary>
