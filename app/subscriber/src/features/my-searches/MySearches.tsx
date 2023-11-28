@@ -1,4 +1,5 @@
 import { SubscriberTableContainer } from 'components/table';
+import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -60,21 +61,27 @@ export const MySearches = () => {
           data={myFilters}
           showActive={false}
         />
-        <Tooltip
+        <TooltipMenu
           clickable
           openOnClick
           place="right"
-          id="edit-name"
+          id="modify"
           variant="light"
-          className="options"
+          className="modify"
         >
           <Col className="filter-container">
             {/* TODO: Upcoming ticket will change this to allow users to modify selected search */}
             <div className="option" onClick={() => setEditable(active?.name ?? '')}>
               Edit filter name
             </div>
+            <div
+              className="option"
+              onClick={() => navigate(`/search?modify=${active?.id}&name=${active?.name}`)}
+            >
+              Modify this search
+            </div>
           </Col>
-        </Tooltip>
+        </TooltipMenu>
         <Tooltip place="top" id="binocs" variant="dark">
           View filter
         </Tooltip>

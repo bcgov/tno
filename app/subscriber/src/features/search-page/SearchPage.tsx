@@ -7,9 +7,10 @@ import { determinePreview } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
 import { FaPlay, FaStop } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { FaBookmark } from 'react-icons/fa6';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useContent, useFilters, useLookup } from 'store/hooks';
+import { useContent, useLookup } from 'store/hooks';
 import { Checkbox, Col, generateQuery, IContentModel, Loading, Row, Show } from 'tno-core';
 
 import { Player } from './player/Player';
@@ -21,23 +22,15 @@ export const SearchPage: React.FC = () => {
   const [, { findContentWithElasticsearch }] = useContent();
   const navigate = useNavigate();
   const [{ actions }] = useLookup();
-  const [, { getFilter }] = useFilters();
+  const [{ searchFilter: filter }] = useContent();
+  const [searchParams] = useSearchParams();
 
+  const searchName = React.useMemo(() => searchParams.get('name'), [searchParams]);
   const [searchItems, setSearchItems] = React.useState<IContentModel[]>([]);
   const [activeContent, setActiveContent] = React.useState<IContentModel | null>(null);
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-  const [searchName, setSearchName] = React.useState<string>();
   const [isLoading, setIsLoading] = React.useState(false);
-  const [{ searchFilter: filter }] = useContent();
-  const savedSearchId = filter.savedSearchId;
-
-  React.useEffect(() => {
-    if (!!savedSearchId && !searchName)
-      getFilter(savedSearchId)
-        .then((s) => setSearchName(s.name))
-        .catch();
-  });
 
   // function that bolds the searched text only if advanced filter is enabled for it
   const formatSearch = React.useCallback(
@@ -112,11 +105,18 @@ export const SearchPage: React.FC = () => {
           <Row>
             <div className={playerOpen ? 'scroll minimized' : 'scroll'}>
               <Col className={'search-items'}>
+                <Show visible={!!searchName}>
+                  <div className="viewed-name padding-left">
+                    <FaBookmark />
+                    <div className="filter-name">{searchName}</div>
+                  </div>
+                </Show>
                 <Show visible={!searchItems.length}>
                   <Row className="helper-text" justifyContent="center">
                     Please refine search criteria and click "search".
                   </Row>
                 </Show>
+
                 {searchItems.map((item) => {
                   return (
                     <Row key={item.id} className="rows">

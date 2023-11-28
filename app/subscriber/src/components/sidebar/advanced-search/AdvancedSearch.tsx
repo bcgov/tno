@@ -2,12 +2,23 @@ import { filterFormat } from 'features/search-page/utils';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
 import { FaPlay, FaRegSmile, FaSearch } from 'react-icons/fa';
-import { FaCloudArrowUp, FaIcons, FaNewspaper, FaTv, FaUsers } from 'react-icons/fa6';
+import { FaBookmark, FaCloudArrowUp, FaIcons, FaNewspaper, FaTv, FaUsers } from 'react-icons/fa6';
 import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
-import { Button, Col, generateQuery, Row, Show, Text, TextArea, toQueryString } from 'tno-core';
+import {
+  Button,
+  Col,
+  generateQuery,
+  IFilterModel,
+  Row,
+  Show,
+  Text,
+  TextArea,
+  toQueryString,
+} from 'tno-core';
 
 import {
   ContentSection,
@@ -43,13 +54,17 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   onSearchPage,
 }) => {
   const navigate = useNavigate();
-  const [, { addFilter }] = useFilters();
+  const [, { addFilter, getFilter, updateFilter }] = useFilters();
   const [{ actions }] = useLookup();
   const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
+  const [searchParams] = useSearchParams();
+
+  const filterId = React.useMemo(() => Number(searchParams.get('modify')), [searchParams]);
+  const [searchName, setSearchName] = React.useState<string>('');
+  const [viewedFilter, setViewedFilter] = React.useState<IFilterModel>();
   /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
   const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
     React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);
-  const [searchName, setSearchName] = React.useState<string>('');
 
   const saveSearch = React.useCallback(async () => {
     await addFilter({
@@ -67,8 +82,23 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
       .catch();
   }, [filter, searchName, addFilter, actions]);
 
+  const updateSearch = React.useCallback(async () => {
+    viewedFilter &&
+      (await updateFilter({
+        ...viewedFilter,
+        query: generateQuery(filterFormat(filter, actions)),
+        settings: { ...filterFormat(filter, actions) },
+      })
+        .then((data) => toast.success(`${data.name} has successfully been updated.`))
+        .catch());
+  }, [filter, viewedFilter, updateFilter, actions]);
+
   const handleSearch = async () => {
-    navigate(`/search?${toQueryString(filterFormat(filter, actions))}`);
+    navigate(
+      `/search?${toQueryString(
+        filterFormat(filter, actions),
+      )}&name=${searchName}&modify=${filterId}`,
+    );
   };
 
   /** allow user to hit enter while searching */
@@ -78,12 +108,25 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
     }
   };
 
+  /** get viewed filter if in modify mode */
+  React.useEffect(() => {
+    if (filterId && !viewedFilter) {
+      getFilter(filterId)
+        .then((data) => {
+          setViewedFilter(data);
+        })
+        .catch();
+    }
+    // only run when filterId changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterId]);
+
   return (
     <styled.AdvancedSearch expanded={expanded}>
       <div className="main-search-body">
         <Show visible={expanded}>
           <Row className="top-bar">
-            <div className="title">Advanced Search</div>
+            <div className="title">{filterId ? 'Modify Search' : 'Advanced Search'}</div>
             <Show visible={!onSearchPage}>
               <p onClick={() => !!setExpanded && setExpanded(false)} className="back-text">
                 BACK TO BASIC
@@ -99,6 +142,14 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
             />
           </Row>
         </Show>
+        {/* CURRENTLY VIEWED SEARCH NAME IF PRESENT */}
+        <Show visible={!!filterId}>
+          <div className="viewed-name">
+            <FaBookmark />
+            <div className="filter-name">{viewedFilter?.name}</div>
+          </div>
+        </Show>
+        {/* SEARCH FOR: */}
         <Row className="search-for-row">
           <label className={expanded ? 'label-expanded' : 'label'}>SEARCH FOR: </label>
           <Show visible={!expanded}>
@@ -126,6 +177,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
               <SearchInGroup />
             </Col>
           </Show>
+          {/* SMALL SEARCH (NOT IN ADVANCED MODE) */}
           <Show visible={!expanded}>
             <Button
               className="search-button"
@@ -147,6 +199,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
           <div className="search-in-group space-top"></div>
           <Col className="section top-spacer">
             <b>Narrow your results by: </b>
+            {/* DATE RANGE */}
             <Col className={`date-range-group space-top`}>
               <Row className="option-row">
                 <BsCalendarEvent /> Date range
@@ -211,17 +264,20 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
           </Row>
         </Show>
       </div>
+      {/* FOOTER */}
       <Show visible={expanded}>
         <Row className="adv-toolbar">
-          <div className="label">SAVE SEARCH AS: </div>
+          <div className="label">{!filterId ? 'SAVE SEARCH AS: ' : 'UPDATE SEARCH AS: '} </div>
           <Text
             onChange={(e) => {
               setSearchName(e.target.value);
+              !!viewedFilter && setViewedFilter({ ...viewedFilter, name: e.target.value });
             }}
             name="searchName"
+            value={!!viewedFilter?.name ? viewedFilter.name : searchName}
           />
           <button className="save-cloud">
-            <FaCloudArrowUp onClick={() => saveSearch()} />
+            <FaCloudArrowUp onClick={() => (!filterId ? saveSearch() : updateSearch())} />
           </button>
           <Button
             onClick={() => {

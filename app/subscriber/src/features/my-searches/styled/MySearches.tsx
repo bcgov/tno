@@ -2,7 +2,16 @@ import styled from 'styled-components';
 import { Col } from 'tno-core';
 
 export const MySearches = styled(Col)`
-  .react-tooltip {
-    z-index: 999;
+  /* option items in the tooltip menu */
+  .option {
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .search-row-options {
+    display: flex;
+    margin-left: auto;
   }
 `;
