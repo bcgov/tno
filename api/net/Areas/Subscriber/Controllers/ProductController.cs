@@ -64,12 +64,19 @@ public class ProductController : ControllerBase
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
 
-        var filter = new ProductFilter {
-            IsPublic = true,
+        var publicFilter = new ProductFilter {
+            IsPublic = true
+        };
+        var publicProducts = _productService.Find(publicFilter).Select(ds => new ProductModel(ds, user.Id));
+
+        var privateFilter = new ProductFilter {
             SubscriberUserId = user.Id
         };
+        var privateProducts = _productService.Find(privateFilter).Select(ds => new ProductModel(ds, user.Id));
 
-        return new JsonResult(_productService.Find(filter).Select(ds => new ProductModel(ds, user.Id)));
+        var results = publicProducts.Union(privateProducts).Distinct().ToList();
+
+        return new JsonResult(results);
     }
 
     /// <summary>

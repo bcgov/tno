@@ -71,11 +71,6 @@ public class ProductService : BaseService<Product, int>, IProductService
     /// <returns></returns>
     public IEnumerable<Product> Find(ProductFilter filter)
     {
-        // return this.Context.Products
-        //     .AsNoTracking()
-        //     .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
-        //     .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
-
         var query = this.Context.Products
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
             .AsNoTracking();
@@ -87,8 +82,8 @@ public class ProductService : BaseService<Product, int>, IProductService
             query = query.Where(r => r.IsPublic == filter.IsPublic.Value);
 
         // brings back products which the user is subscriber to but are not public
-        // if (filter.SubscriberUserId.HasValue)
-        //     query = query.Where(r => r.SubscribersManyToMany.Exists(s => s.UserId == filter.SubscriberUserId.Value && s.IsSubscribed));
+        if (filter.SubscriberUserId.HasValue)
+            query = query.Where(r => r.SubscribersManyToMany.Any(s => s.UserId == filter.SubscriberUserId.Value && s.IsSubscribed));
 
         return query.ToArray();
     }

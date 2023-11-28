@@ -33,4 +33,16 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
         this.IsSubscribed = entity.SubscribersManyToMany.FirstOrDefault(s => s.UserId == userId)?.IsSubscribed ?? false;
     }
     #endregion
+
+        #region Methods
+    public bool Equals(ProductModel? other)
+    {
+        if (other == null) return false;
+        return this.Id == other.Id;
+    }
+
+    public override bool Equals(object? obj) => Equals(obj as ProductModel);
+    public override int GetHashCode() => (this.Id).GetHashCode();
+    #endregion
+
 }
