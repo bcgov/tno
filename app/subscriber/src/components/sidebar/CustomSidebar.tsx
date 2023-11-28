@@ -1,3 +1,4 @@
+import { InfoShield } from 'components/info';
 import React from 'react';
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from 'react-icons/fa';
 import { Menu, useProSidebar } from 'react-pro-sidebar';
@@ -33,6 +34,7 @@ export const CustomSidebar: React.FC<ICustomSidebarProps> = () => {
       <Show visible={collapsed}>
         <FaAngleDoubleRight className="collapse" onClick={() => collapseSidebar()} />
       </Show>
+      <InfoShield />
     </styled.CustomSidebar>
   );
 };
