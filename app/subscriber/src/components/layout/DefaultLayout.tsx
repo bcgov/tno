@@ -1,4 +1,3 @@
-import { SubscriberFooter } from 'components/footer';
 import { CustomSidebar } from 'components/sidebar/CustomSidebar';
 import { UnauthenticatedHome, UserInfo } from 'features/login';
 import React from 'react';
@@ -87,7 +86,6 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
                 <main>
                   <Outlet />
                 </main>
-                <SubscriberFooter />
               </LayoutErrorBoundary>
             </div>
           </div>
@@ -98,7 +96,6 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
               <main>
                 <Outlet />
               </main>
-              <SubscriberFooter />
             </LayoutErrorBoundary>
           </div>
         </Show>
@@ -107,7 +104,6 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
         <div className="main-window">
           <main>
             <UnauthenticatedHome />
-            <SubscriberFooter />
           </main>
         </div>
       </Show>

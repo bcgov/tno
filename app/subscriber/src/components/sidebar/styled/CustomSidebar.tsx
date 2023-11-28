@@ -41,8 +41,6 @@ export const CustomSidebar = styled(Sidebar)`
     margin-right: 0px;
     border: none;
     min-height: -webkit-fill-available;
-
-    min-height: 100vh;
     display: flex;
   }
 
@@ -97,5 +95,9 @@ export const CustomSidebar = styled(Sidebar)`
       height: 16px;
       width: 16px;
     }
+  }
+
+  .secondary {
+    height: 100%;
   }
 `;
