@@ -195,27 +195,21 @@ public class ProductService : BaseService<Product, int>, IProductService
     /// <param name="userId"></param>
     /// <param name="productId"></param>
     /// <returns></returns>
-    public async Task<Product> Subscribe(int userId, int productId)
+    public async Task<int> Subscribe(int userId, int productId)
     {
+        var saveChanges = false;
         var targetProduct = FindById(productId) ?? throw new NoContentException("Report does not exist");
         var subscriberRecord = targetProduct.Subscribers.FirstOrDefault(s => s.Id == userId);
         if (subscriberRecord != null) {
-            var userProducts = this.Context.UserProducts.Where(x => x.UserId == userId && x.ProductId == productId);
-            userProducts.ForEach(s =>
-            {
-                if (!s.IsSubscribed)
-                {
-                    s.IsSubscribed = true;
-                }
-            });
-            this.Context.UpdateRange(userProducts);
-            this.CommitTransaction();
+            UserProduct? userProduct = await this.Context.UserProducts.FirstOrDefaultAsync(x => x.UserId == userId && x.ProductId == productId && !x.IsSubscribed);
+            if (userProduct != null) {
+                userProduct.IsSubscribed = true;
+                saveChanges = true;
+            }
         } else {
             this.Context.UserProducts.Add(new UserProduct(userId, productId, true));
-            this.CommitTransaction();
         }
-
-        return FindById(productId);
+        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
     }
     #endregion
 }

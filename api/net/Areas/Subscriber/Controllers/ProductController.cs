@@ -90,18 +90,16 @@ public class ProductController : ControllerBase
 
         var isCurrentlySubscribed = result.SubscribersManyToMany.Exists(s => s.UserId == user.Id && s.IsSubscribed);
 
-        Product productWithUpdatedSubscription;
         if (isCurrentlySubscribed) {
             // This is the self-serve model for initial testing
             // TODO: Replace with Notification via Kafka
             await _productService.Unsubscribe(user.Id, result.Id);
-            productWithUpdatedSubscription = _productService.FindById(result.Id) ?? throw new NoContentException("Product does not exist");
-
         } else {
             // This is the self-serve model for initial testing
             // TODO: Replace with Notification via Kafka
-            productWithUpdatedSubscription = await _productService.Subscribe(user.Id, result.Id);
+            await _productService.Subscribe(user.Id, result.Id);
         }
+        var productWithUpdatedSubscription = _productService.FindById(result.Id) ?? throw new NoContentException("Product does not exist");
 
         // TODO: Send Notification to Subscription manager via Kafka
         /*
