@@ -64,6 +64,10 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
   useEffect(() => {
     if (!filter.contentTypes?.length && !filter.mediaTypeIds?.length) {
       setActive(HomeFilterType.All);
+    } else if (
+      filter.mediaTypeIds?.includes(mediaTypes.find((s) => s.name === 'Events')?.id ?? 0)
+    ) {
+      setActive(HomeFilterType.Events);
     } else {
       // currently only support one content type at a time (with the exception of the all filter)
       if (!!filter?.contentTypes?.length) {
@@ -83,7 +87,7 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
               break;
             }
           default:
-            setActive(!!filter.mediaTypeIds?.length ? HomeFilterType.Events : HomeFilterType.All);
+            setActive(HomeFilterType.All);
         }
       }
     }
