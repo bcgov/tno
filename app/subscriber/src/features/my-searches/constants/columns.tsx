@@ -1,7 +1,7 @@
 import { FaBinoculars, FaBookmark, FaTrash } from 'react-icons/fa';
 import { FaGear } from 'react-icons/fa6';
 import { FiSave } from 'react-icons/fi';
-import { IFilterModel, ITableHookColumn, Row, Text } from 'tno-core';
+import { IFilterModel, IFilterSettingsModel, ITableHookColumn, Row, Text } from 'tno-core';
 
 export const columns = (
   setActive: (folder: IFilterModel) => void,

@@ -45,6 +45,10 @@ export const MySearches = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewing]);
 
+  React.useEffect(() => {
+    if (!!active) storeFilter(settingsToFilter(active, active.id, topStoryId, actions));
+  }, [active]);
+
   const handleDelete = () => {
     setActionName('delete');
     toggle();
@@ -59,6 +63,7 @@ export const MySearches = () => {
       });
     }
   };
+
   return (
     <styled.MySearches>
       <SubscriberTableContainer>
