@@ -120,7 +120,9 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     }
   }
   .search-input {
-    border: none;
+    input {
+      border: none;
+    }
     width: 30.5em;
     input {
       border: none;

@@ -1,33 +1,53 @@
 import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { determineColumns } from 'features/home/constants';
-import moment from 'moment';
+import { filterFormat } from 'features/search-page/utils';
+import { castToSearchResult } from 'features/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useContent } from 'store/hooks';
-import { ActionName, FlexboxTable, IContentModel, ITableInternalRow, Row } from 'tno-core';
+import { useContent, useLookup } from 'store/hooks';
+import { FlexboxTable, generateQuery, IContentModel, ITableInternalRow, Row } from 'tno-core';
 
 import * as styled from './styled';
 
 /** Component that displays top stories defaulting to today's date and adjustable via a date filter. */
 export const TopStories: React.FC = () => {
-  const [{ homeFilter }, { findContent }] = useContent();
+  const [
+    {
+      topStories: { filter },
+    },
+    { findContentWithElasticsearch, storeTopStoriesFilter: storeFilter },
+  ] = useContent();
   const navigate = useNavigate();
   const [topStories, setTopStories] = React.useState<IContentModel[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const [{ actions }] = useLookup();
 
   React.useEffect(() => {
-    findContent({
-      actions: [ActionName.TopStory],
-      contentTypes: [],
-      publishedStartOn: moment(homeFilter.publishedStartOn).toISOString(),
-      publishedEndOn: moment(homeFilter.publishedEndOn).toISOString(),
-      quantity: 100,
-      sort: ['source.sortOrder'],
-    })
-      .then((data) => setTopStories(data.items))
-      .catch(() => {});
-  }, [findContent, homeFilter]);
+    // stops invalid requests before filter is synced with date
+    if (!actions.length || !filter.startDate) return;
+    findContentWithElasticsearch(
+      generateQuery(
+        filterFormat(
+          {
+            ...filter,
+            topStory: true,
+          },
+          actions,
+        ),
+      ),
+      false,
+    ).then((res) => {
+      setTopStories(
+        res.hits.hits.map((r) => {
+          const content = r._source as IContentModel;
+          return castToSearchResult(content);
+        }),
+      );
+    });
+    // only run this effect when the filter changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter, actions]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
@@ -41,7 +61,7 @@ export const TopStories: React.FC = () => {
   return (
     <styled.TopStories>
       <FolderSubMenu selectedContent={selected} />
-      <DateFilter />
+      <DateFilter filter={filter} storeFilter={storeFilter} />
       <Row className="table-container">
         <FlexboxTable
           rowId="id"

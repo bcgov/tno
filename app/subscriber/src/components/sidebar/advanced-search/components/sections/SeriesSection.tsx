@@ -4,7 +4,12 @@ import { FieldSize, OptionItem, Row, Select } from 'tno-core';
 
 /** allows user to filter based off of show/programs */
 export const SeriesSection: React.FC = () => {
-  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
+  const [
+    {
+      search: { filter },
+    },
+    { storeSearchFilter: storeFilter },
+  ] = useContent();
   const [{ series }] = useLookup();
   const seriesOptions = useMemo(
     () =>

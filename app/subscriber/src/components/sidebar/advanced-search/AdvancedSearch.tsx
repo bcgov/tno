@@ -56,8 +56,13 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   const navigate = useNavigate();
   const [, { addFilter, getFilter, updateFilter }] = useFilters();
   const [{ actions }] = useLookup();
-  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
   const [searchParams] = useSearchParams();
+  const [
+    {
+      search: { filter },
+    },
+    { storeSearchFilter: storeFilter },
+  ] = useContent();
 
   const filterId = React.useMemo(() => Number(searchParams.get('modify')), [searchParams]);
   const [searchName, setSearchName] = React.useState<string>('');
@@ -160,7 +165,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
                 onKeyDown={enterPressed}
                 name="search"
                 onChange={(e) => {
-                  storeFilter({ ...filter, searchTerm: e.target.value });
+                  storeFilter({ ...filter, search: e.target.value });
                 }}
               />
             </Row>
@@ -168,11 +173,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
           <Show visible={expanded}>
             <Col className="text-area-container">
               <TextArea
-                value={filter?.searchTerm}
+                value={filter?.search}
                 className="text-area"
                 onKeyDown={enterPressed}
                 name="search"
-                onChange={(e) => storeFilter({ ...filter, searchTerm: e.target.value })}
+                onChange={(e) => storeFilter({ ...filter, search: e.target.value })}
               />
               <SearchInGroup />
             </Col>

@@ -1,21 +1,24 @@
+import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { FolderSubMenu } from 'components/folder-sub-menu';
-import {
-  IContentListAdvancedFilter,
-  IContentListFilter,
-} from 'features/content/list-view/interfaces';
 import { determineColumns } from 'features/home/constants';
-import { makeFilter } from 'features/home/utils';
+import { filterFormat } from 'features/search-page/utils';
+import { castToSearchResult } from 'features/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp, useContent } from 'store/hooks';
+import { useApp, useContent, useLookup } from 'store/hooks';
 import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import { useMinisters } from 'store/hooks/subscriber/useMinisters';
-import { FlexboxTable, IContentModel, ITableInternalRow, Page, Row } from 'tno-core';
+import { FlexboxTable, generateQuery, IContentModel, ITableInternalRow, Row } from 'tno-core';
 
 import * as styled from './styled';
 
 export const MyMinister: React.FC = () => {
-  const [{ homeFilter: filter }, { findContent }] = useContent();
+  const [
+    {
+      myMinister: { filter },
+    },
+    { findContentWithElasticsearch, storeMyMinisterFilter },
+  ] = useContent();
   const [{ userInfo }] = useApp();
   const [, api] = useMinisters();
   const navigate = useNavigate();
@@ -23,7 +26,15 @@ export const MyMinister: React.FC = () => {
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
   const [ministerNames, setMinisterNames] = React.useState<string[]>([]);
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
-  const [, setLoading] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [{ actions }] = useLookup();
+
+  //  convert minister name to alias (e.g. David Eby -> D. Eby OR David Eby)
+  const toMinisterAlias = (ministerName: string) => {
+    const firstInitial = ministerName.charAt(0);
+    const lastName = ministerName.split(' ')[1];
+    return `"${firstInitial}. ${lastName}" "${ministerName}"`;
+  };
 
   React.useEffect(() => {
     if (!ministers.length) {
@@ -42,29 +53,49 @@ export const MyMinister: React.FC = () => {
     }
   };
 
-  const fetch = React.useCallback(
-    async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
+  const fetchResults = React.useCallback(
+    async (filter: MsearchMultisearchBody) => {
       try {
-        setLoading(true);
-        const data = await findContent(
-          makeFilter({
-            ...filter,
-            startDate: '',
-            contentTypes: [],
-            endDate: '',
-          }),
-        );
-        // don't want to keyword fetch when there is nothing to fetch
-        return new Page(data.page - 1, data.quantity, data?.items, data.total);
-      } catch (error) {
-        // TODO: Handle error
-        throw error;
+        if (!loading) {
+          setLoading(true);
+          const res = await findContentWithElasticsearch(filter, false);
+          setHomeItems(
+            res.hits.hits.map((r) => {
+              const content = r._source as IContentModel;
+              return castToSearchResult(content);
+            }),
+          );
+        }
+      } catch {
       } finally {
         setLoading(false);
       }
     },
-    [findContent],
+    // do not want to trigger on loading change, will cause infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
+
+  React.useEffect(() => {
+    if (!!filter.search && ministerNames.length > 0) {
+      fetchResults(
+        generateQuery(
+          filterFormat(
+            {
+              ...filter,
+              inByline: true,
+              inHeadline: true,
+              inStory: true,
+              defaultSearchOperator: 'or',
+            },
+            actions,
+          ),
+        ),
+      );
+    }
+    // only want the effect to trigger when aliases is populated, not every time the filter changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter, ministerNames]);
 
   React.useEffect(() => {
     if (userInfo?.preferences?.myMinisters?.length > 0 && ministers.length > 0) {
@@ -74,17 +105,13 @@ export const MyMinister: React.FC = () => {
         .map((x) => x.name);
       setMinisterNames(selectedMinisters);
     }
-  }, [ministers, userInfo?.preferences?.myMinisters]);
+  }, [ministers, userInfo?.preferences?.myMinisters, actions]);
 
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
-    if (!ministerNames.length) return;
-    fetch({
-      ...filter,
-      names: ministerNames.toString(),
-    }).then((data) => {
-      setHomeItems(data.items);
-    });
+    if (ministerNames.length > 0) {
+      storeMyMinisterFilter({ ...filter, search: toMinisterAlias(ministerNames.toString()) });
+    }
     // only want the effect to trigger when aliases is populated, not every time the filter changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ministerNames]);

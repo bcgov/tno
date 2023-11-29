@@ -1,6 +1,7 @@
 import { SearchWithLogout } from 'components/search-with-logout';
 import { Sentiment } from 'components/sentiment';
-import { determinePreview } from 'features/utils';
+import { filterFormat } from 'features/search-page/utils';
+import { castToSearchResult, determinePreview } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
@@ -8,7 +9,7 @@ import { FaArrowLeft, FaFolderMinus, FaGripLines } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { Checkbox, Col, IContentModel, IFolderModel, Row } from 'tno-core';
+import { Checkbox, Col, generateQuery, IContentModel, IFolderModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -20,22 +21,34 @@ export const ManageFolder: React.FC = () => {
   const { id } = useParams();
   const [, { getFolder, updateFolder }] = useFolders();
   const navigate = useNavigate();
-  const [, { findContent }] = useContent();
+  const [, { findContentWithElasticsearch }] = useContent();
   const [folder, setFolder] = React.useState<IFolderModel>();
   const [items, setItems] = React.useState<any>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
   /** TODO: Folder content only contains contentId and sortOrder so we have to make an additional call based off of the contentIds to get the headline/summary etc..
    * assuming we want this to differ eventually.
+   *
    */
   React.useEffect(() => {
     getFolder(Number(id)).then((folder) => {
       setFolder(folder);
-      findContent({
-        contentIds: folder.content.map((c) => c.contentId),
-      })
+      findContentWithElasticsearch(
+        generateQuery(
+          filterFormat({
+            contentIds: folder.content.map((c) => c.contentId),
+            searchUnpublished: false,
+            size: 500,
+          }),
+        ),
+        false,
+      )
         .then((data) => {
-          const tempSort = data.items.map((item) => ({
+          const items = data.hits.hits.map((r) => {
+            const content = r._source as IContentModel;
+            return castToSearchResult(content);
+          });
+          const tempSort = items.map((item) => ({
             ...item,
             sortOrder: folder.content.find((c) => c.contentId === item.id)?.sortOrder ?? 0,
           }));

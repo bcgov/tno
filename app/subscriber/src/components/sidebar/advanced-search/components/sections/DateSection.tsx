@@ -10,7 +10,12 @@ import { determineActivePicker } from './utils';
 export const DateSection: React.FC = () => {
   // disable quick picker when user selects a date on react-date-picker
   const [disableQuickPick, setDisableQuickPick] = React.useState(false);
-  const [{ searchFilter: filter }, { storeSearchFilter: storeFilter }] = useContent();
+  const [
+    {
+      search: { filter },
+    },
+    { storeSearchFilter: storeFilter },
+  ] = useContent();
 
   // ensure that date offset is cleared when using the custom date picker
   React.useEffect(() => {
@@ -24,31 +29,31 @@ export const DateSection: React.FC = () => {
       <Row className="picker">
         <ReactDatePicker
           className="date-picker"
-          startDate={filter?.publishedStartOn ? new Date(filter.publishedStartOn) : null}
-          selected={filter?.publishedStartOn ? new Date(filter.publishedStartOn) : null}
+          startDate={filter?.startDate ? new Date(filter.startDate) : null}
+          selected={filter?.startDate ? new Date(filter.startDate) : null}
           selectsStart
-          endDate={filter?.publishedEndOn ? new Date(filter.publishedEndOn) : null}
+          endDate={filter?.endDate ? new Date(filter.endDate) : null}
           onChange={(date) => {
-            storeFilter({ ...filter, publishedStartOn: date?.toISOString() ?? '' });
+            storeFilter({ ...filter, startDate: date?.toISOString() ?? '' });
             setDisableQuickPick(true);
           }}
         />
         <p>to</p>
         <ReactDatePicker
           className="date-picker"
-          startDate={filter?.publishedStartOn ? new Date(filter.publishedStartOn) : null}
-          selected={filter?.publishedEndOn ? new Date(filter.publishedEndOn) : null}
+          startDate={filter?.startDate ? new Date(filter.startDate) : null}
+          selected={filter?.endDate ? new Date(filter.endDate) : null}
           selectsEnd
-          endDate={filter?.publishedEndOn ? new Date(filter.publishedEndOn) : null}
+          endDate={filter?.endDate ? new Date(filter.endDate) : null}
           onChange={(date) => {
             setDisableQuickPick(true);
-            storeFilter({ ...filter, publishedEndOn: date?.toISOString() ?? '' });
+            storeFilter({ ...filter, endDate: date?.toISOString() ?? '' });
           }}
         />
         <FaX
           className="clear"
           onClick={() => {
-            storeFilter({ ...filter, publishedEndOn: '', publishedStartOn: '' });
+            storeFilter({ ...filter, endDate: '', startDate: '' });
             setDisableQuickPick(false);
           }}
         />

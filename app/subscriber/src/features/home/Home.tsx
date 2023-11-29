@@ -3,7 +3,7 @@ import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { createFilterSettings } from 'features/utils';
 import moment from 'moment';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FaEllipsisVertical } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
@@ -29,17 +29,26 @@ import * as styled from './styled';
  * Home component that will be rendered when the user is logged in.
  */
 export const Home: React.FC = () => {
-  const [{ homeFilter: filter }, { findContentWithElasticsearch }] = useContent();
+  const [
+    {
+      home: { filter },
+    },
+    { findContentWithElasticsearch, storeHomeFilter: storeFilter },
+  ] = useContent();
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [disabledCols, setDisabledCols] = React.useState<string[]>([]);
   const [sortBy, setSortBy] = React.useState<'source' | 'time' | ''>('source');
   const navigate = useNavigate();
   const { width } = useWindowSize();
+  const contentType = useMemo(() => {
+    if (!!filter?.contentTypes?.length) return filter.contentTypes[0];
+    else return 'all';
+  }, [filter.contentTypes]);
   const [settings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(
-      filter.publishedStartOn ?? moment().startOf('day').toISOString(),
-      filter.publishedEndOn ?? moment().endOf('day').toISOString(),
+      filter.startDate ?? moment().startOf('day').toISOString(),
+      filter.endDate ?? moment().endOf('day').toISOString(),
     ),
   );
 
@@ -54,17 +63,19 @@ export const Home: React.FC = () => {
   );
 
   React.useEffect(() => {
+    // stops invalid requests before filter is synced with date
+    if (!filter.startDate) return;
     fetchResults(
       generateQuery({
         ...settings,
-        contentTypes: filter.contentTypes.length > 0 ? filter.contentTypes : [],
-        startDate: filter.publishedStartOn ? filter.publishedStartOn : new Date().toDateString(),
-        endDate: filter.publishedEndOn ? filter.publishedEndOn : new Date().toDateString(),
+        contentTypes: !!contentType ? filter.contentTypes : [],
+        startDate: filter.startDate,
+        endDate: filter.endDate,
         mediaTypeIds: filter.mediaTypeIds ?? [],
         sourceIds: filter.sourceIds ?? [],
       }),
     );
-  }, [fetchResults, filter, settings]);
+  }, [fetchResults, filter, settings, contentType]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
@@ -139,11 +150,11 @@ export const Home: React.FC = () => {
           </Col>
         </Tooltip>
       </Row>
-      <DateFilter />
+      <DateFilter filter={filter} storeFilter={storeFilter} />
       <Row className="table-container">
         <FlexboxTable
           rowId="id"
-          columns={determineColumns(filter.contentTypes[0], width, disabledCols)}
+          columns={determineColumns(contentType, width, disabledCols)}
           isMulti
           groupBy={(item) => {
             if (item.original.source?.name && sortBy === 'source')

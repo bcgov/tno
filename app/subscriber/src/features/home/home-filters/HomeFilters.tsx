@@ -1,7 +1,6 @@
-import { IContentListFilter } from 'features/content/list-view/interfaces';
 import React, { useEffect, useState } from 'react';
 import { useContent, useLookup } from 'store/hooks';
-import { Button, ButtonHeight, ContentTypeName } from 'tno-core';
+import { Button, ButtonHeight, ContentTypeName, IFilterSettingsModel } from 'tno-core';
 
 import { HomeFilterType } from '../constants';
 import * as styled from './styled';
@@ -14,10 +13,15 @@ export interface IHomeFilterProps {}
  */
 export const HomeFilters: React.FC<IHomeFilterProps> = () => {
   const [active, setActive] = useState<HomeFilterType>(HomeFilterType.Papers);
-  const [{ homeFilter: filter }, { storeHomeFilter: storeFilter }] = useContent();
+  const [
+    {
+      home: { filter },
+    },
+    { storeHomeFilter: storeFilter },
+  ] = useContent();
   const [{ sources, mediaTypes }] = useLookup();
 
-  const defaultFilter: Partial<IContentListFilter> = {
+  const defaultFilter: Partial<IFilterSettingsModel> = {
     contentTypes: [],
     sourceIds: [],
     mediaTypeIds: [],
@@ -59,28 +63,34 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
   useEffect(() => {
     if (!filter.contentTypes?.length && !filter.mediaTypeIds?.length) {
       setActive(HomeFilterType.All);
+    } else if (
+      filter.mediaTypeIds?.includes(mediaTypes.find((s) => s.name === 'Events')?.id ?? 0)
+    ) {
+      setActive(HomeFilterType.Events);
     } else {
       // currently only support one content type at a time (with the exception of the all filter)
-      switch (filter.contentTypes[0]) {
-        case ContentTypeName.PrintContent:
-          setActive(HomeFilterType.Papers);
-          break;
-        case ContentTypeName.AudioVideo:
-          setActive(HomeFilterType.RadioTV);
-          break;
-        case ContentTypeName.Story:
-          if (filter.sourceIds?.length === 1) {
-            setActive(HomeFilterType.CPNews);
+      if (!!filter?.contentTypes?.length) {
+        switch (filter.contentTypes[0]) {
+          case ContentTypeName.PrintContent:
+            setActive(HomeFilterType.Papers);
             break;
-          } else {
-            setActive(HomeFilterType.Internet);
+          case ContentTypeName.AudioVideo:
+            setActive(HomeFilterType.RadioTV);
             break;
-          }
-        default:
-          setActive(!!filter.mediaTypeIds?.length ? HomeFilterType.Events : HomeFilterType.All);
+          case ContentTypeName.Story:
+            if (filter.sourceIds?.length === 1) {
+              setActive(HomeFilterType.CPNews);
+              break;
+            } else {
+              setActive(HomeFilterType.Internet);
+              break;
+            }
+          default:
+            setActive(HomeFilterType.All);
+        }
       }
     }
-  }, [filter]);
+  }, [filter, mediaTypes]);
 
   const filters = [
     { type: HomeFilterType.All, label: 'ALL' },

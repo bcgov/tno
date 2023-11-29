@@ -21,7 +21,12 @@ import * as styled from './styled';
 
 /** Component that displays front pages defaulting to today's date and adjustable via a date filter. */
 export const TodaysFrontPages: React.FC = () => {
-  const [{ homeFilter }, { findContentWithElasticsearch }] = useContent();
+  const [
+    {
+      frontPage: { filter: frontPageFilter },
+    },
+    { findContentWithElasticsearch, storeFrontPageFilter: storeFilter },
+  ] = useContent();
   const navigate = useNavigate();
   const [frontpages, setFrontPages] = React.useState<IContentModel[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
@@ -32,7 +37,7 @@ export const TodaysFrontPages: React.FC = () => {
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
-        const res: any = await findContentWithElasticsearch(filter, false);
+        const res: any = await findContentWithElasticsearch(filter, false, 'frontPage');
         const mappedResults = res.hits?.hits?.map((h: { _source: IContentModel }) => {
           const content = h._source;
           return {
@@ -53,14 +58,14 @@ export const TodaysFrontPages: React.FC = () => {
 
   React.useEffect(() => {
     if (!!filter.query.query) {
-      const calendarStartDate = moment(homeFilter.publishedStartOn).toISOString();
+      const calendarStartDate = moment(frontPageFilter.startDate).toISOString();
       const filterStartDate = filter.query.query.bool.must[0].range.publishedOn.gte;
       if (calendarStartDate !== filterStartDate) {
         const range = {
           range: {
             publishedOn: {
-              gte: moment(homeFilter.publishedStartOn).toISOString(),
-              lte: moment(homeFilter.publishedEndOn).toISOString(),
+              gte: moment(frontPageFilter.startDate).toISOString(),
+              lte: moment(frontPageFilter.endDate).toISOString(),
               time_zone: 'US/Pacific',
             },
           },
@@ -71,14 +76,14 @@ export const TodaysFrontPages: React.FC = () => {
         fetchResults(newFilter.query);
       }
     }
-  }, [fetchResults, filter, homeFilter]);
+  }, [fetchResults, filter, frontPageFilter]);
 
   React.useEffect(() => {
     const range = {
       range: {
         publishedOn: {
-          gte: moment(homeFilter.publishedStartOn).toISOString(),
-          lte: moment(homeFilter.publishedEndOn).toISOString(),
+          gte: moment(frontPageFilter.startDate).toISOString(),
+          lte: moment(frontPageFilter.endDate).toISOString(),
           time_zone: 'US/Pacific',
         },
       },
@@ -97,7 +102,7 @@ export const TodaysFrontPages: React.FC = () => {
     } else if (!!settings.length) {
       toast.error(`${Settings.FrontpageFilter} setting needs to be configured.`);
     }
-  }, [fetchResults, filter?.id, getFilter, settings, homeFilter, filter]);
+  }, [fetchResults, filter?.id, getFilter, settings, frontPageFilter, filter]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
@@ -111,7 +116,7 @@ export const TodaysFrontPages: React.FC = () => {
   return (
     <styled.TodaysFrontPages>
       <FolderSubMenu selectedContent={selected} />
-      <DateFilter />
+      <DateFilter filter={frontPageFilter} storeFilter={storeFilter} />
       <Row className="table-container">
         <FlexboxTable
           rowId="id"

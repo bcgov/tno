@@ -55,7 +55,7 @@ export const MySearches = () => {
           rowId={'id'}
           onRowClick={(e) => {
             setActive(e.original);
-            storeFilter(settingsToFilter(e.original, e.original.id, topStoryId));
+            storeFilter(settingsToFilter(e.original, e.original.id, topStoryId, actions));
             navigate('/search');
           }}
           data={myFilters}
