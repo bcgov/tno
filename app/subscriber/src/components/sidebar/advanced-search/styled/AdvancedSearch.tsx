@@ -1,15 +1,19 @@
 import styled from 'styled-components';
 import { Row } from 'tno-core';
 
-export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
+export const AdvancedSearch = styled(Row)`
   /* ADVANCED SEARCH CONTAINER */
-  background-color: white;
+  /* background-color: white;
   margin-bottom: 0.25em;
   margin-left: 0.25em;
   margin-right: 0.25em;
   box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.2);
-  width: ${(props) => (!props.expanded ? '100%' : '')};
-  border-radius: 0.75em;
+  border-radius: 0.75em; */
+
+  .page-section {
+    width: 100%;
+    overflow-x: hidden;
+  }
 
   /* BOTTOM SEARCH BAR */
   .adv-toolbar {
@@ -45,28 +49,19 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
       max-height: 30px;
     }
   }
-
-  /* ALL BUT SEARCH TOOLBAR AT BOTTOM */
   .main-search-body {
-    width: 100%;
-    padding: 0.5em;
+    padding-left: 0.5em;
   }
-
   /* HEADER OF THE ADVANCED SEARCH COMPONENT */
   .top-bar {
-    .title {
-      color: ${(props) => props.theme.css.redHeadingColor};
-      font-weight: bold;
-      font-size: 1.35em;
-    }
     width: 100%;
-    border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
     .reset {
       margin-left: auto;
       align-self: center;
       height: 1.25em;
       width: 1.25em;
       cursor: pointer;
+      color: ${(props) => props.theme.css.btnBkPrimaryColor};
       &:hover {
         color: ${(props) => props.theme.css.subscriberPurple};
         transform: scale(1, 1.1);
@@ -74,22 +69,7 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     }
   }
 
-  .search-icon {
-    color: ${(props) => props.theme.css.inputGrey};
-    &:hover {
-      color: ${(props) => props.theme.css.subscriberPurple};
-      cursor: pointer;
-    }
-  }
-
-  /* LABEL STYLING */
   .label {
-    align-self: center;
-    margin-right: 0.5em;
-    font-size: 0.8em;
-  }
-
-  .label-expanded {
     margin-right: 0.5em;
     font-size: 0.8em;
   }
@@ -98,41 +78,6 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   .slider {
     .tone-icon {
       margin: 0;
-    }
-  }
-
-  /* SEARCH BAR WHEN NOT IN ADVANCED EXPANDED STATE */
-  .search-bar {
-    align-self: center;
-    border-color: ${(props) => props.theme.css.inputGrey};
-    border-style: solid;
-    border-width: 1px;
-    border-radius: 1.3em;
-    padding: 0.3em;
-    .frm-in {
-      padding-bottom: 0;
-      margin-left: 0.2em;
-    }
-    svg {
-      margin: 0.2em;
-      align-self: center;
-      color: ${(props) => props.theme.css.searchIconColor};
-    }
-  }
-  .search-input {
-    input {
-      border: none;
-    }
-    width: 30.5em;
-    input {
-      border: none;
-    }
-    margin-top: auto;
-    margin-bottom: auto;
-    padding: 0;
-    &:focus {
-      outline: none;
-      box-shadow: none !important;
     }
   }
 
@@ -193,14 +138,10 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
 
   /* EXPANDABLE ROW IN THE ADVANCED SEARCH */
   .option-row {
-    width: 100%;
     padding: 0.5em 0 0.5em 0.5em;
 
     &:hover {
       cursor: pointer;
-      &:hover:not(.expanded) {
-        background-color: ${(props) => props.theme.css.searchItemHover};
-      }
     }
     .drop-icon {
       margin-left: auto;
@@ -317,21 +258,6 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     }
   }
 
-  .search-button {
-    height: 30px;
-    margin-left: 0.5em;
-    align-self: center;
-    font-weight: 200;
-    font-size: 0.8em;
-    background-color: ${(props) => props.theme.css.subscriberPurple};
-    border-radius: 0.5em;
-    border: none;
-    svg {
-      align-self: center;
-      margin-left: 0.5em;
-    }
-  }
-
   .rs__control {
     margin-top: 0.25em;
     margin-left: auto;
@@ -340,7 +266,7 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
 
   .search-button-expanded {
     height: 30px;
-    margin-left: auto;
+    margin-left: 0.5em;
     font-weight: 200;
     font-size: 0.8em;
     background-color: ${(props) => props.theme.css.subscriberPurple};

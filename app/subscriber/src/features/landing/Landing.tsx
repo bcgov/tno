@@ -1,3 +1,4 @@
+import { BasicSearch } from 'components/basic-search';
 import {
   SidebarMenuItems,
   sidebarMenuItemsArray,
@@ -48,7 +49,7 @@ export const Landing: React.FC = () => {
     <styled.Landing className="main-container" advSearchExpanded={expanded}>
       <Row>
         <SearchWithLogout />
-        <AdvancedSearch expanded={expanded} setExpanded={setExpanded} />
+        <BasicSearch />
       </Row>
       <Row className="contents-container">
         <Col className="main-panel">

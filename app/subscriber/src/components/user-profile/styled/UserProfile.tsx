@@ -5,6 +5,7 @@ export const UserProfile = styled.div`
   flex-direction: row;
   gap: 1rem;
   align-items: center;
+  margin-left: auto;
 
   .logout {
     display: flex;

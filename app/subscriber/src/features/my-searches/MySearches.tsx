@@ -18,8 +18,10 @@ export const MySearches = () => {
   const [{ actions }] = useLookup();
   const navigate = useNavigate();
   const [, { storeSearchFilter: storeFilter }] = useContent();
+
   const [myFilters, setMyFilters] = React.useState<IFilterModel[]>([]);
   const [active, setActive] = React.useState<IFilterModel>();
+  const [viewing, setViewing] = React.useState<IFilterModel>();
   const [editable, setEditable] = React.useState<string>('');
   const [actionName, setActionName] = React.useState<'delete'>('delete');
   const topStoryId = actions.find((action) => action.name === 'Top Story')?.id ?? 0;
@@ -31,6 +33,13 @@ export const MySearches = () => {
     // Only do this on init.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    if (!!viewing) {
+      storeFilter(settingsToFilter(viewing, viewing.id, topStoryId, actions));
+      navigate(`/search?viewing=${viewing.id}`);
+    }
+  }, [viewing]);
 
   const handleDelete = () => {
     setActionName('delete');
@@ -51,7 +60,7 @@ export const MySearches = () => {
       <SubscriberTableContainer>
         <FlexboxTable
           pagingEnabled={false}
-          columns={columns(setActive, editable, handleSave, handleDelete, active)}
+          columns={columns(setActive, editable, handleSave, handleDelete, setViewing, active)}
           rowId={'id'}
           onRowClick={(e) => {
             setActive(e.original);

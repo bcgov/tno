@@ -4,6 +4,10 @@ export const SearchPage = styled.div`
   max-height: 100vh;
   overflow: none;
 
+  .logout {
+    margin-right: 1em;
+  }
+
   /* RIBBON CONTAINING SEARCH NAME IF MODIFYING */
   .viewed-name {
     display: flex;
@@ -23,11 +27,6 @@ export const SearchPage = styled.div`
     }
   }
 
-  .title {
-    color: ${(props) => props.theme.css.redHeadingColor};
-    font-weight: bold;
-    font-size: 1.35em;
-  }
   .add-page {
     margin-left: auto;
   }
@@ -51,18 +50,30 @@ export const SearchPage = styled.div`
     width: 55%;
   }
 
-  .save-bar {
-    background-color: white;
-    border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
-    padding-top: 0.5em;
-    box-shadow: 0 0.5em 0.5em -0.4em rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.02);
-    padding-right: 1.5em;
-    padding-left: 0.5em;
-    border-radius: 0.75em 0.75em 0 0;
-
-    .folder-sub-menu {
-      margin-left: auto;
+  /** CONTAINED IN PAGE HEADER */
+  .page-section-title {
+    .title {
+      margin-top: auto;
     }
+  }
+
+  /** END HEADER */
+
+  .folder-sub-menu {
+    /* .row-item { */
+    font-size: medium;
+    /* } */
+    margin-left: auto;
+    svg {
+      height: 1.5em;
+    }
+  }
+
+  .search-contents {
+    padding-top: 0;
+  }
+
+  .save-bar {
     .save-button {
       margin-top: 0.05em;
 

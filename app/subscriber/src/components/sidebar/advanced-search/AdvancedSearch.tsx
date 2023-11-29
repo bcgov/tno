@@ -1,3 +1,4 @@
+import { PageSection } from 'components/section';
 import { filterFormat } from 'features/search-page/utils';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
@@ -38,8 +39,6 @@ import { defaultSubMediaGroupExpanded, ISubMediaGroupExpanded } from './interfac
 import * as styled from './styled';
 
 export interface IAdvancedSearchProps {
-  expanded: boolean;
-  setExpanded?: (expanded: boolean) => void;
   onSearchPage?: boolean;
 }
 
@@ -48,11 +47,7 @@ export interface IAdvancedSearchProps {
  * @param expanded - determines whether the advanced search form is expanded or not
  * @param setExpanded - function that controls the expanded state of the advanced search form
  */
-export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
-  expanded,
-  setExpanded,
-  onSearchPage,
-}) => {
+export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage }) => {
   const navigate = useNavigate();
   const [, { addFilter, getFilter, updateFilter }] = useFilters();
   const [{ actions }] = useLookup();
@@ -127,16 +122,12 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   }, [filterId]);
 
   return (
-    <styled.AdvancedSearch expanded={expanded}>
-      <div className="main-search-body">
-        <Show visible={expanded}>
+    <styled.AdvancedSearch>
+      <PageSection
+        ignoreLastChildGap
+        header={
           <Row className="top-bar">
             <div className="title">{filterId ? 'Modify Search' : 'Advanced Search'}</div>
-            <Show visible={!onSearchPage}>
-              <p onClick={() => !!setExpanded && setExpanded(false)} className="back-text">
-                BACK TO BASIC
-              </p>
-            </Show>
             <IoMdRefresh
               className="reset"
               data-tooltip-id="main-tooltip"
@@ -146,31 +137,19 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
               }}
             />
           </Row>
-        </Show>
-        {/* CURRENTLY VIEWED SEARCH NAME IF PRESENT */}
-        <Show visible={!!filterId}>
-          <div className="viewed-name">
-            <FaBookmark />
-            <div className="filter-name">{viewedFilter?.name}</div>
-          </div>
-        </Show>
-        {/* SEARCH FOR: */}
-        <Row className="search-for-row">
-          <label className={expanded ? 'label-expanded' : 'label'}>SEARCH FOR: </label>
-          <Show visible={!expanded}>
-            <Row className="search-bar space-top">
-              <FaSearch onClick={() => handleSearch()} className="search-icon" />
-              <Text
-                className="search-input"
-                onKeyDown={enterPressed}
-                name="search"
-                onChange={(e) => {
-                  storeFilter({ ...filter, search: e.target.value });
-                }}
-              />
-            </Row>
+        }
+      >
+        <div className="main-search-body">
+          {/* CURRENTLY VIEWED SEARCH NAME IF PRESENT */}
+          <Show visible={!!filterId}>
+            <div className="viewed-name">
+              <FaBookmark />
+              <div className="filter-name">{viewedFilter?.name}</div>
+            </div>
           </Show>
-          <Show visible={expanded}>
+          {/* SEARCH FOR: */}
+          <Row className="search-for-row">
+            <label className="label">SEARCH FOR: </label>
             <Col className="text-area-container">
               <TextArea
                 value={filter?.search}
@@ -181,26 +160,8 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
               />
               <SearchInGroup />
             </Col>
-          </Show>
-          {/* SMALL SEARCH (NOT IN ADVANCED MODE) */}
-          <Show visible={!expanded}>
-            <Button
-              className="search-button"
-              onClick={() => {
-                handleSearch();
-              }}
-            >
-              Search <FaPlay />
-            </Button>
-          </Show>
-          <Show visible={!expanded}>
-            <p onClick={() => navigate('/search')} className="use-text">
-              GO ADVANCED
-            </p>
-          </Show>
-        </Row>
+          </Row>
 
-        <Show visible={expanded}>
           <div className="search-in-group space-top"></div>
           <Col className="section top-spacer">
             <b>Narrow your results by: </b>
@@ -267,10 +228,8 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
               </ExpandableRow>
             </Col>
           </Row>
-        </Show>
-      </div>
-      {/* FOOTER */}
-      <Show visible={expanded}>
+        </div>
+        {/* FOOTER */}
         <Row className="adv-toolbar">
           <div className="label">{!filterId ? 'SAVE SEARCH AS: ' : 'UPDATE SEARCH AS: '} </div>
           <Text
@@ -294,7 +253,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
             <FaPlay />
           </Button>
         </Row>
-      </Show>
+      </PageSection>
     </styled.AdvancedSearch>
   );
 };

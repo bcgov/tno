@@ -7,6 +7,8 @@ export interface IPageSectionProps extends React.HTMLAttributes<HTMLDivElement> 
   header?: React.ReactNode;
   /** Child components */
   children?: React.ReactNode;
+  /** ignore last child gap */
+  ignoreLastChildGap?: boolean;
 }
 
 /**
@@ -18,10 +20,15 @@ export const PageSection: React.FC<IPageSectionProps> = ({
   header,
   className,
   children,
+  ignoreLastChildGap,
   ...rest
 }) => {
   return (
-    <styled.PageSection className={`page-section${className ? ` ${className}` : ''}`} {...rest}>
+    <styled.PageSection
+      $ignoreLastChildGap={ignoreLastChildGap}
+      className={`page-section${className ? ` ${className}` : ''}`}
+      {...rest}
+    >
       {header && <Row className="page-section-title">{header}</Row>}
       {children}
     </styled.PageSection>
