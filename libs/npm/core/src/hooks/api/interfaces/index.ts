@@ -96,7 +96,6 @@ export * from './ISortField';
 export * from './ISortPageFilter';
 export * from './ISourceActionModel';
 export * from './ISourceModel';
-export * from './ISubscriberContentFilter';
 export * from './ISystemMessageModel';
 export * from './ITagFilter';
 export * from './ITagModel';

@@ -24,7 +24,12 @@ export const MyFolders = styled(Col)`
     margin-left: 0.5em;
   }
   .create-new {
+    .create-text {
+      font-size: 0.8em;
+      align-self: center;
+    }
     margin-left: auto;
+    margin-bottom: 0.5em;
   }
   /* table styling */
   .table {
@@ -35,6 +40,11 @@ export const MyFolders = styled(Col)`
       padding: 0;
       &:focus {
         box-shadow: none;
+      }
+    }
+    .row {
+      &:hover {
+        cursor: pointer;
       }
     }
     .header {
@@ -57,16 +67,20 @@ export const MyFolders = styled(Col)`
       }
     }
   }
-  .folder-add {
+  .create-button {
     &:focus {
       outline: none;
     }
     cursor: pointer;
-    align-self: center;
-    margin-bottom: 0.5rem;
-    height: 1.6rem;
-    width: 2.5rem;
-    color: ${(props) => props.theme.css.sidebarIconColor};
+    svg {
+      align-self: center;
+    }
+    border-radius: 0.5em;
+    height: 2rem;
+    margin-top: 0.15em;
+    width: 2rem;
+    background-color: ${(props) => props.theme.css.btnBkPrimary};
+    color: ${(props) => props.theme.css.btnPrimaryColor};
     padding-bottom: 0.25em;
     &:hover {
       transform: scale(1.1);

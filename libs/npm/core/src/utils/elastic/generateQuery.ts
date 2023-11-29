@@ -31,6 +31,7 @@ export const generateQuery = (settings: IFilterSettingsModel, query: any = {}) =
           generateTerms('seriesId', settings.seriesIds),
           generateTerms('contributorId', settings.contributorIds),
           generateTerms('contentType', settings.contentTypes),
+          generateTerms('id', settings.contentIds),
           generateTermsForArrayField('tags.code', settings.tags),
           generateRangeForArrayField('tonePools.value', settings.sentiment),
           actionFilters.length > 1 ? { bool: { should: actionFilters } } : undefined,

@@ -2,6 +2,10 @@ import styled from 'styled-components';
 
 export const ManageFolder = styled.div`
   background-color: ${(props) => props.theme.css.lightGray};
+  .main-manage {
+    overflow-y: auto;
+    max-height: calc(100vh - 4em);
+  }
   .remove-icon {
     margin-top: 0.15em;
     margin-left: 0.5em;
