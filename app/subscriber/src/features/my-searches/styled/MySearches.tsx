@@ -13,5 +13,10 @@ export const MySearches = styled(Col)`
   .search-row-options {
     display: flex;
     margin-left: auto;
+    svg {
+      outline: none;
+      border: none;
+      box-shadow: none;
+    }
   }
 `;

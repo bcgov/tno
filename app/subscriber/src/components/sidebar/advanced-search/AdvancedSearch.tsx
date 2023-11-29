@@ -247,7 +247,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
             onClick={() => {
               handleSearch();
             }}
-            className="search-button-expanded"
+            className="search-button"
           >
             Search
             <FaPlay />

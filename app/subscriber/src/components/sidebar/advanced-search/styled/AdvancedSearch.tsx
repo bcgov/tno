@@ -81,27 +81,6 @@ export const AdvancedSearch = styled(Row)`
     }
   }
 
-  .use-text {
-    margin-left: auto;
-    margin-top: 1.05em;
-    color: red;
-    &:hover {
-      text-decoration: underline;
-    }
-    font-size: 0.8em;
-    cursor: pointer;
-  }
-
-  .back-text {
-    margin-left: auto;
-    color: red;
-    &:hover {
-      text-decoration: underline;
-    }
-    font-size: 0.8em;
-    cursor: pointer;
-  }
-
   /* LABEL FOR THE TEXT AREA IN FIRST SECTION */
   .search-in-label {
     font-weight: bold;
@@ -264,12 +243,13 @@ export const AdvancedSearch = styled(Row)`
     min-width: 100%;
   }
 
-  .search-button-expanded {
-    height: 30px;
-    margin-left: 0.5em;
+  .search-button {
+    max-height: 30px;
+    margin-left: auto;
+    margin-right: 1.5em;
     font-weight: 200;
     font-size: 0.8em;
-    background-color: ${(props) => props.theme.css.subscriberPurple};
+    background-color: ${(props) => props.theme.css.btnBkPrimary};
     border-radius: 0.5em;
     border: none;
     svg {

@@ -1,7 +1,7 @@
 import { SubscriberTableContainer } from 'components/table';
 import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { useContent, useFilters, useLookup } from 'store/hooks';
@@ -18,6 +18,7 @@ export const MySearches = () => {
   const [{ actions }] = useLookup();
   const navigate = useNavigate();
   const [, { storeSearchFilter: storeFilter }] = useContent();
+  const [searchParams] = useSearchParams();
 
   const [myFilters, setMyFilters] = React.useState<IFilterModel[]>([]);
   const [active, setActive] = React.useState<IFilterModel>();
@@ -37,7 +38,7 @@ export const MySearches = () => {
   React.useEffect(() => {
     if (!!viewing) {
       storeFilter(settingsToFilter(viewing, viewing.id, topStoryId, actions));
-      navigate(`/search?viewing=${viewing.id}`);
+      navigate(`/search?viewing=${viewing.name}`);
     }
   }, [viewing]);
 
@@ -61,13 +62,15 @@ export const MySearches = () => {
         <FlexboxTable
           pagingEnabled={false}
           columns={columns(setActive, editable, handleSave, handleDelete, setViewing, active)}
-          rowId={'id'}
+          rowId={(e) => e?.id.toString() ?? '0'}
           onRowClick={(e) => {
             setActive(e.original);
             storeFilter(settingsToFilter(e.original, e.original.id, topStoryId, actions));
             navigate('/search');
           }}
           data={myFilters}
+          // TODO: Highlight currently viewed search - chat with Bobbi
+          activeRowId={searchParams.get('viewing') ?? ''}
           showActive={false}
         />
         <TooltipMenu

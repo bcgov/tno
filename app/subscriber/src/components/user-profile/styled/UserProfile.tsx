@@ -11,7 +11,7 @@ export const UserProfile = styled.div`
     display: flex;
     max-height: fit-content;
     font-size: 1rem;
-    color: ${(props) => props.theme.css.defaultRed};
+    color: ${(props) => props.theme.css.fRedColor};
 
     &:hover {
       cursor: pointer;

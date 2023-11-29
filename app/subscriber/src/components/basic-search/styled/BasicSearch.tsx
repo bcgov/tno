@@ -40,7 +40,9 @@ export const BasicSearch = styled(Row)`
   }
   .search-input {
     input {
+      outline: none;
       border: none;
+      box-shadow: none;
       height: 2em;
     }
 

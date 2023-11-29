@@ -33,7 +33,7 @@ export const SearchPage: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   const searchName = React.useMemo(() => searchParams.get('name'), [searchParams]);
-  const viewing = React.useMemo(() => !!searchParams.get('viewing'), [searchParams]);
+  const viewing = React.useMemo(() => searchParams.get('viewing'), [searchParams]);
   const [searchItems, setSearchItems] = React.useState<IContentModel[]>([]);
   const [activeContent, setActiveContent] = React.useState<IContentModel | null>(null);
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
@@ -103,7 +103,7 @@ export const SearchPage: React.FC = () => {
       <SearchWithLogout />
       <Row className="search-container">
         <Col className="adv-search-container">
-          {viewing ? <MySearchesSection /> : <AdvancedSearch onSearchPage />}
+          {!!viewing ? <MySearchesSection /> : <AdvancedSearch onSearchPage />}
         </Col>
         <Col className="result-container">
           <PageSection
@@ -117,10 +117,10 @@ export const SearchPage: React.FC = () => {
             <Row className="search-contents">
               <div className={playerOpen ? 'scroll minimized' : 'scroll'}>
                 <Col className={'search-items'}>
-                  <Show visible={!!searchName}>
+                  <Show visible={!!searchName || !!viewing}>
                     <div className="viewed-name padding-left">
                       <FaBookmark />
-                      <div className="filter-name">{searchName}</div>
+                      <div className="filter-name">{searchName ?? viewing}</div>
                     </div>
                   </Show>
                   <Show visible={!searchItems.length}>
