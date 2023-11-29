@@ -36,10 +36,6 @@ export const SearchPage = styled.div`
     margin-top: 0.25em;
   }
 
-  .search-container {
-    width: 100%;
-  }
-
   .adv-search-container {
     width: 45%;
     max-height: 90vh;
@@ -105,7 +101,7 @@ export const SearchPage = styled.div`
   }
 
   .media-button {
-    max-width: 14em;
+    max-width: fit-content;
     font-size: 0.6em;
     margin-left: auto;
     cursor: pointer;
