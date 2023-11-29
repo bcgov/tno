@@ -83,8 +83,9 @@ export const AdvancedSearch = styled(Row)`
 
   /* LABEL FOR THE TEXT AREA IN FIRST SECTION */
   .search-in-label {
-    font-weight: bold;
     margin-right: 0.5em;
+    font-size: 0.8em;
+    align-self: center;
   }
 
   /* CHECKBOX OPTIONS PASSED IN THE SEARCH IN GROUP SECTION */
@@ -92,9 +93,10 @@ export const AdvancedSearch = styled(Row)`
     label {
       margin-right: 0.5em;
     }
-    accent-color: #6750a4;
+    accent-color: ${(props) => props.theme.css.btnBkPrimary};
     width: 100%;
-    margin-bottom: 0.5em;
+    margin-bottom: 1em;
+    margin-top: 0.5em;
   }
   .search-in-group {
     .options {
@@ -102,7 +104,6 @@ export const AdvancedSearch = styled(Row)`
         align-self: center;
         margin-left: 0.5em;
       }
-      margin-top: 0.5em;
       font-size: 0.8em;
     }
   }

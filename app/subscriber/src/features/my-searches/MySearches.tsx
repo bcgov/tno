@@ -35,11 +35,14 @@ export const MySearches = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // action in columns set viewing object, when this is set user is viewing a filter and wants to see results
   React.useEffect(() => {
     if (!!viewing) {
       storeFilter(settingsToFilter(viewing, viewing.id, topStoryId, actions));
       navigate(`/search?viewing=${viewing.name}`);
     }
+    // only fire when viewing has value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewing]);
 
   const handleDelete = () => {

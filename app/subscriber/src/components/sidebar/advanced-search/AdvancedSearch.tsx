@@ -2,7 +2,7 @@ import { PageSection } from 'components/section';
 import { filterFormat } from 'features/search-page/utils';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
-import { FaPlay, FaRegSmile, FaSearch } from 'react-icons/fa';
+import { FaPlay, FaRegSmile } from 'react-icons/fa';
 import { FaBookmark, FaCloudArrowUp, FaIcons, FaNewspaper, FaTv, FaUsers } from 'react-icons/fa6';
 import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router';

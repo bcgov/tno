@@ -1,9 +1,5 @@
-import { ScreenSizes } from 'components/layout';
 import { UserProfile } from 'components/user-profile';
 import React from 'react';
-import { FaSearch } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
-import { Button, Row, Show, Text, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
 

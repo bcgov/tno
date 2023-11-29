@@ -4,7 +4,6 @@ import { SearchWithLogout } from 'components/search-with-logout';
 import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';
 import { AdvancedSearch } from 'components/sidebar/advanced-search';
-import { MySearches } from 'features/my-searches';
 import { determinePreview } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
@@ -102,9 +101,11 @@ export const SearchPage: React.FC = () => {
     <styled.SearchPage>
       <SearchWithLogout />
       <Row className="search-container">
+        {/* LEFT SIDE */}
         <Col className="adv-search-container">
           {!!viewing ? <MySearchesSection /> : <AdvancedSearch onSearchPage />}
         </Col>
+        {/* RIGHT SIDE */}
         <Col className="result-container">
           <PageSection
             header={
