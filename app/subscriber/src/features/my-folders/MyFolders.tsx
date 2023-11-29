@@ -1,5 +1,4 @@
 import React from 'react';
-import { AiOutlineFolderAdd } from 'react-icons/ai';
 import { FaFolderPlus } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
