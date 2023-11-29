@@ -1,6 +1,5 @@
 import { TooltipMenu } from 'components/tooltip-menu';
 import { FaInfoCircle } from 'react-icons/fa';
-import { FaInfo, FaXmark } from 'react-icons/fa6';
 import { Col, Row } from 'tno-core';
 
 import * as styled from './styled';
