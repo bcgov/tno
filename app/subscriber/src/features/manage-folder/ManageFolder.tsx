@@ -33,6 +33,7 @@ export const ManageFolder: React.FC = () => {
   React.useEffect(() => {
     getFolder(Number(id)).then((folder) => {
       setFolder(folder);
+      if (folder.content.length === 0) return setItems([]);
       findContentWithElasticsearch(
         generateQuery(
           filterFormat({
@@ -117,70 +118,73 @@ export const ManageFolder: React.FC = () => {
 
   return (
     <styled.ManageFolder>
+      {/* TODO: have logout appear from higher component so we dont have to apply it everywhere */}
       <SearchWithLogout />
-      <Row className="header">
-        <FaArrowLeft className="back-arrow" onClick={() => navigate(-1)} />
-        <FaFolderMinus className="remove-icon" onClick={() => removeItems()} />
-        <div className="title">{`Manage Folder: ${folder?.name}`}</div>
-      </Row>
-      <DragDropContext onDragEnd={handleDrop}>
-        <Droppable droppableId="droppable">
-          {(provided) => (
-            <div {...provided.droppableProps} ref={provided.innerRef}>
-              {items.map((item: any, index: number) => (
-                <Draggable key={item.id} draggableId={String(item.id)} index={index}>
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      className="full-draggable"
-                    >
-                      <Col className="item-draggable">
-                        <Row>
-                          <Col>
-                            <Checkbox
-                              className="checkbox"
-                              onClick={() => {
-                                if (selected.includes(item)) {
-                                  setSelected(selected.filter((i) => i !== item));
-                                } else {
-                                  setSelected([...selected, item]);
-                                }
-                              }}
-                            />
-                          </Col>
-                          <Col className="tone-date">
-                            <Row>
-                              <Sentiment
-                                value={item.tonePools?.length ? item.tonePools[0].value : 0}
+      <div className="main-manage">
+        <Row className="header">
+          <FaArrowLeft className="back-arrow" onClick={() => navigate(-1)} />
+          <FaFolderMinus className="remove-icon" onClick={() => removeItems()} />
+          <div className="title">{`Manage Folder: ${folder?.name}`}</div>
+        </Row>
+        <DragDropContext onDragEnd={handleDrop}>
+          <Droppable droppableId="droppable">
+            {(provided) => (
+              <div {...provided.droppableProps} ref={provided.innerRef}>
+                {items.map((item: any, index: number) => (
+                  <Draggable key={item.id} draggableId={String(item.id)} index={index}>
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className="full-draggable"
+                      >
+                        <Col className="item-draggable">
+                          <Row>
+                            <Col>
+                              <Checkbox
+                                className="checkbox"
+                                onClick={() => {
+                                  if (selected.includes(item)) {
+                                    setSelected(selected.filter((i) => i !== item));
+                                  } else {
+                                    setSelected([...selected, item]);
+                                  }
+                                }}
                               />
-                              <p className="date text-content">
-                                {new Date(item.publishedOn).toDateString()}
-                              </p>
-                            </Row>
-                          </Col>
-                        </Row>
-                        <Row>
-                          <div
-                            onClick={() => navigate(`/view/${item.id}`)}
-                            className="item-headline"
-                          >
-                            {item.headline}
-                          </div>
-                          <FaGripLines className="grip-lines" />
-                        </Row>
-                        <div className="item-preview">{parse(determinePreview(item))}</div>
-                      </Col>
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+                            </Col>
+                            <Col className="tone-date">
+                              <Row>
+                                <Sentiment
+                                  value={item.tonePools?.length ? item.tonePools[0].value : 0}
+                                />
+                                <p className="date text-content">
+                                  {new Date(item.publishedOn).toDateString()}
+                                </p>
+                              </Row>
+                            </Col>
+                          </Row>
+                          <Row>
+                            <div
+                              onClick={() => navigate(`/view/${item.id}`)}
+                              className="item-headline"
+                            >
+                              {item.headline}
+                            </div>
+                            <FaGripLines className="grip-lines" />
+                          </Row>
+                          <div className="item-preview">{parse(determinePreview(item))}</div>
+                        </Col>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </div>
     </styled.ManageFolder>
   );
 };

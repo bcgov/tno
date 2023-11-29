@@ -1,5 +1,5 @@
 import React from 'react';
-import { AiOutlineFolderAdd } from 'react-icons/ai';
+import { FaFolderPlus } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
@@ -62,7 +62,7 @@ export const MyFolders = () => {
   return (
     <styled.MyFolders>
       <Row className="create-new">
-        <div>Create new folder: </div>
+        <div className="create-text">CREATE NEW FOLDER: </div>
         <Text
           name="folderName"
           className="folder-name"
@@ -73,10 +73,11 @@ export const MyFolders = () => {
         <button
           type="button"
           title="Create new folder"
+          className="create-button"
           onClick={handleAdd}
           disabled={!newFolderName} // Disable button when folder name is empty
         >
-          <AiOutlineFolderAdd className="folder-add" />
+          <FaFolderPlus className="folder-add" />
         </button>
       </Row>
       <Row>
