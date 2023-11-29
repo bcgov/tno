@@ -10,7 +10,7 @@ export const InfoShield = styled.div`
   position: absolute;
   bottom: 0;
   .react-tooltip {
-    background-color: ${(props) => props.theme.css.bkTertiary};
+    background-color: ${(props) => props.theme.css.bkPrimary};
     .tooltip-link {
       color: ${(props) => props.theme.css.fPrimaryColor};
       text-decoration: none;

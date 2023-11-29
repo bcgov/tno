@@ -78,7 +78,7 @@ export const ReportSnapshotEdit: React.FC = () => {
             variant={ButtonVariant.secondary}
             disabled={isSubmitting}
             title="Configure"
-            onClick={() => navigate(`/reports/${values.id}/sections`)}
+            onClick={() => navigate(`/reports/${values.id}`)}
           >
             <FaGear />
           </Button>

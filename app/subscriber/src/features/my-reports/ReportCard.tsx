@@ -7,6 +7,7 @@ import {
   FaChartPie,
   FaFileLines,
   FaGear,
+  FaNewspaper,
   FaPen,
   FaRegCalendarDays,
   FaTrashCan,
@@ -52,7 +53,7 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => 
         report.sections.some((section) => section.settings.showCharts) ? (
           <FaChartPie />
         ) : (
-          <FaFileLines />
+          <FaNewspaper />
         )
       }
       label={report.name}
@@ -61,7 +62,7 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => 
           <Button onClick={() => navigate(`/reports/${report.id}/edit`)}>
             Edit <FaPen />
           </Button>
-          <Action icon={<FaGear />} onClick={() => navigate(`/reports/${report.id}/settings`)} />
+          <Action icon={<FaGear />} onClick={() => navigate(`/reports/${report.id}`)} />
           <Action
             icon={<FaTrashCan />}
             onClick={() => {

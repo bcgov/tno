@@ -7,7 +7,7 @@ export const Bar = styled.div`
   gap: 1rem;
   align-items: center;
   justify-items: stretch;
-  background: ${(props) => props.theme.css.bkTertiary};
+  background: ${(props) => props.theme.css.bkPrimary};
   padding: 0.25rem 1rem;
   min-height: 46px;
   box-shadow: ${(props) => props.theme.css.boxShadow};

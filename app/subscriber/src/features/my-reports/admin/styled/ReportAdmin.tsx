@@ -1,192 +1,59 @@
 import styled from 'styled-components';
 
 export const ReportAdmin = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  > div {
-    height: 100%;
-  }
-
-  h2 {
-    margin: 0;
-    text-transform: unset;
-  }
-
   form {
-    height: 100%;
+    background: unset;
   }
 
-  .report-name {
-    max-height: 42px;
-    overflow: hidden;
+  .tab.report-name {
     display: flex;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
-    font-weight: bold;
+    padding: 0 1.5rem;
+    background: ${(props) => props.theme.css.highlightPrimary};
 
-    h1 {
-      text-transform: unset;
-      margin: 0;
+    label {
+      text-transform: uppercase;
     }
   }
 
-  .btn.danger {
-    color: darkred;
+  .section-bar {
+    align-items: center;
+    margin: 0.5rem 1rem;
+    padding: 0.5rem;
+    background: ${(props) => props.theme.css.bkTertiary};
+    border: solid 1px ${(props) => props.theme.css.iconPrimaryColor};
+    border-radius: 0.5rem;
 
-    &:hover {
-      color: red;
+    svg {
+      min-height: 25px;
+      min-width: 25px;
+      color: ${(props) => props.theme.css.iconPrimaryColor};
+    }
+
+    button {
+      max-height: unset;
+      padding: 1rem;
+      background: ${(props) => props.theme.css.highlightSecondary};
+      border: solid 1px ${(props) => props.theme.css.iconPrimaryColor};
+      color: ${(props) => props.theme.css.iconPrimaryColor};
+
+      > div {
+        align-items: center;
+      }
+
+      text-transform: uppercase;
     }
   }
 
-  .report-sections {
-    margin-top: 1rem;
+  .report-template {
+    padding: 1rem;
+    gap: 1rem;
 
-    > div {
+    > div:not(:first-child) {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      break-before: column;
+      gap: 1rem;
     }
-  }
-
-  .schedules {
-    padding: 0.5rem;
-    .schedule {
-      justify-content: center;
-      background-color: lightgrey;
-      border-radius: 0.5rem;
-      padding: 0.5rem;
-    }
-  }
-
-  .draggable {
-    cursor: grab;
-  }
-
-  .spinner {
-    color: white;
-  }
-
-  .charts {
-    gap: 0.25rem;
-
-    > div {
-      padding: 0.25rem;
-      border-radius: 0.25rem;
-    }
-    > div:nth-child(odd) {
-      background-color: ${(props) => props.theme.css.tableOddRowColor};
-    }
-    > div:nth-child(even) {
-      background-color: ${(props) => props.theme.css.tableEvenRowColor};
-    }
-  }
-
-  .tab-menu {
-    > div {
-      > div {
-        margin-top: 0.25rem;
-
-        > div:nth-child(3) {
-          margin-bottom: 0.25rem;
-        }
-      }
-    }
-  }
-
-  .tab-container {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .preview {
-    flex: 1;
-    border: solid 1px ${(props) => props.theme.css.lightVariantColor};
-    border-radius: 0.25rem;
-
-    .header {
-      flex-wrap: nowrap;
-      padding: 0.25rem;
-
-      > div {
-        gap: 1rem;
-        align-items: center;
-
-        &:nth-child(1) {
-          padding-left: 1rem;
-        }
-
-        &:nth-child(2) {
-          flex-wrap: nowrap;
-          flex: 1;
-          justify-content: flex-end;
-          min-width: 250px;
-        }
-      }
-
-      .frm-in {
-        padding: unset;
-      }
-    }
-
-    .preview-report {
-      .diagram {
-        padding: 1rem;
-        gap: 1rem;
-
-        > div {
-          gap: 1rem;
-
-          > div:first-child {
-            min-width: 100px;
-            border: solid 1px ${(props) => props.theme.css.activeColor};
-            border-radius: 0.5rem;
-            padding: 0.5rem;
-          }
-
-          h3 {
-            margin: unset;
-          }
-        }
-
-        svg {
-          color: ${(props) => props.theme.css.activeColor};
-          padding: 0.5rem;
-          margin: 0.5rem;
-        }
-      }
-
-      > .preview-header {
-        flex: 1;
-        gap: 1rem;
-        align-items: center;
-        padding: 0.25rem;
-        border-top: solid 1px ${(props) => props.theme.css.lightVariantColor};
-        border-bottom: solid 1px ${(props) => props.theme.css.lightVariantColor};
-        background-color: ${(props) => props.theme.css.tableHeaderColor};
-
-        > .preview-subject {
-          max-width: calc(100% - 2rem);
-        }
-      }
-
-      > .preview-body {
-        flex: 1;
-        max-width: calc(100% - 2rem);
-        padding: 0.5rem;
-
-        img {
-          max-width: 80%;
-        }
-      }
-    }
-  }
-
-  .loader {
-    justify-content: center;
-    position: relative;
-    height: 100%;
   }
 `;

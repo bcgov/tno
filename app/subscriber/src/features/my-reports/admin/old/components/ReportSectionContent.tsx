@@ -17,7 +17,7 @@ import {
   Show,
 } from 'tno-core';
 
-import { IReportForm } from '../../interfaces';
+import { IReportForm } from '../../../interfaces';
 import { IReportSectionProps } from './ReportSection';
 import { ReportSectionCharts } from './ReportSectionCharts';
 

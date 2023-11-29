@@ -60,7 +60,7 @@ export const MyReports: React.FC = () => {
             <Action
               label="Create New"
               icon={<FaClipboard />}
-              onClick={() => navigate('/reports/0/settings')}
+              onClick={() => navigate('/reports/0')}
             />
           </Row>
         </Bar>

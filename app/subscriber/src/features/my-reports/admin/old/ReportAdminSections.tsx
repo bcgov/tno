@@ -11,8 +11,8 @@ import {
 import { FaPlusCircle } from 'react-icons/fa';
 import { Button, Col, ReportSectionTypeName, Row } from 'tno-core';
 
-import { defaultReportSection } from '../constants';
-import { IReportForm } from '../interfaces';
+import { defaultReportSection } from '../../constants';
+import { IReportForm } from '../../interfaces';
 import { ReportSection } from './components';
 
 /**
