@@ -47,6 +47,8 @@ export const MySearches = () => {
 
   React.useEffect(() => {
     if (!!active) storeFilter(settingsToFilter(active, active.id, topStoryId, actions));
+    // only fire when active has value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
   const handleDelete = () => {
