@@ -8,6 +8,7 @@ export const columns = (
   editable: string,
   handleSave: () => void,
   handleDelete: () => void,
+  setViewing: (folder: IFilterModel) => void,
   active?: IFilterModel,
 ): ITableHookColumn<IFilterModel>[] => [
   {
@@ -50,7 +51,14 @@ export const columns = (
         ) : (
           <div className="search-row-options">
             {/* upcoming sprint these are used */}
-            <FaBinoculars data-tooltip-id="binocs" className="darker-icon" />
+            <FaBinoculars
+              data-tooltip-id="binocs"
+              className="darker-icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                setViewing(cell.original);
+              }}
+            />
             <FaGear
               onClick={(e) => {
                 // stop the row click event from firing

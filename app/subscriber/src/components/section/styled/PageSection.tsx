@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const PageSection = styled.div`
+export const PageSection = styled.div<{ $ignoreLastChildGap?: boolean }>`
   display: flex;
   flex-direction: column;
   border-radius: 0.5rem;
@@ -22,6 +22,10 @@ export const PageSection = styled.div`
   .page-section-icon {
     padding-right: 1rem;
   }
+
+  ${(props) =>
+    !props.$ignoreLastChildGap &&
+    `
   > div:last-child {
     display: flex;
     flex-direction: column;
@@ -29,4 +33,6 @@ export const PageSection = styled.div`
     min-width: fit-content;
     gap: 0.25rem;
   }
+
+  `}
 `;

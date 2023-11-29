@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Col } from 'tno-core';
 
-export const Landing = styled(Col)<{ advSearchExpanded: boolean }>`
+export const Landing = styled(Col)`
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'BCSans', 'Noto Sans', Arial, 'sans serif';
   display: flex;

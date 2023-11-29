@@ -1,9 +1,9 @@
+import { BasicSearch } from 'components/basic-search';
 import {
   SidebarMenuItems,
   sidebarMenuItemsArray,
 } from 'components/layout/constants/SidebarMenuItems';
 import { SearchWithLogout } from 'components/search-with-logout';
-import { AdvancedSearch } from 'components/sidebar/advanced-search';
 import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
 import AVOverviewPreview from 'features/daily-overview/AVOverviewPreview';
@@ -34,7 +34,6 @@ export const Landing: React.FC = () => {
   const { id } = useParams();
   const [activeItem, setActiveItem] = React.useState<string>(SidebarMenuItems.home.label);
   const navigate = useNavigate();
-  const [expanded, setExpanded] = React.useState<boolean>(false);
 
   /* keep active item in sync with url */
   React.useEffect(() => {
@@ -45,10 +44,10 @@ export const Landing: React.FC = () => {
   }, [id]);
 
   return (
-    <styled.Landing className="main-container" advSearchExpanded={expanded}>
+    <styled.Landing className="main-container">
       <Row>
         <SearchWithLogout />
-        <AdvancedSearch expanded={expanded} setExpanded={setExpanded} />
+        <BasicSearch />
       </Row>
       <Row className="contents-container">
         <Col className="main-panel">

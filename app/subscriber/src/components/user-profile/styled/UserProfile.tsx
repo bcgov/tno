@@ -5,12 +5,13 @@ export const UserProfile = styled.div`
   flex-direction: row;
   gap: 1rem;
   align-items: center;
+  margin-left: auto;
 
   .logout {
     display: flex;
     max-height: fit-content;
     font-size: 1rem;
-    color: ${(props) => props.theme.css.defaultRed};
+    color: ${(props) => props.theme.css.fRedColor};
 
     &:hover {
       cursor: pointer;
