@@ -1,5 +1,4 @@
 namespace TNO.Entities;
-
 /// <summary>
 /// Provides report status.
 /// </summary>

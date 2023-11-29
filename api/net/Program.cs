@@ -26,6 +26,7 @@ using TNO.API.SignalR;
 using TNO.Core.Converters;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
+using TNO.Ches;
 using TNO.CSS;
 using TNO.DAL;
 using TNO.Kafka;
@@ -196,6 +197,7 @@ builder.Services
     .AddScoped<INotificationHelper, NotificationHelper>()
     .AddScoped<IReportHelper, ReportHelper>()
     .AddScoped<IWorkOrderHelper, WorkOrderHelper>()
+    .AddChesService(config.GetSection("CHES"))
     .AddTNOServices(config, env)
     .AddTemplateEngine(config)
     .AddKafkaMessenger(config)

@@ -23,4 +23,6 @@ export const Settings = {
   DefaultSubscriberContentMediaType: 'DefaultSubscriberContentMediaTypeId',
   /** A JSON object containing a dictionary of media type IDS for advanced search groupings. */
   AdvancedSearchMediaTypeGroups: 'AdvancedSearchMediaTypeGroups',
+  /** The email address to send Product Subscription requests to. */
+  ProductSubscriptionManagerEmail: 'ProductSubscriptionManagerEmail',
 };

@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\libs\net\ches\TNO.Ches.csproj" />
     <ProjectReference Include="..\..\libs\net\core\TNO.Core.csproj" />
     <ProjectReference Include="..\..\libs\net\css\TNO.CSS.csproj" />
     <ProjectReference Include="..\..\libs\net\dal\TNO.DAL.csproj" />

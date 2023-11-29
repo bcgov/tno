@@ -32,5 +32,9 @@ export interface IUserModel extends IAuditColumnsModel {
   reportInstances?: IReportInstanceModel[];
   notifications?: INotificationModel[];
   // This model is often used to identify the user is subscribed to a report or notification.
+  // Should probably extract the below properties out onto a different model for the specific
+  // use case of "show me subscribers to X"
   isSubscribed?: boolean;
+  requestedIsSubscribedStatus?: boolean;
+  subscriptionChangeActioned?: boolean;
 }

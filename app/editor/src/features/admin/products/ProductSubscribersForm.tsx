@@ -12,6 +12,7 @@ import {
 
 import { subscriberColumns } from './constants';
 import { ProductFilter } from './ProductFilter';
+import * as styled from './styled';
 
 export const ProductSubscribersForm = () => {
   const { values, setFieldValue } = useFormikContext<INotificationModel>();
@@ -43,7 +44,7 @@ export const ProductSubscribersForm = () => {
   );
 
   return (
-    <div>
+    <styled.ProductSubscribersForm>
       <ProductFilter
         onSearch={async (value: string) => {
           await findUsers({ page: 1, quantity: users.quantity, keyword: value });
@@ -61,6 +62,6 @@ export const ProductSubscribersForm = () => {
         onSortChange={handleSortChange}
         showSort
       />
-    </div>
+    </styled.ProductSubscribersForm>
   );
 };

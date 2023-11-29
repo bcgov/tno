@@ -49,17 +49,29 @@ export const MyProducts: React.FC = () => {
       <Header />
       <PageSection header="MMI Products">
         <div>
+          <p>
+            Access to all products is managed by the MMI Admin team. You may request to subscribe or
+            unsubscribe by clicking on the relevant action next to the product. If you wish to
+            cancel your request, you can click on the cancel action.
+          </p>
           <Show visible={products.some((p) => p.isSubscribed)}>
             <Row className="page-section-title">
               <FaEnvelope className="page-section-icon" /> Subscribed
             </Row>
             <p>
-              You are currently subscribed to the following products. Clicking on the Unsubscribe
-              action action will unsubscribe you from that product.
+              You are currently subscribed, or are awaiting approval for subscription to the
+              following products.
             </p>
             <div>
               {products
-                .filter((product) => product.isSubscribed)
+                .filter(
+                  (product) =>
+                    // products which the user *IS* subscribed to
+                    (product.isSubscribed && product.requestedIsSubscribedStatus === undefined) ||
+                    // *OR products which the user has a request to subscribed
+                    (product.requestedIsSubscribedStatus !== undefined &&
+                      product.requestedIsSubscribedStatus),
+                )
                 .map((product) => {
                   return (
                     <ProductCard
@@ -83,7 +95,14 @@ export const MyProducts: React.FC = () => {
           </p>
           <div>
             {products
-              .filter((product) => !product.isSubscribed)
+              .filter(
+                (product) =>
+                  // products which the user *IS NOT* unsubscribed to
+                  (!product.isSubscribed && product.requestedIsSubscribedStatus === undefined) ||
+                  // *OR products which the user has a request to unsubscribe from
+                  (product.requestedIsSubscribedStatus !== undefined &&
+                    !product.requestedIsSubscribedStatus),
+              )
               .map((product) => {
                 return (
                   <ProductCard
@@ -100,14 +119,26 @@ export const MyProducts: React.FC = () => {
         </div>
       </PageSection>
       <Modal
-        headerText={`Confirm ${product?.isSubscribed ? 'Unsubscribe' : 'Subscribe'}`}
-        body={`Are you sure you wish to ${
-          product?.isSubscribed ? 'Unsubscribe from' : 'Subscribe to'
-        } "${product?.name}"?`}
+        headerText={`Confirm change`}
+        body={
+          product?.requestedIsSubscribedStatus === undefined
+            ? `Are you sure you wish to ${
+                product?.isSubscribed ? 'unsubscribe from' : 'subscribe to'
+              } "${product?.name}"?`
+            : `Are you sure you wish to cancel your pending request to ${
+                product?.requestedIsSubscribedStatus ? 'unsubscribe from' : 'subscribe to'
+              } "${product?.name}"?`
+        }
         isShowing={isShowing}
         hide={toggle}
         type="default"
-        confirmText={`Yes, ${product?.isSubscribed ? 'Unsubscribe' : 'Subscribe'}`}
+        confirmText={
+          product?.requestedIsSubscribedStatus === undefined
+            ? `Yes, ${product?.isSubscribed ? 'request to unsubscribe' : 'request to subscribe'}`
+            : `Yes, cancel my pending request to ${
+                product?.requestedIsSubscribedStatus ? 'unsubscribe' : 'subscribe'
+              }`
+        }
         onConfirm={() => {
           if (product) handleToggleSubscription(product);
           toggle();

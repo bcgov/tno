@@ -1,9 +1,13 @@
 using System.Net;
 using System.Net.Mime;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Subscriber.Models.Product;
 using TNO.API.Models;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Services;
@@ -31,6 +35,10 @@ public class ProductController : ControllerBase
     #region Variables
     private readonly IProductService _productService;
     private readonly IUserService _userService;
+    private readonly ISettingService _settingService;
+    private readonly IChesService _ches;
+    private readonly ChesOptions _chesOptions;
+    private readonly ILogger<ProductController> _logger;
     #endregion
 
     #region Constructors
@@ -39,12 +47,24 @@ public class ProductController : ControllerBase
     /// </summary>
     /// <param name="productService"></param>
     /// <param name="userService"></param>
+    /// <param name="settingService"></param>
+    /// <param name="ches"></param>
+    /// <param name="chesOptions"></param>
+    /// <param name="logger"></param>
     public ProductController(
         IProductService productService,
-        IUserService userService)
+        IUserService userService,
+        ISettingService settingService,
+        IChesService ches,
+        IOptions<ChesOptions> chesOptions,
+        ILogger<ProductController> logger)
     {
         _productService = productService;
         _userService = userService;
+        _settingService = settingService;
+        _ches = ches;
+        _chesOptions = chesOptions.Value;
+        _logger = logger;
     }
     #endregion
 
@@ -64,12 +84,14 @@ public class ProductController : ControllerBase
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
 
-        var publicFilter = new ProductFilter {
+        var publicFilter = new ProductFilter
+        {
             IsPublic = true
         };
         var publicProducts = _productService.Find(publicFilter).Select(ds => new ProductModel(ds, user.Id));
 
-        var privateFilter = new ProductFilter {
+        var privateFilter = new ProductFilter
+        {
             SubscriberUserId = user.Id
         };
         var privateProducts = _productService.Find(privateFilter).Select(ds => new ProductModel(ds, user.Id));
@@ -95,32 +117,60 @@ public class ProductController : ControllerBase
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
         var result = _productService.FindById(model.Id) ?? throw new NoContentException("Product does not exist");
 
-        var isCurrentlySubscribed = result.SubscribersManyToMany.Exists(s => s.UserId == user.Id && s.IsSubscribed);
+        var userProductSubscription = result.SubscribersManyToMany.FirstOrDefault(s => s.UserId == user.Id);
+        if (userProductSubscription != null)
+        {
+            if (userProductSubscription.RequestedIsSubscribedStatus.HasValue)
+            {
+                await _productService.CancelSubscriptionStatusChangeRequest(user.Id, result.Id);
+                // don't think we need to send an email here...
+            }
+            else
+            {
+                string subject = string.Empty;
+                StringBuilder message = new StringBuilder();
+                message.AppendLine("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
+                message.AppendLine("<HTML>");
+                message.AppendLine("<BODY>");
+                message.AppendLine($"<p><strong>User Name</strong>: {user.DisplayName}</p>");
+                message.AppendLine($"<p><strong>User Email</strong>: {user.Email}</p>");
+                message.AppendLine($"<p><strong>Product</strong>: {result.Name}</p>");
 
-        if (isCurrentlySubscribed) {
-            // This is the self-serve model for initial testing
-            // TODO: Replace with Notification via Kafka
-            await _productService.Unsubscribe(user.Id, result.Id);
-        } else {
-            // This is the self-serve model for initial testing
-            // TODO: Replace with Notification via Kafka
-            await _productService.Subscribe(user.Id, result.Id);
+                if (userProductSubscription.IsSubscribed)
+                {
+                    await _productService.RequestUnsubscribe(user.Id, result.Id);
+
+                    subject = $"MMI: Product Unsubscription request - [{result.Name}]";
+                    message.AppendLine($"<p><strong>Action</strong>: UNSUBSCRIBE</p>");
+                }
+                else if (!userProductSubscription.IsSubscribed)
+                {
+                    await _productService.RequestSubscribe(user.Id, result.Id);
+
+                    subject = $"MMI: Product Subscription request - [{result.Name}]";
+                    message.AppendLine($"<p><strong>Action</strong>: SUBSCRIBE</p>");
+                }
+                message.AppendLine("</BODY>");
+                message.AppendLine("</HTML>");
+
+                try
+                {
+                    var productSubscriptionManagerEmail = _settingService.FindByName(AdminConfigurableSettingNames.ProductSubscriptionManagerEmail.ToString());
+                    if (productSubscriptionManagerEmail != null) {
+                        var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, productSubscriptionManagerEmail.Value, subject, message.ToString());
+                        var emailRequest = await _ches.SendEmailAsync(email);
+                        _logger.LogInformation($"Product subscription request email to [${productSubscriptionManagerEmail.Value}] queued: ${emailRequest.TransactionId}");
+                    } else {
+                        _logger.LogError("Couldn't send product subscription request email: [ProductSubscriptionManagerEmail] not set.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Email failed to send");
+                }
+            }
         }
         var productWithUpdatedSubscription = _productService.FindById(result.Id) ?? throw new NoContentException("Product does not exist");
-
-        // TODO: Send Notification to Subscription manager via Kafka
-        /*
-        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, report.Id, new { })
-        {
-            RequestorId = user.Id,
-            To = to,
-            // no longer utilized, the caching mechanism
-            // determines whether to update or not
-            // UpdateCache = true,
-            GenerateInstance = false
-        };
-        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{report.Id}-test", request);
-        */
 
         return new JsonResult(new ProductModel(productWithUpdatedSubscription, user.Id));
     }
