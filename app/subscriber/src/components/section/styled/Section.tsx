@@ -39,9 +39,7 @@ export const Section = styled.div<ISectionProps>`
 
       span {
         white-space: nowrap;
-      }
-      span.is-clickable {
-        cursor: pointer;
+        cursor: ${(props) => (props.showOpen ? 'pointer' : 'unset')};
       }
     }
 
