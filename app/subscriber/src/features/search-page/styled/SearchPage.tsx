@@ -15,6 +15,8 @@ export const SearchPage = styled.div`
     background-color: ${(props) => props.theme.css.bkWhite};
     padding-bottom: 0.5em;
     padding-top: 0.5em;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
     svg {
       color: ${(props) => props.theme.css.iconPrimaryColor};
     }
@@ -53,6 +55,10 @@ export const SearchPage = styled.div`
     }
   }
 
+  .page-section {
+    max-height: calc(100vh - 4em);
+  }
+
   /** END HEADER */
 
   .folder-sub-menu {
@@ -67,6 +73,7 @@ export const SearchPage = styled.div`
 
   .search-contents {
     padding-top: 0;
+    max-height: calc(100vh - 12em);
   }
 
   .save-bar {

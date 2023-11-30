@@ -26,6 +26,7 @@ export const settingsToFilter = (
     page: filterRow.settings.page,
     endDate: filterRow.settings.endDate,
     startDate: filterRow.settings.startDate,
+    dateOffset: filterRow.settings.dateOffset,
     search: filterRow.settings.search,
     searchUnpublished: filterRow.settings.searchUnpublished,
     section: filterRow.settings.section,
