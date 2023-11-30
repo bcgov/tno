@@ -91,10 +91,14 @@ export const subscriberColumns = (
           )}
           disabled={true}
           title={
-            product.subscribers.filter((u) => u.id === cell.original.id)[0]
-              .requestedIsSubscribedStatus
-              ? 'Request is to SUBSCRIBE'
-              : 'Request is to UNSUBSCRIBE'
+            product.subscribers.some(
+              (u) => u.id === cell.original.id && u.requestedIsSubscribedStatus,
+            )
+              ? product.subscribers.filter((u) => u.id === cell.original.id)[0]
+                  .requestedIsSubscribedStatus
+                ? 'Request is to SUBSCRIBE'
+                : 'Request is to UNSUBSCRIBE'
+              : ''
           }
         />
         <ToggleGroup
