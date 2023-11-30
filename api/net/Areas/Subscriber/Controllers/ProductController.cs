@@ -118,58 +118,56 @@ public class ProductController : ControllerBase
         var result = _productService.FindById(model.Id) ?? throw new NoContentException("Product does not exist");
 
         var userProductSubscription = result.SubscribersManyToMany.FirstOrDefault(s => s.UserId == user.Id);
-        if (userProductSubscription != null)
+        if (userProductSubscription != null && userProductSubscription.RequestedIsSubscribedStatus.HasValue)
         {
-            if (userProductSubscription.RequestedIsSubscribedStatus.HasValue)
+            await _productService.CancelSubscriptionStatusChangeRequest(user.Id, result.Id);
+            // don't think we need to send an email here...
+        }
+        else
+        {
+            string subject = string.Empty;
+            StringBuilder message = new StringBuilder();
+            message.AppendLine("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
+            message.AppendLine("<HTML>");
+            message.AppendLine("<BODY>");
+            message.AppendLine($"<p><strong>User Name</strong>: {user.DisplayName}</p>");
+            message.AppendLine($"<p><strong>User Email</strong>: {user.Email}</p>");
+            message.AppendLine($"<p><strong>Product</strong>: {result.Name}</p>");
+
+            if (userProductSubscription == null || !userProductSubscription.IsSubscribed)
             {
-                await _productService.CancelSubscriptionStatusChangeRequest(user.Id, result.Id);
-                // don't think we need to send an email here...
+                await _productService.RequestSubscribe(user.Id, result.Id);
+
+                subject = $"MMI: Product Subscription request - [{result.Name}]";
+                message.AppendLine($"<p><strong>Action</strong>: SUBSCRIBE</p>");
+            } else if (userProductSubscription.IsSubscribed)
+            {
+                await _productService.RequestUnsubscribe(user.Id, result.Id);
+
+                subject = $"MMI: Product Unsubscription request - [{result.Name}]";
+                message.AppendLine($"<p><strong>Action</strong>: UNSUBSCRIBE</p>");
             }
-            else
+
+            message.AppendLine("</BODY>");
+            message.AppendLine("</HTML>");
+
+            try
             {
-                string subject = string.Empty;
-                StringBuilder message = new StringBuilder();
-                message.AppendLine("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
-                message.AppendLine("<HTML>");
-                message.AppendLine("<BODY>");
-                message.AppendLine($"<p><strong>User Name</strong>: {user.DisplayName}</p>");
-                message.AppendLine($"<p><strong>User Email</strong>: {user.Email}</p>");
-                message.AppendLine($"<p><strong>Product</strong>: {result.Name}</p>");
-
-                if (userProductSubscription.IsSubscribed)
-                {
-                    await _productService.RequestUnsubscribe(user.Id, result.Id);
-
-                    subject = $"MMI: Product Unsubscription request - [{result.Name}]";
-                    message.AppendLine($"<p><strong>Action</strong>: UNSUBSCRIBE</p>");
+                var productSubscriptionManagerEmail = _settingService.FindByName(AdminConfigurableSettingNames.ProductSubscriptionManagerEmail.ToString());
+                if (productSubscriptionManagerEmail != null) {
+                    var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, productSubscriptionManagerEmail.Value, subject, message.ToString());
+                    var emailRequest = await _ches.SendEmailAsync(email);
+                    _logger.LogInformation($"Product subscription request email to [${productSubscriptionManagerEmail.Value}] queued: ${emailRequest.TransactionId}");
+                } else {
+                    _logger.LogError("Couldn't send product subscription request email: [ProductSubscriptionManagerEmail] not set.");
                 }
-                else if (!userProductSubscription.IsSubscribed)
-                {
-                    await _productService.RequestSubscribe(user.Id, result.Id);
-
-                    subject = $"MMI: Product Subscription request - [{result.Name}]";
-                    message.AppendLine($"<p><strong>Action</strong>: SUBSCRIBE</p>");
-                }
-                message.AppendLine("</BODY>");
-                message.AppendLine("</HTML>");
-
-                try
-                {
-                    var productSubscriptionManagerEmail = _settingService.FindByName(AdminConfigurableSettingNames.ProductSubscriptionManagerEmail.ToString());
-                    if (productSubscriptionManagerEmail != null) {
-                        var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, productSubscriptionManagerEmail.Value, subject, message.ToString());
-                        var emailRequest = await _ches.SendEmailAsync(email);
-                        _logger.LogInformation($"Product subscription request email to [${productSubscriptionManagerEmail.Value}] queued: ${emailRequest.TransactionId}");
-                    } else {
-                        _logger.LogError("Couldn't send product subscription request email: [ProductSubscriptionManagerEmail] not set.");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Email failed to send");
-                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Email failed to send");
             }
         }
+
         var productWithUpdatedSubscription = _productService.FindById(result.Id) ?? throw new NoContentException("Product does not exist");
 
         return new JsonResult(new ProductModel(productWithUpdatedSubscription, user.Id));

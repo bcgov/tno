@@ -54,7 +54,15 @@ export const MyProducts: React.FC = () => {
             unsubscribe by clicking on the relevant action next to the product. If you wish to
             cancel your request, you can click on the cancel action.
           </p>
-          <Show visible={products.some((p) => p.isSubscribed)}>
+          <Show
+            visible={products.some(
+              (p) =>
+                // products which the user *IS* subscribed to
+                p.isSubscribed ||
+                // OR products which the user has a request to subscribed
+                (p.requestedIsSubscribedStatus !== undefined && p.requestedIsSubscribedStatus),
+            )}
+          >
             <Row className="page-section-title">
               <FaEnvelope className="page-section-icon" /> Subscribed
             </Row>
@@ -68,7 +76,7 @@ export const MyProducts: React.FC = () => {
                   (product) =>
                     // products which the user *IS* subscribed to
                     (product.isSubscribed && product.requestedIsSubscribedStatus === undefined) ||
-                    // *OR products which the user has a request to subscribed
+                    // OR products which the user has a request to subscribed
                     (product.requestedIsSubscribedStatus !== undefined &&
                       product.requestedIsSubscribedStatus),
                 )

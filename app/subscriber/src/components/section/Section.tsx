@@ -35,7 +35,7 @@ export const Section: React.FC<ISectionProps> = ({
   );
 
   return (
-    <styled.Section open={open} {...rest}>
+    <styled.Section open={open} showOpen={showOpen} {...rest}>
       <div className="section-header">
         {icon && <div className="section-icon">{icon}</div>}
         <div className="section-label">
