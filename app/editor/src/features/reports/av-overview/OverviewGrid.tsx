@@ -126,6 +126,22 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
     }
   };
 
+  const generateListOfSummaries = (itemIndex: number) => {
+    return values?.sections?.[index].items.reduce(function (
+      acc: Array<{ index: number; text: string }>,
+      current: IAVOverviewSectionItemModel,
+      index: number,
+    ) {
+      if (
+        index !== itemIndex && // do not display current index in list of summaries
+        !acc.some((summary) => summary.text === current.summary) // do not display duplicates
+      )
+        acc.push({ index, text: current.summary });
+      return acc;
+    },
+    []);
+  };
+
   return (
     <styled.OverviewGrid>
       <Show visible={!items.length}>
@@ -155,21 +171,8 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                   >
                     {items.map((item, itemIndex) => {
                       // every items list of summaries is unique as it shouldn't include the current
-                      const summaries = values?.sections?.[index].items.reduce(function (
-                        acc: Array<{ index: number; text: string }>,
-                        current: IAVOverviewSectionItemModel,
-                        index: number,
-                      ) {
-                        if (
-                          index !== itemIndex && // do not display current index in list of summaries
-                          !acc.some((summary) => summary.text === current.summary) // do not display duplicates
-                        )
-                          acc.push({ index, text: current.summary });
-                        return acc;
-                      },
-                      []);
+                      const summaries = generateListOfSummaries(itemIndex);
                       const { suggestions } = search;
-                      const name = `sections.${index}.items.${itemIndex}.summary`;
                       return (
                         <Draggable
                           key={itemIndex}
@@ -228,7 +231,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                   <div>
                                     <FormikTextArea
                                       key={itemIndex + `textarea`}
-                                      name={name}
+                                      name={`sections.${index}.items.${itemIndex}.summary`}
                                       rows={item.itemType === AVOverviewItemTypeName.Intro ? 3 : 1}
                                       disabled={!editable}
                                       maxLength={80}
@@ -261,7 +264,10 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                               <styled.AutoCompleteItemButton
                                                 key={suggestion.index}
                                                 onClick={() => {
-                                                  setFieldValue(name, suggestion.text);
+                                                  setFieldValue(
+                                                    `sections.${index}.items.${itemIndex}.summary`,
+                                                    suggestion.text,
+                                                  );
                                                   setShowAutoCompleteForIndex(null);
                                                 }}
                                               >
