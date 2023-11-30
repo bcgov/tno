@@ -13,6 +13,7 @@ import {
   FormikTextArea,
   FormikTimeInput,
   IAVOverviewInstanceModel,
+  IAVOverviewSectionItemModel,
   IOptionItem,
   OptionItem,
   Row,
@@ -28,11 +29,23 @@ export interface IOverviewGridProps {
   index: number;
 }
 
+interface Suggestion {
+  index: number;
+  text: string;
+}
+
 /** OverviewGrid contains the table of items displayed for each overview section. */
 export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, index }) => {
   const { values, setFieldValue } = useFormikContext<IAVOverviewInstanceModel>();
   const [content, { findContent }] = useContent();
 
+  const [showAutoCompleteForIndex, setShowAutoCompleteForIndex] = React.useState<null | number>(
+    null,
+  );
+  const [search, setSearch] = React.useState<{ [key: string]: any }>({
+    text: '',
+    suggestions: [],
+  });
   const [clips, setClips] = React.useState<IOptionItem[]>();
   const eveningOverviewItemTypeOptions = castEnumToOptions(AVOverviewItemTypeName);
   const items = values.sections[index].items;
@@ -113,6 +126,22 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
     }
   };
 
+  const generateListOfSummaries = (itemIndex: number) => {
+    return values?.sections?.[index].items.reduce(function (
+      acc: Array<{ index: number; text: string }>,
+      current: IAVOverviewSectionItemModel,
+      index: number,
+    ) {
+      if (
+        index !== itemIndex && // do not display current index in list of summaries
+        !acc.some((summary) => summary.text === current.summary) // do not display duplicates
+      )
+        acc.push({ index, text: current.summary });
+      return acc;
+    },
+    []);
+  };
+
   return (
     <styled.OverviewGrid>
       <Show visible={!items.length}>
@@ -140,69 +169,137 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                     {...provided.droppableProps}
                     ref={provided.innerRef}
                   >
-                    {items.map((item, itemIndex) => (
-                      <Draggable
-                        key={itemIndex}
-                        draggableId={itemIndex.toString()}
-                        index={itemIndex}
-                      >
-                        {(provided) => (
-                          <div
-                            className="item-container"
-                            ref={provided.innerRef}
-                            key={itemIndex + `item.id`}
-                            {...provided.dragHandleProps}
-                            {...provided.draggableProps}
-                          >
-                            <Row className="rows" key={itemIndex} nowrap>
-                              <FaGripLines className="grip-lines" />
-                              <FormikSelect
-                                key={itemIndex + `select`}
-                                name={`sections.${index}.items.${itemIndex}.itemType`}
-                                width={FieldSize.Small}
-                                options={eveningOverviewItemTypeOptions}
-                                value={eveningOverviewItemTypeOptions.find(
-                                  (o) => o.value === item.itemType,
-                                )}
-                                isClearable={false}
-                                isDisabled={!editable}
-                              />
-                              <FormikTimeInput
-                                key={itemIndex}
-                                name={`sections.${index}.items.${itemIndex}.time`}
-                                width={FieldSize.Small}
-                                placeholder="hh:mm:ss"
-                                disabled={!editable}
-                              />
-                              <Col flex="1">
-                                <FormikTextArea
-                                  key={itemIndex + `textarea`}
-                                  name={`sections.${index}.items.${itemIndex}.summary`}
-                                  rows={item.itemType === AVOverviewItemTypeName.Intro ? 3 : 1}
-                                  disabled={!editable}
-                                  maxLength={80}
+                    {items.map((item, itemIndex) => {
+                      // every items list of summaries is unique as it shouldn't include the current
+                      const summaries = generateListOfSummaries(itemIndex);
+                      const { suggestions } = search;
+                      return (
+                        <Draggable
+                          key={itemIndex}
+                          draggableId={itemIndex.toString()}
+                          index={itemIndex}
+                        >
+                          {(provided) => (
+                            <div
+                              className="item-container"
+                              ref={provided.innerRef}
+                              key={itemIndex + `item.id`}
+                              {...provided.dragHandleProps}
+                              {...provided.draggableProps}
+                            >
+                              <Row className="rows" key={itemIndex} nowrap>
+                                <FaGripLines className="grip-lines" />
+                                <FormikSelect
+                                  key={itemIndex + `select`}
+                                  name={`sections.${index}.items.${itemIndex}.itemType`}
+                                  width={FieldSize.Small}
+                                  options={eveningOverviewItemTypeOptions}
+                                  value={eveningOverviewItemTypeOptions.find(
+                                    (o) => o.value === item.itemType,
+                                  )}
+                                  isClearable={false}
+                                  isDisabled={!editable}
                                 />
-                              </Col>
-                              <FormikSelect
-                                name={`sections.${index}.items.${itemIndex}.contentId`}
-                                value={clips?.find((c) => c.value === item.contentId)}
-                                options={clips ?? []}
-                                width={FieldSize.Medium}
-                                isDisabled={!editable}
-                                onChange={(newValue) =>
-                                  handleSelectionChanged(itemIndex, newValue as IOptionItem)
-                                }
-                              />
-                              <FaTrash
-                                className="clear-item"
-                                key={itemIndex + `trash`}
-                                onClick={() => handleDeleteItem(itemIndex)}
-                              />
-                            </Row>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
+                                <FormikTimeInput
+                                  key={itemIndex}
+                                  name={`sections.${index}.items.${itemIndex}.time`}
+                                  width={FieldSize.Small}
+                                  placeholder="hh:mm:ss"
+                                  disabled={!editable}
+                                />
+                                <Col
+                                  flex="1"
+                                  style={{
+                                    position: 'relative',
+                                    width: '320px',
+                                  }}
+                                >
+                                  <div
+                                    onClick={() => setShowAutoCompleteForIndex(null)}
+                                    style={{
+                                      display:
+                                        showAutoCompleteForIndex === itemIndex ? 'block' : 'none',
+                                      width: '200vw',
+                                      height: '200vh',
+                                      backgroundColor: 'transparent',
+                                      position: 'fixed',
+                                      zIndex: 0,
+                                      top: 0,
+                                      left: 0,
+                                    }}
+                                  />
+                                  <div>
+                                    <FormikTextArea
+                                      key={itemIndex + `textarea`}
+                                      name={`sections.${index}.items.${itemIndex}.summary`}
+                                      rows={item.itemType === AVOverviewItemTypeName.Intro ? 3 : 1}
+                                      disabled={!editable}
+                                      maxLength={80}
+                                      onChange={(e) => {
+                                        const value = e.target.value;
+                                        setFieldValue(
+                                          `sections.${index}.items.${itemIndex}.summary`,
+                                          value,
+                                        );
+
+                                        // from the potential summaries, generate suggestions that match current input
+                                        let suggestions: Suggestion[] = [];
+                                        if (value.length > 0) {
+                                          const regex = new RegExp(`^${value}`, 'i');
+                                          suggestions = summaries
+                                            .sort()
+                                            .filter((v: Suggestion) => regex.test(v.text));
+                                        }
+                                        setShowAutoCompleteForIndex(itemIndex);
+                                        setSearch({ suggestions, text: value });
+                                      }}
+                                    />
+                                  </div>
+                                  {suggestions.length > 0 &&
+                                    showAutoCompleteForIndex === itemIndex && (
+                                      <styled.AutoCompleteContainer>
+                                        {suggestions.map((suggestion: Suggestion) => {
+                                          return (
+                                            <styled.AutoCompleteItem key={suggestion.index}>
+                                              <styled.AutoCompleteItemButton
+                                                key={suggestion.index}
+                                                onClick={() => {
+                                                  setFieldValue(
+                                                    `sections.${index}.items.${itemIndex}.summary`,
+                                                    suggestion.text,
+                                                  );
+                                                  setShowAutoCompleteForIndex(null);
+                                                }}
+                                              >
+                                                {suggestion.text}
+                                              </styled.AutoCompleteItemButton>
+                                            </styled.AutoCompleteItem>
+                                          );
+                                        })}
+                                      </styled.AutoCompleteContainer>
+                                    )}
+                                </Col>
+                                <FormikSelect
+                                  name={`sections.${index}.items.${itemIndex}.contentId`}
+                                  value={clips?.find((c) => c.value === item.contentId)}
+                                  options={clips ?? []}
+                                  width={FieldSize.Medium}
+                                  isDisabled={!editable}
+                                  onChange={(newValue) =>
+                                    handleSelectionChanged(itemIndex, newValue as IOptionItem)
+                                  }
+                                />
+                                <FaTrash
+                                  className="clear-item"
+                                  key={itemIndex + `trash`}
+                                  onClick={() => handleDeleteItem(itemIndex)}
+                                />
+                              </Row>
+                            </div>
+                          )}
+                        </Draggable>
+                      );
+                    })}
                     {provided.placeholder}
                   </div>
                 )}
