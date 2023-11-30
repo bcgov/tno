@@ -13,7 +13,7 @@ export const defaultAdvancedSearch = {
   page: '',
   publishedEndOn: '',
   publishedStartOn: '',
-  searchTerm: '',
+  search: '',
   section: '',
   seriesIds: [],
   sourceIds: [],
