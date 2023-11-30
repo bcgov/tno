@@ -115,15 +115,15 @@ export const SearchPage: React.FC = () => {
               </>
             }
           >
+            <Show visible={!!searchName || !!viewing}>
+              <div className="viewed-name padding-left">
+                <FaBookmark />
+                <div className="filter-name">{searchName ?? viewing}</div>
+              </div>
+            </Show>
             <Row className="search-contents">
               <div className={playerOpen ? 'scroll minimized' : 'scroll'}>
                 <Col className={'search-items'}>
-                  <Show visible={!!searchName || !!viewing}>
-                    <div className="viewed-name padding-left">
-                      <FaBookmark />
-                      <div className="filter-name">{searchName ?? viewing}</div>
-                    </div>
-                  </Show>
                   <Show visible={!searchItems.length}>
                     <Row className="helper-text" justifyContent="center">
                       Please refine search criteria and click "search".
