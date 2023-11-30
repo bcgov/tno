@@ -38,8 +38,10 @@ export const Section = styled.div<ISectionProps>`
       overflow: hidden;
 
       span {
-        cursor: pointer;
         white-space: nowrap;
+      }
+      span.is-clickable {
+        cursor: pointer;
       }
     }
 

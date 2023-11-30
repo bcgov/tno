@@ -40,7 +40,9 @@ export const ProductDetailsForm: React.FC = () => {
         case ProductTypeName.Report:
           // set using reports
           apiReports.findAllReportsHeadersOnly().then((data) => {
-            setTargetProductOptions(data.map((s) => new OptionItem(s.name, s.id)));
+            setTargetProductOptions(
+              data.map((s) => new OptionItem(`${s.name} - [${s.owner?.displayName}]`, s.id)),
+            );
           });
           break;
         case ProductTypeName.EveningOverview:

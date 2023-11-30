@@ -39,7 +39,12 @@ export const Section: React.FC<ISectionProps> = ({
       <div className="section-header">
         {icon && <div className="section-icon">{icon}</div>}
         <div className="section-label">
-          <span onClick={() => showOpen && handleChange(!open)}>{label}</span>
+          <span
+            className={`${showOpen ? 'is-clickable' : ''}`}
+            onClick={() => showOpen && handleChange(!open)}
+          >
+            {label}
+          </span>
         </div>
         {actions && <div className="section-actions">{actions}</div>}
         {showOpen && (
