@@ -7,7 +7,6 @@ import {
   ITableInternal,
   ITablePage,
   ITableSort,
-  // IUserModel,
   IUserSubscriberModel,
 } from 'tno-core';
 
