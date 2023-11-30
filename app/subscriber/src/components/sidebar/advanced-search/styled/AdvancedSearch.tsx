@@ -4,7 +4,6 @@ import { Row } from 'tno-core';
 export const AdvancedSearch = styled(Row)`
   .page-section {
     width: 100%;
-    overflow-x: hidden;
   }
 
   .search-for-row {
@@ -13,6 +12,9 @@ export const AdvancedSearch = styled(Row)`
 
   /* BOTTOM SEARCH BAR */
   .adv-toolbar {
+    .frm-in {
+      width: 40%;
+    }
     background-color: #e8e9f1;
     color: #847379;
     width: 100%;
