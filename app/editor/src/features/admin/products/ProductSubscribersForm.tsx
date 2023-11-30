@@ -3,7 +3,6 @@ import React from 'react';
 import { useUsers } from 'store/hooks/admin';
 import {
   FlexboxTable,
-  INotificationModel,
   IProductModel,
   ITableInternal,
   ITablePage,

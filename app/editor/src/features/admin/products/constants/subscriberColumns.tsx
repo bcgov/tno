@@ -1,10 +1,8 @@
 import {
   CellEllipsis,
   Checkbox,
-  INotificationModel,
   IProductModel,
   ITableHookColumn,
-  // IUserModel,
   IUserSubscriberModel,
   Show,
   ToggleGroup,
