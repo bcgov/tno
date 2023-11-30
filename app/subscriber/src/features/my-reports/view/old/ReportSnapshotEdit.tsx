@@ -8,9 +8,9 @@ import { toast } from 'react-toastify';
 import { useReportInstances, useReports } from 'store/hooks';
 import { Button, ButtonVariant, Col, Modal, Row, Show, useModal } from 'tno-core';
 
-import { IReportForm } from '../interfaces';
-import { getLastPublishedOn, getLastSent, moveContent, toForm } from '../utils';
-import { calcNextSend } from './../utils/calcNextSend';
+import { IReportForm } from '../../interfaces';
+import { getLastPublishedOn, getLastSent, moveContent, toForm } from '../../utils';
+import { calcNextSend } from './../../utils/calcNextSend';
 import { ReportSection } from './components';
 
 export const ReportSnapshotEdit: React.FC = () => {
@@ -28,7 +28,7 @@ export const ReportSnapshotEdit: React.FC = () => {
     async (values: IReportForm) => {
       try {
         const result = await generateReport(values.id, true);
-        setValues(toForm(result, values));
+        setValues(toForm(result));
         toast.success('Report has been regenerated');
       } catch {}
     },

@@ -6,9 +6,9 @@ import { useApiHub, useReportInstances, useReports } from 'store/hooks';
 import { useAppStore } from 'store/slices';
 import { Col, Container, IReportMessageModel, MessageTargetName, Row } from 'tno-core';
 
-import { defaultReport } from '../constants';
-import { IReportForm } from '../interfaces';
-import { toForm } from '../utils';
+import { defaultReport } from '../../constants';
+import { IReportForm } from '../../interfaces';
+import { toForm } from '../../utils';
 import { ReportSnapshotEdit } from './ReportSnapshotEdit';
 import { ReportSnapshotView } from './ReportSnapshotView';
 import * as styled from './styled';
@@ -29,7 +29,7 @@ export const ReportSnapshot: React.FC = () => {
     if (!!reportId) {
       generateReport(reportId)
         .then((result) => {
-          if (result) setReport(toForm(result, report, true));
+          if (result) setReport(toForm(result));
         })
         .catch(() => {});
     }
@@ -43,14 +43,10 @@ export const ReportSnapshot: React.FC = () => {
       const result = await getReportInstance(message.id);
       if (result)
         setReport(
-          toForm(
-            {
-              ...report,
-              instances: report.instances.map((i) => (i.id === result.id ? result : i)),
-            },
-            report,
-            true,
-          ),
+          toForm({
+            ...report,
+            instances: report.instances.map((i) => (i.id === result.id ? result : i)),
+          }),
         );
     } catch {}
   });
@@ -59,10 +55,10 @@ export const ReportSnapshot: React.FC = () => {
     async (values: IReportForm) => {
       try {
         const result = await updateReport(values, true);
-        setReport(toForm(result, report, true));
+        setReport(toForm(result));
       } catch {}
     },
-    [report, updateReport],
+    [updateReport],
   );
 
   return (

@@ -5,8 +5,8 @@ import { FaEdit } from 'react-icons/fa';
 import { useApp } from 'store/hooks';
 import { Col, ContentRow, DraggableContentRow, FormikText, FormikTextArea, Show } from 'tno-core';
 
-import { IReportForm } from '../../interfaces';
-import { sortContent } from '../../utils';
+import { IReportForm } from '../../../interfaces';
+import { sortContent } from '../../../utils';
 import { ContentForm, UserContentForm } from '.';
 import { IReportSectionProps } from './ReportSection';
 
@@ -25,14 +25,15 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
     const section = values.sections[index];
     const instance = values.instances.length ? values.instances[0] : null;
     const userId = userInfo?.id ?? 0;
-    const sectionContent = values.instances[0].content
-      .filter((c) => c.sectionName === section.name)
-      .map((c) => ({
-        ...c,
-        originalIndex: values.instances[0].content.findIndex(
-          (oi) => oi.contentId === c.contentId && oi.sectionName === c.sectionName,
-        ),
-      }));
+    const sectionContent =
+      instance?.content
+        .filter((c) => c.sectionName === section.name)
+        .map((c) => ({
+          ...c,
+          originalIndex: instance?.content.findIndex(
+            (oi) => oi.contentId === c.contentId && oi.sectionName === c.sectionName,
+          ),
+        })) ?? [];
 
     const handleRemoveContent = React.useCallback(
       async (index: number) => {

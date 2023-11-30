@@ -37,9 +37,8 @@ export const moveContent = (drop: DropResult, rows: IReportInstanceContentModel[
     // Move row to destination section.
     const [reOrdered] = newItems.splice(originalIndex, 1);
     const destinationIndex = getDestinationIndex(drop, newItems);
-    newItems.splice(destinationIndex, 0, reOrdered);
     // Update the section information.
-    reOrdered.sectionName = destinationSectionName;
+    newItems.splice(destinationIndex, 0, { ...reOrdered, sectionName: destinationSectionName });
   }
   return sortContent(newItems);
 };

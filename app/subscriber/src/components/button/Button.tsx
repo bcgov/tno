@@ -1,6 +1,8 @@
 import * as styled from './styled';
 
-export interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+export interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary' | 'success' | 'warn' | 'error' | 'info' | 'link';
+}
 
 /**
  * Provides a common styled button.

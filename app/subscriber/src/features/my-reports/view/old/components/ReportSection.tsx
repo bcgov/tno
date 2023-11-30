@@ -7,8 +7,8 @@ import { toast } from 'react-toastify';
 import { useApp, useLookup } from 'store/hooks';
 import { ReportSectionTypeName, Row, Settings, Show } from 'tno-core';
 
-import { IReportForm } from '../../interfaces';
-import { createReportInstanceContent, sortContent } from '../../utils';
+import { IReportForm } from '../../../interfaces';
+import { createReportInstanceContent, sortContent } from '../../../utils';
 import { ReportSectionContent } from './ReportSectionContent';
 import { ReportSectionSummary } from './ReportSectionSummary';
 import { ReportSectionTableOfContents } from './ReportSectionTableOfContents';

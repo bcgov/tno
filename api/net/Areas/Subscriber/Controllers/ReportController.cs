@@ -130,13 +130,14 @@ public class ReportController : ControllerBase
     /// If request includes 'generate=true' then make sure to return an unsent instance.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="includeContent">Include content for the most recent instance.</param>
     /// <returns></returns>
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult FindById(int id)
+    public IActionResult FindById(int id, bool includeContent = false)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
@@ -147,6 +148,11 @@ public class ReportController : ControllerBase
         var instances = _reportService.GetLatestInstances(id, user.Id);
         report.Instances.Clear();
         report.Instances.AddRange(instances);
+        if (instances.Any() && includeContent)
+        {
+            var instance = instances.First();
+            instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(instance.Id));
+        }
 
         return new JsonResult(new ReportModel(report, _serializerOptions));
     }
@@ -214,18 +220,23 @@ public class ReportController : ControllerBase
         if (result?.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to update this report");
         _reportService.ClearChangeTracker(); // Remove the report from context.
         result = _reportService.Update(model.ToEntity(_serializerOptions));
-        if (updateInstances && model.Instances.Any())
+        var instanceModel = model.Instances.FirstOrDefault();
+        Entities.ReportInstance? instance = null;
+        if (updateInstances && instanceModel != null)
         {
-            // There should only ever be one instance returned for the current user.
-            model.Instances.ForEach(instance =>
-            {
-                var updatedInstance = _reportInstanceService.Update((Entities.ReportInstance)instance);
-            });
+            // Only update the first instance.
+            instance = _reportInstanceService.Update((Entities.ReportInstance)instanceModel);
         }
         _reportInstanceService.CommitTransaction();
         var report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
+        if (updateInstances && instance != null)
+        {
+            report.Instances.Add(instance);
+            instance.ContentManyToMany.Clear();
+            instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(instance.Id));
+        }
 
-        if (updateInstances && model.Instances.Any())
+        if (updateInstances && instance != null)
         {
             // Inform other users of the updated content.
             var instanceContent = report.Instances.FirstOrDefault()?.ContentManyToMany.ToArray() ?? Array.Empty<Entities.ReportInstanceContent>();
@@ -320,23 +331,31 @@ public class ReportController : ControllerBase
                 return c;
             });
             currentInstance.ContentManyToMany.AddRange(newContent);
-            _reportInstanceService.UpdateAndSave(currentInstance);
+            currentInstance = _reportInstanceService.UpdateAndSave(currentInstance);
             instances = _reportService.GetLatestInstances(id, user.Id);
+            currentInstance.ContentManyToMany.Clear();
+            currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
+            report.Instances.Clear();
+            report.Instances.Add(currentInstance);
+            report.Instances.AddRange(instances.Where(i => i.Id != currentInstance.Id));
         }
         else if (currentInstance == null || currentInstance.SentOn.HasValue)
         {
             // Generate a new instance of this report if there is no current instance, or if it has already been sent.
             currentInstance = await _reportHelper.GenerateReportInstanceAsync(new Services.Models.Report.ReportModel(report, _serializerOptions), user.Id);
-            _reportInstanceService.AddAndSave(currentInstance);
+            currentInstance = _reportInstanceService.AddAndSave(currentInstance);
             instances = _reportService.GetLatestInstances(id, user.Id);
+            currentInstance.ContentManyToMany.Clear();
+            currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
+            report.Instances.Clear();
+            report.Instances.Add(currentInstance);
+            report.Instances.AddRange(instances.Where(i => i.Id != currentInstance.Id));
         }
         else
         {
             // Get the content for the current instance.
             currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
         }
-        report.Instances.Clear();
-        report.Instances.AddRange(instances);
 
         return new JsonResult(new ReportModel(report, _serializerOptions));
     }

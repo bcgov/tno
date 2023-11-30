@@ -30,6 +30,11 @@ public class ContentTonePoolModel
     /// get/set - The value of the tone pool.
     /// </summary>
     public int Value { get; set; }
+
+    /// <summary>
+    /// get/set - Whether this tone pool is public.
+    /// </summary>
+    public bool IsPublic { get; set; }
     #endregion
 
     #region Constructors
@@ -49,6 +54,7 @@ public class ContentTonePoolModel
         this.Name = entity.TonePool?.Name ?? "";
         this.OwnerId = entity.TonePool?.OwnerId ?? 0;
         this.Value = entity.Value;
+        this.IsPublic = entity.TonePool?.IsPublic ?? false;
     }
 
     /// <summary>
@@ -62,6 +68,7 @@ public class ContentTonePoolModel
         this.Name = model.Name;
         this.OwnerId = model.OwnerId;
         this.Value = model.Value;
+        this.IsPublic = model.IsPublic;
     }
     #endregion
 }

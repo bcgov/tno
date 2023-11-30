@@ -161,7 +161,7 @@ public class ReportInstanceController : ControllerBase
     }
 
     /// <summary>
-    /// Execute the report template and generate the results for previewing.
+    /// Execute the report template and generate the results for viewing the specified report instance.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -170,7 +170,7 @@ public class ReportInstanceController : ControllerBase
     [ProducesResponseType(typeof(ReportResultModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public async Task<IActionResult> Preview(int id)
+    public async Task<IActionResult> View(int id)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
@@ -179,6 +179,7 @@ public class ReportInstanceController : ControllerBase
         if (instance.OwnerId != user.Id && // User does not own the report instance
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report"); // Report is not public
+        instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(id));
         var result = await _reportHelper.GenerateReportAsync(new Services.Models.ReportInstance.ReportInstanceModel(instance, _serializerOptions), true);
         return new JsonResult(result);
     }
@@ -213,17 +214,23 @@ public class ReportInstanceController : ControllerBase
     /// <summary>
     /// Generate an Excel document report.
     /// </summary>
-    /// <param name="instanceId"></param>
+    /// <param name="id"></param>
     /// <returns></returns>
-    [HttpGet("{instanceId}/export")]
+    [HttpGet("{id}/export")]
     [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public FileResult GenerateExcel(int instanceId)
+    public FileResult GenerateExcel(int id)
     {
-        var helper = new ReportXlsExport(_reportInstanceService, _serializerOptions);
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        if (instance.OwnerId != user.Id) throw new NotAuthorizedException("User does not have permission to export this report");
+        var content = _reportInstanceService.GetContentForInstance(id);
+        instance.ContentManyToMany.AddRange(content);
 
-        var report = helper.GenerateExcel(instanceId);
+        var helper = new ReportXlsExport("Report", _serializerOptions);
+        var report = helper.GenerateExcel(instance);
 
         using var stream = new MemoryStream();
         report.Write(stream);

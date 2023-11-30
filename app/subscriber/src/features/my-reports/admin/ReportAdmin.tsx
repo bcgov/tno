@@ -15,7 +15,7 @@ import { Col, Modal, Row, useModal } from 'tno-core';
 
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
-import { getHideEmpty, toForm } from '../utils';
+import { toForm } from '../utils';
 import { ReportSettings } from './ReportSettings';
 import { ReportSubscribers } from './ReportSubscribers';
 import { ReportTemplate } from './ReportTemplate';
@@ -83,7 +83,7 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
       getReport(reportId)
         .then((result) => {
           if (result) {
-            setReport(toForm(result, report));
+            setReport(toForm(result));
           }
         })
         .catch(() => {});
@@ -109,14 +109,7 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
             navigate(`/reports/${report.id}${path ? `/${path}` : ''}`);
             toast.success(`Successfully created '${report.name}'.`);
           } else {
-            setReport({
-              ...report,
-              sections: report.sections.map((section, index) => ({
-                ...section,
-                expand: values.sections[index].expand,
-              })),
-              hideEmptySections: getHideEmpty(report.sections),
-            });
+            setReport(toForm(report));
             toast.success(`Successfully updated '${report.name}'.`);
           }
         }
