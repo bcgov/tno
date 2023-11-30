@@ -151,6 +151,10 @@ public class ProductService : BaseService<Product, int>, IProductService
             {
                 if (originalSubscriber.IsSubscribed != s.IsSubscribed)
                     originalSubscriber.IsSubscribed = s.IsSubscribed;
+                if (originalSubscriber.RequestedIsSubscribedStatus != s.RequestedIsSubscribedStatus)
+                    originalSubscriber.RequestedIsSubscribedStatus = s.RequestedIsSubscribedStatus;
+                if (originalSubscriber.SubscriptionChangeActioned != s.SubscriptionChangeActioned)
+                    originalSubscriber.SubscriptionChangeActioned = s.SubscriptionChangeActioned;
             }
         });
 
