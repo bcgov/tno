@@ -4,10 +4,7 @@ import { Landing } from 'features/landing';
 import { Login } from 'features/login';
 import { ManageFolder } from 'features/manage-folder';
 import { MyProducts } from 'features/my-products';
-import { ReportAdmin, ReportSnapshot } from 'features/my-reports';
-import { MyReports } from 'features/my-reports';
-import ReportInstancePreview from 'features/my-reports/view/ReportInstancePreview';
-import { ViewReport } from 'features/my-reports/view/ViewReport';
+import { MyReports, ReportAdmin, ReportEdit, ReportView } from 'features/my-reports';
 import { SearchPage } from 'features/search-page/SearchPage';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
@@ -75,13 +72,15 @@ export const AppRouter: React.FC<IAppRouter> = () => {
         />
         <Route
           path="/reports/:id/edit"
-          element={
-            <PrivateRoute claims={Claim.subscriber} element={<ReportSnapshot />}></PrivateRoute>
-          }
+          element={<PrivateRoute claims={Claim.subscriber} element={<ReportEdit />}></PrivateRoute>}
+        />
+        <Route
+          path="/reports/:id/edit/:path"
+          element={<PrivateRoute claims={Claim.subscriber} element={<ReportEdit />}></PrivateRoute>}
         />
         <Route
           path="/reports/:id/view"
-          element={<PrivateRoute claims={Claim.subscriber} element={<ViewReport />}></PrivateRoute>}
+          element={<PrivateRoute claims={Claim.subscriber} element={<ReportView />}></PrivateRoute>}
         />
         <Route
           path="/reports/:id/:path"
@@ -97,12 +96,7 @@ export const AppRouter: React.FC<IAppRouter> = () => {
         />
         <Route
           path="report/instances/:id/view"
-          element={
-            <PrivateRoute
-              claims={Claim.subscriber}
-              element={<ReportInstancePreview />}
-            ></PrivateRoute>
-          }
+          element={<PrivateRoute claims={Claim.subscriber} element={<ReportView />}></PrivateRoute>}
         />
         <Route path="error" element={<InternalServerError />} />
         <Route path="*" element={<NotFound />} />

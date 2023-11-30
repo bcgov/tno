@@ -1,3 +1,2 @@
-export * from './ReportPreview';
-export * from './ReportSnapshot';
-export * from './ViewReport';
+export * from './ReportEdit';
+export * from './ReportView';

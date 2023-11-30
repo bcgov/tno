@@ -1,17 +1,44 @@
 import styled from 'styled-components';
 
-export const Button = styled.button`
+import { IButtonProps } from '../Button';
+
+export const Button = styled.button<IButtonProps>`
   display: flex;
   flex-direction: row;
   gap: 0.5rem;
   align-items: center;
   padding: 0.25rem 0.75rem;
   border-radius: 0.5rem;
-  background: ${(props) => props.theme.css.btnBkPrimary};
-  color: ${(props) => props.theme.css.btnPrimaryColor};
-  border: none;
   outline: inherit;
   cursor: pointer;
+
+  background: ${(props) => {
+    switch (props.variant) {
+      case 'secondary':
+        return props.theme.css.bkWhite;
+      case 'primary':
+      default:
+        return props.theme.css.btnBkPrimary;
+    }
+  }};
+  color: ${(props) => {
+    switch (props.variant) {
+      case 'secondary':
+        return props.theme.css.btnBkPrimary;
+      case 'primary':
+      default:
+        return props.theme.css.btnPrimaryColor;
+    }
+  }};
+  border: ${(props) => {
+    switch (props.variant) {
+      case 'secondary':
+        return `solid 1px ${props.theme.css.btnBkPrimary}`;
+      case 'primary':
+      default:
+        return 'none';
+    }
+  }};
 
   font-size: 1rem;
   line-height: unset;
@@ -26,7 +53,15 @@ export const Button = styled.button`
     width: 16px;
     max-width: 16px;
     min-width: 16px;
-    color: ${(props) => props.theme.css.btnPrimaryColor};
+    color: ${(props) => {
+      switch (props.variant) {
+        case 'secondary':
+          return props.theme.css.btnBkPrimary;
+        case 'primary':
+        default:
+          return props.theme.css.btnPrimaryColor;
+      }
+    }};
   }
 
   &:hover {

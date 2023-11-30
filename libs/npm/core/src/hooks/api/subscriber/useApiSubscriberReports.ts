@@ -39,9 +39,9 @@ export const useApiSubscriberReports = (
         `/subscriber/reports/public?${toQueryString(query)}`,
       );
     },
-    getReport: (id: number) => {
+    getReport: (id: number, includeContent?: boolean) => {
       return api.get<never, AxiosResponse<IReportModel | undefined>, any>(
-        `/subscriber/reports/${id}`,
+        `/subscriber/reports/${id}${includeContent ? `?includeContent=true` : ''}`,
       );
     },
     findInstancesForReportId: (id: number, ownerId: number | undefined = undefined) => {

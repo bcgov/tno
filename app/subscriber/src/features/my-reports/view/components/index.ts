@@ -1,3 +1,4 @@
-export * from './ContentForm';
-export * from './ReportSection';
-export * from './UserContentForm';
+export * from './ReportContentForm';
+export * from './ReportInstanceView';
+export * from './ReportPreviewForm';
+export * from './ReportSendForm';

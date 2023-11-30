@@ -75,7 +75,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
           if (!originalId) {
             // Update the report instances with the latest content.
             const reportResult = await updateReport(report, true);
-            setValues(toForm(reportResult, report, true));
+            setValues(toForm(reportResult));
           }
         }
       } catch {

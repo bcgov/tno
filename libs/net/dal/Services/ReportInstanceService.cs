@@ -73,11 +73,11 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
             .Include(cm2m => cm2m.Content).ThenInclude(c => c!.ActionsManyToMany).ThenInclude(c => c.Action)
             .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TopicsManyToMany).ThenInclude(c => c.Topic)
             .Include(cm2m => cm2m.Content).ThenInclude(c => c!.Labels)
-            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.Tags)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TagsManyToMany)
             .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TimeTrackings)
             .Include(cm2m => cm2m.Content).ThenInclude(c => c!.FileReferences)
-            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TonePools)
-            .Where(ric => ric.ContentId == id)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TonePoolsManyToMany).ThenInclude(t => t.TonePool)
+            .Where(ric => ric.InstanceId == id)
             .ToArray();
     }
 
@@ -113,6 +113,7 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         // Fetch all content currently belonging to this report instance.
         var original = this.Context.ReportInstances.FirstOrDefault(ri => ri.Id == entity.Id) ?? throw new InvalidOperationException("Report instance does not exist");
         var originalInstanceContent = this.Context.ReportInstanceContents
+            .AsNoTracking()
             .Include(ic => ic.Content)
             .Where(ric => ric.InstanceId == entity.Id).ToArray();
 

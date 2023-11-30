@@ -13,7 +13,7 @@ import {
 interface IReportController {
   findMyReports: (filter?: IReportFilter) => Promise<IReportModel[]>;
   findPublicReports: (filter?: IReportFilter) => Promise<IReportModel[]>;
-  getReport: (id: number) => Promise<IReportModel | undefined>;
+  getReport: (id: number, includeContent?: boolean) => Promise<IReportModel | undefined>;
   findInstancesForReportId: (id: number, ownerId?: number) => Promise<IReportInstanceModel[]>;
   addReport: (model: IReportModel) => Promise<IReportModel>;
   updateReport: (model: IReportModel, updateInstances?: boolean) => Promise<IReportModel>;
@@ -44,10 +44,10 @@ export const useReports = (): [IReportController] => {
         );
         return response.data;
       },
-      getReport: async (id: number) => {
+      getReport: async (id: number, includeContent?: boolean) => {
         const response = await dispatch<IReportModel | undefined>(
           `get-report-${id}`,
-          () => api.getReport(id),
+          () => api.getReport(id, includeContent),
           'get-report',
         );
         if (response.data) {

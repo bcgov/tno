@@ -101,7 +101,14 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => 
                 <span className="fs1">
                   {moment(report.instances[0].publishedOn).format('DD-MMM-YYYY h:mm:ss a')}
                 </span>
-                <Action label={'VIEW'} onClick={() => navigate(`/reports/${report.id}/view`)} />
+                <Action
+                  label={'VIEW'}
+                  onClick={() => {
+                    if (report.instances.length)
+                      navigate(`/report/instances/${report.instances[0].id}/view`);
+                    else navigate(`/reports/${report.id}/view`);
+                  }}
+                />
               </Row>
             ) : (
               'NA'

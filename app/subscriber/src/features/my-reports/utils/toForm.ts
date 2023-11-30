@@ -6,25 +6,13 @@ import { getHideEmpty } from './getHideEmpty';
 import { sortContent } from './sortContent';
 
 /**
- * TODO: This is an ugly implementation and confusing.
  * Converts a report model into a form.
- * The form is passed in to extract which sections were expanded.
  * @param report Latest report information.
- * @param form The current form information.
- * @param expand Whether to expand sections.
  * @returns a new form.
  */
-export const toForm = (
-  report: IReportModel,
-  form: IReportForm,
-  expand: boolean = false,
-): IReportForm => {
+export const toForm = (report: IReportModel): IReportForm => {
   return {
     ...report,
-    sections: report.sections.map((section, index) => ({
-      ...section,
-      expand: form.sections.length > index ? form.sections[index].expand : expand,
-    })),
     hideEmptySections: getHideEmpty(report.sections),
     events:
       report.events.length === 2
