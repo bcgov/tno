@@ -40,6 +40,15 @@ public class UserModel
     /// get/set - Whether the user is subscribed to the report.
     /// </summary>
     public bool IsSubscribed { get; set; }
+
+    /// <summary>
+    /// get/set - Has an admin approved the status change?
+    /// </summary>
+    public bool? SubscriptionChangeActioned { get; set; }
+    /// <summary>
+    /// get/set - Has an admin approved the status change?
+    /// </summary>
+    public bool? RequestedIsSubscribedStatus { get; set; }
     #endregion
 
     #region Constructors
@@ -53,7 +62,10 @@ public class UserModel
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="isSubscribed"></param>
-    public UserModel(Entities.User entity, bool isSubscribed = true)
+    public UserModel(Entities.User entity,
+     bool isSubscribed = true,
+     bool? subscriptionChangeActioned = null,
+     bool? requestedIsSubscribedStatus = null)
     {
         this.Id = entity.Id;
         this.Username = entity.Username;
@@ -62,6 +74,8 @@ public class UserModel
         this.FirstName = entity.FirstName;
         this.LastName = entity.LastName;
         this.IsSubscribed = isSubscribed;
+        this.SubscriptionChangeActioned = subscriptionChangeActioned;
+        this.RequestedIsSubscribedStatus = requestedIsSubscribedStatus;
     }
     #endregion
 }

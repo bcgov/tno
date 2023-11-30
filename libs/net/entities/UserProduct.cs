@@ -32,10 +32,23 @@ public class UserProduct : AuditColumns
     public Product? Product { get; set; }
 
     /// <summary>
-    /// get/set - The target subscription status for the product.
+    /// get/set - The actual subscription status for the product.
     /// </summary>
     [Column("is_subscribed")]
     public bool IsSubscribed { get; set; }
+
+    /// <summary>
+    /// get/set - The target subscription status for the product.
+    /// </summary>
+    [Column("requested_is_subscribed_status")]
+    public bool? RequestedIsSubscribedStatus { get; set; }
+
+    /// <summary>
+    /// get/set - Has an admin approved the status change?
+    /// </summary>
+    [Column("subscription_change_actioned")]
+    public bool? SubscriptionChangeActioned { get; set; }
+
     #endregion
 
     #region Constructors

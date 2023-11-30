@@ -5,6 +5,7 @@ import {
   INotificationTemplateModel,
   ISortableModel,
   IUserModel,
+  // IUserSubscriberModel,
 } from '.';
 
 export interface INotificationModel extends ISortableModel<number> {
@@ -18,5 +19,6 @@ export interface INotificationModel extends ISortableModel<number> {
   isPublic: boolean;
   alertOnIndex: boolean;
   subscribers: IUserModel[];
+  // subscribers: IUserSubscriberModel[];
   instances?: INotificationInstanceModel[];
 }

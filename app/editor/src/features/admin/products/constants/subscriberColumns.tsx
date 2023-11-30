@@ -1,9 +1,17 @@
-import { CellEllipsis, Checkbox, INotificationModel, ITableHookColumn, IUserModel } from 'tno-core';
+import {
+  CellEllipsis,
+  Checkbox,
+  IProductModel,
+  ITableHookColumn,
+  IUserSubscriberModel,
+  Show,
+  ToggleGroup,
+} from 'tno-core';
 
 export const subscriberColumns = (
-  report: INotificationModel,
+  product: IProductModel,
   setFieldValue: (field: string, value: any, shouldValidate?: boolean | undefined) => void,
-): ITableHookColumn<IUserModel>[] => [
+): ITableHookColumn<IUserSubscriberModel>[] => [
   {
     label: '',
     accessor: 'id',
@@ -12,15 +20,27 @@ export const subscriberColumns = (
       <Checkbox
         id={`user-${cell.original.id}`}
         value={true}
-        checked={report.subscribers.some((u) => u.id === cell.original.id && u.isSubscribed)}
+        checked={product.subscribers.some((u) => u.id === cell.original.id && u.isSubscribed)}
+        disabled={product.subscribers.some(
+          // disable the checkbox if a user has requested a change in their
+          // subscription status but an admin has not yet approved it
+          (u) =>
+            u.id === cell.original.id &&
+            u.requestedIsSubscribedStatus !== undefined &&
+            u.subscriptionChangeActioned !== undefined,
+        )}
         onChange={(e) => {
-          const user = { ...cell.original, isSubscribed: e.target.checked };
-          if (report.subscribers.some((u) => u.id === cell.original.id))
+          const user = {
+            ...cell.original,
+            isSubscribed: e.target.checked,
+            subscriptionChangeActioned: true,
+          };
+          if (product.subscribers.some((u) => u.id === cell.original.id))
             setFieldValue(
               'subscribers',
-              report.subscribers.map((item) => (item.id === cell.original.id ? user : item)),
+              product.subscribers.map((item) => (item.id === cell.original.id ? user : item)),
             );
-          else setFieldValue('subscribers', [user, ...report.subscribers]);
+          else setFieldValue('subscribers', [user, ...product.subscribers]);
         }}
       />
     ),
@@ -48,5 +68,79 @@ export const subscriberColumns = (
     accessor: 'email',
     width: 2,
     cell: (cell) => <CellEllipsis>{cell.original.email}</CellEllipsis>,
+  },
+  {
+    label: 'Change Approval',
+    accessor: 'change-approved',
+    width: '1.5',
+    showSort: false,
+    cell: (cell) => (
+      <Show
+        visible={product.subscribers.some(
+          (u) =>
+            u.id === cell.original.id &&
+            u.requestedIsSubscribedStatus !== undefined &&
+            u.subscriptionChangeActioned !== undefined,
+        )}
+      >
+        <Checkbox
+          id={`user-${cell.original.id}-target-status`}
+          value={true}
+          checked={product.subscribers.some(
+            (u) => u.id === cell.original.id && u.requestedIsSubscribedStatus,
+          )}
+          disabled={true}
+          title={
+            product.subscribers.filter((u) => u.id === cell.original.id)[0]
+              .requestedIsSubscribedStatus
+              ? 'Request is to SUBSCRIBE'
+              : 'Request is to UNSUBSCRIBE'
+          }
+        />
+        <ToggleGroup
+          className="approval-actions"
+          options={[
+            {
+              label: 'APPROVE',
+              onClick: () => {
+                const targetStatus = product.subscribers.filter((u) => u.id === cell.original.id)[0]
+                  .requestedIsSubscribedStatus;
+                const user = {
+                  ...cell.original,
+                  isSubscribed: targetStatus,
+                  requestedIsSubscribedStatus: targetStatus,
+                  subscriptionChangeActioned: true,
+                };
+                if (product.subscribers.some((u) => u.id === cell.original.id)) {
+                  setFieldValue(
+                    'subscribers',
+                    product.subscribers.map((item) => (item.id === cell.original.id ? user : item)),
+                  );
+                }
+              },
+            },
+            {
+              label: 'REJECT',
+              onClick: () => {
+                const targetStatus = product.subscribers.filter((u) => u.id === cell.original.id)[0]
+                  .requestedIsSubscribedStatus;
+                const user = {
+                  ...cell.original,
+                  isSubscribed: !targetStatus,
+                  requestedIsSubscribedStatus: targetStatus,
+                  subscriptionChangeActioned: true,
+                };
+                if (product.subscribers.some((u) => u.id === cell.original.id)) {
+                  setFieldValue(
+                    'subscribers',
+                    product.subscribers.map((item) => (item.id === cell.original.id ? user : item)),
+                  );
+                }
+              },
+            },
+          ]}
+        />
+      </Show>
+    ),
   },
 ];

@@ -14,6 +14,15 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
     /// </summary>
     public bool IsSubscribed { get; set; }
 
+    /// <summary>
+    /// get/set - Has an admin approved the status change?
+    /// </summary>
+    public bool? SubscriptionChangeActioned { get; set; }
+    /// <summary>
+    /// get/set - Has an admin approved the status change?
+    /// </summary>
+    public bool? RequestedIsSubscribedStatus { get; set; }
+
     #endregion
 
     #region Constructors
@@ -29,12 +38,18 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
     /// <param name="options"></param>
     public ProductModel(Entities.Product entity, int userId) : base(entity)
     {
-        // if they currently have a subscription status of true|false *OR* have NO subscription status
-        this.IsSubscribed = entity.SubscribersManyToMany.FirstOrDefault(s => s.UserId == userId)?.IsSubscribed ?? false;
+        var userRecord = entity.SubscribersManyToMany.FirstOrDefault(s => s.UserId == userId);
+        if (userRecord != null) {
+            this.IsSubscribed = userRecord.IsSubscribed;
+            this.RequestedIsSubscribedStatus = userRecord.RequestedIsSubscribedStatus;
+            this.SubscriptionChangeActioned = userRecord.SubscriptionChangeActioned;
+        } else {
+            this.IsSubscribed = false;
+        }
     }
     #endregion
 
-        #region Methods
+    #region Methods
     public bool Equals(ProductModel? other)
     {
         if (other == null) return false;

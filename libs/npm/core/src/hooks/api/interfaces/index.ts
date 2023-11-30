@@ -107,6 +107,7 @@ export * from './ITopicScoreRuleModel';
 export * from './IUserFilter';
 export * from './IUserInfoModel';
 export * from './IUserModel';
+export * from './IUserSubscriberModel';
 export * from './IValidationErrorModel';
 export * from './IWorkOrderContentModel';
 export * from './IWorkOrderFilter';

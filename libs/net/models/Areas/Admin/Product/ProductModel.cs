@@ -48,7 +48,7 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
         this.TargetProductId = entity.TargetProductId;
         this.ProductType = entity.ProductType;
         this.IsPublic = entity.IsPublic;
-        this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!, s.IsSubscribed)).ToArray();
+        this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!, s.IsSubscribed, s.SubscriptionChangeActioned, s.RequestedIsSubscribedStatus)).ToArray();
     }
     #endregion
 

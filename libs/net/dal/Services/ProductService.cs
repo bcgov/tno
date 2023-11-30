@@ -151,6 +151,10 @@ public class ProductService : BaseService<Product, int>, IProductService
             {
                 if (originalSubscriber.IsSubscribed != s.IsSubscribed)
                     originalSubscriber.IsSubscribed = s.IsSubscribed;
+                if (originalSubscriber.RequestedIsSubscribedStatus != s.RequestedIsSubscribedStatus)
+                    originalSubscriber.RequestedIsSubscribedStatus = s.RequestedIsSubscribedStatus;
+                if (originalSubscriber.SubscriptionChangeActioned != s.SubscriptionChangeActioned)
+                    originalSubscriber.SubscriptionChangeActioned = s.SubscriptionChangeActioned;
             }
         });
 
@@ -185,6 +189,24 @@ public class ProductService : BaseService<Product, int>, IProductService
     }
 
     /// <summary>
+    /// Unsubscribe the specified 'userId' from the target product.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public async Task<int> RequestUnsubscribe(int userId, int productId)
+    {
+        var saveChanges = false;
+        UserProduct? userProduct = await this.Context.UserProducts.FirstOrDefaultAsync(x => x.UserId == userId && x.ProductId == productId && x.IsSubscribed);
+
+        if (userProduct != null) {
+            userProduct.RequestedIsSubscribedStatus = false;
+            userProduct.SubscriptionChangeActioned = false;
+            saveChanges = true;
+        }
+        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
+    }
+
+    /// <summary>
     /// Subscribe the specified 'userId' to the specified product.
     /// </summary>
     /// <param name="userId"></param>
@@ -203,6 +225,46 @@ public class ProductService : BaseService<Product, int>, IProductService
             }
         } else {
             this.Context.UserProducts.Add(new UserProduct(userId, productId, true));
+        }
+        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
+    }
+
+    /// <summary>
+    /// Subscribe the specified 'userId' to the specified product.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="productId"></param>
+    /// <returns></returns>
+    public async Task<int> RequestSubscribe(int userId, int productId)
+    {
+        var saveChanges = false;
+        var targetProduct = FindById(productId) ?? throw new NoContentException("Report does not exist");
+        var subscriberRecord = targetProduct.Subscribers.FirstOrDefault(s => s.Id == userId);
+        if (subscriberRecord != null) {
+            UserProduct? userProduct = await this.Context.UserProducts.FirstOrDefaultAsync(x => x.UserId == userId && x.ProductId == productId && !x.IsSubscribed);
+            if (userProduct != null) {
+                userProduct.RequestedIsSubscribedStatus = true;
+                userProduct.SubscriptionChangeActioned = false;
+                saveChanges = true;
+            }
+        } else {
+            this.Context.UserProducts.Add(new UserProduct(userId, productId) {IsSubscribed = false, RequestedIsSubscribedStatus = true, SubscriptionChangeActioned = false});
+        }
+        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
+    }
+
+    public async Task<int> CancelSubscriptionStatusChangeRequest(int userId, int productId)
+    {
+        var saveChanges = false;
+        var targetProduct = FindById(productId) ?? throw new NoContentException("Report does not exist");
+        var subscriberRecord = targetProduct.Subscribers.FirstOrDefault(s => s.Id == userId);
+        if (subscriberRecord == null) throw new NoContentException("User has no subscribe/unsubscribe requests for the report");
+
+        UserProduct? userProduct = await this.Context.UserProducts.FirstOrDefaultAsync(x => x.UserId == userId && x.ProductId == productId && x.RequestedIsSubscribedStatus.HasValue);
+        if (userProduct != null) {
+            userProduct.RequestedIsSubscribedStatus = null;
+            userProduct.SubscriptionChangeActioned = null;
+            saveChanges = true;
         }
         return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
     }

@@ -3,18 +3,20 @@ import React from 'react';
 import { useUsers } from 'store/hooks/admin';
 import {
   FlexboxTable,
-  INotificationModel,
+  IProductModel,
   ITableInternal,
   ITablePage,
   ITableSort,
-  IUserModel,
+  // IUserModel,
+  IUserSubscriberModel,
 } from 'tno-core';
 
 import { subscriberColumns } from './constants';
 import { ProductFilter } from './ProductFilter';
+import * as styled from './styled';
 
 export const ProductSubscribersForm = () => {
-  const { values, setFieldValue } = useFormikContext<INotificationModel>();
+  const { values, setFieldValue } = useFormikContext<IProductModel>();
   const [{ users }, { findUsers }] = useUsers();
 
   React.useEffect(() => {
@@ -26,14 +28,17 @@ export const ProductSubscribersForm = () => {
   }, []);
 
   const handlePageChange = React.useCallback(
-    async (page: ITablePage, table: ITableInternal<IUserModel>) => {
+    async (page: ITablePage, table: ITableInternal<IUserSubscriberModel>) => {
       await findUsers({ page: page.pageIndex + 1, quantity: page.pageSize });
     },
     [findUsers],
   );
 
   const handleSortChange = React.useCallback(
-    async (sort: ITableSort<IUserModel>[], table: ITableInternal<IUserModel>) => {
+    async (
+      sort: ITableSort<IUserSubscriberModel>[],
+      table: ITableInternal<IUserSubscriberModel>,
+    ) => {
       const sorts = sort
         .filter((s) => s.isSorted)
         .map((s) => `${s.id}${s.isSortedDesc ? ' desc' : ''}`);
@@ -43,7 +48,7 @@ export const ProductSubscribersForm = () => {
   );
 
   return (
-    <div>
+    <styled.ProductSubscribersForm>
       <ProductFilter
         onSearch={async (value: string) => {
           await findUsers({ page: 1, quantity: users.quantity, keyword: value });
@@ -52,7 +57,7 @@ export const ProductSubscribersForm = () => {
       <FlexboxTable
         rowId="id"
         columns={subscriberColumns(values, setFieldValue)}
-        data={users.items}
+        data={users.items as IUserSubscriberModel[]}
         manualPaging
         pageIndex={users.page}
         pageSize={users.quantity}
@@ -61,6 +66,6 @@ export const ProductSubscribersForm = () => {
         onSortChange={handleSortChange}
         showSort
       />
-    </div>
+    </styled.ProductSubscribersForm>
   );
 };
