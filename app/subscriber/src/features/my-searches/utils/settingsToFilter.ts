@@ -1,5 +1,5 @@
 import { getActionFilters } from 'features/search-page/utils/getActionFilter';
-import { IActionModel, IFilterModel } from 'tno-core';
+import { IActionModel, IFilterModel, IFilterSettingsModel } from 'tno-core';
 
 /** function that extracts the filter settings into a state that can be stored in redux
  * @param filterRow - the filter row to extract the settings from
@@ -11,7 +11,7 @@ export const settingsToFilter = (
   searchId: number,
   topStoryId: number,
   actions?: IActionModel[],
-) => {
+): IFilterSettingsModel => {
   return {
     actions: filterRow.settings.actions?.find((action) => action.id === topStoryId)
       ? getActionFilters(filterRow.settings, actions ?? [])
@@ -24,17 +24,15 @@ export const settingsToFilter = (
     inStory: filterRow.settings.inStory,
     mediaTypeIds: filterRow.settings.mediaTypeIds,
     page: filterRow.settings.page,
-    publishedEndOn: filterRow.settings.endDate,
-    publishedStartOn: filterRow.settings.startDate,
-    savedSearchId: searchId,
-    searchTerm: filterRow.settings.search,
+    endDate: filterRow.settings.endDate,
+    startDate: filterRow.settings.startDate,
+    search: filterRow.settings.search,
     searchUnpublished: filterRow.settings.searchUnpublished,
     section: filterRow.settings.section,
     sentiment: filterRow.settings.sentiment,
     seriesIds: filterRow.settings.seriesIds,
     sourceIds: filterRow.settings.sourceIds,
     tags: filterRow.settings.tags,
-    pageIndex: 0,
     size: 500,
     sort: [],
   };

@@ -8,7 +8,7 @@ import * as styled from './styled';
  */
 export const TooltipMenu: React.FC<ITooltip> = ({ ...rest }) => {
   return (
-    <styled.TooltipMenu noArrow className="react-tooltip" {...rest}>
+    <styled.TooltipMenu noArrow variant="light" className="react-tooltip" {...rest}>
       {rest.children}
     </styled.TooltipMenu>
   );

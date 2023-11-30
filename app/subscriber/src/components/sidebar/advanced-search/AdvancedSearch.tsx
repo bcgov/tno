@@ -25,6 +25,7 @@ import {
   ContentSection,
   ContributorSection,
   DateSection,
+  ElasticInfo,
   ExpandableRow,
   MediaSection,
   MediaTypeSection,
@@ -149,6 +150,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
           </Show>
           {/* SEARCH FOR: */}
           <Row className="search-for-row">
+            <ElasticInfo />
             <label className="label">SEARCH FOR: </label>
             <Col className="text-area-container">
               <TextArea

@@ -2,17 +2,13 @@ import styled from 'styled-components';
 import { Row } from 'tno-core';
 
 export const AdvancedSearch = styled(Row)`
-  /* ADVANCED SEARCH CONTAINER */
-  /* background-color: white;
-  margin-bottom: 0.25em;
-  margin-left: 0.25em;
-  margin-right: 0.25em;
-  box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.2);
-  border-radius: 0.75em; */
-
   .page-section {
     width: 100%;
     overflow-x: hidden;
+  }
+
+  .search-for-row {
+    margin-top: 0.5em;
   }
 
   /* BOTTOM SEARCH BAR */
