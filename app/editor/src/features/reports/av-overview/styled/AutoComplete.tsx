@@ -6,17 +6,6 @@ export const baseButtonMixin = css`
   padding: 0;
 `;
 
-export const ValueWrapper = styled.input`
-  width: 100%;
-  padding-left: 8px;
-  padding-right: 32px;
-  height: 32px;
-  box-sizing: border-box;
-  border-radius: 1px;
-  border: 1px solid #003366;
-  line-height: 32px;
-`;
-
 export const AutoCompleteContainer = styled.ul`
   background: #fff;
   padding: 8px 0;
