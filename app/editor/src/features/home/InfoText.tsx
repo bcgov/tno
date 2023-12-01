@@ -29,7 +29,9 @@ export const InfoText: React.FC = () => {
         <li>Articles related to major stories.</li>
       </ul>
       <Show visible={systemMessage.isEnabled}>
-        <p className="system-message">{parse(systemMessage.message) ?? ''}</p>
+        <p className="system-message">
+          {systemMessage.message ? parse(systemMessage.message) : ''}
+        </p>
       </Show>
       <div className="email">
         <a style={{ marginTop: 25 }} href="mailto:tnonews-help@gov.bc.ca">
