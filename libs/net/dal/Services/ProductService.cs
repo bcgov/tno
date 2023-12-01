@@ -249,6 +249,7 @@ public class ProductService : BaseService<Product, int>, IProductService
             }
         } else {
             this.Context.UserProducts.Add(new UserProduct(userId, productId) {IsSubscribed = false, RequestedIsSubscribedStatus = true, SubscriptionChangeActioned = false});
+            saveChanges = true;
         }
         return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
     }
