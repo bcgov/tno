@@ -1,8 +1,9 @@
+import { SubscriberTableContainer } from 'components/table';
+import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
 import { FaFolderPlus } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Tooltip } from 'react-tooltip';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
 import { Col, FlexboxTable, IFolderModel, Modal, Row, Text, useModal } from 'tno-core';
 
@@ -81,15 +82,17 @@ export const MyFolders = () => {
         </button>
       </Row>
       <Row>
-        <FlexboxTable
-          pagingEnabled={false}
-          columns={columns(setActive, editable, handleSave, active)}
-          rowId={'id'}
-          onRowClick={(e) => navigate(`/folders/${e.original.id}`)}
-          data={myFolders}
-          showActive={false}
-        />
-        <Tooltip
+        <SubscriberTableContainer>
+          <FlexboxTable
+            pagingEnabled={false}
+            columns={columns(setActive, editable, handleSave, active)}
+            rowId={'id'}
+            onRowClick={(e) => navigate(`/folders/${e.original.id}`)}
+            data={myFolders}
+            showActive={false}
+          />
+        </SubscriberTableContainer>
+        <TooltipMenu
           clickable
           openOnClick
           place="right"
@@ -120,7 +123,7 @@ export const MyFolders = () => {
               Delete this folder
             </div>
           </Col>
-        </Tooltip>
+        </TooltipMenu>
       </Row>
       <Modal
         headerText="Confirm Removal"
