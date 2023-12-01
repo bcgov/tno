@@ -4,6 +4,7 @@ import { Landing } from 'features/landing';
 import { Login } from 'features/login';
 import { ManageFolder } from 'features/manage-folder';
 import { MyColleagues } from 'features/my-colleagues';
+import { ColleagueEdit } from 'features/my-colleagues/ColleagueEdit';
 import { MyProducts } from 'features/my-products';
 import { MyReports, ReportAdmin, ReportEdit, ReportView } from 'features/my-reports';
 import { SearchPage } from 'features/search-page/SearchPage';
@@ -59,6 +60,12 @@ export const AppRouter: React.FC<IAppRouter> = () => {
           path="/colleagues"
           element={
             <PrivateRoute claims={Claim.subscriber} element={<MyColleagues />}></PrivateRoute>
+          }
+        />
+        <Route
+          path="/colleague/:id/edit"
+          element={
+            <PrivateRoute claims={Claim.subscriber} element={<ColleagueEdit />}></PrivateRoute>
           }
         />
         <Route

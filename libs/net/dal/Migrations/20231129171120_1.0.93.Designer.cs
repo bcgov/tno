@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TNO.DAL;
@@ -14,9 +15,11 @@ using TNO.Entities.Models;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    partial class TNOContextModelSnapshot : ModelSnapshot
+    [Migration("20231129171120_1.0.93")]
+    partial class _1093
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4250,6 +4253,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("media_type_id");
 
+                    b.Property<int?>("MediaTypeSearchGroupId")
+                        .HasColumnType("integer")
+                        .HasColumnName("media_type_search_group_id");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -4314,54 +4321,6 @@ namespace TNO.DAL.Migrations
                         .IsUnique();
 
                     b.ToTable("source");
-                });
-
-            modelBuilder.Entity("TNO.Entities.SourceMediaTypeSearchMapping", b =>
-                {
-                    b.Property<int>("SourceId")
-                        .HasColumnType("integer")
-                        .HasColumnName("source_id");
-
-                    b.Property<int>("MediaTypeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("media_type_id");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("UpdatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("updated_by");
-
-                    b.Property<DateTime>("UpdatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("version")
-                        .HasDefaultValueSql("0");
-
-                    b.HasKey("SourceId", "MediaTypeId");
-
-                    b.HasIndex("MediaTypeId");
-
-                    b.ToTable("source_media_type_search_mapping");
                 });
 
             modelBuilder.Entity("TNO.Entities.SourceMetric", b =>
@@ -5282,14 +5241,6 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_subscribed");
 
-                    b.Property<bool?>("RequestedIsSubscribedStatus")
-                        .HasColumnType("boolean")
-                        .HasColumnName("requested_is_subscribed_status");
-
-                    b.Property<bool?>("SubscriptionChangeActioned")
-                        .HasColumnType("boolean")
-                        .HasColumnName("subscription_change_actioned");
-
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasColumnType("text")
@@ -5580,7 +5531,7 @@ namespace TNO.DAL.Migrations
                     b.HasOne("TNO.Entities.User", "Owner")
                         .WithMany("Contents")
                         .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("TNO.Entities.Series", "Series")
                         .WithMany("Contents")
@@ -6156,32 +6107,13 @@ namespace TNO.DAL.Migrations
                     b.HasOne("TNO.Entities.User", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("License");
 
                     b.Navigation("MediaType");
 
                     b.Navigation("Owner");
-                });
-
-            modelBuilder.Entity("TNO.Entities.SourceMediaTypeSearchMapping", b =>
-                {
-                    b.HasOne("TNO.Entities.MediaType", "MediaType")
-                        .WithMany("SourceSearchMappingsManyToMany")
-                        .HasForeignKey("MediaTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TNO.Entities.Source", "Source")
-                        .WithMany("MediaTypeSearchMappingsManyToMany")
-                        .HasForeignKey("SourceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MediaType");
-
-                    b.Navigation("Source");
                 });
 
             modelBuilder.Entity("TNO.Entities.SourceMetric", b =>
@@ -6520,8 +6452,6 @@ namespace TNO.DAL.Migrations
 
                     b.Navigation("Ingests");
 
-                    b.Navigation("SourceSearchMappingsManyToMany");
-
                     b.Navigation("Sources");
                 });
 
@@ -6609,8 +6539,6 @@ namespace TNO.DAL.Migrations
                     b.Navigation("EarnedMedia");
 
                     b.Navigation("Ingests");
-
-                    b.Navigation("MediaTypeSearchMappingsManyToMany");
 
                     b.Navigation("MetricsManyToMany");
 
