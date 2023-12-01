@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { Col } from 'tno-core';
 
 export const SubscriberTableContainer = styled(Col)`
+  width: 100%;
   .table {
     width: 100%;
     overflow: hidden;

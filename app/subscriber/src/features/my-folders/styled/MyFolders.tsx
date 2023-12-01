@@ -3,20 +3,11 @@ import { Col } from 'tno-core';
 
 export const MyFolders = styled(Col)`
   max-height: calc(100vh - 6.5em);
-  .react-tooltip {
-    z-index: 999;
-  }
-  .options {
-    box-shadow: 0 0 0.5rem #c7c7c7;
-    opacity: 1;
-    padding-left: 1.5em;
-    padding-right: 1.5em;
-    .option {
-      &:hover {
-        text-decoration: underline;
-        color: ${(props) => props.theme.css.sidebarIconHoverColor};
-        cursor: pointer;
-      }
+  /* option in tooltip */
+  .option {
+    &:hover {
+      cursor: pointer;
+      text-decoration: underline;
     }
   }
   .folder-name {
@@ -30,42 +21,6 @@ export const MyFolders = styled(Col)`
     }
     margin-left: auto;
     margin-bottom: 0.5em;
-  }
-  /* table styling */
-  .table {
-    width: 100%;
-    overflow: hidden;
-    .re-name {
-      height: 1.5em;
-      padding: 0;
-      &:focus {
-        box-shadow: none;
-      }
-    }
-    .row {
-      &:hover {
-        cursor: pointer;
-      }
-    }
-    .header {
-      background-color: #f5f6fa;
-      font-family: 'Roboto', sans-serif;
-      font-size: 0.8em;
-      /* box shadow only on bottom */
-      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
-      border: none;
-      color: #7c7e8a;
-
-      .column {
-        background-color: #f5f6fa;
-      }
-    }
-    .elips {
-      &:hover {
-        color: ${(props) => props.theme.css.sidebarIconHoverColor};
-        transform: scale(1.1);
-      }
-    }
   }
   .create-button {
     &:focus {
@@ -85,6 +40,18 @@ export const MyFolders = styled(Col)`
     &:hover {
       transform: scale(1.1);
       color: ${(props) => props.theme.css.sidebarIconHoverColor};
+    }
+  }
+
+  .re-name {
+    input {
+      outline: none;
+      border: none;
+      box-shadow: none;
+      border-bottom: 1px solid ${(props) => props.theme.css.btnPkPrimary};
+      border-radius: 0;
+      font-size: 1em;
+      padding: 0;
     }
   }
 `;
