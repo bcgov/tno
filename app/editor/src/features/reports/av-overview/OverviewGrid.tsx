@@ -126,7 +126,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
     }
   };
 
-  const generateListOfSummaries = (itemIndex: number) => {
+  const generateListOfSummaries = () => {
     const sections = values?.sections;
     let summaries: any[] = [];
     sections.forEach((section) => {
@@ -137,7 +137,6 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
           index: number,
         ) {
           if (
-            index !== itemIndex && // do not display current index in list of summaries
             !acc.some((summary) => summary.text === current.summary) // do not display duplicates
           )
             acc.push({ index, text: current.summary });
@@ -148,6 +147,8 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
     });
     return summaries;
   };
+
+  const summaries = generateListOfSummaries();
 
   return (
     <styled.OverviewGrid>
@@ -177,8 +178,6 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                     ref={provided.innerRef}
                   >
                     {items.map((item, itemIndex) => {
-                      // every items list of summaries is unique as it shouldn't include the current
-                      const summaries = generateListOfSummaries(itemIndex);
                       const { suggestions } = search;
                       return (
                         <Draggable
@@ -255,7 +254,10 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                           const regex = new RegExp(`^${value}`, 'i');
                                           suggestions = summaries
                                             .sort()
-                                            .filter((v: Suggestion) => regex.test(v.text));
+                                            .filter(
+                                              (v: Suggestion) =>
+                                                regex.test(v.text) && v.index !== itemIndex,
+                                            );
                                         }
                                         setShowAutoCompleteForIndex(itemIndex);
                                         setSearch({ suggestions, text: value });
