@@ -127,19 +127,26 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
   };
 
   const generateListOfSummaries = (itemIndex: number) => {
-    return values?.sections?.[index].items.reduce(function (
-      acc: Array<{ index: number; text: string }>,
-      current: IAVOverviewSectionItemModel,
-      index: number,
-    ) {
-      if (
-        index !== itemIndex && // do not display current index in list of summaries
-        !acc.some((summary) => summary.text === current.summary) // do not display duplicates
-      )
-        acc.push({ index, text: current.summary });
-      return acc;
-    },
-    []);
+    const sections = values?.sections;
+    let summaries: any[] = [];
+    sections.forEach((section) => {
+      summaries.push(
+        ...section.items.reduce(function (
+          acc: Array<{ index: number; text: string }>,
+          current: IAVOverviewSectionItemModel,
+          index: number,
+        ) {
+          if (
+            index !== itemIndex && // do not display current index in list of summaries
+            !acc.some((summary) => summary.text === current.summary) // do not display duplicates
+          )
+            acc.push({ index, text: current.summary });
+          return acc;
+        },
+        []),
+      );
+    });
+    return summaries;
   };
 
   return (
