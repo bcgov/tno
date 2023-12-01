@@ -1,5 +1,6 @@
 import { PageSection } from 'components/section';
 import { filterFormat } from 'features/search-page/utils';
+import { handleEnterPressed } from 'features/utils';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
 import { FaPlay, FaRegSmile } from 'react-icons/fa';
@@ -102,13 +103,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
     );
   };
 
-  /** allow user to hit enter while searching */
-  const enterPressed = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
-
   /** get viewed filter if in modify mode */
   React.useEffect(() => {
     if (filterId && !viewedFilter) {
@@ -156,7 +150,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
               <TextArea
                 value={filter?.search}
                 className="text-area"
-                onKeyDown={enterPressed}
+                onKeyDown={(e) => handleEnterPressed(e, handleSearch, true)}
                 name="search"
                 onChange={(e) => storeFilter({ ...filter, search: e.target.value })}
               />
