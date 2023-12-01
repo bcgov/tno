@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.Extensions.Logging;
@@ -28,6 +29,7 @@ namespace TNO.Ches
         private TokenModel _token = null;
         private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly ILogger<IChesService> _logger;
+
         #endregion
 
         #region Properties
@@ -235,6 +237,8 @@ namespace TNO.Ches
             email.Cc = email.Cc?.NotNullOrWhiteSpace();
             email.Bcc = email.Bcc?.NotNullOrWhiteSpace();
 
+            ConvertInlineImagesToAttachments(email);
+
             if (this.Options.EmailEnabled)
                 return await SendAsync<EmailResponseModel, IEmail>("/email", HttpMethod.Post, email);
 
@@ -291,10 +295,39 @@ namespace TNO.Ches
                 c.Bcc = c.Bcc.NotNullOrWhiteSpace();
             });
 
+            ConvertInlineImagesToAttachments(email);
+
             if (this.Options.EmailEnabled)
                 return await SendAsync<EmailResponseModel, IEmailMerge>("/emailMerge", HttpMethod.Post, email);
 
             return new EmailResponseModel();
+        }
+
+        private static void ConvertInlineImagesToAttachments(IEmailBase email)
+        {
+            // convert any embedded base64 images into attachments
+            var base64InlineImageRegex = "src=\\\"data:(image\\/[a-zA-Z]*);base64,([^\\\"]*)\\\"";
+            var inlineImageMatches = Regex.Matches(email.Body, base64InlineImageRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            if (inlineImageMatches.Any())
+            {
+                var imageAttachments = new List<AttachmentModel>();
+                foreach (Match m in inlineImageMatches)
+                {
+
+                    var imageMediaType = m.Groups[1].Value;
+                    var base64Image = m.Groups[2].Value;
+                    var attachment = new AttachmentModel
+                    {
+                        ContentType = imageMediaType,
+                        Encoding = "base64",
+                        Filename = Guid.NewGuid().ToString(),
+                        Content = base64Image
+                    };
+                    imageAttachments.Add(attachment);
+                    email.Body = email.Body.Replace(m.Value, $"src=\"cid:{attachment.Filename}\"");
+                }
+                email.Attachments = imageAttachments;
+            }
         }
 
         /// <summary>
