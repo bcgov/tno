@@ -1,4 +1,5 @@
 export * from './useAVOverviewInstances';
+export * from './useColleagues';
 export * from './useContent';
 export * from './useFilters';
 export * from './useFolders';

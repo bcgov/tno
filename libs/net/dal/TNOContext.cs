@@ -114,6 +114,8 @@ public class TNOContext : DbContext
     public DbSet<UserProduct> UserProducts => Set<UserProduct>();
     #endregion
 
+    public DbSet<UserColleague> UserColleagues => Set<UserColleague>();
+
     #endregion
 
     #region Constructors

@@ -12,6 +12,8 @@ using TNO.Keycloak;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
+using TNO.API.Areas.Admin.Models.User;
+using UserModel = TNO.API.Areas.Admin.Models.User.UserModel;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
 
@@ -32,6 +34,7 @@ public class UserController : ControllerBase
 {
     #region Variables
     private readonly IUserService _userService;
+    private readonly IUserColleagueService _userColleagueService;
     private readonly ICssHelper _cssHelper;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
@@ -41,11 +44,13 @@ public class UserController : ControllerBase
     /// Creates a new instance of a UserController object, initializes with specified parameters.
     /// </summary>
     /// <param name="userService"></param>
+    /// <param name="userColleagueService"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="cssHelper"></param>
-    public UserController(IUserService userService, ICssHelper cssHelper, IOptions<JsonSerializerOptions> serializerOptions)
+    public UserController(IUserService userService, IUserColleagueService userColleagueService, ICssHelper cssHelper, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _userService = userService;
+        _userColleagueService = userColleagueService;
         _cssHelper = cssHelper;
         _serializerOptions = serializerOptions.Value;
 
@@ -76,6 +81,79 @@ public class UserController : ControllerBase
         }
         var result = _userService.UpdatePreferences((User)model);
         return new JsonResult(new UserModel(result!, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Find colleagues for the current.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("colleagues")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserColleagueModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "User" })]
+    public IActionResult FindColleaguesByUserId()
+    {
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var colleagues = _userColleagueService.FindColleaguesByUserId(user.Id) ?? throw new NoContentException();
+        return new JsonResult(colleagues);
+    }
+
+    /// <summary>
+    /// Add user for the specified 'id'.
+    /// </summary>
+    /// <param name="userColleagueModel"></param>
+    /// <returns></returns>
+    [HttpPost("colleagues")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserColleagueModel), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "User" })]
+    public IActionResult AddColleague(UserColleagueModel userColleagueModel)
+    {
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        userColleagueModel.User.Id = user.Id;
+        var result = _userColleagueService.AddColleague((UserColleague)userColleagueModel);
+        return CreatedAtAction(nameof(AddColleague), new { id = result.ColleagueId }, userColleagueModel);
+    }
+
+    /// <summary>
+    /// Add user for the specified 'id'.
+    /// </summary>
+    /// <param name="userColleagueModel"></param>
+    /// <returns></returns>
+    [HttpPut("colleagues")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "User" })]
+    public IActionResult UpdateColleague(UserColleagueModel userColleagueModel)
+    {
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        userColleagueModel.User.Id = user.Id;
+        var result = _userColleagueService.UpdateColleague((UserColleague)userColleagueModel);
+        return CreatedAtAction(nameof(UpdateColleague), new { id = result.ColleagueId }, userColleagueModel);
+    }
+
+    /// <summary>
+    /// Add user for the specified 'id'.
+    /// </summary>
+    /// <param name="colleagueId"></param>
+    /// <returns></returns>
+    [HttpDelete("colleagues/{colleagueId}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "User" })]
+    public IActionResult DeleteColleague(int colleagueId)
+    {
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var result = _userColleagueService.RemoveColleague(user.Id, colleagueId);
+        return new JsonResult(result);
     }
     #endregion
 }

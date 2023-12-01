@@ -1,6 +1,7 @@
 export * from './interfaces';
 export * from './useApiSubscriberAVOverviews';
 export * from './useApiSubscriberCache';
+export * from './useApiSubscriberColleagues';
 export * from './useApiSubscriberContents';
 export * from './useApiSubscriberContributors';
 export * from './useApiSubscriberFilters';
