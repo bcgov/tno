@@ -1,9 +1,11 @@
 import { KeyboardEvent } from 'react';
 
-export const handleEnterPressed = (
-  event: KeyboardEvent<HTMLInputElement>,
-  callback: () => void,
-) => {
+/**
+ * Handles enter key press on an element
+ * @param event generic keyboard event
+ * @param callback callback function to be called when enter is pressed on the element
+ */
+export const handleEnterPressed = <T>(event: KeyboardEvent<T>, callback: () => void) => {
   if (event.key === 'Enter') {
     callback();
   }
