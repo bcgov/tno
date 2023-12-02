@@ -15,9 +15,6 @@
     <ProjectReference Include="..\..\..\libs\net\kafka\TNO.Kafka.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
-  </ItemGroup>
 
   <ItemGroup>
     <Content Include="*.json">

@@ -2,7 +2,6 @@ using System.IO;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MimeTypes;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Models.Settings;
 using TNO.Core.Exceptions;

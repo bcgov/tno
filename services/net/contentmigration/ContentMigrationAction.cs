@@ -255,8 +255,16 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 
         if ((importMigrationType == ImportMigrationType.Historic) || (importMigrationType == ImportMigrationType.Recent))
         {
-            importDateStart = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateStart")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateStart") : null;
-            importDateEnd = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateEnd")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateEnd") : null;
+            try {
+                importDateStart = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateStart")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateStart") : null;
+            } catch (TNO.Core.Exceptions.ConfigurationException) {
+                importDateStart = null;
+            }
+            try {
+                importDateEnd = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateEnd")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateEnd") : null;
+            } catch (TNO.Core.Exceptions.ConfigurationException) {
+                importDateEnd = null;
+            }
             try
             {
                 creationDateOfLastImport = manager.Ingest.GetConfigurationValue<DateTime>("creationDateOfLastImport");
