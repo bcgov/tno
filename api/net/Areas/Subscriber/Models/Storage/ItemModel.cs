@@ -1,5 +1,3 @@
-using MimeTypes;
-
 namespace TNO.API.Areas.Subscriber.Models.Storage;
 
 /// <summary>
@@ -64,10 +62,10 @@ public class ItemModel
         {
             var ext = System.IO.Path.GetExtension(path).Replace(".", "");
             if (!string.IsNullOrWhiteSpace(ext)) this.Extension = ext;
-            var info = new System.IO.FileInfo(path);
-            this.Size = info.Length;
-            this.MimeType = MimeTypeMap.GetMimeType(this.Extension);
-            this.Modified = info.LastWriteTime;
+            var fileInfo = new System.IO.FileInfo(path);
+            this.Size = fileInfo.Length;
+            this.MimeType = this.MimeType = MimeTypes.GetMimeType(fileInfo.Name);
+            this.Modified = fileInfo.LastWriteTime;
         }
         else
         {
@@ -93,7 +91,7 @@ public class ItemModel
             if (!string.IsNullOrWhiteSpace(ext)) this.Extension = ext;
             this.Size = file.Attributes.Size;
             if (!String.IsNullOrWhiteSpace(this.Extension))
-                this.MimeType = MimeTypeMap.GetMimeType(this.Extension);
+                this.MimeType = MimeTypes.GetMimeType(file.Name);
         }
     }
 
@@ -115,7 +113,7 @@ public class ItemModel
             if (!string.IsNullOrWhiteSpace(ext)) this.Extension = ext;
             this.Size = attributes.Size;
             if (!String.IsNullOrWhiteSpace(this.Extension))
-                this.MimeType = MimeTypeMap.GetMimeType(this.Extension);
+                this.MimeType = MimeTypes.GetMimeType(name);
         }
     }
     #endregion

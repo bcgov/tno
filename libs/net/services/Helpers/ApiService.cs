@@ -5,7 +5,6 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MimeTypes;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
@@ -518,7 +517,7 @@ public class ApiService : IApiService
         var url = this.Options.ApiUrl.Append($"services/contents/{contentId}/upload?version={version}");
         var fileContent = new StreamContent(file);
         var ext = Path.GetExtension(fileName).Replace(".", "");
-        fileContent.Headers.ContentType = new MediaTypeHeaderValue(MimeTypeMap.GetMimeType(ext));
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(MimeTypes.GetMimeType(Path.GetFileName(fileName)));
         var form = new MultipartFormDataContent
         {
             { fileContent, "files", fileName }
