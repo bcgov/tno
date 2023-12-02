@@ -1,0 +1,54 @@
+using TNO.Core.Converters;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
+
+namespace TNO.Ches.Models
+{
+    public interface IEmailBase
+    {
+        /// <summary>
+        /// get/set - Who the email are from (i.e. First Last <first.last@email.com>).
+        /// </summary>
+        string From { get; set; }
+
+        /// <summary>
+        /// get/set - The email body type.
+        /// </summary>
+        [JsonConverter(typeof(EnumValueJsonConverter<EmailBodyTypes>))]
+        EmailBodyTypes BodyType { get; set; }
+
+        /// <summary>
+        /// get/set - The email encoding.
+        /// </summary>
+        [JsonConverter(typeof(EnumValueJsonConverter<EmailEncodings>))]
+        EmailEncodings Encoding { get; set; }
+
+
+        /// <summary>
+        /// get/set - The email priority.
+        /// </summary>
+        [JsonConverter(typeof(EnumValueJsonConverter<EmailPriorities>))]
+        EmailPriorities Priority { get; set; }
+
+
+        /// <summary>
+        /// get/set - The email subject (template).
+        /// </summary>
+        string Subject { get; set; }
+
+        /// <summary>
+        /// get/set - The email body (template).
+        /// </summary>
+        string Body { get; set; }
+
+        /// <summary>
+        /// get/set - A way to identify related email.
+        /// </summary>
+        string Tag { get; set; }
+
+        /// <summary>
+        /// get/set - An array of attachments.
+        /// </summary>
+        IEnumerable<IAttachment> Attachments { get; set; }
+    }
+}

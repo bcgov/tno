@@ -5,29 +5,28 @@ using System.Text.Json.Serialization;
 
 namespace TNO.Ches.Models
 {
-    public interface IEmail
+    public interface IEmail: IEmailBase
     {
-        string From { get; set; }
+        /// <summary>
+        /// get/set - Email addresses to go in the To: field
+        /// </summary>
         IEnumerable<string> To { get; set; }
+
+        /// <summary>
+        /// get/set - Email addresses to go in the CC: field
+        /// </summary>
         IEnumerable<string> Cc { get; set; }
+
+        /// <summary>
+        /// get/set - Email addresses to go in the BCC: field
+        /// </summary>
         IEnumerable<string> Bcc { get; set; }
 
-        [JsonConverter(typeof(EnumValueJsonConverter<EmailBodyTypes>))]
-        EmailBodyTypes BodyType { get; set; }
-
-        [JsonConverter(typeof(EnumValueJsonConverter<EmailEncodings>))]
-        EmailEncodings Encoding { get; set; }
-
-        [JsonConverter(typeof(EnumValueJsonConverter<EmailPriorities>))]
-        EmailPriorities Priority { get; set; }
-        string Subject { get; set; }
-        string Body { get; set; }
-        string Tag { get; set; }
-
+        /// <summary>
+        /// get/set - if set, will delay sending until the set time
+        /// </summary>
         [JsonConverter(typeof(MicrosecondEpochJsonConverter))]
         [JsonPropertyName("delayTS")]
         DateTime SendOn { get; set; }
-
-        IEnumerable<IAttachment> Attachments { get; set; }
     }
 }
