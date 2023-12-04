@@ -37,7 +37,7 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
   const [{ getReportTemplates }] = useReportTemplates();
   const [{ requests }] = useAppStore();
 
-  const [report, setReport] = React.useState<IReportForm>(defaultReport(userInfo?.id));
+  const [report, setReport] = React.useState<IReportForm>(defaultReport(userInfo?.id ?? 0, 0));
 
   React.useEffect(() => {
     if (!myReports.length) {

@@ -65,16 +65,31 @@ public static class ReportExtensions
     }
 
     /// <summary>
+    /// Get the summary of the specified content.
+    /// Extract the custom values if they have been provided by the report owner.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public static string GetSummary(this ContentModel content, ReportEngineContentModel context)
+    {
+        return context.OwnerId.HasValue && content.Versions.ContainsKey(context.OwnerId.Value) ? content.Versions[context.OwnerId.Value].Summary : content.Summary;
+    }
+
+    /// <summary>
     /// Get the body or summary of the specified content.
     /// If a transcript is available then get the body.
-    /// If the content is audio or video get the summary.
+    /// If the content is audio or video and the transcript has not been approved get the summary.
     /// Otherwise get the body.
     /// </summary>
     /// <param name="content"></param>
+    /// <param name="context"></param>
     /// <returns></returns>
-    public static string GetBody(this ContentModel content)
+    public static string GetBody(this ContentModel content, ReportEngineContentModel context)
     {
-        return IsTranscriptAvailable(content) ? content.Body : (IsAV(content) ? content.Summary : content.Body);
+        var contentSummary = content.GetSummary(context);
+        var contentBody = context.OwnerId.HasValue && content.Versions.ContainsKey(context.OwnerId.Value) ? content.Versions[context.OwnerId.Value].Body : content.Body;
+        return IsTranscriptAvailable(content) ? contentBody : (IsAV(content) ? contentSummary : contentBody);
     }
 
     /// <summary>
@@ -147,7 +162,7 @@ public static class ReportExtensions
     /// <param name="content"></param>
     /// <param name="format"></param>
     /// <returns></returns>
-    public static string GetSentimentIcon(this ContentModel content, string format)
+    public static string GetSentimentIcon(this ContentModel content, string format = "{0}")
     {
         var tone = content.TonePools.FirstOrDefault()?.Value;
         var icon = GetSentimentIcon(tone);
@@ -212,6 +227,90 @@ public static class ReportExtensions
             default:
                 return content.OtherSource;
         }
+    }
+
+    /// <summary>
+    /// Get the sentiment output.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public static string GetSentiment(this ContentModel content, ReportEngineContentModel context)
+    {
+        return (context.Settings.Headline.ShowSentiment ? content.GetSentimentIcon() : "");
+    }
+
+    /// <summary>
+    /// Get the source name output.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public static string GetSource(this ContentModel content, ReportEngineContentModel context)
+    {
+        return context.Settings.Headline.ShowShortName && !String.IsNullOrEmpty(content.Source?.ShortName)
+            ? $"{content.Source?.ShortName}"
+            : (context.Settings.Headline.ShowSource
+                ? content.OtherSource
+                : "");
+    }
+
+    /// <summary>
+    /// Get the headline for the specified content item.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public static string GetHeadline(this ContentModel content, ReportEngineContentModel context)
+    {
+        return context.OwnerId.HasValue && content.Versions.ContainsKey(context.OwnerId.Value) ? content.Versions[context.OwnerId.Value].Headline : content.Headline;
+    }
+
+    /// <summary>
+    /// Get the byline for the specified content item.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public static string GetByline(this ContentModel content, ReportEngineContentModel context)
+    {
+        return context.OwnerId.HasValue && content.Versions.ContainsKey(context.OwnerId.Value) ? content.Versions[context.OwnerId.Value].Byline : content.Byline;
+    }
+
+    /// <summary>
+    /// Get the sentiment output.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="context"></param>
+    /// <param name="utcOffset"></param>
+    /// <returns></returns>
+    public static string GetPublishedOn(this ContentModel content, ReportEngineContentModel context, int utcOffset = 0)
+    {
+        return context.Settings.Headline.ShowPublishedOn
+                ? $"{content.PublishedOn?.AddHours(utcOffset):dd-MMM-yyyy}"
+                : "";
+    }
+
+    /// <summary>
+    /// Get the full headline including sentiment, source, publishedOn output.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="context"></param>
+    /// <param name="utcOffset"></param>
+    /// <param name="includeLink"></param>
+    /// <param name="href"></param>
+    /// <param name="target"></param>
+    /// <returns></returns>
+    public static string GetFullHeadline(this ContentModel content, ReportEngineContentModel context, int utcOffset = 0, bool includeLink = false, string href = "", string target = "")
+    {
+        var sentiment = content.GetSentiment(context);
+        var headline = content.GetHeadline(context);
+        var actualHref = String.IsNullOrWhiteSpace(href) ? $"{context.ViewContentUrl}{content.Id}" : href;
+        var actualTarget = String.IsNullOrWhiteSpace(target) ? "" : $" target=\"{target}\"";
+        var link = includeLink ? $"<a href=\"{actualHref}\"{actualTarget}>{headline}</a>" : headline;
+        var source = content.GetSource(context);
+        var publishedOn = content.GetPublishedOn(context, utcOffset);
+        return $"{(String.IsNullOrWhiteSpace(sentiment) ? "" : $"{sentiment} - ")}{link}{(String.IsNullOrWhiteSpace(source) ? "" : $" - {source}")}{(String.IsNullOrWhiteSpace(publishedOn) ? "" : $" - {publishedOn}")}";
     }
     #endregion
 }

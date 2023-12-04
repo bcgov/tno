@@ -1,5 +1,4 @@
-﻿using System.Web;
-using TNO.API.Models.Settings;
+﻿using TNO.API.Models.Settings;
 using TNO.Core.Extensions;
 
 namespace TNO.TemplateEngine.Models.Reports;
@@ -19,12 +18,18 @@ public class ReportEngineContentModel : BaseTemplateModel<IEnumerable<ContentMod
     /// get/set - The report settings.
     /// </summary>
     public ReportSettingsModel Settings { get; set; } = new();
+
+    /// <summary>
+    /// get/set - The user who owns the report.
+    /// </summary>
+    public int? OwnerId { get; set; }
     #endregion
 
     #region Constructors
     /// <summary>
     /// Creates a new instance of a ReportEngineContentModel.
     /// </summary>
+    /// <param name="report"></param>
     public ReportEngineContentModel() : base(Array.Empty<ContentModel>())
     {
     }
@@ -32,25 +37,27 @@ public class ReportEngineContentModel : BaseTemplateModel<IEnumerable<ContentMod
     /// <summary>
     /// Creates a new instance of a ReportEngineContentModel, initializes with specified parameters.
     /// </summary>
+    /// <param name="report"></param>
     /// <param name="content"></param>
-    /// <param name="settings"></param>
-    public ReportEngineContentModel(IEnumerable<ContentModel> content, ReportSettingsModel settings)
+    public ReportEngineContentModel(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<ContentModel> content)
         : base(content)
     {
-        this.Settings = settings;
+        this.Settings = report.Settings;
+        this.OwnerId = report.OwnerId;
     }
 
     /// <summary>
     /// Creates a new instance of a ReportEngineContentModel, initializes with specified parameters.
     /// </summary>
+    /// <param name="report"></param>
     /// <param name="sections"></param>
-    /// <param name="settings"></param>
     /// <param name="uploadPath"></param>
-    public ReportEngineContentModel(Dictionary<string, ReportSectionModel> sections, ReportSettingsModel settings, string? uploadPath = null)
+    public ReportEngineContentModel(API.Areas.Services.Models.Report.ReportModel report, Dictionary<string, ReportSectionModel> sections, string? uploadPath = null)
         : base(Array.Empty<ContentModel>())
     {
         this.Sections = sections;
-        this.Settings = settings;
+        this.Settings = report.Settings;
+        this.OwnerId = report.OwnerId;
 
         // Reference all section content in the root Content collection.
         this.Content = sections.SelectMany(s => s.Value.Content).DistinctBy(c => c.Id);

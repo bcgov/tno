@@ -169,6 +169,13 @@ public class ContentModel
     public string? ImageContent { get; set; }
 
     /// <summary>
+    /// get - Dictionary of versions associated with this content.
+    /// This provides subscribers the ability to customize the content.
+    /// The key is the user's ID.
+    /// </summary>
+    public Dictionary<int, Entities.Models.ContentVersion> Versions { get; set; } = new();
+
+    /// <summary>
     /// get/set - An array of actions.
     /// </summary>
     public IEnumerable<ContentActionModel> Actions { get; set; } = Array.Empty<ContentActionModel>();
@@ -248,6 +255,8 @@ public class ContentModel
         this.IsPrivate = entity.IsPrivate;
         this.SortOrder = sortOrder;
 
+        this.Versions = entity.Versions;
+
         this.Actions = entity.ActionsManyToMany.Select(e => new ContentActionModel(e));
         this.Topics = entity.TopicsManyToMany.Select(e => new ContentTopicModel(e));
         this.Tags = entity.TagsManyToMany.Select(e => new ContentTagModel(e));
@@ -294,6 +303,8 @@ public class ContentModel
         this.IsApproved = model.IsApproved;
         this.IsPrivate = model.IsPrivate;
         this.SortOrder = sortOrder;
+
+        this.Versions = model.Versions;
 
         this.Actions = model.Actions.Select(e => new ContentActionModel(e));
         this.Topics = model.Topics.Select(e => new ContentTopicModel(e));
@@ -342,6 +353,8 @@ public class ContentModel
         this.IsPrivate = model.IsPrivate;
         this.SortOrder = sortOrder;
 
+        this.Versions = model.Versions;
+
         this.Actions = model.Actions.Select(e => new ContentActionModel(e));
         this.Topics = model.Topics.Select(e => new ContentTopicModel(e));
         this.Tags = model.Tags.Select(e => new ContentTagModel(e));
@@ -388,6 +401,8 @@ public class ContentModel
         this.IsApproved = model.IsApproved;
         this.IsPrivate = model.IsPrivate;
         this.SortOrder = sortOrder;
+
+        this.Versions = model.Versions;
 
         this.Actions = model.Actions.Select(e => new ContentActionModel(e));
         this.Topics = model.Topics.Select(e => new ContentTopicModel(e));

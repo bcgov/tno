@@ -22,7 +22,7 @@ export const ReportSnapshot: React.FC = () => {
   const [{ requests }] = useAppStore();
   const hub = useApiHub();
 
-  const [report, setReport] = React.useState<IReportForm>(defaultReport);
+  const [report, setReport] = React.useState<IReportForm>(defaultReport(0, 0));
 
   React.useEffect(() => {
     const reportId = parseInt(id ?? '0');

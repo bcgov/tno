@@ -25,4 +25,6 @@ export const Settings = {
   AdvancedSearchMediaTypeGroups: 'AdvancedSearchMediaTypeGroups',
   /** The email address to send Product Subscription requests to. */
   ProductSubscriptionManagerEmail: 'ProductSubscriptionManagerEmail',
+  /** The default report template ID to use when creating new reports. */
+  DefaultReportTemplate: 'DefaultReportTemplateId',
 };

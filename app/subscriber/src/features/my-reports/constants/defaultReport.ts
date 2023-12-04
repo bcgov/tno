@@ -1,13 +1,13 @@
 import { IReportForm } from '../interfaces';
 import { defaultReportSchedule } from './defaultReportSchedule';
 
-export const defaultReport = (ownerId: number | undefined = 0): IReportForm => {
+export const defaultReport = (ownerId: number, templateId: number): IReportForm => {
   var report: IReportForm = {
     id: 0,
     name: '',
     description: '',
-    ownerId: ownerId ?? 0,
-    templateId: 0,
+    ownerId: ownerId,
+    templateId,
     isEnabled: true,
     isPublic: false,
     sortOrder: 0,

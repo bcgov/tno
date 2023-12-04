@@ -112,13 +112,13 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
     {
         // Fetch all content currently belonging to this report instance.
         var original = this.Context.ReportInstances.FirstOrDefault(ri => ri.Id == entity.Id) ?? throw new InvalidOperationException("Report instance does not exist");
-        var originalInstanceContent = this.Context.ReportInstanceContents
+        var originalInstanceContents = this.Context.ReportInstanceContents
             .AsNoTracking()
             .Include(ic => ic.Content)
             .Where(ric => ric.InstanceId == entity.Id).ToArray();
 
         // Delete removed content and add new content.
-        originalInstanceContent.Except(entity.ContentManyToMany).ForEach(ric =>
+        originalInstanceContents.Except(entity.ContentManyToMany).ForEach(ric =>
         {
             this.Context.Entry(ric).State = EntityState.Deleted;
             // Content that is private will only exist on a single report.
@@ -127,8 +127,8 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         });
         entity.ContentManyToMany.ForEach(ric =>
         {
-            var existingInstanceContent = originalInstanceContent.FirstOrDefault(o => o.ContentId == ric.ContentId && o.SectionName == ric.SectionName);
-            if (existingInstanceContent == null)
+            var originalInstanceContent = originalInstanceContents.FirstOrDefault(o => o.ContentId == ric.ContentId && o.SectionName == ric.SectionName);
+            if (originalInstanceContent == null)
             {
                 // If the content is new too, upload it to the database.
                 if (ric.Content?.Id == 0)
@@ -162,30 +162,49 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
             else
             {
                 if (ric.Content != null &&
-                    existingInstanceContent.Content != null &&
+                    originalInstanceContent.Content != null &&
                     entity.OwnerId.HasValue)
                 {
                     // TODO: Small security issue as the JSON could lie about this data.
                     if (ric.Content.IsPrivate)
                     {
-                        if (ric.Content.GuaranteeUid() && existingInstanceContent.Content.Uid != ric.Content.Uid) existingInstanceContent.Content.Uid = ric.Content.Uid;
-                        this.Context.UpdateContext(existingInstanceContent.Content, ric.Content);
-                        this.Context.Update(existingInstanceContent.Content);
+                        if (ric.Content.GuaranteeUid() && originalInstanceContent.Content.Uid != ric.Content.Uid) originalInstanceContent.Content.Uid = ric.Content.Uid;
+                        this.Context.UpdateContext(originalInstanceContent.Content, ric.Content);
+                        this.Context.Update(originalInstanceContent.Content);
                     }
-                    else if (ric.Content.Versions.ContainsKey(entity.OwnerId.Value))
+                    else if (ric.Content.Versions.TryGetValue(entity.OwnerId.Value, out Entities.Models.ContentVersion? newVersion))
                     {
                         // Update the content versions if they have been provided.
-                        if (existingInstanceContent.Content.Versions.ContainsKey(entity.OwnerId.Value))
-                            existingInstanceContent.Content.Versions[entity.OwnerId.Value] = ric.Content.Versions[entity.OwnerId.Value];
+                        if (originalInstanceContent.Content.Versions.TryGetValue(entity.OwnerId.Value, out Entities.Models.ContentVersion? currentVersion))
+                        {
+                            // Check if this content has already been updated in another section.  If so ignore.
+                            if (this.Context.Entry(originalInstanceContent.Content).State != EntityState.Modified && (
+                                newVersion.Summary != currentVersion.Summary ||
+                                newVersion.Body != currentVersion.Body ||
+                                newVersion.Byline != currentVersion.Byline ||
+                                newVersion.Edition != currentVersion.Edition ||
+                                newVersion.Headline != currentVersion.Headline ||
+                                newVersion.Page != currentVersion.Page ||
+                                newVersion.Section != currentVersion.Section ||
+                                newVersion.OwnerId != currentVersion.OwnerId
+                            ))
+                            {
+                                originalInstanceContent.Content.Versions[entity.OwnerId.Value] = newVersion;
+                                this.Context.Update(originalInstanceContent.Content);
+                                this.Context.Entry(originalInstanceContent.Content).State = EntityState.Modified;
+                            }
+                        }
                         else
-                            existingInstanceContent.Content.Versions.Add(entity.OwnerId.Value, ric.Content.Versions[entity.OwnerId.Value]);
-                        this.Context.Update(existingInstanceContent.Content);
+                        {
+                            originalInstanceContent.Content.Versions.Add(entity.OwnerId.Value, newVersion);
+                            this.Context.Entry(originalInstanceContent.Content).State = EntityState.Modified;
+                        }
                     }
                 }
-                if (existingInstanceContent.SortOrder != ric.SortOrder)
+                if (originalInstanceContent.SortOrder != ric.SortOrder)
                 {
-                    existingInstanceContent.SortOrder = ric.SortOrder;
-                    this.Context.Update(existingInstanceContent);
+                    originalInstanceContent.SortOrder = ric.SortOrder;
+                    this.Context.Entry(originalInstanceContent).State = EntityState.Modified;
                 }
             }
         });

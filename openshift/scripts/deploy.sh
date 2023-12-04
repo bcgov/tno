@@ -23,9 +23,9 @@ scale () {
   oc scale $type $name -n 9b301c-$env --replicas=$replicas
 }
 
-contentMigrationHistoricServiceName="contentmigration-service-historic"
-if [ "$env" = "test" ]; then
-  contentMigrationHistoricServiceName="contentmigration-historic-service"
+contentMigrationHistoricServiceName="contentmigration-historic-service"
+if [ "$env" = "dev" ]; then
+  contentMigrationHistoricServiceName="contentmigration-service-historic"
 fi
 
 podsApi=$(getPods api sts $env)
@@ -97,7 +97,7 @@ oc tag charts-api:latest charts-api:$env
 
 # Web Application
 oc tag editor:latest editor:$env
-oc tag subscriber:latest api:$env
+oc tag subscriber:latest subscriber:$env
 
 # Ingest Services
 oc tag capture-service:latest capture-service:$env
@@ -134,7 +134,7 @@ scale subscriber $podsSubscriber dc $env
 
 scale capture-service $podsCapture dc $env
 scale contentmigration-service $podsContentMigration dc $env
-scale contentmigration-service-historic $podsContentMigrationHistoric dc $env
+scale $contentMigrationHistoricServiceName $podsContentMigrationHistoric dc $env
 scale filemonitor-service $podsFileMonitor dc $env
 scale syndication-service $podsSyndication dc $env
 scale image-service $podsImage dc $env

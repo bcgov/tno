@@ -229,21 +229,21 @@ public class ReportController : ControllerBase
         }
         _reportInstanceService.CommitTransaction();
         var report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
-        if (updateInstances && instance != null)
+        if (updateInstances && instance != null && instanceModel != null)
         {
             report.Instances.Add(instance);
             instance.ContentManyToMany.Clear();
             instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(instance.Id));
-        }
 
-        if (updateInstances && instance != null)
-        {
             // Inform other users of the updated content.
-            var instanceContent = report.Instances.FirstOrDefault()?.ContentManyToMany.ToArray() ?? Array.Empty<Entities.ReportInstanceContent>();
-            foreach (var content in instanceContent)
+            foreach (var content in instance.ContentManyToMany)
             {
+                var contentModel = instanceModel.Content.FirstOrDefault(c => c.ContentId == content.ContentId && c.InstanceId == content.InstanceId && c.SectionName == content.SectionName);
                 // Inform other users of the updated content.
-                if (content.Content != null && !content.Content.IsPrivate)
+                if (content.Content != null &&
+                    contentModel?.Content != null &&
+                    !content.Content.IsPrivate &&
+                    content.Content.Version != contentModel.Content.Version)
                     await _kafkaProducer.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content.Content) })));
             }
         }
