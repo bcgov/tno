@@ -1,4 +1,5 @@
 import { filterFormat } from 'features/search-page/utils';
+import { handleEnterPressed } from 'features/utils';
 import { FaPlay, FaSearch } from 'react-icons/fa';
 import { useNavigate } from 'react-router';
 import { useContent } from 'store/hooks';
@@ -20,12 +21,6 @@ export const BasicSearch: React.FC = () => {
     navigate(`/search?${toQueryString(filterFormat(filter))}`);
   };
 
-  const enterPressed = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
-
   return (
     <styled.BasicSearch>
       <label>SEARCH FOR: </label>
@@ -33,7 +28,7 @@ export const BasicSearch: React.FC = () => {
         <FaSearch onClick={() => handleSearch()} className="search-icon" />
         <Text
           className="search-input"
-          onKeyDown={enterPressed}
+          onKeyDown={(e) => handleEnterPressed(e, handleSearch)}
           name="search"
           onChange={(e) => {
             storeSearchFilter({ ...filter, search: e.target.value });
@@ -42,7 +37,6 @@ export const BasicSearch: React.FC = () => {
       </Row>
       <Text
         className="search-mobile"
-        onKeyDown={enterPressed}
         name="search-mobile"
         onChange={(e) => {
           storeSearchFilter({ ...filter, search: e.target.value });
