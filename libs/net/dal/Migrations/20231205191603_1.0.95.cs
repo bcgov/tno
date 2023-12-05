@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 using TNO.DAL;
-using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace TNO.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class _1094 : SeedMigration
+    public partial class _1095 : SeedMigration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
