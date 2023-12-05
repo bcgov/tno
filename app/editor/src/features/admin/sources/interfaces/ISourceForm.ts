@@ -1,8 +1,8 @@
-import { ISourceModel } from 'tno-core';
+import { IMediaTypeModel, ISourceModel } from 'tno-core';
 
 export interface ISourceForm
-  extends Omit<ISourceModel, 'mediaTypeId' | 'ownerId' | 'mediaTypeSearchGroupId'> {
+  extends Omit<ISourceModel, 'mediaTypeId' | 'ownerId' | 'mediaTypeSearchMappings'> {
   mediaTypeId: number | '';
-  mediaTypeSearchGroupId: number | '';
+  mediaTypeSearchMappings: IMediaTypeModel[];
   ownerId: number | '';
 }

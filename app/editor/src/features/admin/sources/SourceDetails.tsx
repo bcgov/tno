@@ -10,6 +10,7 @@ import {
   FormikTextArea,
   getSortableOptions,
   getUserOptions,
+  IOptionItem,
   OptionItem,
 } from 'tno-core';
 import { Col } from 'tno-core/dist/components/flex';
@@ -26,9 +27,10 @@ const SourceDetails: React.FC<ISourceDetailsProps> = () => {
 
   const users = getUserOptions(lookups.users);
   const licenses = getSortableOptions(lookups.licenses, values.licenseId);
-  const mediaTypes = getSortableOptions(lookups.mediaTypes, values.mediaTypeId, [
+  const mediaTypesForOverride = getSortableOptions(lookups.mediaTypes, values.mediaTypeId, [
     new OptionItem('None', ''),
   ]);
+  const mediaTypesForSearchMapping = getSortableOptions(lookups.mediaTypes);
 
   React.useEffect(() => {
     const license = lookups.licenses.find((mt) => mt.id === values.licenseId);
@@ -78,15 +80,27 @@ const SourceDetails: React.FC<ISourceDetailsProps> = () => {
           label="Media Type Override"
           name="mediaTypeId"
           tooltip="The media type designation the source content will be assigned (overrides the value in the ingest)"
-          value={mediaTypes.find((o) => o.value === values.mediaTypeId) ?? ''}
-          options={mediaTypes}
+          value={mediaTypesForOverride.find((o) => o.value === values.mediaTypeId) ?? ''}
+          options={mediaTypesForOverride}
         />
         <FormikSelect
           label="Media Type Search Group"
-          name="mediaTypeSearchGroupId"
-          tooltip="The field is used to help group media sources by their media type."
-          value={mediaTypes.find((o) => o.value === values.mediaTypeSearchGroupId) ?? ''}
-          options={mediaTypes}
+          isMulti
+          name="mediaTypeSearchMappings"
+          tooltip="Select the Media Types that this Source will show up under the Advanced search UI."
+          options={mediaTypesForSearchMapping}
+          value={
+            values.mediaTypeSearchMappings.map((mt) =>
+              mediaTypesForSearchMapping.find((o) => o.value === mt.id),
+            ) ?? []
+          }
+          onChange={(newValue) => {
+            const options = newValue as IOptionItem[];
+            setFieldValue(
+              'mediaTypeSearchMappings',
+              lookups.mediaTypes.filter((mt) => options.some((o) => o.value === mt.id)),
+            );
+          }}
         />
         <FormikSelect
           label="Timezone Override"

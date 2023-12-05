@@ -1,4 +1,11 @@
-import { ILicenseModel, IMetricModel, ISortableModel, ISourceActionModel, IUserModel } from '.';
+import {
+  ILicenseModel,
+  IMediaTypeModel,
+  IMetricModel,
+  ISortableModel,
+  ISourceActionModel,
+  IUserModel,
+} from '.';
 
 export interface ISourceModel extends ISortableModel<number> {
   code: string;
@@ -7,7 +14,7 @@ export interface ISourceModel extends ISortableModel<number> {
   license?: ILicenseModel;
   ownerId?: number;
   mediaTypeId?: number;
-  mediaTypeSearchGroupId?: number;
+  mediaTypeSearchMappings: IMediaTypeModel[];
   owner?: IUserModel;
   autoTranscribe: boolean;
   disableTranscribe: boolean;

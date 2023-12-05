@@ -1,4 +1,5 @@
 using System.Text.Json;
+using TNO.API.Areas.Editor.Models.MediaType;
 
 namespace TNO.API.Areas.Editor.Models.Source;
 
@@ -64,9 +65,9 @@ public class SourceModel
     public int? MediaTypeId { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - Collection of media types used in search mapping, the many-to-many relationship.
     /// </summary>
-    public int? MediaTypeSearchGroupId { get; set; }
+    public IEnumerable<MediaTypeModel> MediaTypeSearchMappings { get; set; } = Array.Empty<MediaTypeModel>();
 
     /// <summary>
     /// get/set -
@@ -113,7 +114,7 @@ public class SourceModel
         this.License = entity.License?.Name ?? "";
         this.OwnerId = entity.OwnerId;
         this.MediaTypeId = entity.MediaTypeId;
-        this.MediaTypeSearchGroupId = entity.MediaTypeSearchGroupId;
+        this.MediaTypeSearchMappings = entity.MediaTypeSearchMappingsManyToMany.Select(m => new MediaTypeModel(m.MediaType!));
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
         this.UseInTopics = entity.UseInTopics;

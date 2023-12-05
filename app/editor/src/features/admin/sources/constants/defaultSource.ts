@@ -14,7 +14,7 @@ export const defaultSource: ISourceForm = {
   useInTopics: false,
   ownerId: '',
   mediaTypeId: '',
-  mediaTypeSearchGroupId: '',
+  mediaTypeSearchMappings: [],
   configuration: {
     timeZone: '',
   },

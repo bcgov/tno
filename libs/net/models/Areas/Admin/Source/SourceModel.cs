@@ -1,5 +1,7 @@
 using TNO.API.Models;
 using System.Text.Json;
+using TNO.Entities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace TNO.API.Areas.Admin.Models.Source;
 
@@ -45,9 +47,9 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
     public int? MediaTypeId { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - Collection of media types used in search mapping, the many-to-many relationship.
     /// </summary>
-    public int? MediaTypeSearchGroupId { get; set; }
+    public IEnumerable<MediaTypeModel> MediaTypeSearchMappings { get; set; } = Array.Empty<MediaTypeModel>();
 
     /// <summary>
     /// get/set - Whether content should be automatically transcribed.
@@ -99,7 +101,6 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
         this.License = entity.License != null ? new LicenseModel(entity.License) : null;
         this.OwnerId = entity.OwnerId;
         this.MediaTypeId = entity.MediaTypeId;
-        this.MediaTypeSearchGroupId = entity.MediaTypeSearchGroupId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
@@ -107,6 +108,7 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
         this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
 
         this.Metrics = entity.MetricsManyToMany.Select(m => new SourceMetricModel(m));
+        this.MediaTypeSearchMappings = entity.MediaTypeSearchMappingsManyToMany.Select(m => new MediaTypeModel(m.MediaType!));
     }
     #endregion
 
@@ -137,7 +139,6 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
             OwnerId = model.OwnerId,
             SortOrder = model.SortOrder,
             MediaTypeId = model.MediaTypeId,
-            MediaTypeSearchGroupId = model.MediaTypeSearchGroupId,
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
             UseInTopics = model.UseInTopics,
@@ -146,6 +147,7 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
         };
 
         entity.MetricsManyToMany.AddRange(model.Metrics.Select(m => m.ToEntity(entity.Id)));
+        entity.MediaTypeSearchMappingsManyToMany.AddRange(model.MediaTypeSearchMappings.Select(s => new Entities.SourceMediaTypeSearchMapping(model.Id, s.Id)));
 
         return entity;
     }
