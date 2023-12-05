@@ -112,7 +112,7 @@ public class ReportEngine : IReportEngine
 
         return new ChartResultModel(json);
     }
-    
+
     /// <summary>
     /// Order the content based on the session field.
     /// </summary>
@@ -131,7 +131,7 @@ public class ReportEngine : IReportEngine
             "Sentiment" => content.OrderBy(c => c.TonePools.Select(s => s.Value).Sum(v => v)).ToArray(),
             "Byline" => content.OrderBy(c => c.Byline).ToArray(),
             "Contributor" => content.OrderBy(c => c.Contributor?.Name).ToArray(),
-            "Topic" =>  content.OrderBy(c => string.Join(",", c.Topics.Select(x => x.Name).ToList())).ToArray(),
+            "Topic" => content.OrderBy(c => string.Join(",", c.Topics.Select(x => x.Name).ToList())).ToArray(),
             _ => content.OrderBy(c => c.SortOrder).ToArray(),
         };
     }
@@ -186,7 +186,7 @@ public class ReportEngine : IReportEngine
         var template = this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Subject)
             ?? throw new InvalidOperationException("Template does not exist");
 
-        var model = new ReportEngineContentModel(sectionContent, report.Settings);
+        var model = new ReportEngineContentModel(report, sectionContent);
         return await template.RunAsync(instance =>
         {
             instance.Model = model;
@@ -222,7 +222,7 @@ public class ReportEngine : IReportEngine
         var template = this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Body)
             ?? throw new InvalidOperationException("Template does not exist");
 
-        var model = new ReportEngineContentModel(sectionContent, report.Settings, uploadPath);
+        var model = new ReportEngineContentModel(report, sectionContent, uploadPath);
         var body = await template.RunAsync(instance =>
         {
             instance.Model = model;

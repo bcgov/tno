@@ -9,9 +9,9 @@ import React from 'react';
 import { FaArrowLeft, FaArrowRight, FaCloud, FaTrash } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp, useReports, useReportTemplates } from 'store/hooks';
+import { useApp, useLookup, useReports, useReportTemplates } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, Modal, Row, useModal } from 'tno-core';
+import { Col, Modal, Row, Settings, useModal } from 'tno-core';
 
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
@@ -32,10 +32,14 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
   const { id, path = defaultPath } = useParams();
   const [{ myReports }] = useProfileStore();
   const [{ getReport, addReport, deleteReport, updateReport, findMyReports }] = useReports();
-  const [{ getReportTemplates }] = useReportTemplates();
+  const [{ getReportTemplate }] = useReportTemplates();
   const { toggle, isShowing } = useModal();
+  const [{ isReady, settings }] = useLookup();
 
-  const [report, setReport] = React.useState<IReportForm>(defaultReport(userInfo?.id));
+  const [defaultReportTemplateId, setDefaultReportTemplateId] = React.useState(0);
+  const [report, setReport] = React.useState<IReportForm>(
+    defaultReport(userInfo?.id ?? 0, defaultReportTemplateId),
+  );
 
   const tabs: ITab[] = React.useMemo(
     () => [
@@ -57,25 +61,39 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
   );
 
   React.useEffect(() => {
+    if (isReady) {
+      const defaultReportTemplateId = settings.find(
+        (s) => s.name === Settings.DefaultReportTemplate,
+      )?.value;
+      if (defaultReportTemplateId) setDefaultReportTemplateId(+defaultReportTemplateId);
+      else toast.error(`Configuration settings '${Settings.DefaultReportTemplate}' is required.`);
+    }
+  }, [isReady, settings]);
+
+  React.useEffect(() => {
+    // TODO: Templates don't change much and don't need to be fetched often.
+    if (report.templateId !== defaultReportTemplateId) {
+      getReportTemplate(defaultReportTemplateId)
+        .then((template) => {
+          if (template) {
+            setReport((report) => ({
+              ...report,
+              templateId: template.id,
+              template: template,
+            }));
+          } else toast.error('There are no public report templates available.');
+        })
+        .catch(() => {});
+    }
+  }, [defaultReportTemplateId, getReportTemplate, report.templateId]);
+
+  React.useEffect(() => {
     if (!myReports.length) {
       findMyReports().catch(() => {});
     }
     // Only do this on init.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  React.useEffect(() => {
-    // TODO: Templates don't change much and don't need to be fetched often.
-    getReportTemplates()
-      .then((templates) => {
-        // TODO: Support multiple public report templates.
-        if (templates.length) {
-          const template = templates[0];
-          setReport((report) => ({ ...report, templateId: template.id, template: template }));
-        } else toast.error('There are no public report templates available.');
-      })
-      .catch(() => {});
-  }, [getReportTemplates]);
 
   React.useEffect(() => {
     const reportId = parseInt(id ?? '0');

@@ -27,7 +27,7 @@ export const ReportEdit: React.FC = () => {
   const [{ exportReport }] = useReportInstances();
   const { isShowing, toggle } = useModal();
 
-  const [report, setReport] = React.useState<IReportForm>(defaultReport(userInfo?.id));
+  const [report, setReport] = React.useState<IReportForm>(defaultReport(userInfo?.id ?? 0, 0));
 
   React.useEffect(() => {
     if (!myReports.length) {
