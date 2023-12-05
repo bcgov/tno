@@ -4,8 +4,7 @@ import {
   INotificationInstanceModel,
   INotificationTemplateModel,
   ISortableModel,
-  IUserModel,
-  // IUserSubscriberModel,
+  IUserNotificationModel,
 } from '.';
 
 export interface INotificationModel extends ISortableModel<number> {
@@ -18,7 +17,6 @@ export interface INotificationModel extends ISortableModel<number> {
   resend: ResendOptionName;
   isPublic: boolean;
   alertOnIndex: boolean;
-  subscribers: IUserModel[];
-  // subscribers: IUserSubscriberModel[];
+  subscribers: IUserNotificationModel[];
   instances?: INotificationInstanceModel[];
 }

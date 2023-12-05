@@ -2,7 +2,6 @@
  * Report template settings provide a way to determine whether a configurable option is available to a report.
  */
 export interface IReportTemplateSettingsModel {
-  viewOnWebOnly: boolean;
   subject: {
     text: boolean;
     showTodaysDate: boolean;

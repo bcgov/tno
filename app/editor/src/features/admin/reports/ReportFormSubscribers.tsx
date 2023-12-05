@@ -7,10 +7,11 @@ import {
   ITableInternal,
   ITablePage,
   ITableSort,
-  IUserModel,
+  IUserReportModel,
+  ReportDistributionFormatName,
 } from 'tno-core';
 
-import { subscriberColumns } from './constants';
+import { useSubscriberColumns } from './hooks';
 import { ListFilter } from './ListFilter';
 
 /**
@@ -18,18 +19,19 @@ import { ListFilter } from './ListFilter';
  * @returns Component.
  */
 export const ReportFormSubscribers: React.FC = () => {
-  const { values, setFieldValue } = useFormikContext<IReportModel>();
+  const { values } = useFormikContext<IReportModel>();
   const [{ users }, { findUsers }] = useUsers();
+  const subscriberColumns = useSubscriberColumns();
 
   const handlePageChange = React.useCallback(
-    async (page: ITablePage, table: ITableInternal<IUserModel>) => {
+    async (page: ITablePage, table: ITableInternal<IUserReportModel>) => {
       await findUsers({ page: page.pageIndex + 1, quantity: page.pageSize });
     },
     [findUsers],
   );
 
   const handleSortChange = React.useCallback(
-    async (sort: ITableSort<IUserModel>[], table: ITableInternal<IUserModel>) => {
+    async (sort: ITableSort<IUserReportModel>[], table: ITableInternal<IUserReportModel>) => {
       const sorts = sort
         .filter((s) => s.isSorted)
         .map((s) => `${s.id}${s.isSortedDesc ? ' desc' : ''}`);
@@ -48,8 +50,15 @@ export const ReportFormSubscribers: React.FC = () => {
       />
       <FlexboxTable
         rowId="id"
-        columns={subscriberColumns(values, setFieldValue)}
-        data={users.items}
+        columns={subscriberColumns}
+        data={users.items.map<IUserReportModel>((u) => {
+          const subscriber = values.subscribers.find((s) => s.id === u.id);
+          return {
+            ...u,
+            isSubscribed: subscriber?.isSubscribed ?? false,
+            format: subscriber?.format ?? ReportDistributionFormatName.LinkOnly,
+          };
+        })}
         manualPaging
         pageIndex={users.page}
         pageSize={users.quantity}
@@ -57,6 +66,7 @@ export const ReportFormSubscribers: React.FC = () => {
         onPageChange={handlePageChange}
         onSortChange={handleSortChange}
         showSort
+        showActive={false}
       />
     </>
   );

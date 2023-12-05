@@ -31,11 +31,7 @@ public class FolderService : BaseService<Folder, int>, IFolderService
             .Include(f => f.Owner)
             .Include(f => f.Filter)
             .Include(f => f.Events).ThenInclude(f => f.Schedule)
-            .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content)
-            .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content).ThenInclude(c => c!.Source)
-            .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content).ThenInclude(c => c!.MediaType)
-            .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content).ThenInclude(c => c!.Series)
-            .Include(f => f.ContentManyToMany).ThenInclude(f => f.Content).ThenInclude(c => c!.TonePools)
+            .Include(f => f.ContentManyToMany)
             .FirstOrDefault(f => f.Id == id);
     }
 

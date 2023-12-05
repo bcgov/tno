@@ -237,7 +237,8 @@ namespace TNO.Ches
             email.Cc = email.Cc?.NotNullOrWhiteSpace();
             email.Bcc = email.Bcc?.NotNullOrWhiteSpace();
 
-            ConvertInlineImagesToAttachments(email);
+            // TODO: Need to fix mail merge before this can be implemented again.
+            // ConvertInlineImagesToAttachments(email);
 
             if (this.Options.EmailEnabled)
                 return await SendAsync<EmailResponseModel, IEmail>("/email", HttpMethod.Post, email);
@@ -295,7 +296,8 @@ namespace TNO.Ches
                 c.Bcc = c.Bcc.NotNullOrWhiteSpace();
             });
 
-            ConvertInlineImagesToAttachments(email);
+            // TODO: Need to fix mail merge before this can be implemented again.
+            // ConvertInlineImagesToAttachments(email);
 
             if (this.Options.EmailEnabled)
                 return await SendAsync<EmailResponseModel, IEmailMerge>("/emailMerge", HttpMethod.Post, email);

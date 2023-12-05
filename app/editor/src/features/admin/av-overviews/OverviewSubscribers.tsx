@@ -1,7 +1,13 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useUsers } from 'store/hooks/admin';
-import { FlexboxTable, ITableInternal, ITablePage, ITableSort, IUserModel } from 'tno-core';
+import {
+  FlexboxTable,
+  ITableInternal,
+  ITablePage,
+  ITableSort,
+  IUserAVOverviewModel,
+} from 'tno-core';
 
 import { subscriberColumns } from './constants';
 import { IAVOverviewTemplateForm } from './interfaces';
@@ -21,7 +27,7 @@ export const OverviewSubscribers: React.FC = () => {
   }, []);
 
   const handlePageChange = React.useCallback(
-    async (page: ITablePage, table: ITableInternal<IUserModel>) => {
+    async (page: ITablePage, table: ITableInternal<IUserAVOverviewModel>) => {
       try {
         await findUsers({ page: page.pageIndex + 1, quantity: page.pageSize });
       } catch {}
@@ -30,7 +36,10 @@ export const OverviewSubscribers: React.FC = () => {
   );
 
   const handleSortChange = React.useCallback(
-    async (sort: ITableSort<IUserModel>[], table: ITableInternal<IUserModel>) => {
+    async (
+      sort: ITableSort<IUserAVOverviewModel>[],
+      table: ITableInternal<IUserAVOverviewModel>,
+    ) => {
       const sorts = sort
         .filter((s) => s.isSorted)
         .map((s) => `${s.id}${s.isSortedDesc ? ' desc' : ''}`);
@@ -51,7 +60,10 @@ export const OverviewSubscribers: React.FC = () => {
       <FlexboxTable
         rowId="id"
         columns={subscriberColumns(values, setFieldValue)}
-        data={users.items}
+        data={users.items.map<IUserAVOverviewModel>((u) => ({
+          ...u,
+          isSubscribed: values.subscribers.some((s) => s.id === u.id && s.isSubscribed),
+        }))}
         manualPaging
         pageIndex={users.page - 1}
         pageSize={users.quantity}

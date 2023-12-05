@@ -218,7 +218,6 @@ public class ReportController : ControllerBase
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
         var result = _reportService.FindById(model.Id) ?? throw new NoContentException("Report does not exist");
         if (result?.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to update this report");
-        _reportService.ClearChangeTracker(); // Remove the report from context.
         result = _reportService.Update(model.ToEntity(_serializerOptions));
         var instanceModel = model.Instances.FirstOrDefault();
         Entities.ReportInstance? instance = null;
@@ -290,7 +289,7 @@ public class ReportController : ControllerBase
         if (report.OwnerId != user.Id && // User does not own the report
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report"); // Report is not public
-        var result = await _reportHelper.GenerateReportAsync(new Services.Models.Report.ReportModel(report, _serializerOptions), user.Id, true);
+        var result = await _reportHelper.GenerateReportAsync(new Services.Models.Report.ReportModel(report, _serializerOptions), user.Id, false, true);
         return new JsonResult(result);
     }
 

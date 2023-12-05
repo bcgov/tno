@@ -268,7 +268,7 @@ public class ReportController : ControllerBase
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
 
         var report = new Areas.Services.Models.Report.ReportModel(model.ToEntity(_serializerOptions, true), _serializerOptions);
-        var result = await _reportHelper.GenerateReportAsync(report, user.Id, true);
+        var result = await _reportHelper.GenerateReportAsync(report, user.Id, false, true);
         return new JsonResult(result);
     }
 
@@ -293,7 +293,7 @@ public class ReportController : ControllerBase
 
             var reportHelper = scope.ServiceProvider.GetRequiredService<IReportHelper>();
             var report = new Areas.Services.Models.Report.ReportModel(model.ToEntity(_serializerOptions, true), _serializerOptions);
-            await reportHelper.GenerateReportAsync(report, user.Id, true);
+            await reportHelper.GenerateReportAsync(report, user.Id, false, true);
         });
 
         return Ok("Report template compilation in progress.");

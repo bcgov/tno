@@ -36,6 +36,11 @@ public class UserReport : AuditColumns
     /// </summary>
     [Column("is_subscribed")]
     public bool IsSubscribed { get; set; }
+
+    /// <summary>
+    /// get/set - Which distribution format the user wants to receive.
+    /// </summary>
+    public ReportDistributionFormat Format { get; set; } = ReportDistributionFormat.FullText;
     #endregion
 
     #region Constructors
@@ -45,13 +50,15 @@ public class UserReport : AuditColumns
     /// <param name="user"></param>
     /// <param name="report"></param>
     /// <param name="isSubscribed"></param>
-    public UserReport(User user, Report report, bool isSubscribed = true)
+    /// <param name="format"></param>
+    public UserReport(User user, Report report, bool isSubscribed = true, ReportDistributionFormat format = ReportDistributionFormat.FullText)
     {
         this.User = user ?? throw new ArgumentNullException(nameof(user));
         this.UserId = user.Id;
         this.Report = report ?? throw new ArgumentNullException(nameof(report));
         this.ReportId = report.Id;
         this.IsSubscribed = isSubscribed;
+        this.Format = format;
     }
 
     /// <summary>
@@ -60,11 +67,13 @@ public class UserReport : AuditColumns
     /// <param name="userId"></param>
     /// <param name="reportId"></param>
     /// <param name="isSubscribed"></param>
-    public UserReport(int userId, int reportId, bool isSubscribed = true)
+    /// <param name="format"></param>
+    public UserReport(int userId, int reportId, bool isSubscribed = true, ReportDistributionFormat format = ReportDistributionFormat.FullText)
     {
         this.UserId = userId;
         this.ReportId = reportId;
         this.IsSubscribed = isSubscribed;
+        this.Format = format;
     }
     #endregion
 

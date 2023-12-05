@@ -121,11 +121,6 @@ export const ReportFormSections = () => {
               instead of in their email.
             </p>
             <FormikCheckbox
-              label="View On Web Only"
-              name="settings.viewOnWebOnly"
-              tooltip="Email will only contain a link to view the report on the website"
-            />
-            <FormikCheckbox
               label="Show Link to Story"
               name="settings.content.showLinkToStory"
               tooltip="Include a link to view the story online"

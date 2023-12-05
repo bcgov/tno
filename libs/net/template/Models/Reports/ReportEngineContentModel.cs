@@ -23,6 +23,11 @@ public class ReportEngineContentModel : BaseTemplateModel<IEnumerable<ContentMod
     /// get/set - The user who owns the report.
     /// </summary>
     public int? OwnerId { get; set; }
+
+    /// <summary>
+    /// get/set - Whether the template should only include a link to the website.
+    /// </summary>
+    public bool ViewOnWebOnly { get; set; }
     #endregion
 
     #region Constructors

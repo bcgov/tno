@@ -5332,6 +5332,9 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("created_on")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+                    b.Property<int>("Format")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("IsSubscribed")
                         .HasColumnType("boolean")
                         .HasColumnName("is_subscribed");

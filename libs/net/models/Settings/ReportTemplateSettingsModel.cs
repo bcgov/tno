@@ -6,7 +6,6 @@ namespace TNO.API.Models.Settings;
 public class ReportTemplateSettingsModel
 {
     #region Properties
-    public bool ViewOnWebOnly { get; set; }
     public ReportTemplateSubjectSettingsModel Subject { get; set; } = new();
     public ReportTemplateHeadlineSettingsModel Headline { get; set; } = new();
     public ReportTemplateContentSettingsModel Content { get; set; } = new();
@@ -19,7 +18,6 @@ public class ReportTemplateSettingsModel
 
     public ReportTemplateSettingsModel(Dictionary<string, object> settings, JsonSerializerOptions options)
     {
-        this.ViewOnWebOnly = settings.GetDictionaryJsonValue<bool>("viewOnWebOnly", false, options)!;
         this.Subject = settings.GetDictionaryJsonValue<ReportTemplateSubjectSettingsModel>("subject", new(), options)!;
         this.Headline = settings.GetDictionaryJsonValue<ReportTemplateHeadlineSettingsModel>("headline", new(), options)!;
         this.Content = settings.GetDictionaryJsonValue<ReportTemplateContentSettingsModel>("content", new(), options)!;

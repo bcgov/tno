@@ -12,7 +12,6 @@ export const defaultReportTemplate: IReportTemplateModel = {
   sortOrder: 0,
   chartTemplates: [],
   settings: {
-    viewOnWebOnly: false,
     subject: {
       text: false,
       showTodaysDate: false,

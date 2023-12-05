@@ -7,7 +7,8 @@ import {
   ITableInternal,
   ITablePage,
   ITableSort,
-  IUserModel,
+  IUserNotificationModel,
+  ResendOptionName,
 } from 'tno-core';
 
 import { subscriberColumns } from './constants';
@@ -26,14 +27,17 @@ export const NotificationSubscribersForm = () => {
   }, []);
 
   const handlePageChange = React.useCallback(
-    async (page: ITablePage, table: ITableInternal<IUserModel>) => {
+    async (page: ITablePage, table: ITableInternal<IUserNotificationModel>) => {
       await findUsers({ page: page.pageIndex + 1, quantity: page.pageSize });
     },
     [findUsers],
   );
 
   const handleSortChange = React.useCallback(
-    async (sort: ITableSort<IUserModel>[], table: ITableInternal<IUserModel>) => {
+    async (
+      sort: ITableSort<IUserNotificationModel>[],
+      table: ITableInternal<IUserNotificationModel>,
+    ) => {
       const sorts = sort
         .filter((s) => s.isSorted)
         .map((s) => `${s.id}${s.isSortedDesc ? ' desc' : ''}`);
@@ -52,7 +56,14 @@ export const NotificationSubscribersForm = () => {
       <FlexboxTable
         rowId="id"
         columns={subscriberColumns(values, setFieldValue)}
-        data={users.items}
+        data={users.items.map<IUserNotificationModel>((u) => {
+          const subscriber = values.subscribers.find((s) => s.id === u.id);
+          return {
+            ...u,
+            resend: subscriber?.resend ?? ResendOptionName.Never,
+            isSubscribed: subscriber?.isSubscribed ?? false,
+          };
+        })}
         manualPaging
         pageIndex={users.page}
         pageSize={users.quantity}

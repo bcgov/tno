@@ -54,12 +54,14 @@ public interface IReportHelper
     /// Uses the content already in the report instance.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
     Task<ReportResultModel> GenerateReportAsync(
         Areas.Services.Models.ReportInstance.ReportInstanceModel model,
+        bool viewOnWebOnly = false,
         bool isPreview = false);
 
     /// <summary>
@@ -68,12 +70,14 @@ public interface IReportHelper
     /// </summary>
     /// <param name="model"></param>
     /// <param name="requestorId"></param>
+    /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     Task<ReportResultModel> GenerateReportAsync(
         Areas.Services.Models.Report.ReportModel model,
         int? requestorId = null,
+        bool viewOnWebOnly = false,
         bool isPreview = false);
 
     /// <summary>

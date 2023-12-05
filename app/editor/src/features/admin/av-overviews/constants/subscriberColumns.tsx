@@ -1,11 +1,11 @@
-import { CellEllipsis, Checkbox, ITableHookColumn, IUserModel } from 'tno-core';
+import { CellEllipsis, Checkbox, ITableHookColumn, IUserAVOverviewModel } from 'tno-core';
 
 import { IAVOverviewTemplateForm } from '../interfaces';
 
 export const subscriberColumns = (
   overviewForm: IAVOverviewTemplateForm,
   setFieldValue: (field: string, value: any, shouldValidate?: boolean | undefined) => void,
-): ITableHookColumn<IUserModel>[] => [
+): ITableHookColumn<IUserAVOverviewModel>[] => [
   {
     label: '',
     accessor: 'id',

@@ -43,6 +43,7 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
     const section = values.sections[index];
 
     React.useEffect(() => {
+      // TODO: Move to parent component so that it doesn't run multiple times.
       if (!folders.length) {
         findMyFolders()
           .then((folders) => {

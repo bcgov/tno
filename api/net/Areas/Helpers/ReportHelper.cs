@@ -158,12 +158,14 @@ public class ReportHelper : IReportHelper
     /// Uses the content already in the report instance.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<ReportResultModel> GenerateReportAsync(
         Areas.Services.Models.ReportInstance.ReportInstanceModel model,
+        bool viewOnWebOnly = false,
         bool isPreview = false)
     {
         var reportModel = model.Report ?? throw new ArgumentException("Parameter 'model.Report' is required");
@@ -180,7 +182,7 @@ public class ReportHelper : IReportHelper
             return new ReportSectionModel(section, content);
         });
 
-        return await GenerateReportAsync(reportModel, sections, isPreview);
+        return await GenerateReportAsync(reportModel, sections, viewOnWebOnly, isPreview);
     }
 
     /// <summary>
@@ -190,6 +192,7 @@ public class ReportHelper : IReportHelper
     /// </summary>
     /// <param name="model"></param>
     /// <param name="requestorId"></param>
+    /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
@@ -197,6 +200,7 @@ public class ReportHelper : IReportHelper
     public async Task<ReportResultModel> GenerateReportAsync(
         Areas.Services.Models.Report.ReportModel model,
         int? requestorId = null,
+        bool viewOnWebOnly = false,
         bool isPreview = false)
     {
         if (model.Template == null) throw new ArgumentException("Parameter 'model.Template' is required");
@@ -213,7 +217,7 @@ public class ReportHelper : IReportHelper
             return new ReportSectionModel(section, content);
         });
 
-        var result = await GenerateReportAsync(model, sections, isPreview);
+        var result = await GenerateReportAsync(model, sections, viewOnWebOnly, isPreview);
         result.Data = elasticResults;
         return result;
 
@@ -225,16 +229,18 @@ public class ReportHelper : IReportHelper
     /// </summary>
     /// <param name="report"></param>
     /// <param name="sections"></param>
+    /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     private async Task<ReportResultModel> GenerateReportAsync(
         Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sections,
+        bool viewOnWebOnly = false,
         bool isPreview = false)
     {
-        var subject = await _reportEngine.GenerateReportSubjectAsync(report, sections, isPreview);
-        var body = await _reportEngine.GenerateReportBodyAsync(report, sections, _storageOptions.GetUploadPath(), isPreview);
+        var subject = await _reportEngine.GenerateReportSubjectAsync(report, sections, viewOnWebOnly, isPreview);
+        var body = await _reportEngine.GenerateReportBodyAsync(report, sections, _storageOptions.GetUploadPath(), viewOnWebOnly, isPreview);
 
         return new ReportResultModel(subject, body);
     }

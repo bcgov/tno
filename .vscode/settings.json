@@ -24,8 +24,8 @@
   ],
   "java.configuration.updateBuildConfiguration": "interactive",
   "editor.codeActionsOnSave": {
-    "source.organizeImports": false,
-    "source.fixAll.eslint": true
+    "source.organizeImports": "never",
+    "source.fixAll.eslint": "explicit"
   },
   "omnisharp.enableRoslynAnalyzers": true,
   "omnisharp.enableMsBuildLoadProjectsOnDemand": true,
