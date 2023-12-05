@@ -1,3 +1,4 @@
+using FTTLib;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -517,7 +518,7 @@ public class ApiService : IApiService
         var url = this.Options.ApiUrl.Append($"services/contents/{contentId}/upload?version={version}");
         var fileContent = new StreamContent(file);
         var ext = Path.GetExtension(fileName).Replace(".", "");
-        fileContent.Headers.ContentType = new MediaTypeHeaderValue(MimeTypes.GetMimeType(Path.GetFileName(fileName)));
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(FTT.GetMimeType(Path.GetFileName(fileName)));
         var form = new MultipartFormDataContent
         {
             { fileContent, "files", fileName }

@@ -1,3 +1,4 @@
+using FTTLib;
 using Microsoft.AspNetCore.Http;
 using TNO.Entities;
 
@@ -121,7 +122,7 @@ public class ContentFileReference : IReadonlyFileReference
         this.Path = GenerateFilePath(content, file);
         this.IsUploaded = true;
         this.FileName = file.FileName;
-        this.ContentType = !String.IsNullOrWhiteSpace(file.ContentType) ? file.ContentType : MimeTypes.GetMimeType(file.Name);
+        this.ContentType = !String.IsNullOrWhiteSpace(file.ContentType) ? file.ContentType : FTT.GetMimeType(file.Name);
         this.Size = file.Length;
         this.RunningTime = 0; // TODO: Calculate this somehow.
         this.CreatedBy = content.CreatedBy;
@@ -192,7 +193,7 @@ public class ContentFileReference : IReadonlyFileReference
         this.Path = GenerateFilePath(content, file.FullName);
         this.SourceFile = file.FullName;
         this.IsUploaded = true;
-        this.ContentType = MimeTypes.GetMimeType(file.Name);
+        this.ContentType = FTT.GetMimeType(file.Name);
         this.FileName = file.Name;
         this.Size = file.Length;
         this.RunningTime = 0; // TODO: Calculate this somehow.
@@ -228,7 +229,7 @@ public class ContentFileReference : IReadonlyFileReference
         this.Path = this.Path = GenerateFilePath(this.Content, file.FullName);
         this.SourceFile = file.FullName;
         this.IsUploaded = true;
-        this.ContentType = MimeTypes.GetMimeType(file.Name);
+        this.ContentType = FTT.GetMimeType(file.Name);
         this.Size = file.Length;
         this.RunningTime = fileReference.RunningTime; // TODO: Calculate this somehow.
         this.CreatedBy = fileReference.CreatedBy;
