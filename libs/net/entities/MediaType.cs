@@ -37,6 +37,16 @@ public class MediaType : BaseType<int>
     /// get - List of sources linked to this media type.
     /// </summary>
     public virtual List<Source> Sources { get; } = new List<Source>();
+
+    /// <summary>
+    /// get - List of sources linked to this media type - for search mapping.
+    /// </summary>
+    public virtual List<Source> SourceSearchMappings { get; } = new List<Source>();
+
+    /// <summary>
+    /// get - List of sources linked to this media type - for search mapping, the many-to-many relationship.
+    /// </summary>
+    public virtual List<SourceMediaTypeSearchMapping> SourceSearchMappingsManyToMany { get; } = new List<SourceMediaTypeSearchMapping>();
     #endregion
 
     #region Constructors

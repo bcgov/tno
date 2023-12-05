@@ -40,6 +40,7 @@ public class SourceService : BaseService<Source, int>, ISourceService
         return this.Context.Sources
             .AsNoTracking()
             .Include(s => s.License)
+            .Include(s => s.MediaTypeSearchMappingsManyToMany).ThenInclude(cc => cc.MediaType)
             .OrderBy(s => s.Name)
             .ThenBy(s => s.Code)
             .ToArray();
@@ -55,6 +56,7 @@ public class SourceService : BaseService<Source, int>, ISourceService
         var query = this.Context.Sources
             .AsNoTracking()
             .Include(s => s.License)
+            .Include(s => s.MediaTypeSearchMappingsManyToMany).ThenInclude(cc => cc.MediaType)
             .AsQueryable();
 
         if (!String.IsNullOrWhiteSpace(filter.Name))
@@ -92,6 +94,7 @@ public class SourceService : BaseService<Source, int>, ISourceService
         return this.Context.Sources
             .Include(s => s.License)
             .Include(s => s.MetricsManyToMany).ThenInclude(cc => cc.Metric)
+            .Include(s => s.MediaTypeSearchMappingsManyToMany).ThenInclude(cc => cc.MediaType)
             .FirstOrDefault(c => c.Id == id);
     }
 
@@ -105,6 +108,7 @@ public class SourceService : BaseService<Source, int>, ISourceService
         return this.Context.Sources
             .Include(s => s.License)
             .Include(s => s.MetricsManyToMany).ThenInclude(cc => cc.Metric)
+            .Include(s => s.MediaTypeSearchMappingsManyToMany).ThenInclude(cc => cc.MediaType)
             .FirstOrDefault(c => c.Code.ToLower() == code.ToLower());
     }
 

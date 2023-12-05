@@ -6,8 +6,6 @@ export const toModel = (form: ISourceForm): ISourceModel => {
   return {
     ...form,
     mediaTypeId: form.mediaTypeId === '' ? undefined : form.mediaTypeId,
-    mediaTypeSearchGroupId:
-      form.mediaTypeSearchGroupId === '' ? undefined : form.mediaTypeSearchGroupId,
     ownerId: form.ownerId === '' ? undefined : form.ownerId,
     configuration: {
       ...form.configuration,

@@ -6,8 +6,8 @@ export const toForm = (model: ISourceModel): ISourceForm => {
   return {
     ...model,
     mediaTypeId: model.mediaTypeId === undefined ? '' : model.mediaTypeId,
-    mediaTypeSearchGroupId:
-      model.mediaTypeSearchGroupId === undefined ? '' : model.mediaTypeSearchGroupId,
+    mediaTypeSearchMappings:
+      model.mediaTypeSearchMappings === undefined ? [] : model.mediaTypeSearchMappings,
     ownerId: model.ownerId === undefined ? '' : model.ownerId,
     configuration: {
       ...model.configuration,

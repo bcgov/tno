@@ -51,24 +51,26 @@ export const useFilterOptions = (): IMediaTypeGroups => {
         try {
           const values = JSON.parse(advancedSearchMediaTypeGroups);
           setMediaTypeGroups({
-            dailyPrint: sources.filter(
-              (source) => source.mediaTypeSearchGroupId === values.dailyPrintId,
+            dailyPrint: sources.filter((source) =>
+              source.mediaTypeSearchMappings.some((m) => m.id === values.dailyPrintId),
             ),
-            weeklyPrint: sources.filter(
-              (source) => source.mediaTypeSearchGroupId === values.weeklyPrintId,
+            weeklyPrint: sources.filter((source) =>
+              source.mediaTypeSearchMappings.some((m) => m.id === values.weeklyPrintId),
             ),
-            cpWire: sources.filter((source) => source.mediaTypeSearchGroupId === values.cpWireId),
-            talkRadio: sources.filter(
-              (source) => source.mediaTypeSearchGroupId === values.talkRadioId,
+            cpWire: sources.filter((source) =>
+              source.mediaTypeSearchMappings.some((m) => m.id === values.cpWireId),
             ),
-            onlinePrint: sources.filter(
-              (source) => source.mediaTypeSearchGroupId === values.onlinePrintId,
+            talkRadio: sources.filter((source) =>
+              source.mediaTypeSearchMappings.some((m) => m.id === values.talkRadioId),
             ),
-            newsRadio: sources.filter(
-              (source) => source.mediaTypeSearchGroupId === values.newsRadioId,
+            onlinePrint: sources.filter((source) =>
+              source.mediaTypeSearchMappings.some((m) => m.id === values.onlinePrintId),
             ),
-            television: sources.filter(
-              (source) => source.mediaTypeSearchGroupId === values.televisionId,
+            newsRadio: sources.filter((source) =>
+              source.mediaTypeSearchMappings.some((m) => m.id === values.newsRadioId),
+            ),
+            television: sources.filter((source) =>
+              source.mediaTypeSearchMappings.some((m) => m.id === values.televisionId),
             ),
             sources,
           });

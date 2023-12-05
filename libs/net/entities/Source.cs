@@ -53,10 +53,14 @@ public class Source : BaseType<int>
     public int? MediaTypeId { get; set; }
 
     /// <summary>
-    /// get/set - The default media type search group id.
+    /// get - Collection of media types - used in search mapping.
     /// </summary>
-    [Column("media_type_search_group_id")]
-    public int? MediaTypeSearchGroupId { get; set; }
+    public virtual List<MediaType> MediaTypeSearchMappings { get; } = new List<MediaType>();
+
+    /// <summary>
+    /// get - Collection of media types used in search mapping, the many-to-many relationship.
+    /// </summary>
+    public virtual List<SourceMediaTypeSearchMapping> MediaTypeSearchMappingsManyToMany { get; } = new List<SourceMediaTypeSearchMapping>();
 
     /// <summary>
     /// get/set - The default media type designation.
