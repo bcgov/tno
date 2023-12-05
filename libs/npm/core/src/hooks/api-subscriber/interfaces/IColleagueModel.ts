@@ -1,8 +1,16 @@
-import { IUserModel } from 'hooks';
-
 export interface IColleagueModel {
-  userId: number;
-  user: IUserModel;
-  colleagueId: number;
-  colleague: IUserModel;
+  user:
+    | {
+        id: number | undefined;
+        username: string | undefined;
+        email: string | undefined;
+      }
+    | undefined;
+  colleague:
+    | {
+        id: number | undefined;
+        username: string | undefined;
+        email: string | undefined;
+      }
+    | undefined;
 }

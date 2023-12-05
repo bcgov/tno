@@ -12,14 +12,12 @@ public class UserColleagueModel : AuditColumnsModel
     /// <summary>
     /// get/set - User that relates to colleague.
     /// </summary>
-    public UserModel User { get; set; }
+    public UserModel? User { get; set; }
 
     /// <summary>
     /// get/set - Colleague.
     /// </summary>
-    public UserModel Colleague { get; set; }
-
-    
+    public UserModel? Colleague { get; set; }
     #endregion
 
     #region Constructors

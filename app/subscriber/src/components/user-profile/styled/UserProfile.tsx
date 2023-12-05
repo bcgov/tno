@@ -21,4 +21,19 @@ export const UserProfile = styled.div`
       margin-top: 0.25em;
     }
   }
+
+  h1 {
+    color: ${(props) => props.theme.css.defaultBlack};
+    font-size: 1rem;
+  }
+
+  ul {
+    list-style-type: none;
+    padding-left: 1.5rem;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 `;

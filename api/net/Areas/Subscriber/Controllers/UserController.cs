@@ -84,14 +84,14 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Find colleagues for the current.
+    /// Find users athat.
     /// </summary>
     /// <returns></returns>
     [HttpGet("colleagues")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserColleagueModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "User" })]
+    [SwaggerOperation(Tags = new[] { "Colleague" })]
     public IActionResult FindColleaguesByUserId()
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
@@ -103,39 +103,34 @@ public class UserController : ControllerBase
     /// <summary>
     /// Add user for the specified 'id'.
     /// </summary>
-    /// <param name="userColleagueModel"></param>
+    /// <param name="userWithEmail"></param>
     /// <returns></returns>
     [HttpPost("colleagues")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserColleagueModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "User" })]
-    public IActionResult AddColleague(UserColleagueModel userColleagueModel)
+    [SwaggerOperation(Tags = new[] { "Colleague" })]
+    public IActionResult AddColleague(UserColleagueModel userWithEmail)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        userColleagueModel.User.Id = user.Id;
-        var result = _userColleagueService.AddColleague((UserColleague)userColleagueModel);
-        return CreatedAtAction(nameof(AddColleague), new { id = result.ColleagueId }, userColleagueModel);
-    }
+        var userEmail = userWithEmail?.Colleague?.Email ?? throw new NotAuthorizedException("Model does not contain the email.");
+        var loggedUser = new UserModel
+        {
+            Id = user.Id
+        };
 
-    /// <summary>
-    /// Add user for the specified 'id'.
-    /// </summary>
-    /// <param name="userColleagueModel"></param>
-    /// <returns></returns>
-    [HttpPut("colleagues")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.Created)]
-    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "User" })]
-    public IActionResult UpdateColleague(UserColleagueModel userColleagueModel)
-    {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        userColleagueModel.User.Id = user.Id;
-        var result = _userColleagueService.UpdateColleague((UserColleague)userColleagueModel);
-        return CreatedAtAction(nameof(UpdateColleague), new { id = result.ColleagueId }, userColleagueModel);
+        User colleague = _userService.FindByEmail(userEmail).FirstOrDefault() ?? throw new InvalidOperationException("There is no user with this email.");
+        var colleagueModel = new UserColleagueModel
+        {
+            Colleague = new UserModel
+            {
+                Id = colleague.Id
+            },
+            User = loggedUser
+        };
+        var result = _userColleagueService.AddColleague((UserColleague)colleagueModel);
+        return CreatedAtAction(nameof(AddColleague), new { id = result.ColleagueId }, colleagueModel);
     }
 
     /// <summary>
@@ -147,7 +142,7 @@ public class UserController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "User" })]
+    [SwaggerOperation(Tags = new[] { "Colleague" })]
     public IActionResult DeleteColleague(int colleagueId)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
