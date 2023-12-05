@@ -1,3 +1,4 @@
+using FTTLib;
 
 namespace TNO.API.Areas.Editor.Models.Storage;
 
@@ -65,7 +66,7 @@ public class ItemModel
             if (!string.IsNullOrWhiteSpace(ext)) this.Extension = ext;
             var fileInfo = new System.IO.FileInfo(path);
             this.Size = fileInfo.Length;
-            this.MimeType = MimeTypes.GetMimeType(fileInfo.Name);
+            this.MimeType = FTT.GetMimeType(fileInfo.Name);
             this.Modified = fileInfo.LastWriteTime;
         }
         else
@@ -92,7 +93,7 @@ public class ItemModel
             if (!string.IsNullOrWhiteSpace(ext)) this.Extension = ext;
             this.Size = file.Attributes.Size;
             if (!String.IsNullOrWhiteSpace(this.Extension))
-                this.MimeType = MimeTypes.GetMimeType(file.Name);
+                this.MimeType = FTT.GetMimeType(file.Name);
         }
     }
 
@@ -114,7 +115,7 @@ public class ItemModel
             if (!string.IsNullOrWhiteSpace(ext)) this.Extension = ext;
             this.Size = attributes.Size;
             if (!String.IsNullOrWhiteSpace(this.Extension))
-                this.MimeType = MimeTypes.GetMimeType(name);
+                this.MimeType = FTT.GetMimeType(name);
         }
     }
     #endregion
