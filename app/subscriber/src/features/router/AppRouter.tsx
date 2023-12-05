@@ -63,7 +63,7 @@ export const AppRouter: React.FC<IAppRouter> = () => {
           }
         />
         <Route
-          path="/colleague/:id/edit"
+          path="/colleague/add"
           element={
             <PrivateRoute claims={Claim.subscriber} element={<ColleagueEdit />}></PrivateRoute>
           }

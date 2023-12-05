@@ -48,20 +48,15 @@ public class UserColleagueService : BaseService<UserColleague, int>, IUserCollea
         throw new NotImplementedException();
     }
 
-    public UserColleague RemoveColleague(int userId, int colleagueId)
+    public UserColleague? RemoveColleague(int userId, int colleagueId)
     {
         var userColleague = FindColleagueByKey(userId, colleagueId);
         if (userColleague != null)
         {
           base.DeleteAndSave(userColleague);
+          return userColleague;
         }
-        return userColleague;
-    }
-
-    public UserColleague UpdateColleague(UserColleague userColleague)
-    {
-        base.UpdateAndSave(userColleague);
-        return userColleague;
+        return null;
     }
     #endregion
 }

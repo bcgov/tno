@@ -22,23 +22,25 @@ export const MyColleagues: React.FC = () => {
   React.useEffect(() => {
     if (!colleagues.length) {
       getColleagues().then((data) => {
-        console.log('colleagues', data);
         setColleagues(data);
       });
     }
-  }, [getColleagues, colleagues.length]);
+  }, [colleagues.length, getColleagues]);
 
   const handleDelete = React.useCallback(
-    (colleague: IColleagueModel) => {
-      if (!!colleague) {
-        deleteColleague(colleague)
-          .then((data) => {
-            toast.success(`Successfully deleted '${data.colleague.email}' as colleague.`);
+    (model: IColleagueModel) => {
+      if (!!model) {
+        deleteColleague(model)
+          .then((dataDeleted) => {
+            getColleagues().then((data) => {
+              setColleagues(data);
+            });
+            toast.success(`Successfully deleted '${dataDeleted.colleague?.email}' as colleague.`);
           })
           .catch(() => {});
       }
     },
-    [deleteColleague],
+    [deleteColleague, getColleagues],
   );
 
   return (
@@ -50,7 +52,7 @@ export const MyColleagues: React.FC = () => {
             <Action
               label="Add Colleague"
               icon={<FaClipboard />}
-              onClick={() => navigate('/colleague/0/edit')}
+              onClick={() => navigate('/colleague/add')}
             />
           </Row>
         </Bar>
@@ -59,7 +61,7 @@ export const MyColleagues: React.FC = () => {
             return (
               <ColleagueCard
                 key={index}
-                colleague={colleague}
+                model={colleague}
                 onDelete={(colleague) => {
                   setColleague(colleague);
                   toggle();
@@ -71,7 +73,7 @@ export const MyColleagues: React.FC = () => {
       </PageSection>
       <Modal
         headerText="Confirm Delete"
-        body={`Are you sure you wish to delete the '${colleague?.colleague.username}' report?`}
+        body={`Are you sure you wish to delete the '${colleague?.colleague?.email}' colleague ?`}
         isShowing={isShowing}
         hide={toggle}
         type="delete"

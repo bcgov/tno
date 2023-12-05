@@ -1,10 +1,10 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
-import { IColleagueModel, useApiSubscriberColleagues } from 'tno-core';
+import { IColleagueModel, IResponseErrorModel, useApiSubscriberColleagues } from 'tno-core';
 
 interface IColleagueController {
   getColleagues: () => Promise<IColleagueModel[]>;
-  addColleague: (model: IColleagueModel) => Promise<IColleagueModel>;
+  addColleague: (model: IColleagueModel) => Promise<IColleagueModel> | Promise<IResponseErrorModel>;
   deleteColleague: (model: IColleagueModel) => Promise<IColleagueModel>;
 }
 

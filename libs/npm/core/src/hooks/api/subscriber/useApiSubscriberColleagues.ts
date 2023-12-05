@@ -21,16 +21,16 @@ export const useApiSubscriberColleagues = (
     getColleagues: () => {
       return api.get<never, AxiosResponse<IColleagueModel[]>, any>(`/subscriber/users/colleagues`);
     },
-    addColleague: (colleague: IColleagueModel) => {
+    addColleague: (model: IColleagueModel) => {
       return api.post<IColleagueModel, AxiosResponse<IColleagueModel>, any>(
         '/subscriber/users/colleagues',
-        colleague,
+        model,
       );
     },
-    deleteColleague: (colleague: IColleagueModel) => {
+    deleteColleague: (model: IColleagueModel) => {
       return api.delete<IColleagueModel, AxiosResponse<IColleagueModel>, any>(
-        `/subscriber/users/colleagues/${colleague.colleagueId}`,
-        { data: colleague },
+        `/subscriber/users/colleagues/${model.colleague?.id}`,
+        { data: model },
       );
     },
   }).current;

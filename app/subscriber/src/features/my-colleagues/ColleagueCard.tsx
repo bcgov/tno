@@ -1,14 +1,12 @@
 import { Action } from 'components/action';
-import { Button } from 'components/button';
 import { Section } from 'components/section';
 import React from 'react';
-import { FaPen, FaTrashCan } from 'react-icons/fa6';
-import { useNavigate } from 'react-router';
-import { Col, IColleagueModel } from 'tno-core';
+import { FaTrashCan } from 'react-icons/fa6';
+import { IColleagueModel } from 'tno-core';
 
 export interface IColleagueCardProps {
   /** The report to display on this card. */
-  colleague: IColleagueModel;
+  model: IColleagueModel;
   /** Event fires when user requests to delete report. This event does not delete the report itself. */
   onDelete?: (report: IColleagueModel) => void;
 }
@@ -18,26 +16,22 @@ export interface IColleagueCardProps {
  * @param param0 Component properties.
  * @returns Component.
  */
-export const ColleagueCard: React.FC<IColleagueCardProps> = ({ colleague, onDelete }) => {
-  const navigate = useNavigate();
+export const ColleagueCard: React.FC<IColleagueCardProps> = ({ model, onDelete }) => {
   return (
     <Section
-      key={colleague.colleague.id}
-      label={colleague.colleague.username}
+      key={model.colleague?.id}
+      label={`${model.colleague?.username} - ${model.colleague?.email}`}
       showOpen={false}
       actions={
         <>
-          <Button onClick={() => navigate(`/colleague/${colleague.colleague.id}/edit`)}>
-            Edit <FaPen />
-          </Button>
           <Action
             icon={<FaTrashCan />}
             onClick={() => {
-              onDelete?.(colleague);
+              onDelete?.(model);
             }}
           />
         </>
       }
-    ></Section>
+    />
   );
 };
