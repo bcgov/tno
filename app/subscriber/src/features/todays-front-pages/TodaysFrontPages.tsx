@@ -1,6 +1,7 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
+import { FrontPages } from 'features/front-pages';
 import { determineColumns } from 'features/home/constants';
 import moment from 'moment';
 import React from 'react';
@@ -117,7 +118,7 @@ export const TodaysFrontPages: React.FC = () => {
     <styled.TodaysFrontPages>
       <FolderSubMenu selectedContent={selected} />
       <DateFilter filter={frontPageFilter} storeFilter={storeFilter} />
-      <Row className="table-container">
+      {/* <Row className="table-container">
         <FlexboxTable
           rowId="id"
           columns={determineColumns('all')}
@@ -131,7 +132,8 @@ export const TodaysFrontPages: React.FC = () => {
           pageButtons={5}
           showPaging={false}
         />
-      </Row>
+      </Row> */}
+      <FrontPages showTitle={false} />
     </styled.TodaysFrontPages>
   );
 };

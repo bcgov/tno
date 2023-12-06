@@ -1,11 +1,17 @@
 import React from 'react';
 import { useContent, useNavigateAndScroll } from 'store/hooks';
-import { IContentModel, Row } from 'tno-core';
+import { IContentModel, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
+interface IFrontPages extends React.HTMLAttributes<HTMLDivElement> {
+  /**
+   * Display the header.
+   */
+  showTitle: boolean;
+}
 
 /** simple component used to display front pages on the landing page */
-export const FrontPages = () => {
+export const FrontPages: React.FC<IFrontPages> = ({ showTitle }) => {
   const [frontPages, setFrontPages] = React.useState<IContentModel[]>([]);
   const [srcUrls, setSrcUrls] = React.useState<any[]>([]);
   const [, { getFrontPages, stream }] = useContent();
@@ -31,7 +37,9 @@ export const FrontPages = () => {
 
   return (
     <styled.FrontPages>
-      <div className="title">Front Pages</div>
+      <Show visible={showTitle}>
+        <div className="title">Front Pages</div>
+      </Show>
       <Row justifyContent="center" className="content">
         {srcUrls.map((s) => (
           <img
