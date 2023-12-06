@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace TNO.Entities;
 
 /// <summary>
-/// UserReport class, provides a model to link users with their reports.
+/// UserReport class, provides a model to link users with their colleagues.
 /// </summary>
 [Table("user_colleague")]
 public class UserColleague : AuditColumns
@@ -16,25 +16,25 @@ public class UserColleague : AuditColumns
     public int UserId { get; set; }
 
     /// <summary>
-    /// get/set - The user who is linked to the report.
+    /// get/set - The user who is linked to the colleague.
     /// </summary>
     public User? User { get; set; }
 
     /// <summary>
-    /// get/set - Primary key and foreign key to the report.
+    /// get/set - Primary key and foreign key to the colleague.
     /// </summary>
     [Column("colleague_id")]
     public int ColleagueId { get; set; }
 
     /// <summary>
-    /// get/set - the report linked to the user.
+    /// get/set - The colleague who is linked to the user.
     /// </summary>
     public User? Colleague { get; set; }
     #endregion
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a UserReport object, initializes with specified parameters.
+    /// Creates a new instance of a UserColleague object, initializes with specified parameters.
     /// </summary>
     /// <param name="user"></param>
     /// <param name="colleague"></param>
@@ -47,7 +47,7 @@ public class UserColleague : AuditColumns
     }
 
     /// <summary>
-    /// Creates a new instance of a UserReport object, initializes with specified parameters.
+    /// Creates a new instance of a UserColleague object, initializes with specified parameters.
     /// </summary>
     /// <param name="userId"></param>
     /// <param name="colleagueId"></param>

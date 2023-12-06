@@ -26,8 +26,7 @@ export const ColleagueEdit: React.FC = () => {
           },
           user: undefined,
         };
-        const result = await addColleague(model);
-        console.log('myColleagues', result);
+        await addColleague(model);
         navigate('/colleagues');
       } catch {}
     },

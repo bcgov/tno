@@ -52,7 +52,7 @@ export const MyColleagues: React.FC = () => {
             <Action
               label="Add Colleague"
               icon={<FaClipboard />}
-              onClick={() => navigate('/colleague/add')}
+              onClick={() => navigate('/colleagues/add')}
             />
           </Row>
         </Bar>
@@ -73,7 +73,7 @@ export const MyColleagues: React.FC = () => {
       </PageSection>
       <Modal
         headerText="Confirm Delete"
-        body={`Are you sure you wish to delete the '${colleague?.colleague?.email}' colleague ?`}
+        body={`Are you sure you wish to delete this colleague: '${colleague?.colleague?.email}' ?`}
         isShowing={isShowing}
         hide={toggle}
         type="delete"

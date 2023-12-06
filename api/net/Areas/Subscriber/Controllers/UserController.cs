@@ -84,7 +84,7 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Find users athat.
+    /// Find colleagues related to legged user.
     /// </summary>
     /// <returns></returns>
     [HttpGet("colleagues")]
