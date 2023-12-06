@@ -56,7 +56,7 @@ public class UserColleagueModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.UserColleague(UserColleagueModel model)
     {
-        var entity = new Entities.UserColleague(model.User.Id, model.Colleague.Id);
+        var entity = (model.User != null && model.Colleague != null) ? new Entities.UserColleague(model.User.Id, model.Colleague.Id) : throw new InvalidOperationException("Can't convert to Entity (null properties).");
         return entity;
     }
     #endregion
