@@ -74,4 +74,23 @@ export const AVOverviewPreview = styled.div`
       }
     }
   }
+
+  .scroll-icon {
+    height: 1.5em;
+    width: 1.5em;
+    color: #23b6d4;
+    padding-right: 1em;
+  }
+
+  .video-icon {
+    height: 1.5em;
+    width: 1.5em;
+    color: #22c997;
+    padding-right: 1em;
+  }
+
+  .display-metadata {
+    display: flex;
+    justify-content: space-between;
+  }
 `;
