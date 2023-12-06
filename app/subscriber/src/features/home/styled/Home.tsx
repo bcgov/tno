@@ -60,6 +60,18 @@ export const Home = styled.div`
       cursor: pointer;
     }
   }
+  // tone column
+  .column.col-1 {
+    width: 2.5rem;
+    flex: unset;
+    div {
+      width: 100%;
+      justify-content: center;
+      svg.tone-icon {
+        margin-left: unset;
+      }
+    }
+  }
   .headline {
     /* link color */
     color: #3847aa;

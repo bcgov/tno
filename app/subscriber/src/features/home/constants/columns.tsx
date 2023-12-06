@@ -11,7 +11,7 @@ export const determineColumns = (
     {
       accessor: 'tone',
       label: 'TONE',
-      width: 0.25,
+      // width: 0.25,
       isVisible: !hide?.includes('tone'),
       cell: (cell) => (
         <Sentiment value={cell.original.tonePools ? cell.original.tonePools[0]?.value : 0} />
