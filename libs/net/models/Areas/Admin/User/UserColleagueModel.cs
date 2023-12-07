@@ -41,7 +41,10 @@ public class UserColleagueModel : AuditColumnsModel
     /// </summary>
     /// <param name="userId"></param>
     /// <param name="colleagueId"></param>
-    public UserColleagueModel(int userId, int colleagueId) { 
+    public UserColleagueModel(int userId, int colleagueId)
+    { 
+        this.UserId = userId;
+        this.ColleagueId = colleagueId;
         this.User = new UserModel(userId);
         this.Colleague = new UserModel(colleagueId);
     }
@@ -53,6 +56,8 @@ public class UserColleagueModel : AuditColumnsModel
     /// <param name="serializerOptions"></param>
     public UserColleagueModel(Entities.UserColleague entity, JsonSerializerOptions? serializerOptions = null) : base(entity)
     {
+        this.UserId = entity.UserId;
+        this.ColleagueId = entity.ColleagueId;
         this.User = new UserModel
         {
             Id = entity.UserId
