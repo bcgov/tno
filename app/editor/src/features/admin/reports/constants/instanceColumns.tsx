@@ -15,14 +15,14 @@ export const instanceColumns = (options: {
   {
     label: 'Owner',
     accessor: 'owner.username',
-    width: 2,
+    width: 1,
     cell: (cell) => <CellEllipsis>{cell.original.owner?.username ?? ''}</CellEllipsis>,
   },
   {
-    label: 'Transaction Id',
-    accessor: 'txId',
-    width: 2,
-    cell: (cell) => <CellEllipsis>{cell.original.response.txId}</CellEllipsis>,
+    label: 'Email Status',
+    accessor: 'status',
+    width: 1,
+    cell: (cell) => <CellEllipsis>{cell.original.status}</CellEllipsis>,
   },
   {
     label: '',

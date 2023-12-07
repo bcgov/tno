@@ -27,6 +27,11 @@ public class UserReportModel : AuditColumnsModel
     /// get/set - Whether this user is subscribed to the report.
     /// </summary>
     public bool IsSubscribed { get; set; }
+
+    /// <summary>
+    /// get/set - Which distribution format the user wants to receive.
+    /// </summary>
+    public Entities.ReportDistributionFormat Format { get; set; } = Entities.ReportDistributionFormat.FullText;
     #endregion
 
     #region Constructors
@@ -45,6 +50,7 @@ public class UserReportModel : AuditColumnsModel
         this.User = entity.User != null ? new UserModel(entity.User) : null;
         this.ReportId = entity.ReportId;
         this.IsSubscribed = entity.IsSubscribed;
+        this.Format = entity.Format;
     }
     #endregion
 
@@ -55,9 +61,8 @@ public class UserReportModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.UserReport(UserReportModel model)
     {
-        return new Entities.UserReport(model.UserId, model.ReportId)
+        return new Entities.UserReport(model.UserId, model.ReportId, model.IsSubscribed, model.Format)
         {
-            IsSubscribed = model.IsSubscribed,
             Version = model.Version ?? 0
         };
     }

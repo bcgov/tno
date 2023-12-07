@@ -72,7 +72,7 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
 
   React.useEffect(() => {
     // TODO: Templates don't change much and don't need to be fetched often.
-    if (report.templateId !== defaultReportTemplateId) {
+    if (defaultReportTemplateId && report.templateId !== defaultReportTemplateId) {
       getReportTemplate(defaultReportTemplateId)
         .then((template) => {
           if (template) {

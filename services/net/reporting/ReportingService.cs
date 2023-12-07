@@ -1,7 +1,4 @@
-using System.Reflection;
-using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
-using TNO.Ches;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Reporting.Config;

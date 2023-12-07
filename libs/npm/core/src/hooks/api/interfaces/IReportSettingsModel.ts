@@ -6,7 +6,6 @@ import {
 } from '.';
 
 export interface IReportSettingsModel {
-  viewOnWebOnly: boolean;
   subject: IReportSubjectSettingsModel;
   headline: IReportHeadlineSettingsModel;
   content: IReportContentSettingsModel;

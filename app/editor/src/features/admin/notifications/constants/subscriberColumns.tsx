@@ -1,9 +1,15 @@
-import { CellEllipsis, Checkbox, INotificationModel, ITableHookColumn, IUserModel } from 'tno-core';
+import {
+  CellEllipsis,
+  Checkbox,
+  INotificationModel,
+  ITableHookColumn,
+  IUserNotificationModel,
+} from 'tno-core';
 
 export const subscriberColumns = (
   report: INotificationModel,
   setFieldValue: (field: string, value: any, shouldValidate?: boolean | undefined) => void,
-): ITableHookColumn<IUserModel>[] => [
+): ITableHookColumn<IUserNotificationModel>[] => [
   {
     label: '',
     accessor: 'id',

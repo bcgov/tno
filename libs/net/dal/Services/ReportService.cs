@@ -202,6 +202,8 @@ public class ReportService : BaseService<Report, int>, IReportService
             {
                 if (originalSubscriber.IsSubscribed != s.IsSubscribed)
                     originalSubscriber.IsSubscribed = s.IsSubscribed;
+                if (originalSubscriber.Format != s.Format)
+                    originalSubscriber.Format = s.Format;
             }
         });
 

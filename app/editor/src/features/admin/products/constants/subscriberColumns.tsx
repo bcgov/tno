@@ -3,7 +3,7 @@ import {
   Checkbox,
   IProductModel,
   ITableHookColumn,
-  IUserSubscriberModel,
+  IUserProductModel,
   Show,
   ToggleGroup,
 } from 'tno-core';
@@ -11,7 +11,7 @@ import {
 export const subscriberColumns = (
   product: IProductModel,
   setFieldValue: (field: string, value: any, shouldValidate?: boolean | undefined) => void,
-): ITableHookColumn<IUserSubscriberModel>[] => [
+): ITableHookColumn<IUserProductModel>[] => [
   {
     label: '',
     accessor: 'id',

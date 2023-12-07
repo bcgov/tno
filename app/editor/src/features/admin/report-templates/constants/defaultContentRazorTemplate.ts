@@ -10,7 +10,8 @@ export const defaultContentBodyRazorTemplate = `@inherits RazorEngineCore.RazorE
   var pageBreak = Settings.Sections.UsePageBreaks ? "page-break-after: always;" : "";
   var utcOffset = ReportExtensions.GetUtcOffset(System.DateTime.Now, "Pacific Standard Time");
 }
-<h2 id="top">Report Title</h2>
+<h1 id="top" style="margin: 0; padding: 0;">@Settings.Subject.Text</h1>
+<a name="top"></a>
 <div style="color:red;">DO NOT FORWARD THIS EMAIL TO ANYONE</div>
 <br/>
 
@@ -18,23 +19,33 @@ export const defaultContentBodyRazorTemplate = `@inherits RazorEngineCore.RazorE
 {
   <p>There is no content in this report.</p>
 }
-@if (Settings.ViewOnWebOnly)
+@if (ViewOnWebOnly)
 {
-  <a href="">Click to view this report online</>
+  <a href="@SubscriberAppUrl" target="_blank">Click to view this report online</a>
 }
 else
 {
+  var contentCount = 0;
+  var allContent = Content.ToArray();
   foreach (var section in Sections)
   {
     var sectionContent = section.Value.Content.ToArray();
-    if (section.Value.IsEnabled && sectionContent.Length > 0 || !Settings.Sections.HideEmpty)
+    if (section.Value.IsEnabled &&
+      (sectionContent.Length > 0 ||
+      !section.Value.Settings.HideEmpty ||
+      (section.Value.Settings.SectionType == ReportSectionType.TableOfContents)
+        && Content.Any()))
     {
+      <hr style="width: 100%; display: inline-block;" />
       <div style="@pageBreak">
         @if (!String.IsNullOrEmpty(section.Value.Settings.Label))
-          <h3>@section.Value.Settings.Label</h3>
-         @if (!String.IsNullOrEmpty(section.Value.Description))
+        {
+          <h2 id="section-@section.Value.Id" styled="margin: 0; padding: 0;">@section.Value.Settings.Label<a name="section-@section.Value.Id"></a></h2>
+        }
+        @if (!String.IsNullOrEmpty(section.Value.Description))
+        {
           <p>@section.Value.Description</p>
-
+        }
         @* Charts *@
         @if (section.Value.Settings.ChartsOnTop && section.Value.Settings.ShowCharts)
         {
@@ -43,65 +54,141 @@ else
             <img alt="@chart.SectionSettings.AltText" src="@chart.Uid" />
           }
         }
-
-        @* Table of Contents *@
-        @if (section.Value.Settings.ShowContent)
+        @if (section.Value.Settings.SectionType == ReportSectionType.Content)
         {
-          <ul>
-            @foreach (var content in sectionContent)
-            {
-              var headline = $"{(Settings.Headline.ShowSentiment ? content.GetSentimentIcon("{0} - ") : "")}{content.Headline}{(Settings.Headline.ShowShortName && !String.IsNullOrEmpty(content.Source?.ShortName) ? $" - {content.Source?.ShortName}" : (Settings.Headline.ShowSource ? $" - {content.OtherSource}": ""))}{(Settings.Headline.ShowPublishedOn ? $" - {content.PublishedOn?.AddHours(utcOffset):dd-MMM-yyyy}" : "")}";
-              if (Settings.Content.IncludeStory)
+          @* Section Table of Contents *@
+          var positionInTOC = 0;
+          if (section.Value.Settings.ShowHeadlines)
+          {
+              @if (section.Value.Settings.GroupBy != "")
               {
-                <li><a href="#@($"item-{content.Id}")">@headline</a></li>
+                var contentGroupings = sectionContent.GetContentGroupings(section.Value.Settings.GroupBy);
+                <ul style="margin:0; margin-left: 25px; padding:0;">
+                @foreach(KeyValuePair<string, List<long>> contentGroup in contentGroupings)
+                {
+                <li>@section.Value.Settings.GroupBy = @contentGroup.Key</li>
+                  <ul style="margin:0; margin-left: 25px; padding:0;">
+                    @foreach(long contentId in contentGroup.Value)
+                    {
+                      var content = sectionContent.FirstOrDefault(c => c.Id == contentId);
+                      var headlineLink = contentCount + positionInTOC;
+                      positionInTOC++;
+                      if (section.Value.Settings.ShowFullStory)
+                      {
+                        <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{headlineLink}")</li>
+                      }
+                      else
+                      {
+                        <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, "", "_blank")</li>
+                      }
+                    }
+                  </ul>
+                }
+                </ul>
               }
               else
               {
-                <li>@headline</li>
+                <ul style="margin:0; margin-left: 25px; padding:0;">
+                @foreach (var content in sectionContent)
+                {
+                  var headlineLink= contentCount + positionInTOC;
+                  positionInTOC++;
+                    @if (section.Value.Settings.ShowFullStory)
+                    {
+                      <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{headlineLink}")</li>
+                    }
+                    else
+                    {
+                      <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, "", "_blank")</li>
+                    }
+                }
+                </ul>
               }
-            }
-          </ul>
+          }
 
           @* Full Stories *@
-          @if (Settings.Content.IncludeStory)
+          @if (section.Value.Settings.ShowFullStory)
           {
             for (var i = 0; i < sectionContent.Length; i++)
             {
               var content = sectionContent[i];
-              var hasPrev = i > 0;
-              var prev = hasPrev ? sectionContent[i - 1].Id : 0;
-              var hasNext = (i + 1) < sectionContent.Length;
-              var next = hasNext ? sectionContent[i + 1].Id : 0;
-
-              <div id="item-@content.Id" style="display: flex; align-items: center;">
-                <hr style="width: 100%; display: inline-block;" />
-              </div>
+              var rawHeadline = ReportExtensions.GetHeadline(content, Model);
+              var headline = Settings.Content.HighlightKeywords ? ReportExtensions.HighlightKeyWords(section.Value.Filter, rawHeadline, "headline")  : rawHeadline;
+              var rawBody = ReportExtensions.GetBody(content, Model);
+              var body = Settings.Content.HighlightKeywords ? ReportExtensions.HighlightKeyWords(section.Value.Filter, rawBody, "body")  : rawBody;
+              var rawByline = ReportExtensions.GetByline(content, Model);
+              var byline= Settings.Content.HighlightKeywords ? ReportExtensions.HighlightKeyWords(section.Value.Filter, rawByline, "byline")  : rawByline;
+              var hasPrev = contentCount > 0;
+              var prev = hasPrev ? contentCount - 1 : 0;
+              var hasNext = (contentCount  + 1) < allContent.Length;
+              var next = hasNext ? contentCount + 1 : 0;
+              var itemPosition = contentCount;
+              contentCount++;
               <div>
-                <a href="#top">top</a>
-                @if (i > 0)
+                <div id="item-@itemPosition" style="display: flex; align-items: center;">
+                  <a name="item-@content.Id"></a>
+                </div>
+                <div>
+                  <a href="#top">top</a>
+                  @if (hasPrev )
+                  {
+                    <a href="#item-@prev">previous</a>
+                  }
+                  @if (hasNext )
+                  {
+                    <a href="#item-@next">next</a>
+                  }
+                </div>
+                <h3>@headline</h3>
+                <div>@content.Source?.Name</div>
+                <div>@content.PublishedOn?.AddHours(utcOffset).ToString("dddd, MMMM d, yyyy")</div>
+                @if (!string.IsNullOrWhiteSpace(content.Page))
                 {
-                  <a href="#item-@prev">previous</a>
+                    <div>Page @content.Page</div>
                 }
-                @if (i < sectionContent.Length -1)
+                @if (!string.IsNullOrWhiteSpace(byline) && Settings.Headline.ShowByline)
                 {
-                  <a href="#item-@next">next</a>
+                    <div>By @byline</div>
                 }
+                <br />
+                @if (!String.IsNullOrEmpty(body))
+                {
+                  <div>@body</div>
+                }
+                @if (!string.IsNullOrEmpty(content.ImageContent) && section.Value.Settings.ShowImage)
+                {
+                    var src = $"data:{content.ContentType};base64," + content.ImageContent;
+                    <div><img src="@src" alt="@content.FileReferences.FirstOrDefault()?.FileName" /></div>
+                }
+                @if (Settings.Content.ShowLinkToStory)
+                {
+                  <a href="@($"{ViewContentUrl}{content.Id}")" target="_blank">View Article</a>
+                }
+                <hr style="width: 100%; display: inline-block; border-top: 1px solid lightGrey;" />
               </div>
-              <h3>@content.Headline</h3>
-              <div>@content.Source?.Name</div>
-              <div>@content.PublishedOn?.AddHours(utcOffset).ToString("dddd, MMMM d, yyyy")</div>
-              @if (!string.IsNullOrWhiteSpace(content.Page))
-              {
-                  <div>Page @content.Page</div>
-              }
-              @if (!string.IsNullOrWhiteSpace(content.Byline))
-              {
-                  <div>By @content.Byline</div>
-              }
-              <br />
-              <div>@content.GetBody()</div>
             }
-            <hr style="width: 100%; display: inline-block;" />
+          }
+        }
+        else if (section.Value.Settings.SectionType == ReportSectionType.TableOfContents)
+        {
+          @* Report Table of Contents *@
+          var tocCount = 0;
+          @foreach (var tableSection in Sections.Where(s => s.Value.Settings.SectionType != ReportSectionType.TableOfContents))
+          {
+            if (!tableSection.Value.Settings.HideEmpty || tableSection.Value.Content.Any())
+            {
+              <a href="#@($"section-{tableSection.Value.Id}")"><h3 style="margin: 0; padding: 0;">@tableSection.Value.Settings.Label</h3></a>
+              @if (section.Value.Settings.ShowHeadlines && tableSection.Value.Content.Any())
+              {
+                <ul style="margin:0; margin-left: 25px; padding:0;">
+                  @foreach (var content in tableSection.Value.Content)
+                  {
+                    <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{tocCount}")</li>
+                    tocCount++;
+                  }
+                </ul>
+              }
+            }
           }
         }
 

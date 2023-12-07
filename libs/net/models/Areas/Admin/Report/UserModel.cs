@@ -1,9 +1,11 @@
+using TNO.API.Models;
+
 namespace TNO.API.Areas.Admin.Models.Report;
 
 /// <summary>
 /// UserModel class, provides a model that represents an user.
 /// </summary>
-public class UserModel
+public class UserModel : AuditColumnsModel
 {
     #region Properties
     /// <summary>
@@ -37,9 +39,14 @@ public class UserModel
     public string LastName { get; set; } = "";
 
     /// <summary>
-    /// get/set - Whether the user is subscribed to the report.
+    /// get/set - Whether the user is subscribed to the av evening overview report.
     /// </summary>
     public bool IsSubscribed { get; set; }
+
+    /// <summary>
+    /// get/set - Which distribution format the user wants to receive.
+    /// </summary>
+    public Entities.ReportDistributionFormat Format { get; set; } = Entities.ReportDistributionFormat.FullText;
     #endregion
 
     #region Constructors
@@ -52,16 +59,36 @@ public class UserModel
     /// Creates a new instance of an UserModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    /// <param name="isSubscribed"></param>
-    public UserModel(Entities.User entity, bool isSubscribed = true)
+    public UserModel(Entities.User? entity) : base(entity)
     {
-        this.Id = entity.Id;
-        this.Username = entity.Username;
-        this.Email = entity.Email;
-        this.DisplayName = entity.DisplayName;
-        this.FirstName = entity.FirstName;
-        this.LastName = entity.LastName;
-        this.IsSubscribed = isSubscribed;
+        if (entity != null)
+        {
+            this.Id = entity.Id;
+            this.Username = entity.Username;
+            this.Email = entity.Email;
+            this.DisplayName = entity.DisplayName;
+            this.FirstName = entity.FirstName;
+            this.LastName = entity.LastName;
+        }
+    }
+
+    /// <summary>
+    /// Creates a new instance of an UserModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="entity"></param>
+    public UserModel(Entities.UserReport entity) : base(entity)
+    {
+        this.Id = entity.UserId;
+        this.IsSubscribed = entity.IsSubscribed;
+        this.Format = entity.Format;
+        if (entity.User != null)
+        {
+            this.Username = entity.User.Username;
+            this.Email = entity.User.Email;
+            this.DisplayName = entity.User.DisplayName;
+            this.FirstName = entity.User.FirstName;
+            this.LastName = entity.User.LastName;
+        }
     }
     #endregion
 }

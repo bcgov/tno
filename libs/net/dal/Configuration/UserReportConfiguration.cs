@@ -12,6 +12,7 @@ public class UserReportConfiguration : AuditColumnsConfiguration<UserReport>
         builder.Property(m => m.UserId).IsRequired().ValueGeneratedNever();
         builder.Property(m => m.ReportId).IsRequired().ValueGeneratedNever();
         builder.Property(m => m.IsSubscribed).IsRequired();
+        builder.Property(m => m.Format).IsRequired();
 
         builder.HasOne(m => m.User).WithMany(m => m.ReportSubscriptionsManyToMany).HasForeignKey(m => m.UserId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.Report).WithMany(m => m.SubscribersManyToMany).HasForeignKey(m => m.ReportId).OnDelete(DeleteBehavior.Cascade);

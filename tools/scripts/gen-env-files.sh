@@ -222,9 +222,13 @@ ConnectionStrings__TNO=Host=host.docker.internal:$portDatabase;Database=$dbName;
 DB_POSTGRES_USERNAME=$dbUser
 DB_POSTGRES_PASSWORD=$password
 
-# Elastic__Url=host.docker.internal:$portElastic
+# Elastic__Url=http://localhost:$portElastic
 ELASTIC_USERNAME=$elasticUser
 ELASTIC_PASSWORD=$password
+
+Reporting__ViewContentUrl=http://localhost:$portNginxSubscriber/view/
+Charts__Url=http://charts:8080
+# Charts__Url=http://localhost:$portChartsApi
 
 AZURE_STORAGE_CONTAINER_NAME=$dbName
 AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devaccount1;AccountKey=$azureKey;BlobEndpoint=http://host.docker.internal:$portAzureBlob/devaccount1;
@@ -816,6 +820,8 @@ Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
+Charts__Url=http://charts:8080
+# Charts__Url=http://localhost:$portChartsApi
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
 

@@ -52,8 +52,14 @@ export const useReports = (): [IReportController] => {
         );
         if (response.data) {
           storeMyReports((reports) => {
-            if (reports.some((r) => r.id === response.data?.id))
-              return reports.map((r) => (r.id === response.data?.id ? response.data : r));
+            if (!response.data) return reports;
+            var contains = false;
+            const results = reports.map((r) => {
+              if (r.id === id) contains = true;
+              return r.id === id ? response.data! : r;
+            });
+
+            if (contains) return results;
             return [response.data!, ...reports];
           });
         }
@@ -72,6 +78,7 @@ export const useReports = (): [IReportController] => {
         const response = await dispatch<IReportModel>('add-report', () => api.addReport(model));
         // Update store with report data.
         storeMyReports((reports) => {
+          if (!response.data) return reports;
           return [response.data!, ...reports].sort(sortable);
         });
         return response.data;
@@ -81,8 +88,14 @@ export const useReports = (): [IReportController] => {
           api.updateReport(model, updateInstances),
         );
         storeMyReports((reports) => {
-          if (reports.some((r) => r.id === response.data?.id))
-            return reports.map((r) => (r.id === model.id ? response.data : r));
+          if (!response.data) return reports;
+          var contains = false;
+          const results = reports.map((r) => {
+            if (r.id === model.id) contains = true;
+            return r.id === model.id ? response.data! : r;
+          });
+
+          if (contains) return results;
           return [response.data!, ...reports];
         });
         return response.data;

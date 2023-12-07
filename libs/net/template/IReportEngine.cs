@@ -1,6 +1,6 @@
+using TNO.TemplateEngine.Models;
 using TNO.TemplateEngine.Models.Charts;
 using TNO.TemplateEngine.Models.Reports;
-using TNO.TemplateEngine.Models;
 
 namespace TNO.TemplateEngine;
 
@@ -39,11 +39,13 @@ public interface IReportEngine
     /// </summary>
     /// <param name="report"></param>
     /// <param name="sectionContent"></param>
+    /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
     /// <returns></returns>
     Task<string> GenerateReportSubjectAsync(
         API.Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sectionContent,
+        bool viewOnWebOnly = false,
         bool isPreview = false);
 
     /// <summary>
@@ -52,12 +54,14 @@ public interface IReportEngine
     /// <param name="report"></param>
     /// <param name="sectionContent"></param>
     /// <param name="uploadPath"></param>
+    /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
     /// <returns></returns>
     Task<string> GenerateReportBodyAsync(
         API.Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sectionContent,
         string? uploadPath = null,
+        bool viewOnWebOnly = false,
         bool isPreview = false);
 
     /// <summary>

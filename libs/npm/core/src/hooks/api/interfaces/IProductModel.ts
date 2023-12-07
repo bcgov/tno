@@ -1,9 +1,9 @@
 import { ProductTypeName } from '../constants';
-import { ISortableModel, IUserSubscriberModel } from '.';
+import { ISortableModel, IUserProductModel } from '.';
 
 export interface IProductModel extends ISortableModel<number> {
   isPublic: boolean;
   targetProductId: number;
   productType: ProductTypeName;
-  subscribers: IUserSubscriberModel[];
+  subscribers: IUserProductModel[];
 }

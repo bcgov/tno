@@ -7,7 +7,7 @@ import {
   ITableInternal,
   ITablePage,
   ITableSort,
-  IUserSubscriberModel,
+  IUserProductModel,
 } from 'tno-core';
 
 import { subscriberColumns } from './constants';
@@ -27,17 +27,14 @@ export const ProductSubscribersForm = () => {
   }, []);
 
   const handlePageChange = React.useCallback(
-    async (page: ITablePage, table: ITableInternal<IUserSubscriberModel>) => {
+    async (page: ITablePage, table: ITableInternal<IUserProductModel>) => {
       await findUsers({ page: page.pageIndex + 1, quantity: page.pageSize });
     },
     [findUsers],
   );
 
   const handleSortChange = React.useCallback(
-    async (
-      sort: ITableSort<IUserSubscriberModel>[],
-      table: ITableInternal<IUserSubscriberModel>,
-    ) => {
+    async (sort: ITableSort<IUserProductModel>[], table: ITableInternal<IUserProductModel>) => {
       const sorts = sort
         .filter((s) => s.isSorted)
         .map((s) => `${s.id}${s.isSortedDesc ? ' desc' : ''}`);
@@ -56,7 +53,7 @@ export const ProductSubscribersForm = () => {
       <FlexboxTable
         rowId="id"
         columns={subscriberColumns(values, setFieldValue)}
-        data={users.items as IUserSubscriberModel[]}
+        data={users.items as IUserProductModel[]}
         manualPaging
         pageIndex={users.page}
         pageSize={users.quantity}

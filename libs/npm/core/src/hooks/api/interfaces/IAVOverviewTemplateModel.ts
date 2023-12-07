@@ -3,7 +3,7 @@ import {
   IAuditColumnsModel,
   IAVOverviewTemplateSectionModel,
   IReportTemplateModel,
-  IUserModel,
+  IUserAVOverviewModel,
 } from '.';
 
 export interface IAVOverviewTemplateModel extends IAuditColumnsModel {
@@ -11,5 +11,5 @@ export interface IAVOverviewTemplateModel extends IAuditColumnsModel {
   templateId: number;
   template?: IReportTemplateModel;
   sections: IAVOverviewTemplateSectionModel[];
-  subscribers: IUserModel[];
+  subscribers: IUserAVOverviewModel[];
 }

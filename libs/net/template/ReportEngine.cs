@@ -171,12 +171,14 @@ public class ReportEngine : IReportEngine
     /// </summary>
     /// <param name="report"></param>
     /// <param name="sectionContent"></param>
+    /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<string> GenerateReportSubjectAsync(
         API.Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sectionContent,
+        bool viewOnWebOnly = false,
         bool isPreview = false)
     {
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
@@ -193,6 +195,7 @@ public class ReportEngine : IReportEngine
             instance.Settings = model.Settings;
             instance.Content = model.Content;
             instance.Sections = model.Sections;
+            instance.ViewOnWebOnly = viewOnWebOnly;
 
             instance.SubscriberAppUrl = this.TemplateOptions.SubscriberAppUrl;
             instance.ViewContentUrl = this.TemplateOptions.ViewContentUrl;
@@ -206,6 +209,7 @@ public class ReportEngine : IReportEngine
     /// <param name="report"></param>
     /// <param name="sectionContent"></param>
     /// <param name="uploadPath"></param>
+    /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
@@ -213,6 +217,7 @@ public class ReportEngine : IReportEngine
         API.Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sectionContent,
         string? uploadPath = null,
+        bool viewOnWebOnly = false,
         bool isPreview = false)
     {
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
@@ -229,6 +234,7 @@ public class ReportEngine : IReportEngine
             instance.Settings = model.Settings;
             instance.Content = model.Content;
             instance.Sections = model.Sections;
+            instance.ViewOnWebOnly = viewOnWebOnly;
 
             instance.SubscriberAppUrl = this.TemplateOptions.SubscriberAppUrl;
             instance.ViewContentUrl = this.TemplateOptions.ViewContentUrl;
@@ -236,39 +242,42 @@ public class ReportEngine : IReportEngine
             instance.AddToReportUrl = this.TemplateOptions.AddToReportUrl;
         });
 
-        var aggregateSection = new Dictionary<string, ReportSectionModel>();
-        // Find all charts and make a request to the Charts API to generate the image.
-        await report.Sections.ForEachAsync(async section =>
+        if (!viewOnWebOnly)
         {
-            var settings = section.Settings;
-            List<ContentModel> content = new();
-
-            // If the section has content add it to the chart request.
-            if (sectionContent.TryGetValue(section.Name, out ReportSectionModel? sectionData) && sectionData != null)
+            var aggregateSection = new Dictionary<string, ReportSectionModel>();
+            // Find all charts and make a request to the Charts API to generate the image.
+            await report.Sections.ForEachAsync(async section =>
             {
-                content.AddRange(sectionData.Content);
-                aggregateSection.Add(section.Name, sectionData);
-            }
+                var settings = section.Settings;
+                List<ContentModel> content = new();
 
-            await section.ChartTemplates.ForEachAsync(async chart =>
-            {
-                // TODO: Merge with report specific configuration options.
-                chart.SectionSettings ??= new();
-                if (chart.SectionSettings.Options == null || chart.SectionSettings.Options.ToJson() == "{}")
-                    chart.SectionSettings.Options = chart.Settings.Options;
+                // If the section has content add it to the chart request.
+                if (sectionContent.TryGetValue(section.Name, out ReportSectionModel? sectionData) && sectionData != null)
+                {
+                    content.AddRange(sectionData.Content);
+                    aggregateSection.Add(section.Name, sectionData);
+                }
 
-                var chartModel = new ChartEngineContentModel(
-                    ReportSectionModel.GenerateChartUid(section.Id, chart.Id),
-                    chart,
-                    aggregateSection,
-                    settings.SectionType == Entities.ReportSectionType.Content ? content : null);
-                var chartRequestModel = new ChartRequestModel(chartModel);
-                var base64Image = await this.GenerateBase64ImageAsync(chartRequestModel);
+                await section.ChartTemplates.ForEachAsync(async chart =>
+                {
+                    // TODO: Merge with report specific configuration options.
+                    chart.SectionSettings ??= new();
+                    if (chart.SectionSettings.Options == null || chart.SectionSettings.Options.ToJson() == "{}")
+                        chart.SectionSettings.Options = chart.Settings.Options;
 
-                // Replace Chart Stubs with the generated image.
-                body = body.Replace(ReportSectionModel.GenerateChartUid(section.Id, chart.Id), base64Image);
+                    var chartModel = new ChartEngineContentModel(
+                        ReportSectionModel.GenerateChartUid(section.Id, chart.Id),
+                        chart,
+                        aggregateSection,
+                        settings.SectionType == Entities.ReportSectionType.Content ? content : null);
+                    var chartRequestModel = new ChartRequestModel(chartModel);
+                    var base64Image = await this.GenerateBase64ImageAsync(chartRequestModel);
+
+                    // Replace Chart Stubs with the generated image.
+                    body = body.Replace(ReportSectionModel.GenerateChartUid(section.Id, chart.Id), base64Image);
+                });
             });
-        });
+        }
 
         return body;
     }

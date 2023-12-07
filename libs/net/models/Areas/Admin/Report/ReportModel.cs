@@ -81,7 +81,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
         this.IsPublic = entity.IsPublic;
         this.Settings = JsonSerializer.Deserialize<ReportSettingsModel>(entity.Settings, options) ?? new();
         this.Sections = entity.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s, options)).ToArray();
-        this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!, s.IsSubscribed)).ToArray();
+        this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s)).ToArray();
         this.Instances = entity.Instances.OrderByDescending(i => i.Id).Select(i => new ReportInstanceModel(i)).ToArray();
         this.Events = entity.Events.Select(s => new ReportScheduleModel(s)).ToArray();
     }
@@ -193,7 +193,9 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
 
         entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us => new Entities.UserReport(us.Id, entity.Id)
         {
-            IsSubscribed = us.IsSubscribed
+            IsSubscribed = us.IsSubscribed,
+            Format = us.Format,
+            Version = us.Version ?? 0,
         }));
 
         entity.Events.AddRange(model.Events.Select(s =>

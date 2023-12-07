@@ -6,6 +6,7 @@ import {
   IReportTemplateModel,
   ISortableModel,
   IUserModel,
+  IUserReportModel,
 } from '.';
 
 export interface IReportModel extends ISortableModel<number> {
@@ -16,7 +17,7 @@ export interface IReportModel extends ISortableModel<number> {
   isPublic: boolean;
   settings: IReportSettingsModel;
   sections: IReportSectionModel[];
-  subscribers: IUserModel[];
+  subscribers: IUserReportModel[];
   instances: IReportInstanceModel[];
   events: IReportScheduleModel[];
 }

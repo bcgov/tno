@@ -130,10 +130,6 @@ export const ReportSettings: React.FC = () => {
         <Col className="frm-in">
           <label>Recipients:</label>
         </Col>
-        <Col className="frm-in">
-          <label>Report delivery:</label>
-          <FormikCheckbox name="settings.viewOnWebOnly" label="View on web only (not in email)" />
-        </Col>
         <Col className="frm-in schedules">
           <label>Schedules:</label>
           <Row gap="1rem">

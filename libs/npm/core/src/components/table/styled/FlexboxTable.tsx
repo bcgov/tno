@@ -65,8 +65,13 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
         background-color: rgb(233, 236, 239);
       }
 
-      &:hover:not(.active) {
-        filter: brightness(75%);
+      &:nth-child(even):hover:not(.active) {
+        background-color: #e0e0e0;
+        border-radius: 0.25rem;
+      }
+
+      &:nth-child(odd):hover:not(.active) {
+        background-color: #ededed;
         border-radius: 0.25rem;
       }
 

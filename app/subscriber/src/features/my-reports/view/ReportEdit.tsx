@@ -4,7 +4,7 @@ import { FormikForm } from 'components/formik';
 import { Header } from 'components/header';
 import { PageSection } from 'components/section';
 import React from 'react';
-import { FaArrowLeft, FaCloud, FaFileExcel, FaRecycle } from 'react-icons/fa6';
+import { FaArrowLeft, FaCloud, FaFileExcel, FaGear, FaRecycle } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useReportInstances, useReports } from 'store/hooks';
@@ -140,8 +140,14 @@ export const ReportEdit: React.FC = () => {
                   <Row gap="1rem" justifyContent="flex-end">
                     <Action
                       disabled={isSubmitting}
+                      icon={<FaGear />}
+                      title="Edit report template"
+                      onClick={() => navigate(`/reports/${values.id}`)}
+                    />
+                    <Action
+                      disabled={isSubmitting}
                       icon={<FaRecycle />}
-                      title="Regenerate"
+                      title="Regenerate content"
                       onClick={() => toggle()}
                     />
                     <Action

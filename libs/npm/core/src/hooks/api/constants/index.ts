@@ -21,6 +21,8 @@ export * from './NotificationType';
 export * from './NotificationTypeName';
 export * from './ProductType';
 export * from './ProductTypeName';
+export * from './ReportDistributionFormat';
+export * from './ReportDistributionFormatName';
 export * from './ReportSectionType';
 export * from './ReportSectionTypeName';
 export * from './ReportStatus';

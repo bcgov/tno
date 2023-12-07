@@ -88,7 +88,7 @@ public static class ReportExtensions
     public static string GetBody(this ContentModel content, ReportEngineContentModel context)
     {
         var contentSummary = content.GetSummary(context);
-        var contentBody = context.OwnerId.HasValue && content.Versions.ContainsKey(context.OwnerId.Value) ? content.Versions[context.OwnerId.Value].Body : content.Body;
+        var contentBody = context.OwnerId.HasValue && content.Versions.TryGetValue(context.OwnerId.Value, out Entities.Models.ContentVersion? value) ? value.Body : content.Body;
         return IsTranscriptAvailable(content) ? contentBody : (IsAV(content) ? contentSummary : contentBody);
     }
 

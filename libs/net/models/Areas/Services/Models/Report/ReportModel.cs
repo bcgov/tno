@@ -161,7 +161,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
             return section;
         }));
 
-        entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us => new Entities.UserReport(us.UserId, entity.Id, us.IsSubscribed)));
+        entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us => new Entities.UserReport(us.UserId, entity.Id, us.IsSubscribed, us.Format)));
 
         return entity;
     }
