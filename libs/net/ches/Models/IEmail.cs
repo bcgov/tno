@@ -16,6 +16,7 @@ namespace TNO.Ches.Models
         /// get/set - Email addresses to go in the To: field
         /// </summary>
         IEnumerable<string> To { get; set; }
+
         /// <summary>
         /// get/set - Email addresses to go in the CC: field
         /// </summary>
