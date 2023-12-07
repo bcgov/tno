@@ -102,6 +102,14 @@ public class UserModel : AuditColumnsModel
     public UserModel() { }
 
     /// <summary>
+    /// Creates a new instance of an UserModel settiong the primary key.
+    /// </summary>
+    /// <param name="id"></param>
+    public UserModel(int id) { 
+        this.Id = id;
+    }
+
+    /// <summary>
     /// Creates a new instance of an UserModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>

@@ -16,7 +16,6 @@ public interface IUserService : IBaseService<User, int>
     User? UpdatePreferences(User user);
 
     User? FindByUsername(string username);
-
     IEnumerable<User> FindByEmail(string email);
     IEnumerable<User> FindByRoles(IEnumerable<string> roles);
 }

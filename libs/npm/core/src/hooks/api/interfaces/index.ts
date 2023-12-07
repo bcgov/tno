@@ -14,6 +14,7 @@ export * from './IChartSectionSettingsModel';
 export * from './IChartTemplateModel';
 export * from './IChartTemplateSettingsModel';
 export * from './IClipModel';
+export * from './IColleagueModel';
 export * from './IConnectionModel';
 export * from './IContentActionMessageModel';
 export * from './IContentActionModel';
