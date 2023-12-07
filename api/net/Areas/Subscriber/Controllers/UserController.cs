@@ -134,8 +134,9 @@ public class UserController : ControllerBase
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        var result = _userColleagueService.RemoveColleague(user.Id, colleagueId);
-        return CreatedAtAction(nameof(DeleteColleague), new { id = result?.ColleagueId }, new UserColleagueModel(result, _serializerOptions));
+        var result = _userColleagueService.RemoveColleague(user.Id, colleagueId) ?? throw new InvalidOperationException("No colleague to delete.");
+        var deletedModel = new UserColleagueModel(result, _serializerOptions);
+        return CreatedAtAction(nameof(DeleteColleague), new { id = result?.ColleagueId }, deletedModel);
     }
     #endregion
 }

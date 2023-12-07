@@ -10,6 +10,16 @@ public class UserColleagueModel : AuditColumnsModel
 {
     #region Properties
     /// <summary>
+    /// get/set - Primary key and foreign key to the user.
+    /// </summary>
+    public int UserId { get; set; }
+
+    /// <summary>
+    /// get/set - Primary key and foreign key to the colleague.
+    /// </summary>
+    public int ColleagueId { get; set; }
+
+    /// <summary>
     /// get/set - User that relates to colleague.
     /// </summary>
     public UserModel? User { get; set; }
@@ -49,8 +59,8 @@ public class UserColleagueModel : AuditColumnsModel
         };
         this.Colleague = new UserModel{
             Id = entity.ColleagueId,
-            Username = entity.Colleague.Username,
-            Email = entity.Colleague.Email,
+            Username = entity.Colleague != null ? entity.Colleague.Username : "",
+            Email = entity.Colleague != null ? entity.Colleague.Email : "",
         };
     }
     #endregion
@@ -73,7 +83,11 @@ public class UserColleagueModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.UserColleague(UserColleagueModel model)
     {
-        var entity = (model.User != null && model.Colleague != null) ? new Entities.UserColleague(model.User.Id, model.Colleague.Id) : throw new InvalidOperationException("Can't convert to Entity (null properties).");
+        var entity = new Entities.UserColleague(model.UserId, model.ColleagueId)
+        {
+            UserId = model.UserId,
+            ColleagueId = model.ColleagueId,
+        };
         return entity;
     }
     #endregion

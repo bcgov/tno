@@ -1,4 +1,6 @@
 export interface IColleagueModel {
+  userId: number | undefined;
+  colleagueId: number | undefined;
   colleague:
     | {
         id: number | undefined;

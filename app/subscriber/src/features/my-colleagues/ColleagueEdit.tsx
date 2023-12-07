@@ -19,6 +19,8 @@ export const ColleagueEdit: React.FC = () => {
     async (values: IColleagueForm) => {
       try {
         const model: IColleagueModel = {
+          colleagueId: undefined,
+          userId: undefined,
           colleague: {
             id: undefined,
             username: undefined,
