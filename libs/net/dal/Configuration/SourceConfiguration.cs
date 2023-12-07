@@ -22,7 +22,7 @@ public class SourceConfiguration : BaseTypeConfiguration<Source, int>
         builder.Property(m => m.UseInTopics).IsRequired();
         builder.Property(m => m.Configuration).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
 
-        builder.HasOne(m => m.Owner).WithMany().HasForeignKey(m => m.OwnerId).OnDelete(DeleteBehavior.SetNull);
+        builder.HasOne(m => m.Owner).WithMany().HasForeignKey(m => m.OwnerId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(m => m.License).WithMany(m => m.Sources).HasForeignKey(m => m.LicenseId).OnDelete(DeleteBehavior.Restrict);
         builder.HasMany(m => m.Metrics).WithMany(m => m.Sources).UsingEntity<SourceMetric>();
         builder.HasOne(m => m.MediaType).WithMany(m => m.Sources).HasForeignKey(m => m.MediaTypeId).OnDelete(DeleteBehavior.Restrict);
