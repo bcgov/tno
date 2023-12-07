@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaArrowLeft, FaEnvelope, FaFileExport } from 'react-icons/fa6';
+import { FaArrowLeft, FaEnvelope } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { IContentModel, Row } from 'tno-core';
 

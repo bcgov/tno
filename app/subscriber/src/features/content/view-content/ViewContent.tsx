@@ -24,7 +24,6 @@ import {
 import * as styled from './styled';
 import { formatTime, isWorkOrderStatus } from './utils';
 import { WorkOrderStatus } from './utils/WorkOrderStatus';
-import { ViewContentToolbar } from './ViewContentToolbar';
 
 export interface IStream {
   url: string;
@@ -150,6 +149,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
         setWorkOrders(res.items);
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [getContent, findWorkOrders],
   );
 

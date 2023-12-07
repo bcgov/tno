@@ -21,8 +21,7 @@ import { TodaysCommentary } from 'features/todays-commentary';
 import { TodaysFrontPages } from 'features/todays-front-pages';
 import { TopStories } from 'features/top-stories';
 import React from 'react';
-import { FaArrowLeft } from 'react-icons/fa';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Col, IContentModel, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
