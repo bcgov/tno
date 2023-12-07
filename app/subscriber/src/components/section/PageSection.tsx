@@ -1,4 +1,5 @@
-import { Row } from 'tno-core';
+import { ContentActionBar } from 'components/tool-bar';
+import { IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -9,6 +10,12 @@ export interface IPageSectionProps extends React.HTMLAttributes<HTMLDivElement> 
   children?: React.ReactNode;
   /** ignore last child gap */
   ignoreLastChildGap?: boolean;
+  /** include content action bar */
+  includeContentActions?: boolean;
+  /** context of content if needed */
+  activeContent?: IContentModel[];
+  /** set active content */
+  setActiveContent?: (content: IContentModel[]) => void;
 }
 
 /**
@@ -21,6 +28,9 @@ export const PageSection: React.FC<IPageSectionProps> = ({
   className,
   children,
   ignoreLastChildGap,
+  includeContentActions,
+  activeContent,
+  setActiveContent,
   ...rest
 }) => {
   return (
@@ -29,6 +39,9 @@ export const PageSection: React.FC<IPageSectionProps> = ({
       className={`page-section${className ? ` ${className}` : ''}`}
       {...rest}
     >
+      {includeContentActions && !!activeContent && (
+        <ContentActionBar className="content-actions" content={activeContent} />
+      )}
       {header && <Row className="page-section-title">{header}</Row>}
       {children}
     </styled.PageSection>

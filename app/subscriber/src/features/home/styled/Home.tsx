@@ -85,6 +85,20 @@ export const Home = styled.div`
     margin-top: 0.5em;
   }
   .filter-buttons {
+    button {
+      min-width: 5rem;
+      border: none;
+      display: flex;
+      justify-content: center;
+      &.active {
+        background-color: ${(props) => props.theme.css.defaultRed};
+        color: white;
+      }
+      &.inactive {
+        background-color: ${(props) => props.theme.css.lightInactiveButton};
+        color: #7a7978;
+      }
+    }
   }
   .date-navigator {
     .calendar {

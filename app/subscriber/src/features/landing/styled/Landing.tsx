@@ -83,19 +83,5 @@ export const Landing = styled(Col)`
     }
 
     /* TODO: move these to the button component as styling configuration */
-    button {
-      min-width: 5rem;
-      border: none;
-      display: flex;
-      justify-content: center;
-      &.active {
-        background-color: ${(props) => props.theme.css.defaultRed} !important;
-        color: white;
-      }
-      &.inactive {
-        background-color: ${(props) => props.theme.css.lightInactiveButton} !important;
-        color: #7a7978;
-      }
-    }
   }
 `;

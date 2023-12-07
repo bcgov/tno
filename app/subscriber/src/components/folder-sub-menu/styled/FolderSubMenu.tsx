@@ -5,10 +5,9 @@ export const FolderSubMenu = styled.div`
   .add-folder {
     height: 2em;
     width: 2em;
+    color: ${(props) => props.theme.css.btnBkPrimary};
     &:hover {
       cursor: pointer;
-      transform: scale(1.1);
-      color: ${(props) => props.theme.css.sideBarIconHoverColor};
     }
     color: ${(props) => props.theme.css.sideBarIconColor};
   }

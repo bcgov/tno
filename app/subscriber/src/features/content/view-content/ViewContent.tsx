@@ -30,12 +30,15 @@ export interface IStream {
   url: string;
   type: string;
 }
-
+export interface IViewContentProps {
+  /** set active content */
+  setActiveContent?: (content: IContentModel[]) => void;
+}
 /**
  * Component to display content when navigating to it from the landing page list view, responsive and adaptive to screen size
  * @returns ViewContent component
  */
-export const ViewContent: React.FC = () => {
+export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) => {
   const { id } = useParams();
   const [, { getContent, stream }] = useContent();
   const { width } = useWindowSize();
@@ -138,6 +141,7 @@ export const ViewContent: React.FC = () => {
     (id: number) => {
       getContent(id).then((content) => {
         if (!!content) {
+          setActiveContent && setActiveContent([content]);
           setContent(content);
         } else {
         }
@@ -177,9 +181,6 @@ export const ViewContent: React.FC = () => {
 
   return (
     <styled.ViewContent>
-      <Show visible={!!content}>
-        <ViewContentToolbar content={content!} tags={content?.tags ?? []} />
-      </Show>
       <Row className="headline-container">
         <p>{content?.headline && content.headline}</p>
         <Row alignItems="center">

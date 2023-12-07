@@ -4,6 +4,7 @@ import {
   sidebarMenuItemsArray,
 } from 'components/layout/constants/SidebarMenuItems';
 import { SearchWithLogout } from 'components/search-with-logout';
+import { PageSection } from 'components/section';
 import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
 import AVOverviewPreview from 'features/daily-overview/AVOverviewPreview';
@@ -22,7 +23,7 @@ import { TopStories } from 'features/top-stories';
 import React from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Col, Row, Show } from 'tno-core';
+import { Col, IContentModel, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -33,8 +34,8 @@ import * as styled from './styled';
 export const Landing: React.FC = () => {
   const { id } = useParams();
   const [activeItem, setActiveItem] = React.useState<string>(SidebarMenuItems.home.label);
-  const navigate = useNavigate();
-
+  /* active content will be stored from this context in order to inject into subsequent components */
+  const [activeContent, setActiveContent] = React.useState<IContentModel[]>();
   /* keep active item in sync with url */
   React.useEffect(() => {
     if (id)
@@ -50,26 +51,25 @@ export const Landing: React.FC = () => {
         <BasicSearch />
       </Row>
       <Row className="contents-container">
-        <Col className="main-panel">
-          <Show visible={activeItem === 'View'}>
-            <div className="title view">
-              <FaArrowLeft onClick={() => navigate(-1)} />
-            </div>
-          </Show>
-          <Show visible={activeItem !== 'View'}>
-            <div className="title">
+        <PageSection
+          activeContent={activeContent}
+          header={
+            <Show visible={activeItem !== 'View'}>
               {activeItem === SidebarMenuItems.settings.label
                 ? 'Settings | My Minister'
                 : activeItem}
-            </div>
-          </Show>
+            </Show>
+          }
+          className="main-panel"
+          includeContentActions={activeItem === 'View'}
+        >
           <div className="content">
             {/* Home is default selected navigation item on login*/}
             <Show visible={activeItem === SidebarMenuItems.home.label}>
               <Home />
             </Show>
             <Show visible={activeItem === 'View'}>
-              <ViewContent />
+              <ViewContent setActiveContent={setActiveContent} />
             </Show>
             <Show visible={activeItem === SidebarMenuItems.settings.label}>
               <MyMinisterSettings />
@@ -105,7 +105,7 @@ export const Landing: React.FC = () => {
               <AVOverviewPreview />
             </Show>
           </div>
-        </Col>
+        </PageSection>
         {/* unsure of whether these items will change depending on selected item */}
         <Col className="right-panel">
           <Commentary />

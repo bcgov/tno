@@ -102,7 +102,7 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
   ];
 
   return (
-    <styled.HomeFilters>
+    <styled.HomeFilters className="filter-buttons">
       {filters.map((filter) => (
         <Button
           key={filter.type}
