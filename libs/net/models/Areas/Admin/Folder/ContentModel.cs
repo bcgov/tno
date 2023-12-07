@@ -92,6 +92,12 @@ public class ContentModel
     /// get/set - An array of tone pools.
     /// </summary>
     public IEnumerable<TonePoolModel> TonePools { get; set; } = Array.Empty<TonePoolModel>();
+
+    /// <summary>
+    /// get - An array of topics and scores.
+    /// </summary>
+    public IEnumerable<FolderContentTopicModel> Topics { get; set; } = Array.Empty<FolderContentTopicModel>();
+
     #endregion
 
     #region Constructors
@@ -123,6 +129,7 @@ public class ContentModel
         this.Contributor = entity.Contributor != null ? new SortableModel<int>(entity.Contributor) : null;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.TonePools = entity.TonePoolsManyToMany.Select(tp => new TonePoolModel(tp));
+        this.Topics = entity.TopicsManyToMany.Select(e => new FolderContentTopicModel(e));
     }
     #endregion
 }

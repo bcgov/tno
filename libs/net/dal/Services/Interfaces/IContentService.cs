@@ -34,4 +34,11 @@ public interface IContentService : IBaseService<Content, long>
     /// <param name="action"></param>
     /// <returns></returns>
     ContentAction AddOrUpdateContentAction(ContentAction action);
+
+    /// <summary>
+    /// Update the content topics.
+    /// </summary>
+    /// <param name="topics">update the current topics with these</param>
+    /// <returns></returns>
+    IEnumerable<ContentTopic> AddOrUpdateContentTopics(long contentId, IEnumerable<ContentTopic> topics);
 }

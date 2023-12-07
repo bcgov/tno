@@ -9,14 +9,17 @@ import { IContentForm } from '../interfaces';
  * @returns The score or an empty string.
  */
 export const calcTopicScore = (values: IContentForm, rules: ITopicScoreRuleModel[]) => {
-  var score: string | number = '';
+  var score: number = 0;
 
   rules
     .filter((r) => r.sourceId === values.sourceId)
     .every((r) => {
       // Eliminate any rule that doesn't match the content values by returning true.
+
+      // rule section doesnt match the section on the content
       if (r.section !== undefined && values.section !== r.section) return true;
 
+      // rule series doesnt match the series on the content
       if (r.seriesId !== undefined && values.seriesId !== r.seriesId) return true;
 
       const riPageMin = r.pageMin !== undefined ? r.pageMin.search(/\d*$/) : undefined;
@@ -38,24 +41,25 @@ export const calcTopicScore = (values: IContentForm, rules: ITopicScoreRuleModel
           vcPage !== cPageMin &&
           cPageMax !== undefined &&
           vcPage !== cPageMax)
-      )
+      ) {
         return true;
-      else if (
+      } else if (
         (rPageMin !== undefined && (vPage === 0 || vPage < rPageMin)) ||
         (cPageMin !== undefined &&
           vcPage !== cPageMin &&
           cPageMax !== undefined &&
           vcPage !== cPageMax)
-      )
+      ) {
         return true;
-      else if (
+      } else if (
         (rPageMax !== undefined && (vPage === 0 || vPage > rPageMax)) ||
         (cPageMin !== undefined &&
           vcPage !== cPageMin &&
           cPageMax !== undefined &&
           vcPage !== cPageMax)
-      )
+      ) {
         return true;
+      }
 
       // if (r.hasImage !== undefined && values.hasImage) return true; // TODO: We need a way to identify a story has an image.
 

@@ -570,5 +570,41 @@ public class ContentService : BaseService<Content, long>, IContentService
         this.CommitTransaction();
         return action;
     }
+
+    /// <summary>
+    /// Update the content topics.
+    /// </summary>
+    /// <param name="topics">update the current topics with these</param>
+    /// <returns></returns>
+    public IEnumerable<ContentTopic> AddOrUpdateContentTopics(long contentId, IEnumerable<ContentTopic> topics)
+    {
+        var currentTopics = this.Context.ContentTopics.Where(ca => ca.ContentId == contentId);
+        bool saveChanges = false;
+
+        foreach(var topic in currentTopics) {
+            var matchingTopic = topics.FirstOrDefault((t) => t.TopicId == topic.TopicId);
+            if(matchingTopic == null) {
+                // remove any topics no longer associated with the content
+                this.Context.Remove(topic);
+                saveChanges = true;
+            } else if (topic.Score != matchingTopic.Score) {
+                // update topic score
+                topic.Score = matchingTopic.Score;
+                saveChanges = true;
+            }
+        }
+
+        foreach(var topic in topics) {
+            if (!currentTopics.Any((t) => t.TopicId == topic.TopicId)) {
+                // add new topics
+                this.Context.Add(topic);
+                saveChanges = true;
+            }
+        }
+
+        if (saveChanges) this.CommitTransaction();
+
+        return this.Context.ContentTopics.Where(ca => ca.ContentId == contentId);
+    }
     #endregion
 }
