@@ -89,14 +89,14 @@ public class UserController : ControllerBase
     /// <returns></returns>
     [HttpGet("colleagues")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(UserColleagueModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(UserColleagueModel[]), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Colleague" })]
     public IActionResult FindColleaguesByUserId()
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        var colleagues = _userColleagueService.FindColleaguesByUserId(user.Id) ?? throw new NoContentException();
+        var colleagues = _userColleagueService.FindColleaguesByUserId(user.Id).Select(m => new UserColleagueModel(m, _serializerOptions));
         return new JsonResult(colleagues);
     }
 
@@ -115,22 +115,9 @@ public class UserController : ControllerBase
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
         var userEmail = userWithEmail?.Colleague?.Email ?? throw new NotAuthorizedException("Model does not contain the email.");
-        var loggedUser = new UserModel
-        {
-            Id = user.Id
-        };
-
         User colleague = _userService.FindByEmail(userEmail).FirstOrDefault() ?? throw new InvalidOperationException("There is no user with this email.");
-        var colleagueModel = new UserColleagueModel
-        {
-            Colleague = new UserModel
-            {
-                Id = colleague.Id
-            },
-            User = loggedUser
-        };
-        var result = _userColleagueService.AddColleague((UserColleague)colleagueModel);
-        return CreatedAtAction(nameof(AddColleague), new { id = result.ColleagueId }, colleagueModel);
+        var result = _userColleagueService.AddColleague(new UserColleague(user.Id, colleague.Id));
+        return CreatedAtAction(nameof(AddColleague), new { id = result.ColleagueId }, new UserColleagueModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -140,7 +127,7 @@ public class UserController : ControllerBase
     /// <returns></returns>
     [HttpDelete("colleagues/{colleagueId}")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(UserColleagueModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Colleague" })]
     public IActionResult DeleteColleague(int colleagueId)
@@ -148,7 +135,7 @@ public class UserController : ControllerBase
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
         var result = _userColleagueService.RemoveColleague(user.Id, colleagueId);
-        return new JsonResult(result);
+        return CreatedAtAction(nameof(DeleteColleague), new { id = result?.ColleagueId }, new UserColleagueModel(result, _serializerOptions));
     }
     #endregion
 }

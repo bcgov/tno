@@ -4,7 +4,7 @@ using TNO.API.Models;
 namespace TNO.API.Areas.Admin.Models.User;
 
 /// <summary>
-/// UserModel class, provides a model that represents an user.
+/// UserColleagueModel class, provides a model that represents a relatioship between a User and a Colleague.
 /// </summary>
 public class UserColleagueModel : AuditColumnsModel
 {
@@ -22,9 +22,19 @@ public class UserColleagueModel : AuditColumnsModel
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of an UserModel.
+    /// Creates a new instance of an UserColleagueModel.
     /// </summary>
     public UserColleagueModel() { }
+
+    /// <summary>
+    /// Creates a new instance of an UserColleagueModel with primary keys.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="colleagueId"></param>
+    public UserColleagueModel(int userId, int colleagueId) { 
+        this.User = new UserModel(userId);
+        this.Colleague = new UserModel(colleagueId);
+    }
 
     /// <summary>
     /// Creates a new instance of an UserModel, initializes with specified parameter.
@@ -33,8 +43,15 @@ public class UserColleagueModel : AuditColumnsModel
     /// <param name="serializerOptions"></param>
     public UserColleagueModel(Entities.UserColleague entity, JsonSerializerOptions? serializerOptions = null) : base(entity)
     {
-        this.User = new UserModel();
-        this.Colleague = new UserModel();
+        this.User = new UserModel
+        {
+            Id = entity.UserId
+        };
+        this.Colleague = new UserModel{
+            Id = entity.ColleagueId,
+            Username = entity.Colleague.Username,
+            Email = entity.Colleague.Email,
+        };
     }
     #endregion
 

@@ -15,7 +15,7 @@ using TNO.Entities.Models;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20231206192500_1.0.97")]
+    [Migration("20231206235726_1.0.97")]
     partial class _1097
     {
         /// <inheritdoc />
@@ -6276,13 +6276,13 @@ namespace TNO.DAL.Migrations
             modelBuilder.Entity("TNO.Entities.UserColleague", b =>
                 {
                     b.HasOne("TNO.Entities.User", "Colleague")
-                        .WithMany()
+                        .WithMany("ColleaguesManyToMany")
                         .HasForeignKey("ColleagueId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TNO.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("UsersManyToMany")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -6641,6 +6641,8 @@ namespace TNO.DAL.Migrations
                 {
                     b.Navigation("AVOverviewSubscriptionsManyToMany");
 
+                    b.Navigation("ColleaguesManyToMany");
+
                     b.Navigation("Contents");
 
                     b.Navigation("Filters");
@@ -6664,6 +6666,8 @@ namespace TNO.DAL.Migrations
                     b.Navigation("TimeTrackings");
 
                     b.Navigation("TonePools");
+
+                    b.Navigation("UsersManyToMany");
 
                     b.Navigation("WorkOrderRequests");
 

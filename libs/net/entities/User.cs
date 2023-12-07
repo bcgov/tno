@@ -147,6 +147,16 @@ public class User : AuditColumns
     public virtual List<UserNotification> NotificationSubscriptionsManyToMany { get; } = new List<UserNotification>();
 
     /// <summary>
+    /// get - Collection of users that have colleagues.
+    /// </summary>
+    public virtual List<UserColleague> UsersManyToMany { get; } = new List<UserColleague>();
+
+    /// <summary>
+    /// get - Collection of colleagues of that user.
+    /// </summary>
+    public virtual List<UserColleague> ColleaguesManyToMany { get; } = new List<UserColleague>();
+
+    /// <summary>
     /// get - Collection of notification subscriptions.
     /// </summary>
     public virtual List<Notification> NotificationSubscriptions { get; } = new List<Notification>();

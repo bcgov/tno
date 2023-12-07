@@ -24,7 +24,6 @@ export const ColleagueEdit: React.FC = () => {
             username: undefined,
             email: values.colleagueEmail,
           },
-          user: undefined,
         };
         await addColleague(model);
         navigate('/colleagues');

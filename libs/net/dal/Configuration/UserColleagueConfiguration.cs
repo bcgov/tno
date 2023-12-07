@@ -12,6 +12,9 @@ public class UserColleagueConfiguration : AuditColumnsConfiguration<UserColleagu
         builder.Property(m => m.UserId).IsRequired().ValueGeneratedNever();
         builder.Property(m => m.ColleagueId).IsRequired().ValueGeneratedNever();
 
+        builder.HasOne(m => m.User).WithMany(m => m.UsersManyToMany).HasForeignKey(m => m.UserId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(m => m.Colleague).WithMany(m => m.ColleaguesManyToMany).HasForeignKey(m => m.ColleagueId).OnDelete(DeleteBehavior.Cascade);
+    
         base.Configure(builder);
     }
 }

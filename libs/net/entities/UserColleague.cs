@@ -29,7 +29,7 @@ public class UserColleague : AuditColumns
     /// <summary>
     /// get/set - The colleague who is linked to the user.
     /// </summary>
-    public User? Colleague { get; set; }
+    public User Colleague { get; set; }
     #endregion
 
     #region Constructors

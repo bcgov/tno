@@ -6273,13 +6273,13 @@ namespace TNO.DAL.Migrations
             modelBuilder.Entity("TNO.Entities.UserColleague", b =>
                 {
                     b.HasOne("TNO.Entities.User", "Colleague")
-                        .WithMany()
+                        .WithMany("ColleaguesManyToMany")
                         .HasForeignKey("ColleagueId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TNO.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("UsersManyToMany")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -6638,6 +6638,8 @@ namespace TNO.DAL.Migrations
                 {
                     b.Navigation("AVOverviewSubscriptionsManyToMany");
 
+                    b.Navigation("ColleaguesManyToMany");
+
                     b.Navigation("Contents");
 
                     b.Navigation("Filters");
@@ -6661,6 +6663,8 @@ namespace TNO.DAL.Migrations
                     b.Navigation("TimeTrackings");
 
                     b.Navigation("TonePools");
+
+                    b.Navigation("UsersManyToMany");
 
                     b.Navigation("WorkOrderRequests");
 
