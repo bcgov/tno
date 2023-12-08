@@ -24,7 +24,7 @@ import {
 } from 'tno-core';
 
 import * as styled from './styled';
-import { formatTime, isWorkOrderStatus } from './utils';
+import { isWorkOrderStatus } from './utils';
 import { WorkOrderStatus } from './utils/WorkOrderStatus';
 
 export interface IStream {
@@ -183,6 +183,12 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
           <div className="source-section">{`${content?.section} ${
             content?.page && `:${content.page}`
           }`}</div>
+          {content?.tonePools && (
+            <Row className="tone-group">
+              <Sentiment value={content?.tonePools[0].value} />
+              <div className="numeric-tone">{showToneValue(content?.tonePools[0].value)}</div>
+            </Row>
+          )}
         </Row>
       </Bar>
       <Show visible={!!avStream && content?.contentType === ContentTypeName.AudioVideo}>

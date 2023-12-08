@@ -13,6 +13,13 @@ export const ViewContent = styled.div`
     .divider {
       margin: 0 0.5em;
     }
+    .numeric-tone {
+      margin-left: 0.5em;
+      align-self: center;
+    }
+    .tone-group {
+      margin-left: 0.5em;
+    }
     padding-left: 0.25em;
     padding-right: 0.25em;
   }
