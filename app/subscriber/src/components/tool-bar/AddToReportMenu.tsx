@@ -41,12 +41,10 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
 
       if (!!activeReport.instances.length) {
         // get the latest instance content and append to it
-        console.log('yes instances');
         const instContent = [
           ...activeReport.instances[activeReport.instances.length - 1].content,
           ...convertedContent,
         ];
-        console.log(instContent);
 
         // find the latest instance and replace the content with old content appended with new
         // this should handle create new instance if there is no instance
@@ -64,12 +62,10 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
           ...activeReport,
           instances: instances,
         };
-        console.log(report);
         update(report);
       }
 
       if (!activeReport.instances.length) {
-        console.log('no instances');
         const newInstance = newReportInstance(activeReport, convertedContent);
         const report = {
           ...activeReport,
