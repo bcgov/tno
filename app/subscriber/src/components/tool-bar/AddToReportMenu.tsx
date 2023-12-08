@@ -12,11 +12,11 @@ import { newReportInstance, toInstanceContent } from './utils';
 export interface IAddToReportMenuProps {
   content: IContentModel[];
 }
-
 export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) => {
-  const [{ updateReport, findMyReports }] = useReports();
+  const [{ updateReport, findMyReports, getReport }] = useReports();
   const [{ myReports }] = useProfileStore();
   const [activeReport, setActiveReport] = React.useState<IReportModel | null>(null);
+  const [reportId, setReportId] = React.useState<number | null>(null);
   React.useEffect(() => {
     if (!myReports.length) {
       findMyReports().catch(() => {});
@@ -41,10 +41,12 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
 
       if (!!activeReport.instances.length) {
         // get the latest instance content and append to it
+        console.log('yes instances');
         const instContent = [
           ...activeReport.instances[activeReport.instances.length - 1].content,
           ...convertedContent,
         ];
+        console.log(instContent);
 
         // find the latest instance and replace the content with old content appended with new
         // this should handle create new instance if there is no instance
@@ -62,10 +64,12 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
           ...activeReport,
           instances: instances,
         };
+        console.log(report);
         update(report);
       }
 
       if (!activeReport.instances.length) {
+        console.log('no instances');
         const newInstance = newReportInstance(activeReport, convertedContent);
         const report = {
           ...activeReport,
@@ -76,6 +80,17 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
     },
     [activeReport, content, updateReport],
   );
+
+  // ensure no concurrency errorrs rather than getting from profile store
+  React.useEffect(() => {
+    if (reportId) {
+      getReport(reportId)
+        .then((data) => !!data && setActiveReport(data))
+        .catch(() => {});
+    }
+    // only want to get report when reportId changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reportId]);
 
   return (
     <styled.AddToMenu>
@@ -91,7 +106,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
                 <Row
                   key={report.id}
                   className="report-item"
-                  onClick={() => setActiveReport(report)}
+                  onClick={() => setReportId(report.id)}
                   data-tooltip-id={`tooltip-add-to-section`}
                 >
                   {report.name} {!!report.sections.length && <FaPlay className="expand-sections" />}
