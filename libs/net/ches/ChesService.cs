@@ -36,6 +36,7 @@ namespace TNO.Ches
         protected IHttpRequestClient Client { get; }
         public ChesOptions Options { get; }
         #endregion
+        private static readonly Regex Base64InlineImageRegex = new("src=\\\"data:(image\\/[a-zA-Z]*);base64,([^\\\"]*)\\\"",  RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
         #region Constructors
         /// <summary>
@@ -237,13 +238,51 @@ namespace TNO.Ches
             email.Cc = email.Cc?.NotNullOrWhiteSpace();
             email.Bcc = email.Bcc?.NotNullOrWhiteSpace();
 
-            // TODO: Need to fix mail merge before this can be implemented again.
-            // ConvertInlineImagesToAttachments(email);
+            // convert any embedded base64 images into attachments
+            Dictionary<string, AttachmentModel> inlineImageMatches = GetImagesFromEmailBody(email.Body);
+            if (inlineImageMatches.Any())
+            {
+                foreach (KeyValuePair<string, AttachmentModel> m in inlineImageMatches)
+                {
+                    email.Body = email.Body.Replace(m.Key, $"src=\"cid:{m.Value.Filename}\"");
+                }
+                email.Attachments = email.Attachments.Any()
+                    ? email.Attachments.AppendRange(inlineImageMatches.Values.ToArray())
+                    : inlineImageMatches.Values.ToArray();
+            }
 
             if (this.Options.EmailEnabled)
                 return await SendAsync<EmailResponseModel, IEmail>("/email", HttpMethod.Post, email);
 
             return new EmailResponseModel();
+        }
+
+        /// <summary>
+        /// parses email markup string checking for base64 encoded images
+        /// </summary>
+        /// <param name="emailBody">email body as html markup - possibly containing base64 encoded images</param>
+        /// <returns>dictionary of the images as attachments and the 'key' to use to search and replace them in the markup</returns>
+        private Dictionary<string, AttachmentModel> GetImagesFromEmailBody(string emailBody) {
+            Dictionary<string, AttachmentModel> imageDictionary = new Dictionary<string, AttachmentModel>();
+
+            var inlineImageMatches = Base64InlineImageRegex.Matches(emailBody);
+            if (inlineImageMatches.Any())
+            {
+                foreach (Match m in inlineImageMatches)
+                {
+                    var imageMediaType = m.Groups[1].Value;
+                    var base64Image = m.Groups[2].Value;
+                    var attachment = new AttachmentModel
+                    {
+                        ContentType = imageMediaType,
+                        Encoding = "base64",
+                        Filename = Guid.NewGuid().ToString(),
+                        Content = base64Image
+                    };
+                    imageDictionary.Add(m.Value, attachment);
+                }
+            }
+            return imageDictionary;
         }
 
         /// <summary>
@@ -296,40 +335,23 @@ namespace TNO.Ches
                 c.Bcc = c.Bcc.NotNullOrWhiteSpace();
             });
 
-            // TODO: Need to fix mail merge before this can be implemented again.
-            // ConvertInlineImagesToAttachments(email);
+            // convert any embedded base64 images into attachments
+            Dictionary<string, AttachmentModel> inlineImageMatches = GetImagesFromEmailBody(email.Body);
+            if (inlineImageMatches.Any())
+            {
+                foreach (KeyValuePair<string, AttachmentModel> m in inlineImageMatches)
+                {
+                    email.Body = email.Body.Replace(m.Key, $"src=\"cid:{m.Value.Filename}\"");
+                }
+                email.Attachments = email.Attachments.Any()
+                    ? email.Attachments.AppendRange(inlineImageMatches.Values.ToArray())
+                    : inlineImageMatches.Values.ToArray();
+            }
 
             if (this.Options.EmailEnabled)
                 return await SendAsync<EmailResponseModel, IEmailMerge>("/emailMerge", HttpMethod.Post, email);
 
             return new EmailResponseModel();
-        }
-
-        private static void ConvertInlineImagesToAttachments(IEmailBase email)
-        {
-            // convert any embedded base64 images into attachments
-            var base64InlineImageRegex = "src=\\\"data:(image\\/[a-zA-Z]*);base64,([^\\\"]*)\\\"";
-            var inlineImageMatches = Regex.Matches(email.Body, base64InlineImageRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            if (inlineImageMatches.Any())
-            {
-                var imageAttachments = new List<AttachmentModel>();
-                foreach (Match m in inlineImageMatches)
-                {
-
-                    var imageMediaType = m.Groups[1].Value;
-                    var base64Image = m.Groups[2].Value;
-                    var attachment = new AttachmentModel
-                    {
-                        ContentType = imageMediaType,
-                        Encoding = "base64",
-                        Filename = Guid.NewGuid().ToString(),
-                        Content = base64Image
-                    };
-                    imageAttachments.Add(attachment);
-                    email.Body = email.Body.Replace(m.Value, $"src=\"cid:{attachment.Filename}\"");
-                }
-                email.Attachments = imageAttachments;
-            }
         }
 
         /// <summary>
