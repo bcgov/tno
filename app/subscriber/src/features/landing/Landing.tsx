@@ -110,7 +110,7 @@ export const Landing: React.FC = () => {
         <Col className="right-panel">
           <Commentary />
           <Show visible={activeItem !== SidebarMenuItems.todaysFrontPages.label}>
-            <FrontPages showTitle={true} />
+            <FrontPages />
           </Show>
         </Col>
       </Row>

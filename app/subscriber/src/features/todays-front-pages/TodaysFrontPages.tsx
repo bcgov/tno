@@ -1,21 +1,12 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
-import { FrontPages } from 'features/front-pages';
-import { determineColumns } from 'features/home/constants';
+import { FrontPageGallery } from 'components/front-page-gallery';
 import moment from 'moment';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
-import {
-  FlexboxTable,
-  IContentModel,
-  IFilterModel,
-  ITableInternalRow,
-  Row,
-  Settings,
-} from 'tno-core';
+import { IContentModel, IFilterModel, Settings } from 'tno-core';
 
 import { defaultFilter } from './constants';
 import * as styled from './styled';
@@ -28,9 +19,8 @@ export const TodaysFrontPages: React.FC = () => {
     },
     { findContentWithElasticsearch, storeFrontPageFilter: storeFilter },
   ] = useContent();
-  const navigate = useNavigate();
   const [frontpages, setFrontPages] = React.useState<IContentModel[]>([]);
-  const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const [selected] = React.useState<IContentModel[]>([]);
   const [{ settings }] = useLookup();
   const [, { getFilter }] = useFilters();
   const [filter, setFilter] = React.useState<IFilterModel>(defaultFilter);
@@ -49,6 +39,7 @@ export const TodaysFrontPages: React.FC = () => {
             otherSource: content.otherSource,
             source: content.source,
             page: content.page,
+            fileReferences: content.fileReferences,
           };
         });
         setFrontPages(mappedResults);
@@ -105,35 +96,11 @@ export const TodaysFrontPages: React.FC = () => {
     }
   }, [fetchResults, filter?.id, getFilter, settings, frontPageFilter, filter]);
 
-  /** controls the checking and unchecking of rows in the list view */
-  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
-    if (row.isSelected) {
-      setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
-    } else {
-      setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
-    }
-  };
-
   return (
     <styled.TodaysFrontPages>
       <FolderSubMenu selectedContent={selected} />
       <DateFilter filter={frontPageFilter} storeFilter={storeFilter} />
-      {/* <Row className="table-container">
-        <FlexboxTable
-          rowId="id"
-          columns={determineColumns('all')}
-          isMulti
-          onSelectedChanged={handleSelectedRowsChanged}
-          groupBy={(item) => item.original.source?.name ?? ''}
-          onRowClick={(e: any) => {
-            navigate(`/view/${e.original.id}`);
-          }}
-          data={frontpages || []}
-          pageButtons={5}
-          showPaging={false}
-        />
-      </Row> */}
-      <FrontPages showTitle={false} />
+      <FrontPageGallery frontpages={frontpages} />
     </styled.TodaysFrontPages>
   );
 };
