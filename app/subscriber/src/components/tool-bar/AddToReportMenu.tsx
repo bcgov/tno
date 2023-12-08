@@ -1,6 +1,7 @@
 import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
 import { FaFileExport, FaPlay } from 'react-icons/fa6';
+import { toast } from 'react-toastify';
 import { useReports } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import { IContentModel, IReportModel, Row } from 'tno-core';
@@ -32,6 +33,11 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
       }
 
       const convertedContent = toInstanceContent(content, activeReport, section);
+      const update = (report: IReportModel) => {
+        updateReport(report, true)
+          .then(() => toast.success(`${content.length} storie(s) have been added to report.`))
+          .catch(() => {});
+      };
 
       if (!!activeReport.instances.length) {
         // get the latest instance content and append to it
@@ -56,7 +62,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
           ...activeReport,
           instances: instances,
         };
-        updateReport(report, true).catch(() => {});
+        update(report);
       }
 
       if (!activeReport.instances.length) {
@@ -65,7 +71,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
           ...activeReport,
           instances: [newInstance],
         };
-        updateReport(report, true).catch(() => {});
+        update(report);
       }
     },
     [activeReport, content, updateReport],
