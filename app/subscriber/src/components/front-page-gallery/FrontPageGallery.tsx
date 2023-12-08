@@ -11,22 +11,26 @@ interface IFrontPageGallery extends React.HTMLAttributes<HTMLDivElement> {
   frontpages: IContentModel[];
 }
 
+interface IImage {
+  url: string;
+  id: number;
+}
+
 export const FrontPageGallery: React.FC<IFrontPageGallery> = ({ frontpages }) => {
-  const [srcUrls, setSrcUrls] = React.useState<any[]>([]);
+  const [srcUrls, setSrcUrls] = React.useState<IImage[]>([]);
   const navigateAndScroll = useNavigateAndScroll();
   const [, { stream }] = useContent();
 
   React.useEffect(() => {
-    setSrcUrls([]);
-    if (!!frontpages) {
-      frontpages.forEach((x) => {
-        if (x.fileReferences?.length) {
-          stream(x.fileReferences[0].path).then((result) => {
-            setSrcUrls((srcUrls) => [...srcUrls, { url: result, id: x.id }]);
-          });
-        }
-      });
-    }
+    const srcUrls = Promise.all(
+      frontpages
+        .filter((fp) => fp.fileReferences?.length)
+        .map(async (fp) => {
+          const result = await stream(fp.fileReferences![0].path);
+          return { url: result, id: fp.id };
+        }),
+    );
+    srcUrls.then((results) => setSrcUrls(results));
   }, [frontpages, stream]);
 
   return (
@@ -35,7 +39,7 @@ export const FrontPageGallery: React.FC<IFrontPageGallery> = ({ frontpages }) =>
         {srcUrls.map((s) => (
           <img
             key={s.url}
-            alt={s.id}
+            alt={`${s.id}`}
             className="front-page"
             src={s.url}
             onClick={() => navigateAndScroll(`/view/${s.id}`)}
