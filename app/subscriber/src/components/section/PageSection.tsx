@@ -16,6 +16,8 @@ export interface IPageSectionProps extends React.HTMLAttributes<HTMLDivElement> 
   activeContent?: IContentModel[];
   /** set active content */
   setActiveContent?: (content: IContentModel[]) => void;
+  /** ignore min-width of fit-content for mobile */
+  ignoreMinWidth?: boolean;
 }
 
 /**
@@ -31,11 +33,13 @@ export const PageSection: React.FC<IPageSectionProps> = ({
   includeContentActions,
   activeContent,
   setActiveContent,
+  ignoreMinWidth,
   ...rest
 }) => {
   return (
     <styled.PageSection
       $ignoreLastChildGap={ignoreLastChildGap}
+      $ignoreMinWidth={ignoreMinWidth}
       className={`page-section${className ? ` ${className}` : ''}`}
       {...rest}
     >

@@ -1,6 +1,8 @@
+import { Bar } from 'components/bar';
 import { Sentiment } from 'components/sentiment';
 import { showTranscription } from 'features/utils';
 import parse from 'html-react-parser';
+import moment from 'moment';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -160,18 +162,6 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
     if (tone === 0) return <span className="neut">{tone}</span>;
   };
 
-  const formatDate = (date: string) => {
-    if (date) {
-      const d = new Date(date);
-      const ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
-      const mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
-      const da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
-      return `${da}-${mo}-${ye} ${formatTime(d)}`;
-    } else {
-      return '';
-    }
-  };
-
   // if statement avoids unwanted fetch when navigating back to home view
   React.useEffect(() => {
     if (window.location.pathname.includes('view')) {
@@ -181,35 +171,20 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
 
   return (
     <styled.ViewContent>
-      <Row className="headline-container">
-        <p>{content?.headline && content.headline}</p>
-        <Row alignItems="center">
-          <p className="tone-value">
-            {showToneValue(content?.tonePools ? content?.tonePools[0]?.value : 0)}
-          </p>
-          <Sentiment value={content?.tonePools ? content?.tonePools[0]?.value : 0} />
+      <div className="headline">{content?.headline}</div>
+      <Bar className="info-bar" vanilla>
+        <div className="byline">{`BY ${content?.byline}`}</div>
+        <div className="published-on">
+          {content?.publishedOn && moment(content.publishedOn).format('DD-MMM-YYYY HH:mm:ss')}
+        </div>
+        <Row className="right-side">
+          <div className="source-name">{content?.source?.name}</div>
+          <span className="divider">|</span>
+          <div className="source-section">{`${content?.section} ${
+            content?.page && `:${content.page}`
+          }`}</div>
         </Row>
-      </Row>
-      <Row justifyContent="space-between">
-        <Col>
-          <p className="name-date">
-            {content?.byline ? `by ${content?.byline} - ` : ''}
-            {formatDate(content?.publishedOn ?? '')}
-          </p>
-          <Show visible={!!content?.source?.name && content?.contentType === ContentTypeName.Story}>
-            <p className="source-name">{content?.source?.name}</p>
-          </Show>
-        </Col>
-        <p className="source-section">
-          <Show visible={content?.contentType === ContentTypeName.PrintContent}>
-            {content?.source?.name} -{' '}
-            {`${content?.section}${content?.page ? `: ${content?.page}` : ''}`}
-          </Show>
-          <Show visible={content?.contentType !== ContentTypeName.PrintContent}>
-            {!!content?.series && `${content?.source?.name} / ${content?.series?.name}`}
-          </Show>
-        </p>
-      </Row>
+      </Bar>
       <Show visible={!!avStream && content?.contentType === ContentTypeName.AudioVideo}>
         <Row justifyContent="center">
           <Show visible={fileReference?.contentType.startsWith('audio/')}>
@@ -244,7 +219,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
               content?.contentType === ContentTypeName.Story
             }
           >
-            <span>{parse(content?.body?.replace(/\n+/g, '<br><br>') ?? '')}</span>
+            <div>{parse(content?.body?.replace(/\n+/g, '<br><br>') ?? '')}</div>
           </Show>
           <Show
             visible={

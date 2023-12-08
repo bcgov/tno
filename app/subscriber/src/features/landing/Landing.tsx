@@ -51,6 +51,7 @@ export const Landing: React.FC = () => {
       </Row>
       <Row className="contents-container">
         <PageSection
+          ignoreMinWidth
           activeContent={activeContent}
           header={
             <Show visible={activeItem !== 'View'}>

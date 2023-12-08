@@ -6,12 +6,13 @@ export const ContentActionBar = styled(Row)`
   padding: 1em 0.5em 0;
   font-size: 0.9em;
   width: 100%;
+  svg {
+    height: 1.25em;
+    width: 1.25em;
+  }
   .left-side-items {
     margin-left: 0.5em;
     color: ${(props) => props.theme.css.btnBkPrimary};
-    svg {
-      margin-right: 0.5em;
-    }
     &:hover {
       text-decoration: underline;
       cursor: pointer;
@@ -24,6 +25,11 @@ export const ContentActionBar = styled(Row)`
     color: ${(props) => props.theme.css.btnBkPrimary};
   }
   .action {
+    display: flex;
+    svg {
+      align-self: flex-end;
+      margin-right: 0.25em;
+    }
     margin-right: 1em;
     &:hover {
       text-decoration: underline;

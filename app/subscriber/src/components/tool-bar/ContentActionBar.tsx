@@ -15,14 +15,14 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({ className, 
   const navigate = useNavigate();
   return (
     <styled.ContentActionBar className={className}>
-      <div className="left-side-items">
-        <FaArrowLeft onClick={() => navigate(-1)} />
+      <div className="action left-side-items" onClick={() => navigate(-1)}>
+        <FaArrowLeft className="back-arrow" />
         BACK TO HEADLINES
       </div>
       <div className="right-side-items">
         <Row>
           <div className="action">
-            <FaEnvelope /> SHARE
+            <FaEnvelope /> <span>SHARE</span>
           </div>
           <AddToFolderMenu content={content} />
           <AddToReportMenu content={content} />
