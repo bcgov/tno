@@ -173,7 +173,9 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
     <styled.ViewContent>
       <div className="headline">{content?.headline}</div>
       <Bar className="info-bar" vanilla>
-        <div className="byline">{`BY ${content?.byline}`}</div>
+        <Show visible={!!content?.byline}>
+          <div className="byline">{`BY ${content?.byline}`}</div>
+        </Show>
         <div className="published-on">
           {content?.publishedOn && moment(content.publishedOn).format('DD-MMM-YYYY HH:mm:ss')}
         </div>
