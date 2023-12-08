@@ -3,9 +3,10 @@ import React from 'react';
 import { FaFileExport, FaPlay } from 'react-icons/fa6';
 import { useReports } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { IContentModel, IReportInstanceContentModel, IReportModel, Row } from 'tno-core';
+import { IContentModel, IReportModel, Row } from 'tno-core';
 
 import * as styled from './styled';
+import { newReportInstance, toInstanceContent } from './utils';
 
 export interface IAddToReportMenuProps {
   content: IContentModel[];
@@ -26,43 +27,46 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
   /** Adds the content to the active report. */
   const addContentToReport = React.useCallback(
     (section: string) => {
-      if (!activeReport || !activeReport.instances.length) {
+      if (!activeReport) {
         return;
       }
 
-      // convert the content to an instance content
-      const convertedContent: IReportInstanceContentModel = {
-        contentId: content[0].id,
-        content: content[0],
-        sectionName: section,
-        instanceId: activeReport.instances[activeReport.instances.length - 1].id,
-        createdBy: content[0].createdBy,
-        createdOn: content[0].createdOn,
-        sortOrder: 0,
-      };
+      const convertedContent = toInstanceContent(content, activeReport, section);
 
-      // get the latest instance content and append to it
-      const instContent = [
-        ...activeReport.instances[activeReport.instances.length - 1].content,
-        convertedContent,
-      ];
+      if (!!activeReport.instances.length) {
+        // get the latest instance content and append to it
+        const instContent = [
+          ...activeReport.instances[activeReport.instances.length - 1].content,
+          ...convertedContent,
+        ];
 
-      // find the latest instance and replace the content with old content appended with new
-      const instances = activeReport.instances.map((inst, index) => {
-        if (index === activeReport.instances.length - 1) {
-          return {
-            ...inst,
-            content: instContent,
-          };
-        } else {
-          return inst;
-        }
-      });
-      const report = {
-        ...activeReport,
-        instances: instances,
-      };
-      updateReport(report, true).catch(() => {});
+        // find the latest instance and replace the content with old content appended with new
+        // this should handle create new instance if there is no instance
+        const instances = activeReport.instances.map((inst, index) => {
+          if (index === activeReport.instances.length - 1) {
+            return {
+              ...inst,
+              content: instContent,
+            };
+          } else {
+            return inst;
+          }
+        });
+        const report = {
+          ...activeReport,
+          instances: instances,
+        };
+        updateReport(report, true).catch(() => {});
+      }
+
+      if (!activeReport.instances.length) {
+        const newInstance = newReportInstance(activeReport, convertedContent);
+        const report = {
+          ...activeReport,
+          instances: [newInstance],
+        };
+        updateReport(report, true).catch(() => {});
+      }
     },
     [activeReport, content, updateReport],
   );
@@ -82,7 +86,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
                   key={report.id}
                   className="report-item"
                   onClick={() => setActiveReport(report)}
-                  data-tooltip-id={`tooltip-add-to-section-${report.id}`}
+                  data-tooltip-id={`tooltip-add-to-section`}
                 >
                   {report.name} {!!report.sections.length && <FaPlay className="expand-sections" />}
                 </Row>
@@ -91,12 +95,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
           </div>
         </TooltipMenu>
       </div>
-      <TooltipMenu
-        place="right"
-        id={`tooltip-add-to-section-${activeReport?.id}`}
-        clickable
-        openOnClick
-      >
+      <TooltipMenu place="right" id={`tooltip-add-to-section`} clickable openOnClick>
         <div className="list">
           <div className="row-title">SECTIONS:</div>
           {activeReport?.sections.map((section) => (
