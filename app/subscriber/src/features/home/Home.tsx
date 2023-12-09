@@ -1,6 +1,6 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
-import { FolderSubMenu } from 'components/folder-sub-menu';
+import { ContentActionBar } from 'components/tool-bar';
 import { createFilterSettings } from 'features/utils';
 import moment from 'moment';
 import React, { useMemo } from 'react';
@@ -87,8 +87,7 @@ export const Home: React.FC = () => {
   return (
     <styled.Home>
       <Row>
-        <FolderSubMenu selectedContent={selected} />
-
+        <ContentActionBar onList content={selected} />
         <Tooltip place="right" className="view-options" openOnClick id="view-options" clickable>
           <Col>
             <div className="show-section">

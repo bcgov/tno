@@ -2,6 +2,10 @@ import styled from 'styled-components';
 
 export const ViewContent = styled.div`
   .info-bar {
+    margin-left: -1.25em;
+    margin-right: -1.25em;
+    padding-left: 1.25em;
+    padding-right: 1.25em;
     font-size: 0.8rem;
     text-transform: uppercase;
     .byline {
@@ -20,8 +24,6 @@ export const ViewContent = styled.div`
     .tone-group {
       margin-left: 0.5em;
     }
-    padding-left: 0.25em;
-    padding-right: 0.25em;
   }
   video {
     margin-top: 1em;
