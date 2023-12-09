@@ -1,4 +1,4 @@
-import { IContentModel, IReportInstanceContentModel, IReportModel } from 'tno-core';
+import { IContentModel, IReportInstanceContentModel } from 'tno-core';
 
 /**
  * Converts an array of content to an array of report instance content.
@@ -8,18 +8,17 @@ import { IContentModel, IReportInstanceContentModel, IReportModel } from 'tno-co
  */
 export const toInstanceContent = (
   content: IContentModel[],
-  report: IReportModel,
+  instanceId: number,
   sectionName: string,
+  sortOrder: number,
 ): IReportInstanceContentModel[] => {
   return content.map((c) => {
     return {
       contentId: c.id,
       content: c,
       sectionName: sectionName,
-      instanceId: !!report.instances.length ? report.instances[report.instances.length - 1].id : 1,
-      createdBy: c.createdBy,
-      createdOn: c.createdOn,
-      sortOrder: 0,
+      instanceId: instanceId,
+      sortOrder: sortOrder,
     };
   });
 };

@@ -7,15 +7,15 @@ import { useProfileStore } from 'store/slices';
 import { IContentModel, IReportModel, Row } from 'tno-core';
 
 import * as styled from './styled';
-import { newReportInstance, toInstanceContent } from './utils';
+import { toInstanceContent } from './utils';
 
 export interface IAddToReportMenuProps {
   content: IContentModel[];
 }
 export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) => {
-  const [{ updateReport, findMyReports, getReport }] = useReports();
+  const [{ updateReport, findMyReports, getReport, generateReport }] = useReports();
   const [{ myReports }] = useProfileStore();
-  const [activeReport, setActiveReport] = React.useState<IReportModel | null>(null);
+  const [activeReport, setActiveReport] = React.useState<IReportModel>();
   const [reportId, setReportId] = React.useState<number | null>(null);
   React.useEffect(() => {
     if (!myReports.length) {
@@ -27,12 +27,17 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
 
   /** Adds the content to the active report. */
   const addContentToReport = React.useCallback(
-    (section: string) => {
+    (sectionName: string) => {
       if (!activeReport) {
         return;
       }
 
-      const convertedContent = toInstanceContent(content, activeReport, section);
+      const convertedContent = toInstanceContent(
+        content,
+        activeReport.instances[0].id,
+        sectionName,
+        0,
+      );
       const update = (report: IReportModel) => {
         updateReport(report, true)
           .then(() => toast.success(`${content.length} storie(s) have been added to report.`))
@@ -41,15 +46,13 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
 
       if (!!activeReport.instances.length) {
         // get the latest instance content and append to it
-        const instContent = [
-          ...activeReport.instances[activeReport.instances.length - 1].content,
-          ...convertedContent,
-        ];
+        // 0 will always be the latest instance
+        const instContent = [...activeReport.instances[0].content, ...convertedContent];
 
         // find the latest instance and replace the content with old content appended with new
         // this should handle create new instance if there is no instance
         const instances = activeReport.instances.map((inst, index) => {
-          if (index === activeReport.instances.length - 1) {
+          if (index === 0) {
             return {
               ...inst,
               content: instContent,
@@ -64,15 +67,6 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
         };
         update(report);
       }
-
-      if (!activeReport.instances.length) {
-        const newInstance = newReportInstance(activeReport, convertedContent);
-        const report = {
-          ...activeReport,
-          instances: [newInstance],
-        };
-        update(report);
-      }
     },
     [activeReport, content, updateReport],
   );
@@ -80,8 +74,15 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
   // ensure no concurrency errorrs rather than getting from profile store
   React.useEffect(() => {
     if (reportId) {
-      getReport(reportId)
-        .then((data) => !!data && setActiveReport(data))
+      getReport(reportId, true)
+        .then(async (report) => {
+          setActiveReport(report);
+          // check for instances and if the report has been sent
+          if (!report?.instances?.length || !!report?.instances[0]?.sentOn) {
+            const result = await generateReport(reportId);
+            setActiveReport(result);
+          }
+        })
         .catch(() => {});
     }
     // only want to get report when reportId changes
