@@ -1,5 +1,4 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
-import { FolderSubMenu } from 'components/folder-sub-menu';
 import { SearchWithLogout } from 'components/search-with-logout';
 import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';

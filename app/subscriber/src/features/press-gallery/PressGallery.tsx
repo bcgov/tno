@@ -1,5 +1,4 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
-import { FolderSubMenu } from 'components/folder-sub-menu';
 import { ContentActionBar } from 'components/tool-bar';
 import { determineColumns } from 'features/home/constants';
 import { castToSearchResult, createFilterSettings } from 'features/utils';
