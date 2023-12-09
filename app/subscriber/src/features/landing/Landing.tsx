@@ -11,6 +11,7 @@ import AVOverviewPreview from 'features/daily-overview/AVOverviewPreview';
 import { FilterMedia } from 'features/filter-media';
 import { FrontPages } from 'features/front-pages';
 import { Home } from 'features/home';
+import { HomeFilters } from 'features/home/home-filters';
 import { MyFolders } from 'features/my-folders';
 import { MyMinister } from 'features/my-minister/MyMinister';
 import { MyProducts } from 'features/my-products';
@@ -54,11 +55,16 @@ export const Landing: React.FC = () => {
           ignoreMinWidth
           activeContent={activeContent}
           header={
-            <Show visible={activeItem !== 'View'}>
-              {activeItem === SidebarMenuItems.settings.label
-                ? 'Settings | My Minister'
-                : activeItem}
-            </Show>
+            <>
+              <Show visible={activeItem !== 'View'}>
+                {activeItem === SidebarMenuItems.settings.label
+                  ? 'Settings | My Minister'
+                  : activeItem}
+              </Show>
+              <Show visible={activeItem === 'Home'}>
+                <HomeFilters />
+              </Show>
+            </>
           }
           className="main-panel"
           includeContentActions={activeItem === 'View'}

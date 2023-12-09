@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { FaGear } from 'react-icons/fa6';
 import { useContent, useLookup } from 'store/hooks';
 import { Button, ButtonHeight, ContentTypeName, IFilterSettingsModel } from 'tno-core';
 
@@ -93,12 +94,12 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
   }, [filter, mediaTypes]);
 
   const filters = [
-    { type: HomeFilterType.All, label: 'ALL' },
     { type: HomeFilterType.Papers, label: 'PAPERS' },
     { type: HomeFilterType.RadioTV, label: 'RADIO/TV' },
     { type: HomeFilterType.Internet, label: 'INTERNET' },
     { type: HomeFilterType.CPNews, label: 'CP NEWS' },
     { type: HomeFilterType.Events, label: 'EVENTS' },
+    { type: HomeFilterType.All, label: 'ALL' },
   ];
 
   return (
@@ -114,6 +115,7 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
           {filter.label}
         </Button>
       ))}
+      <FaGear className="cog" data-tooltip-id="view-options" />
     </styled.HomeFilters>
   );
 };
