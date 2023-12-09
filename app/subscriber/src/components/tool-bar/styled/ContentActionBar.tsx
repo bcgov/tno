@@ -45,7 +45,8 @@ export const ContentActionBar = styled(Row)`
     background-color: ${(props) => props.theme.css.lineQuaternaryColor};
     margin-bottom: 1em;
     width: calc(100% + 1.2em);
-    margin-left: -1.1em;
+    /* negative margin is to bypass the padding of the parent (PageSection) to match UI designs */
+    margin-left: -1.2em;
     margin-right: -1.2em;
     border: 1px solid ${(props) => props.theme.css.lineTertiaryColor};
     padding: 0.5em;

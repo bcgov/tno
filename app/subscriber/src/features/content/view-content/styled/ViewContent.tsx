@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 export const ViewContent = styled.div`
   .info-bar {
+    /* negative margins to bypass parent padding (PageSection) */
     margin-left: -1.25em;
     margin-right: -1.25em;
     padding-left: 1.25em;
