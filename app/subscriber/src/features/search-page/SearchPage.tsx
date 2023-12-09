@@ -4,6 +4,7 @@ import { SearchWithLogout } from 'components/search-with-logout';
 import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';
 import { AdvancedSearch } from 'components/sidebar/advanced-search';
+import { ContentActionBar } from 'components/tool-bar';
 import { determinePreview } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
@@ -111,10 +112,10 @@ export const SearchPage: React.FC = () => {
             header={
               <>
                 <div className="title">{`Search Results`}</div>
-                <FolderSubMenu selectedContent={selected} />
               </>
             }
           >
+            <ContentActionBar content={selected} onList className="search" />
             <Show visible={!!searchName || !!viewing}>
               <div className="viewed-name padding-left">
                 <FaBookmark />

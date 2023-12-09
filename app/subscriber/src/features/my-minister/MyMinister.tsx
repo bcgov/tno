@@ -1,5 +1,6 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { FolderSubMenu } from 'components/folder-sub-menu';
+import { ContentActionBar } from 'components/tool-bar';
 import { determineColumns } from 'features/home/constants';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
@@ -117,7 +118,7 @@ export const MyMinister: React.FC = () => {
   }, [ministerNames]);
   return (
     <styled.MyMinister>
-      <FolderSubMenu selectedContent={selected} />
+      <ContentActionBar content={selected} onList />
       <Row className="table-container">
         <FlexboxTable
           rowId="id"

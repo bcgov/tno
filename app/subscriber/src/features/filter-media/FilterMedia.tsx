@@ -1,5 +1,6 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
+import { ContentActionBar } from 'components/tool-bar';
 import { determineColumns } from 'features/home/constants';
 import moment from 'moment';
 import React, { useMemo } from 'react';

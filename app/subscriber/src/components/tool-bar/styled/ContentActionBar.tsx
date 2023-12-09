@@ -2,6 +2,11 @@ import styled from 'styled-components';
 import { Row } from 'tno-core';
 
 export const ContentActionBar = styled(Row)`
+  &.search {
+    .check-area {
+      margin-left: 1em;
+    }
+  }
   align-items: center;
   padding: 1em 0.5em 0;
   font-size: 0.9em;
@@ -39,7 +44,7 @@ export const ContentActionBar = styled(Row)`
   &.list-view {
     background-color: ${(props) => props.theme.css.lineQuaternaryColor};
     margin-bottom: 1em;
-    width: calc(100% + 2.4em);
+    width: calc(100% + 1.2em);
     margin-left: -1.1em;
     margin-right: -1.2em;
     border: 1px solid ${(props) => props.theme.css.lineTertiaryColor};
