@@ -65,7 +65,7 @@ public class UserColleague : AuditColumns
         return this.UserId == other.UserId && this.ColleagueId == other.ColleagueId;
     }
 
-    public override bool Equals(object? obj) => Equals(obj as UserReport);
+    public override bool Equals(object? obj) => Equals(obj as UserColleague);
     public override int GetHashCode() => (this.UserId, this.ColleagueId).GetHashCode();
     #endregion
 }

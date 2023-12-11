@@ -19,10 +19,11 @@ export const TodaysFrontPages: React.FC = () => {
     },
     { findContentWithElasticsearch, storeFrontPageFilter: storeFilter },
   ] = useContent();
-  const [frontpages, setFrontPages] = React.useState<IContentModel[]>([]);
-  const [selected] = React.useState<IContentModel[]>([]);
   const [{ settings }] = useLookup();
   const [, { getFilter }] = useFilters();
+
+  const [frontpages, setFrontPages] = React.useState<IContentModel[]>([]);
+  const [selected] = React.useState<IContentModel[]>([]);
   const [filter, setFilter] = React.useState<IFilterModel>(defaultFilter);
 
   const fetchResults = React.useCallback(

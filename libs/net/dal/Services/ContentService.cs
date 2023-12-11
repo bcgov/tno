@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text.Json;
-using Elasticsearch.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Nest;
@@ -168,36 +167,6 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         var items = query?.ToArray() ?? Array.Empty<Content>();
         return new Paged<Content>(items, filter.Page, filter.Quantity, total);
-    }
-
-    // TODO: Delete this function
-    /// <summary>
-    /// Find most recent front pages (5 of them).
-    /// </summary>
-    /// <returns> Up to 5 front pages.</returns>
-    public async Task<IPaged<API.Areas.Services.Models.Content.ContentModel>> FindFrontPages(string index)
-    {
-        var mediaTypeQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
-        var today = DateTime.Today.ToUniversalTime();
-        mediaTypeQueries.Add(q => q.Raw(@"{""match"": {""mediaTypeId"": 11}}")); //FIXME
-        var response = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(s =>
-       {
-           var result = s
-               .Pretty()
-               .Index(index)
-               .Size(5);
-           result = result.Query(q =>
-               mediaTypeQueries.Any() ? q.Bool(b => b.Should(mediaTypeQueries)) : new QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>()
-           );
-           result = result.Sort(s => s.Descending(p => p.PublishedOn).Descending(p => p.Id));
-           return result;
-       });
-
-        var items = response.IsValid ?
-            response.Documents :
-            throw new Exception($"Invalid Elasticsearch response: {response.ServerError?.Error?.Reason}");
-        return new Paged<API.Areas.Services.Models.Content.ContentModel>(items, 1, 5, response.Total);
-
     }
 
     // TODO: Delete this function

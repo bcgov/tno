@@ -1,16 +1,14 @@
 import { FormikForm } from 'components/formik';
+import { InputOption } from 'features/content/list-view/components/tool-bar/filter';
 import React from 'react';
-import { FaTrash } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useLookup } from 'store/hooks';
+import { useLookup, useLookupOptions } from 'store/hooks';
 import { useUsers } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
   Col,
-  FieldSize,
-  filterEnabledOptions,
   FormikCheckbox,
   FormikSelect,
   FormikText,
@@ -21,6 +19,7 @@ import {
   Modal,
   OptionItem,
   Row,
+  Section,
   Show,
   useModal,
   UserStatusName,
@@ -38,11 +37,12 @@ const UserForm: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toggle, isShowing } = useModal();
-  const [lookups] = useLookup();
+  const [{ roles }] = useLookup();
+  const [{ mediaTypeOptions, sourceOptions }] = useLookupOptions();
 
   const [user, setUser] = React.useState<IUserModel>(defaultUser);
   const [roleOptions, setRoleOptions] = React.useState(
-    lookups.roles.map((r) => new OptionItem(r.name, r.id, r.isEnabled)),
+    roles.map((r) => new OptionItem(r.name, r.id, r.isEnabled)),
   );
 
   const userId = Number(id);
@@ -58,8 +58,8 @@ const UserForm: React.FC = () => {
   }, [api, user?.id, userId]);
 
   React.useEffect(() => {
-    setRoleOptions(lookups.roles.map((r) => new OptionItem(r.name, r.id)));
-  }, [lookups.roles]);
+    setRoleOptions(roles.map((r) => new OptionItem(r.name, r.id)));
+  }, [roles]);
 
   const handleSubmit = async (values: IUserModel) => {
     try {
@@ -137,53 +137,83 @@ const UserForm: React.FC = () => {
               <FormikText name="key" label="Key" tooltip="Keycloak UID reference" disabled />
             )}
             <FormikTextArea name="note" label="Note" />
-            <div className="roles">
-              <Row className="form-inputs">
-                <Col flex="1 1 auto">
-                  <FormikSelect
-                    label="Roles"
-                    name="role"
-                    options={filterEnabledOptions(roleOptions)}
-                    width={FieldSize.Big}
-                    placeholder="Select Role"
-                    tooltip="Add a role to the user"
-                  >
-                    <Button
-                      variant={ButtonVariant.secondary}
-                      disabled={!(values as any).role}
-                      onClick={(e) => {
-                        const id = (values as any).role;
-                        const role = lookups.roles.find((r) => r.id === id);
-                        if (role && !values.roles?.some((r) => r === id))
-                          setUser({ ...values, roles: [...(values.roles ?? []), role.id] });
-                      }}
-                    >
-                      Add
-                    </Button>
-                  </FormikSelect>
-                </Col>
-              </Row>
-              <hr />
-              {user.roles?.map((role) => (
-                <Row alignContent="stretch" key={role}>
-                  <Col flex="1 1 auto">{role}</Col>
-                  <Col>
-                    <Button
-                      variant={ButtonVariant.danger}
-                      onClick={(e) => {
-                        setUser({
-                          ...values,
-                          roles: values.roles?.filter((ur) => ur !== role) ?? [],
-                        });
-                        setFieldValue('role', 0);
-                      }}
-                    >
-                      <FaTrash />
-                    </Button>
-                  </Col>
-                </Row>
-              ))}
-            </div>
+            <FormikSelect
+              label="Roles"
+              name="roles"
+              options={roleOptions}
+              placeholder="Select roles"
+              tooltip="Roles provide a way to grant this user permission to features in the application"
+              isMulti
+              value={roleOptions.filter((o) => values.roles?.some((r) => r === o.value)) ?? ''}
+              onChange={(e) => {
+                if (e) {
+                  const values = e as OptionItem[];
+                  setFieldValue(
+                    'roles',
+                    values.map((v) => v.value),
+                  );
+                }
+              }}
+              closeMenuOnSelect={false}
+              hideSelectedOptions={false}
+              components={{
+                Option: InputOption,
+              }}
+            />
+            <Section>
+              <p>Select the sources and media types this user should not have access to.</p>
+              <FormikSelect
+                label="Block access to sources"
+                name="source"
+                options={sourceOptions}
+                placeholder="Select sources"
+                tooltip="Block this user from access to the specified sources"
+                isMulti
+                value={sourceOptions.filter(
+                  (o) => values.sources?.some((r) => (r === o.value ? +o.value : undefined)) ?? '',
+                )}
+                onChange={(e) => {
+                  if (e) {
+                    const options = e as OptionItem[];
+                    setFieldValue(
+                      'sources',
+                      options.filter((v) => v.value).map((v) => v.value),
+                    );
+                  }
+                }}
+                closeMenuOnSelect={false}
+                hideSelectedOptions={false}
+                components={{
+                  Option: InputOption,
+                }}
+              />
+              <FormikSelect
+                label="Block access to media types"
+                name="mediaTypes"
+                options={mediaTypeOptions}
+                placeholder="Select media types"
+                tooltip="Block this user access to the specified media types"
+                isMulti
+                value={mediaTypeOptions.filter(
+                  (o) =>
+                    values.mediaTypes?.some((r) => (r === o.value ? +o.value : undefined)) ?? '',
+                )}
+                onChange={(e) => {
+                  if (e) {
+                    const options = e as OptionItem[];
+                    setFieldValue(
+                      'mediaTypes',
+                      options.filter((v) => v.value).map((v) => v.value),
+                    );
+                  }
+                }}
+                closeMenuOnSelect={false}
+                hideSelectedOptions={false}
+                components={{
+                  Option: InputOption,
+                }}
+              />
+            </Section>
             <Row justifyContent="center" className="form-inputs">
               <Button type="submit" disabled={isSubmitting}>
                 Save

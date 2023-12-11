@@ -94,7 +94,9 @@ public class UserService : BaseService<User, int>, IUserService
     public override User? FindById(int id)
     {
         return this.Context.Users
-            .FirstOrDefault(c => c.Id == id);
+            .Include(u => u.MediaTypesManyToMany)
+            .Include(u => u.SourcesManyToMany)
+            .FirstOrDefault(u => u.Id == id);
     }
 
     public User? FindByUserKey(string key)
@@ -117,6 +119,17 @@ public class UserService : BaseService<User, int>, IUserService
 
     public override User AddAndSave(User entity)
     {
+        entity.SourcesManyToMany.ForEach(source =>
+        {
+            source.User = entity;
+            this.Context.Entry(source).State = EntityState.Added;
+        });
+        entity.MediaTypesManyToMany.ForEach(mediaType =>
+        {
+            mediaType.User = entity;
+            this.Context.Entry(mediaType).State = EntityState.Added;
+        });
+
         base.AddAndSave(entity);
         return FindById(entity.Id)!;
     }
@@ -141,6 +154,36 @@ public class UserService : BaseService<User, int>, IUserService
         original.LastLoginOn = entity.LastLoginOn;
         if (String.IsNullOrWhiteSpace(entity.Code)) original.CodeCreatedOn = null;
         else if (original.Code != entity.Code) original.CodeCreatedOn = DateTime.UtcNow;
+
+        var originalSources = this.Context.UserSources.Where(us => us.UserId == entity.Id).ToArray();
+        originalSources.Except(entity.SourcesManyToMany).ForEach((source) =>
+        {
+            this.Context.Entry(source).State = EntityState.Deleted;
+        });
+        entity.SourcesManyToMany.ForEach((source) =>
+        {
+            var originalSource = originalSources.FirstOrDefault(s => s.SourceId == source.SourceId);
+            if (originalSource == null)
+            {
+                source.UserId = original.Id;
+                this.Context.Entry(source).State = EntityState.Added;
+            }
+        });
+
+        var originalMediaTypes = this.Context.UserMediaTypes.Where(umt => umt.UserId == entity.Id).ToArray();
+        originalMediaTypes.Except(entity.MediaTypesManyToMany).ForEach((mediaType) =>
+        {
+            this.Context.Entry(mediaType).State = EntityState.Deleted;
+        });
+        entity.MediaTypesManyToMany.ForEach((mediaType) =>
+        {
+            var originalMediaType = originalMediaTypes.FirstOrDefault(s => s.MediaTypeId == mediaType.MediaTypeId);
+            if (originalMediaType == null)
+            {
+                mediaType.UserId = original.Id;
+                this.Context.Entry(mediaType).State = EntityState.Added;
+            }
+        });
 
         base.UpdateAndSave(original);
         return FindById(entity.Id)!;

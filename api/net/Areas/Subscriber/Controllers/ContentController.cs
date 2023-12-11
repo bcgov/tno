@@ -13,6 +13,7 @@ using TNO.API.Models.SignalR;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
+using TNO.DAL.Extensions;
 using TNO.DAL.Services;
 using TNO.Elastic;
 using TNO.Entities.Models;
@@ -81,34 +82,6 @@ public class ContentController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Find a page of content for the specified query filter.
-    /// TODO: Delete this endpoint and use the other one.
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IPaged<Services.Models.Content.ContentModel>), (int)HttpStatusCode.OK)]
-    [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> FindWithElasticsearchAsync()
-    {
-        var uri = new Uri(this.Request.GetDisplayUrl());
-        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        var filter = new ContentFilter(query);
-        var useUnpublished = filter.UseUnpublished == true;
-        if (filter.Actions.Any(x => x.Contains("Commentary")) && filter.Quantity == 10)
-        {
-            filter.Quantity = 500;
-        }
-        var result = await _contentService.FindWithElasticsearchAsync(useUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex, filter);
-        var page = new Paged<Services.Models.Content.ContentModel>(
-            result.Items,
-            result.Page,
-            result.Quantity,
-            result.Total);
-        return new JsonResult(page);
-    }
-
-    /// <summary>
     /// Find a page of content for the specified Elasticsearch query filter.
     /// </summary>
     /// <param name="filter"></param>
@@ -120,6 +93,14 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> FindWithElasticsearchAsync([FromBody] JsonDocument filter, [FromQuery] bool includeUnpublishedContent = false)
     {
+        // Exclude any content the user is not allowed to search for.
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("User is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        user = _userService.FindById(user.Id) ?? throw new NotAuthorizedException("User does not exist");
+
+        filter = filter.AddExcludeSources(user.SourcesManyToMany.Select(s => s.SourceId));
+        filter = filter.AddExcludeMediaTypes(user.MediaTypesManyToMany.Select(s => s.MediaTypeId));
+
         var result = await _contentService.FindWithElasticsearchAsync(includeUnpublishedContent ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex, filter);
         return new JsonResult(result);
     }
@@ -138,26 +119,6 @@ public class ContentController : ControllerBase
     {
         var result = _contentService.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new ContentModel(result));
-    }
-
-    /// <summary>
-    /// Find todays front pages.
-    /// </summary>
-    /// <returns></returns>
-    /// TODO: Delete this endpoint and use the elasticsearch query one.
-    [HttpGet("frontpages")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
-    [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> FindFrontPages()
-    {
-        var result = await _contentService.FindFrontPages(_elasticOptions.PublishedIndex);
-        var page = new Paged<Services.Models.Content.ContentModel>(
-            result.Items,
-            result.Page,
-            result.Quantity,
-            result.Total);
-        return new JsonResult(page);
     }
 
     /// <summary>

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using TNO.API.Models;
 
-namespace TNO.API.Areas.Admin.Models.User;
+namespace TNO.API.Areas.Subscriber.Models.User;
 
 /// <summary>
 /// UserColleagueModel class, provides a model that represents a relationship between a User and a Colleague.

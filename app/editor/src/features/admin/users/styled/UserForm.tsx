@@ -9,10 +9,4 @@ export const UserForm = styled(FormPage)`
   .back-button {
     align-self: start;
   }
-
-  .roles {
-    border: solid 1px grey;
-    border-radius: 0.25em;
-    padding: 0 0.5em 0.5em 0.5em;
-  }
 `;

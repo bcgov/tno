@@ -130,6 +130,16 @@ public class Source : BaseType<int>
     /// get - List of earned media formula configuration for this source.
     /// </summary>
     public virtual List<EarnedMedia> EarnedMedia { get; } = new List<EarnedMedia>();
+
+    /// <summary>
+    /// get - List of users linked to this source.
+    /// </summary>
+    public virtual List<User> Users { get; } = new List<User>();
+
+    /// <summary>
+    /// get - List of users (many-to-many) linked to this source.
+    /// </summary>
+    public virtual List<UserSource> UsersManyToMany { get; } = new List<UserSource>();
     #endregion
 
     #region Constructors

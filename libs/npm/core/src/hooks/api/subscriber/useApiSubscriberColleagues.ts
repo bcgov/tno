@@ -1,7 +1,7 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
-import { IColleagueModel } from '../..';
+import { IUserColleagueModel } from '../..';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
 import { useApi } from '..';
 
@@ -21,16 +21,17 @@ export const useApiSubscriberColleagues = (
 
   return React.useRef({
     getColleagues: () => {
-      return api.get<never, AxiosResponse<IColleagueModel[]>, any>(`/subscriber/users/colleagues`);
-    },
-    addColleague: (model: IColleagueModel) => {
-      return api.post<IColleagueModel, AxiosResponse<IColleagueModel>, any>(
-        '/subscriber/users/colleagues',
-        model,
+      return api.get<never, AxiosResponse<IUserColleagueModel[]>, any>(
+        `/subscriber/users/colleagues`,
       );
     },
-    deleteColleague: (model: IColleagueModel) => {
-      return api.delete<IColleagueModel, AxiosResponse<IColleagueModel>, any>(
+    addColleague: (email: string) => {
+      return api.post<string, AxiosResponse<IUserColleagueModel>, any>(
+        `/subscriber/users/colleagues?email=${encodeURIComponent(email)}`,
+      );
+    },
+    deleteColleague: (model: IUserColleagueModel) => {
+      return api.delete<IUserColleagueModel, AxiosResponse<IUserColleagueModel>, any>(
         `/subscriber/users/colleagues/${model.colleague?.id}`,
         { data: model },
       );
