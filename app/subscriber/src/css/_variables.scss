@@ -4,7 +4,9 @@
 $bk-primary: linear-gradient(#f0eeee, #d9d9d9);
 $bk-secondary: linear-gradient(0deg, #ffffff, #ffffff), linear-gradient(0deg, #f0eeee, #f0eeee);
 $bk-tertiary: #e8e9f1;
+$bk-quaternary: #e8e9f1;
 $bk-white: #ffff;
+$bk-static-gray: #f0eeee;
 
 // Highlights
 $highlightPrimary: #e8e9f1;
@@ -34,10 +36,14 @@ $icon-secondary-color: #ded9da;
 // Buttons
 $btn-bk-primary: #6750a4;
 $btn-primary-color: #fff;
+$btn-gray-color: #9f9196;
+$btn-red-color: #971d29;
 
 // Lines
 $line-primary-color: #807e9b;
 $line-secondary-color: #f0eeee;
+$line-tertiary-color: #d6d9e7;
+$line-quaternary-color: #f8f7f8;
 
 // code blocks
 $code-block-color: #f0eeee;

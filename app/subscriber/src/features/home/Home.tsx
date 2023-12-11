@@ -1,10 +1,9 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
-import { FolderSubMenu } from 'components/folder-sub-menu';
+import { ContentActionBar } from 'components/tool-bar';
 import { createFilterSettings } from 'features/utils';
 import moment from 'moment';
 import React, { useMemo } from 'react';
-import { FaEllipsisVertical } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 import { useContent } from 'store/hooks';
@@ -22,7 +21,6 @@ import {
 } from 'tno-core';
 
 import { determineColumns } from './constants';
-import { HomeFilters } from './home-filters';
 import * as styled from './styled';
 
 /**
@@ -89,11 +87,7 @@ export const Home: React.FC = () => {
   return (
     <styled.Home>
       <Row>
-        <div className="show-media-label">SHOW MEDIA TYPE:</div>
-        <HomeFilters />
-        <FaEllipsisVertical data-tooltip-id="view-options" className="more-options" />
-        <FolderSubMenu selectedContent={selected} />
-
+        <ContentActionBar onList content={selected} />
         <Tooltip place="right" className="view-options" openOnClick id="view-options" clickable>
           <Col>
             <div className="show-section">

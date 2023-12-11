@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const PageSection = styled.div<{ $ignoreLastChildGap?: boolean }>`
+export const PageSection = styled.div<{ $ignoreMinWidth?: boolean; $ignoreLastChildGap?: boolean }>`
   display: flex;
   flex-direction: column;
   border-radius: 0.5rem;
@@ -8,7 +8,7 @@ export const PageSection = styled.div<{ $ignoreLastChildGap?: boolean }>`
   box-shadow: ${(props) => props.theme.css.boxShadow};
   align-self: stretch;
   margin: 1rem;
-  min-width: fit-content;
+  min-width: ${(props) => (props.$ignoreMinWidth ? 'unset' : 'fit-content')};
 
   .page-section-title {
     margin: 1rem;

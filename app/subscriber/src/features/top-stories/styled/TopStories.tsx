@@ -23,11 +23,6 @@ export const TopStories = styled.div`
       cursor: pointer;
     }
   }
-  .headline {
-    /* link color */
-    color: #3847aa;
-  }
-
   .date-navigator {
     .calendar {
       color: #3847aa;

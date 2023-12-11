@@ -1,5 +1,5 @@
 import { DateFilter } from 'components/date-filter';
-import { FolderSubMenu } from 'components/folder-sub-menu';
+import { ContentActionBar } from 'components/tool-bar';
 import { determineColumns } from 'features/home/constants';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
@@ -64,7 +64,7 @@ export const TodaysCommentary: React.FC = () => {
 
   return (
     <styled.TodaysCommentary>
-      <FolderSubMenu selectedContent={selected} />
+      <ContentActionBar content={selected} onList />
       <DateFilter filter={filter} storeFilter={storeFilter} />
       <Row className="table-container">
         <FlexboxTable

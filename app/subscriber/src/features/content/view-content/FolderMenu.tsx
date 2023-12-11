@@ -1,9 +1,8 @@
 import React from 'react';
-import { AiOutlineFolderAdd } from 'react-icons/ai';
-import { IoAddCircleOutline } from 'react-icons/io5';
+import { FaFolderPlus, FaPen } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { Col, getDistinct, IFolderContentModel, IFolderModel, Row, Text } from 'tno-core';
+import { Button, Col, getDistinct, IFolderContentModel, IFolderModel, Row, Text } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -67,7 +66,9 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
 
   return (
     <styled.FolderMenu>
-      <p>Add to: </p>
+      <Row className="title-row">
+        <FaPen /> CREATE NEW FOLDER:{' '}
+      </Row>
       <Row className="add-row">
         <Text
           placeholder="Create new folder..."
@@ -75,14 +76,19 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
           name="folder"
           onChange={(e) => setFolderName(e.target.value)}
         />
-        <AiOutlineFolderAdd onClick={() => handleAdd()} className="popout-icon" />
+        <Button className="add-folder" onClick={() => handleAdd()}>
+          CREATE
+        </Button>
       </Row>
       <Col>
+        <Row className="add-title">
+          <FaFolderPlus />
+          ADD TO FOLDER:{' '}
+        </Row>
         {myFolders.map((folder) => {
           return (
-            <Row className="folder-row" key={folder.id}>
+            <Row className="folder-row" key={folder.id} onClick={() => handleUpdate(folder)}>
               <div className="row-item">{folder.name}</div>
-              <IoAddCircleOutline onClick={() => handleUpdate(folder)} className="popout-icon" />
             </Row>
           );
         })}

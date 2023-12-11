@@ -12,6 +12,8 @@
   bkSecondary: $bk-secondary;
   bkTertiary: $bk-tertiary;
   bkWhite: $bk-white;
+  bkStaticGray: $bk-static-gray;
+  bkQuaternary: $bk-quaternary;
 
   // Highlights
   highlightPrimary: $highlightPrimary;
@@ -37,10 +39,14 @@
   // Buttons
   btnBkPrimary: $btn-bk-primary;
   btnPrimaryColor: $btn-primary-color;
+  btnGrayColor: $btn-gray-color;
+  btnRedColor: $btn-red-color;
 
   // Lines
   linePrimaryColor: $line-primary-color;
   lineSecondaryColor: $line-secondary-color;
+  lineTertiaryColor: $line-tertiary-color;
+  lineQuaternaryColor: $line-quaternary-color;
 
   // Code blocks
   codeBlockColor: $code-block-color;

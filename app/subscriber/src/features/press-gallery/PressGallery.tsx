@@ -1,5 +1,5 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
-import { FolderSubMenu } from 'components/folder-sub-menu';
+import { ContentActionBar } from 'components/tool-bar';
 import { determineColumns } from 'features/home/constants';
 import { castToSearchResult, createFilterSettings } from 'features/utils';
 import moment from 'moment';
@@ -187,6 +187,7 @@ export const PressGallery: React.FC = () => {
 
   return (
     <styled.PressGallery>
+      <ContentActionBar content={selected} onList />
       <Row className="tool-bar">
         <Select
           width={FieldSize.Medium}
@@ -262,7 +263,6 @@ export const PressGallery: React.FC = () => {
             );
           }}
         />
-        <FolderSubMenu selectedContent={selected} />
       </Row>
       <Row className="table-container">
         <FlexboxTable

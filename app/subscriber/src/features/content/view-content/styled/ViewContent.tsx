@@ -1,18 +1,42 @@
 import styled from 'styled-components';
 
 export const ViewContent = styled.div`
+  .info-bar {
+    /* negative margins to bypass parent padding (PageSection) */
+    margin-left: -1.25em;
+    margin-right: -1.25em;
+    padding-left: 1.25em;
+    padding-right: 1.25em;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    .byline {
+      font-weight: 600;
+    }
+    .right-side {
+      margin-left: auto;
+    }
+    .divider {
+      margin: 0 0.5em;
+    }
+    .numeric-tone {
+      margin-left: 0.5em;
+      align-self: center;
+    }
+    .tone-group {
+      margin-left: 0.5em;
+    }
+  }
   video {
     margin-top: 1em;
     margin-bottom: 1em;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
   }
-  .headline-container {
-    font-size: 1.25rem;
-    font-weight: bold;
-    justify-content: space-between;
-    svg {
-      align-self: center;
-    }
+  .headline {
+    font-weight: 600;
+    font-size: 1.75rem;
+    margin-bottom: 0.5em;
+    font-family: ${(props) => props.theme.css.fPrimary};
+    color: ${(props) => props.theme.css.hPrimaryColor};
   }
   .neg {
     color: #dc3545;
@@ -22,18 +46,6 @@ export const ViewContent = styled.div`
   }
   .neut {
     color: #ffc107;
-  }
-  .name-date,
-  .source-name {
-    font-size: 0.875rem;
-    font-weight: 600;
-  }
-
-  .source-name {
-    margin-top: 0;
-  }
-  .source-section {
-    font-size: 0.875rem;
   }
   .transcribe-button {
     border: 2px solid rgb(0, 51, 102) !important;
