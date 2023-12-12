@@ -16,7 +16,7 @@ export const ReportEdit = styled.div`
   .sections {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.25rem;
     padding-top: 1rem;
 
     .content-row {
@@ -30,6 +30,7 @@ export const ReportEdit = styled.div`
 
   .preview-section {
     position: relative;
+    min-height: 200px;
   }
 
   .preview-report {
@@ -48,6 +49,17 @@ export const ReportEdit = styled.div`
 
     .preview-body {
       padding: 1rem;
+    }
+  }
+
+  .report-send {
+    margin: 1rem;
+    gap: 1rem;
+
+    > div:last-child {
+      button {
+        margin-top: 1.5rem;
+      }
     }
   }
 `;

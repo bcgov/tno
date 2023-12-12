@@ -20,8 +20,6 @@ interface IReportController {
   deleteReport: (model: IReportModel) => Promise<IReportModel>;
   previewReport: (id: number) => Promise<IReportResultModel>;
   generateReport: (id: number, regenerate?: boolean) => Promise<IReportModel>;
-  sendReport: (id: number, to: string) => Promise<IReportModel>;
-  publishReport: (id: number) => Promise<IReportModel>;
 }
 
 export const useReports = (): [IReportController] => {
@@ -118,16 +116,6 @@ export const useReports = (): [IReportController] => {
           api.generateReport(id, regenerate),
         );
         storeMyReports((reports) => reports.map((r) => (r.id === id ? response.data : r)));
-        return response.data;
-      },
-      sendReport: async (id: number, to: string) => {
-        const response = await dispatch<IReportModel>('send-report', () => api.sendReport(id, to));
-        return response.data;
-      },
-      publishReport: async (id: number) => {
-        const response = await dispatch<IReportModel>('publish-report', () =>
-          api.publishReport(id),
-        );
         return response.data;
       },
     }),

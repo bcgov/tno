@@ -385,54 +385,56 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var instanceModel = request.GenerateInstance ? (await this.Api.AddReportInstanceAsync(model)
             ?? throw new InvalidOperationException("Report instance failed to be returned by API")) : null;
 
-        if (request.SendToSubscribers)
+        if (request.SendToSubscribers || !String.IsNullOrEmpty(request.To))
         {
-            var failed = false; // I don't like this implementation because one group of emails could be successful, but the other fail.
+            // TODO: This implementation can result in one set of emails being successful and the second failing.
             var responseModel = new ReportEmailResponseModel();
-
-            if (linkOnlyFormatTo.Any() || !String.IsNullOrEmpty(request.To))
+            try
             {
-                try
+                if (linkOnlyFormatTo.Any())
                 {
                     // Send the email.
-                    var response = await SendEmailAsync(request, linkOnlyFormatTo, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnlyFormat");
-                    responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+                    var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
+                    responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions));
                 }
-                catch (ChesException ex)
-                {
-                    responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
-                    failed = true;
-                }
-            }
-            if (!failed && fullTextFormatTo.Any() || !String.IsNullOrEmpty(request.To))
-            {
-                try
+
+                if (fullTextFormatTo.Any() || !String.IsNullOrEmpty(request.To))
                 {
                     // Send the email.
-                    var response = await SendEmailAsync(request, fullTextFormatTo, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
-                    responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
-                }
-                catch (ChesException ex)
-                {
-                    responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
-                    failed = true;
-                }
-            }
+                    var responseFullText = await SendEmailAsync(request, fullTextFormatTo, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
+                    responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions));
 
-            // Update the report instance.
-            if (request.GenerateInstance && instanceModel != null)
-            {
-                model.Id = instanceModel.Id;
-                model.Version = instanceModel.Version ?? 0;
-                model.SentOn = DateTime.UtcNow;
-                model.Status = failed ? ReportStatus.Failed : ReportStatus.Accepted;
-                model.Content.ForEach(ric => ric.InstanceId = model.Id);  // TODO: This may not be required.
+                }
+
+                model.Status = ReportStatus.Accepted;
                 model.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+            }
+            catch (ChesException ex)
+            {
+                if (responseModel.LinkOnlyFormatResponse == null)
+                    responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
+                else
+                    responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
+
+                model.Status = ReportStatus.Failed;
+                model.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+            }
+
+            if (instanceModel != null && request.GenerateInstance)
+            {
+                // Update the report instance.
+                model.Id = instanceModel.Id;
+                model.Version = instanceModel.Version;
+                model.Content.ForEach(ric => ric.InstanceId = model.Id);
+                model.Subject = subject;
+                model.Body = fullTextFormatBody;
+                instance.SentOn = instance.Status == ReportStatus.Accepted ? DateTime.UtcNow : null;
+                if (model.PublishedOn == null) model.PublishedOn = DateTime.UtcNow;
                 await this.Api.UpdateReportInstanceAsync(model);
             }
         }
 
-        if (report.Settings.Content.ClearFolders)
+        if (report.Settings.Content.ClearFolders && request.GenerateInstance)
         {
             // Make a request to clear content from folders in this report.
             await this.Api.ClearFoldersInReport(report.Id);
@@ -473,63 +475,69 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         // Generate and send report to subscribers who want an email with a link to the website.
         // We do this first because we don't want to save the output of this in the instance.
-        var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.Email));
-        var linkOnlyFormatBody = linkOnlyFormatSubscribers.Any() ? await this.ReportEngine.GenerateReportBodyAsync(instance.Report, sectionContent, null, true, false) : "";
+        var linkOnlyFormatTo = request.SendToSubscribers ?
+            report.Subscribers
+                .Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.Email))
+                .Select(s => s.User!.Email)
+                .ToArray() :
+            Array.Empty<string>();
+        var linkOnlyFormatBody = linkOnlyFormatTo.Any() ? await this.ReportEngine.GenerateReportBodyAsync(instance.Report, sectionContent, null, true, false) : "";
 
         // Generate and send report to subscribers who want an email format.
-        var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.Email));
+        var fullTextFormatTo = report.Subscribers
+            .Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.Email))
+            .Select(s => s.User!.Email)
+            .ToArray();
         var fullTextFormatBody = await this.ReportEngine.GenerateReportBodyAsync(instance.Report, sectionContent, null, false, false);
-
-        var linkOnlyFormatTo = linkOnlyFormatSubscribers.Select(s => s.User!.Email).ToArray();
-        var fullTextFormatTo = fullTextFormatSubscribers.Select(s => s.User!.Email).ToArray();
 
         var subject = await this.ReportEngine.GenerateReportSubjectAsync(instance.Report, sectionContent, false, false);
 
-        if (request.SendToSubscribers)
+        if (request.SendToSubscribers || !String.IsNullOrWhiteSpace(request.To))
         {
-            var failed = false; // I don't like this implementation because one group of emails could be successful, but the other fail.
+            // TODO: This implementation can result in one set of emails being successful and the second failing.
             var responseModel = new ReportEmailResponseModel();
+            try
+            {
+                if (linkOnlyFormatTo.Any())
+                {
+                    // Send the email.
+                    var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
+                    responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions));
+                }
 
-            if (linkOnlyFormatTo.Any() || !String.IsNullOrEmpty(request.To))
-            {
-                try
+                if (fullTextFormatTo.Any() || !String.IsNullOrEmpty(request.To))
                 {
                     // Send the email.
-                    var response = await SendEmailAsync(request, linkOnlyFormatTo, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
-                    responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+                    var responseFullText = await SendEmailAsync(request, fullTextFormatTo, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
+                    responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions));
+
                 }
-                catch (ChesException ex)
-                {
-                    responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
-                    failed = true;
-                }
+
+                instance.Status = ReportStatus.Accepted;
+                instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
             }
-            if (!failed && fullTextFormatTo.Any() || !String.IsNullOrEmpty(request.To))
+            catch (ChesException ex)
             {
-                try
-                {
-                    // Send the email.
-                    var response = await SendEmailAsync(request, fullTextFormatTo, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
-                    responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
-                }
-                catch (ChesException ex)
-                {
+                if (responseModel.LinkOnlyFormatResponse == null)
+                    responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
+                else
                     responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
-                    failed = true;
-                }
+
+                instance.Status = ReportStatus.Failed;
+                instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
             }
 
             // Update the report instance.
             instance.Subject = subject;
             instance.Body = fullTextFormatBody;
-            instance.SentOn = DateTime.UtcNow;
-            instance.Status = failed ? ReportStatus.Failed : ReportStatus.Accepted;
-            instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+            if (request.GenerateInstance)
+                instance.SentOn = instance.Status == ReportStatus.Accepted ? DateTime.UtcNow : null;
+            instance.Content = searchResults;
             if (instance.PublishedOn == null) instance.PublishedOn = DateTime.UtcNow;
             await this.Api.UpdateReportInstanceAsync(instance);
         }
 
-        if (report.Settings.Content.ClearFolders)
+        if (report.Settings.Content.ClearFolders && request.GenerateInstance)
         {
             // Make a request to clear content from folders in this report.
             await this.Api.ClearFoldersInReport(report.Id);

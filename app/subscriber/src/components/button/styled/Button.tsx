@@ -10,7 +10,10 @@ export const Button = styled.button<IButtonProps>`
   padding: 0.25rem 0.75rem;
   border-radius: 0.5rem;
   outline: inherit;
-  cursor: pointer;
+
+  &:not([disabled]) {
+    cursor: pointer;
+  }
 
   background: ${(props) => {
     switch (props.variant) {
@@ -18,7 +21,7 @@ export const Button = styled.button<IButtonProps>`
         return props.theme.css.bkWhite;
       case 'primary':
       default:
-        return props.theme.css.btnBkPrimary;
+        return !props.disabled ? props.theme.css.btnBkPrimary : props.theme.css.btnGrayColor;
     }
   }};
   color: ${(props) => {
@@ -64,11 +67,11 @@ export const Button = styled.button<IButtonProps>`
     }};
   }
 
-  &:hover {
+  &:hover:not([disabled]) {
     box-shadow: ${(props) => props.theme.css.boxShadow};
   }
 
-  &:active {
+  &:active:not([disabled]) {
     background: ${(props) => props.theme.css.linkPrimaryActiveColor};
     box-shadow: ${(props) => props.theme.css.boxShadow};
   }

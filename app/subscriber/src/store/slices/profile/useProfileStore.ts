@@ -6,6 +6,7 @@ import {
   IFolderModel,
   IMinisterModel,
   IReportModel,
+  IReportResultModel,
   ISystemMessageModel,
   IUserModel,
 } from 'tno-core';
@@ -17,6 +18,7 @@ import {
   storeMyMinisters,
   storeMyProfile,
   storeMyReports,
+  storeReportOutput,
   storeReportsFilter,
   storeSystemMessages,
 } from '.';
@@ -32,6 +34,9 @@ export interface IProfileStore {
   storeMyMinisters: (ministers: IMinisterModel[] | ActionDelegate<IMinisterModel[]>) => void;
   storeMyReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => void;
   storeReportsFilter: (filter: string | ActionDelegate<string>) => void;
+  storeReportOutput: (
+    output: IReportResultModel | undefined | ActionDelegate<IReportResultModel | undefined>,
+  ) => void;
   storeSystemMessages: (
     ministers: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
   ) => void;
@@ -73,6 +78,13 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
           dispatch(storeReportsFilter(filter(state.reportsFilter)));
         } else dispatch(storeReportsFilter(filter));
       },
+      storeReportOutput: (
+        output: IReportResultModel | undefined | ActionDelegate<IReportResultModel | undefined>,
+      ) => {
+        if (typeof output === 'function') {
+          dispatch(storeReportOutput(output(state.reportOutput)));
+        } else dispatch(storeReportOutput(output));
+      },
       storeContributors: (
         contributors: IContributorModel[] | ActionDelegate<IContributorModel[]>,
       ) => {
@@ -96,6 +108,7 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
       state.myMinisters,
       state.myReports,
       state.reportsFilter,
+      state.reportOutput,
       state.contributors,
       state.systemMessages,
     ],

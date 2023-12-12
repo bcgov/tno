@@ -6,17 +6,28 @@ import { Col, FormikText, FormikTextArea, Show } from 'tno-core';
 
 import { IReportForm } from '../../interfaces';
 import { sortContent } from '../../utils';
-import { IReportSectionProps } from '../old/components';
 import { ReportContentSectionRow } from './ReportContentSectionRow';
+
+export interface IReportContentSectionProps extends React.AllHTMLAttributes<HTMLDivElement> {
+  /** Array index position of section. */
+  index: number;
+  /** Icon to display in header */
+  icon?: React.ReactNode;
+  /** Enable toggling the form values */
+  showForm?: boolean;
+  /** Form is disabled. */
+  disabled?: boolean;
+}
 
 /**
  * Component provides a way to configure a section that contains content.
  * Content can be provided by a filter or a folder.
  * A content section can also display charts.
  */
-export const ReportContentSection: React.FC<IReportSectionProps> = ({
+export const ReportContentSection: React.FC<IReportContentSectionProps> = ({
   index,
   showForm,
+  disabled,
   ...rest
 }) => {
   const { values, setFieldValue } = useFormikContext<IReportForm>();
@@ -53,8 +64,16 @@ export const ReportContentSection: React.FC<IReportSectionProps> = ({
   return (
     <Col gap="0.5rem">
       <Show visible={showForm}>
-        <FormikText name={`sections.${index}.settings.label`} label="Section heading:" />
-        <FormikTextArea name={`sections.${index}.description`} label="Summary text:" />
+        <FormikText
+          name={`sections.${index}.settings.label`}
+          label="Section heading:"
+          disabled={disabled}
+        />
+        <FormikTextArea
+          name={`sections.${index}.description`}
+          label="Summary text:"
+          disabled={disabled}
+        />
       </Show>
       <Show visible={!!section.filterId && !instance?.content.length}>
         <p>No content was returned by the filter.</p>
@@ -63,7 +82,7 @@ export const ReportContentSection: React.FC<IReportSectionProps> = ({
         <p>Folder is empty.</p>
       </Show>
       <Show visible={!!instance.content.length}>
-        <Droppable droppableId={section.name}>
+        <Droppable droppableId={section.name} isDropDisabled={disabled}>
           {(droppableProvided) => (
             <div {...droppableProvided.droppableProps} ref={droppableProvided.innerRef}>
               {sectionContent.map((ic, contentInSectionIndex) => {
@@ -75,6 +94,7 @@ export const ReportContentSection: React.FC<IReportSectionProps> = ({
                     key={`${ic.sectionName}-${ic.contentId}-${ic.originalIndex}`}
                     draggableId={`${ic.sectionName}__${ic.contentId}__${ic.originalIndex}`}
                     index={contentInSectionIndex}
+                    isDragDisabled={disabled}
                   >
                     {(draggable) => {
                       if (!ic.content) return <></>;
@@ -90,6 +110,7 @@ export const ReportContentSection: React.FC<IReportSectionProps> = ({
                             index={contentInSectionIndex}
                             show={!ic.contentId ? 'all' : 'none'}
                             onRemove={(index) => handleRemoveContent(index)}
+                            disabled={disabled}
                           />
                         </div>
                       );

@@ -79,13 +79,14 @@ public class ReportInstanceController : ControllerBase
     /// Find content for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="includeContent"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public IActionResult FindById(long id)
+    public IActionResult FindById(long id, bool includeContent = false)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
@@ -94,7 +95,11 @@ public class ReportInstanceController : ControllerBase
         if (instance.OwnerId != user.Id && // User does not own the report instance
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to use this report"); // Report is not public
-        return new JsonResult(new ReportInstanceModel(instance));
+
+        var model = new ReportInstanceModel(instance);
+        if (includeContent)
+            model.Content = _reportInstanceService.GetContentForInstance(id).Select(c => new ReportInstanceContentModel(c));
+        return new JsonResult(model);
     }
 
     /// <summary>
@@ -170,7 +175,7 @@ public class ReportInstanceController : ControllerBase
     [ProducesResponseType(typeof(ReportResultModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public async Task<IActionResult> View(int id)
+    public async Task<IActionResult> ViewAsync(int id)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
@@ -206,8 +211,36 @@ public class ReportInstanceController : ControllerBase
         {
             RequestorId = user.Id,
             To = to,
+            SendToSubscribers = false,
+            GenerateInstance = false,
         };
-        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{instance.ReportId}-test", request);
+        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{instance.ReportId}", request);
+        return new JsonResult(new ReportInstanceModel(instance));
+    }
+
+    /// <summary>
+    /// Publish the report and send to all subscribers.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpPost("{id}/publish")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public async Task<IActionResult> PublishAsync(int id)
+    {
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to publish this report"); // User does not own the report
+
+        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, instance.ReportId, instance.Id, new { })
+        {
+            RequestorId = user.Id
+        };
+        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{instance.ReportId}", request);
         return new JsonResult(new ReportInstanceModel(instance));
     }
 
@@ -237,32 +270,6 @@ public class ReportInstanceController : ControllerBase
         var bytes = stream.ToArray();
 
         return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    }
-
-    /// <summary>
-    /// Publish the report and send to all subscribers.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpPost("{id}/publish")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
-    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Report" })]
-    public async Task<IActionResult> Publish(int id)
-    {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
-        if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to publish this report"); // User does not own the report
-
-        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, instance.ReportId, instance.Id, new { })
-        {
-            RequestorId = user.Id
-        };
-        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{instance.ReportId}", request);
-        return new JsonResult(new ReportInstanceModel(instance));
     }
     #endregion
 }
