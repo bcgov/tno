@@ -1,13 +1,9 @@
 import { calcTopicScore } from 'features/content/form/utils';
 import React from 'react';
-import { FaSave } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useLookup } from 'store/hooks';
 import {
-  Button,
-  ButtonVariant,
   CellDate,
-  Col,
   FieldSize,
   getSortableOptions,
   IContentTopicModel,
@@ -15,7 +11,6 @@ import {
   ITableHookColumn,
   OptionItem,
   Select,
-  Text,
 } from 'tno-core';
 
 export const useColumns = (
@@ -24,7 +19,6 @@ export const useColumns = (
 ): ITableHookColumn<IFolderContentModel>[] => {
   const [{ topics, rules }] = useLookup();
   const [folderContentModel, setFolderContentModel] = React.useState<IFolderContentModel>();
-  // const [ possibleScores, setPossibleScores ] = React.useState<number[]>();
 
   // create an array with values 0-100 - min score is 0, max is 100
   const possibleScores = Array.from(Array(101).keys()).map(
