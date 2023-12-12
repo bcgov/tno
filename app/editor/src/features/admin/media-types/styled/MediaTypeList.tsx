@@ -26,7 +26,7 @@ export const MediaTypeList = styled.div`
   }
 
   .table {
-    // max-height: calc(100% - 120px);
+    max-height: calc(100% - 120px);
     min-height: 200px;
   }
 `;
