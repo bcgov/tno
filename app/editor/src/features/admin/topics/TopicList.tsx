@@ -122,77 +122,73 @@ const TopicList: React.FC = () => {
   return (
     <styled.TopicList>
       <FormPage>
-        <Col flex="2 1 0">
-          <Col>
-            <p className="topic-list-title">
-              <b>Update Topics List (Event of the Day)</b>
-            </p>
-            <FormikForm
-              loading={false}
-              initialValues={defaultTopic}
-              onSubmit={async (values, { setSubmitting }) => {
-                await handleSubmit(values);
-                setSubmitting(false);
-              }}
-            >
-              {({ isSubmitting, values, setValues }) => (
-                <>
-                  <Row>
-                    <p>
-                      <b>Create a new topic</b>
-                    </p>
-                  </Row>
-                  <Row alignItems="center">
-                    <FormikText name="name" label="Topic Name" width="295px" />
-                    <FormikSelect
-                      label="Type"
-                      name="topicType"
-                      isClearable={false}
-                      options={topicTypeOptions}
-                      value={topicTypeOptions.find((o) => o.value === values.topicType)}
-                      width={FieldSize.Medium}
-                    />
-                    <Button
-                      type="submit"
-                      variant={ButtonVariant.primary}
-                      disabled={isSubmitting || !values.name || !values.topicType}
-                      style={{ marginTop: '15px' }}
-                    >
-                      Save
-                    </Button>
-                  </Row>
-                </>
-              )}
-            </FormikForm>
-            <TopicFilter
-              onFilterChange={(filter) => {
-                setTopicFilter(filter);
-                if (filter && filter.length) {
-                  const value = filter.toLocaleLowerCase();
-                  setItems(
-                    topics.filter(
-                      (i) =>
-                        i.isEnabled &&
-                        (i.name.toLocaleLowerCase().includes(value) ||
-                          i.description.toLocaleLowerCase().includes(value) ||
-                          i.topicType.toLocaleLowerCase().includes(value)),
-                    ),
-                  );
-                } else {
-                  setItems(topics.filter((x) => x.isEnabled));
-                }
-              }}
-            />
-            <FlexboxTable
-              rowId="id"
-              data={items}
-              columns={useColumns(handleRemove, handleSubmit, loading)}
-              showSort={true}
-              pagingEnabled={false}
-              isLoading={loading}
-            />
-          </Col>
-        </Col>
+        <p className="list-title">Update Topics List (Event of the Day)</p>
+        <FormikForm
+          loading={false}
+          initialValues={defaultTopic}
+          onSubmit={async (values, { setSubmitting }) => {
+            await handleSubmit(values);
+            setSubmitting(false);
+          }}
+        >
+          {({ isSubmitting, values, setValues }) => (
+            <>
+              <Row>
+                <p>
+                  <b>Create a new topic</b>
+                </p>
+              </Row>
+              <Row alignItems="center">
+                <FormikText name="name" label="Topic Name" width="295px" />
+                <FormikSelect
+                  label="Type"
+                  name="topicType"
+                  isClearable={false}
+                  options={topicTypeOptions}
+                  value={topicTypeOptions.find((o) => o.value === values.topicType)}
+                  width={FieldSize.Medium}
+                />
+                <Button
+                  type="submit"
+                  variant={ButtonVariant.primary}
+                  disabled={isSubmitting || !values.name || !values.topicType}
+                  style={{ marginTop: '15px' }}
+                >
+                  Save
+                </Button>
+              </Row>
+            </>
+          )}
+        </FormikForm>
+        <TopicFilter
+          onFilterChange={(filter) => {
+            setTopicFilter(filter);
+            if (filter && filter.length) {
+              const value = filter.toLocaleLowerCase();
+              setItems(
+                topics.filter(
+                  (i) =>
+                    i.isEnabled &&
+                    (i.name.toLocaleLowerCase().includes(value) ||
+                      i.description.toLocaleLowerCase().includes(value) ||
+                      i.topicType.toLocaleLowerCase().includes(value)),
+                ),
+              );
+            } else {
+              setItems(topics.filter((x) => x.isEnabled));
+            }
+          }}
+        />
+        <FlexboxTable
+          rowId="id"
+          data={items}
+          columns={useColumns(handleRemove, handleSubmit, loading)}
+          showSort={true}
+          pagingEnabled={false}
+          isLoading={loading}
+        />
+        {/* </Col>
+        </Col> */}
       </FormPage>
     </styled.TopicList>
   );

@@ -54,6 +54,7 @@ public class FolderService : BaseService<Folder, int>, IFolderService
             .Include(fc => fc.Content!.Owner)
             .Include(fc => fc.Content!.License)
             .Include(fc => fc.Content!.TonePools)
+            .Include(fc => fc.Content!.Topics)
             .Where(fc => fc.FolderId == folderId)
             .OrderBy(fc => fc.SortOrder).ThenByDescending(fc => fc.Content!.PublishedOn)
             .ToArray();

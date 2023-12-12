@@ -49,6 +49,7 @@ export interface IContentModel extends IAuditColumnsModel {
   publishedOn: string;
   summary: string;
   body?: string;
+  bodyLength?: number;
   sourceUrl?: string;
   isHidden: boolean;
   isApproved: boolean;

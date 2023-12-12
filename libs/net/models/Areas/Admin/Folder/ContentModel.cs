@@ -29,6 +29,11 @@ public class ContentModel
     public string Summary { get; set; } = "";
 
     /// <summary>
+    /// get/set - Story body text.
+    /// </summary>
+    public string Body { get; set; } = "";
+
+    /// <summary>
     /// get/set - Other source code name.
     /// </summary>
     public string OtherSource { get; set; } = "";
@@ -116,6 +121,7 @@ public class ContentModel
         this.Headline = entity.Headline;
         this.Byline = entity.Byline;
         this.Summary = entity.Summary;
+        this.Body = entity.Body;
         this.OtherSource = entity.OtherSource;
         this.Section = entity.Section;
         this.Edition = entity.Edition;

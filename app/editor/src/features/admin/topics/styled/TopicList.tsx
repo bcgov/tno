@@ -2,16 +2,6 @@ import styled from 'styled-components';
 
 export const TopicList = styled.div`
   display: flex;
-
-  .form-page {
-    display: flex;
-    gap: 1em;
-
-    div[role='rowgroup'] {
-      max-height: unset;
-    }
-  }
-
   .filter-bar {
     display: flex;
     align-items: center;
@@ -28,10 +18,6 @@ export const TopicList = styled.div`
     padding: 0.25em 0.5em 0.25em 0.5em;
     border-top: solid 2px black;
     border-bottom: solid 2px black;
-  }
-
-  .table {
-    min-height: 200px;
   }
 
   .row {
@@ -85,17 +71,17 @@ export const TopicList = styled.div`
     }
   }
 
-  div.row {
-    cursor: pointer;
-  }
+  // div.row {
+  //   cursor: pointer;
+  // }
 
-  .form > div {
-    height: 100%;
-    form {
-      position: sticky;
-      top: 0;
-    }
-  }
+  // .form > div {
+  //   height: 100%;
+  //   form {
+  //     position: sticky;
+  //     top: 0;
+  //   }
+  // }
 
   form {
     background-color: lightgrey;
@@ -106,9 +92,10 @@ export const TopicList = styled.div`
     padding: 5px;
   }
 
-  .topic-list-title {
+  .list-title {
     padding-left: 7px;
     font-size: 20px;
+    font-weight: bold;
   }
 
   .header {

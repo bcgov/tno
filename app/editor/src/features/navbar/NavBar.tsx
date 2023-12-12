@@ -54,6 +54,13 @@ export const NavBar: React.FC = () => {
           <div className="report" onClick={() => handleClick('report')}>
             <NavBarItem activeHoverTab={activeHover} label="Reports" claim={Claim.editor} />
           </div>
+          <div className="event-of-the-day" onClick={() => handleClick('event-of-the-day')}>
+            <NavBarItem
+              activeHoverTab={activeHover}
+              label="Event of the Day"
+              claim={Claim.administrator}
+            />
+          </div>
         </Row>
       </NavBarGroup>
       <NavBarGroup hover zIndex={1001} className="navbar" onClick={() => handleClick()}>
@@ -82,18 +89,6 @@ export const NavBar: React.FC = () => {
             <NavBarItem
               navigateTo="/admin/dashboard"
               label="Dashboard"
-              claim={Claim.administrator}
-              level={1}
-            />
-            <NavBarItem
-              navigateTo="/admin/topics"
-              label="Topics"
-              claim={Claim.administrator}
-              level={1}
-            />
-            <NavBarItem
-              navigateTo="/admin/topic-scores"
-              label="Topic Scores"
               claim={Claim.administrator}
               level={1}
             />
@@ -242,6 +237,28 @@ export const NavBar: React.FC = () => {
             <NavBarItem
               navigateTo="/reports/cbra"
               label="CBRA Report"
+              claim={Claim.administrator}
+              level={1}
+            />
+          </Show>
+
+          {/* Event of the day */}
+          <Show visible={activeHover === 'event-of-the-day'}>
+            <NavBarItem
+              navigateTo="/admin/event-of-the-day"
+              label="Event of the day"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/topics"
+              label="Topics"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/topic-scores"
+              label="Topic Scores"
               claim={Claim.administrator}
               level={1}
             />

@@ -5,7 +5,19 @@ import { ITableStyleProps } from '..';
 export const FlexboxTable = styled.div<ITableStyleProps>`
   display: flex;
   flex-flow: column;
+  flex-grow: 1;
   padding: 0.25rem;
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    width: unset;
+    height: unset;
+    .rows {
+      flex-grow: 1;
+    }
+  }
 
   .filter {
     display: flex;
