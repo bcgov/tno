@@ -75,6 +75,8 @@ public class TNOContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<UserOrganization> UserOrganizations => Set<UserOrganization>();
     public DbSet<TimeTracking> TimeTrackings => Set<TimeTracking>();
+    public DbSet<UserSource> UserSources => Set<UserSource>();
+    public DbSet<UserMediaType> UserMediaTypes => Set<UserMediaType>();
     #endregion
 
     #region Reports

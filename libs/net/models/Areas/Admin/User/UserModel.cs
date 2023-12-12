@@ -75,6 +75,11 @@ public class UserModel : AuditColumnsModel
     public string Note { get; set; } = "";
 
     /// <summary>
+    /// get/set - The user preferences.
+    /// </summary>
+    public JsonDocument Preferences { get; set; } = JsonDocument.Parse("{}");
+
+    /// <summary>
     /// get/set - An array of roles this user belongs to.
     /// </summary>
     public IEnumerable<string> Roles { get; set; } = Array.Empty<string>();
@@ -93,6 +98,16 @@ public class UserModel : AuditColumnsModel
     /// get/set - An array of filters owned by this user.
     /// </summary>
     public IEnumerable<FilterModel> Filters { get; set; } = Array.Empty<FilterModel>();
+
+    /// <summary>
+    /// get/set - An array of sources not accessible to this user.
+    /// </summary>
+    public IEnumerable<int> Sources { get; set; } = Array.Empty<int>();
+
+    /// <summary>
+    /// get/set - An array of media types not accessible to this user.
+    /// </summary>
+    public IEnumerable<int> MediaTypes { get; set; } = Array.Empty<int>();
     #endregion
 
     #region Constructors
@@ -100,14 +115,6 @@ public class UserModel : AuditColumnsModel
     /// Creates a new instance of an UserModel.
     /// </summary>
     public UserModel() { }
-
-    /// <summary>
-    /// Creates a new instance of an UserModel settiong the primary key.
-    /// </summary>
-    /// <param name="id"></param>
-    public UserModel(int id) { 
-        this.Id = id;
-    }
 
     /// <summary>
     /// Creates a new instance of an UserModel, initializes with specified parameter.
@@ -129,12 +136,15 @@ public class UserModel : AuditColumnsModel
         this.EmailVerified = entity.EmailVerified;
         this.LastLoginOn = entity.LastLoginOn;
         this.Note = entity.Note;
+        this.Preferences = entity.Preferences;
         this.Roles = entity.Roles.Split(",").Where(s => !String.IsNullOrWhiteSpace(s)).Select(r => r[1..^1]);
         this.Organizations = entity.OrganizationsManyToMany.Where(o => o.Organization != null).Select(o => new OrganizationModel(o.Organization!));
         if (entity.Organizations.Any())
             this.Organizations = entity.Organizations.Select(o => new OrganizationModel(o));
         this.Folders = entity.Folders.Select(f => new FolderModel(f, serializerOptions ?? JsonSerializerOptions.Default));
         this.Filters = entity.Filters.Select(f => new FilterModel(f, serializerOptions ?? JsonSerializerOptions.Default));
+        this.Sources = entity.SourcesManyToMany.Select(s => s.SourceId).ToArray();
+        this.MediaTypes = entity.MediaTypesManyToMany.Select(s => s.MediaTypeId).ToArray();
     }
     #endregion
 
@@ -174,6 +184,7 @@ public class UserModel : AuditColumnsModel
             EmailVerified = model.EmailVerified,
             LastLoginOn = model.LastLoginOn,
             Note = model.Note,
+            Preferences = model.Preferences,
             Roles = String.Join(",", model.Roles.Select(r => $"[{r.ToLower()}]")),
             Version = model.Version ?? 0
         };
@@ -196,6 +207,8 @@ public class UserModel : AuditColumnsModel
         }));
 
         entity.OrganizationsManyToMany.AddRange(model.Organizations.Select(o => new Entities.UserOrganization(entity.Id, o.Id)));
+        entity.SourcesManyToMany.AddRange(model.Sources.Select(s => new Entities.UserSource(entity.Id, s)));
+        entity.MediaTypesManyToMany.AddRange(model.MediaTypes.Select(s => new Entities.UserMediaType(entity.Id, s)));
 
         return entity;
     }

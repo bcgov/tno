@@ -99,16 +99,14 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
           </Row>
           <div className="list">
             {myReports.map((report) => (
-              <>
-                <Row
-                  key={report.id}
-                  className="report-item"
-                  onClick={() => setReportId(report.id)}
-                  data-tooltip-id={`tooltip-add-to-section`}
-                >
-                  {report.name} {!!report.sections.length && <FaPlay className="expand-sections" />}
-                </Row>
-              </>
+              <Row
+                key={report.id}
+                className="report-item"
+                onClick={() => setReportId(report.id)}
+                data-tooltip-id={`tooltip-add-to-section`}
+              >
+                {report.name} {!!report.sections.length && <FaPlay className="expand-sections" />}
+              </Row>
             ))}
           </div>
         </TooltipMenu>

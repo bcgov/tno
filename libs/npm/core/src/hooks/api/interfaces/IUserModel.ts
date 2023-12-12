@@ -7,6 +7,7 @@ import {
   IOrganizationModel,
   IReportInstanceModel,
   IReportModel,
+  IUserColleagueModel,
 } from '.';
 
 export interface IUserModel extends IAuditColumnsModel {
@@ -31,4 +32,7 @@ export interface IUserModel extends IAuditColumnsModel {
   reports?: IReportModel[];
   reportInstances?: IReportInstanceModel[];
   notifications?: INotificationModel[];
+  colleagues?: IUserColleagueModel[];
+  sources?: number[];
+  mediaTypes?: number[];
 }

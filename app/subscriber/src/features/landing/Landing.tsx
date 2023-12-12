@@ -9,7 +9,6 @@ import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
 import AVOverviewPreview from 'features/daily-overview/AVOverviewPreview';
 import { FilterMedia } from 'features/filter-media';
-import { FrontPages } from 'features/front-pages';
 import { Home } from 'features/home';
 import { HomeFilters } from 'features/home/home-filters';
 import { MyFolders } from 'features/my-folders';
@@ -115,9 +114,6 @@ export const Landing: React.FC = () => {
         {/* unsure of whether these items will change depending on selected item */}
         <Col className="right-panel">
           <Commentary />
-          <Show visible={activeItem !== SidebarMenuItems.todaysFrontPages.label}>
-            <FrontPages />
-          </Show>
         </Col>
       </Row>
     </styled.Landing>

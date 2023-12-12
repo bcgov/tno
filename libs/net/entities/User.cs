@@ -147,11 +147,6 @@ public class User : AuditColumns
     public virtual List<UserNotification> NotificationSubscriptionsManyToMany { get; } = new List<UserNotification>();
 
     /// <summary>
-    /// get - Collection of users that have colleagues.
-    /// </summary>
-    public virtual List<UserColleague> UsersManyToMany { get; } = new List<UserColleague>();
-
-    /// <summary>
     /// get - Collection of colleagues of that user.
     /// </summary>
     public virtual List<UserColleague> ColleaguesManyToMany { get; } = new List<UserColleague>();
@@ -225,6 +220,26 @@ public class User : AuditColumns
     /// get - Collection of organizations this user belongs to (many-to-many).
     /// </summary>
     public virtual List<UserOrganization> OrganizationsManyToMany { get; } = new List<UserOrganization>();
+
+    /// <summary>
+    /// get - Collection of sources this user does not have access to.
+    /// </summary>
+    public virtual List<Source> Sources { get; } = new List<Source>();
+
+    /// <summary>
+    /// get - Collection of sources this user does not have access to (many-to-many).
+    /// </summary>
+    public virtual List<UserSource> SourcesManyToMany { get; } = new List<UserSource>();
+
+    /// <summary>
+    /// get - Collection of media types this user does not have access to.
+    /// </summary>
+    public virtual List<MediaType> MediaTypes { get; } = new List<MediaType>();
+
+    /// <summary>
+    /// get - Collection of media types this user does not have access to (many-to-many).
+    /// </summary>
+    public virtual List<UserMediaType> MediaTypesManyToMany { get; } = new List<UserMediaType>();
     #endregion
 
     #region Constructors

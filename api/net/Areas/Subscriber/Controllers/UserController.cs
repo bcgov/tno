@@ -4,16 +4,14 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
+using TNO.API.Areas.Subscriber.Models.User;
 using TNO.API.CSS;
 using TNO.API.Models;
-using TNO.DAL.Services;
-using TNO.API.Areas.Subscriber.Models;
-using TNO.Keycloak;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
+using TNO.DAL.Services;
 using TNO.Entities;
-using TNO.API.Areas.Admin.Models.User;
-using UserModel = TNO.API.Areas.Admin.Models.User.UserModel;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
 
@@ -74,13 +72,9 @@ public class UserController : ControllerBase
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-
-        if (user.Id != model.Id)
-        {
-            throw new NotAuthorizedException("You are not authorized to update this user.");
-        }
-        var result = _userService.UpdatePreferences((User)model);
-        return new JsonResult(new UserModel(result!, _serializerOptions));
+        if (user.Id != model.Id) throw new NotAuthorizedException("You are not authorized to update this user.");
+        var result = _userService.UpdatePreferences((User)model) ?? throw new NoContentException("Updated did not return the user");
+        return new JsonResult(new UserModel(result));
     }
 
     /// <summary>
@@ -96,28 +90,29 @@ public class UserController : ControllerBase
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        var colleagues = _userColleagueService.FindColleaguesByUserId(user.Id).Select(m => new UserColleagueModel(m, _serializerOptions));
+        var colleagues = _userColleagueService.FindColleaguesByUserId(user.Id).Select(m => new UserColleagueModel(m));
         return new JsonResult(colleagues);
     }
 
     /// <summary>
-    /// Add user for the specified 'id'.
+    /// Add the colleague linked to the specified 'email' to the current user.
     /// </summary>
-    /// <param name="userWithEmail"></param>
+    /// <param name="email"></param>
     /// <returns></returns>
     [HttpPost("colleagues")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserColleagueModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Colleague" })]
-    public IActionResult AddColleague(UserColleagueModel userWithEmail)
+    public IActionResult AddColleague(string email)
     {
+        if (String.IsNullOrWhiteSpace(email)) throw new ArgumentException("Parameter 'email' is required.");
+
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        var userEmail = userWithEmail?.Colleague?.Email ?? throw new NotAuthorizedException("Model does not contain the email.");
-        User colleague = _userService.FindByEmail(userEmail).FirstOrDefault() ?? throw new InvalidOperationException("There is no user with this email.");
+        var colleague = _userService.FindByEmail(email).FirstOrDefault() ?? throw new InvalidOperationException("There is no user with this email.");
         var result = _userColleagueService.AddColleague(new UserColleague(user.Id, colleague.Id));
-        return CreatedAtAction(nameof(AddColleague), new { id = result.ColleagueId }, new UserColleagueModel(result, _serializerOptions));
+        return CreatedAtAction(nameof(AddColleague), new { id = result.ColleagueId }, new UserColleagueModel(result));
     }
 
     /// <summary>

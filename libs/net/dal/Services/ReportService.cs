@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -460,6 +459,12 @@ public class ReportService : BaseService<Report, int>, IReportService
 
                 // Modify the query to exclude content.
                 var query = excludeContentIds.Any() ? section.Filter.Query.AddExcludeContent(excludeContentIds) : section.Filter.Query;
+
+                // Exclude sources and media types that the user cannot see.
+                var excludeSources = this.Context.UserSources.Where(us => us.UserId == ownerId).Select(us => us.SourceId).ToArray();
+                var excludeMediaTypes = this.Context.UserMediaTypes.Where(us => us.UserId == ownerId).Select(us => us.MediaTypeId).ToArray();
+                query = query.AddExcludeSources(excludeSources);
+                query = query.AddExcludeMediaTypes(excludeMediaTypes);
 
                 // Only include content that has been posted since the last report instance.
                 if (reportSettings.Content.OnlyNewContent)

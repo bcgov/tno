@@ -19,7 +19,7 @@ public static class JsonDocumentExtensions
     public static JsonDocument AddExcludeContent(this JsonDocument query, IEnumerable<long> contentIds)
     {
         var json = JsonNode.Parse(query.ToJson())?.AsObject();
-        if (json == null) return query;
+        if (json == null || !contentIds.Any()) return query;
 
         var jMustNotTerms = JsonNode.Parse($"{{ \"terms\": {{ \"id\": [{String.Join(',', contentIds)}] }}}}")?.AsObject() ?? throw new InvalidOperationException("Failed to parse JSON");
         if (json.TryGetPropertyValue("query", out JsonNode? jQuery))
@@ -82,6 +82,82 @@ public static class JsonDocumentExtensions
             json.Add("query", JsonNode.Parse($"{{ \"bool\": {{ \"must\": [ {jIncludeOnlyLatestPosted!.ToJsonString()} ] }}}}"));
         }
 
+        return JsonDocument.Parse(json.ToJsonString());
+    }
+
+    /// <summary>
+    /// Modify the Elasticsearch 'query' and add a 'must_not' filter to exclude the specified 'sourceIds'.
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="sourceIds"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public static JsonDocument AddExcludeSources(this JsonDocument query, IEnumerable<int> sourceIds)
+    {
+        var json = JsonNode.Parse(query.ToJson())?.AsObject();
+        if (json == null || !sourceIds.Any()) return query;
+
+        var jMustNotTerms = JsonNode.Parse($"{{ \"terms\": {{ \"sourceId\": [{String.Join(',', sourceIds)}] }}}}")?.AsObject() ?? throw new InvalidOperationException("Failed to parse JSON");
+        if (json.TryGetPropertyValue("query", out JsonNode? jQuery))
+        {
+            if (jQuery?.AsObject().TryGetPropertyValue("bool", out JsonNode? jQueryBool) == true)
+            {
+                if (jQueryBool?.AsObject().TryGetPropertyValue("must_not", out JsonNode? jQueryBoolMustNot) == true)
+                {
+                    jQueryBoolMustNot?.AsArray().Add(jMustNotTerms);
+                }
+                else
+                {
+                    jQueryBool?.AsObject().Add("must_not", JsonNode.Parse($"[ {jMustNotTerms.ToJsonString()} ]"));
+                }
+            }
+            else
+            {
+                jQuery?.AsObject().Add("bool", JsonNode.Parse($"{{ \"must_not\": [ {jMustNotTerms.ToJsonString()} ]}}"));
+            }
+        }
+        else
+        {
+            json.Add("query", JsonNode.Parse($"{{ \"bool\": {{ \"must_not\": [ {jMustNotTerms.ToJsonString()} ] }}}}"));
+        }
+        return JsonDocument.Parse(json.ToJsonString());
+    }
+
+    /// <summary>
+    /// Modify the Elasticsearch 'query' and add a 'must_not' filter to exclude the specified 'mediaTypes'.
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="mediaTypes"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public static JsonDocument AddExcludeMediaTypes(this JsonDocument query, IEnumerable<int> mediaTypes)
+    {
+        var json = JsonNode.Parse(query.ToJson())?.AsObject();
+        if (json == null || !mediaTypes.Any()) return query;
+
+        var jMustNotTerms = JsonNode.Parse($"{{ \"terms\": {{ \"mediaTypeId\": [{String.Join(',', mediaTypes)}] }}}}")?.AsObject() ?? throw new InvalidOperationException("Failed to parse JSON");
+        if (json.TryGetPropertyValue("query", out JsonNode? jQuery))
+        {
+            if (jQuery?.AsObject().TryGetPropertyValue("bool", out JsonNode? jQueryBool) == true)
+            {
+                if (jQueryBool?.AsObject().TryGetPropertyValue("must_not", out JsonNode? jQueryBoolMustNot) == true)
+                {
+                    jQueryBoolMustNot?.AsArray().Add(jMustNotTerms);
+                }
+                else
+                {
+                    jQueryBool?.AsObject().Add("must_not", JsonNode.Parse($"[ {jMustNotTerms.ToJsonString()} ]"));
+                }
+            }
+            else
+            {
+                jQuery?.AsObject().Add("bool", JsonNode.Parse($"{{ \"must_not\": [ {jMustNotTerms.ToJsonString()} ]}}"));
+            }
+        }
+        else
+        {
+            json.Add("query", JsonNode.Parse($"{{ \"bool\": {{ \"must_not\": [ {jMustNotTerms.ToJsonString()} ] }}}}"));
+        }
         return JsonDocument.Parse(json.ToJsonString());
     }
 }

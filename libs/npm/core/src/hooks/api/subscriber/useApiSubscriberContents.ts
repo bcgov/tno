@@ -3,14 +3,7 @@ import { AxiosResponse } from 'axios';
 import React from 'react';
 
 import { toQueryString } from '../../../utils';
-import {
-  defaultEnvelope,
-  IContentFilter,
-  IContentModel,
-  ILifecycleToasts,
-  IPaged,
-  useApi,
-} from '../..';
+import { defaultEnvelope, IContentModel, ILifecycleToasts, useApi } from '../..';
 
 /**
  * Common hook to make requests to the API.
@@ -27,15 +20,6 @@ export const useApiSubscriberContents = (
   const api = useApi(options);
 
   return React.useRef({
-    findContent: (filter?: IContentFilter) => {
-      const params = {
-        ...filter,
-        actions: filter?.actions?.length ? filter.actions : undefined,
-      };
-      return api.get<never, AxiosResponse<IPaged<IContentModel>>, any>(
-        `/subscriber/contents?${toQueryString(params)}`,
-      );
-    },
     findContentWithElasticsearch: (
       filter: MsearchMultisearchBody,
       includeUnpublishedContent: boolean = false,
@@ -45,11 +29,6 @@ export const useApiSubscriberContents = (
           includeUnpublishedContent ? `?includeUnpublishedContent=${includeUnpublishedContent}` : ''
         }`,
         filter,
-      );
-    },
-    getFrontPages: () => {
-      return api.get<never, AxiosResponse<IPaged<IContentModel>>, any>(
-        `/subscriber/contents/frontpages`,
       );
     },
     getContent: (id: number) => {

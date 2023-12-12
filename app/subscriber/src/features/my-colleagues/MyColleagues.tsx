@@ -7,7 +7,7 @@ import { FaClipboard } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useColleagues } from 'store/hooks';
-import { IColleagueModel, Modal, Row, useModal } from 'tno-core';
+import { IUserColleagueModel, Modal, Row, useModal } from 'tno-core';
 
 import { ColleagueCard } from './ColleagueCard';
 import * as styled from './styled/MyColleagues';
@@ -15,8 +15,8 @@ import * as styled from './styled/MyColleagues';
 export const MyColleagues: React.FC = () => {
   const [{ getColleagues, deleteColleague }] = useColleagues();
   const { toggle, isShowing } = useModal();
-  const [colleagues, setColleagues] = React.useState<IColleagueModel[]>([]);
-  const [colleague, setColleague] = React.useState<IColleagueModel>();
+  const [colleagues, setColleagues] = React.useState<IUserColleagueModel[]>([]);
+  const [colleague, setColleague] = React.useState<IUserColleagueModel>();
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -28,7 +28,7 @@ export const MyColleagues: React.FC = () => {
   }, [colleagues.length, getColleagues]);
 
   const handleDelete = React.useCallback(
-    (model: IColleagueModel) => {
+    (model: IUserColleagueModel) => {
       if (!!model) {
         deleteColleague(model)
           .then((dataDeleted) => {

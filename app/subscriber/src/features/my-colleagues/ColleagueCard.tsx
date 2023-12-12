@@ -2,13 +2,13 @@ import { Action } from 'components/action';
 import { Section } from 'components/section';
 import React from 'react';
 import { FaTrashCan } from 'react-icons/fa6';
-import { IColleagueModel } from 'tno-core';
+import { IUserColleagueModel } from 'tno-core';
 
 export interface IColleagueCardProps {
   /** The report to display on this card. */
-  model: IColleagueModel;
+  model: IUserColleagueModel;
   /** Event fires when user requests to delete report. This event does not delete the report itself. */
-  onDelete?: (report: IColleagueModel) => void;
+  onDelete?: (report: IUserColleagueModel) => void;
 }
 
 /**

@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useContent, useLookupOptions } from 'store/hooks';
 import { FieldSize, Row, Select } from 'tno-core';
 
@@ -10,15 +9,7 @@ export const MediaTypeSection: React.FC = () => {
     },
     { storeSearchFilter: storeFilter },
   ] = useContent();
-  const [{ mediaTypes }] = useLookupOptions();
-
-  const mediaTypeOptions = useMemo(
-    () =>
-      mediaTypes.map((t) => {
-        return { value: t.id, label: t.name };
-      }),
-    [mediaTypes],
-  );
+  const [{ mediaTypeOptions }] = useLookupOptions();
 
   return (
     <Row justifyContent="center">
@@ -37,7 +28,7 @@ export const MediaTypeSection: React.FC = () => {
         }}
         options={mediaTypeOptions}
         defaultValue={mediaTypeOptions.filter((o) => {
-          return filter.mediaTypeIds?.includes(o.value);
+          return filter.mediaTypeIds?.includes(o.value as number);
         })}
       />
     </Row>

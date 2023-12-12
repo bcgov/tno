@@ -6,7 +6,6 @@ import {
   IContentModel,
   IFilterSettingsModel,
   IOptionItem,
-  IPaged,
   useApiSubscriberContents,
 } from 'tno-core';
 
@@ -19,7 +18,6 @@ interface IContentController {
     store?: keyof IContentState,
   ) => Promise<KnnSearchResponse<IContentModel>>;
   getContent: (id: number) => Promise<IContentModel | undefined>;
-  getFrontPages: () => Promise<IPaged<IContentModel>>;
   download: (id: number, fileName: string) => Promise<unknown>;
   storeSearchFilter: (filter: IFilterSettingsModel) => void;
   storeHomeFilter: (filter: IFilterSettingsModel) => void;
@@ -76,10 +74,6 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
               break;
           }
         }
-        return response.data;
-      },
-      getFrontPages: async () => {
-        const response = await dispatch('find-contents', () => api.getFrontPages());
         return response.data;
       },
       getContent: async (id: number) => {
