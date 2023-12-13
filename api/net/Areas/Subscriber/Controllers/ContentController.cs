@@ -297,28 +297,30 @@ public class ContentController : ControllerBase
     /// <summary>
     /// Send the notification to the specified email address.
     /// </summary>
-    /// <param name="id"></param>
     /// <param name="contentId"></param>
-    /// <param name="to"></param>
+    /// <param name="colleagueId"></param>
+    /// <param name="notificationId"></param>
     /// <returns></returns>
-    [HttpPost("{id}/send/{contentId}")]
+    [HttpPost("{contentId}/share")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(NotificationModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
-    public async Task<IActionResult> SendToAsync(int id, long? contentId, string to)
+    public async Task<IActionResult> SendToAsync(long? contentId, int colleagueId, int notificationId)
     {
-        var notification = _notificationService.FindById(id) ?? throw new NoContentException();
+        var notification = _notificationService.FindById(notificationId) ?? throw new NoContentException();
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+
+        var colleague = _userService.FindById(colleagueId) ?? throw new NotAuthorizedException("Colleague does not exist");
 
         var request = new NotificationRequestModel(NotificationDestination.NotificationService, new { })
         {
             NotificationId = notification.Id,
             ContentId = contentId,
             RequestorId = user.Id,
-            To = to,
+            To = colleague.Email,
             IsPreview = true,
             IgnoreValidation = true,
         };

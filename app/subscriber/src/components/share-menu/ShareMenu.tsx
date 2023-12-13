@@ -22,15 +22,15 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
   const { toggle, isShowing } = useModal();
   const [{ getColleagues, share }] = useColleagues();
   const [options, setOptions] = React.useState<IUserColleagueModel[]>([]);
-  const [email, setEmail] = React.useState<string>();
+  const [user, setUser] = React.useState<IUserColleagueModel>();
 
   const handleSend = async () => {
     try {
       const notificationId = settings.find((s) => s.name === Settings.DefaultAlert)?.value;
       if (notificationId) {
         content.forEach(async (c) => {
-          if (email) {
-            await share(parseInt(notificationId), email, c.id);
+          if (user) {
+            await share(c.id, user.colleagueId, parseInt(notificationId));
           }
         });
         toast.success('Notification has been successfully requested');
@@ -48,9 +48,12 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
     }
   }, [options.length, getColleagues]);
 
-  const message = `Share ${content.length} selected content${
-    content.length > 1 ? 's' : ''
-  } with ${email} ?`;
+  const message =
+    content.length > 0
+      ? `Share ${content.length} selected content${content.length > 1 ? 's' : ''} with ${
+          user?.colleague?.email
+        } ?`
+      : `Please select stories to share with your colleague.`;
 
   return (
     <styled.ShareMenu className="share-sub-menu">
@@ -75,7 +78,7 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
               <li
                 key={o.colleague?.email}
                 onClick={() => {
-                  setEmail(`${o.colleague?.email}`);
+                  setUser(o);
                   toggle();
                 }}
               >
@@ -92,7 +95,7 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
         hide={toggle}
         type="default"
         confirmText="Share"
-        enableConfirm={content.length > 0 && email !== undefined}
+        enableConfirm={content.length > 0 && user?.colleague?.email !== undefined}
         onConfirm={() => {
           handleSend();
           toggle();
