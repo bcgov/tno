@@ -74,7 +74,6 @@ export const SearchPage = styled.div`
     font-size: medium;
     /* } */
     margin-left: auto;
-    margin-right: 1em;
     svg {
       height: 1.5em;
     }
