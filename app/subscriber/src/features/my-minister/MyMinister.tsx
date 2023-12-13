@@ -23,11 +23,13 @@ export const MyMinister: React.FC = () => {
   const [, api] = useMinisters();
   const navigate = useNavigate();
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-  const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
+  const [content, setContent] = React.useState<IContentModel[]>([]);
   const [ministerNames, setMinisterNames] = React.useState<string[]>([]);
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [{ actions }] = useLookup();
+  const selectAllZone = document.querySelector('.content');
+  const [selectAll, setSelectAll] = React.useState(false);
 
   //  convert minister name to alias (e.g. David Eby -> D. Eby OR David Eby)
   const toMinisterAlias = (ministerName: string) => {
@@ -59,7 +61,7 @@ export const MyMinister: React.FC = () => {
         if (!loading) {
           setLoading(true);
           const res = await findContentWithElasticsearch(filter, false);
-          setHomeItems(
+          setContent(
             res.hits.hits.map((r) => {
               const content = r._source as IContentModel;
               return castToSearchResult(content);
@@ -75,6 +77,12 @@ export const MyMinister: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
+
+  /** when select all is toggled all items are selected */
+  React.useEffect(() => {
+    if (selectAll) setSelected(content);
+    if (!selectAll) setSelected([]);
+  }, [setContent, selectAll]);
 
   React.useEffect(() => {
     if (!!filter.search && ministerNames.length > 0) {
@@ -117,7 +125,12 @@ export const MyMinister: React.FC = () => {
   }, [ministerNames]);
   return (
     <styled.MyMinister>
-      <ContentActionBar content={selected} onList />
+      <ContentActionBar
+        setSelectAll={setSelectAll}
+        content={selected}
+        onList
+        selectAllZone={selectAllZone ?? undefined}
+      />
       <Row className="table-container">
         <FlexboxTable
           rowId="id"
@@ -128,7 +141,7 @@ export const MyMinister: React.FC = () => {
           onRowClick={(e: any) => {
             navigate(`/view/my-minister/${e.original.id}`);
           }}
-          data={homeItems}
+          data={content}
           pageButtons={5}
           showPaging={false}
         />

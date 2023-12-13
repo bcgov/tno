@@ -20,9 +20,10 @@ export const TopStories: React.FC = () => {
   ] = useContent();
   const navigate = useNavigate();
   const [topStories, setTopStories] = React.useState<IContentModel[]>([]);
+  const [selectAll, setSelectAll] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [{ actions }] = useLookup();
-
+  const selectAllZone = document.querySelector('.content');
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
     if (!actions.length || !filter.startDate) return;
@@ -49,6 +50,12 @@ export const TopStories: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, actions]);
 
+  /** when select all is toggled all items are selected */
+  React.useEffect(() => {
+    if (selectAll) setSelected(topStories);
+    if (!selectAll) setSelected([]);
+  }, [topStories, selectAll]);
+
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
     if (row.isSelected) {
@@ -60,7 +67,12 @@ export const TopStories: React.FC = () => {
 
   return (
     <styled.TopStories>
-      <ContentActionBar content={selected} onList />
+      <ContentActionBar
+        content={selected}
+        setSelectAll={setSelectAll}
+        onList
+        selectAllZone={selectAllZone ?? undefined}
+      />
       <DateFilter filter={filter} storeFilter={storeFilter} />
       <Row className="table-container">
         <FlexboxTable

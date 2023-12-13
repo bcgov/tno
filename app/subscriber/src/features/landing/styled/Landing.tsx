@@ -47,7 +47,6 @@ export const Landing = styled(Col)`
   /* container containing both panels */
   .contents-container {
     overflow-y: auto;
-    margin-left: 0.5em;
     max-height: calc(100vh - 9em);
   }
 
@@ -63,7 +62,11 @@ export const Landing = styled(Col)`
   .main-panel {
     /* switch between max width and min width depending on screen size in order to maximize screen real estate */
     @media (max-width: 1702px) {
-      min-width: 100%;
+      min-width: 97%;
+    }
+    @media (max-width: 1000px) {
+      margin-left: 0;
+      margin-right: 0;
     }
     @media (min-width: 1000px) {
       max-width: 55%;

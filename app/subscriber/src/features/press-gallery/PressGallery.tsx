@@ -34,10 +34,12 @@ export const PressGallery: React.FC = () => {
   const [, api] = useContributors();
   const [results, setResults] = React.useState<IContentModel[]>();
   const [pressMembers, setPressMembers] = React.useState<IPressMember[]>([]);
+  const [selectAll, setSelectAll] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [dateOptions, setDateOptions] = React.useState<IDateOptions[]>([]);
   const [aliases, setAliases] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const selectAllZone = document.querySelector('.content');
 
   const [{ pressGalleryFilter }, { storeGalleryDateFilter, storeGalleryPressFilter }] =
     useContent();
@@ -114,6 +116,12 @@ export const PressGallery: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /** when select all is toggled all items are selected */
+  React.useEffect(() => {
+    if (selectAll) setSelected(results ?? []);
+    if (!selectAll) setSelected([]);
+  }, [results, selectAll]);
+
   React.useEffect(() => {
     var startDate = `${moment().startOf('day').subtract(2, 'weeks')}`;
     var endDate = `${moment()}`;
@@ -187,7 +195,12 @@ export const PressGallery: React.FC = () => {
 
   return (
     <styled.PressGallery>
-      <ContentActionBar content={selected} onList />
+      <ContentActionBar
+        content={selected}
+        onList
+        selectAllZone={selectAllZone ?? undefined}
+        setSelectAll={setSelectAll}
+      />
       <Row className="tool-bar">
         <Select
           width={FieldSize.Medium}

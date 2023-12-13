@@ -33,12 +33,14 @@ export const Home: React.FC = () => {
     },
     { findContentWithElasticsearch, storeHomeFilter: storeFilter },
   ] = useContent();
+  const [selectAll, setSelectAll] = React.useState(false);
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [disabledCols, setDisabledCols] = React.useState<string[]>([]);
   const [sortBy, setSortBy] = React.useState<'source' | 'time' | ''>('source');
   const navigate = useNavigate();
   const { width } = useWindowSize();
+  const selectAllZone = document.querySelector('.table-container');
   const contentType = useMemo(() => {
     if (!!filter?.contentTypes?.length) return filter.contentTypes[0];
     else return 'all';
@@ -59,6 +61,12 @@ export const Home: React.FC = () => {
     },
     [findContentWithElasticsearch],
   );
+
+  /** when select all is toggled all items are selected */
+  React.useEffect(() => {
+    if (selectAll) setSelected(homeItems);
+    if (!selectAll) setSelected([]);
+  }, [homeItems, selectAll]);
 
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
@@ -87,7 +95,12 @@ export const Home: React.FC = () => {
   return (
     <styled.Home>
       <Row>
-        <ContentActionBar onList content={selected} />
+        <ContentActionBar
+          onList
+          content={selected}
+          setSelectAll={setSelectAll}
+          selectAllZone={selectAllZone ?? undefined}
+        />
         <Tooltip place="right" className="view-options" openOnClick id="view-options" clickable>
           <Col>
             <div className="show-section">

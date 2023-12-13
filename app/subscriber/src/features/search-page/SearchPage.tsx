@@ -38,6 +38,7 @@ export const SearchPage: React.FC = () => {
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
+  const selectAllZone = document.querySelector('.search-contents');
 
   // function that bolds the searched text only if advanced filter is enabled for it
   const formatSearch = React.useCallback(
@@ -114,7 +115,12 @@ export const SearchPage: React.FC = () => {
               </>
             }
           >
-            <ContentActionBar content={selected} onList className="search" />
+            <ContentActionBar
+              content={selected}
+              selectAllZone={selectAllZone ?? undefined}
+              onList
+              className="search"
+            />
             <Show visible={!!searchName || !!viewing}>
               <div className="viewed-name padding-left">
                 <FaBookmark />

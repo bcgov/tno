@@ -21,8 +21,10 @@ export const TodaysCommentary: React.FC = () => {
   ] = useContent();
   const navigate = useNavigate();
   const [commentary, setCommentary] = React.useState<IContentModel[]>([]);
+  const selectAllZone = document.querySelector('.content');
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [{ actions }] = useLookup();
+  const [selectAll, setSelectAll] = React.useState(false);
   React.useEffect(() => {
     findContentWithElasticsearch(
       generateQuery(
@@ -53,6 +55,12 @@ export const TodaysCommentary: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
+  /** when select all is toggled all items are selected */
+  React.useEffect(() => {
+    if (selectAll) setSelected(commentary);
+    if (!selectAll) setSelected([]);
+  }, [commentary, selectAll]);
+
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
     if (row.isSelected) {
@@ -64,7 +72,12 @@ export const TodaysCommentary: React.FC = () => {
 
   return (
     <styled.TodaysCommentary>
-      <ContentActionBar content={selected} onList />
+      <ContentActionBar
+        content={selected}
+        onList
+        setSelectAll={setSelectAll}
+        selectAllZone={selectAllZone ?? undefined}
+      />
       <DateFilter filter={filter} storeFilter={storeFilter} />
       <Row className="table-container">
         <FlexboxTable
