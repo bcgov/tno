@@ -6,7 +6,6 @@ import { useTopics } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
-  Col,
   FieldSize,
   FlexboxTable,
   FormikSelect,
