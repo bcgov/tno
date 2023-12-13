@@ -16,11 +16,15 @@ import { toast } from 'react-toastify';
 import { useApp, useLookup } from 'store/hooks';
 import { ReportSectionTypeName, Row, Settings, Show } from 'tno-core';
 
-import { ReportSectionSummary } from '../old/components/ReportSectionSummary';
-import { ReportSectionTableOfContents } from '../old/components/ReportSectionTableOfContents';
 import { ReportContentSection } from './ReportContentSection';
+import { ReportSectionSummary } from './ReportSectionSummary';
+import { ReportSectionTableOfContents } from './ReportSectionTableOfContents';
 
-export const ReportContentForm: React.FC = () => {
+export interface IReportContentFormProps {
+  disabled?: boolean;
+}
+
+export const ReportContentForm: React.FC<IReportContentFormProps> = ({ disabled }) => {
   const [{ userInfo }] = useApp();
   const { values, setFieldValue, isSubmitting } = useFormikContext<IReportForm>();
   const [{ isReady, settings }] = useLookup();
@@ -106,16 +110,17 @@ export const ReportContentForm: React.FC = () => {
               }
               actions={
                 <Row>
-                  {section.settings.sectionType === ReportSectionTypeName.Content && (
+                  {section.settings.sectionType === ReportSectionTypeName.Content && !disabled && (
                     <Row gap="1rem">
                       {/* <Action disabled={isSubmitting} icon={<FaFileExcel />} title="Export to Excel" /> */}
                       <Action
+                        disabled={isSubmitting || disabled}
                         icon={!showForm ? <FaPen /> : <FaCheck />}
                         title="edit"
                         onClick={() => setShowForm(!showForm)}
                       />
                       <Action
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || disabled}
                         icon={<FaPlus />}
                         title="Add custom content"
                         onClick={() => addStory(instance?.id, section.name)}
@@ -128,13 +133,13 @@ export const ReportContentForm: React.FC = () => {
               <Show
                 visible={section.settings.sectionType === ReportSectionTypeName.TableOfContents}
               >
-                <ReportSectionTableOfContents index={index} showForm={true} />
+                <ReportSectionTableOfContents index={index} showForm={true} disabled={disabled} />
               </Show>
               <Show visible={section.settings.sectionType === ReportSectionTypeName.Content}>
-                <ReportContentSection index={index} showForm={showForm} />
+                <ReportContentSection index={index} showForm={showForm} disabled={disabled} />
               </Show>
               <Show visible={section.settings.sectionType === ReportSectionTypeName.Summary}>
-                <ReportSectionSummary index={index} showForm={true} />
+                <ReportSectionSummary index={index} showForm={true} disabled={disabled} />
               </Show>
             </Section>
           );

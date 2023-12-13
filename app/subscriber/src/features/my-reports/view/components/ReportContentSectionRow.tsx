@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { useApp } from 'store/hooks';
 import { Col, Row } from 'tno-core';
 
-import { ContentForm, UserContentForm } from '../old/components';
+import { ContentForm, UserContentForm } from '.';
 
 export interface IReportContentSectionRowProps {
   /** Whether to show the form to edit content. */
@@ -19,11 +19,14 @@ export interface IReportContentSectionRowProps {
   index: number;
   /** The content item. */
   row: IReportInstanceContentForm;
+  /** Whether the form is disabled. */
+  disabled?: boolean;
 }
 
 export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = ({
   show: initShow = 'none',
   row,
+  disabled,
   index,
   onRemove,
 }) => {
@@ -43,9 +46,7 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
   return (
     <Col>
       <Row className="content-row" flex="1">
-        <Col>
-          <FaGripLines />
-        </Col>
+        <Col>{!disabled && <FaGripLines />}</Col>
         {/* <Col>
           <FormikCheckbox
             name={`sections.${index}.content.${contentInSectionIndex}.selected`}
@@ -64,18 +65,24 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
         </Col>
         <Col>{row.content.page ? `(P.${row.content.page})` : ''}</Col>
         <Row gap="1rem">
-          <Action
-            icon={show === 'none' ? <FaPen /> : <FaCheck />}
-            title="edit"
-            onClick={() => {
-              setShow(show === 'none' ? 'all' : 'none');
-            }}
-          />
-          <Action
-            icon={<FaX />}
-            title="remove"
-            onClick={() => onRemove?.(row.originalIndex, row)}
-          />
+          {!disabled && (
+            <>
+              <Action
+                icon={show === 'none' ? <FaPen /> : <FaCheck />}
+                title="edit"
+                onClick={() => {
+                  setShow(show === 'none' ? 'all' : 'none');
+                }}
+                disabled={disabled}
+              />
+              <Action
+                icon={<FaX />}
+                title="remove"
+                onClick={() => onRemove?.(row.originalIndex, row)}
+                disabled={disabled}
+              />
+            </>
+          )}
         </Row>
       </Row>
       {row.content.ownerId === userId && row.content.isPrivate ? (

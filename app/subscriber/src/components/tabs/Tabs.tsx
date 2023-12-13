@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ITab } from './interfaces';
 import * as styled from './styled';
@@ -21,6 +21,12 @@ export const Tabs: React.FC<ITabsProps> = ({
 }) => {
   const navigate = useNavigate();
   const [active, setActive] = React.useState(getTab(tabs, activeTab));
+  const { pathname } = useLocation();
+
+  React.useEffect(() => {
+    const tab = tabs.find((t) => t.to === pathname);
+    if (tab) setActive(tab);
+  }, [pathname, tabs]);
 
   return (
     <styled.Tabs className={`tabs${className ? ` ${className}` : ''}`} activeTab={active}>
@@ -45,9 +51,13 @@ export const Tabs: React.FC<ITabsProps> = ({
           </div>
         ))}
       </div>
-      {typeof children === 'function'
-        ? (children as (props?: ITab) => React.ReactNode)(active)
-        : children ?? <></>}
+      {typeof children === 'function' ? (
+        <div className="tab-container">
+          {(children as (props?: ITab) => React.ReactNode)(active)}
+        </div>
+      ) : (
+        <div className="tab-container">{children}</div> ?? <></>
+      )}
     </styled.Tabs>
   );
 };

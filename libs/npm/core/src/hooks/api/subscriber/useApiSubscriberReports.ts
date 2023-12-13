@@ -81,15 +81,5 @@ export const useApiSubscriberReports = (
         }`,
       );
     },
-    sendReport: (reportId: number, to: string) => {
-      return api.post<never, AxiosResponse<IReportModel>, any>(
-        `/subscriber/reports/${reportId}/send?to=${to}`,
-      );
-    },
-    publishReport: (reportId: number) => {
-      return api.post<never, AxiosResponse<IReportModel>, any>(
-        `/subscriber/reports/${reportId}/publish`,
-      );
-    },
   }).current;
 };

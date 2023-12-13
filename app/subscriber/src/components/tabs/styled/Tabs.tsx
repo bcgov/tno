@@ -41,4 +41,8 @@ export const Tabs = styled.div<ITabStyled>`
       }
     }
   }
+
+  .tab-container {
+    margin: 0 1rem 1rem 1rem;
+  }
 `;

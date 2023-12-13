@@ -9,6 +9,7 @@ import { useApiHub } from 'store/hooks/signalr';
 import {
   IReportMessageModel,
   MessageTargetName,
+  ReportStatusName,
   Show,
   SummonContext,
   useKeycloakWrapper,
@@ -58,7 +59,10 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
   hub.useHubEffect(MessageTargetName.ReportStatus, async (message: IReportMessageModel) => {
     // Report has been updated, go fetch latest.
     try {
-      toast.info(`Report "${message.subject}" has been sent out by email.`);
+      if (message.status === ReportStatusName.Accepted)
+        toast.info(`Report "${message.subject}" has been sent out by email.`);
+      else if (message.status === ReportStatusName.Failed)
+        toast.error(`Report "${message.subject}" failed to be sent out by email.`);
     } catch {}
   });
 

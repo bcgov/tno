@@ -26,49 +26,49 @@ export const useApiSubscriberReportInstances = (
   const download = useDownload(api);
 
   return React.useRef({
-    getReportInstance: (id: number) => {
+    getReportInstance: (id: number, includeContent?: boolean) => {
       return api.get<never, AxiosResponse<IReportInstanceModel | undefined>, any>(
-        `/subscriber/report/instances/${id}`,
+        `/subscriber/report/instances/${id}?includeContent=${!!includeContent}`,
       );
     },
-    addReportInstance: (report: IReportInstanceModel) => {
+    addReportInstance: (instance: IReportInstanceModel) => {
       return api.post<IReportInstanceModel, AxiosResponse<IReportInstanceModel>, any>(
         '/subscriber/report/instances',
-        report,
+        instance,
       );
     },
-    updateReportInstance: (report: IReportInstanceModel) => {
+    updateReportInstance: (instance: IReportInstanceModel) => {
       return api.put<IReportInstanceModel, AxiosResponse<IReportInstanceModel>, any>(
-        `/subscriber/report/instances/${report.id}`,
-        report,
+        `/subscriber/report/instances/${instance.id}`,
+        instance,
       );
     },
-    deleteReportInstance: (report: IReportInstanceModel) => {
+    deleteReportInstance: (instance: IReportInstanceModel) => {
       return api.delete<IReportInstanceModel, AxiosResponse<IReportInstanceModel>, any>(
-        `/subscriber/report/instances/${report.id}`,
-        { data: report },
+        `/subscriber/report/instances/${instance.id}`,
+        { data: instance },
       );
     },
-    viewReportInstance: (instanceId: number) => {
+    viewReportInstance: (id: number) => {
       return api.post<never, AxiosResponse<IReportResultModel>, any>(
-        `/subscriber/report/instances/${instanceId}/view`,
+        `/subscriber/report/instances/${id}/view`,
       );
     },
-    exportReport: (reportId: number, reportName: string) => {
+    exportReport: (id: number, reportName: string) => {
       return download({
-        url: `/subscriber/report/instances/${reportId}/export`,
+        url: `/subscriber/report/instances/${id}/export`,
         method: 'get',
         fileName: `${reportName}.xlsx`,
       });
     },
-    sendReportInstance: (reportId: number, to: string) => {
+    sendReportInstance: (id: number, to: string) => {
       return api.post<never, AxiosResponse<IReportInstanceModel>, any>(
-        `/subscriber/report/instances/${reportId}/send?to=${to}`,
+        `/subscriber/report/instances/${id}/send?to=${to}`,
       );
     },
-    publishReportInstance: (reportId: number) => {
+    publishReportInstance: (id: number) => {
       return api.post<never, AxiosResponse<IReportInstanceModel>, any>(
-        `/subscriber/report/instances/${reportId}/publish`,
+        `/subscriber/report/instances/${id}/publish`,
       );
     },
   }).current;

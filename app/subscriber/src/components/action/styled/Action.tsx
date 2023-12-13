@@ -7,33 +7,37 @@ export const Action = styled.div<IActionProps>`
   flex-direction: ${(props) => props.direction ?? 'row'};
   gap: 0.5rem;
   align-items: center;
-  cursor: pointer;
+
+  &:not([disabled]) {
+    cursor: pointer;
+  }
 
   font-size: 1rem;
   line-height: unset;
   font-weight: 400;
   max-height: 26px;
 
-  &:hover * {
+  &:hover:not([disabled]) * {
     color: ${(props) => props.theme.css.linkPrimaryHoverColor};
     filter: ${(props) => props.theme.css.dropShadow};
   }
 
-  &:hover svg * {
+  &:hover:not([disabled]) svg * {
     color: ${(props) => props.theme.css.linkPrimaryHoverColor};
     filter: ${(props) => props.theme.css.dropShadow};
   }
 
-  &:active * {
+  &:active:not([disabled]) * {
     color: ${(props) => props.theme.css.linkPrimaryActiveColor};
   }
 
-  &:active svg * {
+  &:active:not([disabled]) svg * {
     color: ${(props) => props.theme.css.linkPrimaryActiveColor};
   }
 
   label {
-    color: ${(props) => props.theme.css.linkPrimaryColor};
+    color: ${(props) =>
+      !props.disabled ? props.theme.css.linkPrimaryColor : props.theme.css.linkGrayColor};
     text-transform: uppercase;
     cursor: pointer;
   }
@@ -46,6 +50,7 @@ export const Action = styled.div<IActionProps>`
     width: 20px;
     max-width: 20px;
     min-width: 20px;
-    color: ${(props) => props.theme.css.iconPrimaryColor};
+    color: ${(props) =>
+      !props.disabled ? props.theme.css.iconPrimaryColor : props.theme.css.iconGrayColor};
   }
 `;

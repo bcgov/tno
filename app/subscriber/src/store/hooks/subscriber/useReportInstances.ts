@@ -7,7 +7,10 @@ import {
 } from 'tno-core';
 
 interface IReportInstanceController {
-  getReportInstance: (id: number) => Promise<IReportInstanceModel | undefined>;
+  getReportInstance: (
+    id: number,
+    includeContent?: boolean,
+  ) => Promise<IReportInstanceModel | undefined>;
   addReportInstance: (model: IReportInstanceModel) => Promise<IReportInstanceModel>;
   updateReportInstance: (model: IReportInstanceModel) => Promise<IReportInstanceModel>;
   deleteReportInstance: (model: IReportInstanceModel) => Promise<IReportInstanceModel>;
@@ -23,10 +26,10 @@ export const useReportInstances = (): [IReportInstanceController] => {
 
   const controller = React.useMemo(
     () => ({
-      getReportInstance: async (id: number) => {
+      getReportInstance: async (id: number, includeContent: boolean = false) => {
         const response = await dispatch<IReportInstanceModel | undefined>(
           'get-report-instance',
-          () => api.getReportInstance(id),
+          () => api.getReportInstance(id, includeContent),
         );
         return response.data;
       },
@@ -49,8 +52,11 @@ export const useReportInstances = (): [IReportInstanceController] => {
         return response.data;
       },
       viewReportInstance: async (id: number) => {
-        const response = await dispatch<IReportResultModel>('view-report-instance', () =>
-          api.viewReportInstance(id),
+        const response = await dispatch<IReportResultModel>(
+          'view-report-instance',
+          () => api.viewReportInstance(id),
+          'view-report',
+          true,
         );
         return response.data;
       },

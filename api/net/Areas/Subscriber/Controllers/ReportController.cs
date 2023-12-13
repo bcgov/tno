@@ -358,59 +358,5 @@ public class ReportController : ControllerBase
 
         return new JsonResult(new ReportModel(report, _serializerOptions));
     }
-
-    /// <summary>
-    /// Send the report to the specified email address.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="to"></param>
-    /// <returns></returns>
-    [HttpPost("{id}/send")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Report" })]
-    public async Task<IActionResult> SendToAsync(int id, string to)
-    {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
-        if (report.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to send this report"); // User does not own the report
-
-        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, report.Id, new { })
-        {
-            RequestorId = user.Id,
-            To = to,
-            // UpdateCache = true,
-            GenerateInstance = false
-        };
-        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{report.Id}-test", request);
-        return new JsonResult(new ReportModel(report, _serializerOptions));
-    }
-
-    /// <summary>
-    /// Publish the report and send to all subscribers.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpPost("{id}/publish")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Report" })]
-    public async Task<IActionResult> Publish(int id)
-    {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
-        if (report.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to publish this report"); // User does not own the report
-
-        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, report.Id, new { })
-        {
-            RequestorId = user.Id
-        };
-        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{report.Id}", request);
-        return new OkResult();
-    }
     #endregion
 }

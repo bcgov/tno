@@ -5,6 +5,7 @@ import {
   IFolderModel,
   IMinisterModel,
   IReportModel,
+  IReportResultModel,
   ISystemMessageModel,
   IUserModel,
 } from 'tno-core';
@@ -43,6 +44,9 @@ export const profileSlice = createSlice({
     storeReportsFilter(state: IProfileState, action: PayloadAction<string>) {
       state.reportsFilter = action.payload;
     },
+    storeReportOutput(state: IProfileState, action: PayloadAction<IReportResultModel | undefined>) {
+      state.reportOutput = action.payload;
+    },
     contributors(state: IProfileState, action: PayloadAction<IContributorModel[]>) {
       state.contributors = action.payload;
     },
@@ -59,5 +63,6 @@ export const {
   storeMyMinisters,
   storeMyReports,
   storeReportsFilter,
+  storeReportOutput,
   storeSystemMessages,
 } = profileSlice.actions;

@@ -4,12 +4,20 @@ import { FormikForm } from 'components/formik';
 import { Header } from 'components/header';
 import { PageSection } from 'components/section';
 import React from 'react';
-import { FaArrowLeft, FaCloud, FaFileExcel, FaGear, FaRecycle } from 'react-icons/fa6';
+import { FaArrowLeft, FaCloud, FaFileCirclePlus, FaFileExcel, FaGear } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp, useReportInstances, useReports } from 'store/hooks';
+import { useApiHub, useApp, useReportInstances, useReports } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, Modal, Row, useModal } from 'tno-core';
+import {
+  Col,
+  IReportMessageModel,
+  MessageTargetName,
+  Modal,
+  ReportStatusName,
+  Row,
+  useModal,
+} from 'tno-core';
 
 import { ReportFormSchema } from '../admin/validation/ReportFormSchema';
 import { defaultReport } from '../constants';
@@ -22,12 +30,14 @@ export const ReportEdit: React.FC = () => {
   const [{ userInfo }] = useApp();
   const navigate = useNavigate();
   const { id } = useParams();
-  const [{ myReports }] = useProfileStore();
+  const [{ myReports }, { storeReportOutput }] = useProfileStore();
   const [{ generateReport, getReport, updateReport, findMyReports }] = useReports();
-  const [{ exportReport }] = useReportInstances();
+  const [{ exportReport, getReportInstance }] = useReportInstances();
   const { isShowing, toggle } = useModal();
+  const hub = useApiHub();
 
   const [report, setReport] = React.useState<IReportForm>(defaultReport(userInfo?.id ?? 0, 0));
+  const canEdit = report.instances.length ? !report.instances[0].sentOn : true;
 
   React.useEffect(() => {
     if (!myReports.length) {
@@ -44,7 +54,7 @@ export const ReportEdit: React.FC = () => {
         .then(async (report) => {
           if (report) {
             setReport(toForm(report));
-            if (!report.instances.length || report.instances[0].sentOn) {
+            if (!report.instances.length) {
               // The report has either never generated an instance, or the last instance was already sent.
               const result = await generateReport(reportId);
               setReport(toForm(result));
@@ -55,6 +65,22 @@ export const ReportEdit: React.FC = () => {
     // Only make a request when 'id' changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  hub.useHubEffect(MessageTargetName.ReportStatus, async (message: IReportMessageModel) => {
+    // Report has been updated, go fetch latest.
+    try {
+      if (message.status === ReportStatusName.Accepted) {
+        const instance = await getReportInstance(message.id, true);
+        if (instance) {
+          setReport({
+            ...report,
+            instances: report.instances.map((i) => (i.id === message.id ? instance : i)),
+          });
+          navigate(`/reports/${report.id}/edit/content`);
+        }
+      }
+    } catch {}
+  });
 
   const handleExport = React.useCallback(
     async (report: IReportForm) => {
@@ -78,14 +104,18 @@ export const ReportEdit: React.FC = () => {
   );
 
   const handleRegenerate = React.useCallback(
-    async (values: IReportForm) => {
+    async (values: IReportForm, regenerate: boolean) => {
       try {
-        const report = await generateReport(values.id, true);
+        const report = await generateReport(values.id, regenerate);
         setReport(toForm(report));
-        toast.success('Report has been regenerated');
+        if (regenerate) toast.success('Report has been regenerated');
+        else {
+          toast.success('Report has been generated');
+          navigate(`/reports/${values.id}/edit/content`);
+        }
       } catch {}
     },
-    [generateReport],
+    [generateReport, navigate],
   );
 
   const handleSubmit = React.useCallback(
@@ -100,12 +130,13 @@ export const ReportEdit: React.FC = () => {
           toast.error(`A report with the name '${values.name}' already exists.`);
         } else {
           const report = await updateReport(values, true);
+          storeReportOutput(undefined); // Clear the preview
           setReport(toForm(report));
           toast.success(`Successfully updated '${report.name}'.`);
         }
       } catch {}
     },
-    [myReports, updateReport],
+    [myReports, storeReportOutput, updateReport],
   );
 
   return (
@@ -142,13 +173,10 @@ export const ReportEdit: React.FC = () => {
                       disabled={isSubmitting}
                       icon={<FaGear />}
                       title="Edit report template"
-                      onClick={() => navigate(`/reports/${values.id}`)}
-                    />
-                    <Action
-                      disabled={isSubmitting}
-                      icon={<FaRecycle />}
-                      title="Regenerate content"
-                      onClick={() => toggle()}
+                      onClick={(e) => {
+                        if (e.ctrlKey) toggle();
+                        else navigate(`/reports/${values.id}`);
+                      }}
                     />
                     <Action
                       disabled={isSubmitting}
@@ -156,16 +184,27 @@ export const ReportEdit: React.FC = () => {
                       title="Export to Excel"
                       onClick={() => handleExport(values)}
                     />
-                    <Button onClick={() => submitForm()} disabled={isSubmitting}>
-                      Save
-                      <FaCloud />
-                    </Button>
+                    {canEdit ? (
+                      <Button onClick={() => submitForm()} disabled={isSubmitting || !canEdit}>
+                        Save
+                        <FaCloud />
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => handleRegenerate(values, false)}
+                        disabled={isSubmitting || canEdit}
+                      >
+                        Start next report
+                        <FaFileCirclePlus />
+                      </Button>
+                    )}
                   </Row>
                 </Col>
               </Row>
             }
           >
-            <ReportEditForm />
+            <ReportEditForm disabled={!canEdit} />
+            <span></span>
           </PageSection>
         )}
       </FormikForm>
@@ -178,7 +217,7 @@ export const ReportEdit: React.FC = () => {
         confirmText="Yes, Regenerate It"
         onConfirm={async () => {
           try {
-            await handleRegenerate(report);
+            await handleRegenerate(report, true);
           } finally {
             toggle();
           }
