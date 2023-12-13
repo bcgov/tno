@@ -13,6 +13,7 @@ import {
   IContentFilter,
   IContentListModel,
   IContentModel,
+  IContentTopicModel,
   INotificationInstanceModel,
   IPaged,
   useApiEditorContents,
@@ -30,6 +31,7 @@ interface IContentController {
   addContent: (content: IContentModel) => Promise<IContentModel>;
   updateContent: (content: IContentModel) => Promise<IContentModel>;
   updateContentList: (content: IContentListModel) => Promise<IContentModel[]>;
+  updateContentTopics: (id: number, topics?: IContentTopicModel[]) => Promise<IContentTopicModel[]>;
   deleteContent: (content: IContentModel) => Promise<IContentModel>;
   publishContent: (content: IContentModel) => Promise<IContentModel>;
   unpublishContent: (content: IContentModel) => Promise<IContentModel>;
@@ -117,6 +119,14 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
             actions.removeContent(response.data);
             break;
         }
+        return response.data;
+      },
+      updateContentTopics: async (id: number, topics?: IContentTopicModel[]) => {
+        const response = await dispatch(
+          'update-content-topics',
+          () => api.updateContentTopics(id, topics ?? []),
+          'content',
+        );
         return response.data;
       },
       deleteContent: async (content: IContentModel) => {

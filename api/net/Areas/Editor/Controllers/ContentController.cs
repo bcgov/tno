@@ -271,6 +271,40 @@ public class ContentController : ControllerBase
     }
 
     /// <summary>
+    /// Update content topics for a piece of content.
+    /// Publish message to kafka to index content in elasticsearch.
+    /// </summary>
+    /// <param name="id">id of the content item to update</param>
+    /// <param name="topics">the new set of topics for the content</param>
+    /// <returns></returns>
+    [HttpPut("{id}/topics")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<ContentTopicModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> UpdateTopicsAsync(long id, IEnumerable<ContentTopicModel> topics)
+    {
+        // Always make the user who updated the content the owner if the owner is currently empty.
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+
+        var updatedTopics = _contentService.AddOrUpdateContentTopics(id, topics.ToList().ConvertAll(x => x.ToEntity(id)));
+
+        var updatedContent = _contentService.FindById(id);
+
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(updatedContent) })));
+
+        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
+        {
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Index));
+        }
+        else
+            _logger.LogWarning("Kafka indexing topic not configured.");
+
+        return new JsonResult(updatedTopics.ToList().ConvertAll(x => new ContentTopicModel(x)));
+    }
+
+    /// <summary>
     /// Perform the specified 'action' to the specified array of content.
     /// </summary>
     /// <param name="model"></param>

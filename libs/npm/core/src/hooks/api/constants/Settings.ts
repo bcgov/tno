@@ -27,4 +27,6 @@ export const Settings = {
   ProductSubscriptionManagerEmail: 'ProductSubscriptionManagerEmail',
   /** The default report template ID to use when creating new reports. */
   DefaultReportTemplate: 'DefaultReportTemplateId',
+  /** The folder ID used for event of the day content. */
+  EventOfTheDayFolder: 'EventOfTheDayFolderId',
 };

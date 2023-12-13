@@ -54,12 +54,12 @@ public class ContentModel
     public int LicenseId { get; set; }
 
     /// <summary>
-    /// get/set - Foreign key to series (program/show).
+    /// get/set - Foreign key to series (show/program).
     /// </summary>
     public int? SeriesId { get; set; }
 
     /// <summary>
-    /// get/set - The series (program/show).
+    /// get/set - The series (show/program).
     /// </summary>
     public SeriesModel? Series { get; set; }
 

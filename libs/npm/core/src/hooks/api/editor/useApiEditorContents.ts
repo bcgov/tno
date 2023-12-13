@@ -8,6 +8,7 @@ import {
   IContentFilter,
   IContentListModel,
   IContentModel,
+  IContentTopicModel,
   INotificationInstanceModel,
   IPaged,
   IWorkOrderModel,
@@ -70,6 +71,12 @@ export const useApiEditorContents = (
       return api.put<IContentListModel, AxiosResponse<IContentModel[]>, any>(
         `/editor/contents`,
         action,
+      );
+    },
+    updateContentTopics: (id: number, topics: IContentTopicModel[]) => {
+      return api.put<IContentTopicModel[], AxiosResponse<IContentTopicModel[]>, any>(
+        `/editor/contents/${id}/topics`,
+        topics,
       );
     },
     deleteContent: (content: IContentModel) => {

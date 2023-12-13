@@ -1,11 +1,13 @@
 import styled from 'styled-components';
 
 export const ActionList = styled.div`
-  width: 100%;
-  height: 100%;
-  min-height: 100%;
   display: flex;
-  justify-content: center;
+  flex-flow: column;
+  flex-grow: 1;
+  .form-page {
+    display: flex;
+    flex-flow: column;
+  }
 
   .filter-bar {
     display: flex;
@@ -28,7 +30,7 @@ export const ActionList = styled.div`
   }
 
   .table {
-    max-height: calc(100% - 120px);
+    // max-height: calc(100% - 120px);
     min-height: 200px;
   }
 `;

@@ -41,7 +41,7 @@ public class WorkOrderFilter : PageFilter
     public int[] MediaTypeIds { get; set; } = Array.Empty<int>();
 
     /// <summary>
-    /// get/set - An array of serries/program/show to filter on.
+    /// get/set - An array of serries/show/program to filter on.
     /// </summary>
     public int[] SeriesIds { get; set; } = Array.Empty<int>();
 

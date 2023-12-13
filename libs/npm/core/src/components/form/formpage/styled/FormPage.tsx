@@ -7,7 +7,7 @@ export const FormPage = styled.div<IFormPageProps>`
   background-color: white;
 
   :not(.no-padding) {
-    padding: 0.5em 2em 0 2em;
+    padding: 0.5em 2em 2em 2em;
   }
 
   div[role='rowgroup'] {

@@ -29,6 +29,11 @@ public class ContentModel
     public string Summary { get; set; } = "";
 
     /// <summary>
+    /// get/set - Story body text.
+    /// </summary>
+    public string Body { get; set; } = "";
+
+    /// <summary>
     /// get/set - Other source code name.
     /// </summary>
     public string OtherSource { get; set; } = "";
@@ -92,6 +97,12 @@ public class ContentModel
     /// get/set - An array of tone pools.
     /// </summary>
     public IEnumerable<TonePoolModel> TonePools { get; set; } = Array.Empty<TonePoolModel>();
+
+    /// <summary>
+    /// get - An array of topics and scores.
+    /// </summary>
+    public IEnumerable<FolderContentTopicModel> Topics { get; set; } = Array.Empty<FolderContentTopicModel>();
+
     #endregion
 
     #region Constructors
@@ -110,6 +121,7 @@ public class ContentModel
         this.Headline = entity.Headline;
         this.Byline = entity.Byline;
         this.Summary = entity.Summary;
+        this.Body = entity.Body;
         this.OtherSource = entity.OtherSource;
         this.Section = entity.Section;
         this.Edition = entity.Edition;
@@ -123,6 +135,7 @@ public class ContentModel
         this.Contributor = entity.Contributor != null ? new SortableModel<int>(entity.Contributor) : null;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.TonePools = entity.TonePoolsManyToMany.Select(tp => new TonePoolModel(tp));
+        this.Topics = entity.TopicsManyToMany.Select(e => new FolderContentTopicModel(e));
     }
     #endregion
 }

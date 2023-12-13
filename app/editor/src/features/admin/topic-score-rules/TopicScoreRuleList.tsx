@@ -110,7 +110,7 @@ const TopicScoreRuleList: React.FC = () => {
               </Row>
               <div className="grid-table">
                 <div>Source</div>
-                <div>Program/Show</div>
+                <div>Show/Program</div>
                 <div>Section</div>
                 <div className="center">
                   Page
