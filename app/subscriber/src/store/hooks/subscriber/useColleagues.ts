@@ -1,7 +1,6 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import {
-  IColleagueModel,
   INotificationModel,
   IResponseErrorModel,
   IUserColleagueModel,
@@ -9,9 +8,9 @@ import {
 } from 'tno-core';
 
 interface IColleagueController {
-  getColleagues: () => Promise<IColleagueModel[]>;
+  getColleagues: () => Promise<IUserColleagueModel[]>;
   addColleague: (email: string) => Promise<IUserColleagueModel> | Promise<IResponseErrorModel>;
-  deleteColleague: (model: IColleagueModel) => Promise<IColleagueModel>;
+  deleteColleague: (model: IUserColleagueModel) => Promise<IUserColleagueModel>;
   sendNotification: (
     notificationId: number,
     to: string,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaShare } from 'react-icons/fa';
+import { FaEnvelope } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useColleagues, useLookup } from 'store/hooks';
 import {
@@ -82,9 +82,9 @@ export const ShareSubMenu: React.FC<IShareSubMenuProps> = ({ selectedContent }) 
 
   return (
     <styled.ShareSubMenu className="share-sub-menu">
-      <Row justifyContent="end">
-        <FaShare className="share-story" data-tooltip-id="share-story" onClick={() => toggle()} />
-      </Row>
+      <div className="action" onClick={() => toggle()}>
+        <FaEnvelope /> SHARE
+      </div>
       <Modal
         headerText="Share Content"
         body={message}
