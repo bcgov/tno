@@ -3,6 +3,7 @@ import styled from 'styled-components';
 export const Home = styled.div`
   .folder-sub-menu {
     margin-left: auto;
+    margin-right: 1em;
   }
   /* table styling */
   .view-options {

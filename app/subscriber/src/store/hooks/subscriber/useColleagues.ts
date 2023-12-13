@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import {
+  IColleagueModel,
   INotificationModel,
   IResponseErrorModel,
   IUserColleagueModel,
@@ -8,13 +9,13 @@ import {
 } from 'tno-core';
 
 interface IColleagueController {
-  getColleagues: () => Promise<IUserColleagueModel[]>;
+  getColleagues: () => Promise<IColleagueModel[]>;
   addColleague: (email: string) => Promise<IUserColleagueModel> | Promise<IResponseErrorModel>;
-  deleteColleague: (model: IUserColleagueModel) => Promise<IUserColleagueModel>;
-  share: (
-    contentId: number,
-    colleagueId: number,
+  deleteColleague: (model: IColleagueModel) => Promise<IColleagueModel>;
+  sendNotification: (
     notificationId: number,
+    to: string,
+    contentId?: number,
   ) => Promise<INotificationModel>;
 }
 
@@ -42,9 +43,9 @@ export const useColleagues = (): [IColleagueController] => {
         );
         return response.data;
       },
-      share: async (contentId: number, colleagueId: number, notificationId: number) => {
+      sendNotification: async (notificationId: number, to: string, contentId?: number) => {
         const response = await dispatch<INotificationModel>('send-Notification', () =>
-          api.share(contentId, colleagueId, notificationId),
+          api.sendNotification(notificationId, to, contentId),
         );
         return response.data;
       },
