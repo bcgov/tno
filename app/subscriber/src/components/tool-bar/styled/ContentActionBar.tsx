@@ -28,6 +28,11 @@ export const ContentActionBar = styled(Row)`
     margin-left: auto;
     margin-right: 0.5em;
     color: ${(props) => props.theme.css.btnBkPrimary};
+    @media (max-width: 768px) {
+      span {
+        display: none;
+      }
+    }
   }
   .action {
     display: flex;
@@ -52,6 +57,9 @@ export const ContentActionBar = styled(Row)`
     padding: 0.5em;
     .select-all {
       .check-area {
+        @media (max-width: 768px) {
+          margin-left: 0.5em;
+        }
         display: flex;
         flex-direction: row;
         padding: 0.5em;

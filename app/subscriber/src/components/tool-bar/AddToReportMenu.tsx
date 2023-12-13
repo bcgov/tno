@@ -92,7 +92,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
   return (
     <styled.AddToMenu>
       <div data-tooltip-id="tooltip-add-to-report" className="action">
-        <FaFileExport /> SELECT REPORT
+        <FaFileExport /> <span>SELECT REPORT</span>
         <TooltipMenu clickable openOnClick id="tooltip-add-to-report" place="bottom">
           <Row className="report">
             <FaFileExport /> SELECT REPORT...

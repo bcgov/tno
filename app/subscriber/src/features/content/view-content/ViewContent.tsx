@@ -185,7 +185,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
           <div className="source-section">{`${content?.section} ${
             content?.page && `:${content.page}`
           }`}</div>
-          {content?.tonePools && (
+          {content?.tonePools && content?.tonePools.length && (
             <Row className="tone-group">
               <Sentiment value={content?.tonePools[0].value} />
               <div className="numeric-tone">{showToneValue(content?.tonePools[0].value)}</div>

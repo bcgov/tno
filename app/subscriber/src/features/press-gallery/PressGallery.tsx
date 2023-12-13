@@ -1,5 +1,5 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
-import { ContentActionBar } from 'components/tool-bar';
+import { ContentListActionBar } from 'components/tool-bar';
 import { determineColumns } from 'features/home/constants';
 import { castToSearchResult, createFilterSettings } from 'features/utils';
 import moment from 'moment';
@@ -32,19 +32,20 @@ export const PressGallery: React.FC = () => {
     { findContentWithElasticsearch },
   ] = useContent();
   const [, api] = useContributors();
-  const [results, setResults] = React.useState<IContentModel[]>();
+  const [{ pressGalleryFilter }, { storeGalleryDateFilter, storeGalleryPressFilter }] =
+    useContent();
+
+  const [content, setContent] = React.useState<IContentModel[]>([]);
   const [pressMembers, setPressMembers] = React.useState<IPressMember[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [dateOptions, setDateOptions] = React.useState<IDateOptions[]>([]);
   const [aliases, setAliases] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(false);
-
-  const [{ pressGalleryFilter }, { storeGalleryDateFilter, storeGalleryPressFilter }] =
-    useContent();
-
   const [pressSettings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(`${moment().startOf('day')}`, `${moment().subtract('2', 'weeks')}`),
   );
+
+  const selectedIds = selected.map((i) => i.id.toString());
 
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
@@ -52,7 +53,7 @@ export const PressGallery: React.FC = () => {
         if (!loading) {
           setLoading(true);
           const res = await findContentWithElasticsearch(filter, false);
-          setResults(
+          setContent(
             res.hits.hits.map((r) => {
               const content = r._source as IContentModel;
               return castToSearchResult(content);
@@ -187,7 +188,10 @@ export const PressGallery: React.FC = () => {
 
   return (
     <styled.PressGallery>
-      <ContentActionBar content={selected} onList />
+      <ContentListActionBar
+        content={selected}
+        onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
+      />
       <Row className="tool-bar">
         <Select
           width={FieldSize.Medium}
@@ -274,9 +278,10 @@ export const PressGallery: React.FC = () => {
           onRowClick={(e: any) => {
             navigate(`/view/${e.original.id}`);
           }}
-          data={results !== undefined ? results : []}
+          data={content}
           pageButtons={5}
           onSelectedChanged={handleSelectedRowsChanged}
+          selectedRowIds={selectedIds}
           showPaging={false}
         />
       </Row>
