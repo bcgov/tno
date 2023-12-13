@@ -31,6 +31,7 @@ export const Wysiwyg = styled.div<IWysiwygProps>`
     p {
       font-family: ${(props) => props.theme.css?.bcSans};
       font-size: 1rem;
+      margin: 0.5rem 0rem;
     }
   }
   .raw-editor {
