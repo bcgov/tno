@@ -82,7 +82,7 @@ export const MyMinister: React.FC = () => {
   React.useEffect(() => {
     if (selectAll) setSelected(content);
     if (!selectAll) setSelected([]);
-  }, [setContent, selectAll]);
+  }, [content, selectAll]);
 
   React.useEffect(() => {
     if (!!filter.search && ministerNames.length > 0) {
