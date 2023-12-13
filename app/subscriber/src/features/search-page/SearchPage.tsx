@@ -2,6 +2,7 @@ import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { SearchWithLogout } from 'components/search-with-logout';
 import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';
+import { ShareSubMenu } from 'components/share-sub-menu';
 import { AdvancedSearch } from 'components/sidebar/advanced-search';
 import { ContentListActionBar } from 'components/tool-bar';
 import { determinePreview } from 'features/utils';

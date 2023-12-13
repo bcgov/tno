@@ -3,7 +3,7 @@ import React from 'react';
 
 import { IUserColleagueModel } from '../..';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { useApi } from '..';
+import { INotificationModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -34,6 +34,13 @@ export const useApiSubscriberColleagues = (
       return api.delete<IUserColleagueModel, AxiosResponse<IUserColleagueModel>, any>(
         `/subscriber/users/colleagues/${model.colleague?.id}`,
         { data: model },
+      );
+    },
+    sendNotification: (notificationId: number, to: string, contentId?: number) => {
+      return api.post<INotificationModel, AxiosResponse<INotificationModel>, any>(
+        `/subscriber/notifications/${notificationId}/send${
+          contentId ? `/${contentId}` : ''
+        }?to=${to}`,
       );
     },
   }).current;

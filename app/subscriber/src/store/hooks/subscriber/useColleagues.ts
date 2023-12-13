@@ -1,11 +1,22 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
-import { IResponseErrorModel, IUserColleagueModel, useApiSubscriberColleagues } from 'tno-core';
+import {
+  IColleagueModel,
+  INotificationModel,
+  IResponseErrorModel,
+  IUserColleagueModel,
+  useApiSubscriberColleagues,
+} from 'tno-core';
 
 interface IColleagueController {
-  getColleagues: () => Promise<IUserColleagueModel[]>;
+  getColleagues: () => Promise<IColleagueModel[]>;
   addColleague: (email: string) => Promise<IUserColleagueModel> | Promise<IResponseErrorModel>;
-  deleteColleague: (model: IUserColleagueModel) => Promise<IUserColleagueModel>;
+  deleteColleague: (model: IColleagueModel) => Promise<IColleagueModel>;
+  sendNotification: (
+    notificationId: number,
+    to: string,
+    contentId?: number,
+  ) => Promise<INotificationModel>;
 }
 
 export const useColleagues = (): [IColleagueController] => {
@@ -29,6 +40,12 @@ export const useColleagues = (): [IColleagueController] => {
       deleteColleague: async (model: IUserColleagueModel) => {
         const response = await dispatch<IUserColleagueModel>('delete-colleague', () =>
           api.deleteColleague(model),
+        );
+        return response.data;
+      },
+      sendNotification: async (notificationId: number, to: string, contentId?: number) => {
+        const response = await dispatch<INotificationModel>('send-Notification', () =>
+          api.sendNotification(notificationId, to, contentId),
         );
         return response.data;
       },

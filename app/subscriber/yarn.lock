@@ -14680,9 +14680,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.0.385":
-  version: 0.0.385
-  resolution: "tno-core@npm:0.0.385"
+"tno-core@file:./tno-core-0.0.380.tgz::locator=mmi-subscriber-app%40workspace%3A.":
+  version: 0.0.380
+  resolution: "tno-core@file:./tno-core-0.0.380.tgz::locator=mmi-subscriber-app%40workspace%3A."
   dependencies:
     "@elastic/elasticsearch": ^8.10.0
     "@fortawesome/free-solid-svg-icons": ^6.4.2
