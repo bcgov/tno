@@ -8,30 +8,41 @@ import { AddToReportMenu } from './AddToReportMenu';
 import * as styled from './styled';
 
 export interface IContentActionBarProps {
+  /** An array of content */
   content: IContentModel[];
+  /** Class name */
   className?: string;
-  /** whether or not this is being used on a list view */
-  onList?: boolean;
+  /** Whether the back button is displayed */
+  showBackButton?: boolean;
+  /** Event fires when back button is pressed */
+  onBack?: () => void;
+  /** Event fires when select all checkbox is changed */
+  onSelectAll?: React.ChangeEventHandler<HTMLInputElement>;
 }
 export const ContentActionBar: React.FC<IContentActionBarProps> = ({
   className,
   content,
-  onList,
+  showBackButton,
+  onBack,
+  onSelectAll,
 }) => {
   const navigate = useNavigate();
+
   return (
-    <styled.ContentActionBar className={`${className} ${onList ? 'list-view' : ''}`}>
-      <Show visible={!onList}>
-        <div className="action left-side-items" onClick={() => navigate(-1)}>
+    <styled.ContentActionBar className={className}>
+      <Show visible={showBackButton}>
+        <div className="action left-side-items" onClick={() => (onBack ? onBack() : navigate(-1))}>
           <FaArrowLeft className="back-arrow" />
           BACK TO HEADLINES
         </div>
       </Show>
-      <Show visible={onList}>
+      <Show visible={!!onSelectAll}>
         <Row className="select-all">
           <div className="check-area">
-            <Checkbox />
-            SELECT ALL
+            <Row gap="0.25rem">
+              <Checkbox id="select-all" onChange={onSelectAll} />
+              <label htmlFor="select-all">SELECT ALL</label>
+            </Row>
           </div>
         </Row>
         <div className="arrow" />

@@ -1,6 +1,6 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
-import { ContentActionBar } from 'components/tool-bar';
+import { ContentListActionBar } from 'components/tool-bar';
 import { createFilterSettings } from 'features/utils';
 import moment from 'moment';
 import React, { useMemo } from 'react';
@@ -33,16 +33,13 @@ export const Home: React.FC = () => {
     },
     { findContentWithElasticsearch, storeHomeFilter: storeFilter },
   ] = useContent();
-  const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
+  const navigate = useNavigate();
+  const { width } = useWindowSize();
+
+  const [content, setContent] = React.useState<IContentModel[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [disabledCols, setDisabledCols] = React.useState<string[]>([]);
   const [sortBy, setSortBy] = React.useState<'source' | 'time' | ''>('source');
-  const navigate = useNavigate();
-  const { width } = useWindowSize();
-  const contentType = useMemo(() => {
-    if (!!filter?.contentTypes?.length) return filter.contentTypes[0];
-    else return 'all';
-  }, [filter.contentTypes]);
   const [settings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(
       filter.startDate ?? moment().startOf('day').toISOString(),
@@ -50,11 +47,18 @@ export const Home: React.FC = () => {
     ),
   );
 
+  const selectedIds = selected.map((i) => i.id.toString());
+
+  const contentType = useMemo(() => {
+    if (!!filter?.contentTypes?.length) return filter.contentTypes[0];
+    else return 'all';
+  }, [filter.contentTypes]);
+
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
         const res: any = await findContentWithElasticsearch(filter, false);
-        setHomeItems(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
+        setContent(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
       } catch {}
     },
     [findContentWithElasticsearch],
@@ -76,18 +80,21 @@ export const Home: React.FC = () => {
   }, [fetchResults, filter, settings, contentType]);
 
   /** controls the checking and unchecking of rows in the list view */
-  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
+  const handleSelectedRowsChanged = React.useCallback((row: ITableInternalRow<IContentModel>) => {
     if (row.isSelected) {
       setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
     } else {
       setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
     }
-  };
+  }, []);
 
   return (
     <styled.Home>
       <Row>
-        <ContentActionBar onList content={selected} />
+        <ContentListActionBar
+          content={selected}
+          onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
+        />
         <Tooltip place="right" className="view-options" openOnClick id="view-options" clickable>
           <Col>
             <div className="show-section">
@@ -161,7 +168,8 @@ export const Home: React.FC = () => {
             navigate(`/view/${e.original.id}`);
           }}
           onSelectedChanged={handleSelectedRowsChanged}
-          data={homeItems}
+          selectedRowIds={selectedIds}
+          data={content}
           pageButtons={5}
           showPaging={false}
         />

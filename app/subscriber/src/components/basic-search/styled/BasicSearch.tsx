@@ -55,6 +55,7 @@ export const BasicSearch = styled(Row)`
   /* MOBILE SEARCH  */
   .search-mobile {
     display: flex;
+    max-width: 13em;
     margin-top: auto;
     padding: 0;
   }

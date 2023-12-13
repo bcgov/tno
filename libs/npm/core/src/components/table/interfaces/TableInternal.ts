@@ -70,8 +70,7 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
     const rows = this.filterData(this.search).map((original, index) => {
       const selected = this.selectedRowIds.some((id) => this._rowId(original) === id)
         ? true
-        : selectedRows.find((row) => this._rowId(row.original) === this._rowId(original))
-            ?.isSelected ?? false;
+        : false;
       return new TableInternalRow(this, index, this.rowId, this.columns, original, selected);
     });
     this.rows = sortRows(rows, this.sortOrder);

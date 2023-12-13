@@ -44,7 +44,7 @@ export const PageSection: React.FC<IPageSectionProps> = ({
       {...rest}
     >
       {includeContentActions && !!activeContent && (
-        <ContentActionBar className="content-actions" content={activeContent} />
+        <ContentActionBar className="content-actions" content={activeContent} showBackButton />
       )}
       {header && <Row className="page-section-title">{header}</Row>}
       {children}

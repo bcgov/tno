@@ -1,5 +1,5 @@
 import { DateFilter } from 'components/date-filter';
-import { ContentActionBar } from 'components/tool-bar';
+import { ContentListActionBar } from 'components/tool-bar';
 import { determineColumns } from 'features/home/constants';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
@@ -19,9 +19,12 @@ export const TopStories: React.FC = () => {
     { findContentWithElasticsearch, storeTopStoriesFilter: storeFilter },
   ] = useContent();
   const navigate = useNavigate();
-  const [topStories, setTopStories] = React.useState<IContentModel[]>([]);
-  const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [{ actions }] = useLookup();
+
+  const [content, setContent] = React.useState<IContentModel[]>([]);
+  const [selected, setSelected] = React.useState<IContentModel[]>([]);
+
+  const selectedIds = selected.map((i) => i.id.toString());
 
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
@@ -38,7 +41,7 @@ export const TopStories: React.FC = () => {
       ),
       false,
     ).then((res) => {
-      setTopStories(
+      setContent(
         res.hits.hits.map((r) => {
           const content = r._source as IContentModel;
           return castToSearchResult(content);
@@ -60,7 +63,10 @@ export const TopStories: React.FC = () => {
 
   return (
     <styled.TopStories>
-      <ContentActionBar content={selected} onList />
+      <ContentListActionBar
+        content={selected}
+        onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
+      />
       <DateFilter filter={filter} storeFilter={storeFilter} />
       <Row className="table-container">
         <FlexboxTable
@@ -71,9 +77,10 @@ export const TopStories: React.FC = () => {
           onRowClick={(e: any) => {
             navigate(`/view/${e.original.id}`);
           }}
-          data={topStories}
+          data={content}
           pageButtons={5}
           onSelectedChanged={handleSelectedRowsChanged}
+          selectedRowIds={selectedIds}
           showPaging={false}
         />
       </Row>

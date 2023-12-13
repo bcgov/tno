@@ -15,7 +15,7 @@ export const AddToFolderMenu: React.FC<IAddToFolderMenuProps> = ({ content }) =>
   return (
     <styled.AddToMenu>
       <div data-tooltip-id="tooltip-add-to-folder" className="action">
-        <FaFolderPlus /> ADD TO FOLDER
+        <FaFolderPlus /> <span>ADD TO FOLDER</span>
         <TooltipMenu clickable openOnClick id="tooltip-add-to-folder" place="bottom">
           <FolderMenu content={toFolderContent(content)} />
         </TooltipMenu>

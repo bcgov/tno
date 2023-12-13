@@ -3,7 +3,7 @@ import { SearchWithLogout } from 'components/search-with-logout';
 import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';
 import { AdvancedSearch } from 'components/sidebar/advanced-search';
-import { ContentActionBar } from 'components/tool-bar';
+import { ContentListActionBar } from 'components/tool-bar';
 import { determinePreview } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
@@ -31,13 +31,14 @@ export const SearchPage: React.FC = () => {
   const [{ actions }] = useLookup();
   const [searchParams] = useSearchParams();
 
-  const searchName = React.useMemo(() => searchParams.get('name'), [searchParams]);
-  const viewing = React.useMemo(() => searchParams.get('viewing'), [searchParams]);
-  const [searchItems, setSearchItems] = React.useState<IContentModel[]>([]);
+  const [content, setContent] = React.useState<IContentModel[]>([]);
   const [activeContent, setActiveContent] = React.useState<IContentModel | null>(null);
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const searchName = React.useMemo(() => searchParams.get('name'), [searchParams]);
+  const viewing = React.useMemo(() => searchParams.get('viewing'), [searchParams]);
 
   // function that bolds the searched text only if advanced filter is enabled for it
   const formatSearch = React.useCallback(
@@ -77,7 +78,7 @@ export const SearchPage: React.FC = () => {
       try {
         setIsLoading(true);
         const res: any = await findContentWithElasticsearch(filter, false, 'search');
-        setSearchItems(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
+        setContent(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
         if (res.hits.total.value >= 500)
           toast.warn(
             'Search returned 500+ results, only showing first 500. Please consider refining your search.',
@@ -114,7 +115,11 @@ export const SearchPage: React.FC = () => {
               </>
             }
           >
-            <ContentActionBar content={selected} onList className="search" />
+            <ContentListActionBar
+              content={selected}
+              onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
+              className="search"
+            />
             <Show visible={!!searchName || !!viewing}>
               <div className="viewed-name padding-left">
                 <FaBookmark />
@@ -124,13 +129,13 @@ export const SearchPage: React.FC = () => {
             <Row className="search-contents">
               <div className={playerOpen ? 'scroll minimized' : 'scroll'}>
                 <Col className={'search-items'}>
-                  <Show visible={!searchItems.length}>
+                  <Show visible={!content.length}>
                     <Row className="helper-text" justifyContent="center">
                       Please refine search criteria and click "search".
                     </Row>
                   </Show>
 
-                  {searchItems.map((item) => {
+                  {content.map((item) => {
                     return (
                       <Row key={item.id} className="rows">
                         <Col className="cols">
@@ -145,6 +150,7 @@ export const SearchPage: React.FC = () => {
                                   }
                                 }}
                                 className="checkbox"
+                                checked={selected.some((i) => i.id === item.id)}
                               />
                             </Col>
                             <Col className="tone-date">

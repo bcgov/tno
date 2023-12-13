@@ -1,5 +1,5 @@
 import { DateFilter } from 'components/date-filter';
-import { ContentActionBar } from 'components/tool-bar';
+import { ContentListActionBar } from 'components/tool-bar';
 import { determineColumns } from 'features/home/constants';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
@@ -20,9 +20,13 @@ export const TodaysCommentary: React.FC = () => {
     { findContentWithElasticsearch, storeTodayCommentaryFilter: storeFilter },
   ] = useContent();
   const navigate = useNavigate();
-  const [commentary, setCommentary] = React.useState<IContentModel[]>([]);
-  const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [{ actions }] = useLookup();
+
+  const [content, setContent] = React.useState<IContentModel[]>([]);
+  const [selected, setSelected] = React.useState<IContentModel[]>([]);
+
+  const selectedIds = selected.map((i) => i.id.toString());
+
   React.useEffect(() => {
     findContentWithElasticsearch(
       generateQuery(
@@ -41,7 +45,7 @@ export const TodaysCommentary: React.FC = () => {
       false,
     )
       .then((res) => {
-        setCommentary(
+        setContent(
           res.hits.hits.map((r) => {
             const content = r._source as IContentModel;
             return castToSearchResult(content);
@@ -64,7 +68,10 @@ export const TodaysCommentary: React.FC = () => {
 
   return (
     <styled.TodaysCommentary>
-      <ContentActionBar content={selected} onList />
+      <ContentListActionBar
+        content={selected}
+        onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
+      />
       <DateFilter filter={filter} storeFilter={storeFilter} />
       <Row className="table-container">
         <FlexboxTable
@@ -72,11 +79,12 @@ export const TodaysCommentary: React.FC = () => {
           columns={determineColumns('all')}
           isMulti
           onSelectedChanged={handleSelectedRowsChanged}
+          selectedRowIds={selectedIds}
           groupBy={(item) => item.original.source?.name ?? ''}
           onRowClick={(e: any) => {
             navigate(`/view/${e.original.id}`);
           }}
-          data={commentary || []}
+          data={content}
           pageButtons={5}
           showPaging={false}
         />

@@ -1,5 +1,5 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
-import { ContentActionBar } from 'components/tool-bar';
+import { ContentListActionBar } from 'components/tool-bar';
 import { determineColumns } from 'features/home/constants';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
@@ -22,12 +22,15 @@ export const MyMinister: React.FC = () => {
   const [{ userInfo }] = useApp();
   const [, api] = useMinisters();
   const navigate = useNavigate();
+  const [{ actions }] = useLookup();
+
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-  const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
+  const [content, setContent] = React.useState<IContentModel[]>([]);
   const [ministerNames, setMinisterNames] = React.useState<string[]>([]);
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
   const [loading, setLoading] = React.useState(false);
-  const [{ actions }] = useLookup();
+
+  const selectedIds = selected.map((i) => i.id.toString());
 
   //  convert minister name to alias (e.g. David Eby -> D. Eby OR David Eby)
   const toMinisterAlias = (ministerName: string) => {
@@ -44,22 +47,13 @@ export const MyMinister: React.FC = () => {
     }
   }, [api, ministers.length]);
 
-  /** controls the checking and unchecking of rows in the list view */
-  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
-    if (row.isSelected) {
-      setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
-    } else {
-      setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
-    }
-  };
-
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
         if (!loading) {
           setLoading(true);
           const res = await findContentWithElasticsearch(filter, false);
-          setHomeItems(
+          setContent(
             res.hits.hits.map((r) => {
               const content = r._source as IContentModel;
               return castToSearchResult(content);
@@ -115,20 +109,34 @@ export const MyMinister: React.FC = () => {
     // only want the effect to trigger when aliases is populated, not every time the filter changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ministerNames]);
+
+  /** controls the checking and unchecking of rows in the list view */
+  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
+    if (row.isSelected) {
+      setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
+    } else {
+      setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
+    }
+  };
+
   return (
     <styled.MyMinister>
-      <ContentActionBar content={selected} onList />
+      <ContentListActionBar
+        content={selected}
+        onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
+      />
       <Row className="table-container">
         <FlexboxTable
           rowId="id"
           columns={determineColumns('all')}
           onSelectedChanged={handleSelectedRowsChanged}
+          selectedRowIds={selectedIds}
           isMulti
           groupBy={(item) => item.original.source?.name ?? ''}
           onRowClick={(e: any) => {
             navigate(`/view/my-minister/${e.original.id}`);
           }}
-          data={homeItems}
+          data={content}
           pageButtons={5}
           showPaging={false}
         />
