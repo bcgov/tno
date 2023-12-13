@@ -36,9 +36,9 @@ export const useApiSubscriberColleagues = (
         { data: model },
       );
     },
-    share: (notificationId: number, to: string, contentId?: number) => {
+    share: (contentId: number, colleagueId: number, notificationId: number) => {
       return api.post<INotificationModel, AxiosResponse<INotificationModel>, any>(
-        `/subscriber/contents/${notificationId}/send${contentId ? `/${contentId}` : ''}?to=${to}`,
+        `/subscriber/contents/${contentId}/share?colleagueId=${colleagueId}&notificationId=${notificationId}`,
       );
     },
   }).current;
