@@ -22,11 +22,6 @@ public class NotificationModel : BaseTypeWithAuditColumnsModel<int>
     public int TemplateId { get; set; }
 
     /// <summary>
-    /// get/set - The Razor templates to generate the notification.
-    /// </summary>
-    public NotificationTemplateModel? Template { get; set; }
-
-    /// <summary>
     /// get/set - When to resend the notification.
     /// </summary>
     public ResendOption Resend { get; set; } = ResendOption.Never;
@@ -77,7 +72,6 @@ public class NotificationModel : BaseTypeWithAuditColumnsModel<int>
     {
         this.NotificationType = entity.NotificationType;
         this.TemplateId = entity.TemplateId;
-        this.Template = entity.Template != null ? new NotificationTemplateModel(entity.Template, options) : null;
         this.Resend = entity.Resend;
         this.OwnerId = entity.OwnerId;
         this.IsPublic = entity.IsPublic;
@@ -88,22 +82,6 @@ public class NotificationModel : BaseTypeWithAuditColumnsModel<int>
     #endregion
 
     #region Methods
-    /// <summary>
-    /// Creates a new instance of a Notification object.
-    /// </summary>
-    /// <param name="options"></param>
-    /// <param name="includeTemplate"></param>
-    /// <returns></returns>
-    public Entities.Notification ToEntity(JsonSerializerOptions options, bool includeTemplate = false)
-    {
-        var entity = (Entities.Notification)this;
-        entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
-        entity.Query = JsonDocument.Parse(JsonSerializer.Serialize(this.Query, options));
-        if (includeTemplate && this.Template != null)
-            entity.Template = this.Template.ToEntity(options);
-        return entity;
-    }
-
     /// <summary>
     /// Explicit conversion to entity.
     /// </summary>

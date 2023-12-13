@@ -1,17 +1,9 @@
 import React from 'react';
 import { FaEnvelope } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { Tooltip } from 'react-tooltip';
 import { useColleagues, useLookup } from 'store/hooks';
-import {
-  IContentModel,
-  IOptionItem,
-  Modal,
-  OptionItem,
-  Row,
-  Select,
-  Settings,
-  useModal,
-} from 'tno-core';
+import { IContentModel, IUserColleagueModel, Modal, Row, Settings, useModal } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -26,25 +18,11 @@ export interface IShareSubMenuProps {
  * an existing folder. Or create a new one.
  */
 export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
-  const [options, setOptions] = React.useState<IOptionItem[]>([]);
-  const [email, setEmail] = React.useState<string>();
   const [{ settings }] = useLookup();
   const { toggle, isShowing } = useModal();
-  const [{ getColleagues, sendNotification }] = useColleagues();
-
-  React.useEffect(() => {
-    if (!options.length) {
-      getColleagues().then((data) => {
-        setOptions(
-          data
-            .filter((i) => i.colleague !== undefined)
-            .map((d) => {
-              return new OptionItem(`${d.colleague?.email}`, d.colleague?.email);
-            }),
-        );
-      });
-    }
-  }, [options.length, getColleagues]);
+  const [{ getColleagues, share }] = useColleagues();
+  const [options, setOptions] = React.useState<IUserColleagueModel[]>([]);
+  const [email, setEmail] = React.useState<string>();
 
   const handleSend = async () => {
     try {
@@ -52,7 +30,7 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
       if (notificationId) {
         content.forEach(async (c) => {
           if (email) {
-            await sendNotification(parseInt(notificationId), email, c.id);
+            await share(parseInt(notificationId), email, c.id);
           }
         });
         toast.success('Notification has been successfully requested');
@@ -62,33 +40,54 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
     } catch {}
   };
 
+  React.useEffect(() => {
+    if (!options.length) {
+      getColleagues().then((data) => {
+        setOptions(data);
+      });
+    }
+  }, [options.length, getColleagues]);
+
   const message = `Share ${content.length} selected content${
     content.length > 1 ? 's' : ''
-  } with colleague ?`;
-
-  const selectColleague = (
-    <Select
-      label="Select Colleague"
-      name="colleagues"
-      options={options}
-      value={options.find((o) => o?.value === email) ?? ''}
-      isClearable={false}
-      onChange={(newValue) => {
-        const option = newValue as OptionItem;
-        setEmail(`${option.value}`);
-      }}
-    />
-  );
+  } with ${email} ?`;
 
   return (
     <styled.ShareMenu className="share-sub-menu">
-      <div className="action" onClick={() => toggle()}>
-        <FaEnvelope /> SHARE
-      </div>
+      <Row justifyContent="end" className="action">
+        <div data-tooltip-id="share">
+          <FaEnvelope /> SHARE
+        </div>
+      </Row>
+      <Tooltip
+        clickable
+        variant="light"
+        className="share-menu"
+        place="bottom"
+        openOnClick
+        style={{ opacity: '1', boxShadow: '0 0 8px #464545', zIndex: '999' }}
+        id="share"
+      >
+        <FaEnvelope /> SHARE WITH A COLLEAGUE:
+        <ul>
+          {options.map((o) => {
+            return (
+              <li
+                key={o.colleague?.email}
+                onClick={() => {
+                  setEmail(`${o.colleague?.email}`);
+                  toggle();
+                }}
+              >
+                {o.colleague?.displayName !== '' ? o.colleague?.displayName : o.colleague?.email}
+              </li>
+            );
+          })}
+        </ul>
+      </Tooltip>
       <Modal
         headerText="Share Content"
         body={message}
-        component={selectColleague}
         isShowing={isShowing}
         hide={toggle}
         type="default"

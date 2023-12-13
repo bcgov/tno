@@ -11,11 +11,7 @@ interface IColleagueController {
   getColleagues: () => Promise<IUserColleagueModel[]>;
   addColleague: (email: string) => Promise<IUserColleagueModel> | Promise<IResponseErrorModel>;
   deleteColleague: (model: IUserColleagueModel) => Promise<IUserColleagueModel>;
-  sendNotification: (
-    notificationId: number,
-    to: string,
-    contentId?: number,
-  ) => Promise<INotificationModel>;
+  share: (notificationId: number, to: string, contentId?: number) => Promise<INotificationModel>;
 }
 
 export const useColleagues = (): [IColleagueController] => {
@@ -42,9 +38,9 @@ export const useColleagues = (): [IColleagueController] => {
         );
         return response.data;
       },
-      sendNotification: async (notificationId: number, to: string, contentId?: number) => {
+      share: async (notificationId: number, to: string, contentId?: number) => {
         const response = await dispatch<INotificationModel>('send-Notification', () =>
-          api.sendNotification(notificationId, to, contentId),
+          api.share(notificationId, to, contentId),
         );
         return response.data;
       },

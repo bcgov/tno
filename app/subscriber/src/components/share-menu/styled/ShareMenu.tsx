@@ -12,4 +12,15 @@ export const ShareMenu = styled.div`
     }
     color: ${(props) => props.theme.css.sideBarIconColor};
   }
+
+  ul {
+    list-style-type: none;
+    padding-left: 1rem;
+    cursor: pointer;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 `;
