@@ -27,7 +27,6 @@ public class NotificationTemplateModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get/set - The settings for this report.
     /// </summary>
-    /// </summary>
     public JsonDocument Settings { get; set; } = JsonDocument.Parse("{}");
     #endregion
 

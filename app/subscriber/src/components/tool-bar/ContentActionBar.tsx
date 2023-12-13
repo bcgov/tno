@@ -1,3 +1,4 @@
+import { ShareSubMenu } from 'components/share-sub-menu';
 import React from 'react';
 import { FaArrowLeft, FaEnvelope } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
@@ -49,9 +50,10 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
       </Show>
       <div className="right-side-items">
         <Row>
-          <div className="action">
+          {/* <div className="action">
             <FaEnvelope /> <span>SHARE</span>
-          </div>
+          </div> */}
+          <ShareSubMenu selectedContent={content} />
           <AddToFolderMenu content={content} />
           <AddToReportMenu content={content} />
         </Row>
