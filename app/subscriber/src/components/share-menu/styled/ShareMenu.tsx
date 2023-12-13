@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const ShareSubMenu = styled.div`
+export const ShareMenu = styled.div`
   /* share story button */
   .share-story {
     height: 2em;

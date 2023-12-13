@@ -19,13 +19,13 @@ export interface IShareSubMenuProps {
   /**
    * The content that has been selected to add to a folder
    */
-  selectedContent: IContentModel[];
+  content: IContentModel[];
 }
 
 /** Component that renders the button that gives users access to a sub menu that will allow them to add selected content to
  * an existing folder. Or create a new one.
  */
-export const ShareSubMenu: React.FC<IShareSubMenuProps> = ({ selectedContent }) => {
+export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
   const [options, setOptions] = React.useState<IOptionItem[]>([]);
   const [email, setEmail] = React.useState<string>();
   const [{ settings }] = useLookup();
@@ -50,7 +50,7 @@ export const ShareSubMenu: React.FC<IShareSubMenuProps> = ({ selectedContent }) 
     try {
       const notificationId = settings.find((s) => s.name === Settings.DefaultAlert)?.value;
       if (notificationId) {
-        selectedContent.forEach(async (c) => {
+        content.forEach(async (c) => {
           if (email) {
             await sendNotification(parseInt(notificationId), email, c.id);
           }
@@ -62,8 +62,8 @@ export const ShareSubMenu: React.FC<IShareSubMenuProps> = ({ selectedContent }) 
     } catch {}
   };
 
-  const message = `Share ${selectedContent.length} selected content${
-    selectedContent.length > 1 ? 's' : ''
+  const message = `Share ${content.length} selected content${
+    content.length > 1 ? 's' : ''
   } with colleague ?`;
 
   const selectColleague = (
@@ -81,7 +81,7 @@ export const ShareSubMenu: React.FC<IShareSubMenuProps> = ({ selectedContent }) 
   );
 
   return (
-    <styled.ShareSubMenu className="share-sub-menu">
+    <styled.ShareMenu className="share-sub-menu">
       <div className="action" onClick={() => toggle()}>
         <FaEnvelope /> SHARE
       </div>
@@ -93,12 +93,12 @@ export const ShareSubMenu: React.FC<IShareSubMenuProps> = ({ selectedContent }) 
         hide={toggle}
         type="default"
         confirmText="Share"
-        enableConfirm={selectedContent.length > 0 && email !== undefined}
+        enableConfirm={content.length > 0 && email !== undefined}
         onConfirm={() => {
           handleSend();
           toggle();
         }}
       />
-    </styled.ShareSubMenu>
+    </styled.ShareMenu>
   );
 };
