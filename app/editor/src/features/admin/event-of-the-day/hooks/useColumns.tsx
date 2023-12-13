@@ -13,17 +13,15 @@ import {
   Select,
 } from 'tno-core';
 
+// create an array with values 0-100 - min score is 0, max is 100
+const possibleScores = Array.from(Array(101).keys()).map((item) => new OptionItem('' + item, item));
+
 export const useColumns = (
   handleSubmit: (values: IFolderContentModel) => Promise<void>,
   loading: boolean,
 ): ITableHookColumn<IFolderContentModel>[] => {
   const [{ topics, rules }] = useLookup();
   const [folderContentModel, setFolderContentModel] = React.useState<IFolderContentModel>();
-
-  // create an array with values 0-100 - min score is 0, max is 100
-  const possibleScores = Array.from(Array(101).keys()).map(
-    (item) => new OptionItem('' + item, item),
-  );
 
   const handleTopicChange = async (event: any, cell: any) => {
     const topic = topics.find((x) => x.id === (event as OptionItem)?.value) ?? undefined;
@@ -174,21 +172,6 @@ export const useColumns = (
         );
       },
     },
-    // {
-    //   label: '',
-    //   accessor: 'actions',
-    //   width: '.25',
-    //   cell: (cell) => (
-    //     <Button
-    //       variant={ButtonVariant.action}
-    //       onClick={() => handleSave(folderContentModel)}
-    //       disabled={loading}
-    //       title="Save"
-    //     >
-    //       <FaSave className="indicator" />
-    //     </Button>
-    //   ),
-    // },
   ];
 
   return result;

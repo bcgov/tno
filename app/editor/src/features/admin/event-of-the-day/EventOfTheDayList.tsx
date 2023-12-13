@@ -1,7 +1,8 @@
 import React from 'react';
+import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
 import { useFolders } from 'store/hooks/admin';
-import { FlexboxTable, FormPage, IFolderContentModel } from 'tno-core';
+import { FlexboxTable, FormPage, IFolderContentModel, Settings } from 'tno-core';
 
 import { useColumns } from './hooks';
 import * as styled from './styled';
@@ -22,16 +23,22 @@ const EventOfTheDayList: React.FC = () => {
 
   React.useEffect(() => {
     if (!items.length && !loading) {
-      setLoading(true);
-      const eventOfTheDayFolderId = '1';
-      getContentInFolder(+eventOfTheDayFolderId)
-        .then((data) => {
-          setItems(data);
-        })
-        .catch(() => {})
-        .finally(() => {
-          setLoading(false);
-        });
+      const eventOfTheDayFolderId = settings.find(
+        (s) => s.name === Settings.EventOfTheDayFolder,
+      )?.value;
+      if (eventOfTheDayFolderId) {
+        setLoading(true);
+        getContentInFolder(+eventOfTheDayFolderId)
+          .then((data) => {
+            setItems(data);
+          })
+          .catch(() => {})
+          .finally(() => {
+            setLoading(false);
+          });
+      } else {
+        toast.error(`${Settings.EventOfTheDayFolder} setting needs to be configured.`);
+      }
     }
   }, [settings, getContentInFolder, items.length, loading]);
 

@@ -16,21 +16,6 @@ export const EventOfTheDayList = styled.div`
     border-bottom: solid 2px black;
   }
 
-  // .table {
-  //   min-height: 200px;
-  //   flex-grow: 1;
-  //   .container {
-  //     display: flex;
-  //     flex-direction: column;
-  //     flex-grow: 1;
-  //     width: unset;
-  //     height: unset;
-  //     .rows {
-  //       flex-grow: 1;
-  //     }
-  //   }
-  // }
-
   .row {
     padding: 0.5em 0.5em 0 0.5em;
   }

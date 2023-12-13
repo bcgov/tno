@@ -71,18 +71,6 @@ export const TopicList = styled.div`
     }
   }
 
-  // div.row {
-  //   cursor: pointer;
-  // }
-
-  // .form > div {
-  //   height: 100%;
-  //   form {
-  //     position: sticky;
-  //     top: 0;
-  //   }
-  // }
-
   form {
     background-color: lightgrey;
     padding: 5px;
