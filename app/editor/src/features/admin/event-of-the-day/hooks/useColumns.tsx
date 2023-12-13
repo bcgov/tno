@@ -22,7 +22,6 @@ export const useColumns = (
   loading: boolean,
 ): ITableHookColumn<IFolderContentModel>[] => {
   const [{ topics, rules }] = useLookup();
-  const [folderContentModel, setFolderContentModel] = React.useState<IFolderContentModel>();
 
   const handleTopicChange = async (event: any, cell: any) => {
     const topic = topics.find((x) => x.id === (event as OptionItem)?.value) ?? undefined;
@@ -45,7 +44,6 @@ export const useColumns = (
             },
           ]
         : []; // user chose 'Not Applicable' as Topic
-      setFolderContentModel(updatedFolderContent);
       await handleSubmit(updatedFolderContent);
     }
   };
@@ -57,7 +55,6 @@ export const useColumns = (
         ...cell.original,
       } as IFolderContentModel;
       updatedFolderContent.content!.topics![0].score = +newScore;
-      setFolderContentModel(updatedFolderContent);
       await handleSubmit(updatedFolderContent);
     }
   };
