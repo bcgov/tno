@@ -11,6 +11,7 @@ import {
   ITableHookColumn,
   OptionItem,
   Select,
+  TopicTypeName,
 } from 'tno-core';
 
 // create an array with values 0-100 - min score is 0, max is 100
@@ -21,26 +22,30 @@ export const useColumns = (
   loading: boolean,
 ): ITableHookColumn<IFolderContentModel>[] => {
   const [{ topics, rules }] = useLookup();
-  const [folderContentModel, setFolderContentModel] = React.useState<IFolderContentModel>();
 
   const handleTopicChange = async (event: any, cell: any) => {
     const topic = topics.find((x) => x.id === (event as OptionItem)?.value) ?? undefined;
-    const updatedFolderContent = {
-      ...cell.original,
-    } as IFolderContentModel;
-    updatedFolderContent.content!.topics = topic
-      ? [
-          {
-            ...(topic as IContentTopicModel),
-            score:
-              cell.original.content!.topics!.length > 0
-                ? cell.original.content!.topics![0].score
-                : 0,
-          },
-        ]
-      : []; // user chose 'Not Applicable' as Topic
-    setFolderContentModel(updatedFolderContent);
-    await handleSubmit(updatedFolderContent);
+    if (
+      (topic && cell.original.content.topics.length === 0) ||
+      (!topic && cell.original.content.topics.length > 0) ||
+      topic?.id !== cell.original.content.topics[0].id
+    ) {
+      const updatedFolderContent = {
+        ...cell.original,
+      } as IFolderContentModel;
+      updatedFolderContent.content!.topics = topic
+        ? [
+            {
+              ...(topic as IContentTopicModel),
+              score:
+                cell.original.content!.topics!.length > 0
+                  ? cell.original.content!.topics![0].score
+                  : 0,
+            },
+          ]
+        : []; // user chose 'Not Applicable' as Topic
+      await handleSubmit(updatedFolderContent);
+    }
   };
 
   const handleScoreChange = async (event: any, cell: any) => {
@@ -50,24 +55,38 @@ export const useColumns = (
         ...cell.original,
       } as IFolderContentModel;
       updatedFolderContent.content!.topics![0].score = +newScore;
-      setFolderContentModel(updatedFolderContent);
       await handleSubmit(updatedFolderContent);
     }
   };
 
-  const handleBlur = async (cell: any) => {
-    const result =
-      !folderContentModel ||
-      cell.original.content!.topics![0].id !== folderContentModel.content!.topics![0].id ||
-      cell.original.content!.topics![0].score !== folderContentModel.content!.topics![0].score;
-    if (result) return;
-
-    await handleSubmit(folderContentModel);
+  const getTopicOptions = (cell: any) => {
+    return getSortableOptions(
+      topics,
+      cell.original.content!.topics?.length ? cell.original.content!.topics[0].id : undefined,
+      [new OptionItem('[Not Applicable]', 0)],
+      (item) =>
+        new OptionItem(
+          (
+            <div className={item.id > 1 ? `type-${item.topicType}` : 'type-none'}>
+              {item.topicType === TopicTypeName.Issues
+                ? item.name
+                : `${item.name} (${item.topicType})`}
+            </div>
+          ),
+          item.id,
+          item.isEnabled,
+        ),
+      (a, b) => {
+        if (a.topicType < b.topicType) return -1;
+        if (a.topicType > b.topicType) return 1;
+        if (a.sortOrder < b.sortOrder) return -1;
+        if (a.sortOrder > b.sortOrder) return 1;
+        if (a.name < b.name) return -1;
+        if (a.name > b.name) return 1;
+        return 0;
+      },
+    );
   };
-
-  const topicOptions = getSortableOptions(topics, undefined, [
-    new OptionItem('[Not Applicable]', 0),
-  ]);
 
   const result: ITableHookColumn<IFolderContentModel>[] = [
     {
@@ -97,10 +116,10 @@ export const useColumns = (
         return (
           <Select
             name="topic"
-            options={topicOptions}
+            options={getTopicOptions(cell)}
             isDisabled={loading}
             isClearable={false}
-            value={topicOptions?.find(
+            value={getTopicOptions(cell)?.find(
               (o) =>
                 o.value ===
                 (cell.original.content!.topics!.length > 0
@@ -109,14 +128,6 @@ export const useColumns = (
             )}
             width={FieldSize.Medium}
             onChange={async (e: any) => await handleTopicChange(e, cell)}
-            onBlur={async () => {
-              if (
-                !folderContentModel ||
-                cell.original.content!.topics![0].id === folderContentModel.content!.topics![0].id
-              )
-                return;
-              await handleSubmit(folderContentModel);
-            }}
           />
         );
       },
@@ -153,7 +164,6 @@ export const useColumns = (
                     ? cell.original.content!.topics![0].score
                     : 0),
               )}
-              onBlur={async () => await handleBlur(cell)}
               onChange={async (e: any) => await handleScoreChange(e, cell)}
             />
             <div className="maxScore">

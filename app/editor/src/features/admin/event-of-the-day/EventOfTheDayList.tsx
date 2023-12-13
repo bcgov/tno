@@ -13,34 +13,40 @@ import * as styled from './styled';
  * @returns Component
  */
 const EventOfTheDayList: React.FC = () => {
-  const [{ settings }] = useLookup();
+  const [{ isReady, settings }] = useLookup();
 
   const [, { getContentInFolder }] = useFolders();
   const [, { updateContentTopics }] = useContent();
 
   const [loading, setLoading] = React.useState(false);
+  const [eventOfTheDayFolderId, setEventOfTheDayFolderId] = React.useState(0);
   const [items, setItems] = React.useState<IFolderContentModel[]>([]);
 
   React.useEffect(() => {
-    if (!items.length && !loading) {
+    if (isReady) {
       const eventOfTheDayFolderId = settings.find(
         (s) => s.name === Settings.EventOfTheDayFolder,
       )?.value;
-      if (eventOfTheDayFolderId) {
-        setLoading(true);
-        getContentInFolder(+eventOfTheDayFolderId)
-          .then((data) => {
-            setItems(data);
-          })
-          .catch(() => {})
-          .finally(() => {
-            setLoading(false);
-          });
-      } else {
-        toast.error(`${Settings.EventOfTheDayFolder} setting needs to be configured.`);
-      }
+      if (eventOfTheDayFolderId) setEventOfTheDayFolderId(+eventOfTheDayFolderId);
+      else toast.error(`${Settings.EventOfTheDayFolder} setting needs to be configured.`);
     }
-  }, [settings, getContentInFolder, items.length, loading]);
+  }, [isReady, settings]);
+
+  React.useEffect(() => {
+    if (eventOfTheDayFolderId) {
+      setLoading(true);
+      getContentInFolder(eventOfTheDayFolderId)
+        .then((data) => {
+          setItems(data);
+        })
+        .catch(() => {})
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+    // KGM - overridden to enforce only call once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventOfTheDayFolderId]);
 
   const handleSubmit = async (values: IFolderContentModel) => {
     try {
