@@ -12,7 +12,6 @@ export const PressGallery = styled.div`
     }
     .folder-sub-menu {
       margin-left: auto;
-      margin-right: 1em;
     }
     .or {
       margin-right: 0.5em;

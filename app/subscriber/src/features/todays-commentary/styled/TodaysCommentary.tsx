@@ -42,23 +42,4 @@ export const TodaysCommentary = styled.div`
     }
     margin-bottom: 1em;
   }
-
-  .tool-bar {
-    .reset {
-      margin-top: 0.5em;
-      margin-left: 0.5em;
-      &:hover {
-        cursor: pointer;
-        transform: scale(1.1);
-      }
-    }
-    .folder-sub-menu {
-      margin-left: auto;
-      margin-right: 1em;
-    }
-    .or {
-      margin-right: 0.5em;
-    }
-    }
-  }
 `;

@@ -27,28 +27,4 @@ export const MyMinister = styled.div`
     /* link color */
     color: #3847aa;
   }
-  .tool-bar {
-    .reset {
-      margin-top: 0.5em;
-      margin-left: 0.5em;
-      &:hover {
-        cursor: pointer;
-        transform: scale(1.1);
-      }
-    }
-    .folder-sub-menu {
-      margin-left: auto;
-      margin-right: 1em;
-    }
-    .or {
-      margin-right: 0.5em;
-    }
-    .date-navigator {
-      margin-left: auto;
-      margin-right: auto;
-      input {
-        margin-top: 0.25em;
-      }
-    }
-  }
 `;
