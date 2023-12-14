@@ -14,6 +14,9 @@ import {
   TopicTypeName,
 } from 'tno-core';
 
+// item with id of 1 is the magic [Not Applicable] topic
+const topicIdNotApplicable = 1;
+
 // create an array with values 0-100 - min score is 0, max is 100
 const possibleScores = Array.from(Array(101).keys()).map((item) => new OptionItem('' + item, item));
 
@@ -24,7 +27,7 @@ export const useColumns = (
   const [{ topics, rules }] = useLookup();
 
   const handleTopicChange = async (event: any, cell: any) => {
-    const topic = topics.find((x) => x.id === (event as OptionItem)?.value) ?? undefined;
+    const topic = topics.find((x) => x.id === (event as OptionItem)?.value);
     if (
       (topic && cell.original.content.topics.length === 0) ||
       (!topic && cell.original.content.topics.length > 0) ||
@@ -33,17 +36,12 @@ export const useColumns = (
       const updatedFolderContent = {
         ...cell.original,
       } as IFolderContentModel;
-      updatedFolderContent.content!.topics = topic
-        ? [
-            {
-              ...(topic as IContentTopicModel),
-              score:
-                cell.original.content!.topics!.length > 0
-                  ? cell.original.content!.topics![0].score
-                  : 0,
-            },
-          ]
-        : []; // user chose 'Not Applicable' as Topic
+      updatedFolderContent.content!.topics = [
+        {
+          ...(topic as IContentTopicModel),
+          score: topic!.id > topicIdNotApplicable ? cell.original.content!.topics![0].score : 0,
+        },
+      ];
       await handleSubmit(updatedFolderContent);
     }
   };
@@ -63,11 +61,19 @@ export const useColumns = (
     return getSortableOptions(
       topics,
       cell.original.content!.topics?.length ? cell.original.content!.topics[0].id : undefined,
-      [new OptionItem('[Not Applicable]', 0)],
+      undefined,
       (item) =>
         new OptionItem(
           (
-            <div className={item.id > 1 ? `type-${item.topicType}` : 'type-none'}>
+            <div
+              className={
+                (item.id > 1 ? `type-${item.topicType}` : 'type-none') +
+                // This extra style exists only to flag disabled topics that are disabled.
+                // These could show up because of migration from TNO, or through changes to
+                // content and topics that are possible
+                (!item.isEnabled ? ' type-disabled' : '')
+              }
+            >
               {item.topicType === TopicTypeName.Issues
                 ? item.name
                 : `${item.name} (${item.topicType})`}
@@ -124,7 +130,7 @@ export const useColumns = (
                 o.value ===
                 (cell.original.content!.topics!.length > 0
                   ? cell.original.content!.topics![0].id
-                  : 0),
+                  : topicIdNotApplicable),
             )}
             width={FieldSize.Medium}
             onChange={async (e: any) => await handleTopicChange(e, cell)}
@@ -141,7 +147,7 @@ export const useColumns = (
           <>
             <Select
               name="score"
-              isDisabled={loading || cell.original.content!.topics!.length === 0}
+              isDisabled={loading || cell.original.content!.topics![0].id === topicIdNotApplicable}
               isClearable={false}
               width="10ch"
               options={possibleScores.filter(

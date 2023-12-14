@@ -37,8 +37,10 @@ export const EventOfTheDayList = styled.div`
   .type-none {
     color: red;
   }
-
   .type-Proactive {
     color: green;
+  }
+  .type-disabled {
+    font-style: italic;
   }
 `;
