@@ -125,24 +125,28 @@ export const ConfigureFolder: React.FC = () => {
             <span className="schedule-text">
               Configure when you would like to have content removed automatically.
             </span>
-            <Button
-              className="add-schedule-btn"
-              onClick={() =>
-                currentFolder &&
-                setCurrentFolder({
-                  ...currentFolder,
-                  events: [createSchedule(currentFolder.name, currentFolder.description)],
-                })
-              }
-            >
-              Add Clearance Schedule
-            </Button>
+            <Show visible={!currentFolder?.events?.length}>
+              <Button
+                className="add-schedule-btn"
+                onClick={() =>
+                  currentFolder &&
+                  setCurrentFolder({
+                    ...currentFolder,
+                    events: [createSchedule(currentFolder.name, currentFolder.description)],
+                  })
+                }
+              >
+                Add Clearance Schedule
+              </Button>
+            </Show>
           </Row>
           <Schedule setCurrentFolder={setCurrentFolder} folderEvents={currentFolder?.events} />
           <Show visible={!!currentFolder?.events?.length}>
             <Button
               onClick={() => {
-                updateFolder(currentFolder as IFolderModel);
+                updateFolder(currentFolder as IFolderModel)
+                  .then(() => toast.success('Folder schedule saved.'))
+                  .catch(() => toast.error('Failed to save folder schedule.'));
               }}
             >
               Save
