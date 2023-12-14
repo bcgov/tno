@@ -82,7 +82,6 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
         this.Content = entity.ContentManyToMany.Select(c => new FolderContentModel(c));
         this.Reports = entity.ReportSections.Where(rs => rs.Report != null).Select(rs => new ReportModel(rs.Report!)).ToArray();
 		this.Events = entity.Events.Select(e => new FolderScheduleModel(e));
-
     }
     #endregion
 
