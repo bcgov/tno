@@ -35,8 +35,15 @@ export const Tabs = styled.div<ITabStyled>`
 
       &.active {
         label {
-          /* color: ${(props) => props.theme.css.highlightPrimary}; */
           font-weight: 600;
+        }
+      }
+      &.error {
+        color: ${(props) => props.theme.css.fRedColor};
+        background: ${(props) => props.theme.css.bkError};
+
+        label {
+          color: ${(props) => props.theme.css.fRedColor};
         }
       }
     }
