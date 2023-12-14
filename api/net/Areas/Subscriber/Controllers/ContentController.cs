@@ -306,7 +306,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(NotificationModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
-    public async Task<IActionResult> ShareAsync(long? contentId, int colleagueId, int notificationId)
+    public async Task<IActionResult> ShareAsync(long contentId, int colleagueId, int notificationId)
     {
         var notification = _notificationService.FindById(notificationId) ?? throw new NoContentException();
 
