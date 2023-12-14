@@ -1,3 +1,5 @@
+using TNO.API.Models;
+
 namespace TNO.TemplateEngine.Models.Reports;
 
 /// <summary>
@@ -32,6 +34,11 @@ public class AVOverviewSectionItemModel
     public long? ContentId { get; set; }
 
     /// <summary>
+    /// get/set - The item content.
+    /// </summary>
+    public ContentModel? Content { get; set; }
+
+    /// <summary>
     /// get/set - The sorting order.
     /// </summary>
     public int SortOrder { get; set; }
@@ -55,6 +62,9 @@ public class AVOverviewSectionItemModel
         this.Time = entity.Time;
         this.Summary = entity.Summary;
         this.ContentId = entity.ContentId;
+
+        if (entity.Content != null)
+            this.Content = new ContentModel(entity.Content);
     }
 
     /// <summary>

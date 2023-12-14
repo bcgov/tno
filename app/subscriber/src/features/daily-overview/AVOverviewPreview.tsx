@@ -31,7 +31,6 @@ const AVOverviewPreview: React.FC = () => {
   const [preview, setPreview] = React.useState<IReportResultModel | undefined>();
   const [isPublished, setIsPublished] = React.useState(false);
   const [reactElements, setReactElements] = React.useState<string | JSX.Element | JSX.Element[]>();
-  const [itemMetadata, setItemMetadata] = React.useState<ItemMetadata>({});
 
   const handlePreviewReport = React.useCallback(async () => {
     try {
@@ -58,79 +57,12 @@ const AVOverviewPreview: React.FC = () => {
     handlePreviewReport();
   }, [handlePreviewReport]);
 
-  // build reference object for AV items that contain transcripts/videos
-  React.useEffect(() => {
-    if (instance && instance.sections?.length) {
-      instance.sections.forEach((section) => {
-        if (section && section.items?.length) {
-          section.items.forEach((item) => {
-            if (item?.contentId) {
-              const contentId = item?.contentId;
-              getContent(item?.contentId).then((content) => {
-                setItemMetadata({
-                  [contentId]: {
-                    hasTranscript:
-                      content?.contentType === ContentTypeName.AudioVideo && !!content?.body,
-                    hasVideo:
-                      content?.fileReferences?.some((file) =>
-                        file.contentType.startsWith('video/'),
-                      ) ?? false,
-                  },
-                });
-              });
-            }
-          });
-        }
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instance]);
-
-  // enhance items that contain transcript/video with icons
   React.useEffect(() => {
     if (!preview?.body || !getContent) return;
-    const htmlToReactElements = parse(preview?.body ?? '', {
-      replace(domNode) {
-        const element = domNode as Element;
-        if (element?.type === 'tag' && element?.name === 'a' && element?.attribs?.href) {
-          const hrefValue = element?.attribs?.href;
-          const regex = new RegExp('(?<=(?:view\\/))\\d+', 'gm');
-          const matches = hrefValue?.match(regex);
-
-          let contentId;
-          let hasTranscript = false,
-            hasVideo = false;
-
-          if (matches?.length && matches.length === 1) {
-            contentId = matches[0];
-            if (Object.keys(itemMetadata).includes(contentId)) {
-              hasTranscript = itemMetadata[contentId].hasTranscript;
-              hasVideo = itemMetadata[contentId].hasVideo;
-            }
-          }
-          return (
-            <div className="display-metadata">
-              <a href={element?.attribs?.href}>{(element?.children?.[0] as Text)?.data}</a>
-              <div>
-                {hasTranscript && (
-                  <Link to={`/view/${contentId}`}>
-                    <FaScroll href={element?.attribs?.href} className="scroll-icon" />
-                  </Link>
-                )}
-                {hasVideo && (
-                  <Link to={`/view/${contentId}`}>
-                    <FaVideo className="video-icon" />
-                  </Link>
-                )}
-              </div>
-            </div>
-          );
-        }
-      },
-    });
+    const htmlToReactElements = parse(preview?.body ?? '');
     setReactElements(htmlToReactElements);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preview?.body, getContent, itemMetadata]);
+  }, [preview?.body, getContent]);
 
   return (
     <styled.AVOverviewPreview>
