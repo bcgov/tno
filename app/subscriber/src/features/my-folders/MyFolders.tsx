@@ -104,6 +104,9 @@ export const MyFolders = () => {
             <div className="option" onClick={() => setEditable(active?.name ?? '')}>
               Edit folder name
             </div>
+            <div className="option" onClick={() => navigate(`/folders/configure/${active?.id}`)}>
+              Configure folder
+            </div>
             <div
               className="option"
               onClick={() => {
