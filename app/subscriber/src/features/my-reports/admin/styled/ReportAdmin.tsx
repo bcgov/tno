@@ -47,12 +47,20 @@ export const ReportAdmin = styled.div`
   }
 
   .report-template {
-    gap: 1rem;
+    gap: 0.25rem;
 
     > div:not(:first-child) {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.25rem;
     }
+  }
+
+  .template-action-bar {
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    padding: 0.25rem;
+    background: ${(props) => props.theme.css.highlightSecondary};
   }
 `;

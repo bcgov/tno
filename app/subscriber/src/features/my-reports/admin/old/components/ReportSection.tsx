@@ -68,7 +68,7 @@ export const ReportSection = React.forwardRef<HTMLDivElement, IReportSectionProp
           </Button>
         }
         canShrink={true}
-        expand={section.expand}
+        expand={section.open}
         onExpand={(expand) => {
           setFieldValue(`sections.${index}.expand`, expand);
           return expand;
