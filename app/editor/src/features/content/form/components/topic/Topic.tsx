@@ -27,6 +27,9 @@ export const Topic: React.FC<ITopicProps> = () => {
 
   const [topicOptions, setTopicOptions] = React.useState<IOptionItem[]>([]);
 
+  // item with id of 1 is the magic [Not Applicable] topic
+  const topicIdNotApplicable = 1;
+
   React.useEffect(() => {
     setTopicOptions(
       getSortableOptions(
@@ -36,7 +39,15 @@ export const Topic: React.FC<ITopicProps> = () => {
         (item) =>
           new OptionItem(
             (
-              <div className={item.id > 1 ? `type-${item.topicType}` : 'type-none'}>
+              <div
+                className={
+                  (item.id > topicIdNotApplicable ? `type-${item.topicType}` : 'type-none') +
+                  // This extra style exists only to flag disabled topics that are disabled.
+                  // These could show up because of migration from TNO, or through changes to
+                  // content and topics that are possible
+                  (!item.isEnabled ? ' type-disabled' : '')
+                }
+              >
                 {item.topicType === TopicTypeName.Issues
                   ? item.name
                   : `${item.name} (${item.topicType})`}

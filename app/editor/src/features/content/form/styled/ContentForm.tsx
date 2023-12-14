@@ -143,12 +143,11 @@ export const ContentForm = styled.div`
     align-items: center;
   }
 
-  .type-none {
-    color: red;
-  }
-
   .type-Proactive {
     color: green;
+  }
+  .type-disabled {
+    font-style: italic;
   }
 
   .multi-group {

@@ -71,30 +71,32 @@ const TopicList: React.FC = () => {
   const handleSubmit = async (values: ITopicModel) => {
     try {
       setLoading(true);
-      var results = [...items];
+      let results = [];
       let updatedTopics: ITopicModel[];
-      const existsTopic = topics.find((x) => x.name === values.name);
+      // need case insensitive string compare here or we will end up with variations on names
+      const topicNameMatch = topics.find((x) => x.name.toUpperCase() === values.name.toUpperCase());
+
       if (values.id === 0) {
-        if (!existsTopic) {
+        if (!topicNameMatch) {
           const result = await addTopic(values);
           results = [...items, result];
           updatedTopics = [...topics, result];
         } else {
-          if (existsTopic.isEnabled) {
+          if (topicNameMatch.isEnabled) {
             toast.warn(`${values.name} already exists.`);
             return;
           } else {
             const result = await updateTopic({
-              ...existsTopic,
+              ...topicNameMatch,
               isEnabled: values.isEnabled,
               topicType: values.topicType,
             });
             results = [...items, result];
-            updatedTopics = topics.map((i) => (i.id === existsTopic.id ? result : i));
+            updatedTopics = topics.map((i) => (i.id === topicNameMatch.id ? result : i));
           }
         }
       } else {
-        if (!existsTopic || values.id === existsTopic.id) {
+        if (!topicNameMatch || values.id === topicNameMatch.id) {
           const result = await updateTopic(values);
           results = items.map((i) => (i.id === values.id ? result : i));
           updatedTopics = topics.map((i) => (i.id === values.id ? result : i));
