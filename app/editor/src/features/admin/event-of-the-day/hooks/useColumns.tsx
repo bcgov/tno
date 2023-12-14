@@ -96,7 +96,7 @@ export const useColumns = (
       cell: (cell) => {
         return (
           <Link to={`/contents/${cell.original.contentId}`} target="blank">
-            {cell.original.content?.headline} -{cell.original.content!.topics!.length}
+            {cell.original.content?.headline}
           </Link>
         );
       },
