@@ -26,6 +26,10 @@ export const Section: React.FC<ISectionProps> = ({
 }) => {
   const [open, setOpen] = React.useState(initOpen);
 
+  React.useEffect(() => {
+    setOpen(initOpen);
+  }, [initOpen]);
+
   const handleChange = React.useCallback(
     (open: boolean) => {
       setOpen(open);

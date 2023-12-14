@@ -40,5 +40,5 @@ export const defaultReportSection = (
     orderByField: '',
   },
   chartTemplates: [],
-  expand: true,
+  open: true,
 });

@@ -38,7 +38,9 @@ export const Section = styled.div<ISectionProps>`
       overflow: hidden;
 
       span {
+        display: block;
         white-space: nowrap;
+        max-width: 500px;
         cursor: ${(props) => (props.showOpen ? 'pointer' : 'unset')};
       }
     }

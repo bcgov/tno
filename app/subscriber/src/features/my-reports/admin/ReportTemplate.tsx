@@ -12,9 +12,11 @@ import {
 } from 'react-beautiful-dnd';
 import {
   FaAlignJustify,
+  FaAngleDown,
   FaChartPie,
   FaGripLines,
   FaList,
+  FaMinus,
   FaNewspaper,
   FaPlus,
   FaTrash,
@@ -27,6 +29,7 @@ import {
   ReportSectionTypeName,
   Row,
   Show,
+  Text,
 } from 'tno-core';
 
 import { defaultReportSection } from '../constants';
@@ -43,25 +46,41 @@ export interface IReportTemplateProps {
 export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => {
   const { setFieldValue, values, isSubmitting } = useFormikContext<IReportForm>();
 
+  const [show, setShow] = React.useState(true);
+  const [sortOrders, setSortOrders] = React.useState<number[]>(
+    values.sections.map((s) => s.sortOrder),
+  );
+
+  React.useEffect(() => {
+    setSortOrders(values.sections.map((s) => s.sortOrder));
+  }, [values.sections]);
+
   const addSection = React.useCallback(
     (
+      index: number,
       type: ReportSectionTypeName,
       showCharts: boolean = false,
       showHeadlines: boolean | undefined = undefined,
       showFullStory: boolean | undefined = undefined,
     ) => {
-      const sections = [
-        ...values.sections,
-        defaultReportSection(
-          type,
-          values.sections.length,
-          showCharts,
-          showHeadlines,
-          showFullStory,
-          values.hideEmptySections,
-        ),
-      ];
-      setFieldValue('sections', sections);
+      const newSection = defaultReportSection(
+        type,
+        index === 0
+          ? 0
+          : index < values.sections.length
+          ? values.sections[index].sortOrder + 1
+          : values.sections[values.sections.length - 1].sortOrder,
+        showCharts,
+        showHeadlines,
+        showFullStory,
+        values.hideEmptySections,
+      );
+      const sections = [...values.sections];
+      sections.splice(index, 0, newSection);
+      setFieldValue(
+        'sections',
+        sections.map((s, i) => ({ ...s, sortOrder: i })),
+      );
     },
     [setFieldValue, values],
   );
@@ -105,22 +124,32 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
       <Row className="section-bar" gap="1rem" justifyContent="center">
         <FaPlus />
         <Button
-          onClick={() => addSection(ReportSectionTypeName.TableOfContents)}
-          disabled={isSubmitting}
+          onClick={() => addSection(0, ReportSectionTypeName.TableOfContents)}
+          disabled={
+            isSubmitting ||
+            values.sections.some(
+              (s) => s.settings.sectionType === ReportSectionTypeName.TableOfContents,
+            )
+          }
         >
           <Row gap="1rem">
             <FaList />
             <label>Table of Contents</label>
           </Row>
         </Button>
-        <Button onClick={() => addSection(ReportSectionTypeName.Summary)} disabled={isSubmitting}>
+        <Button
+          onClick={() => addSection(values.sections.length, ReportSectionTypeName.Summary)}
+          disabled={isSubmitting}
+        >
           <Row gap="1rem">
             <FaAlignJustify />
             <label>Text</label>
           </Row>
         </Button>
         <Button
-          onClick={() => addSection(ReportSectionTypeName.Content, false, false, true)}
+          onClick={() =>
+            addSection(values.sections.length, ReportSectionTypeName.Content, false, false, true)
+          }
           disabled={isSubmitting}
         >
           <Row gap="1rem">
@@ -129,7 +158,9 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
           </Row>
         </Button>
         <Button
-          onClick={() => addSection(ReportSectionTypeName.Content, true, false, false)}
+          onClick={() =>
+            addSection(values.sections.length, ReportSectionTypeName.Content, true, false, false)
+          }
           disabled={isSubmitting}
         >
           <Row gap="1rem">
@@ -138,8 +169,36 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
           </Row>
         </Button>
       </Row>
+      <Row className="template-action-bar">
+        {!!values.sections.length &&
+          (values.sections.some((s) => s.open) ? (
+            <Action
+              icon={<FaMinus />}
+              label="Close All"
+              onClick={() => {
+                setShow(false);
+                setFieldValue(
+                  `sections`,
+                  values.sections.map((s) => ({ ...s, open: false })),
+                );
+              }}
+            />
+          ) : (
+            <Action
+              icon={<FaAngleDown />}
+              label="Open All"
+              onClick={() => {
+                setShow(true);
+                setFieldValue(
+                  'sections',
+                  values.sections.map((s) => ({ ...s, open: true })),
+                );
+              }}
+            />
+          ))}
+      </Row>
       <Col className="report-template">
-        <Section label="Report Name / Description" open={true}>
+        <Section label="Report Name / Description" open={show} onChange={(open) => setShow(open)}>
           <p>Name your report and provide a description that will help you identify it.</p>
           <FormikText
             name="name"
@@ -171,8 +230,40 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
                           <Section
                             icon={<FaGripLines />}
                             label={getBlockName(section)}
+                            open={section.open}
+                            onChange={(open) => setFieldValue(`sections.${index}.open`, open)}
                             actions={
                               <Row gap="1rem">
+                                <Text
+                                  name={`sections.${index}.sortOrder`}
+                                  value={sortOrders.length > index ? sortOrders[index] : ''}
+                                  width="6ch"
+                                  className="align-right"
+                                  onChange={(e) => {
+                                    setSortOrders(
+                                      values.sections.map((s, i) =>
+                                        i === index ? +e.target.value : s.sortOrder,
+                                      ),
+                                    );
+                                  }}
+                                  onBlur={(e) => {
+                                    onChange?.({
+                                      ...values,
+                                      sections: values.sections
+                                        .map((s, i) =>
+                                          i === index ? { ...s, sortOrder: +e.target.value } : s,
+                                        )
+                                        .sort((a, b) =>
+                                          a.sortOrder < b.sortOrder
+                                            ? -1
+                                            : a.sortOrder > b.sortOrder
+                                            ? 1
+                                            : 0,
+                                        ),
+                                    });
+                                    // setFieldValue(`sections.${index}.sortOrder`, +e.target.value);
+                                  }}
+                                />
                                 <FormikCheckbox
                                   name={`sections.${index}.isEnabled`}
                                   label="Enabled"
@@ -182,7 +273,6 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
                                 </Action>
                               </Row>
                             }
-                            open={true}
                           >
                             <Show
                               visible={
