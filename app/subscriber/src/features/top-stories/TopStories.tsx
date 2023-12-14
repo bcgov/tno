@@ -6,7 +6,7 @@ import { castToSearchResult } from 'features/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent, useLookup } from 'store/hooks';
-import { Col, FlexboxTable, generateQuery, IContentModel, ITableInternalRow, Row } from 'tno-core';
+import { FlexboxTable, generateQuery, IContentModel, ITableInternalRow, Row } from 'tno-core';
 
 import * as styled from './styled';
 
