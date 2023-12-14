@@ -70,9 +70,6 @@ export const SearchPage = styled.div`
   /** END HEADER */
 
   .folder-sub-menu {
-    /* .row-item { */
-    font-size: medium;
-    /* } */
     margin-left: auto;
     svg {
       height: 1.5em;
@@ -80,18 +77,12 @@ export const SearchPage = styled.div`
   }
 
   .share-sub-menu {
-    /* .row-item { */
-    font-size: medium;
-    /* } */
     svg {
       height: 1.5em;
     }
   }
 
   .share-sub-menu {
-    /* .row-item { */
-    font-size: medium;
-    /* } */
     svg {
       height: 1.5em;
     }
