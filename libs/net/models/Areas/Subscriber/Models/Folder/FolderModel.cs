@@ -55,6 +55,12 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
     /// get - An array of reports that use this filter.
     /// </summary>
     public IEnumerable<ReportModel> Reports { get; set; } = Array.Empty<ReportModel>();
+
+	/// <summary>
+    /// get/set - An array of event schedules.
+    /// </summary>
+    public IEnumerable<FolderScheduleModel> Events { get; set; } = Array.Empty<FolderScheduleModel>();
+
     #endregion
 
     #region Constructors
@@ -75,6 +81,8 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
         this.Settings = JsonSerializer.Deserialize<FolderSettingsModel>(entity.Settings, options) ?? new();
         this.Content = entity.ContentManyToMany.Select(c => new FolderContentModel(c));
         this.Reports = entity.ReportSections.Where(rs => rs.Report != null).Select(rs => new ReportModel(rs.Report!)).ToArray();
+		this.Events = entity.Events.Select(e => new FolderScheduleModel(e));
+
     }
     #endregion
 
@@ -108,6 +116,7 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
         };
 
         entity.ContentManyToMany.AddRange(model.Content.Select(c => new Entities.FolderContent(model.Id, c.ContentId, c.SortOrder)));
+        entity.Events.AddRange(model.Events.Select(e => (Entities.EventSchedule)e));
 
         return entity;
     }
