@@ -2,12 +2,13 @@ using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
 using System.Web;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
+using TNO.API.Areas.Subscriber.Models;
 using TNO.API.Areas.Subscriber.Models.Content;
 using TNO.API.Areas.Subscriber.Models.Storage;
+using TNO.API.Config;
 using TNO.API.Models;
 using TNO.API.Models.SignalR;
 using TNO.Core.Exceptions;
@@ -16,11 +17,10 @@ using TNO.DAL.Config;
 using TNO.DAL.Extensions;
 using TNO.DAL.Services;
 using TNO.Elastic;
-using TNO.Entities.Models;
 using TNO.Kafka;
+using TNO.Kafka.Models;
 using TNO.Kafka.SignalR;
 using TNO.Keycloak;
-using TNO.Models.Filters;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
 
@@ -47,6 +47,9 @@ public class ContentController : ControllerBase
     private readonly KafkaHubConfig _kafkaHubOptions;
     private readonly StorageOptions _storageOptions;
     private readonly ElasticOptions _elasticOptions;
+    private readonly INotificationService _notificationService;
+    private readonly KafkaOptions _kafkaOptions;
+    private readonly JsonSerializerOptions _serializerOptions;
 
     #endregion
 
@@ -61,6 +64,9 @@ public class ContentController : ControllerBase
     /// <param name="kafkaHubOptions"></param>
     /// <param name="storageOptions"></param>
     /// <param name="elasticOptions"></param>
+    /// <param name="notificationService"></param>
+    /// <param name="kafkaOptions"></param>
+    /// <param name="serializerOptions"></param>
     public ContentController(
         IContentService contentService,
         IFileReferenceService fileReferenceService,
@@ -68,7 +74,10 @@ public class ContentController : ControllerBase
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaHubConfig> kafkaHubOptions,
         IOptions<StorageOptions> storageOptions,
-        IOptions<ElasticOptions> elasticOptions)
+        IOptions<ElasticOptions> elasticOptions,
+        INotificationService notificationService,
+        IOptions<KafkaOptions> kafkaOptions,
+        IOptions<JsonSerializerOptions> serializerOptions)
     {
         _contentService = contentService;
         _fileReferenceService = fileReferenceService;
@@ -77,6 +86,9 @@ public class ContentController : ControllerBase
         _kafkaHubOptions = kafkaHubOptions.Value;
         _storageOptions = storageOptions.Value;
         _elasticOptions = elasticOptions.Value;
+        _notificationService = notificationService;
+        _kafkaOptions = kafkaOptions.Value;
+        _serializerOptions = serializerOptions.Value;
     }
     #endregion
 
@@ -280,6 +292,40 @@ public class ContentController : ControllerBase
             _contentService.UpdateAndSave(content);
         }
         return new JsonResult(model);
+    }
+
+    /// <summary>
+    /// Send the notification to the specified email address.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="colleagueId"></param>
+    /// <param name="notificationId"></param>
+    /// <returns></returns>
+    [HttpPost("{contentId}/share")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(NotificationModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Notification" })]
+    public async Task<IActionResult> ShareAsync(long contentId, int colleagueId, int notificationId)
+    {
+        var notification = _notificationService.FindById(notificationId) ?? throw new NoContentException();
+
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+
+        var colleague = _userService.FindById(colleagueId) ?? throw new NotAuthorizedException("Colleague does not exist");
+
+        var request = new NotificationRequestModel(NotificationDestination.NotificationService, new { })
+        {
+            NotificationId = notification.Id,
+            ContentId = contentId,
+            RequestorId = user.Id,
+            To = colleague.Email,
+            IsPreview = true,
+            IgnoreValidation = true,
+        };
+        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.NotificationTopic, $"notification-{notification.Id}-test", request);
+        return new JsonResult(new NotificationModel(notification, _serializerOptions));
     }
     #endregion
 }

@@ -79,6 +79,24 @@ export const SearchPage = styled.div`
     }
   }
 
+  .share-sub-menu {
+    /* .row-item { */
+    font-size: medium;
+    /* } */
+    svg {
+      height: 1.5em;
+    }
+  }
+
+  .share-sub-menu {
+    /* .row-item { */
+    font-size: medium;
+    /* } */
+    svg {
+      height: 1.5em;
+    }
+  }
+
   .search-contents {
     padding-top: 0;
     max-height: calc(100vh - 12em);

@@ -20,12 +20,16 @@ export interface IModalProps {
   headerText?: string;
   /** the text / fragment for the body of the modal */
   body?: React.ReactNode;
+  /** a component / fragment for the body of the modal */
+  component?: React.ReactNode;
   /** pass custom buttons directly to the modal */
   customButtons?: React.ReactNode;
   /** preset stylings for the modal */
   type?: 'delete' | 'default' | 'custom';
   hasHeight?: boolean;
   className?: 'modal-full';
+  /** boolean value used to determine whether to enabled the confirm button or not */
+  enableConfirm?: boolean;
 }
 
 /**
@@ -40,10 +44,12 @@ export const Modal: React.FC<IModalProps> = ({
   headerText,
   hide,
   body,
+  component,
   customButtons,
   type,
   hasHeight,
   className,
+  enableConfirm = true,
 }) => {
   return isShowing
     ? ReactDOM.createPortal(
@@ -57,9 +63,11 @@ export const Modal: React.FC<IModalProps> = ({
                   </Row>
                 )}
                 <Row className="modal-body">{body}</Row>
+                {!!component && <Row className="modal-body">{component}</Row>}
                 {!!!customButtons && (
                   <Row className="button-row">
                     <Button
+                      disabled={!enableConfirm}
                       variant={type === 'delete' ? ButtonVariant.danger : ButtonVariant.secondary}
                       onClick={onConfirm}
                     >

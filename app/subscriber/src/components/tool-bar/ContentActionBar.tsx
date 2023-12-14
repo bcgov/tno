@@ -1,5 +1,6 @@
+import { ShareMenu } from 'components/share-menu';
 import React from 'react';
-import { FaArrowLeft, FaEnvelope } from 'react-icons/fa6';
+import { FaArrowLeft } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { Checkbox, IContentModel, Row, Show } from 'tno-core';
 
@@ -49,9 +50,7 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
       </Show>
       <div className="right-side-items">
         <Row>
-          <div className="action">
-            <FaEnvelope /> <span>SHARE</span>
-          </div>
+          <ShareMenu content={content} />
           <AddToFolderMenu content={content} />
           <AddToReportMenu content={content} />
         </Row>
