@@ -163,8 +163,10 @@ export const SearchPage: React.FC = () => {
                                 </div>
                                 <span className="divider"> | </span>
                                 <div className="source text-content">{item.source?.name}</div>
-                                <span className="divider"> | </span>
-                                <div className="series text-content">{item.series?.name}</div>
+                                <Show visible={!!item.series?.name}>
+                                  <span className="divider"> | </span>
+                                  <div className="series text-content">{item.series?.name}</div>
+                                </Show>
                               </Row>
                             </Col>
                           </Row>
