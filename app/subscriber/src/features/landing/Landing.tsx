@@ -60,7 +60,7 @@ export const Landing: React.FC = () => {
                   ? 'Settings | My Minister'
                   : activeItem}
               </Show>
-              <Show visible={activeItem === 'Home'}>
+              <Show visible={activeItem === SidebarMenuItems.home.label}>
                 <HomeFilters />
               </Show>
             </>
