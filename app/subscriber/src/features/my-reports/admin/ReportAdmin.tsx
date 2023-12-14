@@ -3,7 +3,7 @@ import { Button } from 'components/button';
 import { FormikForm } from 'components/formik';
 import { Header } from 'components/header';
 import { PageSection } from 'components/section';
-import { Tabs } from 'components/tabs';
+import { FormikTabs } from 'components/tabs';
 import { ITab } from 'components/tabs/interfaces';
 import React from 'react';
 import { FaArrowLeft, FaArrowRight, FaCloud, FaTrash } from 'react-icons/fa6';
@@ -21,6 +21,8 @@ import { ReportSubscribers } from './ReportSubscribers';
 import { ReportTemplate } from './ReportTemplate';
 import * as styled from './styled';
 import { ReportFormSchema } from './validation/ReportFormSchema';
+import { ReportFormSettingsSchema } from './validation/ReportFormSettingsSchema';
+import { ReportFormTemplateSchema } from './validation/ReportFormTemplateSchema';
 
 export interface IReportAdminProps {
   path?: string;
@@ -49,12 +51,25 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
         label: report.name ? report.name : '[Report Name]',
         className: 'report-name',
       },
-      { key: 'template', to: `/reports/${id}/template`, label: <Action label="Report Template" /> },
-      { key: 'settings', to: `/reports/${id}/settings`, label: <Action label="Settings" /> },
+      {
+        key: 'template',
+        to: `/reports/${id}/template`,
+        label: <Action label="Report Template" />,
+        validateOnChange: true,
+        validationSchema: ReportFormTemplateSchema,
+      },
+      {
+        key: 'settings',
+        to: `/reports/${id}/settings`,
+        label: <Action label="Settings" />,
+        validateOnChange: true,
+        validationSchema: ReportFormSettingsSchema,
+      },
       {
         key: 'subscribers',
         to: `/reports/${id}/subscribers`,
         label: <Action label="Subscribers" />,
+        validateOnChange: true,
       },
     ],
     [id, report.name],
@@ -153,7 +168,7 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
       <FormikForm
         initialValues={report}
         validationSchema={ReportFormSchema}
-        validateOnChange={false}
+        validateOnChange={true}
         onSubmit={async (values, { setSubmitting }) => {
           await handleSubmit(values);
           setSubmitting(false);
@@ -202,13 +217,13 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
           >
             <div>
               <Col flex="1">
-                <Tabs tabs={tabs} activeTab={path}>
+                <FormikTabs tabs={tabs} activeTab={path}>
                   {(tab) => {
                     if (tab?.key === 'settings') return <ReportSettings />;
                     else if (tab?.key === 'subscribers') return <ReportSubscribers />;
                     return <ReportTemplate onChange={(values) => setReport(values)} />;
                   }}
-                </Tabs>
+                </FormikTabs>
               </Col>
             </div>
             <span></span>

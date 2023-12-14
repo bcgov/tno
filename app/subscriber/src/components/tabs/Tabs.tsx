@@ -10,6 +10,7 @@ export interface ITabsProps {
   activeTab?: ITab | string | number;
   children?: React.ReactNode | ((props?: ITab) => React.ReactNode);
   className?: string;
+  onChange?: (tab: ITab, active?: ITab) => Promise<boolean>;
 }
 
 export const Tabs: React.FC<ITabsProps> = ({
@@ -17,6 +18,7 @@ export const Tabs: React.FC<ITabsProps> = ({
   activeTab = 0,
   className,
   children,
+  onChange = () => Promise<boolean>,
   ...rest
 }) => {
   const navigate = useNavigate();
@@ -28,6 +30,21 @@ export const Tabs: React.FC<ITabsProps> = ({
     if (tab) setActive(tab);
   }, [pathname, tabs]);
 
+  const handleClick = React.useCallback(
+    async (tab: ITab, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      if (active?.key === tab.key) return;
+      const allow = await onChange(tab, active);
+      if (!allow) return;
+      if (tab.type !== 'other') setActive(tab);
+      if (tab.onClick) {
+        tab.onClick(tab);
+      } else if (tab.to) {
+        navigate(tab.to);
+      }
+    },
+    [active, navigate, onChange],
+  );
+
   return (
     <styled.Tabs className={`tabs${className ? ` ${className}` : ''}`} activeTab={active}>
       <div className="tabs-header">
@@ -36,18 +53,7 @@ export const Tabs: React.FC<ITabsProps> = ({
             key={tab.key}
             className={`tab ${tab.className}${active?.key === tab.key ? ' active' : ''}`}
           >
-            <div
-              onClick={() => {
-                if (tab.type !== 'other') setActive(tab);
-                if (tab.onClick) {
-                  tab.onClick(tab);
-                } else if (tab.to) {
-                  navigate(tab.to);
-                }
-              }}
-            >
-              {tab.label}
-            </div>
+            <div onClick={(e) => handleClick(tab, e)}>{tab.label}</div>
           </div>
         ))}
       </div>

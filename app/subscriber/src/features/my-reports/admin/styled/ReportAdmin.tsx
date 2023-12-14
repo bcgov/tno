@@ -19,7 +19,7 @@ export const ReportAdmin = styled.div`
 
   .section-bar {
     align-items: center;
-    margin: 0.5rem 1rem;
+    margin: 0.5rem 0;
     padding: 0.5rem;
     background: ${(props) => props.theme.css.bkTertiary};
     border: solid 1px ${(props) => props.theme.css.iconPrimaryColor};
@@ -47,7 +47,6 @@ export const ReportAdmin = styled.div`
   }
 
   .report-template {
-    padding: 1rem;
     gap: 1rem;
 
     > div:not(:first-child) {
