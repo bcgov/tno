@@ -28,7 +28,7 @@ export interface ISideBarMenuItems {
 /** The below manages the items that will appear in the left navigation bar in sequential order. */
 export const SidebarMenuItems: ISideBarMenuItems = {
   home: {
-    label: 'Home',
+    label: 'Featured Stories',
     path: 'landing/home',
     icon: <FaHome />,
   },
