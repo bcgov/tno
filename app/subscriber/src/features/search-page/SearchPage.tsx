@@ -161,6 +161,12 @@ export const SearchPage: React.FC = () => {
                                 <div className="date text-content">
                                   {new Date(item.publishedOn).toDateString()}
                                 </div>
+                                <span className="divider"> | </span>
+                                <div className="source text-content">{item.source?.name}</div>
+                                <Show visible={!!item.series?.name}>
+                                  <span className="divider"> | </span>
+                                  <div className="series text-content">{item.series?.name}</div>
+                                </Show>
                               </Row>
                             </Col>
                           </Row>

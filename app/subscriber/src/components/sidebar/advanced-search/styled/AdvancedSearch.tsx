@@ -149,6 +149,9 @@ export const AdvancedSearch = styled(Row)`
   }
 
   .date-range {
+    @media (max-width: 1300px) {
+      max-width: 15em;
+    }
     margin-left: auto;
     margin-right: auto;
   }
@@ -261,6 +264,10 @@ export const AdvancedSearch = styled(Row)`
     padding: 0.25em;
     .picker {
       margin-right: 0.5em;
+      @media (max-width: 1300px) {
+        margin-bottom: 0.5em;
+        margin-left: 0.5em;
+      }
     }
     p {
       margin: 0.35em 0.35em;

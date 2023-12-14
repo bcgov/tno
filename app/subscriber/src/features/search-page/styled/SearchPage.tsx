@@ -1,6 +1,10 @@
 import styled from 'styled-components';
 
 export const SearchPage = styled.div`
+  .divider {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+  }
   max-height: 100vh;
   overflow: none;
 
@@ -142,9 +146,7 @@ export const SearchPage = styled.div`
 
   .tone-date {
     margin-left: auto;
-    .date {
-      color: #8f929d;
-    }
+    color: ${(props) => props.theme.css.fPrimaryColor};
     svg {
       margin-top: 0.15em;
       margin-right: 0.5em;
