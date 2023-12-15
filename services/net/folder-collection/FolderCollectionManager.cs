@@ -290,18 +290,18 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
 
         if (request.Action == IndexAction.Unpublish && folder.Filter.Settings.SearchUnpublished == false)
         {
-            this.Logger.LogDebug("Content being removed from folder.  Content ID: {contentId}, Folder ID: {folderId}", content.Id, folder.Id);
+            this.Logger.LogDebug("Content ID: {contentId}, Folder ID: {folderId}.  Content being removed from folder.", content.Id, folder.Id);
             // Remove unpublished content from folders that filter out unpublished content.
             await this.Api.RemoveContentFromFoldersAsync(content.Id);
         }
         else if (await RunFilterAsync(content, folder.Filter))
         {
-            this.Logger.LogDebug("Content being added to folder.  Content ID: {contentId}, Folder ID: {folderId}", content.Id, folder.Id);
+            this.Logger.LogDebug("Content ID: {contentId}, Folder ID: {folderId}.  Content being added to folder.", content.Id, folder.Id);
             // TODO: Sort order of content added to a folder should be configurable.
             await this.Api.AddContentToFolderAsync(content.Id, folder.Id);
         }
         else
-            this.Logger.LogDebug("Folder filter rejected this content.  Content ID: {contentId}, Folder ID: {folderId}", content.Id, folder.Id);
+            this.Logger.LogDebug("Content ID: {contentId}, Folder ID: {folderId}.  Folder filter rejected this content.", content.Id, folder.Id);
     }
 
     /// <summary>
@@ -317,37 +317,125 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
         // Ignore empty Elasticsearch queries.
         if (IsEmpty(filter.Query))
         {
-            this.Logger.LogDebug("The folder filter query is empty.  Content ID: {contentId}, Filter ID: {filterId}", content.Id, filter.Id);
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  The folder filter query is empty.",content.Id, filter.Id);
             return false;
         }
 
         var now = DateTime.Now.ToLocalTime();
 
-        if (!filter.Settings.SearchUnpublished && content.Status == Entities.ContentStatus.Draft) return false;
-        if (filter.Settings.ContentTypes?.Any() == true && !filter.Settings.ContentTypes.Contains(content.ContentType)) return false;
-        if (filter.Settings.SourceIds?.Any() == true && content.SourceId.HasValue && !filter.Settings.SourceIds.Contains(content.SourceId.Value)) return false;
-        if (filter.Settings.MediaTypeIds?.Any() == true && !filter.Settings.MediaTypeIds.Contains(content.MediaTypeId)) return false;
-        if (filter.Settings.ContributorIds?.Any() == true && content.ContributorId.HasValue && !filter.Settings.ContributorIds.Contains(content.ContributorId.Value)) return false;
-        if (filter.Settings.SeriesIds?.Any() == true && content.SeriesId.HasValue && !filter.Settings.SeriesIds.Contains(content.SeriesId.Value)) return false;
-        if (filter.Settings.Tags?.Any() == true && !filter.Settings.Tags.Any(st => content.Tags.Any(t => t.Code.Equals(st, StringComparison.OrdinalIgnoreCase)))) return false;
+        if (!filter.Settings.SearchUnpublished && content.Status == Entities.ContentStatus.Draft)
+        {
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  Content.Status is Draft but the folder filter query is !SearchUnpublished.",content.Id, filter.Id);
+            return false;
+        }
+
+        if (filter.Settings.ContentTypes?.Any() == true && !filter.Settings.ContentTypes.Contains(content.ContentType))
+        {
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  Content.ContentType is {actual}, but the folder filter is limited to {target}.",
+                content.Id, filter.Id, content.ContentType.ToString(), string.Join(",", filter.Settings.ContentTypes));
+            return false;
+        }
+
+        if (filter.Settings.SourceIds?.Any() == true && content.SourceId.HasValue && !filter.Settings.SourceIds.Contains(content.SourceId.Value))
+        {
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  Content.SourceId is {actual}, but the folder filter is limited to {target}.",
+                content.Id, filter.Id, content.SourceId, string.Join(",", filter.Settings.SourceIds!));
+            return false;
+        }
+
+        if (filter.Settings.MediaTypeIds?.Any() == true && !filter.Settings.MediaTypeIds.Contains(content.MediaTypeId))
+        {
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  Content.MediaTypeId is {actual}, but the folder filter is limited to {target}.",
+                content.Id, filter.Id, content.MediaTypeId, string.Join(",", filter.Settings.MediaTypeIds!));
+            return false;
+        }
+
+        if (filter.Settings.ContributorIds?.Any() == true && content.ContributorId.HasValue && !filter.Settings.ContributorIds.Contains(content.ContributorId.Value))
+        {
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  Content.ContributorId is {actual}, but the folder filter is limited to {target}.",
+                content.Id, filter.Id, content.ContributorId, string.Join(",", filter.Settings.ContributorIds!));
+            return false;
+        }
+
+        if (filter.Settings.SeriesIds?.Any() == true && content.SeriesId.HasValue && !filter.Settings.SeriesIds.Contains(content.SeriesId.Value))
+        {
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  Content.SeriesId is {actual}, but the folder filter is limited to {target}.",
+                content.Id, filter.Id, content.SeriesId, string.Join(",", filter.Settings.SeriesIds!));
+            return false;
+        }
+
+        if (filter.Settings.Tags?.Any() == true && !filter.Settings.Tags.Any(st => content.Tags.Any(t => t.Code.Equals(st, StringComparison.OrdinalIgnoreCase))))
+        {
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  Content.Tags is {actual}, but the folder filter is limited to {target}.",
+                content.Id, filter.Id, string.Join(",", content.Tags.Select((t) => t.Code)), string.Join(",", filter.Settings.Tags!));
+            return false;
+        }
+
         if (filter.Settings.Sentiment?.Any() == true)
         {
             var min = filter.Settings.Sentiment.Min();
             var max = filter.Settings.Sentiment.Max();
             // TODO: Need to handle custom tone pools.
-            if (!content.TonePools.Any(tp => tp.Value >= min && tp.Value <= max)) return false;
+            if (!content.TonePools.Any(tp => tp.Value >= min && tp.Value <= max))
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  Content.Tone is {actual}, but the folder filter is limited to {targetMin}-{targetMax}.",
+                content.Id, filter.Id,
+                string.Join(",", content.TonePools.Select((tp) => tp.Value)),
+                filter.Settings.Sentiment.Min(), filter.Settings.Sentiment.Max());
+            return false;
         };
-        if (filter.Settings.Actions?.Any() == true && !filter.Settings.Actions.Any(fa => content.Actions.Any(a => a.Id == fa.Id && a.Value == fa.Value))) return false;
+
+        if (filter.Settings.Actions?.Any() == true && !filter.Settings.Actions.Any(fa => content.Actions.Any(a => a.Id == fa.Id && a.Value == fa.Value)))
+        {
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}. Content.Actions is {actual}, but the folder filter is limited to {target}.",
+                content.Id, filter.Id,
+                string.Join(",", content.Actions.Select((a) => $"{a.Id}:{a.Value}")),
+                string.Join(",", filter.Settings.Actions.Select((a) => $"{a.Id}:{a.Value}")));
+            return false;
+        }
 
         var publishedOn = content.PublishedOn?.ToLocalTime();
 
-        if (filter.Settings.StartDate != null && publishedOn < filter.Settings.StartDate) return false;
-        if (filter.Settings.EndDate != null && publishedOn > filter.Settings.EndDate) return false;
-        if (filter.Settings.DateOffset.HasValue && publishedOn > now.AddDays(filter.Settings.DateOffset.Value)) return false;
+        if (filter.Settings.StartDate != null && publishedOn < filter.Settings.StartDate)
+        {
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}. Content.PublishedOn is {actual}, but the folder filter StartDate is {target}.",
+                content.Id, filter.Id, content.PublishedOn, filter.Settings.StartDate);
+            return false;
+        }
 
-        if (filter.Settings.Edition != null && !content.Edition.Equals(filter.Settings.Edition, StringComparison.OrdinalIgnoreCase)) return false;
-        if (filter.Settings.Section != null && !content.Section.Equals(filter.Settings.Section, StringComparison.OrdinalIgnoreCase)) return false;
-        if (filter.Settings.Page != null && !content.Page.Equals(filter.Settings.Page, StringComparison.OrdinalIgnoreCase)) return false;
+        if (filter.Settings.EndDate != null && publishedOn > filter.Settings.EndDate)
+        {
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}. Content.PublishedOn is {actual}, but the folder filter EndDate is {target}.",
+                content.Id, filter.Id, content.PublishedOn, filter.Settings.EndDate);
+            return false;
+        }
+
+        if (filter.Settings.DateOffset.HasValue && publishedOn > now.AddDays(filter.Settings.DateOffset.Value))
+        {
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}. Content.PublishedOn is {actual}, but the folder filter DateOffset is {target}.",
+                content.Id, filter.Id, content.PublishedOn, filter.Settings.DateOffset.Value);
+            return false;
+        }
+
+        if (filter.Settings.Edition != null && !content.Edition.Equals(filter.Settings.Edition, StringComparison.OrdinalIgnoreCase))
+        {
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}. Content.Edition is {actual}, but the folder filter is {target}.",
+                content.Id, filter.Id, content.Edition, filter.Settings.Edition);
+            return false;
+        }
+
+        if (filter.Settings.Section != null && !content.Section.Equals(filter.Settings.Section, StringComparison.OrdinalIgnoreCase))
+        {
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}. Content.Section is {actual}, but the folder filter is {target}.",
+                content.Id, filter.Id, content.Section, filter.Settings.Section);
+            return false;
+        }
+
+        if (filter.Settings.Page != null && !content.Page.Equals(filter.Settings.Page, StringComparison.OrdinalIgnoreCase))
+        {
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}. Content.Page is {actual}, but the folder filter is {target}.",
+                content.Id, filter.Id, content.Page, filter.Settings.Page);
+            return false;
+        }
 
         if (filter.Settings.Search != null)
         {
@@ -356,7 +444,12 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
             var result = await this.Client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, query);
 
             // If the content item wasn't returned it wasn't a match.
-            if (result.Hits.Total.Value != 1) return false;
+            if (result.Hits.Total.Value != 1)
+            {
+                this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  Content was not picked up in filter query. {query}",
+                    content.Id, filter.Id, query.ToString());
+                return false;
+            }
         }
 
         // We passed all filter values so this content should be added to the folder.
