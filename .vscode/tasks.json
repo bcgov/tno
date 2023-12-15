@@ -3,7 +3,7 @@
   "tasks": [
     {
       "label": "build",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -15,7 +15,7 @@
     },
     {
       "label": "publish",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -27,7 +27,7 @@
     },
     {
       "label": "watch",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -39,7 +39,7 @@
     },
     {
       "label": "build-import",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -51,7 +51,7 @@
     },
     {
       "label": "publish-import",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -63,7 +63,7 @@
     },
     {
       "label": "watch-import",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -75,7 +75,7 @@
     },
     {
       "label": "build-syndication",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -87,7 +87,7 @@
     },
     {
       "label": "publish-syndication",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -99,7 +99,7 @@
     },
     {
       "label": "watch-syndication",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -111,7 +111,7 @@
     },
     {
       "label": "build-capture",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -123,7 +123,7 @@
     },
     {
       "label": "publish-capture",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -135,7 +135,7 @@
     },
     {
       "label": "watch-capture",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -147,7 +147,7 @@
     },
     {
       "label": "build-clip",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -159,7 +159,7 @@
     },
     {
       "label": "publish-clip",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -171,7 +171,7 @@
     },
     {
       "label": "watch-clip",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -183,7 +183,7 @@
     },
     {
       "label": "build-content",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -195,7 +195,7 @@
     },
     {
       "label": "publish-content",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -207,7 +207,7 @@
     },
     {
       "label": "watch-content",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -219,7 +219,7 @@
     },
     {
       "label": "build-contentmigration",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -231,7 +231,7 @@
     },
     {
       "label": "publish-contentmigration",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -243,7 +243,7 @@
     },
     {
       "label": "watch-contentmigration",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -255,7 +255,7 @@
     },
     {
       "label": "build-indexing",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -267,7 +267,7 @@
     },
     {
       "label": "publish-indexing",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -279,7 +279,7 @@
     },
     {
       "label": "watch-indexing",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -291,7 +291,7 @@
     },
     {
       "label": "build-transcription",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -303,7 +303,7 @@
     },
     {
       "label": "publish-transcription",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -315,7 +315,7 @@
     },
     {
       "label": "watch-transcription",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -327,7 +327,7 @@
     },
     {
       "label": "build-nlp",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -339,7 +339,7 @@
     },
     {
       "label": "publish-nlp",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -351,7 +351,7 @@
     },
     {
       "label": "watch-nlp",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -363,7 +363,7 @@
     },
     {
       "label": "build-filemonitor",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -375,7 +375,7 @@
     },
     {
       "label": "publish-filemonitor",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -387,7 +387,7 @@
     },
     {
       "label": "watch-filemonitor",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -399,7 +399,7 @@
     },
     {
       "label": "build-image",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -411,7 +411,7 @@
     },
     {
       "label": "publish-image",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -423,7 +423,7 @@
     },
     {
       "label": "watch-image",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -435,7 +435,7 @@
     },
     {
       "label": "build-elastic-migration",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -447,7 +447,7 @@
     },
     {
       "label": "publish-elastic-migration",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -459,7 +459,7 @@
     },
     {
       "label": "watch-elastic-migration",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -471,7 +471,7 @@
     },
     {
       "label": "build-notification",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -483,7 +483,7 @@
     },
     {
       "label": "publish-notification",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -495,7 +495,7 @@
     },
     {
       "label": "watch-notification",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -507,7 +507,7 @@
     },
     {
       "label": "build-reporting",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -519,7 +519,7 @@
     },
     {
       "label": "publish-reporting",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -531,7 +531,7 @@
     },
     {
       "label": "watch-reporting",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -543,7 +543,7 @@
     },
     {
       "label": "build-scheduler",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -555,7 +555,7 @@
     },
     {
       "label": "publish-scheduler",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -567,7 +567,7 @@
     },
     {
       "label": "watch-scheduler",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -579,7 +579,7 @@
     },
     {
       "label": "build-folder-collection",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -591,7 +591,7 @@
     },
     {
       "label": "publish-folder-collection",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -603,7 +603,7 @@
     },
     {
       "label": "watch-folder-collection",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -615,7 +615,7 @@
     },
     {
       "label": "build-ffmpeg",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -627,7 +627,7 @@
     },
     {
       "label": "publish-ffmpeg",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -639,7 +639,7 @@
     },
     {
       "label": "watch-ffmpeg",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
@@ -651,7 +651,7 @@
     },
     {
       "label": "build-event-handler",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "build",
@@ -663,7 +663,7 @@
     },
     {
       "label": "publish-event-handler",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
@@ -675,7 +675,7 @@
     },
     {
       "label": "watch-event-handler",
-      "command": "/opt/homebrew/bin/dotnet",
+      "command": "dotnet",
       "type": "process",
       "args": [
         "watch",

@@ -1,6 +1,6 @@
 import parse from 'html-react-parser';
 import React from 'react';
-import { useAVOverviewInstances, useContent } from 'store/hooks';
+import { useAVOverviewInstances } from 'store/hooks';
 import { Col, IAVOverviewInstanceModel, IReportResultModel, Loading, Show } from 'tno-core';
 
 import * as styled from './styled';
@@ -9,7 +9,6 @@ const AVOverviewPreview: React.FC = () => {
   const [{ findAVOverview, viewAVOverview }] = useAVOverviewInstances();
 
   const [isLoading, setIsLoading] = React.useState(true);
-  const [, { getContent }] = useContent();
   const [, setInstance] = React.useState<IAVOverviewInstanceModel>();
   const [preview, setPreview] = React.useState<IReportResultModel | undefined>();
   const [isPublished, setIsPublished] = React.useState(false);
@@ -41,11 +40,11 @@ const AVOverviewPreview: React.FC = () => {
   }, [handlePreviewReport]);
 
   React.useEffect(() => {
-    if (!preview?.body || !getContent) return;
+    if (!preview?.body) return;
     const htmlToReactElements = parse(preview?.body ?? '');
     setReactElements(htmlToReactElements);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preview?.body, getContent]);
+  }, [preview?.body]);
 
   return (
     <styled.AVOverviewPreview>
