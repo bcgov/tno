@@ -147,7 +147,11 @@ export const useColumns = (
           <>
             <Select
               name="score"
-              isDisabled={loading || cell.original.content!.topics![0].id === topicIdNotApplicable}
+              isDisabled={
+                loading ||
+                (cell.original.content!.topics!.length > 0 &&
+                  cell.original.content!.topics![0].id === topicIdNotApplicable)
+              }
               isClearable={false}
               width="10ch"
               options={possibleScores.filter(
