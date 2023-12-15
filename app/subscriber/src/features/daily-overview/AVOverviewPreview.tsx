@@ -1,33 +1,16 @@
-import { Element, Text } from 'domhandler';
 import parse from 'html-react-parser';
 import React from 'react';
-import { FaScroll, FaVideo } from 'react-icons/fa6';
-import { Link } from 'react-router-dom';
 import { useAVOverviewInstances, useContent } from 'store/hooks';
-import {
-  Col,
-  ContentTypeName,
-  IAVOverviewInstanceModel,
-  IReportResultModel,
-  Loading,
-  Show,
-} from 'tno-core';
+import { Col, IAVOverviewInstanceModel, IReportResultModel, Loading, Show } from 'tno-core';
 
 import * as styled from './styled';
-
-interface ItemMetadata {
-  [contentId: string]: {
-    hasTranscript: boolean;
-    hasVideo: boolean;
-  };
-}
 
 const AVOverviewPreview: React.FC = () => {
   const [{ findAVOverview, viewAVOverview }] = useAVOverviewInstances();
 
   const [isLoading, setIsLoading] = React.useState(true);
   const [, { getContent }] = useContent();
-  const [instance, setInstance] = React.useState<IAVOverviewInstanceModel>();
+  const [, setInstance] = React.useState<IAVOverviewInstanceModel>();
   const [preview, setPreview] = React.useState<IReportResultModel | undefined>();
   const [isPublished, setIsPublished] = React.useState(false);
   const [reactElements, setReactElements] = React.useState<string | JSX.Element | JSX.Element[]>();

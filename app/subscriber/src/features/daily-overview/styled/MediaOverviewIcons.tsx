@@ -34,15 +34,15 @@ export const MediaOverviewIcons = styled.div`
   }
 
   .scroll-icon {
-    height: 1.5em;
-    width: 1.5em;
+    height: 1.25em !important;
+    width: 1.25em !important;
     color: #23b6d4;
     padding-right: 1em;
   }
 
   .video-icon {
-    height: 1.5em;
-    width: 1.5em;
+    height: 1.25em !important;
+    width: 1.25em !important;
     color: #22c997;
     padding-right: 1em;
   }
