@@ -409,8 +409,10 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
             return false;
         }
 
-        if (filter.Settings.DateOffset.HasValue && publishedOn > now.AddDays(filter.Settings.DateOffset.Value))
+        if (filter.Settings.DateOffset.HasValue && publishedOn?.Date < now.Date.AddDays(filter.Settings.DateOffset.Value))
         {
+            // Date offset will always non-positive to lookback fro today X days.
+            // this comparison is checking whether the content is OLDER than Now MINUS DateOffset days
             this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}. Content.PublishedOn is {actual}, but the folder filter DateOffset is {target}.",
                 content.Id, filter.Id, content.PublishedOn, filter.Settings.DateOffset.Value);
             return false;
