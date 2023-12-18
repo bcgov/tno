@@ -377,7 +377,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
             var max = filter.Settings.Sentiment.Max();
             // TODO: Need to handle custom tone pools.
             if (!content.TonePools.Any(tp => tp.Value >= min && tp.Value <= max))
-            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  Content.Tone is {actual}, but the folder filter is limited to {targetMin}-{targetMax}.",
+                this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  Content.Tone is {actual}, but the folder filter is limited to {targetMin}-{targetMax}.",
                 content.Id, filter.Id,
                 string.Join(",", content.TonePools.Select((tp) => tp.Value)),
                 filter.Settings.Sentiment.Min(), filter.Settings.Sentiment.Max());
@@ -436,6 +436,12 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
         {
             this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}. Content.Page is {actual}, but the folder filter is {target}.",
                 content.Id, filter.Id, content.Page, filter.Settings.Page);
+            return false;
+        }
+
+        if (filter.Settings.HasTopic == true && !content.Topics.Any())
+        {
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  Content.Topics is Empty but the folder filter query is HasTopic.", content.Id, filter.Id);
             return false;
         }
 

@@ -386,6 +386,18 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
           />
         </Col>
       </Row>
+      <Row>
+        <Col flex="1">
+          <div className="frm-in">
+            <label data-tooltip-id="main-tooltip">Topics </label>
+            <FormikCheckbox
+              name={`${path}hasTopic`}
+              label="Has at least one Topic set"
+              onChange={(e) => updateSettings('hasTopic', e.target.checked)}
+            />
+          </div>
+        </Col>
+      </Row>
     </>
   );
 };
