@@ -25,18 +25,23 @@ public static class EnumExtensions
 
     /// <summary>
     /// Convert flagged enum into an array of int.
+    /// A default value with a value of '0' can be excluded when there are other values.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="value"></param>
+    /// <param name="includeZero"></param>
     /// <returns></returns>
-    public static int[] GetFlagValues<T>(this T value)
+    public static int[] GetFlagValues<T>(this T value, bool includeZero = true)
         where T : Enum
     {
-        return Enum.GetValues(typeof(T))
+        var values = Enum.GetValues(typeof(T))
             .Cast<T>()
             .Where(v => value.HasFlag(v))
             .Select(v => (int)(object)v)
             .ToArray();
+
+        if (values.Length > 1 && !includeZero) return values.Where((v) => v != 0).ToArray();
+        return values;
     }
 
     /// <summary>
