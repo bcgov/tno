@@ -105,8 +105,8 @@ public class ScheduleModel : AuditColumnsModel
             this.StopAt = entity.StopAt;
             this.RunOnlyOnce = entity.RunOnlyOnce;
             this.Repeat = entity.Repeat;
-            this.RunOnWeekDays = entity.RunOnWeekDays.GetFlagValues();
-            this.RunOnMonths = entity.RunOnMonths.GetFlagValues();
+            this.RunOnWeekDays = entity.RunOnWeekDays.GetFlagValues(false);
+            this.RunOnMonths = entity.RunOnMonths.GetFlagValues(false);
             this.DayOfMonth = entity.DayOfMonth;
             this.RequestedById = entity.RequestedById;
         }

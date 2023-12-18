@@ -12,6 +12,7 @@ import {
   Row,
   ScheduleTypeName,
   ScheduleWeekDayName,
+  selectWeekDays,
   Text,
   useNamespace,
 } from 'tno-core';
@@ -71,36 +72,43 @@ export const ScheduleContinuous: React.FC<IScheduleContinuousProps> = () => {
             label="Monday"
             name={field('runOnWeekDays')}
             value={ScheduleWeekDayName.Monday}
+            onBeforeChange={(value) => selectWeekDays(value)}
           />
           <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Tuesday"
             name={field('runOnWeekDays')}
             value={ScheduleWeekDayName.Tuesday}
+            onBeforeChange={(value) => selectWeekDays(value)}
           />
           <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Wednesday"
             name={field('runOnWeekDays')}
             value={ScheduleWeekDayName.Wednesday}
+            onBeforeChange={(value) => selectWeekDays(value)}
           />
           <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Thursday"
             name={field('runOnWeekDays')}
             value={ScheduleWeekDayName.Thursday}
+            onBeforeChange={(value) => selectWeekDays(value)}
           />
           <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Friday"
             name={field('runOnWeekDays')}
             value={ScheduleWeekDayName.Friday}
+            onBeforeChange={(value) => selectWeekDays(value)}
           />
           <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Saturday"
             name={field('runOnWeekDays')}
             value={ScheduleWeekDayName.Saturday}
+            onBeforeChange={(value) => selectWeekDays(value)}
           />
           <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Sunday"
             name={field('runOnWeekDays')}
             value={ScheduleWeekDayName.Sunday}
+            onBeforeChange={(value) => selectWeekDays(value)}
           />
         </Row>
       </Row>

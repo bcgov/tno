@@ -1,6 +1,6 @@
 using TNO.API.Models;
-using TNO.Entities;
 using TNO.Core.Extensions;
+using TNO.Entities;
 
 namespace TNO.API.Areas.Services.Models.Ingest;
 
@@ -105,8 +105,8 @@ public class ScheduleModel : AuditColumnsModel
             this.StopAt = entity.StopAt;
             this.RunOnlyOnce = entity.RunOnlyOnce;
             this.Repeat = entity.Repeat;
-            this.RunOnWeekDays = entity.RunOnWeekDays.GetFlagValues();
-            this.RunOnMonths = entity.RunOnMonths.GetFlagValues();
+            this.RunOnWeekDays = entity.RunOnWeekDays.GetFlagValues(true);
+            this.RunOnMonths = entity.RunOnMonths.GetFlagValues(true);
             this.DayOfMonth = entity.DayOfMonth;
             this.RequestedById = entity.RequestedById;
         }

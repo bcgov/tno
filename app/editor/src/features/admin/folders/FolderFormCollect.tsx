@@ -22,6 +22,7 @@ import {
   OptionItem,
   Row,
   ScheduleWeekDayName,
+  selectWeekDays,
   Show,
   sortObject,
 } from 'tno-core';
@@ -161,36 +162,43 @@ export const FolderFormCollect: React.FC = () => {
                 label="Monday"
                 name={`events.0.runOnWeekDays`}
                 value={ScheduleWeekDayName.Monday}
+                onBeforeChange={(value) => selectWeekDays(value)}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Tuesday"
                 name={`events.0.runOnWeekDays`}
                 value={ScheduleWeekDayName.Tuesday}
+                onBeforeChange={(value) => selectWeekDays(value)}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Wednesday"
                 name={`events.0.runOnWeekDays`}
                 value={ScheduleWeekDayName.Wednesday}
+                onBeforeChange={(value) => selectWeekDays(value)}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Thursday"
                 name={`events.0.runOnWeekDays`}
                 value={ScheduleWeekDayName.Thursday}
+                onBeforeChange={(value) => selectWeekDays(value)}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Friday"
                 name={`events.0.runOnWeekDays`}
                 value={ScheduleWeekDayName.Friday}
+                onBeforeChange={(value) => selectWeekDays(value)}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Saturday"
                 name={`events.0.runOnWeekDays`}
                 value={ScheduleWeekDayName.Saturday}
+                onBeforeChange={(value) => selectWeekDays(value)}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Sunday"
                 name={`events.0.runOnWeekDays`}
                 value={ScheduleWeekDayName.Sunday}
+                onBeforeChange={(value) => selectWeekDays(value)}
               />
             </Col>
             <Col flex="1">

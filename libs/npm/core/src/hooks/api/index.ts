@@ -6,4 +6,5 @@ export * from './interfaces';
 export * from './reports';
 export * from './subscriber';
 export * from './useApi';
+export * from './utils';
 export * from './validation';
