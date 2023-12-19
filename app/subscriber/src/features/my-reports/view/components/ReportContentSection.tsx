@@ -2,10 +2,19 @@ import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { Col, FormikText, FormikTextArea, Show } from 'tno-core';
+import {
+  Col,
+  FormikText,
+  FormikTextArea,
+  getDistinct,
+  IReportInstanceModel,
+  OptionItem,
+  ReportSectionTypeName,
+  Show,
+} from 'tno-core';
 
 import { IReportForm } from '../../interfaces';
-import { sortContent } from '../../utils';
+import { sortContent, sortReportContent } from '../../utils';
 import { ReportContentSectionRow } from './ReportContentSectionRow';
 
 export interface IReportContentSectionProps extends React.AllHTMLAttributes<HTMLDivElement> {
@@ -46,6 +55,11 @@ export const ReportContentSection: React.FC<IReportContentSectionProps> = ({
             ),
           } as IReportInstanceContentForm),
       ) ?? [];
+  const sectionOptions = values.sections
+    .filter(
+      (s) => s.settings.sectionType === ReportSectionTypeName.Content && !s.settings.showCharts,
+    )
+    .map((s) => new OptionItem(s.settings.label, s.name));
 
   const handleRemoveContent = React.useCallback(
     async (index: number) => {
@@ -57,6 +71,33 @@ export const ReportContentSection: React.FC<IReportContentSectionProps> = ({
       }
     },
     [instance, setFieldValue],
+  );
+
+  const handleChangeSection = React.useCallback(
+    (sectionName: string, row: IReportInstanceContentForm, instance: IReportInstanceModel) => {
+      // Move the content to the specified section.
+      // Remove duplicates.
+      const content = getDistinct(
+        instance.content.map((c) =>
+          c.contentId === row.contentId && c.sectionName === row.sectionName
+            ? { ...row, sectionName, sortOrder: -1 }
+            : c,
+        ),
+        (c) => `${c.contentId}-${c.sectionName}`,
+      );
+      setFieldValue('instances.0.content', sortReportContent(values, content));
+    },
+    [setFieldValue, values],
+  );
+
+  const handleChangeSortOrder = React.useCallback(
+    (row: IReportInstanceContentForm, instance: IReportInstanceModel) => {
+      const content = instance.content.map((c) =>
+        c.contentId === row.contentId && c.sectionName === row.sectionName ? row : c,
+      );
+      setFieldValue(`instances.0.content`, sortReportContent(values, content));
+    },
+    [setFieldValue, values],
   );
 
   if (instance == null) return null;
@@ -106,11 +147,18 @@ export const ReportContentSection: React.FC<IReportContentSectionProps> = ({
                           {...draggable.draggableProps}
                         >
                           <ReportContentSectionRow
+                            disabled={disabled}
                             row={ic}
                             index={contentInSectionIndex}
                             show={!ic.contentId ? 'all' : 'none'}
                             onRemove={(index) => handleRemoveContent(index)}
-                            disabled={disabled}
+                            showSelectSection
+                            sectionOptions={sectionOptions}
+                            onChangeSection={(sectionName, row) => {
+                              handleChangeSection(sectionName, row, instance);
+                            }}
+                            showSortOrder
+                            onBlurSortOrder={(row) => handleChangeSortOrder(row, instance)}
                           />
                         </div>
                       );

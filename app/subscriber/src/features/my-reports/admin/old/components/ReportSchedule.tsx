@@ -5,6 +5,7 @@ import {
   FormikTimeInput,
   Row,
   ScheduleWeekDayName,
+  selectWeekDays,
 } from 'tno-core';
 
 export interface IReportScheduleProps {
@@ -36,36 +37,43 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ index, label })
           label="Monday"
           name={`events.${index}.runOnWeekDays`}
           value={ScheduleWeekDayName.Monday}
+          onBeforeChange={(value) => selectWeekDays(value)}
         />
         <FormikStringEnumCheckbox<ScheduleWeekDayName>
           label="Tuesday"
           name={`events.${index}.runOnWeekDays`}
           value={ScheduleWeekDayName.Tuesday}
+          onBeforeChange={(value) => selectWeekDays(value)}
         />
         <FormikStringEnumCheckbox<ScheduleWeekDayName>
           label="Wednesday"
           name={`events.${index}.runOnWeekDays`}
           value={ScheduleWeekDayName.Wednesday}
+          onBeforeChange={(value) => selectWeekDays(value)}
         />
         <FormikStringEnumCheckbox<ScheduleWeekDayName>
           label="Thursday"
           name={`events.${index}.runOnWeekDays`}
           value={ScheduleWeekDayName.Thursday}
+          onBeforeChange={(value) => selectWeekDays(value)}
         />
         <FormikStringEnumCheckbox<ScheduleWeekDayName>
           label="Friday"
           name={`events.${index}.runOnWeekDays`}
           value={ScheduleWeekDayName.Friday}
+          onBeforeChange={(value) => selectWeekDays(value)}
         />
         <FormikStringEnumCheckbox<ScheduleWeekDayName>
           label="Saturday"
           name={`events.${index}.runOnWeekDays`}
           value={ScheduleWeekDayName.Saturday}
+          onBeforeChange={(value) => selectWeekDays(value)}
         />
         <FormikStringEnumCheckbox<ScheduleWeekDayName>
           label="Sunday"
           name={`events.${index}.runOnWeekDays`}
           value={ScheduleWeekDayName.Sunday}
+          onBeforeChange={(value) => selectWeekDays(value)}
         />
       </Col>
     </Row>

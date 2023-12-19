@@ -8,6 +8,7 @@ import { PageSection } from 'components/section';
 import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
 import AVOverviewPreview from 'features/daily-overview/AVOverviewPreview';
+import { MediaOverviewIcons } from 'features/daily-overview/MediaOverviewIcons';
 import { FilterMedia } from 'features/filter-media';
 import { Home } from 'features/home';
 import { HomeFilters } from 'features/home/home-filters';
@@ -113,7 +114,12 @@ export const Landing: React.FC = () => {
         </PageSection>
         {/* unsure of whether these items will change depending on selected item */}
         <Col className="right-panel">
-          <Commentary />
+          <Show visible={activeItem !== SidebarMenuItems.eveningOverview.label}>
+            <Commentary />
+          </Show>
+          <Show visible={activeItem === SidebarMenuItems.eveningOverview.label}>
+            <MediaOverviewIcons />
+          </Show>
         </Col>
       </Row>
     </styled.Landing>

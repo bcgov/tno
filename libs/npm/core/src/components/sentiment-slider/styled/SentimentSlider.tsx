@@ -3,7 +3,6 @@ import styled from 'styled-components';
 export const SentimentSlider = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 0.5rem;
 
   > div {
     display: flex;
@@ -11,11 +10,11 @@ export const SentimentSlider = styled.div`
     gap: 0.5rem;
     width: 100%;
     overflow: hidden;
-    padding: 0.5rem 0;
+    padding: 0.25rem 0;
 
     > div {
       width: 100%;
-      margin: 0.5rem 1rem;
+      margin: 0 1rem 0.25rem 1rem;
     }
 
     > svg {

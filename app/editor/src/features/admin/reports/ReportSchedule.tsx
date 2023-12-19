@@ -1,5 +1,6 @@
 import { useFormikContext } from 'formik';
 import moment from 'moment';
+import React from 'react';
 import { FaEraser } from 'react-icons/fa';
 import {
   Button,
@@ -13,6 +14,7 @@ import {
   IReportModel,
   Row,
   ScheduleWeekDayName,
+  selectWeekDays,
 } from 'tno-core';
 
 import * as styled from './styled';
@@ -68,36 +70,43 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ label, index })
             label="Monday"
             name={`events.${index}.runOnWeekDays`}
             value={ScheduleWeekDayName.Monday}
+            onBeforeChange={(value) => selectWeekDays(value)}
           />
           <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Tuesday"
             name={`events.${index}.runOnWeekDays`}
             value={ScheduleWeekDayName.Tuesday}
+            onBeforeChange={(value) => selectWeekDays(value)}
           />
           <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Wednesday"
             name={`events.${index}.runOnWeekDays`}
             value={ScheduleWeekDayName.Wednesday}
+            onBeforeChange={(value) => selectWeekDays(value)}
           />
           <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Thursday"
             name={`events.${index}.runOnWeekDays`}
             value={ScheduleWeekDayName.Thursday}
+            onBeforeChange={(value) => selectWeekDays(value)}
           />
           <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Friday"
             name={`events.${index}.runOnWeekDays`}
             value={ScheduleWeekDayName.Friday}
+            onBeforeChange={(value) => selectWeekDays(value)}
           />
           <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Saturday"
             name={`events.${index}.runOnWeekDays`}
             value={ScheduleWeekDayName.Saturday}
+            onBeforeChange={(value) => selectWeekDays(value)}
           />
           <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Sunday"
             name={`events.${index}.runOnWeekDays`}
             value={ScheduleWeekDayName.Sunday}
+            onBeforeChange={(value) => selectWeekDays(value)}
           />
         </Col>
         <Col>

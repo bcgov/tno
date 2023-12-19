@@ -1,3 +1,4 @@
+import parse from 'html-react-parser';
 import React from 'react';
 import { useAVOverviewInstances } from 'store/hooks';
 import { Col, IAVOverviewInstanceModel, IReportResultModel, Loading, Show } from 'tno-core';
@@ -11,6 +12,7 @@ const AVOverviewPreview: React.FC = () => {
   const [, setInstance] = React.useState<IAVOverviewInstanceModel>();
   const [preview, setPreview] = React.useState<IReportResultModel | undefined>();
   const [isPublished, setIsPublished] = React.useState(false);
+  const [reactElements, setReactElements] = React.useState<string | JSX.Element | JSX.Element[]>();
 
   const handlePreviewReport = React.useCallback(async () => {
     try {
@@ -37,6 +39,13 @@ const AVOverviewPreview: React.FC = () => {
     handlePreviewReport();
   }, [handlePreviewReport]);
 
+  React.useEffect(() => {
+    if (!preview?.body) return;
+    const htmlToReactElements = parse(preview?.body ?? '');
+    setReactElements(htmlToReactElements);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preview?.body]);
+
   return (
     <styled.AVOverviewPreview>
       <Show visible={isLoading}>
@@ -48,10 +57,7 @@ const AVOverviewPreview: React.FC = () => {
             This TNO product is intended only for the use of the person to whom it is addressed.
             Please do not forward or redistribute.{' '}
           </div>
-          <div
-            className="preview-body"
-            dangerouslySetInnerHTML={{ __html: preview?.body ?? '' }}
-          ></div>
+          <div className="preview-body">{reactElements}</div>
         </Col>
       </Show>
       <Show visible={!isPublished}>No report has been published yet. Please check back later.</Show>

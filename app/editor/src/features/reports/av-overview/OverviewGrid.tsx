@@ -3,6 +3,7 @@ import moment from 'moment';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaGripLines, FaTrash } from 'react-icons/fa';
+import { useSearchParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import {
   AVOverviewItemTypeName,
@@ -49,6 +50,8 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
   const [clips, setClips] = React.useState<IOptionItem[]>();
   const eveningOverviewItemTypeOptions = castEnumToOptions(AVOverviewItemTypeName);
   const items = values.sections[index].items;
+  const [params] = useSearchParams();
+  const queryDate = params.get('date') ? moment(params.get('date')) : moment(Date.now());
   const startTime = values.sections[index]?.startTime?.split(':');
 
   /** flag to keep track of when new complete start time is entered and trigger another search
@@ -64,7 +67,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
       findContent({
         seriesId: values.sections[index].seriesId,
         publishedStartOn: !!values.sections[index].startTime
-          ? moment()
+          ? moment(queryDate)
               .set({
                 hour: Number(startTime[0]),
                 minute: Number(startTime[1]),
@@ -72,12 +75,12 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                 millisecond: 0,
               })
               .toISOString()
-          : moment().startOf('day').toISOString(),
+          : moment(queryDate).startOf('day').toISOString(),
         contentTypes: [],
         sort: ['publishedOn asc'],
-      }).then((data) =>
-        setClips(data.items.map((c) => new OptionItem(c.headline, c.id)) as IOptionItem[]),
-      );
+      }).then((data) => {
+        setClips(data.items.map((c) => new OptionItem(c.headline, c.id)) as IOptionItem[]);
+      });
     }
     // only want to fire on init, and when start time is changed
     // eslint-disable-next-line react-hooks/exhaustive-deps

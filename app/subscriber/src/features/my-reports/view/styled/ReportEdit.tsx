@@ -22,9 +22,14 @@ export const ReportEdit = styled.div`
     .content-row {
       display: flex;
       flex-direction: row;
+      align-items: center;
       gap: 0.25rem;
       padding: 0.5rem 0;
       border-bottom: solid 1px ${(props) => props.theme.css.linePrimaryColor};
+
+      .frm-in {
+        padding-bottom: 0;
+      }
     }
   }
 

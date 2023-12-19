@@ -5,7 +5,10 @@ import { FormikCheckbox, IFormikCheckboxProps } from '.';
 export interface IFormikStringEnumCheckboxProps<TEnum> extends IFormikCheckboxProps {
   /** values must be numeric to work with bitwise logic. */
   value: any | TEnum | TEnum[];
+  /** Deliminator for multi-value enums. */
   deliminator?: string;
+  /** Provides a way to mutate the value before committing it to formik */
+  onBeforeChange?: (value: any[] | string) => void;
 }
 
 /**
@@ -21,6 +24,7 @@ export const FormikStringEnumCheckbox = <TEnum extends unknown>({
   defaultValue,
   checked,
   onChange,
+  onBeforeChange = (value) => value,
   ...rest
 }: IFormikStringEnumCheckboxProps<TEnum>) => {
   const { values, setFieldValue } = useFormikContext();
@@ -38,7 +42,7 @@ export const FormikStringEnumCheckbox = <TEnum extends unknown>({
       let newValue = [...fieldValue];
       if (e.target.checked) newValue.push(value);
       else newValue = fieldValue.filter((v: any) => v !== value);
-      setFieldValue(fieldName, newValue);
+      setFieldValue(fieldName, onBeforeChange(newValue));
     } else {
       var options = fieldValue
         .split(deliminator)
@@ -46,9 +50,9 @@ export const FormikStringEnumCheckbox = <TEnum extends unknown>({
         .filter((v: any) => !!v);
       if (e.target.checked) options.push(value);
       else options = options.filter((v: any) => v !== value);
-      setFieldValue(fieldName, options.join(deliminator));
+      setFieldValue(fieldName, onBeforeChange(options.join(deliminator)));
     }
-    if (onChange) onChange(e);
+    onChange?.(e);
   };
 
   return (
