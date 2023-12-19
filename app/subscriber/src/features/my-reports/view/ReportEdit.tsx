@@ -57,7 +57,7 @@ export const ReportEdit: React.FC = () => {
             if (!report.instances.length) {
               // The report has either never generated an instance, or the last instance was already sent.
               const result = await generateReport(reportId);
-              setReport(toForm(result));
+              setReport(toForm(result, true));
             }
           }
         })
@@ -107,7 +107,7 @@ export const ReportEdit: React.FC = () => {
     async (values: IReportForm, regenerate: boolean) => {
       try {
         const report = await generateReport(values.id, regenerate);
-        setReport(toForm(report));
+        setReport(toForm(report, true));
         if (regenerate) toast.success('Report has been regenerated');
         else {
           toast.success('Report has been generated');

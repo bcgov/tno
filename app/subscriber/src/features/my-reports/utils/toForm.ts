@@ -8,9 +8,10 @@ import { sortContent } from './sortContent';
 /**
  * Converts a report model into a form.
  * @param report Latest report information.
+ * @param updateSortOrder Whether to update sort order.
  * @returns a new form.
  */
-export const toForm = (report: IReportModel): IReportForm => {
+export const toForm = (report: IReportModel, updateSortOrder: boolean = false): IReportForm => {
   return {
     ...report,
     hideEmptySections: getHideEmpty(report.sections),
@@ -21,6 +22,9 @@ export const toForm = (report: IReportModel): IReportForm => {
             defaultReportSchedule('Schedule 1', report),
             defaultReportSchedule('Schedule 2', report),
           ],
-    instances: report.instances.map((i) => ({ ...i, content: sortContent(i.content) })),
+    instances: report.instances.map((i) => ({
+      ...i,
+      content: sortContent(i.content, updateSortOrder),
+    })),
   };
 };

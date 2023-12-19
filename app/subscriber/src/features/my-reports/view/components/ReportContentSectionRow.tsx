@@ -6,21 +6,35 @@ import React from 'react';
 import { FaCheck, FaGripLines, FaPen, FaX } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 import { useApp } from 'store/hooks';
-import { Col, Row } from 'tno-core';
+import { Checkbox, Col, IOptionItem, Row, Select, Text } from 'tno-core';
 
 import { ContentForm, UserContentForm } from '.';
 
 export interface IReportContentSectionRowProps {
   /** Whether to show the form to edit content. */
   show?: 'all' | 'summary' | 'none';
-  /** Event fires when removing content. */
-  onRemove?: (index: number, row: IReportInstanceContentForm) => void;
   /** index of content item in section */
   index: number;
   /** The content item. */
   row: IReportInstanceContentForm;
   /** Whether the form is disabled. */
   disabled?: boolean;
+  /** Event fires when removing content. */
+  onRemove?: (index: number, row: IReportInstanceContentForm) => void;
+  /** Whether to show the checkbox to select the row. */
+  showCheckbox?: boolean;
+  /** Event fires when selecting the checkbox */
+  onSelect?: (checked: boolean, row: IReportInstanceContentForm) => void;
+  /** Whether to show the select section */
+  showSelectSection?: boolean;
+  /** Event fires when changing the section content belongs in */
+  onChangeSection?: (sectionName: string, row: IReportInstanceContentForm) => void;
+  /** An array of section options. */
+  sectionOptions?: IOptionItem[];
+  /** Whether to show the sort order column */
+  showSortOrder?: boolean;
+  /** Event fires when sort order blur occurs. */
+  onBlurSortOrder?: (row: IReportInstanceContentForm) => void;
 }
 
 export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = ({
@@ -29,12 +43,24 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
   disabled,
   index,
   onRemove,
+  showCheckbox,
+  onSelect,
+  showSelectSection,
+  onChangeSection,
+  sectionOptions,
+  showSortOrder,
+  onBlurSortOrder,
 }) => {
   const [{ userInfo }] = useApp();
 
   const [show, setShow] = React.useState(initShow);
+  const [sortOrder, setSortOrder] = React.useState(row.sortOrder);
 
   const userId = userInfo?.id ?? 0;
+
+  React.useEffect(() => {
+    setSortOrder(row.sortOrder);
+  }, [row.sortOrder]);
 
   if (!row.content) return <></>;
 
@@ -47,11 +73,16 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
     <Col>
       <Row className="content-row" flex="1">
         <Col>{!disabled && <FaGripLines />}</Col>
-        {/* <Col>
-          <FormikCheckbox
-            name={`sections.${index}.content.${contentInSectionIndex}.selected`}
-          />
-        </Col> */}
+        {showCheckbox && (
+          <Col>
+            <Checkbox
+              name={`chk-${row.sectionName}-${row.contentId}`}
+              checked={row.selected ?? false}
+              onChange={(e) => onSelect?.(e.target.checked, row)}
+            />
+          </Col>
+        )}
+
         <Col>
           <Sentiment value={sentiment} />
         </Col>
@@ -64,6 +95,34 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
           </Link>
         </Col>
         <Col>{row.content.page ? `(P.${row.content.page})` : ''}</Col>
+        {showSortOrder && (
+          <Col>
+            <Text
+              name={`instances.0.content.${row.originalIndex}.sortOrder`}
+              value={sortOrder}
+              width="6ch"
+              className="align-right"
+              onChange={(e) => setSortOrder(+e.target.value)}
+              onBlur={() => onBlurSortOrder?.({ ...row, sortOrder })}
+              maxLength={3}
+            />
+          </Col>
+        )}
+        {showSelectSection && sectionOptions?.length && (
+          <Col>
+            <Select
+              name={`sel-${row.sectionName}-${row.contentId}`}
+              placeholder="move to section"
+              options={sectionOptions}
+              onChange={(e) => {
+                var option = e as IOptionItem;
+                if (option) onChangeSection?.(`${option.value}`, row);
+              }}
+              isClearable
+              width="25ch"
+            />
+          </Col>
+        )}
         <Row gap="1rem">
           {!disabled && (
             <>
