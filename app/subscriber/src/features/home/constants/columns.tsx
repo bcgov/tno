@@ -15,8 +15,14 @@ export const determineColumns = (
   };
 
   const removeHtmlTags = (html: string | undefined) => {
-    if (html === undefined || html === '') return false;
+    if (html === undefined) return '';
     return html.replace(/(<([^>]+)>)/gi, '');
+  };
+
+  const extractTeaser = (text: string | undefined) => {
+    if (text === undefined || text === '') return false;
+    const fullText = removeHtmlTags(text);
+    return `${fullText.substring(0, 220)} ...`;
   };
   // columns common to all content
   const baseCols: ITableHookColumn<IContentModel>[] = [
@@ -36,7 +42,7 @@ export const determineColumns = (
         <table className="tableHeadline">
           <tbody>
             <tr>
-              <td className="dateColumn">
+              <td className="dateColumn td-date">
                 <div className="date">{formatDate(cell.original.publishedOn)}</div>
               </td>
               <td className="headlineColumn">
@@ -46,7 +52,7 @@ export const determineColumns = (
             {!hide?.includes('teaser') && (
               <tr>
                 <td colSpan={2}>
-                  <div className="teaser">{removeHtmlTags(cell.original.body)}</div>
+                  <div className="teaser">{extractTeaser(cell.original.body)}</div>
                 </td>
               </tr>
             )}

@@ -86,6 +86,10 @@ export const Home = styled.div`
     width: 80%;
   }
 
+  .td-date {
+    white-space: nowrap;
+  }
+
   .headline {
     color: var(--highlight-purple, #6750a4);
     font-size: 16px;
