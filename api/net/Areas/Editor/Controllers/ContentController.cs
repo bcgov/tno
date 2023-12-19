@@ -290,13 +290,13 @@ public class ContentController : ControllerBase
 
         var updatedTopics = _contentService.AddOrUpdateContentTopics(id, topics.ToList().ConvertAll(x => x.ToEntity(id)));
 
-        var updatedContent = _contentService.FindById(id);
+        var updatedContent = _contentService.FindById(id) ?? throw new NoContentException("Failed to find content");
 
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(updatedContent) })));
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Index));
+            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Index));
         }
         else
             _logger.LogWarning("Kafka indexing topic not configured.");

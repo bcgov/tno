@@ -50,7 +50,7 @@ const ReportForm: React.FC = () => {
 
   const [report, setReport] = React.useState<IReportModel>({
     ...defaultReport,
-    ownerId: userInfo?.id ?? 0,
+    ownerId: userInfo?.id,
   });
   const [active, setActive] = React.useState('report');
 
