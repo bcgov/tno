@@ -154,8 +154,8 @@ public class ReportService : BaseService<Report, int>, IReportService
             if (entity.Template.Id == 0)
             {
                 this.Context.Add(entity.Template);
-                this.Context.Add(entity.Template.ChartTemplates);
-                this.Context.Add(entity.Template.ChartTemplatesManyToMany);
+                this.Context.ChartTemplates.AddRange(entity.Template.ChartTemplates);
+                this.Context.ReportTemplateChartTemplates.AddRange(entity.Template.ChartTemplatesManyToMany);
             }
             else
             {
