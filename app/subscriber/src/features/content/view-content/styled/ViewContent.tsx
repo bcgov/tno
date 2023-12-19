@@ -60,4 +60,9 @@ export const ViewContent = styled.div`
       margin-left: 0.5em;
     }
   }
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+  }
 `;
