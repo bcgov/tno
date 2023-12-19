@@ -99,7 +99,19 @@ export const Home: React.FC = () => {
           <Col>
             <div className="show-section">
               <b>SHOW:</b>
-              <Checkbox disabled className="option" label={'TEASERS'} />
+              <Checkbox
+                label={'TEASERS'}
+                className="option"
+                defaultChecked={!disabledCols.includes('teaser')}
+                onClick={(e) => {
+                  if (!(e.target as HTMLInputElement).checked)
+                    setDisabledCols((disabledCols) => [...disabledCols, 'teaser']);
+                  else
+                    setDisabledCols((disabledCols) =>
+                      disabledCols.filter((col) => col !== 'teaser'),
+                    );
+                }}
+              />
               <Checkbox
                 label={'SENTIMENT'}
                 className="option"
@@ -172,6 +184,7 @@ export const Home: React.FC = () => {
           data={content}
           pageButtons={5}
           showPaging={false}
+          showHeader={false}
         />
       </Row>
     </styled.Home>

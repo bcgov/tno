@@ -149,20 +149,24 @@ export const FlexboxTable = <T extends object>({
                               table.options.onKeyDown?.(e);
                             }}
                           >
-                            {row.cells
-                              .filter((cell) => cell.isVisible)
-                              .map((cell, index) => (
-                                <div
-                                  className={`column col-${index}`}
-                                  key={`${index}`}
-                                  onClick={(e) => {
-                                    if (table.options.stopPropagation) e.stopPropagation();
-                                    table.options.onCellClick?.(cell, row, e);
-                                  }}
-                                >
-                                  {cell.cell(cell)}
+                            {row.cells.map((cell, index) => {
+                              return (
+                                <div>
+                                  {cell.isVisible && (
+                                    <div
+                                      className={`column col-${index}`}
+                                      key={`${index}`}
+                                      onClick={(e) => {
+                                        if (table.options.stopPropagation) e.stopPropagation();
+                                        table.options.onCellClick?.(cell, row, e);
+                                      }}
+                                    >
+                                      {cell.cell(cell)}
+                                    </div>
+                                  )}
                                 </div>
-                              ))}
+                              );
+                            })}
                           </div>
                         );
                       })}
