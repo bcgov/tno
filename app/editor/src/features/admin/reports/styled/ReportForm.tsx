@@ -6,8 +6,10 @@ export const ReportForm = styled(FormPage)`
   flex-direction: column;
   align-items: center;
 
-  .back-button {
-    align-self: start;
+  .form-actions {
+    margin: 0.5rem 0;
+    gap: 0.5rem;
+    justify-content: flex-end;
   }
 
   .code {
