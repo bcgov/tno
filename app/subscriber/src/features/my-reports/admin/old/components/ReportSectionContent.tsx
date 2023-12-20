@@ -1,5 +1,7 @@
+import { Button } from 'components/button';
 import { useFormikContext } from 'formik';
 import React from 'react';
+import { FaArrowAltCircleRight } from 'react-icons/fa';
 import { useFilters, useFolders } from 'store/hooks';
 import {
   Checkbox,
@@ -101,7 +103,7 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
             Choose the data sources to populate this section of your report. You can select from
             your saved searches and/or your folders.
           </p>
-          <Row>
+          <Row gap="1rem">
             <Col flex="1" className="description">
               <FormikSelect
                 name={`sections.${index}.filterId`}
@@ -113,7 +115,21 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
                   const filter = filters.find((f) => f.id === option?.value);
                   if (filter) setFieldValue(`sections.${index}.filter`, filter);
                 }}
-              />
+              >
+                <Button
+                  disabled={!values.sections[index].filterId}
+                  onClick={() =>
+                    window.open(
+                      `/search?modify=${values.sections[index].filterId}&name=${
+                        values.sections[index].filter?.name ?? ''
+                      }`,
+                      '_blank',
+                    )
+                  }
+                >
+                  <FaArrowAltCircleRight />
+                </Button>
+              </FormikSelect>
               {section.filter?.description && <p>{section.filter?.description}</p>}
             </Col>
             <Col flex="1" className="description">
@@ -127,7 +143,16 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
                   const folder = folders.find((f) => f.id === option?.value);
                   if (folder) setFieldValue(`sections.${index}.folder`, folder);
                 }}
-              />
+              >
+                <Button
+                  disabled={!values.sections[index].folderId}
+                  onClick={() =>
+                    window.open(`/folders/${values.sections[index].folderId}`, '_blank')
+                  }
+                >
+                  <FaArrowAltCircleRight />
+                </Button>
+              </FormikSelect>
               {section.folder?.description && <p>{section.folder?.description}</p>}
             </Col>
           </Row>

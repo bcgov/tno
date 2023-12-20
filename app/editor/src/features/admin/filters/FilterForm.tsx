@@ -7,6 +7,7 @@ import { useFilters } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
+  Col,
   IconButton,
   IFilterModel,
   Modal,
@@ -59,7 +60,7 @@ export const FilterForm: React.FC<IFilterFormProps> = () => {
   const handleSubmit = async (values: IFilterModel) => {
     try {
       const originalId = values.id;
-      const result = !filter.id ? await addFilter(values) : await updateFilter(values);
+      const result = !values.id ? await addFilter(values) : await updateFilter(values);
       setFilter(result);
 
       toast.success(`${result.name} has successfully been saved.`);
@@ -69,25 +70,6 @@ export const FilterForm: React.FC<IFilterFormProps> = () => {
 
   return (
     <styled.FilterForm>
-      <Row justifyContent="space-between" className="form-inputs-header">
-        <IconButton
-          iconType="back"
-          label="Back to filters"
-          className="back-button"
-          onClick={() => navigate('/admin/filters')}
-        />
-        <Show visible={filter?.id > 0}>
-          <IconButton
-            iconType="plus"
-            label={`Add new filter`}
-            className="add-new-button"
-            onClick={() => {
-              setFilter({ ...defaultFilter, id: 0 }); // Do this to stop double fetch.
-              navigate(`/admin/filters/0`);
-            }}
-          />
-        </Show>
-      </Row>
       <FormikForm
         initialValues={filter}
         onSubmit={(values, { setSubmitting }) => {
@@ -95,85 +77,118 @@ export const FilterForm: React.FC<IFilterFormProps> = () => {
           setSubmitting(false);
         }}
       >
-        {({ isSubmitting, values, setFieldValue }) => (
-          <Tabs
-            tabs={
-              <>
-                <Tab
-                  label="Details"
-                  onClick={() => {
-                    setActive('details');
-                  }}
-                  active={active === 'details'}
-                />
-                <Tab
-                  label="Query"
-                  onClick={() => {
-                    setActive('query');
-                  }}
-                  active={active === 'query'}
-                />
-                <Tab
-                  label="Preview"
-                  onClick={() => {
-                    setActive('preview');
-                  }}
-                  active={active === 'preview'}
-                />
-                <Tab
-                  label="Import/Export"
-                  onClick={() => {
-                    setActive('importexport');
-                  }}
-                  active={active === 'importexport'}
-                />
-              </>
-            }
-          >
-            <div className="form-container">
-              <Show visible={active === 'details'}>
-                <FilterFormDetails />
-              </Show>
-              <Show visible={active === 'query'}>
-                <FilterFormQuery />
-              </Show>
-              <Show visible={active === 'preview'}>
-                <FilterFormPreview />
-              </Show>
-              <Show visible={active === 'importexport'}>
-                <FilterFormImportExport />
-              </Show>
-              <Row className="form-actions">
-                <Button type="submit" disabled={isSubmitting}>
-                  Save
-                </Button>
-                <Show visible={!!values.id}>
-                  <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
-                    Delete
-                  </Button>
-                </Show>
-              </Row>
-              <Modal
-                headerText="Confirm Removal"
-                body="Are you sure you wish to remove this filter?"
-                isShowing={isShowing}
-                hide={toggle}
-                type="delete"
-                confirmText="Yes, Remove It"
-                onConfirm={async () => {
-                  try {
-                    await deleteFilter(filter);
-                    toast.success(`${filter.name} has successfully been deleted.`);
-                    navigate('/admin/filters');
-                  } catch {
-                    // Globally handled
-                  } finally {
-                    toggle();
-                  }
-                }}
+        {({ isSubmitting, values }) => (
+          <>
+            <Row className="form-actions">
+              <IconButton
+                iconType="back"
+                label="Back to filters"
+                className="back-button"
+                onClick={() => navigate('/admin/filters')}
               />
-            </div>
-          </Tabs>
+              <Col flex="1"></Col>
+              <Button type="submit" disabled={isSubmitting}>
+                Save
+              </Button>
+              <Show visible={!!values.id}>
+                <Button
+                  variant={ButtonVariant.secondary}
+                  onClick={() =>
+                    handleSubmit({
+                      ...values,
+                      id: 0,
+                      name: `${values.name}-${new Date().getTime()}`,
+                      ownerId: userInfo?.id,
+                      version: 0,
+                    })
+                  }
+                >
+                  Copy
+                </Button>
+                <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
+                  Delete
+                </Button>
+              </Show>
+            </Row>
+            <Tabs
+              tabs={
+                <>
+                  <Tab
+                    label="Details"
+                    onClick={() => {
+                      setActive('details');
+                    }}
+                    active={active === 'details'}
+                  />
+                  <Tab
+                    label="Query"
+                    onClick={() => {
+                      setActive('query');
+                    }}
+                    active={active === 'query'}
+                  />
+                  <Tab
+                    label="Preview"
+                    onClick={() => {
+                      setActive('preview');
+                    }}
+                    active={active === 'preview'}
+                  />
+                  <Tab
+                    label="Import/Export"
+                    onClick={() => {
+                      setActive('importexport');
+                    }}
+                    active={active === 'importexport'}
+                  />
+                </>
+              }
+            >
+              <div className="form-container">
+                <Show visible={active === 'details'}>
+                  <FilterFormDetails />
+                </Show>
+                <Show visible={active === 'query'}>
+                  <FilterFormQuery />
+                </Show>
+                <Show visible={active === 'preview'}>
+                  <FilterFormPreview />
+                </Show>
+                <Show visible={active === 'importexport'}>
+                  <FilterFormImportExport />
+                </Show>
+                <Row className="form-actions">
+                  <Button type="submit" disabled={isSubmitting}>
+                    Save
+                  </Button>
+                  <Show visible={!!values.id}>
+                    <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
+                      Delete
+                    </Button>
+                  </Show>
+                </Row>
+                <Modal
+                  headerText="Confirm Removal"
+                  body="Are you sure you wish to remove this filter?"
+                  isShowing={isShowing}
+                  hide={toggle}
+                  type="delete"
+                  confirmText="Yes, Remove It"
+                  onConfirm={async () => {
+                    try {
+                      await deleteFilter(filter);
+                      toast.success(`${filter.name} has successfully been deleted.`);
+                      navigate('/admin/filters');
+                    } catch {
+                      // Globally handled
+                    } finally {
+                      toggle();
+                    }
+                  }}
+                />
+              </div>
+            </Tabs>
+          </>
         )}
       </FormikForm>
     </styled.FilterForm>

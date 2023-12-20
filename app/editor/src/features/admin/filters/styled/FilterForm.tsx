@@ -6,9 +6,9 @@ export const FilterForm = styled(FormPage)`
   flex-direction: column;
 
   .form-actions {
-    margin-top: 1rem;
+    margin: 0.5rem 0;
     gap: 0.5rem;
-    justify-content: center;
+    justify-content: flex-end;
   }
 
   .back-button {

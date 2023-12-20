@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { FaTrash } from 'react-icons/fa';
+import { FaArrowAltCircleRight, FaTrash } from 'react-icons/fa';
 import { useFilters, useFolders } from 'store/hooks/admin';
 import {
   Button,
@@ -228,19 +228,6 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
               </Show>
             </Col>
           </Col>
-          <Col flex="1">
-            <FormikSelect
-              name={`sections.${index}.settings.orderByField`}
-              label="Order by"
-              options={orderOptions}
-              value={orderOptions.find((o) => o.value === section.settings.orderByField) ?? ''}
-              onChange={(newValue) => {
-                const option = newValue as OptionItem;
-                const order = orderOptions.find((f) => f.value === option?.value);
-                if (order) setFieldValue(`sections.${index}.settings.orderByField`, order.value);
-              }}
-            />
-          </Col>
         </Row>
         <Show visible={[ReportSectionTypeName.Content].includes(section.settings.sectionType)}>
           <Col>
@@ -249,7 +236,7 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
             <p>
               To automatically populate this section with content select a filter and/or a folder.
             </p>
-            <Row>
+            <Row gap="1rem">
               <Col flex="1" className="description">
                 <FormikSelect
                   name={`sections.${index}.filterId`}
@@ -262,7 +249,17 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
                     const filter = filters.find((f) => f.id === option?.value);
                     if (filter) setFieldValue(`sections.${index}.filter`, filter);
                   }}
-                />
+                >
+                  <Button
+                    variant={ButtonVariant.secondary}
+                    disabled={!values.sections[index].filterId}
+                    onClick={() =>
+                      window.open(`/admin/filters/${values.sections[index].filterId}`, '_blank')
+                    }
+                  >
+                    <FaArrowAltCircleRight />
+                  </Button>
+                </FormikSelect>
                 {filter?.description && <p>{filter?.description}</p>}
               </Col>
               <Col flex="1" className="description">
@@ -277,14 +274,38 @@ export const ReportSection: React.FC<IReportSectionProps> = ({ className, index 
                     const folder = folders.find((f) => f.id === option?.value);
                     if (folder) setFieldValue(`sections.${index}.folder`, folder);
                   }}
-                />
+                >
+                  <Button
+                    variant={ButtonVariant.secondary}
+                    disabled={!values.sections[index].folderId}
+                    onClick={() =>
+                      window.open(`/admin/folders/${values.sections[index].folderId}`, '_blank')
+                    }
+                  >
+                    <FaArrowAltCircleRight />
+                  </Button>
+                </FormikSelect>
                 {folder?.description && <p>{folder?.description}</p>}
               </Col>
             </Row>
             <Row>
+              <Col flex="1">
+                <FormikSelect
+                  name={`sections.${index}.settings.orderByField`}
+                  label="Order By"
+                  options={orderOptions}
+                  value={orderOptions.find((o) => o.value === section.settings.orderByField) ?? ''}
+                  onChange={(newValue) => {
+                    const option = newValue as OptionItem;
+                    const order = orderOptions.find((f) => f.value === option?.value);
+                    if (order)
+                      setFieldValue(`sections.${index}.settings.orderByField`, order.value);
+                  }}
+                />
+              </Col>
               <Col flex="1" className="description">
                 <FormikSelect
-                  label="Group Section Content By"
+                  label="Group By"
                   name={`sections.${index}.settings.groupBy`}
                   tooltip="Select a content field to group by within the section"
                   options={groupByOptions}
