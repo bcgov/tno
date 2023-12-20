@@ -49,7 +49,7 @@ export const determineColumns = (
                 <div className="headline">{cell.original.headline}</div>
               </td>
             </tr>
-            {!hide?.includes('teaser') && (
+            {!hide?.includes('teaser') && cell.original.body !== '' && (
               <tr>
                 <td colSpan={2}>
                   <div className="teaser">{extractTeaser(cell.original.body)}</div>
