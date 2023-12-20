@@ -2,17 +2,18 @@ import { ContentStatusName, ContentTypeName } from '../constants';
 import { IFilterActionSettingsModel, ISortField } from '.';
 
 export interface IFilterSettingsModel {
-  actions?: IFilterActionSettingsModel[];
+  searchUnpublished: boolean;
+  from?: number;
+  size: number;
+  defaultSearchOperator?: 'and' | 'or';
   boldKeywords?: boolean;
   commentary?: boolean;
   contentIds?: number[];
   contentTypes?: ContentTypeName[];
   contributorIds?: number[];
   dateOffset?: number;
-  defaultSearchOperator?: 'and' | 'or';
   edition?: string;
   endDate?: string;
-  from?: number;
   hasTopic?: boolean;
   inByline?: boolean;
   inHeadline?: boolean;
@@ -24,16 +25,15 @@ export interface IFilterSettingsModel {
   ownerId?: number;
   page?: string;
   search?: string;
-  searchUnpublished: boolean;
   section?: string;
   sentiment?: number[];
   seriesIds?: number[];
-  size: number;
-  sort?: ISortField[];
+  actions?: IFilterActionSettingsModel[];
   sourceIds?: number[];
+  tags?: string[];
   startDate?: string;
   status?: ContentStatusName;
-  tags?: string[];
   topStory?: boolean;
   userId?: number;
+  sort?: ISortField[];
 }

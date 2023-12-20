@@ -2,7 +2,9 @@ import { IFilterSettingsModel } from '../../hooks';
 import { generateRangeForDateOffset } from './generateRangeForDateOffset';
 import { generateRangeForDates } from './generateRangeForDates';
 
-export const generatePublishedOnQuery = (settings: IFilterSettingsModel) => {
+export const generatePublishedOnQuery = (
+  settings: Omit<IFilterSettingsModel, 'size' | 'searchUnpublished'>,
+) => {
   if (settings.dateOffset !== undefined)
     return generateRangeForDateOffset('publishedOn', settings.dateOffset);
   if (settings.startDate && settings.endDate)

@@ -7,9 +7,10 @@ import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
-import { Button, ButtonVariant, Col, generateQuery, IFilterModel, Row } from 'tno-core';
+import { Button, ButtonVariant, Col, IFilterModel, Row } from 'tno-core';
 
 import { FilterSettingsForm } from './FilterSettingsForm';
+import { useElastic } from './hooks';
 
 /**
  * The page used to view and edit report filter.
@@ -17,6 +18,7 @@ import { FilterSettingsForm } from './FilterSettingsForm';
  */
 export const FilterFormQuery: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IFilterModel>();
+  const generateQuery = useElastic();
 
   const [filter, setFilter] = React.useState(JSON.stringify(values.query, null, 2));
 
