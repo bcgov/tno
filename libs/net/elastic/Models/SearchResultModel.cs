@@ -17,5 +17,10 @@ public class SearchResultModel<T>
 
     [JsonPropertyName("hits")]
     public HitsModel<T> Hits { get; set; } = new HitsModel<T>();
+
+    [JsonPropertyName("aggregations")]
+    // [JsonConverter(typeof(AggregationsModelConverter))]
+    public AggregationsModel? Aggregation { get; set; }
+
     #endregion
 }
