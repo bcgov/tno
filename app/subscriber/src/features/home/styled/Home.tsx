@@ -72,9 +72,56 @@ export const Home = styled.div`
       }
     }
   }
+
+  .tableHeadline {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .dateColumn {
+    width: 20%;
+  }
+
+  .headlineColumn {
+    width: 80%;
+  }
+
+  .td-date {
+    white-space: nowrap;
+  }
+
   .headline {
-    /* link color */
-    color: #3847aa;
+    color: ${(props) => props.theme.css.btnBkPrimary};
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+  }
+
+  .date {
+    color: ${(props) => props.theme.css.fPrimaryColor};
+    font-style: normal;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+    text-transform: uppercase;
+  }
+
+  .teaser {
+    background: ${(props) => props.theme.css.teaserBackgroundColor};
+    border-radius: 8px;
+    display: flex;
+    height: 46px;
+    padding: 7px 12px;
+    justify-content: space-between;
+    color: ${(props) => props.theme.css.fPrimaryColor};
+    leading-trim: both;
+    text-edge: cap;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 18px;
   }
 
   .show-media-label {

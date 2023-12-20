@@ -6,6 +6,24 @@ export const determineColumns = (
   windowWidth?: number,
   hide?: string[],
 ) => {
+  const formatDate = (date: string) => {
+    const d = new Date(date);
+    const day = d.toLocaleDateString('en-us', { day: '2-digit' });
+    const month = d.toLocaleDateString('en-us', { month: 'short' }).toUpperCase();
+    const year = d.toLocaleDateString('en-us', { year: 'numeric' });
+    return `${day}-${month}-${year}`;
+  };
+
+  const removeHtmlTags = (html: string | undefined) => {
+    if (html === undefined) return '';
+    return html.replace(/(<([^>]+)>)/gi, '');
+  };
+
+  const extractTeaser = (text: string | undefined) => {
+    if (text === undefined || text === '') return false;
+    const fullText = removeHtmlTags(text);
+    return `${fullText.substring(0, 220)} ...`;
+  };
   // columns common to all content
   const baseCols: ITableHookColumn<IContentModel>[] = [
     {
@@ -20,7 +38,27 @@ export const determineColumns = (
     {
       accessor: 'headline',
       label: 'HEADLINE',
-      cell: (cell) => <div className="headline">{cell.original.headline}</div>,
+      cell: (cell) => (
+        <table className="tableHeadline">
+          <tbody>
+            <tr>
+              <td className="dateColumn td-date">
+                <div className="date">{formatDate(cell.original.publishedOn)}</div>
+              </td>
+              <td className="headlineColumn">
+                <div className="headline">{cell.original.headline}</div>
+              </td>
+            </tr>
+            {!hide?.includes('teaser') && (
+              <tr>
+                <td colSpan={2}>
+                  <div className="teaser">{extractTeaser(cell.original.body)}</div>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      ),
       width: windowWidth && windowWidth > 1000 ? 4 : 0.85,
     },
   ];
