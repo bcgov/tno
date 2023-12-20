@@ -12,6 +12,7 @@ import {
   FormikDatePicker,
   FormikText,
   FormikTextArea,
+  generateMustNotQuery,
   generateQuery,
   IFilterActionSettingsModel,
   IFilterModel,
@@ -25,7 +26,7 @@ import {
 import { contentTypeOptions } from './constants';
 
 /**
- * The page used to view and edit filters.
+ * Provides a form to configure a filter.
  * @returns Component.
  */
 export const FilterFormDetails: React.FC = () => {
@@ -62,7 +63,11 @@ export const FilterFormDetails: React.FC = () => {
       } else if (key === 'startDate' || key === 'endDate') {
         settings = { ...settings, dateOffset: undefined };
       }
-      const query = generateQuery(settings, values.query);
+      var query = generateQuery(settings, values.query);
+      if (!settings.mediaTypeIds?.includes(11)) {
+        // Do not include front page images in results unless they are specifically requested.
+        query = generateMustNotQuery({ mediaTypeIds: [11] }, query);
+      }
       setFieldValue('settings', settings);
       setFieldValue('query', query);
       setFilter(JSON.stringify(query, null, 2));

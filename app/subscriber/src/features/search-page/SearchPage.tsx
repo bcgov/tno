@@ -4,6 +4,7 @@ import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';
 import { AdvancedSearch } from 'components/sidebar/advanced-search';
 import { ContentListActionBar } from 'components/tool-bar';
+import { useElastic } from 'features/my-searches/hooks';
 import { determinePreview } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
@@ -12,7 +13,7 @@ import { FaBookmark } from 'react-icons/fa6';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
-import { Checkbox, Col, generateQuery, IContentModel, Loading, Row, Show } from 'tno-core';
+import { Checkbox, Col, IContentModel, Loading, Row, Show } from 'tno-core';
 
 import { MySearchesSection } from './MySearchesSection';
 import { Player } from './player/Player';
@@ -30,6 +31,7 @@ export const SearchPage: React.FC = () => {
   const navigate = useNavigate();
   const [{ actions }] = useLookup();
   const [searchParams] = useSearchParams();
+  const genQuery = useElastic();
 
   const [content, setContent] = React.useState<IContentModel[]>([]);
   const [activeContent, setActiveContent] = React.useState<IContentModel | null>(null);
@@ -74,10 +76,10 @@ export const SearchPage: React.FC = () => {
   );
 
   const fetchResults = React.useCallback(
-    async (filter: MsearchMultisearchBody) => {
+    async (filter: MsearchMultisearchBody, searchUnpublished: boolean) => {
       try {
         setIsLoading(true);
-        const res: any = await findContentWithElasticsearch(filter, false, 'search');
+        const res: any = await findContentWithElasticsearch(filter, searchUnpublished, 'search');
         setContent(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
         if (res.hits.total.value >= 500)
           toast.warn(
@@ -93,7 +95,8 @@ export const SearchPage: React.FC = () => {
 
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
-    !!window.location.search && fetchResults(generateQuery(filterFormat(filter, actions)));
+    const query = genQuery(filterFormat(filter, actions));
+    !!window.location.search && fetchResults(query, filter.searchUnpublished);
     // only run when query  and is present
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [window.location.search]);

@@ -14,8 +14,8 @@ import * as styled from './styled';
 export interface IFilterFormProps {}
 
 /**
- * Provides a page to admin a list of filters and filter templates.
- * @returns Component to admin filters and filter templates.
+ * Provides a page to configure a filter.
+ * @returns Component
  */
 const FilterForm: React.FC<IFilterFormProps> = () => {
   const navigate = useNavigate();

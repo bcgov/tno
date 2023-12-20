@@ -1,4 +1,5 @@
 import { PageSection } from 'components/section';
+import { useElastic } from 'features/my-searches/hooks';
 import { filterFormat } from 'features/search-page/utils';
 import { handleEnterPressed } from 'features/utils';
 import React from 'react';
@@ -10,17 +11,7 @@ import { useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
-import {
-  Button,
-  Col,
-  generateQuery,
-  IFilterModel,
-  Row,
-  Show,
-  Text,
-  TextArea,
-  toQueryString,
-} from 'tno-core';
+import { Button, Col, IFilterModel, Row, Show, Text, TextArea, toQueryString } from 'tno-core';
 
 import {
   ContentSection,
@@ -60,6 +51,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
     },
     { storeSearchFilter: storeFilter },
   ] = useContent();
+  const genQuery = useElastic();
 
   const filterId = React.useMemo(() => Number(searchParams.get('modify')), [searchParams]);
   const [searchName, setSearchName] = React.useState<string>('');
@@ -69,10 +61,12 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
     React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);
 
   const saveSearch = React.useCallback(async () => {
+    const settings = filterFormat(filter, actions);
+    const query = genQuery(settings);
     await addFilter({
       name: searchName,
-      query: generateQuery(filterFormat(filter, actions)),
-      settings: { ...filterFormat(filter, actions) },
+      query,
+      settings,
       id: 0,
       sortOrder: 0,
       description: '',
@@ -82,25 +76,24 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
     })
       .then((data) => toast.success(`${data.name} has successfully been saved.`))
       .catch();
-  }, [filter, searchName, addFilter, actions]);
+  }, [genQuery, filter, actions, addFilter, searchName]);
 
   const updateSearch = React.useCallback(async () => {
+    const settings = filterFormat(filter, actions);
+    const query = genQuery(settings);
     viewedFilter &&
       (await updateFilter({
         ...viewedFilter,
-        query: generateQuery(filterFormat(filter, actions)),
-        settings: { ...filterFormat(filter, actions) },
+        query,
+        settings,
       })
         .then((data) => toast.success(`${data.name} has successfully been updated.`))
         .catch());
-  }, [filter, viewedFilter, updateFilter, actions]);
+  }, [genQuery, filter, actions, viewedFilter, updateFilter]);
 
   const handleSearch = async () => {
-    navigate(
-      `/search?${toQueryString(
-        filterFormat(filter, actions),
-      )}&name=${searchName}&modify=${filterId}`,
-    );
+    const settings = filterFormat(filter, actions);
+    navigate(`/search?${toQueryString(settings)}&name=${searchName}&modify=${filterId}`);
   };
 
   /** get viewed filter if in modify mode */

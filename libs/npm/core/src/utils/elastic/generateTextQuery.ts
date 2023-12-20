@@ -1,7 +1,9 @@
 import { IFilterSettingsModel } from '../../hooks';
 import { generateSimpleQueryString } from './generateSimpleQueryString';
 
-export const generateTextQuery = (settings: IFilterSettingsModel) => {
+export const generateTextQuery = (
+  settings: Omit<IFilterSettingsModel, 'size' | 'searchUnpublished'>,
+) => {
   if (!settings.search) return undefined;
   if (!!settings.inHeadline && !!settings.inByline && !!settings.inStory) {
     // give an arbitrary weight to the headline, so if it's found there
