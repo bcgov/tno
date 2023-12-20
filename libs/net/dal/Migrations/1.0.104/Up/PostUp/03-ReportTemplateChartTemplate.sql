@@ -8,7 +8,7 @@ INSERT INTO public."report_template_chart_template" (
   "updated_by")
 	VALUES (
     (select id from public."report_template" where "name"  = 'Event of the Day') -- report_template_id
-    ,(select id from public."chart_template" where "name"  = 'Count') -- chart_template_id
+    ,(select id from public."chart_template" where "name"  = 'Topic Analysis') -- chart_template_id
     , '' -- created_by
     , '' -- updated_by
   );
