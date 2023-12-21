@@ -74,14 +74,16 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           <FormikContentWysiwyg
             className="modal-quill"
             label={
-              contentType === ContentTypeName.PrintContent || contentType === ContentTypeName.Story
+              contentType === ContentTypeName.PrintContent ||
+              contentType === ContentTypeName.Internet
                 ? 'Story'
                 : 'Summary'
             }
             required={summaryRequired}
             height={height}
             name={
-              contentType === ContentTypeName.PrintContent || contentType === ContentTypeName.Story
+              contentType === ContentTypeName.PrintContent ||
+              contentType === ContentTypeName.Internet
                 ? 'body'
                 : 'summary'
             }

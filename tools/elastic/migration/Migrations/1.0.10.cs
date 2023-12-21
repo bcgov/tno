@@ -5,19 +5,19 @@ using TNO.DAL.Services;
 namespace TNO.Elastic.Migration;
 
 /// <summary>
-/// Migration_109 class, provides a way to migration elastic to version 1.0.9.
+/// Migration_1010 class, provides a way to migration elastic to version 1.0.10.
 /// </summary>
-[Migration("1.0.9")]
-public class Migration_109 : TNOMigration
+[Migration("1.0.10")]
+public class Migration_1010 : TNOMigration
 {
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a Migration_109 object, initializes with specified parameters.
+    /// Creates a new instance of a Migration_1010 object, initializes with specified parameters.
     /// </summary>
     /// <param name="builder"></param>
     /// <param name="contentService"></param>
     /// <param name="serializerOptions"></param>
-    public Migration_109(MigrationBuilder builder, IContentService contentService, IOptions<JsonSerializerOptions> serializerOptions) : base(builder, contentService, serializerOptions)
+    public Migration_1010(MigrationBuilder builder, IContentService contentService, IOptions<JsonSerializerOptions> serializerOptions) : base(builder, contentService, serializerOptions)
     {
     }
     #endregion

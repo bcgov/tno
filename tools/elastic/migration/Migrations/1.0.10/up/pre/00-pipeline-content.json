@@ -1,0 +1,19 @@
+{
+  "action": "createPipeline",
+  "settings": {
+    "pipelineName": "content"
+  },
+  "data": {
+    "description": "Convert contentType='Story' to contentType='Internet'",
+    "processors": [
+      {
+        "set": {
+          "description": "Story -> Internet",
+          "if": "ctx?.contentType == 'Story'",
+          "field": "contentType",
+          "value": "Internet"
+        }
+      }
+    ]
+  }
+}

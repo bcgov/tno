@@ -146,7 +146,6 @@ renew: ## Refresh all relevant services that were impacted by prior Pull Request
 	@make db-update
 	@make elastic-update
 	@make refresh n=indexing
-	@make refresh n=content
 
 ##############################################################################
 # Database Commands

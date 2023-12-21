@@ -10,9 +10,11 @@ export const TagSection: React.FC = () => {
     { storeSearchFilter: storeFilter },
   ] = useContent();
   const [{ tags }] = useLookupOptions();
+
   const tagOptions = tags.map((t) => {
-    return { value: t.code, label: t.name };
+    return { value: t.code, label: `${t.name} [${t.code}]` };
   });
+
   return (
     <Row justifyContent="center">
       <Select

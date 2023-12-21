@@ -23,7 +23,7 @@ export const getContentPath = (
       return `/papers/${id}${window.location.search}`;
     case ContentTypeName.Image:
       return `/images/${id}${window.location.search}`;
-    case ContentTypeName.Story:
+    case ContentTypeName.Internet:
       return `/stories/${id}${window.location.search}`;
     default:
       return '';
