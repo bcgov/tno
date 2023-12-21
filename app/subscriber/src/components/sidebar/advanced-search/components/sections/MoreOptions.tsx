@@ -20,6 +20,7 @@ export const MoreOptions: React.FC = () => {
       <Col>
         <Checkbox
           label="featured on the MMI home page"
+          name="featured"
           checked={!filter.searchUnpublished}
           onChange={(e) => {
             storeFilter({
@@ -30,6 +31,7 @@ export const MoreOptions: React.FC = () => {
         />
         <Checkbox
           label="are marked as top stories"
+          name="topStory"
           checked={Boolean(filter.topStory)}
           onChange={(e) => {
             storeFilter({ ...filter, topStory: e.target.checked });
@@ -37,6 +39,7 @@ export const MoreOptions: React.FC = () => {
         />
         <Checkbox
           label="are marked as a front page"
+          name="frontPage"
           checked={filter.mediaTypeIds?.includes(Number(frontPageId))}
           onChange={(e) =>
             storeFilter({
@@ -49,6 +52,7 @@ export const MoreOptions: React.FC = () => {
         />
         <Checkbox
           label={'bold keywords on search page'}
+          name="boldKeywords"
           checked={Boolean(filter.boldKeywords)}
           onChange={(e) => storeFilter({ ...filter, boldKeywords: e.target.checked })}
         />
