@@ -17,7 +17,7 @@ export const hideEmptySections = (report: IReportForm, checked: boolean) => {
       settings: {
         ...section.settings,
         hideEmpty:
-          section.settings.sectionType === ReportSectionTypeName.Summary ||
+          section.settings.sectionType === ReportSectionTypeName.Text ||
           section.settings.sectionType === ReportSectionTypeName.TableOfContents
             ? false
             : checked,

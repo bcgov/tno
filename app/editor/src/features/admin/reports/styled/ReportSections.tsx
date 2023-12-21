@@ -6,12 +6,25 @@ export const ReportSections = styled.div`
     border-radius: 0.5rem;
     margin: 0.5rem 0 0 0;
 
-    > label {
+    > div:first-child {
       border-top-left-radius: 0.5rem;
       border-top-right-radius: 0.5rem;
       padding: 0.5rem;
       background-color: ${(props) => props.theme.css.primaryLightColor};
-      color: ${(props) => props.theme.css.backgroundColor};
+      align-items: center;
+
+      label {
+        padding-left: 1rem;
+        color: ${(props) => props.theme.css.backgroundColor};
+      }
+
+      svg {
+        color: ${(props) => props.theme.css.backgroundColor};
+      }
+
+      button {
+        background: ${(props) => props.theme.css.backgroundColor};
+      }
     }
 
     > div {
@@ -21,12 +34,15 @@ export const ReportSections = styled.div`
 
   .section-table {
     display: grid;
-    grid-template-columns: 0.25fr 2fr 4fr 2fr 0.25fr;
+    grid-template-columns: 6.25fr 0.5fr 0.25fr;
     row-gap: 0.25rem;
     width: 100%;
 
     .st-1 {
       grid-column-start: 1;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
     }
 
     .st-2 {
@@ -38,20 +54,6 @@ export const ReportSections = styled.div`
 
     .st-3 {
       grid-column-start: 3;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-
-    .st-4 {
-      grid-column-start: 4;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-
-    .st-5 {
-      grid-column-start: 5;
       display: flex;
       flex-direction: row;
       justify-content: flex-end;
@@ -83,44 +85,33 @@ export const ReportSections = styled.div`
           border-bottom-left-radius: 0.25rem;
         }
 
-        &:nth-child(4) {
+        &:nth-child(2) {
           border-top-right-radius: 0.25rem;
           border-bottom-right-radius: 0.25rem;
         }
       }
 
       &:nth-child(even) > div:nth-child(1),
-      &:nth-child(even) > div:nth-child(2),
-      &:nth-child(even) > div:nth-child(3),
-      &:nth-child(even) > div:nth-child(4) {
+      &:nth-child(even) > div:nth-child(2) {
         background-color: ${(props) => props.theme.css.tableEvenRowColor};
         border-top: solid 1px ${(props) => props.theme.css.tableEvenRowColor};
         border-bottom: solid 1px ${(props) => props.theme.css.tableEvenRowColor};
       }
 
       &:nth-child(odd) > div:nth-child(1),
-      &:nth-child(odd) > div:nth-child(2),
-      &:nth-child(odd) > div:nth-child(3),
-      &:nth-child(odd) > div:nth-child(4) {
+      &:nth-child(odd) > div:nth-child(2) {
         background-color: ${(props) => props.theme.css.tableOddRowColor};
         border-top: solid 1px ${(props) => props.theme.css.tableEvenRowColor};
         border-bottom: solid 1px ${(props) => props.theme.css.tableEvenRowColor};
       }
 
       &:hover > div:nth-child(1),
-      &:hover > div:nth-child(2),
-      &:hover > div:nth-child(3),
-      &:hover > div:nth-child(4) {
+      &:hover > div:nth-child(2) {
         background-color: ${(props) => props.theme.css.lightAccentColor};
-      }
-      &:hover > div:nth-child(4) {
-        background-color: none;
       }
 
       &.active > div:nth-child(1),
-      &.active > div:nth-child(2),
-      &.active > div:nth-child(3),
-      &.active > div:nth-child(4) {
+      &.active > div:nth-child(2) {
         background-color: ${(props) => props.theme.css.activeColor};
         color: #fff;
 

@@ -23,7 +23,7 @@ import { ReportFormSchema } from '../admin/validation/ReportFormSchema';
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
 import { toForm } from '../utils';
-import { ReportEditForm } from './ReportEditForm';
+import { ReportEditForm } from './components';
 import * as styled from './styled';
 
 export const ReportEdit: React.FC = () => {

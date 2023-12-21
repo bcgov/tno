@@ -11,7 +11,8 @@ export const getHideEmpty = (sections: IReportSectionModel[]) => {
     (section) =>
       !section.settings.hideEmpty &&
       (section.settings.sectionType === ReportSectionTypeName.Content ||
-        (section.settings.sectionType === ReportSectionTypeName.Summary &&
+        section.settings.sectionType === ReportSectionTypeName.Gallery ||
+        (section.settings.sectionType === ReportSectionTypeName.MediaAnalytics &&
           (!!section.filterId || !!section.folderId))),
   );
   return hideEmpty;

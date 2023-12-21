@@ -13,7 +13,17 @@ export enum ReportSectionTypeName {
   TableOfContents = 'TableOfContents',
 
   /// <summary>
-  /// This section displays a summary of the sections above it.
+  /// This section displays text only.
   /// </summary>
-  Summary = 'Summary',
+  Text = 'Text',
+
+  /// <summary>
+  /// This section displays charts.
+  /// </summary>
+  MediaAnalytics = 'MediaAnalytics',
+
+  /// <summary>
+  /// This section displays content in a gallery (i.e. front page images).
+  /// </summary>
+  Gallery = 'Gallery',
 }

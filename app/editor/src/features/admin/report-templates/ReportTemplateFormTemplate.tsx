@@ -7,6 +7,9 @@ import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
+import { toast } from 'react-toastify';
+import { useLookup } from 'store/hooks';
+import { useReportTemplates } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -17,13 +20,12 @@ import {
   IReportTemplateModel,
   ReportTypeName,
   Row,
+  Settings,
 } from 'tno-core';
 
 import {
   defaultAVOverviewBodyRazorTemplate,
   defaultAVOverviewSubjectRazorTemplate,
-  defaultContentBodyRazorTemplate,
-  defaultContentSubjectRazorTemplate,
 } from './constants';
 
 /**
@@ -32,6 +34,31 @@ import {
  */
 export const ReportTemplateFormTemplate: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IReportTemplateModel>();
+  const [{ isReady, settings }] = useLookup();
+  const [, { getReportTemplate }] = useReportTemplates();
+
+  const [defaultReportTemplateId, setDefaultReportTemplateId] = React.useState(0);
+  const [defaultReportTemplate, setDefaultReportTemplate] = React.useState<IReportTemplateModel>();
+
+  React.useEffect(() => {
+    if (isReady) {
+      const defaultReportTemplateId = settings.find(
+        (s) => s.name === Settings.DefaultReportTemplate,
+      )?.value;
+      if (defaultReportTemplateId) setDefaultReportTemplateId(+defaultReportTemplateId);
+      else toast.error(`Configuration settings '${Settings.DefaultReportTemplate}' is required.`);
+    }
+  }, [isReady, settings]);
+
+  const getTemplate = React.useCallback(async () => {
+    if (!defaultReportTemplate) {
+      const template = await getReportTemplate(defaultReportTemplateId);
+      setDefaultReportTemplate(template);
+      return template;
+    } else {
+      return defaultReportTemplate;
+    }
+  }, [defaultReportTemplate, defaultReportTemplateId, getReportTemplate]);
 
   const reportTypeOptions = getEnumStringOptions(ReportTypeName);
 
@@ -55,19 +82,24 @@ export const ReportTemplateFormTemplate: React.FC = () => {
         <Col flex="1"></Col>
         <Button
           variant={ButtonVariant.secondary}
-          onClick={() => {
-            setFieldValue(
-              'subject',
-              values.reportType === ReportTypeName.Content
-                ? defaultContentSubjectRazorTemplate
-                : defaultAVOverviewSubjectRazorTemplate,
-            );
-            setFieldValue(
-              'body',
-              values.reportType === ReportTypeName.Content
-                ? defaultContentBodyRazorTemplate
-                : defaultAVOverviewBodyRazorTemplate,
-            );
+          onClick={async () => {
+            try {
+              const template = await getTemplate();
+              setFieldValue(
+                'subject',
+                values.reportType === ReportTypeName.Content
+                  ? template.subject
+                  : defaultAVOverviewSubjectRazorTemplate,
+              );
+              setFieldValue(
+                'body',
+                values.reportType === ReportTypeName.Content
+                  ? template.body
+                  : defaultAVOverviewBodyRazorTemplate,
+              );
+            } catch {
+              toast.error('Failed to fetch default report template');
+            }
           }}
         >
           Use Default Template

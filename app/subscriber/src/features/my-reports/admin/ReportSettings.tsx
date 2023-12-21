@@ -17,7 +17,7 @@ import {
 
 import { IReportForm } from '../interfaces';
 import { hideEmptySections } from '../utils';
-import { ReportSchedule } from './old/components';
+import { ReportSchedule } from './components';
 
 export const ReportSettings: React.FC = () => {
   const { setFieldValue, values, setValues } = useFormikContext<IReportForm>();
