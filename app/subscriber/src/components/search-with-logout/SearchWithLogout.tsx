@@ -1,6 +1,5 @@
 import { UserProfile } from 'components/user-profile';
 import React from 'react';
-import { Col } from 'tno-core';
 
 import * as styled from './styled';
 

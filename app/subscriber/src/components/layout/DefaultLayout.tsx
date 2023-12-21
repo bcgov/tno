@@ -1,6 +1,5 @@
 import { Navbar } from 'components/navbar';
 import { SearchWithLogout } from 'components/search-with-logout';
-import { CustomSidebar } from 'components/sidebar/CustomSidebar';
 import { UnauthenticatedHome, UserInfo } from 'features/login';
 import React from 'react';
 import { useProSidebar } from 'react-pro-sidebar';

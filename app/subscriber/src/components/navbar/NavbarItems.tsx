@@ -14,7 +14,6 @@ import {
   FaUsers,
   FaUserTie,
 } from 'react-icons/fa';
-import { FaUser } from 'react-icons/fa6';
 
 export interface INavbarOptions {
   [key: string]: {
@@ -26,14 +25,6 @@ export interface INavbarOptions {
     secondaryIconRoute?: string;
   };
 }
-
-// the groups object is used to group navbar options
-const groups = {
-  myContent: {
-    groupName: 'MY CONTENT',
-    groupIcon: <FaUser />,
-  },
-};
 
 export const NavbarOptions: INavbarOptions = {
   home: {
