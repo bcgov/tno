@@ -1,5 +1,4 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
-import { SearchWithLogout } from 'components/search-with-logout';
 import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';
 import { AdvancedSearch } from 'components/sidebar/advanced-search';
@@ -103,7 +102,6 @@ export const SearchPage: React.FC = () => {
 
   return (
     <styled.SearchPage>
-      <SearchWithLogout />
       <Row className="search-container">
         {/* LEFT SIDE */}
         <Col className="adv-search-container">

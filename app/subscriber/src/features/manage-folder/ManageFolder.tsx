@@ -1,4 +1,3 @@
-import { SearchWithLogout } from 'components/search-with-logout';
 import { Sentiment } from 'components/sentiment';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult, determinePreview } from 'features/utils';
@@ -119,7 +118,6 @@ export const ManageFolder: React.FC = () => {
   return (
     <styled.ManageFolder>
       {/* TODO: have logout appear from higher component so we dont have to apply it everywhere */}
-      <SearchWithLogout />
       <div className="main-manage">
         <Row className="header">
           <FaArrowLeft className="back-arrow" onClick={() => navigate(-1)} />
