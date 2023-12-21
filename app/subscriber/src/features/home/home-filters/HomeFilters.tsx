@@ -40,12 +40,12 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
         updatedFilter.mediaTypeIds = mediaTypes.filter((p) => p.name !== 'Events').map((p) => p.id);
         break;
       case HomeFilterType.Internet:
-        updatedFilter.contentTypes = [ContentTypeName.Story];
+        updatedFilter.contentTypes = [ContentTypeName.Internet];
         updatedFilter.sourceIds = sources.filter((s) => s.code !== 'CPNEWS').map((s) => s.id);
         updatedFilter.mediaTypeIds = mediaTypes.filter((p) => p.name !== 'Events').map((p) => p.id);
         break;
       case HomeFilterType.CPNews:
-        updatedFilter.contentTypes = [ContentTypeName.Story];
+        updatedFilter.contentTypes = [ContentTypeName.Internet];
         updatedFilter.sourceIds = [sources.find((s) => s.code === 'CPNEWS')?.id ?? 0];
         break;
       case HomeFilterType.Events:
@@ -78,7 +78,7 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
           case ContentTypeName.AudioVideo:
             setActive(HomeFilterType.RadioTV);
             break;
-          case ContentTypeName.Story:
+          case ContentTypeName.Internet:
             if (filter.sourceIds?.length === 1) {
               setActive(HomeFilterType.CPNews);
               break;

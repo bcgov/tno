@@ -10,7 +10,7 @@ export const determinePreview = (item: IContentModel) => {
       return trimWords(item.body ?? '', 50);
     case ContentTypeName.Image:
       return trimWords(item.summary, 50);
-    case ContentTypeName.Story:
+    case ContentTypeName.Internet:
       return trimWords(item.body ?? '', 50);
     default:
       return '';

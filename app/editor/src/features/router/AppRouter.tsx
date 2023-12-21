@@ -103,7 +103,7 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
             element={
               <PrivateRoute
                 claims={Claim.editor}
-                element={<ContentForm contentType={ContentTypeName.Story} />}
+                element={<ContentForm contentType={ContentTypeName.Internet} />}
               ></PrivateRoute>
             }
           />

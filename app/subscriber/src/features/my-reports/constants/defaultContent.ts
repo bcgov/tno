@@ -3,7 +3,7 @@ import { ContentStatusName, ContentTypeName, IContentModel } from 'tno-core';
 export const defaultContent: IContentModel = {
   id: 0,
   status: ContentStatusName.Published,
-  contentType: ContentTypeName.Story,
+  contentType: ContentTypeName.Internet,
   uid: '',
   sourceUrl: '',
   licenseId: 0,

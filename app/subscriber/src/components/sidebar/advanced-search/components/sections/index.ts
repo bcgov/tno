@@ -1,4 +1,4 @@
-export * from './ContentSection';
+export * from './ContentTypeSection';
 export * from './ContributorSection';
 export * from './DateSection';
 export * from './MediaSection';

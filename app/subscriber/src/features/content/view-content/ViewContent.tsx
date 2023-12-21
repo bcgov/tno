@@ -224,7 +224,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
           <Show
             visible={
               content?.contentType === ContentTypeName.PrintContent ||
-              content?.contentType === ContentTypeName.Story
+              content?.contentType === ContentTypeName.Internet
             }
           >
             <div>{parse(content?.body?.replace(/\n+/g, '<br><br>') ?? '')}</div>

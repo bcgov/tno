@@ -1,0 +1,7 @@
+{
+  "action": "updateAlias",
+  "settings": {
+    "indexName": "content_v1.0.10",
+    "aliasName": "content"
+  }
+}

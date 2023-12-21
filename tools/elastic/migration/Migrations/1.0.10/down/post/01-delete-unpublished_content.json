@@ -1,0 +1,6 @@
+{
+  "action": "deleteIndex",
+  "settings": {
+    "indexName": "unpublished_content_v1.0.10"
+  }
+}

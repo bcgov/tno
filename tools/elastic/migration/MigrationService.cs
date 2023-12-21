@@ -129,8 +129,6 @@ public class MigrationService
         await CreateMigrationIndexAsync(cancellationToken);
         var response = await _elasticClient.SearchAsync<MigrationVersion>(sd => sd
             .Index(_options.MigrationIndex)
-            .Size(1)
-            .Sort(ss => ss.Descending(p => p.Version))
             , cancellationToken);
 
         if (!response.IsValid)
@@ -139,7 +137,22 @@ public class MigrationService
             throw response.OriginalException;
         }
 
-        return response.Documents.FirstOrDefault()?.Version ?? "";
+        return response.Documents.OrderByDescending(ss => GenerateVersionKey(ss.Version)).FirstOrDefault()?.Version ?? "";
+    }
+
+    /// <summary>
+    /// Generate a number that can be used to sort the migration versions.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    private long GenerateVersionKey(string value)
+    {
+        var values = value.Split(".");
+        var major = values.Length > 0 ? $"{"000"[values[0].Length..]}{values[0]}" : "000";
+        var minor = values.Length > 1 ? $"{"000"[values[1].Length..]}{values[1]}" : "000";
+        var patch = values.Length > 2 ? $"{"000"[values[2].Length..]}{values[2]}" : "000";
+
+        return long.Parse($"{major}{minor}{patch}");
     }
 
     /// <summary>
@@ -152,7 +165,7 @@ public class MigrationService
     private async Task<Type[]> GetMigrationVersionsAsync(CancellationToken cancellationToken)
     {
         var currentVersion = await GetCurrentMigrationVersionAsync(cancellationToken);
-        var types = Assembly.GetExecutingAssembly().GetMigrationTypes().OrderBy(t => t.Name).ToArray();
+        var types = Assembly.GetExecutingAssembly().GetMigrationTypes().OrderBy(t => GenerateVersionKey(t.GetCustomAttribute<MigrationAttribute>()?.Id ?? "")).ToArray();
         var currentIndex = Array.FindIndex(types, 0, types.Length, t => t.GetCustomAttribute<MigrationAttribute>()?.Id == currentVersion);
         var requestedIndex = Array.FindIndex(types, 0, types.Length, t => t.GetCustomAttribute<MigrationAttribute>()?.Id == _options.MigrationVersion);
 

@@ -13,7 +13,7 @@ export const DetermineContentIcon: React.FC<IDetermineContentIconProps> = ({ con
     switch (contentType) {
       case ContentTypeName.PrintContent:
         return <FaNewspaper />;
-      case ContentTypeName.Story:
+      case ContentTypeName.Internet:
         return <FaTv />;
       case ContentTypeName.AudioVideo:
         return <FaPlayCircle />;
