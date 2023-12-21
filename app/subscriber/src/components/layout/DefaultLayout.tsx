@@ -1,3 +1,5 @@
+import { Navbar } from 'components/navbar';
+import { SearchWithLogout } from 'components/search-with-logout';
 import { CustomSidebar } from 'components/sidebar/CustomSidebar';
 import { UnauthenticatedHome, UserInfo } from 'features/login';
 import React from 'react';
@@ -83,25 +85,22 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
         <Show visible={keycloak.hasClaim()}>
           <div className="grid-container">
             <div className="nav-bar">
-              <CustomSidebar />
+              <Navbar />
             </div>
-            <div className="main-contents">
-              <LayoutErrorBoundary>
-                <main>
-                  <Outlet />
-                </main>
-              </LayoutErrorBoundary>
-            </div>
-          </div>
-        </Show>
-        <Show visible={!keycloak.hasClaim()}>
-          <div className="main-contents">
+            <SearchWithLogout />
             <LayoutErrorBoundary>
               <main>
                 <Outlet />
               </main>
             </LayoutErrorBoundary>
           </div>
+        </Show>
+        <Show visible={!keycloak.hasClaim()}>
+          <LayoutErrorBoundary>
+            <main>
+              <Outlet />
+            </main>
+          </LayoutErrorBoundary>
         </Show>
       </Show>
       <Show visible={!keycloak.authenticated}>
