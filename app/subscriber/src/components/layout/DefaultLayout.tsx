@@ -1,4 +1,5 @@
 import { Navbar } from 'components/navbar';
+import { navbarOptions } from 'components/navbar/NavbarItems';
 import { SearchWithLogout } from 'components/search-with-logout';
 import { UnauthenticatedHome, UserInfo } from 'features/login';
 import React from 'react';
@@ -84,7 +85,7 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
         <Show visible={keycloak.hasClaim()}>
           <div className="grid-container">
             <div className="nav-bar">
-              <Navbar />
+              <Navbar options={navbarOptions} />
             </div>
             <SearchWithLogout />
             <LayoutErrorBoundary>

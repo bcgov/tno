@@ -3,7 +3,7 @@ import { Col } from 'tno-core';
 
 export const Navbar = styled(Col)<{ $expanded: boolean }>`
   height: 100dvh;
-  svg {
+  svg:not(.expand-control) {
     height: ${(props) => (props.$expanded ? '' : '1.5em')};
     width: ${(props) => (props.$expanded ? '' : '1.5em')};
   }

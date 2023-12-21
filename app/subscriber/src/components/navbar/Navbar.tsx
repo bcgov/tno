@@ -1,10 +1,11 @@
+import { InfoShield } from 'components/info';
 import _ from 'lodash';
 import React from 'react';
 import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { Row, Show } from 'tno-core';
 
-import { INavbarOptions, navbarOptions } from './NavbarItems';
+import { INavbarItem } from './constants/INavbarItem';
 import * as styled from './styled';
 import { determineGroupIcon } from './utils/determineGroupIcon';
 
@@ -14,7 +15,7 @@ export interface INavbarGroup {
 }
 
 export interface INavbarProps {
-  options?: INavbarOptions[];
+  options: INavbarItem[];
 }
 
 export const Navbar: React.FC<INavbarProps> = ({ options }) => {
@@ -22,8 +23,8 @@ export const Navbar: React.FC<INavbarProps> = ({ options }) => {
 
   const [expanded, setExpanded] = React.useState(true);
 
-  const grouplessOptions = navbarOptions?.filter((option) => !option.groupName);
-  const groupedOptions = navbarOptions?.filter((option) => !!option.groupName);
+  const grouplessOptions = options?.filter((option) => !option.groupName);
+  const groupedOptions = options?.filter((option) => !!option.groupName);
   const groupByName = _.groupBy(groupedOptions, 'groupName');
 
   return (
@@ -76,6 +77,7 @@ export const Navbar: React.FC<INavbarProps> = ({ options }) => {
         ) : (
           <FaAnglesRight className="expand-control" onClick={() => setExpanded(true)} />
         )}
+        <InfoShield />
       </>
     </styled.Navbar>
   );

@@ -22,7 +22,7 @@ export const Layout = styled.div<ILayoutProps>`
     grid-template-areas:
       'header header'
       'nav-bar content';
-    grid-auto-columns: max-content auto;
+    grid-auto-columns: max-content 8fr;
     grid-auto-rows: auto;
   }
 `;
