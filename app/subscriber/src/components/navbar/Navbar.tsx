@@ -18,13 +18,14 @@ export interface INavbarProps {
 }
 
 export const Navbar: React.FC<INavbarProps> = ({ options }) => {
-  const [expanded, setExpanded] = React.useState(true);
-  // groupless options will appear first, followed by grouped options
-  const grouplessOptions = navbarOptions?.filter((option) => !option.groupName);
-  const groupedOptions = navbarOptions?.filter((option) => !!option.groupName);
   const navigate = useNavigate();
 
-  const result = _.groupBy(groupedOptions, 'groupName');
+  const [expanded, setExpanded] = React.useState(true);
+
+  const grouplessOptions = navbarOptions?.filter((option) => !option.groupName);
+  const groupedOptions = navbarOptions?.filter((option) => !!option.groupName);
+  const groupByName = _.groupBy(groupedOptions, 'groupName');
+
   return (
     <styled.Navbar $expanded={expanded}>
       <>
@@ -37,15 +38,14 @@ export const Navbar: React.FC<INavbarProps> = ({ options }) => {
           );
         })}
 
-        {Object.keys(result).map((key) => {
-          console.log(key);
+        {Object.keys(groupByName).map((key) => {
           return (
             <span className="group-section">
               <div className="group-title">
                 {determineGroupIcon(key)}
                 <Show visible={expanded}>{key}</Show>
               </div>
-              {result[key].map((option, index) => {
+              {groupByName[key].map((option, index) => {
                 return (
                   <Row
                     className={`option ${key.replace(/\s+/g, '-').toLowerCase()}`}

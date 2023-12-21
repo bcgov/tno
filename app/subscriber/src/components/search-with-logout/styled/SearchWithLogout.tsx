@@ -18,7 +18,7 @@ export const SearchWithLogout = styled(Row)`
     padding-right: 0;
   }
   .logo-container {
-    width: 15%;
+    width: 15em;
     .mm-logo {
       width: 100%;
     }
