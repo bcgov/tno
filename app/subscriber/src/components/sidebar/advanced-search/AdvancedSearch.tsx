@@ -93,7 +93,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
 
   const handleSearch = async () => {
     const settings = filterFormat(filter, actions);
-    navigate(`/search?${toQueryString(settings)}&name=${searchName}&modify=${filterId}`);
+    navigate(`/search/advanced?${toQueryString(settings)}&name=${searchName}&modify=${filterId}`);
   };
 
   /** get viewed filter if in modify mode */

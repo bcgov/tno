@@ -55,6 +55,10 @@ export const SearchPage = styled.div`
     width: 55%;
   }
 
+  .result-container-full {
+    width: 98%;
+  }
+
   /** CONTAINED IN PAGE HEADER */
   .page-section-title {
     .title {
