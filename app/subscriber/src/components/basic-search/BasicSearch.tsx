@@ -52,7 +52,7 @@ export const BasicSearch: React.FC = () => {
         Search
         <FaPlay />
       </Button>
-      <p onClick={() => navigate('/search')}>GO ADVANCED</p>
+      <p onClick={() => navigate('/search/advanced')}>GO ADVANCED</p>
     </styled.BasicSearch>
   );
 };

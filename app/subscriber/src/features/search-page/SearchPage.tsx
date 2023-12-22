@@ -1,4 +1,5 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
+import { BasicSearch } from 'components/basic-search';
 import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';
 import { AdvancedSearch } from 'components/sidebar/advanced-search';
@@ -19,8 +20,12 @@ import { Player } from './player/Player';
 import * as styled from './styled';
 import { filterFormat } from './utils';
 
+export interface ISearchType {
+  showAdvanced?: boolean;
+}
+
 // Simple component to display users search results
-export const SearchPage: React.FC = () => {
+export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const [
     {
       search: { filter },
@@ -104,11 +109,16 @@ export const SearchPage: React.FC = () => {
     <styled.SearchPage>
       <Row className="search-container">
         {/* LEFT SIDE */}
-        <Col className="adv-search-container">
-          {!!viewing ? <MySearchesSection /> : <AdvancedSearch onSearchPage />}
-        </Col>
+        <Show visible={showAdvanced}>
+          <Col className="adv-search-container">
+            {!!viewing ? <MySearchesSection /> : <AdvancedSearch onSearchPage />}
+          </Col>
+        </Show>
         {/* RIGHT SIDE */}
-        <Col className="result-container">
+        <Col className={showAdvanced ? 'result-container' : 'result-container-full'}>
+          <Show visible={!showAdvanced}>
+            <BasicSearch />
+          </Show>
           <PageSection
             header={
               <>
