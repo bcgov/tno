@@ -1,6 +1,4 @@
-using System.Text.Json.Serialization;
-
-namespace TNO.Elastic.Models;
+namespace TNO.TemplateEngine.Models.Reports;
 
 public class AggregationBucketModel
 {

@@ -19,8 +19,8 @@ public class SearchResultModel<T>
     public HitsModel<T> Hits { get; set; } = new HitsModel<T>();
 
     [JsonPropertyName("aggregations")]
-    // [JsonConverter(typeof(AggregationsModelConverter))]
-    public AggregationsModel? Aggregation { get; set; }
+    [JsonConverter(typeof(TNO.Elastic.Models.Converters.AggregationsConverter))]
+    public Dictionary<string, AggregationRootModel>? Aggregations { get; set; }
 
     #endregion
 }

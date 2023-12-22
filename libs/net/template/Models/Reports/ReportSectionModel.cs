@@ -45,9 +45,9 @@ public class ReportSectionModel : RazorEngineTemplateBase
     public FolderModel? Folder { get; set; }
 
     /// <summary>
-    /// get/set - The aggregate for this section.
+    /// get/set - The aggregate(s) for this section.
     /// </summary>
-    public AggregateModel? Aggregation { get; set; }
+    public Dictionary<string, AggregationRootModel>? Aggregations { get; set; }
 
     /// <summary>
     /// get/set - The settings for the section.
@@ -117,7 +117,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
     /// </summary>
     /// <param name="model"></param>
     /// <param name="content"></param>
-    public ReportSectionModel(TNO.API.Areas.Services.Models.Report.ReportSectionModel model, IEnumerable<ContentModel>? content = null, AggregateModel? aggregation = null)
+    public ReportSectionModel(TNO.API.Areas.Services.Models.Report.ReportSectionModel model, IEnumerable<ContentModel>? content = null, Dictionary<string,AggregationRootModel>? aggregations = null)
     {
         this.Id = model.Id;
         this.Name = model.Name;
@@ -129,7 +129,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
         this.Filter = model.Filter != null ? new FilterModel(model.Filter) : null;
         this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartEngineContentModel(GenerateChartUid(this.Id, chart.Id), chart, content));
         this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
-        this.Aggregation = aggregation;
+        this.Aggregations = aggregations;
     }
     #endregion
 

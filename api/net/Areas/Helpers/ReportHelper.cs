@@ -213,19 +213,16 @@ public class ReportHelper : IReportHelper
             var sortOrder = 0;
             elasticResults.TryGetValue(section.Name, out SearchResultModel<Areas.Services.Models.Content.ContentModel>? sectionResult);
             var content = sectionResult?.Hits.Hits.Select(hit => new ContentModel(hit.Source, sortOrder++)).ToArray() ?? Array.Empty<ContentModel>();
-            AggregateModel aggregation = null;
-            if (sectionResult?.Aggregation != null) {
-                aggregation = new AggregateModel {
-                    DocCount = sectionResult.Aggregation.DocCount,
-                    OtherDocCount = sectionResult.Aggregation.OtherDocCount,
-                };
-                if (sectionResult.Aggregation.Buckets != null) {
-                    aggregation.Buckets = sectionResult.Aggregation.Buckets
-                        .Select(b => new { b.Key, b.Count })
-                        .ToDictionary(x => x.Key, x => x.Count);
+            Dictionary<string, TNO.TemplateEngine.Models.Reports.AggregationRootModel>? aggregations = null;
+            if (sectionResult?.Aggregations != null)
+            {
+                aggregations = new Dictionary<string, TNO.TemplateEngine.Models.Reports.AggregationRootModel>();
+                foreach (var aggregation in sectionResult.Aggregations)
+                {
+                    aggregations.Add(aggregation.Key, aggregation.Value.Convert());
                 }
             }
-            return new ReportSectionModel(section, content, aggregation);
+            return new ReportSectionModel(section, content, aggregations);
         });
 
         var result = await GenerateReportAsync(model, sections, viewOnWebOnly, isPreview);
