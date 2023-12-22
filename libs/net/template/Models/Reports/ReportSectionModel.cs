@@ -55,7 +55,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
     public ReportSectionSettingsModel Settings { get; set; } = new();
 
     /// <summary>
-    /// get/set - An array of report instances.
+    /// get/set - An array of Chart Templates.
     /// </summary>
     public IEnumerable<ChartEngineContentModel> ChartTemplates { get; set; } = Array.Empty<ChartEngineContentModel>();
 

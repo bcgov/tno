@@ -1,6 +1,7 @@
 namespace TNO.TemplateEngine;
 
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using TemplateEngine.Models;
 using TemplateEngine.Models.Reports;
 
@@ -311,6 +312,21 @@ public static class ReportExtensions
         var source = content.GetSource(context);
         var publishedOn = content.GetPublishedOn(context, utcOffset);
         return $"{(String.IsNullOrWhiteSpace(sentiment) ? "" : $"{sentiment} - ")}{link}{(String.IsNullOrWhiteSpace(source) ? "" : $" - {source}")}{(String.IsNullOrWhiteSpace(publishedOn) ? "" : $" - {publishedOn}")}";
+    }
+
+    /// <summary>
+    /// Creates a string which could be sued as a css class
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static string ToCssClass(this string value, string prefix = "") {
+        Regex rgxNonAlpha = new Regex("[^a-zA-Z ]");
+        Regex rgxMultiSpace = new Regex(@"\s+");
+        if (prefix.Length > 0) prefix = prefix + " ";
+        // remove all non alpha plus space
+        value = rgxNonAlpha.Replace($"{prefix}{value}", "");
+        // replace space(s) with hyphen
+        return rgxMultiSpace.Replace(value, "-");
     }
     #endregion
 }
