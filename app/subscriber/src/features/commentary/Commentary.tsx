@@ -1,3 +1,4 @@
+import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
@@ -55,20 +56,21 @@ export const Commentary: React.FC = () => {
 
   return (
     <styled.Commentary>
-      <div className="title">Commentary</div>
-      <div className="content">
-        {commentary?.map((x) => {
-          return (
-            <Row key={x.id} className="content-row">
-              <Sentiment value={x.tonePools?.length ? x.tonePools[0].value : 0} />
-              <DetermineContentIcon contentType={x.contentType} />
-              <div className="headline" onClick={() => navigateAndScroll(`/view/${x.id}`)}>
-                {x.headline}
-              </div>
-            </Row>
-          );
-        })}
-      </div>
+      <PageSection header="Commentary">
+        <div className="content">
+          {commentary?.map((x) => {
+            return (
+              <Row key={x.id} className="content-row">
+                <Sentiment value={x.tonePools?.length ? x.tonePools[0].value : 0} />
+                <DetermineContentIcon contentType={x.contentType} />
+                <div className="headline" onClick={() => navigateAndScroll(`/view/${x.id}`)}>
+                  {x.headline}
+                </div>
+              </Row>
+            );
+          })}
+        </div>
+      </PageSection>
     </styled.Commentary>
   );
 };
