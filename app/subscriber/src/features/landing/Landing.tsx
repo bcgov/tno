@@ -3,7 +3,6 @@ import {
   SidebarMenuItems,
   sidebarMenuItemsArray,
 } from 'components/layout/constants/SidebarMenuItems';
-import { SearchWithLogout } from 'components/search-with-logout';
 import { PageSection } from 'components/section';
 import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
@@ -47,7 +46,6 @@ export const Landing: React.FC = () => {
   return (
     <styled.Landing className="main-container">
       <Row>
-        <SearchWithLogout />
         <BasicSearch />
       </Row>
       <Row className="contents-container">

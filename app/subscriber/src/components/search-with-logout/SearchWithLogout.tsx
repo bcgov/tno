@@ -7,6 +7,13 @@ import * as styled from './styled';
 export const SearchWithLogout: React.FC = () => {
   return (
     <styled.SearchWithLogout className="search-with-logout">
+      <div className="logo-container">
+        <img
+          className="mm-logo"
+          src={process.env.PUBLIC_URL + '/assets/MMinsights_logo_black.svg'}
+          alt="MMinsights logo"
+        />
+      </div>
       <UserProfile />
     </styled.SearchWithLogout>
   );

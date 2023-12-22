@@ -5,16 +5,34 @@ import { handleEnterPressed } from 'features/utils';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
 import { FaPlay, FaRegSmile } from 'react-icons/fa';
-import { FaBookmark, FaCloudArrowUp, FaIcons, FaNewspaper, FaTv, FaUsers } from 'react-icons/fa6';
+import {
+  FaBookmark,
+  FaCloudArrowUp,
+  FaIcons,
+  FaNewspaper,
+  FaTag,
+  FaTv,
+  FaUsers,
+} from 'react-icons/fa6';
 import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useContent, useFilters, useLookup } from 'store/hooks';
-import { Button, Col, IFilterModel, Row, Show, Text, TextArea, toQueryString } from 'tno-core';
+import { useApp, useContent, useFilters, useLookup } from 'store/hooks';
+import {
+  Button,
+  Claim,
+  Col,
+  IFilterModel,
+  Row,
+  Show,
+  Text,
+  TextArea,
+  toQueryString,
+} from 'tno-core';
 
 import {
-  ContentSection,
+  ContentTypeSection,
   ContributorSection,
   DateSection,
   ElasticInfo,
@@ -26,6 +44,7 @@ import {
   SearchInGroup,
   SentimentSection,
   SeriesSection,
+  TagSection,
 } from './components';
 import { defaultAdvancedSearch } from './constants';
 import { defaultSubMediaGroupExpanded, ISubMediaGroupExpanded } from './interfaces';
@@ -52,13 +71,16 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
     { storeSearchFilter: storeFilter },
   ] = useContent();
   const genQuery = useElastic();
+  const [{ userInfo }] = useApp();
 
-  const filterId = React.useMemo(() => Number(searchParams.get('modify')), [searchParams]);
   const [searchName, setSearchName] = React.useState<string>('');
   const [viewedFilter, setViewedFilter] = React.useState<IFilterModel>();
   /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
   const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
     React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);
+
+  const isAdmin = userInfo?.roles.includes(Claim.administrator);
+  const filterId = React.useMemo(() => Number(searchParams.get('modify')), [searchParams]);
 
   const saveSearch = React.useCallback(async () => {
     const settings = filterFormat(filter, actions);
@@ -185,7 +207,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
             {/* CONTENT TYPE SECTION */}
             <Col className="expandable-section">
               <ExpandableRow icon={<FaTv />} title="Content Type">
-                <ContentSection />
+                <ContentTypeSection />
               </ExpandableRow>
             </Col>
             {/* CONTRIBUTOR SECTION */}
@@ -206,6 +228,14 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
                 <SeriesSection />
               </ExpandableRow>
             </Col>
+            {/* TAG SECTION */}
+            {isAdmin && (
+              <Col className="expandable-section">
+                <ExpandableRow icon={<FaTag />} title="Tags">
+                  <TagSection />
+                </ExpandableRow>
+              </Col>
+            )}
           </Col>
 
           <Row>

@@ -21,5 +21,5 @@ public enum ContentType
     /// Text based content, which can contain files.
     /// Used for internet based content with links.
     /// </summary>
-    Story = 3,
+    Internet = 3,
 }

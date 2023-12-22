@@ -23,7 +23,7 @@ export const CreateNewSection: React.FC<ICreateNewSectionProps> = ({
     ContentTypeName.AudioVideo,
     ContentTypeName.PrintContent,
     ContentTypeName.Image,
-    ContentTypeName.Story,
+    ContentTypeName.Internet,
   ],
 }) => {
   const { navigate } = useTab();
@@ -69,7 +69,7 @@ export const CreateNewSection: React.FC<ICreateNewSectionProps> = ({
               className="action-button"
             />
           );
-        case ContentTypeName.Story:
+        case ContentTypeName.Internet:
           return (
             <FaFileInvoice
               key={contentType}

@@ -15,6 +15,7 @@
   bkStaticGray: $bk-static-gray;
   bkQuaternary: $bk-quaternary;
   bkError: $bk-error;
+  bkMain: $bk-main;
 
   // Highlights
   highlightPrimary: $highlightPrimary;
@@ -38,6 +39,7 @@
   iconPrimaryColor: $icon-primary-color;
   iconSecondaryColor: $icon-secondary-color;
   iconGrayColor: $icon-gray-color;
+  iconTertiaryColor: $icon-tertiary-color;
 
   // Buttons
   btnBkPrimary: $btn-bk-primary;
@@ -54,6 +56,10 @@
   // Code blocks
   codeBlockColor: $code-block-color;
   teaserBackgroundColor: $teaser-background-color;
+
+  // Navbar
+  navItemBackgroundColor: $nav-item-background-color;
+  navItemSecondaryBackgroundColor: $nav-item-secondary-background-color;
 
   /////////////////////////////////////
   //  STOP USING ANYTHING BELOW THIS!

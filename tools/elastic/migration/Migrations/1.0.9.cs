@@ -12,7 +12,7 @@ public class Migration_109 : TNOMigration
 {
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a Migration_108 object, initializes with specified parameters.
+    /// Creates a new instance of a Migration_109 object, initializes with specified parameters.
     /// </summary>
     /// <param name="builder"></param>
     /// <param name="contentService"></param>

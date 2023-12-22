@@ -7,5 +7,5 @@ export enum ContentType {
   Image = 2,
   /** Text based content, which can contain files.
    * Used for internet based content with links. */
-  Story = 3,
+  Internet = 3,
 }

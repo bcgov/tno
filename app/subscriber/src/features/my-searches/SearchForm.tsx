@@ -1,5 +1,4 @@
 import { FormikForm } from 'components/formik';
-import { SearchWithLogout } from 'components/search-with-logout';
 import React from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -53,7 +52,6 @@ const FilterForm: React.FC<IFilterFormProps> = () => {
 
   return (
     <styled.SearchForm>
-      <SearchWithLogout />
       <div className="main">
         <Row className="header">
           <FaArrowLeft className="back-arrow" onClick={() => navigate(-1)} />

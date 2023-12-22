@@ -299,7 +299,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       <Show
                         visible={
                           props.values.contentType === ContentTypeName.AudioVideo ||
-                          props.values.contentType === ContentTypeName.Story
+                          props.values.contentType === ContentTypeName.Internet
                         }
                       >
                         <Row>
