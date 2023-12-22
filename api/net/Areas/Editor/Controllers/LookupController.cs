@@ -162,7 +162,7 @@ public class LookupController : ControllerBase
         var series = _seriesService.FindAll();
         var contributors = _contributorService.FindAll();
         var metrics = _metricService.FindAll();
-        var tagServices = _tagService.FindAll();
+        var tagServices = _tagService.FindAllEnabled();
         var tonePools = _tonePoolService.FindAll();
         var users = _userService.FindByRoles(roles.Where(x => x == ClientRole.Editor.ToString().ToLower()));
         var dataLocations = _dataLocationService.FindAll();
