@@ -27,14 +27,6 @@ public class TagService : BaseService<Tag, int>, ITagService
             .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
 
-    public IEnumerable<Tag> FindAllEnabled()
-    {
-        return this.Context.Tags
-            .AsNoTracking()
-            .Where(x => x.IsEnabled)
-            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
-    }
-
     public IPaged<Tag> Find(TagFilter filter)
     {
         var query = this.Context.Tags

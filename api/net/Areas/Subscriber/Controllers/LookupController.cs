@@ -128,7 +128,7 @@ public class LookupController : ControllerBase
         var license = _licenseService.FindAll();
         var series = _seriesService.FindAll();
         var ministers = _ministerService.FindAll();
-        var tagServices = _tagService.FindAllEnabled();
+        var tagServices = _tagService.FindAll();
         var settings = _settingService.FindAll();
         var tonePools = _tonePoolService.FindAll();
         return new JsonResult(new LookupModel(

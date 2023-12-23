@@ -17,7 +17,7 @@ export interface IDraggableTagListProps {
 export const DraggableTagList: React.FC<IDraggableTagListProps> = ({ showList, setShowList }) => {
   const [{ tags }] = useLookup();
   const nodeRef = React.useRef(null);
-
+  const enabledTags = tags.filter((x) => x.isEnabled);
   return (
     <Draggable nodeRef={nodeRef}>
       <div ref={nodeRef}>
@@ -29,7 +29,7 @@ export const DraggableTagList: React.FC<IDraggableTagListProps> = ({ showList, s
                 X
               </h2>
             </Row>
-            <GridTable data={tags} columns={columns} />
+            <GridTable data={enabledTags} columns={columns} />
           </Col>
         </Show>
       </div>

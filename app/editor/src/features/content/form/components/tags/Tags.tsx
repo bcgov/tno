@@ -31,6 +31,7 @@ export const Tags: React.FC<ITagsProps> = () => {
     return {
       label: tag.code,
       value: tag.id,
+      isEnabled: tag.isEnabled,
     } as IOptionItem;
   });
 

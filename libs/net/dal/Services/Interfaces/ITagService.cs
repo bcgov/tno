@@ -8,6 +8,5 @@ public interface ITagService : IBaseService<Tag, int>
 {
     IEnumerable<Tag> FindAll();
 
-    IEnumerable<Tag> FindAllEnabled();
     IPaged<Tag> Find(TagFilter filter);
 }
