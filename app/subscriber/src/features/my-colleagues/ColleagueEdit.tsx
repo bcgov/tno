@@ -1,5 +1,4 @@
 import { FormikForm } from 'components/formik';
-import { Header } from 'components/header';
 import { PageSection } from 'components/section';
 import React from 'react';
 import { FaSave } from 'react-icons/fa';
@@ -28,7 +27,6 @@ export const ColleagueEdit: React.FC = () => {
 
   return (
     <styled.MyColleagues>
-      <Header />
       <PageSection header="Add Colleague">
         <FormikForm
           loading={false}

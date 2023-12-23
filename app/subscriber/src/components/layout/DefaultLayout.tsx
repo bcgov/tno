@@ -1,6 +1,6 @@
+import { Header } from 'components/header';
 import { Navbar } from 'components/navbar';
 import { navbarOptions } from 'components/navbar/NavbarItems';
-import { SearchWithLogout } from 'components/search-with-logout';
 import { UnauthenticatedHome, UserInfo } from 'features/login';
 import React from 'react';
 import { useProSidebar } from 'react-pro-sidebar';
@@ -87,7 +87,7 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
             <div className="nav-bar">
               <Navbar options={navbarOptions} />
             </div>
-            <SearchWithLogout />
+            <Header showLogo showProfile />
             <LayoutErrorBoundary>
               <main>
                 <Outlet />

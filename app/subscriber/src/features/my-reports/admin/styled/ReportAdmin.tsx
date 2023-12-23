@@ -5,6 +5,10 @@ export const ReportAdmin = styled.div`
     background: unset;
   }
 
+  .page-section {
+    margin-top: 0;
+  }
+
   .tab.report-name {
     display: flex;
     flex-direction: row;
@@ -62,5 +66,9 @@ export const ReportAdmin = styled.div`
     margin-bottom: 0.5rem;
     padding: 0.25rem;
     background: ${(props) => props.theme.css.highlightSecondary};
+  }
+
+  .tab-container {
+    height: calc(100dvh - 280px);
   }
 `;

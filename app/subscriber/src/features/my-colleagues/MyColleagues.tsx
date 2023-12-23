@@ -1,6 +1,5 @@
 import { Action } from 'components/action';
 import { Bar } from 'components/bar';
-import { Header } from 'components/header';
 import { PageSection } from 'components/section';
 import React from 'react';
 import { FaClipboard } from 'react-icons/fa6';
@@ -45,7 +44,6 @@ export const MyColleagues: React.FC = () => {
 
   return (
     <styled.MyColleagues>
-      <Header />
       <PageSection header="My Colleagues">
         <Bar>
           <Row flex="1" justifyContent="flex-end">
