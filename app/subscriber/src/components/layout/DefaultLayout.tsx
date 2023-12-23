@@ -1,7 +1,6 @@
 import { Header } from 'components/header';
 import { Navbar } from 'components/navbar';
 import { navbarOptions } from 'components/navbar/NavbarItems';
-import { SearchWithLogout } from 'components/search-with-logout';
 import { UnauthenticatedHome, UserInfo } from 'features/login';
 import React from 'react';
 import { useProSidebar } from 'react-pro-sidebar';
