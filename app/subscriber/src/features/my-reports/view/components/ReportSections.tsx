@@ -105,31 +105,36 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({ disabled }) => 
                   <SectionLabel section={section} showIcon={false} />
                 </Row>
               }
-              actions={
-                <Row gap="1rem">
-                  {/* <Action disabled={isSubmitting} icon={<FaFileExcel />} title="Export to Excel" /> */}
-                  {[
-                    ReportSectionTypeName.Content,
-                    ReportSectionTypeName.Gallery,
-                    ReportSectionTypeName.MediaAnalytics,
-                  ].includes(section.settings.sectionType) && (
-                    <Action
-                      disabled={isSubmitting || disabled}
-                      icon={showForm !== index ? <FaPen /> : <FaCheck />}
-                      title="edit"
-                      onClick={() => setShowForm(index === showForm ? undefined : index)}
-                    />
-                  )}
-                  {section.settings.sectionType === ReportSectionTypeName.Content && !disabled && (
-                    <Action
-                      disabled={isSubmitting || disabled}
-                      icon={<FaPlus />}
-                      title="Add custom content"
-                      onClick={() => addStory(instance?.id, section.name)}
-                    />
-                  )}
-                </Row>
-              }
+              actions={({ open }) => {
+                return (
+                  <Row gap="1rem">
+                    {/* <Action disabled={isSubmitting} icon={<FaFileExcel />} title="Export to Excel" /> */}
+                    {[
+                      ReportSectionTypeName.Content,
+                      ReportSectionTypeName.Gallery,
+                      ReportSectionTypeName.MediaAnalytics,
+                    ].includes(section.settings.sectionType) &&
+                      open && (
+                        <Action
+                          disabled={isSubmitting || disabled}
+                          icon={showForm !== index ? <FaPen /> : <FaCheck />}
+                          title="edit"
+                          onClick={() => setShowForm(index === showForm ? undefined : index)}
+                        />
+                      )}
+                    {section.settings.sectionType === ReportSectionTypeName.Content &&
+                      !disabled &&
+                      open && (
+                        <Action
+                          disabled={isSubmitting || disabled}
+                          icon={<FaPlus />}
+                          title="Add custom content"
+                          onClick={() => addStory(instance?.id, section.name)}
+                        />
+                      )}
+                  </Row>
+                );
+              }}
             >
               <Show
                 visible={section.settings.sectionType === ReportSectionTypeName.TableOfContents}
