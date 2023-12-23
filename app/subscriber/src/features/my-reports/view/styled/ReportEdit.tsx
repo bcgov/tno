@@ -1,6 +1,13 @@
 import styled from 'styled-components';
 
 export const ReportEdit = styled.div`
+  .page-section {
+    margin-top: 0;
+  }
+  .tab-container {
+    max-height: calc(100dvh - 280px);
+    overflow-y: auto;
+  }
   .tab.report-name {
     display: flex;
     flex-direction: row;
