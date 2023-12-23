@@ -69,6 +69,7 @@ export const ReportAdmin = styled.div`
   }
 
   .tab-container {
+    overflow-y: auto;
     height: calc(100dvh - 280px);
   }
 `;
