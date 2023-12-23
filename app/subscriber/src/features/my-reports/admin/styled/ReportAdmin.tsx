@@ -33,7 +33,7 @@ export const ReportAdmin = styled.div`
 
     button {
       max-height: unset;
-      padding: 1rem;
+      padding: 0.75rem;
       background: ${(props) => props.theme.css.highlightSecondary};
       border: solid 1px ${(props) => props.theme.css.iconPrimaryColor};
       color: ${(props) => props.theme.css.iconPrimaryColor};

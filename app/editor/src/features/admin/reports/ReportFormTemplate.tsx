@@ -2,6 +2,8 @@ import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
+import { toast } from 'react-toastify';
+import { useLookup } from 'store/hooks';
 import { useReports, useReportTemplates } from 'store/hooks/admin';
 import {
   Button,
@@ -11,12 +13,14 @@ import {
   FormikSelect,
   IOptionItem,
   IReportModel,
+  IReportTemplateModel,
   Overlay,
   Row,
+  Settings,
   Show,
 } from 'tno-core';
 
-import { defaultRazorTemplate, defaultReportTemplate } from './constants';
+import { defaultReportTemplate } from './constants';
 import { getReportTemplateOptions } from './utils';
 
 /**
@@ -27,6 +31,31 @@ export const ReportFormTemplate: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IReportModel>();
   const [{ reportTemplates }, { findAllReportTemplates }] = useReportTemplates();
   const [, { primeReportCache }] = useReports();
+  const [{ isReady, settings }] = useLookup();
+  const [, { getReportTemplate }] = useReportTemplates();
+
+  const [defaultTemplateId, setDefaultTemplateId] = React.useState(0);
+  const [defaultTemplate, setDefaultTemplate] = React.useState<IReportTemplateModel>();
+
+  React.useEffect(() => {
+    if (isReady) {
+      const defaultTemplateId = settings.find(
+        (s) => s.name === Settings.DefaultReportTemplate,
+      )?.value;
+      if (defaultTemplateId) setDefaultTemplateId(+defaultTemplateId);
+      else toast.error(`Configuration settings '${Settings.DefaultReportTemplate}' is required.`);
+    }
+  }, [isReady, settings]);
+
+  const getTemplate = React.useCallback(async () => {
+    if (!defaultTemplate) {
+      const template = await getReportTemplate(defaultTemplateId);
+      setDefaultTemplate(template);
+      return template;
+    } else {
+      return defaultTemplate;
+    }
+  }, [defaultTemplate, defaultTemplateId, getReportTemplate]);
 
   const [enableEdit, setEnableEdit] = React.useState(false);
   const [templateOptions, setTemplateOptions] = React.useState<IOptionItem[]>(
@@ -106,7 +135,15 @@ export const ReportFormTemplate: React.FC = () => {
             </Col>
             <Button
               variant={ButtonVariant.secondary}
-              onClick={() => setFieldValue('template.body', defaultRazorTemplate)}
+              onClick={async () => {
+                try {
+                  const template = await getTemplate();
+                  setFieldValue('template.subject', template.subject);
+                  setFieldValue('template.body', template.body);
+                } catch {
+                  toast.error('Failed to get report template');
+                }
+              }}
             >
               Use Default Template
             </Button>

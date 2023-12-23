@@ -1,6 +1,13 @@
-import { IFilterModel, IFolderModel, IReportModel, IReportTemplateModel } from 'tno-core';
+import {
+  IFilterModel,
+  IFolderModel,
+  IReportModel,
+  IReportTemplateModel,
+  ReportSectionTypeName,
+} from 'tno-core';
 
-import { defaultReport, defaultReportSection } from '../constants';
+import { defaultReport } from '../constants';
+import { createReportSection } from './createReportSection';
 import { IReportImportExportModel } from './IReportImportExportModel';
 
 export const parseExportedReport = (
@@ -26,7 +33,7 @@ export const parseExportedReport = (
   if (value.sections?.length) {
     importedModel.sections = [];
     value.sections.forEach((section) => {
-      var parsedSection = defaultReportSection(0);
+      var parsedSection = createReportSection(0, ReportSectionTypeName.Content);
       parsedSection.description = section.description ?? '';
       parsedSection.isEnabled = section.isEnabled;
       parsedSection.sortOrder = section.sortOrder;

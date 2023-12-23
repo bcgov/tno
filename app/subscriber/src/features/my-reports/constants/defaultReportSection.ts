@@ -5,7 +5,6 @@ import { IReportSectionForm } from '../interfaces';
 export const defaultReportSection = (
   type: ReportSectionTypeName,
   sortOrder: number,
-  showCharts: boolean = false,
   showHeadlines: boolean | undefined = undefined,
   showFullStory: boolean | undefined = undefined,
   hideEmpty: boolean = false,
@@ -20,24 +19,24 @@ export const defaultReportSection = (
     label:
       type === ReportSectionTypeName.TableOfContents
         ? 'Table of Contents'
-        : type === ReportSectionTypeName.Summary
+        : type === ReportSectionTypeName.Text
         ? 'Executive Summary'
         : '',
     sectionType: type,
+    useAllContent: type === ReportSectionTypeName.MediaAnalytics,
     showHeadlines: showHeadlines ?? type === ReportSectionTypeName.TableOfContents,
     showFullStory: showFullStory ?? type === ReportSectionTypeName.Content,
     showImage: false,
-    showCharts: showCharts,
-    chartsOnTop: false,
-    chartDirection: 'row',
+    direction: 'row',
     removeDuplicates: false,
     hideEmpty:
-      type === ReportSectionTypeName.TableOfContents || type === ReportSectionTypeName.Summary
+      type === ReportSectionTypeName.TableOfContents ||
+      type === ReportSectionTypeName.MediaAnalytics ||
+      type === ReportSectionTypeName.Gallery
         ? false
         : hideEmpty,
     groupBy: '',
     sortBy: '',
-    orderByField: '',
   },
   chartTemplates: [],
   open: true,

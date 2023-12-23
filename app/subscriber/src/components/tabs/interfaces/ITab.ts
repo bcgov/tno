@@ -5,5 +5,5 @@ export interface ITab {
   to?: string;
   type?: 'tab' | 'other';
   className?: string;
-  onClick?: (tab: ITab) => void;
+  onClick?: (tab: ITab, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }

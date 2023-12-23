@@ -169,24 +169,31 @@ public class ReportInstanceController : ControllerBase
     /// Execute the report template and generate the results for viewing the specified report instance.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="regenerate"></param>
     /// <returns></returns>
     [HttpPost("{id}/view")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportResultModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public async Task<IActionResult> ViewAsync(int id)
+    public async Task<IActionResult> ViewAsync(int id, bool regenerate = false)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
-        var report = instance.Report ?? throw new NoContentException("Report does not exist");
-        if (instance.OwnerId != user.Id && // User does not own the report instance
-            !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
-            !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report"); // Report is not public
-        instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(id));
-        var result = await _reportHelper.GenerateReportAsync(new Services.Models.ReportInstance.ReportInstanceModel(instance, _serializerOptions), false, true);
-        return new JsonResult(result);
+
+        if (regenerate || String.IsNullOrWhiteSpace(instance.Body))
+        {
+            var report = instance.Report ?? throw new NoContentException("Report does not exist");
+            if (instance.OwnerId != user.Id && // User does not own the report instance
+                !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
+                !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report"); // Report is not public
+            instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(id));
+            var result = await _reportHelper.GenerateReportAsync(new Services.Models.ReportInstance.ReportInstanceModel(instance, _serializerOptions), false, true);
+            return new JsonResult(result);
+        }
+
+        return new JsonResult(new ReportResultModel(instance.Subject, instance.Body, null));
     }
 
     /// <summary>

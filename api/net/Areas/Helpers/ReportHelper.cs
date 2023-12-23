@@ -135,7 +135,7 @@ public class ReportHelper : IReportHelper
             {
                 var sortOrder = 0;
 
-                section.Content = _reportEngine.OrderBySectionField(results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).ToArray(), section.Settings.OrderByField);
+                section.Content = _reportEngine.OrderBySectionField(results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).ToArray(), section.Settings.SortBy);
             }
             return section;
         });

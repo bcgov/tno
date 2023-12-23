@@ -21,10 +21,10 @@ public interface IReportEngine
     /// Order the content based on the session field.
     /// </summary>
     /// <param name="content"></param>
-    /// <param name="orderByField"></param>
+    /// <param name="sortBy"></param>
     /// <returns>Ordered Content</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    ContentModel[] OrderBySectionField(ContentModel[] content, string orderByField);
+    ContentModel[] OrderBySectionField(ContentModel[] content, string sortBy);
 
     /// <summary>
     /// Executes the chart template provided to generate JSON, which is then sent with a request to the Charts API to generate a base64 image.

@@ -1,5 +1,4 @@
 import { Action } from 'components/action';
-import { Button } from 'components/button';
 import { Section } from 'components/section';
 import { useFormikContext } from 'formik';
 import React from 'react';
@@ -10,17 +9,7 @@ import {
   DropResult,
   ResponderProvided,
 } from 'react-beautiful-dnd';
-import {
-  FaAlignJustify,
-  FaAngleDown,
-  FaChartPie,
-  FaGripLines,
-  FaList,
-  FaMinus,
-  FaNewspaper,
-  FaPlus,
-  FaTrash,
-} from 'react-icons/fa6';
+import { FaAngleDown, FaGripLines, FaMinus, FaTrash } from 'react-icons/fa6';
 import {
   Col,
   FormikCheckbox,
@@ -32,19 +21,23 @@ import {
   Text,
 } from 'tno-core';
 
-import { defaultReportSection } from '../constants';
 import { IReportForm } from '../interfaces';
-import { getBlockName } from '../utils';
-import { ReportSectionContent } from './old/components/ReportSectionContent';
-import { ReportSectionSummary } from './old/components/ReportSectionSummary';
-import { ReportSectionTableOfContents } from './old/components/ReportSectionTableOfContents';
+import {
+  AddSectionBar,
+  ReportSectionContent,
+  ReportSectionGallery,
+  ReportSectionMediaAnalytics,
+  ReportSectionTableOfContents,
+  ReportSectionText,
+  SectionLabel,
+} from './components';
 
 export interface IReportTemplateProps {
   onChange?: (values: IReportForm) => void;
 }
 
 export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => {
-  const { setFieldValue, values, isSubmitting } = useFormikContext<IReportForm>();
+  const { setFieldValue, values } = useFormikContext<IReportForm>();
 
   const [show, setShow] = React.useState(true);
   const [sortOrders, setSortOrders] = React.useState<number[]>(
@@ -54,36 +47,6 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
   React.useEffect(() => {
     setSortOrders(values.sections.map((s) => s.sortOrder));
   }, [values.sections]);
-
-  const addSection = React.useCallback(
-    (
-      index: number,
-      type: ReportSectionTypeName,
-      showCharts: boolean = false,
-      showHeadlines: boolean | undefined = undefined,
-      showFullStory: boolean | undefined = undefined,
-    ) => {
-      const newSection = defaultReportSection(
-        type,
-        index === 0
-          ? 0
-          : index < values.sections.length
-          ? values.sections[index].sortOrder + 1
-          : values.sections[values.sections.length - 1].sortOrder,
-        showCharts,
-        showHeadlines,
-        showFullStory,
-        values.hideEmptySections,
-      );
-      const sections = [...values.sections];
-      sections.splice(index, 0, newSection);
-      setFieldValue(
-        'sections',
-        sections.map((s, i) => ({ ...s, sortOrder: i })),
-      );
-    },
-    [setFieldValue, values],
-  );
 
   const removeSection = React.useCallback(
     (index: number) => {
@@ -121,54 +84,7 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
 
   return (
     <Col>
-      <Row className="section-bar" gap="1rem" justifyContent="center">
-        <FaPlus />
-        <Button
-          onClick={() => addSection(0, ReportSectionTypeName.TableOfContents)}
-          disabled={
-            isSubmitting ||
-            values.sections.some(
-              (s) => s.settings.sectionType === ReportSectionTypeName.TableOfContents,
-            )
-          }
-        >
-          <Row gap="1rem">
-            <FaList />
-            <label>Table of Contents</label>
-          </Row>
-        </Button>
-        <Button
-          onClick={() => addSection(values.sections.length, ReportSectionTypeName.Summary)}
-          disabled={isSubmitting}
-        >
-          <Row gap="1rem">
-            <FaAlignJustify />
-            <label>Text</label>
-          </Row>
-        </Button>
-        <Button
-          onClick={() =>
-            addSection(values.sections.length, ReportSectionTypeName.Content, false, false, true)
-          }
-          disabled={isSubmitting}
-        >
-          <Row gap="1rem">
-            <FaNewspaper />
-            <label>Media Stories</label>
-          </Row>
-        </Button>
-        <Button
-          onClick={() =>
-            addSection(values.sections.length, ReportSectionTypeName.Content, true, false, false)
-          }
-          disabled={isSubmitting}
-        >
-          <Row gap="1rem">
-            <FaChartPie />
-            <label>Media Analytics</label>
-          </Row>
-        </Button>
-      </Row>
+      <AddSectionBar />
       <Row className="template-action-bar">
         {!!values.sections.length &&
           (values.sections.some((s) => s.open) ? (
@@ -229,7 +145,7 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
                         >
                           <Section
                             icon={<FaGripLines />}
-                            label={getBlockName(section)}
+                            label={<SectionLabel section={section} />}
                             open={section.open}
                             onChange={(open) => setFieldValue(`sections.${index}.open`, open)}
                             actions={
@@ -274,6 +190,7 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
                               </Row>
                             }
                           >
+                            {/* TABLE OF CONTENT */}
                             <Show
                               visible={
                                 section.settings.sectionType ===
@@ -282,6 +199,7 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
                             >
                               <ReportSectionTableOfContents index={index} />
                             </Show>
+                            {/* CONTENT */}
                             <Show
                               visible={
                                 section.settings.sectionType === ReportSectionTypeName.Content
@@ -289,12 +207,28 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
                             >
                               <ReportSectionContent index={index} />
                             </Show>
+                            {/* TEXT */}
+                            <Show
+                              visible={section.settings.sectionType === ReportSectionTypeName.Text}
+                            >
+                              <ReportSectionText index={index} />
+                            </Show>
+                            {/* MEDIA ANALYTICS */}
                             <Show
                               visible={
-                                section.settings.sectionType === ReportSectionTypeName.Summary
+                                section.settings.sectionType ===
+                                ReportSectionTypeName.MediaAnalytics
                               }
                             >
-                              <ReportSectionSummary index={index} />
+                              <ReportSectionMediaAnalytics index={index} />
+                            </Show>
+                            {/* FRONT PAGE IMAGES */}
+                            <Show
+                              visible={
+                                section.settings.sectionType === ReportSectionTypeName.Gallery
+                              }
+                            >
+                              <ReportSectionGallery index={index} />
                             </Show>
                           </Section>
                         </div>

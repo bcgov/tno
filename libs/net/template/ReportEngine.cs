@@ -117,12 +117,12 @@ public class ReportEngine : IReportEngine
     /// Order the content based on the session field.
     /// </summary>
     /// <param name="content"></param>
-    /// <param name="orderByField"></param>
+    /// <param name="sortBy"></param>
     /// <returns>Ordered Content</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public ContentModel[] OrderBySectionField(ContentModel[] content, string orderByField)
+    public ContentModel[] OrderBySectionField(ContentModel[] content, string sortBy)
     {
-        return orderByField switch
+        return sortBy switch
         {
             "PublishedOn" => content.OrderBy(c => c.PublishedOn).ToArray(),
             "MediaType" => content.OrderBy(c => c.MediaType?.Name).ToArray(),
@@ -245,17 +245,25 @@ public class ReportEngine : IReportEngine
         if (!viewOnWebOnly)
         {
             var aggregateSection = new Dictionary<string, ReportSectionModel>();
-            // Find all charts and make a request to the Charts API to generate the image.
-            await report.Sections.ForEachAsync(async section =>
+            // Collect all section content for report summary charts.
+            report.Sections.Where(section => section.Settings.SectionType == Entities.ReportSectionType.Content).ForEach(section =>
+            {
+                // If the section has content add it to the chart request.
+                if (sectionContent.TryGetValue(section.Name, out ReportSectionModel? sectionData) && sectionData != null)
+                {
+                    aggregateSection.Add(section.Name, sectionData);
+                }
+            });
+
+            await report.Sections.Where(section => section.Settings.SectionType == Entities.ReportSectionType.MediaAnalytics).ForEachAsync(async section =>
             {
                 var settings = section.Settings;
                 List<ContentModel> content = new();
 
                 // If the section has content add it to the chart request.
-                if (sectionContent.TryGetValue(section.Name, out ReportSectionModel? sectionData) && sectionData != null)
+                if (!settings.UseAllContent && sectionContent.TryGetValue(section.Name, out ReportSectionModel? sectionData) && sectionData != null)
                 {
                     content.AddRange(sectionData.Content);
-                    aggregateSection.Add(section.Name, sectionData);
                 }
 
                 await section.ChartTemplates.ForEachAsync(async chart =>
@@ -269,7 +277,7 @@ public class ReportEngine : IReportEngine
                         ReportSectionModel.GenerateChartUid(section.Id, chart.Id),
                         chart,
                         aggregateSection,
-                        settings.SectionType == Entities.ReportSectionType.Content ? content : null);
+                        settings.UseAllContent ? null : content);
                     var chartRequestModel = new ChartRequestModel(chartModel);
                     var base64Image = await this.GenerateBase64ImageAsync(chartRequestModel);
 
