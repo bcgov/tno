@@ -219,12 +219,6 @@ export const ReportSectionMediaAnalytics = ({ index }: IReportSectionMediaAnalyt
                     </Col>
                   </Row>
                   <Row className="chart-settings">
-                    {/* <FormikText
-                        label="Title"
-                        name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.title`}
-                        value={ct.sectionSettings.title}
-                        UPDATE VALUE IN OPTIONS
-                      /> */}
                     <FormikSelect
                       label="Chart Type"
                       name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.chartType`}
