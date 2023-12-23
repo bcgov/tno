@@ -27,6 +27,9 @@ export const Navbar = styled(Col)<{ $expanded: boolean }>`
     svg {
       margin-right: 0.5em;
     }
+    &:hover {
+      filter: brightness(1.1);
+    }
   }
   .my-content {
     background-color: ${(props) => props.theme.css.navItemSecondaryBackgroundColor};
