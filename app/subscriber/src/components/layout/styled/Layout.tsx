@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { ILayoutProps } from '..';
 
 export const Layout = styled.div<ILayoutProps>`
-  .search-with-logout {
+  .header {
     grid-area: header;
   }
 

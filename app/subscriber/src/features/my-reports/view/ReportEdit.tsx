@@ -141,7 +141,6 @@ export const ReportEdit: React.FC = () => {
 
   return (
     <styled.ReportEdit>
-      <Header />
       <FormikForm
         initialValues={report}
         validationSchema={ReportFormSchema}

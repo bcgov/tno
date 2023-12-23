@@ -1,6 +1,5 @@
 import { Action } from 'components/action';
 import { Bar } from 'components/bar';
-import { Header } from 'components/header';
 import { PageSection } from 'components/section';
 import React from 'react';
 import { FaClipboard } from 'react-icons/fa6';
@@ -52,7 +51,6 @@ export const MyReports: React.FC = () => {
 
   return (
     <styled.MyReports>
-      <Header />
       <PageSection header="My Reports">
         <Bar>
           <ReportFilter />
@@ -64,7 +62,7 @@ export const MyReports: React.FC = () => {
             />
           </Row>
         </Bar>
-        <div>
+        <div className="my-reports-content">
           {isLoading && (
             <Col className="loading">
               <Loading />

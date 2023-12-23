@@ -1,3 +1,4 @@
+import { Header } from 'components/header';
 import { Navbar } from 'components/navbar';
 import { navbarOptions } from 'components/navbar/NavbarItems';
 import { SearchWithLogout } from 'components/search-with-logout';
@@ -87,7 +88,7 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
             <div className="nav-bar">
               <Navbar options={navbarOptions} />
             </div>
-            <SearchWithLogout />
+            <Header showLogo showProfile />
             <LayoutErrorBoundary>
               <main>
                 <Outlet />

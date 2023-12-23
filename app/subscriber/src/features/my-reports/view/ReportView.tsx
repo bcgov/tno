@@ -1,4 +1,3 @@
-import { Header } from 'components/header';
 import { PageSection } from 'components/section';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -47,7 +46,6 @@ export const ReportView: React.FC = () => {
 
   return (
     <styled.ReportView>
-      <Header />
       <PageSection>
         <ReportInstanceView instanceId={instanceId} />
       </PageSection>
