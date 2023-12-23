@@ -2,5 +2,5 @@ export interface IOptionItem<T extends string | number | undefined = string | nu
   discriminator: 'IOption';
   label: string | React.ReactElement;
   value?: T;
-  isEnabled: boolean;
+  isDisabled: boolean;
 }

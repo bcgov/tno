@@ -31,10 +31,11 @@ export const Tags: React.FC<ITagsProps> = () => {
     return {
       label: tag.code,
       value: tag.id,
-      isEnabled: tag.isEnabled,
+      isDisabled: !tag.isEnabled,
     } as IOptionItem;
   });
-
+  // eslint-disable-next-line no-console
+  console.log(tagOptions);
   /** prepare tags to proper format for the API */
   const convertTags = (selectedTags: IOptionItem[]) => {
     return tags
