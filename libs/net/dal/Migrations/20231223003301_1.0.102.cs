@@ -6,7 +6,7 @@ using TNO.DAL;
 namespace TNO.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class _10101 : SeedMigration
+    public partial class _10102 : SeedMigration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
