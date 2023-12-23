@@ -9,6 +9,9 @@ export const Navbar = styled(Col)<{ $expanded: boolean }>`
   }
   background-color: ${(props) => props.theme.css.bkMain};
   .expand-control {
+    &:hover {
+      cursor: pointer;
+    }
     margin-top: 3em;
     margin-left: ${(props) => (props.$expanded ? 'auto' : '1em')};
   }
