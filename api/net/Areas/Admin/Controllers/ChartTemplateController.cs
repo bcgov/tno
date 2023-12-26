@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.ChartTemplate;
@@ -9,6 +11,7 @@ using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Keycloak;
+using TNO.Core.Extensions;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -164,6 +167,15 @@ public class ChartTemplateController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Chart" })]
     public async Task<IActionResult> GenerateBase64Async(ChartPreviewRequestModel model)
     {
+        // // pie charts should never have scales
+        // if (model.Settings.ChartType.Equals("pie")) {
+        //     var json = JsonNode.Parse(model.Settings.Options.ToJson())?.AsObject();
+        //     if (json != null) {
+        //         json.Remove("scales");
+        //         model.Settings.Options = JsonDocument.Parse(json.ToJsonString());
+        //     }
+        // }
+
         var chart = new API.Areas.Admin.Models.Report.ChartTemplateModel()
         {
             Template = model.Template,
