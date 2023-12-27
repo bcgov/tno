@@ -167,14 +167,14 @@ public class ChartTemplateController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Chart" })]
     public async Task<IActionResult> GenerateBase64Async(ChartPreviewRequestModel model)
     {
-        // // pie charts should never have scales
-        // if (model.Settings.ChartType.Equals("pie")) {
-        //     var json = JsonNode.Parse(model.Settings.Options.ToJson())?.AsObject();
-        //     if (json != null) {
-        //         json.Remove("scales");
-        //         model.Settings.Options = JsonDocument.Parse(json.ToJsonString());
-        //     }
-        // }
+        // pie charts should never have scales
+        if (model.Settings.ChartType.Equals("pie")) {
+            var json = JsonNode.Parse(model.Settings.Options.ToJson())?.AsObject();
+            if (json != null) {
+                json.Remove("scales");
+                model.Settings.Options = JsonDocument.Parse(json.ToJsonString());
+            }
+        }
 
         var chart = new API.Areas.Admin.Models.Report.ChartTemplateModel()
         {

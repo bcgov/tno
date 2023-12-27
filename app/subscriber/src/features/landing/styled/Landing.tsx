@@ -28,17 +28,14 @@ export const Landing = styled(Col)`
   /* The panel containing Commentary and front pages */
   .right-panel {
     max-height: calc(100vh - 6.5em);
-    @media (max-width: 1000px) {
-      margin: 0.5rem 0rem;
-    }
-    @media (min-width: 1000px) {
-      margin: 0rem 1rem;
-    }
     @media (min-width: 1702px) {
-      margin: 1rem 1rem 1rem 0rem;
       max-width: 44%;
     }
+    margin-left: auto;
     flex-grow: 1;
+    margin-right: auto;
+
+    display: flex;
 
     input {
       min-height: 3em;
@@ -51,9 +48,6 @@ export const Landing = styled(Col)`
   .contents-container {
     overflow-y: auto;
     max-height: calc(100vh - 9em);
-    @media (max-width: 1000px) {
-      // overflow-x: clip;
-    }
   }
 
   .title {
@@ -68,16 +62,13 @@ export const Landing = styled(Col)`
   .main-panel {
     /* switch between max width and min width depending on screen size in order to maximize screen real estate */
     @media (max-width: 1702px) {
-      width: 100%;
+      min-width: 97%;
     }
     @media (max-width: 1000px) {
-      margin: 0rem;
+      margin-left: 0;
+      margin-right: 0;
     }
     @media (min-width: 1000px) {
-      margin: 1rem;
-    }
-    @media (min-width: 1702px) {
-      width: unset;
       max-width: 55%;
     }
     flex-grow: 1;
@@ -88,11 +79,8 @@ export const Landing = styled(Col)`
       @media (max-width: 500px) {
         padding: 0.25em;
       }
-      @media (min-width: 1000px) {
-        min-height: 25em;
-      }
-      @media (min-width: 1702px) {
-        min-height: 45em;
+      @media (min-width: 500px) {
+        padding: 1em;
       }
       height: calc(100dvh - 320px);
       overflow-y: auto;

@@ -7,8 +7,8 @@ namespace TNO.Elastic.Models;
 
 public class AggregationRootModel {
     #region Properties
-    public string Name { get; set; }
-    public long DocCount { get; set; }
-    public AggregationModel ChildAggregation { get; set; }
+    public string? Name { get; set; }
+    public long? DocCount { get; set; }
+    public AggregationModel? ChildAggregation { get; set; }
     #endregion
 }
