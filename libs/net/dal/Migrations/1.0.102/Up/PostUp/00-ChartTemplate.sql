@@ -38,6 +38,7 @@ SET
       "position": "bottom"
     },
     "datalabels": {
+      "formatter": "(value, ctx) => { const datapoints = ctx.chart.data.datasets[0].data; const total = datapoints.reduce((total, datapoint) => total + datapoint, 0); const percentage = value / total * 100; return percentage.toFixed(1) + '%'; }",
       "font": {
         "size": 18
       },
