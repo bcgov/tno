@@ -31,7 +31,7 @@ export const getSortableOptions = <T extends ISortableModel<any>>(
   items: T[],
   currentSelected: string | number | undefined = undefined,
   prepend: IOptionItem[] = [],
-  map: (item: T) => IOptionItem = (i) => new OptionItem(i.name, i.id, i.isEnabled),
+  map: (item: T) => IOptionItem = (i) => new OptionItem(i.name, i.id, !i.isEnabled),
   sort: (a: T, b: T) => number = sortSortable,
 ) => {
   return prepend.concat(filterEnabledOptions([...items].sort(sort).map(map), currentSelected));

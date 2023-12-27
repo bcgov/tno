@@ -10,5 +10,5 @@ export const filterEnabledOptions = (
   options: IOptionItem[],
   currentSelected: string | number | undefined = undefined,
 ) => {
-  return options.filter((item) => item.isEnabled || item.value === currentSelected);
+  return options.filter((item) => !item.isDisabled || item.value === currentSelected);
 };

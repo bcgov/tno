@@ -31,9 +31,9 @@ export const Tags: React.FC<ITagsProps> = () => {
     return {
       label: tag.code,
       value: tag.id,
+      isDisabled: !tag.isEnabled,
     } as IOptionItem;
   });
-
   /** prepare tags to proper format for the API */
   const convertTags = (selectedTags: IOptionItem[]) => {
     return tags
