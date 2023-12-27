@@ -9,6 +9,8 @@ export interface IHeaderProps {
   children?: React.ReactNode;
   /** Whether to show the user profile component. */
   showProfile?: boolean;
+  /** Whether to show the MMinsights logo. */
+  showLogo?: boolean;
 }
 
 /**
@@ -16,10 +18,26 @@ export interface IHeaderProps {
  * @param param0 Component properties.
  * @returns Component
  */
-export const Header: React.FC<IHeaderProps> = ({ children, showProfile = true }) => {
+export const Header: React.FC<IHeaderProps> = ({
+  children,
+  showProfile = true,
+  showLogo = true,
+}) => {
   return (
-    <styled.Header>
-      <Row flex="1">{children}</Row>
+    <styled.Header className="header">
+      <Row flex="1">
+        {showLogo && (
+          <div className="logo-container">
+            <img
+              className="mm-logo"
+              src={process.env.PUBLIC_URL + '/assets/MMinsights_logo_black.svg'}
+              alt="MMinsights logo"
+            />
+          </div>
+        )}
+        {children}
+      </Row>
+
       {showProfile && <UserProfile />}
     </styled.Header>
   );

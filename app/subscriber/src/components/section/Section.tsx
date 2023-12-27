@@ -7,7 +7,7 @@ import * as styled from './styled';
 export interface ISectionProps {
   icon?: React.ReactNode;
   label?: React.ReactNode;
-  actions?: React.ReactNode;
+  actions?: React.ReactNode | ((props: ISectionProps) => React.ReactNode);
   open?: boolean;
   showOpen?: boolean;
   children?: React.ReactNode;
@@ -45,7 +45,13 @@ export const Section: React.FC<ISectionProps> = ({
         <div className="section-label">
           <span onClick={() => showOpen && handleChange(!open)}>{label}</span>
         </div>
-        {actions && <div className="section-actions">{actions}</div>}
+        {actions && (
+          <div className="section-actions">
+            {typeof actions === 'function'
+              ? (actions as (props: ISectionProps) => React.ReactNode)({ open, showOpen, ...rest })
+              : actions}
+          </div>
+        )}
         {showOpen && (
           <div className="section-open">
             {open ? (

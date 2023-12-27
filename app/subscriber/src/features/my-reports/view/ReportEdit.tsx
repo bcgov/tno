@@ -1,7 +1,6 @@
 import { Action } from 'components/action';
 import { Button } from 'components/button';
 import { FormikForm } from 'components/formik';
-import { Header } from 'components/header';
 import { PageSection } from 'components/section';
 import React from 'react';
 import { FaArrowLeft, FaCloud, FaFileCirclePlus, FaFileExcel, FaGear } from 'react-icons/fa6';
@@ -23,7 +22,7 @@ import { ReportFormSchema } from '../admin/validation/ReportFormSchema';
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
 import { toForm } from '../utils';
-import { ReportEditForm } from './ReportEditForm';
+import { ReportEditForm } from './components';
 import * as styled from './styled';
 
 export const ReportEdit: React.FC = () => {
@@ -141,7 +140,6 @@ export const ReportEdit: React.FC = () => {
 
   return (
     <styled.ReportEdit>
-      <Header />
       <FormikForm
         initialValues={report}
         validationSchema={ReportFormSchema}

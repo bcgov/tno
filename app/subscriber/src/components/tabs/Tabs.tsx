@@ -37,7 +37,7 @@ export const Tabs: React.FC<ITabsProps> = ({
       if (!allow) return;
       if (tab.type !== 'other') setActive(tab);
       if (tab.onClick) {
-        tab.onClick(tab);
+        tab.onClick(tab, event);
       } else if (tab.to) {
         navigate(tab.to);
       }

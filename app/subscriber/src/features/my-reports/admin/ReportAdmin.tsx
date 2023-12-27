@@ -1,7 +1,6 @@
 import { Action } from 'components/action';
 import { Button } from 'components/button';
 import { FormikForm } from 'components/formik';
-import { Header } from 'components/header';
 import { PageSection } from 'components/section';
 import { FormikTabs } from 'components/tabs';
 import { ITab } from 'components/tabs/interfaces';
@@ -164,7 +163,6 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
 
   return (
     <styled.ReportAdmin>
-      <Header />
       <FormikForm
         initialValues={report}
         validationSchema={ReportFormSchema}

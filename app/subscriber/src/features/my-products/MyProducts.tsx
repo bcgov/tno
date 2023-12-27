@@ -1,4 +1,3 @@
-import { Header } from 'components/header';
 import { PageSection } from 'components/section';
 import React from 'react';
 import { FaEnvelope, FaUserPlus } from 'react-icons/fa6';
@@ -46,7 +45,6 @@ export const MyProducts: React.FC = () => {
 
   return (
     <styled.MyProducts>
-      <Header />
       <PageSection header="MMI Products">
         <div>
           <p>

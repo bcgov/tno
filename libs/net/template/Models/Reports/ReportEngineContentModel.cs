@@ -69,7 +69,7 @@ public class ReportEngineContentModel : BaseTemplateModel<IEnumerable<ContentMod
 
         // Convert any images to base64 and include them in the email.
         if (!string.IsNullOrWhiteSpace(uploadPath) && this.Content.Any())
-            this.Content.Where(c => c.ContentType == Entities.ContentType.Image).ForEach(c =>
+            sections.SelectMany(s => s.Value.Content).Where(c => c.ContentType == Entities.ContentType.Image).ForEach(c =>
             {
                 c.ImageContent = GetImageContent(uploadPath, c.FileReferences.FirstOrDefault()?.Path);
             });

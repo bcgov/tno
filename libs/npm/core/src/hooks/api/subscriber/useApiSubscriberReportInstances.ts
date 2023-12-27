@@ -49,9 +49,9 @@ export const useApiSubscriberReportInstances = (
         { data: instance },
       );
     },
-    viewReportInstance: (id: number) => {
+    viewReportInstance: (id: number, regenerate: boolean = false) => {
       return api.post<never, AxiosResponse<IReportResultModel>, any>(
-        `/subscriber/report/instances/${id}/view`,
+        `/subscriber/report/instances/${id}/view?regenerate=${regenerate}`,
       );
     },
     exportReport: (id: number, reportName: string) => {

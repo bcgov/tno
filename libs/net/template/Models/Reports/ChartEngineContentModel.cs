@@ -135,6 +135,7 @@ public class ChartEngineContentModel : RazorEngineTemplateBase
 
     /// <summary>
     /// Creates a new instance of a ChartEngineContentModel, initializes with specified parameters.
+    /// If content is provided it will be added to this chart, otherwise it will extract all the content in all sections above.
     /// </summary>
     /// <param name="uid"></param>
     /// <param name="model"></param>

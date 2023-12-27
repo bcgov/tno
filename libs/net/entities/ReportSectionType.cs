@@ -16,7 +16,17 @@ public enum ReportSectionType
     TableOfContents = 1,
 
     /// <summary>
-    /// This section displays a summary of the sections above it.
+    /// This section displays text only.
     /// </summary>
-    Summary = 2,
+    Text = 2,
+
+    /// <summary>
+    /// This section displays charts.
+    /// </summary>
+    MediaAnalytics = 3,
+
+    /// <summary>
+    /// This section displays content in a gallery (i.e. front page images).
+    /// </summary>
+    Gallery = 4,
 }

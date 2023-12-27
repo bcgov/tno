@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { useApp, useReports } from 'store/hooks';
-import { Col, IReportModel, Row, Spinner } from 'tno-core';
+import { Col, IReportModel, ReportSectionTypeName, Row, Spinner } from 'tno-core';
 
 import { calcNextSend, getLastSent } from './utils';
 
@@ -50,7 +50,9 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => 
     <Section
       key={report.id}
       icon={
-        report.sections.some((section) => section.settings.showCharts) ? (
+        report.sections.some(
+          (section) => section.settings.sectionType === ReportSectionTypeName.MediaAnalytics,
+        ) ? (
           <FaChartPie />
         ) : (
           <FaNewspaper />

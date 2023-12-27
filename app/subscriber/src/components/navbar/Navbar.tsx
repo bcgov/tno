@@ -41,7 +41,7 @@ export const Navbar: React.FC<INavbarProps> = ({ options }) => {
 
         {Object.keys(groupByName).map((key) => {
           return (
-            <span className="group-section">
+            <span key={key} className="group-section">
               <div className="group-title">
                 {determineGroupIcon(key)}
                 <Show visible={expanded}>{key}</Show>

@@ -82,9 +82,9 @@ export const Landing = styled(Col)`
       @media (min-width: 500px) {
         padding: 1em;
       }
-      min-height: 45em;
+      height: calc(100dvh - 320px);
+      overflow-y: auto;
+      overflow-x: clip;
     }
-
-    /* TODO: move these to the button component as styling configuration */
   }
 `;

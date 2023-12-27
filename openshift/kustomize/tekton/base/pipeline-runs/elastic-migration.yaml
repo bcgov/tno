@@ -1,0 +1,47 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  annotations:
+    description: Run the elastic migration.
+  generateName: elastic-migration-
+  namespace: 9b301c-tools
+  labels:
+    tekton.dev/pipeline: elastic-migration
+spec:
+  params:
+    - name: GIT_REF
+      value: dev
+    - name: CONTEXT
+      value: tno
+    - name: IMAGE_TAG
+      value: latest
+    - name: PROJECT_SHORTNAME
+      value: 9b301c
+    - name: DEPLOY_TO
+      value: dev
+    - name: FORCE_BUILD
+      value: "no"
+  pipelineRef:
+    name: elastic-migration
+  serviceAccountName: pipeline
+  timeouts:
+    pipeline: 3h0m0s
+  workspaces:
+    - name: source
+      persistentVolumeClaim:
+        claimName: pipelines
+    - name: conditions
+      volumeClaimTemplate:
+        metadata:
+          creationTimestamp: null
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 50Mi
+          storageClassName: netapp-file-standard
+          volumeMode: Filesystem
+        status: {}
+    - emptyDir: {}
+      name: build
