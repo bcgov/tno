@@ -34,8 +34,6 @@ export const Tags: React.FC<ITagsProps> = () => {
       isDisabled: !tag.isEnabled,
     } as IOptionItem;
   });
-  // eslint-disable-next-line no-console
-  console.log(tagOptions);
   /** prepare tags to proper format for the API */
   const convertTags = (selectedTags: IOptionItem[]) => {
     return tags
