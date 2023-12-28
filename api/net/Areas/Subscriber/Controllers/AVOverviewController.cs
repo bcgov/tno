@@ -54,16 +54,24 @@ public class AVOverviewController : ControllerBase
     /// <summary>
     /// Find evening overviews for the specified 'publishedOn'.
     /// </summary>
+    /// <param name="publishedOn"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    [HttpGet]
+    [HttpGet()]
+    [Route("")]
+    [Route("{publishedOn}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(AVOverviewInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
-    public IActionResult FindByDate(DateTime publishedOn)
+    public IActionResult FindByDate([FromRoute]DateTime? publishedOn = null)
     {
-        var instance = _overviewInstanceService.FindByDate(publishedOn);
+        Entities.AVOverviewInstance? instance;
+        if (publishedOn != null) {
+            instance = _overviewInstanceService.FindByDate((DateTime) publishedOn);
+        } else {
+            instance = _overviewInstanceService.FindLatest();
+        }
 
         if (instance == null) return new NoContentResult();
         return new JsonResult(new AVOverviewInstanceModel(instance));

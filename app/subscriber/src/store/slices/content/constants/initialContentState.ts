@@ -40,4 +40,7 @@ export const initialContentState: IContentState = {
     content: undefined,
     filter: defaultContentFilter,
   },
+  avOverview: {
+    filter: defaultContentFilter,
+  },
 };

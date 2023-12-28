@@ -72,23 +72,35 @@ public class AVOverviewController : ControllerBase
     /// Find evening overviews for the specified 'publishedOn'.
     /// If one does not exist it will generate a new model based on the configured template.
     /// </summary>
+    /// <param name="publishedOn"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    [HttpGet]
+    [HttpGet()]
+    [Route("")]
+    [Route("{publishedOn}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(AVOverviewInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
-    public IActionResult FindByDate(DateTime publishedOn)
+    public IActionResult FindByDate([FromRoute]DateTime? publishedOn = null)
     {
-        var instance = _overviewInstanceService.FindByDate(publishedOn);
-
-        // If an evening overview does not exist it will generate a new one based on the template, but not save it.
-        if (instance == null)
+        Entities.AVOverviewInstance? instance;
+        if (publishedOn != null)
         {
-            var type = publishedOn.DayOfWeek == DayOfWeek.Sunday || publishedOn.DayOfWeek == DayOfWeek.Saturday ? Entities.AVOverviewTemplateType.Weekend : Entities.AVOverviewTemplateType.Weekday;
-            var template = _overviewTemplateService.FindById(type) ?? throw new NoContentException($"A template for '{type.GetName()}' does not exist.");
-            return new JsonResult(new AVOverviewInstanceModel(template, publishedOn));
+            instance = _overviewInstanceService.FindByDate((DateTime)publishedOn);
+
+            // If an evening overview does not exist it will generate a new one based on the template, but not save it.
+            if (instance == null)
+            {
+                var type = ((DateTime)publishedOn).DayOfWeek == DayOfWeek.Sunday || ((DateTime)publishedOn).DayOfWeek == DayOfWeek.Saturday ? Entities.AVOverviewTemplateType.Weekend : Entities.AVOverviewTemplateType.Weekday;
+                var template = _overviewTemplateService.FindById(type) ?? throw new NoContentException($"A template for '{type.GetName()}' does not exist.");
+                return new JsonResult(new AVOverviewInstanceModel(template, (DateTime)publishedOn));
+            }
+        }
+        else
+        {
+            instance = _overviewInstanceService.FindLatest();
+            if (instance == null) return new NoContentResult();
         }
         return new JsonResult(new AVOverviewInstanceModel(instance));
     }
