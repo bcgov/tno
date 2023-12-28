@@ -75,7 +75,7 @@ public class AVOverviewController : ControllerBase
     /// <param name="publishedOn"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    [HttpGet()]
+    [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(AVOverviewInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
