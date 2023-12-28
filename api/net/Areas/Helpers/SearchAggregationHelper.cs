@@ -15,9 +15,10 @@ public static class SearchAggregationHelper
         var aggregationRootModel = new TNO.TemplateEngine.Models.Reports.AggregationRootModel
         {
             Name = model.Name,
-            DocCount = model.DocCount,
-            ChildAggregation = model.ChildAggregation.Convert()
+            DocCount = model.DocCount
         };
+        if (model.ChildAggregation != null) aggregationRootModel.ChildAggregation = model.ChildAggregation.Convert();
+
         return aggregationRootModel;
     }
 

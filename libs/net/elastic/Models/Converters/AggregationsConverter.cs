@@ -86,7 +86,7 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
     private static IEnumerable<AggregationBucketModel> ParseAggregationBucketModels(ref Utf8JsonReader reader)
     {
         var buckets = new List<AggregationBucketModel>();
-        var bucket = new AggregationBucketModel();
+        AggregationBucketModel bucket = new AggregationBucketModel();
         reader.Read();
 
         // if the array is empty?
@@ -97,18 +97,9 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
 
         while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
         {
-            if (reader.TokenType == JsonTokenType.EndObject)
+            if ((reader.TokenType != JsonTokenType.StartObject) 
+                && (reader.TokenType != JsonTokenType.EndObject))
             {
-                buckets.Add(bucket);
-                bucket = new AggregationBucketModel();
-            }
-            else if (reader.TokenType == JsonTokenType.StartObject)
-            {
-                bucket = new AggregationBucketModel();
-            }
-            else
-            {
-
                 string propName = (reader.GetString() ?? "");
                 reader.Read();
                 switch (propName.ToLower())
@@ -117,12 +108,20 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
                         bucket.DocCount = reader.GetInt64();
                         break;
                     case var _ when propName.Equals(PropNameKey.ToLower()):
-                        bucket.Key = reader.GetString();
+                        bucket.Key = reader.GetString() ?? "";
                         break;
                     case var _ when reader.TokenType == JsonTokenType.StartObject:
                         bucket.ChildAggregation = ParseAggregationModel(ref reader, propName);
                         break;
                 }
+            }
+            else if (reader.TokenType == JsonTokenType.StartObject)
+            {
+                bucket = new AggregationBucketModel();
+            }
+            else if (reader.TokenType == JsonTokenType.EndObject)
+            {
+                buckets.Add(bucket);
             }
         }
         return buckets;
@@ -145,15 +144,16 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
     public void WriteAggregationRootModel(Utf8JsonWriter writer, AggregationRootModel value, JsonSerializerOptions options)
     {
         writer.WriteNumber(PropNameDocCount, value.DocCount);
-
-        WriteAggregationModel(writer, value.ChildAggregation, options);
+        
+        if (value.ChildAggregation != null)
+            WriteAggregationModel(writer, value.ChildAggregation, options);
     }
 
     public void WriteAggregationModel(Utf8JsonWriter writer, AggregationModel value, JsonSerializerOptions options)
     {
         writer.WriteStartObject(value.Name);
 
-        if (value.SumOtherDocCount != null)
+        if (value.DocCountErrorUpperBound != null)
             writer.WriteNumber(PropNameDocCountErrorUpperBound, value.DocCountErrorUpperBound.Value);
 
         if (value.SumOtherDocCount != null)
