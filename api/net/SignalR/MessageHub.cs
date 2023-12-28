@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
+using TNO.API.CSS;
 
 namespace TNO.API.SignalR;
 
@@ -13,6 +14,7 @@ namespace TNO.API.SignalR;
 public class MessageHub : Hub
 {
     #region Variables
+    private readonly ICssHelper _cssHelper;
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly ILogger _logger;
     #endregion
@@ -21,10 +23,12 @@ public class MessageHub : Hub
     /// <summary>
     /// Creates a new instance of a MessageHub, initializes with specified parameters.
     /// </summary>
+    /// <param name="cssHelper"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
-    public MessageHub(IOptions<JsonSerializerOptions> serializerOptions, ILogger<MessageHub> logger)
+    public MessageHub(ICssHelper cssHelper, IOptions<JsonSerializerOptions> serializerOptions, ILogger<MessageHub> logger)
     {
+        _cssHelper = cssHelper;
         _serializerOptions = serializerOptions.Value;
         _logger = logger;
     }
@@ -63,6 +67,20 @@ public class MessageHub : Hub
     public Task PingAsync(string target, object message)
     {
         return this.Clients.Caller.SendAsync(target, message);
+    }
+
+    /// <summary>
+    /// Logout all devices connected to one account.
+    /// </summary>
+    /// <param name="username"></param>
+    /// <param name="deviceKey"></param>
+    /// <returns></returns>
+    [HubMethodName("logout")]
+    public Task LogoutAsync(string username, string? deviceKey = null)
+    {
+        if (this.Context.User != null)
+            _cssHelper.RemoveOtherLocations(this.Context.User, deviceKey);
+        return this.Clients.User(username).SendAsync("Logout");
     }
     #endregion
 }

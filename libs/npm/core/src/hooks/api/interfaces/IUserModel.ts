@@ -8,6 +8,7 @@ import {
   IReportInstanceModel,
   IReportModel,
   IUserColleagueModel,
+  IUserPreferencesModel,
 } from '.';
 
 export interface IUserModel extends IAuditColumnsModel {
@@ -23,7 +24,8 @@ export interface IUserModel extends IAuditColumnsModel {
   status: UserStatusName;
   emailVerified: boolean;
   isSystemAccount: boolean;
-  preferences?: any;
+  preferences?: IUserPreferencesModel;
+  uniqueLogins: number;
   note: string;
   roles?: string[];
   organizations?: IOrganizationModel[];

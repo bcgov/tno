@@ -2,7 +2,7 @@ import { AxiosResponse } from 'axios';
 import React from 'react';
 
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IRegisterModel, IUserInfoModel, IUserModel, useApi } from '..';
+import { IRegisterModel, IUserInfoModel, IUserLocationModel, IUserModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -19,8 +19,11 @@ export const useApiAuth = (
   const api = useApi(options);
 
   return React.useRef({
-    getUserInfo: () => {
-      return api.post<IUserInfoModel, AxiosResponse<IUserInfoModel>, any>(`/auth/userinfo`);
+    getUserInfo: (location?: IUserLocationModel) => {
+      return api.post<IUserLocationModel, AxiosResponse<IUserInfoModel>, any>(
+        `/auth/userinfo`,
+        location,
+      );
     },
     requestCode: (model: IRegisterModel) => {
       return api.put<IRegisterModel, AxiosResponse<IRegisterModel>, any>(

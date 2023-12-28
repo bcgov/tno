@@ -20,8 +20,9 @@ public interface ICssHelper
     /// If the user exists in TNO, activate user by linking to CSS and updating CSS.
     /// </summary>
     /// <param name="principal"></param>
+    /// <param name="location"></param>
     /// <returns></returns>
-    Task<Entities.User?> ActivateAsync(ClaimsPrincipal principal);
+    Task<Tuple<Entities.User?, Models.Auth.AccountAuthState>> ActivateAsync(ClaimsPrincipal principal, Models.Auth.LocationModel? location = null);
 
     /// <summary>
     /// Update the specified user with the specified roles.
@@ -38,5 +39,19 @@ public interface ICssHelper
     /// <param name="model"></param>
     /// <returns></returns>
     Task DeleteUserAsync(Entities.User model);
+
+    /// <summary>
+    /// Remove the specified location.
+    /// </summary>
+    /// <param name="principal"></param>
+    /// <param name="deviceKey"></param>
+    void RemoveLocation(ClaimsPrincipal principal, string? deviceKey = null);
+
+    /// <summary>
+    /// Keep the specified location and remove all others.
+    /// </summary>
+    /// <param name="principal"></param>
+    /// <param name="deviceKey"></param>
+    void RemoveOtherLocations(ClaimsPrincipal principal, string? deviceKey = null);
     #endregion
 }

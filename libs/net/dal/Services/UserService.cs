@@ -151,6 +151,7 @@ public class UserService : BaseService<User, int>, IUserService
         original.Code = entity.Code;
         original.Roles = entity.Roles;
         original.Preferences = entity.Preferences;
+        original.UniqueLogins = entity.UniqueLogins;
         original.LastLoginOn = entity.LastLoginOn;
         if (String.IsNullOrWhiteSpace(entity.Code)) original.CodeCreatedOn = null;
         else if (original.Code != entity.Code) original.CodeCreatedOn = DateTime.UtcNow;

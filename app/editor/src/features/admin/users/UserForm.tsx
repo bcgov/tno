@@ -133,6 +133,15 @@ const UserForm: React.FC = () => {
                 <FormikText name="lastName" label="Last Name" />
               </Col>
             </Row>
+            <Row>
+              <FormikText
+                name="uniqueLogins"
+                label="Number of allowed devices"
+                type="number"
+                tooltip="Zero means there is no limit"
+                width="8ch"
+              />
+            </Row>
             {!!user.id && (
               <FormikText name="key" label="Key" tooltip="Keycloak UID reference" disabled />
             )}

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using TNO.Entities;
 
 namespace TNO.API.Areas.Editor.Models.User;
@@ -72,6 +73,11 @@ public class UserModel
     /// get/set - Note about user.
     /// </summary>
     public string Note { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The user preferences.
+    /// </summary>
+    public JsonDocument Preferences { get; set; } = JsonDocument.Parse("{}");
     #endregion
 
     #region Constructors
@@ -99,6 +105,7 @@ public class UserModel
         this.EmailVerified = entity.EmailVerified;
         this.LastLoginOn = entity.LastLoginOn;
         this.Note = entity.Note;
+        this.Preferences = entity.Preferences;
     }
     #endregion
 }

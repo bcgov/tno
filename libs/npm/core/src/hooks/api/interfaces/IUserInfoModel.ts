@@ -1,4 +1,5 @@
-import { UserStatusName } from '../constants';
+import { AccountAuthStateName, UserStatusName } from '../constants';
+import { IUserPreferencesModel } from './IUserPreferencesModel';
 
 export interface IUserInfoModel {
   id: number;
@@ -11,7 +12,8 @@ export interface IUserInfoModel {
   lastLoginOn?: Date;
   isEnabled: boolean;
   status: UserStatusName;
-  preferences?: any;
+  authState: AccountAuthStateName;
+  preferences?: IUserPreferencesModel;
   note?: string;
   roles: string[];
 }
