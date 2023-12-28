@@ -23,11 +23,6 @@ namespace TNO.API.Config.Swagger
 
             operation.Deprecated |= apiDescription.IsDeprecated();
 
-            if (apiDescription != null && apiDescription.RelativePath != null && apiDescription.RelativePath.Contains("av/overviews"))
-            {
-                // do something
-            }
-
             if (operation.Parameters == null)
             {
                 return;
@@ -49,7 +44,7 @@ namespace TNO.API.Config.Swagger
                     parameter.Schema.Default = new OpenApiString(description.DefaultValue.ToString());
                 }
 
-                parameter.Required &= description.IsRequired;
+                parameter.Required |= description.IsRequired;
             }
         }
     }

@@ -15,10 +15,7 @@ export const useAVOverviewInstances = (): [IAVOverviewController] => {
 
   const controller = React.useMemo(
     () => ({
-      findAVOverview: async (publishedOn: Date | string | null) => {
-        console.log('******findAVOverview********');
-        console.log(publishedOn);
-        console.log('******findAVOverview********');
+      findAVOverview: async (publishedOn?: Date | string | null) => {
         const response = await dispatch<IAVOverviewInstanceModel | undefined>(
           'find-av-overviews',
           () => api.findAVOverview(publishedOn),
