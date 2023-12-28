@@ -141,7 +141,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
   }, [form.publishedOn, setForm]);
 
   React.useEffect(() => {
-    setSeriesOptions(series.map((m: any) => new OptionItem(m.name, m.id, m.isEnabled)));
+    setSeriesOptions(series.map((m: any) => new OptionItem(m.name, m.id, !m.isEnabled)));
   }, [series]);
 
   React.useEffect(() => {

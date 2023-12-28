@@ -42,7 +42,7 @@ const UserForm: React.FC = () => {
 
   const [user, setUser] = React.useState<IUserModel>(defaultUser);
   const [roleOptions, setRoleOptions] = React.useState(
-    roles.map((r) => new OptionItem(r.name, r.id, r.isEnabled)),
+    roles.map((r) => new OptionItem(r.name, r.id, !r.isEnabled)),
   );
 
   const userId = Number(id);

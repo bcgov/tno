@@ -20,7 +20,7 @@ export const sortIngest = <T extends IIngestModel>(a: T, b: T) => {
 export const getIngestOptions = <T extends IIngestModel>(
   items: T[],
   prepend: IOptionItem[] = [],
-  map: (item: T) => IOptionItem = (ds) => new OptionItem(ds.name, ds.id, ds.isEnabled),
+  map: (item: T) => IOptionItem = (ds) => new OptionItem(ds.name, ds.id, !ds.isEnabled),
   sort: (a: T, b: T) => number = sortIngest,
 ) => {
   return prepend.concat([...items].sort(sort).map(map));
