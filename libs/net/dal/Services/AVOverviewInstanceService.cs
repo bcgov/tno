@@ -52,6 +52,23 @@ public class AVOverviewInstanceService : BaseService<AVOverviewInstance, int>, I
             .FirstOrDefault();
     }
 
+    /// <summary>
+    /// Return the latest published evening overview instance.
+    /// </summary>
+    /// <returns></returns>
+    public AVOverviewInstance? FindLatest()
+    {
+        return this.Context.AVOverviewInstances
+            .AsNoTracking()
+            .Include(i => i.Template)
+            .Include(i => i.Sections).ThenInclude(s => s.Source)
+            .Include(i => i.Sections).ThenInclude(s => s.Series)
+            .Include(i => i.Sections).ThenInclude(s => s.Items).ThenInclude(i => i.Content).ThenInclude(c => c!.FileReferences)
+            .OrderByDescending(r => r.PublishedOn)
+            .Where(i => i.IsPublished == true)
+            .FirstOrDefault();
+    }
+
     public override AVOverviewInstance Add(AVOverviewInstance entity)
     {
         entity.Sections.ForEach(section =>

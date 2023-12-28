@@ -15,6 +15,9 @@ export const contentSlice = createSlice({
     storeGalleryDateFilter(state: IContentState, action: PayloadAction<IOptionItem | null>) {
       state.pressGalleryFilter.dateFilter = action.payload;
     },
+    storeAvOverviewDateFilter(state: IContentState, action: PayloadAction<IFilterSettingsModel>) {
+      state.avOverview.filter = action.payload;
+    },
     storeSearchFilter(state: IContentState, action: PayloadAction<IFilterSettingsModel>) {
       state.search.filter = action.payload;
     },
@@ -92,6 +95,7 @@ export const {
   storeFrontPageContent,
   storeGalleryDateFilter,
   storeGalleryPressFilter,
+  storeAvOverviewDateFilter,
   storeHomeContent,
   storeMediaTypeContent,
   storeMyMinisterContent,

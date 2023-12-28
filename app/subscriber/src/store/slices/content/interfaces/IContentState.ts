@@ -36,4 +36,7 @@ export interface IContentState {
     content?: KnnSearchResponse<IContentModel>;
     filter: IFilterSettingsModel;
   };
+  avOverview: {
+    filter: IFilterSettingsModel;
+  };
 }

@@ -19,13 +19,15 @@ export const useApiSubscriberAVOverviews = (
   const api = useApi(options);
 
   return React.useRef({
-    findAVOverview: (publishedOn: Date | string) => {
-      const params = {
-        publishedOn,
-      };
-      return api.get<never, AxiosResponse<IAVOverviewInstanceModel | undefined>, any>(
-        `/subscriber/reports/av/overviews?${toQueryString(params)}`,
-      );
+    findAVOverview: (publishedOn?: Date | string | null) => {
+      let url = '/subscriber/reports/av/overviews';
+      if (publishedOn) {
+        const params = {
+          publishedOn,
+        };
+        url += `?${toQueryString(params)}`;
+      }
+      return api.get<never, AxiosResponse<IAVOverviewInstanceModel | undefined>, any>(url);
     },
     viewAVOverview: (instanceId: number) => {
       return api.post<never, AxiosResponse<never>, any>(
