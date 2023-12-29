@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { getIn, useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
