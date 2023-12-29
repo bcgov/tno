@@ -17,8 +17,8 @@ INSERT INTO public."report_section" (
   , '' -- description
   , true -- is_enabled
   , 0 -- sort_order
-  , (SELECT "id" FROM public."report" WHERE "name" = 'Event of the Day')  -- report_id
-  , (SELECT "id" FROM public."filter" WHERE "name" = 'Event of the Day - 24hr Aggregate') -- filter_id
+  , (SELECT "id" FROM public."report" WHERE "name" = 'Event of the Day' limit 1)  -- report_id
+  , (SELECT "id" FROM public."filter" WHERE "name" = 'Event of the Day - 24hr Aggregate' limit 1) -- filter_id
   , '{
   "label": "Top Topics - Last 24hrs",
   "sortBy": "",
@@ -39,8 +39,8 @@ INSERT INTO public."report_section" (
   , '' -- description
   , true -- is_enabled
   , 0 -- sort_order
-  , (SELECT "id" FROM public."report" WHERE "name" = 'Event of the Day')  -- report_id
-  , (SELECT "id" FROM public."filter" WHERE "name" = 'Event of the Day - 24hr Aggregate') -- filter_id
+  , (SELECT "id" FROM public."report" WHERE "name" = 'Event of the Day' limit 1)  -- report_id
+  , (SELECT "id" FROM public."filter" WHERE "name" = 'Event of the Day - 24hr Aggregate' limit 1) -- filter_id
   , '{
   "label": "",
   "sortBy": "",
@@ -62,8 +62,8 @@ INSERT INTO public."report_section" (
   , '' -- description
   , true -- is_enabled
   , 0 -- sort_order
-  , (SELECT "id" FROM public."report" WHERE "name" = 'Event of the Day')  -- report_id
-  , (SELECT "id" FROM public."filter" WHERE "name" = 'Event of the Day - Rolling 365 day aggregate') -- filter_id
+  , (SELECT "id" FROM public."report" WHERE "name" = 'Event of the Day' limit 1)  -- report_id
+  , (SELECT "id" FROM public."filter" WHERE "name" = 'Event of the Day - Rolling 365 day aggregate' limit 1) -- filter_id
   , '{
   "label": "Top Topics - Last 356 days",
   "sortBy": "",
