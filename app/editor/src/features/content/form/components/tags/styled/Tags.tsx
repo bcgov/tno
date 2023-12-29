@@ -50,4 +50,11 @@ export const Tags = styled(Row)`
   .btn {
     max-height: 2.4em;
   }
+
+  /*
+  Prevents the draggable panel to break layout on this specific component
+  */
+  div[role='rowgroup'] {
+    max-height: 40em;
+  }
 `;
