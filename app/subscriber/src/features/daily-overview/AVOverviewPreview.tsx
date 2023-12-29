@@ -37,6 +37,7 @@ const AVOverviewPreview: React.FC = () => {
       let instance = await findAVOverview();
 
       if (!!instance?.id) {
+        // set date to latest published av overview
         const latestPublishedOnDate = moment(instance.publishedOn).startOf('day').toISOString();
         if (latestPublishedOnDate !== avOverviewFilter?.startDate) {
           setDate(latestPublishedOnDate);
@@ -49,6 +50,9 @@ const AVOverviewPreview: React.FC = () => {
         const preview = await viewAVOverview(instance.id);
         setIsPublished(instance.isPublished);
         setPreview(preview);
+      } else {
+        // if nothing found, just set date to current date
+        setDate(moment().startOf('day').toISOString());
       }
     } catch {
     } finally {
