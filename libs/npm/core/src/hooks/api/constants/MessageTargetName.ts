@@ -15,4 +15,6 @@ export enum MessageTargetName {
   IngestDeleted = 'ingest-deleted',
   /** Report status updated */
   ReportStatus = 'report-status',
+  /** Request for the user to be logged out automatically */
+  Logout = 'logout',
 }

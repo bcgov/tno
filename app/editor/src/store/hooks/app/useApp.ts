@@ -1,6 +1,7 @@
 import React from 'react';
 import { IAppState, IErrorModel, IUserOptions, useAppStore } from 'store/slices';
 import {
+  AccountAuthStateName,
   getFromLocalStorage,
   IRegisterModel,
   IUserInfoModel,
@@ -26,6 +27,7 @@ let userInfo: IUserInfoModel = {
   displayName: '',
   isEnabled: false,
   roles: [],
+  authState: AccountAuthStateName.Authorized,
 };
 
 let initialized = false;

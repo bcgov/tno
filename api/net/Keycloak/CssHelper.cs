@@ -1,11 +1,12 @@
 using System.Security.Claims;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
-using TNO.DAL.Services;
 using TNO.CSS;
-using TNO.CSS.Models;
-using TNO.Entities;
 using TNO.CSS.Extensions;
+using TNO.CSS.Models;
+using TNO.DAL.Services;
 
 namespace TNO.API.CSS;
 
@@ -51,7 +52,7 @@ public class CssHelper : ICssHelper
     /// </summary>
     /// <param name="users"></param>
     /// <returns></returns>
-    private async Task SyncKeycloakUsersWithLocal(IEnumerable<User> users)
+    private async Task SyncKeycloakUsersWithLocal(IEnumerable<Entities.User> users)
     {
         // Fetch all users from keycloak that have one of the defined roles.
         var roles = await _cssService.GetRolesAsync();
@@ -120,12 +121,14 @@ public class CssHelper : ICssHelper
     /// If the user exists in TNO, activate user by linking to CSS and updating CSS.
     /// </summary>
     /// <param name="principal"></param>
+    /// <param name="location"></param>
     /// <returns></returns>
-    public async Task<Entities.User?> ActivateAsync(ClaimsPrincipal principal)
+    public async Task<Tuple<Entities.User?, Models.Auth.AccountAuthState>> ActivateAsync(ClaimsPrincipal principal, Models.Auth.LocationModel? location = null)
     {
         // CSS uses the preferred_username value as a username, but it's not the actual username...
         var key = principal.GetKey() ?? throw new NotAuthorizedException("The 'preferred_username' is required but missing from token");
         var user = _userService.FindByUserKey(key);
+        var auth = Models.Auth.AccountAuthState.Authorized;
 
         // If user doesn't exist, add them to the database.
         if (user == null)
@@ -149,8 +152,7 @@ public class CssHelper : ICssHelper
             if (userRoles.Users.Length > 1) throw new NotAuthorizedException($"Keycloak has multiple users with the same username '{key}'");
             if (user == null)
             {
-                // Add the user to the database.
-                user = _userService.AddAndSave(new Entities.User(username, email, key)
+                user = new Entities.User(username, email, key)
                 {
                     DisplayName = principal.GetDisplayName() ?? "",
                     FirstName = principal.GetFirstName() ?? "",
@@ -161,7 +163,10 @@ public class CssHelper : ICssHelper
                     Status = Entities.UserStatus.Activated,
                     LastLoginOn = DateTime.UtcNow,
                     Roles = String.Join(",", userRoles.Roles.Select(r => $"[{r.Name}]"))
-                });
+                };
+                auth = AuthorizeLocation(user, location);
+                // Add the user to the database.
+                user = _userService.AddAndSave(user);
             }
             else if (user != null)
             {
@@ -175,21 +180,182 @@ public class CssHelper : ICssHelper
                 user.LastLoginOn = DateTime.UtcNow;
                 user.Status = Entities.UserStatus.Approved;
                 user.EmailVerified = principal.GetEmailVerified() ?? false;
+                auth = AuthorizeLocation(user, location);
 
                 // Apply the preapproved roles to the user.
                 var roles = await UpdateUserRolesAsync(key, user.Roles.Split(",").Select(r => r[1..^1]).ToArray());
                 user.Roles = String.Join(",", roles.Select(r => $"[{r}]"));
-                _userService.UpdateAndSave(user);
-                return user;
+                user = _userService.UpdateAndSave(user);
             }
         }
         else
         {
             user.LastLoginOn = DateTime.UtcNow;
-            _userService.UpdateAndSave(user);
+            auth = AuthorizeLocation(user, location);
+            user = _userService.UpdateAndSave(user);
         }
 
-        return user;
+        return Tuple.Create(user, auth);
+    }
+
+    /// <summary>
+    /// Remove the specified location.
+    /// </summary>
+    /// <param name="principal"></param>
+    /// <param name="deviceKey"></param>
+    public void RemoveLocation(ClaimsPrincipal principal, string? deviceKey = null)
+    {
+        // CSS uses the preferred_username value as a username, but it's not the actual username...
+        var key = principal.GetKey() ?? throw new NotAuthorizedException("The 'preferred_username' is required but missing from token");
+        var user = _userService.FindByUserKey(key);
+        if (user != null && deviceKey != null)
+        {
+            Models.Auth.LocationModel[]? userLocations = null;
+            var locations = user.Preferences.GetElementValue<Models.Auth.LocationModel[]>(".locations");
+            if (locations != null)
+            {
+                userLocations = locations.Where(l => l.Key != deviceKey).ToArray();
+                var preferences = JsonNode.Parse(user.Preferences.ToJson())?.AsObject();
+                if (preferences != null)
+                {
+                    preferences.Remove("locations");
+                    var arrayNode = new JsonArray();
+                    userLocations.ForEach(location => arrayNode.Add(location));
+                    preferences.Add("locations", arrayNode);
+                    user.Preferences = JsonDocument.Parse(preferences.ToJsonString());
+                    _userService.UpdateAndSave(user);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Keep the specified location and remove all others.
+    /// </summary>
+    /// <param name="principal"></param>
+    /// <param name="deviceKey"></param>
+    public void RemoveOtherLocations(ClaimsPrincipal principal, string? deviceKey = null)
+    {
+        // CSS uses the preferred_username value as a username, but it's not the actual username...
+        var key = principal.GetKey() ?? throw new NotAuthorizedException("The 'preferred_username' is required but missing from token");
+        var user = _userService.FindByUserKey(key);
+        if (user != null && deviceKey != null)
+        {
+            Models.Auth.LocationModel[]? userLocations = null;
+            var locations = user.Preferences.GetElementValue<Models.Auth.LocationModel[]>(".locations");
+            if (locations != null)
+            {
+                userLocations = locations.Where(l => l.Key == deviceKey).ToArray();
+                var preferences = JsonNode.Parse(user.Preferences.ToJson())?.AsObject();
+                if (preferences != null)
+                {
+                    preferences.Remove("locations");
+                    var arrayNode = new JsonArray();
+                    userLocations.ForEach(location => arrayNode.Add(location));
+                    preferences.Add("locations", arrayNode);
+                    user.Preferences = JsonDocument.Parse(preferences.ToJsonString());
+                    _userService.UpdateAndSave(user);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// If a location is provided it will add it to the user preferences property.
+    /// Determine if the user has logged into too many devices at the same time.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="location"></param>
+    /// <returns></returns>
+    private static Models.Auth.AccountAuthState AuthorizeLocation(Entities.User user, Models.Auth.LocationModel? location = null)
+    {
+        var state = Models.Auth.AccountAuthState.Authorized;
+        if (location != null)
+        {
+            location.LastLoginOn = DateTime.UtcNow;
+            var reasonableTimeSpan = location.LastLoginOn.Value.AddMinutes(-5);
+            var locations = user.Preferences.GetElementValue<Models.Auth.LocationModel[]>(".locations");
+            Models.Auth.LocationModel[]? userLocations = null;
+            if (locations == null)
+            {
+                // The first location captured.
+                userLocations = new[] { location };
+            }
+            else if (!locations.Any(l => l?.IPv4 == location?.IPv4) == true)
+            {
+                // Place new location at the top of the array.
+                userLocations = new Models.Auth.LocationModel[locations.Length + 1];
+                userLocations[0] = location;
+                Array.Copy(locations, 0, userLocations, 1, locations.Length);
+
+                // Multiple IP address may indicate a possible shared account if the login timestamps are close.
+                if (userLocations.Count(l => l.LastLoginOn >= reasonableTimeSpan) > 1)
+                {
+                    // TODO: It's possible the same device has moved to a new IP.
+                    // Inform action on shared account over multiple locations.
+                    state = Models.Auth.AccountAuthState.MultipleIPs;
+                }
+            }
+            else
+            {
+                // This IP has already been captured, it needs to be updated with the latest information.
+                // Multiple devices with the same IP may indicate a possible shared account if the key are different.
+                // It could also simply mean the same account logged into multiple devices.
+                var add = true;
+                for (var i = 0; i < locations.Length; i++)
+                {
+                    if (locations[i].IPv4 == location.IPv4)
+                    {
+                        if (locations[i].Key == location.Key)
+                        {
+                            locations[i].LastLoginOn = location.LastLoginOn;
+                            add = false;
+                        }
+                        else if (location.LastLoginOn >= reasonableTimeSpan)
+                        {
+                            // A different key may indicate different devices.
+                            // Each browser will generate a unique key.
+                            // Keys can get reset when cache is cleared.
+                            state = Models.Auth.AccountAuthState.MultipleDevices;
+                        }
+                    }
+                }
+                if (add)
+                {
+                    // Place new device at the top of the array.
+                    userLocations = new Models.Auth.LocationModel[locations.Length + 1];
+                    userLocations[0] = location;
+                    Array.Copy(locations, 0, userLocations, 1, locations.Length);
+                }
+                else
+                {
+                    userLocations = locations;
+                }
+            }
+
+            if (user.UniqueLogins == 0) state = Models.Auth.AccountAuthState.Authorized;
+            if ((state == Models.Auth.AccountAuthState.MultipleIPs && userLocations.Length > user.UniqueLogins) ||
+                (state == Models.Auth.AccountAuthState.MultipleDevices && userLocations.Length > user.UniqueLogins)) state = Models.Auth.AccountAuthState.Unauthorized;
+
+            // Update user preferences with location data.
+            var preferences = JsonNode.Parse(user.Preferences.ToJson())?.AsObject();
+            if (preferences != null)
+            {
+                // Remove older locations otherwise when a user attempts to login with a new device key it will always fail.
+                var length = user.UniqueLogins > 0 ? user.UniqueLogins : userLocations.Length;
+                userLocations = userLocations.Where(l => l.LastLoginOn >= location.LastLoginOn.Value.AddMonths(-1)).Take(length).ToArray();
+
+                preferences.Remove("locations");
+                var arrayNode = new JsonArray();
+                userLocations.ForEach(location => arrayNode.Add(location));
+                preferences.Add("locations", arrayNode);
+                user.Preferences = JsonDocument.Parse(preferences.ToJsonString());
+            }
+
+            return state;
+        }
+
+        return state;
     }
 
     /// <summary>

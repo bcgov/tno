@@ -27,4 +27,7 @@ public enum MessageTarget
 
     [Display(Name = "report-status")]
     ReportStatus = 7,
+
+    [Display(Name = "logout")]
+    Logout = 8,
 }

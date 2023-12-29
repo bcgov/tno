@@ -1,7 +1,15 @@
 import React from 'react';
-import { useApp } from 'store/hooks';
+import { useApiHub, useApp } from 'store/hooks';
 import { useAppStore } from 'store/slices';
-import { useKeycloakWrapper } from 'tno-core';
+import {
+  AccountAuthStateName,
+  Button,
+  Col,
+  MessageTargetName,
+  Modal,
+  useKeycloakWrapper,
+  useModal,
+} from 'tno-core';
 
 export interface IUserInfoProps {
   children?: React.ReactNode;
@@ -14,19 +22,56 @@ export interface IUserInfoProps {
 export const UserInfo: React.FC<IUserInfoProps> = ({ children }) => {
   const keycloak = useKeycloakWrapper();
   const [, app] = useApp();
-  const [, appStore] = useAppStore();
+  const [{ userInfo }, appStore] = useAppStore();
+  const { isShowing, toggle } = useModal();
+  const hub = useApiHub();
 
   const [init, setInit] = React.useState(true);
 
   React.useEffect(() => {
     if (keycloak.authenticated && init) {
-      app.getUserInfo();
-      setInit(false);
+      setInit(false); // Required to stop make this request a thousand times...  I hate hook dependencies.
+      app.getUserInfo().then((ui) => {
+        if (ui.authState === AccountAuthStateName.Unauthorized) {
+          toggle();
+        }
+      });
     } else if (!keycloak.authenticated) {
       appStore.storeUserInfo();
       setInit(true);
     }
-  }, [app, appStore, keycloak.authenticated, init]);
+  }, [app, appStore, keycloak.authenticated, init, toggle]);
 
-  return <>{children}</>;
+  hub.useHubEffect(MessageTargetName.Logout, (message: any) => {
+    if (!isShowing) toggle();
+    else keycloak.instance.logout();
+  });
+
+  return (
+    <>
+      {children}
+      <Modal
+        headerText="Account Access Detection"
+        body={
+          <Col flex="1">
+            <p>Your account has exceeded its allowed connections.</p>
+            <p>All active devices will automatically logoff.</p>
+          </Col>
+        }
+        isShowing={isShowing}
+        hide={toggle}
+        type="default"
+        confirmText="Yes, Remove It"
+        customButtons={
+          <Button
+            onClick={() => {
+              hub.send('logout', [userInfo?.username, userInfo?.key]);
+            }}
+          >
+            Logout
+          </Button>
+        }
+      />
+    </>
+  );
 };

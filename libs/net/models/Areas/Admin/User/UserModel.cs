@@ -80,6 +80,11 @@ public class UserModel : AuditColumnsModel
     public JsonDocument Preferences { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
+    /// get/set - Number of allowed unique logins (0 means infinite).
+    /// </summary>
+    public int UniqueLogins { get; set; }
+
+    /// <summary>
     /// get/set - An array of roles this user belongs to.
     /// </summary>
     public IEnumerable<string> Roles { get; set; } = Array.Empty<string>();
@@ -137,6 +142,7 @@ public class UserModel : AuditColumnsModel
         this.LastLoginOn = entity.LastLoginOn;
         this.Note = entity.Note;
         this.Preferences = entity.Preferences;
+        this.UniqueLogins = entity.UniqueLogins;
         this.Roles = entity.Roles.Split(",").Where(s => !String.IsNullOrWhiteSpace(s)).Select(r => r[1..^1]);
         this.Organizations = entity.OrganizationsManyToMany.Where(o => o.Organization != null).Select(o => new OrganizationModel(o.Organization!));
         if (entity.Organizations.Any())
@@ -185,6 +191,7 @@ public class UserModel : AuditColumnsModel
             LastLoginOn = model.LastLoginOn,
             Note = model.Note,
             Preferences = model.Preferences,
+            UniqueLogins = model.UniqueLogins,
             Roles = String.Join(",", model.Roles.Select(r => $"[{r.ToLower()}]")),
             Version = model.Version ?? 0
         };

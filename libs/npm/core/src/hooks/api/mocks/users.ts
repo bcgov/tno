@@ -16,5 +16,6 @@ export const mockUsers: IUserModel[] = [
     emailVerified: false,
     preferences: {},
     note: '',
+    uniqueLogins: 0,
   },
 ];
