@@ -44,7 +44,6 @@ export const SearchPage = styled.div`
 
   .adv-search-container {
     width: 45%;
-    overflow-y: auto;
   }
 
   .main-search-body {
@@ -67,7 +66,7 @@ export const SearchPage = styled.div`
   }
 
   .page-section {
-    max-height: calc(100vh - 4em);
+    max-height: calc(100vh - 10em);
     overflow: hidden;
   }
 
