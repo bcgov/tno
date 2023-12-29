@@ -164,7 +164,7 @@ else
                   <li style="font-weight:bold; @listItemColorStyle" >@rootAggregationBucket.Key (@rootAggregationBucket.DocCount hits)</li>
                 }
                 if  (rootAggregationBucket.ChildAggregation != null) {
-                  <ul class="agg-list-child @ReportExtensions.ToCssClass(rootAggregationBucket.ChildAggregation.Name,"agg")">
+                  <ul>
                   @foreach (var childAggregationBucket in rootAggregationBucket.ChildAggregation.Buckets)
                   {
                     if (showAggregateCountsAsPercentOfTotal)
