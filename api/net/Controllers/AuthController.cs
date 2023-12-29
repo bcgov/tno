@@ -1,9 +1,7 @@
 using System.Net;
 using System.Net.Mime;
-using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.User;
 using TNO.API.CSS;
@@ -31,7 +29,6 @@ public class AuthController : ControllerBase
     #region Variables
     private readonly ICssHelper _cssHelper;
     private readonly IUserService _userService;
-    private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
     #region Constructors
@@ -39,13 +36,11 @@ public class AuthController : ControllerBase
     /// Creates a new instance of a AuthController object, initializes with specified parameters.
     /// </summary>
     /// <param name="cssHelper"></param>
-    /// <param name="serializerOptions"></param>
     /// <param name="userService"></param>
-    public AuthController(ICssHelper cssHelper, IUserService userService, IOptions<JsonSerializerOptions> serializerOptions)
+    public AuthController(ICssHelper cssHelper, IUserService userService)
     {
         _cssHelper = cssHelper;
         _userService = userService;
-        _serializerOptions = serializerOptions.Value;
 
     }
     #endregion
@@ -59,12 +54,28 @@ public class AuthController : ControllerBase
     /// <returns></returns>
     [HttpPost("userinfo")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(PrincipalModel), 200)]
+    [ProducesResponseType(typeof(PrincipalModel), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Auth" })]
-    public async Task<IActionResult> UserInfoAsync()
+    public async Task<IActionResult> UserInfoAsync(LocationModel? location)
     {
-        var user = await _cssHelper.ActivateAsync(this.User);
-        return new JsonResult(new PrincipalModel(this.User, user, _serializerOptions));
+        var state = await _cssHelper.ActivateAsync(this.User, location);
+        return new JsonResult(new PrincipalModel(this.User, state.Item1, state.Item2));
+    }
+
+    /// <summary>
+    /// Get user information.
+    /// If the user doesn't currently exist in TNO, activate a new user by adding them to TNO.
+    /// If the user exists in TNO, activate user by linking to Keycloak and updating Keycloak.
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost("logout")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(PrincipalModel), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Auth" })]
+    public IActionResult Logout(LocationModel? location)
+    {
+        _cssHelper.RemoveLocation(this.User, location?.Key);
+        return Ok();
     }
 
     /// <summary>

@@ -5015,6 +5015,12 @@ namespace TNO.DAL.Migrations
                         .HasDefaultValue(0)
                         .HasColumnName("status");
 
+                    b.Property<int>("UniqueLogins")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("unique_logins")
+                        .HasDefaultValueSql("0");
+
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(250)

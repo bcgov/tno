@@ -42,7 +42,7 @@ const UserForm: React.FC = () => {
 
   const [user, setUser] = React.useState<IUserModel>(defaultUser);
   const [roleOptions, setRoleOptions] = React.useState(
-    roles.map((r) => new OptionItem(r.name, r.id, r.isEnabled)),
+    roles.map((r) => new OptionItem(r.name, r.id, !r.isEnabled)),
   );
 
   const userId = Number(id);
@@ -132,6 +132,15 @@ const UserForm: React.FC = () => {
                 <FormikText name="firstName" label="First Name" />
                 <FormikText name="lastName" label="Last Name" />
               </Col>
+            </Row>
+            <Row>
+              <FormikText
+                name="uniqueLogins"
+                label="Number of allowed devices"
+                type="number"
+                tooltip="Zero means there is no limit"
+                width="8ch"
+              />
             </Row>
             {!!user.id && (
               <FormikText name="key" label="Key" tooltip="Keycloak UID reference" disabled />

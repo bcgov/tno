@@ -17,15 +17,18 @@ export const MyMinisterSettings: React.FC = () => {
     .filter((m) => m.isEnabled)
     .sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name));
 
-  const handleSubmit = async (values: number[]) => {
+  const handleSubmit = async (values: number[], userInfo: IUserInfoModel) => {
     try {
-      const user = {
+      var user = {
         ...userInfo,
-        preferences: { ...userInfo?.preferences, myMinisters: values },
+        preferences: { ...userInfo.preferences, myMinisters: values },
+        isSystemAccount: false,
+        emailVerified: false,
+        uniqueLogins: 0,
       } as IUserModel;
-      await api.updateUser(user, userInfo?.id ?? 0);
+      user = await api.updateUser(user, userInfo.id);
       toast.success(`Your minister(s) have successfully been updated.`);
-      store.storeUserInfo(user as IUserInfoModel);
+      store.storeUserInfo({ ...userInfo, preferences: user.preferences });
     } catch {}
   };
 
@@ -37,25 +40,32 @@ export const MyMinisterSettings: React.FC = () => {
 
   React.useEffect(() => {
     // check if any of the users previous selections are no longer active
-    if (userInfo?.preferences?.myMinisters?.length > 0 && activeMinisters.length > 0) {
+    if (userInfo && userInfo?.preferences?.myMinisters?.length > 0 && activeMinisters.length > 0) {
       let activeSelectedMinisters: number[] = [];
       let inactiveSelectedMinisters: number[] = [];
-      userInfo?.preferences?.myMinisters.forEach((m: number) => {
+      userInfo.preferences?.myMinisters.forEach((m: number) => {
         const isActive = activeMinisters.find((element) => element.id === m);
         if (isActive) activeSelectedMinisters.push(m);
         else inactiveSelectedMinisters.push(m);
       });
       if (inactiveSelectedMinisters.length !== 0) {
-        const user = {
+        var user = {
           ...userInfo,
-          preferences: { ...userInfo?.preferences, myMinisters: activeSelectedMinisters },
+          preferences: { ...userInfo.preferences, myMinisters: activeSelectedMinisters },
+          isSystemAccount: false,
+          emailVerified: false,
+          uniqueLogins: 0,
         } as IUserModel;
-        api.updateUser(user, userInfo?.id ?? 0);
-        toast.success(
-          'One of more of your selected ministers are no longer enabled. ' +
-            'Your selection has been updated automatically: ',
-        );
-        store.storeUserInfo(user as IUserInfoModel);
+        api
+          .updateUser(user, userInfo.id)
+          .then((user) => {
+            toast.success(
+              'One of more of your selected ministers are no longer enabled. ' +
+                'Your selection has been updated automatically: ',
+            );
+            store.storeUserInfo({ ...userInfo, preferences: user.preferences });
+          })
+          .catch(() => {});
       }
     }
   }, [activeMinisters, api, store, userInfo]);
@@ -68,7 +78,11 @@ export const MyMinisterSettings: React.FC = () => {
       </p>
       <div className="option-container">
         <Row justifyContent="flex-end">
-          <Button type="submit" onClick={() => handleSubmit(myMinisters)}>
+          <Button
+            type="submit"
+            onClick={() => handleSubmit(myMinisters, userInfo!)}
+            disabled={!userInfo}
+          >
             Save
           </Button>
         </Row>
@@ -94,7 +108,11 @@ export const MyMinisterSettings: React.FC = () => {
         })}
 
         <Row justifyContent="flex-end">
-          <Button type="submit" onClick={() => handleSubmit(myMinisters)}>
+          <Button
+            type="submit"
+            onClick={() => handleSubmit(myMinisters, userInfo!)}
+            disabled={!userInfo}
+          >
             Save
           </Button>
         </Row>

@@ -99,16 +99,22 @@ public class User : AuditColumns
     public string Code { get; set; } = "";
 
     /// <summary>
+    /// get/set - When the 2FA code was created.
+    /// </summary>
+    [Column("code_created_on")]
+    public DateTime? CodeCreatedOn { get; set; }
+
+    /// <summary>
     /// get/set - The user preferences.
     /// </summary>
     [Column("preferences")]
     public JsonDocument Preferences { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
-    /// get/set - When the 2FA code was created.
+    /// get/set - Number of allowed unique logins (0 means infinite).
     /// </summary>
-    [Column("code_created_on")]
-    public DateTime? CodeCreatedOn { get; set; }
+    [Column("unique_logins")]
+    public int UniqueLogins { get; set; }
 
     /// <summary>
     /// get/set - Comma separated list of roles assigned to this user (i.e. "[admin],[editor]").

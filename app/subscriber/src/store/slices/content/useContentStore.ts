@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from 'store';
 import { IContentModel, IFilterSettingsModel, IOptionItem } from 'tno-core';
 
 import {
+  storeAvOverviewDateFilter,
   storeFrontPageContent,
   storeFrontPageFilter,
   storeGalleryDateFilter,
@@ -30,6 +31,7 @@ export interface IContentProps {
 export interface IContentStore {
   storeGalleryDateFilter: (date: IOptionItem | null) => void;
   storeGalleryPressFilter: (filter: IOptionItem | null) => void;
+  storeAvOverviewDateFilter: (filter: IFilterSettingsModel) => void;
   storeFrontPageFilter: (filter: IFilterSettingsModel) => void;
   storeMediaTypeFilter: (filter: IFilterSettingsModel) => void;
   storeSearchFilter: (filter: IFilterSettingsModel) => void;
@@ -57,6 +59,9 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
       },
       storeGalleryDateFilter: (date: IOptionItem | null) => {
         dispatch(storeGalleryDateFilter(date));
+      },
+      storeAvOverviewDateFilter: (filter: IFilterSettingsModel) => {
+        dispatch(storeAvOverviewDateFilter(filter));
       },
       storeSearchFilter: (filter: IFilterSettingsModel) => {
         dispatch(storeSearchFilter(filter));

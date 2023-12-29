@@ -54,7 +54,7 @@ export const Topic: React.FC<ITopicProps> = () => {
               </div>
             ),
             item.id,
-            item.isEnabled,
+            !item.isEnabled,
           ),
         (a, b) => {
           if (a.topicType < b.topicType) return -1;

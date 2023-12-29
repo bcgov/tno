@@ -7,4 +7,6 @@ export const groupByOptions = [
   new OptionItem('Byline', 'byline'),
   new OptionItem('Sentiment', 'sentiment'),
   new OptionItem('Content Type', 'contentType'),
+  new OptionItem('Topic Type', 'topicType'),
+  new OptionItem('Topic Name', 'topicName'),
 ];

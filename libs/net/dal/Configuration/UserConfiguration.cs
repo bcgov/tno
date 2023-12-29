@@ -20,6 +20,7 @@ public class UserConfiguration : AuditColumnsConfiguration<User>
         builder.Property(m => m.Status).HasDefaultValue(UserStatus.Preapproved);
         builder.Property(m => m.EmailVerified);
         builder.Property(m => m.LastLoginOn);
+        builder.Property(m => m.UniqueLogins).IsRequired().HasDefaultValueSql("0");
         builder.Property(m => m.Roles).IsRequired().HasMaxLength(500).HasDefaultValueSql("''");
         builder.Property(m => m.Note).IsRequired().HasMaxLength(2000).HasDefaultValueSql("''");
         builder.Property(m => m.Code).IsRequired().HasMaxLength(10).HasDefaultValueSql("''");

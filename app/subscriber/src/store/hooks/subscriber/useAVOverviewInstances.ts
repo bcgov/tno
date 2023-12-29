@@ -3,7 +3,9 @@ import { useAjaxWrapper } from 'store/hooks';
 import { IAVOverviewInstanceModel, useApiSubscriberAVOverviews } from 'tno-core';
 
 interface IAVOverviewController {
-  findAVOverview: (publishedOn: Date | string) => Promise<IAVOverviewInstanceModel | undefined>;
+  findAVOverview: (
+    publishedOn?: Date | string | null,
+  ) => Promise<IAVOverviewInstanceModel | undefined>;
   viewAVOverview: (instanceId: number) => Promise<never>;
 }
 
@@ -13,7 +15,7 @@ export const useAVOverviewInstances = (): [IAVOverviewController] => {
 
   const controller = React.useMemo(
     () => ({
-      findAVOverview: async (publishedOn: Date | string) => {
+      findAVOverview: async (publishedOn?: Date | string | null) => {
         const response = await dispatch<IAVOverviewInstanceModel | undefined>(
           'find-av-overviews',
           () => api.findAVOverview(publishedOn),

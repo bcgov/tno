@@ -9,7 +9,7 @@ export const getFilterOptions = (filters: IFilterModel[], currentFilterId?: numb
       new OptionItem(
         `${item.name}${item.owner?.username ? ` [${item.owner.username}]` : ''}`,
         item.id,
-        item.isEnabled,
+        !item.isEnabled,
       ),
   );
 };

@@ -1,6 +1,7 @@
 namespace TNO.TemplateEngine;
 
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using TemplateEngine.Models;
 using TemplateEngine.Models.Reports;
 
@@ -311,6 +312,25 @@ public static class ReportExtensions
         var source = content.GetSource(context);
         var publishedOn = content.GetPublishedOn(context, utcOffset);
         return $"{(String.IsNullOrWhiteSpace(sentiment) ? "" : $"{sentiment} - ")}{link}{(String.IsNullOrWhiteSpace(source) ? "" : $" - {source}")}{(String.IsNullOrWhiteSpace(publishedOn) ? "" : $" - {publishedOn}")}";
+    }
+
+    /// <summary>
+    /// searches list of `knownValues` to get index of corresponding color in `colorLookup`
+    /// throws an exception of knownValues and colorLookup are not the same length
+    /// returns an inline css color snippet if a match is found
+    /// </summary>
+    /// <param name="targetValue">what value to search for</param>
+    /// <param name="knownValues">what are the values we want to have colors for</param>
+    /// <param name="colorLookup">what are the corresponding colors for the known values</param>
+    /// <returns></returns>
+    public static string GetColorFromName(string targetValue, string[] knownValues, string[] colorLookup) {
+        if (knownValues.Length != colorLookup.Length)
+            throw new ArgumentException("Array length mismatch.  Each known value must have a corresponding color");
+        int indexOfValue = knownValues.ToList().FindIndex(x => x.ToLower() == targetValue.ToLower());
+        if (indexOfValue >= 0) {
+            return $"color:{colorLookup[indexOfValue]}";
+        }
+        else return string.Empty;
     }
     #endregion
 }

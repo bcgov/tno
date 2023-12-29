@@ -1,8 +1,11 @@
+import axios from 'axios';
 import React from 'react';
 import { IAppState, IErrorModel, useAppStore } from 'store/slices';
 import {
+  AccountAuthStateName,
   IRegisterModel,
   IUserInfoModel,
+  IUserLocationModel,
   IUserModel,
   useApiAuth,
   useKeycloakWrapper,
@@ -24,6 +27,7 @@ let userInfo: IUserInfoModel = {
   displayName: '',
   isEnabled: false,
   roles: [],
+  authState: AccountAuthStateName.Authorized,
 };
 
 let initialized = false;
@@ -82,7 +86,25 @@ export const useApp = (): [IAppState, IAppController] => {
     () => ({
       getUserInfo: async (refresh: boolean = false) => {
         if (userInfo.id !== 0 && !refresh) return userInfo;
-        const response = await dispatch('get-user-info', () => api.getUserInfo());
+        var location: IUserLocationModel;
+        try {
+          // Generate a unique key for this user and store in local storage.
+          var key = localStorage.getItem('device-key');
+          if (!key) {
+            key = crypto.randomUUID();
+            localStorage.setItem('device-key', key);
+          }
+          const locationResponse = await dispatch(
+            'get-location',
+            () => axios.get('https://geolocation-db.com/json/'),
+            'location',
+            true,
+          );
+          location = { ...locationResponse.data, key };
+        } catch {
+          // Ignore location error
+        }
+        const response = await dispatch('get-user-info', () => api.getUserInfo(location));
         userInfo = response.data;
         store.storeUserInfo(userInfo);
         if ((!keycloak.hasClaim() || refresh) && !!response.data.roles.length)

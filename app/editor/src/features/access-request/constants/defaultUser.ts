@@ -14,4 +14,5 @@ export const defaultUser: IUserModel = {
   isSystemAccount: false,
   note: '',
   roles: [],
+  uniqueLogins: 0,
 };

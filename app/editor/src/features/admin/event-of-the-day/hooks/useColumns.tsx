@@ -80,7 +80,7 @@ export const useColumns = (
             </div>
           ),
           item.id,
-          item.isEnabled,
+          !item.isEnabled,
         ),
       (a, b) => {
         if (a.topicType < b.topicType) return -1;

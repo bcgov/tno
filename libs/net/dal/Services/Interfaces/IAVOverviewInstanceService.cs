@@ -10,4 +10,10 @@ public interface IAVOverviewInstanceService : IBaseService<AVOverviewInstance, i
     /// <param name="publishedOn"></param>
     /// <returns></returns>
     AVOverviewInstance? FindByDate(DateTime publishedOn);
+
+    /// <summary>
+    /// Return the latest published evening overview instance.
+    /// </summary>
+    /// <returns></returns>
+    AVOverviewInstance? FindLatest();
 }

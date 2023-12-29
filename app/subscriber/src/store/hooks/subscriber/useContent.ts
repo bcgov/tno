@@ -27,6 +27,7 @@ interface IContentController {
   storeTodayCommentaryFilter: (filter: IFilterSettingsModel) => void;
   storeGalleryDateFilter: (dateFilter: IOptionItem | null) => void;
   storeGalleryPressFilter: (pressFilter: IOptionItem | null) => void;
+  storeAvOverviewDateFilter: (filter: IFilterSettingsModel) => void;
   storeMediaTypeFilter: (filter: IFilterSettingsModel) => void;
   stream: (path: string) => Promise<string>;
   addContent: (content: IContentModel) => Promise<IContentModel | undefined>;
@@ -93,6 +94,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       storeTodayCommentaryFilter: actions.storeTodaysCommentaryFilter,
       storeGalleryDateFilter: actions.storeGalleryDateFilter,
       storeGalleryPressFilter: actions.storeGalleryPressFilter,
+      storeAvOverviewDateFilter: actions.storeAvOverviewDateFilter,
       storeFrontPageFilter: actions.storeFrontPageFilter,
       storeMediaTypeFilter: actions.storeMediaTypeFilter,
       storeMyMinisterFilter: actions.storeMyMinisterFilter,

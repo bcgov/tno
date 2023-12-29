@@ -25,7 +25,7 @@ export const Newspaper: React.FC = (props) => {
   const language = Languages.find((t) => t.value === values.configuration.language);
   const fileType = FileTypes.find((t) => t.value === values.configuration.fileFormat);
   const [lookups] = useLookup();
-  const sources = lookups.sources.map((s) => new OptionItem(s.name, s.code, s.isEnabled));
+  const sources = lookups.sources.map((s) => new OptionItem(s.name, s.code, !s.isEnabled));
   const source = sources.find((t) => t.value === values.configuration.defaultSource);
 
   const initialItems = () => {

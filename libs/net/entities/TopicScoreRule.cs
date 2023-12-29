@@ -13,7 +13,7 @@ namespace TNO.Entities;
 /// </summary>
 [Cache("topic_score_rules", "lookups")]
 [Table("topic_score_rule")]
-public class TopicScoreRule : AuditColumns
+public class TopicScoreRule : AuditColumns, IEquatable<TopicScoreRule>
 {
     #region Properties
     /// <summary>
@@ -293,6 +293,25 @@ public class TopicScoreRule : AuditColumns
         : this(sourceId, seriesId, timeMin, timeMax, score, sortOrder)
     {
         this.Id = id;
+    }
+
+    public bool Equals(TopicScoreRule? other)
+    {
+        if (ReferenceEquals(other, null))
+            return false;
+ 
+        if (ReferenceEquals(this, other))
+            return true;
+
+        return this.SourceId.Equals(other.SourceId)
+            && ((this.Section == null && other.Section == null) || ((this.Section != null && other.Section != null) && (this.Section.Equals(other.Section))))
+            && ((this.PageMin == null && other.PageMin == null) || ((this.PageMin != null && other.PageMin != null) && (this.PageMin.Equals(other.PageMin))))
+            && ((this.PageMax == null && other.PageMax == null) || ((this.PageMax != null && other.PageMax != null) && (this.PageMax.Equals(other.PageMax))))
+            && this.HasImage.Equals(other.HasImage)
+            && this.CharacterMin.Equals(other.CharacterMin)
+            && this.CharacterMax.Equals(other.CharacterMax)
+            && this.Score.Equals(other.Score)
+            && this.SortOrder.Equals(other.SortOrder);
     }
     #endregion
 }
