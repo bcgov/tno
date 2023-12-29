@@ -277,11 +277,11 @@ public static class StringExtensions
         {
             // pattern for any matching pair of tags
             Regex tagRegex = new Regex(@"<\s*([^ >]+)[^>]*>.*?<\s*/\s*\1\s*>");
+            const string PARAGRAPH_MARKER = "##paragraph_end##`";
 
             // if the input string is not markup, sanitize it
             if (!tagRegex.IsMatch(sanitizedString))
             {
-                const string PARAGRAPH_MARKER = "##paragraph_end##`";
                 // replace "carriage return + line feed" OR "carriage return" OR "line feed"
                 // with a placeholder first
                 string result = Regex.Replace(sanitizedString, paragraphRegex, PARAGRAPH_MARKER);
@@ -289,6 +289,14 @@ public static class StringExtensions
                 {
                     // found at least one paragraph placeholder
                     sanitizedString = $"<p>{result.Replace(PARAGRAPH_MARKER, "</p><p>")}</p>";
+                }
+            } else {
+                // this is markup, so remove excess carriage returns and line feeds if found
+                string result = Regex.Replace(sanitizedString, @"\r\n?|\n", PARAGRAPH_MARKER);
+                if (!result.Equals(sanitizedString, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    // found at least one paragraph placeholder
+                    sanitizedString = result.Replace(PARAGRAPH_MARKER, " ");
                 }
             }
         }
