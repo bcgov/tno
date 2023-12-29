@@ -28,7 +28,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
 
   const [filter, setFilter] = React.useState<IUserListFilter>({ ...userFilter, keyword: '' });
   const [roleOptions, setRoleOptions] = React.useState(
-    lookups.roles.map((r) => new OptionItem(r.name, r.id, r.isEnabled)),
+    lookups.roles.map((r) => new OptionItem(r.name, r.id, !r.isEnabled)),
   );
 
   const statusOptions = getEnumStringOptions(UserStatusName);

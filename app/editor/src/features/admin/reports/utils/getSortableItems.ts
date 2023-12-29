@@ -12,7 +12,7 @@ export const getSortableItems = <T extends IFolderModel | IFilterModel>(
       new OptionItem(
         `${f.name}${f.owner?.username ? ` - [${f.owner.username}]` : ''}`,
         f.id,
-        f.isEnabled,
+        !f.isEnabled,
       ),
     (a, b) => {
       if (a.owner !== undefined && b.owner !== undefined) {

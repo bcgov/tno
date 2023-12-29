@@ -26,7 +26,7 @@ const displayName = (source: ISourceModel) => {
 export const getSourceOptions = <T extends ISourceModel>(
   items: T[],
   prepend: IOptionItem[] = [],
-  map: (item: T) => IOptionItem = (ds) => new OptionItem(displayName(ds), ds.id, ds.isEnabled),
+  map: (item: T) => IOptionItem = (ds) => new OptionItem(displayName(ds), ds.id, !ds.isEnabled),
   sort: (a: T, b: T) => number = sortSource,
 ) => {
   return prepend.concat([...items].sort(sort).map(map));
