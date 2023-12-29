@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import { Row } from 'tno-core';
 
 export const AdvancedSearch = styled(Row)`
+  position: relative;
+  max-height: calc(100vh - 10em);
   .page-section {
     width: 100%;
   }
@@ -12,6 +14,7 @@ export const AdvancedSearch = styled(Row)`
 
   /* BOTTOM SEARCH BAR */
   .adv-toolbar {
+    position: sticky;
     .frm-in {
       width: 40%;
     }
