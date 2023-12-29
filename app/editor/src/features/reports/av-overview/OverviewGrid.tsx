@@ -15,6 +15,7 @@ import {
   FormikTimeInput,
   IAVOverviewInstanceModel,
   IAVOverviewSectionItemModel,
+  IAVOverviewTemplateSectionItemModel,
   IOptionItem,
   OptionItem,
   Row,
@@ -48,6 +49,8 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
     suggestions: [],
   });
   const [clips, setClips] = React.useState<IOptionItem[]>();
+  const [summaries, setSummaries] = React.useState<any[]>();
+
   const eveningOverviewItemTypeOptions = castEnumToOptions(AVOverviewItemTypeName);
   const items = values.sections[index].items;
   const [params] = useSearchParams();
@@ -58,8 +61,10 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
    * for relevant clips
    */
   const shouldFetch = React.useMemo(() => {
-    return !values.sections[index].startTime.includes('_') && !!values.sections[index].startTime;
-  }, [index, values.sections]);
+    return (
+      !!values?.sections[index]?.startTime && !values?.sections[index]?.startTime?.includes('_')
+    );
+  }, [index, values?.sections]);
 
   /** fetch pieces of content that are related to the series to display as options for associated clips, search for clips published after the start time if it is specified - otherwise filter based on that day.*/
   React.useEffect(() => {
@@ -96,6 +101,20 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
     const [reorderedItem] = updatedList.splice(droppedItem.source.index, 1);
     // Add dropped item
     updatedList.splice(droppedItem.destination.index, 0, reorderedItem);
+
+    const droppedItemValues = items[droppedItem.source.index];
+
+    // If an Ad was reordered, update the ad summary texts accordingly
+    if (droppedItemValues.itemType === 'Ad') {
+      let count = 0;
+      updatedList.forEach((item: IAVOverviewTemplateSectionItemModel) => {
+        if (item.itemType === 'Ad') {
+          count++;
+          item.summary = `${stringifyNumber(count)} commercial break`;
+        }
+      });
+    }
+
     // Update State
     setFieldValue(
       `sections.${index}.items`,
@@ -132,26 +151,62 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
   const generateListOfSummaries = () => {
     const sections = values?.sections;
     let summaries: any[] = [];
-    sections.forEach((section) => {
-      summaries.push(
-        ...section.items.reduce(function (
-          acc: Array<{ index: number; text: string }>,
-          current: IAVOverviewSectionItemModel,
-          index: number,
-        ) {
-          if (
-            !acc.some((summary) => summary.text === current.summary) // do not display duplicates
-          )
-            acc.push({ index, text: current.summary });
-          return acc;
-        },
-        []),
-      );
-    });
+    if (sections && sections.length) {
+      sections.forEach((section) => {
+        summaries.push(
+          ...section?.items?.reduce(function (
+            acc: Array<{ index: number; text: string }>,
+            current: IAVOverviewSectionItemModel,
+            index: number,
+          ) {
+            if (
+              !acc.some((summary) => summary.text === current.summary) // do not display duplicates
+            )
+              acc.push({ index, text: current.summary });
+            return acc;
+          },
+          []),
+        );
+      });
+    }
     return summaries;
   };
 
-  const summaries = generateListOfSummaries();
+  React.useEffect(() => {
+    const summaryList = generateListOfSummaries();
+    setSummaries(summaryList);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [values?.sections]);
+
+  const special = [
+    'Zeroth',
+    'First',
+    'Second',
+    'Third',
+    'Fourth',
+    'Fifth',
+    'Sixth',
+    'Seventh',
+    'Eighth',
+    'Ninth',
+    'Tenth',
+    'Eleventh',
+    'Twelfth',
+    'Thirteenth',
+    'Fourteenth',
+    'Fifteenth',
+    'Sixteenth',
+    'Seventeenth',
+    'Eighteenth',
+    'Nineteenth',
+  ];
+  const deca = ['Twent', 'Thirt', 'Fort', 'Fift', 'Sixt', 'Sevent', 'Eight', 'Ninet'];
+
+  const stringifyNumber = (n: number) => {
+    if (n < 20) return special[n];
+    if (n % 10 === 0) return deca[Math.floor(n / 10) - 2] + 'ieth';
+    return deca[Math.floor(n / 10) - 2] + 'y-' + special[n % 10];
+  };
 
   return (
     <styled.OverviewGrid>
@@ -208,6 +263,24 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                   )}
                                   isClearable={false}
                                   isDisabled={!editable}
+                                  onChange={(newValue: unknown) => {
+                                    const option = newValue as IOptionItem;
+                                    if (option?.value === 'Ad') {
+                                      const numberOfExistingAds = items.reduce(
+                                        (acc: number, curr: IAVOverviewSectionItemModel) => {
+                                          if (curr.itemType === 'Ad') {
+                                            acc++;
+                                          }
+                                          return acc;
+                                        },
+                                        1,
+                                      );
+                                      setFieldValue(
+                                        `sections.${index}.items.${itemIndex}.summary`,
+                                        `${stringifyNumber(numberOfExistingAds)} commercial break`,
+                                      );
+                                    }
+                                  }}
                                 />
                                 <FormikTimeInput
                                   key={itemIndex}
@@ -242,7 +315,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                       key={itemIndex + `textarea`}
                                       name={`sections.${index}.items.${itemIndex}.summary`}
                                       rows={item.itemType === AVOverviewItemTypeName.Intro ? 3 : 1}
-                                      disabled={!editable}
+                                      disabled={!editable || item.itemType === 'Ad'}
                                       maxLength={
                                         item.itemType === AVOverviewItemTypeName.Intro ? 2000 : 90
                                       }
@@ -255,7 +328,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
 
                                         // from the potential summaries, generate suggestions that match current input
                                         let suggestions: Suggestion[] = [];
-                                        if (value.length > 0) {
+                                        if (value.length > 0 && summaries?.length) {
                                           const regex = new RegExp(`^${value}`, 'i');
                                           suggestions = summaries
                                             .sort()
