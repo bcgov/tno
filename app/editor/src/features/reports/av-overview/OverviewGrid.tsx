@@ -236,11 +236,6 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                     ref={provided.innerRef}
                   >
                     {items.map((item, itemIndex) => {
-                      console.log(
-                        `******itemIndex: ${itemIndex}, itemType: ${item.itemType}, isAd?: ${
-                          item.itemType === 'Ad'
-                        }********`,
-                      );
                       const { suggestions } = search;
                       return (
                         <Draggable
