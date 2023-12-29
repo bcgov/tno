@@ -16,7 +16,7 @@ INSERT INTO public."report" (
   'Event of the Day' -- name
   , '' -- description
   , 1 -- owner_id
-  , (select id from public."report_template" where "name"  = 'Event of the Day') -- report_template_id
+  , (select id from public."report_template" where "name"  = 'Event of the Day' limit 1) -- report_template_id
   , '{
   "content": {
     "clearFolders": false,

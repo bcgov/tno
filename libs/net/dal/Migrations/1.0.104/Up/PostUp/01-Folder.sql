@@ -22,6 +22,6 @@ BEGIN
     , '' -- description
     ,  true -- is_enabled
     ,  0 -- sort_order
-    , (SELECT ID FROM PUBLIC."filter" WHERE "name" = 'Event of the Day - Folder Collector') -- filter_id
+    , (SELECT ID FROM PUBLIC."filter" WHERE "name" = 'Event of the Day - Folder Collector' limit 1) -- filter_id
     );
 END $$;
