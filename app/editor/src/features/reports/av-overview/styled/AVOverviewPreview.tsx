@@ -11,6 +11,7 @@ export const AVOverviewPreview = styled.div`
   }
 
   .buttons {
+    display: flex;
     margin-left: auto;
   }
 
@@ -40,6 +41,36 @@ export const AVOverviewPreview = styled.div`
       img {
         max-width: 80%;
       }
+    }
+  }
+
+  .view {
+    margin: 0 0.5em;
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  svg {
+    align-self: center;
+    margin-right: 0.25rem;
+  }
+
+  .label-container {
+    background-color: white;
+    font-size: 0.75em;
+    padding: 0.5em;
+    justify-content: center;
+    display: table;
+
+    svg {
+      padding-right: 0.25em;
+      align-self: center;
+    }
+
+    span {
+      display: table-cell;
+      vertical-align: middle;
     }
   }
 `;
