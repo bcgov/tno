@@ -37,8 +37,8 @@ export const generateQueryValues = (
     settings.status ? generateTerm('status', settings.status) : undefined,
     settings.userId ? generateTerm('ownerId', +settings.userId) : undefined,
     settings.hasTopic ? generateQueryForExistCheck('topics') : undefined,
+    settings.id ? generateTerm('id', settings.id) : undefined,
     settings.isHidden !== undefined ? generateTerm('isHidden', settings.isHidden) : undefined,
   ].filter((v) => v !== undefined);
-
   return values;
 };
