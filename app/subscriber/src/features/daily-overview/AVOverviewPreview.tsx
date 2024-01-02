@@ -2,6 +2,7 @@ import { DateFilter } from 'components/date-filter';
 import parse from 'html-react-parser';
 import moment from 'moment';
 import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAVOverviewInstances, useContent } from 'store/hooks';
 import { Col, IReportResultModel, Loading, Show } from 'tno-core';
 
@@ -14,6 +15,8 @@ const AVOverviewPreview: React.FC = () => {
     },
     { storeAvOverviewDateFilter: storeFilter },
   ] = useContent();
+  const [params] = useSearchParams();
+  const dateUrlParam = params.get('date');
   const [{ findAVOverview, viewAVOverview }] = useAVOverviewInstances();
   const [date, setDate] = React.useState<string>();
 
@@ -63,32 +66,59 @@ const AVOverviewPreview: React.FC = () => {
   }, [findAVOverview, viewAVOverview]);
 
   // Used to refresh preview data for newly selected date
-  const handleChangeReportDate = React.useCallback(async () => {
-    try {
-      clear();
+  const handleChangeReportDate = React.useCallback(
+    async (overrideDate?: string) => {
+      try {
+        clear();
 
-      const filterDate = moment(avOverviewFilter?.startDate).startOf('day').toISOString();
-      let instance = await findAVOverview(filterDate);
+        const filterDate = moment(overrideDate ?? avOverviewFilter?.startDate)
+          .startOf('day')
+          .toISOString();
+        let instance = await findAVOverview(filterDate);
 
-      setDate(filterDate);
-      if (!!instance?.id) {
-        const preview = await viewAVOverview(instance.id);
-        setIsPublished(instance.isPublished);
-        setPreview(preview);
+        setDate(filterDate);
+        if (!!instance?.id) {
+          const preview = await viewAVOverview(instance.id);
+          setIsPublished(instance.isPublished);
+          setPreview(preview);
+        }
+      } catch {
+      } finally {
+        setIsLoading(false);
       }
-    } catch {
-    } finally {
-      setIsLoading(false);
-    }
-  }, [findAVOverview, viewAVOverview, avOverviewFilter]);
+    },
+    [findAVOverview, viewAVOverview, avOverviewFilter],
+  );
 
   React.useEffect(() => {
-    if (!date) {
+    if (!date && dateUrlParam) {
+      // Case 1: No date stored in memory, but there's a date parameter in path
+      // in this case use that date param, set local state & fetch the overview
+      setDate(moment(dateUrlParam).startOf('day').toISOString());
+      storeFilter({
+        ...avOverviewFilter,
+        startDate: moment(dateUrlParam).startOf('day').toISOString(),
+        endDate: moment(dateUrlParam).endOf('day').toISOString(),
+      });
+      handleChangeReportDate(dateUrlParam);
+      // Case 2: No date in memory, and no date param in path, in this
+      // case simply just fetch the latest published overview
+    } else if (!date && !dateUrlParam) {
       getLatestPublishedOverview();
+      // Case 3: There's a date in memory, but that doesn't match the date
+      // which the filter is showing. In this case, fetch overview for filter
+      // date and update the date in memory so it's matching.
     } else if (!!date && date !== avOverviewFilter?.startDate) {
       handleChangeReportDate();
     }
-  }, [date, getLatestPublishedOverview, handleChangeReportDate, avOverviewFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date, getLatestPublishedOverview, handleChangeReportDate, avOverviewFilter, dateUrlParam]);
+
+  React.useEffect(() => {
+    window.history.pushState({}, '', `?date=${moment(date).format('yyyy/MM/DD')}`);
+    // we only want to update the date in the url when date in memory changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date]);
 
   React.useEffect(() => {
     if (!preview?.body) return;

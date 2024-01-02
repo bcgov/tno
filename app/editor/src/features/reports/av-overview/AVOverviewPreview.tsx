@@ -1,8 +1,9 @@
+import moment from 'moment';
 import React from 'react';
-import { FaPaperPlane } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaPaperPlane } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useAVOverviewInstances } from 'store/hooks';
+import { useAVOverviewInstances, useLookup } from 'store/hooks';
 import {
   Button,
   Col,
@@ -11,6 +12,7 @@ import {
   Loading,
   Modal,
   Row,
+  Settings,
   Show,
   useModal,
 } from 'tno-core';
@@ -18,6 +20,8 @@ import {
 import * as styled from './styled';
 
 const AVOverviewPreview: React.FC = () => {
+  const [{ settings }] = useLookup();
+  const subscriberUrl = settings.find((i) => i.name === Settings.SubscriberUrl)?.value;
   const [{ getAVOverview, viewAVOverview, publishAVOverview }] = useAVOverviewInstances();
   const { toggle, isShowing } = useModal();
   const { id } = useParams();
@@ -62,6 +66,28 @@ const AVOverviewPreview: React.FC = () => {
           <Button disabled={!instanceId} onClick={() => toggle()}>
             Publish <FaPaperPlane className="icon" />
           </Button>
+          <Show visible={instance?.isPublished}>
+            <div
+              className="view"
+              onClick={() => {
+                if (!subscriberUrl) {
+                  toast.error('SubscriberUrl setting not found. Please set and try again.');
+                  return;
+                }
+                window.open(
+                  `${subscriberUrl}landing/eveningoverview?date=${moment(instance?.publishedOn)
+                    .add(1, 'days')
+                    .startOf('day')
+                    .format('YYYY/MM/DD')}`,
+                );
+              }}
+            >
+              <div className="label-container">
+                <FaExternalLinkAlt size={25} />
+                <span>View on site</span>
+              </div>
+            </div>
+          </Show>
         </div>
       </Row>
       <Show visible={isLoading}>
