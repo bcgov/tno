@@ -3,6 +3,7 @@ import { OptionItem } from 'tno-core';
 import { AdvancedSearchKeys } from '.';
 
 export const advancedSearchOptions = [
+  new OptionItem('Id', AdvancedSearchKeys.Id),
   new OptionItem('Headline', AdvancedSearchKeys.Headline),
   new OptionItem('Source', AdvancedSearchKeys.Source),
   new OptionItem('Byline', AdvancedSearchKeys.Byline),

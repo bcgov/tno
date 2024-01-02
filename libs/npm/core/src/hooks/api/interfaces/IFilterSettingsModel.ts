@@ -3,6 +3,7 @@ import { IFilterActionSettingsModel, ISortField } from '.';
 
 export interface IFilterSettingsModel {
   searchUnpublished: boolean;
+  id?: number;
   from?: number;
   size: number;
   defaultSearchOperator?: 'and' | 'or';
