@@ -57,11 +57,14 @@ export const Home: React.FC = () => {
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
+        if (sortBy === 'source') {
+          filter.sort = [{ 'source.sortOrder': 'asc' }, { publishedOn: 'desc' }];
+        }
         const res: any = await findContentWithElasticsearch(filter, false);
         setContent(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
       } catch {}
     },
-    [findContentWithElasticsearch],
+    [findContentWithElasticsearch, sortBy],
   );
 
   React.useEffect(() => {
