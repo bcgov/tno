@@ -164,7 +164,8 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
             )
               acc.push({ index, text: current.summary });
             return acc;
-          }, []),
+          },
+          []),
         );
       });
     }
