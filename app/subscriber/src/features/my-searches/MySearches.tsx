@@ -1,116 +1,105 @@
+import { Action } from 'components/action';
 import { SubscriberTableContainer } from 'components/table';
-import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { FaCheck, FaSave } from 'react-icons/fa';
+import { FaBookmark, FaPen, FaTrash } from 'react-icons/fa6';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Tooltip } from 'react-tooltip';
-import { useContent, useFilters, useLookup } from 'store/hooks';
-import { Col, FlexboxTable, IFilterModel, Modal, useModal } from 'tno-core';
+import { useContent, useFilters } from 'store/hooks';
+import { useProfileStore } from 'store/slices';
+import { Col, IFilterModel, Modal, Row, Text, useModal } from 'tno-core';
 
-import { columns } from './constants/columns';
 import * as styled from './styled';
-import { settingsToFilter } from './utils';
 
 /** contains a list of the user's filters, allows for edit and viewing */
 export const MySearches = () => {
-  const [, { findMyFilters, updateFilter, deleteFilter }] = useFilters();
+  const [{ myFilters }, { findMyFilters, updateFilter, deleteFilter }] = useFilters();
   const { toggle, isShowing } = useModal();
-  const [{ actions }] = useLookup();
   const navigate = useNavigate();
-  const [, { storeSearchFilter: storeFilter }] = useContent();
-  const [searchParams] = useSearchParams();
+  const [, { storeSearchFilter }] = useContent();
+  const [, { storeFilter }] = useProfileStore();
 
-  const [myFilters, setMyFilters] = React.useState<IFilterModel[]>([]);
   const [active, setActive] = React.useState<IFilterModel>();
-  const [viewing, setViewing] = React.useState<IFilterModel>();
-  const [editable, setEditable] = React.useState<string>('');
-  const [actionName, setActionName] = React.useState<'delete'>('delete');
-  const topStoryId = actions.find((action) => action.name === 'Top Story')?.id ?? 0;
+  const [editing, setEditing] = React.useState<IFilterModel>();
 
   React.useEffect(() => {
-    findMyFilters().then((data) => {
-      setMyFilters(data);
-    });
+    if (!myFilters.length) {
+      findMyFilters().catch(() => {});
+    }
     // Only do this on init.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // action in columns set viewing object, when this is set user is viewing a filter and wants to see results
-  React.useEffect(() => {
-    if (!!viewing) {
-      storeFilter(settingsToFilter(viewing, viewing.id, topStoryId, actions));
-      navigate(`/search?viewing=${viewing.name}`);
-    }
-    // only fire when viewing has value
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewing]);
+  const handleSave = React.useCallback(
+    (filter: IFilterModel) => {
+      updateFilter(filter)
+        .then((data: IFilterModel) => {
+          toast.success(`${data.name} updated successfully`);
+          setEditing(undefined);
+        })
+        .catch(() => {});
+    },
+    [updateFilter],
+  );
 
-  React.useEffect(() => {
-    if (!!active) storeFilter(settingsToFilter(active, active.id, topStoryId, actions));
-    // only fire when active has value
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active]);
-
-  const handleDelete = () => {
-    setActionName('delete');
-    toggle();
-  };
-
-  const handleSave = () => {
-    if (!!active) {
-      updateFilter(active).then((data) => {
-        toast.success(`${data.name} updated successfully`);
-        setMyFilters([...myFilters.filter((filter) => filter.id !== data.id), data]);
-        setEditable('');
-      });
-    }
-  };
+  const handleClick = React.useCallback(
+    (filter: IFilterModel) => {
+      if (editing?.id !== filter.id) {
+        storeFilter(filter);
+        storeSearchFilter(filter.settings);
+        navigate(`/search/advanced/${filter.id}`);
+      }
+    },
+    [editing?.id, navigate, storeFilter, storeSearchFilter],
+  );
 
   return (
     <styled.MySearches>
       <SubscriberTableContainer>
-        <FlexboxTable
-          pagingEnabled={false}
-          columns={columns(setActive, editable, handleSave, handleDelete, setViewing, active)}
-          rowId={(e) => e?.id.toString() ?? '0'}
-          onRowClick={(e) => {
-            setActive(e.original);
-            storeFilter(settingsToFilter(e.original, e.original.id, topStoryId, actions));
-            navigate('/search');
-          }}
-          data={myFilters}
-          // TODO: Highlight currently viewed search - chat with Bobbi
-          activeRowId={searchParams.get('viewing') ?? ''}
-          showActive={false}
-        />
-        <TooltipMenu
-          clickable
-          openOnClick
-          place="right"
-          id="modify"
-          variant="light"
-          className="modify"
-        >
-          <Col className="filter-container">
-            {/* TODO: Upcoming ticket will change this to allow users to modify selected search */}
-            <div className="option" onClick={() => setEditable(active?.name ?? '')}>
-              Edit filter name
-            </div>
-            <div
-              className="option"
-              onClick={() => navigate(`/search?modify=${active?.id}&name=${active?.name}`)}
-            >
-              Modify this search
-            </div>
-          </Col>
-        </TooltipMenu>
-        <Tooltip place="top" id="binocs" variant="dark">
-          View filter
-        </Tooltip>
+        <Row className="header">
+          <span className="label">Search Name</span>
+        </Row>
+        {myFilters.map((filter, index) => {
+          return (
+            <Row key={filter.id} className="row">
+              <FaBookmark className="darker-icon link" onClick={() => handleClick(filter)} />
+              <Col flex="1" className="link" onClick={() => handleClick(filter)}>
+                {editing?.id === filter.id ? (
+                  <Text
+                    name={`filters.${index}.name`}
+                    value={editing?.name ?? ''}
+                    onChange={(e) => setEditing({ ...editing, name: e.target.value })}
+                  >
+                    <Col className="txt-btn">
+                      <Action icon={<FaSave />} onClick={() => handleSave(editing)} />
+                    </Col>
+                  </Text>
+                ) : (
+                  filter.name
+                )}
+              </Col>
+              {editing?.id === filter.id ? (
+                <FaCheck onClick={() => setEditing(undefined)} />
+              ) : (
+                <FaPen
+                  onClick={() => {
+                    setEditing(filter);
+                  }}
+                />
+              )}
+              <FaTrash
+                onClick={() => {
+                  setActive(filter);
+                  toggle();
+                }}
+              />
+            </Row>
+          );
+        })}
       </SubscriberTableContainer>
       <Modal
         headerText="Confirm Removal"
-        body={`Are you sure you wish to ${actionName} this filter?`}
+        body={`Are you sure you want to delete the "${active?.name}" filter?`}
         isShowing={isShowing}
         hide={toggle}
         type="delete"
@@ -118,14 +107,12 @@ export const MySearches = () => {
         onConfirm={() => {
           try {
             if (!!active) {
-              if (actionName === 'delete') {
-                deleteFilter(active).then(() => {
-                  toast.success(`${active.name} deleted successfully`);
-                  setMyFilters(myFilters.filter((filter) => filter.id !== active.id));
-                });
-              }
+              deleteFilter(active).then(() => {
+                toast.success(`${active.name} deleted successfully`);
+              });
             }
           } finally {
+            setActive(undefined);
             toggle();
           }
         }}

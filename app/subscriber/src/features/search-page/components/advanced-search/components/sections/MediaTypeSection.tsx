@@ -29,9 +29,7 @@ export const MediaTypeSection: React.FC = () => {
             });
         }}
         options={mediaTypeOptions}
-        defaultValue={mediaTypeOptions.filter((o) => {
-          return filter.mediaTypeIds?.includes(o.value as number);
-        })}
+        value={mediaTypeOptions.filter((o) => o.value && filter.mediaTypeIds?.includes(+o.value))}
       />
     </Row>
   );

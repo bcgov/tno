@@ -29,6 +29,9 @@ export const profileSlice = createSlice({
     storeMyProfile(state: IProfileState, action: PayloadAction<IUserModel | undefined>) {
       state.profile = action.payload;
     },
+    storeFilter(state: IProfileState, action: PayloadAction<IFilterModel | undefined>) {
+      state.filter = action.payload;
+    },
     storeMyFilters(state: IProfileState, action: PayloadAction<IFilterModel[]>) {
       state.myFilters = action.payload;
     },
@@ -58,6 +61,7 @@ export const profileSlice = createSlice({
 
 export const {
   storeMyProfile,
+  storeFilter,
   storeMyFilters,
   storeMyFolders,
   storeMyMinisters,

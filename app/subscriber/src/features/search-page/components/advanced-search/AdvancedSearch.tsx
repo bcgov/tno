@@ -16,9 +16,9 @@ import {
 } from 'react-icons/fa6';
 import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router';
-import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useFilters, useLookup } from 'store/hooks';
+import { useProfileStore } from 'store/slices';
 import {
   Button,
   Claim,
@@ -46,7 +46,7 @@ import {
   SeriesSection,
   TagSection,
 } from './components';
-import { defaultAdvancedSearch } from './constants';
+import { defaultAdvancedSearch, defaultFilter } from './constants';
 import { defaultSubMediaGroupExpanded, ISubMediaGroupExpanded } from './interfaces';
 import * as styled from './styled';
 
@@ -61,75 +61,71 @@ export interface IAdvancedSearchProps {
  */
 export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage }) => {
   const navigate = useNavigate();
-  const [, { addFilter, getFilter, updateFilter }] = useFilters();
+  const [, { addFilter, updateFilter }] = useFilters();
   const [{ actions }] = useLookup();
-  const [searchParams] = useSearchParams();
   const [
     {
-      search: { filter },
+      search: { filter: search },
     },
-    { storeSearchFilter: storeFilter },
+    { storeSearchFilter },
   ] = useContent();
   const genQuery = useElastic();
   const [{ userInfo }] = useApp();
+  const [{ filter: activeFilter }, { storeFilter }] = useProfileStore();
 
-  const [searchName, setSearchName] = React.useState<string>('');
-  const [viewedFilter, setViewedFilter] = React.useState<IFilterModel>();
+  const [searchName, setSearchName] = React.useState<string>(activeFilter?.name ?? '');
   /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
   const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
     React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);
 
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
-  const filterId = React.useMemo(() => Number(searchParams.get('modify')), [searchParams]);
+
+  React.useEffect(() => {
+    if (activeFilter) setSearchName(activeFilter.name);
+    else setSearchName('');
+  }, [activeFilter]);
 
   const saveSearch = React.useCallback(async () => {
-    const settings = filterFormat(filter, actions);
+    const settings = filterFormat(search, actions);
     const query = genQuery(settings);
-    await addFilter({
-      name: searchName,
-      query,
-      settings,
-      id: 0,
-      sortOrder: 0,
-      description: '',
-      isEnabled: true,
-      reports: [],
-      folders: [],
-    })
-      .then((data) => toast.success(`${data.name} has successfully been saved.`))
-      .catch();
-  }, [genQuery, filter, actions, addFilter, searchName]);
+    const filter: IFilterModel = activeFilter
+      ? { ...activeFilter, name: searchName, settings, query }
+      : { ...defaultFilter, name: searchName };
 
-  const updateSearch = React.useCallback(async () => {
-    const settings = filterFormat(filter, actions);
-    const query = genQuery(settings);
-    viewedFilter &&
-      (await updateFilter({
-        ...viewedFilter,
-        query,
-        settings,
-      })
-        .then((data) => toast.success(`${data.name} has successfully been updated.`))
-        .catch());
-  }, [genQuery, filter, actions, viewedFilter, updateFilter]);
+    if (!filter.id) {
+      await addFilter(filter)
+        .then((data) => {
+          toast.success(`${data.name} has successfully been saved.`);
+          storeFilter(data);
+          storeSearchFilter(data.settings);
+          navigate(`/search/advanced/${data.id}`);
+        })
+        .catch(() => {});
+    } else {
+      await updateFilter(filter)
+        .then((data) => {
+          toast.success(`${data.name} has successfully been saved.`);
+          storeSearchFilter(data.settings);
+        })
+        .catch(() => {});
+    }
+  }, [
+    search,
+    actions,
+    genQuery,
+    activeFilter,
+    searchName,
+    addFilter,
+    storeFilter,
+    storeSearchFilter,
+    navigate,
+    updateFilter,
+  ]);
 
   const handleSearch = async () => {
-    const settings = filterFormat(filter, actions);
-    navigate(`/search/advanced?${toQueryString(settings)}&name=${searchName}&modify=${filterId}`);
+    const settings = filterFormat(search, actions);
+    navigate(`?${toQueryString(settings)}`);
   };
-
-  /** get viewed filter if in modify mode */
-  React.useEffect(() => {
-    if (filterId && !viewedFilter) {
-      getFilter(filterId)
-        .then((data) => {
-          setViewedFilter(data);
-        })
-        .catch();
-    }
-    // only run when filterId changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterId]);
 
   return (
     <styled.AdvancedSearch>
@@ -137,13 +133,13 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
         ignoreLastChildGap
         header={
           <Row className="top-bar">
-            <div className="title">{filterId ? 'Modify Search' : 'Advanced Search'}</div>
+            <div className="title">{activeFilter ? 'Modify Search' : 'Advanced Search'}</div>
             <IoMdRefresh
               className="reset"
               data-tooltip-id="main-tooltip"
               data-tooltip-content="Reset filters"
               onClick={() => {
-                storeFilter({ ...filter, ...defaultAdvancedSearch });
+                storeSearchFilter({ ...search, ...defaultAdvancedSearch });
               }}
             />
           </Row>
@@ -151,10 +147,10 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
       >
         <div className="main-search-body">
           {/* CURRENTLY VIEWED SEARCH NAME IF PRESENT */}
-          <Show visible={!!filterId}>
+          <Show visible={!!activeFilter}>
             <div className="viewed-name">
               <FaBookmark />
-              <div className="filter-name">{viewedFilter?.name}</div>
+              <div className="filter-name">{activeFilter?.name}</div>
             </div>
           </Show>
           {/* SEARCH FOR: */}
@@ -163,11 +159,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
             <label className="label">SEARCH FOR: </label>
             <Col className="text-area-container">
               <TextArea
-                value={filter?.search}
+                value={search?.search}
                 className="text-area"
                 onKeyDown={(e) => handleEnterPressed(e, handleSearch, true)}
                 name="search"
-                onChange={(e) => storeFilter({ ...filter, search: e.target.value })}
+                onChange={(e) => storeSearchFilter({ ...search, search: e.target.value })}
               />
               <SearchInGroup />
             </Col>
@@ -250,17 +246,16 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
         </div>
         {/* FOOTER */}
         <Row className="adv-toolbar">
-          <div className="label">{!filterId ? 'SAVE SEARCH AS: ' : 'UPDATE SEARCH AS: '} </div>
+          <div className="label">{!activeFilter ? 'SAVE SEARCH AS: ' : 'UPDATE SEARCH AS: '} </div>
           <Text
             onChange={(e) => {
               setSearchName(e.target.value);
-              !!viewedFilter && setViewedFilter({ ...viewedFilter, name: e.target.value });
             }}
             name="searchName"
-            value={!!viewedFilter?.name ? viewedFilter.name : searchName}
+            value={searchName}
           />
-          <button className="save-cloud">
-            <FaCloudArrowUp onClick={() => (!filterId ? saveSearch() : updateSearch())} />
+          <button className="save-cloud" onClick={() => saveSearch()}>
+            <FaCloudArrowUp />
           </button>
           <Button
             onClick={() => {

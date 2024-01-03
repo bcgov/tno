@@ -19,4 +19,13 @@ export const MySearches = styled(Col)`
       box-shadow: none;
     }
   }
+
+  .row {
+    .frm-in {
+      padding-bottom: unset;
+    }
+    .txt-btn {
+      margin: 0.25rem;
+    }
+  }
 `;

@@ -13,6 +13,7 @@ import {
 
 import { storeContributors } from '../lookup';
 import {
+  storeFilter,
   storeMyFilters,
   storeMyFolders,
   storeMyMinisters,
@@ -26,7 +27,8 @@ import { IProfileState } from './interfaces';
 
 export interface IProfileStore {
   storeMyProfile: (user: IUserModel | ActionDelegate<IUserModel | undefined> | undefined) => void;
-  storeMyFilters: (folders: IFilterModel[] | ActionDelegate<IFilterModel[]>) => void;
+  storeFilter: (filter: IFilterModel | ActionDelegate<IFilterModel | undefined>) => void;
+  storeMyFilters: (filters: IFilterModel[] | ActionDelegate<IFilterModel[]>) => void;
   storeMyFolders: (folders: IFolderModel[] | ActionDelegate<IFolderModel[]>) => void;
   storeContributors: (
     contributors: IContributorModel[] | ActionDelegate<IContributorModel[]>,
@@ -52,6 +54,11 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
         if (typeof user === 'function') {
           dispatch(storeMyProfile(user(state.profile)));
         } else dispatch(storeMyProfile(user));
+      },
+      storeFilter: (filter: IFilterModel | ActionDelegate<IFilterModel | undefined>) => {
+        if (typeof filter === 'function') {
+          dispatch(storeFilter(filter(state.filter)));
+        } else dispatch(storeFilter(filter));
       },
       storeMyFilters: (filters: IFilterModel[] | ActionDelegate<IFilterModel[]>) => {
         if (typeof filters === 'function') {
@@ -103,6 +110,7 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
     [
       dispatch,
       state.profile,
+      state.filter,
       state.myFilters,
       state.myFolders,
       state.myMinisters,

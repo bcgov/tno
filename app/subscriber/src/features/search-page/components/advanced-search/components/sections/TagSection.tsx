@@ -33,9 +33,7 @@ export const TagSection: React.FC = () => {
               tags: newValues.map((v) => v.value),
             });
         }}
-        defaultValue={tagOptions.filter((o) => {
-          return filter.tags?.includes(o.value);
-        })}
+        value={tagOptions.filter((o) => o.value && filter.tags?.includes(o.value))}
       />
     </Row>
   );

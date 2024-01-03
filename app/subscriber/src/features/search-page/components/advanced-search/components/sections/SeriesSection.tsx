@@ -33,9 +33,7 @@ export const SeriesSection: React.FC = () => {
           const seriesIds = newValue.map((v: OptionItem<number>) => v.value);
           storeFilter({ ...filter, seriesIds: seriesIds });
         }}
-        defaultValue={seriesOptions.filter((o) => {
-          return filter.seriesIds?.includes(o.value);
-        })}
+        value={seriesOptions.filter((o) => o.value && filter.seriesIds?.includes(+o.value))}
       />
     </Row>
   );

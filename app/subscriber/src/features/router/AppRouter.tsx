@@ -8,7 +8,7 @@ import { ColleagueEdit } from 'features/my-colleagues/ColleagueEdit';
 import { ConfigureFolder } from 'features/my-folders/ConfigureFolder';
 import { MyProducts } from 'features/my-products';
 import { MyReports, ReportAdmin, ReportEdit, ReportView } from 'features/my-reports';
-import { SearchPage } from 'features/search-page/SearchPage';
+import { SearchPage } from 'features/search-page';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
@@ -58,6 +58,15 @@ export const AppRouter: React.FC<IAppRouter> = () => {
         />
         <Route
           path="/search/advanced"
+          element={
+            <PrivateRoute
+              claims={Claim.subscriber}
+              element={<SearchPage showAdvanced={true} />}
+            ></PrivateRoute>
+          }
+        />
+        <Route
+          path="/search/advanced/:id"
           element={
             <PrivateRoute
               claims={Claim.subscriber}

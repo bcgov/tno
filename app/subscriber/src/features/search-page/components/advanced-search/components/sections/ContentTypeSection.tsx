@@ -25,9 +25,6 @@ export const ContentTypeSection: React.FC = () => {
         key={filter.contentTypes?.join(',')}
         className="content-types centered"
         width="25em"
-        defaultValue={typeOptions.filter((t) => {
-          return filter.contentTypes?.includes(t.value);
-        })}
         options={typeOptions}
         onChange={(newValues) => {
           Array.isArray(newValues) &&
@@ -36,6 +33,7 @@ export const ContentTypeSection: React.FC = () => {
               contentTypes: newValues.map((v) => v.value),
             });
         }}
+        value={typeOptions.filter((o) => o.value && filter.contentTypes?.includes(o.value))}
       />
     </Row>
   );

@@ -11,6 +11,7 @@ import {
 
 export interface IProfileState {
   profile?: IUserModel;
+  filter?: IFilterModel;
   myFilters: IFilterModel[];
   myFolders: IFolderModel[];
   myMinisters: IMinisterModel[];
