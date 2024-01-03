@@ -58,7 +58,17 @@ export const Home: React.FC = () => {
     async (filter: MsearchMultisearchBody) => {
       try {
         const res: any = await findContentWithElasticsearch(filter, false);
-        setContent(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
+        setContent(
+          res.hits.hits
+            .map((h: { _source: IContentModel }) => h._source)
+            .sort((a: IContentModel, b: IContentModel) => (a.publishedOn > b.publishedOn ? 1 : -1))
+            .sort((a: IContentModel, b: IContentModel) => {
+              if (a.source && b.source) {
+                return a.source.sortOrder > b.source.sortOrder ? 1 : -1;
+              }
+              return -1;
+            }),
+        );
       } catch {}
     },
     [findContentWithElasticsearch],
