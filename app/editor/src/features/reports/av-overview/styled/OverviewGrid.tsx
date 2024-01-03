@@ -42,9 +42,8 @@ export const OverviewGrid = styled.div`
     .placement-header {
       width: 11em;
     }
-
-    .summary-header {
-      max-width: 65em;
+    .content-header {
+      margin-left: auto;
     }
     .placement-header,
     .summary-header,

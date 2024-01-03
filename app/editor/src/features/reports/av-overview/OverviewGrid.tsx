@@ -145,6 +145,11 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
       const selectedClip = content.searchResults?.items?.find((s) => s.id === newValue?.value);
       const publishedOn = moment(selectedClip?.publishedOn).format('HH:mm:ss');
       setFieldValue(`sections.${index}.items.${itemIndex}.time`, publishedOn);
+
+      // Populate summary with clip headline if no summary and headline exists
+      if (selectedClip?.headline && !summary) {
+        setFieldValue(`sections.${index}.items.${itemIndex}.summary`, selectedClip?.headline);
+      }
     }
   };
 
@@ -290,10 +295,9 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                   disabled={!editable}
                                 />
                                 <Col
-                                  flex="1"
+                                  flex="1 1 50em"
                                   style={{
                                     position: 'relative',
-                                    width: '320px',
                                   }}
                                 >
                                   <div
@@ -366,18 +370,26 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                       </styled.AutoCompleteContainer>
                                     )}
                                 </Col>
-                                <FormikSelect
-                                  name={`sections.${index}.items.${itemIndex}.contentId`}
-                                  value={clips?.find((c) => c.value === item.contentId)}
-                                  options={clips ?? []}
-                                  width={FieldSize.Medium}
-                                  isDisabled={!editable}
-                                  maxMenuHeight={120}
-                                  onChange={(newValue) =>
-                                    handleSelectionChanged(itemIndex, newValue as IOptionItem)
-                                  }
-                                />
+                                <Col
+                                  flex="1 0.2 17.5em"
+                                  style={{
+                                    position: 'relative',
+                                  }}
+                                >
+                                  <FormikSelect
+                                    name={`sections.${index}.items.${itemIndex}.contentId`}
+                                    value={clips?.find((c) => c.value === item.contentId)}
+                                    options={clips ?? []}
+                                    width={FieldSize.Medium}
+                                    isDisabled={!editable}
+                                    maxMenuHeight={120}
+                                    onChange={(newValue) =>
+                                      handleSelectionChanged(itemIndex, newValue as IOptionItem)
+                                    }
+                                  />
+                                </Col>
                                 <FaTrash
+                                  style={{ flexShrink: 0 }}
                                   className="clear-item"
                                   key={itemIndex + `trash`}
                                   onClick={() => handleDeleteItem(itemIndex)}
