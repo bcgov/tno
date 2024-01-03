@@ -145,11 +145,6 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
       const selectedClip = content.searchResults?.items?.find((s) => s.id === newValue?.value);
       const publishedOn = moment(selectedClip?.publishedOn).format('HH:mm:ss');
       setFieldValue(`sections.${index}.items.${itemIndex}.time`, publishedOn);
-
-      // Populate summary with clip headline if no summary and headline exists
-      if (selectedClip?.headline && !summary) {
-        setFieldValue(`sections.${index}.items.${itemIndex}.summary`, selectedClip?.headline);
-      }
     }
   };
 
