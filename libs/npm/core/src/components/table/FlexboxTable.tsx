@@ -151,11 +151,10 @@ export const FlexboxTable = <T extends object>({
                           >
                             {row.cells.map((cell, index) => {
                               return (
-                                <div>
+                                <React.Fragment key={`${index}`}>
                                   {cell.isVisible && (
                                     <div
                                       className={`column col-${index}`}
-                                      key={`${index}`}
                                       onClick={(e) => {
                                         if (table.options.stopPropagation) e.stopPropagation();
                                         table.options.onCellClick?.(cell, row, e);
@@ -164,7 +163,7 @@ export const FlexboxTable = <T extends object>({
                                       {cell.cell(cell)}
                                     </div>
                                   )}
-                                </div>
+                                </React.Fragment>
                               );
                             })}
                           </div>
