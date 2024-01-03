@@ -151,7 +151,7 @@ export const FlexboxTable = <T extends object>({
                           >
                             {row.cells.map((cell, index) => {
                               return (
-                                <div>
+                                <>
                                   {cell.isVisible && (
                                     <div
                                       className={`column col-${index}`}
@@ -164,7 +164,7 @@ export const FlexboxTable = <T extends object>({
                                       {cell.cell(cell)}
                                     </div>
                                   )}
-                                </div>
+                                </>
                               );
                             })}
                           </div>
