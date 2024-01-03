@@ -58,13 +58,20 @@ $line-secondary-color: #f0eeee;
 $line-tertiary-color: #d6d9e7;
 $line-quaternary-color: #f8f7f8;
 
-// code blocks
+// Code blocks
 $code-block-color: #f0eeee;
 $teaser-background-color: #f5f6f9;
 
 // Navigation
 $nav-item-background-color: #605f73;
 $nav-item-secondary-background-color: #8084b1;
+
+// Tables
+$table-odd-row: unset;
+$table-even-row: #EDEDED;
+$table-active-row-color: #fff;
+$table-active-row: #8084b1;
+$table-hover-row: #EDEDED;
 
 /////////////////////////////////////
 //  STOP USING ANYTHING BELOW THIS!

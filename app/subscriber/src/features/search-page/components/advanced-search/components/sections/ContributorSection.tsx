@@ -24,13 +24,13 @@ export const ContributorSection: React.FC = () => {
         maxMenuHeight={100}
         className="contributors"
         options={contributorOptions}
-        defaultValue={contributorOptions.filter((o) => {
-          return filter.contributorIds?.includes(o.value);
-        })}
         onChange={(newValue: any) => {
           const contributorIds = newValue.map((v: OptionItem) => v.value);
           storeFilter({ ...filter, contributorIds: contributorIds });
         }}
+        value={contributorOptions.filter(
+          (o) => o.value && filter.contributorIds?.includes(+o.value),
+        )}
       />
     </Row>
   );

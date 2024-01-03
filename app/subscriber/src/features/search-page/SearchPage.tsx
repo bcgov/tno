@@ -2,7 +2,6 @@ import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { BasicSearch } from 'components/basic-search';
 import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';
-import { AdvancedSearch } from 'components/sidebar/advanced-search';
 import { ContentListActionBar } from 'components/tool-bar';
 import { useElastic } from 'features/my-searches/hooks';
 import { determinePreview } from 'features/utils';
@@ -10,12 +9,13 @@ import parse from 'html-react-parser';
 import React from 'react';
 import { FaPlay, FaStop } from 'react-icons/fa';
 import { FaBookmark } from 'react-icons/fa6';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useContent, useLookup } from 'store/hooks';
+import { useContent, useFilters, useLookup } from 'store/hooks';
+import { useProfileStore } from 'store/slices';
 import { Checkbox, Col, IContentModel, Loading, Row, Show } from 'tno-core';
 
-import { MySearchesSection } from './MySearchesSection';
+import { AdvancedSearch } from './components';
 import { Player } from './player/Player';
 import * as styled from './styled';
 import { filterFormat } from './utils';
@@ -26,25 +26,42 @@ export interface ISearchType {
 
 // Simple component to display users search results
 export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
+  const { id } = useParams();
   const [
     {
       search: { filter },
     },
-    { findContentWithElasticsearch },
+    { findContentWithElasticsearch, storeSearchFilter },
   ] = useContent();
   const navigate = useNavigate();
   const [{ actions }] = useLookup();
-  const [searchParams] = useSearchParams();
   const genQuery = useElastic();
+  const [, { getFilter }] = useFilters();
+  const [{ filter: activeFilter }, { storeFilter }] = useProfileStore();
 
   const [content, setContent] = React.useState<IContentModel[]>([]);
   const [activeContent, setActiveContent] = React.useState<IContentModel | null>(null);
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [init, setInit] = React.useState(true); // React hooks are horrible...
 
-  const searchName = React.useMemo(() => searchParams.get('name'), [searchParams]);
-  const viewing = React.useMemo(() => searchParams.get('viewing'), [searchParams]);
+  const filterId = id ? parseInt(id) : 0;
+
+  React.useEffect(() => {
+    // Fetch the active filter if required.
+    if (filterId && init && activeFilter?.id !== filterId) {
+      setInit(false);
+      getFilter(filterId)
+        .then((filter) => {
+          storeFilter(filter);
+          storeSearchFilter(filter.settings);
+        })
+        .catch(() => {});
+    } else if (!filterId) {
+      storeFilter(undefined);
+    }
+  }, [activeFilter, getFilter, filterId, init, storeFilter, storeSearchFilter]);
 
   // function that bolds the searched text only if advanced filter is enabled for it
   const formatSearch = React.useCallback(
@@ -111,7 +128,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         {/* LEFT SIDE */}
         <Show visible={showAdvanced}>
           <Col className="adv-search-container">
-            {!!viewing ? <MySearchesSection /> : <AdvancedSearch onSearchPage />}
+            <AdvancedSearch onSearchPage />
           </Col>
         </Show>
         {/* RIGHT SIDE */}
@@ -131,10 +148,10 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
               onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
               className="search"
             />
-            <Show visible={!!searchName || !!viewing}>
+            <Show visible={!!activeFilter}>
               <div className="viewed-name padding-left">
                 <FaBookmark />
-                <div className="filter-name">{searchName ?? viewing}</div>
+                <div className="filter-name">{activeFilter?.name}</div>
               </div>
             </Show>
             <Row className="search-contents">

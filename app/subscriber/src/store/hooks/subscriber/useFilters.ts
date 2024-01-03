@@ -4,6 +4,7 @@ import { IProfileState, useProfileStore } from 'store/slices';
 import { IFilterModel, useApiSubscriberFilters } from 'tno-core';
 
 interface IFilterController {
+  activeFilter?: IFilterModel;
   findMyFilters: () => Promise<IFilterModel[]>;
   getFilter: (id: number) => Promise<IFilterModel>;
   addFilter: (model: IFilterModel) => Promise<IFilterModel>;
@@ -27,36 +28,41 @@ export const useFilters = (): [IProfileState, IFilterController] => {
       },
       getFilter: async (id: number) => {
         const response = await dispatch<IFilterModel>('get-folder', () => api.getFilter(id));
-        store.storeMyFilters((folders) =>
-          folders.map((ds) => {
-            if (ds.id === response.data.id) return response.data;
+        const filter = response.data;
+        store.storeMyFilters((filters) =>
+          filters.map((ds) => {
+            if (ds.id === filter.id) return filter;
             return ds;
           }),
         );
-        return response.data;
+        store.storeFilter((state) => (state?.id === id ? filter : state));
+        return filter;
       },
       addFilter: async (model: IFilterModel) => {
         const response = await dispatch<IFilterModel>('add-folder', () => api.addFilter(model));
-        store.storeMyFilters((folders) => [...folders, response.data]);
+        store.storeMyFilters((filters) => [...filters, response.data]);
+        store.storeFilter((state) => (state?.id === model.id ? response.data : state));
         return response.data;
       },
       updateFilter: async (model: IFilterModel) => {
         const response = await dispatch<IFilterModel>('update-folder', () =>
           api.updateFilter(model),
         );
-        store.storeMyFilters((folders) =>
-          folders.map((ds) => {
+        store.storeMyFilters((filters) =>
+          filters.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
         );
+        store.storeFilter((state) => (state?.id === model.id ? response.data : state));
         return response.data;
       },
       deleteFilter: async (model: IFilterModel) => {
         const response = await dispatch<IFilterModel>('delete-folder', () =>
           api.deleteFilter(model),
         );
-        store.storeMyFilters((folders) => folders.filter((ds) => ds.id !== response.data.id));
+        store.storeMyFilters((filters) => filters.filter((ds) => ds.id !== response.data.id));
+        store.storeFilter((state) => (state?.id === model.id ? undefined : state));
         return response.data;
       },
     }),
