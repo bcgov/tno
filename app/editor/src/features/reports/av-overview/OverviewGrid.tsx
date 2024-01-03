@@ -372,6 +372,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                   options={clips ?? []}
                                   width={FieldSize.Medium}
                                   isDisabled={!editable}
+                                  maxMenuHeight={120}
                                   onChange={(newValue) =>
                                     handleSelectionChanged(itemIndex, newValue as IOptionItem)
                                   }
