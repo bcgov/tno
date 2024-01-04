@@ -9,7 +9,9 @@ export const MoreOptions: React.FC = () => {
     },
     { storeSearchFilter: storeFilter },
   ] = useContent();
+
   var frontPageId = settings.find((s) => s.name === Settings.FrontpageFilter)?.value;
+
   return (
     <div className="more-options">
       <p>
@@ -19,7 +21,7 @@ export const MoreOptions: React.FC = () => {
       </p>
       <Col>
         <Checkbox
-          label="featured on the MMI home page"
+          label="featured stories"
           name="featured"
           checked={!filter.searchUnpublished}
           onChange={(e) => {

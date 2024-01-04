@@ -19,17 +19,7 @@ import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useFilters, useLookup } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import {
-  Button,
-  Claim,
-  Col,
-  IFilterModel,
-  Row,
-  Show,
-  Text,
-  TextArea,
-  toQueryString,
-} from 'tno-core';
+import { Button, Claim, Col, IFilterModel, Row, Show, Text, TextArea } from 'tno-core';
 
 import {
   ContentTypeSection,
@@ -51,7 +41,8 @@ import { defaultSubMediaGroupExpanded, ISubMediaGroupExpanded } from './interfac
 import * as styled from './styled';
 
 export interface IAdvancedSearchProps {
-  onSearchPage?: boolean;
+  /** Event fires when search button is clicked. */
+  onSearch?: () => void;
 }
 
 /***
@@ -59,7 +50,7 @@ export interface IAdvancedSearchProps {
  * @param expanded - determines whether the advanced search form is expanded or not
  * @param setExpanded - function that controls the expanded state of the advanced search form
  */
-export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage }) => {
+export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => {
   const navigate = useNavigate();
   const [, { addFilter, updateFilter }] = useFilters();
   const [{ actions }] = useLookup();
@@ -122,11 +113,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
     updateFilter,
   ]);
 
-  const handleSearch = async () => {
-    const settings = filterFormat(search, actions);
-    navigate(`?${toQueryString(settings)}`);
-  };
-
   return (
     <styled.AdvancedSearch>
       <PageSection
@@ -161,7 +147,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
               <TextArea
                 value={search?.search}
                 className="text-area"
-                onKeyDown={(e) => handleEnterPressed(e, handleSearch, true)}
+                onKeyDown={(e) => handleEnterPressed(e, () => onSearch?.(), true)}
                 name="search"
                 onChange={(e) => storeSearchFilter({ ...search, search: e.target.value })}
               />
@@ -200,12 +186,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
                 <PaperSection />
               </ExpandableRow>
             </Col>
-            {/* CONTENT TYPE SECTION */}
-            <Col className="expandable-section">
-              <ExpandableRow icon={<FaTv />} title="Content Type">
-                <ContentTypeSection />
-              </ExpandableRow>
-            </Col>
             {/* CONTRIBUTOR SECTION */}
             <Col className="expandable-section">
               <ExpandableRow icon={<FaUsers />} title="Columnists/Anchors">
@@ -224,13 +204,21 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
                 <SeriesSection />
               </ExpandableRow>
             </Col>
-            {/* TAG SECTION */}
             {isAdmin && (
-              <Col className="expandable-section">
-                <ExpandableRow icon={<FaTag />} title="Tags">
-                  <TagSection />
-                </ExpandableRow>
-              </Col>
+              <>
+                {/* CONTENT TYPE SECTION */}
+                <Col className="expandable-section">
+                  <ExpandableRow icon={<FaTv />} title="Content Type">
+                    <ContentTypeSection />
+                  </ExpandableRow>
+                </Col>
+                {/* TAG SECTION */}
+                <Col className="expandable-section">
+                  <ExpandableRow icon={<FaTag />} title="Tags">
+                    <TagSection />
+                  </ExpandableRow>
+                </Col>
+              </>
             )}
           </Col>
 
@@ -259,7 +247,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearchPage })
           </button>
           <Button
             onClick={() => {
-              handleSearch();
+              onSearch?.();
             }}
             className="search-button"
           >

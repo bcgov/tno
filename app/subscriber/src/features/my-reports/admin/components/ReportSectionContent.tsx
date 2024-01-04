@@ -94,12 +94,7 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
                 <Button
                   disabled={!values.sections[index].filterId}
                   onClick={() =>
-                    window.open(
-                      `/search?modify=${values.sections[index].filterId}&name=${
-                        values.sections[index].filter?.name ?? ''
-                      }`,
-                      '_blank',
-                    )
+                    window.open(`/search/advanced/${values.sections[index].filterId}`, '_blank')
                   }
                 >
                   <FaArrowAltCircleRight />

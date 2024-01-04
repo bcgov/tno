@@ -13,7 +13,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Checkbox, Col, IContentModel, Loading, Row, Show } from 'tno-core';
+import { Checkbox, Col, IContentModel, Loading, Row, Show, toQueryString } from 'tno-core';
 
 import { AdvancedSearch } from './components';
 import { Player } from './player/Player';
@@ -114,13 +114,12 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     [findContentWithElasticsearch],
   );
 
-  /** retrigger content fetch when change is applied */
-  React.useEffect(() => {
+  const handleSearch = async () => {
+    const settings = filterFormat(filter, actions);
+    navigate(`?${toQueryString(settings)}`);
     const query = genQuery(filterFormat(filter, actions));
-    !!window.location.search && fetchResults(query, filter.searchUnpublished);
-    // only run when query  and is present
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [window.location.search]);
+    fetchResults(query, filter.searchUnpublished);
+  };
 
   return (
     <styled.SearchPage>
@@ -128,7 +127,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         {/* LEFT SIDE */}
         <Show visible={showAdvanced}>
           <Col className="adv-search-container">
-            <AdvancedSearch onSearchPage />
+            <AdvancedSearch onSearch={() => handleSearch()} />
           </Col>
         </Show>
         {/* RIGHT SIDE */}
