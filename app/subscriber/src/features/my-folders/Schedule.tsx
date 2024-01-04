@@ -9,7 +9,6 @@ import {
   Checkbox,
   Col,
   FieldSize,
-  IFolderModel,
   IFolderScheduleModel,
   Row,
   Show,
@@ -20,92 +19,58 @@ import {
 import { daysOfWeek } from './constants/daysOfWeek';
 
 export interface IScheduleProps {
-  setCurrentFolder: React.Dispatch<React.SetStateAction<IFolderModel | undefined>>;
-  folderEvents?: IFolderScheduleModel[];
+  folderSchedule?: IFolderScheduleModel;
+  onScheduleChange?: (value: IFolderScheduleModel) => void;
 }
 /*
  * This component will display the schedule options for clearing a folder in the ConfigureFolder component.
  */
-export const Schedule: React.FC<IScheduleProps> = ({ folderEvents, setCurrentFolder }) => {
-  const [days, setDays] = React.useState<string[]>([]);
-
-  // init days
-  React.useEffect(() => {
-    if (folderEvents?.length && folderEvents[0].runOnWeekDays) {
-      setDays(folderEvents[0].runOnWeekDays.split(','));
-    }
-    // only run to sync up with db
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [folderEvents?.length]);
-
-  // easy way to convert checked days to a comma separated string
-  React.useEffect(() => {
-    if (!!days.length) {
-      setCurrentFolder((prev) => {
-        if (prev) {
-          return { ...prev, events: [{ ...prev.events[0], runOnWeekDays: days.join(',') }] };
-        }
-      });
-    }
-    // only run when days change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [days]);
-
+export const Schedule: React.FC<IScheduleProps> = ({ folderSchedule, onScheduleChange }) => {
   return (
-    <Show visible={!!folderEvents?.length}>
+    <Show visible={!!folderSchedule}>
       <Row alignSelf="center" className="schedule-content">
         <Col>
           <Checkbox
             label="Schedule is enabled"
-            checked={!!folderEvents && !!folderEvents[0]?.isEnabled}
+            checked={!!folderSchedule && !!folderSchedule.isEnabled}
             onChange={(e) => {
-              setCurrentFolder((prev) => {
-                if (prev) {
-                  prev.events[0].isEnabled = e.target.checked;
-                }
-                return prev;
-              });
+              onScheduleChange?.({
+                ...folderSchedule,
+                isEnabled: e.target.checked,
+              } as IFolderScheduleModel);
             }}
           />
           <TimeInput
-            label="Run schedle at:"
+            label="Run schedule at:"
             placeholder='e.g. "13:00:00"'
-            value={folderEvents && folderEvents[0]?.startAt}
+            value={folderSchedule && folderSchedule?.startAt}
             width={FieldSize.Small}
             onChange={(e) => {
-              setCurrentFolder((prev) => {
-                if (prev) {
-                  prev.events[0].startAt = e.target.value;
-                }
-                return prev;
-              });
+              onScheduleChange?.({
+                ...folderSchedule,
+                startAt: e.target.value,
+              } as IFolderScheduleModel);
             }}
           />
           <label>Start after:</label>
           <ReactDatePicker
             showTimeInput
             selected={
-              folderEvents?.length && folderEvents[0].runOn
-                ? new Date(folderEvents[0].runOn)
-                : undefined
+              folderSchedule && folderSchedule.runOn ? new Date(folderSchedule.runOn) : undefined
             }
             isClearable
             showTimeSelect
             dateFormat="MM/dd/yyyy HH:mm:ss"
             value={
-              folderEvents?.length && folderEvents[0].runOn
-                ? moment(folderEvents[0].runOn).format('MM/DD/yyyy HH:mm:ss')
+              folderSchedule && folderSchedule.runOn
+                ? moment(folderSchedule.runOn).format('MM/DD/yyyy HH:mm:ss')
                 : undefined
             }
             onChange={(date) => {
-              setCurrentFolder((prev) => {
-                if (prev) {
-                  return {
-                    ...prev,
-                    events: [{ ...prev.events[0], runOn: moment(date).toISOString() }],
-                  };
-                }
-              });
+              onScheduleChange?.({
+                ...folderSchedule,
+                runOn: moment(date).toISOString(),
+              } as IFolderScheduleModel);
             }}
           />
         </Col>
@@ -114,15 +79,20 @@ export const Schedule: React.FC<IScheduleProps> = ({ folderEvents, setCurrentFol
             <Checkbox
               key={day.value}
               label={day.label}
-              checked={
-                !!folderEvents && !!folderEvents[0]?.runOnWeekDays?.includes(day.value as string)
-              }
+              checked={folderSchedule?.runOnWeekDays.includes(day.value as string)}
               onChange={(e) => {
+                let currentDays: string[] =
+                  folderSchedule?.runOnWeekDays.replace(/\s/g, '').split(',') ?? [];
+                let updatedDays: string[];
                 if (e.target.checked) {
-                  setDays([...days, e.target.value]);
+                  updatedDays = [...currentDays, e.target.value];
                 } else {
-                  setDays(days.filter((day) => day !== e.target.value));
+                  updatedDays = currentDays.filter((day) => day !== e.target.value);
                 }
+                onScheduleChange?.({
+                  ...folderSchedule,
+                  runOnWeekDays: updatedDays.join(','),
+                } as IFolderScheduleModel);
               }}
               value={day.value}
             />
@@ -138,16 +108,27 @@ export const Schedule: React.FC<IScheduleProps> = ({ folderEvents, setCurrentFol
               Keep age limit (days)
               <FaInfoCircle data-tooltip-id="keep-age" />
             </label>
-            <Text width={FieldSize.Small} name="days" type="number" min="0" max="365" />
+            <Text
+              width={FieldSize.Small}
+              name="days"
+              type="number"
+              min="0"
+              max="365"
+              value={folderSchedule?.settings.keepAgeLimit ?? 0}
+              onChange={(e) => {
+                onScheduleChange?.({
+                  ...folderSchedule,
+                  settings: { keepAgeLimit: e.target.value },
+                } as IFolderScheduleModel);
+              }}
+            />
           </Row>
         </Col>
         <Col>
           <Text
             name="request-date"
             value={
-              folderEvents?.length && folderEvents[0].requestSentOn
-                ? folderEvents[0]?.requestSentOn
-                : ''
+              folderSchedule && folderSchedule.requestSentOn ? folderSchedule?.requestSentOn : ''
             }
             label="Last Request Sent On"
             disabled
@@ -156,12 +137,10 @@ export const Schedule: React.FC<IScheduleProps> = ({ folderEvents, setCurrentFol
               tooltip="Clear last request sent on"
               className="btn-clear"
               onClick={() => {
-                setCurrentFolder((prev) => {
-                  if (prev) {
-                    prev.events[0].requestSentOn = undefined;
-                  }
-                  return prev;
-                });
+                onScheduleChange?.({
+                  ...folderSchedule,
+                  requestSentOn: undefined,
+                } as IFolderScheduleModel);
               }}
             >
               <FaTrash />
@@ -169,9 +148,7 @@ export const Schedule: React.FC<IScheduleProps> = ({ folderEvents, setCurrentFol
           </Text>
           <Text
             name={`lastRanOn`}
-            value={
-              !!folderEvents?.length && folderEvents[0].lastRanOn ? folderEvents[0]?.lastRanOn : ''
-            }
+            value={!!folderSchedule && folderSchedule.lastRanOn ? folderSchedule?.lastRanOn : ''}
             label="Last Ran On"
             disabled
           />
