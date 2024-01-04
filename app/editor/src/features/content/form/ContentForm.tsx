@@ -108,6 +108,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const [cursorStyle, setCursorStyle] = React.useState('text');
   const [savePressed, setSavePressed] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
+  const [parsedTags, setParsedTags] = React.useState<string[]>([]);
 
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
 
@@ -122,6 +123,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
       return date;
     }
     return null;
+  };
+
+  const parseTags = (x: string[]) => {
+    setParsedTags(x);
   };
 
   React.useEffect(() => {
@@ -493,7 +498,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
                 </Row>
                 <Row flex="1" wrap="nowrap" gap="0.5rem" className="section-upload">
                   <Show visible={props.values.contentType === ContentTypeName.Image}>
-                    <ContentStoryForm contentType={ContentTypeName.Image} />
+                    <ContentStoryForm
+                      contentType={ContentTypeName.Image}
+                      checkTags={(c: string[]) => parseTags(c)}
+                    />
                     <Col flex="1 1 0%" justifyContent="center">
                       <Upload
                         className="media"
@@ -595,7 +603,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       }
                     >
                       <Show visible={active === 'summary'}>
-                        <ContentStoryForm contentType={props.values.contentType} />
+                        <ContentStoryForm
+                          contentType={props.values.contentType}
+                          checkTags={(c: string[]) => parseTags(c)}
+                        />
                       </Show>
                       <Show visible={active === 'transcript'}>
                         <ContentTranscriptForm />
@@ -613,7 +624,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     </Tabs>
                   </Show>
                   <Show visible={props.values.contentType === ContentTypeName.PrintContent}>
-                    <ContentStoryForm contentType={props.values.contentType} />
+                    <ContentStoryForm
+                      contentType={props.values.contentType}
+                      checkTags={(c: string[]) => parseTags(c)}
+                    />
                   </Show>
                   <Show visible={props.values.contentType === ContentTypeName.AudioVideo}>
                     <Upload
@@ -643,7 +657,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                   </Show>
                 </Row>
                 <Row gap="0.5rem">
-                  <Tags />
+                  <Tags selectedExternal={parsedTags} />
                   <Show visible={props.values.contentType !== ContentTypeName.Image}>
                     <FormikSentiment name="tonePools" options={tonePools} required />
                     <Show
