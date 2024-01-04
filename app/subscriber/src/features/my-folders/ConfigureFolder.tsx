@@ -93,9 +93,6 @@ export const ConfigureFolder: React.FC = () => {
   const handleSaveSchedule = React.useCallback(
     async (values: IFolderModel) => {
       try {
-        if (activeFilter != null) {
-          values.filterId = activeFilter?.id;
-        }
         const result = await updateFolder(values);
         setCurrentFolder(result);
         toast.success('Folder schedule saved.');
@@ -103,7 +100,7 @@ export const ConfigureFolder: React.FC = () => {
         toast.error('Failed to save folder schedule.');
       }
     },
-    [activeFilter, updateFolder, setCurrentFolder],
+    [updateFolder, setCurrentFolder],
   );
 
   return (
@@ -130,7 +127,9 @@ export const ConfigureFolder: React.FC = () => {
               value={filterOptions.find((option) => option.value === activeFilter?.id)}
               onChange={(newValue) => {
                 const option = newValue as IOptionItem;
-                setActiveFilter(myFilters.find((f) => f.id === option.value));
+                const targetFilter = myFilters.find((f) => f.id === option.value);
+                setActiveFilter(targetFilter);
+                setCurrentFolder({ ...currentFolder, filterId: targetFilter?.id } as IFolderModel);
               }}
             />
             <Button className="run" onClick={() => !!activeFilter && handleRun(activeFilter)}>
