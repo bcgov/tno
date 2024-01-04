@@ -76,7 +76,11 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           contentType === ContentTypeName.Image || contentType === ContentTypeName.AudioVideo
         }
       >
-        <MediaSummary setShowExpandModal={setShowExpandModal} isSummaryRequired={summaryRequired} />
+        <MediaSummary
+          setShowExpandModal={setShowExpandModal}
+          isSummaryRequired={summaryRequired}
+          getTags={getTags}
+        />
       </Show>
       <Show
         visible={
@@ -110,6 +114,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
                 ? 'body'
                 : 'summary'
             }
+            onChange={(e) => getTags(e)}
             tags={tags}
           />
         }

@@ -7,6 +7,7 @@ import * as styled from './styled';
 export interface IMediaSummaryProps {
   setShowExpandModal?: (show: boolean) => void;
   isSummaryRequired: boolean;
+  getTags: Function;
 }
 
 /**
@@ -16,6 +17,7 @@ export interface IMediaSummaryProps {
 export const MediaSummary: React.FC<IMediaSummaryProps> = ({
   setShowExpandModal,
   isSummaryRequired,
+  getTags,
 }) => {
   const [{ tags }] = useLookup();
 
@@ -28,6 +30,7 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
         name="summary"
         expandModal={setShowExpandModal}
         tags={tags}
+        onChange={(e) => getTags(e)}
       />
     </styled.MediaSummary>
   );

@@ -35,9 +35,6 @@ export const Tags: React.FC<ITagsProps> = ({ selectedExternal }) => {
     setExternalTags(ext);
     const newTags = ext.concat(manualTags);
     setFieldValue('tags', newTags);
-
-    // eslint-disable-next-line no-console
-    console.log('tagz', ext, manualTags);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedExternal]);
 
@@ -58,15 +55,15 @@ export const Tags: React.FC<ITagsProps> = ({ selectedExternal }) => {
   };
 
   const addManualTags = (selectedTags: any) => {
-    const manuallySelectedTags = selectedTags.filter((tag: IOptionItem) =>
-      externalTags?.some((t: ITagModel) => t.code !== tag.label),
+    const extCodes = externalTags.map((x: ITagModel) => x.code);
+    const manualTags = convertTags(selectedTags).filter(
+      (x: ITagModel) => !extCodes.includes(x.code),
     );
-    setManualTags(convertTags(manuallySelectedTags as IOptionItem[]));
-    const newTags = manuallySelectedTags.concat(externalTags);
-    // eslint-disable-next-line no-console
-    console.log('tagz', externalTags, manuallySelectedTags);
+    setManualTags(manualTags);
+    const newTags = manualTags.concat(externalTags);
     setFieldValue('tags', newTags);
   };
+
   return (
     <styled.Tags className="multi-group">
       <DraggableTagList showList={showList} setShowList={setShowList} />
