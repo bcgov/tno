@@ -12,6 +12,7 @@ import {
   IFilterModel,
   IFolderContentModel,
   IFolderModel,
+  IFolderScheduleModel,
   IOptionItem,
   Row,
   Select,
@@ -31,16 +32,16 @@ export const ConfigureFolder: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [active, setActive] = React.useState<IFilterModel>();
+  const [activeFilter, setActiveFilter] = React.useState<IFilterModel>();
   const [currentFolder, setCurrentFolder] = React.useState<IFolderModel>();
   const [filterOptions, setFilterOptions] = React.useState<IOptionItem[]>(
-    getFilterOptions(myFilters, active?.id ?? 0),
+    getFilterOptions(myFilters, activeFilter?.id ?? 0),
   );
 
   React.useEffect(() => {
     if (!myFilters.length) {
       findMyFilters().then((data) => {
-        setFilterOptions(getFilterOptions(data, active?.id ?? 0));
+        setFilterOptions(getFilterOptions(data, activeFilter?.id ?? 0));
       });
     }
     // Only do this on init.
@@ -51,6 +52,7 @@ export const ConfigureFolder: React.FC = () => {
     if (!currentFolder && id) {
       getFolder(Number(id)).then((data) => {
         setCurrentFolder(data);
+        if (data.filter) setActiveFilter(data.filter);
       });
     }
   }, [currentFolder, getFolder, id]);
@@ -88,6 +90,22 @@ export const ConfigureFolder: React.FC = () => {
     [findContentWithElasticsearch, currentFolder, updateFolder],
   );
 
+  const handleSaveSchedule = React.useCallback(
+    async (values: IFolderModel) => {
+      try {
+        if (activeFilter != null) {
+          values.filterId = activeFilter?.id;
+        }
+        const result = await updateFolder(values);
+        setCurrentFolder(result);
+        toast.success('Folder schedule saved.');
+      } catch {
+        toast.error('Failed to save folder schedule.');
+      }
+    },
+    [activeFilter, updateFolder, setCurrentFolder],
+  );
+
   return (
     <styled.ConfigureFolder
       ignoreLastChildGap
@@ -109,13 +127,13 @@ export const ConfigureFolder: React.FC = () => {
               name="filters"
               isClearable
               className="filter-select"
-              value={filterOptions.find((option) => option.value === active?.id)}
+              value={filterOptions.find((option) => option.value === activeFilter?.id)}
               onChange={(newValue) => {
                 const option = newValue as IOptionItem;
-                setActive(myFilters.find((f) => f.id === option.value));
+                setActiveFilter(myFilters.find((f) => f.id === option.value));
               }}
             />
-            <Button className="run" onClick={() => !!active && handleRun(active)}>
+            <Button className="run" onClick={() => !!activeFilter && handleRun(activeFilter)}>
               Run
             </Button>
           </Row>
@@ -140,13 +158,19 @@ export const ConfigureFolder: React.FC = () => {
               </Button>
             </Show>
           </Row>
-          <Schedule setCurrentFolder={setCurrentFolder} folderEvents={currentFolder?.events} />
+          <Schedule
+            folderSchedule={currentFolder?.events[0] ?? undefined}
+            onScheduleChange={async (value: IFolderScheduleModel) => {
+              setCurrentFolder({
+                ...(currentFolder as IFolderModel),
+                events: [value],
+              });
+            }}
+          />
           <Show visible={!!currentFolder?.events?.length}>
             <Button
               onClick={() => {
-                updateFolder(currentFolder as IFolderModel)
-                  .then(() => toast.success('Folder schedule saved.'))
-                  .catch(() => toast.error('Failed to save folder schedule.'));
+                handleSaveSchedule(currentFolder as IFolderModel);
               }}
             >
               Save

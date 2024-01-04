@@ -82,6 +82,10 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
         this.Content = entity.ContentManyToMany.Select(c => new FolderContentModel(c));
         this.Reports = entity.ReportSections.Where(rs => rs.Report != null).Select(rs => new ReportModel(rs.Report!)).ToArray();
 		this.Events = entity.Events.Select(e => new FolderScheduleModel(e));
+        if (entity.Filter != null) {
+            this.FilterId = entity.FilterId;
+            this.Filter = new FilterModel(entity.Filter, options);
+        }
     }
     #endregion
 
@@ -111,7 +115,8 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
             OwnerId = model.OwnerId,
             SortOrder = model.SortOrder,
             Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
-            Version = model.Version ?? 0
+            Version = model.Version ?? 0,
+            FilterId = model.FilterId
         };
 
         entity.ContentManyToMany.AddRange(model.Content.Select(c => new Entities.FolderContent(model.Id, c.ContentId, c.SortOrder)));
