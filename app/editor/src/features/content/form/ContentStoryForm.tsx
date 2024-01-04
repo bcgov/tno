@@ -47,8 +47,9 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
     if (!checkTags) {
       return;
     }
-    const regex = new RegExp(/\[(.*?)\]/g);
-    const t = e.match(regex);
+    const noTagString = e.replace(/<\/?p>/g, '');
+    const regex = new RegExp(/\[([^\]]*)\]$/);
+    const t = noTagString.match(regex);
     const availiableTags = tags.filter((t) => t.isEnabled).map((t) => t.code);
     const parsedTags: string[] = [];
     t?.forEach((i: string) => {
