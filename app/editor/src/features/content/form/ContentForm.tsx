@@ -108,6 +108,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const [cursorStyle, setCursorStyle] = React.useState('text');
   const [savePressed, setSavePressed] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
+  const [parsedTags, setParsedTags] = React.useState([]);
 
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
 
@@ -122,6 +123,12 @@ const ContentForm: React.FC<IContentFormProps> = ({
       return date;
     }
     return null;
+  };
+
+  const test = (x: any) => {
+    // eslint-disable-next-line no-console
+    // console.log('tagz', 'x', x);
+    setParsedTags(x);
   };
 
   React.useEffect(() => {
@@ -613,7 +620,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     </Tabs>
                   </Show>
                   <Show visible={props.values.contentType === ContentTypeName.PrintContent}>
-                    <ContentStoryForm contentType={props.values.contentType} />
+                    <ContentStoryForm
+                      contentType={props.values.contentType}
+                      checkTags={(a: any) => test(a)}
+                    />
                   </Show>
                   <Show visible={props.values.contentType === ContentTypeName.AudioVideo}>
                     <Upload
@@ -643,7 +653,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                   </Show>
                 </Row>
                 <Row gap="0.5rem">
-                  <Tags />
+                  <Tags selectedExternal={parsedTags} />
                   <Show visible={props.values.contentType !== ContentTypeName.Image}>
                     <FormikSentiment name="tonePools" options={tonePools} required />
                     <Show

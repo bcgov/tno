@@ -21,6 +21,7 @@ import { isSummaryRequired } from './utils';
 export interface IContentStoryFormProps {
   contentType: ContentTypeName;
   summaryRequired?: boolean;
+  checkTags?: Function;
 }
 
 /**
@@ -31,6 +32,7 @@ export interface IContentStoryFormProps {
 export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   contentType,
   summaryRequired: initSummaryRequired,
+  checkTags,
 }) => {
   const { values } = useFormikContext<IContentForm>();
   const [showExpandModal, setShowExpandModal] = React.useState(false);
@@ -40,6 +42,26 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   const [summaryRequired, setSummaryRequired] = React.useState(
     initSummaryRequired ?? isSummaryRequired(values),
   );
+
+  const getTags = (e: string) => {
+    if (!checkTags) {
+      return;
+    }
+    const regex = new RegExp(/\[(.*?)\]/g);
+    const t = e.match(regex);
+    const availiableTags = tags.filter((t) => t.isEnabled).map((t) => t.code);
+    const parsedTags: string[] = [];
+    t?.forEach((i: string) => {
+      const s = i.replace(/[\][]/g, '').split(/[\s,]+/);
+      s.forEach((j: string) => {
+        if (availiableTags.includes(j)) {
+          parsedTags.push(j);
+        }
+      });
+    });
+    const uniqueParsedTags = Array.from(new Set(parsedTags));
+    checkTags(uniqueParsedTags);
+  };
 
   React.useEffect(() => {
     setSummaryRequired(isSummaryRequired(values));
@@ -65,6 +87,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           className="content-body"
           label="Story"
           name="body"
+          onChange={(e) => getTags(e)}
           expandModal={setShowExpandModal}
           tags={tags}
         />
