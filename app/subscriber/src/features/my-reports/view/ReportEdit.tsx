@@ -21,7 +21,7 @@ import {
 import { ReportFormSchema } from '../admin/validation/ReportFormSchema';
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
-import { toForm } from '../utils';
+import { sortContent, toForm } from '../utils';
 import { ReportEditForm } from './components';
 import * as styled from './styled';
 
@@ -128,6 +128,10 @@ export const ReportEdit: React.FC = () => {
         if (sameNameReport) {
           toast.error(`A report with the name '${values.name}' already exists.`);
         } else {
+          if (values.instances.length) {
+            // Apply new sort order values for content to stop content from moving around when it has the same sort order value.
+            values.instances[0].content = sortContent(values.instances[0].content, true);
+          }
           const report = await updateReport(values, true);
           storeReportOutput(undefined); // Clear the preview
           setReport(toForm(report));
