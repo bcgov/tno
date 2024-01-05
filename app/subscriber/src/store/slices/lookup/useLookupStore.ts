@@ -39,6 +39,7 @@ import {
   storeRules,
   storeSeries,
   storeSettings,
+  storeSettingsFrontPageImagesMediaTypeId,
   storeSourceActions,
   storeSources,
   storeTags,
@@ -72,6 +73,7 @@ export interface ILookupStore {
   storeUsers: (users: IUserModel[]) => void;
   storeDataLocations: (dataLocations: IDataLocationModel[]) => void;
   storeSettings: (settings: ISettingModel[]) => void;
+  storeSettingsFrontPageImagesMediaTypeId: (id: number) => void;
 }
 
 export const useLookupStore = (): [ILookupState, ILookupStore] => {
@@ -139,6 +141,9 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       },
       storeSettings: (settings: ISettingModel[]) => {
         dispatch(storeSettings(settings));
+      },
+      storeSettingsFrontPageImagesMediaTypeId: (id: number) => {
+        dispatch(storeSettingsFrontPageImagesMediaTypeId(id));
       },
       storeHolidays: (holidays: IHolidayModel[]) => {
         dispatch(storeHolidays(holidays));

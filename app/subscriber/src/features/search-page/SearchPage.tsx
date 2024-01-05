@@ -5,7 +5,6 @@ import { Sentiment } from 'components/sentiment';
 import { ContentListActionBar } from 'components/tool-bar';
 import { useElastic } from 'features/my-searches/hooks';
 import { determinePreview } from 'features/utils';
-import parse from 'html-react-parser';
 import React from 'react';
 import { FaPlay, FaStop } from 'react-icons/fa';
 import { FaBookmark } from 'react-icons/fa6';
@@ -18,7 +17,7 @@ import { Checkbox, Col, IContentModel, Loading, Row, Show, toQueryString } from 
 import { AdvancedSearch } from './components';
 import { Player } from './player/Player';
 import * as styled from './styled';
-import { filterFormat } from './utils';
+import { filterFormat, formatSearch } from './utils';
 
 export interface ISearchType {
   showAdvanced?: boolean;
@@ -34,7 +33,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     { findContentWithElasticsearch, storeSearchFilter },
   ] = useContent();
   const navigate = useNavigate();
-  const [{ actions }] = useLookup();
+  const [{ actions, frontPageImagesMediaTypeId }] = useLookup();
   const genQuery = useElastic();
   const [, { getFilter }] = useFilters();
   const [{ filter: activeFilter }, { storeFilter }] = useProfileStore();
@@ -63,39 +62,6 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     }
   }, [activeFilter, getFilter, filterId, init, storeFilter, storeSearchFilter]);
 
-  // function that bolds the searched text only if advanced filter is enabled for it
-  const formatSearch = React.useCallback(
-    (text: string) => {
-      let tempText = text;
-      let parseText = () => {
-        if (filter.search) return filter.search;
-        else return '';
-      };
-      parseText()
-        .split(' e')
-        .forEach((word) => {
-          const regex = new RegExp(word ?? '', 'gi');
-          // remove duplicates found only want unique matches, this will be varying capitalization
-          const matches = text.match(regex)?.filter((v, i, a) => a.indexOf(v) === i) ?? [];
-          // text.match included in replace in order to keep the proper capitalization
-          // When there is more than one match, this indicates there will be varying capitalization. In this case we
-          // have to iterate through the matches and do a more specific replace in order to keep the words capitalization
-          if (matches.length > 1) {
-            matches.forEach((match, i) => {
-              let multiMatch = new RegExp(`${matches[i]}`);
-              tempText = tempText.replace(multiMatch, `<b>${match}</b>`);
-            });
-          } else {
-            // in this case there will only be one match, so we can just insert the first match
-            tempText = tempText.replace(regex, `<b>${matches[0]}</b>`);
-          }
-        });
-      if (!filter.boldKeywords) return parse(text);
-      return parse(tempText);
-    },
-    [filter.search, filter.boldKeywords],
-  );
-
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody, searchUnpublished: boolean) => {
       try {
@@ -114,12 +80,24 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     [findContentWithElasticsearch],
   );
 
-  const handleSearch = async () => {
+  React.useEffect(() => {
+    // Need to wait until front page images are in redux store before making a request.
+    if (frontPageImagesMediaTypeId) {
+      const settings = filterFormat(filter, actions);
+      navigate(`?${toQueryString(settings)}`);
+      const query = genQuery(settings);
+      fetchResults(query, filter.searchUnpublished);
+    }
+    // Only execute this on page load.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [frontPageImagesMediaTypeId]);
+
+  const handleSearch = React.useCallback(async () => {
     const settings = filterFormat(filter, actions);
     navigate(`?${toQueryString(settings)}`);
-    const query = genQuery(filterFormat(filter, actions));
+    const query = genQuery(settings);
     fetchResults(query, filter.searchUnpublished);
-  };
+  }, [actions, fetchResults, filter, genQuery, navigate]);
 
   return (
     <styled.SearchPage>
@@ -133,7 +111,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         {/* RIGHT SIDE */}
         <Col className={showAdvanced ? 'result-container' : 'result-container-full'}>
           <Show visible={!showAdvanced}>
-            <BasicSearch />
+            <BasicSearch onSearch={() => handleSearch()} />
           </Show>
           <PageSection
             header={
@@ -201,11 +179,11 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
                             className="headline text-content"
                             onClick={() => navigate(`/view/${item.id}`)}
                           >
-                            {formatSearch(item.headline)}
+                            {formatSearch(item.headline, filter)}
                           </div>
                           {/* TODO: Extract text around keyword searched and preview that text rather than the first 50 words */}
                           <div className="summary text-content">
-                            {formatSearch(determinePreview(item))}
+                            {formatSearch(determinePreview(item), filter)}
                           </div>
                           <Show visible={!!item.fileReferences?.length}>
                             <button

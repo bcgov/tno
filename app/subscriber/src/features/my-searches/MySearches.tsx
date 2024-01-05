@@ -2,7 +2,7 @@ import { Action } from 'components/action';
 import { SubscriberTableContainer } from 'components/table';
 import React from 'react';
 import { FaCheck, FaSave } from 'react-icons/fa';
-import { FaBookmark, FaPen, FaTrash } from 'react-icons/fa6';
+import { FaBookmark, FaGear, FaPen, FaTrash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters } from 'store/hooks';
@@ -43,11 +43,11 @@ export const MySearches = () => {
   );
 
   const handleClick = React.useCallback(
-    (filter: IFilterModel) => {
+    (filter: IFilterModel, advanced: boolean = false) => {
       if (editing?.id !== filter.id) {
         storeFilter(filter);
         storeSearchFilter(filter.settings);
-        navigate(`/search/advanced/${filter.id}`);
+        navigate(`/search/${advanced ? `advanced/` : ''}${filter.id}`);
       }
     },
     [editing?.id, navigate, storeFilter, storeSearchFilter],
@@ -87,6 +87,7 @@ export const MySearches = () => {
                   }}
                 />
               )}
+              <FaGear onClick={() => handleClick(filter, true)} />
               <FaTrash
                 onClick={() => {
                   setActive(filter);

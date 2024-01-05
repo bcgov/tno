@@ -1,7 +1,7 @@
 /**
  * Convert the specified 'value' to the specified 'type', or return the specified 'defaultValue'.
  * @param value The value to convert.
- * @param type The type to conver to.
+ * @param type The type to convert to.
  * @param defaultValue The default value if there is no conversion map or value.
  * @returns The converter value or default value.
  */
