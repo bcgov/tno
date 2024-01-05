@@ -123,6 +123,9 @@ export const lookupSlice = createSlice({
     storeSettings(state: ILookupState, action: PayloadAction<ISettingModel[]>) {
       state.settings = action.payload;
     },
+    storeSettingsFrontPageImagesMediaTypeId(state: ILookupState, action: PayloadAction<number>) {
+      state.frontPageImagesMediaTypeId = action.payload;
+    },
     storeHolidays(state: ILookupState, action: PayloadAction<IHolidayModel[]>) {
       state.holidays = action.payload;
     },
@@ -152,4 +155,5 @@ export const {
   storeRoles,
   storeDataLocations,
   storeIngestTypes,
+  storeSettingsFrontPageImagesMediaTypeId,
 } = lookupSlice.actions;

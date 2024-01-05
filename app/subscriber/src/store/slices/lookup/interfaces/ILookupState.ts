@@ -43,4 +43,5 @@ export interface ILookupState {
   dataLocations: IDataLocationModel[];
   settings: ISettingModel[];
   rules: ITopicScoreRuleModel[];
+  frontPageImagesMediaTypeId?: number;
 }

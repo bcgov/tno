@@ -1,6 +1,7 @@
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';
+import { useLookupStore } from 'store/slices';
 import { generateMustNotQuery, generateQuery, IFilterSettingsModel, Settings } from 'tno-core';
 
 /**
@@ -10,18 +11,19 @@ import { generateMustNotQuery, generateQuery, IFilterSettingsModel, Settings } f
  */
 export const useElastic = () => {
   const [{ isReady, settings }] = useLookup();
-
-  const [frontPageImagesMediaTypeId, setFrontPageImagesMediaTypeId] = React.useState(0);
+  const [{ frontPageImagesMediaTypeId }, { storeSettingsFrontPageImagesMediaTypeId }] =
+    useLookupStore();
 
   React.useEffect(() => {
     if (isReady) {
       const frontPageImagesMediaTypeId = settings.find(
         (s) => s.name === Settings.FrontPageImageMediaType,
       )?.value;
-      if (frontPageImagesMediaTypeId) setFrontPageImagesMediaTypeId(+frontPageImagesMediaTypeId);
+      if (frontPageImagesMediaTypeId)
+        storeSettingsFrontPageImagesMediaTypeId(+frontPageImagesMediaTypeId);
       else toast.error(`Configuration settings '${Settings.FrontPageImageMediaType}' is required.`);
     }
-  }, [isReady, settings]);
+  }, [isReady, settings, storeSettingsFrontPageImagesMediaTypeId]);
 
   return React.useCallback(
     (
@@ -30,6 +32,8 @@ export const useElastic = () => {
       condition: 'must' | 'must_not' | 'filter' = 'must',
     ) => {
       var elastic = generateQuery(filter, query, condition);
+      // TODO: The first time this executes there will be no "frontPageImagesMediaTypeId" values...
+      // This is because React is horrible and doesn't have a way to await a state value...
       if (
         frontPageImagesMediaTypeId &&
         !filter.mediaTypeIds?.includes(frontPageImagesMediaTypeId)

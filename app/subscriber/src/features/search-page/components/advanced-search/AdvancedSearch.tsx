@@ -19,7 +19,17 @@ import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useFilters, useLookup } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Button, Claim, Col, IFilterModel, Row, Show, Text, TextArea } from 'tno-core';
+import {
+  Button,
+  Claim,
+  Col,
+  IFilterModel,
+  IFilterSettingsModel,
+  Row,
+  Show,
+  Text,
+  TextArea,
+} from 'tno-core';
 
 import {
   ContentTypeSection,
@@ -42,7 +52,7 @@ import * as styled from './styled';
 
 export interface IAdvancedSearchProps {
   /** Event fires when search button is clicked. */
-  onSearch?: () => void;
+  onSearch?: (filter: IFilterSettingsModel) => void;
 }
 
 /***
@@ -147,7 +157,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
               <TextArea
                 value={search?.search}
                 className="text-area"
-                onKeyDown={(e) => handleEnterPressed(e, () => onSearch?.(), true)}
+                onKeyDown={(e) => handleEnterPressed(e, () => onSearch?.(search), true)}
                 name="search"
                 onChange={(e) => storeSearchFilter({ ...search, search: e.target.value })}
               />
@@ -247,7 +257,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
           </button>
           <Button
             onClick={() => {
-              onSearch?.();
+              onSearch?.(search);
             }}
             className="search-button"
           >
