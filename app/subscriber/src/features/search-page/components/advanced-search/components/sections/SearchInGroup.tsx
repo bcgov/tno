@@ -14,22 +14,25 @@ export const SearchInGroup: React.FC = () => {
     <Row className="options expanded space-top">
       <label className="search-in-label">SEARCH IN: </label>
       <Checkbox
+        id="chkInHeadline"
+        label="Headline"
         checked={filter.inHeadline}
         onChange={(e) => {
           storeFilter({ ...filter, inHeadline: e.target.checked });
         }}
       />
-      <label>Headline</label>
       <Checkbox
+        id="chkInByline"
+        label="Byline"
         checked={filter.inByline}
         onChange={(e) => storeFilter({ ...filter, inByline: e.target.checked })}
       />
-      <label>Byline</label>
       <Checkbox
+        id="chkInStory"
+        label="Story text"
         checked={filter.inStory}
         onChange={(e) => storeFilter({ ...filter, inStory: e.target.checked })}
       />
-      <label>Story text</label>
     </Row>
   );
 };

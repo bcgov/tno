@@ -13,8 +13,9 @@ export const defaultAdvancedSearch = {
   page: '',
   publishedEndOn: '',
   publishedStartOn: '',
-  search: '',
+  // search: '', // don't reset this...
   section: '',
+  sentiment: [],
   seriesIds: [],
   sourceIds: [],
   tags: [],

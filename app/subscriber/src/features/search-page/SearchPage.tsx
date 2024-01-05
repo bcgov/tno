@@ -12,7 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Checkbox, Col, IContentModel, Loading, Row, Show, toQueryString } from 'tno-core';
+import { Checkbox, Col, IContentModel, Loading, Row, Show } from 'tno-core';
 
 import { AdvancedSearch } from './components';
 import { Player } from './player/Player';
@@ -84,7 +84,6 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     // Need to wait until front page images are in redux store before making a request.
     if (frontPageImagesMediaTypeId) {
       const settings = filterFormat(filter, actions);
-      navigate(`?${toQueryString(settings)}`);
       const query = genQuery(settings);
       fetchResults(query, filter.searchUnpublished);
     }
@@ -94,10 +93,9 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
 
   const handleSearch = React.useCallback(async () => {
     const settings = filterFormat(filter, actions);
-    navigate(`?${toQueryString(settings)}`);
     const query = genQuery(settings);
     fetchResults(query, filter.searchUnpublished);
-  }, [actions, fetchResults, filter, genQuery, navigate]);
+  }, [actions, fetchResults, filter, genQuery]);
 
   return (
     <styled.SearchPage>

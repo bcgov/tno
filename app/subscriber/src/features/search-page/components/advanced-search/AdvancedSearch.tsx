@@ -5,15 +5,8 @@ import { handleEnterPressed } from 'features/utils';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
 import { FaPlay, FaRegSmile } from 'react-icons/fa';
-import {
-  FaBookmark,
-  FaCloudArrowUp,
-  FaIcons,
-  FaNewspaper,
-  FaTag,
-  FaTv,
-  FaUsers,
-} from 'react-icons/fa6';
+import { FaSave } from 'react-icons/fa';
+import { FaBookmark, FaIcons, FaNewspaper, FaTag, FaTv, FaUsers } from 'react-icons/fa6';
 import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -73,6 +66,8 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
   const genQuery = useElastic();
   const [{ userInfo }] = useApp();
   const [{ filter: activeFilter }, { storeFilter }] = useProfileStore();
+  const [originalFilterSettings, setOriginalFilterSettings] =
+    React.useState<IFilterSettingsModel>();
 
   const [searchName, setSearchName] = React.useState<string>(activeFilter?.name ?? '');
   /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
@@ -82,16 +77,19 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
 
   React.useEffect(() => {
-    if (activeFilter) setSearchName(activeFilter.name);
-    else setSearchName('');
-  }, [activeFilter]);
+    if (activeFilter) {
+      setSearchName(activeFilter.name);
+      // save default setting that can be reverted to...
+      setOriginalFilterSettings(activeFilter.settings);
+    } else setSearchName('');
+  }, [activeFilter, setOriginalFilterSettings]);
 
   const saveSearch = React.useCallback(async () => {
     const settings = filterFormat(search, actions);
     const query = genQuery(settings);
     const filter: IFilterModel = activeFilter
-      ? { ...activeFilter, name: searchName, settings, query }
-      : { ...defaultFilter, name: searchName };
+      ? { ...activeFilter, query, settings }
+      : { ...defaultFilter, name: searchName, query, settings };
 
     if (!filter.id) {
       await addFilter(filter)
@@ -135,7 +133,13 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
               data-tooltip-id="main-tooltip"
               data-tooltip-content="Reset filters"
               onClick={() => {
-                storeSearchFilter({ ...search, ...defaultAdvancedSearch });
+                let resetFilter = activeFilter
+                  ? ({
+                      ...defaultAdvancedSearch,
+                      ...originalFilterSettings,
+                    } as IFilterSettingsModel)
+                  : { ...search, ...defaultAdvancedSearch };
+                storeSearchFilter(resetFilter);
               }}
             />
           </Row>
@@ -177,7 +181,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
             </Col>
             {/* MEDIA SOURCE SECTION */}
             <Col className={`media-group`}>
-              <ExpandableRow icon={<BsSun />} title="Media source">
+              <ExpandableRow
+                icon={<BsSun />}
+                title="Media source"
+                hasValues={!!search.sourceIds?.length}
+              >
                 <MediaSection
                   setMediaGroupExpandedStates={setMediaGroupExpandedStates}
                   mediaGroupExpandedStates={mediaGroupExpandedStates}
@@ -186,31 +194,51 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
             </Col>
             {/* SENTIMENT SECTION */}
             <Col className={`sentiment-group`}>
-              <ExpandableRow icon={<FaRegSmile />} title="Sentiment">
+              <ExpandableRow
+                icon={<FaRegSmile />}
+                title="Sentiment"
+                hasValues={!!search.sentiment?.length}
+              >
                 <SentimentSection />
               </ExpandableRow>
             </Col>
             {/* PAPER SECTION */}
             <Col className="paper-attributes">
-              <ExpandableRow icon={<FaNewspaper />} title="Paper attributes">
+              <ExpandableRow
+                icon={<FaNewspaper />}
+                title="Paper attributes"
+                hasValues={!!search.section || !!search.page || !!search.edition}
+              >
                 <PaperSection />
               </ExpandableRow>
             </Col>
             {/* CONTRIBUTOR SECTION */}
             <Col className="expandable-section">
-              <ExpandableRow icon={<FaUsers />} title="Columnists/Anchors">
+              <ExpandableRow
+                icon={<FaUsers />}
+                title="Columnists/Anchors"
+                hasValues={!!search.contributorIds?.length}
+              >
                 <ContributorSection />
               </ExpandableRow>
             </Col>
             {/* MEDIA TYPES SECTION */}
             <Col className="expandable-section">
-              <ExpandableRow icon={<FaIcons />} title="Media Types">
+              <ExpandableRow
+                icon={<FaIcons />}
+                title="Media Types"
+                hasValues={!!search.mediaTypeIds?.length}
+              >
                 <MediaTypeSection />
               </ExpandableRow>
             </Col>
             {/* SHOW/PROGRAM SECTION */}
             <Col className="expandable-section">
-              <ExpandableRow icon={<FaPlay />} title="Show/Program">
+              <ExpandableRow
+                icon={<FaPlay />}
+                title="Show/Program"
+                hasValues={!!search.seriesIds?.length}
+              >
                 <SeriesSection />
               </ExpandableRow>
             </Col>
@@ -218,13 +246,17 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
               <>
                 {/* CONTENT TYPE SECTION */}
                 <Col className="expandable-section">
-                  <ExpandableRow icon={<FaTv />} title="Content Type">
+                  <ExpandableRow
+                    icon={<FaTv />}
+                    title="Content Type"
+                    hasValues={!!search.contentTypes?.length}
+                  >
                     <ContentTypeSection />
                   </ExpandableRow>
                 </Col>
                 {/* TAG SECTION */}
                 <Col className="expandable-section">
-                  <ExpandableRow icon={<FaTag />} title="Tags">
+                  <ExpandableRow icon={<FaTag />} title="Tags" hasValues={!!search.tags?.length}>
                     <TagSection />
                   </ExpandableRow>
                 </Col>
@@ -236,7 +268,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
             <Col className="section top-spacer">
               <b>Display options:</b>
               {/* SEARCH RESULT SETTINGS SECTION */}
-              <ExpandableRow icon={<IoIosCog />} title="Search result options">
+              <ExpandableRow icon={<IoIosCog />} title="Search result options" hasValues={false}>
                 <MoreOptions />
               </ExpandableRow>
             </Col>
@@ -253,7 +285,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
             value={searchName}
           />
           <button className="save-cloud" onClick={() => saveSearch()}>
-            <FaCloudArrowUp />
+            <FaSave />
           </button>
           <Button
             onClick={() => {

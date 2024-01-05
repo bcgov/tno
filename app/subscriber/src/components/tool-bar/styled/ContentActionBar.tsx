@@ -26,7 +26,6 @@ export const ContentActionBar = styled(Row)`
 
   .right-side-items {
     margin-left: auto;
-    margin-right: 0.5em;
     color: ${(props) => props.theme.css.btnBkPrimary};
     @media (max-width: 768px) {
       span {
@@ -49,12 +48,8 @@ export const ContentActionBar = styled(Row)`
   &.list-view {
     background-color: ${(props) => props.theme.css.lineQuaternaryColor};
     margin-bottom: 1em;
-    width: calc(100% + 1.2em);
-    /* negative margin is to bypass the padding of the parent (PageSection) to match UI designs */
-    margin-left: -1.2em;
-    margin-right: -1.2em;
     border: 1px solid ${(props) => props.theme.css.lineTertiaryColor};
-    padding: 0.5em;
+    padding: 0em;
     .select-all {
       .check-area {
         @media (max-width: 768px) {
@@ -62,12 +57,9 @@ export const ContentActionBar = styled(Row)`
         }
         display: flex;
         flex-direction: row;
-        padding: 0.5em;
+        padding: 0.5em 0.5em 0.5em 0em;
       }
       height: 2.5em;
-      margin-top: -1.5em;
-      margin-bottom: -1.5em;
-      margin-left: -0.5em;
       background-color: ${(props) => props.theme.css.bkQuaternary};
     }
     .arrow {
