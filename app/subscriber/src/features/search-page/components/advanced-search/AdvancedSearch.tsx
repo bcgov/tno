@@ -138,7 +138,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
                       ...defaultAdvancedSearch,
                       ...originalFilterSettings,
                     } as IFilterSettingsModel)
-                  : { ...search, ...defaultAdvancedSearch };
+                  : {
+                      ...search,
+                      ...defaultAdvancedSearch,
+                      search: search.search,
+                    };
                 storeSearchFilter(resetFilter);
               }}
             />
