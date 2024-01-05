@@ -30,7 +30,7 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
         name="summary"
         expandModal={setShowExpandModal}
         tags={tags}
-        onChange={(e) => getTags(e)}
+        onChange={(e) => getTags('summary', e)}
       />
     </styled.MediaSummary>
   );
