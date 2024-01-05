@@ -295,7 +295,7 @@ public class ReportController : ControllerBase
 
     /// <summary>
     /// Execute the report template and generate the results for reviewing.
-    /// This generates a report instance.
+    /// This generates a report instance if one does not currently exist.
     /// </summary>
     /// <param name="id"></param>
     /// <param name="regenerate"></param>
@@ -321,7 +321,7 @@ public class ReportController : ControllerBase
             // Generate a new instance of this report because the request asked for it, and the last instance was already sent.
             var regeneratedInstance = await _reportHelper.GenerateReportInstanceAsync(new Services.Models.Report.ReportModel(report, _serializerOptions), user.Id, currentInstance.Id);
             _reportInstanceService.ClearChangeTracker();
-            currentInstance.ContentManyToMany.RemoveAll(c => c.Content?.IsPrivate == false);
+            currentInstance.ContentManyToMany.Clear();
             var count = 0;
             currentInstance.ContentManyToMany.ForEach(c => c.SortOrder = count++);
             var newContent = regeneratedInstance.ContentManyToMany.Select(c =>
