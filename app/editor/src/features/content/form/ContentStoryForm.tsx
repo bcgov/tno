@@ -34,7 +34,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   summaryRequired: initSummaryRequired,
   checkTags,
 }) => {
-  const { values } = useFormikContext<IContentForm>();
+  const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [showExpandModal, setShowExpandModal] = React.useState(false);
   const { height } = useWindowSize();
   const [{ tags }] = useLookup();
@@ -43,20 +43,21 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
     initSummaryRequired ?? isSummaryRequired(values),
   );
 
-  const getTags = (e: string) => {
+  const getTags = (name: string, e: string) => {
+    setFieldValue(name, e);
     if (!checkTags) {
       return;
     }
     const noTagString = e.replace(/<\/?p>/g, '');
     const regex = new RegExp(/\[([^\]]*)\]$/);
     const t = noTagString.match(regex);
-    const availiableTags = tags.filter((t) => t.isEnabled).map((t) => t.code);
+    const availiableTags = tags.filter((t) => t.isEnabled).map((t) => t.code.toUpperCase());
     const parsedTags: string[] = [];
     t?.forEach((i: string) => {
       const s = i.replace(/[\][]/g, '').split(/[\s,]+/);
       s.forEach((j: string) => {
-        if (availiableTags.includes(j)) {
-          parsedTags.push(j);
+        if (availiableTags.includes(j.toUpperCase())) {
+          parsedTags.push(j.toUpperCase());
         }
       });
     });
@@ -92,9 +93,9 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           className="content-body"
           label="Story"
           name="body"
-          onChange={(e) => getTags(e)}
           expandModal={setShowExpandModal}
           tags={tags}
+          onChange={(e) => getTags('body', e)}
         />
       </Show>
       <Modal
@@ -115,8 +116,16 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
                 ? 'body'
                 : 'summary'
             }
-            onChange={(e) => getTags(e)}
             tags={tags}
+            onChange={(e) =>
+              getTags(
+                contentType === ContentTypeName.PrintContent ||
+                  contentType === ContentTypeName.Internet
+                  ? 'body'
+                  : 'summary',
+                e,
+              )
+            }
           />
         }
         isShowing={showExpandModal}
