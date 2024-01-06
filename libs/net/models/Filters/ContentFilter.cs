@@ -98,7 +98,7 @@ public class ContentFilter : PageFilter
     /// <summary>
     /// get/set - Include unpublished content.
     /// </summary>
-    public bool? UseUnpublished { get; set; }
+    public bool? SearchUnpublished { get; set; }
 
     /// <summary>
     /// get/set - Only include content published on this date.
@@ -218,7 +218,7 @@ public class ContentFilter : PageFilter
         this.Status = filter.GetEnumNullValue<ContentStatus>(nameof(this.Status));
 
         this.HasTopic = filter.GetBoolNullValue(nameof(this.HasTopic));
-        this.UseUnpublished = filter.GetBoolNullValue(nameof(this.UseUnpublished));
+        this.SearchUnpublished = filter.GetBoolNullValue(nameof(this.SearchUnpublished));
         this.HasFile = filter.GetBoolNullValue(nameof(this.HasFile));
         this.IsHidden = filter.GetBoolNullValue(nameof(this.IsHidden));
         this.OnlyPublished = filter.GetBoolNullValue(nameof(this.OnlyPublished));

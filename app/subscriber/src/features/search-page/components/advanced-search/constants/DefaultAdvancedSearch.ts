@@ -20,5 +20,5 @@ export const defaultAdvancedSearch = {
   sourceIds: [],
   tags: [],
   topStory: false,
-  useUnpublished: false,
+  searchUnpublished: false,
 };
