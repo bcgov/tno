@@ -14,7 +14,6 @@ import {
   Show,
   SummonContext,
   useKeycloakWrapper,
-  useWindowSize,
 } from 'tno-core';
 
 import { LayoutErrorBoundary } from '.';
