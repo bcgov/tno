@@ -272,7 +272,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
             <Col className="section top-spacer">
               <b>Display options:</b>
               {/* SEARCH RESULT SETTINGS SECTION */}
-              <ExpandableRow icon={<IoIosCog />} title="Search result options" hasValues={false}>
+              <ExpandableRow icon={<IoIosCog />} title="Search result options">
                 <MoreOptions />
               </ExpandableRow>
             </Col>

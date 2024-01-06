@@ -21,7 +21,7 @@ export const MoreOptions: React.FC = () => {
       </p>
       <Col>
         <Checkbox
-          label="featured stories"
+          label="featured stories ONLY - uncheck to search ALL content"
           name="featured"
           checked={!filter.searchUnpublished}
           onChange={(e) => {
