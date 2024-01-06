@@ -42,7 +42,7 @@ export const UserInfo: React.FC<IUserInfoProps> = ({ children }) => {
     }
   }, [app, appStore, keycloak.authenticated, init, toggle]);
 
-  hub.useHubEffect(MessageTargetName.Logout, (message: any) => {
+  hub.useHubEffect(MessageTargetName.Logout, () => {
     if (!isShowing) toggle();
     else keycloak.instance.logout();
   });
