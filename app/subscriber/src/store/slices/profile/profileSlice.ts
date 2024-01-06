@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { IReportResultForm } from 'features/my-reports/interfaces';
 import {
   IContributorModel,
   IFilterModel,
   IFolderModel,
   IMinisterModel,
   IReportModel,
-  IReportResultModel,
   ISystemMessageModel,
   IUserModel,
 } from 'tno-core';
@@ -47,7 +47,7 @@ export const profileSlice = createSlice({
     storeReportsFilter(state: IProfileState, action: PayloadAction<string>) {
       state.reportsFilter = action.payload;
     },
-    storeReportOutput(state: IProfileState, action: PayloadAction<IReportResultModel | undefined>) {
+    storeReportOutput(state: IProfileState, action: PayloadAction<IReportResultForm | undefined>) {
       state.reportOutput = action.payload;
     },
     contributors(state: IProfileState, action: PayloadAction<IContributorModel[]>) {

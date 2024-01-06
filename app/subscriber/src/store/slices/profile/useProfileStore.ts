@@ -1,3 +1,4 @@
+import { IReportResultForm } from 'features/my-reports/interfaces';
 import React from 'react';
 import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
 import {
@@ -6,7 +7,6 @@ import {
   IFolderModel,
   IMinisterModel,
   IReportModel,
-  IReportResultModel,
   ISystemMessageModel,
   IUserModel,
 } from 'tno-core';
@@ -37,7 +37,7 @@ export interface IProfileStore {
   storeMyReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => void;
   storeReportsFilter: (filter: string | ActionDelegate<string>) => void;
   storeReportOutput: (
-    output: IReportResultModel | undefined | ActionDelegate<IReportResultModel | undefined>,
+    output: IReportResultForm | undefined | ActionDelegate<IReportResultForm | undefined>,
   ) => void;
   storeSystemMessages: (
     ministers: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
@@ -86,7 +86,7 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
         } else dispatch(storeReportsFilter(filter));
       },
       storeReportOutput: (
-        output: IReportResultModel | undefined | ActionDelegate<IReportResultModel | undefined>,
+        output: IReportResultForm | undefined | ActionDelegate<IReportResultForm | undefined>,
       ) => {
         if (typeof output === 'function') {
           dispatch(storeReportOutput(output(state.reportOutput)));

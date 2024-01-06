@@ -1,10 +1,10 @@
+import { IReportResultForm } from 'features/my-reports/interfaces';
 import {
   IContributorModel,
   IFilterModel,
   IFolderModel,
   IMinisterModel,
   IReportModel,
-  IReportResultModel,
   ISystemMessageModel,
   IUserModel,
 } from 'tno-core';
@@ -17,7 +17,7 @@ export interface IProfileState {
   myMinisters: IMinisterModel[];
   myReports: IReportModel[];
   reportsFilter: string;
-  reportOutput?: IReportResultModel;
+  reportOutput?: IReportResultForm;
   contributors: IContributorModel[];
   systemMessages: ISystemMessageModel[];
 }
