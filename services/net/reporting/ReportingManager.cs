@@ -332,14 +332,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.Report.ReportModel report)
     {
         // Fetch content for every section within the report.  This will include folders and filters.
-        var sections = report.Sections.Select(s => new ReportSectionModel(s));
+        var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
         var searchResults = await this.Api.FindContentForReportIdAsync(report.Id, request.RequestorId);
         var sectionContent = sections.ToDictionary(s => s.Name, section =>
         {
             if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
             {
                 var sortOrder = 0;
-                section.Content = this.ReportEngine.OrderBySectionField(results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).ToArray(), section.Settings.SortBy);
+                section.Content = this.ReportEngine.OrderBySectionField(results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).OrderBy(c => c.SortOrder).ToArray(), section.Settings.SortBy);
             }
             return section;
         });
@@ -454,12 +454,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     {
         // TODO: Control when a report is sent through configuration.
         var report = instance.Report ?? throw new ArgumentException("Report instance must include the report model.");
-        var sections = report.Sections.Select(s => new ReportSectionModel(s));
+        var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
         var searchResults = await this.Api.GetContentForReportInstanceIdAsync(instance.Id);
-        var sectionContent = searchResults.GroupBy(r => r.SectionName).ToDictionary(r => r.Key, r =>
+        var sectionContent = sections.ToDictionary(s => s.Name, section =>
         {
-            var section = sections.FirstOrDefault(s => s.Name == r.Key) ?? throw new InvalidOperationException("Unable to find matching section in report");
-            section.Content = r.Where(ri => ri.Content != null).Select(ri => new ContentModel(ri.Content!, ri.SortOrder)).ToArray();
+            section.Content = searchResults.Where(sr => sr.SectionName == section.Name && sr.Content != null).Select(ri => new ContentModel(ri.Content!, ri.SortOrder)).ToArray();
             return section;
         });
 

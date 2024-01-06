@@ -95,7 +95,7 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
           </Link>
         </Col>
         <Col>{row.content.page ? `(P.${row.content.page})` : ''}</Col>
-        {showSortOrder && (
+        {!disabled && showSortOrder && (
           <Col>
             <Text
               name={`instances.0.content.${row.originalIndex}.sortOrder`}
@@ -108,7 +108,7 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
             />
           </Col>
         )}
-        {showSelectSection && sectionOptions?.length && (
+        {!disabled && showSelectSection && sectionOptions?.length && (
           <Col>
             <Select
               name={`sel-${row.sectionName}-${row.contentId}`}

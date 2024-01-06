@@ -18,7 +18,7 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({ instanc
     async (instanceId: number) => {
       try {
         const response = await viewReportInstance(instanceId);
-        storeReportOutput(response);
+        storeReportOutput({ ...response, instanceId });
       } catch {}
     },
     [viewReportInstance, storeReportOutput],

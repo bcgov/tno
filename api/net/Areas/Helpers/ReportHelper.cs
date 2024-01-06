@@ -171,10 +171,11 @@ public class ReportHelper : IReportHelper
         if (model.Report.Template == null) throw new ArgumentException("Parameter 'model.Report.Template' is required");
 
         // Link each result with the section name.
-        var sections = reportModel.Sections.ToDictionary(section => section.Name, section =>
+        var sections = reportModel.Sections.OrderBy(s => s.SortOrder).ToDictionary(section => section.Name, section =>
         {
             var content = model.Content
                     .Where(c => c.SectionName == section.Name)
+                    .OrderBy(c => c.SortOrder)
                     .Select(c => new ContentModel(c.Content ?? throw new InvalidOperationException("Report instance model is missing content")))
                     .ToArray();
 
@@ -208,7 +209,7 @@ public class ReportHelper : IReportHelper
         var elasticResults = await _reportService.FindContentWithElasticsearchAsync(model.ToEntity(_serializerOptions), requestorId);
 
         // Link each result with the section name.
-        var sections = model.Sections.ToDictionary(section => section.Name, section =>
+        var sections = model.Sections.OrderBy(s => s.SortOrder).ToDictionary(section => section.Name, section =>
         {
             var sortOrder = 0;
             elasticResults.TryGetValue(section.Name, out SearchResultModel<Areas.Services.Models.Content.ContentModel>? sectionResult);

@@ -114,7 +114,8 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({ disabled }) => 
                       ReportSectionTypeName.Gallery,
                       ReportSectionTypeName.MediaAnalytics,
                     ].includes(section.settings.sectionType) &&
-                      open && (
+                      open &&
+                      !disabled && (
                         <Action
                           disabled={isSubmitting || disabled}
                           icon={showForm !== index ? <FaPen /> : <FaCheck />}

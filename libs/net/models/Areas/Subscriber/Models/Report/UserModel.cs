@@ -12,11 +12,6 @@ public class UserModel
     public int Id { get; set; }
 
     /// <summary>
-    /// get/set - Unique key to identify the user.
-    /// </summary>
-    public string Key { get; set; } = "";
-
-    /// <summary>
     /// get/set - Unique username to identify user.
     /// </summary>
     public string Username { get; set; } = "";
@@ -62,17 +57,19 @@ public class UserModel
     /// Creates a new instance of an UserModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public UserModel(Entities.User entity)
+    public UserModel(Entities.User? entity)
     {
-        this.Id = entity.Id;
-        this.Key = entity.Key;
-        this.Username = entity.Username;
-        this.Email = entity.Email;
-        this.DisplayName = entity.DisplayName;
-        this.FirstName = entity.FirstName;
-        this.LastName = entity.LastName;
-        this.IsEnabled = entity.IsEnabled;
-        this.EmailVerified = entity.EmailVerified;
+        if (entity != null)
+        {
+            this.Id = entity.Id;
+            this.Username = entity.Username;
+            this.Email = entity.Email;
+            this.DisplayName = entity.DisplayName;
+            this.FirstName = entity.FirstName;
+            this.LastName = entity.LastName;
+            this.IsEnabled = entity.IsEnabled;
+            this.EmailVerified = entity.EmailVerified;
+        }
     }
     #endregion
 }
