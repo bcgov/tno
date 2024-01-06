@@ -19,8 +19,8 @@ export const SearchPage = styled.div`
     background-color: ${(props) => props.theme.css.bkWhite};
     padding-bottom: 0.5em;
     padding-top: 0.5em;
-    margin-left: 0.5em;
-    margin-right: 0.5em;
+    // margin-left: 0.5em;
+    // margin-right: 0.5em;
     svg {
       color: ${(props) => props.theme.css.iconPrimaryColor};
     }
@@ -68,6 +68,15 @@ export const SearchPage = styled.div`
   .page-section {
     max-height: calc(100vh - 10em);
     overflow: hidden;
+  }
+  .adv-search-container > div {
+    margin: 0em 1em;
+    .page-section {
+      margin: 0rem;
+    }
+  }
+  .result-container > .page-section {
+    margin: 0em 1em 0em 0em;
   }
 
   /** END HEADER */

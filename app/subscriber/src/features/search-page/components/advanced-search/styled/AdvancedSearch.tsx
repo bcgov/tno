@@ -23,8 +23,6 @@ export const AdvancedSearch = styled(Row)`
     width: 100%;
     padding: 0.5em;
     align-items: center;
-    border-bottom-left-radius: 0.75em;
-    border-bottom-right-radius: 0.75em;
     .save-cloud {
       margin-right: 0.5em;
       max-height: 30px;
@@ -51,7 +49,11 @@ export const AdvancedSearch = styled(Row)`
     }
   }
   .main-search-body {
-    padding-left: 0.5em;
+    padding: 0em 1em;
+    .viewed-name {
+      margin: 0 -1em;
+      padding-left: 1em;
+    }
   }
   /* HEADER OF THE ADVANCED SEARCH COMPONENT */
   .top-bar {
@@ -112,6 +114,10 @@ export const AdvancedSearch = styled(Row)`
   /* TEXT AREA IN SEARCH IN GROUP */
   .text-area-container {
     width: 100%;
+    .frm-in {
+      padding-right: 0;
+      padding-bottom: 0;
+    }
     .text-area {
       resize: vertical;
     }
@@ -180,6 +186,10 @@ export const AdvancedSearch = styled(Row)`
     &:hover {
       cursor: pointer;
     }
+    .drop-icon {
+      margin-left: auto;
+      cursor: pointer;
+    }
   }
 
   .paper-attributes-container {
@@ -232,9 +242,12 @@ export const AdvancedSearch = styled(Row)`
 
   .section {
     width: 100%;
-    .drop-icon {
+    .action-icons {
       margin-left: auto;
-      cursor: pointer;
+      flex-direction: row;
+      .drop-icon {
+        cursor: pointer;
+      }
     }
     svg {
       margin-right: 0.5em;
@@ -264,7 +277,7 @@ export const AdvancedSearch = styled(Row)`
   }
 
   .date-range {
-    padding: 0.25em;
+    padding-bottom: 0.5em;
     .picker {
       margin-right: 0.5em;
       @media (max-width: 1300px) {

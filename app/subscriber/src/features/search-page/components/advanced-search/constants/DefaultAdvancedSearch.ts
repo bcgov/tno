@@ -15,6 +15,7 @@ export const defaultAdvancedSearch = {
   publishedStartOn: '',
   search: '',
   section: '',
+  sentiment: [],
   seriesIds: [],
   sourceIds: [],
   tags: [],
