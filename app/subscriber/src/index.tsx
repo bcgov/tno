@@ -3,7 +3,6 @@ import '@bcgov/bc-sans/css/BCSans.css';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { ProSidebarProvider } from 'react-pro-sidebar';
 import { Provider } from 'react-redux';
 import { store } from 'store';
 import { ThemeProvider } from 'styled-components';
@@ -19,9 +18,7 @@ const Index = () => {
       <ThemeProvider theme={{ css }}>
         <Provider store={store}>
           <SummonProvider>
-            <ProSidebarProvider>
-              <App />
-            </ProSidebarProvider>
+            <App />
           </SummonProvider>
         </Provider>
       </ThemeProvider>

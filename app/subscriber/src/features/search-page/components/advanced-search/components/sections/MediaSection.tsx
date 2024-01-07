@@ -1,4 +1,4 @@
-import { useFilterOptions } from 'components/sidebar/hooks';
+import { useFilterOptions } from 'components/navbar/hooks';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle } from 'react-icons/io';
 import { useContent } from 'store/hooks';
 import { Col, Row, Select, Show } from 'tno-core';
