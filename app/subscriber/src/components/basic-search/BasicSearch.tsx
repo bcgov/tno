@@ -1,10 +1,10 @@
-import { filterFormat } from 'features/search-page/utils';
+import { defaultAdvancedSearch } from 'features/search-page/components/advanced-search/constants';
 import { handleEnterPressed, isNumber } from 'features/utils';
 import { FaPlay, FaSearch } from 'react-icons/fa';
 import { useNavigate } from 'react-router';
 import { useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { Button, IFilterSettingsModel, Row, Text, toQueryString } from 'tno-core';
+import { Button, IFilterSettingsModel, Row, Text } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -26,8 +26,16 @@ export const BasicSearch = ({ onSearch }: IBasicSearchProps) => {
   const filterId = id && isNumber(id) ? parseInt(id) : '';
 
   const handleSearch = async () => {
-    navigate(`/search?${toQueryString(filterFormat(filter))}`);
-    onSearch?.(filter);
+    navigate(`/search`);
+    // reset any saved filter back to a "basic" filter
+    // removing any "advanced" filter settings
+    const newFilter: IFilterSettingsModel = {
+      ...filter,
+      ...defaultAdvancedSearch,
+      search: filter.search,
+    };
+    storeSearchFilter(newFilter);
+    onSearch?.(newFilter);
   };
 
   return (
