@@ -12,7 +12,7 @@ export interface IExpandableRowProps {
   /** children to be displayed when the row is expanded */
   children: React.ReactNode;
   /** show icon to indicate values are set inside collapsible row */
-  hasValues: boolean;
+  hasValues?: boolean;
 }
 
 /** contains the logic and skeleton for an expandable row in the advanced search section. helps to eliminate redundant code. */
@@ -20,7 +20,7 @@ export const ExpandableRow: React.FC<IExpandableRowProps> = ({
   children,
   icon,
   title,
-  hasValues = true,
+  hasValues = false,
 }) => {
   const [expanded, setExpanded] = React.useState(false);
   const [uniqueId] = React.useState(new Date().getTime().toString(36));
@@ -44,7 +44,6 @@ export const ExpandableRow: React.FC<IExpandableRowProps> = ({
             />
           ) : (
             <></>
-            // <MdOutlineFilterListOff />
           )}
           {!expanded ? (
             <IoIosArrowDroprightCircle

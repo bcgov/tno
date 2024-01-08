@@ -25,8 +25,8 @@ export interface IAdvancedSearchFilter {
   hasFile?: boolean;
   /** whether or not to bold the keywords */
   boldKeywords?: boolean;
-  /** index to control whether content is published or unpublished */
-  useUnpublished?: boolean;
+  /** control whether unpublished content is searched */
+  searchUnpublished?: boolean;
   /** papers filter */
   section?: string;
   page?: string;

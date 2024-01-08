@@ -24,7 +24,7 @@ export const queryToState = (queryString: string) => {
     startDate: urlParams.get('publishedStartOn') || '',
     endDate: urlParams.get('publishedEndOn') || '',
     sentiment: search.sentiment?.map((v: any) => Number(v)),
-    useUnpublished: search.useUnpublished === 'true',
+    searchUnpublished: search.searchUnpublished === 'true',
     section: search.section,
     seriesIds: search.seriesIds?.map((v: any) => Number(v)),
     page: search.paperPage,
