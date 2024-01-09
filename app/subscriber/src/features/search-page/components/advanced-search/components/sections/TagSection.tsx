@@ -21,10 +21,7 @@ export const TagSection: React.FC = () => {
         width="25em"
         isMulti
         key={filter.tags?.join(',')}
-        menuPortalTarget={document.body}
-        styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
         options={tagOptions}
-        maxMenuHeight={100}
         name="series"
         onChange={(newValues) => {
           Array.isArray(newValues) &&

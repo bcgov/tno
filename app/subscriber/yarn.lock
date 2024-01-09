@@ -10557,7 +10557,7 @@ __metadata:
     react-reflex: 4.0.12
     react-router-dom: 6.9.0
     react-scripts: 5.0.1
-    react-select: 5.7.0
+    react-select: 5.8.0
     react-table: 7.8.0
     react-text-mask: 5.5.0
     react-toastify: 9.1.1
@@ -10568,7 +10568,7 @@ __metadata:
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
     styled-components: 5.3.9
-    tno-core: 0.1.6
+    tno-core: 0.1.7
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -12943,7 +12943,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-select@npm:5.7.0, react-select@npm:^5.7.0":
+"react-select@npm:5.8.0":
+  version: 5.8.0
+  resolution: "react-select@npm:5.8.0"
+  dependencies:
+    "@babel/runtime": ^7.12.0
+    "@emotion/cache": ^11.4.0
+    "@emotion/react": ^11.8.1
+    "@floating-ui/dom": ^1.0.1
+    "@types/react-transition-group": ^4.4.0
+    memoize-one: ^6.0.0
+    prop-types: ^15.6.0
+    react-transition-group: ^4.3.0
+    use-isomorphic-layout-effect: ^1.1.2
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: c8398cc0aefb5ee5438b6176c86676e2d3fed7457c16b0769f423a0da0ae431a7df25c2cadf13b709700882b8ebd80a58b1e557fec3e22ad3cbf60164ca9e745
+  languageName: node
+  linkType: hard
+
+"react-select@npm:^5.7.0":
   version: 5.7.0
   resolution: "react-select@npm:5.7.0"
   dependencies:
@@ -14604,9 +14624,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.1.6":
-  version: 0.1.6
-  resolution: "tno-core@npm:0.1.6"
+"tno-core@npm:0.1.7":
+  version: 0.1.7
+  resolution: "tno-core@npm:0.1.7"
   dependencies:
     "@elastic/elasticsearch": ^8.10.0
     "@fortawesome/free-solid-svg-icons": ^6.4.2
@@ -14638,7 +14658,7 @@ __metadata:
     react-tooltip: ^5.10.0
     styled-components: ^5.3.9
     yup: ^1.1.1
-  checksum: d6ea2abb742a207ea3cdbddc301c4daf11962046196af2d9995cc7ee44e82872afc4fcfb88703773a68d006b022070fc0158b3be8a5203d56a1b91cd84d517ec
+  checksum: 956c032c9ba03e65f390f47c29f4f80cdf005de02f18860c36f4446d60f2dd24261f71879dbdc9f7a94c5b173512cc9837e658b5ab5ed2973f941f5dc4084cb0
   languageName: node
   linkType: hard
 

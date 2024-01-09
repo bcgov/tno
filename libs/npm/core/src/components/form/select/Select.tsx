@@ -133,6 +133,8 @@ export const Select = <OptionType extends IOptionItem>({
             name={name}
             className={`${className ?? 'frm-select'}${!!error ? ' alert' : ''}`}
             classNamePrefix={classNamePrefix ?? 'rs'}
+            menuPortalTarget={document.body}
+            styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
             variant={variant}
             required={required}
             width={width}

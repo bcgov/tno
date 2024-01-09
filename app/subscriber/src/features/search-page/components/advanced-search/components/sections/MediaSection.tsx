@@ -96,8 +96,6 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
                       sourceIds: newValues.map((v) => v.value),
                     });
                 }}
-                menuPortalTarget={document.body}
-                menuPosition={'fixed'}
               />
             </Show>
           </Row>
