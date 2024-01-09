@@ -67,4 +67,8 @@ db-connect: ## Port forward to the database (e=environment, l=local port, r=remo
 	$(info Port forward to the database [e=$(if $(e),$(e),dev)] $(l):$(r))
 	@cd ./scripts; ./database-connect.sh $(if $(e),$(e),dev) $(l) $(r)
 
+deploy: ## Deploy to environment (e=environment).
+	$(info Port forward to the database [e=$(if $(e),$(e),dev)])
+	@cd ./scripts; ./deploy.sh $(if $(e),$(e),dev)
+
 .PHONY: local

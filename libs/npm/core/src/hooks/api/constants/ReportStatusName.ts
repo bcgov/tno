@@ -5,6 +5,11 @@ export enum ReportStatusName {
   Pending = 'Pending',
 
   /// <summary>
+  /// Report has been submitted to be sent out to subscribers.
+  /// </summary>
+  Submitted = 'Submitted',
+
+  /// <summary>
   /// Report is accepted by CHES.
   /// </summary>
   Accepted = 'Accepted',

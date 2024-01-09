@@ -10,7 +10,7 @@ import { useApp, useReportInstances } from 'store/hooks';
 import { Claim, Col, Modal, Row, Section, Text, useModal, validateEmail } from 'tno-core';
 
 export const ReportSendForm: React.FC = () => {
-  const { values, isSubmitting } = useFormikContext<IReportForm>();
+  const { values, isSubmitting, setFieldValue } = useFormikContext<IReportForm>();
   const [{ sendReportInstance, publishReportInstance }] = useReportInstances();
   const [{ userInfo }] = useApp();
   const { isShowing, toggle } = useModal();
@@ -34,11 +34,17 @@ export const ReportSendForm: React.FC = () => {
   const handlePublish = React.useCallback(
     async (id: number) => {
       try {
-        await publishReportInstance(id);
+        const updatedInstance = await publishReportInstance(id);
+        setFieldValue(
+          'instances',
+          values.instances.map((i) =>
+            i.id === id ? { ...updatedInstance, content: instance?.content } : i,
+          ),
+        );
         toast.success('Report has been submitted.');
       } catch {}
     },
-    [publishReportInstance],
+    [instance?.content, publishReportInstance, setFieldValue, values.instances],
   );
 
   return (

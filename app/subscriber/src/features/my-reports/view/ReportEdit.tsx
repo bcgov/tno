@@ -36,7 +36,9 @@ export const ReportEdit: React.FC = () => {
   const hub = useApiHub();
 
   const [report, setReport] = React.useState<IReportForm>(defaultReport(userInfo?.id ?? 0, 0));
-  const canEdit = report.instances.length ? !report.instances[0].sentOn : true;
+  const canEdit = report.instances.length
+    ? report.instances[0].status === ReportStatusName.Pending
+    : true;
 
   React.useEffect(() => {
     if (!myReports.length) {
