@@ -110,6 +110,7 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
                     hasTopic: values.some((o) => o.value === ShowOnlyValues.HasTopic),
                     commentary: values.some((o) => o.value === ShowOnlyValues.Commentary),
                     topStory: values.some((o) => o.value === ShowOnlyValues.TopStory),
+                    onlyPublished: values.some((o) => o.value === ShowOnlyValues.Published),
                   };
                 });
               }}
@@ -171,6 +172,20 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
                     ...filter,
                     pageIndex: 0,
                     topStory: e.target.checked,
+                  });
+                }}
+              />
+              <Checkbox
+                className="spaced"
+                name="onlyPublished"
+                label="Published"
+                tooltip="Published Content"
+                checked={filter.onlyPublished}
+                onChange={(e) => {
+                  onChange({
+                    ...filter,
+                    pageIndex: 0,
+                    onlyPublished: e.target.checked,
                   });
                 }}
               />

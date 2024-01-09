@@ -5,4 +5,5 @@ export enum ShowOnlyValues {
   TopStory = 'Top Story',
   OnTicker = 'On Ticker',
   Homepage = 'Homepage',
+  Published = 'Published',
 }
