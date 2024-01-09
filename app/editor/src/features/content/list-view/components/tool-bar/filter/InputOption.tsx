@@ -40,11 +40,9 @@ export const InputOption: React.FC<any> = ({
     style,
   };
 
-  /** ensures that the element is unchecked in the menu when the item is removed from the selection */
+  /** ensures that the element is checked/unchecked in the menu when the item is added/removed from the selection */
   React.useEffect(() => {
-    if (!isSelected) {
-      (document.getElementById(children) as HTMLInputElement).checked = false;
-    }
+    (document.getElementById(children) as HTMLInputElement).checked = isSelected;
   }, [isSelected, children]);
 
   return (
