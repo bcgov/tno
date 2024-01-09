@@ -16,6 +16,11 @@ interface IColleagueController {
     colleagueId: number,
     notificationId: number,
   ) => Promise<INotificationModel>;
+  shareEmail: (
+    contentId: number,
+    email: string,
+    notificationId: number,
+  ) => Promise<INotificationModel>;
 }
 
 export const useColleagues = (): [IColleagueController] => {
@@ -45,6 +50,12 @@ export const useColleagues = (): [IColleagueController] => {
       share: async (contentId: number, colleagueId: number, notificationId: number) => {
         const response = await dispatch<INotificationModel>('send-Notification', () =>
           api.share(contentId, colleagueId, notificationId),
+        );
+        return response.data;
+      },
+      shareEmail: async (contentId: number, email: string, notificationId: number) => {
+        const response = await dispatch<INotificationModel>('send-Notification-Email', () =>
+          api.shareEmail(contentId, email, notificationId),
         );
         return response.data;
       },
