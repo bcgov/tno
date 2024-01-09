@@ -21,4 +21,5 @@ export const defaultAdvancedSearch = {
   tags: [],
   topStory: false,
   searchUnpublished: false,
+  size: 500,
 };

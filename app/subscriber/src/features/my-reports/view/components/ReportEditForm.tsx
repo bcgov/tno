@@ -3,7 +3,10 @@ import { Tabs } from 'components/tabs';
 import { ITab } from 'components/tabs/interfaces';
 import { useFormikContext } from 'formik';
 import React from 'react';
+import { FaRecycle } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
+import { useProfileStore } from 'store/slices';
+import { Row } from 'tno-core';
 
 import { IReportForm } from '../../interfaces';
 import { ReportPreviewForm, ReportSections, ReportSendForm } from '.';
@@ -15,6 +18,7 @@ export interface IReportEditFormProps {
 export const ReportEditForm: React.FC<IReportEditFormProps> = ({ disabled }) => {
   const { values } = useFormikContext<IReportForm>();
   const { path = 'content' } = useParams();
+  const [, { storeReportOutput }] = useProfileStore();
 
   const tabs: ITab[] = React.useMemo(
     () => [
@@ -32,7 +36,12 @@ export const ReportEditForm: React.FC<IReportEditFormProps> = ({ disabled }) => 
       {
         key: 'preview',
         to: `/reports/${values.id}/edit/preview`,
-        label: <Action label="Preview" />,
+        label: (
+          <Row gap="1rem">
+            <Action label="Preview" />
+            <Action icon={<FaRecycle />} onClick={() => storeReportOutput(undefined)} />
+          </Row>
+        ),
       },
       {
         key: 'send',
@@ -40,7 +49,7 @@ export const ReportEditForm: React.FC<IReportEditFormProps> = ({ disabled }) => 
         label: <Action label="Send" />,
       },
     ],
-    [disabled, values.id, values.name],
+    [disabled, storeReportOutput, values.id, values.name],
   );
 
   return (
