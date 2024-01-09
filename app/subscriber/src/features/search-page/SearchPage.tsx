@@ -4,7 +4,6 @@ import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';
 import { ContentListActionBar } from 'components/tool-bar';
 import { useElastic } from 'features/my-searches/hooks';
-import { determinePreview } from 'features/utils';
 import React from 'react';
 import { FaPlay, FaStop } from 'react-icons/fa';
 import { FaBookmark } from 'react-icons/fa6';
@@ -12,12 +11,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Checkbox, Col, IContentModel, Loading, Row, Show } from 'tno-core';
+import { Checkbox, Col, ContentTypeName, IContentModel, Loading, Row, Show } from 'tno-core';
 
 import { AdvancedSearch } from './components';
 import { Player } from './player/Player';
 import * as styled from './styled';
-import { filterFormat, formatSearch } from './utils';
+import { filterFormat } from './utils';
 
 export interface ISearchType {
   showAdvanced?: boolean;
@@ -46,6 +45,19 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const [init, setInit] = React.useState(true); // React hooks are horrible...
 
   const filterId = id ? parseInt(id) : 0;
+
+  const formatDate = (date: string) => {
+    const d = new Date(date);
+    const day = d.toLocaleDateString('en-us', { day: '2-digit' });
+    const month = d.toLocaleDateString('en-us', { month: 'short' }).toUpperCase();
+    const year = d.toLocaleDateString('en-us', { year: 'numeric' });
+    const hour = new Intl.DateTimeFormat('en-us', {
+      hour12: false,
+      hour: '2-digit',
+      minute: 'numeric',
+    }).format(d);
+    return `${day}-${month}-${year}, ${hour}`;
+  };
 
   React.useEffect(() => {
     // Fetch the active filter if required.
@@ -143,7 +155,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
                       <Row key={item.id} className="rows">
                         <Col className="cols">
                           <Row>
-                            <Col alignItems="center">
+                            <Col className="checkBoxColumn" alignItems="center">
                               <Checkbox
                                 onChange={(e) => {
                                   if (e.target.checked) {
@@ -156,56 +168,66 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
                                 checked={selected.some((i) => i.id === item.id)}
                               />
                             </Col>
-                            <Col className="tone-date">
-                              <Row>
-                                <Sentiment
-                                  value={item.tonePools?.length ? item.tonePools[0].value : 0}
-                                />
-                                <div className="date text-content">
-                                  {new Date(item.publishedOn).toDateString()}
-                                </div>
-                                <span className="divider"> | </span>
-                                <div className="source text-content">{item.source?.name}</div>
-                                <Show visible={!!item.series?.name}>
-                                  <span className="divider"> | </span>
-                                  <div className="series text-content">{item.series?.name}</div>
-                                </Show>
-                              </Row>
+                            <Col className="sentimentColumn">
+                              <Sentiment
+                                value={item.tonePools?.length ? item.tonePools[0].value : 0}
+                              />
                             </Col>
+                            <Col className="dateColumn col-date">
+                              <div className="date">{formatDate(item.publishedOn)}</div>
+                            </Col>
+                            <Col className="sourceColumn">
+                              {item.contentType === ContentTypeName.AudioVideo
+                                ? item.series?.name
+                                : item.source?.name}
+                            </Col>
+                            <Col className="headlineColumn">
+                              <div className="headline">{item.headline}</div>
+                            </Col>
+                            {(item.mediaType?.name === 'Daily Print' ||
+                              item.mediaType?.name === 'Weekly Print' ||
+                              item.mediaType?.name === 'Online') && (
+                              <Col className="linkColumn">{item.page}</Col>
+                            )}
+                            {(item.mediaType?.name === 'Events' ||
+                              item.mediaType?.name === 'News Radio' ||
+                              item.mediaType?.name === 'Talk Radio' ||
+                              item.mediaType?.name === 'TV / Video News') && (
+                              <Col className="linkColumn">
+                                <div
+                                  className="text-content"
+                                  onClick={() => navigate(`/view/${item.id}`)}
+                                >
+                                  new window
+                                </div>
+                              </Col>
+                            )}
+                            <Show visible={!!item.fileReferences?.length}>
+                              <Col className="mediaColumn">
+                                <button
+                                  onClick={() => {
+                                    !playerOpen && setPlayerOpen(true);
+                                    item.fileReferences && setActiveContent(item);
+                                  }}
+                                  className={
+                                    playerOpen && activeContent?.id === item.id
+                                      ? 'playing media-button'
+                                      : 'show media-button'
+                                  }
+                                >
+                                  {playerOpen && activeContent?.id === item.id ? (
+                                    <Row>
+                                      <div>NOW PLAYING</div> <FaStop />
+                                    </Row>
+                                  ) : (
+                                    <Row>
+                                      <div>PLAY MEDIA</div> <FaPlay />
+                                    </Row>
+                                  )}
+                                </button>
+                              </Col>
+                            </Show>
                           </Row>
-                          <div
-                            className="headline text-content"
-                            onClick={() => navigate(`/view/${item.id}`)}
-                          >
-                            {formatSearch(item.headline, filter)}
-                          </div>
-                          {/* TODO: Extract text around keyword searched and preview that text rather than the first 50 words */}
-                          <div className="summary text-content">
-                            {formatSearch(determinePreview(item), filter)}
-                          </div>
-                          <Show visible={!!item.fileReferences?.length}>
-                            <button
-                              onClick={() => {
-                                !playerOpen && setPlayerOpen(true);
-                                item.fileReferences && setActiveContent(item);
-                              }}
-                              className={
-                                playerOpen && activeContent?.id === item.id
-                                  ? 'playing media-button'
-                                  : 'show media-button'
-                              }
-                            >
-                              {playerOpen && activeContent?.id === item.id ? (
-                                <Row>
-                                  <div>NOW PLAYING</div> <FaStop />
-                                </Row>
-                              ) : (
-                                <Row>
-                                  <div>PLAY MEDIA</div> <FaPlay />
-                                </Row>
-                              )}
-                            </button>
-                          </Show>
                         </Col>
                       </Row>
                     );
