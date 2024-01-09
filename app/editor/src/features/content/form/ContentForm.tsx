@@ -42,7 +42,13 @@ import {
 
 import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
-import { ContentClipForm, ContentLabelsForm, ContentStoryForm, ContentTranscriptForm } from '.';
+import {
+  ContentClipForm,
+  ContentLabelsForm,
+  ContentNavigation,
+  ContentStoryForm,
+  ContentTranscriptForm,
+} from '.';
 import { ContentFormToolBar, IFile, Tags, TimeLogSection, Topic, Upload } from './components';
 import { useContentForm } from './hooks';
 import { ImageSection } from './ImageSection';
@@ -693,6 +699,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       </Show>
                     </Col>
                     <Row gap="0.5rem">
+                      <ContentNavigation
+                        values={props.values}
+                        fetchContent={fetchContent}
+                        combinedPath={combinedPath}
+                      />
                       <Button
                         type="submit"
                         disabled={
