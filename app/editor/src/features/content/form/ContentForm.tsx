@@ -791,9 +791,16 @@ const ContentForm: React.FC<IContentFormProps> = ({
                             Delete
                           </Button>
                         </Show>
-                        <Button variant={ButtonVariant.cyan} onClick={() => goToNext(form)}>
-                          Next Snippet
-                        </Button>
+                        <Show
+                          visible={
+                            !!props.values.id &&
+                            props.values.contentType === ContentTypeName.AudioVideo
+                          }
+                        >
+                          <Button variant={ButtonVariant.cyan} onClick={() => goToNext(form)}>
+                            Next Snippet
+                          </Button>
+                        </Show>
                       </Show>
                     </Row>
                   </Row>
