@@ -295,7 +295,7 @@ public class ContentController : ControllerBase
     }
 
     /// <summary>
-    /// Send the notification to the specified email address.
+    /// Send the notification to the specified colleague.
     /// </summary>
     /// <param name="contentId"></param>
     /// <param name="colleagueId"></param>
@@ -321,6 +321,38 @@ public class ContentController : ControllerBase
             ContentId = contentId,
             RequestorId = user.Id,
             To = colleague.Email,
+            IsPreview = true,
+            IgnoreValidation = true,
+        };
+        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.NotificationTopic, $"notification-{notification.Id}-test", request);
+        return new JsonResult(new NotificationModel(notification, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Send the notification to the specified email address.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="email"></param>
+    /// <param name="notificationId"></param>
+    /// <returns></returns>
+    [HttpPost("{contentId}/share/email")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(NotificationModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Notification" })]
+    public async Task<IActionResult> ShareEmailAsync(long contentId, string email, int notificationId)
+    {
+        var notification = _notificationService.FindById(notificationId) ?? throw new NoContentException();
+
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+
+        var request = new NotificationRequestModel(NotificationDestination.NotificationService, new { })
+        {
+            NotificationId = notification.Id,
+            ContentId = contentId,
+            RequestorId = user.Id,
+            To = email,
             IsPreview = true,
             IgnoreValidation = true,
         };
