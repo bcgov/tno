@@ -222,5 +222,20 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
 
         return base.Update(original);
     }
+
+    public ReportInstance UpdateAndSave(ReportInstance instance, bool instanceOnly = false)
+    {
+        if (instanceOnly)
+        {
+            base.Update(instance);
+            this.Context.CommitTransaction();
+        }
+        else
+        {
+            base.UpdateAndSave(instance);
+        }
+
+        return instance;
+    }
     #endregion
 }

@@ -19,4 +19,12 @@ public interface IReportInstanceService : IBaseService<ReportInstance, long>
     /// <param name="id"></param>
     /// <returns></returns>
     IEnumerable<ReportInstanceContent> GetContentForInstance(long id);
+
+    /// <summary>
+    /// Update only the instance and not the content.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <param name="instanceOnly"></param>
+    /// <returns></returns>
+    ReportInstance UpdateAndSave(ReportInstance instance, bool instanceOnly = false);
 }

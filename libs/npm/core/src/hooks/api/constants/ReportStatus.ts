@@ -5,22 +5,27 @@ export enum ReportStatus {
   Pending = 0,
 
   /// <summary>
+  /// Report has been submitted to be sent out to subscribers.
+  /// </summary>
+  Submitted = 1,
+
+  /// <summary>
   /// Report is accepted by CHES.
   /// </summary>
-  Accepted = 1,
+  Accepted = 2,
 
   /// <summary>
   /// Report is sent.
   /// </summary>
-  Completed = 2,
+  Completed = 3,
 
   /// <summary>
   /// Report was cancelled.
   /// </summary>
-  Cancelled = 3,
+  Cancelled = 4,
 
   /// <summary>
   /// Report failed to send.
   /// </summary>
-  Failed = 4,
+  Failed = 5,
 }

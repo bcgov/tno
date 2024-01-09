@@ -71,7 +71,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
     [activeReport, content, updateReport],
   );
 
-  // ensure no concurrency errorrs rather than getting from profile store
+  // ensure no concurrency errors rather than getting from profile store
   React.useEffect(() => {
     if (reportId) {
       getReport(reportId, true)
