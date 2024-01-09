@@ -94,6 +94,15 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
               onFilterChange({ ...filter, homepage: e.target.checked });
             }}
           />
+          <Checkbox
+            id="chk-published"
+            label="Published"
+            checked={filter.onlyPublished}
+            tooltip="Published Content"
+            onChange={(e) => {
+              onFilterChange({ ...filter, onlyPublished: e.target.checked });
+            }}
+          />
         </Row>
         <Row nowrap>
           <Row>
