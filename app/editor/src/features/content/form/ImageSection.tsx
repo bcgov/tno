@@ -15,9 +15,6 @@ import {
 
 import { IContentForm } from './interfaces';
 
-// TODO: This is horrible to hardcode these sources, the image form is for any type of image and shouldn't be limited to a few sources.
-const validSources = ['TC', 'PROVINCE', 'GLOBE', 'POST', 'SUN'];
-
 interface IImageSectionProps {}
 
 /** Contains form field in a layout specific to the image snippet. */
@@ -28,9 +25,7 @@ export const ImageSection: React.FunctionComponent<IImageSectionProps> = (props)
   const [sourceOptions, setSourceOptions] = React.useState<IOptionItem[]>([]);
 
   React.useEffect(() => {
-    setSourceOptions(
-      getSourceOptions(sources.filter((s) => validSources.some((v) => v === s.code))),
-    );
+    setSourceOptions(getSourceOptions(sources));
   }, [sources]);
 
   return (
