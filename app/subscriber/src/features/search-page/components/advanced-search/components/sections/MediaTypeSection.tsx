@@ -17,8 +17,6 @@ export const MediaTypeSection: React.FC = () => {
         name="productIds"
         isMulti
         width={FieldSize.Stretch}
-        menuPortalTarget={document.body}
-        styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
         key={filter.mediaTypeIds?.join(',')}
         className="products"
         onChange={(newValues) => {

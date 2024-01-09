@@ -21,7 +21,6 @@ export const ContributorSection: React.FC = () => {
         isMulti
         key={search.filter.contributorIds?.join(',')}
         width={FieldSize.Stretch}
-        maxMenuHeight={100}
         className="contributors"
         options={contributorOptions}
         onChange={(newValue: any) => {

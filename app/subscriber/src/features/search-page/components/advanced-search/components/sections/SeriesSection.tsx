@@ -24,9 +24,6 @@ export const SeriesSection: React.FC = () => {
         width={FieldSize.Stretch}
         key={filter.seriesIds?.join(',')}
         isMulti
-        menuPortalTarget={document.body}
-        styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
-        maxMenuHeight={100}
         options={seriesOptions}
         name="series"
         onChange={(newValue: any) => {
