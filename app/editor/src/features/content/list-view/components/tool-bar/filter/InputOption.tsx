@@ -14,7 +14,6 @@ export const InputOption: React.FC<any> = ({
   innerProps,
   ...rest
 }) => {
-  const checkboxref = React.createRef<HTMLInputElement>();
   const [isActive, setIsActive] = React.useState(false);
   const onMouseDown = () => setIsActive(true);
   const onMouseUp = () => setIsActive(false);
@@ -50,7 +49,7 @@ export const InputOption: React.FC<any> = ({
       getStyles={getStyles}
       innerProps={props}
     >
-      <input ref={checkboxref} type="checkbox" id={children} checked={isSelected} />
+      <input type="checkbox" id={children} checked={isSelected} />
       <styled.SelectLabel
         className="label"
         onClick={() => document.getElementById(children)?.click()}
