@@ -54,7 +54,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     { findContentWithElasticsearch, storeSearchFilter },
   ] = useContent();
   const navigate = useNavigate();
-  const [{ actions, frontPageImagesMediaTypeId, settings }] = useLookup();
+  const [{ actions, frontPageImagesMediaTypeId, settings, isReady }] = useLookup();
   const genQuery = useElastic();
   const [, { getFilter }] = useFilters();
   const [{ filter: activeFilter }, { storeFilter }] = useProfileStore();
@@ -72,23 +72,27 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const filterId = id ? parseInt(id) : 0;
 
   React.useEffect(() => {
-    const showPageIds = settings.find((s) => s.name === Settings.SearchPageResultsShowPage)?.value;
-    if (showPageIds) {
-      setShowPage(showPageIds.split(','));
+    if (isReady) {
+      const showPageIds = settings.find(
+        (s) => s.name === Settings.SearchPageResultsShowPage,
+      )?.value;
+      if (showPageIds) {
+        setShowPage(showPageIds.split(','));
+      }
+      const showNewWindowIds = settings.find(
+        (s) => s.name === Settings.SearchPageResultsNewWindow,
+      )?.value;
+      if (showNewWindowIds) {
+        setShowNewWindow(showNewWindowIds.split(','));
+      }
+      const hideSourceIds = settings.find(
+        (s) => s.name === Settings.SearchPageResultsHideSource,
+      )?.value;
+      if (hideSourceIds) {
+        setHideSource(hideSourceIds.split(','));
+      }
     }
-    const showNewWindowIds = settings.find(
-      (s) => s.name === Settings.SearchPageResultsNewWindow,
-    )?.value;
-    if (showNewWindowIds) {
-      setShowNewWindow(showNewWindowIds.split(','));
-    }
-    const hideSoucerIds = settings.find(
-      (s) => s.name === Settings.SearchPageResultsHideSource,
-    )?.value;
-    if (hideSoucerIds) {
-      setHideSource(hideSoucerIds.split(','));
-    }
-  }, [settings]);
+  }, [isReady, settings]);
 
   React.useEffect(() => {
     // Fetch the active filter if required.
