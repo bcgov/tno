@@ -31,4 +31,10 @@ export const Settings = {
   EventOfTheDayFolder: 'EventOfTheDayFolderId',
   /** The front page image media type ID */
   FrontPageImageMediaType: 'FrontPageImageMediaTypeId',
+  /** Media types that displays a new window on search results */
+  SearchPageResultsNewWindow: 'SearchPageResultsNewWindow',
+  /** Media types that display the page number on search results */
+  SearchPageResultsShowPage: 'SearchPageResultsShowPage',
+  /** Media types that hide the Source on search results */
+  SearchPageResultsHideSource: 'SearchPageResultsHideSource',
 };

@@ -11,12 +11,34 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Checkbox, Col, ContentTypeName, IContentModel, Loading, Row, Show } from 'tno-core';
+import {
+  Checkbox,
+  Col,
+  ContentTypeName,
+  IContentModel,
+  Loading,
+  Row,
+  Settings,
+  Show,
+} from 'tno-core';
 
 import { AdvancedSearch } from './components';
 import { Player } from './player/Player';
 import * as styled from './styled';
 import { filterFormat } from './utils';
+
+const formatDate = (date: string) => {
+  const d = new Date(date);
+  const day = d.toLocaleDateString('en-us', { day: '2-digit' });
+  const month = d.toLocaleDateString('en-us', { month: 'short' }).toUpperCase();
+  const year = d.toLocaleDateString('en-us', { year: 'numeric' });
+  const hour = new Intl.DateTimeFormat('en-us', {
+    hour12: false,
+    hour: '2-digit',
+    minute: 'numeric',
+  }).format(d);
+  return `${day}-${month}-${year}, ${hour}`;
+};
 
 export interface ISearchType {
   showAdvanced?: boolean;
@@ -32,7 +54,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     { findContentWithElasticsearch, storeSearchFilter },
   ] = useContent();
   const navigate = useNavigate();
-  const [{ actions, frontPageImagesMediaTypeId }] = useLookup();
+  const [{ actions, frontPageImagesMediaTypeId, settings }] = useLookup();
   const genQuery = useElastic();
   const [, { getFilter }] = useFilters();
   const [{ filter: activeFilter }, { storeFilter }] = useProfileStore();
@@ -42,22 +64,31 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [showPage, setShowPage] = React.useState<string[]>([]);
+  const [showNewWindow, setShowNewWindow] = React.useState<string[]>([]);
+  const [hideSource, setHideSource] = React.useState<string[]>([]);
   const [init, setInit] = React.useState(true); // React hooks are horrible...
 
   const filterId = id ? parseInt(id) : 0;
 
-  const formatDate = (date: string) => {
-    const d = new Date(date);
-    const day = d.toLocaleDateString('en-us', { day: '2-digit' });
-    const month = d.toLocaleDateString('en-us', { month: 'short' }).toUpperCase();
-    const year = d.toLocaleDateString('en-us', { year: 'numeric' });
-    const hour = new Intl.DateTimeFormat('en-us', {
-      hour12: false,
-      hour: '2-digit',
-      minute: 'numeric',
-    }).format(d);
-    return `${day}-${month}-${year}, ${hour}`;
-  };
+  React.useEffect(() => {
+    const showPageIds = settings.find((s) => s.name === Settings.SearchPageResultsShowPage)?.value;
+    if (showPageIds) {
+      setShowPage(showPageIds.split(','));
+    }
+    const showNewWindowIds = settings.find(
+      (s) => s.name === Settings.SearchPageResultsNewWindow,
+    )?.value;
+    if (showNewWindowIds) {
+      setShowNewWindow(showNewWindowIds.split(','));
+    }
+    const hideSoucerIds = settings.find(
+      (s) => s.name === Settings.SearchPageResultsHideSource,
+    )?.value;
+    if (hideSoucerIds) {
+      setHideSource(hideSoucerIds.split(','));
+    }
+  }, [settings]);
 
   React.useEffect(() => {
     // Fetch the active filter if required.
@@ -181,22 +212,18 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
                               <div className="date">{formatDate(item.publishedOn)}</div>
                             </Col>
                             <Col className="sourceColumn">
-                              {item.contentType === ContentTypeName.AudioVideo
+                              {item.contentType === ContentTypeName.AudioVideo &&
+                              !hideSource.includes(`${item.mediaTypeId}`)
                                 ? item.series?.name
                                 : item.source?.name}
                             </Col>
                             <Col className="headlineColumn">
                               <div className="headline">{item.headline}</div>
                             </Col>
-                            {(item.mediaType?.name === 'Daily Print' ||
-                              item.mediaType?.name === 'Weekly Print' ||
-                              item.mediaType?.name === 'Online') && (
+                            {showPage.includes(`${item.mediaTypeId}`) && (
                               <Col className="linkColumn">{item.page}</Col>
                             )}
-                            {(item.mediaType?.name === 'Events' ||
-                              item.mediaType?.name === 'News Radio' ||
-                              item.mediaType?.name === 'Talk Radio' ||
-                              item.mediaType?.name === 'TV / Video News') && (
+                            {showNewWindow.includes(`${item.mediaTypeId}`) && (
                               <Col className="linkColumn">
                                 <div
                                   className="new-window"
