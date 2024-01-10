@@ -40,13 +40,6 @@ export const InputOption: React.FC<any> = ({
     style,
   };
 
-  /** ensures that the element is unchecked in the menu when the item is removed from the selection */
-  React.useEffect(() => {
-    if (!isSelected) {
-      (document.getElementById(children) as HTMLInputElement).checked = false;
-    }
-  }, [isSelected, children]);
-
   return (
     <components.Option
       {...rest}
@@ -56,7 +49,7 @@ export const InputOption: React.FC<any> = ({
       getStyles={getStyles}
       innerProps={props}
     >
-      <input type="checkbox" id={children} defaultChecked={isSelected} />
+      <input type="checkbox" id={children} checked={isSelected} />
       <styled.SelectLabel
         className="label"
         onClick={() => document.getElementById(children)?.click()}
