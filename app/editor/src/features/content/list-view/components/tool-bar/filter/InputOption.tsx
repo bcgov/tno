@@ -14,6 +14,7 @@ export const InputOption: React.FC<any> = ({
   innerProps,
   ...rest
 }) => {
+  const checkboxref = React.createRef<HTMLInputElement>();
   const [isActive, setIsActive] = React.useState(false);
   const onMouseDown = () => setIsActive(true);
   const onMouseUp = () => setIsActive(false);
@@ -40,11 +41,6 @@ export const InputOption: React.FC<any> = ({
     style,
   };
 
-  /** ensures that the element is checked/unchecked in the menu when the item is added/removed from the selection */
-  React.useEffect(() => {
-    (document.getElementById(children) as HTMLInputElement).checked = isSelected;
-  }, [isSelected, children]);
-
   return (
     <components.Option
       {...rest}
@@ -54,7 +50,7 @@ export const InputOption: React.FC<any> = ({
       getStyles={getStyles}
       innerProps={props}
     >
-      <input type="checkbox" id={children} defaultChecked={isSelected} />
+      <input ref={checkboxref} type="checkbox" id={children} checked={isSelected} />
       <styled.SelectLabel
         className="label"
         onClick={() => document.getElementById(children)?.click()}
