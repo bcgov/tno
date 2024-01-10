@@ -18,9 +18,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
   const [activeReport, setActiveReport] = React.useState<IReportModel>();
   const [reportId, setReportId] = React.useState<number | null>(null);
   React.useEffect(() => {
-    if (!myReports.length) {
-      findMyReports().catch(() => {});
-    }
+    findMyReports().catch(() => {});
     // Only do this on init.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

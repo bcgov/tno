@@ -27,9 +27,7 @@ export const MyReports: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    if (!myReports.length) {
-      findMyReports().catch(() => {});
-    }
+    findMyReports().catch(() => {});
     // Only do this on init.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
