@@ -152,7 +152,11 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
 
                   {content.map((item) => {
                     return (
-                      <Row key={item.id} className="rows">
+                      <Row
+                        key={item.id}
+                        className="rows"
+                        onClick={() => navigate(`/view/${item.id}`)}
+                      >
                         <Col className="cols">
                           <Row>
                             <Col className="checkBoxColumn" alignItems="center">
@@ -195,8 +199,11 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
                               item.mediaType?.name === 'TV / Video News') && (
                               <Col className="linkColumn">
                                 <div
-                                  className="text-content"
-                                  onClick={() => navigate(`/view/${item.id}`)}
+                                  className="new-window"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.open(`/view/${item.id}`, '_blank');
+                                  }}
                                 >
                                   new window
                                 </div>

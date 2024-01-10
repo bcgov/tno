@@ -175,15 +175,6 @@ export const SearchPage = styled.div`
     }
   }
 
-  // .headline {
-  //   color: #3847aa;
-  //   font-size: 1.15em;
-  //   text-decoration: underline;
-  //   :hover {
-  //     cursor: pointer;
-  //   }
-  // }
-
   .summary {
     width: 100%;
   }
@@ -278,5 +269,11 @@ export const SearchPage = styled.div`
     line-height: 20px;
     letter-spacing: 0.25px;
     text-transform: uppercase;
+  }
+
+  .new-window {
+    cursor: pointer;
+    color: blue;
+    text-decoration: underline;
   }
 `;
