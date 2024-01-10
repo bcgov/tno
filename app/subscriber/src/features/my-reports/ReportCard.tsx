@@ -38,7 +38,7 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => 
   const fetchReport = React.useCallback(
     async (id: number) => {
       try {
-        await getReport(id, true);
+        await getReport(id);
       } catch {}
     },
     [getReport],
