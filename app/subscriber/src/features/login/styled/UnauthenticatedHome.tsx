@@ -7,6 +7,7 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   overflow-x: hidden;
   background-color: ${(props) => props.theme.css.beigeBackgroundColor};
   width: 100%;
+  height: 100dvh;
 
   .containing-row {
     overflow-y: auto;
