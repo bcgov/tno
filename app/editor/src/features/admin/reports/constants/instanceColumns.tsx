@@ -13,6 +13,12 @@ export const instanceColumns = (options: {
     cell: (cell) => <CellDate value={cell.original.publishedOn} />,
   },
   {
+    label: 'Sent On',
+    accessor: 'sentOn',
+    width: 1,
+    cell: (cell) => <CellDate value={cell.original.sentOn} />,
+  },
+  {
     label: 'Owner',
     accessor: 'owner.username',
     width: 1,

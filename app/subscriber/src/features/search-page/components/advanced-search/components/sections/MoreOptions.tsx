@@ -1,16 +1,23 @@
+import React from 'react';
 import { useContent, useLookup } from 'store/hooks';
-import { Checkbox, Col, Settings } from 'tno-core';
+import { Checkbox, Col, Row, Settings, Text } from 'tno-core';
 
 export const MoreOptions: React.FC = () => {
   const [{ settings }] = useLookup();
   const [
     {
-      search: { filter },
+      search: { filter: filterSettings },
     },
-    { storeSearchFilter: storeFilter },
+    { storeSearchFilter },
   ] = useContent();
 
+  const [size, setSize] = React.useState<number | string>(filterSettings.size);
+
   var frontPageId = settings.find((s) => s.name === Settings.FrontpageFilter)?.value;
+
+  React.useEffect(() => {
+    setSize(filterSettings.size);
+  }, [filterSettings.size]);
 
   return (
     <div className="more-options">
@@ -19,46 +26,66 @@ export const MoreOptions: React.FC = () => {
         search within the published stories, or expand your search to the whole dataset. Narrow your
         search using these settings.
       </p>
-      <Col>
-        <Checkbox
-          label="featured stories ONLY - uncheck to search ALL content"
-          name="featured"
-          checked={!filter.searchUnpublished}
-          onChange={(e) => {
-            storeFilter({
-              ...filter,
-              searchUnpublished: !e.target.checked,
-            });
-          }}
-        />
-        <Checkbox
-          label="are marked as top stories"
-          name="topStory"
-          checked={Boolean(filter.topStory)}
-          onChange={(e) => {
-            storeFilter({ ...filter, topStory: e.target.checked });
-          }}
-        />
-        <Checkbox
-          label="are marked as a front page"
-          name="frontPage"
-          checked={filter.mediaTypeIds?.includes(Number(frontPageId))}
-          onChange={(e) =>
-            storeFilter({
-              ...filter,
-              mediaTypeIds: e.target.checked
-                ? [...[Number(frontPageId)], ...(filter.mediaTypeIds ?? [])]
-                : filter.mediaTypeIds?.filter((id) => id !== Number(frontPageId)),
-            })
-          }
-        />
-        <Checkbox
-          label={'bold keywords on search page'}
-          name="boldKeywords"
-          checked={Boolean(filter.boldKeywords)}
-          onChange={(e) => storeFilter({ ...filter, boldKeywords: e.target.checked })}
-        />
-      </Col>
+      <Row gap="1rem">
+        <Col>
+          <Checkbox
+            label="featured stories ONLY - uncheck to search ALL content"
+            name="featured"
+            checked={!filterSettings.searchUnpublished}
+            onChange={(e) => {
+              storeSearchFilter({
+                ...filterSettings,
+                searchUnpublished: !e.target.checked,
+              });
+            }}
+          />
+          <Checkbox
+            label="are marked as top stories"
+            name="topStory"
+            checked={Boolean(filterSettings.topStory)}
+            onChange={(e) => {
+              storeSearchFilter({ ...filterSettings, topStory: e.target.checked });
+            }}
+          />
+          <Checkbox
+            label="are marked as a front page"
+            name="frontPage"
+            checked={filterSettings.mediaTypeIds?.includes(Number(frontPageId))}
+            onChange={(e) =>
+              storeSearchFilter({
+                ...filterSettings,
+                mediaTypeIds: e.target.checked
+                  ? [...[Number(frontPageId)], ...(filterSettings.mediaTypeIds ?? [])]
+                  : filterSettings.mediaTypeIds?.filter((id) => id !== Number(frontPageId)),
+              })
+            }
+          />
+          <Checkbox
+            label={'bold keywords on search page'}
+            name="boldKeywords"
+            checked={Boolean(filterSettings.boldKeywords)}
+            onChange={(e) =>
+              storeSearchFilter({ ...filterSettings, boldKeywords: e.target.checked })
+            }
+          />
+        </Col>
+        <Col>
+          <Text
+            name="size"
+            label="Quantity Limit (max 500)"
+            type="number"
+            width="10ch"
+            value={size}
+            onChange={(e) => {
+              setSize(e.target.value);
+              const value = e.target.value ? +e.target.value : 500;
+              if (value <= 500) {
+                storeSearchFilter({ ...filterSettings, size: value });
+              }
+            }}
+          />
+        </Col>
+      </Row>
     </div>
   );
 };

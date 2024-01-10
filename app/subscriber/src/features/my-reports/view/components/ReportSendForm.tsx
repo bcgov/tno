@@ -7,7 +7,19 @@ import { FaTelegramPlane } from 'react-icons/fa';
 import { FaRegCalendarDays } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useReportInstances } from 'store/hooks';
-import { Claim, Col, Modal, Row, Section, Text, useModal, validateEmail } from 'tno-core';
+import {
+  Claim,
+  Col,
+  Modal,
+  ReportStatusName,
+  Row,
+  Section,
+  Show,
+  Spinner,
+  Text,
+  useModal,
+  validateEmail,
+} from 'tno-core';
 
 export const ReportSendForm: React.FC = () => {
   const { values, isSubmitting, setFieldValue } = useFormikContext<IReportForm>();
@@ -68,11 +80,21 @@ export const ReportSendForm: React.FC = () => {
           </Col>
         )}
         <Col flex="1" alignContent="center" justifyContent="center">
-          <Button disabled={isSubmitting || !instanceId} onClick={() => toggle()}>
+          <Button
+            disabled={
+              isSubmitting || !instanceId || instance?.status === ReportStatusName.Submitted
+            }
+            onClick={() => toggle()}
+          >
             Send to subscribers
             <FaTelegramPlane />
           </Button>
         </Col>
+        <Show visible={instance?.status === ReportStatusName.Submitted}>
+          <Col>
+            <Spinner />
+          </Col>
+        </Show>
       </Row>
       {isAdmin && (
         <Col>

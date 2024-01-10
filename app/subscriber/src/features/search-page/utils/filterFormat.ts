@@ -28,7 +28,7 @@ export const filterFormat = (filter: IFilterSettingsModel, actions?: IActionMode
     section: filter.section ?? '',
     sentiment: filter.sentiment ?? [],
     seriesIds: filter.seriesIds ?? [],
-    size: 500,
+    size: filter.size,
     sourceIds: filter.sourceIds ?? [],
     startDate: !!filter.startDate ? filter.startDate : undefined,
     tags: filter.tags ?? [],

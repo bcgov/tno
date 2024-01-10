@@ -51,12 +51,17 @@ export const ReportAdmin = styled.div`
   }
 
   .report-template {
-    gap: 0.25rem;
+    gap: 0.5rem;
+
+    > div {
+      border-left: solid 1px ${(props) => props.theme.css.highlightSecondary};
+      border-right: solid 1px ${(props) => props.theme.css.highlightSecondary};
+    }
 
     > div:not(:first-child) {
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
+      gap: 0.5rem;
     }
   }
 
@@ -94,6 +99,30 @@ export const ReportAdmin = styled.div`
       &:nth-child(even) {
         background: ${(props) => props.theme.css.highlightSecondary};
       }
+    }
+  }
+
+  .charts {
+    gap: 0.5rem;
+
+    > div {
+      border-radius: 0.25rem;
+
+      > div:first-child {
+        padding: 0.25rem 1rem;
+        border-top-right-radius: 0.25rem;
+        border-top-left-radius: 0.25rem;
+        align-items: center;
+        background: ${(props) => props.theme.css.highlightPrimary};
+      }
+
+      > div:not(first-child) {
+        padding: 0.25rem 1rem;
+      }
+    }
+
+    > div {
+      background: ${(props) => props.theme.css.highlightSecondary};
     }
   }
 `;

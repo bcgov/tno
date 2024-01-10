@@ -36,9 +36,6 @@ export const ReportEdit: React.FC = () => {
   const hub = useApiHub();
 
   const [report, setReport] = React.useState<IReportForm>(defaultReport(userInfo?.id ?? 0, 0));
-  const canEdit = report.instances.length
-    ? report.instances[0].status === ReportStatusName.Pending
-    : true;
 
   React.useEffect(() => {
     if (!myReports.length) {
@@ -155,62 +152,66 @@ export const ReportEdit: React.FC = () => {
           setSubmitting(false);
         }}
       >
-        {({ submitForm, isSubmitting, values }) => (
-          <PageSection
-            header={
-              <Row flex="1" alignItems="center" gap="1rem">
-                <Col flex="1" gap="0.5rem">
-                  <Row>
-                    <Action
-                      icon={<FaArrowLeft />}
-                      label="Back to my reports"
-                      onClick={() => navigate('/reports')}
-                    />
-                  </Row>
-                  <Row alignItems="center">
-                    <label>Edit Report</label>
-                  </Row>
-                </Col>
-                <Col gap="0.5rem">
-                  <Row gap="1rem" justifyContent="flex-end">
-                    <Action
-                      disabled={isSubmitting}
-                      icon={<FaGear />}
-                      title="Edit report template"
-                      onClick={(e) => {
-                        if (e.ctrlKey) toggle();
-                        else navigate(`/reports/${values.id}`);
-                      }}
-                    />
-                    <Action
-                      disabled={isSubmitting}
-                      icon={<FaFileExcel />}
-                      title="Export to Excel"
-                      onClick={() => handleExport(values)}
-                    />
-                    {canEdit ? (
-                      <Button onClick={() => submitForm()} disabled={isSubmitting || !canEdit}>
-                        Save
-                        <FaCloud />
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={() => handleRegenerate(values, false)}
-                        disabled={isSubmitting || canEdit}
-                      >
-                        Start next report
-                        <FaFileCirclePlus />
-                      </Button>
-                    )}
-                  </Row>
-                </Col>
-              </Row>
-            }
-          >
-            <ReportEditForm disabled={!canEdit} />
-            <span></span>
-          </PageSection>
-        )}
+        {({ submitForm, isSubmitting, values }) => {
+          const instance = values.instances.length ? values.instances[0] : undefined;
+          const canEdit = instance ? instance.status === ReportStatusName.Pending : true;
+          return (
+            <PageSection
+              header={
+                <Row flex="1" alignItems="center" gap="1rem">
+                  <Col flex="1" gap="0.5rem">
+                    <Row>
+                      <Action
+                        icon={<FaArrowLeft />}
+                        label="Back to my reports"
+                        onClick={() => navigate('/reports')}
+                      />
+                    </Row>
+                    <Row alignItems="center">
+                      <label>Edit Report</label>
+                    </Row>
+                  </Col>
+                  <Col gap="0.5rem">
+                    <Row gap="1rem" justifyContent="flex-end">
+                      <Action
+                        disabled={isSubmitting}
+                        icon={<FaGear />}
+                        title="Edit report template"
+                        onClick={(e) => {
+                          if (e.ctrlKey) toggle();
+                          else navigate(`/reports/${values.id}`);
+                        }}
+                      />
+                      <Action
+                        disabled={isSubmitting}
+                        icon={<FaFileExcel />}
+                        title="Export to Excel"
+                        onClick={() => handleExport(values)}
+                      />
+                      {canEdit || instance?.status === ReportStatusName.Submitted ? (
+                        <Button onClick={() => submitForm()} disabled={isSubmitting || !canEdit}>
+                          Save
+                          <FaCloud />
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => handleRegenerate(values, false)}
+                          disabled={isSubmitting || canEdit}
+                        >
+                          Start next report
+                          <FaFileCirclePlus />
+                        </Button>
+                      )}
+                    </Row>
+                  </Col>
+                </Row>
+              }
+            >
+              <ReportEditForm disabled={!canEdit} />
+              <span></span>
+            </PageSection>
+          );
+        }}
       </FormikForm>
       <Modal
         headerText="Regenerate Report"
