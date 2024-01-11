@@ -19,15 +19,13 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
   const [reportId, setReportId] = React.useState<number | null>(null);
 
   React.useEffect(() => {
+    // Only load myReports if content is ready, avoids double-fetch
     if (!myReports.length && content?.length) {
       findMyReports().catch(() => {});
     }
-    // Added content as a depencency because the entire component was reloading
-    // on content change. We should only fetch reports when content is ready.
-    // This is in order to avoid calling findMyReports twice
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content]);
+  }, []);
 
   /** Adds the content to the active report. */
   const addContentToReport = React.useCallback(
