@@ -17,7 +17,6 @@ export const Section = styled.div<ISectionProps>`
     align-items: center;
     padding: 0.25rem 0.5rem;
     background-color: ${(props) => props.theme.css.bkTertiary};
-    flex: 1;
     border-top-right-radius: 0.25rem;
     border-top-left-radius: 0.25rem;
     border-bottom-right-radius: ${(props) => (!props.open ? '0.25rem' : 'unset')};

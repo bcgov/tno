@@ -10,6 +10,7 @@ export interface ISectionProps {
   actions?: React.ReactNode | ((props: ISectionProps) => React.ReactNode);
   open?: boolean;
   showOpen?: boolean;
+  className?: string;
   children?: React.ReactNode;
   onChange?: (open: boolean) => void;
 }
@@ -20,6 +21,7 @@ export const Section: React.FC<ISectionProps> = ({
   actions,
   open: initOpen = false,
   showOpen = true,
+  className = '',
   children,
   onChange = () => {},
   ...rest
@@ -39,7 +41,7 @@ export const Section: React.FC<ISectionProps> = ({
   );
 
   return (
-    <styled.Section open={open} showOpen={showOpen} {...rest}>
+    <styled.Section open={open} showOpen={showOpen} className={`section ${className}`} {...rest}>
       <div className="section-header">
         {icon && <div className="section-icon">{icon}</div>}
         <div className="section-label">
