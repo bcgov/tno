@@ -299,7 +299,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                               ) ?? ''
                             }
                             label="Columnist/Pundit"
-                            width={FieldSize.Small}
+                            width={FieldSize.Medium}
                             options={contributorOptions}
                           />
                           <FormikText name="edition" label="Edition" />
@@ -323,7 +323,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                               ) ?? ''
                             }
                             label="Columnist/Pundit"
-                            width={FieldSize.Small}
+                            width={FieldSize.Medium}
                             options={contributorOptions}
                           />
                           <Col flex="1">
