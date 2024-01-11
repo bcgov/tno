@@ -215,7 +215,7 @@ public class ContentController : ControllerBase
         newContent.OwnerId = user.Id;
         newContent.PostedOn = newContent.Status == ContentStatus.Publish || newContent.Status == ContentStatus.Published ? DateTime.UtcNow : null;
 
-        _topicScoreHelper.SetContentScore(ref newContent);
+        _topicScoreHelper.SetContentScore(newContent);
 
         var content = _contentService.AddAndSave(newContent);
 
@@ -259,7 +259,7 @@ public class ContentController : ControllerBase
             updateContent.Status == ContentStatus.Published))
             updateContent.PostedOn = DateTime.UtcNow;
 
-        _topicScoreHelper.SetContentScore(ref updateContent);
+        _topicScoreHelper.SetContentScore(updateContent);
 
         var content = _contentService.UpdateAndSave(updateContent);
 

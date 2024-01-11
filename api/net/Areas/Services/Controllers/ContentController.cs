@@ -180,7 +180,7 @@ public class ContentController : ControllerBase
             tag.Id = result.Id;
         }
 
-        _topicScoreHelper.SetContentScore(ref model);
+        _topicScoreHelper.SetContentScore(model);
         
         var content = _contentService.AddAndSave((Content)model);
 
