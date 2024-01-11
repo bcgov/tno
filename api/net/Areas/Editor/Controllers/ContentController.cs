@@ -52,6 +52,8 @@ public class ContentController : ControllerBase
     private readonly IWorkOrderHelper _workOrderHelper;
     private readonly IUserService _userService;
     private readonly IActionService _actionService;
+    private readonly ITopicService _topicService;
+    private readonly ITopicScoreRuleService _topicScoreRuleService;
     private readonly StorageOptions _storageOptions;
     private readonly IConnectionHelper _connection;
     private readonly IKafkaMessenger _kafkaMessenger;
@@ -73,6 +75,8 @@ public class ContentController : ControllerBase
     /// <param name="workOrderHelper"></param>
     /// <param name="userService"></param>
     /// <param name="actionService"></param>
+    /// <param name="topicService"></param>
+    /// <param name="topicScoreRuleService"></param>
     /// <param name="connection"></param>
     /// <param name="storageOptions"></param>
     /// <param name="kafkaMessenger"></param>
@@ -88,6 +92,8 @@ public class ContentController : ControllerBase
         IWorkOrderHelper workOrderHelper,
         IUserService userService,
         IActionService actionService,
+        ITopicService topicService,
+        ITopicScoreRuleService topicScoreRuleService,
         IConnectionHelper connection,
         IOptions<StorageOptions> storageOptions,
         IOptions<ElasticOptions> elasticOptions,
@@ -103,6 +109,8 @@ public class ContentController : ControllerBase
         _workOrderHelper = workOrderHelper;
         _userService = userService;
         _actionService = actionService;
+        _topicService = topicService;
+        _topicScoreRuleService = topicScoreRuleService;
         _storageOptions = storageOptions.Value;
         _connection = connection;
         _kafkaMessenger = kafkaMessenger;
@@ -206,6 +214,22 @@ public class ContentController : ControllerBase
         var newContent = (Content)model;
         newContent.OwnerId = user.Id;
         newContent.PostedOn = newContent.Status == ContentStatus.Publish || newContent.Status == ContentStatus.Published ? DateTime.UtcNow : null;
+
+        var topicScore = TopicScoreHelper.GetScore(_topicScoreRuleService.FindAll(), model.PublishedOn?.TimeOfDay, model.SourceId, model.Body.Length, model.Section, model.Page, model.SeriesId);
+        if (topicScore != null) {
+            if(!model.Topics.Any()) {
+                // retrieve the magic placeholder Topic and use that
+                const int defaultTopicId = 1;
+                Entities.Topic? defaultTopic = _topicService.FindById(defaultTopicId);
+                if (defaultTopic != null)
+                    newContent.TopicsManyToMany.Add(new ContentTopic(newContent, defaultTopic, 0) );
+                else
+                    _logger.LogWarning($"Couldn't retrieve default Topic with ID: [{defaultTopicId}] for Event of the day. Score will not be set on content.");
+            } else {
+                newContent.TopicsManyToMany.First().Score = topicScore.Value;
+            }
+        }
+
         var content = _contentService.AddAndSave(newContent);
 
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentAdded, new[] { new ContentMessageModel(content) })));
@@ -247,6 +271,21 @@ public class ContentController : ControllerBase
             (updateContent.Status == ContentStatus.Publish ||
             updateContent.Status == ContentStatus.Published))
             updateContent.PostedOn = DateTime.UtcNow;
+
+        var topicScore = TopicScoreHelper.GetScore(_topicScoreRuleService.FindAll(), model.PublishedOn?.TimeOfDay, model.SourceId, model.Body.Length, model.Section, model.Page, model.SeriesId);
+        if (topicScore != null) {
+            if(!model.Topics.Any()) {
+                // retrieve the magic placeholder Topic and use that
+                const int defaultTopicId = 1;
+                Entities.Topic? defaultTopic = _topicService.FindById(defaultTopicId);
+                if (defaultTopic != null)
+                    updateContent.TopicsManyToMany.Add(new ContentTopic(updateContent, defaultTopic, 0) );
+                else
+                    _logger.LogWarning($"Couldn't retrieve default Topic with ID: [{defaultTopicId}] for Event of the day. Score will not be set on content.");
+            } else {
+                updateContent.TopicsManyToMany.First().Score = topicScore.Value;
+            }
+        }
 
         var content = _contentService.UpdateAndSave(updateContent);
 

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Folder;
+using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
@@ -29,6 +30,7 @@ public class FolderController : ControllerBase
 {
     #region Variables
     private readonly IFolderService _folderService;
+    private readonly ITopicScoreRuleService _topicScoreRuleService;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -37,12 +39,16 @@ public class FolderController : ControllerBase
     /// Creates a new instance of a FolderController object, initializes with specified parameters.
     /// </summary>
     /// <param name="folderService"></param>
+    /// <param name="topicScoreRuleService"></param>
     /// <param name="serializerOptions"></param>
     public FolderController(
         IFolderService folderService,
+        ITopicScoreRuleService topicScoreRuleService,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _folderService = folderService;
+        _topicScoreRuleService = topicScoreRuleService;
+
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -81,16 +87,26 @@ public class FolderController : ControllerBase
     /// Get folder content for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="includeMaxTopicScore">return the max topic score for each piece of content in the folder</param>
     /// <returns></returns>
     [HttpGet("{id}/content")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<FolderContentModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Folder" })]
-    public IActionResult GetContent(int id)
+    public IActionResult GetContent(int id, bool includeMaxTopicScore = false)
     {
         var result = _folderService.GetContentInFolder(id) ?? throw new NoContentException();
-        return new JsonResult(result.Select(f => new FolderContentModel(f)));
+
+        if (includeMaxTopicScore)
+        {
+            var topicScoreRules = _topicScoreRuleService.FindAll();
+            return new JsonResult(result.Select(f => new FolderContentModel(f) {
+                 MaxTopicScore = TopicScoreHelper.GetScore(topicScoreRules, f.Content!.PublishedOn!.Value.TimeOfDay, f.Content.SourceId, f.Content.Body.Length, f.Content.Section, f.Content.Page, f.Content.SeriesId) 
+               }));
+        }
+        else
+            return new JsonResult(result.Select(f => new FolderContentModel(f)));
     }
 
     /// <summary>

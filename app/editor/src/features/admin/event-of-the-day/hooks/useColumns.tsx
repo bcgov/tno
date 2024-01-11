@@ -1,7 +1,6 @@
-import { calcTopicScore } from 'features/content/form/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useLookup } from 'store/hooks';
+import { useContent, useLookup } from 'store/hooks';
 import {
   CellDate,
   FieldSize,
@@ -11,20 +10,24 @@ import {
   ITableHookColumn,
   OptionItem,
   Select,
+  Show,
   TopicTypeName,
 } from 'tno-core';
 
 // item with id of 1 is the magic [Not Applicable] topic
 const topicIdNotApplicable = 1;
 
-// create an array with values 0-100 - min score is 0, max is 100
-const possibleScores = Array.from(Array(101).keys()).map((item) => new OptionItem('' + item, item));
+const maxTopicScore: number = 200;
+// create an array with values 0-maxScore
+const possibleScores = Array.from(Array(maxTopicScore + 1).keys()).map(
+  (item) => new OptionItem('' + item, item),
+);
 
 export const useColumns = (
   handleSubmit: (values: IFolderContentModel) => Promise<void>,
   loading: boolean,
 ): ITableHookColumn<IFolderContentModel>[] => {
-  const [{ topics, rules }] = useLookup();
+  const [{ topics }] = useLookup();
 
   const handleTopicChange = async (event: any, cell: any) => {
     const topic = topics.find((x) => x.id === (event as OptionItem)?.value);
@@ -155,17 +158,8 @@ export const useColumns = (
               isClearable={false}
               width="10ch"
               options={possibleScores.filter(
-                (s) =>
-                  s.value <=
-                  calcTopicScore(
-                    rules,
-                    cell.original.content!.source!.id,
-                    cell.original.content!.body!.length,
-                    cell.original.content!.publishedOn,
-                    cell.original.content!.page,
-                    cell.original.content!.section,
-                    cell.original.content!.seriesId,
-                  ),
+                // remove this filter if the editor needs to be able to override to any value they want
+                (s) => s.value <= (cell.original.maxTopicScore ?? maxTopicScore),
               )}
               value={possibleScores?.find(
                 (o) =>
@@ -177,16 +171,20 @@ export const useColumns = (
               onChange={async (e: any) => await handleScoreChange(e, cell)}
             />
             <div className="maxScore">
-              &nbsp;&lt;=&nbsp;
-              {calcTopicScore(
-                rules,
-                cell.original.content!.source!.id,
-                cell.original.content!.body!.length,
-                cell.original.content!.publishedOn,
-                cell.original.content!.page,
-                cell.original.content!.section,
-                cell.original.content!.seriesId,
-              )}
+              &nbsp;&le;&nbsp;
+              <Show visible={cell.original!.maxTopicScore !== undefined}>
+                <dfn
+                  title="max score as calculated by matched rule"
+                  className="score-max-hint-text"
+                >
+                  {cell.original!.maxTopicScore}
+                </dfn>
+              </Show>
+              <Show visible={cell.original!.maxTopicScore == undefined}>
+                <dfn title="no rule match" className="score-max-no-rule-match">
+                  {maxTopicScore}
+                </dfn>
+              </Show>
             </div>
           </>
         );

@@ -22,9 +22,9 @@ export const useApiAdminFolders = (
     findAllFolders: () => {
       return api.get<never, AxiosResponse<IFolderModel[]>, any>(`/admin/folders`);
     },
-    getContentInFolder: (id: number) => {
+    getContentInFolder: (id: number, includeMaxTopicScore: boolean = false) => {
       return api.get<never, AxiosResponse<IFolderContentModel[]>, any>(
-        `/admin/folders/${id}/content`,
+        `/admin/folders/${id}/content?includeMaxTopicScore=${includeMaxTopicScore}`,
       );
     },
     getFolder: (id: number) => {

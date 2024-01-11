@@ -13,7 +13,6 @@ import {
 } from 'tno-core';
 
 import { IContentForm } from '../../interfaces';
-import { calcTopicScoreForContentForm } from '../../utils/calcTopicScore';
 
 export interface ITopicProps {}
 
@@ -92,10 +91,7 @@ export const Topic: React.FC<ITopicProps> = () => {
           if (!!e?.value) {
             value = topics.find((c) => c.id === e.value);
           }
-          setFieldValue(
-            'topics',
-            !!value ? [{ ...value, score: calcTopicScoreForContentForm(rules, values) }] : [],
-          );
+          setFieldValue('topics', !!value ? [{ ...value }] : []);
         }}
       />
     </Row>

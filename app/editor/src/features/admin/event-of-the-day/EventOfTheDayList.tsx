@@ -35,7 +35,7 @@ const EventOfTheDayList: React.FC = () => {
   React.useEffect(() => {
     if (eventOfTheDayFolderId) {
       setLoading(true);
-      getContentInFolder(eventOfTheDayFolderId)
+      getContentInFolder(eventOfTheDayFolderId, true)
         .then((data) => {
           setItems(data);
         })

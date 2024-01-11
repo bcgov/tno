@@ -43,4 +43,16 @@ export const EventOfTheDayList = styled.div`
   .type-disabled {
     font-style: italic;
   }
+  .score-max-hint-text {
+    font-style: unset;
+    color: green;
+    border-bottom: 1px green dashed;
+    cursor: help;
+  }
+  .score-max-no-rule-match {
+    font-style: unset;
+    color: red;
+    border-bottom: 1px red dashed;
+    cursor: help;
+  }
 `;
