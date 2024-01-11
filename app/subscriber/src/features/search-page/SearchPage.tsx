@@ -181,7 +181,11 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
                       >
                         <Col className="cols">
                           <Row>
-                            <Col className="checkBoxColumn" alignItems="center">
+                            <Col
+                              className="checkBoxColumn"
+                              alignItems="center"
+                              onClick={(e) => e.stopPropagation()}
+                            >
                               <Checkbox
                                 onChange={(e) => {
                                   if (e.target.checked) {
