@@ -4,7 +4,6 @@ import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';
 import { ContentListActionBar } from 'components/tool-bar';
 import { useElastic } from 'features/my-searches/hooks';
-import { determinePreview } from 'features/utils';
 import React from 'react';
 import { FaPlay, FaStop } from 'react-icons/fa';
 import { FaBookmark } from 'react-icons/fa6';
@@ -12,12 +11,21 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Checkbox, Col, IContentModel, Loading, Row, Show } from 'tno-core';
+import {
+  Checkbox,
+  Col,
+  ContentTypeName,
+  IContentModel,
+  Loading,
+  Row,
+  Settings,
+  Show,
+} from 'tno-core';
 
 import { AdvancedSearch } from './components';
 import { Player } from './player/Player';
 import * as styled from './styled';
-import { filterFormat, formatSearch } from './utils';
+import { filterFormat, formatDate } from './utils';
 
 export interface ISearchType {
   showAdvanced?: boolean;
@@ -33,7 +41,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     { findContentWithElasticsearch, storeSearchFilter },
   ] = useContent();
   const navigate = useNavigate();
-  const [{ actions, frontPageImagesMediaTypeId }] = useLookup();
+  const [{ actions, frontPageImagesMediaTypeId, settings, isReady }] = useLookup();
   const genQuery = useElastic();
   const [, { getFilter }] = useFilters();
   const [{ filter: activeFilter }, { storeFilter }] = useProfileStore();
@@ -43,9 +51,35 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const [playerOpen, setPlayerOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [showPage, setShowPage] = React.useState<string[]>([]);
+  const [showNewWindow, setShowNewWindow] = React.useState<string[]>([]);
+  const [hideSource, setHideSource] = React.useState<string[]>([]);
   const [init, setInit] = React.useState(true); // React hooks are horrible...
 
   const filterId = id ? parseInt(id) : 0;
+
+  React.useEffect(() => {
+    if (isReady) {
+      const showPageIds = settings.find(
+        (s) => s.name === Settings.SearchPageResultsShowPage,
+      )?.value;
+      if (showPageIds) {
+        setShowPage(showPageIds.split(','));
+      }
+      const showNewWindowIds = settings.find(
+        (s) => s.name === Settings.SearchPageResultsNewWindow,
+      )?.value;
+      if (showNewWindowIds) {
+        setShowNewWindow(showNewWindowIds.split(','));
+      }
+      const hideSourceIds = settings.find(
+        (s) => s.name === Settings.SearchPageResultsHideSource,
+      )?.value;
+      if (hideSourceIds) {
+        setHideSource(hideSourceIds.split(','));
+      }
+    }
+  }, [isReady, settings]);
 
   React.useEffect(() => {
     // Fetch the active filter if required.
@@ -140,10 +174,14 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
 
                   {content.map((item) => {
                     return (
-                      <Row key={item.id} className="rows">
+                      <Row
+                        key={item.id}
+                        className="rows"
+                        onClick={() => navigate(`/view/${item.id}`)}
+                      >
                         <Col className="cols">
                           <Row>
-                            <Col alignItems="center">
+                            <Col className="checkBoxColumn" alignItems="center">
                               <Checkbox
                                 onChange={(e) => {
                                   if (e.target.checked) {
@@ -156,56 +194,65 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
                                 checked={selected.some((i) => i.id === item.id)}
                               />
                             </Col>
-                            <Col className="tone-date">
-                              <Row>
-                                <Sentiment
-                                  value={item.tonePools?.length ? item.tonePools[0].value : 0}
-                                />
-                                <div className="date text-content">
-                                  {new Date(item.publishedOn).toDateString()}
-                                </div>
-                                <span className="divider"> | </span>
-                                <div className="source text-content">{item.source?.name}</div>
-                                <Show visible={!!item.series?.name}>
-                                  <span className="divider"> | </span>
-                                  <div className="series text-content">{item.series?.name}</div>
-                                </Show>
-                              </Row>
+                            <Col className="sentimentColumn">
+                              <Sentiment
+                                value={item.tonePools?.length ? item.tonePools[0].value : 0}
+                              />
                             </Col>
+                            <Col className="dateColumn col-date">
+                              <div className="date">{formatDate(item.publishedOn)}</div>
+                            </Col>
+                            <Col className="sourceColumn">
+                              {item.contentType === ContentTypeName.AudioVideo &&
+                              !hideSource.includes(`${item.mediaTypeId}`)
+                                ? item.series?.name
+                                : item.source?.name}
+                            </Col>
+                            <Col className="headlineColumn">
+                              <div className="headline">{item.headline}</div>
+                            </Col>
+                            {showPage.includes(`${item.mediaTypeId}`) && (
+                              <Col className="linkColumn">{item.page}</Col>
+                            )}
+                            {showNewWindow.includes(`${item.mediaTypeId}`) && (
+                              <Col className="linkColumn">
+                                <div
+                                  className="new-window"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.open(`/view/${item.id}`, '_blank');
+                                  }}
+                                >
+                                  new window
+                                </div>
+                              </Col>
+                            )}
+                            <Show visible={!!item.fileReferences?.length}>
+                              <Col className="mediaColumn">
+                                <button
+                                  onClick={() => {
+                                    !playerOpen && setPlayerOpen(true);
+                                    item.fileReferences && setActiveContent(item);
+                                  }}
+                                  className={
+                                    playerOpen && activeContent?.id === item.id
+                                      ? 'playing media-button'
+                                      : 'show media-button'
+                                  }
+                                >
+                                  {playerOpen && activeContent?.id === item.id ? (
+                                    <Row>
+                                      <div>NOW PLAYING</div> <FaStop />
+                                    </Row>
+                                  ) : (
+                                    <Row>
+                                      <div>PLAY MEDIA</div> <FaPlay />
+                                    </Row>
+                                  )}
+                                </button>
+                              </Col>
+                            </Show>
                           </Row>
-                          <div
-                            className="headline text-content"
-                            onClick={() => navigate(`/view/${item.id}`)}
-                          >
-                            {formatSearch(item.headline, filter)}
-                          </div>
-                          {/* TODO: Extract text around keyword searched and preview that text rather than the first 50 words */}
-                          <div className="summary text-content">
-                            {formatSearch(determinePreview(item), filter)}
-                          </div>
-                          <Show visible={!!item.fileReferences?.length}>
-                            <button
-                              onClick={() => {
-                                !playerOpen && setPlayerOpen(true);
-                                item.fileReferences && setActiveContent(item);
-                              }}
-                              className={
-                                playerOpen && activeContent?.id === item.id
-                                  ? 'playing media-button'
-                                  : 'show media-button'
-                              }
-                            >
-                              {playerOpen && activeContent?.id === item.id ? (
-                                <Row>
-                                  <div>NOW PLAYING</div> <FaStop />
-                                </Row>
-                              ) : (
-                                <Row>
-                                  <div>PLAY MEDIA</div> <FaPlay />
-                                </Row>
-                              )}
-                            </button>
-                          </Show>
                         </Col>
                       </Row>
                     );

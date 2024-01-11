@@ -175,15 +175,6 @@ export const SearchPage = styled.div`
     }
   }
 
-  .headline {
-    color: #3847aa;
-    font-size: 1.15em;
-    text-decoration: underline;
-    :hover {
-      cursor: pointer;
-    }
-  }
-
   .summary {
     width: 100%;
   }
@@ -208,5 +199,81 @@ export const SearchPage = styled.div`
     padding: 0.5em;
     border-bottom-left-radius: 0.5em;
     border-bottom-right-radius: 0.5em;
+  }
+
+  // tone column
+  .column.col-1 {
+    width: 2.5rem;
+    flex: unset;
+    div {
+      width: 100%;
+      justify-content: center;
+      svg.tone-icon {
+        margin-left: unset;
+      }
+    }
+  }
+
+  .checkBoxColumn {
+    width: 5%;
+    vertical-align: middle;
+  }
+
+  .sentimentColumn {
+    width: 5%;
+    vertical-align: middle;
+  }
+
+  .dateColumn {
+    width: 20%;
+    vertical-align: middle;
+  }
+
+  .sourceColumn {
+    width: 15%;
+    vertical-align: middle;
+  }
+
+  .headlineColumn {
+    width: 20%;
+    vertical-align: middle;
+  }
+
+  .linkColumn {
+    width: 15%;
+    vertical-align: middle;
+  }
+
+  .mediaColumn {
+    width: 15%;
+    vertical-align: middle;
+  }
+
+  .col-date {
+    white-space: nowrap;
+  }
+
+  .headline {
+    color: ${(props) => props.theme.css.btnBkPrimary};
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+  }
+
+  .date {
+    color: ${(props) => props.theme.css.fPrimaryColor};
+    font-style: normal;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+    text-transform: uppercase;
+  }
+
+  .new-window {
+    cursor: pointer;
+    color: blue;
+    text-decoration: underline;
   }
 `;
