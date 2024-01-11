@@ -42,6 +42,7 @@ import {
 import { defaultAdvancedSearch, defaultFilter } from './constants';
 import { defaultSubMediaGroupExpanded, ISubMediaGroupExpanded } from './interfaces';
 import * as styled from './styled';
+import { extractTags } from './utils/extractTags';
 
 export interface IAdvancedSearchProps {
   /** Event fires when search button is clicked. */
@@ -70,11 +71,20 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     React.useState<IFilterSettingsModel>();
 
   const [searchName, setSearchName] = React.useState<string>(activeFilter?.name ?? '');
+  const [query, setQuery] = React.useState<string>(search.search ?? '');
   /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
   const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
     React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);
 
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
+
+  React.useEffect(() => {
+    // remove [ and ] and everything in between from query
+    const newQuery = query.replace(/\[.*?\]/g, '');
+    storeSearchFilter({ ...search, search: newQuery });
+    // only update when query changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
 
   React.useEffect(() => {
     if (activeFilter) {
@@ -163,11 +173,18 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
             <label className="label">SEARCH FOR: </label>
             <Col className="text-area-container">
               <TextArea
-                value={search?.search}
+                value={query}
                 className="text-area"
                 onKeyDown={(e) => handleEnterPressed(e, () => onSearch?.(search), true)}
                 name="search"
-                onChange={(e) => storeSearchFilter({ ...search, search: e.target.value })}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  const tags = extractTags(value);
+                  setQuery(value);
+                  if (!!tags) {
+                    storeSearchFilter({ ...search, tags: tags });
+                  }
+                }}
               />
               <SearchInGroup />
             </Col>
