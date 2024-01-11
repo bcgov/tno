@@ -22,6 +22,10 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
     if (!myReports.length && content?.length) {
       findMyReports().catch(() => {});
     }
+    // Added content as a depencency because the entire component was reloading
+    // on content change. We should only fetch reports when content is ready.
+    // This is in order to avoid calling findMyReports twice
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content]);
 
