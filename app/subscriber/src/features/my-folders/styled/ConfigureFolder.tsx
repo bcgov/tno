@@ -5,9 +5,6 @@ export const ConfigureFolder = styled(PageSection)`
   .react-datepicker-ignore-onclickoutside {
     border-radius: 0.5rem;
   }
-  input[type='checkbox'] {
-    accent-color: ${(props) => props.theme.css.btnBkPrimary};
-  }
   .back-to-folders {
     cursor: pointer;
     color: ${(props) => props.theme.css.btnBkPrimary};

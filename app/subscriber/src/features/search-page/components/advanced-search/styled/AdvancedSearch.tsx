@@ -96,7 +96,6 @@ export const AdvancedSearch = styled(Row)`
     label {
       margin-right: 0.5em;
     }
-    accent-color: ${(props) => props.theme.css.btnBkPrimary};
     width: 100%;
     margin-bottom: 1em;
     margin-top: 0.5em;
