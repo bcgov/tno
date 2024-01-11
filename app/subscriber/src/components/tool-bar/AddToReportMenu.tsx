@@ -17,13 +17,13 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
   const [{ myReports }] = useProfileStore();
   const [activeReport, setActiveReport] = React.useState<IReportModel>();
   const [reportId, setReportId] = React.useState<number | null>(null);
+
   React.useEffect(() => {
-    if (!myReports.length) {
+    if (!myReports.length && content?.length) {
       findMyReports().catch(() => {});
     }
-    // Only do this on init.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [content]);
 
   /** Adds the content to the active report. */
   const addContentToReport = React.useCallback(

@@ -47,7 +47,7 @@ export const ReportEdit: React.FC = () => {
     setReport(toForm(result, true));
   }, [id, generateReport]);
 
-  // Each time report data is freshed, check if instances for report are loaded,
+  // Each time report data is refreshed, check if instances for report are loaded,
   // if not, call generateReport to populate instances array
   React.useEffect(() => {
     const reportId = parseInt(id ?? '0');
@@ -60,7 +60,7 @@ export const ReportEdit: React.FC = () => {
 
   // Case 1: No report data in store; fetch all reports & set to report matching id in path
   React.useEffect(() => {
-    if (!myReports.length) {
+    if (!myReports?.length) {
       findMyReports()
         .then(async (reports) => {
           const reportId = parseInt(id ?? '0');
@@ -81,7 +81,7 @@ export const ReportEdit: React.FC = () => {
   // if it is, set it to that report, if not, try to fetch it
   React.useEffect(() => {
     const reportId = parseInt(id ?? '0');
-    if (!!reportId && myReports.length) {
+    if (!!reportId && myReports?.length) {
       const existingReport = myReports.find((r) => r.id === reportId);
       if (existingReport) {
         setReport(toForm(existingReport));
