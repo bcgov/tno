@@ -101,24 +101,43 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
     }
   }, [defaultReportTemplateId, getReportTemplate, report.templateId]);
 
+  // Case 1: No report data in store; fetch all reports & set to report matching id in path
   React.useEffect(() => {
     if (!myReports.length) {
-      findMyReports().catch(() => {});
+      findMyReports()
+        .then(async (reports) => {
+          const reportId = parseInt(id ?? '0');
+          if (reportId) {
+            const report = reports.find((r) => r.id === reportId);
+            if (report) {
+              setReport(toForm(report));
+            }
+          }
+        })
+        .catch(() => {});
     }
     // Only do this on init.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Case 2: Some report data loaded in store, check if current report is present
+  // if it is, set it to that report, if not, try to fetch it
   React.useEffect(() => {
     const reportId = parseInt(id ?? '0');
-    if (reportId)
-      getReport(reportId)
-        .then((result) => {
-          if (result) {
-            setReport(toForm(result));
-          }
-        })
-        .catch(() => {});
+    if (!!reportId && myReports.length) {
+      const existingReport = myReports.find((r) => r.id === reportId);
+      if (existingReport) {
+        setReport(toForm(existingReport));
+      } else {
+        getReport(reportId, true)
+          .then(async (report) => {
+            if (report) {
+              setReport(toForm(report));
+            }
+          })
+          .catch(() => {});
+      }
+    }
     // Only make a request when 'id' changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
