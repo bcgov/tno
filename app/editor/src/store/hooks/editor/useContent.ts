@@ -31,7 +31,6 @@ interface IContentController {
   addContent: (content: IContentModel) => Promise<IContentModel>;
   updateContent: (content: IContentModel) => Promise<IContentModel>;
   updateContentList: (content: IContentListModel) => Promise<IContentModel[]>;
-  getContentMaxTopicScore: (id: number) => Promise<number | undefined>;
   updateContentTopics: (id: number, topics?: IContentTopicModel[]) => Promise<IContentTopicModel[]>;
   deleteContent: (content: IContentModel) => Promise<IContentModel>;
   publishContent: (content: IContentModel) => Promise<IContentModel>;
@@ -121,13 +120,6 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
             break;
         }
         return response.data;
-      },
-      getContentMaxTopicScore: async (id: number) => {
-        return (
-          await dispatch<number | undefined>('get-content-max-topic-score', () =>
-            api.getContentMaxTopicScore(id),
-          )
-        ).data;
       },
       updateContentTopics: async (id: number, topics?: IContentTopicModel[]) => {
         const response = await dispatch(
