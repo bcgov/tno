@@ -81,6 +81,8 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
   React.useEffect(() => {
     // remove [ and ] and everything in between from query
     const newQuery = query.replace(/\[.*?\]/g, '');
+    // this can occur when the user is deleting characters in the query
+    if (newQuery.includes('[') || newQuery.includes(']')) return;
     storeSearchFilter({ ...search, search: newQuery });
     // only update when query changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
