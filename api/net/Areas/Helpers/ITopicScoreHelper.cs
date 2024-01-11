@@ -12,13 +12,13 @@ namespace TNO.API.Helpers
         /// Calculate the Topic score for a piece of content and update the Topics
         /// </summary>
         /// <param name="content"></param>
-        void SetContentScore(ref Content content);
+        void SetContentScore(Content content);
 
         /// <summary>
         /// Calculate the Topic score for a piece of content and update the Topics
         /// </summary>
         /// <param name="contentModel"></param>
-        void SetContentScore(ref ContentModel contentModel);
+        void SetContentScore(ContentModel contentModel);
 
         /// <summary>
         /// Calculates the score for a piece of content

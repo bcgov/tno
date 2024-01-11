@@ -35,7 +35,7 @@ namespace TNO.API.Helpers
         #region Methods
 
         /// <inheritdoc/>
-        public void SetContentScore(ref Content content)
+        public void SetContentScore(Content content)
         {
             var topicScore = GetScore(content.PublishedOn?.TimeOfDay, content.SourceId, content.Body.Length, content.Section, content.Page, content.SeriesId);
             if (topicScore != null)
@@ -58,7 +58,7 @@ namespace TNO.API.Helpers
         }
 
         /// <inheritdoc/>
-        public void SetContentScore(ref ContentModel model)
+        public void SetContentScore(ContentModel model)
         {
             var topicScore = GetScore(_topicScoreRuleService.FindAll(), model.PublishedOn?.TimeOfDay, model.SourceId, model.Body.Length, model.Section, model.Page, model.SeriesId);
             if (topicScore != null) {
