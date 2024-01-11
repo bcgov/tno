@@ -23,7 +23,7 @@ export const ReportEdit = styled.div`
   .sections {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.5rem;
     padding-top: 1rem;
 
     .content-row {
@@ -37,6 +37,11 @@ export const ReportEdit = styled.div`
       .frm-in {
         padding-bottom: 0;
       }
+    }
+
+    .section {
+      border-left: solid 1px ${(props) => props.theme.css.lineTertiaryColor};
+      border-right: solid 1px ${(props) => props.theme.css.lineTertiaryColor};
     }
   }
 

@@ -9,6 +9,10 @@ export const ReportAdmin = styled.div`
     margin-top: 0;
   }
 
+  .tab-container {
+    padding-top: 0.5rem;
+  }
+
   .tab.report-name {
     display: flex;
     flex-direction: row;
@@ -23,7 +27,7 @@ export const ReportAdmin = styled.div`
 
   .section-bar {
     align-items: center;
-    margin: 0.5rem 0;
+    margin-bottom: 0.5rem;
     padding: 0.5rem;
     background: ${(props) => props.theme.css.bkTertiary};
     border: solid 1px ${(props) => props.theme.css.iconPrimaryColor};
@@ -124,5 +128,10 @@ export const ReportAdmin = styled.div`
     > div {
       background: ${(props) => props.theme.css.highlightSecondary};
     }
+  }
+
+  .section {
+    border-left: solid 1px ${(props) => props.theme.css.lineTertiaryColor};
+    border-right: solid 1px ${(props) => props.theme.css.lineTertiaryColor};
   }
 `;

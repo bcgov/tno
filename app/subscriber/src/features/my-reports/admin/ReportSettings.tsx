@@ -1,9 +1,9 @@
-import { Box } from 'components/box';
 import { Button } from 'components/button';
+import { Section } from 'components/section';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaSyncAlt } from 'react-icons/fa';
-import { FaFileInvoice } from 'react-icons/fa6';
+import { FaChartSimple, FaClock } from 'react-icons/fa6';
 import { useReports } from 'store/hooks';
 import {
   Col,
@@ -36,7 +36,7 @@ export const ReportSettings: React.FC = () => {
 
   return (
     <Col gap="1rem">
-      <Box title="Content Settings" icon={<FaFileInvoice />}>
+      <Section label="Content Settings" icon={<FaChartSimple />} open showOpen={false}>
         <Row gap="1rem">
           <Col flex="1">
             <Col className="frm-in">
@@ -119,8 +119,9 @@ export const ReportSettings: React.FC = () => {
             />
           </Col>
         </Row>
-      </Box>
-      <Box title="Sending Options" icon={<FaFileInvoice />}>
+      </Section>
+
+      <Section label="Sending Options - Automatic Reports" icon={<FaClock />} open showOpen={false}>
         <Row alignItems="center">
           <Col flex="1">
             <FormikText name="settings.subject.text" label="Email subject line:" required />
@@ -141,7 +142,7 @@ export const ReportSettings: React.FC = () => {
             </Col>
           </Row>
         </Col>
-      </Box>
+      </Section>
     </Col>
   );
 };
