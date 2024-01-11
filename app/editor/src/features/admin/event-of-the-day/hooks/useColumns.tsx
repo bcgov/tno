@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useContent, useLookup } from 'store/hooks';
+import { useLookup } from 'store/hooks';
 import {
   CellDate,
   FieldSize,
@@ -180,7 +180,7 @@ export const useColumns = (
                   {cell.original!.maxTopicScore}
                 </dfn>
               </Show>
-              <Show visible={cell.original!.maxTopicScore == undefined}>
+              <Show visible={cell.original!.maxTopicScore === undefined}>
                 <dfn title="no rule match" className="score-max-no-rule-match">
                   {maxTopicScore}
                 </dfn>

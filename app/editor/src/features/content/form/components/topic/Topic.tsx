@@ -22,7 +22,7 @@ export interface ITopicProps {}
  */
 export const Topic: React.FC<ITopicProps> = () => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
-  const [{ topics, rules }] = useLookup();
+  const [{ topics }] = useLookup();
 
   const [topicOptions, setTopicOptions] = React.useState<IOptionItem[]>([]);
 
