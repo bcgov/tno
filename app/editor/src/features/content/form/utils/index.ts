@@ -1,4 +1,3 @@
-export * from './calcTopicScore';
 export * from './formatTime';
 export * from './getContentPath';
 export * from './getDefaultCommentaryExpiryValue';

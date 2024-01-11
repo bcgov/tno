@@ -46,6 +46,7 @@ public class ContentController : ControllerBase
     private readonly IUserService _userService;
     private readonly ITagService _tagService;
     private readonly ITopicService _topicService;
+    private readonly ITopicScoreHelper _topicScoreHelper;
     private readonly IWorkOrderHelper _workOrderHelper;
     private readonly StorageOptions _storageOptions;
     private readonly IKafkaMessenger _kafkaMessenger;
@@ -64,6 +65,7 @@ public class ContentController : ControllerBase
     /// <param name="userService"></param>
     /// <param name="tagService"></param>
     /// <param name="topicService"></param>
+    /// <param name="topicScoreHelper"></param>
     /// <param name="workOrderHelper"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
@@ -77,8 +79,9 @@ public class ContentController : ControllerBase
         IUserService userService,
         ITagService tagService,
         ITopicService topicService,
-        IKafkaMessenger kafkaMessenger,
+        ITopicScoreHelper topicScoreHelper,
         IWorkOrderHelper workOrderHelper,
+        IKafkaMessenger kafkaMessenger,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<KafkaHubConfig> kafkaHubOptions,
         IOptions<StorageOptions> storageOptions,
@@ -90,6 +93,7 @@ public class ContentController : ControllerBase
         _userService = userService;
         _tagService = tagService;
         _topicService = topicService;
+        _topicScoreHelper = topicScoreHelper;
         _workOrderHelper = workOrderHelper;
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
@@ -176,6 +180,8 @@ public class ContentController : ControllerBase
             tag.Id = result.Id;
         }
 
+        _topicScoreHelper.SetContentScore(ref model);
+        
         var content = _contentService.AddAndSave((Content)model);
 
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentAdded, new[] { new ContentMessageModel(content) })));
