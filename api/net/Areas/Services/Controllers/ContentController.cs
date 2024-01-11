@@ -46,7 +46,7 @@ public class ContentController : ControllerBase
     private readonly IUserService _userService;
     private readonly ITagService _tagService;
     private readonly ITopicService _topicService;
-    private readonly ITopicScoreRuleService _topicScoreRuleService;
+    private readonly ITopicScoreHelper _topicScoreHelper;
     private readonly IWorkOrderHelper _workOrderHelper;
     private readonly StorageOptions _storageOptions;
     private readonly IKafkaMessenger _kafkaMessenger;
@@ -65,7 +65,7 @@ public class ContentController : ControllerBase
     /// <param name="userService"></param>
     /// <param name="tagService"></param>
     /// <param name="topicService"></param>
-    /// <param name="topicScoreRuleService"></param>
+    /// <param name="topicScoreHelper"></param>
     /// <param name="workOrderHelper"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
@@ -79,9 +79,9 @@ public class ContentController : ControllerBase
         IUserService userService,
         ITagService tagService,
         ITopicService topicService,
-        ITopicScoreRuleService topicScoreRuleService,
-        IKafkaMessenger kafkaMessenger,
+        ITopicScoreHelper topicScoreHelper,
         IWorkOrderHelper workOrderHelper,
+        IKafkaMessenger kafkaMessenger,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<KafkaHubConfig> kafkaHubOptions,
         IOptions<StorageOptions> storageOptions,
@@ -93,7 +93,7 @@ public class ContentController : ControllerBase
         _userService = userService;
         _tagService = tagService;
         _topicService = topicService;
-        _topicScoreRuleService = topicScoreRuleService;
+        _topicScoreHelper = topicScoreHelper;
         _workOrderHelper = workOrderHelper;
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
@@ -180,21 +180,8 @@ public class ContentController : ControllerBase
             tag.Id = result.Id;
         }
 
-        var topicScore = TopicScoreHelper.GetScore(_topicScoreRuleService.FindAll(), model.PublishedOn?.TimeOfDay, model.SourceId, model.Body.Length, model.Section, model.Page, model.SeriesId);
-        if (topicScore != null) {
-            if(!model.Topics.Any()) {
-                // retrieve the magic placeholder Topic and use that
-                const int defaultTopicId = 1;
-                Entities.Topic? defaultTopic = _topicService.FindById(defaultTopicId);
-                if (defaultTopic != null)
-                    model.Topics = new[] { new ContentTopicModel { ContentId = 0, Id = defaultTopic.Id, Name = defaultTopic.Name, TopicType = defaultTopic.TopicType, Score = topicScore.Value } };
-                else
-                    _logger.LogWarning($"Couldn't retrieve default Topic with ID: [{defaultTopicId}] for Event of the day. Score will not be set on content.");
-            } else {
-                model.Topics.First().Score = topicScore.Value;
-            }
-        }
-
+        _topicScoreHelper.SetContentScore(ref model);
+        
         var content = _contentService.AddAndSave((Content)model);
 
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentAdded, new[] { new ContentMessageModel(content) })));

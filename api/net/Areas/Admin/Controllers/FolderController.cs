@@ -31,6 +31,7 @@ public class FolderController : ControllerBase
     #region Variables
     private readonly IFolderService _folderService;
     private readonly ITopicScoreRuleService _topicScoreRuleService;
+    private readonly ITopicScoreHelper _topicScoreHelper;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -40,14 +41,17 @@ public class FolderController : ControllerBase
     /// </summary>
     /// <param name="folderService"></param>
     /// <param name="topicScoreRuleService"></param>
+    /// <param name="topicScoreHelper"></param>
     /// <param name="serializerOptions"></param>
     public FolderController(
         IFolderService folderService,
         ITopicScoreRuleService topicScoreRuleService,
+        ITopicScoreHelper topicScoreHelper,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _folderService = folderService;
         _topicScoreRuleService = topicScoreRuleService;
+        _topicScoreHelper = topicScoreHelper;
 
         _serializerOptions = serializerOptions.Value;
     }
@@ -102,7 +106,7 @@ public class FolderController : ControllerBase
         {
             var topicScoreRules = _topicScoreRuleService.FindAll();
             return new JsonResult(result.Select(f => new FolderContentModel(f) {
-                 MaxTopicScore = TopicScoreHelper.GetScore(topicScoreRules, f.Content!.PublishedOn!.Value.TimeOfDay, f.Content.SourceId, f.Content.Body.Length, f.Content.Section, f.Content.Page, f.Content.SeriesId) 
+                 MaxTopicScore = _topicScoreHelper.GetScore(topicScoreRules, f.Content!.PublishedOn!.Value.TimeOfDay, f.Content.SourceId, f.Content.Body.Length, f.Content.Section, f.Content.Page, f.Content.SeriesId) 
                }));
         }
         else
