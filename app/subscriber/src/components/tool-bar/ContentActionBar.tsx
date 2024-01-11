@@ -6,6 +6,7 @@ import { Checkbox, IContentModel, Row, Show } from 'tno-core';
 
 import { AddToFolderMenu } from './AddToFolderMenu';
 import { AddToReportMenu } from './AddToReportMenu';
+import { RemoveFromFolder } from './RemoveFromFolder';
 import * as styled from './styled';
 
 export interface IContentActionBarProps {
@@ -19,13 +20,17 @@ export interface IContentActionBarProps {
   onBack?: () => void;
   /** Event fires when select all checkbox is changed */
   onSelectAll?: React.ChangeEventHandler<HTMLInputElement>;
+  /** Whether to show remove from folder button */
+  removeFolderItem?: Function;
 }
+
 export const ContentActionBar: React.FC<IContentActionBarProps> = ({
   className,
   content,
   showBackButton,
   onBack,
   onSelectAll,
+  removeFolderItem,
 }) => {
   const navigate = useNavigate();
 
@@ -53,6 +58,7 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
           <ShareMenu content={content} />
           <AddToFolderMenu content={content} />
           <AddToReportMenu content={content} />
+          {!!removeFolderItem && <RemoveFromFolder onClick={removeFolderItem} />}
         </Row>
       </div>
     </styled.ContentActionBar>
