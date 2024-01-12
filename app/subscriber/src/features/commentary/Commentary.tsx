@@ -2,6 +2,7 @@ import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
+import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { useContent, useLookup, useNavigateAndScroll } from 'store/hooks';
@@ -12,7 +13,7 @@ import { DetermineContentIcon, isWeekday } from './utils';
 
 export const Commentary: React.FC = () => {
   const [, { findContentWithElasticsearch }] = useContent();
-  const [commentary, setCommentary] = React.useState<IContentModel[]>();
+  const [commentary, setCommentary] = React.useState<IContentSearchResult[]>();
   const navigateAndScroll = useNavigateAndScroll();
   const [{ actions }] = useLookup();
 

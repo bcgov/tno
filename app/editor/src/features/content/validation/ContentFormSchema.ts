@@ -1,4 +1,4 @@
-import { ContentTypeName } from 'tno-core';
+import { ContentStatusName, ContentTypeName } from 'tno-core';
 import { array, date, number, object, string } from 'yup';
 
 import { IContentForm } from '../form/interfaces';
@@ -13,16 +13,20 @@ export const ContentFormSchema = object<IContentForm>().shape(
         return number().required('Either source or other source is required.');
       return number();
     }),
-    efforts: string().when('contentType', (value: string[]) => {
-      if (value[0] === ContentTypeName.AudioVideo) {
-        return number().when('efforts', (efforts: number[]) => {
-          if (!efforts[0] || efforts[0] <= 0) {
-            return number().moreThan(0, 'Total minutes are required.');
-          }
-          return number();
-        });
+    prep: string().test('timeTrackings', 'Prep time is required', (value, context) => {
+      const parent: IContentForm = context.parent;
+      if (
+        parent.contentType === ContentTypeName.AudioVideo &&
+        parent.status !== ContentStatusName.Draft
+      ) {
+        const totalEffort = parent.timeTrackings.reduce(
+          (result, entry) => result + entry.effort,
+          0,
+        );
+        if (!totalEffort || !parent.timeTrackings.some((entry) => entry.id === 0))
+          return context.createError({ message: 'Prep time is required' });
       }
-      return number();
+      return context.resolve(true);
     }),
     tempSource: string().when('sourceId', (value: string[]) => {
       if (value[0] === undefined)

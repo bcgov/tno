@@ -615,7 +615,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         };
 
         var response = await this.Ches.SendEmailAsync(merge);
-        this.Logger.LogInformation("Report sent to CHES.  Report: {report}", request.ReportId);
+        this.Logger.LogInformation("Report sent to CHES.  Report: {report}:{instance}", request.ReportId, request.ReportInstanceId);
 
         return response;
     }

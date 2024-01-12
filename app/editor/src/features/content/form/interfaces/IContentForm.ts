@@ -1,62 +1,30 @@
-import {
-  ContentStatusName,
-  ContentTypeName,
-  IContentActionModel,
-  IContentLabelModel,
-  IContentLinkModel,
-  IContentTagModel,
-  IContentTonePoolModel,
-  IContentTopicModel,
-  IFileReferenceModel,
-  IMediaTypeModel,
-  ITimeTrackingModel,
-  IUserModel,
-  IWorkOrderModel,
-} from 'tno-core';
+import { IContentModel, IWorkOrderModel } from 'tno-core';
 
-export interface IContentForm {
-  id: number;
+export interface IContentForm
+  extends Omit<
+    IContentModel,
+    | 'otherSeries'
+    | 'sourceId'
+    | 'otherSource'
+    | 'seriesId'
+    | 'contributorId'
+    | 'ownerId'
+    | 'uid'
+    | 'sourceUrl'
+  > {
+  otherSeries: string | '';
+  sourceId: number | '';
+  otherSource: string | '';
+  tempSource: string;
+  seriesId: number | '';
+  contributorId: number | '';
+  ownerId: number | '';
   uid: string;
   sourceUrl: string;
-  headline: string;
-  status: ContentStatusName;
-  contentType: ContentTypeName;
-  ownerId: number | '';
-  owner?: IUserModel;
-  mediaTypeId: number;
-  mediaType?: IMediaTypeModel;
-  licenseId: number;
-  sourceId?: number;
-  otherSource: string;
-  tempSource: string;
-  seriesId?: number;
-  contributorId?: number;
-  otherSeries: string;
-  page: string;
-  summary: string;
-  body: string;
-  isHidden: boolean;
-  isApproved: boolean;
-  isPrivate: boolean;
-  actions: IContentActionModel[];
-  topics: IContentTopicModel[];
-  tags: IContentTagModel[];
-  labels: IContentLabelModel[];
-  tonePools: IContentTonePoolModel[];
-  timeTrackings: ITimeTrackingModel[];
-  fileReferences: IFileReferenceModel[];
-  file?: File | null;
-  links: IContentLinkModel[];
   workOrders: IWorkOrderModel[];
-  postedOn?: string;
-  publishedOn: string;
   publishedOnTime: string;
-  version?: number;
+  file?: File | null;
+  prep?: number;
   // Print Content
-  section: string;
-  edition: string;
-  byline: string;
   showOther?: boolean;
-
-  createdOn?: string | Date;
 }

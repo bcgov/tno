@@ -16,7 +16,6 @@ import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
 import { toForm } from '../utils';
 import { ReportSettings } from './ReportSettings';
-import { ReportSubscribers } from './ReportSubscribers';
 import { ReportTemplate } from './ReportTemplate';
 import * as styled from './styled';
 import { ReportFormSchema } from './validation/ReportFormSchema';
@@ -63,12 +62,6 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
         label: <Action label="Settings" />,
         validateOnChange: true,
         validationSchema: ReportFormSettingsSchema,
-      },
-      {
-        key: 'subscribers',
-        to: `/reports/${id}/subscribers`,
-        label: <Action label="Subscribers" />,
-        validateOnChange: true,
       },
     ],
     [id, report.name],
@@ -237,7 +230,6 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
                 <FormikTabs tabs={tabs} activeTab={path}>
                   {(tab) => {
                     if (tab?.key === 'settings') return <ReportSettings />;
-                    else if (tab?.key === 'subscribers') return <ReportSubscribers />;
                     return <ReportTemplate onChange={(values) => setReport(values)} />;
                   }}
                 </FormikTabs>

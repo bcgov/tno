@@ -1,9 +1,9 @@
-export interface ITimeTrackingModel {
+import { IAuditColumnsModel } from './IAuditColumnsModel';
+
+export interface ITimeTrackingModel extends IAuditColumnsModel {
+  id: number;
+  contentId: number;
   userId: number;
-  contentId?: number;
-  effort: string;
+  effort: number;
   activity: string;
-  userName?: string;
-  createdOn?: any;
-  id?: number;
 }

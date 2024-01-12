@@ -160,6 +160,7 @@ export const Select = <OptionType extends IOptionItem>({
       </div>
       {!rest.isDisabled && (
         <input
+          name={`select-${name}`}
           ref={inputRef}
           tabIndex={-1}
           autoComplete="off"

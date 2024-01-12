@@ -1,5 +1,6 @@
 import { Sentiment } from 'components/sentiment';
-import { ContentTypeName, IContentModel, ITableHookColumn } from 'tno-core';
+import { IContentSearchResult } from 'features/utils/interfaces';
+import { ContentTypeName, ITableHookColumn } from 'tno-core';
 
 export const determineColumns = (
   contentType: ContentTypeName | 'all',
@@ -25,7 +26,7 @@ export const determineColumns = (
     return `${fullText.substring(0, 220)} ...`;
   };
   // columns common to all content
-  const baseCols: ITableHookColumn<IContentModel>[] = [
+  const baseCols: ITableHookColumn<IContentSearchResult>[] = [
     {
       accessor: 'tone',
       label: 'TONE',
@@ -63,7 +64,7 @@ export const determineColumns = (
     },
   ];
   // columns specific to print content
-  const printCols: ITableHookColumn<IContentModel>[] = [
+  const printCols: ITableHookColumn<IContentSearchResult>[] = [
     {
       accessor: 'sectionPage',
       label: 'SECTION PAGE',

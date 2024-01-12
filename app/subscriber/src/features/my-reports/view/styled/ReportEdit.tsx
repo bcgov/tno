@@ -79,4 +79,28 @@ export const ReportEdit = styled.div`
       }
     }
   }
+
+  .subscribers {
+    padding: 1rem 0;
+    gap: 0.25rem;
+
+    .header {
+      padding: 0.25rem;
+      gap: 1rem;
+      color: ${(props) => props.theme.css.fPrimaryColor};
+
+      font-weight: 600;
+      border-bottom: 2px solid ${(props) => props.theme.css.lineTertiaryColor};
+    }
+
+    .row {
+      padding: 0.25rem;
+      gap: 1rem;
+      color: ${(props) => props.theme.css.fPrimaryColor};
+
+      &:nth-child(even) {
+        background: ${(props) => props.theme.css.highlightSecondary};
+      }
+    }
+  }
 `;

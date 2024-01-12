@@ -10604,7 +10604,7 @@ __metadata:
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
     styled-components: 5.3.9
-    tno-core: 0.1.10
+    tno-core: 0.1.11
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -13010,7 +13010,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-select@npm:5.8.0":
+"react-select@npm:5.8.0, react-select@npm:^5.8.0":
   version: 5.8.0
   resolution: "react-select@npm:5.8.0"
   dependencies:
@@ -13027,26 +13027,6 @@ __metadata:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
   checksum: c8398cc0aefb5ee5438b6176c86676e2d3fed7457c16b0769f423a0da0ae431a7df25c2cadf13b709700882b8ebd80a58b1e557fec3e22ad3cbf60164ca9e745
-  languageName: node
-  linkType: hard
-
-"react-select@npm:^5.7.0":
-  version: 5.7.0
-  resolution: "react-select@npm:5.7.0"
-  dependencies:
-    "@babel/runtime": ^7.12.0
-    "@emotion/cache": ^11.4.0
-    "@emotion/react": ^11.8.1
-    "@floating-ui/dom": ^1.0.1
-    "@types/react-transition-group": ^4.4.0
-    memoize-one: ^6.0.0
-    prop-types: ^15.6.0
-    react-transition-group: ^4.3.0
-    use-isomorphic-layout-effect: ^1.1.2
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: 3d29f7bb6dd66ad55396d820f05da6112f1d21b67526422a8ff5aa6cd47c783804c1b73042ac2949ba0871056a3dc68c06a73a8281abb61571e475d72bbd80dc
   languageName: node
   linkType: hard
 
@@ -14723,9 +14703,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.1.10":
-  version: 0.1.10
-  resolution: "tno-core@npm:0.1.10"
+"tno-core@npm:0.1.11":
+  version: 0.1.11
+  resolution: "tno-core@npm:0.1.11"
   dependencies:
     "@elastic/elasticsearch": ^8.10.0
     "@fortawesome/free-solid-svg-icons": ^6.4.2
@@ -14750,14 +14730,14 @@ __metadata:
     react-inlinesvg: ^3.0.2
     react-quill: ^2.0.0
     react-router-dom: ^6.9.0
-    react-select: ^5.7.0
+    react-select: ^5.8.0
     react-table: ^7.8.0
     react-text-mask: ^5.5.0
     react-toastify: ^9.1.1
     react-tooltip: ^5.10.0
     styled-components: ^5.3.9
     yup: ^1.1.1
-  checksum: abff2e4aeb123f9268e9e4e4d1ace866c24109afdf64aa36820f98cfbf775fa4276b220f30e8d7047b90cec5a007da24efe2297cee53091ea7bf02232682e048
+  checksum: 388c74a10980ac3f7f72ef44dd301344d9be3dc13f2be74be3e818641537bdc2b537a287bee805a8d6e66f237f3594f5a9193aff3ef00303ffcb441f0557950b
   languageName: node
   linkType: hard
 

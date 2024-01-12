@@ -3,6 +3,7 @@ import { ContentListActionBar } from 'components/tool-bar';
 import { determineColumns } from 'features/home/constants';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
+import { IContentSearchResult } from 'features/utils/interfaces';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent, useLookup } from 'store/hooks';
@@ -21,7 +22,7 @@ export const TopStories: React.FC = () => {
   const navigate = useNavigate();
   const [{ actions }] = useLookup();
 
-  const [content, setContent] = React.useState<IContentModel[]>([]);
+  const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
   const selectedIds = selected.map((i) => i.id.toString());
@@ -53,7 +54,7 @@ export const TopStories: React.FC = () => {
   }, [filter, actions]);
 
   /** controls the checking and unchecking of rows in the list view */
-  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
+  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentSearchResult>) => {
     if (row.isSelected) {
       setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
     } else {

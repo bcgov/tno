@@ -1,6 +1,7 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
 import { determineColumns } from 'features/home/constants';
+import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React, { useMemo } from 'react';
 import { FiRefreshCcw } from 'react-icons/fi';
@@ -34,7 +35,7 @@ export const FilterMedia: React.FC = () => {
     });
   }, [sources]);
 
-  const [results, setResults] = React.useState<IContentModel[]>([]);
+  const [results, setResults] = React.useState<IContentSearchResult[]>([]);
 
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {

@@ -20,4 +20,13 @@ export const defaultContent: IContentModel = {
   isHidden: false,
   isApproved: true,
   isPrivate: true,
+  actions: [],
+  tags: [],
+  labels: [],
+  topics: [],
+  tonePools: [],
+  timeTrackings: [],
+  fileReferences: [],
+  links: [],
+  versions: {},
 };

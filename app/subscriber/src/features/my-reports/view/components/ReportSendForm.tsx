@@ -1,4 +1,5 @@
 import { Button } from 'components/button';
+import { Section } from 'components/section';
 import { IReportForm } from 'features/my-reports/interfaces';
 import { calcNextSend, getLastSent } from 'features/my-reports/utils';
 import { useFormikContext } from 'formik';
@@ -13,7 +14,6 @@ import {
   Modal,
   ReportStatusName,
   Row,
-  Section,
   Show,
   Spinner,
   Text,
@@ -61,12 +61,45 @@ export const ReportSendForm: React.FC = () => {
 
   return (
     <Col className="report-send">
+      {isAdmin && (
+        <Col>
+          <Section showOpen label="Test">
+            <Row>
+              <Col flex="1">
+                <p>
+                  Sending a report to a specific email address does not register the 'Last sent'
+                  date. Only use this for testing.
+                </p>
+              </Col>
+              <Col flex="2">
+                <Row justifyContent="center" alignItems="center">
+                  <Text
+                    label="Send to:"
+                    name="email"
+                    value={to}
+                    onChange={(e) => setTo(e.target.value)}
+                    width="400px"
+                    type="email"
+                  />
+                  <Button
+                    disabled={isSubmitting || !to.length || !validateEmail(to)}
+                    onClick={() => !!instanceId && handleSend(instanceId, to)}
+                  >
+                    Send email
+                    <FaTelegramPlane />
+                  </Button>
+                </Row>
+              </Col>
+            </Row>
+          </Section>
+        </Col>
+      )}
       <Row>
         {values.events.some((e) => e.isEnabled) && (
-          <Col>
-            <div>
-              <FaRegCalendarDays />
-            </div>
+          <Row gap="1rem">
+            <Col>
+              <FaRegCalendarDays className="" />
+            </Col>
             <Col>
               <Row gap="1rem" className="fs1">
                 <label className="b7">Last sent:</label>
@@ -77,7 +110,7 @@ export const ReportSendForm: React.FC = () => {
                 <span>{calcNextSend(values)}</span>
               </Row>
             </Col>
-          </Col>
+          </Row>
         )}
         <Col flex="1" alignContent="center" justifyContent="center">
           <Button
@@ -96,33 +129,28 @@ export const ReportSendForm: React.FC = () => {
           </Col>
         </Show>
       </Row>
-      {isAdmin && (
-        <Col>
-          <Section>
-            <p>
-              Sending a report to a specific email address does not register the 'Last sent' date.
-              Only use this for testing.
-            </p>
-            <Row justifyContent="center">
-              <Text
-                label="Send to:"
-                name="email"
-                value={to}
-                onChange={(e) => setTo(e.target.value)}
-                width="400px"
-                type="email"
-              />
-              <Button
-                disabled={isSubmitting || !to.length || !validateEmail(to)}
-                onClick={() => !!instanceId && handleSend(instanceId, to)}
-              >
-                Send email
-                <FaTelegramPlane />
-              </Button>
-            </Row>
-          </Section>
-        </Col>
-      )}
+      <Col className="subscribers">
+        <Row className="header">
+          <Col flex="1">Username</Col>
+          <Col flex="1">LastName</Col>
+          <Col flex="1">FirstName</Col>
+          <Col flex="2">Email</Col>
+          <Col flex="1">Format</Col>
+        </Row>
+        {values.subscribers
+          .filter((s) => s.isSubscribed)
+          .map((sub) => {
+            return (
+              <Row key={sub.id} className="row">
+                <Col flex="1">{sub.username}</Col>
+                <Col flex="1">{sub.lastName}</Col>
+                <Col flex="1">{sub.firstName}</Col>
+                <Col flex="2">{sub.email}</Col>
+                <Col flex="1">{sub.format}</Col>
+              </Row>
+            );
+          })}
+      </Col>
       <Modal
         headerText="Send Report to Subscribers"
         body={`Do you want to send an email to the subscribers of this report? ${
