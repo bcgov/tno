@@ -55,7 +55,6 @@ export const ReportEdit: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [report]);
 
-  // Case 1: No report data in store; fetch all reports & set to report matching id in path
   React.useEffect(() => {
     if (!myReports?.length) {
       findMyReports()
@@ -74,16 +73,21 @@ export const ReportEdit: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Case 2: Some report data loaded in store, check if current report is present
-  // AND has content, if so, set it to that report, if not, fetch report w/ content
   React.useEffect(() => {
     const reportId = parseInt(id ?? '0');
     if (!!reportId && myReports?.length) {
       const existingReport = myReports.find((r) => r.id === reportId);
       const hasFetchedContent = existingReport?.instances.some((r) => r.content?.length);
       if (existingReport && hasFetchedContent) {
+        // Case 1: Complete data: do nothing
+        // We have existing report & it has instance content loaded already
         setReport(toForm(existingReport));
+      } else if (existingReport && !hasFetchedContent) {
+        // Case 2: Partial Data: call generateReport to get missing data
+        // We have existing report loaded, but no content present in instance data
+        setReport(toForm({ ...existingReport, instances: [] }));
       } else {
+        // Case 3: No report data present, fetch entire report + instance + content data
         getReport(reportId, true)
           .then(async (report) => {
             if (report) {
