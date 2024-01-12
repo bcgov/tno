@@ -118,5 +118,12 @@ export const useColumns = ({ fetch }: IColumnProps): ITableHookColumn<IContentSe
       width: '55px',
       cell: (cell) => <Status value={cell.original.status} />,
     },
+    {
+      accessor: 'transcript',
+      label: 'Transcript',
+      hAlign: 'center',
+      width: '155px',
+      cell: (cell) => <div>{cell.original.transcriptStatus}</div>,
+    },
   ];
 };

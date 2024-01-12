@@ -1,7 +1,7 @@
 import { NavigateOptions, useTab } from 'components/tab-control';
 import React, { lazy } from 'react';
 import { useParams } from 'react-router-dom';
-import { useApiHub, useApp, useContent } from 'store/hooks';
+import { useApiHub, useApp, useContent, useWorkOrders } from 'store/hooks';
 import { IContentSearchResult, useContentStore } from 'store/slices';
 import { castContentToSearchResult } from 'store/slices/content/utils';
 import {
@@ -55,6 +55,8 @@ const ContentListView: React.FC = () => {
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
   const [isLoading, setIsLoading] = React.useState(false);
 
+  const [{ transcriptFilter: woFilter }, { findWorkOrders }] = useWorkOrders();
+
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
     if (!!window.location.search) {
@@ -82,6 +84,8 @@ const ContentListView: React.FC = () => {
 
   const onWorkOrder = React.useCallback(
     (workOrder: IWorkOrderMessageModel) => {
+      // eslint-disable-next-line no-console
+      console.log('tes ACVDDF');
       if (
         [WorkOrderTypeName.Transcription, WorkOrderTypeName.NaturalLanguageProcess].includes(
           workOrder.workType,
@@ -142,10 +146,20 @@ const ContentListView: React.FC = () => {
         if (!isLoading) {
           setIsLoading(true);
           const result = await findContentWithElasticsearch(toFilter(filter), true);
-          const items = result.hits?.hits?.map((h) =>
-            castContentToSearchResult(h._source as IContentModel),
-          );
+          const items = result.hits?.hits
+            ?.map((h) => castContentToSearchResult(h._source as IContentModel))
+            .map((m) => {
+              let v = { ...m };
+              v.headline = '123';
+              return v;
+            });
+          // const response = await findWorkOrders(woFilter);
+          // response.data.items.forEach((i) => {
+          //   items[0].transcriptStatus = i.status;
+          // });
           const page = new Page(1, filter.pageSize, items, result.hits?.total as number);
+          // eslint-disable-next-line no-console
+          console.log('WORDERS', items, page);
           return page;
         }
       } catch {

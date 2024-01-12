@@ -24,4 +24,5 @@ export interface IContentSearchResult {
   // React-Table Properties
   // TODO: Should not be part of the API interface.
   isSelected?: boolean;
+  transcriptStatus?: string;
 }
