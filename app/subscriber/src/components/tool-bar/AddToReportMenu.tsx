@@ -17,11 +17,14 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
   const [{ myReports }] = useProfileStore();
   const [activeReport, setActiveReport] = React.useState<IReportModel>();
   const [reportId, setReportId] = React.useState<number | null>(null);
+
   React.useEffect(() => {
-    if (!myReports.length) {
+    // Only load myReports if content is ready, avoids double-fetch
+    // since this entire component is re-rendered anytime content changes
+    if (!myReports.length && content?.length) {
       findMyReports().catch(() => {});
     }
-    // Only do this on init.
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
