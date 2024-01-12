@@ -29,6 +29,8 @@ export const Settings = {
   DefaultReportTemplate: 'DefaultReportTemplateId',
   /** The folder ID used for event of the day content. */
   EventOfTheDayFolder: 'EventOfTheDayFolderId',
+  /** The report ID used for the Event of the Day. */
+  EventOfTheDayReport: 'EventOfTheDayReportId',
   /** The front page image media type ID */
   FrontPageImageMediaType: 'FrontPageImageMediaTypeId',
   /** Media types that displays a new window on search results */

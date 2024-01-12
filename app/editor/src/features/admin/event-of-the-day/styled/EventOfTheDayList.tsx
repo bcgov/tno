@@ -20,10 +20,22 @@ export const EventOfTheDayList = styled.div`
     padding: 0.5em 0.5em 0 0.5em;
   }
 
-  .list-title {
-    padding-left: 7px;
-    font-size: 20px;
-    font-weight: bold;
+  .page-header {
+    margin-bottom: 1rem;
+    .list-title {
+      padding-left: 7px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .buttons {
+      margin-left: auto;
+      display: flex;
+      gap: 0.5rem;
+      .icon {
+        align-self: center;
+        margin-left: 0.5rem;
+      }
+    }
   }
 
   .row {
