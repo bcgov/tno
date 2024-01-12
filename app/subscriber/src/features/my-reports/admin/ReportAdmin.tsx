@@ -129,7 +129,7 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
       if (existingReport) {
         setReport(toForm(existingReport));
       } else {
-        getReport(reportId, true)
+        getReport(reportId)
           .then(async (report) => {
             if (report) {
               setReport(toForm(report));

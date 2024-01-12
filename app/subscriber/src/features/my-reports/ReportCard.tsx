@@ -14,6 +14,7 @@ import {
 } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { useApp, useReports } from 'store/hooks';
+import { useProfileStore } from 'store/slices';
 import { Col, IReportModel, ReportSectionTypeName, Row, Spinner } from 'tno-core';
 
 import { calcNextSend, getLastSent } from './utils';
@@ -34,6 +35,7 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => 
   const navigate = useNavigate();
   const [{ getReport }] = useReports();
   const [{ requests }] = useApp();
+  const [{ myReports }] = useProfileStore();
 
   const fetchReport = React.useCallback(
     async (id: number) => {
@@ -73,7 +75,13 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => 
           />
         </>
       }
-      onChange={(open) => open && fetchReport(report.id)}
+      onChange={(open) => {
+        const existingReport = myReports.find((r) => r.id === report.id);
+        // only need to fetch if we have fetched prior data but it is missing report instance data
+        if (open && !existingReport?.instances?.length) {
+          fetchReport(report.id);
+        }
+      }}
     >
       <Row>
         <Col gap="1rem" flex="1">

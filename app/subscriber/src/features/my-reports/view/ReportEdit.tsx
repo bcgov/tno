@@ -75,12 +75,13 @@ export const ReportEdit: React.FC = () => {
   }, []);
 
   // Case 2: Some report data loaded in store, check if current report is present
-  // if it is, set it to that report, if not, try to fetch it
+  // AND has content, if so, set it to that report, if not, fetch report w/ content
   React.useEffect(() => {
     const reportId = parseInt(id ?? '0');
     if (!!reportId && myReports?.length) {
       const existingReport = myReports.find((r) => r.id === reportId);
-      if (existingReport) {
+      const hasFetchedContent = existingReport?.instances.some((r) => r.content?.length);
+      if (existingReport && hasFetchedContent) {
         setReport(toForm(existingReport));
       } else {
         getReport(reportId, true)
