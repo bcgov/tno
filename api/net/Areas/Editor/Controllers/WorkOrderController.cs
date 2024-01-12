@@ -212,7 +212,7 @@ public class WorkOrderController : ControllerBase
                         };
 
                     var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-                    var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+                    var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
                     var workOrder = _workOrderService.AddAndSave(new WorkOrder(WorkOrderType.FileRequest, user, "", $"{{ \"locationId\": {locationId}, \"path\":\"{path}\"}}"));
 
                     var result = await _kafkaMessenger.SendMessageAsync(_kafkaOptions.FileRequestTopic, new TNO.Kafka.Models.FileRequestModel(workOrder));

@@ -82,7 +82,7 @@ public class ProductController : ControllerBase
     public IActionResult GetProducts()
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
         var publicFilter = new ProductFilter
         {
@@ -114,7 +114,7 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> ToggleSubscriptionForCurrentUser(ProductModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var result = _productService.FindById(model.Id) ?? throw new NoContentException("Product does not exist");
 
         var userProductSubscription = result.SubscribersManyToMany.FirstOrDefault(s => s.UserId == user.Id);

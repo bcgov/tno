@@ -211,7 +211,7 @@ public class ReportController : ControllerBase
         var report = _reportService.FindById(id) ?? throw new NoContentException();
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
         var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, report.Id, new { })
         {
@@ -242,7 +242,7 @@ public class ReportController : ControllerBase
         var report = _reportService.FindById(id) ?? throw new NoContentException();
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
         var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, report.Id, new { })
         {
@@ -265,7 +265,7 @@ public class ReportController : ControllerBase
     public async Task<IActionResult> Preview(ReportModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
         var report = new Areas.Services.Models.Report.ReportModel(model.ToEntity(_serializerOptions, true), _serializerOptions);
         var result = await _reportHelper.GenerateReportAsync(report, user.Id, false, true);
@@ -285,7 +285,7 @@ public class ReportController : ControllerBase
     public IActionResult PrimeReportCache(ReportModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
         _backgroundWorkerQueue.QueueBackgroundWorkItem(async token =>
         {

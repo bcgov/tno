@@ -72,7 +72,7 @@ public class ReportInstanceController : ControllerBase
     public async Task<IActionResult> View(int id, bool regenerate = false)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report instance does not exist");
 
         if (regenerate || String.IsNullOrWhiteSpace(instance.Body))

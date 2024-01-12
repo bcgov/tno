@@ -95,7 +95,7 @@ public class FolderController : ControllerBase
     public IActionResult FindMyFolders()
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         return new JsonResult(_folderService.FindMyFolders(user.Id).Select(ds => new FolderModel(ds, _serializerOptions)));
     }
 
@@ -112,7 +112,7 @@ public class FolderController : ControllerBase
     public IActionResult Add(FolderModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         model.OwnerId = user.Id;
         var result = _folderService.AddAndSave(model.ToEntity(_serializerOptions));
         var folder = _folderService.FindById(result.Id) ?? throw new NoContentException("Folder does not exist");
@@ -132,7 +132,7 @@ public class FolderController : ControllerBase
     public IActionResult Update(FolderModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var folder = _folderService.FindById(model.Id) ?? throw new NoContentException("Folder does not exist");
         if (folder.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to update folder");
         _folderService.ClearChangeTracker();
@@ -154,7 +154,7 @@ public class FolderController : ControllerBase
     public IActionResult Delete(FolderModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var folder = _folderService.FindById(model.Id) ?? throw new NoContentException("Folder does not exist");
         if (folder.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to delete folder");
         _folderService.DeleteAndSave(folder);

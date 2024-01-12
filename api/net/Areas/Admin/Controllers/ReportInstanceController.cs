@@ -144,7 +144,7 @@ public class ReportInstanceController : ControllerBase
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException();
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
         instance.Status = ReportStatus.Submitted;
         instance = _reportInstanceService.UpdateAndSave(instance, true);

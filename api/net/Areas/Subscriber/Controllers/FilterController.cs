@@ -80,7 +80,7 @@ public class FilterController : ControllerBase
     public IActionResult FindMyFilters()
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         return new JsonResult(_filterService.FindMyFilters(user.Id).Select(ds => new FilterModel(ds, _serializerOptions)));
     }
 
@@ -97,7 +97,7 @@ public class FilterController : ControllerBase
     public IActionResult Add(FilterModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         model.OwnerId = user.Id;
         var result = _filterService.AddAndSave(model.ToEntity(_serializerOptions));
         var filter = _filterService.FindById(result.Id) ?? throw new NoContentException("Filter does not exist");
@@ -117,7 +117,7 @@ public class FilterController : ControllerBase
     public IActionResult Update(FilterModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var filter = _filterService.FindById(model.Id) ?? throw new NoContentException("Filter does not exist");
         if (filter.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to delete filter");
         var result = _filterService.UpdateAndSave(model.ToEntity(_serializerOptions));
@@ -138,7 +138,7 @@ public class FilterController : ControllerBase
     public IActionResult Delete(FilterModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var filter = _filterService.FindById(model.Id) ?? throw new NoContentException("Filter does not exist");
         if (filter.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to delete filter");
         _filterService.DeleteAndSave(filter);
