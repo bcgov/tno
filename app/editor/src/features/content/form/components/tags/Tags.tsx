@@ -20,6 +20,7 @@ export const Tags: React.FC<ITagsProps> = ({ selectedExternal }) => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [{ tags }] = useLookup();
   const [showList, setShowList] = React.useState(false);
+  const [initialTagsLoad, setInitialTagsLoad] = React.useState(true);
   const [externalTags, setExternalTags] = React.useState<ITagModel[]>([]);
   const [manualTags, setManualTags] = React.useState<ITagModel[]>([]);
 
@@ -29,6 +30,15 @@ export const Tags: React.FC<ITagsProps> = ({ selectedExternal }) => {
       document.getElementById('tag-list')?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [showList]);
+
+  React.useEffect(() => {
+    if (initialTagsLoad) {
+      if (values.tags.length > 0) {
+        setManualTags(values.tags);
+        setInitialTagsLoad(false);
+      }
+    }
+  }, [initialTagsLoad, values.tags]);
 
   React.useEffect(() => {
     const ext = tags.filter((tag) => selectedExternal?.some((t: string) => t === tag.code));
