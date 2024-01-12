@@ -1,10 +1,12 @@
+import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';
+import { ContentListActionBar } from 'components/tool-bar';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult, determinePreview } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { FaArrowLeft, FaFolderMinus, FaGripLines } from 'react-icons/fa';
+import { FaArrowLeft, FaGripLines } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
@@ -24,7 +26,6 @@ export const ManageFolder: React.FC = () => {
   const [folder, setFolder] = React.useState<IFolderModel>();
   const [items, setItems] = React.useState<any>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-
   /** TODO: Folder content only contains contentId and sortOrder so we have to make an additional call based off of the contentIds to get the headline/summary etc..
    * assuming we want this to differ eventually.
    *
@@ -117,72 +118,80 @@ export const ManageFolder: React.FC = () => {
 
   return (
     <styled.ManageFolder>
-      {/* TODO: have logout appear from higher component so we dont have to apply it everywhere */}
-      <div className="main-manage">
-        <Row className="header">
-          <FaArrowLeft className="back-arrow" onClick={() => navigate(-1)} />
-          <FaFolderMinus className="remove-icon" onClick={() => removeItems()} />
-          <div className="title">{`Manage Folder: ${folder?.name}`}</div>
-        </Row>
-        <DragDropContext onDragEnd={handleDrop}>
-          <Droppable droppableId="droppable">
-            {(provided) => (
-              <div {...provided.droppableProps} ref={provided.innerRef}>
-                {items.map((item: any, index: number) => (
-                  <Draggable key={item.id} draggableId={String(item.id)} index={index}>
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        className="full-draggable"
-                      >
-                        <Col className="item-draggable">
-                          <Row>
-                            <Col>
-                              <Checkbox
-                                className="checkbox"
-                                onClick={() => {
-                                  if (selected.includes(item)) {
-                                    setSelected(selected.filter((i) => i !== item));
-                                  } else {
-                                    setSelected([...selected, item]);
-                                  }
-                                }}
-                              />
-                            </Col>
-                            <Col className="tone-date">
-                              <Row>
-                                <Sentiment
-                                  value={item.tonePools?.length ? item.tonePools[0].value : 0}
+      <PageSection
+        header={
+          <Row className="header">
+            <FaArrowLeft className="back-arrow" onClick={() => navigate(-1)} />
+            <div className="manage-title">{`Manage Folder: ${folder?.name}`}</div>
+          </Row>
+        }
+      >
+        <div className="main-manage">
+          <ContentListActionBar
+            content={selected}
+            onSelectAll={(e) => (e.target.checked ? setSelected(items) : setSelected([]))}
+            removeFolderItem={removeItems}
+          />
+          <DragDropContext onDragEnd={handleDrop}>
+            <Droppable droppableId="droppable">
+              {(provided) => (
+                <div {...provided.droppableProps} ref={provided.innerRef}>
+                  {items.map((item: any, index: number) => (
+                    <Draggable key={item.id} draggableId={String(item.id)} index={index}>
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className="full-draggable"
+                        >
+                          <Col className="item-draggable">
+                            <Row>
+                              <Col>
+                                <Checkbox
+                                  className="checkbox"
+                                  onClick={() => {
+                                    if (selected.includes(item)) {
+                                      setSelected(selected.filter((i) => i !== item));
+                                    } else {
+                                      setSelected([...selected, item]);
+                                    }
+                                  }}
                                 />
-                                <p className="date text-content">
-                                  {new Date(item.publishedOn).toDateString()}
-                                </p>
-                              </Row>
-                            </Col>
-                          </Row>
-                          <Row>
-                            <div
-                              onClick={() => navigate(`/view/${item.id}`)}
-                              className="item-headline"
-                            >
-                              {item.headline}
-                            </div>
-                            <FaGripLines className="grip-lines" />
-                          </Row>
-                          <div className="item-preview">{parse(determinePreview(item))}</div>
-                        </Col>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-      </div>
+                              </Col>
+                              <Col className="tone-date">
+                                <Row>
+                                  <Sentiment
+                                    value={item.tonePools?.length ? item.tonePools[0].value : 0}
+                                  />
+                                  <p className="date text-content">
+                                    {new Date(item.publishedOn).toDateString()}
+                                  </p>
+                                </Row>
+                              </Col>
+                            </Row>
+                            <Row>
+                              <div
+                                onClick={() => navigate(`/view/${item.id}`)}
+                                className="item-headline"
+                              >
+                                {item.headline}
+                              </div>
+                              <FaGripLines className="grip-lines" />
+                            </Row>
+                            <div className="item-preview">{parse(determinePreview(item))}</div>
+                          </Col>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </div>
+      </PageSection>
     </styled.ManageFolder>
   );
 };

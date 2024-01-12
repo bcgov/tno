@@ -20,9 +20,6 @@ export const Home = styled.div`
     opacity: 1;
     /* add box shadow */
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
-    input[type='checkbox'] {
-      accent-color: #6750a4;
-    }
     input[type='radio'] {
       accent-color: #6750a4;
     }

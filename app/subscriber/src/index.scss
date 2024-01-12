@@ -1,5 +1,10 @@
 @import './css/_variables';
 
+
+input[type='checkbox'] {
+  accent-color: $btn-bk-primary;
+}
+
 body {
   margin: 0;
   overflow: clip;

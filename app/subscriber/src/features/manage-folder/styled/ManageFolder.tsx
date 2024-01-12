@@ -1,10 +1,13 @@
 import styled from 'styled-components';
 
 export const ManageFolder = styled.div`
-  background-color: ${(props) => props.theme.css.lightGray};
   .main-manage {
     overflow-y: auto;
+    overflow-x: clip;
     max-height: calc(100vh - 4em);
+  }
+  .manage-title {
+    margin-left: 0.5em;
   }
   .remove-icon {
     margin-top: 0.15em;
@@ -15,24 +18,6 @@ export const ManageFolder = styled.div`
       color: ${(props) => props.theme.css.sideBarIconHoverColor};
     }
     color: ${(props) => props.theme.css.sideBarIconColor};
-  }
-  .header {
-    background-color: ${(props) => props.theme.css.darkHeaderColor};
-    padding: 0.5em;
-    font-size: 1.75em;
-    color: white;
-    font-family: 'Source Sans Pro', sans-serif;
-    .back-arrow {
-      margin-top: 0.15em;
-      &:hover {
-        &:hover {
-          cursor: pointer;
-          transform: scale(1.1);
-          color: ${(props) => props.theme.css.sideBarIconHoverColor};
-        }
-      }
-      color: #a5a4bf;
-    }
   }
   .title {
     margin-left: auto;
