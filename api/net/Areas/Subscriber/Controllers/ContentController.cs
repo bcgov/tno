@@ -107,8 +107,8 @@ public class ContentController : ControllerBase
     {
         // Exclude any content the user is not allowed to search for.
         var username = User.GetUsername() ?? throw new NotAuthorizedException("User is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        user = _userService.FindById(user.Id) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        user = _userService.FindById(user.Id) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
         filter = filter.AddExcludeSources(user.SourcesManyToMany.Select(s => s.SourceId));
         filter = filter.AddExcludeMediaTypes(user.MediaTypesManyToMany.Select(s => s.MediaTypeId));
@@ -185,7 +185,7 @@ public class ContentController : ControllerBase
     {
         // Always make the user who created the content the owner.
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var newContent = (Entities.Content)model;
         newContent.OwnerId = user.Id;
         newContent.PostedOn = DateTime.UtcNow;
@@ -208,7 +208,7 @@ public class ContentController : ControllerBase
     public async Task<IActionResult> UpdateAsync(ContentModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var content = _contentService.FindById(model.Id) ?? throw new NoContentException("Content does not exist");
 
         // If user does not own the content and hasn't submitted a version.
@@ -274,7 +274,7 @@ public class ContentController : ControllerBase
     public IActionResult Delete(ContentModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var content = _contentService.FindById(model.Id) ?? throw new NoContentException("Content does not exist");
 
         // If user does not own the content and hasn't submitted a version.
@@ -311,7 +311,7 @@ public class ContentController : ControllerBase
         var notification = _notificationService.FindById(notificationId) ?? throw new NoContentException();
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
         var colleague = _userService.FindById(colleagueId) ?? throw new NotAuthorizedException("Colleague does not exist");
 

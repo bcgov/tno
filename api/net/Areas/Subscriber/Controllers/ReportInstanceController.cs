@@ -89,7 +89,7 @@ public class ReportInstanceController : ControllerBase
     public IActionResult FindById(long id, bool includeContent = false)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException();
         var report = instance.Report ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id && // User does not own the report instance
@@ -115,7 +115,7 @@ public class ReportInstanceController : ControllerBase
     public IActionResult Add(ReportInstanceModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var report = _reportService.FindById(model.ReportId) ?? throw new NoContentException("Report does not exist");
         if (report.OwnerId != user.Id && // User does not own the report instance
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
@@ -137,7 +137,7 @@ public class ReportInstanceController : ControllerBase
     public IActionResult Update(ReportInstanceModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var instance = _reportInstanceService.FindByKey(model.Id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to update this report"); // Report is not public
         _reportInstanceService.ClearChangeTracker();
@@ -158,7 +158,7 @@ public class ReportInstanceController : ControllerBase
     public IActionResult Delete(ReportInstanceModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var instance = _reportInstanceService.FindByKey(model.Id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to delete this report"); // Report is not public
         _reportInstanceService.DeleteAndSave(instance);
@@ -179,7 +179,7 @@ public class ReportInstanceController : ControllerBase
     public async Task<IActionResult> ViewAsync(int id, bool regenerate = false)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
 
         if (regenerate || String.IsNullOrWhiteSpace(instance.Body))
@@ -210,7 +210,7 @@ public class ReportInstanceController : ControllerBase
     public async Task<IActionResult> SendToAsync(int id, string to)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to send this report"); // User does not own the report
 
@@ -239,7 +239,7 @@ public class ReportInstanceController : ControllerBase
     public async Task<IActionResult> PublishAsync(int id)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to publish this report"); // User does not own the report
 
@@ -266,7 +266,7 @@ public class ReportInstanceController : ControllerBase
     public FileResult GenerateExcel(int id)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("User does not have permission to export this report");
         var content = _reportInstanceService.GetContentForInstance(id);

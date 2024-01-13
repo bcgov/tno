@@ -201,7 +201,7 @@ public class AVOverviewController : ControllerBase
     {
         var instance = _overviewInstanceService.FindById(instanceId) ?? throw new NoContentException($"AV overview instance '{instanceId}' not found");
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
         var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.AVOverview, instance.Id, new { })
         {

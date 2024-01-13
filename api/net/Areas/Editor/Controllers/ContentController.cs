@@ -210,7 +210,7 @@ public class ContentController : ControllerBase
     {
         // Always make the user who created the content the owner.
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var newContent = (Content)model;
         newContent.OwnerId = user.Id;
         newContent.PostedOn = newContent.Status == ContentStatus.Publish || newContent.Status == ContentStatus.Published ? DateTime.UtcNow : null;
@@ -251,7 +251,7 @@ public class ContentController : ControllerBase
     {
         // Always make the user who updated the content the owner if the owner is currently empty.
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var updateContent = (Content)model;
         updateContent.OwnerId ??= user.Id;
         if (!updateContent.PostedOn.HasValue &&
@@ -299,7 +299,7 @@ public class ContentController : ControllerBase
     {
         // Always make the user who updated the content the owner if the owner is currently empty.
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
         var updatedTopics = _contentService.AddOrUpdateContentTopics(id, topics.ToList().ConvertAll(x => x.ToEntity(id)));
 
@@ -330,7 +330,7 @@ public class ContentController : ControllerBase
     public async Task<IActionResult> UpdateContentAsync(ContentListModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
         var update = new List<Content>();
         var items = _contentService.FindWithDatabase(new ContentFilter()
@@ -440,7 +440,7 @@ public class ContentController : ControllerBase
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
             var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
             await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(model.Id, user.Id, IndexAction.Delete));
         }
@@ -470,7 +470,7 @@ public class ContentController : ControllerBase
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
             var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
             await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Publish));
         }
@@ -501,7 +501,7 @@ public class ContentController : ControllerBase
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
             var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
             await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Unpublish));
         }

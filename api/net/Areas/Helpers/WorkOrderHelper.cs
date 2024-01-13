@@ -136,7 +136,7 @@ public class WorkOrderHelper : IWorkOrderHelper
         if (force || !workOrders.Any(o => o.WorkType == Entities.WorkOrderType.Transcription || !WorkLimiterStatus.Contains(o.Status)))
         {
             var username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
             var workOrder = _workOrderService.AddAndSave(
                 new Entities.WorkOrder(
                     Entities.WorkOrderType.Transcription,
@@ -172,7 +172,7 @@ public class WorkOrderHelper : IWorkOrderHelper
         if (force || !workOrders.Any(o => o.WorkType == Entities.WorkOrderType.NaturalLanguageProcess || !WorkLimiterStatus.Contains(o.Status)))
         {
             var username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
             var workOrder = _workOrderService.AddAndSave(
                 new Entities.WorkOrder(
                     Entities.WorkOrderType.NaturalLanguageProcess,
@@ -207,7 +207,7 @@ public class WorkOrderHelper : IWorkOrderHelper
         if (force || !workOrders.Any(o => o.WorkType == Entities.WorkOrderType.FFmpeg || !WorkLimiterStatus.Contains(o.Status)))
         {
             var username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
             var workOrder = _workOrderService.AddAndSave(
                 new Entities.WorkOrder(

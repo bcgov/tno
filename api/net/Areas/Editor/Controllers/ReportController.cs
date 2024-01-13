@@ -86,7 +86,7 @@ public class ReportController : ControllerBase
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var filter = new ReportFilter(query)
         {
             OwnerId = user.Id
@@ -108,7 +108,7 @@ public class ReportController : ControllerBase
     {
         var result = _reportService.FindById(id) ?? throw new NoContentException();
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         if (result.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to view this report");
 
         return new JsonResult(new ReportModel(result, _serializerOptions));
@@ -127,7 +127,7 @@ public class ReportController : ControllerBase
     public IActionResult Add(ReportModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         model.OwnerId = user.Id;
         var result = _reportService.AddAndSave(model.ToEntity(_serializerOptions));
         var report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
@@ -147,7 +147,7 @@ public class ReportController : ControllerBase
     public IActionResult Update(ReportModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var result = _reportService.FindById(model.Id) ?? throw new NoContentException("Report does not exist");
         if (result.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to update this report");
         _reportService.ClearChangeTracker(); // Remove the report from context.
@@ -170,7 +170,7 @@ public class ReportController : ControllerBase
     public IActionResult Delete(ReportModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var result = _reportService.FindById(model.Id) ?? throw new NoContentException("Report does not exist");
         if (result.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to delete this report");
         _reportService.ClearChangeTracker(); // Remove the report from context.
@@ -192,7 +192,7 @@ public class ReportController : ControllerBase
     public async Task<IActionResult> Preview(int id)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (!user.Roles.Split(',').Contains(ClientRole.Administrator.GetName()) && // User is not an admin
             report.OwnerId != user.Id && // User does not own the report
@@ -219,7 +219,7 @@ public class ReportController : ControllerBase
         var report = _reportService.FindById(id) ?? throw new NoContentException();
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
         var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, report.Id, new { })
         {

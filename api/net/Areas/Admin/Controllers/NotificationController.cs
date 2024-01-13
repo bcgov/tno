@@ -196,7 +196,7 @@ public class NotificationController : ControllerBase
         var notification = _notificationService.FindById(id) ?? throw new NoContentException();
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
         var request = new NotificationRequestModel(NotificationDestination.NotificationService, new { })
         {

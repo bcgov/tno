@@ -71,7 +71,7 @@ public class UserController : ControllerBase
     public IActionResult Update(UserModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         if (user.Id != model.Id) throw new NotAuthorizedException("You are not authorized to update this user.");
         var result = _userService.UpdatePreferences((User)model) ?? throw new NoContentException("Updated did not return the user");
         return new JsonResult(new UserModel(result));
@@ -89,7 +89,7 @@ public class UserController : ControllerBase
     public IActionResult FindColleaguesByUserId()
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var colleagues = _userColleagueService.FindColleaguesByUserId(user.Id).Select(m => new UserColleagueModel(m));
         return new JsonResult(colleagues);
     }
@@ -109,7 +109,7 @@ public class UserController : ControllerBase
         if (String.IsNullOrWhiteSpace(email)) throw new ArgumentException("Parameter 'email' is required.");
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var colleague = _userService.FindByEmail(email).FirstOrDefault() ?? throw new InvalidOperationException("There is no user with this email.");
         var result = _userColleagueService.AddColleague(new UserColleague(user.Id, colleague.Id));
         return CreatedAtAction(nameof(AddColleague), new { id = result.ColleagueId }, new UserColleagueModel(result));
@@ -128,7 +128,7 @@ public class UserController : ControllerBase
     public IActionResult DeleteColleague(int colleagueId)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var result = _userColleagueService.RemoveColleague(user.Id, colleagueId) ?? throw new InvalidOperationException("No colleague to delete.");
         var deletedModel = new UserColleagueModel(result, _serializerOptions);
         return CreatedAtAction(nameof(DeleteColleague), new { id = result?.ColleagueId }, deletedModel);
