@@ -19,9 +19,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
   const [reportId, setReportId] = React.useState<number | null>(null);
 
   React.useEffect(() => {
-    // Only load myReports if content is ready, avoids double-fetch
-    // since this entire component is re-rendered anytime content changes
-    if (!myReports.length && content?.length) {
+    if (!myReports.length) {
       findMyReports().catch(() => {});
     }
 
