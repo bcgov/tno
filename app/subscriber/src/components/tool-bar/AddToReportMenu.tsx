@@ -2,7 +2,7 @@ import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
 import { FaFileExport, FaPlay } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { useReports } from 'store/hooks';
+import { useApp, useReports } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import { IContentModel, IReportModel, Row } from 'tno-core';
 
@@ -15,13 +15,13 @@ export interface IAddToReportMenuProps {
 export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) => {
   const [{ updateReport, findMyReports, getReport, generateReport }] = useReports();
   const [{ myReports }] = useProfileStore();
+  const [{ requests }] = useApp();
   const [activeReport, setActiveReport] = React.useState<IReportModel>();
   const [reportId, setReportId] = React.useState<number | null>(null);
+  const isLoading = requests.some((r) => r.url === 'find-my-reports');
 
   React.useEffect(() => {
-    // Only load myReports if content is ready, avoids double-fetch
-    // since this entire component is re-rendered anytime content changes
-    if (!myReports.length && content?.length) {
+    if (!myReports.length && !isLoading) {
       findMyReports().catch(() => {});
     }
 
