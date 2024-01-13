@@ -1,8 +1,10 @@
+import { getPreviewReportRoute } from 'features/content';
 import React from 'react';
+import { FaBinoculars } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
 import { useFolders } from 'store/hooks/admin';
-import { FlexboxTable, FormPage, IFolderContentModel, Settings } from 'tno-core';
+import { Button, FlexboxTable, FormPage, IFolderContentModel, Row, Settings } from 'tno-core';
 
 import { useColumns } from './hooks';
 import * as styled from './styled';
@@ -20,6 +22,7 @@ const EventOfTheDayList: React.FC = () => {
 
   const [loading, setLoading] = React.useState(false);
   const [eventOfTheDayFolderId, setEventOfTheDayFolderId] = React.useState(0);
+  const [eventOfTheDayReportId, setEventOfTheDayReportId] = React.useState(0);
   const [items, setItems] = React.useState<IFolderContentModel[]>([]);
 
   React.useEffect(() => {
@@ -29,6 +32,11 @@ const EventOfTheDayList: React.FC = () => {
       )?.value;
       if (eventOfTheDayFolderId) setEventOfTheDayFolderId(+eventOfTheDayFolderId);
       else toast.error(`${Settings.EventOfTheDayFolder} setting needs to be configured.`);
+      const eventOfTheDayReportId = settings.find(
+        (s) => s.name === Settings.EventOfTheDayReport,
+      )?.value;
+      if (eventOfTheDayReportId) setEventOfTheDayReportId(+eventOfTheDayReportId);
+      else toast.error(`${Settings.EventOfTheDayReport} setting needs to be configured.`);
     }
   }, [isReady, settings]);
 
@@ -66,7 +74,21 @@ const EventOfTheDayList: React.FC = () => {
   return (
     <styled.EventOfTheDayList>
       <FormPage>
-        <p className="list-title">Update Content for Event of the Day</p>
+        <Row className="page-header">
+          <p className="list-title">Update Content for Event of the Day</p>
+          <div className="buttons">
+            <Button
+              onClick={() =>
+                window.open(
+                  `${getPreviewReportRoute(eventOfTheDayReportId)}?showNav=false`,
+                  '_blank',
+                )
+              }
+            >
+              Preview <FaBinoculars className="icon" />
+            </Button>
+          </div>
+        </Row>
         <FlexboxTable
           rowId="contentId"
           data={items}
