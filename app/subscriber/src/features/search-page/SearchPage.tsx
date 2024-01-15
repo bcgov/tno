@@ -148,7 +148,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
           <PageSection
             header={
               <>
-                <div className="title">{`Search Results`}</div>
+                <h1 className="title">{`Search Results`}</h1>
               </>
             }
           >

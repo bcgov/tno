@@ -1,5 +1,4 @@
 import './index.scss';
-import '@bcgov/bc-sans/css/BCSans.css';
 
 import React from 'react';
 import ReactDOM from 'react-dom';

@@ -264,7 +264,7 @@ export const AdvancedSearch = styled(Row)`
     max-height: 30px;
     margin-left: auto;
     margin-right: 1.5em;
-    font-weight: 200;
+    font-weight: 400;
     font-size: 0.8em;
     background-color: ${(props) => props.theme.css.btnBkPrimary};
     border-radius: 0.5em;

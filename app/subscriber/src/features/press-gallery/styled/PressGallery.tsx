@@ -28,11 +28,9 @@ export const PressGallery = styled.div`
     width: 100%;
     .group {
       background-color: #f9f9f9 !important;
-      font-family: ${(props) => props.theme.css?.bcSans};
     }
     .header {
       background-color: #f5f6fa;
-      font-family: 'Roboto', sans-serif;
       font-size: 0.8em;
       /* box shadow only on bottom */
       box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);

@@ -1,6 +1,9 @@
 import styled from 'styled-components';
 
 export const ViewContent = styled.div`
+  .summary {
+    font-family: ${(props) => props.theme.css.fSecondary};
+  }
   .info-bar {
     /* negative margins to bypass parent padding (PageSection) */
     margin-left: -1.25em;
@@ -35,7 +38,6 @@ export const ViewContent = styled.div`
     font-weight: 600;
     font-size: 1.75rem;
     margin-bottom: 0.5em;
-    font-family: ${(props) => props.theme.css.fPrimary};
     color: ${(props) => props.theme.css.hPrimaryColor};
   }
   .neg {

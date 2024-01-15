@@ -12,7 +12,6 @@ export const ElasticInfo = styled.div`
     background: ${(props) => props.theme.css.codeBlockColor};
     border: 1px solid ${(props) => props.theme.css.codeBlockColor};
     color: ${(props) => props.theme.css.fPrimaryColor};
-    font-family: monospace;
     font-size: 15px;
     max-width: fit-content;
     overflow: auto;

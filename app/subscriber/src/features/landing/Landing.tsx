@@ -1,8 +1,5 @@
 import { BasicSearch } from 'components/basic-search';
-import {
-  SidebarMenuItems,
-  sidebarMenuItemsArray,
-} from 'components/layout/constants/SidebarMenuItems';
+import { NavbarOptions, navbarOptions } from 'components/navbar/NavbarItems';
 import { PageSection } from 'components/section';
 import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
@@ -32,15 +29,13 @@ import * as styled from './styled';
  */
 export const Landing: React.FC = () => {
   const { id } = useParams();
-  const [activeItem, setActiveItem] = React.useState<string>(SidebarMenuItems.home.label);
+  const [activeItem, setActiveItem] = React.useState<string>(NavbarOptions.home.label);
   /* active content will be stored from this context in order to inject into subsequent components */
   const [activeContent, setActiveContent] = React.useState<IContentModel[]>();
   /* keep active item in sync with url */
   React.useEffect(() => {
     if (id)
-      setActiveItem(
-        sidebarMenuItemsArray.find((item) => item.path.includes(id ?? ''))?.label ?? 'View',
-      );
+      setActiveItem(navbarOptions.find((item) => item.path.includes(id ?? ''))?.label ?? 'View');
   }, [id]);
 
   return (
@@ -55,11 +50,11 @@ export const Landing: React.FC = () => {
           header={
             <>
               <Show visible={activeItem !== 'View'}>
-                {activeItem === SidebarMenuItems.settings.label
+                {activeItem === NavbarOptions.settings.label
                   ? 'Settings | My Minister'
                   : activeItem}
               </Show>
-              <Show visible={activeItem === SidebarMenuItems.home.label}>
+              <Show visible={activeItem === NavbarOptions.home.label}>
                 <HomeFilters />
               </Show>
             </>
@@ -69,53 +64,53 @@ export const Landing: React.FC = () => {
         >
           <div className="content">
             {/* Home is default selected navigation item on login*/}
-            <Show visible={activeItem === SidebarMenuItems.home.label}>
+            <Show visible={activeItem === NavbarOptions.home.label}>
               <Home />
             </Show>
             <Show visible={activeItem === 'View'}>
               <ViewContent setActiveContent={setActiveContent} />
             </Show>
-            <Show visible={activeItem === SidebarMenuItems.settings.label}>
+            <Show visible={activeItem === NavbarOptions.settings.label}>
               <MyMinisterSettings />
             </Show>
-            <Show visible={activeItem === SidebarMenuItems.myMinister.label}>
+            <Show visible={activeItem === NavbarOptions.myMinister.label}>
               <MyMinister />
             </Show>
-            <Show visible={activeItem === SidebarMenuItems.todaysCommentary.label}>
+            <Show visible={activeItem === NavbarOptions.todaysCommentary.label}>
               <TodaysCommentary />
             </Show>
-            <Show visible={activeItem === SidebarMenuItems.todaysFrontPages.label}>
+            <Show visible={activeItem === NavbarOptions.todaysFrontPages.label}>
               <TodaysFrontPages />
             </Show>
-            <Show visible={activeItem === SidebarMenuItems.topStories.label}>
+            <Show visible={activeItem === NavbarOptions.topStories.label}>
               <TopStories />
             </Show>
-            <Show visible={activeItem === SidebarMenuItems.myProducts.label}>
+            <Show visible={activeItem === NavbarOptions.myProducts.label}>
               <MyProducts />
             </Show>
-            <Show visible={activeItem === SidebarMenuItems.pressGallery.label}>
+            <Show visible={activeItem === NavbarOptions.pressGallery.label}>
               <PressGallery />
             </Show>
-            <Show visible={activeItem === SidebarMenuItems.filterMedia.label}>
+            <Show visible={activeItem === NavbarOptions.filterMedia.label}>
               <FilterMedia />
             </Show>
-            <Show visible={activeItem === SidebarMenuItems.mySearches.label}>
+            <Show visible={activeItem === NavbarOptions.mySearches.label}>
               <MySearches />
             </Show>
-            <Show visible={activeItem === SidebarMenuItems.folders.label}>
+            <Show visible={activeItem === NavbarOptions.folders.label}>
               <MyFolders />
             </Show>
-            <Show visible={activeItem === SidebarMenuItems.eveningOverview.label}>
+            <Show visible={activeItem === NavbarOptions.eveningOverview.label}>
               <AVOverviewPreview />
             </Show>
           </div>
         </PageSection>
         {/* unsure of whether these items will change depending on selected item */}
         <Col className="right-panel">
-          <Show visible={activeItem !== SidebarMenuItems.eveningOverview.label}>
+          <Show visible={activeItem !== NavbarOptions.eveningOverview.label}>
             <Commentary />
           </Show>
-          <Show visible={activeItem === SidebarMenuItems.eveningOverview.label}>
+          <Show visible={activeItem === NavbarOptions.eveningOverview.label}>
             <MediaOverviewIcons />
           </Show>
         </Col>
