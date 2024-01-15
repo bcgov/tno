@@ -48,20 +48,20 @@ export interface IContentModel extends IAuditColumnsModel {
   postedOn?: string;
   publishedOn: string;
   summary: string;
-  body?: string;
+  body: string;
   sourceUrl?: string;
   isHidden: boolean;
   isApproved: boolean;
   isPrivate: boolean;
-  actions?: IContentActionModel[];
-  tags?: IContentTagModel[];
-  labels?: IContentLabelModel[];
-  topics?: IContentTopicModel[];
-  tonePools?: IContentTonePoolModel[];
-  timeTrackings?: ITimeTrackingModel[];
-  fileReferences?: IFileReferenceModel[];
-  links?: IContentLinkModel[];
-  versions?: Record<number, IContentVersionModel>;
+  actions: IContentActionModel[];
+  tags: IContentTagModel[];
+  labels: IContentLabelModel[];
+  topics: IContentTopicModel[];
+  tonePools: IContentTonePoolModel[];
+  timeTrackings: ITimeTrackingModel[];
+  fileReferences: IFileReferenceModel[];
+  links: IContentLinkModel[];
+  versions: Record<number, IContentVersionModel>;
 
   // React-Table Properties
   // TODO: Should not be part of the API interface.

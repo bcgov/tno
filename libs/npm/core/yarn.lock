@@ -7459,9 +7459,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-select@npm:^5.7.0":
-  version: 5.7.0
-  resolution: "react-select@npm:5.7.0"
+"react-select@npm:^5.8.0":
+  version: 5.8.0
+  resolution: "react-select@npm:5.8.0"
   dependencies:
     "@babel/runtime": ^7.12.0
     "@emotion/cache": ^11.4.0
@@ -7475,7 +7475,7 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: 3d29f7bb6dd66ad55396d820f05da6112f1d21b67526422a8ff5aa6cd47c783804c1b73042ac2949ba0871056a3dc68c06a73a8281abb61571e475d72bbd80dc
+  checksum: c8398cc0aefb5ee5438b6176c86676e2d3fed7457c16b0769f423a0da0ae431a7df25c2cadf13b709700882b8ebd80a58b1e557fec3e22ad3cbf60164ca9e745
   languageName: node
   linkType: hard
 
@@ -8501,7 +8501,7 @@ __metadata:
     react-inlinesvg: ^3.0.2
     react-quill: ^2.0.0
     react-router-dom: ^6.9.0
-    react-select: ^5.7.0
+    react-select: ^5.8.0
     react-table: ^7.8.0
     react-text-mask: ^5.5.0
     react-toastify: ^9.1.1

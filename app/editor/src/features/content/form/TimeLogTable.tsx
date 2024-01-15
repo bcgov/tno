@@ -1,46 +1,39 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useLookup } from 'store/hooks';
-import { GridTable, IContentModel, ITimeTrackingModel, Row } from 'tno-core';
+import { GridTable, ITimeTrackingModel, Row } from 'tno-core';
 
+import { ITimeTrackingForm } from './components/time-log/interfaces';
 import { timeLogColumns } from './constants';
+import { IContentForm } from './interfaces';
 import * as styled from './styled';
 
-export interface ITimeLogTableProps {
-  /** the data to be displayed in the table */
-  data: ITimeTrackingModel[];
-  /** the total time logged against the content */
-  totalEffort: number;
-  setTotalEffort: (effort: number) => void;
-}
-
 /** Table used to display time log for users creating and updating content. */
-export const TimeLogTable: React.FC<ITimeLogTableProps> = ({
-  data,
-  totalEffort,
-  setTotalEffort,
-}) => {
+export const TimeLogTable: React.FC = () => {
+  const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [{ users }] = useLookup();
-  const parsedData = data.map((d: ITimeTrackingModel) => ({
-    userName: users.find((u) => u.id === d.userId)?.displayName,
+
+  const parsedData = values.timeTrackings.map<ITimeTrackingForm>((d: ITimeTrackingModel) => ({
+    id: d.id,
+    userName: users.find((u) => u.id === d.userId)?.displayName ?? '',
     userId: d.userId,
     activity: d.activity,
-    effort: `${d.effort} Min`,
+    effort: d.effort,
     contentId: d.contentId,
     createdOn: d.createdOn,
   }));
 
-  const { values, setFieldValue } = useFormikContext<IContentModel>();
+  const effort = values.timeTrackings.reduce((result, entry) => result + entry.effort, 0);
 
   return (
     <styled.TimeLogTable>
       <GridTable
         paging={{ pageSizeOptions: { show: false } }}
-        columns={timeLogColumns(setTotalEffort, setFieldValue, values)}
+        columns={timeLogColumns(setFieldValue, values)}
         data={parsedData}
       ></GridTable>
       <Row>
-        <p className="total-text">{`Total: ${totalEffort} Min`}</p>
+        <p className="total-text">{`Total: ${effort} Min`}</p>
       </Row>
     </styled.TimeLogTable>
   );

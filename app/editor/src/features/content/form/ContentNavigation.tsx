@@ -21,6 +21,8 @@ export interface IContentNavigationProps {
   fetchContent: (id: number) => void;
   /** Root path for combined view. */
   combinedPath?: string;
+  /** Whether to show the refresh button */
+  showRefresh?: boolean;
 }
 
 /**
@@ -32,6 +34,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
   values,
   fetchContent,
   combinedPath,
+  showRefresh = true,
 }) => {
   const navigate = useNavigate();
   const { combined } = useCombinedView(values.contentType);
@@ -70,15 +73,17 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
         >
           <FaChevronRight />
         </Button>
-        <Button
-          variant={ButtonVariant.secondary}
-          tooltip="Reload"
-          onClick={() => {
-            fetchContent(values.id);
-          }}
-        >
-          <FaSpinner />
-        </Button>
+        {showRefresh && (
+          <Button
+            variant={ButtonVariant.secondary}
+            tooltip="Reload"
+            onClick={() => {
+              fetchContent(values.id);
+            }}
+          >
+            <FaSpinner />
+          </Button>
+        )}
       </Show>
     </Row>
   );

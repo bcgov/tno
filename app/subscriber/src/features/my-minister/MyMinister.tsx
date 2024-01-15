@@ -3,6 +3,7 @@ import { ContentListActionBar } from 'components/tool-bar';
 import { determineColumns } from 'features/home/constants';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
+import { IContentSearchResult } from 'features/utils/interfaces';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp, useContent, useLookup } from 'store/hooks';
@@ -24,8 +25,8 @@ export const MyMinister: React.FC = () => {
   const navigate = useNavigate();
   const [{ actions }] = useLookup();
 
-  const [selected, setSelected] = React.useState<IContentModel[]>([]);
-  const [content, setContent] = React.useState<IContentModel[]>([]);
+  const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
+  const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [ministerNames, setMinisterNames] = React.useState<string[]>([]);
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
   const [loading, setLoading] = React.useState(false);
@@ -111,9 +112,11 @@ export const MyMinister: React.FC = () => {
   }, [ministerNames]);
 
   /** controls the checking and unchecking of rows in the list view */
-  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
+  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentSearchResult>) => {
     if (row.isSelected) {
-      setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
+      setSelected(
+        row.table.rows.filter((r) => r.isSelected).map((r) => castToSearchResult(r.original)),
+      );
     } else {
       setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
     }

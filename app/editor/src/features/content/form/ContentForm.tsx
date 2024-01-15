@@ -176,7 +176,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
             {(props: FormikProps<IContentForm>) => (
               <Col className="content-col fvh">
                 <ContentFormToolBar fetchContent={fetchContent} combinedPath={combinedPath} />
-                <FormikHidden name="uid" />
+                <FormikHidden name="uid" formNoValidate />
                 <Row alignItems="flex-start" className="content-details fvh">
                   <Show visible={size === 0}>
                     <Row flex="1 1 100%" wrap="nowrap">
@@ -699,11 +699,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       </Show>
                     </Col>
                     <Row gap="0.5rem">
-                      <ContentNavigation
-                        values={props.values}
-                        fetchContent={fetchContent}
-                        combinedPath={combinedPath}
-                      />
                       <Button
                         type="submit"
                         disabled={
@@ -813,6 +808,12 @@ const ContentForm: React.FC<IContentFormProps> = ({
                           </Button>
                         </Show>
                       </Show>
+                      <ContentNavigation
+                        values={props.values}
+                        fetchContent={fetchContent}
+                        combinedPath={combinedPath}
+                        showRefresh={false}
+                      />
                     </Row>
                   </Row>
                 </Row>

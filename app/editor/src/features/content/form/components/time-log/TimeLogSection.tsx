@@ -1,23 +1,23 @@
 import { IContentForm } from 'features/content/form/interfaces';
 import { useFormikContext } from 'formik';
+import moment from 'moment';
 import React from 'react';
 import { FaArrowAltCircleRight, FaRegListAlt } from 'react-icons/fa';
-import { useLookup } from 'store/hooks';
+import { useApp } from 'store/hooks';
 import {
   Button,
   ButtonVariant,
+  Col,
+  Error,
   FieldSize,
-  FormikText,
-  IUserModel,
+  ITimeTrackingModel,
   Modal,
   Row,
   Text,
-  useKeycloakWrapper,
   useModal,
 } from 'tno-core';
 
 import { TimeLogTable } from '../../TimeLogTable';
-import { getTotalTime } from '../../utils';
 import * as styled from './styled';
 
 export interface ITimeLogSectionProps {
@@ -28,34 +28,27 @@ export interface ITimeLogSectionProps {
  * TimeLogSection contains the input for time tracking gor a content item.
  */
 export const TimeLogSection: React.FC<ITimeLogSectionProps> = ({ prepTimeRequired = false }) => {
-  const keycloak = useKeycloakWrapper();
-  const { values, setFieldValue } = useFormikContext<IContentForm>();
+  const { values, setFieldValue, errors } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
-  const [{ users }] = useLookup();
+  const [{ userInfo }] = useApp();
 
-  const [effort, setEffort] = React.useState(0);
   const [prep, setPrep] = React.useState<number | ''>('');
 
-  const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
-
-  React.useEffect(() => {
-    const value = getTotalTime(values.timeTrackings ?? []);
-    setEffort(value);
-    setFieldValue('efforts', value);
-  }, [setFieldValue, values.timeTrackings]);
+  const userId = userInfo?.id ?? 0;
+  const effort = values.timeTrackings.reduce((result, entry) => result + entry.effort, 0);
 
   const addTime = React.useCallback(
     (value: number | string) => {
       if (!!values.timeTrackings && typeof value === 'number' && value > 0) {
-        setFieldValue('timeTrackings', [
-          ...values.timeTrackings,
-          {
-            userId: userId,
-            activity: !!values.id ? 'Updated' : 'Created',
-            effort: value,
-            createdOn: new Date(),
-          },
-        ]);
+        const entry: ITimeTrackingModel = {
+          id: 0,
+          contentId: values.id,
+          userId: userId,
+          activity: !!values.id ? 'Updated' : 'Created',
+          effort: +value,
+          createdOn: moment().toLocaleString(),
+        };
+        setFieldValue('timeTrackings', [...values.timeTrackings, entry]);
         setPrep('');
       }
     },
@@ -64,59 +57,59 @@ export const TimeLogSection: React.FC<ITimeLogSectionProps> = ({ prepTimeRequire
 
   return (
     <styled.TimeLogSection className="multi-group">
-      <Text
-        width={FieldSize.Small}
-        name="prep"
-        label="Prep time (minutes)"
-        value={prep}
-        type="number"
-        onChange={(e) => {
-          const value = parseFloat(e.target.value);
-          if (value > 0) setPrep(value);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            addTime(prep);
-            e.preventDefault();
-            return false;
-          }
-        }}
-      />
-      <FaArrowAltCircleRight
-        className="action-button"
-        onClick={() => {
-          addTime(prep);
-        }}
-      />
-      <Row className="disabled-section">
-        <FormikText
-          disabled
-          className="total-mins"
-          width={FieldSize.Small}
-          name="efforts"
-          label="Total minutes"
-          value={effort?.toString()}
-          required={prepTimeRequired && effort <= 0}
-        />
-        <FaRegListAlt
-          className="action-button"
-          onClick={() => {
-            if (!!values.timeTrackings) setFieldValue('timeTrackings', values.timeTrackings);
-            toggle();
-          }}
-        />
-      </Row>
+      <Col>
+        <Row alignItems="center">
+          <Text
+            width={FieldSize.Small}
+            name="prep"
+            label="Prep time (minutes)"
+            value={prep}
+            type="number"
+            disabled={!userId}
+            required={prepTimeRequired && !values.timeTrackings.some((entry) => entry.id === 0)}
+            onChange={(e) => {
+              const value = parseFloat(e.target.value);
+              if (value > 0) setPrep(value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                addTime(prep);
+                e.preventDefault();
+                return false;
+              }
+            }}
+          />
+          <FaArrowAltCircleRight
+            className="action-button"
+            onClick={() => {
+              addTime(prep);
+            }}
+          />
+          <Row className="disabled-section">
+            <Text
+              name="efforts"
+              label="Total minutes"
+              disabled
+              className="total-mins"
+              width={FieldSize.Small}
+              value={effort?.toString()}
+            />
+            <FaRegListAlt
+              className="action-button"
+              onClick={() => {
+                if (!!values.timeTrackings) setFieldValue('timeTrackings', values.timeTrackings);
+                toggle();
+              }}
+            />
+          </Row>
+        </Row>
+        <Error error={errors.prep} />
+      </Col>
       <Modal
         hide={toggle}
         isShowing={isShowing}
         headerText="Prep Time Log"
-        body={
-          <TimeLogTable
-            setTotalEffort={setEffort}
-            totalEffort={effort}
-            data={values.timeTrackings ?? []}
-          />
-        }
+        body={<TimeLogTable />}
         customButtons={
           <Button variant={ButtonVariant.secondary} onClick={toggle}>
             Close

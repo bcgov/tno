@@ -2,6 +2,7 @@ import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
 import { createFilterSettings } from 'features/utils';
+import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -36,7 +37,7 @@ export const Home: React.FC = () => {
   const navigate = useNavigate();
   const { width } = useWindowSize();
 
-  const [content, setContent] = React.useState<IContentModel[]>([]);
+  const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [disabledCols, setDisabledCols] = React.useState<string[]>([]);
   const [sortBy, setSortBy] = React.useState<'source' | 'time' | ''>('source');
@@ -90,13 +91,16 @@ export const Home: React.FC = () => {
   }, [fetchResults, filter, settings, contentType]);
 
   /** controls the checking and unchecking of rows in the list view */
-  const handleSelectedRowsChanged = React.useCallback((row: ITableInternalRow<IContentModel>) => {
-    if (row.isSelected) {
-      setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
-    } else {
-      setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
-    }
-  }, []);
+  const handleSelectedRowsChanged = React.useCallback(
+    (row: ITableInternalRow<IContentSearchResult>) => {
+      if (row.isSelected) {
+        setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
+      } else {
+        setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
+      }
+    },
+    [],
+  );
 
   return (
     <styled.Home>

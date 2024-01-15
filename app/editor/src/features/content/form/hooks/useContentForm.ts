@@ -213,7 +213,7 @@ export const useContentForm = ({
         if (!values.id) {
           // Only new content is initialized.
           values.contentType = contentType;
-          values.ownerId = userId;
+          values.ownerId = !!userId ? userId : '';
         }
 
         const model = toModel(values);

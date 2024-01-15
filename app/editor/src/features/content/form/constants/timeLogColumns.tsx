@@ -1,21 +1,20 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Column } from 'react-table';
-import { IContentModel, ITimeTrackingModel } from 'tno-core';
 
-import { getTotalTime } from '../utils';
+import { ITimeTrackingForm } from '../components/time-log/interfaces';
+import { IContentForm } from '../interfaces';
 
 /** columns located within file for state manipulation */
 export const timeLogColumns = (
-  setTotalEffort: Function,
   setFieldValue: Function,
-  values: IContentModel,
-): Column<ITimeTrackingModel>[] => [
+  values: IContentForm,
+): Column<ITimeTrackingForm>[] => [
   {
     id: 'effort',
     Header: () => <div className="center">TIME</div>,
     accessor: 'effort',
-    Cell: ({ value }) => <div className="center">{value}</div>,
+    Cell: ({ value }) => <div className="center">{value} Min</div>,
   },
   {
     id: 'user',
@@ -51,7 +50,6 @@ export const timeLogColumns = (
           onClick={() => {
             values.timeTrackings?.splice(row.id, 1);
             setFieldValue('timeTrackings', values.timeTrackings);
-            setTotalEffort(!!values.timeTrackings ? getTotalTime(values.timeTrackings) : 0);
           }}
           icon={faTrash}
         />
