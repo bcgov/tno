@@ -28,6 +28,7 @@ public class WorkOrderHelper : IWorkOrderHelper
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly ILogger<WorkOrderHelper> _logger;
     #endregion
 
     #region Properties
@@ -48,6 +49,7 @@ public class WorkOrderHelper : IWorkOrderHelper
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
     /// <param name="serializerOptions"></param>
+    /// <param name="logger"></param>
     public WorkOrderHelper(
         ClaimsPrincipal principal,
         IContentService contentService,
@@ -55,7 +57,8 @@ public class WorkOrderHelper : IWorkOrderHelper
         IUserService userService,
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaOptions> kafkaOptions,
-        IOptions<JsonSerializerOptions> serializerOptions)
+        IOptions<JsonSerializerOptions> serializerOptions,
+        ILogger<WorkOrderHelper> logger)
     {
         _principal = principal;
         _contentService = contentService;
@@ -64,6 +67,7 @@ public class WorkOrderHelper : IWorkOrderHelper
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
         _serializerOptions = serializerOptions.Value;
+        _logger = logger;
     }
     #endregion
 
@@ -135,8 +139,11 @@ public class WorkOrderHelper : IWorkOrderHelper
         var workOrders = _workOrderService.FindByContentId(contentId);
         if (force || !workOrders.Any(o => o.WorkType == Entities.WorkOrderType.Transcription || !WorkLimiterStatus.Contains(o.Status)))
         {
-            var username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+            string username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+            Entities.User? user = _userService.FindByUsername(username);
+            if (user == null) {
+                _logger.LogWarning($"Requestor user [{username}] does not exist");
+            }
             var workOrder = _workOrderService.AddAndSave(
                 new Entities.WorkOrder(
                     Entities.WorkOrderType.Transcription,
