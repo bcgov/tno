@@ -1,4 +1,3 @@
-import { BasicSearch } from 'components/basic-search';
 import { NavbarOptions, navbarOptions } from 'components/navbar/NavbarItems';
 import { PageSection } from 'components/section';
 import { Commentary } from 'features/commentary';
