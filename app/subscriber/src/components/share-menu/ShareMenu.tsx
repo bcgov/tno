@@ -56,10 +56,12 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
       if (notificationId) {
         content.forEach(async (c) => {
           if (emailAddress !== '') {
-            await shareEmail(c.id, emailAddress, parseInt(notificationId));
+            const resp = await shareEmail(c.id, emailAddress, parseInt(notificationId));
+            if (resp) {
+              toast.success('Notification has been successfully requested');
+            }
           }
         });
-        toast.success('Notification has been successfully requested');
       } else {
         toast.error(`${Settings.DefaultAlert} setting needs to be configured.`);
       }
