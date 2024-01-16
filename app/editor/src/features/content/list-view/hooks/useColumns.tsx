@@ -2,7 +2,8 @@ import { Status } from 'components/status';
 import { TabControl } from 'components/tab-control';
 import { AdvancedSearchKeys } from 'features/content/constants';
 import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
-import { FaFeather } from 'react-icons/fa';
+import { FaBug, FaCheckCircle, FaClock, FaFeather } from 'react-icons/fa';
+import { FaCirclePause, FaRegCircleRight } from 'react-icons/fa6';
 import { useContent } from 'store/hooks';
 import { IContentSearchResult } from 'store/slices';
 import {
@@ -15,6 +16,8 @@ import {
   Page,
   Row,
   Show,
+  Spinner,
+  WorkOrderStatusName,
 } from 'tno-core';
 
 export interface IColumnProps {
@@ -123,7 +126,27 @@ export const useColumns = ({ fetch }: IColumnProps): ITableHookColumn<IContentSe
       label: 'Transcript',
       hAlign: 'center',
       width: '155px',
-      cell: (cell) => <div>{cell.original.transcriptStatus}</div>,
+      cell: (cell) => {
+        if (cell.original.transcriptStatus === WorkOrderStatusName.InProgress)
+          return <Spinner size="8px" title="Transcribing" />;
+        if (
+          cell.original.transcriptStatus === WorkOrderStatusName.Completed &&
+          !cell.original.isApproved
+        )
+          return <FaRegCircleRight className="completed" title="Ready to review" />;
+        if (
+          cell.original.transcriptStatus === WorkOrderStatusName.Completed &&
+          cell.original.isApproved
+        )
+          return <FaCheckCircle className="completed" title="Completed" />;
+        if (cell.original.transcriptStatus === WorkOrderStatusName.Submitted)
+          return <FaClock className="submitted" title="Submitted" />;
+        if (cell.original.transcriptStatus === WorkOrderStatusName.Failed)
+          return <FaBug className="failed" title="Failed" />;
+        if (cell.original.transcriptStatus === WorkOrderStatusName.Cancelled)
+          return <FaCirclePause className="cancelled" title="Cancelled" />;
+        return cell.original.transcriptStatus;
+      },
     },
   ];
 };
