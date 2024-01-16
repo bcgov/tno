@@ -61,6 +61,8 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
       if (filter.hasTopic) selectedOptions.push(showOnlyOptions[1]);
       if (filter.commentary) selectedOptions.push(showOnlyOptions[2]);
       if (filter.topStory) selectedOptions.push(showOnlyOptions[3]);
+      if (filter.onlyPublished) selectedOptions.push(showOnlyOptions[4]);
+      if (filter.pendingTranscript) selectedOptions.push(showOnlyOptions[5]);
       return selectedOptions;
     };
 
@@ -111,6 +113,9 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
                     commentary: values.some((o) => o.value === ShowOnlyValues.Commentary),
                     topStory: values.some((o) => o.value === ShowOnlyValues.TopStory),
                     onlyPublished: values.some((o) => o.value === ShowOnlyValues.Published),
+                    pendingTranscript: values.some(
+                      (o) => o.value === ShowOnlyValues.PendingTranscript,
+                    ),
                   };
                 });
               }}
@@ -186,6 +191,20 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
                     ...filter,
                     pageIndex: 0,
                     onlyPublished: e.target.checked,
+                  });
+                }}
+              />
+              <Checkbox
+                className="spaced"
+                name="pendingTranscript"
+                label="Pending Transcript"
+                tooltip="Pending Transcript"
+                checked={filter.pendingTranscript}
+                onChange={(e) => {
+                  onChange({
+                    ...filter,
+                    pageIndex: 0,
+                    pendingTranscript: e.target.checked,
                   });
                 }}
               />
