@@ -6,4 +6,5 @@ export enum ShowOnlyValues {
   OnTicker = 'On Ticker',
   Homepage = 'Homepage',
   Published = 'Published',
+  PendingTranscript = 'Pending Transcript',
 }
