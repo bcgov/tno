@@ -189,11 +189,13 @@ public class WorkOrder : AuditColumns
     /// <param name="description"></param>
     /// <param name="content"></param>
     /// <param name="configuration"></param>
-    public WorkOrder(WorkOrderType type, User requestor, string description, Content content, JsonDocument? configuration = null)
+    public WorkOrder(WorkOrderType type, User? requestor, string description, Content content, JsonDocument? configuration = null)
         : this(type, description, content)
     {
-        this.RequestorId = requestor.Id;
-        this.Requestor = requestor;
+        if (requestor != null) {
+            this.RequestorId = requestor.Id;
+            this.Requestor = requestor;
+        }
         this.ContentId = content.Id;
         this.Content = content;
         if (configuration != null)
