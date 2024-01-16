@@ -6,7 +6,7 @@ import { createReportInstanceContent, moveContent, sortContent } from 'features/
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { DragDropContext, DropResult, ResponderProvided } from 'react-beautiful-dnd';
-import { FaCheck, FaPen, FaPlus } from 'react-icons/fa6';
+import { FaAngleDown, FaCheck, FaMinus, FaPen, FaPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useLookup } from 'store/hooks';
 import { ReportSectionTypeName, Row, Settings, Show } from 'tno-core';
@@ -93,13 +93,41 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({ disabled }) => 
 
   return (
     <div className="sections">
+      <Row justifyContent="flex-end">
+        {values.sections.some((s) => s.open) ? (
+          <Action
+            icon={<FaMinus />}
+            label="Close all sections"
+            onClick={() => {
+              setFieldValue(
+                `sections`,
+                values.sections.map((s) => ({ ...s, open: false })),
+              );
+            }}
+          />
+        ) : (
+          <Action
+            icon={<FaAngleDown />}
+            label="Open all media story sections"
+            onClick={() => {
+              setFieldValue(
+                'sections',
+                values.sections.map((s) => ({
+                  ...s,
+                  open: s.settings.sectionType === ReportSectionTypeName.Content,
+                })),
+              );
+            }}
+          />
+        )}
+      </Row>
       <DragDropContext onDragEnd={handleDrop}>
         {values.sections.map((section, index) => {
           return (
             <Section
               key={section.id}
               icon={<SectionIcon type={section.settings.sectionType} />}
-              open={true}
+              open={section.open}
               label={
                 <Row>
                   <SectionLabel section={section} showIcon={false} />
