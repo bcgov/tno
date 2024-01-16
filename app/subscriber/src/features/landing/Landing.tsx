@@ -40,9 +40,6 @@ export const Landing: React.FC = () => {
 
   return (
     <styled.Landing className="main-container">
-      <Row>
-        <BasicSearch />
-      </Row>
       <Row className="contents-container">
         <PageSection
           ignoreMinWidth

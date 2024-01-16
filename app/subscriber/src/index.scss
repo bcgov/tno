@@ -33,6 +33,7 @@ body {
 
 main {
   overflow: clip;
+  height: calc(100dvh - 78px);
 }
 
 body,
@@ -149,10 +150,6 @@ h4 {
       font-weight: normal;
     }
   }
-}
-
-main {
-  height: 100%;
 }
 
 .error {
