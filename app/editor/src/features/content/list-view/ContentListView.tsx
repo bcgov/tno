@@ -1,7 +1,7 @@
 import { NavigateOptions, useTab } from 'components/tab-control';
 import React, { lazy } from 'react';
 import { useParams } from 'react-router-dom';
-import { useApiHub, useApp, useContent } from 'store/hooks';
+import { useApiHub, useApp, useContent, useWorkOrders } from 'store/hooks';
 import { IContentSearchResult, useContentStore } from 'store/slices';
 import { castContentToSearchResult } from 'store/slices/content/utils';
 import {
@@ -13,13 +13,16 @@ import {
   ITableInternalRow,
   ITablePage,
   ITableSort,
+  IWorkOrderFilter,
   IWorkOrderMessageModel,
+  IWorkOrderModel,
   MessageTargetName,
   Page,
   replaceQueryParams,
   Row,
   Show,
   useCombinedView,
+  WorkOrderStatusName,
   WorkOrderTypeName,
 } from 'tno-core';
 
@@ -52,8 +55,11 @@ const ContentListView: React.FC = () => {
   const toFilter = useElasticsearch();
 
   const [contentId, setContentId] = React.useState(id);
+  const [workOrders, setWorkOrders] = React.useState<IWorkOrderModel[]>([]);
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const [, { findWorkOrders }] = useWorkOrders();
 
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
@@ -65,18 +71,21 @@ const ContentListView: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const page = React.useMemo(
-    () =>
-      !!searchResults
-        ? new Page(
-            searchResults.page - 1,
-            filter.pageSize,
-            searchResults?.items,
-            searchResults.total,
-          )
-        : defaultPage,
-    [filter.pageSize, searchResults],
-  );
+  const page = React.useMemo(() => {
+    let items: IContentSearchResult[] | undefined = searchResults?.items.map((m) => {
+      let v = { ...m };
+      v.transcriptStatus = workOrders.find((w) => w.contentId === m.id)?.status;
+      return v;
+    });
+    if (filter.pendingTranscript && items) {
+      items = items.filter((x) => x.transcriptStatus === WorkOrderStatusName.InProgress);
+    }
+    if (searchResults && items) {
+      return new Page(searchResults.page - 1, filter.pageSize, items, searchResults.total);
+    } else {
+      return defaultPage;
+    }
+  }, [filter.pageSize, filter.pendingTranscript, searchResults, workOrders]);
   const userId = userInfo?.id ?? '';
   const isReady = !!userId && filter.userId !== '';
 
@@ -151,6 +160,17 @@ const ContentListView: React.FC = () => {
       } catch {
       } finally {
         setIsLoading(false);
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(endDate.getDate() - 3);
+        const woFilter: IWorkOrderFilter = {
+          createdStartOn: startDate.toLocaleDateString('en-US'),
+          createdEndOn: endDate.toLocaleDateString('en-US'),
+        };
+        const response = await findWorkOrders(woFilter);
+        if (response) {
+          setWorkOrders(response.data.items);
+        }
       }
     },
     // 'isLoading' will result in an infinite loop for some reason.

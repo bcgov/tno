@@ -22,4 +22,5 @@ export interface IContentListFilter {
   topStory: boolean;
   homepage: boolean;
   sort: ISortBy[];
+  pendingTranscript?: boolean;
 }
