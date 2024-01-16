@@ -346,7 +346,7 @@ public class ContentController : ControllerBase
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        var subscriber = _userService.FindByEmail(email).FirstOrDefault() ?? throw new NotAuthorizedException("Subscriber does not exist");
+        var subscriber = _userService.FindByEmail(email).FirstOrDefault() ?? throw new InvalidOperationException("Subscriber does not exist");
 
         var request = new NotificationRequestModel(NotificationDestination.NotificationService, new { })
         {
