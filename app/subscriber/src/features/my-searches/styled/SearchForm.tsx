@@ -25,7 +25,6 @@ export const SearchForm = styled.div`
       }
       font-size: 1.75em;
       color: white;
-      font-family: 'Source Sans Pro', sans-serif;
       .back-arrow {
         margin-top: 0.15em;
         &:hover {

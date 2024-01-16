@@ -1,5 +1,25 @@
 @import './css/_variables';
 
+@font-face {
+  font-family: 'BCSans';
+  src: url('./fonts/BCSans3.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'BCSans';
+  src: url('./fonts/BCSans3-Bold.ttf') format('truetype');
+  font-weight: bold;
+}
+
+html {
+  font-size: 14px;
+  font-weight: 500;
+  font-family: $f-primary;
+}
+
+.table-container {
+  font-family: $f-secondary;
+}
 
 input[type='checkbox'] {
   accent-color: $btn-bk-primary;
@@ -24,16 +44,6 @@ textarea {
   -moz-osx-font-smoothing: grayscale;
 }
 
-body,
-button {
-  font-family: -apple-system, BlinkMacSystemFont, $f-primary;
-}
-
-input,
-textarea {
-  font-family: -apple-system, BlinkMacSystemFont, $f-secondary;
-}
-
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
@@ -43,26 +53,22 @@ p {
 }
 
 h1 {
-  font-size: 2em;
-  text-transform: uppercase;
+  font-size: 2rem;
   margin-top: 0;
 }
 
 h2 {
-  font-size: 1.25em;
-  text-transform: uppercase;
+  font-size: 1.25rem;
   margin-top: 0;
 }
 
 h3 {
-  font-size: 1em;
-  text-transform: uppercase;
+  font-size: 1rem;
   margin-top: 0;
 }
 
 h4 {
-  font-size: 0.75em;
-  text-transform: uppercase;
+  font-size: 0.75rem;
   margin-top: 0;
 }
 

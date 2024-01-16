@@ -15,7 +15,6 @@ export const BasicSearch = styled(Row)`
   /** SEARCH FOR TEXT */
   label {
     font-size: 0.8em;
-    font-weight: 200;
     margin-right: 0.5em;
     align-self: center;
   }
@@ -64,7 +63,7 @@ export const BasicSearch = styled(Row)`
     display: flex;
     margin-left: 0.5em;
     align-self: center;
-    font-weight: 200;
+    font-weight: 400;
     font-size: 0.8em;
     height: 2em;
     /* border-radius: 1.5em; */
@@ -97,7 +96,6 @@ export const BasicSearch = styled(Row)`
   /* GO ADVANCED TEXT */
   p {
     font-size: 0.8em;
-    font-weight: 200;
     margin-left: auto;
     align-self: center;
     margin-right: 0.5em;

@@ -3,7 +3,6 @@ import { Col } from 'tno-core';
 
 export const Landing = styled(Col)`
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, 'BCSans', 'Noto Sans', Arial, 'sans serif';
   display: flex;
   .search-links {
     color: #3847aa;
@@ -11,10 +10,6 @@ export const Landing = styled(Col)`
     &:hover {
       cursor: pointer;
     }
-  }
-
-  .title {
-    font-family: 'Source Sans Pro', sans-serif;
   }
 
   /* header for viewing a piece of content on the landing page */
