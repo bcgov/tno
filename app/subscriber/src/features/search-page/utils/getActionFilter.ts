@@ -8,7 +8,6 @@ import { IActionModel, IFilterActionSettingsModel, IFilterSettingsModel } from '
  */
 export const getActionFilters = (filter: IFilterSettingsModel, actions: IActionModel[]) => {
   const result: IFilterActionSettingsModel[] = [];
-  console.log(filter);
   if (filter.topStory) {
     const action = actions.find((x) => x.name === 'Top Story');
     if (action)

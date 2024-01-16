@@ -96,7 +96,7 @@ export const Home: React.FC = () => {
         ),
       ),
     );
-  }, [fetchResults, filter, settings, contentType]);
+  }, [fetchResults, filter, settings, contentType, actions]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = React.useCallback(
