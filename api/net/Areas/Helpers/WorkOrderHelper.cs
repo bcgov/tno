@@ -142,7 +142,7 @@ public class WorkOrderHelper : IWorkOrderHelper
             string username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
             Entities.User? user = _userService.FindByUsername(username);
             if (user == null) {
-                _logger.LogWarning($"Requestor user [{username}] does not exist");
+                _logger.LogInformation($"Transcript requesting user [{username}] does not exist");
             }
             var workOrder = _workOrderService.AddAndSave(
                 new Entities.WorkOrder(
