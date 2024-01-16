@@ -3,7 +3,16 @@ import { FaEnvelope } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { useColleagues, useLookup } from 'store/hooks';
-import { IContentModel, IUserColleagueModel, Modal, Row, Settings, useModal } from 'tno-core';
+import {
+  Button,
+  IContentModel,
+  IUserColleagueModel,
+  Modal,
+  Row,
+  Settings,
+  Text,
+  useModal,
+} from 'tno-core';
 
 import * as styled from './styled';
 
@@ -20,11 +29,12 @@ export interface IShareSubMenuProps {
 export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
   const [{ settings }] = useLookup();
   const { toggle, isShowing } = useModal();
-  const [{ getColleagues, share }] = useColleagues();
+  const [{ getColleagues, share, shareEmail }] = useColleagues();
   const [options, setOptions] = React.useState<IUserColleagueModel[]>([]);
-  const [user, setUser] = React.useState<IUserColleagueModel>();
+  const [user, setUser] = React.useState<IUserColleagueModel | null>(null);
+  const [emailAddress, setEmailAddress] = React.useState<string>('');
 
-  const handleSend = async () => {
+  const handleSendColleague = async () => {
     try {
       const notificationId = settings.find((s) => s.name === Settings.DefaultAlert)?.value;
       if (notificationId) {
@@ -34,6 +44,24 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
           }
         });
         toast.success('Notification has been successfully requested');
+      } else {
+        toast.error(`${Settings.DefaultAlert} setting needs to be configured.`);
+      }
+    } catch {}
+  };
+
+  const handleSendEmail = async () => {
+    try {
+      const notificationId = settings.find((s) => s.name === Settings.DefaultAlert)?.value;
+      if (notificationId) {
+        content.forEach(async (c) => {
+          if (emailAddress !== '') {
+            const resp = await shareEmail(c.id, emailAddress, parseInt(notificationId));
+            if (resp) {
+              toast.success('Notification has been successfully requested');
+            }
+          }
+        });
       } else {
         toast.error(`${Settings.DefaultAlert} setting needs to be configured.`);
       }
@@ -51,7 +79,7 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
   const message =
     content.length > 0
       ? `Share ${content.length} selected content${content.length > 1 ? 's' : ''} with ${
-          user?.colleague?.email
+          emailAddress !== '' ? emailAddress : user?.colleague?.email
         } ?`
       : `Please select stories to share with your colleague.`;
 
@@ -78,6 +106,7 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
               <li
                 key={o.colleague?.email}
                 onClick={() => {
+                  setEmailAddress('');
                   setUser(o);
                   toggle();
                 }}
@@ -87,6 +116,22 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
             );
           })}
         </ul>
+        <Row className="add-row">
+          <Text
+            placeholder="Share with email..."
+            name="email"
+            onChange={(e) => setEmailAddress(e.target.value)}
+          />
+          <Button
+            className="share-email"
+            onClick={() => {
+              setUser(null);
+              toggle();
+            }}
+          >
+            Share
+          </Button>
+        </Row>
       </Tooltip>
       <Modal
         headerText="Share Content"
@@ -95,9 +140,11 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
         hide={toggle}
         type="default"
         confirmText="Share"
-        enableConfirm={content.length > 0 && user?.colleague?.email !== undefined}
+        enableConfirm={
+          content.length > 0 && (user?.colleague?.email !== undefined || emailAddress !== '')
+        }
         onConfirm={() => {
-          handleSend();
+          emailAddress !== '' ? handleSendEmail() : handleSendColleague();
           toggle();
         }}
       />
