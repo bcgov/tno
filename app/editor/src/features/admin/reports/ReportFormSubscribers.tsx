@@ -49,14 +49,17 @@ export const ReportFormSubscribers: React.FC = () => {
         }}
       />
       <FlexboxTable
-        rowId="id"
+        rowId="userId"
         columns={subscriberColumns}
         data={users.items.map<IUserReportModel>((u) => {
-          const subscriber = values.subscribers.find((s) => s.id === u.id);
+          const subscriber = values.subscribers.find((s) => s.userId === u.id);
           return {
             ...u,
+            userId: u.id,
+            reportId: values.id,
             isSubscribed: subscriber?.isSubscribed ?? false,
             format: subscriber?.format ?? ReportDistributionFormatName.LinkOnly,
+            version: 0,
           };
         })}
         manualPaging

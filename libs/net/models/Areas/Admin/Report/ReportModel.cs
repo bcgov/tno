@@ -48,7 +48,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get/set - List of users who are subscribed to this report (many-to-many).
     /// </summary>
-    public IEnumerable<UserModel> Subscribers { get; set; } = Array.Empty<UserModel>();
+    public IEnumerable<UserReportModel> Subscribers { get; set; } = Array.Empty<UserReportModel>();
 
     /// <summary>
     /// get/set - An array of report instances.
@@ -81,7 +81,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
         this.IsPublic = entity.IsPublic;
         this.Settings = JsonSerializer.Deserialize<ReportSettingsModel>(entity.Settings, options) ?? new();
         this.Sections = entity.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s, options)).ToArray();
-        this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s)).ToArray();
+        this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserReportModel(s)).ToArray();
         this.Instances = entity.Instances.OrderByDescending(i => i.Id).Select(i => new ReportInstanceModel(i)).ToArray();
         this.Events = entity.Events.Select(s => new ReportScheduleModel(s)).ToArray();
     }

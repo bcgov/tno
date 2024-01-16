@@ -1,22 +1,29 @@
+import { Action } from 'components/action';
 import { Button } from 'components/button';
 import { Section } from 'components/section';
 import { IReportForm } from 'features/my-reports/interfaces';
 import { calcNextSend, getLastSent } from 'features/my-reports/utils';
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { FaTelegramPlane } from 'react-icons/fa';
+import { FaTelegramPlane, FaTrash } from 'react-icons/fa';
 import { FaRegCalendarDays } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useReportInstances } from 'store/hooks';
 import {
   Claim,
   Col,
+  getEnumStringOptions,
+  IUserReportModel,
   Modal,
+  OptionItem,
+  ReportDistributionFormatName,
   ReportStatusName,
   Row,
+  Select,
   Show,
   Spinner,
   Text,
+  useApiAdminUsers,
   useModal,
   validateEmail,
 } from 'tno-core';
@@ -26,12 +33,15 @@ export const ReportSendForm: React.FC = () => {
   const [{ sendReportInstance, publishReportInstance }] = useReportInstances();
   const [{ userInfo }] = useApp();
   const { isShowing, toggle } = useModal();
+  const { findUsers } = useApiAdminUsers();
 
   const [to, setTo] = React.useState('');
+  const [email, setEmail] = React.useState('');
 
   const instance = values.instances.length ? values.instances[0] : undefined;
   const instanceId = instance?.id;
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
+  const formatOptions = getEnumStringOptions(ReportDistributionFormatName);
 
   const handleSend = React.useCallback(
     async (id: number, to: string) => {
@@ -57,6 +67,31 @@ export const ReportSendForm: React.FC = () => {
       } catch {}
     },
     [instance?.content, publishReportInstance, setFieldValue, values.instances],
+  );
+
+  const addSubscriber = React.useCallback(
+    async (email: string) => {
+      try {
+        const response = await findUsers({ email });
+        const users = response.data;
+        if (users.items.length) {
+          const subscribers: IUserReportModel[] = users.items
+            .filter((user) => !values.subscribers.some((s) => s.userId === user.id))
+            .map<IUserReportModel>((user) => ({
+              ...user,
+              userId: user.id,
+              reportId: values.id,
+              isSubscribed: true,
+              format: ReportDistributionFormatName.FullText,
+              version: 0,
+            }));
+          setFieldValue('subscribers', [...values.subscribers, ...subscribers]);
+        } else {
+          toast.warning(`No users found for the specified email "${email}".`);
+        }
+      } catch {}
+    },
+    [findUsers, setFieldValue, values.id, values.subscribers],
   );
 
   return (
@@ -135,21 +170,73 @@ export const ReportSendForm: React.FC = () => {
           <Col flex="1">LastName</Col>
           <Col flex="1">FirstName</Col>
           <Col flex="2">Email</Col>
-          <Col flex="1">Format</Col>
+          <Col>Format</Col>
+          {isAdmin && <Col></Col>}
         </Row>
         {values.subscribers
           .filter((s) => s.isSubscribed)
-          .map((sub) => {
+          .map((sub, index) => {
             return (
-              <Row key={sub.id} className="row">
+              <Row key={sub.userId} className="row">
                 <Col flex="1">{sub.username}</Col>
                 <Col flex="1">{sub.lastName}</Col>
                 <Col flex="1">{sub.firstName}</Col>
                 <Col flex="2">{sub.email}</Col>
-                <Col flex="1">{sub.format}</Col>
+                <Col>
+                  {!isAdmin ? (
+                    sub.format
+                  ) : (
+                    <Select
+                      name={`subscribers.${index}.format`}
+                      options={formatOptions}
+                      value={formatOptions.find((o) => o.value === sub.format) ?? ''}
+                      onChange={(newValue) => {
+                        const option = newValue as OptionItem;
+                        if (option) {
+                          setFieldValue(
+                            'subscribers',
+                            values.subscribers.map((s) =>
+                              s.userId === sub.userId ? { ...sub, format: option.value } : s,
+                            ),
+                          );
+                        }
+                      }}
+                      isClearable={false}
+                    />
+                  )}
+                </Col>
+                {isAdmin && (
+                  <Col>
+                    <Action
+                      icon={<FaTrash />}
+                      onClick={() =>
+                        setFieldValue(
+                          'subscribers',
+                          values.subscribers.filter((s) => s.userId !== sub.userId),
+                        )
+                      }
+                    />
+                  </Col>
+                )}
               </Row>
             );
           })}
+        {isAdmin && (
+          <Col>
+            <h2>Add subscribers to report</h2>
+            <Row alignItems="center">
+              <Text
+                name="email"
+                label="Search by email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <Button disabled={!validateEmail(email)} onClick={() => addSubscriber(email)}>
+                Add subscriber
+              </Button>
+            </Row>
+          </Col>
+        )}
       </Col>
       <Modal
         headerText="Send Report to Subscribers"
