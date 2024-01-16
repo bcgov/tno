@@ -1,13 +1,14 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
+import { filterFormat } from 'features/search-page/utils';
 import { createFilterSettings } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
-import { useContent } from 'store/hooks';
+import { useContent, useLookup } from 'store/hooks';
 import {
   Checkbox,
   Col,
@@ -50,6 +51,7 @@ export const Home: React.FC = () => {
 
   const selectedIds = selected.map((i) => i.id.toString());
 
+  const [{ actions }] = useLookup();
   const contentType = useMemo(() => {
     if (!!filter?.contentTypes?.length) return filter.contentTypes[0];
     else return 'all';
@@ -79,16 +81,22 @@ export const Home: React.FC = () => {
     // stops invalid requests before filter is synced with date
     if (!filter.startDate) return;
     fetchResults(
-      generateQuery({
-        ...settings,
-        contentTypes: !!contentType ? filter.contentTypes : [],
-        startDate: filter.startDate,
-        endDate: filter.endDate,
-        mediaTypeIds: filter.mediaTypeIds ?? [],
-        sourceIds: filter.sourceIds ?? [],
-      }),
+      generateQuery(
+        filterFormat(
+          {
+            ...settings,
+            contentTypes: !!contentType ? filter.contentTypes : [],
+            featured: true,
+            startDate: filter.startDate,
+            endDate: filter.endDate,
+            mediaTypeIds: filter.mediaTypeIds ?? [],
+            sourceIds: filter.sourceIds ?? [],
+          },
+          actions,
+        ),
+      ),
     );
-  }, [fetchResults, filter, settings, contentType]);
+  }, [fetchResults, filter, settings, contentType, actions]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = React.useCallback(
