@@ -37,16 +37,6 @@ public class UserModel : AuditColumnsModel
     /// get/set - Last name of user.
     /// </summary>
     public string LastName { get; set; } = "";
-
-    /// <summary>
-    /// get/set - Whether the user is subscribed to the av evening overview report.
-    /// </summary>
-    public bool IsSubscribed { get; set; }
-
-    /// <summary>
-    /// get/set - Which distribution format the user wants to receive.
-    /// </summary>
-    public Entities.ReportDistributionFormat Format { get; set; } = Entities.ReportDistributionFormat.FullText;
     #endregion
 
     #region Constructors
@@ -79,8 +69,6 @@ public class UserModel : AuditColumnsModel
     public UserModel(Entities.UserReport entity) : base(entity)
     {
         this.Id = entity.UserId;
-        this.IsSubscribed = entity.IsSubscribed;
-        this.Format = entity.Format;
         if (entity.User != null)
         {
             this.Username = entity.User.Username;

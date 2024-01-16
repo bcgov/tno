@@ -53,7 +53,7 @@
     "react-tooltip": "5.10.0",
     "redux-logger": "3.0.6",
     "styled-components": "5.3.9",
-    "tno-core": "0.1.12"
+    "tno-core": "0.1.13"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "5.16.5",

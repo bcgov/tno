@@ -97,6 +97,7 @@ export const ReportEdit = styled.div`
       padding: 0.25rem;
       gap: 1rem;
       color: ${(props) => props.theme.css.fPrimaryColor};
+      align-items: center;
 
       &:nth-child(even) {
         background: ${(props) => props.theme.css.highlightSecondary};

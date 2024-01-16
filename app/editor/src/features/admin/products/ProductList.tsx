@@ -12,16 +12,21 @@ const ProductList: React.FC = () => {
   const [{ products }, api] = useProducts();
 
   const [items, setItems] = React.useState<IProductModel[]>([]);
+  const [isReady, setIsReady] = React.useState(false);
 
   React.useEffect(() => {
-    if (!products.length) {
-      api.findAllProducts().then((data) => {
-        setItems(data);
-      });
+    if (!products.length && !isReady) {
+      setIsReady(true);
+      api
+        .findAllProducts()
+        .then((data) => {
+          setItems(data);
+        })
+        .catch(() => {});
     } else {
       setItems(products);
     }
-  }, [api, products]);
+  }, [api, isReady, products]);
 
   return (
     <styled.ProductList>

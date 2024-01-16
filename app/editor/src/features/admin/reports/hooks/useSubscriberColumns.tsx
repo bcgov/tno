@@ -23,15 +23,19 @@ export const useSubscriberColumns = (): ITableHookColumn<IUserReportModel>[] => 
       hAlign: 'center',
       cell: (cell) => (
         <Checkbox
-          id={`user-${cell.original.id}`}
+          id={`user-${cell.original.userId}`}
           value={true}
-          checked={values.subscribers.some((u) => u.id === cell.original.id && u.isSubscribed)}
+          checked={values.subscribers.some(
+            (u) => u.userId === cell.original.userId && u.isSubscribed,
+          )}
           onChange={(e) => {
-            if (values.subscribers.some((u) => u.id === cell.original.id)) {
+            if (values.subscribers.some((u) => u.userId === cell.original.userId)) {
               const user = { ...cell.original, isSubscribed: e.target.checked };
               setFieldValue(
                 'subscribers',
-                values.subscribers.map((item) => (item.id === cell.original.id ? user : item)),
+                values.subscribers.map((item) =>
+                  item.userId === cell.original.userId ? user : item,
+                ),
               );
             } else {
               const user = {
@@ -57,11 +61,13 @@ export const useSubscriberColumns = (): ITableHookColumn<IUserReportModel>[] => 
           onChange={(e) => {
             const option = e as OptionItem;
             if (option) {
-              if (values.subscribers.some((u) => u.id === cell.original.id)) {
+              if (values.subscribers.some((u) => u.userId === cell.original.userId)) {
                 const user = { ...cell.original, format: option.value };
                 setFieldValue(
                   'subscribers',
-                  values.subscribers.map((item) => (item.id === cell.original.id ? user : item)),
+                  values.subscribers.map((item) =>
+                    item.userId === cell.original.userId ? user : item,
+                  ),
                 );
               } else {
                 const user = {
