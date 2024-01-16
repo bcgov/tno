@@ -15,6 +15,7 @@ export interface IFilterSettingsModel {
   dateOffset?: number;
   edition?: string;
   endDate?: string;
+  featured?: boolean;
   hasTopic?: boolean;
   inByline?: boolean;
   inHeadline?: boolean;
