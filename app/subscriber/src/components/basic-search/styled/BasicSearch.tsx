@@ -1,14 +1,14 @@
 import styled from 'styled-components';
 import { Row } from 'tno-core';
 
-export const BasicSearch = styled(Row)<{ $inHeader?: boolean }>`
+export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
   ${(props) =>
-    props.$inHeader &&
+    props.inHeader &&
     `
       width: 60%;
     `}
   ${(props) =>
-    !props.$inHeader &&
+    !props.inHeader &&
     `
       width: 100%;
       background: ${props.theme.css.bkSecondary};
@@ -26,7 +26,7 @@ export const BasicSearch = styled(Row)<{ $inHeader?: boolean }>`
     font-size: 0.8em;
     margin-right: 0.5em;
     align-self: center;
-    margin-left: ${(props) => props.$inHeader && '5%'};
+    margin-left: ${(props) => props.inHeader && '5%'};
   }
 
   /** GROUP CONTAINING ICON AND SEARCH INPUT  */
@@ -66,14 +66,14 @@ export const BasicSearch = styled(Row)<{ $inHeader?: boolean }>`
   .search-mobile {
     display: flex;
     max-width: 13em;
-    margin-top: ${(props) => !props.$inHeader && 'auto'};
+    margin-top: ${(props) => !props.inHeader && 'auto'};
     padding: 0;
   }
   /** SEARCH BUTTON */
   .search-button {
     display: flex;
     margin-left: 0.5em;
-    margin-bottom: ${(props) => props.$inHeader && '0.5em'};
+    margin-bottom: ${(props) => props.inHeader && '0.5em'};
     align-self: center;
     font-weight: 400;
     font-size: 0.8em;
@@ -108,7 +108,7 @@ export const BasicSearch = styled(Row)<{ $inHeader?: boolean }>`
   /* GO ADVANCED TEXT */
   p {
     font-size: 0.8em;
-    margin-left: ${(props) => (props.$inHeader ? '3em' : 'auto')};
+    margin-left: ${(props) => (props.inHeader ? '3em' : 'auto')};
     align-self: center;
     margin-right: 0.5em;
     color: ${(props) => props.theme.css.fRedColor};

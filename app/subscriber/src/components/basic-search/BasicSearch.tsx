@@ -41,7 +41,7 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
   };
 
   return (
-    <styled.BasicSearch $inHeader={inHeader}>
+    <styled.BasicSearch inHeader={inHeader}>
       <label>SEARCH FOR: </label>
       <Row className="icon-search">
         <FaSearch onClick={() => handleSearch()} className="search-icon" />
