@@ -7,6 +7,29 @@ export const AdvancedSearch = styled(Row)`
   .page-section {
     width: 100%;
   }
+  
+  .check-box-list {
+      display: flex;
+      flex-wrap: wrap;
+      .select-all {
+        text-transform: uppercase;
+        label {
+          font-weight:bold;
+        }
+      }
+      .chk-media-type {
+        /* need a media-selector here */
+        width: 25%;
+        font-size: small;
+        div {
+          align-items:center;
+          margin: 1px 0;
+        input {
+          height: auto;
+        }
+      }
+    }
+  }
 
   .search-for-row {
     margin-top: 0.5em;
