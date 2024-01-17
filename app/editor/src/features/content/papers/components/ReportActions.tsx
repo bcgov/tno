@@ -5,10 +5,7 @@ import { IContentListFilter } from 'features/content/interfaces';
 import * as React from 'react';
 import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
-import {
-  IContentSearchResult,
-  // , useContentStore
-} from 'store/slices';
+import { IContentSearchResult } from 'store/slices';
 import {
   ActionName,
   Button,
@@ -16,6 +13,7 @@ import {
   Col,
   ContentListActionName,
   ContentStatusName,
+  IContentModel,
   Row,
   Show,
 } from 'tno-core';
@@ -27,6 +25,7 @@ interface IReportActionProps {
   filter: IContentListFilter;
   /** Whether content is loading. */
   setLoading: (loading: boolean) => void;
+  onContentHidden: (contentToHide: IContentModel[]) => void;
   /** An array of selected content. */
   selected: IContentSearchResult[];
 }
@@ -39,10 +38,10 @@ interface IReportActionProps {
 export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
   filter,
   setLoading,
+  onContentHidden,
   selected,
 }) => {
   const [{ searchResults }, { updateContentList }] = useContent();
-  // const [, { removeContent }] = useContentStore();
   const [{ holidays }] = useLookup();
 
   const [commentary] = React.useState(`${getDefaultCommentaryExpiryValue(new Date(), holidays)}`);
@@ -60,7 +59,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
             : searchResults?.items.map((c) => c.id) ?? [],
         });
         if (value === 'false' || !value) {
-          // removeContent(items);
+          onContentHidden(items);
         }
         toast.success(`${items.length} item${items.length > 1 ? 's' : ''} updated.`);
       } catch (ex: any | AxiosError) {
@@ -69,13 +68,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
         setLoading(false);
       }
     },
-    [
-      setLoading,
-      updateContentList,
-      selected,
-      searchResults?.items,
-      // , removeContent
-    ],
+    [setLoading, updateContentList, selected, searchResults?.items, onContentHidden],
   );
 
   return (

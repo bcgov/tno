@@ -241,6 +241,23 @@ const Papers: React.FC<IPapersProps> = (props) => {
     }
   };
 
+  const handleContentHidden = React.useCallback(
+    async (contentToHide: IContentModel[]) => {
+      try {
+        let filteredItems = currentResultsPage.items;
+        contentToHide.forEach((c) => {
+          filteredItems = currentResultsPage.items.filter((i) => i.id !== c.id);
+        });
+        const newPage = {
+          ...currentResultsPage,
+          items: filteredItems,
+        };
+        setCurrentResultsPage(newPage);
+      } catch {}
+    },
+    [currentResultsPage],
+  );
+
   return (
     <styled.Papers>
       <Col wrap="nowrap">
@@ -266,7 +283,12 @@ const Papers: React.FC<IPapersProps> = (props) => {
             selectedRowIds={selectedIds}
           />
         </Row>
-        <ReportActions setLoading={setIsLoading} selected={selected} filter={filter} />
+        <ReportActions
+          setLoading={setIsLoading}
+          selected={selected}
+          filter={filter}
+          onContentHidden={handleContentHidden}
+        />
       </Col>
     </styled.Papers>
   );
