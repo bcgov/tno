@@ -2,17 +2,12 @@ import { AdvancedSearchKeys } from 'features/content/constants';
 import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
 import React from 'react';
 import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
-import { IContentModel, IPaged } from 'tno-core';
 
 import {
-  addContent,
-  removeContent,
-  storeContent,
   storeContentFilter,
   storeContentFilterAdvanced,
   storeFilterPaper,
   storeFilterPaperAdvanced,
-  updateContent,
 } from '.';
 import { IContentState } from './interfaces';
 
@@ -29,10 +24,6 @@ export interface IContentStore {
   storeFilterPaperAdvanced: (
     filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
-  storeContent: (content: IPaged<IContentModel>) => void;
-  addContent: (content: IContentModel[]) => void;
-  updateContent: (content: IContentModel[]) => void;
-  removeContent: (content: IContentModel[]) => void;
 }
 
 var filterAdvanced: IContentListAdvancedFilter = {
@@ -72,18 +63,6 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
         if (typeof filter === 'function')
           dispatch(storeFilterPaperAdvanced(filter(filterAdvanced)));
         else dispatch(storeFilterPaperAdvanced(filter));
-      },
-      storeContent: (content: IPaged<IContentModel>) => {
-        dispatch(storeContent(content));
-      },
-      addContent: (content: IContentModel[]) => {
-        dispatch(addContent(content));
-      },
-      updateContent: (content: IContentModel[]) => {
-        dispatch(updateContent(content));
-      },
-      removeContent: (content: IContentModel[]) => {
-        dispatch(removeContent(content));
       },
     }),
     [dispatch, state.filter, state.filterPaper],

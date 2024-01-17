@@ -5,7 +5,10 @@ import { IContentListFilter } from 'features/content/interfaces';
 import * as React from 'react';
 import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
-import { IContentSearchResult, useContentStore } from 'store/slices';
+import {
+  IContentSearchResult,
+  // , useContentStore
+} from 'store/slices';
 import {
   ActionName,
   Button,
@@ -39,7 +42,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
   selected,
 }) => {
   const [{ searchResults }, { updateContentList }] = useContent();
-  const [, { removeContent }] = useContentStore();
+  // const [, { removeContent }] = useContentStore();
   const [{ holidays }] = useLookup();
 
   const [commentary] = React.useState(`${getDefaultCommentaryExpiryValue(new Date(), holidays)}`);
@@ -57,7 +60,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
             : searchResults?.items.map((c) => c.id) ?? [],
         });
         if (value === 'false' || !value) {
-          removeContent(items);
+          // removeContent(items);
         }
         toast.success(`${items.length} item${items.length > 1 ? 's' : ''} updated.`);
       } catch (ex: any | AxiosError) {
@@ -66,7 +69,13 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
         setLoading(false);
       }
     },
-    [setLoading, updateContentList, selected, searchResults?.items, removeContent],
+    [
+      setLoading,
+      updateContentList,
+      selected,
+      searchResults?.items,
+      // , removeContent
+    ],
   );
 
   return (

@@ -1,15 +1,10 @@
-import {
-  KnnSearchResponse,
-  MsearchMultisearchBody,
-  SearchTotalHits,
-} from '@elastic/elasticsearch/lib/api/types';
+import { KnnSearchResponse, MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
 import React from 'react';
 import { ActionDelegate } from 'store';
 import { useContentStore } from 'store/slices';
 import { IContentProps, IContentState } from 'store/slices/content';
 import {
-  ContentListActionName,
   IContentFilter,
   IContentListModel,
   IContentModel,
@@ -59,7 +54,6 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
     return {
       findContent: async (filter: IContentFilter) => {
         const response = await dispatch('find-contents', () => api.findContent(filter));
-        actions.storeContent(response.data);
         return response.data;
       },
       findContentWithElasticsearch: async (
@@ -69,13 +63,6 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         const response = await dispatch('find-contents-with-elasticsearch', () =>
           api.findContentWithElasticsearch(filter, includeUnpublishedContent),
         );
-        const items = response.data.hits?.hits?.map((h) => h._source as IContentModel);
-        actions.storeContent({
-          page: 1,
-          quantity: filter.size ?? 500,
-          total: (response.data.hits?.total as SearchTotalHits)?.value,
-          items: items,
-        });
         return response.data;
       },
       getContent: async (id: number) => {
@@ -84,7 +71,6 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       },
       addContent: async (content: IContentModel) => {
         const response = await dispatch('add-content', () => api.addContent(content), 'content');
-        actions.addContent([response.data]);
         return response.data;
       },
       updateContent: async (content: IContentModel) => {
@@ -93,7 +79,6 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
           () => api.updateContent(content),
           'content',
         );
-        actions.updateContent([response.data]);
         return response.data;
       },
       updateContentList: async (content: IContentListModel) => {
@@ -102,23 +87,6 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
           () => api.updateContentList(content),
           'content',
         );
-
-        switch (content.action) {
-          case ContentListActionName.Publish:
-          case ContentListActionName.Unpublish:
-          case ContentListActionName.Action:
-            actions.updateContent(
-              response.data.map((i) => {
-                i.isSelected = true;
-                return i;
-              }),
-            );
-            break;
-          case ContentListActionName.Hide:
-          case ContentListActionName.Unhide:
-            actions.removeContent(response.data);
-            break;
-        }
         return response.data;
       },
       updateContentTopics: async (id: number, topics?: IContentTopicModel[]) => {
@@ -135,7 +103,6 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
           () => api.deleteContent(content),
           'content',
         );
-        actions.removeContent([response.data]);
         return response.data;
       },
       publishContent: async (content: IContentModel) => {

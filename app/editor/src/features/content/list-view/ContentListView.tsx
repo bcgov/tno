@@ -1,8 +1,9 @@
+import { SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import { NavigateOptions, useTab } from 'components/tab-control';
 import React, { lazy } from 'react';
 import { useParams } from 'react-router-dom';
-import { useApiHub, useApp, useContent, useWorkOrders } from 'store/hooks';
-import { IContentSearchResult, useContentStore } from 'store/slices';
+import { useApiHub, useApp, useContent, useLocalStorage, useWorkOrders } from 'store/hooks';
+import { IContentSearchResult } from 'store/slices';
 import { castContentToSearchResult } from 'store/slices/content/utils';
 import {
   Col,
@@ -44,9 +45,8 @@ const ContentForm = lazy(() => import('../form/ContentForm'));
 const ContentListView: React.FC = () => {
   const [{ userInfo }] = useApp();
   const { id } = useParams();
-  const [, { addContent, updateContent }] = useContentStore();
   const [
-    { filter, filterAdvanced, searchResults },
+    { filter, filterAdvanced },
     { getContent, storeFilter, storeFilterAdvanced, findContentWithElasticsearch },
   ] = useContent();
   const { combined, formType } = useCombinedView();
@@ -55,11 +55,19 @@ const ContentListView: React.FC = () => {
   const toFilter = useElasticsearch();
 
   const [contentId, setContentId] = React.useState(id);
-  const [workOrders, setWorkOrders] = React.useState<IWorkOrderModel[]>([]);
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
   const [isLoading, setIsLoading] = React.useState(false);
 
   const [, { findWorkOrders }] = useWorkOrders();
+  // This configures the shared storage between this list and any content tabs
+  // that are opened.  Mainly used for navigation in the tab
+  const [, setCurrentItems] = useLocalStorage('currentContent', {} as IContentSearchResult[]);
+
+  // Stores the current page
+  const [currentResultsPage, setCurrentResultsPage] = React.useState(defaultPage);
+  React.useEffect(() => {
+    setCurrentItems(currentResultsPage.items);
+  }, [currentResultsPage, setCurrentItems]);
 
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
@@ -71,21 +79,6 @@ const ContentListView: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const page = React.useMemo(() => {
-    let items: IContentSearchResult[] | undefined = searchResults?.items.map((m) => {
-      let v = { ...m };
-      v.transcriptStatus = workOrders.find((w) => w.contentId === m.id)?.status;
-      return v;
-    });
-    if (filter.pendingTranscript && items) {
-      items = items.filter((x) => x.transcriptStatus === WorkOrderStatusName.InProgress);
-    }
-    if (searchResults && items) {
-      return new Page(searchResults.page - 1, filter.pageSize, items, searchResults.total);
-    } else {
-      return defaultPage;
-    }
-  }, [filter.pageSize, filter.pendingTranscript, searchResults, workOrders]);
   const userId = userInfo?.id ?? '';
   const isReady = !!userId && filter.userId !== '';
 
@@ -98,14 +91,25 @@ const ContentListView: React.FC = () => {
       ) {
         if (!!workOrder.contentId) {
           getContent(workOrder.contentId ?? 0).then((content) => {
-            if (!!content) updateContent([content]);
+            if (!!content) {
+              const newPage = {
+                ...currentResultsPage,
+                items: currentResultsPage.items.map((i) => {
+                  if (i.id === content.id) {
+                    return castContentToSearchResult(content);
+                  } else {
+                    return i;
+                  }
+                }),
+              };
+              setCurrentResultsPage(newPage);
+            }
           });
         }
       }
     },
-    [getContent, updateContent],
+    [currentResultsPage, getContent],
   );
-
   hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
 
   const onContentAdded = React.useCallback(
@@ -113,29 +117,68 @@ const ContentListView: React.FC = () => {
       if (message.ownerId === userId) {
         try {
           const result = await getContent(message.id);
-          if (!!result) addContent([result]);
-        } catch {}
+          if (!!result) {
+            const newPage = {
+              ...currentResultsPage,
+              items: currentResultsPage.items.map((i) => {
+                if (i.id === result.id) {
+                  return castContentToSearchResult(result);
+                } else {
+                  return i;
+                }
+              }),
+            };
+            setCurrentResultsPage(newPage);
+          }
+        } catch { }
       }
     },
-    [userId, getContent, addContent],
+    [userId, currentResultsPage, getContent],
   );
-
   hub.useHubEffect(MessageTargetName.ContentAdded, onContentAdded);
 
   const onContentUpdated = React.useCallback(
     async (message: IContentMessageModel) => {
       // Only update if the current page includes the updated content.
-      if (searchResults?.items.some((c) => c.id === message.id)) {
+      if (currentResultsPage.items?.some((c) => c.id === message.id)) {
         try {
           const result = await getContent(message.id);
-          if (!!result) updateContent([result]);
-        } catch {}
+          if (!!result) {
+            const newPage = {
+              ...currentResultsPage,
+              items: currentResultsPage.items.map((i) => {
+                if (i.id === result.id) {
+                  return castContentToSearchResult(result);
+                } else {
+                  return i;
+                }
+              }),
+            };
+            setCurrentResultsPage(newPage);
+          }
+        } catch { }
       }
     },
-    [searchResults?.items, getContent, updateContent],
+    [currentResultsPage, getContent],
   );
-
   hub.useHubEffect(MessageTargetName.ContentUpdated, onContentUpdated);
+
+  const onContentDeleted = React.useCallback(
+    async (message: IContentMessageModel) => {
+      // Only update if the current page includes the updated content.
+      if (currentResultsPage.items?.some((c) => c.id === message.id)) {
+        try {
+          const newPage = {
+            ...currentResultsPage,
+            items: currentResultsPage.items.filter((i) => i.id !== message.id),
+          };
+          setCurrentResultsPage(newPage);
+        } catch { }
+      }
+    },
+    [currentResultsPage],
+  );
+  hub.useHubEffect(MessageTargetName.ContentDeleted, onContentDeleted);
 
   React.useEffect(() => {
     // Required because the first time this page is loaded directly the user has not been set.
@@ -150,27 +193,62 @@ const ContentListView: React.FC = () => {
       try {
         if (!isLoading) {
           setIsLoading(true);
-          const result = await findContentWithElasticsearch(toFilter(filter), true);
-          const items = result.hits?.hits?.map((h) =>
+          const endDate = new Date();
+          const startDate = new Date();
+          startDate.setDate(endDate.getDate() - 3);
+          const woFilter: IWorkOrderFilter = {
+            createdStartOn: startDate.toLocaleDateString('en-US'),
+            createdEndOn: endDate.toLocaleDateString('en-US'),
+          };
+
+          const [results, workOrders] = await Promise.all([findContentWithElasticsearch(toFilter(filter), true), findWorkOrders(woFilter)]);
+
+          const items = results.hits?.hits?.map((h) =>
             castContentToSearchResult(h._source as IContentModel),
           );
-          const page = new Page(1, filter.pageSize, items, result.hits?.total as number);
-          return page;
+
+          if (filter.pendingTranscript && items) {
+            let itemsWithStatus: IContentSearchResult[] | undefined = items.map((m) => {
+              let v = { ...m };
+              v.transcriptStatus = workOrders.data.items.find((w) => w.contentId === m.id)?.status;
+              return v;
+            });
+            if (itemsWithStatus) {
+              itemsWithStatus = itemsWithStatus.filter((x) => x.transcriptStatus === WorkOrderStatusName.InProgress);
+            }
+            if (results && itemsWithStatus) {
+              const page = new Page(1, filter.pageSize, itemsWithStatus, itemsWithStatus.length);
+              setCurrentResultsPage(page);
+              return page;
+            } else {
+              setCurrentResultsPage(defaultPage);
+              return defaultPage;
+            }
+          } else {
+            const page = new Page(
+              1,
+              filter.pageSize,
+              items,
+              (results.hits?.total as SearchTotalHits).value,
+            );
+            setCurrentResultsPage(page);
+            return page;
+          }
         }
       } catch {
       } finally {
         setIsLoading(false);
-        const endDate = new Date();
-        const startDate = new Date();
-        startDate.setDate(endDate.getDate() - 3);
-        const woFilter: IWorkOrderFilter = {
-          createdStartOn: startDate.toLocaleDateString('en-US'),
-          createdEndOn: endDate.toLocaleDateString('en-US'),
-        };
-        const response = await findWorkOrders(woFilter);
-        if (response) {
-          setWorkOrders(response.data.items);
-        }
+        // const endDate = new Date();
+        // const startDate = new Date();
+        // startDate.setDate(endDate.getDate() - 3);
+        // const woFilter: IWorkOrderFilter = {
+        //   createdStartOn: startDate.toLocaleDateString('en-US'),
+        //   createdEndOn: endDate.toLocaleDateString('en-US'),
+        // };
+        // const response = await findWorkOrders(woFilter);
+        // if (response) {
+        //   setWorkOrders(response.data.items);
+        // }
       }
     },
     // 'isLoading' will result in an infinite loop for some reason.
@@ -223,9 +301,11 @@ const ContentListView: React.FC = () => {
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-      const index = !!contentId ? page?.items.findIndex((c: any) => c.id === +contentId) ?? -1 : -1;
+      const index = !!contentId
+        ? currentResultsPage?.items.findIndex((c: any) => c.id === +contentId) ?? -1
+        : -1;
       const newIndex = event.key === 'ArrowUp' ? index - 1 : index + 1;
-      const newContent = page.items[newIndex];
+      const newContent = currentResultsPage.items[newIndex];
       if (newContent) {
         setContentType(newContent.contentType);
         setContentId(newContent.id.toString());
@@ -246,12 +326,12 @@ const ContentListView: React.FC = () => {
             <FlexboxTable
               rowId="id"
               columns={columns}
-              data={page.items}
+              data={currentResultsPage.items}
               manualPaging={true}
               pageIndex={filter.pageIndex}
               pageSize={filter.pageSize}
-              pageCount={page.pageCount}
-              totalItems={page.total}
+              pageCount={currentResultsPage.pageCount}
+              totalItems={currentResultsPage.total}
               showSort={true}
               activeRowId={contentId}
               isLoading={isLoading}

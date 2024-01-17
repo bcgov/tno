@@ -1,15 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaChevronLeft, FaChevronRight, FaSpinner } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import {
-  Button,
-  ButtonVariant,
-  getFromLocalStorage,
-  IContentModel,
-  Row,
-  Show,
-  useCombinedView,
-} from 'tno-core';
+import { useLocalStorage } from 'store/hooks';
+import { IContentSearchResult } from 'store/slices';
+import { Button, ButtonVariant, Row, Show, useCombinedView } from 'tno-core';
 
 import { IContentForm } from './interfaces/IContentForm';
 import { getContentPath } from './utils';
@@ -40,11 +34,32 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
   const { combined } = useCombinedView(values.contentType);
 
   // TODO: This won't update with the latest search results.
-  const [items] = React.useState(getFromLocalStorage<IContentModel[]>('content', []));
+  // const [items] = React.useState(getFromLocalStorage<IContentModel[]>('content', []));
+  const [currentItems] = useLocalStorage('currentContent', null);
 
-  const indexPosition = !!values.id ? items.findIndex((c) => c.id === +values.id) ?? -1 : -1;
-  const enablePrev = indexPosition > 0;
-  const enableNext = indexPosition < (items.length ?? 0) - 1;
+  const [indexPosition, setIndexPosition] = useState(0);
+  const [enablePrev, setEnablePrev] = useState(false);
+  const [enableNext, setEnableNext] = useState(false);
+
+  React.useEffect(() => {
+    if (currentItems != null) {
+      let index = !!values.id
+        ? (currentItems as IContentSearchResult[]).findIndex((c) => c.id === +values.id) ?? -1
+        : -1;
+      setIndexPosition(index);
+      setEnablePrev(index > 0);
+      setEnableNext(index < ((currentItems as IContentSearchResult[]).length ?? 0) - 1);
+    }
+  }, [currentItems, values.id]);
+
+  const handleNavigate = (offset: number) => {
+    if (currentItems != null) {
+      const targetId = (currentItems as IContentSearchResult[])[indexPosition + offset]?.id;
+      if (!!targetId) {
+        navigate(getContentPath(combined, targetId, values.contentType, combinedPath));
+      }
+    }
+  };
 
   return (
     <Row gap="0.15rem">
@@ -52,12 +67,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
         <Button
           variant={ButtonVariant.secondary}
           tooltip="Previous"
-          onClick={() => {
-            const id = items[indexPosition - 1]?.id;
-            if (!!id) {
-              navigate(getContentPath(combined, id, values.contentType, combinedPath));
-            }
-          }}
+          onClick={() => handleNavigate(-1)}
           disabled={!enablePrev}
         >
           <FaChevronLeft />
@@ -65,10 +75,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
         <Button
           variant={ButtonVariant.secondary}
           tooltip="Next"
-          onClick={() => {
-            const id = items[indexPosition + 1]?.id;
-            navigate(getContentPath(combined, id, values.contentType, combinedPath));
-          }}
+          onClick={() => handleNavigate(+1)}
           disabled={!enableNext}
         >
           <FaChevronRight />
