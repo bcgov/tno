@@ -1,6 +1,7 @@
+import { BasicSearch } from 'components/basic-search';
 import { UserProfile } from 'components/user-profile';
 import React from 'react';
-import { Row } from 'tno-core';
+import { Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -25,7 +26,7 @@ export const Header: React.FC<IHeaderProps> = ({
 }) => {
   return (
     <styled.Header className="header">
-      <Row flex="1">
+      <Row>
         {showLogo && (
           <div className="logo-container">
             <img
@@ -37,7 +38,9 @@ export const Header: React.FC<IHeaderProps> = ({
         )}
         {children}
       </Row>
-
+      <Show visible={!window.location.pathname.includes('search')}>
+        <BasicSearch inHeader />
+      </Show>
       {showProfile && <UserProfile />}
     </styled.Header>
   );

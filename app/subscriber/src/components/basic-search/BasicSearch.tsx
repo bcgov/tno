@@ -10,10 +10,12 @@ import * as styled from './styled';
 
 export interface IBasicSearchProps {
   onSearch?: (filter: IFilterSettingsModel) => void;
+  /** whether to display the header variant of the search */
+  inHeader?: boolean;
 }
 
 /** Basic search functionality (just search term), and an option to get to the advanced filter */
-export const BasicSearch = ({ onSearch }: IBasicSearchProps) => {
+export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
   const { id } = useParams();
   const [
     {
@@ -39,7 +41,7 @@ export const BasicSearch = ({ onSearch }: IBasicSearchProps) => {
   };
 
   return (
-    <styled.BasicSearch>
+    <styled.BasicSearch inHeader={inHeader}>
       <label>SEARCH FOR: </label>
       <Row className="icon-search">
         <FaSearch onClick={() => handleSearch()} className="search-icon" />

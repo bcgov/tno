@@ -1,4 +1,3 @@
-import { BasicSearch } from 'components/basic-search';
 import { NavbarOptions, navbarOptions } from 'components/navbar/NavbarItems';
 import { PageSection } from 'components/section';
 import { Commentary } from 'features/commentary';
@@ -40,9 +39,6 @@ export const Landing: React.FC = () => {
 
   return (
     <styled.Landing className="main-container">
-      <Row>
-        <BasicSearch />
-      </Row>
       <Row className="contents-container">
         <PageSection
           ignoreMinWidth
