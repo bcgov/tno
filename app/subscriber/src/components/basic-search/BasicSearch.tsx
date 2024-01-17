@@ -1,10 +1,10 @@
 import { defaultAdvancedSearch } from 'features/search-page/components/advanced-search/constants';
 import { handleEnterPressed, isNumber } from 'features/utils';
-import { FaPlay, FaSearch } from 'react-icons/fa';
+import { FaSearch } from 'react-icons/fa';
 import { useNavigate } from 'react-router';
 import { useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { Button, IFilterSettingsModel, Row, Text } from 'tno-core';
+import { IFilterSettingsModel, Row, Text } from 'tno-core';
 
 import * as styled from './styled';
 
