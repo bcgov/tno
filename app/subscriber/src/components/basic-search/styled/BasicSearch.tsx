@@ -31,6 +31,12 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
 
   /** GROUP CONTAINING ICON AND SEARCH INPUT  */
   .icon-search {
+    ${(props) =>
+      props.inHeader &&
+      `
+      margin-top: auto;
+      margin-bottom: auto;
+      `}
     border: 0.5px solid ${(props) => props.theme.css.linePrimaryColor};
     border-radius: 1.5em;
     background-color: ${(props) => props.theme.css.bkWhite};
@@ -71,9 +77,14 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
   }
   /** SEARCH BUTTON */
   .search-button {
+    ${(props) =>
+      props.inHeader &&
+      `
+      margin-top: auto;
+      margin-bottom: auto;
+      `}
     display: flex;
     margin-left: 0.5em;
-    margin-bottom: ${(props) => props.inHeader && '0.5em'};
     align-self: center;
     font-weight: 400;
     font-size: 0.8em;

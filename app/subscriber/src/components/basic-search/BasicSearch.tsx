@@ -55,24 +55,6 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
           }}
         />
       </Row>
-      <Text
-        className="search-mobile"
-        name="search-mobile"
-        value={filter.search ?? ''}
-        onChange={(e) => {
-          storeSearchFilter({ ...filter, search: e.target.value });
-        }}
-      />
-
-      <Button
-        onClick={() => {
-          handleSearch();
-        }}
-        className="search-button"
-      >
-        Search
-        <FaPlay />
-      </Button>
       <p onClick={() => navigate(`/search/advanced/${filterId}`)}>GO ADVANCED</p>
     </styled.BasicSearch>
   );
