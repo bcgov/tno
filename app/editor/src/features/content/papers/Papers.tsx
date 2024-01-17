@@ -97,7 +97,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
 
   const onContentUpdated = React.useCallback(
     async (message: IContentMessageModel) => {
-      if (currentResultsPage?.items.some((c) => c.id === message.id)) {
+      if (currentResultsPage.items.some((c) => c.id === message.id)) {
         try {
           const result = await getContent(message.id);
           if (!!result) {

@@ -33,8 +33,6 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
   const navigate = useNavigate();
   const { combined } = useCombinedView(values.contentType);
 
-  // TODO: This won't update with the latest search results.
-  // const [items] = React.useState(getFromLocalStorage<IContentModel[]>('content', []));
   const [currentItems] = useLocalStorage('currentContent', null);
 
   const [indexPosition, setIndexPosition] = useState(0);

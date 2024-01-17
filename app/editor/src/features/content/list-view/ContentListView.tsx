@@ -139,7 +139,7 @@ const ContentListView: React.FC = () => {
   const onContentUpdated = React.useCallback(
     async (message: IContentMessageModel) => {
       // Only update if the current page includes the updated content.
-      if (currentResultsPage.items?.some((c) => c.id === message.id)) {
+      if (currentResultsPage.items.some((c) => c.id === message.id)) {
         try {
           const result = await getContent(message.id);
           if (!!result) {
@@ -165,7 +165,7 @@ const ContentListView: React.FC = () => {
   const onContentDeleted = React.useCallback(
     async (message: IContentMessageModel) => {
       // Only update if the current page includes the updated content.
-      if (currentResultsPage.items?.some((c) => c.id === message.id)) {
+      if (currentResultsPage.items.some((c) => c.id === message.id)) {
         try {
           const newPage = {
             ...currentResultsPage,
