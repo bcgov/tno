@@ -16,7 +16,6 @@ import {
   ITableSort,
   IWorkOrderFilter,
   IWorkOrderMessageModel,
-  IWorkOrderModel,
   MessageTargetName,
   Page,
   replaceQueryParams,
@@ -130,7 +129,7 @@ const ContentListView: React.FC = () => {
             };
             setCurrentResultsPage(newPage);
           }
-        } catch { }
+        } catch {}
       }
     },
     [userId, currentResultsPage, getContent],
@@ -156,7 +155,7 @@ const ContentListView: React.FC = () => {
             };
             setCurrentResultsPage(newPage);
           }
-        } catch { }
+        } catch {}
       }
     },
     [currentResultsPage, getContent],
@@ -173,7 +172,7 @@ const ContentListView: React.FC = () => {
             items: currentResultsPage.items.filter((i) => i.id !== message.id),
           };
           setCurrentResultsPage(newPage);
-        } catch { }
+        } catch {}
       }
     },
     [currentResultsPage],
@@ -193,15 +192,20 @@ const ContentListView: React.FC = () => {
       try {
         if (!isLoading) {
           setIsLoading(true);
+
           const endDate = new Date();
           const startDate = new Date();
           startDate.setDate(endDate.getDate() - 3);
           const woFilter: IWorkOrderFilter = {
             createdStartOn: startDate.toLocaleDateString('en-US'),
             createdEndOn: endDate.toLocaleDateString('en-US'),
+            status: WorkOrderStatusName.InProgress, // kgm: bring back only what we are interested in
           };
 
-          const [results, workOrders] = await Promise.all([findContentWithElasticsearch(toFilter(filter), true), findWorkOrders(woFilter)]);
+          const [results, workOrders] = await Promise.all([
+            findContentWithElasticsearch(toFilter(filter), true),
+            findWorkOrders(woFilter),
+          ]);
 
           const items = results.hits?.hits?.map((h) =>
             castContentToSearchResult(h._source as IContentModel),
@@ -214,7 +218,9 @@ const ContentListView: React.FC = () => {
               return v;
             });
             if (itemsWithStatus) {
-              itemsWithStatus = itemsWithStatus.filter((x) => x.transcriptStatus === WorkOrderStatusName.InProgress);
+              itemsWithStatus = itemsWithStatus.filter(
+                (x) => x.transcriptStatus === WorkOrderStatusName.InProgress,
+              );
             }
             if (results && itemsWithStatus) {
               const page = new Page(1, filter.pageSize, itemsWithStatus, itemsWithStatus.length);
@@ -222,7 +228,7 @@ const ContentListView: React.FC = () => {
               return page;
             } else {
               setCurrentResultsPage(defaultPage);
-              return defaultPage;
+              return defaultPage as Page<IContentSearchResult>;
             }
           } else {
             const page = new Page(
@@ -238,17 +244,6 @@ const ContentListView: React.FC = () => {
       } catch {
       } finally {
         setIsLoading(false);
-        // const endDate = new Date();
-        // const startDate = new Date();
-        // startDate.setDate(endDate.getDate() - 3);
-        // const woFilter: IWorkOrderFilter = {
-        //   createdStartOn: startDate.toLocaleDateString('en-US'),
-        //   createdEndOn: endDate.toLocaleDateString('en-US'),
-        // };
-        // const response = await findWorkOrders(woFilter);
-        // if (response) {
-        //   setWorkOrders(response.data.items);
-        // }
       }
     },
     // 'isLoading' will result in an infinite loop for some reason.
