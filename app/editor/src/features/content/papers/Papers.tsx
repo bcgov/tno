@@ -54,7 +54,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [isFilterLoading, setIsFilterLoading] = React.useState(true);
   const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
-
+  const selectedIds = selected.map((i) => i.id.toString());
   const userId = userInfo?.id ?? '';
 
   const onContentAdded = React.useCallback(
@@ -236,6 +236,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
             onSortChange={handleChangeSort}
             onCellClick={handleRowClick}
             onSelectedChanged={handleSelectedRowsChanged}
+            selectedRowIds={selectedIds}
           />
         </Row>
         <ReportActions setLoading={setIsLoading} selected={selected} filter={filter} />
