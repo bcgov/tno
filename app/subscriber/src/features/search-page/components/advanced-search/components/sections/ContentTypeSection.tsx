@@ -46,10 +46,9 @@ export const ContentTypeSection: React.FC<IContentTypeSectionProps> = ({
             </Button>
           </div>
           {typeOptions.map((item, index) => (
-            <div key={index} className="chk-box-container chk-content-type">
+            <div key={`chk-content-type-${index}`} className="chk-box-container chk-content-type">
               <Checkbox
                 id={`chk-content-type-${index}`}
-                key={index}
                 label={item.label}
                 checked={filter.contentTypes?.includes(item.value)}
                 value={item.value}

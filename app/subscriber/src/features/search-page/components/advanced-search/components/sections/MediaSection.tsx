@@ -9,8 +9,6 @@ import { IFilterDisplayProps } from './IFilterDisplayProps';
 import { determineSelectedMedia, sortableMediaOptions } from './utils';
 
 export interface IMediaSectionProps extends IFilterDisplayProps {
-  // /** whether to display filter choices as checkboxes or a select box */
-  // displayFiltersAsDropdown: boolean;
   /** the object that contains the expansion states of the media subgroups  */
   mediaGroupExpandedStates: ISubMediaGroupExpanded;
   /** function that controls the expanded state of the media sub-menu items */
@@ -119,10 +117,9 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
                     </Button>
                   </div>
                   {sortableMediaOptions(mediaGroup.options).map((item, index) => (
-                    <div key={index} className="chk-box-container chk-source">
+                    <div key={`chk-source-${index}-${item.value}`} className="chk-box-container chk-source">
                       <Checkbox
                         id={`chk-source-${index}-${item.value}`}
-                        key={`${index}-${item.value}`}
                         label={item.label}
                         checked={filter.sourceIds?.includes(+item.value!)}
                         value={item.value}

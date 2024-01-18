@@ -51,10 +51,9 @@ export const SeriesSection: React.FC<IFilterDisplayProps> = ({ displayFiltersAsD
             </Button>
           </div>
           {seriesOptions.map((item, index) => (
-            <div key={index} className="chk-box-container chk-series">
+            <div key={`chk-series-${index}`} className="chk-box-container chk-series">
               <Checkbox
                 id={`chk-series-${index}`}
-                key={index}
                 label={item.label}
                 checked={filter.seriesIds?.includes(+item.value!)}
                 value={item.value}

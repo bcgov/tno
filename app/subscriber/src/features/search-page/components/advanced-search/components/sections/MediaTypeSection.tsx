@@ -36,10 +36,9 @@ export const MediaTypeSection: React.FC<IFilterDisplayProps> = ({ displayFilters
             </Button>
           </div>
           {mediaTypeOptions.map((item, index) => (
-            <div key={index} className="chk-box-container chk-media-type">
+            <div key={`chk-media-type-${index}`} className="chk-box-container chk-media-type">
               <Checkbox
                 id={`chk-media-type-${index}`}
-                key={index}
                 label={item.label}
                 checked={filter.mediaTypeIds?.includes(+item.value!)}
                 value={item.value}

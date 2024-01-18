@@ -37,10 +37,9 @@ export const TagSection: React.FC<IFilterDisplayProps> = ({ displayFiltersAsDrop
             </Button>
           </div>
           {tagOptions.map((item, index) => (
-            <div key={index} className="chk-box-container chk-tag">
+            <div key={`chk-tag-${index}`} className="chk-box-container chk-tag">
               <Checkbox
                 id={`chk-tag-${index}`}
-                key={index}
                 label={item.label}
                 checked={filter.tags?.includes(item.value)}
                 value={item.value}

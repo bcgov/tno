@@ -47,10 +47,9 @@ export const ContributorSection: React.FC<IFilterDisplayProps> = ({ displayFilte
             </Button>
           </div>
           {contributorOptions.map((item, index) => (
-            <div key={index} className="chk-box-container chk-contributor">
+            <div key={`chk-contributor-${index}`} className="chk-box-container chk-contributor">
               <Checkbox
                 id={`chk-contributor-${index}`}
-                key={index}
                 label={item.label}
                 checked={filter.contributorIds?.includes(+item.value!)}
                 value={item.value}
