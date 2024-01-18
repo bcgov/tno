@@ -16,6 +16,7 @@ export const Layout = styled.div<ILayoutProps>`
   }
 
   .grid-container {
+    height: 100dvh;
     display: grid;
     transition: 300ms;
     background-color: ${(props) => props.theme.css.bkMain};

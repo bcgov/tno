@@ -7,6 +7,7 @@ export const createReportSection = (
   return {
     id: 0,
     reportId: reportId,
+    sectionType: type,
     name: crypto.randomUUID(),
     description: '',
     sortOrder: 0,
@@ -14,7 +15,6 @@ export const createReportSection = (
     chartTemplates: [],
     settings: {
       label: '',
-      sectionType: type,
       useAllContent: type === ReportSectionTypeName.MediaAnalytics,
       removeDuplicates: false,
       showHeadlines:

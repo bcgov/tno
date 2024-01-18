@@ -42,11 +42,11 @@ else
         <p>@section.Value.Description</p>
       }
 
-      @if (section.Value.Settings.SectionType == ReportSectionType.TableOfContents)
+      @if (section.Value.SectionType == ReportSectionType.TableOfContents)
       {
         @* Table of Contents Section *@
         var tocCount = 0;
-        @foreach (var tableSection in Sections.Where(s => s.Value.Settings.SectionType != ReportSectionType.TableOfContents))
+        @foreach (var tableSection in Sections.Where(s => new [] {ReportSectionType.Content, ReportSectionType.Gallery}.Contains(s.Value.SectionType)))
         {
           if (!tableSection.Value.Settings.HideEmpty || tableSection.Value.Content.Any())
           {
@@ -64,11 +64,11 @@ else
           }
         }
       }
-      else if (section.Value.Settings.SectionType == ReportSectionType.Text)
+      else if (section.Value.SectionType == ReportSectionType.Text)
       {
         @* Text Section *@
       }
-      else if (section.Value.Settings.SectionType == ReportSectionType.Content)
+      else if (section.Value.SectionType == ReportSectionType.Content)
       {
         @* Content Section *@
         var positionInTOC = 0;
@@ -183,7 +183,7 @@ else
           }
         }
       }
-      else if (section.Value.Settings.SectionType == ReportSectionType.MediaAnalytics)
+      else if (section.Value.SectionType == ReportSectionType.MediaAnalytics)
       {
         @* Media Analytics Section *@
         foreach (var chart in section.Value.ChartTemplates)
@@ -191,7 +191,7 @@ else
           <img alt="@chart.SectionSettings.AltText" src="@chart.Uid" />
         }
       }
-      else if (section.Value.Settings.SectionType == ReportSectionType.Gallery)
+      else if (section.Value.SectionType == ReportSectionType.Gallery)
       {
         @* Gallery Section *@
         for (var i = 0; i < sectionContent.Length; i++)

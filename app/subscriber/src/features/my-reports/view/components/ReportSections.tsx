@@ -114,7 +114,7 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({ disabled }) => 
                 'sections',
                 values.sections.map((s) => ({
                   ...s,
-                  open: s.settings.sectionType === ReportSectionTypeName.Content,
+                  open: s.sectionType === ReportSectionTypeName.Content,
                 })),
               );
             }}
@@ -126,7 +126,7 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({ disabled }) => 
           return (
             <Section
               key={section.id}
-              icon={<SectionIcon type={section.settings.sectionType} />}
+              icon={<SectionIcon type={section.sectionType} />}
               open={section.open}
               label={
                 <Row>
@@ -141,7 +141,7 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({ disabled }) => 
                       ReportSectionTypeName.Content,
                       ReportSectionTypeName.Gallery,
                       ReportSectionTypeName.MediaAnalytics,
-                    ].includes(section.settings.sectionType) &&
+                    ].includes(section.sectionType) &&
                       open &&
                       !disabled && (
                         <Action
@@ -151,43 +151,39 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({ disabled }) => 
                           onClick={() => setShowForm(index === showForm ? undefined : index)}
                         />
                       )}
-                    {section.settings.sectionType === ReportSectionTypeName.Content &&
-                      !disabled &&
-                      open && (
-                        <Action
-                          disabled={isSubmitting || disabled}
-                          icon={<FaPlus />}
-                          title="Add custom content"
-                          onClick={() => addStory(instance?.id, section.name)}
-                        />
-                      )}
+                    {section.sectionType === ReportSectionTypeName.Content && !disabled && open && (
+                      <Action
+                        disabled={isSubmitting || disabled}
+                        icon={<FaPlus />}
+                        title="Add custom content"
+                        onClick={() => addStory(instance?.id, section.name)}
+                      />
+                    )}
                   </Row>
                 );
               }}
             >
-              <Show
-                visible={section.settings.sectionType === ReportSectionTypeName.TableOfContents}
-              >
+              <Show visible={section.sectionType === ReportSectionTypeName.TableOfContents}>
                 <ReportSectionTableOfContents index={index} showForm={true} disabled={disabled} />
               </Show>
-              <Show visible={section.settings.sectionType === ReportSectionTypeName.Text}>
+              <Show visible={section.sectionType === ReportSectionTypeName.Text}>
                 <ReportSectionText index={index} showForm={true} disabled={disabled} />
               </Show>
-              <Show visible={section.settings.sectionType === ReportSectionTypeName.Content}>
+              <Show visible={section.sectionType === ReportSectionTypeName.Content}>
                 <ReportSectionContent
                   index={index}
                   showForm={index === showForm}
                   disabled={disabled}
                 />
               </Show>
-              <Show visible={section.settings.sectionType === ReportSectionTypeName.MediaAnalytics}>
+              <Show visible={section.sectionType === ReportSectionTypeName.MediaAnalytics}>
                 <ReportSectionMediaAnalytics
                   index={index}
                   showForm={index === showForm}
                   disabled={disabled}
                 />
               </Show>
-              <Show visible={section.settings.sectionType === ReportSectionTypeName.Gallery}>
+              <Show visible={section.sectionType === ReportSectionTypeName.Gallery}>
                 <ReportSectionGallery
                   index={index}
                   showForm={index === showForm}

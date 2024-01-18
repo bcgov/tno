@@ -22,6 +22,12 @@ public class ReportSection : BaseType<int>
     public virtual Report? Report { get; set; }
 
     /// <summary>
+    /// get/set - The section type.
+    /// </summary>
+    [Column("section_type")]
+    public ReportSectionType SectionType { get; set; }
+
+    /// <summary>
     /// get/set - Foreign key to the filter.
     /// </summary>
     [Column("filter_id")]
@@ -70,10 +76,12 @@ public class ReportSection : BaseType<int>
     /// Creates a new instance of a ReportSection object, initializes with specified parameters.
     /// </summary>
     /// <param name="name"></param>
+    /// <param name="type"></param>
     /// <param name="report"></param>
-    public ReportSection(string name, Report report) : base(name)
+    public ReportSection(string name, ReportSectionType type, Report report) : base(name)
     {
         this.Name = name;
+        this.SectionType = type;
         this.Report = report ?? throw new ArgumentNullException(nameof(report));
         this.ReportId = report.Id;
     }
@@ -82,10 +90,12 @@ public class ReportSection : BaseType<int>
     /// Creates a new instance of a ReportSection object, initializes with specified parameters.
     /// </summary>
     /// <param name="name"></param>
+    /// <param name="type"></param>
     /// <param name="reportId"></param>
-    public ReportSection(string name, int reportId) : base(name)
+    public ReportSection(string name, ReportSectionType type, int reportId) : base(name)
     {
         this.ReportId = reportId;
+        this.SectionType = type;
     }
 
     /// <summary>
@@ -93,19 +103,22 @@ public class ReportSection : BaseType<int>
     /// </summary>
     /// <param name="id"></param>
     /// <param name="name"></param>
+    /// <param name="type"></param>
     /// <param name="reportId"></param>
-    public ReportSection(int id, string name, int reportId) : base(id, name)
+    public ReportSection(int id, string name, ReportSectionType type, int reportId) : base(id, name)
     {
         this.ReportId = reportId;
+        this.SectionType = type;
     }
 
     /// <summary>
     /// Creates a new instance of a ReportSection object, initializes with specified parameters.
     /// </summary>
     /// <param name="name"></param>
+    /// <param name="type"></param>
     /// <param name="report"></param>
     /// <param name="filter"></param>
-    public ReportSection(string name, Report report, Filter filter) : this(name, report)
+    public ReportSection(string name, ReportSectionType type, Report report, Filter filter) : this(name, type, report)
     {
         this.Filter = filter;
         this.FilterId = filter?.Id;
@@ -115,9 +128,10 @@ public class ReportSection : BaseType<int>
     /// Creates a new instance of a ReportSection object, initializes with specified parameters.
     /// </summary>
     /// <param name="name"></param>
+    /// <param name="type"></param>
     /// <param name="report"></param>
     /// <param name="folder"></param>
-    public ReportSection(string name, Report report, Folder folder) : this(name, report)
+    public ReportSection(string name, ReportSectionType type, Report report, Folder folder) : this(name, type, report)
     {
         this.Folder = folder;
         this.FolderId = folder?.Id;
@@ -127,10 +141,11 @@ public class ReportSection : BaseType<int>
     /// Creates a new instance of a ReportSection object, initializes with specified parameters.
     /// </summary>
     /// <param name="name"></param>
+    /// <param name="type"></param>
     /// <param name="reportId"></param>
     /// <param name="filterId"></param>
     /// <param name="folderId"></param>
-    public ReportSection(string name, int reportId, int? filterId, int? folderId) : this(name, reportId)
+    public ReportSection(string name, ReportSectionType type, int reportId, int? filterId, int? folderId) : this(name, type, reportId)
     {
         this.FilterId = filterId;
         this.FolderId = folderId;
@@ -141,10 +156,11 @@ public class ReportSection : BaseType<int>
     /// </summary>
     /// <param name="id"></param>
     /// <param name="name"></param>
+    /// <param name="type"></param>
     /// <param name="reportId"></param>
     /// <param name="filterId"></param>
     /// <param name="folderId"></param>
-    public ReportSection(int id, string name, int reportId, int? filterId, int? folderId) : this(id, name, reportId)
+    public ReportSection(int id, string name, ReportSectionType type, int reportId, int? filterId, int? folderId) : this(id, name, type, reportId)
     {
         this.FilterId = filterId;
         this.FolderId = folderId;

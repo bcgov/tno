@@ -8,7 +8,10 @@ import * as styled from './styled';
 
 interface IToggleOption {
   id?: string | number;
+  /** the label for the toggle button or menu, will be used to identify default selected if id is not set */
   label: string;
+  /** An icon to display */
+  icon?: React.ReactNode;
   dropDownOptions?: IOptionItem[];
   onClick?: (value?: number) => void;
 }
@@ -76,6 +79,7 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({
         >
           <Col>
             <Row>
+              {option.icon}
               {option.label}
               {option.dropDownOptions && <FaAngleDown />}
             </Row>

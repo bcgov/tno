@@ -65,9 +65,7 @@ export const AddSectionBar = () => {
         onClick={() => addSection(0, ReportSectionTypeName.TableOfContents)}
         disabled={
           isSubmitting ||
-          values.sections.some(
-            (s) => s.settings.sectionType === ReportSectionTypeName.TableOfContents,
-          )
+          values.sections.some((s) => s.sectionType === ReportSectionTypeName.TableOfContents)
         }
       >
         <Row gap="1rem">

@@ -1,28 +1,45 @@
 import styled from 'styled-components';
 import { Row } from 'tno-core';
 
-export const BasicSearch = styled(Row)`
-  width: 100%;
-  margin: 0.25em;
-  border-color: ${(props) => props.theme.css.inputGrey};
-  border-style: solid;
-  border-width: 1px;
-  border-radius: 1em;
-  background: ${(props) => props.theme.css.bkSecondary};
-  box-shadow: ${(props) => props.theme.css.boxShadow};
-  padding: 0.5em;
+export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
+  ${(props) =>
+    props.inHeader &&
+    `
+      width: 60%;
+    `}
+  ${(props) =>
+    !props.inHeader &&
+    `
+      width: 100%;
+      background: ${props.theme.css.bkSecondary};
+      margin: 0.25em;
+      border-color: ${props.theme.css.inputGrey};
+      border-style: solid;
+      border-width: 1px;
+      border-radius: 1em;
+      box-shadow: ${props.theme.css.boxShadow};
+      padding: 0.5em;
+  `}
 
   /** SEARCH FOR TEXT */
   label {
     font-size: 0.8em;
     margin-right: 0.5em;
     align-self: center;
+    margin-left: ${(props) => props.inHeader && '5%'};
   }
 
   /** GROUP CONTAINING ICON AND SEARCH INPUT  */
   .icon-search {
+    ${(props) =>
+      props.inHeader &&
+      `
+      margin-top: auto;
+      margin-bottom: auto;
+      `}
     border: 0.5px solid ${(props) => props.theme.css.linePrimaryColor};
     border-radius: 1.5em;
+    background-color: ${(props) => props.theme.css.bkWhite};
     width: 30%;
     height: 2.5em;
   }
@@ -55,11 +72,17 @@ export const BasicSearch = styled(Row)`
   .search-mobile {
     display: flex;
     max-width: 13em;
-    margin-top: auto;
+    margin-top: ${(props) => !props.inHeader && 'auto'};
     padding: 0;
   }
   /** SEARCH BUTTON */
   .search-button {
+    ${(props) =>
+      props.inHeader &&
+      `
+      margin-top: auto;
+      margin-bottom: auto;
+      `}
     display: flex;
     margin-left: 0.5em;
     align-self: center;
@@ -73,8 +96,8 @@ export const BasicSearch = styled(Row)`
       outline: none !important;
       box-shadow: none;
     }
-    /* HIDE SVG IF SCREEN LESS THAN 750px */
-    @media only screen and (max-width: 750px) {
+    /* HIDE SVG IF SCREEN LESS THAN 900px */
+    @media only screen and (max-width: 900px) {
       svg {
         display: none;
       }
@@ -85,8 +108,8 @@ export const BasicSearch = styled(Row)`
     }
   }
 
-  /* BUTTON APPEAR ON RIGHT SIDE OF SEARCH IF SCREEN IS LESS THAN 750px */
-  @media only screen and (max-width: 750px) {
+  /* BUTTON APPEAR ON RIGHT SIDE OF SEARCH IF SCREEN IS LESS THAN 900px */
+  @media only screen and (max-width: 900px) {
     .search-button {
       margin-left: auto;
       margin-right: 0.5em;
@@ -96,7 +119,7 @@ export const BasicSearch = styled(Row)`
   /* GO ADVANCED TEXT */
   p {
     font-size: 0.8em;
-    margin-left: auto;
+    margin-left: ${(props) => (props.inHeader ? '3em' : 'auto')};
     align-self: center;
     margin-right: 0.5em;
     color: ${(props) => props.theme.css.fRedColor};
@@ -109,27 +132,27 @@ export const BasicSearch = styled(Row)`
   /* CONDITIONALS TO HIDE THINGS FOR MOBILE/DESKTOP */
 
   /** HIDE SEARCH GROUP DISPLAY BASIC */
-  @media only screen and (min-width: 750px) {
+  @media only screen and (min-width: 900px) {
     .search-mobile {
       display: none;
     }
   }
 
-  @media only screen and (max-width: 750px) {
+  @media only screen and (max-width: 900px) {
     .icon-search {
       display: none;
     }
   }
 
   /* HIDE ADVANCED TEXT IF WIDTH GREATER THAN 750 */
-  @media only screen and (max-width: 750px) {
+  @media only screen and (max-width: 900px) {
     p {
       display: none;
     }
   }
 
-  /* NO LABEL IF SCREEN SIZE LESS THAN 750px */
-  @media only screen and (max-width: 750px) {
+  /* NO LABEL IF SCREEN SIZE LESS THAN 900px */
+  @media only screen and (max-width: 900px) {
     label {
       display: none;
     }

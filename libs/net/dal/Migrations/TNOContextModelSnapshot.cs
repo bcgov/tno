@@ -3578,6 +3578,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("report_id");
 
+                    b.Property<int>("SectionType")
+                        .HasColumnType("integer")
+                        .HasColumnName("section_type");
+
                     b.Property<JsonDocument>("Settings")
                         .IsRequired()
                         .ValueGeneratedOnAdd()

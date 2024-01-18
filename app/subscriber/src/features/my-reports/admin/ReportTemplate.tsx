@@ -193,41 +193,27 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
                             {/* TABLE OF CONTENT */}
                             <Show
                               visible={
-                                section.settings.sectionType ===
-                                ReportSectionTypeName.TableOfContents
+                                section.sectionType === ReportSectionTypeName.TableOfContents
                               }
                             >
                               <ReportSectionTableOfContents index={index} />
                             </Show>
                             {/* CONTENT */}
-                            <Show
-                              visible={
-                                section.settings.sectionType === ReportSectionTypeName.Content
-                              }
-                            >
+                            <Show visible={section.sectionType === ReportSectionTypeName.Content}>
                               <ReportSectionContent index={index} />
                             </Show>
                             {/* TEXT */}
-                            <Show
-                              visible={section.settings.sectionType === ReportSectionTypeName.Text}
-                            >
+                            <Show visible={section.sectionType === ReportSectionTypeName.Text}>
                               <ReportSectionText index={index} />
                             </Show>
                             {/* MEDIA ANALYTICS */}
                             <Show
-                              visible={
-                                section.settings.sectionType ===
-                                ReportSectionTypeName.MediaAnalytics
-                              }
+                              visible={section.sectionType === ReportSectionTypeName.MediaAnalytics}
                             >
                               <ReportSectionMediaAnalytics index={index} />
                             </Show>
                             {/* FRONT PAGE IMAGES */}
-                            <Show
-                              visible={
-                                section.settings.sectionType === ReportSectionTypeName.Gallery
-                              }
-                            >
+                            <Show visible={section.sectionType === ReportSectionTypeName.Gallery}>
                               <ReportSectionGallery index={index} />
                             </Show>
                           </Section>

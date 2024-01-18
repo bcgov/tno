@@ -17,7 +17,7 @@ export const toForm = (report: IReportModel, updateSortOrder: boolean = false): 
     hideEmptySections: getHideEmpty(report.sections),
     sections: report.sections.map((s) => ({
       ...s,
-      open: s.settings.sectionType === ReportSectionTypeName.Content,
+      open: s.sectionType === ReportSectionTypeName.Content,
     })),
     events:
       report.events.length === 2

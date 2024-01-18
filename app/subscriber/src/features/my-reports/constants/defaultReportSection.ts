@@ -11,6 +11,7 @@ export const defaultReportSection = (
 ): IReportSectionForm => ({
   id: 0,
   name: crypto.randomUUID(),
+  sectionType: type,
   description: '',
   sortOrder: sortOrder,
   isEnabled: true,
@@ -22,7 +23,6 @@ export const defaultReportSection = (
         : type === ReportSectionTypeName.Text
         ? 'Executive Summary'
         : '',
-    sectionType: type,
     useAllContent: type === ReportSectionTypeName.MediaAnalytics,
     showHeadlines: showHeadlines ?? type === ReportSectionTypeName.TableOfContents,
     showFullStory: showFullStory ?? type === ReportSectionTypeName.Content,
