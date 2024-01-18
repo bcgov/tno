@@ -33,11 +33,6 @@ export const InfoText: React.FC = () => {
           {systemMessage.message ? parse(systemMessage.message) : ''}
         </p>
       </Show>
-      <div className="email">
-        <a style={{ marginTop: 25 }} href="mailto:tnonews-help@gov.bc.ca">
-          tnonews-help@gov.bc.ca
-        </a>
-      </div>
     </div>
   );
 };
