@@ -1,8 +1,5 @@
-import { ReportSectionTypeName } from '..';
-
 export interface IReportSectionSettingsModel {
   label: string;
-  sectionType: ReportSectionTypeName;
   useAllContent: boolean;
   showHeadlines: boolean;
   showFullStory: boolean;

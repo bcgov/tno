@@ -51,7 +51,7 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => 
       key={report.id}
       icon={
         report.sections.some(
-          (section) => section.settings.sectionType === ReportSectionTypeName.MediaAnalytics,
+          (section) => section.sectionType === ReportSectionTypeName.MediaAnalytics,
         ) ? (
           <FaChartPie />
         ) : (

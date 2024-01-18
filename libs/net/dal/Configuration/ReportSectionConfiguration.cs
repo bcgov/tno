@@ -10,6 +10,7 @@ public class ReportSectionConfiguration : BaseTypeConfiguration<ReportSection, i
     {
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Property(m => m.ReportId).IsRequired();
+        builder.Property(m => m.SectionType).IsRequired();
         builder.Property(m => m.FilterId);
         builder.Property(m => m.FolderId);
         builder.Property(m => m.Settings).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");

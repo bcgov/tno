@@ -8,38 +8,38 @@ export interface ISectionLabelProps {
 }
 
 export const SectionLabel = ({ section, showIcon = true }: ISectionLabelProps) => {
-  if (section.settings.sectionType === ReportSectionTypeName.Content) {
+  if (section.sectionType === ReportSectionTypeName.Content) {
     return (
       <Row gap="0.25rem" alignItems="center">
-        {showIcon && <SectionIcon type={section.settings.sectionType} />}
+        {showIcon && <SectionIcon type={section.sectionType} />}
         Media Stories: {section.settings.label}
       </Row>
     );
-  } else if (section.settings.sectionType === ReportSectionTypeName.TableOfContents) {
+  } else if (section.sectionType === ReportSectionTypeName.TableOfContents) {
     return (
       <Row gap="0.25rem" alignItems="center">
-        {showIcon && <SectionIcon type={section.settings.sectionType} />}
+        {showIcon && <SectionIcon type={section.sectionType} />}
         Table of Contents
       </Row>
     );
-  } else if (section.settings.sectionType === ReportSectionTypeName.Text) {
+  } else if (section.sectionType === ReportSectionTypeName.Text) {
     return (
       <Row gap="0.25rem" alignItems="center">
-        {showIcon && <SectionIcon type={section.settings.sectionType} />}
+        {showIcon && <SectionIcon type={section.sectionType} />}
         Text: {section.settings.label}
       </Row>
     );
-  } else if (section.settings.sectionType === ReportSectionTypeName.MediaAnalytics) {
+  } else if (section.sectionType === ReportSectionTypeName.MediaAnalytics) {
     return (
       <Row gap="0.25rem" alignItems="center">
-        {showIcon && <SectionIcon type={section.settings.sectionType} />}
+        {showIcon && <SectionIcon type={section.sectionType} />}
         Media Analytics: {section.settings.label}
       </Row>
     );
-  } else if (section.settings.sectionType === ReportSectionTypeName.Gallery) {
+  } else if (section.sectionType === ReportSectionTypeName.Gallery) {
     return (
       <Row gap="0.25rem" alignItems="center">
-        {showIcon && <SectionIcon type={section.settings.sectionType} />}
+        {showIcon && <SectionIcon type={section.sectionType} />}
         Front Page Images
       </Row>
     );

@@ -56,7 +56,7 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
           } as IReportInstanceContentForm),
       ) ?? [];
   const sectionOptions = values.sections
-    .filter((s) => s.settings.sectionType === ReportSectionTypeName.Content)
+    .filter((s) => s.sectionType === ReportSectionTypeName.Content)
     .map((s) => new OptionItem(s.settings.label, s.name));
 
   const handleRemoveContent = React.useCallback(

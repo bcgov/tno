@@ -126,7 +126,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
 
         entity.Sections.AddRange(model.Sections.OrderBy(s => s.SortOrder).Select(modelSection =>
         {
-            var section = new Entities.ReportSection(modelSection.Id, modelSection.Name, modelSection.ReportId)
+            var section = new Entities.ReportSection(modelSection.Id, modelSection.Name, modelSection.SectionType, modelSection.ReportId)
             {
                 Description = modelSection.Description,
                 IsEnabled = modelSection.IsEnabled,
