@@ -117,7 +117,10 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
                     </Button>
                   </div>
                   {sortableMediaOptions(mediaGroup.options).map((item, index) => (
-                    <div key={`chk-source-${index}-${item.value}`} className="chk-box-container chk-source">
+                    <div
+                      key={`chk-source-${index}-${item.value}`}
+                      className="chk-box-container chk-source"
+                    >
                       <Checkbox
                         id={`chk-source-${index}-${item.value}`}
                         label={item.label}
