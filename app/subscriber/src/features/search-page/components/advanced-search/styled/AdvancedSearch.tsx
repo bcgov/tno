@@ -8,6 +8,57 @@ export const AdvancedSearch = styled(Row)`
     width: 100%;
   }
 
+  .narrow-filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .toggle-group-container {
+    display: flex;
+    align-items: inherit;
+    .toggle-item svg {
+      margin-right: unset;
+    }
+  }
+  .check-box-list {
+    display: flex;
+    flex-wrap: wrap;
+    padding-bottom: 0.5em;
+    .select-all {
+      button {
+        margin: 0 0.375rem;
+        height: unset;
+        padding: unset;
+        font-size: small;
+        line-height: inherit;
+        font-family: unset;
+        border: unset;
+      }
+    }
+    .chk-tag {
+      width: 20rem;
+    }
+    .chk-source {
+      width: 16.5rem;
+    }
+    .chk-series,
+    .chk-contributor,
+    .chk-media-type,
+    .chk-content-type {
+      width: 12rem;
+    }
+    .chk-box-container {
+      font-size: small;
+      div {
+        align-items: center;
+        margin: 1px 0;
+        input {
+          height: auto;
+        }
+      }
+    }
+  }
+
   .search-for-row {
     margin-top: 0.5em;
   }
@@ -309,10 +360,10 @@ export const AdvancedSearch = styled(Row)`
     max-height: 100%;
     min-width: 15em;
   }
-  .sub-container {
-    max-height: 10em;
-    max-width: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
+  // .sub-container {
+  //   max-height: 10em;
+  //   max-width: 100%;
+  //   overflow-y: auto;
+  //   overflow-x: hidden;
+  // }
 `;

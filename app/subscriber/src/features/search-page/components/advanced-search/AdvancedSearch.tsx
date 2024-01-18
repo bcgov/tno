@@ -4,7 +4,7 @@ import { filterFormat } from 'features/search-page/utils';
 import { handleEnterPressed } from 'features/utils';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
-import { FaPlay, FaRegSmile } from 'react-icons/fa';
+import { FaCaretSquareDown, FaCheckSquare, FaPlay, FaRegSmile } from 'react-icons/fa';
 import { FaSave } from 'react-icons/fa';
 import { FaBookmark, FaIcons, FaNewspaper, FaTag, FaTv, FaUsers } from 'react-icons/fa6';
 import { IoIosCog, IoMdRefresh } from 'react-icons/io';
@@ -16,12 +16,15 @@ import {
   Button,
   Claim,
   Col,
+  getCookie,
   IFilterModel,
   IFilterSettingsModel,
   Row,
+  setCookie,
   Show,
   Text,
   TextArea,
+  ToggleGroup,
 } from 'tno-core';
 
 import {
@@ -38,6 +41,7 @@ import {
   SentimentSection,
   SeriesSection,
   TagSection,
+  ToggleFilterStyleInfo,
 } from './components';
 import { defaultAdvancedSearch, defaultFilter } from './constants';
 import { defaultSubMediaGroupExpanded, ISubMediaGroupExpanded } from './interfaces';
@@ -75,6 +79,25 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
   /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
   const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
     React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);
+
+  const displayFiltersAsDropdownCookieKey = 'advancedSearch:displayFiltersAsDropdown';
+  const [displayFiltersAsDropdown, setDisplayFiltersAsDropdown] = React.useState<boolean>(() => {
+    const cookieVal = getCookie(displayFiltersAsDropdownCookieKey);
+    return !!cookieVal;
+  });
+  const handleChangeDisplayFiltersAsDropdown = React.useCallback(
+    async (displayFiltersAsDropdown: boolean) => {
+      setDisplayFiltersAsDropdown(displayFiltersAsDropdown);
+      if (displayFiltersAsDropdown) {
+        setCookie(displayFiltersAsDropdownCookieKey, true);
+      } else {
+        setCookie(displayFiltersAsDropdownCookieKey, false, {
+          expires: 'Thu, 01 Jan 1970 00:00:00 UTC',
+        });
+      }
+    },
+    [setDisplayFiltersAsDropdown],
+  );
 
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
 
@@ -172,7 +195,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
           {/* SEARCH FOR: */}
           <Row className="search-for-row">
             <ElasticInfo />
-            <label className="label">SEARCH FOR: </label>
+            <label className="label">SEARCH FOR:</label>
             <Col className="text-area-container">
               <TextArea
                 value={query}
@@ -191,10 +214,31 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
               <SearchInGroup />
             </Col>
           </Row>
-
           <div className="search-in-group space-top"></div>
           <Col className="section top-spacer">
-            <b>Narrow your results by: </b>
+            <div className="narrow-filter-header">
+              <label>Narrow your results by: </label>
+              <div className="toggle-group-container">
+                <ToggleGroup
+                  defaultSelected={displayFiltersAsDropdown ? 'sel' : 'chk'}
+                  options={[
+                    {
+                      id: 'chk',
+                      label: '',
+                      icon: <FaCheckSquare />,
+                      onClick: () => handleChangeDisplayFiltersAsDropdown(false),
+                    },
+                    {
+                      id: 'sel',
+                      label: '',
+                      icon: <FaCaretSquareDown />,
+                      onClick: () => handleChangeDisplayFiltersAsDropdown(true),
+                    },
+                  ]}
+                />
+                <ToggleFilterStyleInfo />
+              </div>
+            </div>
             {/* DATE RANGE */}
             <Col className={`date-range-group space-top`}>
               <Row className="option-row">
@@ -210,6 +254,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
                 hasValues={!!search.sourceIds?.length}
               >
                 <MediaSection
+                  displayFiltersAsDropdown={displayFiltersAsDropdown}
                   setMediaGroupExpandedStates={setMediaGroupExpandedStates}
                   mediaGroupExpandedStates={mediaGroupExpandedStates}
                 />
@@ -242,7 +287,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
                 title="Columnists/Anchors"
                 hasValues={!!search.contributorIds?.length}
               >
-                <ContributorSection />
+                <ContributorSection displayFiltersAsDropdown={displayFiltersAsDropdown} />
               </ExpandableRow>
             </Col>
             {/* MEDIA TYPES SECTION */}
@@ -252,7 +297,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
                 title="Media Types"
                 hasValues={!!search.mediaTypeIds?.length}
               >
-                <MediaTypeSection />
+                <MediaTypeSection displayFiltersAsDropdown={displayFiltersAsDropdown} />
               </ExpandableRow>
             </Col>
             {/* SHOW/PROGRAM SECTION */}
@@ -262,7 +307,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
                 title="Show/Program"
                 hasValues={!!search.seriesIds?.length}
               >
-                <SeriesSection />
+                <SeriesSection displayFiltersAsDropdown={displayFiltersAsDropdown} />
               </ExpandableRow>
             </Col>
             {isAdmin && (
@@ -274,13 +319,13 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
                     title="Content Type"
                     hasValues={!!search.contentTypes?.length}
                   >
-                    <ContentTypeSection />
+                    <ContentTypeSection displayFiltersAsDropdown={displayFiltersAsDropdown} />
                   </ExpandableRow>
                 </Col>
                 {/* TAG SECTION */}
                 <Col className="expandable-section">
                   <ExpandableRow icon={<FaTag />} title="Tags" hasValues={!!search.tags?.length}>
-                    <TagSection />
+                    <TagSection displayFiltersAsDropdown={displayFiltersAsDropdown} />
                   </ExpandableRow>
                 </Col>
               </>
