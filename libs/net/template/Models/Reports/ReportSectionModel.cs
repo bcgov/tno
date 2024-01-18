@@ -20,6 +20,11 @@ public class ReportSectionModel : RazorEngineTemplateBase
     public string Name { get; set; } = "";
 
     /// <summary>
+    /// get/set - The report section type.
+    /// </summary>
+    public Entities.ReportSectionType SectionType { get; set; }
+
+    /// <summary>
     /// get/set - A description of the type model.
     /// </summary>
     public string Description { get; set; } = "";
@@ -83,6 +88,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
     {
         this.Id = model.Id;
         this.Name = model.Name;
+        this.SectionType = model.SectionType;
         this.Description = model.Description;
         this.IsEnabled = model.IsEnabled;
         this.SortOrder = model.SortOrder;
@@ -102,6 +108,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
     {
         this.Id = model.Id;
         this.Name = model.Name;
+        this.SectionType = model.SectionType;
         this.Description = model.Description;
         this.IsEnabled = model.IsEnabled;
         this.SortOrder = model.SortOrder;
@@ -117,10 +124,11 @@ public class ReportSectionModel : RazorEngineTemplateBase
     /// </summary>
     /// <param name="model"></param>
     /// <param name="content"></param>
-    public ReportSectionModel(TNO.API.Areas.Services.Models.Report.ReportSectionModel model, IEnumerable<ContentModel>? content = null, Dictionary<string,AggregationRootModel>? aggregations = null)
+    public ReportSectionModel(TNO.API.Areas.Services.Models.Report.ReportSectionModel model, IEnumerable<ContentModel>? content = null, Dictionary<string, AggregationRootModel>? aggregations = null)
     {
         this.Id = model.Id;
         this.Name = model.Name;
+        this.SectionType = model.SectionType;
         this.Description = model.Description;
         this.IsEnabled = model.IsEnabled;
         this.SortOrder = model.SortOrder;

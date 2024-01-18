@@ -16,6 +16,11 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
     public int ReportId { get; set; }
 
     /// <summary>
+    /// get/set - The report section type.
+    /// </summary>
+    public Entities.ReportSectionType SectionType { get; set; }
+
+    /// <summary>
     /// get/set - Foreign key to the filter for this section.
     /// </summary>
     public int? FilterId { get; set; }
@@ -60,6 +65,7 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
     public ReportSectionModel(Entities.ReportSection entity, JsonSerializerOptions options) : base(entity)
     {
         this.ReportId = entity.ReportId;
+        this.SectionType = entity.SectionType;
         this.FolderId = entity.FolderId;
         this.Folder = entity.Folder != null ? new FolderModel(entity.Folder, options) : null;
         this.FilterId = entity.FilterId;
@@ -98,7 +104,7 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
     /// <param name="model"></param>
     public static explicit operator Entities.ReportSection(ReportSectionModel model)
     {
-        var entity = new Entities.ReportSection(model.Id, model.Name, model.ReportId, model.FilterId, model.FolderId)
+        var entity = new Entities.ReportSection(model.Id, model.Name, model.SectionType, model.ReportId, model.FilterId, model.FolderId)
         {
             Id = model.Id,
             Description = model.Description,

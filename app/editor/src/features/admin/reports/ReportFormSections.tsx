@@ -251,31 +251,19 @@ export const ReportFormSections = () => {
                   </Row>
                   {!!section && section.sortOrder === row.sortOrder && (
                     <>
-                      <Show
-                        visible={
-                          section.settings.sectionType === ReportSectionTypeName.TableOfContents
-                        }
-                      >
+                      <Show visible={section.sectionType === ReportSectionTypeName.TableOfContents}>
                         <ReportSectionTableOfContents index={index} />
                       </Show>
-                      <Show visible={section.settings.sectionType === ReportSectionTypeName.Text}>
+                      <Show visible={section.sectionType === ReportSectionTypeName.Text}>
                         <ReportSectionText index={index} />
                       </Show>
-                      <Show
-                        visible={section.settings.sectionType === ReportSectionTypeName.Content}
-                      >
+                      <Show visible={section.sectionType === ReportSectionTypeName.Content}>
                         <ReportSectionContent index={index} />
                       </Show>
-                      <Show
-                        visible={
-                          section.settings.sectionType === ReportSectionTypeName.MediaAnalytics
-                        }
-                      >
+                      <Show visible={section.sectionType === ReportSectionTypeName.MediaAnalytics}>
                         <ReportSectionMediaAnalytics index={index} />
                       </Show>
-                      <Show
-                        visible={section.settings.sectionType === ReportSectionTypeName.Gallery}
-                      >
+                      <Show visible={section.sectionType === ReportSectionTypeName.Gallery}>
                         <ReportSectionGallery index={index} />
                       </Show>
                     </>

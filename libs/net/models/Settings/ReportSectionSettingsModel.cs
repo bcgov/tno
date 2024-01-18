@@ -8,7 +8,6 @@ public class ReportSectionSettingsModel
 {
     #region Properties
     public string Label { get; set; } = "";
-    public Entities.ReportSectionType SectionType { get; set; }
     public bool UseAllContent { get; set; }
     public bool ShowHeadlines { get; set; }
     public bool ShowFullStory { get; set; }
@@ -26,7 +25,6 @@ public class ReportSectionSettingsModel
     public ReportSectionSettingsModel(Dictionary<string, object> settings, JsonSerializerOptions options)
     {
         this.Label = settings.GetDictionaryJsonValue("label", "", options)!;
-        this.SectionType = settings.GetDictionaryJsonValue("sectionType", Entities.ReportSectionType.Content, options);
         this.UseAllContent = settings.GetDictionaryJsonValue("useAllContent", false, options);
         this.ShowHeadlines = settings.GetDictionaryJsonValue("showHeadlines", false, options);
         this.ShowFullStory = settings.GetDictionaryJsonValue("showFullStory", false, options);
@@ -41,7 +39,6 @@ public class ReportSectionSettingsModel
     public ReportSectionSettingsModel(JsonDocument settings, JsonSerializerOptions options)
     {
         this.Label = settings.GetElementValue("label", "", options)!;
-        this.SectionType = settings.GetElementValue("sectionType", Entities.ReportSectionType.Content, options);
         this.UseAllContent = settings.GetElementValue("useAllContent", false, options);
         this.ShowHeadlines = settings.GetElementValue("showHeadlines", false, options);
         this.ShowFullStory = settings.GetElementValue("showFullStory", false, options);

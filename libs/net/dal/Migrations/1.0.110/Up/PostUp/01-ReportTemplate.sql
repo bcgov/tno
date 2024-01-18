@@ -1,4 +1,8 @@
-@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
+DO $$
+BEGIN
+
+UPDATE public.report_template SET
+  "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
 @using System
 @using System.Linq
 @using TNO.Entities
@@ -218,3 +222,7 @@ else
   Terms of Use - This summary is a service provided by Government Communications and Public Engagement and is only intended for original addressee. All content is the copyrighted property of a third party creator of the material.
   Copying, retransmitting, archiving, redistributing, selling, licensing, or emailing the material to any third party or any employee of the Province who is not authorized to access the material is prohibited.
 </p>
+'
+WHERE "id" = (SELECT CAST("value" AS INTEGER) FROM public."setting" WHERE "name" = 'DefaultReportTemplateId' LIMIT 1);
+
+END $$;
