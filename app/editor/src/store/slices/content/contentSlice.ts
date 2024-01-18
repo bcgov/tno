@@ -1,10 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AdvancedSearchKeys } from 'features/content/constants';
 import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
-import { IContentModel, IPaged, LogicalOperator, saveToLocalStorage } from 'tno-core';
+import { LogicalOperator } from 'tno-core';
 
 import { IContentState } from './interfaces';
-import { castContentToSearchResult } from './utils';
 
 export const initialContentState: IContentState = {
   filter: {
@@ -78,47 +77,6 @@ export const contentSlice = createSlice({
     ) {
       state.filterPaperAdvanced = action.payload;
     },
-    storeContent(state: IContentState, action: PayloadAction<IPaged<IContentModel> | undefined>) {
-      state.searchResults = action.payload
-        ? {
-            ...action.payload,
-            items: action.payload.items.map((content) => castContentToSearchResult(content)),
-          }
-        : action.payload;
-      saveToLocalStorage('content', state.searchResults?.items ?? []);
-    },
-    addContent(state: IContentState, action: PayloadAction<IContentModel[]>) {
-      if (!!state.searchResults)
-        state.searchResults = {
-          ...state.searchResults,
-          items: [
-            ...action.payload.map((c) => castContentToSearchResult(c)),
-            ...state.searchResults.items,
-          ],
-        };
-      saveToLocalStorage('content', state.searchResults?.items ?? []);
-    },
-    updateContent(state: IContentState, action: PayloadAction<IContentModel[]>) {
-      if (!!state.searchResults)
-        state.searchResults = {
-          ...state.searchResults,
-          items: state.searchResults.items.map((i) => {
-            const content = action.payload.find((u) => u.id === i.id);
-            return content ? castContentToSearchResult(content) : i;
-          }),
-        };
-      saveToLocalStorage('content', state.searchResults?.items ?? []);
-    },
-    removeContent(state: IContentState, action: PayloadAction<IContentModel[]>) {
-      if (!!state.searchResults)
-        state.searchResults = {
-          ...state.searchResults,
-          items: state.searchResults.items.filter(
-            (i) => !action.payload.some((r) => r.id === i.id),
-          ),
-        };
-      saveToLocalStorage('content', state.searchResults?.items ?? []);
-    },
   },
 });
 
@@ -127,8 +85,4 @@ export const {
   storeFilterAdvanced: storeContentFilterAdvanced,
   storeFilterPaper,
   storeFilterPaperAdvanced,
-  addContent,
-  storeContent,
-  updateContent,
-  removeContent,
 } = contentSlice.actions;

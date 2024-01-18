@@ -4,20 +4,12 @@ import { AdvancedSearchKeys } from 'features/content/constants';
 import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
 import { useContent } from 'store/hooks';
 import { IContentSearchResult } from 'store/slices';
-import {
-  CellEllipsis,
-  Checkbox,
-  IContentModel,
-  ITableHookColumn,
-  LogicalOperator,
-  Page,
-  Row,
-} from 'tno-core';
+import { CellEllipsis, Checkbox, ITableHookColumn, LogicalOperator, Page, Row } from 'tno-core';
 
 export interface IColumnProps {
   fetch: (
     filter: IContentListFilter & Partial<IContentListAdvancedFilter>,
-  ) => Promise<Page<IContentModel>>;
+  ) => Promise<Page<IContentSearchResult> | undefined>;
   onClickUse: (content: IContentSearchResult) => void;
 }
 
