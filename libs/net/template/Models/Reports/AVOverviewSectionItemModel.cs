@@ -93,6 +93,8 @@ public class AVOverviewSectionItemModel
         this.Time = model.Time;
         this.Summary = model.Summary;
         this.ContentId = model.ContentId;
+        if (model.Content != null)
+            this.Content = new ContentModel(model.Content);
     }
     #endregion
 }

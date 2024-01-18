@@ -320,6 +320,21 @@ public class ContentModel
     /// </summary>
     /// <param name="model"></param>
     /// <param name="sortOrder"></param>
+    public ContentModel(TNO.API.Areas.Services.Models.AVOverview.ContentModel model, int sortOrder = 0)
+    {
+        this.Id = model?.Id ?? throw new ArgumentNullException(nameof(model));
+        this.ContentType = model.ContentType;
+        this.Body = model.Body;
+        this.IsApproved = model.IsApproved;
+        this.SortOrder = sortOrder;
+        this.FileReferences = model.FileReferences.Select(e => new FileReferenceModel(e));
+    }
+
+    /// <summary>
+    /// Creates a new instance of an ContentModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="sortOrder"></param>
     public ContentModel(TNO.API.Areas.Services.Models.Content.ContentModel model, int sortOrder = 0)
     {
         this.Id = model?.Id ?? throw new ArgumentNullException(nameof(model));
