@@ -8,8 +8,8 @@ import * as styled from './styled';
 export const ElasticInfo: React.FC = () => {
   return (
     <styled.ElasticInfo>
-      <FaInfoCircle data-tooltip-id="info" className="info-icon" />
-      <TooltipMenu openOnClick id="info">
+      <FaInfoCircle data-tooltip-id="elastic-info" className="info-icon" />
+      <TooltipMenu openOnClick id="elastic-info">
         <Col>
           <div>
             The keywords query supports the following operators:

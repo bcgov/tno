@@ -1,6 +1,7 @@
 export * from './ContentTypeSection';
 export * from './ContributorSection';
 export * from './DateSection';
+export * from './IFilterDisplayProps';
 export * from './MediaSection';
 export * from './MediaTypeSection';
 export * from './MoreOptions';
