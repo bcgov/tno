@@ -28,10 +28,6 @@ export const MyReports = styled.div`
     }
   }
 
-  .page-section {
-    margin-top: 0;
-  }
-
   .my-reports-content {
     height: calc(100dvh - 260px);
     overflow-y: auto;

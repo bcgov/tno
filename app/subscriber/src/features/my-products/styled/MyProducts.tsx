@@ -2,9 +2,6 @@ import styled from 'styled-components';
 import { Col } from 'tno-core';
 
 export const MyProducts = styled(Col)`
-  .page-section {
-    margin: 0 1rem 1rem 1rem;
-  }
   .info {
     margin-top: 1em;
     margin-bottom: 1em;

@@ -5,10 +5,6 @@ export const ReportAdmin = styled.div`
     background: unset;
   }
 
-  .page-section {
-    margin-top: 0;
-  }
-
   .tab-container {
     padding-top: 0.5rem;
   }

@@ -7,7 +7,7 @@ export const PageSection = styled.div<{ $ignoreMinWidth?: boolean; $ignoreLastCh
   background: ${(props) => props.theme.css.bkSecondary};
   box-shadow: ${(props) => props.theme.css.boxShadow};
   align-self: stretch;
-  margin: 1rem;
+  margin: 0 1rem 1rem 1rem;
   min-width: ${(props) => (props.$ignoreMinWidth ? 'unset' : 'fit-content')};
 
   .page-section-title {
