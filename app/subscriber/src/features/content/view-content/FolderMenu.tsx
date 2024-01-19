@@ -89,23 +89,23 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
   return (
     <styled.FolderMenu>
       <Row className="title-row">
-        <FaPen /> CREATE NEW FOLDER:{' '}
+        <FaPen /> Create new folder:{' '}
       </Row>
       <Row className="add-row">
         <Text
-          placeholder="Create new folder..."
+          placeholder="Enter a folder name..."
           className="folder-name"
           name="folder"
           onChange={(e) => setFolderName(e.target.value)}
         />
-        <Button className="add-folder" onClick={() => handleAdd()}>
-          CREATE
+        <Button disabled={folderName.length === 0} className="add-folder" onClick={() => handleAdd()}>
+          Create
         </Button>
       </Row>
       <Col>
         <Row className="add-title">
           <FaFolderPlus />
-          ADD TO FOLDER:{' '}
+          Add to folder:{' '}
         </Row>
         {myFolders.map((folder) => {
           return (
