@@ -29,11 +29,9 @@ export const FolderMenu = styled(Col)`
     color: ${(props) => props.theme.css.btnBkPrimary};
     &:hover {
       cursor: pointer;
-      // color: ${(props) => props.theme.css.btnBkPrimary};
     }
     &:disabled {
       cursor: not-allowed;
-      // color: ${(props) => props.theme.css.btnBkPrimary};
     }
 
     border: 0.1em solid ${(props) => props.theme.css.btnBkPrimary};
