@@ -69,7 +69,7 @@ export const ChartTemplateFormOptions: React.FC<IChartTemplateFormOptionsProps> 
           <Checkbox
             name="horizontal"
             label="Horizontal Graph"
-            defaultChecked={values.settings.options?.indexAxis === 'y'}
+            checked={values.settings.options?.indexAxis === 'y'}
             onChange={(e) => {
               const options = {
                 ...values.settings.options,
@@ -80,9 +80,50 @@ export const ChartTemplateFormOptions: React.FC<IChartTemplateFormOptionsProps> 
             }}
           />
           <Checkbox
+            name="showLegend"
+            label="Show Legend"
+            checked={values.settings.options?.plugins?.legend?.display}
+            onChange={(e) => {
+              const options = {
+                ...values.settings.options,
+                plugins: {
+                  ...values.settings.options?.plugins,
+                  legend: {
+                    ...values.settings.options?.plugins?.legend,
+                    display: e.currentTarget.checked,
+                  },
+                },
+              };
+              setChartOptions(JSON.stringify(options, null, 2));
+              setFieldValue('settings.options', options);
+            }}
+          />
+          <Checkbox
+            name="showLegendTitle"
+            label="Show Legend Title"
+            checked={values.settings.options?.plugins?.legend?.title?.display}
+            onChange={(e) => {
+              const options = {
+                ...values.settings.options,
+                plugins: {
+                  ...values.settings.options?.plugins,
+                  legend: {
+                    ...values.settings.options?.plugins?.legend,
+                    title: {
+                      ...values.settings.options?.plugins?.legend.title,
+                      display: e.currentTarget.checked,
+                    },
+                  },
+                },
+              };
+              setChartOptions(JSON.stringify(options, null, 2));
+              setFieldValue('settings.options', options);
+            }}
+          />
+          <Checkbox
             name="showDataValues"
-            label="Show Data Values"
-            defaultChecked={values.settings.options?.plugins?.datalabels?.labels?.title?.display}
+            label="Show Data Labels"
+            checked={values.settings.options?.plugins?.datalabels?.labels?.title?.display}
             onChange={(e) => {
               const options = {
                 ...values.settings.options,

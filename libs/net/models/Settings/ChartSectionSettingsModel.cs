@@ -1,7 +1,4 @@
 using System.Text.Json;
-using TNO.Core.Extensions;
-using TNO.Models.Extensions;
-
 namespace TNO.API.Models.Settings;
 
 public class ChartSectionSettingsModel
@@ -33,19 +30,34 @@ public class ChartSectionSettingsModel
     public string GroupBy { get; set; } = "mediaType";
 
     /// <summary>
-    /// get/set - An override title to include with the chart.
-    /// </summary>
-    public string Title { get; set; } = "";
-
-    /// <summary>
     /// get/set - Override whether the chart is horizontal.
     /// </summary>
-    public bool IsHorizontal { get; set; }
+    public bool? IsHorizontal { get; set; }
 
     /// <summary>
-    /// get/set - Override whether the chart will display data value labels.
+    /// get/set -
     /// </summary>
-    public bool ShowDataValues { get; set; }
+    public bool? ShowLegend { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public bool? ShowLegendTitle { get; set; }
+
+    /// <summary>
+    /// get/set - An override title to include with the chart.
+    /// </summary>
+    public string? Title { get; set; } = "";
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public bool? ShowDataLabels { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public bool? ShowAxis { get; set; }
 
     /// <summary>
     /// get/set - Chart.JS options.
@@ -58,41 +70,5 @@ public class ChartSectionSettingsModel
     /// Creates a new instance of a ChartSectionSettingsModel object.
     /// </summary>
     public ChartSectionSettingsModel() { }
-
-    /// <summary>
-    /// Creates a new instance of a ChartSectionSettingsModel object, initializes with specified parameters.
-    /// </summary>
-    /// <param name="settings"></param>
-    /// <param name="options"></param>
-    public ChartSectionSettingsModel(Dictionary<string, object> settings, JsonSerializerOptions options)
-    {
-        this.Width = settings.GetDictionaryJsonValue("width", 500, options)!;
-        this.Height = settings.GetDictionaryJsonValue("height", 500, options)!;
-        this.AltText = settings.GetDictionaryJsonValue("altText", "", options)!;
-        this.ChartType = settings.GetDictionaryJsonValue("chartType", "", options)!;
-        this.GroupBy = settings.GetDictionaryJsonValue("groupBy", "", options)!;
-        this.Title = settings.GetDictionaryJsonValue("title", "", options)!;
-        this.IsHorizontal = settings.GetDictionaryJsonValue("horizontal", false, options)!;
-        this.ShowDataValues = settings.GetDictionaryJsonValue("showDataValues", false, options)!;
-        this.Options = settings.GetDictionaryJsonValue("options", JsonDocument.Parse("{}"), options)!;
-    }
-
-    /// <summary>
-    /// Creates a new instance of a ChartSectionSettingsModel object, initializes with specified parameters.
-    /// </summary>
-    /// <param name="settings"></param>
-    /// <param name="options"></param>
-    public ChartSectionSettingsModel(JsonDocument settings, JsonSerializerOptions options)
-    {
-        this.Width = settings.GetElementValue("width", 500, options)!;
-        this.Height = settings.GetElementValue("height", 500, options)!;
-        this.AltText = settings.GetElementValue("altText", "", options)!;
-        this.ChartType = settings.GetElementValue("chartType", "", options)!;
-        this.GroupBy = settings.GetElementValue("groupBy", "", options)!;
-        this.Title = settings.GetElementValue("title", "", options)!;
-        this.IsHorizontal = settings.GetElementValue("horizontal", false, options)!;
-        this.ShowDataValues = settings.GetElementValue("showDataValues", false, options)!;
-        this.Options = settings.GetElementValue("options", JsonDocument.Parse("{}"), options)!;
-    }
     #endregion
 }

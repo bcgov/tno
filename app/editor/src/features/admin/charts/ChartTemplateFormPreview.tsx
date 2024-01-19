@@ -121,6 +121,7 @@ export const ChartTemplateFormPreview: React.FC<IChartTemplateFormPreviewProps> 
             options={chartTypes}
             value={chartTypes.find((o) => o?.value === preview.settings.chartType) ?? ''}
             isClearable={false}
+            width="200px"
             onChange={(newValue) => {
               const option = newValue as OptionItem;
               setPreview({
@@ -135,6 +136,7 @@ export const ChartTemplateFormPreview: React.FC<IChartTemplateFormPreviewProps> 
             options={groupBys}
             value={groupByOptions.find((o) => o?.value === preview.settings.groupBy) ?? ''}
             isClearable={false}
+            width="200px"
             onChange={(newValue) => {
               const option = newValue as OptionItem;
               setPreview({
