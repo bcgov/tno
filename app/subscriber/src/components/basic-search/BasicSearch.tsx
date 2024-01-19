@@ -1,10 +1,11 @@
 import { defaultAdvancedSearch } from 'features/search-page/components/advanced-search/constants';
 import { handleEnterPressed, isNumber } from 'features/utils';
 import { FaSearch } from 'react-icons/fa';
+import { FaPlay } from 'react-icons/fa6';
 import { useNavigate } from 'react-router';
 import { useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { IFilterSettingsModel, Row, Text } from 'tno-core';
+import { Button, IFilterSettingsModel, Row, Text } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -55,6 +56,15 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
           }}
         />
       </Row>
+      <Button
+        onClick={() => {
+          handleSearch();
+        }}
+        className="search-button"
+      >
+        Search
+        <FaPlay />
+      </Button>
       <p onClick={() => navigate(`/search/advanced/${filterId}`)}>GO ADVANCED</p>
     </styled.BasicSearch>
   );

@@ -2,7 +2,7 @@ import { getIn, useFormikContext } from 'formik';
 import React from 'react';
 
 import FaceFrownOpen from '../../../assets/face-frown-open.svg';
-import FaceGridWide from '../../../assets/face-grin-wide.svg';
+import FaceGrinWide from '../../../assets/face-grin-wide.svg';
 import FaceMeh from '../../../assets/face-meh.svg';
 import { Col, Error, Row } from '../../../components';
 import { ITonePoolModel } from '../../../hooks';
@@ -68,11 +68,11 @@ export const FormikSentiment = <T extends object>({
 
   const determineIndicator = (option: number) => {
     if (option === 5) {
-      return <img alt={option.toString()} src={FaceFrownOpen} />;
+      return <img alt={option.toString()} src={FaceGrinWide} />;
     } else if (option === 0) {
       return <img alt={option.toString()} src={FaceMeh} />;
     } else if (option === -5) {
-      return <img alt={option.toString()} src={FaceGridWide} />;
+      return <img alt={option.toString()} src={FaceFrownOpen} />;
     } else {
       return <span className="blank">&nbsp;</span>;
     }
