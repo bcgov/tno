@@ -14,6 +14,7 @@ import {
   FormikDatePicker,
   FormikText,
   FormikTextArea,
+  FormikWysiwyg,
   IconButton,
   ISystemMessageModel,
   LabelPosition,
@@ -21,7 +22,6 @@ import {
   Row,
   Show,
   useModal,
-  Wysiwyg,
 } from 'tno-core';
 
 import { defaultSystemMessage } from './constants';
@@ -33,7 +33,6 @@ const SystemMessageForm: React.FC = () => {
   const navigate = useNavigate();
   const [systemMessage, setSystemMessage] =
     React.useState<ISystemMessageModel>(defaultSystemMessage);
-  const [message, setMessage] = React.useState('');
   const { toggle, isShowing } = useModal();
 
   const systemMessageId = !!systemMessage.id ? systemMessage.id : 0;
@@ -49,7 +48,6 @@ const SystemMessageForm: React.FC = () => {
   const handleSubmit = async (values: ISystemMessageModel) => {
     try {
       const originalId = values.id;
-      values.message = message;
       const result =
         systemMessageId === 0
           ? await api.addSystemMessage(values)
@@ -86,14 +84,7 @@ const SystemMessageForm: React.FC = () => {
                 width={FieldSize.Large}
                 value={defaultSystemMessage.description}
               />
-              <Wysiwyg
-                label="Message"
-                name="message"
-                value={values.message}
-                onChange={(e) => {
-                  setMessage(e);
-                }}
-              />
+              <FormikWysiwyg name="message" label="Message" />
 
               <FormikCheckbox
                 labelPosition={LabelPosition.Top}
