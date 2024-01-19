@@ -4,7 +4,7 @@ import { FaFileExport, FaPlay } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useReports } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { IContentModel, IReportModel, Row } from 'tno-core';
+import { IContentModel, IReportModel, Link, Row } from 'tno-core';
 
 import * as styled from './styled';
 import { toInstanceContent } from './utils';
@@ -24,7 +24,6 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
     if (!myReports.length && !isLoading) {
       findMyReports().catch(() => {});
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -42,8 +41,16 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
         0,
       );
       const update = (report: IReportModel) => {
+        let navUrl = `reports/${report.id}/edit`;
         updateReport(report, true)
-          .then(() => toast.success(`${content.length} storie(s) have been added to report.`))
+          .then(() =>
+            toast.success(() => (
+              <div>
+                {content.length} storie(s) added to report:
+                <Link to={navUrl}>{report.name}</Link>
+              </div>
+            )),
+          )
           .catch(() => {});
       };
 
