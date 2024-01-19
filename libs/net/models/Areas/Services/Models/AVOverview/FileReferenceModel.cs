@@ -1,4 +1,4 @@
-namespace TNO.TemplateEngine.Models;
+namespace TNO.API.Areas.Services.Models.AVOverview;
 
 /// <summary>
 /// FileReferenceModel class, provides a model that represents an file reference.
@@ -73,55 +73,7 @@ public class FileReferenceModel
     /// Creates a new instance of an FileReferenceModel, initializes with specified parameter.
     /// </summary>
     /// <param name="model"></param>
-    public FileReferenceModel(TNO.API.Areas.Editor.Models.Content.FileReferenceModel model)
-    {
-        this.Id = model.Id;
-        this.ContentId = model.ContentId;
-        this.ContentType = model.ContentType;
-        this.FileName = model.FileName;
-        this.Path = model.Path;
-        this.Size = model.Size;
-        this.RunningTime = model.RunningTime;
-        this.IsUploaded = model.IsUploaded;
-    }
-
-    /// <summary>
-    /// Creates a new instance of an FileReferenceModel, initializes with specified parameter.
-    /// </summary>
-    /// <param name="model"></param>
-    public FileReferenceModel(TNO.API.Areas.Services.Models.AVOverview.FileReferenceModel model)
-    {
-        this.Id = model.Id;
-        this.ContentId = model.ContentId;
-        this.ContentType = model.ContentType;
-        this.FileName = model.FileName;
-        this.Path = model.Path;
-        this.Size = model.Size;
-        this.RunningTime = model.RunningTime;
-        this.IsUploaded = model.IsUploaded;
-    }
-
-    /// <summary>
-    /// Creates a new instance of an FileReferenceModel, initializes with specified parameter.
-    /// </summary>
-    /// <param name="model"></param>
     public FileReferenceModel(TNO.API.Areas.Services.Models.Content.FileReferenceModel model)
-    {
-        this.Id = model.Id;
-        this.ContentId = model.ContentId;
-        this.ContentType = model.ContentType;
-        this.FileName = model.FileName;
-        this.Path = model.Path;
-        this.Size = model.Size;
-        this.RunningTime = model.RunningTime;
-        this.IsUploaded = model.IsUploaded;
-    }
-
-    /// <summary>
-    /// Creates a new instance of an FileReferenceModel, initializes with specified parameter.
-    /// </summary>
-    /// <param name="model"></param>
-    public FileReferenceModel(TNO.API.Areas.Services.Models.ReportInstance.FileReferenceModel model)
     {
         this.Id = model.Id;
         this.ContentId = model.ContentId;
