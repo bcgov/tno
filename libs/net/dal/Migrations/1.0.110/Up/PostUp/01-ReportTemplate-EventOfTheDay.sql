@@ -1,5 +1,9 @@
 DO $$
+DECLARE ReportTemplateId INT;
 BEGIN
+
+-- get the Report Template Id
+SELECT INTO ReportTemplateId report_template_id FROM public."report" where "name" = 'Event of the Day' and owner_id = 1;
 
 UPDATE public.report_template SET
   "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
@@ -50,7 +54,7 @@ else
       {
         @* Table of Contents Section *@
         var tocCount = 0;
-        @foreach (var tableSection in Sections.Where(s => new [] {ReportSectionType.Content, ReportSectionType.Gallery}.Contains(s.Value.SectionType)))
+        @foreach (var tableSection in Sections.Where(s => s.Value.SectionType != ReportSectionType.TableOfContents))
         {
           if (!tableSection.Value.Settings.HideEmpty || tableSection.Value.Content.Any())
           {
@@ -123,6 +127,46 @@ else
               </ul>
             }
         }
+        @* Show Aggregate detail if returned *@
+        @if (section.Value.SectionType == ReportSectionType.Content)
+        {
+          if  (section.Value.Aggregations != null)
+          {
+            var showAggregateCountsAsPercentOfTotal = true;
+            @foreach (var rootAggregation in section.Value.Aggregations)
+            {
+              var totalDocCount = rootAggregation.Value.DocCount;
+              var rootAggregationChild = rootAggregation.Value.ChildAggregation;
+              <ul>
+              @foreach (var rootAggregationBucket in rootAggregationChild.Buckets)
+              {
+                var listItemColorStyle = ReportExtensions.GetColorFromName(rootAggregationBucket.Key, new string[] {"Issues","Proactive"}, new string[] {"#BB1111", "#006600"});
+                if (showAggregateCountsAsPercentOfTotal)
+                {
+                var rootAggregationAsPercentage = ((decimal)rootAggregationBucket.DocCount/totalDocCount * 100);
+                  <li style="font-weight:bold; @listItemColorStyle" >@rootAggregationBucket.Key (@String.Format("{0:F0}", @rootAggregationAsPercentage)%)</li>
+                } else {
+                  <li style="font-weight:bold; @listItemColorStyle" >@rootAggregationBucket.Key (@rootAggregationBucket.DocCount hits)</li>
+                }
+                if  (rootAggregationBucket.ChildAggregation != null) {
+                  <ul>
+                  @foreach (var childAggregationBucket in rootAggregationBucket.ChildAggregation.Buckets)
+                  {
+                    if (showAggregateCountsAsPercentOfTotal)
+                    {
+                      var childAggregationAsPercentage = ((decimal)childAggregationBucket.DocCount/totalDocCount * 100);
+                      <li style="@listItemColorStyle">@childAggregationBucket.Key (@String.Format("{0:F0}", @childAggregationAsPercentage)%)</li>
+                    } else {
+                      <li style="@listItemColorStyle">@childAggregationBucket.Key (@childAggregationBucket.DocCount)</li>
+                      }
+                   }
+                   </ul>
+                 }
+               }
+              </ul>
+            }
+          }
+	    }
 
         @* Full Stories *@
         @if (section.Value.Settings.ShowFullStory)
@@ -223,6 +267,6 @@ else
   Copying, retransmitting, archiving, redistributing, selling, licensing, or emailing the material to any third party or any employee of the Province who is not authorized to access the material is prohibited.
 </p>
 '
-WHERE "id" = (SELECT CAST("value" AS INTEGER) FROM public."setting" WHERE "name" = 'DefaultReportTemplateId' LIMIT 1);
+WHERE "id" = ReportTemplateId;
 
 END $$;
