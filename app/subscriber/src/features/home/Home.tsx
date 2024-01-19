@@ -164,7 +164,7 @@ export const Home: React.FC = () => {
               <Row className="option">
                 <Radio
                   checked={sortBy === 'source'}
-                  onClick={(e) =>
+                  onChange={(e) =>
                     (e.target as HTMLInputElement).checked ? setSortBy('source') : setSortBy('')
                   }
                 />
@@ -175,7 +175,7 @@ export const Home: React.FC = () => {
                   checked={sortBy === 'time'}
                   disabled
                   className="option"
-                  onClick={(e) =>
+                  onChange={(e) =>
                     (e.target as HTMLInputElement).checked ? setSortBy('time') : setSortBy('')
                   }
                 />
