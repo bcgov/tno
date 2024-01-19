@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FaArrowLeft } from 'react-icons/fa6';
+import { FaArrowLeft, FaGear } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useFolders } from 'store/hooks';
@@ -108,10 +108,7 @@ export const ConfigureFolder: React.FC = () => {
       ignoreLastChildGap
       header={
         <Row width={FieldSize.Stretch}>
-          <span className="back-to-folders" onClick={() => navigate(-1)}>
-            <FaArrowLeft /> Back to folders
-          </span>
-          <span className="name">Configuring folder: "{currentFolder?.name}"</span>
+          <FaGear className="gear" /> {currentFolder?.name}
         </Row>
       }
     >

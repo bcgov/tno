@@ -2,6 +2,10 @@ import { PageSection } from 'components/section';
 import styled from 'styled-components';
 
 export const ConfigureFolder = styled(PageSection)`
+  .gear {
+    color: ${(props) => props.theme.css.btnBkPrimary};
+    margin-right: 1rem;
+  }
   .react-datepicker-ignore-onclickoutside {
     border-radius: 0.5rem;
   }

@@ -7,7 +7,6 @@ import { MediaOverviewIcons } from 'features/daily-overview/MediaOverviewIcons';
 import { FilterMedia } from 'features/filter-media';
 import { Home } from 'features/home';
 import { HomeFilters } from 'features/home/home-filters';
-import { MyFolders } from 'features/my-folders';
 import { MyMinister } from 'features/my-minister/MyMinister';
 import { MyProducts } from 'features/my-products';
 import { MySearches } from 'features/my-searches';
@@ -92,9 +91,6 @@ export const Landing: React.FC = () => {
             </Show>
             <Show visible={activeItem === NavbarOptions.mySearches.label}>
               <MySearches />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.folders.label}>
-              <MyFolders />
             </Show>
             <Show visible={activeItem === NavbarOptions.eveningOverview.label}>
               <AVOverviewPreview />

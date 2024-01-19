@@ -5,6 +5,7 @@ import { Login } from 'features/login';
 import { ManageFolder } from 'features/manage-folder';
 import { MyColleagues } from 'features/my-colleagues';
 import { ColleagueEdit } from 'features/my-colleagues/ColleagueEdit';
+import { FolderLanding, MyFolders } from 'features/my-folders';
 import { ConfigureFolder } from 'features/my-folders/ConfigureFolder';
 import { MyProducts } from 'features/my-products';
 import { MyReports, ReportAdmin, ReportEdit, ReportView } from 'features/my-reports';
@@ -84,18 +85,11 @@ export const AppRouter: React.FC<IAppRouter> = () => {
           }
         />
         <Route
-          path="/folders/:id"
+          path="/folders/:action?/:id?"
           element={
-            <PrivateRoute claims={Claim.subscriber} element={<ManageFolder />}></PrivateRoute>
+            <PrivateRoute claims={Claim.subscriber} element={<FolderLanding />}></PrivateRoute>
           }
         />
-        <Route
-          path="/folders/configure/:id"
-          element={
-            <PrivateRoute claims={Claim.subscriber} element={<ConfigureFolder />}></PrivateRoute>
-          }
-        />
-
         <Route
           path="/colleagues"
           element={

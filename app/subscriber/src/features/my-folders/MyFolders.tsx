@@ -1,7 +1,7 @@
 import { SubscriberTableContainer } from 'components/table';
 import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
-import { FaFolderPlus } from 'react-icons/fa6';
+import { FaFolderPlus, FaWandMagicSparkles, FaWandSparkles } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
@@ -63,6 +63,7 @@ export const MyFolders = () => {
   return (
     <styled.MyFolders>
       <Row className="create-new">
+        <FaWandMagicSparkles className="wand" />
         <div className="create-text">CREATE NEW FOLDER: </div>
         <Text
           name="folderName"
@@ -87,7 +88,7 @@ export const MyFolders = () => {
             pagingEnabled={false}
             columns={columns(setActive, editable, handleSave, active)}
             rowId={'id'}
-            onRowClick={(e) => navigate(`/folders/${e.original.id}`)}
+            onRowClick={(e) => navigate(`/folders/view/${e.original.id}`)}
             data={myFolders}
             showActive={false}
           />
