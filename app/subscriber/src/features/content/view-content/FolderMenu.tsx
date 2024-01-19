@@ -98,7 +98,11 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
           name="folder"
           onChange={(e) => setFolderName(e.target.value)}
         />
-        <Button disabled={folderName.length === 0} className="add-folder" onClick={() => handleAdd()}>
+        <Button
+          disabled={folderName.length === 0}
+          className="add-folder"
+          onClick={() => handleAdd()}
+        >
           Create
         </Button>
       </Row>
