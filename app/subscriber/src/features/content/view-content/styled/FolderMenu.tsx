@@ -66,7 +66,6 @@ export const FolderMenu = styled(Col)`
   }
   .add-title {
     font-weight: bold;
-    // font-size: 0.9em;
     text-transform: uppercase;
     display: flex;
     align-items: center;
