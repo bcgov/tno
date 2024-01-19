@@ -22,7 +22,6 @@ import {
   Row,
   Show,
   useModal,
-  Wysiwyg,
 } from 'tno-core';
 
 import { defaultSystemMessage } from './constants';
