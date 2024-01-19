@@ -67,7 +67,7 @@ export const Landing = styled(Col)`
       max-width: 55%;
     }
     flex-grow: 1;
-    margin-bottom: 0.5em;
+    margin: 0 0 1rem 1rem;
 
     .content {
       background-color: white;

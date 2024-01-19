@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { Col } from 'tno-core';
 
 export const Navbar = styled(Col)<{ $expanded: boolean }>`
-  height: calc(100dvh - 90px);
+  height: calc(100dvh); // 100% height of section
   svg:not(.expand-control) {
     height: ${(props) => (props.$expanded ? '' : '1.5em')};
     width: ${(props) => (props.$expanded ? '' : '1.5em')};
@@ -25,7 +25,7 @@ export const Navbar = styled(Col)<{ $expanded: boolean }>`
     color: ${(props) => props.theme.css.bkWhite};
     align-items: center;
     svg {
-      margin-right: 0.5em;
+      margin-right: ${(props) => (props.$expanded ? '0.5em' : 'unset')};
     }
     &:hover {
       filter: brightness(1.1);

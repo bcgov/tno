@@ -1,7 +1,7 @@
 import { BasicSearch } from 'components/basic-search';
 import { UserProfile } from 'components/user-profile';
 import React from 'react';
-import { Row, Show } from 'tno-core';
+import { Link, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -28,13 +28,13 @@ export const Header: React.FC<IHeaderProps> = ({
     <styled.Header className="header">
       <Row>
         {showLogo && (
-          <div className="logo-container">
+          <Link to="/landing/home" title="MMI Home page" className="logo-container">
             <img
               className="mm-logo"
               src={process.env.PUBLIC_URL + '/assets/MMinsights_logo_black.svg'}
               alt="MMinsights logo"
             />
-          </div>
+          </Link>
         )}
         {children}
       </Row>
