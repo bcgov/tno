@@ -271,6 +271,7 @@ export const PressGallery: React.FC = () => {
       </Row>
       <Row className="table-container">
         <FlexboxTable
+          showHeader={false}
           rowId="id"
           columns={determineColumns('all')}
           isLoading={loading}
