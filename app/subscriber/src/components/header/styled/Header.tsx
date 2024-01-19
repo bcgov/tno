@@ -9,6 +9,6 @@ export const Header = styled.div`
 
   .logo-container {
     width: 15em;
-    display:flex;
+    display: flex;
   }
 `;

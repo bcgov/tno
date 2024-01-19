@@ -9,7 +9,7 @@ export const UserProfile = styled.div`
 
   .logout {
     display: flex;
-    flex-flow:nowrap;
+    flex-flow: nowrap;
     max-height: fit-content;
     font-size: 1rem;
     color: ${(props) => props.theme.css.fRedColor};

@@ -7,7 +7,6 @@ export const SearchPage = styled.div`
   }
   max-height: 100vh;
   overflow: none;
-  
 
   /* RIBBON CONTAINING SEARCH NAME IF MODIFYING */
   .viewed-name {
