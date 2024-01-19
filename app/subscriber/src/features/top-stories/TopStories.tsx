@@ -71,6 +71,7 @@ export const TopStories: React.FC = () => {
       <DateFilter filter={filter} storeFilter={storeFilter} />
       <Row className="table-container">
         <FlexboxTable
+          showHeader={false}
           rowId="id"
           columns={determineColumns('all')}
           isMulti
