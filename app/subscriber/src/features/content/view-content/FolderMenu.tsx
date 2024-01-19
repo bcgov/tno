@@ -2,7 +2,16 @@ import React from 'react';
 import { FaFolderPlus, FaPen } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { Button, Col, getDistinct, IFolderContentModel, IFolderModel, Row, Text } from 'tno-core';
+import {
+  Button,
+  Col,
+  getDistinct,
+  IFolderContentModel,
+  IFolderModel,
+  Link,
+  Row,
+  Text,
+} from 'tno-core';
 
 import * as styled from './styled';
 
@@ -24,24 +33,31 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
 
   const handleAdd = React.useCallback(async () => {
     if (!!content) {
-      try {
-        await addFolder({
-          name: folderName,
-          description: '',
-          settings: {
-            keepAgeLimit: 0,
-          },
-          isEnabled: true,
-          sortOrder: 0,
-          id: 0,
-          content: content,
-          reports: [],
-          events: [],
-        });
-
-        toast.success(`${folderName} created and ${content.length} stories added to folder.`);
-        setFolderName('');
-      } catch {}
+      await addFolder({
+        name: folderName,
+        description: '',
+        settings: {
+          keepAgeLimit: 0,
+        },
+        isEnabled: true,
+        sortOrder: 0,
+        id: 0,
+        content: content,
+        reports: [],
+        events: [],
+      })
+        .then((folder) => {
+          let navUrl = `folders/${folder.id}`;
+          toast.success(() => (
+            <div>
+              Folder
+              <Link to={navUrl}>{folder.name}</Link> created and {content.length} storie(s) added to
+              folder.
+            </div>
+          ));
+          setFolderName('');
+        })
+        .catch(() => {});
     }
   }, [addFolder, content, folderName]);
 
@@ -49,16 +65,22 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
     async (folder: IFolderModel) => {
       if (!content?.length) toast.error('No content selected');
       if (!!content?.length) {
-        try {
-          await updateFolder({
-            ...folder,
-            content: getDistinct([...folder.content, ...content], (item) => item.contentId).map(
-              (c, index) => ({ ...c, sortOrder: index }),
-            ),
-          });
-
-          toast.success(`${content.length} stories added to folder`);
-        } catch {}
+        await updateFolder({
+          ...folder,
+          content: getDistinct([...folder.content, ...content], (item) => item.contentId).map(
+            (c, index) => ({ ...c, sortOrder: index }),
+          ),
+        })
+          .then(() => {
+            let navUrl = `folders/${folder.id}`;
+            toast.success(() => (
+              <div>
+                {content.length} storie(s) added to folder:
+                <Link to={navUrl}>{folder.name}</Link>
+              </div>
+            ));
+          })
+          .catch(() => {});
       }
     },
     [content, updateFolder],
