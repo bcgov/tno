@@ -33,34 +33,31 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
 
   const handleAdd = React.useCallback(async () => {
     if (!!content) {
-      try {
-        await addFolder({
-          name: folderName,
-          description: '',
-          settings: {
-            keepAgeLimit: 0,
-          },
-          isEnabled: true,
-          sortOrder: 0,
-          id: 0,
-          content: content,
-          reports: [],
-          events: [],
+      await addFolder({
+        name: folderName,
+        description: '',
+        settings: {
+          keepAgeLimit: 0,
+        },
+        isEnabled: true,
+        sortOrder: 0,
+        id: 0,
+        content: content,
+        reports: [],
+        events: [],
+      })
+        .then((folder) => {
+          let navUrl = `folders/${folder.id}`;
+          toast.success(() => (
+            <div>
+              Folder
+              <Link to={navUrl}>{folder.name}</Link> created and {content.length} storie(s) added to
+              folder.
+            </div>
+          ));
+          setFolderName('');
         })
-          .then((folder) => {
-            let navUrl = `folders/${folder.id}`;
-            toast.success(() => (
-              <div>
-                Folder
-                <Link to={navUrl}>{folder.name}</Link> created and {content.length} storie(s) added
-                to folder.
-              </div>
-            ));
-          })
-          .catch(() => {});
-
-        setFolderName('');
-      } catch {}
+        .catch(() => {});
     }
   }, [addFolder, content, folderName]);
 
