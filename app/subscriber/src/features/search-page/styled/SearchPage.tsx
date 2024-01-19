@@ -8,10 +8,6 @@ export const SearchPage = styled.div`
   max-height: 100vh;
   overflow: none;
 
-  .logout {
-    margin-right: 1em;
-  }
-
   /* RIBBON CONTAINING SEARCH NAME IF MODIFYING */
   .viewed-name {
     display: flex;
@@ -55,7 +51,7 @@ export const SearchPage = styled.div`
   }
 
   .result-container-full {
-    width: 98%;
+    width: 100%;
   }
 
   /** CONTAINED IN PAGE HEADER */
