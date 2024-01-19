@@ -10,7 +10,6 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
   ${(props) =>
     !props.inHeader &&
     `
-      // width: 100%;
       background: ${props.theme.css.bkSecondary};
       margin: 0.25em;
       border-color: ${props.theme.css.inputGrey};
