@@ -8,6 +8,7 @@ export const FolderMenu = styled(Col)`
       margin-right: 0.5em;
     }
     color: ${(props) => props.theme.css.fPrimaryColor};
+    text-transform: uppercase;
     font-weight: bold;
   }
   input {
@@ -24,10 +25,13 @@ export const FolderMenu = styled(Col)`
   .add-folder {
     display: flex;
     background-color: transparent;
+    text-transform: uppercase;
     color: ${(props) => props.theme.css.btnBkPrimary};
     &:hover {
       cursor: pointer;
-      color: ${(props) => props.theme.css.btnBkPrimary};
+    }
+    &:disabled {
+      cursor: not-allowed;
     }
 
     border: 0.1em solid ${(props) => props.theme.css.btnBkPrimary};
@@ -62,7 +66,7 @@ export const FolderMenu = styled(Col)`
   }
   .add-title {
     font-weight: bold;
-    font-size: 0.9em;
+    text-transform: uppercase;
     display: flex;
     align-items: center;
     color: ${(props) => props.theme.css.fPrimaryColor};
