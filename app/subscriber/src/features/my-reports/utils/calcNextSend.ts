@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { IReportModel, IReportScheduleModel } from 'tno-core';
+import { IReportInstanceModel, IReportModel, IReportScheduleModel } from 'tno-core';
 
 const WeekDays: Record<string, number> = {
   Sunday: 0,
@@ -17,17 +17,21 @@ interface ISchedule {
 }
 
 function getNextReportSend(report: IReportModel): string {
-  // Set constants with the last sent info. If it's null consider the actual date
-  const sentOn: string | Date | undefined = report.instances.length
-    ? report.instances[0].sentOn
-    : undefined;
+  const mostRecentlySentInstance: IReportInstanceModel | undefined = report?.instances?.find(
+    (instance) => instance.sentOn !== null,
+  );
 
-  const lastSent: Date = sentOn === undefined ? new Date() : new Date(sentOn);
+  const lastSent: Date =
+    mostRecentlySentInstance?.sentOn === undefined
+      ? new Date()
+      : new Date(mostRecentlySentInstance?.sentOn);
 
   const lastWeekDay = lastSent.toLocaleDateString('en-US', { weekday: 'long' });
 
   const lastTimeSent = lastSent.toLocaleTimeString('en-US', {
-    timeZone: 'UTC',
+    // TODO: Store User's preferred timezone in profile/settings to use for coverting/storing
+    // Server currently compares time in server local time, which is PST. Hence, use PST.
+    timeZone: 'America/Vancouver',
     hour12: false,
     hour: '2-digit',
     minute: '2-digit',
