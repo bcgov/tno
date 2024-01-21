@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { IReportInstanceModel, IReportModel, IReportScheduleModel } from 'tno-core';
+import { IReportModel, IReportScheduleModel } from 'tno-core';
 
 const WeekDays: Record<string, number> = {
   Sunday: 0,
