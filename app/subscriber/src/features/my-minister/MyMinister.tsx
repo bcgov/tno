@@ -27,26 +27,37 @@ export const MyMinister: React.FC = () => {
 
   const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
-  const [ministerNames, setMinisterNames] = React.useState<string[]>([]);
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
   const [loading, setLoading] = React.useState(false);
 
   const selectedIds = selected.map((i) => i.id.toString());
 
   //  convert minister name to alias (e.g. David Eby -> D. Eby OR David Eby)
-  const toMinisterAlias = (ministerName: string) => {
+  const getAliasFromMinisterName = (ministerName: string) => {
     const firstInitial = ministerName.charAt(0);
     const lastName = ministerName.split(' ')[1];
-    return `"${firstInitial}. ${lastName}" "${ministerName}"`;
+    return `${firstInitial}. ${lastName}`;
   };
 
-  React.useEffect(() => {
-    if (!ministers.length) {
-      api.getMinisters().then((data) => {
-        setMinisters(data);
-      });
-    }
-  }, [api, ministers.length]);
+  const makeSimpleQueryString = (terms: string[]) => {
+    if (terms.length === 1) return `"${terms[0]}"`;
+    const allButLastTerm = terms.slice(0, terms.length - 1);
+    const lastTerm = terms[terms.length - 1];
+    return allButLastTerm.map((t) => `"${t}"`).join(' | ') + ` | "${lastTerm}"`;
+  };
+
+  React.useEffect(
+    () => {
+      if (!ministers.length) {
+        api.getMinisters().then((data) => {
+          setMinisters(data);
+        });
+      }
+    },
+    // do not want to trigger on loading change, will cause infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
@@ -72,7 +83,7 @@ export const MyMinister: React.FC = () => {
   );
 
   React.useEffect(() => {
-    if (!!filter.search && ministerNames.length > 0) {
+    if (!!filter.search) {
       fetchResults(
         generateQuery(
           filterFormat(
@@ -90,26 +101,29 @@ export const MyMinister: React.FC = () => {
     }
     // only want the effect to trigger when aliases is populated, not every time the filter changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, ministerNames]);
+  }, [filter.search]);
 
   React.useEffect(() => {
+    var searchFilterTerms: string[] = [];
     if (userInfo?.preferences?.myMinisters?.length > 0 && ministers.length > 0) {
-      let selectedMinisters: string[] = [];
-      selectedMinisters = ministers
-        .filter((m) => userInfo?.preferences?.myMinisters?.includes(m.id))
-        .map((x) => x.name);
-      setMinisterNames(selectedMinisters);
+      let ministerModels = ministers.filter((m) =>
+        userInfo?.preferences?.myMinisters?.includes(m.id),
+      );
+      if (ministerModels) {
+        ministerModels.forEach((m) => {
+          searchFilterTerms.push(m.name);
+          let ministerAliases = !m.aliases.length
+            ? [getAliasFromMinisterName(m.name)]
+            : m.aliases.split(',').map(function (item) {
+                return item.trim();
+              });
+          ministerAliases.forEach((m) => searchFilterTerms.push(m));
+        });
+        // only store a search filter if the user has selected at least one "My Minister"
+        storeMyMinisterFilter({ ...filter, search: makeSimpleQueryString(searchFilterTerms) });
+      }
     }
-  }, [ministers, userInfo?.preferences?.myMinisters, actions]);
-
-  /** retrigger content fetch when change is applied */
-  React.useEffect(() => {
-    if (ministerNames.length > 0) {
-      storeMyMinisterFilter({ ...filter, search: toMinisterAlias(ministerNames.toString()) });
-    }
-    // only want the effect to trigger when aliases is populated, not every time the filter changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ministerNames]);
+  }, [userInfo?.preferences?.myMinisters, ministers, filter, storeMyMinisterFilter]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentSearchResult>) => {
