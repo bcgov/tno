@@ -6,8 +6,8 @@
 export const convertBase64ConfigToChartJsConfig = (data: string) => {
   const chartJsConfigAsJson = Buffer.from(data, 'base64').toString('ascii');
   const chartJsConfig = JSON.parse(chartJsConfigAsJson);
-  if (chartJsConfig.plugins.datalabels.formatter !== null) {
-    // the expection here is for a lambda type function
+  if (chartJsConfig.plugins?.datalabels?.formatter !== null) {
+    // the expectation here is for a lambda type function
     chartJsConfig.plugins.datalabels.formatter = eval(chartJsConfig.plugins.datalabels.formatter);
   }
   return chartJsConfig;
