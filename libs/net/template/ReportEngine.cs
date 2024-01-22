@@ -1,6 +1,7 @@
 
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Core.Extensions;
@@ -150,7 +151,8 @@ public class ReportEngine : IReportEngine
         var data = model.ChartData ?? (await this.GenerateJsonAsync(model, isPreview)).Json;
         var dataJson = data.ToJson();
 
-        var optionsJson = model.ChartTemplate.SectionSettings.Options != null ? JsonSerializer.Serialize(model.ChartTemplate.SectionSettings.Options) : "{}";
+        var optionsJson = model.ChartTemplate.SectionSettings.Options != null ? JsonSerializer.Serialize(MergeChartOptions(model.ChartTemplate.Settings, model.ChartTemplate.SectionSettings)) : "{}";
+        // Modify the chart options based on section settings.
         var optionsBytes = Encoding.UTF8.GetBytes(optionsJson);
         var optionsBase64 = Convert.ToBase64String(optionsBytes);
 
@@ -268,10 +270,8 @@ public class ReportEngine : IReportEngine
 
                 await section.ChartTemplates.ForEachAsync(async chart =>
                 {
-                    // TODO: Merge with report specific configuration options.
                     chart.SectionSettings ??= new();
-                    if (chart.SectionSettings.Options == null || chart.SectionSettings.Options.ToJson() == "{}")
-                        chart.SectionSettings.Options = chart.Settings.Options;
+                    chart.SectionSettings.Options = MergeChartOptions(chart.Settings, chart.SectionSettings);
 
                     var chartModel = new ChartEngineContentModel(
                         ReportSectionModel.GenerateChartUid(section.Id, chart.Id),
@@ -288,6 +288,160 @@ public class ReportEngine : IReportEngine
         }
 
         return body;
+    }
+
+    /// <summary>
+    /// Each chart template has its own default settings.
+    /// A section can override those setting options.
+    /// </summary>
+    /// <param name="chartTemplateSettings"></param>
+    /// <param name="sectionSettings"></param>
+    /// <returns></returns>
+    private JsonDocument MergeChartOptions(API.Models.Settings.ChartTemplateSettingsModel chartTemplateSettings, API.Models.Settings.ChartSectionSettingsModel sectionSettings)
+    {
+        var json = JsonNode.Parse(chartTemplateSettings.Options.ToJson())?.AsObject();
+        if (json == null) return chartTemplateSettings.Options;
+
+        try
+        {
+
+            if (sectionSettings.IsHorizontal.HasValue)
+            {
+                // There appears to be no way to modify a value...
+                if (json.ContainsKey("indexAxis"))
+                    json.Remove("indexAxis");
+                json.Add("indexAxis", sectionSettings.IsHorizontal.Value ? "y" : "x");
+            }
+
+            if (sectionSettings.ShowAxis.HasValue)
+            {
+                if (json.TryGetPropertyValue("scales", out JsonNode? scales))
+                {
+                    if (scales?.AsObject().TryGetPropertyValue("x", out JsonNode? scalesX) == true)
+                    {
+                        if (scalesX?.AsObject().ContainsKey("display") == true)
+                            scalesX.AsObject().Remove("display");
+                        scalesX?.AsObject().Add("display", sectionSettings.ShowAxis);
+                    }
+                    else
+                    {
+                        scales?.AsObject().Add("x", JsonNode.Parse($"{{ \"display\": {sectionSettings.ShowAxis} }}"));
+                    }
+
+                    if (scales?.AsObject().TryGetPropertyValue("y", out JsonNode? scalesY) == true)
+                    {
+                        if (scalesY?.AsObject().ContainsKey("display") == true)
+                            scalesY.AsObject().Remove("display");
+                        scalesY?.AsObject().Add("display", sectionSettings.ShowAxis);
+                    }
+                    else
+                    {
+                        scales?.AsObject().Add("y", JsonNode.Parse($"{{ \"display\": {sectionSettings.ShowAxis} }}"));
+                    }
+                }
+                else
+                {
+                    scales = JsonNode.Parse($"{{ \"scales\": {{}} }}");
+                    scales?.AsObject().Add("x", JsonNode.Parse($"{{ \"display\": {sectionSettings.ShowAxis} }}"));
+                    scales?.AsObject().Add("y", JsonNode.Parse($"{{ \"display\": {sectionSettings.ShowAxis} }}"));
+                }
+            }
+
+            if (sectionSettings.ShowLegend.HasValue || sectionSettings.ShowLegendTitle.HasValue || !String.IsNullOrWhiteSpace(sectionSettings.Title))
+            {
+                if (json.TryGetPropertyValue("plugins", out JsonNode? plugins))
+                {
+                    if (plugins?.AsObject().TryGetPropertyValue("legend", out JsonNode? legend) == true)
+                    {
+                        if (legend?.AsObject().ContainsKey("display") == true)
+                            legend.AsObject().Remove("display");
+                        legend?.AsObject().Add("display", sectionSettings.ShowLegend ?? true);
+
+                        if (sectionSettings.ShowLegendTitle.HasValue || !String.IsNullOrWhiteSpace(sectionSettings.Title))
+                        {
+                            if (legend?.AsObject().TryGetPropertyValue("title", out JsonNode? title) == true)
+                            {
+                                if (title?.AsObject().ContainsKey("display") == true)
+                                    title.AsObject().Remove("display");
+                                title?.AsObject().Add("display", sectionSettings.ShowLegendTitle ?? true);
+
+                                if (!String.IsNullOrWhiteSpace(sectionSettings.Title))
+                                {
+                                    if (title?.AsObject().ContainsKey("text") == true)
+                                        title.AsObject().Remove("text");
+                                    title?.AsObject().Add("text", sectionSettings.Title ?? "");
+                                }
+                            }
+                            else
+                            {
+                                if (!String.IsNullOrWhiteSpace(sectionSettings.Title))
+                                {
+                                    title = JsonNode.Parse($"{{ \"title\": {{ \"text\": \"{sectionSettings.Title ?? ""}\", \"display\": {sectionSettings.ShowLegendTitle ?? true} }} }}");
+                                    legend?.AsObject().Add("title", title);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        legend = JsonNode.Parse($"{{ \"display\": {sectionSettings.ShowLegend}, \"title\": {{ \"text\": \"{sectionSettings.Title ?? ""}\", \"display\": {sectionSettings.ShowLegendTitle ?? true} }} }}");
+                        plugins?.AsObject().Add("legend", legend);
+                    }
+                }
+                else
+                {
+                    plugins = JsonNode.Parse($"{{ \"legend\": {{ \"display\": {sectionSettings.ShowLegend}, \"title\": {{ \"text\": \"{sectionSettings.Title ?? ""}\", \"display\": {sectionSettings.ShowLegendTitle ?? true} }} }} }}");
+                    json.Add("plugins", plugins);
+                }
+            }
+
+            if (sectionSettings.ShowDataLabels.HasValue)
+            {
+                if (json.TryGetPropertyValue("plugins", out JsonNode? plugins))
+                {
+                    if (plugins?.AsObject().TryGetPropertyValue("datalabels", out JsonNode? datalabels) == true)
+                    {
+                        if (datalabels?.AsObject().TryGetPropertyValue("labels", out JsonNode? labels) == true)
+                        {
+                            if (labels?.AsObject().TryGetPropertyValue("title", out JsonNode? title) == true)
+                            {
+                                if (title?.AsObject().ContainsKey("display") == true)
+                                    title?.AsObject().Remove("display");
+                                title?.AsObject().Add("display", sectionSettings.ShowDataLabels.Value);
+                            }
+                            else
+                            {
+                                title = JsonNode.Parse($"{{ \"display\": {sectionSettings.ShowDataLabels.Value} }}");
+                                labels?.AsObject().Add("title", title);
+                            }
+                        }
+                        else
+                        {
+                            labels = JsonNode.Parse($"{{ \"title\": {{ \"display\": {sectionSettings.ShowDataLabels.Value} }} }}");
+                            datalabels?.AsObject().Add("labels", labels);
+                        }
+                    }
+                    else
+                    {
+                        datalabels = JsonNode.Parse($"{{ \"anchor\": \"center\", \"labels\": {{ \"title\": {{ \"display\": {sectionSettings.ShowDataLabels.Value} }} }} }}");
+                        plugins?.AsObject().Add("datalabels", datalabels);
+                    }
+                }
+                else
+                {
+                    plugins = JsonNode.Parse($"{{ \"datalabels\": {{ \"anchor\": \"center\", \"labels\": {{ \"title\": {{ \"display\": {sectionSettings.ShowLegendTitle ?? true} }} }} }} }}");
+                    json.Add("plugins", plugins);
+                }
+            }
+
+            return JsonDocument.Parse(json.ToJsonString());
+        }
+        catch (Exception ex)
+        {
+            this.Logger.LogError(ex, "Failed to modify chart options");
+        }
+
+        return chartTemplateSettings.Options;
     }
     #endregion
 

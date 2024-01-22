@@ -178,7 +178,7 @@ export const ReportSectionMediaAnalytics = ({ index }: IReportSectionMediaAnalyt
                         : '',
                       groupBy: chart.settings?.groupBy.length ? chart.settings.groupBy[0] : '',
                       isHorizontal: false,
-                      showDataValues: false,
+                      showDataLabels: false,
                       width: 500,
                       height: 500,
                       options: { ...chart.settings?.options },
@@ -218,7 +218,7 @@ export const ReportSectionMediaAnalytics = ({ index }: IReportSectionMediaAnalyt
                       </Button>
                     </Col>
                   </Row>
-                  <Row className="chart-settings">
+                  <Row className="chart-settings" alignItems="center">
                     <FormikSelect
                       label="Chart Type"
                       name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.chartType`}
@@ -252,6 +252,31 @@ export const ReportSectionMediaAnalytics = ({ index }: IReportSectionMediaAnalyt
                       value={ct.sectionSettings.height ?? 500}
                       type="number"
                       width="10ch"
+                    />
+                    <FormikCheckbox
+                      label="Is Horizontal"
+                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.isHorizontal`}
+                      checked={ct.sectionSettings.isHorizontal ?? true}
+                    />
+                    <FormikCheckbox
+                      label="Show Legend"
+                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.showLegend`}
+                      checked={ct.sectionSettings.showLegend ?? true}
+                    />
+                    <FormikCheckbox
+                      label="Show Legend Title"
+                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.showLegendTitle`}
+                      checked={ct.sectionSettings.showLegendTitle ?? false}
+                    />
+                    <FormikCheckbox
+                      label="Show Data Labels"
+                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.showDataLabels`}
+                      checked={ct.sectionSettings.showDataLabels ?? false}
+                    />
+                    <FormikCheckbox
+                      label="Show Axis"
+                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.showAxis`}
+                      checked={ct.sectionSettings.showAxis ?? true}
                     />
                   </Row>
                 </Col>
