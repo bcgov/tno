@@ -16,6 +16,7 @@ import {
   IAVOverviewInstanceModel,
   IAVOverviewSectionItemModel,
   IAVOverviewTemplateSectionItemModel,
+  IContentModel,
   IOptionItem,
   OptionItem,
   Row,
@@ -39,7 +40,8 @@ interface Suggestion {
 /** OverviewGrid contains the table of items displayed for each overview section. */
 export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, index }) => {
   const { values, setFieldValue } = useFormikContext<IAVOverviewInstanceModel>();
-  const [content, { findContent }] = useContent();
+  const [, { findContent }] = useContent();
+  const [contentItems, setContentItems] = React.useState<IContentModel[]>();
 
   const [showAutoCompleteForIndex, setShowAutoCompleteForIndex] = React.useState<null | number>(
     null,
@@ -84,7 +86,15 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
         contentTypes: [],
         sort: ['publishedOn asc'],
       }).then((data) => {
-        setClips(data.items.map((c) => new OptionItem(c.headline, c.id)) as IOptionItem[]);
+        setContentItems(data.items);
+        const newClips = data.items.map((c) => new OptionItem(c.headline, c.id)) as IOptionItem[];
+        // check if any previously selected clips are no longer available, if not, unselec them
+        items.forEach((item, itemIndex) => {
+          if (item.contentId && !newClips.some((clip) => clip.value === item.contentId)) {
+            setFieldValue(`sections.${index}.items.${itemIndex}.contentId`, null);
+          }
+        });
+        setClips(newClips);
       });
     }
     // only want to fire on init, and when start time is changed
@@ -142,9 +152,9 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
         match[1].length === 5 ? `${match[1]}:00` : `0${match[1]}:00`,
       );
     } else {
-      const selectedClip = content.searchResults?.items?.find((s) => s.id === newValue?.value);
+      const selectedClip = contentItems?.find((s) => s.id === newValue?.value);
       const publishedOn = moment(selectedClip?.publishedOn).format('HH:mm:ss');
-      setFieldValue(`sections.${index}.items.${itemIndex}.time`, publishedOn);
+      if (publishedOn) setFieldValue(`sections.${index}.items.${itemIndex}.time`, publishedOn);
     }
   };
 
@@ -245,52 +255,59 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                         >
                           {(provided) => (
                             <div
-                              className="item-container"
                               ref={provided.innerRef}
                               key={itemIndex + `item.id`}
                               {...provided.dragHandleProps}
                               {...provided.draggableProps}
                             >
                               <Row className="rows" key={itemIndex} nowrap>
-                                <FaGripLines className="grip-lines" />
-                                <FormikSelect
-                                  key={itemIndex + `select`}
-                                  name={`sections.${index}.items.${itemIndex}.itemType`}
-                                  width={FieldSize.Small}
-                                  options={eveningOverviewItemTypeOptions}
-                                  value={eveningOverviewItemTypeOptions.find(
-                                    (o) => o.value === item.itemType,
-                                  )}
-                                  isClearable={false}
-                                  isDisabled={!editable}
-                                  onChange={(newValue: unknown) => {
-                                    const option = newValue as IOptionItem;
-                                    if (option?.value === 'Ad') {
-                                      const numberOfExistingAds = items.reduce(
-                                        (acc: number, curr: IAVOverviewSectionItemModel) => {
-                                          if (curr.itemType === 'Ad') {
-                                            acc++;
-                                          }
-                                          return acc;
-                                        },
-                                        1,
-                                      );
-                                      setFieldValue(
-                                        `sections.${index}.items.${itemIndex}.summary`,
-                                        `${stringifyNumber(numberOfExistingAds)} commercial break`,
-                                      );
-                                    }
-                                  }}
-                                />
-                                <FormikTimeInput
-                                  key={itemIndex}
-                                  name={`sections.${index}.items.${itemIndex}.time`}
-                                  width={FieldSize.Small}
-                                  placeholder="hh:mm:ss"
-                                  disabled={!editable}
-                                />
+                                <Col style={{ justifyContent: 'center' }}>
+                                  <FaGripLines className="grip-lines" />
+                                </Col>
+                                <Col>
+                                  <FormikSelect
+                                    key={itemIndex + `select`}
+                                    name={`sections.${index}.items.${itemIndex}.itemType`}
+                                    width={FieldSize.Small}
+                                    options={eveningOverviewItemTypeOptions}
+                                    value={eveningOverviewItemTypeOptions.find(
+                                      (o) => o.value === item.itemType,
+                                    )}
+                                    isClearable={false}
+                                    isDisabled={!editable}
+                                    onChange={(newValue: unknown) => {
+                                      const option = newValue as IOptionItem;
+                                      if (option?.value === 'Ad') {
+                                        const numberOfExistingAds = items.reduce(
+                                          (acc: number, curr: IAVOverviewSectionItemModel) => {
+                                            if (curr.itemType === 'Ad') {
+                                              acc++;
+                                            }
+                                            return acc;
+                                          },
+                                          1,
+                                        );
+                                        setFieldValue(
+                                          `sections.${index}.items.${itemIndex}.summary`,
+                                          `${stringifyNumber(
+                                            numberOfExistingAds,
+                                          )} commercial break`,
+                                        );
+                                      }
+                                    }}
+                                  />
+                                </Col>
+                                <Col>
+                                  <FormikTimeInput
+                                    key={itemIndex}
+                                    name={`sections.${index}.items.${itemIndex}.time`}
+                                    width={FieldSize.Small}
+                                    placeholder="hh:mm:ss"
+                                    disabled={!editable}
+                                  />
+                                </Col>
                                 <Col
-                                  flex="1 1 50em"
+                                  flex="1 1 40em"
                                   style={{
                                     position: 'relative',
                                   }}
@@ -309,38 +326,36 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                       left: 0,
                                     }}
                                   />
-                                  <div>
-                                    <FormikTextArea
-                                      key={itemIndex + `textarea`}
-                                      name={`sections.${index}.items.${itemIndex}.summary`}
-                                      rows={item.itemType === AVOverviewItemTypeName.Intro ? 3 : 1}
-                                      disabled={!editable || item.itemType === 'Ad'}
-                                      maxLength={
-                                        item.itemType === AVOverviewItemTypeName.Intro ? 2000 : 90
-                                      }
-                                      onChange={(e) => {
-                                        const value = e.target.value;
-                                        setFieldValue(
-                                          `sections.${index}.items.${itemIndex}.summary`,
-                                          value,
-                                        );
+                                  <FormikTextArea
+                                    key={itemIndex + `textarea`}
+                                    name={`sections.${index}.items.${itemIndex}.summary`}
+                                    rows={item.itemType === AVOverviewItemTypeName.Intro ? 3 : 1}
+                                    disabled={!editable || item.itemType === 'Ad'}
+                                    maxLength={
+                                      item.itemType === AVOverviewItemTypeName.Intro ? 2000 : 90
+                                    }
+                                    onChange={(e) => {
+                                      const value = e.target.value;
+                                      setFieldValue(
+                                        `sections.${index}.items.${itemIndex}.summary`,
+                                        value,
+                                      );
 
-                                        // from the potential summaries, generate suggestions that match current input
-                                        let suggestions: Suggestion[] = [];
-                                        if (value.length > 0 && summaries?.length) {
-                                          const regex = new RegExp(`^${value}`, 'i');
-                                          suggestions = summaries
-                                            .sort()
-                                            .filter(
-                                              (v: Suggestion) =>
-                                                regex.test(v.text) && v.index !== itemIndex,
-                                            );
-                                        }
-                                        setShowAutoCompleteForIndex(itemIndex);
-                                        setSearch({ suggestions, text: value });
-                                      }}
-                                    />
-                                  </div>
+                                      // from the potential summaries, generate suggestions that match current input
+                                      let suggestions: Suggestion[] = [];
+                                      if (value.length > 0 && summaries?.length) {
+                                        const regex = new RegExp(`^${value}`, 'i');
+                                        suggestions = summaries
+                                          .sort()
+                                          .filter(
+                                            (v: Suggestion) =>
+                                              regex.test(v.text) && v.index !== itemIndex,
+                                          );
+                                      }
+                                      setShowAutoCompleteForIndex(itemIndex);
+                                      setSearch({ suggestions, text: value });
+                                    }}
+                                  />
                                   {suggestions.length > 0 &&
                                     showAutoCompleteForIndex === itemIndex && (
                                       <styled.AutoCompleteContainer>
@@ -365,17 +380,14 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                       </styled.AutoCompleteContainer>
                                     )}
                                 </Col>
-                                <Col
-                                  flex="1 0.2 17.5em"
-                                  style={{
-                                    position: 'relative',
-                                  }}
-                                >
+                                <Col flex="0.1 1 20em">
                                   <FormikSelect
                                     name={`sections.${index}.items.${itemIndex}.contentId`}
-                                    value={clips?.find((c) => c.value === item.contentId)}
+                                    value={
+                                      item.contentId &&
+                                      clips?.find((c) => c.value === item.contentId)
+                                    }
                                     options={clips ?? []}
-                                    width={FieldSize.Medium}
                                     isDisabled={!editable}
                                     maxMenuHeight={120}
                                     onChange={(newValue) =>
