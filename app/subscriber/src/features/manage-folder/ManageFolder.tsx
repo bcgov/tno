@@ -58,9 +58,9 @@ export const ManageFolder: React.FC = () => {
         })
         .catch(() => {});
     });
-    // Only on initialize, or when sort order changes
+    // Only on initialize, or when id changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [id]);
 
   /** function that runs after a user drops an item in the list */
   const handleDrop = React.useCallback(
@@ -118,14 +118,7 @@ export const ManageFolder: React.FC = () => {
 
   return (
     <styled.ManageFolder>
-      <PageSection
-        header={
-          <Row className="header">
-            <FaArrowLeft className="back-arrow" onClick={() => navigate(-1)} />
-            <div className="manage-title">{`Manage Folder: ${folder?.name}`}</div>
-          </Row>
-        }
-      >
+      <PageSection header={`Manage Folder: ${folder?.name}`}>
         <div className="main-manage">
           <ContentListActionBar
             content={selected}

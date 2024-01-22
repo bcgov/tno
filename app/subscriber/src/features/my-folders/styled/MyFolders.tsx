@@ -10,10 +10,22 @@ export const MyFolders = styled(Col)`
       text-decoration: underline;
     }
   }
+  .active-folder-row {
+    border-left: 0.5em solid ${(props) => props.theme.css.highlightActive};
+    padding-left: 0.15em;
+  }
+  .inactive-folder-row {
+    padding-left: 0.65em;
+  }
+
   .folder-name {
     height: 1.5em;
     margin-left: 0.5em;
     width: 60%;
+  }
+  .folder-text {
+    display: flex;
+    align-items: center;
   }
   .create-new {
     .wand {
@@ -21,7 +33,7 @@ export const MyFolders = styled(Col)`
       margin-right: 0.25em;
       margin-bottom: auto;
     }
-    width: 50%;
+    width: 80%;
     .create-text {
       font-size: 1rem;
       font-weight: 800;
