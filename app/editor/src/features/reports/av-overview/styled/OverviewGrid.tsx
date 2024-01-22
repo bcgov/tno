@@ -60,15 +60,11 @@ export const OverviewGrid = styled.div`
     }
 
     .rows {
+      display: flex;
       &:hover {
         background-color: #f5f5f5;
       }
       padding: 0.5em;
     }
-  }
-
-  .item-container {
-    display: flex;
-    flex-direction: column;
   }
 `;
