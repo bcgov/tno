@@ -1,12 +1,18 @@
 import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';
-import { filterFormat } from 'features/search-page/utils';
+import { filterFormat, getFilterActions } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { useContent, useLookup, useNavigateAndScroll } from 'store/hooks';
-import { generateQuery, IContentModel, Row } from 'tno-core';
+import {
+  ActionName,
+  generateQuery,
+  IContentModel,
+  IFilterActionSettingsModel,
+  Row,
+} from 'tno-core';
 
 import * as styled from './styled';
 import { DetermineContentIcon, isWeekday } from './utils';
@@ -16,6 +22,10 @@ export const Commentary: React.FC = () => {
   const [commentary, setCommentary] = React.useState<IContentSearchResult[]>();
   const navigateAndScroll = useNavigateAndScroll();
   const [{ actions }] = useLookup();
+  const [actionFilters] = React.useState<{ [actionName: string]: IFilterActionSettingsModel }>(
+    getFilterActions(actions),
+  );
+  const commentaryAction = actionFilters[ActionName.Commentary];
 
   /** determine how far back to grab commentary */
   const determineCommentaryTime = () => {
@@ -32,15 +42,12 @@ export const Commentary: React.FC = () => {
     !!actions.length &&
       findContentWithElasticsearch(
         generateQuery(
-          filterFormat(
-            {
-              searchUnpublished: false,
-              startDate: determineCommentaryTime(),
-              commentary: true,
-              size: 100,
-            },
-            actions,
-          ),
+          filterFormat({
+            actions: [commentaryAction],
+            searchUnpublished: false,
+            startDate: determineCommentaryTime(),
+            size: 100,
+          }),
         ),
         false,
       ).then((res) => {

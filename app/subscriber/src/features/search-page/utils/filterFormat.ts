@@ -1,11 +1,9 @@
 import moment from 'moment';
-import { IActionModel, IFilterSettingsModel } from 'tno-core';
+import { IFilterSettingsModel } from 'tno-core';
 
-import { getActionFilters } from './getActionFilter';
-
-export const filterFormat = (filter: IFilterSettingsModel, actions?: IActionModel[]) => {
+export const filterFormat = (filter: IFilterSettingsModel) => {
   const settings: IFilterSettingsModel = {
-    actions: getActionFilters(filter, actions ?? []),
+    actions: filter.actions,
     contentTypes: filter.contentTypes ?? [],
     contentIds: filter.contentIds ?? [],
     contributorIds: filter.contributorIds ?? [],
@@ -32,7 +30,6 @@ export const filterFormat = (filter: IFilterSettingsModel, actions?: IActionMode
     sourceIds: filter.sourceIds ?? [],
     startDate: !!filter.startDate ? filter.startDate : undefined,
     tags: filter.tags ?? [],
-    topStory: filter.topStory ?? false,
   };
   return settings;
 };

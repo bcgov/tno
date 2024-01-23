@@ -1,13 +1,21 @@
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
 import { determineColumns } from 'features/home/constants';
-import { filterFormat } from 'features/search-page/utils';
+import { filterFormat, getFilterActions } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent, useLookup } from 'store/hooks';
-import { FlexboxTable, generateQuery, IContentModel, ITableInternalRow, Row } from 'tno-core';
+import {
+  ActionName,
+  FlexboxTable,
+  generateQuery,
+  IContentModel,
+  IFilterActionSettingsModel,
+  ITableInternalRow,
+  Row,
+} from 'tno-core';
 
 import * as styled from './styled';
 
@@ -21,6 +29,10 @@ export const TopStories: React.FC = () => {
   ] = useContent();
   const navigate = useNavigate();
   const [{ actions }] = useLookup();
+  const [actionFilters] = React.useState<{ [actionName: string]: IFilterActionSettingsModel }>(
+    getFilterActions(actions),
+  );
+  const topStoryAction = actionFilters[ActionName.Commentary];
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
@@ -32,13 +44,10 @@ export const TopStories: React.FC = () => {
     if (!actions.length || !filter.startDate) return;
     findContentWithElasticsearch(
       generateQuery(
-        filterFormat(
-          {
-            ...filter,
-            topStory: true,
-          },
-          actions,
-        ),
+        filterFormat({
+          ...filter,
+          actions: [topStoryAction],
+        }),
       ),
       false,
     ).then((res) => {

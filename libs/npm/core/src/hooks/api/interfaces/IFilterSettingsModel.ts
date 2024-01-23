@@ -8,7 +8,6 @@ export interface IFilterSettingsModel {
   size: number;
   defaultSearchOperator?: 'and' | 'or';
   boldKeywords?: boolean;
-  commentary?: boolean;
   contentIds?: number[];
   contentTypes?: ContentTypeName[];
   contributorIds?: number[];
@@ -35,7 +34,6 @@ export interface IFilterSettingsModel {
   tags?: string[];
   startDate?: string;
   status?: ContentStatusName;
-  topStory?: boolean;
   userId?: number;
   sort?: ISortField[];
 }

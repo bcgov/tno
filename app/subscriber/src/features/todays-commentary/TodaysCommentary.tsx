@@ -1,14 +1,22 @@
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
 import { determineColumns } from 'features/home/constants';
-import { filterFormat } from 'features/search-page/utils';
+import { filterFormat, getFilterActions } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent, useLookup } from 'store/hooks';
-import { FlexboxTable, generateQuery, IContentModel, ITableInternalRow, Row } from 'tno-core';
+import {
+  ActionName,
+  FlexboxTable,
+  generateQuery,
+  IContentModel,
+  IFilterActionSettingsModel,
+  ITableInternalRow,
+  Row,
+} from 'tno-core';
 
 import * as styled from './styled';
 
@@ -25,23 +33,24 @@ export const TodaysCommentary: React.FC = () => {
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const [actionFilters] = React.useState<{ [actionName: string]: IFilterActionSettingsModel }>(
+    getFilterActions(actions),
+  );
+  const commentaryAction = actionFilters[ActionName.Commentary];
 
   const selectedIds = selected.map((i) => i.id.toString());
 
   React.useEffect(() => {
     findContentWithElasticsearch(
       generateQuery(
-        filterFormat(
-          {
-            commentary: true,
-            contentTypes: [],
-            startDate: moment(filter.startDate).toISOString(),
-            endDate: moment(filter.endDate).toISOString(),
-            searchUnpublished: false,
-            size: 500,
-          },
-          actions,
-        ),
+        filterFormat({
+          actions: [commentaryAction],
+          contentTypes: [],
+          startDate: moment(filter.startDate).toISOString(),
+          endDate: moment(filter.endDate).toISOString(),
+          searchUnpublished: false,
+          size: 500,
+        }),
       ),
       false,
     )

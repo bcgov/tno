@@ -1,5 +1,6 @@
 export * from './filterFormat';
 export * from './formatDate';
 export * from './formatSearch';
+export * from './getFilterActions';
 export * from './stripHtml';
 export * from './trimWords';

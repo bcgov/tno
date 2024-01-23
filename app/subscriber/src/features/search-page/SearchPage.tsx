@@ -41,7 +41,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     { findContentWithElasticsearch, storeSearchFilter },
   ] = useContent();
   const navigate = useNavigate();
-  const [{ actions, frontPageImagesMediaTypeId, settings, isReady }] = useLookup();
+  const [{ frontPageImagesMediaTypeId, settings, isReady }] = useLookup();
   const genQuery = useElastic();
   const [, { getFilter }] = useFilters();
   const [{ filter: activeFilter }, { storeFilter }] = useProfileStore();
@@ -117,7 +117,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   React.useEffect(() => {
     // Need to wait until front page images are in redux store before making a request.
     if (frontPageImagesMediaTypeId) {
-      const settings = filterFormat(filter, actions);
+      const settings = filterFormat(filter);
       const query = genQuery(settings);
       fetchResults(query, filter.searchUnpublished);
     }
@@ -126,10 +126,10 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   }, [frontPageImagesMediaTypeId]);
 
   const handleSearch = React.useCallback(async () => {
-    const settings = filterFormat(filter, actions);
+    const settings = filterFormat(filter);
     const query = genQuery(settings);
     fetchResults(query, filter.searchUnpublished);
-  }, [actions, fetchResults, filter, genQuery]);
+  }, [fetchResults, filter, genQuery]);
 
   return (
     <styled.SearchPage>
