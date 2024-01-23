@@ -6,12 +6,7 @@ import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { useContent, useLookup, useNavigateAndScroll } from 'store/hooks';
-import {
-  ActionName,
-  generateQuery,
-  IContentModel,
-  Row,
-} from 'tno-core';
+import { ActionName, generateQuery, IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 import { DetermineContentIcon, isWeekday } from './utils';
