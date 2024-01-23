@@ -61,7 +61,7 @@ export const MoreOptions: React.FC = () => {
               const newFilterSettings = {
                 ...filterSettings,
                 actions: e.target.checked
-                  ? [...filterSettings.actions!, topStoryAction] // add it
+                  ? [...filterSettings.actions?? [], topStoryAction] // add it
                   : filterSettings.actions?.filter((a) => a.id !== topStoryAction?.id), // remove it
               };
               storeSearchFilter(newFilterSettings);

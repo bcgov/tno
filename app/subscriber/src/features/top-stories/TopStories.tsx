@@ -29,19 +29,19 @@ export const TopStories: React.FC = () => {
   ] = useContent();
   const navigate = useNavigate();
   const [{ actions }] = useLookup();
-  const [actionFilters] = React.useState<{ [actionName: string]: IFilterActionSettingsModel }>(
-    getFilterActions(actions),
-  );
-  const topStoryAction = actionFilters[ActionName.Commentary];
-
+  
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-
+  
   const selectedIds = selected.map((i) => i.id.toString());
-
+  
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
     if (!actions.length || !filter.startDate) return;
+    
+    let actionFilters = getFilterActions(actions);
+    const topStoryAction = actionFilters[ActionName.Commentary];
+
     findContentWithElasticsearch(
       generateQuery(
         filterFormat({
