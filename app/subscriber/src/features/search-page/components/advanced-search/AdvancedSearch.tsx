@@ -10,7 +10,7 @@ import { FaBookmark, FaIcons, FaNewspaper, FaTag, FaTv, FaUsers } from 'react-ic
 import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import { useApp, useContent, useFilters, useLookup } from 'store/hooks';
+import { useApp, useContent, useFilters } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import {
   Button,
@@ -61,7 +61,6 @@ export interface IAdvancedSearchProps {
 export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => {
   const navigate = useNavigate();
   const [, { addFilter, updateFilter }] = useFilters();
-  const [{ actions }] = useLookup();
   const [
     {
       search: { filter: search },
@@ -120,7 +119,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
   }, [activeFilter, setOriginalFilterSettings]);
 
   const saveSearch = React.useCallback(async () => {
-    const settings = filterFormat(search, actions);
+    const settings = filterFormat(search);
     const query = genQuery(settings);
     const filter: IFilterModel = activeFilter
       ? { ...activeFilter, query, settings }
@@ -145,7 +144,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     }
   }, [
     search,
-    actions,
     genQuery,
     activeFilter,
     searchName,

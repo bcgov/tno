@@ -42,15 +42,12 @@ export const Commentary: React.FC = () => {
     !!actions.length &&
       findContentWithElasticsearch(
         generateQuery(
-          filterFormat(
-            {
-              actions: [commentaryAction],
-              searchUnpublished: false,
-              startDate: determineCommentaryTime(),
-              size: 100,
-            },
-            actions,
-          ),
+          filterFormat({
+            actions: [commentaryAction],
+            searchUnpublished: false,
+            startDate: determineCommentaryTime(),
+            size: 100,
+          }),
         ),
         false,
       ).then((res) => {

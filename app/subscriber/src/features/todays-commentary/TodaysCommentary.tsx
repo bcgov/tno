@@ -43,17 +43,14 @@ export const TodaysCommentary: React.FC = () => {
   React.useEffect(() => {
     findContentWithElasticsearch(
       generateQuery(
-        filterFormat(
-          {
-            actions: [commentaryAction],
-            contentTypes: [],
-            startDate: moment(filter.startDate).toISOString(),
-            endDate: moment(filter.endDate).toISOString(),
-            searchUnpublished: false,
-            size: 500,
-          },
-          actions,
-        ),
+        filterFormat({
+          actions: [commentaryAction],
+          contentTypes: [],
+          startDate: moment(filter.startDate).toISOString(),
+          endDate: moment(filter.endDate).toISOString(),
+          searchUnpublished: false,
+          size: 500,
+        }),
       ),
       false,
     )

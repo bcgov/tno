@@ -6,7 +6,7 @@ import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp, useContent, useLookup } from 'store/hooks';
+import { useApp, useContent } from 'store/hooks';
 import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import { useMinisters } from 'store/hooks/subscriber/useMinisters';
 import { FlexboxTable, generateQuery, IContentModel, ITableInternalRow, Row } from 'tno-core';
@@ -23,7 +23,6 @@ export const MyMinister: React.FC = () => {
   const [{ userInfo }] = useApp();
   const [, api] = useMinisters();
   const navigate = useNavigate();
-  const [{ actions }] = useLookup();
 
   const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
@@ -86,16 +85,13 @@ export const MyMinister: React.FC = () => {
     if (!!filter.search) {
       fetchResults(
         generateQuery(
-          filterFormat(
-            {
-              ...filter,
-              inByline: true,
-              inHeadline: true,
-              inStory: true,
-              defaultSearchOperator: 'or',
-            },
-            actions,
-          ),
+          filterFormat({
+            ...filter,
+            inByline: true,
+            inHeadline: true,
+            inStory: true,
+            defaultSearchOperator: 'or',
+          }),
         ),
       );
     }

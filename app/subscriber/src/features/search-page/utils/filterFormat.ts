@@ -1,7 +1,7 @@
 import moment from 'moment';
-import { IActionModel, IFilterSettingsModel } from 'tno-core';
+import { IFilterSettingsModel } from 'tno-core';
 
-export const filterFormat = (filter: IFilterSettingsModel, actions?: IActionModel[]) => {
+export const filterFormat = (filter: IFilterSettingsModel) => {
   const settings: IFilterSettingsModel = {
     actions: filter.actions,
     contentTypes: filter.contentTypes ?? [],
