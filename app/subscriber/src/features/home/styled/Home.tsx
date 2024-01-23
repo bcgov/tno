@@ -141,18 +141,4 @@ export const Home = styled.div`
       }
     }
   }
-  .date-navigator {
-    .calendar {
-      color: #3847aa;
-    }
-    svg {
-      align-self: center;
-      height: 1.5em;
-      width: 1.5em;
-      &:hover {
-        cursor: pointer;
-      }
-    }
-    margin-bottom: 1em;
-  }
 `;

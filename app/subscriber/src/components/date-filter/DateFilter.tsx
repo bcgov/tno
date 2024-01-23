@@ -2,6 +2,7 @@ import moment from 'moment';
 import React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { FaAngleLeft, FaAngleRight, FaCalendarAlt } from 'react-icons/fa';
+import { FaCalendar, FaCalendarDay, FaCaretLeft, FaCaretRight } from 'react-icons/fa6';
 import { IFilterSettingsModel } from 'tno-core';
 
 import * as styled from './styled';
@@ -45,17 +46,19 @@ export const DateFilter: React.FC<IDateFilterProps> = ({ filter, storeFilter }) 
   };
 
   return (
-    <styled.DateFilter justifyContent="center" className="date-navigator">
-      <FaAngleLeft onClick={() => adjustDate(1, 'backwards')} />
-      <ReactDatePicker
-        open={open}
-        disabled
-        dateFormat="dd-MMM-y"
-        onChange={(e) => setDate(e!)}
-        selected={date}
-      />
-      <FaAngleRight onClick={() => adjustDate(1, 'forwards')} />
-      <FaCalendarAlt className="calendar" onClick={() => setOpen(true)} />
+    <styled.DateFilter alignItems="center" justifyContent="center" className="date-navigator">
+      <FaCaretLeft className="caret" onClick={() => adjustDate(1, 'backwards')} />
+      <div className="date">
+        <FaCalendarDay className="calendar" onClick={() => setOpen(true)} />
+        <ReactDatePicker
+          open={open}
+          disabled
+          dateFormat="dd-MMM-y"
+          onChange={(e) => setDate(e!)}
+          selected={date}
+        />
+      </div>
+      <FaCaretRight className="caret" onClick={() => adjustDate(1, 'forwards')} />
     </styled.DateFilter>
   );
 };

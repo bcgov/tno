@@ -2,38 +2,21 @@ import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
 import { determineColumns } from 'features/home/constants';
 import { IContentSearchResult } from 'features/utils/interfaces';
-import moment from 'moment';
 import React, { useMemo } from 'react';
-import { FiRefreshCcw } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useContent, useLookup } from 'store/hooks';
-import { FieldSize, FlexboxTable, generateQuery, IContentModel, Row, Select } from 'tno-core';
+import { FlexboxTable, generateQuery, IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
 export const FilterMedia: React.FC = () => {
   const navigate = useNavigate();
-  const [{ mediaTypes, sources }] = useLookup();
   const [
     {
       mediaType: { filter },
     },
     { findContentWithElasticsearch, storeMediaTypeFilter: storeFilter },
   ] = useContent();
-
-  const mediaTypeOptions = useMemo(
-    () =>
-      mediaTypes.map((t) => {
-        return { value: t.id, label: t.name };
-      }),
-    [mediaTypes],
-  );
-
-  const sourceOptions = useMemo(() => {
-    return sources.map((s) => {
-      return { value: s.id, label: s.name };
-    });
-  }, [sources]);
 
   const [results, setResults] = React.useState<IContentSearchResult[]>([]);
 
@@ -65,6 +48,7 @@ export const FilterMedia: React.FC = () => {
 
   return (
     <styled.FilterMedia>
+      <DateFilter filter={filter} storeFilter={storeFilter} />
       <Row className="table-container">
         <FlexboxTable
           rowId="id"

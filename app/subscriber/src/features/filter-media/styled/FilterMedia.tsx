@@ -16,13 +16,6 @@ export const FilterMedia = styled.div`
     .or {
       margin-right: 0.5em;
     }
-    .date-navigator {
-      margin-left: auto;
-      margin-right: auto;
-      input {
-        margin-top: 0.25em;
-      }
-    }
   }
   .table {
     width: 100%;
@@ -48,20 +41,5 @@ export const FilterMedia = styled.div`
   .headline {
     /* link color */
     color: #3847aa;
-  }
-
-  .date-navigator {
-    .calendar {
-      color: #3847aa;
-    }
-    svg {
-      align-self: center;
-      height: 1.5em;
-      width: 1.5em;
-      &:hover {
-        cursor: pointer;
-      }
-    }
-    margin-bottom: 1em;
   }
 `;
