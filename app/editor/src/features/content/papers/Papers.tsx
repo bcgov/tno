@@ -62,6 +62,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const userId = userInfo?.id ?? '';
 
   const [contentUpdatesQueue, setContentUpdatesQueue] = React.useState<IContentMessageModel[]>([]);
+  const [delayProcessing, setDelayProcessing] = React.useState<boolean>(false);
 
   // This configures the shared storage between this list and any content tabs
   // that are opened.  Mainly used for navigation in the tab
@@ -81,32 +82,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
       });
     }
   });
-
-  const onContentUpdated = React.useCallback(
-    async (message: IContentMessageModel) => {
-      if (isProcessingMessages) return;
-      if (currentResultsPage.items.some((c) => c.id === message.id)) {
-        try {
-          const result = await getContent(message.id);
-          if (!!result) {
-            const newPage = {
-              ...currentResultsPage,
-              items: currentResultsPage.items.map((i) => {
-                if (i.id === result.id) {
-                  return castContentToSearchResult(result);
-                } else {
-                  return i;
-                }
-              }),
-            };
-            setCurrentResultsPage(newPage);
-          }
-        } catch {}
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentResultsPage, getContent],
-  );
 
   const [isProcessingMessages, setIsProcessingMessages] = React.useState<boolean>(false);
 
@@ -154,18 +129,19 @@ const Papers: React.FC<IPapersProps> = (props) => {
   };
 
   React.useEffect(() => {
+    if (!isProcessingMessages && !delayProcessing && contentUpdatesQueue?.length) {
+      setDelayProcessing(true); // delays processing too soon, allows msgs to queue up
+      setIsProcessingMessages(true);
+      processContentUpdates(contentUpdatesQueue);
+    }
+    // this timeout allows queue messages to accumulate if they appear in
+    // quick succession, e.g. less than 200ms between messages.
     const timer = setTimeout(() => {
-      if (!isProcessingMessages && contentUpdatesQueue?.length) {
-        setIsProcessingMessages(true);
-        processContentUpdates(contentUpdatesQueue);
-      }
-      if (isProcessingMessages) {
-        console.log('is already processing...');
-      }
+      setDelayProcessing(false);
     }, 200);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contentUpdatesQueue, isProcessingMessages]);
+  }, [contentUpdatesQueue, isProcessingMessages, delayProcessing]);
 
   hub.useHubEffect(MessageTargetName.ContentUpdated, (message) => {
     // this will ensure messages are always queued immediately and never lost
@@ -189,7 +165,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
         })
         .catch((error) => {});
     },
-    [getContent, onContentUpdated, updateStatus],
+    [getContent, updateStatus],
   );
 
   const fetch = React.useCallback(
@@ -311,6 +287,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
         setCurrentResultsPage(newPage);
       } catch {}
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentResultsPage],
   );
 
