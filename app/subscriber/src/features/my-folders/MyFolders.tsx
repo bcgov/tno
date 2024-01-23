@@ -99,7 +99,6 @@ export const MyFolders: React.FC<IMyFoldersProps> = ({
           <FlexboxTable
             pagingEnabled={false}
             columns={columns(editable, handleSave, Number(id), navigate)}
-            disableZebraStriping
             rowId={'id'}
             onRowClick={(e) => {
               setActive(e.original);
