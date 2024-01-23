@@ -3,7 +3,7 @@ import { IFilterSettingsModel } from 'tno-core';
 
 export const filterFormat = (filter: IFilterSettingsModel) => {
   const settings: IFilterSettingsModel = {
-    actions: filter.actions,
+    actions: filter.actions ?? [],
     contentTypes: filter.contentTypes ?? [],
     contentIds: filter.contentIds ?? [],
     contributorIds: filter.contributorIds ?? [],

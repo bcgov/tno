@@ -6,13 +6,7 @@ import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { useContent, useLookup, useNavigateAndScroll } from 'store/hooks';
-import {
-  ActionName,
-  generateQuery,
-  IContentModel,
-  IFilterActionSettingsModel,
-  Row,
-} from 'tno-core';
+import { ActionName, generateQuery, IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 import { DetermineContentIcon, isWeekday } from './utils';
@@ -22,10 +16,6 @@ export const Commentary: React.FC = () => {
   const [commentary, setCommentary] = React.useState<IContentSearchResult[]>();
   const navigateAndScroll = useNavigateAndScroll();
   const [{ actions }] = useLookup();
-  const [actionFilters] = React.useState<{ [actionName: string]: IFilterActionSettingsModel }>(
-    getFilterActions(actions),
-  );
-  const commentaryAction = actionFilters[ActionName.Commentary];
 
   /** determine how far back to grab commentary */
   const determineCommentaryTime = () => {
@@ -39,7 +29,10 @@ export const Commentary: React.FC = () => {
   };
 
   React.useEffect(() => {
-    !!actions.length &&
+    if (!!actions && actions.length > 0) {
+      let actionFilters = getFilterActions(actions);
+      const commentaryAction = actionFilters[ActionName.Commentary];
+
       findContentWithElasticsearch(
         generateQuery(
           filterFormat({
@@ -58,6 +51,7 @@ export const Commentary: React.FC = () => {
           }),
         );
       });
+    }
     // only run once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actions]);

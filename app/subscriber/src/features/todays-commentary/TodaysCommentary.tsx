@@ -13,7 +13,6 @@ import {
   FlexboxTable,
   generateQuery,
   IContentModel,
-  IFilterActionSettingsModel,
   ITableInternalRow,
   Row,
 } from 'tno-core';
@@ -33,39 +32,40 @@ export const TodaysCommentary: React.FC = () => {
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-  const [actionFilters] = React.useState<{ [actionName: string]: IFilterActionSettingsModel }>(
-    getFilterActions(actions),
-  );
-  const commentaryAction = actionFilters[ActionName.Commentary];
 
   const selectedIds = selected.map((i) => i.id.toString());
 
   React.useEffect(() => {
-    findContentWithElasticsearch(
-      generateQuery(
-        filterFormat({
-          actions: [commentaryAction],
-          contentTypes: [],
-          startDate: moment(filter.startDate).toISOString(),
-          endDate: moment(filter.endDate).toISOString(),
-          searchUnpublished: false,
-          size: 500,
-        }),
-      ),
-      false,
-    )
-      .then((res) => {
-        setContent(
-          res.hits.hits.map((r) => {
-            const content = r._source as IContentModel;
-            return castToSearchResult(content);
+    if (!!actions && actions.length > 0) {
+      let actionFilters = getFilterActions(actions);
+      const commentaryAction = actionFilters[ActionName.Commentary];
+
+      findContentWithElasticsearch(
+        generateQuery(
+          filterFormat({
+            actions: [commentaryAction],
+            contentTypes: [],
+            startDate: moment(filter.startDate).toISOString(),
+            endDate: moment(filter.endDate).toISOString(),
+            searchUnpublished: false,
+            size: 500,
           }),
-        );
-      })
-      .catch();
+        ),
+        false,
+      )
+        .then((res) => {
+          setContent(
+            res.hits.hits.map((r) => {
+              const content = r._source as IContentModel;
+              return castToSearchResult(content);
+            }),
+          );
+        })
+        .catch();
+    }
     // only run this effect when the filter changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter]);
+  }, [actions, filter]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentSearchResult>) => {

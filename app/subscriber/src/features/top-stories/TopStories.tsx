@@ -12,7 +12,6 @@ import {
   FlexboxTable,
   generateQuery,
   IContentModel,
-  IFilterActionSettingsModel,
   ITableInternalRow,
   Row,
 } from 'tno-core';
@@ -29,10 +28,6 @@ export const TopStories: React.FC = () => {
   ] = useContent();
   const navigate = useNavigate();
   const [{ actions }] = useLookup();
-  const [actionFilters] = React.useState<{ [actionName: string]: IFilterActionSettingsModel }>(
-    getFilterActions(actions),
-  );
-  const topStoryAction = actionFilters[ActionName.Commentary];
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
@@ -42,6 +37,10 @@ export const TopStories: React.FC = () => {
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
     if (!actions.length || !filter.startDate) return;
+
+    let actionFilters = getFilterActions(actions);
+    const topStoryAction = actionFilters[ActionName.Commentary];
+
     findContentWithElasticsearch(
       generateQuery(
         filterFormat({
