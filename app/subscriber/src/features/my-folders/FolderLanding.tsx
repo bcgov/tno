@@ -12,8 +12,7 @@ export const FolderLanding: React.FC<{}> = () => {
   const [activeFolder, setActiveFolder] = React.useState<IFolderModel>();
   const [myFolders, setMyFolders] = React.useState<IFolderModel[]>([]);
   // action consits of the param of type /view /configure etc.
-  const { action, id } = useParams();
-  console.log(action, id);
+  const { action } = useParams();
   return (
     <styled.FolderLanding split={!!action}>
       <Col className="left-side">

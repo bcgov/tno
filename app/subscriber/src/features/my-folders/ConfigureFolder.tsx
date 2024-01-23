@@ -72,12 +72,18 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
 
   React.useEffect(() => {
     if ((!currentFolder && id) || currentFolder?.id !== Number(id)) {
-      getFolder(Number(id)).then((data) => {
-        setCurrentFolder(data);
-        if (data.filter) setActiveFilter(data.filter);
-      });
+      getFolder(Number(id))
+        .then((data) => {
+          setCurrentFolder(data);
+          if (data.filter) setActiveFilter(data.filter);
+        })
+        .catch(() => {
+          toast.error('Failed to load folder.');
+        });
     }
-  }, [currentFolder, getFolder, id]);
+    // Only do when id / currentFolder changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentFolder, id]);
 
   const handleRun = React.useCallback(
     async (filter: IFilterModel) => {
