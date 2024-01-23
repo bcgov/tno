@@ -1,12 +1,11 @@
 import * as React from 'react';
-import { FaArrowLeft, FaGear, FaTrash } from 'react-icons/fa6';
+import { FaGear } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useFolders } from 'store/hooks';
 import {
   Button,
   Checkbox,
-  Col,
   FieldSize,
   getDistinct,
   IContentModel,

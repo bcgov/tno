@@ -1,11 +1,10 @@
 import { SubscriberTableContainer } from 'components/table';
-import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
 import { FaFolderPlus, FaWandMagicSparkles } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { Col, FlexboxTable, IFolderModel, Modal, Row, Text, useModal } from 'tno-core';
+import { FlexboxTable, IFolderModel, Row, Text } from 'tno-core';
 
 import { columns } from './constants/columns';
 import * as styled from './styled';

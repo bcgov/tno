@@ -6,7 +6,7 @@ import { castToSearchResult, determinePreview } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { FaArrowLeft, FaGripLines } from 'react-icons/fa';
+import { FaGripLines } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { useFolders } from 'store/hooks/subscriber/useFolders';

@@ -1,6 +1,6 @@
 import { FaCog, FaSave } from 'react-icons/fa';
 import { FaFolderClosed, FaFolderOpen } from 'react-icons/fa6';
-import { CellEllipsis, IFolderModel, ITableHookColumn, Row, Text } from 'tno-core';
+import { CellEllipsis, IFolderModel, ITableHookColumn, Row } from 'tno-core';
 
 export const columns = (
   editable: string,

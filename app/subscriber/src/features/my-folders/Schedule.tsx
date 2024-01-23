@@ -2,10 +2,9 @@ import moment from 'moment';
 import * as React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { FaInfoCircle } from 'react-icons/fa';
-import { FaGear, FaTrash } from 'react-icons/fa6';
+import { FaGear } from 'react-icons/fa6';
 import { Tooltip } from 'react-tooltip';
 import {
-  Button,
   Checkbox,
   Col,
   FieldSize,
