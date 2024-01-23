@@ -51,13 +51,6 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
     getFilterOptions(myFilters, activeFilter?.id ?? 0),
   );
 
-  /** When folder is emptied or deleted, refresh the list of folders. */
-  React.useEffect(() => {
-    findMyFolders().then((data) => {
-      setMyFolders(data);
-    });
-  }, [actionName]);
-
   React.useEffect(() => {
     if (!myFilters.length) {
       findMyFilters().then((data) => {
@@ -125,7 +118,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
         }
       } catch {}
     },
-    [findContentWithElasticsearch, currentFolder, updateFolder],
+    [findContentWithElasticsearch, currentFolder, updateFolder, findMyFolders, setMyFolders],
   );
 
   const handleSaveSchedule = React.useCallback(
