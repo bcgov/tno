@@ -13,7 +13,6 @@ import {
   FlexboxTable,
   generateQuery,
   IContentModel,
-  IFilterActionSettingsModel,
   ITableInternalRow,
   Row,
 } from 'tno-core';

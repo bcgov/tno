@@ -10,7 +10,6 @@ import {
   ActionName,
   generateQuery,
   IContentModel,
-  IFilterActionSettingsModel,
   Row,
 } from 'tno-core';
 
@@ -22,7 +21,7 @@ export const Commentary: React.FC = () => {
   const [commentary, setCommentary] = React.useState<IContentSearchResult[]>();
   const navigateAndScroll = useNavigateAndScroll();
   const [{ actions }] = useLookup();
-  
+
   /** determine how far back to grab commentary */
   const determineCommentaryTime = () => {
     const date = new Date();
@@ -33,7 +32,7 @@ export const Commentary: React.FC = () => {
     }
     return moment(date).toISOString();
   };
-  
+
   React.useEffect(() => {
     if (!!actions && actions.length > 0) {
       let actionFilters = getFilterActions(actions);
