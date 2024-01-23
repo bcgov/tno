@@ -1,4 +1,4 @@
-import { IActionModel, IFilterActionSettingsModel } from 'tno-core';
+import { ActionName, IActionModel, IFilterActionSettingsModel } from 'tno-core';
 
 import { ShowOnlyValues } from '../constants';
 import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
@@ -15,7 +15,7 @@ export const getActionFilters = (
 ) => {
   const result: IFilterActionSettingsModel[] = [];
   if (filter.commentary) {
-    const action = actions.find((x) => x.name === ShowOnlyValues.Commentary);
+    const action = actions.find((x) => x.name === ActionName.Commentary);
     if (action)
       result.push({
         id: action.id,
@@ -24,7 +24,7 @@ export const getActionFilters = (
       });
   }
   if (filter.topStory) {
-    const action = actions.find((x) => x.name === ShowOnlyValues.TopStory);
+    const action = actions.find((x) => x.name === ActionName.TopStory);
     if (action)
       result.push({
         id: action.id,
@@ -32,7 +32,7 @@ export const getActionFilters = (
       });
   }
   if (filter.homepage) {
-    const action = actions.find((x) => x.name === ShowOnlyValues.Homepage);
+    const action = actions.find((x) => x.name === ActionName.Homepage);
     if (action)
       result.push({
         id: action.id,

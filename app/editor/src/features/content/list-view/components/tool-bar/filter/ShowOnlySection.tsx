@@ -5,6 +5,7 @@ import { FaEye } from 'react-icons/fa';
 import { ActionDelegate } from 'store';
 import { useContent } from 'store/hooks';
 import {
+  ActionName,
   Checkbox,
   Col,
   ContentTypeName,
@@ -110,8 +111,8 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
                         : [...filter.contentTypes]
                       : filter.contentTypes.filter((x) => x !== ContentTypeName.PrintContent),
                     hasTopic: values.some((o) => o.value === ShowOnlyValues.HasTopic),
-                    commentary: values.some((o) => o.value === ShowOnlyValues.Commentary),
-                    topStory: values.some((o) => o.value === ShowOnlyValues.TopStory),
+                    commentary: values.some((o) => o.value === ActionName.Commentary),
+                    topStory: values.some((o) => o.value === ActionName.TopStory),
                     onlyPublished: values.some((o) => o.value === ShowOnlyValues.Published),
                     pendingTranscript: values.some(
                       (o) => o.value === ShowOnlyValues.PendingTranscript,
