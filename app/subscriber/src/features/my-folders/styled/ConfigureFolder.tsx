@@ -2,85 +2,106 @@ import { PageSection } from 'components/section';
 import styled from 'styled-components';
 
 export const ConfigureFolder = styled(PageSection)`
+  .gear {
+    color: ${(props) => props.theme.css.btnBkPrimary};
+    margin-right: 1rem;
+  }
+  .small-gear {
+    color: ${(props) => props.theme.css.iconGrayColor};
+    align-self: center;
+  }
+  .time-inputs {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    input {
+      height: 2.5rem;
+      box-sizing: border-box;
+      border-radius: 0.5rem;
+      border-thickness: 0.1rem;
+      border-color: black;
+      box-shadow: none;
+    }
+  }
   .react-datepicker-ignore-onclickoutside {
     border-radius: 0.5rem;
   }
-  .back-to-folders {
-    cursor: pointer;
-    color: ${(props) => props.theme.css.btnBkPrimary};
-    font-size: 1rem;
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-  .name {
-    margin-left: auto;
-  }
-  button:not(.react-datepicker__close-icon) {
+  button:not(.react-datepicker__close-icon):not(.warning):not(.danger):not(.cancel) {
     background-color: ${(props) => props.theme.css.btnBkPrimary};
     border: none;
-    border-radius: 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
     max-width: fit-content;
+    height: 2.5rem;
+  }
+  button {
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    max-width: fit-content;
+    height: 2.5rem;
   }
   .react-datepicker__close-icon::after {
     background-color: ${(props) => props.theme.css.btnBkPrimary};
   }
   .main-container {
-    margin-left: 1rem;
-    margin-right: 1rem;
+    padding: 1rem;
+    .schedule-content {
+      width: 100%;
+    }
+  }
+  h3 {
+    margin-bottom: 0;
+    margin-left: 0.5rem;
+  }
+  label {
+    font-weight: 900;
+  }
+
+  .add-filter,
+  .add-schedule {
+    margin-left: 1.75rem;
+  }
+
+  .add-filter {
+    margin-bottom: 1rem;
     .frm-in {
-      width: 95%;
+      width: 70%;
     }
-    .add-filter {
-      border: 1px solid;
-      margin-bottom: 1rem;
-      border-color: ${(props) => props.theme.css.bkQuaternary};
-      background-color: ${(props) => props.theme.css.bkQuaternary};
-      border-radius: 1rem;
-      padding: 1rem;
-      .choose-filter {
-        margin-left: auto;
-        margin-right: auto;
-      }
+  }
+
+  .main-sched-body {
+    margin-left: 2.05rem;
+  }
+
+  .keep-stories {
+    align-items: center;
+    input {
+      margin-left: 0.5rem;
+      width: 4rem;
     }
-    .add-schedule-btn {
-      background-color: transparent;
+    svg {
       color: ${(props) => props.theme.css.btnBkPrimary};
-      border: solid 2px;
+      margin-left: 0.5rem;
     }
-    .add-schedule {
-      label {
-        font-weight: bold;
-      }
-      .btn-clear {
-        background-color: transparent;
-        color: ${(props) => props.theme.css.btnBkPrimary};
-        border: solid 2px;
-        border-color: ${(props) => props.theme.css.btnBkPrimary};
-      }
-      display: flex;
-      border: 1px solid;
-      margin-bottom: 1rem;
-      border-color: ${(props) => props.theme.css.bkQuaternary};
-      background-color: ${(props) => props.theme.css.bkQuaternary};
-      border-radius: 1rem;
-      padding: 1rem;
-      button {
-        margin-left: auto;
-      }
-      .checkboxes {
-        margin-left: 2rem;
-        min-width: 10rem;
-      }
-      .schedule-content {
-        .btn-clear {
-          margin-left: 1rem;
-        }
-        margin-top: 2rem;
-        .set-days {
-          max-width: 10rem;
-          margin-right: 3rem;
-        }
+  }
+  .action-buttons {
+    width: 100%;
+    align-items: end;
+    .cancel {
+      color: ${(props) => props.theme.css.btnBkPrimary};
+      background-color: ${(props) => props.theme.css.bkWhite};
+      border: 0.1rem solid ${(props) => props.theme.css.btnBkPrimary};
+      margin-right: 0.5rem;
+      margin-left: auto;
+    }
+  }
+  .remove-container {
+    border-top: 0.1rem solid ${(props) => props.theme.css.btnBkPrimary};
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    .remove-action-buttons {
+      margin-left: 1.5rem;
+      .warning {
+        margin-right: 0.5rem;
       }
     }
   }

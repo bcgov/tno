@@ -44,6 +44,19 @@ textarea {
   -moz-osx-font-smoothing: grayscale;
 }
 
+button {
+  &.warning {
+    color: $btn-yellow-color;
+    background-color: $btn-yellow-bk-color;
+    border-color: $btn-yellow-color;
+  }
+  &.danger {
+    color: $btn-red-color;
+    background-color: $btn-red-bk-color;
+    border-color: $btn-red-color;
+  }
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }

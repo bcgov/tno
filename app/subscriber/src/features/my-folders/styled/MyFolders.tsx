@@ -10,30 +10,55 @@ export const MyFolders = styled(Col)`
       text-decoration: underline;
     }
   }
+  .active-folder-row {
+    border-left: 0.5em solid ${(props) => props.theme.css.highlightActive};
+    padding-left: 0.15em;
+  }
+  .inactive-folder-row {
+    padding-left: 0.65em;
+  }
+
   .folder-name {
     height: 1.5em;
     margin-left: 0.5em;
+    width: 60%;
+  }
+  .folder-text {
+    display: flex;
+    align-items: center;
   }
   .create-new {
+    .wand {
+      margin-top: auto;
+      margin-right: 0.25em;
+      margin-bottom: auto;
+    }
+    width: 80%;
     .create-text {
-      font-size: 0.8em;
+      font-size: 1rem;
+      font-weight: 800;
       align-self: center;
     }
     margin-left: auto;
+    margin-right: auto;
     margin-bottom: 0.5em;
   }
   .create-button {
+    height: 2.5em;
+    width: 2.5em;
+    display: flex;
+    border: none;
     &:focus {
       outline: none;
     }
     cursor: pointer;
-    svg {
-      align-self: center;
-    }
     border-radius: 0.5em;
-    height: 2rem;
-    margin-top: 0.15em;
-    width: 2rem;
+    svg {
+      display: flex;
+      align-self: center;
+      margin-right: auto;
+      margin-left: auto;
+    }
     background-color: ${(props) => props.theme.css.btnBkPrimary};
     color: ${(props) => props.theme.css.btnPrimaryColor};
     padding-bottom: 0.25em;

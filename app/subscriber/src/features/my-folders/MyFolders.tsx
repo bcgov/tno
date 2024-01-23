@@ -1,25 +1,36 @@
 import { SubscriberTableContainer } from 'components/table';
-import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
-import { FaFolderPlus } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
+import { FaFolderPlus, FaWandMagicSparkles } from 'react-icons/fa6';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { Col, FlexboxTable, IFolderModel, Modal, Row, Text, useModal } from 'tno-core';
+import { FlexboxTable, IFolderModel, Row, Text } from 'tno-core';
 
 import { columns } from './constants/columns';
 import * as styled from './styled';
 
+export interface IMyFoldersProps {
+  /** contains a list of the user's folders, allows for edit and viewing */
+  myFolders: IFolderModel[];
+  /** function to set the user's folders */
+  setMyFolders: React.Dispatch<React.SetStateAction<IFolderModel[]>>;
+  /** function to set the active folder */
+  setActive: React.Dispatch<React.SetStateAction<IFolderModel | undefined>>;
+  /** the active folder */
+  active?: IFolderModel;
+}
 /** contains a list of the user's folders, allows for edit and viewing */
-export const MyFolders = () => {
-  const [, { findMyFolders, addFolder, updateFolder, deleteFolder }] = useFolders();
-  const { toggle, isShowing } = useModal();
+export const MyFolders: React.FC<IMyFoldersProps> = ({
+  myFolders,
+  setMyFolders,
+  active,
+  setActive,
+}) => {
+  const [, { findMyFolders, addFolder, updateFolder }] = useFolders();
   const navigate = useNavigate();
-  const [myFolders, setMyFolders] = React.useState<IFolderModel[]>([]);
+  const { id } = useParams();
   const [newFolderName, setNewFolderName] = React.useState<string>('');
-  const [active, setActive] = React.useState<IFolderModel>();
   const [editable, setEditable] = React.useState<string>('');
-  const [actionName, setActionName] = React.useState<'empty' | 'delete'>('delete');
 
   React.useEffect(() => {
     findMyFolders().then((data) => {
@@ -63,6 +74,7 @@ export const MyFolders = () => {
   return (
     <styled.MyFolders>
       <Row className="create-new">
+        <FaWandMagicSparkles className="wand" />
         <div className="create-text">CREATE NEW FOLDER: </div>
         <Text
           name="folderName"
@@ -85,76 +97,17 @@ export const MyFolders = () => {
         <SubscriberTableContainer>
           <FlexboxTable
             pagingEnabled={false}
-            columns={columns(setActive, editable, handleSave, active)}
+            columns={columns(editable, handleSave, Number(id), navigate)}
             rowId={'id'}
-            onRowClick={(e) => navigate(`/folders/${e.original.id}`)}
+            onRowClick={(e) => {
+              setActive(e.original);
+              navigate(`/folders/view/${e.original.id}`);
+            }}
             data={myFolders}
             showActive={false}
           />
         </SubscriberTableContainer>
-        <TooltipMenu
-          clickable
-          openOnClick
-          place="right"
-          id="options"
-          variant="light"
-          className="options"
-        >
-          <Col className="folder-container">
-            <div className="option" onClick={() => setEditable(active?.name ?? '')}>
-              Edit folder name
-            </div>
-            <div className="option" onClick={() => navigate(`/folders/configure/${active?.id}`)}>
-              Configure folder
-            </div>
-            <div
-              className="option"
-              onClick={() => {
-                setActionName('empty');
-                toggle();
-              }}
-            >
-              Empty this folder
-            </div>
-            <div
-              className="option"
-              onClick={() => {
-                setActionName('delete');
-                toggle();
-              }}
-            >
-              Delete this folder
-            </div>
-          </Col>
-        </TooltipMenu>
       </Row>
-      <Modal
-        headerText="Confirm Removal"
-        body={`Are you sure you wish to ${actionName} this folder?`}
-        isShowing={isShowing}
-        hide={toggle}
-        type="delete"
-        confirmText="Yes, Remove It"
-        onConfirm={() => {
-          try {
-            if (!!active) {
-              if (actionName === 'empty') {
-                updateFolder({ ...active, content: [] }).then((data) => {
-                  toast.success(`${active.name} updated successfully`);
-                  setMyFolders(myFolders.map((item) => (item.id === active.id ? data : item)));
-                });
-              } else if (actionName === 'delete') {
-                deleteFolder(active).then(() => {
-                  toast.success(`${active.name} deleted successfully`);
-                  setMyFolders(myFolders.filter((folder) => folder.id !== active.id));
-                });
-              }
-            }
-          } finally {
-            toggle();
-          }
-        }}
-      />
     </styled.MyFolders>
   );
 };

@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { FaArrowLeft } from 'react-icons/fa6';
+import { FaGear } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useFolders } from 'store/hooks';
 import {
   Button,
-  Col,
+  Checkbox,
   FieldSize,
   getDistinct,
   IContentModel,
@@ -14,10 +14,11 @@ import {
   IFolderModel,
   IFolderScheduleModel,
   IOptionItem,
+  Modal,
   Row,
   Select,
-  Show,
   sortObject,
+  useModal,
 } from 'tno-core';
 
 import { getFilterOptions } from './constants';
@@ -25,14 +26,26 @@ import { Schedule } from './Schedule';
 import * as styled from './styled';
 import { createSchedule } from './utils';
 
-export const ConfigureFolder: React.FC = () => {
+export interface IConfigureFolderProps {
+  active?: IFolderModel;
+  myFolders: IFolderModel[];
+  setMyFolders: React.Dispatch<React.SetStateAction<IFolderModel[]>>;
+}
+
+export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
+  active,
+  myFolders,
+  setMyFolders,
+}) => {
   const [{ myFilters }, { findMyFilters }] = useFilters();
   const [, { findContentWithElasticsearch }] = useContent();
-  const [, { getFolder, updateFolder }] = useFolders();
+  const [, { getFolder, updateFolder, deleteFolder }] = useFolders();
   const { id } = useParams();
+  const { toggle, isShowing } = useModal();
   const navigate = useNavigate();
 
   const [activeFilter, setActiveFilter] = React.useState<IFilterModel>();
+  const [actionName, setActionName] = React.useState<'delete' | 'empty'>();
   const [currentFolder, setCurrentFolder] = React.useState<IFolderModel>();
   const [filterOptions, setFilterOptions] = React.useState<IOptionItem[]>(
     getFilterOptions(myFilters, activeFilter?.id ?? 0),
@@ -49,13 +62,28 @@ export const ConfigureFolder: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    if (!currentFolder && id) {
-      getFolder(Number(id)).then((data) => {
-        setCurrentFolder(data);
-        if (data.filter) setActiveFilter(data.filter);
+    currentFolder &&
+      !currentFolder.events.length &&
+      setCurrentFolder({
+        ...currentFolder,
+        events: [createSchedule(currentFolder.name, currentFolder.description)],
       });
+  }, [currentFolder]);
+
+  React.useEffect(() => {
+    if ((!currentFolder && id) || currentFolder?.id !== Number(id)) {
+      getFolder(Number(id))
+        .then((data) => {
+          setCurrentFolder(data);
+          if (data.filter) setActiveFilter(data.filter);
+        })
+        .catch(() => {
+          toast.error('Failed to load folder.');
+        });
     }
-  }, [currentFolder, getFolder, id]);
+    // Only do when id / currentFolder changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentFolder, id]);
 
   const handleRun = React.useCallback(
     async (filter: IFilterModel) => {
@@ -108,16 +136,23 @@ export const ConfigureFolder: React.FC = () => {
       ignoreLastChildGap
       header={
         <Row width={FieldSize.Stretch}>
-          <span className="back-to-folders" onClick={() => navigate(-1)}>
-            <FaArrowLeft /> Back to folders
-          </span>
-          <span className="name">Configuring folder: "{currentFolder?.name}"</span>
+          <FaGear className="gear" /> {currentFolder?.name}
         </Row>
       }
     >
       <div className="main-container">
+        <h2>Folder automation settings</h2>
+        <Row>
+          <FaGear className="small-gear" /> <h3>Content collection</h3>
+        </Row>
         <div className="add-filter">
-          <div className="choose-text">Choose a filter to apply to this folder.</div>
+          <p>
+            A folder can be set up here to populate stories automatically based on one of your Saved
+            Searches. Choose your Saved Search first and then setup your preferred scheduling
+            options.
+          </p>
+          <Checkbox name="auto-pop" label="Auto-populate this folder" defaultChecked />
+          <label>Choose one of your Saved Searches to apply to this folder</label>
           <Row className="choose-filter">
             <Select
               options={filterOptions}
@@ -133,50 +168,86 @@ export const ConfigureFolder: React.FC = () => {
               }}
             />
             <Button className="run" onClick={() => !!activeFilter && handleRun(activeFilter)}>
-              Run
+              Apply
             </Button>
           </Row>
         </div>
-        <Col className="add-schedule">
-          <Row>
-            <span className="schedule-text">
-              Configure when you would like to have content removed automatically.
-            </span>
-            <Show visible={!currentFolder?.events?.length}>
-              <Button
-                className="add-schedule-btn"
-                onClick={() =>
-                  currentFolder &&
-                  setCurrentFolder({
-                    ...currentFolder,
-                    events: [createSchedule(currentFolder.name, currentFolder.description)],
-                  })
-                }
-              >
-                Add Clearance Schedule
-              </Button>
-            </Show>
-          </Row>
-          <Schedule
-            folderSchedule={currentFolder?.events[0] ?? undefined}
-            onScheduleChange={async (value: IFolderScheduleModel) => {
-              setCurrentFolder({
-                ...(currentFolder as IFolderModel),
-                events: [value],
-              });
+        <Schedule
+          folderSchedule={currentFolder?.events[0] ?? undefined}
+          onScheduleChange={async (value: IFolderScheduleModel) => {
+            setCurrentFolder({
+              ...(currentFolder as IFolderModel),
+              events: [value],
+            });
+          }}
+        />
+        <Row className="action-buttons">
+          <Button className="cancel" onClick={() => navigate(`/folders`)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              handleSaveSchedule(currentFolder as IFolderModel);
             }}
-          />
-          <Show visible={!!currentFolder?.events?.length}>
+            className="save"
+          >
+            Save
+          </Button>
+        </Row>
+        <div className="remove-container">
+          <Row>
+            <FaGear className="small-gear" />
+            <h3>Remove content</h3>
+          </Row>
+          <div className="remove-action-buttons">
+            <p>Proceed with caution as these actions may not be undone.</p>
             <Button
+              className="warning"
               onClick={() => {
-                handleSaveSchedule(currentFolder as IFolderModel);
+                setActionName('empty');
+                toggle();
               }}
             >
-              Save
+              Empty folder
             </Button>
-          </Show>
-        </Col>
+            <Button
+              className="danger"
+              onClick={() => {
+                setActionName('delete');
+                toggle();
+              }}
+            >
+              Delete folder
+            </Button>
+          </div>
+        </div>
       </div>
+
+      <Modal
+        headerText="Confirm Removal"
+        body={`Are you sure you wish to ${actionName} this folder?`}
+        isShowing={isShowing}
+        hide={toggle}
+        type="delete"
+        confirmText="Yes, Remove It"
+        onConfirm={() => {
+          try {
+            if (actionName === 'empty' && !!active) {
+              updateFolder({ ...active, content: [] }).then((data) => {
+                toast.success(`${active.name} updated successfully`);
+                setMyFolders(myFolders.map((item) => (item.id === active.id ? data : item)));
+              });
+            } else if (actionName === 'delete' && !!active) {
+              deleteFolder(active).then(() => {
+                toast.success(`${active.name} deleted successfully`);
+                setMyFolders(myFolders.filter((folder) => folder.id !== active.id));
+              });
+            }
+          } finally {
+            toggle();
+          }
+        }}
+      />
     </styled.ConfigureFolder>
   );
 };

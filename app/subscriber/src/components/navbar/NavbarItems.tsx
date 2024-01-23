@@ -84,7 +84,7 @@ export const NavbarOptions: INavbarOptions = {
   folders: {
     groupName: 'MY CONTENT',
     label: 'My Folders',
-    path: 'landing/folders',
+    path: 'folders',
     icon: <FaFolder />,
   },
   myReports: {
