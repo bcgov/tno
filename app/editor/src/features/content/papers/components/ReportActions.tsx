@@ -62,7 +62,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
             ? selected.map((s) => s.id)
             : searchResults?.items.map((c) => c.id) ?? [],
         });
-        if (value === 'false' || !value) {
+        if (action === ContentListActionName.Hide && (value === 'false' || !value)) {
           onContentHidden(items);
         }
         toast.success(`${items.length} item${items.length > 1 ? 's' : ''} updated.`);

@@ -12,6 +12,7 @@ import {
   FlexboxTable,
   IContentMessageModel,
   IContentModel,
+  IPage,
   ITableInternalCell,
   ITableInternalRow,
   ITablePage,
@@ -61,9 +62,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const selectedIds = selected.map((i) => i.id.toString());
   const userId = userInfo?.id ?? '';
 
-  const [contentUpdatesQueue, setContentUpdatesQueue] = React.useState<IContentMessageModel[]>([]);
-  const [delayProcessing, setDelayProcessing] = React.useState<boolean>(false);
-
   // This configures the shared storage between this list and any content tabs
   // that are opened.  Mainly used for navigation in the tab
   const [, setCurrentItems] = useLocalStorage('currentContent', {} as IContentSearchResult[]);
@@ -74,17 +72,49 @@ const Papers: React.FC<IPapersProps> = (props) => {
     setCurrentItems(currentResultsPage.items);
   }, [currentResultsPage, setCurrentItems]);
 
+  // Message process related states & logic:
+  const [isProcessingMessages, setIsProcessingMessages] = React.useState<boolean>(false);
+  const [contentUpdatesQueue, setContentUpdatesQueue] = React.useState<IContentMessageModel[]>([]);
+  const [delayProcessing, setDelayProcessing] = React.useState<boolean>(false);
+
+  // flushSync ensures that message queues are updated immediately, so messages are never lost
   hub.useHubEffect(MessageTargetName.ContentAdded, (message) => {
     if (message.ownerId === userId) {
-      // this will ensure messages are always queued immediately and never lost
       flushSync(() => {
         setContentUpdatesQueue((queue) => [...queue, message]);
       });
     }
   });
 
-  const [isProcessingMessages, setIsProcessingMessages] = React.useState<boolean>(false);
+  hub.useHubEffect(MessageTargetName.ContentUpdated, (message) => {
+    flushSync(() => {
+      setContentUpdatesQueue((queue) => [...queue, message]);
+    });
+  });
 
+  React.useEffect(() => {
+    if (!isProcessingMessages && !delayProcessing && contentUpdatesQueue?.length) {
+      setDelayProcessing(true); // delays processing too soon, allows msgs to queue up
+      setIsProcessingMessages(true);
+      processContentUpdates(contentUpdatesQueue);
+    }
+    // this timeout allows queue messages to be batched if they appear in
+    // quick succession, e.g. less than 200ms between messages.
+    const timer = setTimeout(() => {
+      setDelayProcessing(false);
+    }, 200);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contentUpdatesQueue, isProcessingMessages, delayProcessing]);
+
+  const updateCurrentResultsPage = (newPage: IPage<IContentSearchResult>, forceUpdate = false) => {
+    if ((!isProcessingMessages || forceUpdate) && newPage) {
+      setCurrentResultsPage(newPage);
+    }
+  };
+
+  // Process messages in the queue, fetching updated content data is neccesary,
+  // finally it updates the content results in the page to reflect the updated data.
   const processContentUpdates = async (messages: IContentMessageModel[]) => {
     if (!isProcessingMessages && messages?.length) {
       const processedMessages: number[] = [];
@@ -120,35 +150,13 @@ const Papers: React.FC<IPapersProps> = (props) => {
             }
           }),
         };
-        setCurrentResultsPage(newPage);
+        updateCurrentResultsPage(newPage, true);
       }
 
       setContentUpdatesQueue((queue) => queue.filter((q) => !processedMessages.includes(q.id)));
       setIsProcessingMessages(false);
     }
   };
-
-  React.useEffect(() => {
-    if (!isProcessingMessages && !delayProcessing && contentUpdatesQueue?.length) {
-      setDelayProcessing(true); // delays processing too soon, allows msgs to queue up
-      setIsProcessingMessages(true);
-      processContentUpdates(contentUpdatesQueue);
-    }
-    // this timeout allows queue messages to accumulate if they appear in
-    // quick succession, e.g. less than 200ms between messages.
-    const timer = setTimeout(() => {
-      setDelayProcessing(false);
-    }, 200);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contentUpdatesQueue, isProcessingMessages, delayProcessing]);
-
-  hub.useHubEffect(MessageTargetName.ContentUpdated, (message) => {
-    // this will ensure messages are always queued immediately and never lost
-    flushSync(() => {
-      setContentUpdatesQueue((queue) => [...queue, message]);
-    });
-  });
 
   const handleClickUse = React.useCallback(
     (content: IContentSearchResult) => {
@@ -182,7 +190,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
           items,
           (results.hits?.total as SearchTotalHits).value,
         );
-        setCurrentResultsPage(page);
+        updateCurrentResultsPage(page);
         return page;
       } catch (error) {
         // TODO: Handle error
@@ -191,6 +199,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
         setIsLoading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [findContentWithElasticsearch, toFilter],
   );
 
@@ -284,11 +293,11 @@ const Papers: React.FC<IPapersProps> = (props) => {
           ...currentResultsPage,
           items: filteredItems,
         };
-        setCurrentResultsPage(newPage);
+        updateCurrentResultsPage(newPage);
       } catch {}
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentResultsPage],
+    [currentResultsPage, isProcessingMessages],
   );
 
   return (
