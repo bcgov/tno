@@ -48,6 +48,12 @@ export const SubscriberTableContainer = styled(Col)`
 
     background: ${(props) => props.theme.css.bkWhite};
 
+    // rather than updating the tno-core package and adding props to control the zebra striping of the table with more props, we'll just override the css here
+    // as this wrapper will be applied to most tables in the subscriber app.
+    &:nth-child(2n) {
+      background: inherit !important;
+    }
+
     &:hover {
       background: ${(props) => props.theme.css.tableHoverRow};
       filter: brightness(95%);

@@ -39,6 +39,20 @@ export const ConfigureFolder = styled(PageSection)`
     max-width: fit-content;
     height: 2.5rem;
   }
+
+  .danger {
+    &:hover {
+      color: ${(props) => props.theme.css.btnRedColor};
+      filter: grayscale(0.2);
+    }
+  }
+
+  .warning {
+    &:hover {
+      color: ${(props) => props.theme.css.btnYellowColor};
+      filter: grayscale(0.2);
+    }
+  }
   .react-datepicker__close-icon::after {
     background-color: ${(props) => props.theme.css.btnBkPrimary};
   }
