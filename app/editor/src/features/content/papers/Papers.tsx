@@ -1,7 +1,6 @@
 import { SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import { NavigateOptions, useTab } from 'components/tab-control';
 import React from 'react';
-import { flushSync } from 'react-dom';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApiHub, useApp, useContent, useLocalStorage, useLookup } from 'store/hooks';
@@ -80,16 +79,12 @@ const Papers: React.FC<IPapersProps> = (props) => {
   // flushSync ensures that message queues are updated immediately, so messages are never lost
   hub.useHubEffect(MessageTargetName.ContentAdded, (message) => {
     if (message.ownerId === userId) {
-      flushSync(() => {
-        setContentUpdatesQueue((queue) => [...queue, message]);
-      });
+      setContentUpdatesQueue((queue) => [...queue, message]);
     }
   });
 
   hub.useHubEffect(MessageTargetName.ContentUpdated, (message) => {
-    flushSync(() => {
-      setContentUpdatesQueue((queue) => [...queue, message]);
-    });
+    setContentUpdatesQueue((queue) => [...queue, message]);
   });
 
   React.useEffect(() => {
