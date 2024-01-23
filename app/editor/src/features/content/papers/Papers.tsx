@@ -76,7 +76,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const [contentUpdatesQueue, setContentUpdatesQueue] = React.useState<IContentMessageModel[]>([]);
   const [delayProcessing, setDelayProcessing] = React.useState<boolean>(false);
 
-  // flushSync ensures that message queues are updated immediately, so messages are never lost
   hub.useHubEffect(MessageTargetName.ContentAdded, (message) => {
     if (message.ownerId === userId) {
       setContentUpdatesQueue((queue) => [...queue, message]);
