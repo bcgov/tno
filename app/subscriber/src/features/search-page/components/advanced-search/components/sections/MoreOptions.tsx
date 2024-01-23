@@ -19,14 +19,16 @@ export const MoreOptions: React.FC = () => {
     },
     { storeSearchFilter },
   ] = useContent();
-  
-  const [actionFilters] = React.useState<{ [actionName: string]: IFilterActionSettingsModel; }>(getFilterActions(actions));
+
+  const [actionFilters] = React.useState<{ [actionName: string]: IFilterActionSettingsModel }>(
+    getFilterActions(actions),
+  );
   const topStoryAction = actionFilters[ActionName.TopStory];
 
   const [size, setSize] = React.useState<number | string>(filterSettings.size);
 
   var frontPageId = settings.find((s) => s.name === Settings.FrontpageFilter)?.value;
-  
+
   React.useEffect(() => {
     setSize(filterSettings.size);
   }, [filterSettings.size]);
@@ -59,10 +61,7 @@ export const MoreOptions: React.FC = () => {
               const newFilterSettings = {
                 ...filterSettings,
                 actions: e.target.checked
-                  ? [
-                      ...filterSettings.actions!,
-                      topStoryAction
-                    ] // add it
+                  ? [...filterSettings.actions!, topStoryAction] // add it
                   : filterSettings.actions?.filter((a) => a.id !== topStoryAction?.id), // remove it
               };
               storeSearchFilter(newFilterSettings);

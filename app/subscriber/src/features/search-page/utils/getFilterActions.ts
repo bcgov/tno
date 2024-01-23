@@ -1,12 +1,7 @@
-import {
-  ActionName,
-  IActionModel,
-  IFilterActionSettingsModel
-} from 'tno-core';
-
+import { ActionName, IActionModel, IFilterActionSettingsModel } from 'tno-core';
 
 export const getFilterActions = (actions: IActionModel[]) => {
-  const result: { [actionName: string]: IFilterActionSettingsModel; } = {};
+  const result: { [actionName: string]: IFilterActionSettingsModel } = {};
   let actionName: keyof typeof ActionName;
   for (actionName in ActionName) {
     const value = ActionName[actionName];
@@ -18,7 +13,7 @@ export const getFilterActions = (actions: IActionModel[]) => {
           result[value] = {
             id: action.id,
             value: String(true),
-            valueType: action?.valueType
+            valueType: action?.valueType,
           };
           break;
         case ActionName.Commentary:
