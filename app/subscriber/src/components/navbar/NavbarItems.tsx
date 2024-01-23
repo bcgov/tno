@@ -59,7 +59,7 @@ export const NavbarOptions: INavbarOptions = {
   },
   filterMedia: {
     label: 'Filter by media type',
-    path: 'landing/filtermedia',
+    path: 'filter-media',
     icon: <FaSlidersH />,
   },
   myProducts: {

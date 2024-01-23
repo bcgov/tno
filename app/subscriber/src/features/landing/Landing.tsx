@@ -4,7 +4,6 @@ import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
 import AVOverviewPreview from 'features/daily-overview/AVOverviewPreview';
 import { MediaOverviewIcons } from 'features/daily-overview/MediaOverviewIcons';
-import { FilterMedia } from 'features/filter-media';
 import { Home } from 'features/home';
 import { HomeFilters } from 'features/home/home-filters';
 import { MyMinister } from 'features/my-minister/MyMinister';
@@ -85,9 +84,6 @@ export const Landing: React.FC = () => {
             </Show>
             <Show visible={activeItem === NavbarOptions.pressGallery.label}>
               <PressGallery />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.filterMedia.label}>
-              <FilterMedia />
             </Show>
             <Show visible={activeItem === NavbarOptions.mySearches.label}>
               <MySearches />

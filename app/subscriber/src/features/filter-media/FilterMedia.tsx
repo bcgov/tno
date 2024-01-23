@@ -65,53 +65,6 @@ export const FilterMedia: React.FC = () => {
 
   return (
     <styled.FilterMedia>
-      <Row className="tool-bar">
-        <Select
-          width={FieldSize.Medium}
-          key={`${filter.mediaTypeIds?.length}-media`}
-          name="select-media-type"
-          placeholder={'Select a media type'}
-          defaultValue={mediaTypeOptions.filter((o) => {
-            return filter.mediaTypeIds?.includes(Number(o.value));
-          })}
-          isClearable={false}
-          onChange={(e: any) => {
-            if (!!e.value) {
-              storeFilter({ ...filter, mediaTypeIds: [e.value] });
-            }
-          }}
-          options={mediaTypeOptions}
-        />
-        <Select
-          isClearable={false}
-          options={sourceOptions}
-          placeholder={'Select a source'}
-          key={`${filter.sourceIds?.length}-source`}
-          defaultValue={sourceOptions.filter((o) => {
-            return filter.sourceIds?.includes(Number(o.value));
-          })}
-          onChange={(e: any) => {
-            if (!!e.value) {
-              storeFilter({ ...filter, sourceIds: [e.value] });
-            }
-          }}
-          name="source-select"
-          width={FieldSize.Medium}
-        />
-        <DateFilter filter={filter} storeFilter={storeFilter} />
-        <FiRefreshCcw
-          className="reset"
-          onClick={() => {
-            storeFilter({
-              ...filter,
-              mediaTypeIds: [],
-              sourceIds: [],
-              startDate: moment().startOf('day').toISOString(),
-              endDate: moment().endOf('day').toISOString(),
-            });
-          }}
-        />
-      </Row>
       <Row className="table-container">
         <FlexboxTable
           rowId="id"
