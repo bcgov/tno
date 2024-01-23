@@ -116,21 +116,21 @@ const Papers: React.FC<IPapersProps> = (props) => {
       const resultsPage = currentResultsPage;
 
       // we must await otherwise we end up with fractured state updates
-      await messages.reduce(async (promise, message: IContentMessageModel) => {
-        await promise;
-        if (processedMessages.includes(message.id)) return;
-
-        processedMessages.push(message.id);
-        const containsItem = resultsPage?.items?.some((c) => c.id === message?.id);
-        if (containsItem) {
-          try {
-            const result = await getContent(message.id);
-            if (!!result) {
-              updatedItems.push(castContentToSearchResult(result));
-            }
-          } catch {}
-        }
-      }, Promise.resolve());
+      await Promise.all(
+        messages.map(async (message) => {
+          if (processedMessages.includes(message.id)) return; // skip if content id processed already
+          processedMessages.push(message.id);
+          const containsItem = resultsPage?.items?.some((c) => c.id === message?.id);
+          if (containsItem) {
+            try {
+              const result = await getContent(message.id);
+              if (!!result) {
+                updatedItems.push(castContentToSearchResult(result));
+              }
+            } catch {}
+          }
+        }),
+      );
 
       if (updatedItems?.length) {
         const newPage = {
