@@ -1,7 +1,8 @@
 import { useFilterOptions } from 'components/navbar';
 import { PageSection } from 'components/section';
 import React from 'react';
-import { Col, ISourceModel, Row } from 'tno-core';
+import { useContent } from 'store/hooks';
+import { Col, ISourceModel, Row, Show } from 'tno-core';
 
 import { MediaFilterTypes } from './constants';
 import { FilterMedia } from './FilterMedia';
@@ -20,6 +21,12 @@ export const FilterMediaLanding: React.FC = () => {
     television,
     newsRadio,
   } = useFilterOptions();
+  const [
+    {
+      mediaType: { filter },
+    },
+    { findContentWithElasticsearch, storeMediaTypeFilter: storeFilter },
+  ] = useContent();
   const [activeFilter, setActiveFilter] = React.useState<MediaFilterTypes>(
     MediaFilterTypes.DAILY_PRINT,
   );
@@ -50,6 +57,15 @@ export const FilterMediaLanding: React.FC = () => {
   };
 
   React.useEffect(() => {
+    if (activeFilter === MediaFilterTypes.WEEKLY_PRINT) {
+      setActiveLetter('A');
+    } else {
+      setActiveLetter('All');
+    }
+    console.log(activeFilter, activeLetter);
+  }, [activeFilter]);
+
+  React.useEffect(() => {
     if (activeLetter && activeLetter !== 'All') {
       const options = determineOptions();
       setNarrowedOptions(options.filter((opt) => opt.name.startsWith(activeLetter)));
@@ -60,6 +76,8 @@ export const FilterMediaLanding: React.FC = () => {
     // only want to fire when filters change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLetter, activeFilter]);
+
+  console.log(activeFilter);
 
   return (
     <styled.FilterMediaLanding>
@@ -78,22 +96,33 @@ export const FilterMediaLanding: React.FC = () => {
               ))}
             </Col>
             <Col className="narrowed-options">
-              <Row className="alpha-filter">
-                {alphabetArray().map((letter) => {
-                  return (
-                    <div
-                      className={`${activeLetter === letter ? 'active' : 'inactive'}-letter`}
-                      onClick={() => setActiveLetter(letter)}
-                    >
-                      {letter}
-                    </div>
-                  );
-                })}
-              </Row>
+              <Show
+                visible={
+                  activeFilter === MediaFilterTypes.INTERNET ||
+                  activeFilter === MediaFilterTypes.WEEKLY_PRINT
+                }
+              >
+                <Row className="alpha-filter">
+                  {alphabetArray().map((letter) => {
+                    return (
+                      <div
+                        className={`${activeLetter === letter ? 'active' : 'inactive'}-letter`}
+                        onClick={() => setActiveLetter(letter)}
+                      >
+                        {letter}
+                      </div>
+                    );
+                  })}
+                </Row>
+                <div className="show-all">Show all</div>
+              </Show>
               {narrowedOptions.map((opt) => {
                 return (
                   <div
-                    onClick={() => setActiveSource(opt)}
+                    onClick={() => {
+                      setActiveSource(opt);
+                      storeFilter({ ...filter, sourceIds: [opt.id] });
+                    }}
                     className={`${
                       activeSource?.name === opt.name ? 'active' : 'inactive'
                     }-narrowed-option`}

@@ -5,6 +5,13 @@ export const FilterMediaLanding = styled(Row)`
   .filters {
     font-size: 1.2rem;
     width: 40%;
+    .show-all {
+      font-weight: bold;
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
     .media-filter {
       margin-left: 1rem;
       margin-bottom: 0.5rem;
