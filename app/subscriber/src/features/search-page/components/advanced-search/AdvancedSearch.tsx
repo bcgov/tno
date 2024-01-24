@@ -10,7 +10,7 @@ import { FaBookmark, FaIcons, FaNewspaper, FaTag, FaTv, FaUsers } from 'react-ic
 import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import { useApp, useContent, useFilters } from 'store/hooks';
+import { useApp, useContent, useFilters, useLookup } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import {
   Button,
@@ -44,7 +44,6 @@ import {
   ToggleFilterStyleInfo,
 } from './components';
 import { defaultAdvancedSearch, defaultFilter } from './constants';
-import { defaultSubMediaGroupExpanded, ISubMediaGroupExpanded } from './interfaces';
 import * as styled from './styled';
 import { extractTags } from './utils/extractTags';
 
@@ -75,9 +74,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
 
   const [searchName, setSearchName] = React.useState<string>(activeFilter?.name ?? '');
   const [query, setQuery] = React.useState<string>(search.search ?? '');
-  /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
-  const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
-    React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);
 
   const displayFiltersAsDropdownCookieKey = 'advancedSearch:displayFiltersAsDropdown';
   const [displayFiltersAsDropdown, setDisplayFiltersAsDropdown] = React.useState<boolean>(() => {
@@ -99,6 +95,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
   );
 
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
+  const [{ sources, mediaTypes }] = useLookup();
 
   React.useEffect(() => {
     // remove [ and ] and everything in between from query
@@ -253,8 +250,8 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
               >
                 <MediaSection
                   displayFiltersAsDropdown={displayFiltersAsDropdown}
-                  setMediaGroupExpandedStates={setMediaGroupExpandedStates}
-                  mediaGroupExpandedStates={mediaGroupExpandedStates}
+                  sources={sources}
+                  mediaTypes={mediaTypes}
                 />
               </ExpandableRow>
             </Col>
