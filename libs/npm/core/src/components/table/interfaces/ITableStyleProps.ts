@@ -7,4 +7,6 @@ export interface ITableStyleProps {
   scrollSize?: number | string;
   /** An array of columns */
   columns: ITableColumn[];
+  /** Control whether to show zebra striping */
+  disableZebraStriping?: boolean;
 }

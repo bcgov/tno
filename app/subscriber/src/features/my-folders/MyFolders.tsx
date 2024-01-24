@@ -84,6 +84,7 @@ export const MyFolders: React.FC<IMyFoldersProps> = ({ myFolders, setMyFolders, 
             pagingEnabled={false}
             columns={columns(setActive, Number(id), navigate)}
             rowId={'id'}
+            disableZebraStriping
             onRowClick={(e) => {
               setActive(e.original);
               navigate(`/folders/view/${e.original.id}`);
