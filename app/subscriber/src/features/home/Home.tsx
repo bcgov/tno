@@ -33,7 +33,7 @@ export const Home: React.FC = () => {
     {
       home: { filter },
     },
-    { findContentWithElasticsearch, storeHomeFilter: storeFilter },
+    { findContentWithElasticsearch, storeHomeFilter: storeFilter, stream },
   ] = useContent();
   const navigate = useNavigate();
   const { width } = useWindowSize();
@@ -57,6 +57,11 @@ export const Home: React.FC = () => {
     else return 'all';
   }, [filter.contentTypes]);
 
+  const createStream = async (item: IContentSearchResult) => {
+    const fileReference = item?.fileReferences ? item?.fileReferences[0] : undefined;
+    if (!!fileReference) return stream(fileReference.path);
+  };
+
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
@@ -77,6 +82,22 @@ export const Home: React.FC = () => {
     [findContentWithElasticsearch],
   );
 
+  const displayMedia = async (r: IContentSearchResult) => {
+    const list = [...content];
+    const e = list.find((e) => e.id === r.id);
+    if (!!e) {
+      if (!e.mediaUrl) {
+        createStream(e).then((result) => {
+          e.mediaUrl = result !== undefined ? result : undefined;
+          e.displayMedia = true;
+        });
+      } else {
+        e.displayMedia = !e.displayMedia;
+      }
+      setContent(list);
+    }
+  };
+
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
     if (!filter.startDate) return;
@@ -92,7 +113,7 @@ export const Home: React.FC = () => {
             mediaTypeIds: filter.mediaTypeIds ?? [],
             sourceIds: filter.sourceIds ?? [],
           },
-          actions,
+          // actions,
         ),
       ),
     );
@@ -173,7 +194,6 @@ export const Home: React.FC = () => {
               <Row className="option">
                 <Radio
                   checked={sortBy === 'time'}
-                  disabled
                   className="option"
                   onChange={(e) =>
                     (e.target as HTMLInputElement).checked ? setSortBy('time') : setSortBy('')
@@ -189,13 +209,20 @@ export const Home: React.FC = () => {
       <Row className="table-container">
         <FlexboxTable
           rowId="id"
-          columns={determineColumns(contentType, width, disabledCols)}
+          columns={determineColumns(contentType, width, disabledCols, displayMedia)}
           isMulti
           groupBy={(item) => {
             if (item.original.source?.name && sortBy === 'source')
               return item.original.source?.name;
             else if (item.original.publishedOn && sortBy === 'time')
-              return item.original.publishedOn;
+              return new Date(item.original.publishedOn).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+              });
             else return ' ';
           }}
           onRowClick={(e: any) => {
