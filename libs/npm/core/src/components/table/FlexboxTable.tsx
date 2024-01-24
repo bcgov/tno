@@ -11,6 +11,7 @@ export const FlexboxTable = <T extends object>({
   data,
   isLoading,
   showActive = true,
+  disableZebraStriping,
   ...rest
 }: ITableProps<T>) => {
   const table = useTable({
@@ -64,6 +65,7 @@ export const FlexboxTable = <T extends object>({
     className: `table${rest.className ? ` ${rest.className}` : ''}`,
     columns: table.columns,
     scrollSize: table.scrollSize,
+    disableZebraStriping: disableZebraStriping,
   };
 
   return (

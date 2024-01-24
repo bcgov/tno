@@ -73,6 +73,9 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
       background-color: #fff;
       padding: 0.25rem 0;
 
+      ${(props) =>
+        !props.disableZebraStriping
+          ? `
       &:nth-child(even) {
         background-color: rgb(233, 236, 239);
       }
@@ -81,6 +84,8 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
         background-color: #e0e0e0;
         border-radius: 0.25rem;
       }
+      `
+          : ''}
 
       &:nth-child(odd):hover:not(.active) {
         background-color: #ededed;

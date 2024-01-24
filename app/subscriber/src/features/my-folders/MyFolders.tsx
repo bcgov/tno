@@ -20,17 +20,11 @@ export interface IMyFoldersProps {
   active?: IFolderModel;
 }
 /** contains a list of the user's folders, allows for edit and viewing */
-export const MyFolders: React.FC<IMyFoldersProps> = ({
-  myFolders,
-  setMyFolders,
-  active,
-  setActive,
-}) => {
-  const [, { findMyFolders, addFolder, updateFolder }] = useFolders();
+export const MyFolders: React.FC<IMyFoldersProps> = ({ myFolders, setMyFolders, setActive }) => {
+  const [, { findMyFolders, addFolder }] = useFolders();
   const navigate = useNavigate();
   const { id } = useParams();
   const [newFolderName, setNewFolderName] = React.useState<string>('');
-  const [editable, setEditable] = React.useState<string>('');
 
   React.useEffect(() => {
     findMyFolders().then((data) => {
@@ -62,15 +56,6 @@ export const MyFolders: React.FC<IMyFoldersProps> = ({
     else toast.warning(`Folder name is required.`);
   };
 
-  const handleSave = () => {
-    if (!!active) {
-      updateFolder(active).then((data) => {
-        toast.success(`${data.name} updated successfully`);
-        setMyFolders([...myFolders.filter((folder) => folder.id !== data.id), data]);
-        setEditable('');
-      });
-    }
-  };
   return (
     <styled.MyFolders>
       <Row className="create-new">
@@ -97,8 +82,9 @@ export const MyFolders: React.FC<IMyFoldersProps> = ({
         <SubscriberTableContainer>
           <FlexboxTable
             pagingEnabled={false}
-            columns={columns(editable, handleSave, Number(id), navigate)}
+            columns={columns(setActive, Number(id), navigate)}
             rowId={'id'}
+            disableZebraStriping
             onRowClick={(e) => {
               setActive(e.original);
               navigate(`/folders/view/${e.original.id}`);

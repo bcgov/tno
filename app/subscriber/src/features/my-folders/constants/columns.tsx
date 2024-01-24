@@ -1,10 +1,9 @@
-import { FaCog, FaSave } from 'react-icons/fa';
+import { FaCog } from 'react-icons/fa';
 import { FaFolderClosed, FaFolderOpen } from 'react-icons/fa6';
 import { CellEllipsis, IFolderModel, ITableHookColumn, Row } from 'tno-core';
 
 export const columns = (
-  editable: string,
-  handleSave: () => void,
+  setActive: React.Dispatch<React.SetStateAction<IFolderModel | undefined>>,
   activeId?: number,
   navigate?: (path: string) => void,
 ): ITableHookColumn<IFolderModel>[] => [
@@ -34,25 +33,15 @@ export const columns = (
     accessor: 'options',
     width: 0.5,
     cell: (cell) => (
-      <>
-        {editable === cell.original.name ? (
-          <FaSave
-            onClick={(e) => {
-              e.stopPropagation();
-              handleSave();
-            }}
-          />
-        ) : (
-          <FaCog
-            onClick={(e) => {
-              // stop the row click event from firing
-              e.stopPropagation();
-              navigate && navigate(`/folders/configure/${cell.original.id}`);
-            }}
-            data-tooltip-id="options"
-          />
-        )}
-      </>
+      <FaCog
+        onClick={(e) => {
+          // stop the row click event from firing
+          e.stopPropagation();
+          setActive(cell.original);
+          navigate && navigate(`/folders/configure/${cell.original.id}`);
+        }}
+        data-tooltip-id="options"
+      />
     ),
   },
 ];

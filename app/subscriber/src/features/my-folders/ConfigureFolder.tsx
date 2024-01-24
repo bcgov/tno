@@ -39,7 +39,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
 }) => {
   const [{ myFilters }, { findMyFilters }] = useFilters();
   const [, { findContentWithElasticsearch }] = useContent();
-  const [, { getFolder, updateFolder, deleteFolder }] = useFolders();
+  const [, { findMyFolders, getFolder, updateFolder, deleteFolder }] = useFolders();
   const { id } = useParams();
   const { toggle, isShowing } = useModal();
   const navigate = useNavigate();
@@ -108,14 +108,17 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
             ],
             (item) => item.content.id,
           ).map((item, index) => ({ ...item, sortOrder: index }));
-          updateFolder({ ...currentFolder, content });
+          await updateFolder({ ...currentFolder, content });
+          await findMyFolders().then((data) => {
+            setMyFolders(data);
+          });
           toast.success(`Filter found and added ${results.hits.hits.length} content items.`);
         } else {
           toast.warning('No content found for this filter.');
         }
       } catch {}
     },
-    [findContentWithElasticsearch, currentFolder, updateFolder],
+    [findContentWithElasticsearch, currentFolder, updateFolder, findMyFolders, setMyFolders],
   );
 
   const handleSaveSchedule = React.useCallback(
@@ -159,8 +162,13 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
               name="filters"
               isClearable
               className="filter-select"
-              value={filterOptions.find((option) => option.value === activeFilter?.id)}
+              value={filterOptions.find((option) => option.value === activeFilter?.id ?? null)}
               onChange={(newValue) => {
+                if (!newValue) {
+                  setActiveFilter(undefined);
+                  setCurrentFolder({ ...currentFolder, filterId: undefined } as IFolderModel);
+                  return;
+                }
                 const option = newValue as IOptionItem;
                 const targetFilter = myFilters.find((f) => f.id === option.value);
                 setActiveFilter(targetFilter);
@@ -234,6 +242,8 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
           try {
             if (actionName === 'empty' && !!active) {
               updateFolder({ ...active, content: [] }).then((data) => {
+                // need to clear state managed content as well
+                currentFolder && setCurrentFolder(data);
                 toast.success(`${active.name} updated successfully`);
                 setMyFolders(myFolders.map((item) => (item.id === active.id ? data : item)));
               });
