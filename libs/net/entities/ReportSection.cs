@@ -50,6 +50,17 @@ public class ReportSection : BaseType<int>
     public Folder? Folder { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to the report this section pulls content from.
+    /// </summary>
+    [Column("linked_report_id")]
+    public int? LinkedReportId { get; set; }
+
+    /// <summary>
+    /// get/set - The linked report for this section.
+    /// </summary>
+    public Report? LinkedReport { get; set; }
+
+    /// <summary>
     /// get/set - The report settings to control the output.
     /// </summary>
     [Column("settings")]
@@ -145,10 +156,12 @@ public class ReportSection : BaseType<int>
     /// <param name="reportId"></param>
     /// <param name="filterId"></param>
     /// <param name="folderId"></param>
-    public ReportSection(string name, ReportSectionType type, int reportId, int? filterId, int? folderId) : this(name, type, reportId)
+    /// <param name="linkedReportId"></param>
+    public ReportSection(string name, ReportSectionType type, int reportId, int? filterId, int? folderId, int? linkedReportId) : this(name, type, reportId)
     {
         this.FilterId = filterId;
         this.FolderId = folderId;
+        this.LinkedReportId = linkedReportId;
     }
 
     /// <summary>
@@ -160,10 +173,12 @@ public class ReportSection : BaseType<int>
     /// <param name="reportId"></param>
     /// <param name="filterId"></param>
     /// <param name="folderId"></param>
-    public ReportSection(int id, string name, ReportSectionType type, int reportId, int? filterId, int? folderId) : this(id, name, type, reportId)
+    /// <param name="linkedReportId"></param>
+    public ReportSection(int id, string name, ReportSectionType type, int reportId, int? filterId, int? folderId, int? linkedReportId) : this(id, name, type, reportId)
     {
         this.FilterId = filterId;
         this.FolderId = folderId;
+        this.LinkedReportId = linkedReportId;
     }
     #endregion
 

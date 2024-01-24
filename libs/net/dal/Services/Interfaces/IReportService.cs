@@ -41,6 +41,15 @@ public interface IReportService : IBaseService<Report, int>
     IEnumerable<ReportInstance> GetLatestInstances(int id, int? ownerId = null, int limit = 2);
 
     /// <summary>
+    /// Find the last report instance created for the specified 'reportId' and 'ownerId'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="includeContent"></param>
+    /// <returns></returns>
+    ReportInstance? GetCurrentReportInstance(int reportId, int? ownerId = null, bool includeContent = false);
+
+    /// <summary>
     /// Get the content from the current report instance for the specified 'reportId'.
     /// </summary>
     /// <param name="reportId"></param>

@@ -1,6 +1,7 @@
 
 using System.Text.Json;
 using Microsoft.Extensions.Options;
+using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
 using TNO.DAL.Services;
@@ -64,34 +65,53 @@ public class ReportHelper : IReportHelper
 
     #region Methods
     /// <summary>
+    /// If a filter is provided make a request to Elasticsearch for content.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<ContentModel>> FindContentAsync(JsonDocument filter, string? index)
+    {
+        var content = new List<ContentModel>();
+        var searchResults = await _contentService.FindWithElasticsearchAsync(index ?? _elasticOptions.PublishedIndex, filter);
+        content.AddRange(searchResults.Hits.Hits.Select(h => new ContentModel(h.Source)).ToArray());
+        return content;
+    }
+
+    /// <summary>
+    /// Get the content from the current instance of the specified 'reportId' and 'ownerId'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
+    /// <returns></returns>
+    public Task<Dictionary<string, ReportSectionModel>> GetLinkedReportContent(int reportId, int? ownerId = null)
+    {
+        var report = _reportService.FindById(reportId) ?? throw new NoContentException($"Report does not exist: ${reportId}");
+        var instance = _reportService.GetCurrentReportInstance(reportId, ownerId, true);
+        var sections = report.Sections.ToDictionary(s => s.Name, s =>
+        {
+            var content = instance?.ContentManyToMany.Where(c => c.Content != null && c.SectionName == s.Name) ?? Array.Empty<Entities.ReportInstanceContent>();
+            var section = new ReportSectionModel(s, content, _serializerOptions);
+            return section;
+        });
+        return Task.FromResult(sections);
+    }
+
+    /// <summary>
     /// Makes a request to Elasticsearch if required to fetch content.
     /// Generate the Chart JSON for the specified 'model' containing a template and content.
     /// If the model includes a Filter it will make a request to Elasticsearch.
     /// </summary>
     /// <param name="model"></param>
-    /// <param name="index"></param>
-    /// <param name="filter"></param>
     /// <param name="isPreview"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<ChartResultModel> GenerateJsonAsync(
         ChartRequestModel model,
-        string? index = null,
-        JsonDocument? filter = null,
         bool isPreview = false)
     {
-        var chart = model.ChartTemplate;
-        SearchResultModel<Areas.Services.Models.Content.ContentModel>? searchResults = null;
-        var content = new List<ContentModel>(chart.Content ?? Array.Empty<ContentModel>());
-        if (filter != null)
-        {
-            searchResults = await _contentService.FindWithElasticsearchAsync(index ?? _elasticOptions.PublishedIndex, filter);
-            content.AddRange(searchResults.Hits.Hits.Select(h => new ContentModel(h.Source)).ToArray());
-        }
-        chart.Content = content.ToArray();
-
         var result = await _reportEngine.GenerateJsonAsync(model, isPreview);
-        result.Results = searchResults != null ? JsonDocument.Parse(JsonSerializer.Serialize(searchResults)) : null;
+        result.Results = JsonDocument.Parse(JsonSerializer.Serialize(model.ChartTemplate.Content));
         return result;
     }
 
@@ -99,18 +119,14 @@ public class ReportHelper : IReportHelper
     /// Execute the chart template provided to generate JSON, which is then sent with a request to the Charts API to generate a base64 image.
     /// </summary>
     /// <param name="model"></param>
-    /// <param name="index"></param>
-    /// <param name="filter"></param>
     /// <param name="isPreview"></param>
     /// <returns>Returns the base64 image from the Charts API.</returns>
     public async Task<string> GenerateBase64ImageAsync(
         ChartRequestModel model,
-        string? index = null,
-        JsonDocument? filter = null,
         bool isPreview = false)
     {
         // Get the Chart JSON data.
-        model.ChartData ??= (await this.GenerateJsonAsync(model, index, filter, isPreview)).Json;
+        model.ChartData ??= (await this.GenerateJsonAsync(model, isPreview)).Json;
         return await _reportEngine.GenerateBase64ImageAsync(model);
     }
 
@@ -249,7 +265,7 @@ public class ReportHelper : IReportHelper
         bool isPreview = false)
     {
         var subject = await _reportEngine.GenerateReportSubjectAsync(report, sections, viewOnWebOnly, isPreview);
-        var body = await _reportEngine.GenerateReportBodyAsync(report, sections, _storageOptions.GetUploadPath(), viewOnWebOnly, isPreview);
+        var body = await _reportEngine.GenerateReportBodyAsync(report, sections, GetLinkedReportContent, _storageOptions.GetUploadPath(), viewOnWebOnly, isPreview);
 
         return new ReportResultModel(subject, body);
     }

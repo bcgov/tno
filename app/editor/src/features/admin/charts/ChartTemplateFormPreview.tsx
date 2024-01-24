@@ -171,7 +171,8 @@ export const ChartTemplateFormPreview: React.FC<IChartTemplateFormPreviewProps> 
           />
         </Row>
         <hr />
-        <Row>
+        <h3>Elasticsearch Filter</h3>
+        <Row nowrap>
           <Select
             label="Index"
             name="index"
@@ -183,19 +184,37 @@ export const ChartTemplateFormPreview: React.FC<IChartTemplateFormPreviewProps> 
               setPreview((preview) => ({ ...preview, index: option.value?.toString() }));
             }}
           />
+          <Col flex="1">
+            <label htmlFor="txa-template">Query</label>
+            <Col className="editor">
+              <Editor
+                id="txa-filter"
+                value={filter}
+                onValueChange={(code) => setFilter(code)}
+                highlight={(code) => {
+                  return highlight(code, languages.json, 'razor');
+                }}
+              />
+            </Col>
+          </Col>
         </Row>
-        <label htmlFor="txa-template">Elasticsearch Filter</label>
-        <Col className="editor">
-          <Editor
-            id="txa-filter"
-            value={filter}
-            onValueChange={(code) => setFilter(code)}
-            highlight={(code) => {
-              return highlight(code, languages.json, 'razor');
-            }}
-          />
-        </Col>
       </Col>
+      <hr />
+      <h3>Linked Report</h3>
+      <Row>
+        <Text
+          name="linkedReportId"
+          label="Report ID"
+          value={preview.linkedReportId ?? ''}
+          type="number"
+          onChange={(e) => {
+            setPreview({
+              ...preview,
+              linkedReportId: e.target.value ? +e.target.value : undefined,
+            });
+          }}
+        />
+      </Row>
       <hr />
       <Row>
         <Button

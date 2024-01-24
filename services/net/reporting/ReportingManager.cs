@@ -320,6 +320,26 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     }
 
     /// <summary>
+    /// Make a request to the API and get the linked report content.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
+    /// <returns></returns>
+    private async Task<Dictionary<string, ReportSectionModel>> GetLinkedReportAsync(int reportId, int? ownerId)
+    {
+        var instance = await this.Api.GetCurrentReportInstance(reportId, ownerId);
+        if (instance == null) return new();
+
+        var sections = instance.Report?.Sections.ToDictionary(section => section.Name, section =>
+        {
+            var content = instance.Content.Where(c => c.SectionName == section.Name && c.Content != null).Select(c => new ContentModel(c.Content!, c.SortOrder, c.SectionName, section.Settings.Label));
+            return new ReportSectionModel(section, content);
+        }) ?? new();
+
+        return sections;
+    }
+
+    /// <summary>
     /// Send out an email for the specified report.
     /// Generate a report instance for this email.
     /// Send an email merge to CHES.
@@ -357,11 +377,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         // Generate and send report to subscribers who want an email with a link to the website.
         // We do this first because we don't want to save the output of this in the instance.
         var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.Email)).ToArray();
-        var linkOnlyFormatBody = linkOnlyFormatSubscribers.Any() ? await this.ReportEngine.GenerateReportBodyAsync(report, sectionContent, null, true, false) : "";
+        var linkOnlyFormatBody = linkOnlyFormatSubscribers.Any() ? await this.ReportEngine.GenerateReportBodyAsync(report, sectionContent, GetLinkedReportAsync, null, true, false) : "";
 
         // Generate and send report to subscribers who want an email format.
         var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.Email)).ToArray();
-        var fullTextFormatBody = await this.ReportEngine.GenerateReportBodyAsync(report, sectionContent, null, false, false);
+        var fullTextFormatBody = await this.ReportEngine.GenerateReportBodyAsync(report, sectionContent, GetLinkedReportAsync, null, false, false);
 
         var linkOnlyFormatTo = linkOnlyFormatSubscribers.Select(s => s.User!.Email).ToArray();
         var fullTextFormatTo = fullTextFormatSubscribers.Select(s => s.User!.Email).ToArray();
@@ -480,14 +500,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 .Select(s => s.User!.Email)
                 .ToArray() :
             Array.Empty<string>();
-        var linkOnlyFormatBody = linkOnlyFormatTo.Any() ? await this.ReportEngine.GenerateReportBodyAsync(instance.Report, sectionContent, null, true, false) : "";
+        var linkOnlyFormatBody = linkOnlyFormatTo.Any() ? await this.ReportEngine.GenerateReportBodyAsync(instance.Report, sectionContent, GetLinkedReportAsync, null, true, false) : "";
 
         // Generate and send report to subscribers who want an email format.
         var fullTextFormatTo = report.Subscribers
             .Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.Email))
             .Select(s => s.User!.Email)
             .ToArray();
-        var fullTextFormatBody = await this.ReportEngine.GenerateReportBodyAsync(instance.Report, sectionContent, null, false, false);
+        var fullTextFormatBody = await this.ReportEngine.GenerateReportBodyAsync(instance.Report, sectionContent, GetLinkedReportAsync, null, false, false);
 
         var subject = await this.ReportEngine.GenerateReportSubjectAsync(instance.Report, sectionContent, false, false);
 

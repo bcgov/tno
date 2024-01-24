@@ -1,5 +1,7 @@
-﻿using RazorEngineCore;
+﻿using System.Text.Json;
+using RazorEngineCore;
 using TNO.API.Models.Settings;
+using TNO.Core.Extensions;
 
 namespace TNO.TemplateEngine.Models.Reports;
 
@@ -50,6 +52,11 @@ public class ReportSectionModel : RazorEngineTemplateBase
     public FolderModel? Folder { get; set; }
 
     /// <summary>
+    /// get/set - The linked report for this section.
+    /// </summary>
+    public ReportModel? LinkedReport { get; set; }
+
+    /// <summary>
     /// get/set - The aggregate(s) for this section.
     /// </summary>
     public Dictionary<string, AggregationRootModel>? Aggregations { get; set; }
@@ -84,6 +91,33 @@ public class ReportSectionModel : RazorEngineTemplateBase
     /// </summary>
     /// <param name="model"></param>
     /// <param name="content"></param>
+    /// <param name="options"></param>
+    public ReportSectionModel(Entities.ReportSection entity, IEnumerable<Entities.ReportInstanceContent> content, JsonSerializerOptions options)
+    {
+        this.Id = entity.Id;
+        this.Name = entity.Name;
+        this.SectionType = entity.SectionType;
+        this.Description = entity.Description;
+        this.IsEnabled = entity.IsEnabled;
+        this.SortOrder = entity.SortOrder;
+        this.Settings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(entity.Settings.ToJson(), options) ?? new();
+        this.Folder = entity.Folder != null ? new FolderModel(entity.Folder) : null;
+        this.Filter = entity.Filter != null ? new FilterModel(entity.Filter, options) : null;
+        this.LinkedReport = entity.LinkedReport != null ? new ReportModel(entity.LinkedReport, options) : null;
+
+        // Extract only content for this section.
+        var sectionContent = content.Where(c => c.SectionName == this.Name);
+        var reportSections = entity.ChartTemplatesManyToMany.Where(ct => ct.ChartTemplate != null).Select(rsct => new API.Areas.Services.Models.Report.ChartTemplateModel(rsct, options));
+        var chartContent = sectionContent.Where(c => c.Content != null).Select(c => new ContentModel(c.Content!, c.SortOrder, c.SectionName, this.Settings.Label)).ToArray() ?? Array.Empty<ContentModel>();
+        this.ChartTemplates = reportSections.Select(chart => new ChartEngineContentModel(GenerateChartUid(this.Id, chart.Id), chart, chartContent));
+        this.Content = chartContent;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a TemplateModel, initializes with specified parameters.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="content"></param>
     public ReportSectionModel(TNO.API.Areas.Admin.Models.Report.ReportSectionModel model, IEnumerable<ContentModel>? content = null)
     {
         this.Id = model.Id;
@@ -95,6 +129,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
         this.Settings = model.Settings;
         this.Folder = model.Folder != null ? new FolderModel(model.Folder) : null;
         this.Filter = model.Filter != null ? new FilterModel(model.Filter) : null;
+        this.LinkedReport = model.LinkedReport != null ? new ReportModel(model.LinkedReport) : null;
         this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartEngineContentModel(GenerateChartUid(this.Id, chart.Id), chart, content));
         this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
     }
@@ -115,6 +150,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
         this.Settings = model.Settings;
         this.Folder = model.Folder != null ? new FolderModel(model.Folder) : null;
         this.Filter = model.Filter != null ? new FilterModel(model.Filter) : null;
+        this.LinkedReport = model.LinkedReport != null ? new ReportModel(model.LinkedReport) : null;
         this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartEngineContentModel(GenerateChartUid(this.Id, chart.Id), chart, content));
         this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
     }
@@ -135,6 +171,7 @@ public class ReportSectionModel : RazorEngineTemplateBase
         this.Settings = model.Settings;
         this.Folder = model.Folder != null ? new FolderModel(model.Folder) : null;
         this.Filter = model.Filter != null ? new FilterModel(model.Filter) : null;
+        this.LinkedReport = model.LinkedReport != null ? new ReportModel(model.LinkedReport) : null;
         this.ChartTemplates = model.ChartTemplates.Select(chart => new ChartEngineContentModel(GenerateChartUid(this.Id, chart.Id), chart, content));
         this.Content = content?.ToArray() ?? Array.Empty<ContentModel>();
         this.Aggregations = aggregations;

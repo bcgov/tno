@@ -9,7 +9,6 @@ import { FaArrowLeft, FaArrowRight, FaCloud, FaTrash } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useLookup, useReports, useReportTemplates } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
 import { Col, Modal, Row, Settings, useModal } from 'tno-core';
 
 import { defaultReport } from '../constants';
@@ -30,8 +29,8 @@ export const ReportAdmin: React.FC<IReportAdminProps> = ({ path: defaultPath = '
   const [{ userInfo }] = useApp();
   const navigate = useNavigate();
   const { id, path = defaultPath } = useParams();
-  const [{ myReports }] = useProfileStore();
-  const [{ getReport, addReport, deleteReport, updateReport, findMyReports }] = useReports();
+  const [{ myReports }, { getReport, addReport, deleteReport, updateReport, findMyReports }] =
+    useReports();
   const [{ getReportTemplate }] = useReportTemplates();
   const { toggle, isShowing } = useModal();
   const [{ isReady, settings }] = useLookup();

@@ -30,7 +30,7 @@ export const ReportEdit: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [{ myReports }, { storeReportOutput }] = useProfileStore();
-  const [{ generateReport, getReport, updateReport, findMyReports }] = useReports();
+  const [, { generateReport, getReport, updateReport, findMyReports }] = useReports();
   const [{ exportReport, getReportInstance }] = useReportInstances();
   const { isShowing, toggle } = useModal();
   const hub = useApiHub();
@@ -232,7 +232,7 @@ export const ReportEdit: React.FC = () => {
                         </Button>
                       ) : (
                         <Button
-                          onClick={() => handleRegenerate(values, false)}
+                          onClick={() => handleRegenerate(values, true)}
                           disabled={isSubmitting || canEdit}
                         >
                           Start next report

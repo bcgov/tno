@@ -41,6 +41,16 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
     public FolderModel? Folder { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to the report this section pulls content from.
+    /// </summary>
+    public int? LinkedReportId { get; set; }
+
+    /// <summary>
+    /// get/set - The linked report for this section.
+    /// </summary>
+    public ReportModel? LinkedReport { get; set; }
+
+    /// <summary>
     /// get/set - The settings for this report section.
     /// </summary>
     public ReportSectionSettingsModel Settings { get; set; } = new();
@@ -70,6 +80,7 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
         this.Folder = entity.Folder != null ? new FolderModel(entity.Folder) : null;
         this.FilterId = entity.FilterId;
         this.Filter = entity.Filter != null ? new FilterModel(entity.Filter, options) : null;
+        this.LinkedReportId = entity.LinkedReportId;
         this.Settings = new ReportSectionSettingsModel(JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>(), options);
         this.ChartTemplates = entity.ChartTemplatesManyToMany
             .OrderBy(c => c.SortOrder)
@@ -99,7 +110,7 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
     /// <param name="model"></param>
     public static explicit operator Entities.ReportSection(ReportSectionModel model)
     {
-        var entity = new Entities.ReportSection(model.Id, model.Name, model.SectionType, model.ReportId, model.FilterId, model.FolderId)
+        var entity = new Entities.ReportSection(model.Id, model.Name, model.SectionType, model.ReportId, model.FilterId, model.FolderId, model.LinkedReportId)
         {
             Id = model.Id,
             Description = model.Description,

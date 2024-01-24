@@ -1,8 +1,8 @@
-using FTTLib;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using FTTLib;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -671,6 +671,17 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"services/reports/{reportId}/clear/folders");
         return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.Report.ReportModel>(url));
+    }
+
+    /// <summary>
+    /// Get the current instance for the specified report 'reportId'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.Report.ReportInstanceModel?> GetCurrentReportInstance(int reportId, int? ownerId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/{reportId}/instance{(ownerId.HasValue ? $"?ownerId={ownerId}" : "")}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.Report.ReportInstanceModel?>(url));
     }
 
     /// <summary>

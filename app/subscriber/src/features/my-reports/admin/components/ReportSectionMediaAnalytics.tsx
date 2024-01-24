@@ -6,7 +6,7 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaArrowAltCircleRight } from 'react-icons/fa';
 import { FaTrash } from 'react-icons/fa6';
-import { useFilters, useFolders } from 'store/hooks';
+import { useFilters, useFolders, useReports } from 'store/hooks';
 import {
   Col,
   FormikCheckbox,
@@ -39,12 +39,16 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
   const { values, setFieldValue } = useFormikContext<IReportForm>();
   const [{ myFolders: folders }, { findMyFolders }] = useFolders();
   const [{ myFilters: filters }, { findMyFilters }] = useFilters();
+  const [{ myReports: reports }, { findMyReports }] = useReports();
 
   const [folderOptions, setFolderOptions] = React.useState<IOptionItem[]>(
     getSortableOptions(folders),
   );
   const [filterOptions, setFilterOptions] = React.useState<IOptionItem[]>(
     getSortableOptions(filters),
+  );
+  const [reportOptions, setReportOptions] = React.useState<IOptionItem[]>(
+    getSortableOptions(reports),
   );
   const [chartOptions] = React.useState(getSortableOptions(values.template?.chartTemplates ?? []));
   const [chart, setChart] = React.useState<IChartTemplateModel>();
@@ -64,6 +68,13 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
       findMyFilters()
         .then((filters) => {
           setFilterOptions(getSortableOptions(filters));
+        })
+        .catch(() => {});
+    }
+    if (!reports.length) {
+      findMyReports()
+        .then((reports) => {
+          setReportOptions(getSortableOptions(reports));
         })
         .catch(() => {});
     }
@@ -136,6 +147,29 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
                   const option = newValue as OptionItem;
                   const folder = folders.find((f) => f.id === option?.value);
                   if (folder) setFieldValue(`sections.${index}.folder`, folder);
+                }}
+              >
+                <Button
+                  disabled={!values.sections[index].folderId}
+                  onClick={() =>
+                    window.open(`/folders/${values.sections[index].folderId}`, '_blank')
+                  }
+                >
+                  <FaArrowAltCircleRight />
+                </Button>
+              </FormikSelect>
+              {section.folder?.description && <p>{section.folder?.description}</p>}
+            </Col>
+            <Col flex="1" className="description">
+              <FormikSelect
+                name={`sections.${index}.linkedReportId`}
+                label="My Reports"
+                options={reportOptions}
+                value={reportOptions.find((o) => o.value === section.linkedReportId) ?? ''}
+                onChange={(newValue: any) => {
+                  const option = newValue as OptionItem;
+                  const report = reports.find((f) => f.id === option?.value);
+                  if (report) setFieldValue(`sections.${index}.linkedReport`, report);
                 }}
               >
                 <Button

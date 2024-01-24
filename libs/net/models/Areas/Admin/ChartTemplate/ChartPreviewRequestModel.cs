@@ -30,6 +30,11 @@ public class ChartPreviewRequestModel
     public JsonDocument? Filter { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to a linked report that will be used to populate the content for this chart.
+    /// </summary>
+    public int? LinkedReportId { get; set; }
+
+    /// <summary>
     /// get/set - An array of content to be used to generate the JSON Data.
     /// </summary>
     public IEnumerable<TNO.API.Areas.Services.Models.Content.ContentModel>? Content { get; set; }

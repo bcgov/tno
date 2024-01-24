@@ -14,6 +14,16 @@ public class ContentModel
     public long Id { get; set; }
 
     /// <summary>
+    /// get/set - The section in the report this content belongs in.
+    /// </summary>
+    public string SectionName { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The section in the report this content belongs in.
+    /// </summary>
+    public string SectionLabel { get; set; } = "";
+
+    /// <summary>
     /// get/set - The status of the content.
     /// </summary>
     public ContentStatus Status { get; set; } = ContentStatus.Draft;
@@ -222,9 +232,13 @@ public class ContentModel
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="sortOrder"></param>
-    public ContentModel(Entities.Content entity, int sortOrder = 0)
+    /// <param name="sectionName">The section in the report this content belongs in</param>
+    /// <param name="sectionLabel"></param>
+    public ContentModel(Entities.Content entity, int sortOrder = 0, string sectionName = "", string sectionLabel = "")
     {
         this.Id = entity?.Id ?? throw new ArgumentNullException(nameof(entity));
+        this.SectionName = sectionName;
+        this.SectionLabel = sectionLabel;
         this.Status = entity.Status;
         this.ContentType = entity.ContentType;
         this.SourceId = entity.SourceId;
@@ -271,9 +285,13 @@ public class ContentModel
     /// </summary>
     /// <param name="model"></param>
     /// <param name="sortOrder"></param>
-    public ContentModel(TNO.API.Areas.Editor.Models.Content.ContentModel model, int sortOrder = 0)
+    /// <param name="sectionName"></param>
+    /// <param name="sectionLabel"></param>
+    public ContentModel(TNO.API.Areas.Editor.Models.Content.ContentModel model, int sortOrder = 0, string sectionName = "", string sectionLabel = "")
     {
         this.Id = model?.Id ?? throw new ArgumentNullException(nameof(model));
+        this.SectionName = sectionName;
+        this.SectionLabel = sectionLabel;
         this.Status = model.Status;
         this.ContentType = model.ContentType;
         this.SourceId = model.SourceId;
@@ -320,9 +338,13 @@ public class ContentModel
     /// </summary>
     /// <param name="model"></param>
     /// <param name="sortOrder"></param>
-    public ContentModel(TNO.API.Areas.Services.Models.AVOverview.ContentModel model, int sortOrder = 0)
+    /// <param name="sectionName"></param>
+    /// <param name="sectionLabel"></param>
+    public ContentModel(TNO.API.Areas.Services.Models.AVOverview.ContentModel model, int sortOrder = 0, string sectionName = "", string sectionLabel = "")
     {
         this.Id = model?.Id ?? throw new ArgumentNullException(nameof(model));
+        this.SectionName = sectionName;
+        this.SectionLabel = sectionLabel;
         this.ContentType = model.ContentType;
         this.Body = model.Body;
         this.IsApproved = model.IsApproved;
@@ -335,9 +357,13 @@ public class ContentModel
     /// </summary>
     /// <param name="model"></param>
     /// <param name="sortOrder"></param>
-    public ContentModel(TNO.API.Areas.Services.Models.Content.ContentModel model, int sortOrder = 0)
+    /// <param name="sectionName"></param>
+    /// <param name="sectionLabel"></param>
+    public ContentModel(TNO.API.Areas.Services.Models.Content.ContentModel model, int sortOrder = 0, string sectionName = "", string sectionLabel = "")
     {
         this.Id = model?.Id ?? throw new ArgumentNullException(nameof(model));
+        this.SectionName = sectionName;
+        this.SectionLabel = sectionLabel;
         this.Status = model.Status;
         this.ContentType = model.ContentType;
         this.SourceId = model.SourceId;
@@ -384,9 +410,66 @@ public class ContentModel
     /// </summary>
     /// <param name="model"></param>
     /// <param name="sortOrder"></param>
-    public ContentModel(TNO.API.Areas.Services.Models.ReportInstance.ContentModel model, int sortOrder = 0)
+    /// <param name="sectionName"></param>
+    /// <param name="sectionLabel"></param>
+    public ContentModel(TNO.API.Areas.Services.Models.Report.ContentModel model, int sortOrder = 0, string sectionName = "", string sectionLabel = "")
     {
         this.Id = model?.Id ?? throw new ArgumentNullException(nameof(model));
+        this.SectionName = sectionName;
+        this.SectionLabel = sectionLabel;
+        this.Status = model.Status;
+        this.ContentType = model.ContentType;
+        this.SourceId = model.SourceId;
+        this.Source = model.Source != null ? new SourceModel(model.Source) : null;
+        this.OtherSource = model.OtherSource;
+        this.MediaTypeId = model.MediaTypeId;
+        this.MediaType = model.MediaType != null ? new MediaTypeModel(model.MediaType) : null;
+        this.LicenseId = model.LicenseId;
+        this.SeriesId = model.SeriesId;
+        this.Series = model.Series != null ? new SeriesModel(model.Series) : null;
+        this.ContributorId = model.ContributorId;
+        this.Contributor = model.Contributor != null ? new ContributorModel(model.Contributor) : null;
+        this.OwnerId = model.OwnerId;
+        this.Owner = model.Owner != null ? new UserModel(model.Owner) : null;
+        this.Headline = model.Headline;
+        this.Byline = model.Byline;
+        this.Uid = model.Uid;
+        this.Edition = model.Edition;
+        this.Section = model.Section;
+        this.Page = model.Page;
+        this.Summary = model.Summary;
+        this.Body = model.Body;
+        this.SourceUrl = model.SourceUrl;
+        this.PostedOn = model.PostedOn;
+        this.PublishedOn = model.PublishedOn;
+        this.IsHidden = model.IsHidden;
+        this.IsApproved = model.IsApproved;
+        this.IsPrivate = model.IsPrivate;
+        this.SortOrder = sortOrder;
+
+        this.Versions = model.Versions;
+
+        this.Actions = model.Actions.Select(e => new ContentActionModel(e));
+        this.Topics = model.Topics.Select(e => new ContentTopicModel(e));
+        this.Tags = model.Tags.Select(e => new ContentTagModel(e));
+        this.TimeTrackings = model.TimeTrackings.Select(e => new TimeTrackingModel(e));
+        this.Labels = model.Labels.Select(e => new ContentLabelModel(e));
+        this.TonePools = model.TonePools.Select(e => new ContentTonePoolModel(e));
+        this.FileReferences = model.FileReferences.Select(e => new FileReferenceModel(e));
+    }
+
+    /// <summary>
+    /// Creates a new instance of an ContentModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="sortOrder"></param>
+    /// <param name="sectionName"></param>
+    /// <param name="sectionLabel"></param>
+    public ContentModel(TNO.API.Areas.Services.Models.ReportInstance.ContentModel model, int sortOrder = 0, string sectionName = "", string sectionLabel = "")
+    {
+        this.Id = model?.Id ?? throw new ArgumentNullException(nameof(model));
+        this.SectionName = sectionName;
+        this.SectionLabel = sectionLabel;
         this.Status = model.Status;
         this.ContentType = model.ContentType;
         this.SourceId = model.SourceId;
