@@ -4,7 +4,7 @@ import { Row } from 'tno-core';
 export const FilterMediaLanding = styled(Row)`
   .filters {
     font-size: 1.2rem;
-    width: 40%;
+    width: 45%;
     .show-all {
       font-weight: bold;
       cursor: pointer;
@@ -27,7 +27,7 @@ export const FilterMediaLanding = styled(Row)`
         content: '';
         position: absolute;
         top: 0;
-        right: -0.75rem;
+        right: -0.7rem;
         border-top: 1rem solid transparent;
         border-bottom: 1rem solid transparent;
         border-left: 0.75rem solid ${(props) => props.theme.css.btnBkPrimary};
@@ -44,6 +44,8 @@ export const FilterMediaLanding = styled(Row)`
     }
     .narrowed-options {
       margin-left: 1rem;
+      margin-bottom: 0.5rem;
+      overflow-y: auto;
       .active-narrowed-option {
         color: ${(props) => props.theme.css.bkWhite};
         background-color: ${(props) => props.theme.css.btnBkPrimary};
@@ -67,6 +69,6 @@ export const FilterMediaLanding = styled(Row)`
     }
   }
   .results {
-    width: 60%;
+    width: 55%;
   }
 `;

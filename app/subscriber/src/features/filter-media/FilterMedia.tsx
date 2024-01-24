@@ -1,12 +1,14 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
+import { ContentListActionBar } from 'components/tool-bar';
 import { determineColumns } from 'features/home/constants';
 import { IContentSearchResult } from 'features/utils/interfaces';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useContent, useLookup } from 'store/hooks';
-import { FlexboxTable, generateQuery, IContentModel, Row } from 'tno-core';
+import { useContent } from 'store/hooks';
+import { FlexboxTable, generateQuery, IContentModel, Show } from 'tno-core';
 
+import { PreviousResults } from './PreviousResults';
 import * as styled from './styled';
 
 export const FilterMedia: React.FC = () => {
@@ -19,6 +21,7 @@ export const FilterMedia: React.FC = () => {
   ] = useContent();
 
   const [results, setResults] = React.useState<IContentSearchResult[]>([]);
+  const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
@@ -48,20 +51,25 @@ export const FilterMedia: React.FC = () => {
 
   return (
     <styled.FilterMedia>
+      <ContentListActionBar
+        content={selected}
+        onSelectAll={(e) => (e.target.checked ? setSelected(results) : setSelected([]))}
+      />
       <DateFilter filter={filter} storeFilter={storeFilter} />
-      <Row className="table-container">
-        <FlexboxTable
-          rowId="id"
-          columns={determineColumns('all')}
-          groupBy={(item) => item.original.source?.name ?? ''}
-          onRowClick={(e: any) => {
-            navigate(`/view/${e.original.id}`);
-          }}
-          data={results}
-          pageButtons={5}
-          showPaging={false}
-        />
-      </Row>
+      <FlexboxTable
+        rowId="id"
+        columns={determineColumns('all')}
+        groupBy={(item) => item.original.source?.name ?? ''}
+        onRowClick={(e: any) => {
+          navigate(`/view/${e.original.id}`);
+        }}
+        data={results}
+        pageButtons={5}
+        showPaging={false}
+      />
+      <Show visible={!results.length}>
+        <PreviousResults results={results} setResults={setResults} />
+      </Show>
     </styled.FilterMedia>
   );
 };

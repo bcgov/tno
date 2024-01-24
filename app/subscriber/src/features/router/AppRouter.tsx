@@ -1,6 +1,6 @@
 import { DefaultLayout } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
-import { FilterMedia, FilterMediaLanding } from 'features/filter-media';
+import { FilterMediaLanding } from 'features/filter-media';
 import { Landing } from 'features/landing';
 import { Login } from 'features/login';
 import { MyColleagues } from 'features/my-colleagues';

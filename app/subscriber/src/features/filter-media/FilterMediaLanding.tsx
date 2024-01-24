@@ -1,7 +1,7 @@
 import { useFilterOptions } from 'components/navbar';
 import { PageSection } from 'components/section';
 import React from 'react';
-import { useContent } from 'store/hooks';
+import { useContent, useLookup } from 'store/hooks';
 import { Col, ISourceModel, Row, Show } from 'tno-core';
 
 import { MediaFilterTypes } from './constants';
@@ -11,25 +11,20 @@ import { alphabetArray } from './utils';
 
 /** The FilterMediaLanding Consists of the filter to narrow down the results of media, as well as the results. It is returned in a two column layout*/
 export const FilterMediaLanding: React.FC = () => {
-  const {
-    dailyPrint,
-    sources,
-    weeklyPrint,
-    cpWire,
-    talkRadio,
-    onlinePrint,
-    television,
-    newsRadio,
-  } = useFilterOptions();
+  const { dailyPrint, weeklyPrint, cpWire, talkRadio, onlinePrint, television, newsRadio } =
+    useFilterOptions();
+  const [{ mediaTypes }] = useLookup();
+  console.log(mediaTypes);
   const [
     {
       mediaType: { filter },
     },
-    { findContentWithElasticsearch, storeMediaTypeFilter: storeFilter },
+    { storeMediaTypeFilter: storeFilter },
   ] = useContent();
   const [activeFilter, setActiveFilter] = React.useState<MediaFilterTypes>(
     MediaFilterTypes.DAILY_PRINT,
   );
+
   const [activeLetter, setActiveLetter] = React.useState<string>('All');
   const [narrowedOptions, setNarrowedOptions] = React.useState<ISourceModel[]>([]);
   const [activeSource, setActiveSource] = React.useState<ISourceModel | null>(null);
@@ -56,14 +51,37 @@ export const FilterMediaLanding: React.FC = () => {
     }
   };
 
-  React.useEffect(() => {
-    if (activeFilter === MediaFilterTypes.WEEKLY_PRINT) {
-      setActiveLetter('A');
-    } else {
-      setActiveLetter('All');
+  const determineShowAll = () => {
+    switch (activeFilter) {
+      case MediaFilterTypes.DAILY_PRINT:
+        storeFilter({ ...filter, sourceIds: dailyPrint.map((opt) => opt.id) });
+        break;
+      case MediaFilterTypes.WEEKLY_PRINT:
+        storeFilter({ ...filter, sourceIds: weeklyPrint.map((opt) => opt.id) });
+        break;
+      case MediaFilterTypes.INTERNET:
+        storeFilter({ ...filter, sourceIds: onlinePrint.map((opt) => opt.id) });
+        break;
+      case MediaFilterTypes.TV:
+        storeFilter({ ...filter, sourceIds: television.map((opt) => opt.id) });
+        break;
+      case MediaFilterTypes.TALK_RADIO:
+        storeFilter({ ...filter, sourceIds: talkRadio.map((opt) => opt.id) });
+        break;
+      case MediaFilterTypes.RADIO_NEWS:
+        storeFilter({ ...filter, sourceIds: newsRadio.map((opt) => opt.id) });
+        break;
+      case MediaFilterTypes.CP_NEWS:
+        storeFilter({ ...filter, sourceIds: cpWire.map((opt) => opt.id) });
+        break;
+      default:
+        break;
     }
-    console.log(activeFilter, activeLetter);
-  }, [activeFilter]);
+  };
+
+  React.useEffect(() => {
+    if (dailyPrint && !narrowedOptions.length) setNarrowedOptions(dailyPrint);
+  }, [dailyPrint, narrowedOptions.length]);
 
   React.useEffect(() => {
     if (activeLetter && activeLetter !== 'All') {
@@ -77,18 +95,28 @@ export const FilterMediaLanding: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLetter, activeFilter]);
 
-  console.log(activeFilter);
+  /** When the active filter changes, we want to show all options in that category before the user narrows it down*/
+  React.useEffect(() => {
+    determineShowAll();
+    // only want to fire when filters change
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeFilter]);
 
   return (
     <styled.FilterMediaLanding>
       <Col className="filters">
-        <PageSection header="Filters">
+        <PageSection ignoreLastChildGap header="Filter by Media Type">
+          {/* TODO: Move into reusable component, this type of filter is only used on this page currently*/}
           <Row>
             <Col className="media-filter">
               {labels.map((label) => (
                 <div
                   key={`${label}`}
-                  onClick={() => setActiveFilter(label)}
+                  onClick={() => {
+                    if (label === MediaFilterTypes.WEEKLY_PRINT) setActiveLetter('A');
+                    if (label === MediaFilterTypes.INTERNET) setActiveLetter('B');
+                    setActiveFilter(label);
+                  }}
                   className={`${activeFilter === label ? 'active' : 'inactive'} option`}
                 >
                   {label}
@@ -108,14 +136,23 @@ export const FilterMediaLanding: React.FC = () => {
                       <div
                         className={`${activeLetter === letter ? 'active' : 'inactive'}-letter`}
                         onClick={() => setActiveLetter(letter)}
+                        key={`${letter}`}
                       >
                         {letter}
                       </div>
                     );
                   })}
                 </Row>
-                <div className="show-all">Show all</div>
               </Show>
+              <div
+                onClick={() => {
+                  setActiveSource(null);
+                  determineShowAll();
+                }}
+                className="show-all"
+              >
+                Show all
+              </div>
               {narrowedOptions.map((opt) => {
                 return (
                   <div
@@ -133,11 +170,10 @@ export const FilterMediaLanding: React.FC = () => {
               })}
             </Col>
           </Row>
-          <div>test</div>
         </PageSection>
       </Col>
       <Col className="results">
-        <PageSection header="Results">
+        <PageSection>
           <FilterMedia />
         </PageSection>
       </Col>
