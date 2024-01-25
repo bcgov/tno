@@ -1,7 +1,8 @@
 import React from 'react';
 import { FaCalendarAlt } from 'react-icons/fa';
+import { FaX } from 'react-icons/fa6';
 import { useContent } from 'store/hooks';
-import { replaceQueryParams, SelectDate } from 'tno-core';
+import { Button, ButtonVariant, replaceQueryParams, SelectDate } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -19,6 +20,7 @@ export const DateRangeSection: React.FC<IDateRangeSectionProps> = () => {
     <styled.DateRangeSection>
       <FaCalendarAlt className="icon-indicator" />
       <SelectDate
+        className="select-date"
         name="startDate"
         placeholderText="mm/dd/yyyy"
         selected={!!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : undefined}
@@ -33,6 +35,7 @@ export const DateRangeSection: React.FC<IDateRangeSectionProps> = () => {
       />
       <span className="to-text">to</span>
       <SelectDate
+        className="select-date"
         name="endDate"
         placeholderText="mm/dd/yyyy"
         selected={!!filterAdvanced.endDate ? new Date(filterAdvanced.endDate) : undefined}
@@ -46,8 +49,9 @@ export const DateRangeSection: React.FC<IDateRangeSectionProps> = () => {
           storeFilter((filter) => ({ ...filter, timeFrame: 0 }));
         }}
       />
-      <span
+      <Button
         className="clear"
+        variant={ButtonVariant.secondary}
         onClick={() => {
           const values = {
             ...filterAdvanced,
@@ -59,8 +63,8 @@ export const DateRangeSection: React.FC<IDateRangeSectionProps> = () => {
           replaceQueryParams({ ...filter, ...values, timeFrame: 0 }, { includeEmpty: false });
         }}
       >
-        X
-      </span>
+        <FaX />
+      </Button>
     </styled.DateRangeSection>
   );
 };
