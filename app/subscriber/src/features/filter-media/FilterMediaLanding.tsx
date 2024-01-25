@@ -19,10 +19,33 @@ export const FilterMediaLanding: React.FC = () => {
   const [{ sources, mediaTypes }] = useLookup();
   const [activeFilter, setActiveFilter] = React.useState<ISubMediaGroupItem>();
 
-  const [activeLetter, setActiveLetter] = React.useState<string>('All');
+  const [activeLetter, setActiveLetter] = React.useState<string>('A');
   const [narrowedOptions, setNarrowedOptions] = React.useState<ISourceModel[]>([]);
   const [activeSource, setActiveSource] = React.useState<ISourceModel | null>(null);
   const [subMediaGroups, setSubMediaGroups] = React.useState<ISubMediaGroupItem[]>();
+  const [parentClicked, setParentClicked] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    setActiveFilter(subMediaGroups?.find((sg) => sg.label === 'All')); // default to All
+    // only want to fire when subMediaGroups loads
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subMediaGroups]);
+
+  /** When the parent group is clicked, we want to set the sourceIds to the sources of the parent group
+   *   Additionally, we want to deselect the narrowed option
+   * */
+  React.useEffect(() => {
+    if (parentClicked) {
+      storeFilter({
+        ...filter,
+        sourceIds: determineSourceIds(),
+      });
+      setActiveSource(null); // deselect the narrowed option
+      setParentClicked(false);
+    }
+    // only want to fire when parentClicked changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [parentClicked]);
 
   React.useEffect(() => {
     // exit early if inputs are not set completely
@@ -44,7 +67,7 @@ export const FilterMediaLanding: React.FC = () => {
     // Remove Media Type entries with no assigned Sources
     // Could also exclude specific Media Types her if required
     mediaTypeSourceLookup = Object.fromEntries(
-      Object.entries(mediaTypeSourceLookup).filter(([k, v]) => v.length > 0),
+      Object.entries(mediaTypeSourceLookup).filter(([_, v]) => v.length > 0),
     );
 
     let subMediaGroups: ISubMediaGroupItem[] = [];
@@ -73,6 +96,12 @@ export const FilterMediaLanding: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLetter, activeFilter]);
 
+  const determineSourceIds = () => {
+    return subMediaGroups
+      ?.find((sg) => sg.label === activeFilter?.label)
+      ?.options.map((opt) => opt.id);
+  };
+
   return (
     <styled.FilterMediaLanding>
       <Col className="filters">
@@ -89,10 +118,11 @@ export const FilterMediaLanding: React.FC = () => {
                     else if (mediaGroup.label === 'Online') setActiveLetter('B');
                     else setActiveLetter('All');
                     setActiveFilter(mediaGroup);
+                    setParentClicked(true);
                   }}
                   className={`${
                     activeFilter?.label === mediaGroup.label ||
-                    (!activeFilter && mediaGroup.label === 'Daily Print')
+                    (!activeFilter && mediaGroup.label === 'All') // default to All
                       ? 'active'
                       : 'inactive'
                   } option`}
@@ -135,6 +165,7 @@ export const FilterMediaLanding: React.FC = () => {
               {narrowedOptions.map((opt) => {
                 return (
                   <div
+                    key={`${opt.id}`}
                     onClick={() => {
                       setActiveSource(opt);
                       storeFilter({ ...filter, sourceIds: [opt.id] });
