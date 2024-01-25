@@ -1,5 +1,6 @@
 import { DefaultLayout } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
+import { FilterMediaLanding } from 'features/filter-media';
 import { Landing } from 'features/landing';
 import { Login } from 'features/login';
 import { MyColleagues } from 'features/my-colleagues';
@@ -111,6 +112,12 @@ export const AppRouter: React.FC<IAppRouter> = () => {
         <Route
           path="/products"
           element={<PrivateRoute claims={Claim.subscriber} element={<MyProducts />}></PrivateRoute>}
+        />
+        <Route
+          path="/filter-media"
+          element={
+            <PrivateRoute claims={Claim.subscriber} element={<FilterMediaLanding />}></PrivateRoute>
+          }
         />
         <Route
           path="/reports"
