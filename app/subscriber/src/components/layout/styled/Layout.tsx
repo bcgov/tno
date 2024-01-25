@@ -3,6 +3,10 @@ import styled from 'styled-components';
 import { ILayoutProps } from '..';
 
 export const Layout = styled.div<ILayoutProps>`
+  main {
+    overflow: clip auto;
+    height: calc(100dvh - 4.75rem);
+  }
   .header {
     grid-area: header;
   }
