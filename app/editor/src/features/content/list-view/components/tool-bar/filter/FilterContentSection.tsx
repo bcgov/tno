@@ -18,6 +18,7 @@ import {
 
 import { DateRangeSection } from '.';
 import { InputOption } from './InputOption';
+import * as styled from './styled';
 
 export interface IFilterContentSectionProps {}
 
@@ -77,98 +78,100 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = () => 
   );
 
   return (
-    <ToolBarSection
-      children={
-        <Row>
-          <Col>
-            <Row>
-              <FaClock className="icon-indicator" />
-              <ToggleGroup
-                defaultSelected={timeFrameSelected}
-                disabled={!!filterAdvanced.startDate || !!filterAdvanced.endDate}
-                options={[
-                  {
-                    label: 'TODAY',
-                    onClick: () => {
-                      onChange({ ...filter, timeFrame: 0 });
+    <styled.FilterContentSection>
+      <ToolBarSection
+        children={
+          <Row>
+            <Col>
+              <Row className="time-offset-filter">
+                <FaClock className="icon-indicator" />
+                <ToggleGroup
+                  defaultSelected={timeFrameSelected}
+                  disabled={!!filterAdvanced.startDate || !!filterAdvanced.endDate}
+                  options={[
+                    {
+                      label: 'TODAY',
+                      onClick: () => {
+                        onChange({ ...filter, timeFrame: 0 });
+                      },
                     },
-                  },
-                  {
-                    label: '24 HRS',
-                    onClick: () => onChange({ ...filter, timeFrame: 1 }),
-                  },
-                  {
-                    label: '48 HRS',
-                    onClick: () => onChange({ ...filter, timeFrame: 2 }),
-                  },
-                  {
-                    label: 'ALL',
-                    onClick: () => onChange({ ...filter, timeFrame: 3 }),
-                  },
-                ]}
-              />
-            </Row>
-            <Row>
-              <FaUsers className="icon-indicator" />
-              <ToggleGroup
-                defaultSelected={usersSelected}
-                options={[
-                  {
-                    label: 'ALL CONTENT',
-                    onClick: () => onChange({ ...filter, userId: 0 }),
-                  },
-                  {
-                    label: 'MY CONTENT',
-                    onClick: () => onChange({ ...filter, userId: userInfo?.id ?? 0 }),
-                  },
-                  {
-                    label: 'OTHER',
-                    dropDownOptions: filterEnabledOptions(userOptions),
-                    onClick: (value) => onOtherClick(filter, value),
-                  },
-                ]}
-              />
-            </Row>
-          </Col>
-          <Col>
-            <DateRangeSection />
-            <Row>
-              <FaIcons className="icon-indicator" height="2em" width="2em" />
-              <Select
-                className="select"
-                name="mediaTypeIds"
-                placeholder="Media Type"
-                isMulti
-                closeMenuOnSelect={false}
-                hideSelectedOptions={false}
-                options={filterEnabledOptions(mediaTypeOptions)}
-                value={
-                  filter.mediaTypeIds?.map((id) =>
-                    mediaTypeOptions.find((opt) => opt.value === id),
-                  ) ?? ''
-                }
-                width={FieldSize.Big}
-                defaultValue={mediaTypeOptions[0]}
-                components={{
-                  Option: InputOption,
-                }}
-                onChange={(newValues) => {
-                  const mediaTypeIds = Array.isArray(newValues)
-                    ? newValues.map((opt) => opt.value)
-                    : [0];
-                  onChange({
-                    ...filter,
-                    pageIndex: 0,
-                    mediaTypeIds: mediaTypeIds,
-                  });
-                }}
-              />
-            </Row>
-          </Col>
-        </Row>
-      }
-      label="FILTER CONTENT"
-      icon={<FaFilter />}
-    />
+                    {
+                      label: '24 HRS',
+                      onClick: () => onChange({ ...filter, timeFrame: 1 }),
+                    },
+                    {
+                      label: '48 HRS',
+                      onClick: () => onChange({ ...filter, timeFrame: 2 }),
+                    },
+                    {
+                      label: 'ALL',
+                      onClick: () => onChange({ ...filter, timeFrame: 3 }),
+                    },
+                  ]}
+                />
+              </Row>
+              <Row className="content-owner-filter">
+                <FaUsers className="icon-indicator" />
+                <ToggleGroup
+                  defaultSelected={usersSelected}
+                  options={[
+                    {
+                      label: 'ALL CONTENT',
+                      onClick: () => onChange({ ...filter, userId: 0 }),
+                    },
+                    {
+                      label: 'MY CONTENT',
+                      onClick: () => onChange({ ...filter, userId: userInfo?.id ?? 0 }),
+                    },
+                    {
+                      label: 'OTHER',
+                      dropDownOptions: filterEnabledOptions(userOptions),
+                      onClick: (value) => onOtherClick(filter, value),
+                    },
+                  ]}
+                />
+              </Row>
+            </Col>
+            <Col>
+              <DateRangeSection />
+              <Row>
+                <FaIcons className="icon-indicator" height="2em" width="2em" />
+                <Select
+                  className="select"
+                  name="mediaTypeIds"
+                  placeholder="Media Type"
+                  isMulti
+                  closeMenuOnSelect={false}
+                  hideSelectedOptions={false}
+                  options={filterEnabledOptions(mediaTypeOptions)}
+                  value={
+                    filter.mediaTypeIds?.map((id) =>
+                      mediaTypeOptions.find((opt) => opt.value === id),
+                    ) ?? ''
+                  }
+                  width={FieldSize.Big}
+                  defaultValue={mediaTypeOptions[0]}
+                  components={{
+                    Option: InputOption,
+                  }}
+                  onChange={(newValues) => {
+                    const mediaTypeIds = Array.isArray(newValues)
+                      ? newValues.map((opt) => opt.value)
+                      : [0];
+                    onChange({
+                      ...filter,
+                      pageIndex: 0,
+                      mediaTypeIds: mediaTypeIds,
+                    });
+                  }}
+                />
+              </Row>
+            </Col>
+          </Row>
+        }
+        label="FILTER CONTENT"
+        icon={<FaFilter />}
+      />
+    </styled.FilterContentSection>
   );
 };
