@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { Col } from 'tno-core';
 
 export const Landing = styled(Col)`
-  overflow: hidden;
+  // overflow: hidden;
   display: flex;
   .search-links {
     color: #3847aa;
@@ -41,8 +41,8 @@ export const Landing = styled(Col)`
 
   /* container containing both panels */
   .contents-container {
-    overflow-y: auto;
-    max-height: calc(100vh - 9em);
+    // overflow-y: auto;
+    // max-height: calc(100vh - 9em);
   }
 
   .title {
@@ -77,7 +77,7 @@ export const Landing = styled(Col)`
       @media (min-width: 500px) {
         padding: 1em;
       }
-      height: calc(100dvh - 320px);
+      min-height: calc(75dvh);
       overflow-y: auto;
       overflow-x: clip;
     }
