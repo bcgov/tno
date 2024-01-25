@@ -14,6 +14,7 @@ import {
   ContentListActionName,
   ContentStatusName,
   IContentModel,
+  IPage,
   Row,
   Show,
 } from 'tno-core';
@@ -28,6 +29,7 @@ interface IReportActionProps {
   onContentHidden: (contentToHide: IContentModel[]) => void;
   /** An array of selected content. */
   selected: IContentSearchResult[];
+  searchResults: IPage<IContentSearchResult>;
 }
 
 /**
@@ -40,8 +42,10 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
   setLoading,
   onContentHidden,
   selected,
+  searchResults,
 }) => {
-  const [{ searchResults }, { updateContentList }] = useContent();
+  const [, { updateContentList }] = useContent();
+
   const [{ holidays }] = useLookup();
 
   const [commentary] = React.useState(`${getDefaultCommentaryExpiryValue(new Date(), holidays)}`);
@@ -58,7 +62,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
             ? selected.map((s) => s.id)
             : searchResults?.items.map((c) => c.id) ?? [],
         });
-        if (value === 'false' || !value) {
+        if (action === ContentListActionName.Hide && (value === 'false' || !value)) {
           onContentHidden(items);
         }
         toast.success(`${items.length} item${items.length > 1 ? 's' : ''} updated.`);

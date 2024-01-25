@@ -21,7 +21,7 @@ import { ReportSchedule } from './components';
 
 export const ReportSettings: React.FC = () => {
   const { setFieldValue, values, setValues } = useFormikContext<IReportForm>();
-  const [{ findMyReports }] = useReports();
+  const [, { findMyReports }] = useReports();
 
   const [reportOptions, setReportOptions] = React.useState<IOptionItem[]>([]);
 

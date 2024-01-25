@@ -36,8 +36,7 @@ export const determineColumns = (
   const baseCols: ITableHookColumn<IContentSearchResult>[] = [
     {
       accessor: 'tone',
-      label: 'TONE',
-      // width: 0.25,
+      label: '',
       isVisible: !hide?.includes('tone'),
       cell: (cell) => (
         <Sentiment value={cell.original.tonePools ? cell.original.tonePools[0]?.value : 0} />
@@ -45,7 +44,7 @@ export const determineColumns = (
     },
     {
       accessor: 'headline',
-      label: 'HEADLINE',
+      label: '',
       cell: (cell) => (
         <table className="tableHeadline">
           <tbody>
@@ -133,7 +132,7 @@ export const determineColumns = (
   const printCols: ITableHookColumn<IContentSearchResult>[] = [
     {
       accessor: 'sectionPage',
-      label: 'SECTION PAGE',
+      label: '',
       isVisible: !hide?.includes('sectionPage'),
       cell: (cell) => (
         <>

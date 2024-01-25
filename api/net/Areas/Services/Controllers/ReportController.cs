@@ -8,7 +8,6 @@ using TNO.API.Areas.Services.Models.Report;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
-using TNO.Elastic;
 using TNO.Entities.Models;
 using TNO.Keycloak;
 
@@ -97,6 +96,27 @@ public class ReportController : ControllerBase
         if (report == null) return NoContent();
         var results = await _service.FindContentWithElasticsearchAsync(report, requestorId);
         return new JsonResult(results);
+    }
+
+    /// <summary>
+    /// Get the current instance for the specified report 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/instance")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult GetCurrentInstance(int id, int? requestorId)
+    {
+        var instance = _service.GetCurrentReportInstance(id, requestorId, true);
+        if (instance == null) return NoContent();
+        var report = _service.FindById(id);
+        instance.Report = report;
+        return new JsonResult(new ReportInstanceModel(instance, _serializerOptions));
     }
 
     /// <summary>

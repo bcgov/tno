@@ -6,11 +6,8 @@ export const SubscriberTableContainer = styled(Col)`
   overflow: hidden;
 
   .header {
-    color: ${(props) => props.theme.css.fPrimaryColor};
-    font-size: 1em;
     border-top: none;
     border-bottom: 1px solid ${(props) => props.theme.css.linePrimaryColor};
-    margin-bottom: 0.5rem;
   }
 
   .label {
@@ -40,20 +37,16 @@ export const SubscriberTableContainer = styled(Col)`
   }
 
   .row {
-    font-size: 1em;
+    &:hover {
+      cursor: pointer;
+    }
     font-weight: bold;
     color: ${(props) => props.theme.css.btnBkPrimary};
     gap: 0.25rem;
     padding: 0.25rem 0.25rem;
     align-items: center;
 
-    &:nth-child(odd) {
-      background: ${(props) => props.theme.css.tableOddRow};
-    }
-
-    &:nth-child(even) {
-      background: ${(props) => props.theme.css.tableEvenRow};
-    }
+    background: ${(props) => props.theme.css.bkWhite};
 
     &:hover {
       background: ${(props) => props.theme.css.tableHoverRow};

@@ -43,7 +43,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
 }) => {
   const { values, setFieldValue, setValues } = useFormikContext<IReportForm>();
   const [, { addContent, updateContent }] = useContent();
-  const [{ updateReport }] = useReports();
+  const [, { updateReport }] = useReports();
   const [{ tonePools }] = useLookup();
 
   const [loading, setLoading] = React.useState(false);

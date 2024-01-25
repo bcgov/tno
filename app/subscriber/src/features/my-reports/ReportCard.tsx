@@ -32,7 +32,7 @@ export interface IReportCardProps {
  */
 export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => {
   const navigate = useNavigate();
-  const [{ getReport }] = useReports();
+  const [, { getReport }] = useReports();
   const [{ requests }] = useApp();
 
   const fetchReport = React.useCallback(

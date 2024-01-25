@@ -53,6 +53,7 @@ public interface IReportEngine
     /// </summary>
     /// <param name="report"></param>
     /// <param name="sectionContent"></param>
+    /// <param name="getLinkedReport"></param>
     /// <param name="uploadPath"></param>
     /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
@@ -60,6 +61,7 @@ public interface IReportEngine
     Task<string> GenerateReportBodyAsync(
         API.Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sectionContent,
+        Func<int, int?, Task<Dictionary<string, ReportSectionModel>>> getLinkedReport,
         string? uploadPath = null,
         bool viewOnWebOnly = false,
         bool isPreview = false);

@@ -337,6 +337,14 @@ public interface IApiService
     Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentForReportIdAsync(int id, int? requestorId);
 
     /// <summary>
+    /// Get the current instance for the specified report 'reportId'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.Report.ReportInstanceModel?> GetCurrentReportInstance(int reportId, int? ownerId);
+
+    /// <summary>
     /// Make a request to the API to fetch the report instance with the specified 'id'.
     /// </summary>
     /// <param name="id"></param>

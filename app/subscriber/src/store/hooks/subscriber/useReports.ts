@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+import { IProfileState, useProfileStore } from 'store/slices';
 import {
   IReportFilter,
   IReportInstanceModel,
@@ -22,10 +22,10 @@ interface IReportController {
   generateReport: (id: number, regenerate?: boolean) => Promise<IReportModel>;
 }
 
-export const useReports = (): [IReportController] => {
+export const useReports = (): [IProfileState, IReportController] => {
   const api = useApiSubscriberReports();
   const dispatch = useAjaxWrapper();
-  const [, { storeMyReports }] = useProfileStore();
+  const [state, { storeMyReports }] = useProfileStore();
 
   const controller = React.useMemo(
     () => ({
@@ -122,5 +122,5 @@ export const useReports = (): [IReportController] => {
     [api, dispatch, storeMyReports],
   );
 
-  return [controller];
+  return [state, controller];
 };

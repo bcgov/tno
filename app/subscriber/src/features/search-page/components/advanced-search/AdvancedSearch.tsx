@@ -44,7 +44,6 @@ import {
   ToggleFilterStyleInfo,
 } from './components';
 import { defaultAdvancedSearch, defaultFilter } from './constants';
-import { defaultSubMediaGroupExpanded, ISubMediaGroupExpanded } from './interfaces';
 import * as styled from './styled';
 import { extractTags } from './utils/extractTags';
 
@@ -61,7 +60,6 @@ export interface IAdvancedSearchProps {
 export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => {
   const navigate = useNavigate();
   const [, { addFilter, updateFilter }] = useFilters();
-  const [{ actions }] = useLookup();
   const [
     {
       search: { filter: search },
@@ -76,9 +74,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
 
   const [searchName, setSearchName] = React.useState<string>(activeFilter?.name ?? '');
   const [query, setQuery] = React.useState<string>(search.search ?? '');
-  /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
-  const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
-    React.useState<ISubMediaGroupExpanded>(defaultSubMediaGroupExpanded);
 
   const displayFiltersAsDropdownCookieKey = 'advancedSearch:displayFiltersAsDropdown';
   const [displayFiltersAsDropdown, setDisplayFiltersAsDropdown] = React.useState<boolean>(() => {
@@ -100,6 +95,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
   );
 
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
+  const [{ sources, mediaTypes }] = useLookup();
 
   React.useEffect(() => {
     // remove [ and ] and everything in between from query
@@ -120,7 +116,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
   }, [activeFilter, setOriginalFilterSettings]);
 
   const saveSearch = React.useCallback(async () => {
-    const settings = filterFormat(search, actions);
+    const settings = filterFormat(search);
     const query = genQuery(settings);
     const filter: IFilterModel = activeFilter
       ? { ...activeFilter, query, settings }
@@ -145,7 +141,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     }
   }, [
     search,
-    actions,
     genQuery,
     activeFilter,
     searchName,
@@ -255,8 +250,8 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
               >
                 <MediaSection
                   displayFiltersAsDropdown={displayFiltersAsDropdown}
-                  setMediaGroupExpandedStates={setMediaGroupExpandedStates}
-                  mediaGroupExpandedStates={mediaGroupExpandedStates}
+                  sources={sources}
+                  mediaTypes={mediaTypes}
                 />
               </ExpandableRow>
             </Col>

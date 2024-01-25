@@ -11,6 +11,7 @@ import {
   FlexboxTable,
   IContentMessageModel,
   IContentModel,
+  IPage,
   ITableInternalCell,
   ITableInternalRow,
   ITablePage,
@@ -70,55 +71,86 @@ const Papers: React.FC<IPapersProps> = (props) => {
     setCurrentItems(currentResultsPage.items);
   }, [currentResultsPage, setCurrentItems]);
 
-  const onContentAdded = React.useCallback(
-    async (message: IContentMessageModel) => {
-      if (message.ownerId === userId) {
-        try {
-          const result = await getContent(message.id);
-          if (!!result) {
-            const newPage = {
-              ...currentResultsPage,
-              items: currentResultsPage.items.map((i) => {
-                if (i.id === result.id) {
-                  return castContentToSearchResult(result);
-                } else {
-                  return i;
-                }
-              }),
-            };
-            setCurrentResultsPage(newPage);
-          }
-        } catch {}
-      }
-    },
-    [userId, currentResultsPage, getContent],
-  );
-  hub.useHubEffect(MessageTargetName.ContentAdded, onContentAdded);
+  // Message process related states & logic:
+  const [isProcessingMessages, setIsProcessingMessages] = React.useState<boolean>(false);
+  const [contentUpdatesQueue, setContentUpdatesQueue] = React.useState<IContentMessageModel[]>([]);
+  const [delayProcessing, setDelayProcessing] = React.useState<boolean>(false);
 
-  const onContentUpdated = React.useCallback(
-    async (message: IContentMessageModel) => {
-      if (currentResultsPage.items.some((c) => c.id === message.id)) {
-        try {
-          const result = await getContent(message.id);
-          if (!!result) {
-            const newPage = {
-              ...currentResultsPage,
-              items: currentResultsPage.items.map((i) => {
-                if (i.id === result.id) {
-                  return castContentToSearchResult(result);
-                } else {
-                  return i;
-                }
-              }),
-            };
-            setCurrentResultsPage(newPage);
+  hub.useHubEffect(MessageTargetName.ContentAdded, (message) => {
+    if (message.ownerId === userId) {
+      setContentUpdatesQueue((queue) => [...queue, message]);
+    }
+  });
+
+  hub.useHubEffect(MessageTargetName.ContentUpdated, (message) => {
+    setContentUpdatesQueue((queue) => [...queue, message]);
+  });
+
+  React.useEffect(() => {
+    if (!isProcessingMessages && !delayProcessing && contentUpdatesQueue?.length) {
+      setDelayProcessing(true); // delays processing too soon, allows msgs to queue up
+      setIsProcessingMessages(true);
+      processContentUpdates(contentUpdatesQueue);
+    }
+    // this timeout allows queue messages to be batched if they appear in
+    // quick succession, e.g. less than 200ms between messages.
+    const timer = setTimeout(() => {
+      setDelayProcessing(false);
+    }, 200);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contentUpdatesQueue, isProcessingMessages, delayProcessing]);
+
+  const updateCurrentResultsPage = (newPage: IPage<IContentSearchResult>, forceUpdate = false) => {
+    if ((!isProcessingMessages || forceUpdate) && newPage) {
+      setCurrentResultsPage(newPage);
+    }
+  };
+
+  // Process messages in the queue, fetching updated content data is neccesary,
+  // finally it updates the content results in the page to reflect the updated data.
+  const processContentUpdates = async (messages: IContentMessageModel[]) => {
+    if (!isProcessingMessages && messages?.length) {
+      const processedMessages: number[] = [];
+      const updatedItems: IContentSearchResult[] = [];
+      const resultsPage = currentResultsPage;
+
+      // we must await otherwise we end up with fractured state updates
+      await Promise.all(
+        messages.map(async (message) => {
+          if (processedMessages.includes(message.id)) return; // skip if content id processed already
+          processedMessages.push(message.id);
+          const containsItem = resultsPage?.items?.some((c) => c.id === message?.id);
+          if (containsItem) {
+            try {
+              const result = await getContent(message.id);
+              if (!!result) {
+                updatedItems.push(castContentToSearchResult(result));
+              }
+            } catch {}
           }
-        } catch {}
+        }),
+      );
+
+      if (updatedItems?.length) {
+        const newPage = {
+          ...resultsPage,
+          items: resultsPage.items.map((i) => {
+            const index = updatedItems.findIndex((updatedItem) => updatedItem.id === i.id);
+            if (index > -1) {
+              return updatedItems[index];
+            } else {
+              return i;
+            }
+          }),
+        };
+        updateCurrentResultsPage(newPage, true);
       }
-    },
-    [currentResultsPage, getContent],
-  );
-  hub.useHubEffect(MessageTargetName.ContentUpdated, onContentUpdated);
+
+      setContentUpdatesQueue((queue) => queue.filter((q) => !processedMessages.includes(q.id)));
+      setIsProcessingMessages(false);
+    }
+  };
 
   const handleClickUse = React.useCallback(
     (content: IContentSearchResult) => {
@@ -126,7 +158,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
         .then((response) => {
           if (response) {
             return updateStatus({ ...response, status: content.status }).then((content) => {
-              onContentUpdated(content);
+              setContentUpdatesQueue((queue) => [...queue, content]);
               toast.success(
                 `"${content.headline}" has been updated.  A request has been sent to update the index.`,
               );
@@ -135,7 +167,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
         })
         .catch((error) => {});
     },
-    [getContent, onContentUpdated, updateStatus],
+    [getContent, updateStatus],
   );
 
   const fetch = React.useCallback(
@@ -152,7 +184,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
           items,
           (results.hits?.total as SearchTotalHits).value,
         );
-        setCurrentResultsPage(page);
+        updateCurrentResultsPage(page);
         return page;
       } catch (error) {
         // TODO: Handle error
@@ -161,6 +193,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
         setIsLoading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [findContentWithElasticsearch, toFilter],
   );
 
@@ -193,6 +226,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
   React.useEffect(() => {
     // Do not want to fetch while the default paper filter is still loading
     if (isFilterLoading) return;
+    if (isProcessingMessages) return;
     fetch({ ...filter, ...filterAdvanced });
     // Do not want to fetch when the advanced filter changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -243,6 +277,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
 
   const handleContentHidden = React.useCallback(
     async (contentToHide: IContentModel[]) => {
+      if (isProcessingMessages) return;
       try {
         let filteredItems = currentResultsPage.items;
         contentToHide.forEach((c) => {
@@ -252,10 +287,11 @@ const Papers: React.FC<IPapersProps> = (props) => {
           ...currentResultsPage,
           items: filteredItems,
         };
-        setCurrentResultsPage(newPage);
+        updateCurrentResultsPage(newPage);
       } catch {}
     },
-    [currentResultsPage],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentResultsPage, isProcessingMessages],
   );
 
   return (
@@ -286,6 +322,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
         <ReportActions
           setLoading={setIsLoading}
           selected={selected}
+          searchResults={currentResultsPage}
           filter={filter}
           onContentHidden={handleContentHidden}
         />

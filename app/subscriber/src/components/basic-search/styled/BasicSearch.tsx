@@ -13,12 +13,12 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
       background: ${props.theme.css.bkSecondary};
       margin: 0.25em;
       border-color: ${props.theme.css.inputGrey};
+      margin-bottom: 1em;
       border-style: solid;
       border-width: 1px;
       border-radius: 1em;
       box-shadow: ${props.theme.css.boxShadow};
       padding: 0.5em;
-      margin: 0 1rem;
   `}
   align-items: center;
 

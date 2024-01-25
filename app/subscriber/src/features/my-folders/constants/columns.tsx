@@ -1,66 +1,47 @@
-import { handleEnterPressed } from 'features/utils';
-import { FaCog, FaSave } from 'react-icons/fa';
-import { CellEllipsis, IFolderModel, ITableHookColumn, Text } from 'tno-core';
+import { FaCog } from 'react-icons/fa';
+import { FaFolderClosed, FaFolderOpen } from 'react-icons/fa6';
+import { CellEllipsis, IFolderModel, ITableHookColumn, Row } from 'tno-core';
 
 export const columns = (
-  setActive: (folder: IFolderModel) => void,
-  editable: string,
-  handleSave: () => void,
-  active?: IFolderModel,
+  setActive: React.Dispatch<React.SetStateAction<IFolderModel | undefined>>,
+  activeId?: number,
+  navigate?: (path: string) => void,
 ): ITableHookColumn<IFolderModel>[] => [
   {
-    label: 'My Folders',
+    label: '',
     accessor: 'name',
-    width: 2,
+    width: 8,
     cell: (cell) => (
       <CellEllipsis>
-        {active && editable === cell.original.name ? (
-          <Text
-            className="re-name"
-            name="name"
-            value={active.name}
-            onKeyDown={(e) => handleEnterPressed(e, handleSave)}
-            // stop the row click event from firing
-            onClick={(e) => e.stopPropagation()}
-            onChange={(e) => setActive({ ...active, name: e.target.value })}
-            key={active.id}
-          />
-        ) : (
-          cell.original.name
-        )}
+        <Row
+          className={cell.original.id === activeId ? `active-folder-row` : `inactive-folder-row`}
+        >
+          {activeId === cell.original.id ? <FaFolderOpen /> : <FaFolderClosed />}
+          <span className="folder-text">{cell.original.name}</span>
+        </Row>
       </CellEllipsis>
     ),
   },
   {
-    label: 'Story Count',
+    label: '',
     accessor: 'storyCount',
-    width: 5,
+    width: 0.5,
     cell: (cell) => <CellEllipsis>{cell.original.content.length ?? 0}</CellEllipsis>,
   },
   {
     label: '',
     accessor: 'options',
-    width: 1,
+    width: 0.5,
     cell: (cell) => (
-      <>
-        {editable === cell.original.name ? (
-          <FaSave
-            onClick={(e) => {
-              e.stopPropagation();
-              handleSave();
-            }}
-          />
-        ) : (
-          <FaCog
-            onClick={(e) => {
-              // stop the row click event from firing
-              e.stopPropagation();
-              setActive(cell.original);
-            }}
-            data-tooltip-id="options"
-          />
-        )}
-      </>
+      <FaCog
+        onClick={(e) => {
+          // stop the row click event from firing
+          e.stopPropagation();
+          setActive(cell.original);
+          navigate && navigate(`/folders/configure/${cell.original.id}`);
+        }}
+        data-tooltip-id="options"
+      />
     ),
   },
 ];

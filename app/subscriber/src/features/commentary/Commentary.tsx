@@ -1,12 +1,12 @@
 import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';
-import { filterFormat } from 'features/search-page/utils';
+import { filterFormat, getFilterActions } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { useContent, useLookup, useNavigateAndScroll } from 'store/hooks';
-import { generateQuery, IContentModel, Row } from 'tno-core';
+import { ActionName, generateQuery, IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 import { DetermineContentIcon, isWeekday } from './utils';
@@ -29,18 +29,18 @@ export const Commentary: React.FC = () => {
   };
 
   React.useEffect(() => {
-    !!actions.length &&
+    if (!!actions && actions.length > 0) {
+      let actionFilters = getFilterActions(actions);
+      const commentaryAction = actionFilters[ActionName.Commentary];
+
       findContentWithElasticsearch(
         generateQuery(
-          filterFormat(
-            {
-              searchUnpublished: false,
-              startDate: determineCommentaryTime(),
-              commentary: true,
-              size: 100,
-            },
-            actions,
-          ),
+          filterFormat({
+            actions: [commentaryAction],
+            searchUnpublished: false,
+            startDate: determineCommentaryTime(),
+            size: 100,
+          }),
         ),
         false,
       ).then((res) => {
@@ -51,6 +51,7 @@ export const Commentary: React.FC = () => {
           }),
         );
       });
+    }
     // only run once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actions]);

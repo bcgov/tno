@@ -210,6 +210,7 @@ public class ReportEngine : IReportEngine
     /// </summary>
     /// <param name="report"></param>
     /// <param name="sectionContent"></param>
+    /// <param name="getLinkedReport"></param>
     /// <param name="uploadPath"></param>
     /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
@@ -218,6 +219,7 @@ public class ReportEngine : IReportEngine
     public async Task<string> GenerateReportBodyAsync(
         API.Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sectionContent,
+        Func<int, int?, Task<Dictionary<string, ReportSectionModel>>> getLinkedReportAsync,
         string? uploadPath = null,
         bool viewOnWebOnly = false,
         bool isPreview = false)
@@ -261,11 +263,17 @@ public class ReportEngine : IReportEngine
             {
                 var settings = section.Settings;
                 List<ContentModel> content = new();
+                var linkedReport = new Dictionary<string, ReportSectionModel>();
 
                 // If the section has content add it to the chart request.
                 if (!settings.UseAllContent && sectionContent.TryGetValue(section.Name, out ReportSectionModel? sectionData) && sectionData != null)
                 {
                     content.AddRange(sectionData.Content);
+                }
+                if (section.LinkedReportId.HasValue)
+                {
+                    // Make request for linked report content.
+                    linkedReport = await getLinkedReportAsync(section.LinkedReportId.Value, null);
                 }
 
                 await section.ChartTemplates.ForEachAsync(async chart =>
@@ -276,7 +284,7 @@ public class ReportEngine : IReportEngine
                     var chartModel = new ChartEngineContentModel(
                         ReportSectionModel.GenerateChartUid(section.Id, chart.Id),
                         chart,
-                        aggregateSection,
+                        settings.UseAllContent ? aggregateSection : linkedReport,
                         settings.UseAllContent ? null : content);
                     var chartRequestModel = new ChartRequestModel(chartModel);
                     var base64Image = await this.GenerateBase64ImageAsync(chartRequestModel);

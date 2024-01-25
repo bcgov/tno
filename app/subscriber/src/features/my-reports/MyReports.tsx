@@ -6,7 +6,6 @@ import { FaClipboard } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useReports } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
 import { Col, IReportModel, Loading, Modal, Row, useModal } from 'tno-core';
 
 import { ReportCard } from './ReportCard';
@@ -14,8 +13,7 @@ import { ReportFilter } from './ReportFilter';
 import * as styled from './styled';
 
 export const MyReports: React.FC = () => {
-  const [{ myReports, reportsFilter }] = useProfileStore();
-  const [{ findMyReports, deleteReport }] = useReports();
+  const [{ myReports, reportsFilter }, { findMyReports, deleteReport }] = useReports();
   const { toggle, isShowing } = useModal();
   const navigate = useNavigate();
   const [{ requests }] = useApp();

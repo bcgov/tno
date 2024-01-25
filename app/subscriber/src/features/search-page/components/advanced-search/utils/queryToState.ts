@@ -1,4 +1,4 @@
-import { fromQueryString } from 'tno-core';
+import { ActionName, fromQueryString } from 'tno-core';
 
 /** Function that returns advanced search filter state allowing the the inputs to stay in sync when the user is navigating back */
 export const queryToState = (queryString: string) => {
@@ -18,7 +18,7 @@ export const queryToState = (queryString: string) => {
     inStory: search.inStory === 'true',
     inByline: search.inByline === 'true',
     frontPage: search.mediaTypeIds?.includes(11) || false,
-    topStory: search.actions?.includes('Top Story') || false,
+    topStory: search.actions?.includes(ActionName.TopStory) || false,
     sourceIds: search.sourceIds?.map((v: any) => Number(v)),
     mediaTypeIds: search.productId?.map((v: any) => Number(v)),
     startDate: urlParams.get('publishedStartOn') || '',

@@ -21,8 +21,6 @@ export const Settings = {
   DefaultSubscriberContentLicense: 'DefaultSubscriberContentLicenseId',
   /** The default media type ID to use when adding custom content to reports. */
   DefaultSubscriberContentMediaType: 'DefaultSubscriberContentMediaTypeId',
-  /** A JSON object containing a dictionary of media type IDS for advanced search groupings. */
-  AdvancedSearchMediaTypeGroups: 'AdvancedSearchMediaTypeGroups',
   /** The email address to send Product Subscription requests to. */
   ProductSubscriptionManagerEmail: 'ProductSubscriptionManagerEmail',
   /** The default report template ID to use when creating new reports. */

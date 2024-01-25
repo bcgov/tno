@@ -1,15 +1,29 @@
+import { getFilterActions } from 'features/search-page/utils';
 import React from 'react';
 import { useContent, useLookup } from 'store/hooks';
-import { Checkbox, Col, Row, Settings, Text } from 'tno-core';
+import {
+  ActionName,
+  Checkbox,
+  Col,
+  IFilterActionSettingsModel,
+  Row,
+  Settings,
+  Text,
+} from 'tno-core';
 
 export const MoreOptions: React.FC = () => {
-  const [{ settings }] = useLookup();
+  const [{ settings, actions }] = useLookup();
   const [
     {
       search: { filter: filterSettings },
     },
     { storeSearchFilter },
   ] = useContent();
+
+  const [actionFilters] = React.useState<{ [actionName: string]: IFilterActionSettingsModel }>(
+    getFilterActions(actions),
+  );
+  const topStoryAction = actionFilters[ActionName.TopStory];
 
   const [size, setSize] = React.useState<number | string>(filterSettings.size);
 
@@ -42,9 +56,15 @@ export const MoreOptions: React.FC = () => {
           <Checkbox
             label="are marked as top stories"
             name="topStory"
-            checked={Boolean(filterSettings.topStory)}
+            checked={filterSettings.actions?.map((a) => a.id).includes(topStoryAction.id)}
             onChange={(e) => {
-              storeSearchFilter({ ...filterSettings, topStory: e.target.checked });
+              const newFilterSettings = {
+                ...filterSettings,
+                actions: e.target.checked
+                  ? [...(filterSettings.actions ?? []), topStoryAction] // add it
+                  : filterSettings.actions?.filter((a) => a.id !== topStoryAction?.id), // remove it
+              };
+              storeSearchFilter(newFilterSettings);
             }}
           />
           <Checkbox

@@ -1,19 +1,18 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
+import { ContentListActionBar } from 'components/tool-bar';
 import { determineColumns } from 'features/home/constants';
 import { IContentSearchResult } from 'features/utils/interfaces';
-import moment from 'moment';
-import React, { useMemo } from 'react';
-import { FiRefreshCcw } from 'react-icons/fi';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useContent, useLookup } from 'store/hooks';
-import { FieldSize, FlexboxTable, generateQuery, IContentModel, Row, Select } from 'tno-core';
+import { useContent } from 'store/hooks';
+import { FlexboxTable, generateQuery, IContentModel, Show } from 'tno-core';
 
+import { PreviousResults } from './PreviousResults';
 import * as styled from './styled';
 
 export const FilterMedia: React.FC = () => {
   const navigate = useNavigate();
-  const [{ mediaTypes, sources }] = useLookup();
   const [
     {
       mediaType: { filter },
@@ -21,21 +20,8 @@ export const FilterMedia: React.FC = () => {
     { findContentWithElasticsearch, storeMediaTypeFilter: storeFilter },
   ] = useContent();
 
-  const mediaTypeOptions = useMemo(
-    () =>
-      mediaTypes.map((t) => {
-        return { value: t.id, label: t.name };
-      }),
-    [mediaTypes],
-  );
-
-  const sourceOptions = useMemo(() => {
-    return sources.map((s) => {
-      return { value: s.id, label: s.name };
-    });
-  }, [sources]);
-
   const [results, setResults] = React.useState<IContentSearchResult[]>([]);
+  const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
@@ -65,66 +51,25 @@ export const FilterMedia: React.FC = () => {
 
   return (
     <styled.FilterMedia>
-      <Row className="tool-bar">
-        <Select
-          width={FieldSize.Medium}
-          key={`${filter.mediaTypeIds?.length}-media`}
-          name="select-media-type"
-          placeholder={'Select a media type'}
-          defaultValue={mediaTypeOptions.filter((o) => {
-            return filter.mediaTypeIds?.includes(Number(o.value));
-          })}
-          isClearable={false}
-          onChange={(e: any) => {
-            if (!!e.value) {
-              storeFilter({ ...filter, mediaTypeIds: [e.value] });
-            }
-          }}
-          options={mediaTypeOptions}
-        />
-        <Select
-          isClearable={false}
-          options={sourceOptions}
-          placeholder={'Select a source'}
-          key={`${filter.sourceIds?.length}-source`}
-          defaultValue={sourceOptions.filter((o) => {
-            return filter.sourceIds?.includes(Number(o.value));
-          })}
-          onChange={(e: any) => {
-            if (!!e.value) {
-              storeFilter({ ...filter, sourceIds: [e.value] });
-            }
-          }}
-          name="source-select"
-          width={FieldSize.Medium}
-        />
-        <DateFilter filter={filter} storeFilter={storeFilter} />
-        <FiRefreshCcw
-          className="reset"
-          onClick={() => {
-            storeFilter({
-              ...filter,
-              mediaTypeIds: [],
-              sourceIds: [],
-              startDate: moment().startOf('day').toISOString(),
-              endDate: moment().endOf('day').toISOString(),
-            });
-          }}
-        />
-      </Row>
-      <Row className="table-container">
-        <FlexboxTable
-          rowId="id"
-          columns={determineColumns('all')}
-          groupBy={(item) => item.original.source?.name ?? ''}
-          onRowClick={(e: any) => {
-            navigate(`/view/${e.original.id}`);
-          }}
-          data={results}
-          pageButtons={5}
-          showPaging={false}
-        />
-      </Row>
+      <ContentListActionBar
+        content={selected}
+        onSelectAll={(e) => (e.target.checked ? setSelected(results) : setSelected([]))}
+      />
+      <DateFilter filter={filter} storeFilter={storeFilter} />
+      <FlexboxTable
+        rowId="id"
+        columns={determineColumns('all')}
+        groupBy={(item) => item.original.source?.name ?? ''}
+        onRowClick={(e: any) => {
+          navigate(`/view/${e.original.id}`);
+        }}
+        data={results}
+        pageButtons={5}
+        showPaging={false}
+      />
+      <Show visible={!results.length}>
+        <PreviousResults results={results} setResults={setResults} />
+      </Show>
     </styled.FilterMedia>
   );
 };

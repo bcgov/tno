@@ -92,6 +92,18 @@ public class TimeTrackingModel
     /// Creates a new instance of an TimeTrackingModel, initializes with specified parameter.
     /// </summary>
     /// <param name="model"></param>
+    public TimeTrackingModel(TNO.API.Areas.Services.Models.Report.TimeTrackingModel model)
+    {
+        this.ContentId = model.ContentId;
+        this.Id = model.Id;
+        this.Effort = model.Effort;
+        this.Activity = model.Activity;
+    }
+
+    /// <summary>
+    /// Creates a new instance of an TimeTrackingModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
     public TimeTrackingModel(TNO.API.Areas.Services.Models.ReportInstance.TimeTrackingModel model)
     {
         this.ContentId = model.ContentId;

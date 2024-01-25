@@ -8,10 +8,10 @@ using TNO.API.Areas.Admin.Models.ChartTemplate;
 using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Keycloak;
-using TNO.Core.Extensions;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -150,8 +150,17 @@ public class ChartTemplateController : ControllerBase
             Template = model.Template,
             SectionSettings = model.Settings
         };
-        var chartTemplate = new TemplateEngine.Models.Reports.ChartEngineContentModel("test", chart, model.Content?.Select(c => new TemplateEngine.Models.ContentModel(c)));
-        var preview = await _reportHelper.GenerateJsonAsync(new TemplateEngine.Models.Charts.ChartRequestModel(chartTemplate, model.ChartData), model.Index, model.Filter, true);
+
+        // Merge content passed to request and also get content from Elasticsearch if a filter is provided.
+        var content = model.Content?.Select(c => new TemplateEngine.Models.ContentModel(c)) ?? Array.Empty<TemplateEngine.Models.ContentModel>();
+        if (model.Filter != null && model.Filter.ToJson() != "{}")
+            content = content.AppendRange(await _reportHelper.FindContentAsync(model.Filter, model.Index));
+
+        // If this chart pulls data from a linked report add this content.
+        var sections = model.LinkedReportId.HasValue ? _reportHelper.GetLinkedReportContent(model.LinkedReportId.Value, null).Result : new();
+
+        var chartTemplate = new TemplateEngine.Models.Reports.ChartEngineContentModel("test", chart, sections, content);
+        var preview = await _reportHelper.GenerateJsonAsync(new TemplateEngine.Models.Charts.ChartRequestModel(chartTemplate, model.ChartData), true);
         return new JsonResult(preview);
     }
 
@@ -168,9 +177,11 @@ public class ChartTemplateController : ControllerBase
     public async Task<IActionResult> GenerateBase64Async(ChartPreviewRequestModel model)
     {
         // pie charts should never have scales
-        if (model.Settings.ChartType.Equals("pie")) {
+        if (model.Settings.ChartType.Equals("pie"))
+        {
             var json = JsonNode.Parse(model.Settings.Options.ToJson())?.AsObject();
-            if (json != null) {
+            if (json != null)
+            {
                 json.Remove("scales");
                 model.Settings.Options = JsonDocument.Parse(json.ToJsonString());
             }
@@ -181,8 +192,17 @@ public class ChartTemplateController : ControllerBase
             Template = model.Template,
             SectionSettings = model.Settings
         };
-        var chartTemplate = new TemplateEngine.Models.Reports.ChartEngineContentModel("test", chart, model.Content?.Select(c => new TemplateEngine.Models.ContentModel(c)));
-        var base64Image = await _reportHelper.GenerateBase64ImageAsync(new TemplateEngine.Models.Charts.ChartRequestModel(chartTemplate, model.ChartData), model.Index, model.Filter, true);
+
+        // Merge content passed to request and also get content from Elasticsearch if a filter is provided.
+        var content = model.Content?.Select(c => new TemplateEngine.Models.ContentModel(c)) ?? Array.Empty<TemplateEngine.Models.ContentModel>();
+        if (model.Filter != null && model.Filter.ToJson() != "{}")
+            content = content.AppendRange(await _reportHelper.FindContentAsync(model.Filter, model.Index));
+
+        // If this chart pulls data from a linked report add this content.
+        var sections = model.LinkedReportId.HasValue ? _reportHelper.GetLinkedReportContent(model.LinkedReportId.Value, null).Result : new();
+
+        var chartTemplate = new TemplateEngine.Models.Reports.ChartEngineContentModel("test", chart, sections, content);
+        var base64Image = await _reportHelper.GenerateBase64ImageAsync(new TemplateEngine.Models.Charts.ChartRequestModel(chartTemplate, model.ChartData), true);
         return Ok(base64Image);
     }
     #endregion

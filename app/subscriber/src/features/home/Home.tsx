@@ -103,18 +103,15 @@ export const Home: React.FC = () => {
     if (!filter.startDate) return;
     fetchResults(
       generateQuery(
-        filterFormat(
-          {
-            ...settings,
-            contentTypes: !!contentType ? filter.contentTypes : [],
-            featured: true,
-            startDate: filter.startDate,
-            endDate: filter.endDate,
-            mediaTypeIds: filter.mediaTypeIds ?? [],
-            sourceIds: filter.sourceIds ?? [],
-          },
-          // actions,
-        ),
+        filterFormat({
+          ...settings,
+          contentTypes: !!contentType ? filter.contentTypes : [],
+          featured: true,
+          startDate: filter.startDate,
+          endDate: filter.endDate,
+          mediaTypeIds: filter.mediaTypeIds ?? [],
+          sourceIds: filter.sourceIds ?? [],
+        }),
       ),
     );
   }, [fetchResults, filter, settings, contentType, actions]);

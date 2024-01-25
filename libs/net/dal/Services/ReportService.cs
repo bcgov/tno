@@ -313,6 +313,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                 originalSection.ReportId = updatedSection.ReportId;
                 originalSection.FilterId = updatedSection.FilterId;
                 originalSection.FolderId = updatedSection.FolderId;
+                originalSection.LinkedReportId = updatedSection.LinkedReportId;
                 originalSection.Version = updatedSection.Version;
 
                 // Add/Update/Delete report section chart templates.
@@ -370,15 +371,21 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// </summary>
     /// <param name="reportId"></param>
     /// <param name="ownerId"></param>
+    /// <param name="includeContent"></param>
     /// <returns></returns>
-    private ReportInstance? GetPreviousReportInstance(int reportId, int? ownerId)
+    public ReportInstance? GetCurrentReportInstance(int reportId, int? ownerId = null, bool includeContent = false)
     {
-        return this.Context.ReportInstances
-            .Include(i => i.ContentManyToMany)
+        var query = this.Context.ReportInstances
             .OrderByDescending(i => i.Id)
-            .Where(i => i.ReportId == reportId &&
-                i.OwnerId == ownerId)
-            .FirstOrDefault();
+            .Where(i => i.ReportId == reportId
+                && (ownerId == null || i.OwnerId == ownerId));
+
+        if (includeContent)
+            query = query.Include(i => i.ContentManyToMany).ThenInclude(c => c.Content);
+        else
+            query = query.Include(i => i.ContentManyToMany);
+
+        return query.FirstOrDefault();
     }
 
     /// <summary>
@@ -396,7 +403,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         var reportSettings = JsonSerializer.Deserialize<ReportSettingsModel>(report.Settings.ToJson(), _serializerOptions) ?? new();
 
         var ownerId = requestorId ?? report.OwnerId; // TODO: Handle users generating instances for a report they do not own.
-        var prevInstance = GetPreviousReportInstance(report.Id, ownerId);
+        var prevInstance = GetCurrentReportInstance(report.Id, ownerId);
 
         // Fetch the current instance of this report to exclude any content within it.
         var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical ? this.GetReportInstanceContentToExclude(report.Id, ownerId) : Array.Empty<long>();
@@ -508,7 +515,7 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <exception cref="InvalidOperationException"></exception>
     public IEnumerable<long> GetReportInstanceContentToExclude(int reportId, int? ownerId)
     {
-        var instance = GetPreviousReportInstance(reportId, ownerId);
+        var instance = GetCurrentReportInstance(reportId, ownerId);
         return instance?.ContentManyToMany.Select(c => c.ContentId).ToArray() ?? Array.Empty<long>();
     }
 

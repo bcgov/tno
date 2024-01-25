@@ -1,5 +1,6 @@
 ﻿using RazorEngineCore;
 using TNO.API.Models.Settings;
+using TNO.Core.Extensions;
 
 namespace TNO.TemplateEngine.Models.Reports;
 
@@ -44,7 +45,7 @@ public class ChartEngineContentModel : RazorEngineTemplateBase
     /// <summary>
     /// get/set - An array of content.
     /// </summary>
-    public IEnumerable<ContentModel> Content { get; set; }
+    public IEnumerable<ContentModel> Content { get; set; } = Array.Empty<ContentModel>();
 
     /// <summary>
     /// get/set - A dictionary with each section.
@@ -119,7 +120,7 @@ public class ChartEngineContentModel : RazorEngineTemplateBase
     /// <param name="model"></param>
     /// <param name="sections"></param>
     /// <param name="content"></param>
-    public ChartEngineContentModel(string uid, API.Areas.Editor.Models.Report.ChartTemplateModel model, Dictionary<string, ReportSectionModel> sections, IEnumerable<ContentModel>? content = null)
+    public ChartEngineContentModel(string uid, API.Areas.Admin.Models.Report.ChartTemplateModel model, Dictionary<string, ReportSectionModel> sections, IEnumerable<ContentModel>? content = null)
     {
         this.Uid = uid;
         this.Id = model.Id;
@@ -130,7 +131,13 @@ public class ChartEngineContentModel : RazorEngineTemplateBase
         this.Sections = sections;
 
         // Reference all section content in the root Content collection.
-        this.Content = content?.ToArray() ?? sections.SelectMany(s => s.Value.Content).GroupBy(c => c.Id).Select(c => c.First());
+        // This can result in duplication of content if it existed in more than one section.
+        this.Content = sections.SelectMany(s => s.Value.Content.Select(c =>
+        {
+            c.SectionName = s.Value.Name;
+            c.SectionLabel = s.Value.Settings.Label;
+            return c;
+        })).AppendRange(content ?? Array.Empty<ContentModel>());
     }
 
     /// <summary>
@@ -152,7 +159,14 @@ public class ChartEngineContentModel : RazorEngineTemplateBase
         this.Sections = sections;
 
         // Reference all section content in the root Content collection.
-        this.Content = content?.ToArray() ?? sections.SelectMany(s => s.Value.Content).GroupBy(c => c.Id).Select(c => c.First());
+        // This can result in duplication of content if it existed in more than one section.
+        this.Content = sections.SelectMany(s => s.Value.Content.Select(c =>
+        {
+            // We need the label and the section name because the name is a unique guid, but the label is the friendly name.
+            c.SectionName = s.Value.Name;
+            c.SectionLabel = s.Value.Settings.Label;
+            return c;
+        })).AppendRange(content ?? Array.Empty<ContentModel>());
     }
     #endregion
 }
