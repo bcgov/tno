@@ -1,11 +1,7 @@
-import { useFilterOptions } from 'components/navbar';
 import { PageSection } from 'components/section';
-import {
-  ISubMediaGroupItem,
-  SubMediaGroups,
-} from 'features/search-page/components/advanced-search/constants';
+import { ISubMediaGroupItem } from 'features/search-page/components/advanced-search/interfaces';
 import React from 'react';
-import { useContent } from 'store/hooks';
+import { useContent, useLookup } from 'store/hooks';
 import { Col, ISourceModel, Row, Show } from 'tno-core';
 
 import { FilterMedia } from './FilterMedia';
@@ -14,31 +10,55 @@ import { alphabetArray } from './utils';
 
 /** The FilterMediaLanding Consists of the filter to narrow down the results of media, as well as the results. It is returned in a two column layout*/
 export const FilterMediaLanding: React.FC = () => {
-  const {
-    dailyPrint,
-    weeklyPrint,
-    cpWire,
-    talkRadio,
-    onlinePrint,
-    television,
-    newsRadio,
-    sources,
-  } = useFilterOptions();
   const [
     {
       mediaType: { filter },
     },
     { storeMediaTypeFilter: storeFilter },
   ] = useContent();
+  const [{ sources, mediaTypes }] = useLookup();
   const [activeFilter, setActiveFilter] = React.useState<ISubMediaGroupItem>();
 
   const [activeLetter, setActiveLetter] = React.useState<string>('All');
   const [narrowedOptions, setNarrowedOptions] = React.useState<ISourceModel[]>([]);
   const [activeSource, setActiveSource] = React.useState<ISourceModel | null>(null);
+  const [subMediaGroups, setSubMediaGroups] = React.useState<ISubMediaGroupItem[]>();
 
   React.useEffect(() => {
-    if (dailyPrint && !narrowedOptions.length) setNarrowedOptions(dailyPrint);
-  }, [dailyPrint, narrowedOptions.length]);
+    // exit early if inputs are not set completely
+    if (sources.length === 0 || mediaTypes.length === 0) return;
+
+    let mediaTypeSourceLookup: { [name: string]: ISourceModel[] } = {};
+    const allSourcesKey: string = 'All';
+    mediaTypeSourceLookup[allSourcesKey] = [];
+    // prime the dictionary - already in sort order set on Media Type
+    mediaTypes.forEach((mt) => {
+      mediaTypeSourceLookup[mt.name] = [];
+    });
+    sources.forEach((source) => {
+      mediaTypeSourceLookup[allSourcesKey].push(source);
+      source.mediaTypeSearchMappings.forEach((mapping) => {
+        mediaTypeSourceLookup[mapping.name].push(source);
+      });
+    });
+    // Remove Media Type entries with no assigned Sources
+    // Could also exclude specific Media Types her if required
+    mediaTypeSourceLookup = Object.fromEntries(
+      Object.entries(mediaTypeSourceLookup).filter(([k, v]) => v.length > 0),
+    );
+
+    let subMediaGroups: ISubMediaGroupItem[] = [];
+    for (let key in mediaTypeSourceLookup) {
+      // Use `key` and `value`
+      let value = mediaTypeSourceLookup[key];
+      subMediaGroups.push({
+        key: key,
+        label: key,
+        options: value,
+      });
+    }
+    setSubMediaGroups(subMediaGroups);
+  }, [sources, mediaTypes, setSubMediaGroups]);
 
   React.useEffect(() => {
     if (activeLetter && activeLetter !== 'All') {
@@ -60,22 +80,14 @@ export const FilterMediaLanding: React.FC = () => {
           {/* TODO: Move into reusable component, this type of filter is only used on this page currently*/}
           <Row>
             <Col className="media-filter">
-              {SubMediaGroups(
-                dailyPrint,
-                weeklyPrint,
-                cpWire,
-                talkRadio,
-                onlinePrint,
-                newsRadio,
-                television,
-                sources,
-              ).map((mediaGroup) => (
+              {subMediaGroups?.map((mediaGroup) => (
                 <div
                   key={`${mediaGroup.key}`}
                   onClick={() => {
                     if (mediaGroup.label === 'Weekly Print' || mediaGroup.label === 'All')
                       setActiveLetter('A');
-                    if (mediaGroup.label === 'Online') setActiveLetter('B');
+                    else if (mediaGroup.label === 'Online') setActiveLetter('B');
+                    else setActiveLetter('All');
                     setActiveFilter(mediaGroup);
                   }}
                   className={`${
