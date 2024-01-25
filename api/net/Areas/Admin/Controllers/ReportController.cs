@@ -14,7 +14,6 @@ using TNO.DAL.Services;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Keycloak;
-using TNO.TemplateEngine.Models.Reports;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -259,7 +258,7 @@ public class ReportController : ControllerBase
     /// <returns></returns>
     [HttpPost("preview")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ReportResultModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(TNO.TemplateEngine.Models.Reports.ReportResultModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> Preview(ReportModel model)
@@ -279,7 +278,7 @@ public class ReportController : ControllerBase
     /// <returns></returns>
     [HttpPost("preview/prime")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ReportResultModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(TNO.TemplateEngine.Models.Reports.ReportResultModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult PrimeReportCache(ReportModel model)

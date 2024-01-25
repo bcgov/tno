@@ -9,6 +9,8 @@ export interface IChartPreviewRequestModel {
   index?: string;
   /** Elasticsearch filter query. */
   filter?: object;
+  /** Foreign key to linked report to pull content from */
+  linkedReportId?: number;
   /** An array of content to include in the chart data. */
   content?: IContentModel[];
   /** The compiled Chart.JS JSON data.  This enables manually editing the data instead of dynamically generating the data. */

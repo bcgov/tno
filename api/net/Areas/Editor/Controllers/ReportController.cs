@@ -16,7 +16,6 @@ using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Keycloak;
 using TNO.Models.Filters;
-using TNO.TemplateEngine.Models.Reports;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -186,7 +185,7 @@ public class ReportController : ControllerBase
     /// <returns></returns>
     [HttpPost("{id}/preview")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ReportResultModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(TNO.TemplateEngine.Models.Reports.ReportResultModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> Preview(int id)

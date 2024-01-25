@@ -121,6 +121,22 @@ public class FileReferenceModel
     /// Creates a new instance of an FileReferenceModel, initializes with specified parameter.
     /// </summary>
     /// <param name="model"></param>
+    public FileReferenceModel(TNO.API.Areas.Services.Models.Report.FileReferenceModel model)
+    {
+        this.Id = model.Id;
+        this.ContentId = model.ContentId;
+        this.ContentType = model.ContentType;
+        this.FileName = model.FileName;
+        this.Path = model.Path;
+        this.Size = model.Size;
+        this.RunningTime = model.RunningTime;
+        this.IsUploaded = model.IsUploaded;
+    }
+
+    /// <summary>
+    /// Creates a new instance of an FileReferenceModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
     public FileReferenceModel(TNO.API.Areas.Services.Models.ReportInstance.FileReferenceModel model)
     {
         this.Id = model.Id;

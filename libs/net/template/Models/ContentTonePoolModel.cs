@@ -81,6 +81,19 @@ public class ContentTonePoolModel
     /// Creates a new instance of an ContentTonePoolModel, initializes with specified parameter.
     /// </summary>
     /// <param name="model"></param>
+    public ContentTonePoolModel(TNO.API.Areas.Services.Models.Report.ContentTonePoolModel model)
+    {
+        this.ContentId = model.ContentId;
+        this.Id = model.Id;
+        this.Name = model.Name;
+        this.OwnerId = model.OwnerId;
+        this.Value = model.Value;
+    }
+
+    /// <summary>
+    /// Creates a new instance of an ContentTonePoolModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
     public ContentTonePoolModel(TNO.API.Areas.Services.Models.ReportInstance.ContentTonePoolModel model)
     {
         this.ContentId = model.ContentId;

@@ -38,7 +38,7 @@ public class ReportInstanceContent : AuditColumns, IEquatable<ReportInstanceCont
     /// get/set - The name of the section this content belongs.
     /// </summary>
     [Column("section_name")]
-    public string? SectionName { get; set; } = "";
+    public string SectionName { get; set; } = "";
 
     /// <summary>
     /// get/set - The order the content is returned.

@@ -13,7 +13,7 @@ import * as styled from './styled';
  * @returns Component
  */
 export const ReportView: React.FC = () => {
-  const [{ generateReport }] = useReports();
+  const [, { generateReport }] = useReports();
   const { id } = useParams();
   const navigate = useNavigate();
 

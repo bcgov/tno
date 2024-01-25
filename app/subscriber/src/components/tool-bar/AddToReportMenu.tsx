@@ -3,7 +3,6 @@ import React from 'react';
 import { FaFileExport, FaPlay } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useReports } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
 import { IContentModel, IReportModel, Link, Row } from 'tno-core';
 
 import * as styled from './styled';
@@ -13,8 +12,7 @@ export interface IAddToReportMenuProps {
   content: IContentModel[];
 }
 export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) => {
-  const [{ updateReport, findMyReports, getReport, generateReport }] = useReports();
-  const [{ myReports }] = useProfileStore();
+  const [{ myReports }, { updateReport, findMyReports, getReport, generateReport }] = useReports();
   const [{ requests }] = useApp();
   const [activeReport, setActiveReport] = React.useState<IReportModel>();
   const [reportId, setReportId] = React.useState<number | null>(null);

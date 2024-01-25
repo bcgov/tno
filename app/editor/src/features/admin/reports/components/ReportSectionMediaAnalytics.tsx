@@ -3,7 +3,7 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaArrowAltCircleRight } from 'react-icons/fa';
 import { FaTrash } from 'react-icons/fa6';
-import { useFilters, useFolders } from 'store/hooks/admin';
+import { useFilters, useFolders, useReports } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -32,9 +32,11 @@ export const ReportSectionMediaAnalytics = ({ index }: IReportSectionMediaAnalyt
   const { values, setFieldValue } = useFormikContext<IReportModel>();
   const [{ filters }] = useFilters();
   const [{ folders }] = useFolders();
+  const [{ reports }] = useReports();
 
   const [filterOptions, setFilterOptions] = React.useState(getSortableItems(filters));
   const [folderOptions, setFolderOptions] = React.useState(getSortableItems(folders));
+  const [reportOptions, setReportOptions] = React.useState(getSortableItems(reports));
   const [chartOptions] = React.useState(getSortableOptions(values.template?.chartTemplates ?? []));
   const [chart, setChart] = React.useState<IChartTemplateModel>();
 
@@ -49,6 +51,10 @@ export const ReportSectionMediaAnalytics = ({ index }: IReportSectionMediaAnalyt
   React.useEffect(() => {
     setFolderOptions(getSortableItems(folders));
   }, [folders]);
+
+  React.useEffect(() => {
+    setReportOptions(getSortableItems(reports));
+  }, [reports]);
 
   return (
     <Col gap="1rem" className="section">
@@ -93,7 +99,7 @@ export const ReportSectionMediaAnalytics = ({ index }: IReportSectionMediaAnalyt
               <FormikSelect
                 name={`sections.${index}.filterId`}
                 label="Filter"
-                tooltip="Select a filter to dynamically fill this section with content"
+                tooltip="Select a filter to populate this chart"
                 options={filterOptions}
                 value={filterOptions.find((o) => o.value === section.filterId) ?? ''}
                 onChange={(newValue) => {
@@ -118,13 +124,38 @@ export const ReportSectionMediaAnalytics = ({ index }: IReportSectionMediaAnalyt
               <FormikSelect
                 name={`sections.${index}.folderId`}
                 label="Folder"
-                tooltip="Select a folder to fill this section with its content"
+                tooltip="Select a folder to populate this chart"
                 options={folderOptions}
                 value={folderOptions.find((o) => o.value === section.folderId) ?? ''}
                 onChange={(newValue) => {
                   const option = newValue as OptionItem;
                   const folder = folders.find((f) => f.id === option?.value);
                   if (folder) setFieldValue(`sections.${index}.folder`, folder);
+                }}
+              >
+                <Button
+                  variant={ButtonVariant.secondary}
+                  disabled={!values.sections[index].folderId}
+                  onClick={() =>
+                    window.open(`/admin/folders/${values.sections[index].folderId}`, '_blank')
+                  }
+                >
+                  <FaArrowAltCircleRight />
+                </Button>
+              </FormikSelect>
+              {folder?.description && <p>{folder?.description}</p>}
+            </Col>
+            <Col flex="1" className="description">
+              <FormikSelect
+                name={`sections.${index}.linkedReportId`}
+                label="Report"
+                tooltip="Select a report to populate this chart"
+                options={reportOptions}
+                value={reportOptions.find((o) => o.value === section.linkedReportId) ?? ''}
+                onChange={(newValue) => {
+                  const option = newValue as OptionItem;
+                  const report = reports.find((f) => f.id === option?.value);
+                  if (report) setFieldValue(`sections.${index}.linkedReport`, report);
                 }}
               >
                 <Button

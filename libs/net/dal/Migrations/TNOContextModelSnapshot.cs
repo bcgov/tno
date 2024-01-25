@@ -3568,6 +3568,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
 
+                    b.Property<int?>("LinkedReportId")
+                        .HasColumnType("integer")
+                        .HasColumnName("linked_report_id");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -3619,6 +3623,8 @@ namespace TNO.DAL.Migrations
                     b.HasIndex("FilterId");
 
                     b.HasIndex("FolderId");
+
+                    b.HasIndex("LinkedReportId");
 
                     b.HasIndex("ReportId", "Name")
                         .IsUnique();
@@ -6178,6 +6184,11 @@ namespace TNO.DAL.Migrations
                         .HasForeignKey("FolderId")
                         .OnDelete(DeleteBehavior.Cascade);
 
+                    b.HasOne("TNO.Entities.Report", "LinkedReport")
+                        .WithMany()
+                        .HasForeignKey("LinkedReportId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("TNO.Entities.Report", "Report")
                         .WithMany("Sections")
                         .HasForeignKey("ReportId")
@@ -6187,6 +6198,8 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Filter");
 
                     b.Navigation("Folder");
+
+                    b.Navigation("LinkedReport");
 
                     b.Navigation("Report");
                 });

@@ -97,6 +97,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
             s.Settings = JsonDocument.Parse(JsonSerializer.Serialize(section.Settings, options));
             s.Folder = null;
             s.Filter = null;
+            s.LinkedReport = null;
             s.ChartTemplatesManyToMany.ForEach(ct =>
             {
                 var chart = section.ChartTemplates.FirstOrDefault(uct => uct.Id == ct.ChartTemplateId) ?? throw new InvalidOperationException("Unable to find matching chart template");
@@ -148,6 +149,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
                     SortOrder = modelSection.Folder.SortOrder,
                     Settings = JsonDocument.Parse(JsonSerializer.Serialize(modelSection.Folder.Settings))
                 } : null,
+                LinkedReportId = modelSection.LinkedReportId,
                 Settings = JsonDocument.Parse(JsonSerializer.Serialize(modelSection.Settings)),
                 Version = modelSection.Version ?? 0
             };

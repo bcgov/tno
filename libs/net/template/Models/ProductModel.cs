@@ -60,6 +60,20 @@ public class MediaTypeModel : BaseTypeModel<int>
     /// Creates a new instance of an MediaTypeModel, initializes with specified parameter.
     /// </summary>
     /// <param name="model"></param>
+    public MediaTypeModel(TNO.API.Areas.Services.Models.Report.MediaTypeModel model)
+    {
+        this.Id = model.Id;
+        this.Name = model.Name;
+        this.Description = model.Description;
+        this.AutoTranscribe = model.AutoTranscribe;
+        this.IsEnabled = model.IsEnabled;
+        this.SortOrder = model.SortOrder;
+    }
+
+    /// <summary>
+    /// Creates a new instance of an MediaTypeModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
     public MediaTypeModel(TNO.API.Areas.Services.Models.ReportInstance.MediaTypeModel model)
     {
         this.Id = model.Id;

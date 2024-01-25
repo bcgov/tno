@@ -14,11 +14,9 @@ using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Kafka;
-using TNO.Kafka.Models;
 using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 using TNO.Models.Filters;
-using TNO.TemplateEngine.Models.Reports;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
 
@@ -278,7 +276,7 @@ public class ReportController : ControllerBase
     /// <returns></returns>
     [HttpPost("{id}/preview")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ReportResultModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(TNO.TemplateEngine.Models.Reports.ReportResultModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> Preview(int id)
@@ -316,9 +314,35 @@ public class ReportController : ControllerBase
 
         var instances = _reportService.GetLatestInstances(id, user.Id);
         var currentInstance = instances.FirstOrDefault();
-        if (regenerate && currentInstance != null && currentInstance.SentOn.HasValue == false)
+        if (currentInstance == null)
         {
-            // Generate a new instance of this report because the request asked for it, and the last instance was already sent.
+            // Generate a new instance of this report if there is no current instance, or if it has already been sent.
+            currentInstance = await _reportHelper.GenerateReportInstanceAsync(new Services.Models.Report.ReportModel(report, _serializerOptions), user.Id);
+            currentInstance = _reportInstanceService.AddAndSave(currentInstance);
+            instances = _reportService.GetLatestInstances(id, user.Id);
+            currentInstance.ContentManyToMany.Clear();
+            currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
+            report.Instances.Clear();
+            report.Instances.Add(currentInstance);
+            report.Instances.AddRange(instances.Where(i => i.Id != currentInstance.Id));
+        }
+        else if (regenerate
+            && (currentInstance.SentOn.HasValue
+                || new[] { Entities.ReportStatus.Accepted, Entities.ReportStatus.Completed, Entities.ReportStatus.Failed, Entities.ReportStatus.Cancelled }.Contains(currentInstance.Status)))
+        {
+            // Generate a new instance because the prior was sent to CHES.
+            currentInstance = await _reportHelper.GenerateReportInstanceAsync(new Services.Models.Report.ReportModel(report, _serializerOptions), user.Id);
+            currentInstance = _reportInstanceService.AddAndSave(currentInstance);
+            instances = _reportService.GetLatestInstances(id, user.Id);
+            currentInstance.ContentManyToMany.Clear();
+            currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
+            report.Instances.Clear();
+            report.Instances.Add(currentInstance);
+            report.Instances.AddRange(instances.Where(i => i.Id != currentInstance.Id));
+        }
+        else if (regenerate && currentInstance.SentOn.HasValue == false)
+        {
+            // Regenerate the current instance, but do not create a new instance.
             var regeneratedInstance = await _reportHelper.GenerateReportInstanceAsync(new Services.Models.Report.ReportModel(report, _serializerOptions), user.Id, currentInstance.Id);
             _reportInstanceService.ClearChangeTracker();
             currentInstance.ContentManyToMany.Clear();
@@ -331,18 +355,6 @@ public class ReportController : ControllerBase
             });
             currentInstance.ContentManyToMany.AddRange(newContent);
             currentInstance = _reportInstanceService.UpdateAndSave(currentInstance);
-            instances = _reportService.GetLatestInstances(id, user.Id);
-            currentInstance.ContentManyToMany.Clear();
-            currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
-            report.Instances.Clear();
-            report.Instances.Add(currentInstance);
-            report.Instances.AddRange(instances.Where(i => i.Id != currentInstance.Id));
-        }
-        else if (currentInstance == null || currentInstance.SentOn.HasValue)
-        {
-            // Generate a new instance of this report if there is no current instance, or if it has already been sent.
-            currentInstance = await _reportHelper.GenerateReportInstanceAsync(new Services.Models.Report.ReportModel(report, _serializerOptions), user.Id);
-            currentInstance = _reportInstanceService.AddAndSave(currentInstance);
             instances = _reportService.GetLatestInstances(id, user.Id);
             currentInstance.ContentManyToMany.Clear();
             currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));

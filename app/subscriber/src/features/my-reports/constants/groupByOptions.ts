@@ -13,4 +13,5 @@ export const groupByOptions = [
   new OptionItem('Published On', 'dayMonthYear'),
   new OptionItem('Published Month/Year', 'monthYear'),
   new OptionItem('Published Year', 'year'),
+  new OptionItem('Report Section', 'reportSection'),
 ];
