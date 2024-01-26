@@ -38,6 +38,9 @@ export const FilterMediaLanding = styled(Row)`
       }
       .option {
         cursor: pointer;
+        &:hover {
+          text-decoration: underline;
+        }
         padding-left: 1rem;
         display: flex;
         align-items: center;
