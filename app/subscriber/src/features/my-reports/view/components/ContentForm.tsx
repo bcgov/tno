@@ -55,7 +55,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
         <Wysiwyg
           name={`instances.0.content.${index}.versions.${userId}.summary`}
           label="Summary"
-          value={content.versions?.[userId]?.summary ?? content.summary}
+          value={content.versions?.[userId]?.summary ?? ''}
           onChange={(text) =>
             setFieldValue(`instances.0.content.${index}.content.versions`, {
               ...content.versions,
@@ -71,7 +71,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
         <Wysiwyg
           name={`instances.0.content.${index}.versions.${userId}.body`}
           label="Body"
-          value={content.versions?.[userId]?.body ?? content.body ?? ''}
+          value={content.versions?.[userId]?.body ?? content.isApproved ? content.body ?? '' : ''}
           onChange={(text) => {
             setFieldValue(`instances.0.content.${index}.content.versions`, {
               ...content.versions,

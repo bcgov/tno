@@ -198,6 +198,7 @@ public class ReportEngine : IReportEngine
             instance.Content = model.Content;
             instance.Sections = model.Sections;
             instance.ViewOnWebOnly = viewOnWebOnly;
+            instance.OwnerId = model.OwnerId;
 
             instance.SubscriberAppUrl = this.TemplateOptions.SubscriberAppUrl;
             instance.ViewContentUrl = this.TemplateOptions.ViewContentUrl;
@@ -239,6 +240,7 @@ public class ReportEngine : IReportEngine
             instance.Content = model.Content;
             instance.Sections = model.Sections;
             instance.ViewOnWebOnly = viewOnWebOnly;
+            instance.OwnerId = model.OwnerId;
 
             instance.SubscriberAppUrl = this.TemplateOptions.SubscriberAppUrl;
             instance.ViewContentUrl = this.TemplateOptions.ViewContentUrl;
