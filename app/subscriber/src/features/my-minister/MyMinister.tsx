@@ -18,7 +18,7 @@ export const MyMinister: React.FC = () => {
     {
       myMinister: { filter },
     },
-    { findContentWithElasticsearch, storeMyMinisterFilter },
+    { findContentWithElasticsearch },
   ] = useContent();
   const [{ userInfo }] = useApp();
   const [, api] = useMinisters();
@@ -30,13 +30,6 @@ export const MyMinister: React.FC = () => {
   const [loading, setLoading] = React.useState(false);
 
   const selectedIds = selected.map((i) => i.id.toString());
-
-  //  convert minister name to alias (e.g. David Eby -> D. Eby OR David Eby)
-  const getAliasFromMinisterName = (ministerName: string) => {
-    const firstInitial = ministerName.charAt(0);
-    const lastName = ministerName.split(' ')[1];
-    return `${firstInitial}. ${lastName}`;
-  };
 
   const makeSimpleQueryString = (terms: string[]) => {
     if (terms.length === 1) return `"${terms[0]}"`;
@@ -59,17 +52,18 @@ export const MyMinister: React.FC = () => {
   );
 
   const fetchResults = React.useCallback(
-    async (filter: MsearchMultisearchBody) => {
+    async (ministerName: string, filter: MsearchMultisearchBody) => {
       try {
         if (!loading) {
           setLoading(true);
           const res = await findContentWithElasticsearch(filter, false);
-          setContent(
-            res.hits.hits.map((r) => {
-              const content = r._source as IContentModel;
-              return castToSearchResult(content);
-            }),
-          );
+          const content = res.hits.hits.map((r) => {
+            const content = r._source as IContentModel;
+            const result = castToSearchResult(content);
+            result.ministerName = ministerName;
+            return result;
+          });
+          return content;
         }
       } catch {
       } finally {
@@ -82,44 +76,40 @@ export const MyMinister: React.FC = () => {
   );
 
   React.useEffect(() => {
-    if (!!filter.search) {
-      fetchResults(
-        generateQuery(
-          filterFormat({
-            ...filter,
-            inByline: true,
-            inHeadline: true,
-            inStory: true,
-            defaultSearchOperator: 'or',
-          }),
-        ),
-      );
-    }
-    // only want the effect to trigger when aliases is populated, not every time the filter changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter.search]);
-
-  React.useEffect(() => {
-    var searchFilterTerms: string[] = [];
+    const contentList: IContentSearchResult[] = [];
     if (userInfo?.preferences?.myMinisters?.length > 0 && ministers.length > 0) {
       let ministerModels = ministers.filter((m) =>
         userInfo?.preferences?.myMinisters?.includes(m.id),
       );
       if (ministerModels) {
-        ministerModels.forEach((m) => {
-          searchFilterTerms.push(m.name);
-          let ministerAliases = !m.aliases.length
-            ? [getAliasFromMinisterName(m.name)]
-            : m.aliases.split(',').map(function (item) {
-                return item.trim();
-              });
-          ministerAliases.forEach((m) => searchFilterTerms.push(m));
+        ministerModels.forEach(async (m) => {
+          const res = await fetchResults(
+            m.name,
+            generateQuery(
+              filterFormat({
+                ...filter,
+                search: makeSimpleQueryString(m.aliases.split(',')),
+                inByline: true,
+                inHeadline: true,
+                inStory: true,
+                defaultSearchOperator: 'or',
+              }),
+            ),
+          );
+          if (!!res && res.length > 0) {
+            res.forEach((i) => {
+              contentList.push(i);
+            });
+          }
         });
-        // only store a search filter if the user has selected at least one "My Minister"
-        storeMyMinisterFilter({ ...filter, search: makeSimpleQueryString(searchFilterTerms) });
+        setContent(
+          contentList.sort((a: IContentSearchResult, b: IContentSearchResult) =>
+            `${a.ministerName}` > `${b.ministerName}` ? 1 : -1,
+          ),
+        );
       }
     }
-  }, [userInfo?.preferences?.myMinisters, ministers, filter, storeMyMinisterFilter]);
+  }, [userInfo?.preferences?.myMinisters, ministers, fetchResults, filter]);
 
   /** controls the checking and unchecking of rows in the list view */
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentSearchResult>) => {
@@ -145,7 +135,7 @@ export const MyMinister: React.FC = () => {
           onSelectedChanged={handleSelectedRowsChanged}
           selectedRowIds={selectedIds}
           isMulti
-          groupBy={(item) => item.original.source?.name ?? ''}
+          groupBy={(item) => item.original.ministerName ?? ''}
           onRowClick={(e: any) => {
             navigate(`/view/my-minister/${e.original.id}`);
           }}
