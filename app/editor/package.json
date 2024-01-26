@@ -121,11 +121,13 @@
       "plugin:prettier/recommended"
     ],
     "plugins": [
-      "simple-import-sort"
+      "simple-import-sort",
+      "react"
     ],
     "rules": {
       "simple-import-sort/imports": "error",
       "simple-import-sort/exports": "error",
+      "react/jsx-key": "error",
       "no-console": [
         "error",
         {
