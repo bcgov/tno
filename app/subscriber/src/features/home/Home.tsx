@@ -60,26 +60,53 @@ export const Home: React.FC = () => {
   const createStream = async (item: IContentSearchResult) => {
     const fileReference = item?.fileReferences ? item?.fileReferences[0] : undefined;
     if (!!fileReference) return stream(fileReference.path);
+    return undefined;
+  };
+
+  const sortFunc = (key: string) => {
+    switch (key) {
+      case 'published':
+        return (a: IContentModel, b: IContentModel) => (a.publishedOn > b.publishedOn ? 1 : -1);
+      case 'source':
+        return (a: IContentModel, b: IContentModel) => {
+          if (a.source && b.source) {
+            return a.source.sortOrder > b.source.sortOrder ? 1 : -1;
+          }
+          return -1;
+        };
+      default:
+        return (a: IContentModel, b: IContentModel) => (a.publishedOn > b.publishedOn ? 1 : -1);
+    }
   };
 
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
+        let firstSort = '';
+        let secondSort = '';
+        switch (sortBy) {
+          case 'time':
+            firstSort = 'source';
+            secondSort = 'published';
+            break;
+          case 'source':
+            firstSort = 'published';
+            secondSort = 'source';
+            break;
+          default:
+            firstSort = 'published';
+            secondSort = 'source';
+        }
         const res: any = await findContentWithElasticsearch(filter, false);
         setContent(
           res.hits.hits
             .map((h: { _source: IContentModel }) => h._source)
-            .sort((a: IContentModel, b: IContentModel) => (a.publishedOn > b.publishedOn ? 1 : -1))
-            .sort((a: IContentModel, b: IContentModel) => {
-              if (a.source && b.source) {
-                return a.source.sortOrder > b.source.sortOrder ? 1 : -1;
-              }
-              return -1;
-            }),
+            .sort(sortFunc(firstSort))
+            .sort(sortFunc(secondSort)),
         );
       } catch {}
     },
-    [findContentWithElasticsearch],
+    [findContentWithElasticsearch, sortBy],
   );
 
   const displayMedia = async (r: IContentSearchResult) => {
@@ -88,8 +115,8 @@ export const Home: React.FC = () => {
     if (!!e) {
       if (!e.mediaUrl) {
         createStream(e).then((result) => {
-          e.mediaUrl = result !== undefined ? result : undefined;
-          e.displayMedia = true;
+          e.mediaUrl = result;
+          e.displayMedia = result !== undefined ? true : false;
         });
       } else {
         e.displayMedia = !e.displayMedia;

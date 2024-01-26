@@ -72,41 +72,52 @@ export const determineColumns = (
               cell.original.contentType === ContentTypeName.AudioVideo && (
                 <tr>
                   <td colSpan={2} align="center">
-                    {/* <Show
-                      visible={cell.original.fileReferences[0].contentType.startsWith('audio/')}
-                    >
-                      <audio controls>
-                        <source
-                          src={cell.original.mediaUrl}
-                          type={cell.original.fileReferences[0].contentType}
-                        />
-                        HTML5 Audio is required
-                      </audio>
-                    </Show> */}
-                    <Show
-                      visible={
-                        cell.original.fileReferences.length > 0 &&
-                        cell.original.fileReferences[0].contentType.startsWith('video/') &&
-                        !!cell.original.displayMedia &&
-                        cell.original.displayMedia
-                      }
-                    >
-                      <video
-                        controls
-                        height={windowWidth! > 500 ? 389 : 135}
-                        width={windowWidth! > 500 ? 488 : 240}
-                        preload="metadata"
+                    <Show visible={!!cell.original.displayMedia && cell.original.displayMedia}>
+                      <Show
+                        visible={
+                          cell.original.fileReferences.length > 0 &&
+                          cell.original.fileReferences[0].contentType.startsWith('audio/') &&
+                          !!cell.original.displayMedia &&
+                          cell.original.displayMedia
+                        }
                       >
-                        <source
-                          src={cell.original.mediaUrl}
-                          type={
-                            cell.original.fileReferences.length > 0
-                              ? cell.original.fileReferences[0].contentType
-                              : ''
-                          }
-                        />
-                        HTML5 Audio is required
-                      </video>
+                        <audio controls>
+                          <source
+                            src={cell.original.mediaUrl}
+                            type={
+                              cell.original.fileReferences.length > 0
+                                ? cell.original.fileReferences[0].contentType
+                                : ''
+                            }
+                          />
+                          HTML5 Audio is required
+                        </audio>
+                      </Show>
+                      <Show
+                        visible={
+                          cell.original.fileReferences.length > 0 &&
+                          cell.original.fileReferences[0].contentType.startsWith('video/') &&
+                          !!cell.original.displayMedia &&
+                          cell.original.displayMedia
+                        }
+                      >
+                        <video
+                          controls
+                          height={windowWidth! > 500 ? 389 : 135}
+                          width={windowWidth! > 500 ? 488 : 240}
+                          preload="metadata"
+                        >
+                          <source
+                            src={cell.original.mediaUrl}
+                            type={
+                              cell.original.fileReferences.length > 0
+                                ? cell.original.fileReferences[0].contentType
+                                : ''
+                            }
+                          />
+                          HTML5 Audio is required
+                        </video>
+                      </Show>
                       <div className="copyrightParent">
                         <div className="copyrightIcon">
                           <FaCopyright />
