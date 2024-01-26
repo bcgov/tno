@@ -11,6 +11,7 @@ using TNO.TemplateEngine;
 using TNO.TemplateEngine.Models;
 using TNO.TemplateEngine.Models.Charts;
 using TNO.TemplateEngine.Models.Reports;
+using TNO.TemplateEngine.Converters;
 
 namespace TNO.API.Helpers;
 

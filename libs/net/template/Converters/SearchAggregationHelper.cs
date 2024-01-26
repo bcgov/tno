@@ -1,11 +1,11 @@
-namespace TNO.API.Helpers;
+namespace TNO.TemplateEngine.Converters;
 
 /// <summary>
 /// Extension methods to convert between Elastic models and Report models
 /// </summary>
 public static class SearchAggregationHelper
 {
-    /// <summary>
+    /// <summary> 
     /// Convert from one model to another
     /// </summary>
     /// <param name="model"></param>

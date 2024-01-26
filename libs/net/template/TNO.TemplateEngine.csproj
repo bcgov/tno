@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\elastic\TNO.Elastic.csproj" />
     <ProjectReference Include="..\core\TNO.Core.csproj" />
     <ProjectReference Include="..\models\TNO.Models.csproj" />
     <ProjectReference Include="..\entities\TNO.Entities.csproj" />
