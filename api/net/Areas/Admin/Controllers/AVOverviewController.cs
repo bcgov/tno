@@ -102,8 +102,52 @@ public class AVOverviewController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
     public IActionResult Update(AVOverviewTemplateModel model)
     {
+        // update the template the user is editing
         var result = _overviewTemplateService.UpdateAndSave((Entities.AVOverviewTemplate)model);
-        var template = _overviewTemplateService.FindById(result.TemplateType) ?? throw new InvalidOperationException("Overview Section does not exist");
+
+        // get a list of sibling template types we need to update
+        var otherTemplateTypes = Enum.GetValues(typeof(Entities.AVOverviewTemplateType)).Cast<Entities.AVOverviewTemplateType>().ToList();
+        otherTemplateTypes.Remove(model.TemplateType);
+        Entities.AVOverviewTemplate template;
+
+        // get the list of UserIds that have been updated
+        HashSet<int> updatedSubscriberUserIds = new HashSet<int>(result.SubscribersManyToMany.Select((s) => s.UserId));
+        foreach (var templateType in otherTemplateTypes)
+        {
+            // retrieve the sibling template
+            template = _overviewTemplateService.FindById(templateType) ?? throw new InvalidOperationException("Overview Template does not exist");
+            // update the subscription status for matching users
+            foreach (var subscriber in result.SubscribersManyToMany)
+            {
+                var target = template.SubscribersManyToMany.FirstOrDefault((s) => s.UserId == subscriber.UserId);
+                if (target != null) target.IsSubscribed = subscriber.IsSubscribed;
+            }
+
+            // get a list of existing userids so we can determine additions and removals
+            HashSet<int> existingSubscriberUserIds = new HashSet<int>(template.SubscribersManyToMany.Select((s) => s.UserId));
+
+            // add new users
+            var newSubscriberUserIds = updatedSubscriberUserIds.Except(existingSubscriberUserIds);
+            template.SubscribersManyToMany.AddRange(
+                newSubscriberUserIds.Select(s => new Entities.UserAVOverview(s, templateType)
+                {
+                    IsSubscribed = true
+                })
+            );
+
+            // delete any users that no longer exist - might occur if the user was deleted completely...?
+            var deletedSubscriberUserIds = existingSubscriberUserIds.Except(updatedSubscriberUserIds);
+            foreach (var deletedSubscriberUserId in deletedSubscriberUserIds)
+            {
+                var deletedSubscriber = template.SubscribersManyToMany.FirstOrDefault((s) => s.UserId == deletedSubscriberUserId);
+                if (deletedSubscriber != null) template.SubscribersManyToMany.Remove(deletedSubscriber);
+            }
+            _overviewTemplateService.UpdateAndSave((Entities.AVOverviewTemplate)template);
+        }
+        
+        // retrieve the template that was initially slated for update
+        template = _overviewTemplateService.FindById(model.TemplateType) ?? throw new InvalidOperationException("Overview Template does not exist");
+
         return new JsonResult(new AVOverviewTemplateModel(template));
     }
 
