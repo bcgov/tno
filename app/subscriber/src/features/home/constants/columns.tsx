@@ -1,11 +1,13 @@
 import { Sentiment } from 'components/sentiment';
 import { IContentSearchResult } from 'features/utils/interfaces';
-import { ContentTypeName, ITableHookColumn } from 'tno-core';
+import { FaCopyright, FaFeather, FaPlayCircle } from 'react-icons/fa';
+import { ContentTypeName, ITableHookColumn, Show } from 'tno-core';
 
 export const determineColumns = (
   contentType: ContentTypeName | 'all',
   windowWidth?: number,
   hide?: string[],
+  media?: Function,
 ) => {
   const formatDate = (date: string) => {
     const d = new Date(date);
@@ -25,6 +27,11 @@ export const determineColumns = (
     const fullText = removeHtmlTags(text);
     return `${fullText.substring(0, 220)} ...`;
   };
+
+  const playMedia = (p: IContentSearchResult) => {
+    !!media && media(p);
+  };
+
   // columns common to all content
   const baseCols: ITableHookColumn<IContentSearchResult>[] = [
     {
@@ -46,7 +53,12 @@ export const determineColumns = (
                 <div className="date">{formatDate(cell.original.publishedOn)}</div>
               </td>
               <td className="headlineColumn">
-                <div className="headline">{cell.original.headline}</div>
+                <div className="headline">
+                  {cell.original.headline}
+                  <Show visible={cell.original.hasTranscript}>
+                    <FaFeather className="fa-lg trancript-icon" title="Has Transcript" />
+                  </Show>
+                </div>
               </td>
             </tr>
             {!hide?.includes('teaser') && cell.original.body !== '' && (
@@ -56,6 +68,71 @@ export const determineColumns = (
                 </td>
               </tr>
             )}
+            {!hide?.includes('teaser') &&
+              cell.original.contentType === ContentTypeName.AudioVideo && (
+                <tr>
+                  <td colSpan={2} align="center">
+                    <Show visible={!!cell.original.displayMedia && cell.original.displayMedia}>
+                      <Show
+                        visible={
+                          cell.original.fileReferences.length > 0 &&
+                          cell.original.fileReferences[0].contentType.startsWith('audio/') &&
+                          !!cell.original.displayMedia &&
+                          cell.original.displayMedia
+                        }
+                      >
+                        <audio controls>
+                          <source
+                            src={cell.original.mediaUrl}
+                            type={
+                              cell.original.fileReferences.length > 0
+                                ? cell.original.fileReferences[0].contentType
+                                : ''
+                            }
+                          />
+                          HTML5 Audio is required
+                        </audio>
+                      </Show>
+                      <Show
+                        visible={
+                          cell.original.fileReferences.length > 0 &&
+                          cell.original.fileReferences[0].contentType.startsWith('video/') &&
+                          !!cell.original.displayMedia &&
+                          cell.original.displayMedia
+                        }
+                      >
+                        <video
+                          controls
+                          height={windowWidth! > 500 ? 389 : 135}
+                          width={windowWidth! > 500 ? 488 : 240}
+                          preload="metadata"
+                        >
+                          <source
+                            src={cell.original.mediaUrl}
+                            type={
+                              cell.original.fileReferences.length > 0
+                                ? cell.original.fileReferences[0].contentType
+                                : ''
+                            }
+                          />
+                          HTML5 Audio is required
+                        </video>
+                      </Show>
+                      <div className="copyrightParent">
+                        <div className="copyrightIcon">
+                          <FaCopyright />
+                        </div>
+                        <div className="copyrightText">
+                          Copyright protected and owned by broadcaster. Your licence is limited to
+                          internal, non-commercial, government use. All reproduction, broadcast,
+                          transmission, or other use of this work is prohibited and subject to
+                          licence.
+                        </div>
+                      </div>
+                    </Show>
+                  </td>
+                </tr>
+              )}
           </tbody>
         </table>
       ),
@@ -69,7 +146,20 @@ export const determineColumns = (
       label: '',
       isVisible: !hide?.includes('sectionPage'),
       cell: (cell) => (
-        <div className="section">{`${cell.original.section}: ${cell?.original.page}`}</div>
+        <>
+          <Show visible={cell.original.contentType === ContentTypeName.AudioVideo}>
+            <FaPlayCircle
+              className="fa-lg"
+              onClick={(e) => {
+                e.stopPropagation();
+                playMedia(cell.original);
+              }}
+            />
+          </Show>
+          <Show visible={cell.original.contentType !== ContentTypeName.AudioVideo}>
+            <div className="section">{`${cell.original.section}: ${cell?.original.page}`}</div>
+          </Show>
+        </>
       ),
       width: windowWidth && windowWidth > 1000 ? 1 : 0.5,
     },

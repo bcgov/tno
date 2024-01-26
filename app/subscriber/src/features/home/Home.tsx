@@ -33,7 +33,7 @@ export const Home: React.FC = () => {
     {
       home: { filter },
     },
-    { findContentWithElasticsearch, storeHomeFilter: storeFilter },
+    { findContentWithElasticsearch, storeHomeFilter: storeFilter, stream },
   ] = useContent();
   const navigate = useNavigate();
   const { width } = useWindowSize();
@@ -57,25 +57,73 @@ export const Home: React.FC = () => {
     else return 'all';
   }, [filter.contentTypes]);
 
+  const createStream = async (item: IContentSearchResult) => {
+    const fileReference = item?.fileReferences ? item?.fileReferences[0] : undefined;
+    if (!!fileReference) return stream(fileReference.path);
+    return undefined;
+  };
+
+  const sortFunc = (key: string) => {
+    switch (key) {
+      case 'published':
+        return (a: IContentModel, b: IContentModel) => (a.publishedOn > b.publishedOn ? 1 : -1);
+      case 'source':
+        return (a: IContentModel, b: IContentModel) => {
+          if (a.source && b.source) {
+            return a.source.sortOrder > b.source.sortOrder ? 1 : -1;
+          }
+          return -1;
+        };
+      default:
+        return (a: IContentModel, b: IContentModel) => (a.publishedOn > b.publishedOn ? 1 : -1);
+    }
+  };
+
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
+        let firstSort = '';
+        let secondSort = '';
+        switch (sortBy) {
+          case 'time':
+            firstSort = 'source';
+            secondSort = 'published';
+            break;
+          case 'source':
+            firstSort = 'published';
+            secondSort = 'source';
+            break;
+          default:
+            firstSort = 'published';
+            secondSort = 'source';
+        }
         const res: any = await findContentWithElasticsearch(filter, false);
         setContent(
           res.hits.hits
             .map((h: { _source: IContentModel }) => h._source)
-            .sort((a: IContentModel, b: IContentModel) => (a.publishedOn > b.publishedOn ? 1 : -1))
-            .sort((a: IContentModel, b: IContentModel) => {
-              if (a.source && b.source) {
-                return a.source.sortOrder > b.source.sortOrder ? 1 : -1;
-              }
-              return -1;
-            }),
+            .sort(sortFunc(firstSort))
+            .sort(sortFunc(secondSort)),
         );
       } catch {}
     },
-    [findContentWithElasticsearch],
+    [findContentWithElasticsearch, sortBy],
   );
+
+  const displayMedia = async (r: IContentSearchResult) => {
+    const list = [...content];
+    const e = list.find((e) => e.id === r.id);
+    if (!!e) {
+      if (!e.mediaUrl) {
+        createStream(e).then((result) => {
+          e.mediaUrl = result;
+          e.displayMedia = result !== undefined ? true : false;
+        });
+      } else {
+        e.displayMedia = !e.displayMedia;
+      }
+      setContent(list);
+    }
+  };
 
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
@@ -170,7 +218,6 @@ export const Home: React.FC = () => {
               <Row className="option">
                 <Radio
                   checked={sortBy === 'time'}
-                  disabled
                   className="option"
                   onChange={(e) =>
                     (e.target as HTMLInputElement).checked ? setSortBy('time') : setSortBy('')
@@ -186,13 +233,20 @@ export const Home: React.FC = () => {
       <Row className="table-container">
         <FlexboxTable
           rowId="id"
-          columns={determineColumns(contentType, width, disabledCols)}
+          columns={determineColumns(contentType, width, disabledCols, displayMedia)}
           isMulti
           groupBy={(item) => {
             if (item.original.source?.name && sortBy === 'source')
               return item.original.source?.name;
             else if (item.original.publishedOn && sortBy === 'time')
-              return item.original.publishedOn;
+              return new Date(item.original.publishedOn).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+              });
             else return ' ';
           }}
           onRowClick={(e: any) => {
