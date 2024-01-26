@@ -18,6 +18,7 @@ using TNO.Services.Reporting.Models;
 using TNO.TemplateEngine;
 using TNO.TemplateEngine.Models;
 using TNO.TemplateEngine.Models.Reports;
+using TNO.TemplateEngine.Converters;
 
 namespace TNO.Services.Reporting;
 
@@ -360,6 +361,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             {
                 var sortOrder = 0;
                 section.Content = this.ReportEngine.OrderBySectionField(results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).OrderBy(c => c.SortOrder).ToArray(), section.Settings.SortBy);
+                if (results.Aggregations != null)
+                {
+                    section.Aggregations = new Dictionary<string, TNO.TemplateEngine.Models.Reports.AggregationRootModel>();
+                    foreach (var aggregation in results.Aggregations)
+                    {
+                        section.Aggregations.Add(aggregation.Key, aggregation.Value.Convert());
+                    }
+                }
             }
             return section;
         });
