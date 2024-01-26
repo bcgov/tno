@@ -162,22 +162,24 @@ export const FilterMediaLanding: React.FC = () => {
               >
                 Show all
               </div>
-              {narrowedOptions.map((opt) => {
-                return (
-                  <div
-                    key={`${opt.id}`}
-                    onClick={() => {
-                      setActiveSource(opt);
-                      storeFilter({ ...filter, sourceIds: [opt.id] });
-                    }}
-                    className={`${
-                      activeSource?.name === opt.name ? 'active' : 'inactive'
-                    }-narrowed-option`}
-                  >
-                    {opt.name}
-                  </div>
-                );
-              })}
+              <div className="scroll-container">
+                {narrowedOptions.map((opt) => {
+                  return (
+                    <div
+                      key={`${opt.id}`}
+                      onClick={() => {
+                        setActiveSource(opt);
+                        storeFilter({ ...filter, sourceIds: [opt.id] });
+                      }}
+                      className={`${
+                        activeSource?.name === opt.name ? 'active' : 'inactive'
+                      } narrowed-option`}
+                    >
+                      {opt.name}
+                    </div>
+                  );
+                })}
+              </div>
             </Col>
           </Row>
         </PageSection>

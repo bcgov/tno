@@ -3,6 +3,10 @@ import { Row } from 'tno-core';
 
 export const FilterMediaLanding = styled(Row)`
   .filters {
+    .scroll-container {
+      max-height: calc(100dvh - 20rem);
+      overflow-y: auto;
+    }
     font-size: 1.2rem;
     width: 45%;
     .show-all {
@@ -34,6 +38,9 @@ export const FilterMediaLanding = styled(Row)`
       }
       .option {
         cursor: pointer;
+        &:hover {
+          text-decoration: underline;
+        }
         padding-left: 1rem;
         display: flex;
         align-items: center;
@@ -46,13 +53,16 @@ export const FilterMediaLanding = styled(Row)`
       margin-left: 1rem;
       margin-bottom: 0.5rem;
       overflow-y: auto;
-      .active-narrowed-option {
+      .narrowed-option {
+        cursor: pointer;
+        &:hover {
+          text-decoration: underline;
+        }
+        max-width: fit-content;
+      }
+      .active {
         color: ${(props) => props.theme.css.bkWhite};
         background-color: ${(props) => props.theme.css.btnBkPrimary};
-        cursor: pointer;
-      }
-      .inactive-narrowed-option {
-        cursor: pointer;
       }
       .alpha-filter {
         .active-letter {
@@ -61,6 +71,10 @@ export const FilterMediaLanding = styled(Row)`
         }
         font-weight: bold;
         div {
+          &:hover {
+            text-decoration: underline;
+            transform: scale(1.3);
+          }
           padding-left: 0.25rem;
           padding-right: 0.25rem;
           cursor: pointer;
@@ -70,5 +84,9 @@ export const FilterMediaLanding = styled(Row)`
   }
   .results {
     width: 55%;
+    .table {
+      max-height: calc(100dvh - 20rem);
+      overflow-y: auto;
+    }
   }
 `;
