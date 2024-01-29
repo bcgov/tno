@@ -18,6 +18,7 @@ export const defaultIngest: IIngestModel = {
   sourceConnectionId: 0,
   destinationConnectionId: 0,
   retryLimit: 0,
+  resetRetryAfterDelayMs: 0,
   failedAttempts: 0,
   lastRanOn: undefined,
   schedules: [],

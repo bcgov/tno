@@ -103,6 +103,11 @@ public class IngestModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
+    public int ResetRetryAfterDelayMs { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
     public int FailedAttempts { get; set; }
 
     /// <summary>
@@ -142,6 +147,7 @@ public class IngestModel : AuditColumnsModel
         this.ScheduleType = entity.ScheduleType;
         this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
         this.RetryLimit = entity.RetryLimit;
+        this.ResetRetryAfterDelayMs = entity.ResetRetryAfterDelayMs;
 
         this.IngestTypeId = entity.IngestTypeId;
         this.IngestType = entity.IngestType != null ? new IngestTypeModel(entity.IngestType) : null;
@@ -189,6 +195,7 @@ public class IngestModel : AuditColumnsModel
             ScheduleType = model.ScheduleType,
             Configuration = JsonDocument.Parse(JsonSerializer.Serialize(model.Configuration)),
             RetryLimit = model.RetryLimit,
+            ResetRetryAfterDelayMs = model.ResetRetryAfterDelayMs,
             State = new Entities.IngestState(model.Id)
             {
                 LastRanOn = model.LastRanOn,

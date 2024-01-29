@@ -88,6 +88,11 @@ public class IngestModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
+    public int ResetRetryAfterDelayMs { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
     public int FailedAttempts { get; set; }
 
     /// <summary>
@@ -116,6 +121,7 @@ public class IngestModel : AuditColumnsModel
         this.IsEnabled = entity.IsEnabled;
         this.ScheduleType = entity.ScheduleType;
         this.RetryLimit = entity.RetryLimit;
+        this.ResetRetryAfterDelayMs = entity.ResetRetryAfterDelayMs;
 
         this.IngestTypeId = entity.IngestTypeId;
         this.IngestType = entity.IngestType != null ? new IngestTypeModel(entity.IngestType) : null;

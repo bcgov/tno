@@ -116,6 +116,13 @@ public class Ingest : AuditColumns
     public int RetryLimit { get; set; }
 
     /// <summary>
+    /// get/set - Failure limit can be reset after this many seconds wait since LastRun.
+    /// Default value of 0 means never auto reset.
+    /// </summary>
+    [Column("reset_retry_after_delay_ms")]
+    public int ResetRetryAfterDelayMs { get; set; } = 0;
+
+    /// <summary>
     /// get/set - Ingest service state.
     /// </summary>
     public virtual IngestState? State { get; set; }

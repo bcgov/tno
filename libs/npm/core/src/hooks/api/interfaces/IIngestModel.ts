@@ -25,6 +25,7 @@ export interface IIngestModel extends IAuditColumnsModel {
   scheduleType: ScheduleTypeName;
   configuration: any;
   retryLimit: number;
+  resetRetryAfterDelayMs: number;
   sourceConnectionId: number;
   sourceConnection?: IConnectionModel;
   destinationConnectionId: number;
