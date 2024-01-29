@@ -133,8 +133,15 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                     {
                         if (ingest.FailedAttempts >= ingest.RetryLimit)
                         {
-                            this.Logger.LogWarning("Ingest '{name}' has reached maximum failure limit", ingest.Name);
-                            continue;
+                            if (ingest.LastRanOn.HasValue && ingest.ResetRetryAfterDelayMs > 0 
+                                && ingest.LastRanOn.Value.AddSeconds(ingest.ResetRetryAfterDelayMs) <= DateTime.UtcNow) {
+                                this.Logger.LogInformation("Ingest '{name}' failure auto reset after '{resetRetryDelay}' seconds", ingest.Name, ingest.ResetRetryAfterDelayMs);
+                                manager.Ingest.FailedAttempts = 0;
+                                // this.State.ResetFailures();        
+                            } else {
+                                this.Logger.LogWarning("Ingest '{name}' has reached maximum failure limit", ingest.Name);
+                                continue;
+                            }
                         }
 
                         // TODO: This needs to run asynchronously so that many ingests are being acted upon at one time.

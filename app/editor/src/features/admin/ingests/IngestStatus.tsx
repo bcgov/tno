@@ -45,7 +45,14 @@ export const IngestStatus: React.FC<IIngestStatusProps> = (props) => {
           width={FieldSize.Tiny}
         />
         <FormikText
-          label="Failures"
+          label="Reset Interval (seconds)"
+          name="resetRetryAfterDelayMs"
+          tooltip="After hitting the failure limit, the service will auto-reset after this many seconds. Set to [0] for no auto-reset."
+          type="number"
+          width={FieldSize.Tiny}
+        />
+        <FormikText
+          label="Failure Count"
           name="failedAttempts"
           tooltip="Number of sequential failures"
           disabled
