@@ -7,6 +7,11 @@ export const FilterMediaLanding = styled(Row)`
       max-height: calc(100dvh - 20rem);
       overflow-y: auto;
     }
+    .page-section {
+      position: fixed;
+      top: 4.25rem;
+      width: 40%;
+    }
     font-size: 1.2rem;
     width: 45%;
     .show-all {
@@ -54,6 +59,7 @@ export const FilterMediaLanding = styled(Row)`
       margin-bottom: 0.5rem;
       overflow-y: auto;
       .narrowed-option {
+        padding: 0 0.25rem 0 0.25rem;
         cursor: pointer;
         &:hover {
           text-decoration: underline;
