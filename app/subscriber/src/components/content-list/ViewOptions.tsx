@@ -25,12 +25,12 @@ export const ViewOptions: React.FC<IViewOptionsProps> = ({
         <div className="show">
           <h3>Show:</h3>
           <Checkbox
-            label="Section"
-            name="section"
+            label="Teasers"
+            checked={viewStates.teaser}
+            name="teaser"
             className="checkbox"
-            checked={viewStates.section}
             onChange={(e) => {
-              setViewStates((prev) => ({ ...prev, section: e.target.checked }));
+              setViewStates((prev) => ({ ...prev, teaser: e.target.checked }));
             }}
           />
           <Checkbox
@@ -43,26 +43,17 @@ export const ViewOptions: React.FC<IViewOptionsProps> = ({
             }}
           />
           <Checkbox
-            label="Teaser"
-            checked={viewStates.teaser}
-            name="teaser"
+            label="Page numbers"
+            name="section"
             className="checkbox"
+            checked={viewStates.section}
             onChange={(e) => {
-              setViewStates((prev) => ({ ...prev, teaser: e.target.checked }));
-            }}
-          />
-          <Checkbox
-            label="Date"
-            name="date"
-            checked={viewStates.date}
-            className="checkbox"
-            onChange={(e) => {
-              setViewStates((prev) => ({ ...prev, date: e.target.checked }));
+              setViewStates((prev) => ({ ...prev, section: e.target.checked }));
             }}
           />
         </div>
         <Col className="group-by">
-          <h3>Group By:</h3>
+          <h3>Organize By:</h3>
           <Row>
             <Radio
               className="radio"
@@ -71,7 +62,7 @@ export const ViewOptions: React.FC<IViewOptionsProps> = ({
               checked={groupBy === 'source'}
               onChange={(e) => setGroupBy(e.target.checked ? 'source' : 'time')}
             />
-            <label htmlFor="source">Source</label>
+            <label htmlFor="source">Media Source</label>
           </Row>
           <Row>
             <Radio

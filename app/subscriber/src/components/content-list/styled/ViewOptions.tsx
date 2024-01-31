@@ -3,6 +3,7 @@ import styled from 'styled-components';
 export const ViewOptions = styled.div`
   display: flex;
   align-items: center;
+  text-transform: uppercase;
   h3 {
     margin-bottom: 0;
   }
