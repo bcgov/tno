@@ -5,4 +5,5 @@ export interface IContentSearchResult extends IContentModel {
   mediaUrl?: string | undefined;
   displayMedia?: boolean;
   ministerName?: string;
+  ministerMentions?: string[];
 }

@@ -5,4 +5,6 @@ export interface IMinisterModel extends ISortableModel<number> {
   organizationId?: number;
   organization?: IOrganizationModel;
   position: string;
+  hide?: boolean;
+  contentCount?: number;
 }
