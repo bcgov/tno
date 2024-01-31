@@ -18,7 +18,6 @@ export const ViewOptions: React.FC<IViewOptionsProps> = ({
   groupBy,
   setGroupBy,
 }) => {
-  console.log(viewStates);
   return (
     <styled.ViewOptions>
       <FaGear className="gear" data-tooltip-id="view-options" />
