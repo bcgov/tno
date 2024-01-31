@@ -34,6 +34,19 @@ export const MyMinister = styled.div`
     }
   }
 
+  // headline column
+  .column.col-2 {
+    width: 35rem;
+    flex: unset;
+    div {
+      width: 100%;
+      justify-content: center;
+      svg.tone-icon {
+        margin-left: unset;
+      }
+    }
+  }
+
   .headline {
     /* link color */
     color: #3847aa;
@@ -44,15 +57,11 @@ export const MyMinister = styled.div`
   }
 
   .dateColumn {
-    width: 20%;
+    width: 30%;
   }
 
   .headlineColumn {
-    width: 60%;
-  }
-
-  .mentionsColumn {
-    width: 20%;
+    width: 70%;
   }
 
   .td-date {

@@ -85,7 +85,7 @@ export const MyMinister: React.FC = () => {
   );
 
   React.useEffect(() => {
-    const fillMentions = (summary: string, ministerName: string) => {
+    const fillMentions = (r: IContentSearchResult, ministerName: string) => {
       const mentions: string[] = [];
       ministers
         .filter((m) => userInfo?.preferences?.myMinisters?.includes(m.id))
@@ -94,11 +94,11 @@ export const MyMinister: React.FC = () => {
           let includeMention = false;
           const aliases = m.aliases.split(',');
           for (let i = 0; i <= aliases.length; i++) {
-            if (summary.includes(aliases[i])) {
+            if (r.summary.includes(aliases[i]) || r.body.includes(aliases[i])) {
               includeMention = true;
             }
           }
-          if (summary.includes(m.name)) {
+          if (r.summary.includes(m.name) || r.body.includes(m.name)) {
             includeMention = true;
           }
           if (includeMention && m.name !== ministerName) {
@@ -110,9 +110,12 @@ export const MyMinister: React.FC = () => {
 
     const contentList: IContentSearchResult[] = [];
     if (userInfo?.preferences?.myMinisters?.length > 0 && ministers.length > 0) {
-      let ministerModels = ministers.filter((m) =>
-        userInfo?.preferences?.myMinisters?.includes(m.id),
-      );
+      let ministerModels = ministers
+        .filter((m) => userInfo?.preferences?.myMinisters?.includes(m.id))
+        .map((m) => {
+          return { ...m, contentCount: 0 };
+        })
+        .sort((a: IMinisterModel, b: IMinisterModel) => (`${a.name}` > `${b.name}` ? 1 : -1));
       if (ministerModels) {
         ministerModels.forEach(async (m) => {
           const res = await fetchResults(
@@ -132,22 +135,20 @@ export const MyMinister: React.FC = () => {
           if (!!res && res.length > 0) {
             res.forEach((r) => {
               r.ministerName = m.name;
-              r.ministerMentions = fillMentions(r.summary, m.name);
+              r.ministerMentions = fillMentions(r, m.name);
+              m.contentCount += 1;
               contentList.push(r);
             });
           }
         });
+        setUserMinisters(ministerModels);
         setContent(contentList);
       }
     }
   }, [userInfo?.preferences?.myMinisters, ministers, fetchResults, filter]);
 
   React.useEffect(() => {
-    setFilteredContent(
-      content.sort((a: IContentSearchResult, b: IContentSearchResult) =>
-        `${a.ministerName}` > `${b.ministerName}` ? 1 : -1,
-      ),
-    );
+    setFilteredContent(content);
   }, [content]);
 
   /** controls the checking and unchecking of rows in the list view */
@@ -168,17 +169,13 @@ export const MyMinister: React.FC = () => {
       m.hide = hide;
     }
     setUserMinisters(ministersList);
-    let contentToFilter = [...content];
+    let filteredContent = [...content];
     ministersList
       .filter((m) => m.hide)
       .forEach((m) => {
-        contentToFilter = contentToFilter.filter((c) => c.ministerName !== m.name);
+        filteredContent = filteredContent.filter((c) => c.ministerName !== m.name);
       });
-    setFilteredContent(
-      contentToFilter.sort((a: IContentSearchResult, b: IContentSearchResult) =>
-        `${a.ministerName}` > `${b.ministerName}` ? 1 : -1,
-      ),
-    );
+    setFilteredContent(filteredContent);
   };
 
   return (
@@ -193,7 +190,7 @@ export const MyMinister: React.FC = () => {
         {userMinisters.map((m) => {
           return (
             <Checkbox
-              label={`${m.name} (${content.filter((c) => c.ministerName === m.name).length})`}
+              label={`${m.name} (${m.contentCount})`}
               className="option"
               checked={!m.hide}
               onClick={(e) => {

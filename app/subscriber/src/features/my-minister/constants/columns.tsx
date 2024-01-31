@@ -39,13 +39,6 @@ export const determineColumns = (
               <td className="headlineColumn">
                 <div className="headline">{cell.original.headline}</div>
               </td>
-              <td className="mentionsColumn">
-                <div className="mentions">
-                  {cell.original.ministerMentions?.map((m) => {
-                    return <div className="mentionTag">{m}</div>;
-                  })}
-                </div>
-              </td>
             </tr>
           </tbody>
         </table>
@@ -67,8 +60,27 @@ export const determineColumns = (
       ),
     },
   ];
+
+  // columns specific to my minister mentions
+  const mentionCols: ITableHookColumn<IContentSearchResult>[] = [
+    {
+      accessor: 'sectionPage',
+      label: '',
+      isVisible: !hide?.includes('sectionPage'),
+      cell: (cell) => (
+        <div className="mentionsColumn">
+          <div className="mentions">
+            {cell.original.ministerMentions?.map((m) => {
+              return <div className="mentionTag">{m}</div>;
+            })}
+          </div>
+        </div>
+      ),
+    },
+  ];
+
   if (contentType === ContentTypeName.PrintContent || contentType === 'all') {
-    return [...baseCols, ...printCols];
+    return [...baseCols, ...printCols, ...mentionCols];
   } else {
     return baseCols;
   }
