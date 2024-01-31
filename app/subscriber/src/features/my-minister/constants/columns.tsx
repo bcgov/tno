@@ -2,12 +2,7 @@ import { Sentiment } from 'components/sentiment';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import { ContentTypeName, ITableHookColumn, Show } from 'tno-core';
 
-export const determineColumns = (
-  contentType: ContentTypeName | 'all',
-  windowWidth?: number,
-  hide?: string[],
-  media?: Function,
-) => {
+export const determineColumns = (contentType: ContentTypeName | 'all', hide?: string[]) => {
   const formatDate = (date: string) => {
     const d = new Date(date);
     const day = d.toLocaleDateString('en-us', { day: '2-digit' });
@@ -64,14 +59,18 @@ export const determineColumns = (
   // columns specific to my minister mentions
   const mentionCols: ITableHookColumn<IContentSearchResult>[] = [
     {
-      accessor: 'sectionPage',
+      accessor: 'mentions',
       label: '',
-      isVisible: !hide?.includes('sectionPage'),
+      isVisible: !hide?.includes('mentions'),
       cell: (cell) => (
         <div className="mentionsColumn">
           <div className="mentions">
             {cell.original.ministerMentions?.map((m) => {
-              return <div className="mentionTag">{m}</div>;
+              return (
+                <div key={`${cell.original.id}-${m}`} className="mentionTag">
+                  {m}
+                </div>
+              );
             })}
           </div>
         </div>

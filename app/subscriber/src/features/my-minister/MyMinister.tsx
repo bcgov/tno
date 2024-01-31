@@ -190,6 +190,7 @@ export const MyMinister: React.FC = () => {
         {userMinisters.map((m) => {
           return (
             <Checkbox
+              key={m.id}
               label={`${m.name} (${m.contentCount})`}
               className="option"
               checked={!m.hide}
