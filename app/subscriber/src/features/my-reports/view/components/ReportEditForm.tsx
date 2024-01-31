@@ -8,14 +8,22 @@ import { useParams } from 'react-router-dom';
 import { useProfileStore } from 'store/slices';
 import { Row } from 'tno-core';
 
-import { IReportForm } from '../../interfaces';
+import { IReportForm, IReportInstanceContentForm } from '../../interfaces';
 import { ReportPreviewForm, ReportSections, ReportSendForm } from '.';
 
 export interface IReportEditFormProps {
   disabled?: boolean;
+  /** Whether to show the add story row */
+  showAdd?: boolean;
+  /** Event fires when the content headline is clicked. */
+  onContentClick?: (content: IReportInstanceContentForm) => void;
 }
 
-export const ReportEditForm: React.FC<IReportEditFormProps> = ({ disabled }) => {
+export const ReportEditForm: React.FC<IReportEditFormProps> = ({
+  disabled,
+  showAdd,
+  onContentClick,
+}) => {
   const { values } = useFormikContext<IReportForm>();
   const { path = 'content' } = useParams();
   const [, { storeReportOutput }] = useProfileStore();
@@ -25,13 +33,18 @@ export const ReportEditForm: React.FC<IReportEditFormProps> = ({ disabled }) => 
       {
         key: 'id',
         type: 'other',
-        label: values.name ? values.name : '[Report Name]',
+        label: values.name ? <label className="h2">{values.name}</label> : '[Report Name]',
         className: 'report-name',
       },
       {
         key: 'content',
         to: `/reports/${values.id}/edit/content`,
-        label: <Action label={`${disabled ? 'View' : 'Edit'} Content`} />,
+        label: <Action label="Stories" />,
+      },
+      {
+        key: 'sections',
+        to: `/reports/${values.id}/edit/sections`,
+        label: <Action label="Sections" />,
       },
       {
         key: 'preview',
@@ -49,7 +62,7 @@ export const ReportEditForm: React.FC<IReportEditFormProps> = ({ disabled }) => 
         label: <Action label="Send" />,
       },
     ],
-    [disabled, storeReportOutput, values.id, values.name],
+    [storeReportOutput, values.id, values.name],
   );
 
   return (
@@ -57,7 +70,18 @@ export const ReportEditForm: React.FC<IReportEditFormProps> = ({ disabled }) => 
       {(tab) => {
         if (tab?.key === 'preview') return <ReportPreviewForm />;
         else if (tab?.key === 'send') return <ReportSendForm />;
-        return <ReportSections disabled={disabled} />;
+        else if (tab?.key === 'sections')
+          return (
+            <ReportSections disabled={disabled} form={'sections'} onContentClick={onContentClick} />
+          );
+        return (
+          <ReportSections
+            disabled={disabled}
+            showAdd={showAdd}
+            form={path === 'content' ? 'stories' : 'sections'}
+            onContentClick={onContentClick}
+          />
+        );
       }}
     </Tabs>
   );

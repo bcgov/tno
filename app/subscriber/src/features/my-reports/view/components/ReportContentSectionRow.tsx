@@ -3,18 +3,15 @@ import { Sentiment } from 'components/sentiment';
 import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { FaCheck, FaGripLines, FaPen, FaX } from 'react-icons/fa6';
-import { Link } from 'react-router-dom';
+import { FaGripLines, FaX } from 'react-icons/fa6';
 import { useApp } from 'store/hooks';
 import { Checkbox, Col, IOptionItem, Row, Select, Text } from 'tno-core';
-
-import { ContentForm, UserContentForm } from '.';
 
 export interface IReportContentSectionRowProps {
   /** Whether to show the form to edit content. */
   show?: 'all' | 'summary' | 'none';
   /** index of content item in section */
-  index: number;
+  contentIndex: number;
   /** The content item. */
   row: IReportInstanceContentForm;
   /** Whether the form is disabled. */
@@ -23,6 +20,8 @@ export interface IReportContentSectionRowProps {
   onRemove?: (index: number, row: IReportInstanceContentForm) => void;
   /** Whether to show the checkbox to select the row. */
   showCheckbox?: boolean;
+  /** Event fires when the content headline is clicked. */
+  onContentClick?: (content: IReportInstanceContentForm) => void;
   /** Event fires when selecting the checkbox */
   onSelect?: (checked: boolean, row: IReportInstanceContentForm) => void;
   /** Whether to show the select section */
@@ -41,9 +40,10 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
   show: initShow = 'none',
   row,
   disabled,
-  index,
+  contentIndex,
   onRemove,
   showCheckbox,
+  onContentClick,
   onSelect,
   showSelectSection,
   onChangeSection,
@@ -53,7 +53,6 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
 }) => {
   const [{ userInfo }] = useApp();
 
-  const [show, setShow] = React.useState(initShow);
   const [sortOrder, setSortOrder] = React.useState(row.sortOrder);
 
   const userId = userInfo?.id ?? 0;
@@ -90,9 +89,9 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
           {row.content.publishedOn ? moment(row.content.publishedOn).format('DD-MMM-YYYY') : ''}
         </Col>
         <Col flex="1">
-          <Link to={`/view/${row.contentId}`} target="blank">
+          <span className="link" onClick={() => onContentClick?.(row)}>
             {headline}
-          </Link>
+          </span>
         </Col>
         <Col>{row.content.page ? `(P.${row.content.page})` : ''}</Col>
         {!disabled && showSortOrder && (
@@ -127,28 +126,16 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
           {!disabled && (
             <>
               <Action
-                icon={show === 'none' ? <FaPen /> : <FaCheck />}
-                title="edit"
-                onClick={() => {
-                  setShow(show === 'none' ? 'all' : 'none');
-                }}
-                disabled={disabled}
-              />
-              <Action
                 icon={<FaX />}
                 title="remove"
                 onClick={() => onRemove?.(row.originalIndex, row)}
                 disabled={disabled}
+                className="remove-link"
               />
             </>
           )}
         </Row>
       </Row>
-      {row.content.ownerId === userId && row.content.isPrivate ? (
-        <UserContentForm index={row.originalIndex} show={show} />
-      ) : (
-        <ContentForm index={row.originalIndex} show={show} />
-      )}
     </Col>
   );
 };

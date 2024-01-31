@@ -1,10 +1,6 @@
 import styled from 'styled-components';
 
 export const ReportEdit = styled.div`
-  .tab-container {
-    max-height: calc(100dvh - 280px);
-    overflow-y: auto;
-  }
   .tab.report-name {
     display: flex;
     flex-direction: row;
@@ -100,5 +96,51 @@ export const ReportEdit = styled.div`
         background: ${(props) => props.theme.css.highlightSecondary};
       }
     }
+  }
+
+  .link {
+    cursor: pointer;
+    color: ${(props) => props.theme.css.linkPrimaryColor};
+
+    &:hover {
+      color: ${(props) => props.theme.css.linkPrimaryHoverColor};
+      font-weight: 600;
+    }
+  }
+
+  .remove-link svg {
+    color: ${(props) => props.theme.css.fRedColor};
+  }
+
+  .sub-title {
+    color: ${(props) => props.theme.css.fPrimaryColor};
+    padding: 0;
+
+    label.h2 {
+      font-size: 14pt;
+    }
+
+    p {
+      font-size: 14pt;
+      font-weight: 100;
+      margin: 0;
+    }
+  }
+
+  .content-bar {
+    .byline {
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .source {
+      text-transform: uppercase;
+    }
+  }
+
+  .add-story {
+    justify-content: center;
+    align-items: center;
+    border-bottom: solid 1px ${(props) => props.theme.css.fPrimaryColor};
+    padding: 0 0 0.5rem 0;
   }
 `;
