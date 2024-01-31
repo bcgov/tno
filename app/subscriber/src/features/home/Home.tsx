@@ -9,13 +9,7 @@ import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React, { useMemo } from 'react';
 import { useContent, useLookup } from 'store/hooks';
-import {
-  generateQuery,
-  IContentModel,
-  IFilterSettingsModel,
-  ITableInternalRow,
-  Row,
-} from 'tno-core';
+import { generateQuery, IContentModel, IFilterSettingsModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 

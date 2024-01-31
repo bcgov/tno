@@ -28,11 +28,11 @@ export const ContentList: React.FC<IContentListProps> = ({
   const grouped = groupContent(groupBy, content);
 
   // State to keep track of checked items
-  const [checkedItems, setCheckedItems] = React.useState<Set<string>>(new Set());
+  const [checkedItems, setCheckedItems] = React.useState<Set<number>>(new Set());
 
   const handleCheckboxChange = (item: IContentModel, isChecked: boolean) => {
     setCheckedItems((prevCheckedItems) => {
-      const itemId = String(item.id);
+      const itemId = item.id;
       const newCheckedItems = new Set(prevCheckedItems);
       if (isChecked) {
         newCheckedItems.add(itemId);
@@ -55,7 +55,7 @@ export const ContentList: React.FC<IContentListProps> = ({
           <div>
             {grouped[group].map((item) => (
               <Col
-                className={`content-row ${checkedItems.has(String(item.id)) ? 'checked' : ''}`}
+                className={`content-row ${checkedItems.has(item.id) ? 'checked' : ''}`}
                 key={item.id}
               >
                 <Row>
