@@ -1,6 +1,5 @@
-import { IReportInstanceContentModel } from 'tno-core';
-
 import { defaultContent, defaultReportInstanceContent } from '../constants';
+import { IReportInstanceContentForm } from '../interfaces';
 
 export const createReportInstanceContent = (
   instanceId: number,
@@ -8,11 +7,12 @@ export const createReportInstanceContent = (
   userId: number,
   licenseId: number,
   mediaTypeId: number,
-): IReportInstanceContentModel => {
+): IReportInstanceContentForm => {
   return {
     ...defaultReportInstanceContent,
     instanceId,
     sectionName,
+    originalIndex: 0,
     content: { ...defaultContent, ownerId: userId, licenseId, mediaTypeId },
   };
 };

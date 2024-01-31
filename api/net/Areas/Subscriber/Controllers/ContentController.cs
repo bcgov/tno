@@ -213,6 +213,7 @@ public class ContentController : ControllerBase
 
         // If user does not own the content and hasn't submitted a version.
         if (content.OwnerId != user.Id && !model.Versions.ContainsKey(user.Id)) throw new NotAuthorizedException("User does not own content");
+        _contentService.ClearChangeTracker();
 
         if (content.OwnerId == user.Id)
         {
@@ -229,12 +230,15 @@ public class ContentController : ControllerBase
             content.Summary = model.Summary;
             content.Body = model.Body;
             content.Versions = model.Versions;
-            content.TonePoolsManyToMany.ForEach(tp =>
+            foreach (var tonePool in model.TonePools)
             {
-                var newValue = model.TonePools.FirstOrDefault(mtp => mtp.Id == tp.TonePoolId);
-                if (newValue != null)
-                    tp.Value = newValue.Value;
-            });
+                // Update or Add.
+                var currentTonePool = content.TonePoolsManyToMany.FirstOrDefault((ctp) => ctp.TonePoolId == tonePool.Id);
+                if (currentTonePool == null)
+                    content.TonePoolsManyToMany.Add(new Entities.ContentTonePool(tonePool.ContentId, tonePool.Id, tonePool.Value));
+                else if (currentTonePool.Value != tonePool.Value)
+                    currentTonePool.Value = tonePool.Value;
+            }
             content.Version = model.Version ?? 0;
             content = _contentService.UpdateAndSave(content);
         }

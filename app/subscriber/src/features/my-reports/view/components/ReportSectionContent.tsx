@@ -1,7 +1,11 @@
+import { Action } from 'components/action';
 import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
+import { FaPlus } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import { useApp, useLookup } from 'store/hooks';
 import {
   Col,
   FormikText,
@@ -10,22 +14,30 @@ import {
   IReportInstanceModel,
   OptionItem,
   ReportSectionTypeName,
+  Row,
+  Settings,
   Show,
 } from 'tno-core';
 
 import { IReportForm } from '../../interfaces';
-import { sortContent, sortReportContent } from '../../utils';
+import { createReportInstanceContent, sortContent, sortReportContent } from '../../utils';
 import { ReportContentSectionRow } from './ReportContentSectionRow';
 
 export interface IReportSectionContentProps extends React.AllHTMLAttributes<HTMLDivElement> {
   /** Array index position of section. */
-  index: number;
+  sectionIndex: number;
   /** Icon to display in header */
   icon?: React.ReactNode;
   /** Enable toggling the form values */
   showForm?: boolean;
+  /** Show the section content. */
+  showContent?: boolean;
+  /** Whether to show the add story row */
+  showAdd?: boolean;
   /** Form is disabled. */
   disabled?: boolean;
+  /** Event fires when the row is clicked. */
+  onContentClick?: (content: IReportInstanceContentForm) => void;
 }
 
 /**
@@ -34,14 +46,23 @@ export interface IReportSectionContentProps extends React.AllHTMLAttributes<HTML
  * A content section can also display charts.
  */
 export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
-  index,
+  sectionIndex,
   showForm,
+  showContent = true,
+  showAdd,
   disabled,
+  onContentClick,
   ...rest
 }) => {
+  const [{ userInfo }] = useApp();
   const { values, setFieldValue } = useFormikContext<IReportForm>();
+  const [{ isReady, settings }] = useLookup();
 
-  const section = values.sections[index];
+  const [defaultLicenseId, setDefaultLicenseId] = React.useState(0);
+  const [defaultMediaTypeId, setDefaultMediaTypeId] = React.useState(0);
+
+  const userId = userInfo?.id ?? 0;
+  const section = values.sections[sectionIndex];
   const instance = values.instances.length ? values.instances[0] : null;
   const sectionContent =
     instance?.content
@@ -58,6 +79,32 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
   const sectionOptions = values.sections
     .filter((s) => s.sectionType === ReportSectionTypeName.Content)
     .map((s) => new OptionItem(s.settings.label, s.name));
+
+  React.useEffect(() => {
+    if (isReady) {
+      const defaultLicenseId = settings.find(
+        (s) => s.name === Settings.DefaultSubscriberContentLicense,
+      )?.value;
+      if (defaultLicenseId) setDefaultLicenseId(+defaultLicenseId);
+      else
+        toast.error(
+          `Configuration settings '${Settings.DefaultSubscriberContentLicense}' is required.`,
+        );
+    }
+  }, [isReady, settings]);
+
+  React.useEffect(() => {
+    if (isReady) {
+      const defaultMediaTypeId = settings.find(
+        (s) => s.name === Settings.DefaultSubscriberContentMediaType,
+      )?.value;
+      if (defaultMediaTypeId) setDefaultMediaTypeId(+defaultMediaTypeId);
+      else
+        toast.error(
+          `Configuration settings '${Settings.DefaultSubscriberContentMediaType}' is required.`,
+        );
+    }
+  }, [isReady, settings]);
 
   const handleRemoveContent = React.useCallback(
     async (index: number) => {
@@ -98,18 +145,34 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
     [setFieldValue, values],
   );
 
+  const addStory = React.useCallback(
+    (instanceId: number | undefined, sectionName: string) => {
+      if (instanceId) {
+        const newContent = createReportInstanceContent(
+          instanceId,
+          sectionName,
+          userId,
+          defaultLicenseId,
+          defaultMediaTypeId,
+        );
+        onContentClick?.(newContent);
+      }
+    },
+    [defaultLicenseId, defaultMediaTypeId, onContentClick, userId],
+  );
+
   if (instance == null) return null;
 
   return (
     <Col gap="0.5rem">
       <Show visible={showForm}>
         <FormikText
-          name={`sections.${index}.settings.label`}
+          name={`sections.${sectionIndex}.settings.label`}
           label="Section heading:"
           disabled={disabled}
         />
         <FormikTextArea
-          name={`sections.${index}.description`}
+          name={`sections.${sectionIndex}.description`}
           label="Summary text:"
           disabled={disabled}
         />
@@ -127,46 +190,60 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
         <Droppable droppableId={section.name} isDropDisabled={disabled}>
           {(droppableProvided) => (
             <div {...droppableProvided.droppableProps} ref={droppableProvided.innerRef}>
-              {sectionContent.map((ic, contentInSectionIndex) => {
-                // Only display content in this section.
-                // The original index is needed to provide the ability to drag+drop content into other sections.
-                if (ic.content == null) return null;
-                return (
-                  <Draggable
-                    key={`${ic.sectionName}-${ic.contentId}-${ic.originalIndex}`}
-                    draggableId={`${ic.sectionName}__${ic.contentId}__${ic.originalIndex}`}
-                    index={contentInSectionIndex}
-                    isDragDisabled={disabled}
-                  >
-                    {(draggable) => {
-                      if (!ic.content) return <></>;
+              {showAdd && !disabled && (
+                <Row className="add-story">
+                  <Action
+                    icon={<FaPlus />}
+                    label="Create a story"
+                    onClick={() => addStory(instance.id, section.name)}
+                  />
+                </Row>
+              )}
+              {showContent ? (
+                sectionContent.map((ic, contentInSectionIndex) => {
+                  // Only display content in this section.
+                  // The original index is needed to provide the ability to drag+drop content into other sections.
+                  if (ic.content == null) return null;
+                  return (
+                    <Draggable
+                      key={`${ic.sectionName}-${ic.contentId}-${ic.originalIndex}`}
+                      draggableId={`${ic.sectionName}__${ic.contentId}__${ic.originalIndex}`}
+                      index={contentInSectionIndex}
+                      isDragDisabled={disabled}
+                    >
+                      {(draggable) => {
+                        if (!ic.content) return <></>;
 
-                      return (
-                        <div
-                          ref={draggable.innerRef}
-                          {...draggable.dragHandleProps}
-                          {...draggable.draggableProps}
-                        >
-                          <ReportContentSectionRow
-                            disabled={disabled}
-                            row={ic}
-                            index={contentInSectionIndex}
-                            show={!ic.contentId ? 'all' : 'none'}
-                            onRemove={(index) => handleRemoveContent(index)}
-                            showSelectSection
-                            sectionOptions={sectionOptions}
-                            onChangeSection={(sectionName, row) => {
-                              handleChangeSection(sectionName, row, instance);
-                            }}
-                            showSortOrder
-                            onBlurSortOrder={(row) => handleChangeSortOrder(row, instance)}
-                          />
-                        </div>
-                      );
-                    }}
-                  </Draggable>
-                );
-              })}
+                        return (
+                          <div
+                            ref={draggable.innerRef}
+                            {...draggable.dragHandleProps}
+                            {...draggable.draggableProps}
+                          >
+                            <ReportContentSectionRow
+                              disabled={disabled}
+                              row={ic}
+                              contentIndex={contentInSectionIndex}
+                              show={!ic.contentId ? 'all' : 'none'}
+                              onRemove={(index) => handleRemoveContent(index)}
+                              showSelectSection
+                              sectionOptions={sectionOptions}
+                              onChangeSection={(sectionName, row) => {
+                                handleChangeSection(sectionName, row, instance);
+                              }}
+                              showSortOrder
+                              onBlurSortOrder={(row) => handleChangeSortOrder(row, instance)}
+                              onContentClick={onContentClick}
+                            />
+                          </div>
+                        );
+                      }}
+                    </Draggable>
+                  );
+                })
+              ) : (
+                <></>
+              )}
               {droppableProvided.placeholder}
             </div>
           )}

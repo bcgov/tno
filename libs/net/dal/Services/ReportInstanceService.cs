@@ -147,7 +147,20 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
                     if (ric.Content != null)
                     {
                         // TODO: Small security issue as the JSON could lie about this data.
-                        if (ric.Content.IsPrivate)
+                        if (ric.Content.IsPrivate &&
+                            (ric.Content.Headline != originalInstanceContent?.Content?.Headline ||
+                            ric.Content.Summary != originalInstanceContent.Content?.Summary ||
+                            ric.Content.SourceId != originalInstanceContent.Content?.SourceId ||
+                            ric.Content.OtherSource != originalInstanceContent.Content?.OtherSource ||
+                            ric.Content.PublishedOn != originalInstanceContent.Content?.PublishedOn ||
+                            ric.Content.Byline != originalInstanceContent.Content?.Byline ||
+                            ric.Content.SourceUrl != originalInstanceContent.Content?.SourceUrl ||
+                            ric.Content.Uid != originalInstanceContent.Content?.Uid ||
+                            ric.Content.TonePoolsManyToMany.Any(tp =>
+                            {
+                                var otp = originalInstanceContent.Content.TonePoolsManyToMany.FirstOrDefault(otp => otp.TonePoolId == tp.TonePoolId);
+                                return otp?.Value != tp.Value;
+                            })))
                             this.Context.Entry(ric.Content).State = EntityState.Modified;
                         else
                             this.Context.Entry(ric.Content).State = EntityState.Unchanged;

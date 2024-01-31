@@ -19,7 +19,7 @@ import { ReportContentSectionRow } from './ReportContentSectionRow';
 
 export interface IReportSectionMediaAnalyticsProps extends React.AllHTMLAttributes<HTMLDivElement> {
   /** Array index position of section. */
-  index: number;
+  sectionIndex: number;
   /** Icon to display in header */
   icon?: React.ReactNode;
   /** Enable toggling the form values */
@@ -34,14 +34,14 @@ export interface IReportSectionMediaAnalyticsProps extends React.AllHTMLAttribut
  * A content section can also display charts.
  */
 export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsProps> = ({
-  index,
+  sectionIndex,
   showForm,
   disabled,
   ...rest
 }) => {
   const { values, setFieldValue } = useFormikContext<IReportForm>();
 
-  const section = values.sections[index];
+  const section = values.sections[sectionIndex];
   const instance = values.instances.length ? values.instances[0] : null;
   const sectionContent =
     instance?.content
@@ -104,12 +104,12 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
     <Col gap="0.5rem">
       <Show visible={showForm}>
         <FormikText
-          name={`sections.${index}.settings.label`}
+          name={`sections.${sectionIndex}.settings.label`}
           label="Section heading:"
           disabled={disabled}
         />
         <FormikTextArea
-          name={`sections.${index}.description`}
+          name={`sections.${sectionIndex}.description`}
           label="Summary text:"
           disabled={disabled}
         />
@@ -148,7 +148,7 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
                           <ReportContentSectionRow
                             disabled={disabled}
                             row={ic}
-                            index={contentInSectionIndex}
+                            contentIndex={contentInSectionIndex}
                             show={!ic.contentId ? 'all' : 'none'}
                             onRemove={(index) => handleRemoveContent(index)}
                             showSelectSection

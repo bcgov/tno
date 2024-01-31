@@ -1,15 +1,13 @@
 import { Action } from 'components/action';
 import { Section } from 'components/section';
 import { SectionIcon, SectionLabel } from 'features/my-reports/admin/components';
-import { IReportForm } from 'features/my-reports/interfaces';
-import { createReportInstanceContent, moveContent, sortContent } from 'features/my-reports/utils';
+import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
+import { moveContent } from 'features/my-reports/utils';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { DragDropContext, DropResult, ResponderProvided } from 'react-beautiful-dnd';
-import { FaAngleDown, FaCheck, FaMinus, FaPen, FaPlus } from 'react-icons/fa6';
-import { toast } from 'react-toastify';
-import { useApp, useLookup } from 'store/hooks';
-import { ReportSectionTypeName, Row, Settings, Show } from 'tno-core';
+import { FaAngleDown, FaMinus } from 'react-icons/fa6';
+import { ReportSectionTypeName, Row, Show } from 'tno-core';
 
 import {
   ReportSectionContent,
@@ -21,45 +19,23 @@ import {
 
 export interface IReportSectionsProps {
   disabled?: boolean;
+  /** Whether to show the add story row */
+  showAdd?: boolean;
+  /** Which type of form to display */
+  form?: 'stories' | 'sections';
+  /** Event fires when the content headline is clicked. */
+  onContentClick?: (content: IReportInstanceContentForm) => void;
 }
 
-export const ReportSections: React.FC<IReportSectionsProps> = ({ disabled }) => {
-  const [{ userInfo }] = useApp();
-  const { values, setFieldValue, isSubmitting } = useFormikContext<IReportForm>();
-  const [{ isReady, settings }] = useLookup();
-
-  const [defaultLicenseId, setDefaultLicenseId] = React.useState(0);
-  const [defaultMediaTypeId, setDefaultMediaTypeId] = React.useState(0);
-  const [showForm, setShowForm] = React.useState<number>();
+export const ReportSections: React.FC<IReportSectionsProps> = ({
+  disabled,
+  showAdd,
+  form = 'stories',
+  onContentClick,
+}) => {
+  const { values, setFieldValue } = useFormikContext<IReportForm>();
 
   const instance = values.instances.length ? values.instances[0] : null;
-  const userId = userInfo?.id ?? 0;
-
-  React.useEffect(() => {
-    if (isReady) {
-      const defaultLicenseId = settings.find(
-        (s) => s.name === Settings.DefaultSubscriberContentLicense,
-      )?.value;
-      if (defaultLicenseId) setDefaultLicenseId(+defaultLicenseId);
-      else
-        toast.error(
-          `Configuration settings '${Settings.DefaultSubscriberContentLicense}' is required.`,
-        );
-    }
-  }, [isReady, settings]);
-
-  React.useEffect(() => {
-    if (isReady) {
-      const defaultMediaTypeId = settings.find(
-        (s) => s.name === Settings.DefaultSubscriberContentMediaType,
-      )?.value;
-      if (defaultMediaTypeId) setDefaultMediaTypeId(+defaultMediaTypeId);
-      else
-        toast.error(
-          `Configuration settings '${Settings.DefaultSubscriberContentMediaType}' is required.`,
-        );
-    }
-  }, [isReady, settings]);
 
   /** function that runs after a user drops an item in the list */
   const handleDrop = React.useCallback(
@@ -70,25 +46,6 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({ disabled }) => 
       }
     },
     [instance, setFieldValue],
-  );
-
-  const addStory = React.useCallback(
-    (instanceId: number | undefined, sectionName: string) => {
-      if (instanceId) {
-        const content = sortContent([
-          createReportInstanceContent(
-            instanceId,
-            sectionName,
-            userId,
-            defaultLicenseId,
-            defaultMediaTypeId,
-          ),
-          ...values.instances[0].content,
-        ]);
-        setFieldValue(`instances.0.content`, content);
-      }
-    },
-    [defaultLicenseId, defaultMediaTypeId, setFieldValue, userId, values.instances],
   );
 
   return (
@@ -108,13 +65,13 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({ disabled }) => 
         ) : (
           <Action
             icon={<FaAngleDown />}
-            label="Open all media story sections"
+            label="Open all sections"
             onClick={() => {
               setFieldValue(
                 'sections',
                 values.sections.map((s) => ({
                   ...s,
-                  open: s.sectionType === ReportSectionTypeName.Content,
+                  open: true,
                 })),
               );
             }}
@@ -123,6 +80,15 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({ disabled }) => 
       </Row>
       <DragDropContext onDragEnd={handleDrop}>
         {values.sections.map((section, index) => {
+          if (
+            form === 'stories' &&
+            ![ReportSectionTypeName.Content, ReportSectionTypeName.Gallery].includes(
+              section.sectionType,
+            )
+          ) {
+            return <React.Fragment key={section.id}></React.Fragment>;
+          }
+
           return (
             <Section
               key={section.id}
@@ -133,60 +99,42 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({ disabled }) => 
                   <SectionLabel section={section} showIcon={false} />
                 </Row>
               }
-              actions={({ open }) => {
-                return (
-                  <Row gap="1rem">
-                    {/* <Action disabled={isSubmitting} icon={<FaFileExcel />} title="Export to Excel" /> */}
-                    {[
-                      ReportSectionTypeName.Content,
-                      ReportSectionTypeName.Gallery,
-                      ReportSectionTypeName.MediaAnalytics,
-                    ].includes(section.sectionType) &&
-                      open &&
-                      !disabled && (
-                        <Action
-                          disabled={isSubmitting || disabled}
-                          icon={showForm !== index ? <FaPen /> : <FaCheck />}
-                          title="edit"
-                          onClick={() => setShowForm(index === showForm ? undefined : index)}
-                        />
-                      )}
-                    {section.sectionType === ReportSectionTypeName.Content && !disabled && open && (
-                      <Action
-                        disabled={isSubmitting || disabled}
-                        icon={<FaPlus />}
-                        title="Add custom content"
-                        onClick={() => addStory(instance?.id, section.name)}
-                      />
-                    )}
-                  </Row>
-                );
-              }}
             >
               <Show visible={section.sectionType === ReportSectionTypeName.TableOfContents}>
-                <ReportSectionTableOfContents index={index} showForm={true} disabled={disabled} />
+                <ReportSectionTableOfContents
+                  sectionIndex={index}
+                  showForm={form === 'sections'}
+                  disabled={disabled}
+                />
               </Show>
               <Show visible={section.sectionType === ReportSectionTypeName.Text}>
-                <ReportSectionText index={index} showForm={true} disabled={disabled} />
+                <ReportSectionText
+                  sectionIndex={index}
+                  showForm={form === 'sections'}
+                  disabled={disabled}
+                />
               </Show>
               <Show visible={section.sectionType === ReportSectionTypeName.Content}>
                 <ReportSectionContent
-                  index={index}
-                  showForm={index === showForm}
+                  sectionIndex={index}
+                  showForm={form === 'sections'}
+                  showContent={form === 'stories'}
+                  showAdd={showAdd}
                   disabled={disabled}
+                  onContentClick={onContentClick}
                 />
               </Show>
               <Show visible={section.sectionType === ReportSectionTypeName.MediaAnalytics}>
                 <ReportSectionMediaAnalytics
-                  index={index}
-                  showForm={index === showForm}
+                  sectionIndex={index}
+                  showForm={form === 'sections'}
                   disabled={disabled}
                 />
               </Show>
               <Show visible={section.sectionType === ReportSectionTypeName.Gallery}>
                 <ReportSectionGallery
-                  index={index}
-                  showForm={index === showForm}
+                  sectionIndex={index}
+                  showForm={form === 'sections'}
                   disabled={disabled}
                 />
               </Show>

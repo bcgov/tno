@@ -1,13 +1,19 @@
-import { IReportForm } from 'features/my-reports/interfaces';
-import { useFormikContext } from 'formik';
+import { Bar } from 'components/bar';
+import { Sentiment } from 'components/sentiment';
+import moment from 'moment';
+import React from 'react';
 import { useApp } from 'store/hooks';
-import { Col, Show, TextArea, Wysiwyg } from 'tno-core';
+import { Col, ContentTypeName, IContentModel, Loading, Show, TextArea, Wysiwyg } from 'tno-core';
 
 export interface IContentFormProps extends React.HTMLAttributes<HTMLDivElement> {
-  /** The report instance content index (not the section index). */
-  index: number;
+  /** The content being edited */
+  content?: IContentModel;
   /** Which parts of the form to display */
   show: 'all' | 'summary' | 'none';
+  /** Whether content is loading */
+  loading?: boolean;
+  /** Event fires when content properties are changed. */
+  onContentChange?: (content: IContentModel) => void;
 }
 
 /**
@@ -16,15 +22,15 @@ export interface IContentFormProps extends React.HTMLAttributes<HTMLDivElement> 
  * @returns A component.
  */
 export const ContentForm: React.FC<IContentFormProps> = ({
-  index,
+  content,
   show = 'none',
+  loading,
   className,
+  onContentChange,
   ...rest
 }) => {
-  const { values, setFieldValue } = useFormikContext<IReportForm>();
   const [{ userInfo }] = useApp();
 
-  const content = values.instances[0].content[index].content;
   if (!content) return null;
 
   const userId = userInfo?.id ?? 0;
@@ -34,52 +40,81 @@ export const ContentForm: React.FC<IContentFormProps> = ({
 
   return show === 'none' ? null : (
     <Col className={`edit-content${className ? ` ${className}` : ''}`} {...rest}>
+      <Show visible={loading}>
+        <Loading />
+      </Show>
+      <Bar className="content-bar">
+        <Col className="byline">by {content.byline}</Col>
+        <Col className="date">{moment(content.publishedOn).format('DD-MMM-YYYY hh:mm:ssA')}</Col>
+        <Col flex="1"></Col>
+        <Col className="source">
+          {content.source?.name ?? content.otherSource}
+          {content.contentType === ContentTypeName.PrintContent && content.page
+            ? ` | ${content.page}`
+            : ''}
+        </Col>
+        <Col className="sentiment">
+          <Sentiment value={content.tonePools[0].value} showValue />
+        </Col>
+      </Bar>
       <Show visible={show === 'all'}>
         <TextArea
-          name={`instances.0.content.${index}.versions.${userId}.headline`}
+          name={`headline`}
           label="Headline"
           rows={1}
           onChange={(e) => {
-            setFieldValue(`instances.0.content.${index}.content.versions`, {
-              ...content.versions,
-              [userId]: {
-                ...content.versions?.[userId],
-                headline: e.target.value,
+            const values = {
+              ...content,
+              versions: {
+                ...content.versions,
+                [userId]: {
+                  ...content.versions?.[userId],
+                  headline: e.target.value,
+                },
               },
-            });
+            };
+            onContentChange?.(values);
           }}
           value={headline}
         />
       </Show>
       <Show visible={['all', 'summary'].includes(show)}>
         <Wysiwyg
-          name={`instances.0.content.${index}.versions.${userId}.summary`}
+          name={`summary`}
           label="Summary"
           value={content.versions?.[userId]?.summary ?? ''}
-          onChange={(text) =>
-            setFieldValue(`instances.0.content.${index}.content.versions`, {
-              ...content.versions,
-              [userId]: {
-                ...content.versions?.[userId],
-                summary: text,
+          onChange={(text) => {
+            const values = {
+              ...content,
+              versions: {
+                ...content.versions,
+                [userId]: {
+                  ...content.versions?.[userId],
+                  summary: text,
+                },
               },
-            })
-          }
+            };
+            onContentChange?.(values);
+          }}
         />
       </Show>
       <Show visible={show === 'all'}>
         <Wysiwyg
-          name={`instances.0.content.${index}.versions.${userId}.body`}
+          name={`body`}
           label="Body"
-          value={content.versions?.[userId]?.body ?? content.isApproved ? content.body ?? '' : ''}
+          value={content.versions?.[userId]?.body ?? (content.isApproved ? content.body ?? '' : '')}
           onChange={(text) => {
-            setFieldValue(`instances.0.content.${index}.content.versions`, {
-              ...content.versions,
-              [userId]: {
-                ...content.versions?.[userId],
-                body: text,
+            const values = {
+              ...content,
+              versions: {
+                ...content.versions,
+                [userId]: {
+                  ...content.versions?.[userId],
+                  body: text,
+                },
               },
-            });
+            };
+            onContentChange?.(values);
           }}
         />
       </Show>

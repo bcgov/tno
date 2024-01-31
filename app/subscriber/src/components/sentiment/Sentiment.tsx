@@ -8,6 +8,8 @@ export interface ISentimentProps {
   value?: number;
   /** The title attribute */
   title?: string;
+  /** Whether to also show the value. */
+  showValue?: boolean;
 }
 
 /**
@@ -15,21 +17,22 @@ export interface ISentimentProps {
  * @param tone the numeric value used to determine the icon to present
  * @returns An svg image that represents the tone
  */
-export const Sentiment: React.FC<ISentimentProps> = ({ value, title }) => {
+export const Sentiment: React.FC<ISentimentProps> = ({ value, title, showValue }) => {
   return (
-    <styled.Sentiment>
+    <styled.Sentiment value={value}>
       <Show visible={value === undefined}>
         <FaRegCircle className="tone-icon" color="#E0E0E0" title={title} />
       </Show>
       <Show visible={value !== undefined && value < 0}>
         <FaRegFrown className="tone-icon" color="#DC3545" title={title} />
       </Show>
-      <Show visible={value !== undefined && (value === 0 || !value)}>
+      <Show visible={value !== undefined && value === 0}>
         <FaRegMeh className="tone-icon" color="#FFC107" title={title} />
       </Show>
       <Show visible={value !== undefined && value > 0}>
         <FaRegSmile className="tone-icon" color="#20C997" title={title} />
       </Show>
+      {showValue && <span>{value}</span>}
     </styled.Sentiment>
   );
 };
