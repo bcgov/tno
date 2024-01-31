@@ -13,6 +13,8 @@ export const DateFilter = styled(Row)`
     display: flex;
     .calendar {
       align-self: center;
+      height: 1.25em;
+      width: 1.25em;
     }
   }
   .caret {

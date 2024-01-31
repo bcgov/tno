@@ -1,3 +1,5 @@
+import { ViewOptions } from 'components/content-list';
+import { IGroupByState, IToggleStates } from 'components/content-list/interfaces';
 import { NavbarOptions, navbarOptions } from 'components/navbar/NavbarItems';
 import { PageSection } from 'components/section';
 import { Commentary } from 'features/commentary';
@@ -29,6 +31,15 @@ export const Landing: React.FC = () => {
   const [activeItem, setActiveItem] = React.useState<string>(NavbarOptions.home.label);
   /* active content will be stored from this context in order to inject into subsequent components */
   const [activeContent, setActiveContent] = React.useState<IContentModel[]>();
+  /** content view options determine which attributes are displayed in the content list */
+  const [contentViewOptions, setContentViewOptions] = React.useState<IToggleStates>({
+    section: true,
+    sentiment: true,
+    checkbox: true,
+    date: false,
+    teaser: true,
+  });
+  const [groupBy, setGroupBy] = React.useState<IGroupByState>('source');
   /* keep active item in sync with url */
   React.useEffect(() => {
     if (id)
@@ -50,6 +61,12 @@ export const Landing: React.FC = () => {
               </Show>
               <Show visible={activeItem === NavbarOptions.home.label}>
                 <HomeFilters />
+                <ViewOptions
+                  groupBy={groupBy}
+                  setGroupBy={setGroupBy}
+                  setViewStates={setContentViewOptions}
+                  viewStates={contentViewOptions}
+                />
               </Show>
             </>
           }
@@ -59,7 +76,7 @@ export const Landing: React.FC = () => {
           <div className="content">
             {/* Home is default selected navigation item on login*/}
             <Show visible={activeItem === NavbarOptions.home.label}>
-              <Home />
+              <Home contentViewOptions={contentViewOptions} groupBy={groupBy} />
             </Show>
             <Show visible={activeItem === 'View'}>
               <ViewContent setActiveContent={setActiveContent} />

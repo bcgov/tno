@@ -21,7 +21,8 @@ html {
   font-family: $f-secondary;
 }
 
-input[type='checkbox'] {
+input[type='checkbox'],
+input[type='radio'] {
   accent-color: $btn-bk-primary;
 }
 
@@ -50,6 +51,7 @@ button {
     background-color: $btn-yellow-bk-color;
     border-color: $btn-yellow-color;
   }
+
   &.danger {
     color: $btn-red-color;
     background-color: $btn-red-bk-color;
