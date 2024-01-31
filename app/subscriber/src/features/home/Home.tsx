@@ -127,6 +127,7 @@ export const Home: React.FC<IHomeProps> = ({ contentViewOptions, groupBy }) => {
       <DateFilter filter={filter} storeFilter={storeFilter} />
       <ContentList
         setSelected={setSelected}
+        selected={selected}
         toggleStates={contentViewOptions}
         groupBy={groupBy}
         content={content}

@@ -16,6 +16,8 @@ export interface IContentListProps {
   groupBy: IGroupByState;
   /** determine the selected content based on the checkbox */
   setSelected: React.Dispatch<React.SetStateAction<IContentModel[]>>;
+  /** array of selected content */
+  selected: IContentModel[];
 }
 
 export const ContentList: React.FC<IContentListProps> = ({
@@ -23,28 +25,19 @@ export const ContentList: React.FC<IContentListProps> = ({
   toggleStates,
   groupBy = 'source',
   setSelected,
+  selected,
 }) => {
   const navigate = useNavigate();
   const grouped = groupContent(groupBy, content);
 
-  // State to keep track of checked items
-  const [checkedItems, setCheckedItems] = React.useState<Set<number>>(new Set());
-
   const handleCheckboxChange = (item: IContentModel, isChecked: boolean) => {
-    setCheckedItems((prevCheckedItems) => {
-      const itemId = item.id;
-      const newCheckedItems = new Set(prevCheckedItems);
-      if (isChecked) {
-        newCheckedItems.add(itemId);
-        setSelected((prevSelected) => [...prevSelected, item]);
-      } else {
-        newCheckedItems.delete(itemId);
-        setSelected((prevSelected) =>
-          prevSelected.filter((selectedItem) => selectedItem.id !== item.id),
-        );
-      }
-      return newCheckedItems;
-    });
+    if (isChecked) {
+      setSelected((prevSelected) => [...prevSelected, item]);
+    } else {
+      setSelected((prevSelected) =>
+        prevSelected.filter((selectedItem) => selectedItem.id !== item.id),
+      );
+    }
   };
 
   return (
@@ -55,12 +48,15 @@ export const ContentList: React.FC<IContentListProps> = ({
           <div>
             {grouped[group].map((item) => (
               <Col
-                className={`content-row ${checkedItems.has(item.id) ? 'checked' : ''}`}
+                className={`content-row ${
+                  selected.some((selectedItem) => selectedItem.id === item.id) ? 'checked' : ''
+                }`}
                 key={item.id}
               >
                 <Row>
                   <Checkbox
                     className="checkbox"
+                    checked={selected.some((selectedItem) => selectedItem.id === item.id)}
                     onChange={(e) => {
                       handleCheckboxChange(item, e.target.checked);
                     }}
