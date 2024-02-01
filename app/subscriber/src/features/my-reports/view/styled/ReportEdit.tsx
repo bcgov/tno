@@ -35,6 +35,14 @@ export const ReportEdit = styled.div`
     .section {
       border-left: solid 1px ${(props) => props.theme.css.lineTertiaryColor};
       border-right: solid 1px ${(props) => props.theme.css.lineTertiaryColor};
+
+      .active-content {
+        background-color: ${(props) => props.theme.css.highlightPrimary};
+        border-radius: 0.5rem;
+      }
+      .active-row {
+        background-color: ${(props) => props.theme.css.highlightTertiary};
+      }
     }
   }
 

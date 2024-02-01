@@ -1,3 +1,4 @@
+export * from './ContentEditForm';
 export * from './ContentForm';
 export * from './ReportEditForm';
 export * from './ReportInstanceView';
