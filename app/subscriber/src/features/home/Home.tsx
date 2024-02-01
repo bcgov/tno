@@ -20,11 +20,10 @@ export const Home: React.FC = () => {
     {
       home: { filter },
     },
-    { findContentWithElasticsearch, storeHomeFilter: storeFilter, stream },
+    { findContentWithElasticsearch, storeHomeFilter: storeFilter },
   ] = useContent();
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
-  const [initMedia, setInitMedia] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [settings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(
@@ -38,12 +37,6 @@ export const Home: React.FC = () => {
     if (!!filter?.contentTypes?.length) return filter.contentTypes[0];
     else return 'all';
   }, [filter.contentTypes]);
-
-  const createStream = async (item: IContentSearchResult) => {
-    const fileReference = item?.fileReferences ? item?.fileReferences[0] : undefined;
-    if (!!fileReference) return stream(fileReference.path);
-    return undefined;
-  };
 
   const sortFunc = (key: string) => {
     switch (key) {
@@ -78,43 +71,6 @@ export const Home: React.FC = () => {
     [findContentWithElasticsearch],
   );
 
-  // create readable media stream for each content where fileReference exists
-  React.useEffect(() => {
-    if (initMedia) return;
-
-    if (content.length > 0) {
-      const list = [...content];
-      list.forEach((e) => {
-        if (!e.mediaUrl) {
-          createStream(e).then((result) => {
-            e.mediaUrl = result;
-            e.displayMedia = result !== undefined ? true : false;
-          });
-        } else {
-          e.displayMedia = false;
-        }
-      });
-      setContent(list);
-      setInitMedia(true);
-    }
-  }, [initMedia, content]);
-
-  const displayMedia = async (r: IContentSearchResult) => {
-    const list = [...content];
-    const e = list.find((e) => e.id === r.id);
-    if (!!e) {
-      if (!e.mediaUrl) {
-        createStream(e).then((result) => {
-          e.mediaUrl = result;
-          e.displayMedia = result !== undefined ? true : false;
-        });
-      } else {
-        e.displayMedia = !e.displayMedia;
-      }
-      setContent(list);
-    }
-  };
-
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
     if (!filter.startDate) return;
@@ -142,12 +98,7 @@ export const Home: React.FC = () => {
         />
       </Row>
       <DateFilter filter={filter} storeFilter={storeFilter} />
-      <ContentList
-        setSelected={setSelected}
-        setContent={setContent}
-        selected={selected}
-        content={content}
-      />
+      <ContentList setSelected={setSelected} selected={selected} content={content} />
     </styled.Home>
   );
 };

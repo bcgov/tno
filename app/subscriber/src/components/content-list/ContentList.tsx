@@ -2,6 +2,7 @@ import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+// import { useContent } from 'store/hooks';
 import { Checkbox, Col, IContentModel, Row, Show } from 'tno-core';
 
 import { ContentListContext } from './ContentListContext';
@@ -11,8 +12,6 @@ import { determineToneIcon, groupContent, truncateTeaser } from './utils';
 export interface IContentListProps {
   /** content is an array of content objects to be displayed and manipulated by the content list*/
   content: IContentSearchResult[];
-  /** set content to parent component */
-  setContent: React.Dispatch<React.SetStateAction<IContentSearchResult[]>>;
   /** determine the selected content based on the checkbox */
   setSelected: React.Dispatch<React.SetStateAction<IContentModel[]>>;
   /** array of selected content */
@@ -23,6 +22,7 @@ export const ContentList: React.FC<IContentListProps> = ({ content, setSelected,
   const navigate = useNavigate();
   const { groupBy, viewOptions } = React.useContext(ContentListContext);
   const grouped = groupContent(groupBy, content);
+  // const [{}, { stream }] = useContent();
 
   const handleCheckboxChange = React.useCallback(
     (item: IContentModel, isChecked: boolean) => {
@@ -36,6 +36,12 @@ export const ContentList: React.FC<IContentListProps> = ({ content, setSelected,
     },
     [setSelected],
   );
+
+  // const createStream = async (item: IContentSearchResult) => {
+  //   const fileReference = item?.fileReferences ? item?.fileReferences[0] : undefined;
+  //   if (!!fileReference) return stream(fileReference.path);
+  //   return undefined;
+  // };
 
   return (
     <styled.ContentList>
@@ -65,7 +71,7 @@ export const ContentList: React.FC<IContentListProps> = ({ content, setSelected,
                   <button className="headline" onClick={() => navigate(`/view/${item.id}`)}>
                     {item.headline}
                   </button>
-                  {item.displayMedia && <p>okay</p>}
+                  {!!item.fileReferences.length && <p>okay</p>}
                   <Show visible={viewOptions.section}>
                     {item.section && <div className="section">{item.section}</div>}
                     {item.page && <div className="page-number">{item.page}</div>}
