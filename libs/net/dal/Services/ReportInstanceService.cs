@@ -127,6 +127,8 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         });
         entity.ContentManyToMany.ForEach(ric =>
         {
+            // Duplicate content can be in multiple sections, so we grab the first copy.
+            var originalContent = originalInstanceContents.FirstOrDefault(o => o.ContentId == ric.ContentId)?.Content;
             var originalInstanceContent = originalInstanceContents.FirstOrDefault(o => o.ContentId == ric.ContentId && o.SectionName == ric.SectionName);
             if (originalInstanceContent == null)
             {
@@ -175,23 +177,38 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
             else
             {
                 if (ric.Content != null &&
-                    originalInstanceContent.Content != null &&
+                    originalContent != null &&
                     entity.OwnerId.HasValue)
                 {
-                    // TODO: Small security issue as the JSON could lie about this data.
-                    if (ric.Content.IsPrivate)
+                    if (originalContent.IsPrivate &&
+                        (originalContent.Headline != ric.Content.Headline ||
+                        originalContent.Summary != ric.Content.Summary ||
+                        originalContent.Body != ric.Content.Body ||
+                        originalContent.Byline != ric.Content.Byline ||
+                        originalContent.Section != ric.Content.Section ||
+                        originalContent.Page != ric.Content.Page ||
+                        originalContent.SourceId != ric.Content.SourceId ||
+                        originalContent.OtherSource != ric.Content.OtherSource ||
+                        originalContent.SourceId != ric.Content.SourceId ||
+                        originalContent.PublishedOn != ric.Content.PublishedOn ||
+                        originalContent.Uid != ric.Content.Uid ||
+                        originalContent.TonePoolsManyToMany.Any(tp =>
+                        {
+                            var ntp = ric.Content.TonePoolsManyToMany.FirstOrDefault(ntp => ntp.TonePoolId == tp.TonePoolId);
+                            return ntp?.Value != tp.Value;
+                        })))
                     {
-                        if (ric.Content.GuaranteeUid() && originalInstanceContent.Content.Uid != ric.Content.Uid) originalInstanceContent.Content.Uid = ric.Content.Uid;
-                        this.Context.UpdateContext(originalInstanceContent.Content, ric.Content);
-                        this.Context.Update(originalInstanceContent.Content);
+                        if (ric.Content.GuaranteeUid() && originalContent.Uid != ric.Content.Uid) originalContent.Uid = ric.Content.Uid;
+                        this.Context.UpdateContext(originalContent, ric.Content);
+                        this.Context.Update(originalContent);
                     }
                     else if (ric.Content.Versions.TryGetValue(entity.OwnerId.Value, out Entities.Models.ContentVersion? newVersion))
                     {
                         // Update the content versions if they have been provided.
-                        if (originalInstanceContent.Content.Versions.TryGetValue(entity.OwnerId.Value, out Entities.Models.ContentVersion? currentVersion))
+                        if (originalContent.Versions.TryGetValue(entity.OwnerId.Value, out Entities.Models.ContentVersion? currentVersion))
                         {
                             // Check if this content has already been updated in another section.  If so ignore.
-                            if (this.Context.Entry(originalInstanceContent.Content).State != EntityState.Modified && (
+                            if (this.Context.Entry(originalContent).State != EntityState.Modified && (
                                 newVersion.Summary != currentVersion.Summary ||
                                 newVersion.Body != currentVersion.Body ||
                                 newVersion.Byline != currentVersion.Byline ||
@@ -202,15 +219,16 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
                                 newVersion.OwnerId != currentVersion.OwnerId
                             ))
                             {
-                                originalInstanceContent.Content.Versions[entity.OwnerId.Value] = newVersion;
-                                this.Context.Update(originalInstanceContent.Content);
-                                this.Context.Entry(originalInstanceContent.Content).State = EntityState.Modified;
+                                // Only update the versions information.
+                                originalContent.Versions[entity.OwnerId.Value] = newVersion;
+                                this.Context.Update(originalContent);
+                                this.Context.Entry(originalContent).State = EntityState.Modified;
                             }
                         }
                         else
                         {
-                            originalInstanceContent.Content.Versions.Add(entity.OwnerId.Value, newVersion);
-                            this.Context.Entry(originalInstanceContent.Content).State = EntityState.Modified;
+                            originalContent.Versions.Add(entity.OwnerId.Value, newVersion);
+                            this.Context.Entry(originalContent).State = EntityState.Modified;
                         }
                     }
                 }

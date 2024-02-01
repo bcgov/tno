@@ -1,32 +1,53 @@
 import { Action } from 'components/action';
+import { Button } from 'components/button';
+import { PageSection } from 'components/section';
 import { Tabs } from 'components/tabs';
 import { ITab } from 'components/tabs/interfaces';
+import { toForm } from 'features/my-reports/utils';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaRecycle } from 'react-icons/fa';
-import { useParams } from 'react-router-dom';
+import { FaArrowLeft, FaCloud, FaFileCirclePlus, FaGear } from 'react-icons/fa6';
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useReportInstances, useReports } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Row } from 'tno-core';
+import { Col, Modal, ReportStatusName, Row, useModal } from 'tno-core';
 
 import { IReportForm, IReportInstanceContentForm } from '../../interfaces';
 import { ReportPreviewForm, ReportSections, ReportSendForm } from '.';
 
 export interface IReportEditFormProps {
+  /** Whether edit functionality is disabled. */
   disabled?: boolean;
   /** Whether to show the add story row */
   showAdd?: boolean;
+  /** The active row. */
+  activeRow?: IReportInstanceContentForm;
   /** Event fires when the content headline is clicked. */
   onContentClick?: (content: IReportInstanceContentForm) => void;
 }
 
+/**
+ * Provides a way to move stories around in a report, add new stories, and remove stories.
+ * @param param0 Component properties.
+ * @returns Component.
+ */
 export const ReportEditForm: React.FC<IReportEditFormProps> = ({
   disabled,
   showAdd,
+  activeRow,
   onContentClick,
 }) => {
-  const { values } = useFormikContext<IReportForm>();
+  const navigate = useNavigate();
+  const { values, isSubmitting, submitForm, setValues } = useFormikContext<IReportForm>();
   const { path = 'content' } = useParams();
   const [, { storeReportOutput }] = useProfileStore();
+  const { isShowing, toggle } = useModal();
+  const [, { generateReport }] = useReports();
+  const [{ exportReport }] = useReportInstances();
+
+  const instance = values.instances.length ? values.instances[0] : undefined;
 
   const tabs: ITab[] = React.useMemo(
     () => [
@@ -65,24 +86,140 @@ export const ReportEditForm: React.FC<IReportEditFormProps> = ({
     [storeReportOutput, values.id, values.name],
   );
 
+  const handleExport = React.useCallback(
+    async (report: IReportForm) => {
+      try {
+        if (report?.id) {
+          const instance = report.instances.length ? report.instances[0] : 0;
+          if (instance) {
+            const filename = report.name.replace(/[^a-zA-Z0-9 ]/g, '');
+            await toast.promise(exportReport(instance.id, filename), {
+              pending: 'Downloading file',
+              success: 'Download complete',
+              error: 'Download failed',
+            });
+          } else {
+            toast.error(`The report has not been generated.`);
+          }
+        }
+      } catch {}
+    },
+    [exportReport],
+  );
+
+  const handleRegenerate = React.useCallback(
+    async (values: IReportForm, regenerate: boolean) => {
+      try {
+        const report = await generateReport(values.id, regenerate);
+        setValues(toForm(report, true));
+        if (regenerate) toast.success('Report has been regenerated');
+        else {
+          toast.success('Report has been generated');
+          navigate(`/reports/${values.id}/edit/content`);
+        }
+      } catch {}
+    },
+    [generateReport, navigate, setValues],
+  );
+
   return (
-    <Tabs tabs={tabs} activeTab={path}>
-      {(tab) => {
-        if (tab?.key === 'preview') return <ReportPreviewForm />;
-        else if (tab?.key === 'send') return <ReportSendForm />;
-        else if (tab?.key === 'sections')
+    <PageSection
+      header={
+        <Row flex="1" alignItems="center" gap="1rem">
+          <Col flex="1" gap="0.5rem">
+            <Row>
+              <Action
+                icon={<FaArrowLeft />}
+                label="Back to my reports"
+                onClick={() => navigate('/reports')}
+              />
+            </Row>
+            <Row alignItems="center">
+              <label>Edit Report</label>
+            </Row>
+          </Col>
+          <Col gap="0.5rem">
+            <Row gap="1rem" justifyContent="flex-end">
+              <Action
+                disabled={isSubmitting}
+                icon={<FaGear />}
+                title="Edit report template"
+                onClick={(e) => {
+                  if (e.ctrlKey) toggle();
+                  else navigate(`/reports/${values.id}`);
+                }}
+              />
+              <Action
+                disabled={isSubmitting}
+                icon={
+                  <img
+                    className="excel-icon"
+                    src={'/assets/excel-icon.svg'}
+                    alt="Export to Excel"
+                  />
+                }
+                title="Export to Excel"
+                onClick={() => handleExport(values)}
+              />
+              {!disabled || instance?.status === ReportStatusName.Submitted ? (
+                <Button onClick={() => submitForm()} disabled={isSubmitting || disabled}>
+                  Save
+                  <FaCloud />
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => handleRegenerate(values, true)}
+                  disabled={isSubmitting || disabled}
+                >
+                  Start next report
+                  <FaFileCirclePlus />
+                </Button>
+              )}
+            </Row>
+          </Col>
+        </Row>
+      }
+    >
+      <Tabs tabs={tabs} activeTab={path}>
+        {(tab) => {
+          if (tab?.key === 'preview') return <ReportPreviewForm />;
+          else if (tab?.key === 'send') return <ReportSendForm />;
+          else if (tab?.key === 'sections')
+            return (
+              <ReportSections
+                disabled={disabled}
+                form={'sections'}
+                activeRow={activeRow}
+                onContentClick={onContentClick}
+              />
+            );
           return (
-            <ReportSections disabled={disabled} form={'sections'} onContentClick={onContentClick} />
+            <ReportSections
+              disabled={disabled}
+              showAdd={showAdd}
+              form={path === 'content' ? 'stories' : 'sections'}
+              activeRow={activeRow}
+              onContentClick={onContentClick}
+            />
           );
-        return (
-          <ReportSections
-            disabled={disabled}
-            showAdd={showAdd}
-            form={path === 'content' ? 'stories' : 'sections'}
-            onContentClick={onContentClick}
-          />
-        );
-      }}
-    </Tabs>
+        }}
+      </Tabs>
+      <span></span>
+      <Modal
+        headerText="Regenerate Report"
+        body="Regenerating a report will rerun all filters and update content in the report.  Do you want to proceed?"
+        isShowing={isShowing}
+        hide={toggle}
+        type="default"
+        confirmText="Yes, Regenerate It"
+        onConfirm={async () => {
+          try {
+            await handleRegenerate(values, true);
+          } finally {
+            toggle();
+          }
+        }}
+      />
+    </PageSection>
   );
 };

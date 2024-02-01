@@ -36,6 +36,8 @@ export interface IReportSectionContentProps extends React.AllHTMLAttributes<HTML
   showAdd?: boolean;
   /** Form is disabled. */
   disabled?: boolean;
+  /** The active row. */
+  activeRow?: IReportInstanceContentForm;
   /** Event fires when the row is clicked. */
   onContentClick?: (content: IReportInstanceContentForm) => void;
 }
@@ -51,8 +53,8 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
   showContent = true,
   showAdd,
   disabled,
+  activeRow,
   onContentClick,
-  ...rest
 }) => {
   const [{ userInfo }] = useApp();
   const { values, setFieldValue } = useFormikContext<IReportForm>();
@@ -204,6 +206,11 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
                   // Only display content in this section.
                   // The original index is needed to provide the ability to drag+drop content into other sections.
                   if (ic.content == null) return null;
+                  const isActive =
+                    activeRow?.sectionName === section.name &&
+                    activeRow?.contentId === ic.contentId;
+                  const isSame = activeRow?.contentId === ic.contentId;
+
                   return (
                     <Draggable
                       key={`${ic.sectionName}-${ic.contentId}-${ic.originalIndex}`}
@@ -216,6 +223,9 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
 
                         return (
                           <div
+                            className={`${isSame ? 'active-content ' : ''}${
+                              isActive ? 'active-row' : ''
+                            }`}
                             ref={draggable.innerRef}
                             {...draggable.dragHandleProps}
                             {...draggable.draggableProps}

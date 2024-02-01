@@ -23,6 +23,8 @@ export interface IReportSectionsProps {
   showAdd?: boolean;
   /** Which type of form to display */
   form?: 'stories' | 'sections';
+  /** The active row. */
+  activeRow?: IReportInstanceContentForm;
   /** Event fires when the content headline is clicked. */
   onContentClick?: (content: IReportInstanceContentForm) => void;
 }
@@ -31,6 +33,7 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({
   disabled,
   showAdd,
   form = 'stories',
+  activeRow,
   onContentClick,
 }) => {
   const { values, setFieldValue } = useFormikContext<IReportForm>();
@@ -121,6 +124,7 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({
                   showContent={form === 'stories'}
                   showAdd={showAdd}
                   disabled={disabled}
+                  activeRow={activeRow}
                   onContentClick={onContentClick}
                 />
               </Show>
