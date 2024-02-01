@@ -6,7 +6,7 @@ import { IContentSearchResult } from 'features/utils/interfaces';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { FlexboxTable, generateQuery, IContentModel, Show } from 'tno-core';
+import { FlexboxTable, generateQuery, IContentModel, ITableInternalRow, Show } from 'tno-core';
 
 import { PreviousResults } from './PreviousResults';
 import * as styled from './styled';
@@ -49,6 +49,19 @@ export const FilterMedia: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
+  const selectedIds = selected.map((i) => i.id.toString());
+  /** controls the checking and unchecking of rows in the list view */
+  const handleSelectedRowsChanged = React.useCallback(
+    (row: ITableInternalRow<IContentSearchResult>) => {
+      if (row.isSelected) {
+        setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
+      } else {
+        setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
+      }
+    },
+    [],
+  );
+
   return (
     <styled.FilterMedia>
       <ContentListActionBar
@@ -57,6 +70,7 @@ export const FilterMedia: React.FC = () => {
       />
       <DateFilter filter={filter} storeFilter={storeFilter} />
       <FlexboxTable
+        isMulti
         rowId="id"
         columns={determineColumns('all')}
         groupBy={(item) => item.original.source?.name ?? ''}
@@ -66,6 +80,8 @@ export const FilterMedia: React.FC = () => {
         data={results}
         pageButtons={5}
         showPaging={false}
+        onSelectedChanged={handleSelectedRowsChanged}
+        selectedRowIds={selectedIds}
       />
       <Show visible={!results.length}>
         <PreviousResults results={results} setResults={setResults} />
