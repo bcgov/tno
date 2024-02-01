@@ -13,7 +13,7 @@ export const filterFormat = (filter: IFilterSettingsModel) => {
     endDate: filter.endDate
       ? filter.endDate
       : filter.startDate
-      ? `${moment(filter.startDate).endOf('day')}`
+      ? `${moment(filter.startDate).endOf('day').toISOString()}`
       : undefined,
     from: 0,
     inByline: filter.inByline ?? false,
