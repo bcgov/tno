@@ -122,7 +122,7 @@ export const MyMinister: React.FC = () => {
             generateQuery(
               filterFormat({
                 ...filter,
-                search: makeSimpleQueryString(m.aliases.split(',')),
+                search: makeSimpleQueryString([...m.aliases.split(','), m.name]),
                 startDate: filter.startDate,
                 endDate: filter.endDate,
                 inByline: true,
