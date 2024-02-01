@@ -62,13 +62,20 @@ export const ContentList: React.FC<IContentListProps> = ({ content, setSelected,
                   selected.some((selectedItem) => selectedItem.id === item.id) ? 'checked' : ''
                 }`}
                 key={item.id}
-                onClick={() => navigate(`/view/${item.id}`)}
+                onClick={(e) => {
+                  // Ensure the target is an Element and use .closest to check if the click was inside a checkbox (see comment below)
+                  if (!(e.target instanceof Element) || !e.target.closest('.checkbox')) {
+                    navigate(`/view/${item.id}`);
+                  }
+                }}
               >
                 <Row className="parent-row">
                   <Checkbox
                     className="checkbox"
                     checked={selected.some((selectedItem) => selectedItem.id === item.id)}
                     onChange={(e) => {
+                      // TODO
+                      // e.stopPropagation() does not work, so above we check if the click was inside a checkbox
                       handleCheckboxChange(item, e.target.checked);
                     }}
                   />
@@ -77,7 +84,7 @@ export const ContentList: React.FC<IContentListProps> = ({ content, setSelected,
                     <div className="date">{moment(item.publishedOn).format('DD-MMM-YYYY')}</div>
                   )}
                   <button className="headline">{item.headline}</button>
-                  <Show visible={!!item.fileReferences.length && !activeStream}>
+                  <Show visible={!item.fileReferences.length && !activeStream}>
                     <FaPlayCircle
                       className="play-icon"
                       onClick={(e) => {
