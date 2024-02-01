@@ -3,7 +3,7 @@ import { Button } from 'components/button';
 import { FormikForm } from 'components/formik';
 import { PageSection } from 'components/section';
 import React from 'react';
-import { FaArrowLeft, FaCloud, FaFileCirclePlus, FaFileExcel, FaGear } from 'react-icons/fa6';
+import { FaArrowLeft, FaCloud, FaFileCirclePlus, FaGear } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApiHub, useApp, useContent, useReportInstances, useReports } from 'store/hooks';
@@ -305,7 +305,13 @@ export const ReportEdit: React.FC = () => {
                           />
                           <Action
                             disabled={isSubmitting}
-                            icon={<FaFileExcel />}
+                            icon={
+                              <img
+                                className="excel-icon"
+                                src={process.env.PUBLIC_URL + '/assets/excel-icon.svg'}
+                                alt="Export to Excel"
+                              />
+                            }
                             title="Export to Excel"
                             onClick={() => handleExport(values)}
                           />
