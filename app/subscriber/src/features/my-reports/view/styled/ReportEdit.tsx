@@ -143,4 +143,12 @@ export const ReportEdit = styled.div`
     border-bottom: solid 1px ${(props) => props.theme.css.fPrimaryColor};
     padding: 0 0 0.5rem 0;
   }
+
+  .excel-icon {
+    height: 1.25em;
+    padding: 0.1em;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #8084b1;
+  }
 `;
