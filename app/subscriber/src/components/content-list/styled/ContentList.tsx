@@ -108,6 +108,7 @@ export const ContentList = styled.div`
     padding-bottom: 0.25rem;
     border-bottom: 1px solid ${(props) => props.theme.css.bkStaticGray};
     &:hover {
+      cursor: pointer;
       background-color: ${(props) => props.theme.css.highlightYellow};
       .teaser {
         background-color: ${(props) => props.theme.css.highlightYellowDarker};

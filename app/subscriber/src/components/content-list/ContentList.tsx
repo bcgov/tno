@@ -62,6 +62,7 @@ export const ContentList: React.FC<IContentListProps> = ({ content, setSelected,
                   selected.some((selectedItem) => selectedItem.id === item.id) ? 'checked' : ''
                 }`}
                 key={item.id}
+                onClick={() => navigate(`/view/${item.id}`)}
               >
                 <Row className="parent-row">
                   <Checkbox
@@ -75,17 +76,24 @@ export const ContentList: React.FC<IContentListProps> = ({ content, setSelected,
                   {viewOptions.date && (
                     <div className="date">{moment(item.publishedOn).format('DD-MMM-YYYY')}</div>
                   )}
-                  <button className="headline" onClick={() => navigate(`/view/${item.id}`)}>
-                    {item.headline}
-                  </button>
+                  <button className="headline">{item.headline}</button>
                   <Show visible={!!item.fileReferences.length && !activeStream}>
                     <FaPlayCircle
                       className="play-icon"
-                      onClick={() => setActiveFileReference(item.fileReferences[0])}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveFileReference(item.fileReferences[0]);
+                      }}
                     />
                   </Show>
                   <Show visible={!!activeStream}>
-                    <FaEyeSlash className="eye-slash" onClick={() => setActiveStream('')} />
+                    <FaEyeSlash
+                      className="eye-slash"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveStream('');
+                      }}
+                    />
                   </Show>
                   <Show visible={viewOptions.section}>
                     {item.section && <div className="section">{item.section}</div>}
