@@ -61,6 +61,10 @@ export const ContentList = styled.div`
     font-family: ${(props) => props.theme.css.fPrimary};
   }
 
+  .page-number {
+    margin-left: 0.25rem;
+  }
+
   .play-icon,
   .eye-slash {
     margin-left: auto;
