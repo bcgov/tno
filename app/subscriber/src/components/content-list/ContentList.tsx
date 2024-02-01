@@ -1,44 +1,41 @@
+import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Checkbox, Col, IContentModel, Row, Show } from 'tno-core';
 
-import { IGroupByState, IToggleStates } from './interfaces';
+import { ContentListContext } from './ContentListContext';
 import * as styled from './styled';
 import { determineToneIcon, groupContent, truncateTeaser } from './utils';
 
 export interface IContentListProps {
   /** content is an array of content objects to be displayed and manipulated by the content list*/
-  content: IContentModel[];
-  /** toggleStates is an object that contains the state of the toggleable content information */
-  toggleStates: IToggleStates;
-  /** groupBy is the key by which the content will be grouped */
-  groupBy: IGroupByState;
+  content: IContentSearchResult[];
+  /** set content to parent component */
+  setContent: React.Dispatch<React.SetStateAction<IContentSearchResult[]>>;
   /** determine the selected content based on the checkbox */
   setSelected: React.Dispatch<React.SetStateAction<IContentModel[]>>;
   /** array of selected content */
   selected: IContentModel[];
 }
 
-export const ContentList: React.FC<IContentListProps> = ({
-  content,
-  toggleStates,
-  groupBy = 'source',
-  setSelected,
-  selected,
-}) => {
+export const ContentList: React.FC<IContentListProps> = ({ content, setSelected, selected }) => {
   const navigate = useNavigate();
+  const { groupBy, viewOptions } = React.useContext(ContentListContext);
   const grouped = groupContent(groupBy, content);
 
-  const handleCheckboxChange = (item: IContentModel, isChecked: boolean) => {
-    if (isChecked) {
-      setSelected((prevSelected) => [...prevSelected, item]);
-    } else {
-      setSelected((prevSelected) =>
-        prevSelected.filter((selectedItem) => selectedItem.id !== item.id),
-      );
-    }
-  };
+  const handleCheckboxChange = React.useCallback(
+    (item: IContentModel, isChecked: boolean) => {
+      if (isChecked) {
+        setSelected((prevSelected) => [...prevSelected, item]);
+      } else {
+        setSelected((prevSelected) =>
+          prevSelected.filter((selectedItem) => selectedItem.id !== item.id),
+        );
+      }
+    },
+    [setSelected],
+  );
 
   return (
     <styled.ContentList>
@@ -61,20 +58,21 @@ export const ContentList: React.FC<IContentListProps> = ({
                       handleCheckboxChange(item, e.target.checked);
                     }}
                   />
-                  {toggleStates.sentiment && determineToneIcon(item.tonePools[0])}
-                  {toggleStates.date && (
+                  {viewOptions.sentiment && determineToneIcon(item.tonePools[0])}
+                  {viewOptions.date && (
                     <div className="date">{moment(item.publishedOn).format('DD-MMM-YYYY')}</div>
                   )}
                   <button className="headline" onClick={() => navigate(`/view/${item.id}`)}>
                     {item.headline}
                   </button>
-                  <Show visible={toggleStates.section}>
+                  {item.displayMedia && <p>okay</p>}
+                  <Show visible={viewOptions.section}>
                     {item.section && <div className="section">{item.section}</div>}
                     {item.page && <div className="page-number">{item.page}</div>}
                   </Show>
                 </Row>
                 <Row>
-                  {toggleStates.teaser && (
+                  {viewOptions.teaser && (
                     <div className="teaser">{truncateTeaser(item.body, 250)}</div>
                   )}
                 </Row>

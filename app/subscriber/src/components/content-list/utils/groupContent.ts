@@ -1,9 +1,9 @@
+import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
-import { IContentModel } from 'tno-core';
 
 import { IGroupByState } from '../interfaces';
 
-export const groupContent = (groupBy: IGroupByState, content: IContentModel[]) => {
+export const groupContent = (groupBy: IGroupByState, content: IContentSearchResult[]) => {
   const grouped = content.reduce((acc, item) => {
     if (!item?.source?.name) return acc; // skip if no source
     let key = item.source?.name; // default to source
@@ -23,6 +23,6 @@ export const groupContent = (groupBy: IGroupByState, content: IContentModel[]) =
     }
     acc[key].push(item);
     return acc;
-  }, {} as Record<string, IContentModel[]>);
+  }, {} as Record<string, IContentSearchResult[]>);
   return grouped;
 };

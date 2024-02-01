@@ -3,21 +3,11 @@ import React from 'react';
 import { FaGear } from 'react-icons/fa6';
 import { Checkbox, Col, Radio, Row } from 'tno-core';
 
-import { IGroupByState, IToggleStates } from './interfaces';
+import { ContentListContext } from './ContentListContext';
 import * as styled from './styled';
 
-export interface IViewOptionsProps {
-  viewStates: IToggleStates;
-  setViewStates: React.Dispatch<React.SetStateAction<IToggleStates>>;
-  groupBy: IGroupByState;
-  setGroupBy: React.Dispatch<React.SetStateAction<IGroupByState>>;
-}
-export const ViewOptions: React.FC<IViewOptionsProps> = ({
-  viewStates,
-  setViewStates,
-  groupBy,
-  setGroupBy,
-}) => {
+export const ViewOptions: React.FC = () => {
+  const { viewOptions, setGroupBy, setViewOptions, groupBy } = React.useContext(ContentListContext);
   return (
     <styled.ViewOptions>
       <FaGear className="gear" data-tooltip-id="view-options" />
@@ -26,29 +16,29 @@ export const ViewOptions: React.FC<IViewOptionsProps> = ({
           <h3>Show:</h3>
           <Checkbox
             label="Teasers"
-            checked={viewStates.teaser}
+            checked={viewOptions.teaser}
             name="teaser"
             className="checkbox"
             onChange={(e) => {
-              setViewStates((prev) => ({ ...prev, teaser: e.target.checked }));
+              setViewOptions({ ...viewOptions, teaser: e.target.checked });
             }}
           />
           <Checkbox
             label="Sentiment"
             name="sentiment"
             className="checkbox"
-            checked={viewStates.sentiment}
+            checked={viewOptions.sentiment}
             onChange={(e) => {
-              setViewStates((prev) => ({ ...prev, sentiment: e.target.checked }));
+              setViewOptions({ ...viewOptions, sentiment: e.target.checked });
             }}
           />
           <Checkbox
             label="Page numbers"
             name="section"
             className="checkbox"
-            checked={viewStates.section}
+            checked={viewOptions.section}
             onChange={(e) => {
-              setViewStates((prev) => ({ ...prev, section: e.target.checked }));
+              setViewOptions({ ...viewOptions, section: e.target.checked });
             }}
           />
         </div>

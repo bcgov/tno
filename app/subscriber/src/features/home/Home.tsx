@@ -1,6 +1,5 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { ContentList } from 'components/content-list';
-import { IGroupByState, IToggleStates } from 'components/content-list/interfaces';
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
 import { filterFormat } from 'features/search-page/utils';
@@ -13,14 +12,10 @@ import { generateQuery, IContentModel, IFilterSettingsModel, Row } from 'tno-cor
 
 import * as styled from './styled';
 
-export interface IHomeProps {
-  contentViewOptions: IToggleStates;
-  groupBy: IGroupByState;
-}
 /**
  * Home component that will be rendered when the user is logged in.
  */
-export const Home: React.FC<IHomeProps> = ({ contentViewOptions, groupBy }) => {
+export const Home: React.FC = () => {
   const [
     {
       home: { filter },
@@ -29,6 +24,7 @@ export const Home: React.FC<IHomeProps> = ({ contentViewOptions, groupBy }) => {
   ] = useContent();
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
+  const [initMedia, setInitMedia] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [settings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(
@@ -82,6 +78,27 @@ export const Home: React.FC<IHomeProps> = ({ contentViewOptions, groupBy }) => {
     [findContentWithElasticsearch],
   );
 
+  // create readable media stream for each content where fileReference exists
+  React.useEffect(() => {
+    if (initMedia) return;
+
+    if (content.length > 0) {
+      const list = [...content];
+      list.forEach((e) => {
+        if (!e.mediaUrl) {
+          createStream(e).then((result) => {
+            e.mediaUrl = result;
+            e.displayMedia = result !== undefined ? true : false;
+          });
+        } else {
+          e.displayMedia = false;
+        }
+      });
+      setContent(list);
+      setInitMedia(true);
+    }
+  }, [initMedia, content]);
+
   const displayMedia = async (r: IContentSearchResult) => {
     const list = [...content];
     const e = list.find((e) => e.id === r.id);
@@ -127,9 +144,8 @@ export const Home: React.FC<IHomeProps> = ({ contentViewOptions, groupBy }) => {
       <DateFilter filter={filter} storeFilter={storeFilter} />
       <ContentList
         setSelected={setSelected}
+        setContent={setContent}
         selected={selected}
-        toggleStates={contentViewOptions}
-        groupBy={groupBy}
         content={content}
       />
     </styled.Home>
