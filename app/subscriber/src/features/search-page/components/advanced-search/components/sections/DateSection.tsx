@@ -1,3 +1,4 @@
+import moment from 'moment';
 import React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { FaX } from 'react-icons/fa6';
@@ -46,7 +47,10 @@ export const DateSection: React.FC = () => {
           selectsStart
           endDate={filter?.endDate ? new Date(filter.endDate) : null}
           onChange={(date) => {
-            storeFilter({ ...filter, startDate: date?.toISOString() ?? '' });
+            storeFilter({
+              ...filter,
+              startDate: date ? moment(date)?.startOf('day').toISOString() : '',
+            });
             setDisableQuickPick(true);
           }}
         />
@@ -59,7 +63,10 @@ export const DateSection: React.FC = () => {
           endDate={filter?.endDate ? new Date(filter.endDate) : null}
           onChange={(date) => {
             setDisableQuickPick(true);
-            storeFilter({ ...filter, endDate: date?.toISOString() ?? '' });
+            storeFilter({
+              ...filter,
+              endDate: date ? moment(date)?.endOf('day').toISOString() : '',
+            });
           }}
         />
         <FaX
