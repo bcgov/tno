@@ -54,6 +54,10 @@ export const Home: React.FC = () => {
     }
   };
 
+  const handleContentSelected = React.useCallback((content: IContentModel[]) => {
+    setSelected(content);
+  }, []);
+
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
@@ -98,7 +102,11 @@ export const Home: React.FC = () => {
         />
       </Row>
       <DateFilter filter={filter} storeFilter={storeFilter} />
-      <ContentList setSelected={setSelected} selected={selected} content={content} />
+      <ContentList
+        onContentSelected={handleContentSelected}
+        selected={selected}
+        content={content}
+      />
     </styled.Home>
   );
 };

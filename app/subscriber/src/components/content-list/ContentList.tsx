@@ -15,12 +15,16 @@ export interface IContentListProps {
   /** content is an array of content objects to be displayed and manipulated by the content list*/
   content: IContentSearchResult[];
   /** determine the selected content based on the checkbox */
-  setSelected: React.Dispatch<React.SetStateAction<IContentModel[]>>;
+  onContentSelected: (content: IContentModel[]) => void;
   /** array of selected content */
   selected: IContentModel[];
 }
 
-export const ContentList: React.FC<IContentListProps> = ({ content, setSelected, selected }) => {
+export const ContentList: React.FC<IContentListProps> = ({
+  content,
+  onContentSelected,
+  selected,
+}) => {
   const navigate = useNavigate();
   const { groupBy, viewOptions } = React.useContext(ContentListContext);
   const grouped = groupContent(groupBy, content);
@@ -32,14 +36,12 @@ export const ContentList: React.FC<IContentListProps> = ({ content, setSelected,
   const handleCheckboxChange = React.useCallback(
     (item: IContentModel, isChecked: boolean) => {
       if (isChecked) {
-        setSelected((prevSelected) => [...prevSelected, item]);
+        onContentSelected([...selected, item]);
       } else {
-        setSelected((prevSelected) =>
-          prevSelected.filter((selectedItem) => selectedItem.id !== item.id),
-        );
+        onContentSelected(selected.filter((selectedItem) => selectedItem.id !== item.id));
       }
     },
-    [setSelected],
+    [onContentSelected, selected],
   );
 
   React.useEffect(() => {
@@ -84,7 +86,7 @@ export const ContentList: React.FC<IContentListProps> = ({ content, setSelected,
                     <div className="date">{moment(item.publishedOn).format('DD-MMM-YYYY')}</div>
                   )}
                   <button className="headline">{item.headline}</button>
-                  <Show visible={!item.fileReferences.length && !activeStream}>
+                  <Show visible={!!item.fileReferences.length && !activeStream}>
                     <FaPlayCircle
                       className="play-icon"
                       onClick={(e) => {

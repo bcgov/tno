@@ -24,6 +24,10 @@ export const TodaysCommentary: React.FC = () => {
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
+  const handleContentSelected = React.useCallback((content: IContentModel[]) => {
+    setSelected(content);
+  }, []);
+
   React.useEffect(() => {
     if (!!actions && actions.length > 0) {
       let actionFilters = getFilterActions(actions);
@@ -63,7 +67,11 @@ export const TodaysCommentary: React.FC = () => {
         onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
       />
       <DateFilter filter={filter} storeFilter={storeFilter} />
-      <ContentList content={content} selected={selected} setSelected={setSelected} />
+      <ContentList
+        content={content}
+        selected={selected}
+        onContentSelected={handleContentSelected}
+      />
     </styled.TodaysCommentary>
   );
 };
