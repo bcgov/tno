@@ -50,6 +50,10 @@ export const ContentList = styled.div`
   .section {
     margin-left: auto;
   }
+  .section,
+  .page-number {
+    font-family: ${(props) => props.theme.css.fPrimary};
+  }
 
   .play-icon,
   .eye-slash {
@@ -65,6 +69,8 @@ export const ContentList = styled.div`
   .teaser {
     margin-left: 4.25rem;
     background-color: ${(props) => props.theme.css.teaserBackground};
+    font-family: ${(props) => props.theme.css.fSecondary};
+    font-size: 0.9rem;
     border-radius: 0.25rem;
     padding: 0.25rem;
     margin-bottom: 0.25rem;
@@ -92,6 +98,8 @@ export const ContentList = styled.div`
   }
   .content-row {
     margin-bottom: 0.5rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
     border-bottom: 1px solid ${(props) => props.theme.css.bkStaticGray};
     &:hover {
       background-color: ${(props) => props.theme.css.highlightYellow};
