@@ -47,22 +47,4 @@ export const Home = styled.div`
   .trancript-icon {
     color: ${(props) => props.theme.css.iconTertiaryColor};
   }
-
-  .copyrightParent {
-    width: 488px;
-    display: flex;
-  }
-  .copyrightIcon {
-    color: ${(props) => props.theme.css.iconGrayColor};
-    font-family: ${(props) => props.theme.css?.bcSans};
-    font-size: 14px;
-    margin-right: 5px;
-  }
-  .copyrightText {
-    color: ${(props) => props.theme.css.iconGrayColor};
-    font-family: ${(props) => props.theme.css?.bcSans};
-    font-size: 14px;
-    line-height: 14.5px;
-    text-align: justify;
-  }
 `;

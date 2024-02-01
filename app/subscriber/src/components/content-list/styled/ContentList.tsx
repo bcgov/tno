@@ -5,6 +5,23 @@ export const ContentList = styled.div`
   .group-title {
     border-bottom: 1px solid ${(props) => props.theme.css.border};
   }
+  .media-playback {
+    video {
+      height: 270px;
+      width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .copyright-text {
+      margin-top: 0.5rem;
+      margin-left: auto;
+      margin-right: auto;
+      color: ${(props) => props.theme.css.iconGrayColor};
+      svg {
+        margin-right: 0.25rem;
+      }
+    }
+  }
   .positive {
     color: ${(props) => props.theme.css.toneGreen};
   }
@@ -32,6 +49,18 @@ export const ContentList = styled.div`
   }
   .section {
     margin-left: auto;
+  }
+
+  .play-icon,
+  .eye-slash {
+    margin-left: auto;
+    height: 20px;
+    width: 20px;
+    color: ${(props) => props.theme.css.btnBkPrimary};
+    &:hover {
+      cursor: pointer;
+      transform: scale(1.1);
+    }
   }
   .teaser {
     margin-left: 4.25rem;

@@ -1,9 +1,11 @@
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
+import { FaPlayCircle } from 'react-icons/fa';
+import { FaCopyright, FaEyeSlash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
-// import { useContent } from 'store/hooks';
-import { Checkbox, Col, IContentModel, Row, Show } from 'tno-core';
+import { useContent } from 'store/hooks';
+import { Checkbox, Col, IContentModel, IFileReferenceModel, Row, Show } from 'tno-core';
 
 import { ContentListContext } from './ContentListContext';
 import * as styled from './styled';
@@ -22,7 +24,10 @@ export const ContentList: React.FC<IContentListProps> = ({ content, setSelected,
   const navigate = useNavigate();
   const { groupBy, viewOptions } = React.useContext(ContentListContext);
   const grouped = groupContent(groupBy, content);
-  // const [{}, { stream }] = useContent();
+  const [, { stream }] = useContent();
+
+  const [activeFileReference, setActiveFileReference] = React.useState<IFileReferenceModel>();
+  const [activeStream, setActiveStream] = React.useState<string>();
 
   const handleCheckboxChange = React.useCallback(
     (item: IContentModel, isChecked: boolean) => {
@@ -37,11 +42,13 @@ export const ContentList: React.FC<IContentListProps> = ({ content, setSelected,
     [setSelected],
   );
 
-  // const createStream = async (item: IContentSearchResult) => {
-  //   const fileReference = item?.fileReferences ? item?.fileReferences[0] : undefined;
-  //   if (!!fileReference) return stream(fileReference.path);
-  //   return undefined;
-  // };
+  React.useEffect(() => {
+    if (activeFileReference) {
+      stream(activeFileReference.path).then((result) => {
+        setActiveStream(result);
+      });
+    }
+  }, [activeFileReference, stream, setActiveStream]);
 
   return (
     <styled.ContentList>
@@ -56,7 +63,7 @@ export const ContentList: React.FC<IContentListProps> = ({ content, setSelected,
                 }`}
                 key={item.id}
               >
-                <Row>
+                <Row className="parent-row">
                   <Checkbox
                     className="checkbox"
                     checked={selected.some((selectedItem) => selectedItem.id === item.id)}
@@ -71,16 +78,36 @@ export const ContentList: React.FC<IContentListProps> = ({ content, setSelected,
                   <button className="headline" onClick={() => navigate(`/view/${item.id}`)}>
                     {item.headline}
                   </button>
-                  {!!item.fileReferences.length && <p>okay</p>}
+                  <Show visible={!!item.fileReferences.length && !activeStream}>
+                    <FaPlayCircle
+                      className="play-icon"
+                      onClick={() => setActiveFileReference(item.fileReferences[0])}
+                    />
+                  </Show>
+                  <Show visible={!!activeStream}>
+                    <FaEyeSlash className="eye-slash" onClick={() => setActiveStream('')} />
+                  </Show>
                   <Show visible={viewOptions.section}>
                     {item.section && <div className="section">{item.section}</div>}
                     {item.page && <div className="page-number">{item.page}</div>}
                   </Show>
                 </Row>
                 <Row>
-                  {viewOptions.teaser && (
+                  {viewOptions.teaser && !!item.body && (
                     <div className="teaser">{truncateTeaser(item.body, 250)}</div>
                   )}
+                  <Show visible={!!activeStream}>
+                    <Col className="media-playback">
+                      <video controls src={activeStream} />
+                      <div className="copyright-text">
+                        <FaCopyright />
+                        Copyright protected and owned by broadcaster. Your licence is limited to
+                        internal, non-commercial, government use. All reproduction, broadcast,
+                        transmission, or other use of this work is prohibited and subject to
+                        licence.
+                      </div>
+                    </Col>
+                  </Show>
                 </Row>
               </Col>
             ))}
