@@ -145,10 +145,11 @@ export const ReportEdit = styled.div`
   }
 
   .excel-icon {
-    height: 1.25em;
-    padding: 0.1em;
+    height: 1.3em;
+    padding: 0.15em;
     border-style: solid;
     border-width: 1px;
     border-color: #8084b1;
+    border-radius: 0.2em;
   }
 `;
