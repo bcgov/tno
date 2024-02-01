@@ -10,6 +10,7 @@ import {
   IReportInstanceModel,
   OptionItem,
   ReportSectionTypeName,
+  Row,
   Show,
 } from 'tno-core';
 
@@ -123,55 +124,56 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
       <Show visible={!section.filterId && !section.folderId && !sectionContent.length}>
         <p>Section is empty</p>
       </Show>
-      <Show visible={!!instance.content.length}>
-        <Droppable droppableId={section.name} isDropDisabled={disabled}>
-          {(droppableProvided) => (
-            <div {...droppableProvided.droppableProps} ref={droppableProvided.innerRef}>
-              {sectionContent.map((ic, contentInSectionIndex) => {
-                // Only display content in this section.
-                // The original index is needed to provide the ability to drag+drop content into other sections.
-                if (ic.content == null) return null;
-                return (
-                  <Draggable
-                    key={`${ic.sectionName}-${ic.contentId}-${ic.originalIndex}`}
-                    draggableId={`${ic.sectionName}__${ic.contentId}__${ic.originalIndex}`}
-                    index={contentInSectionIndex}
-                    isDragDisabled={disabled}
-                  >
-                    {(draggable) => {
-                      if (!ic.content) return <></>;
+      <Droppable droppableId={section.name} isDropDisabled={disabled}>
+        {(droppableProvided) => (
+          <div {...droppableProvided.droppableProps} ref={droppableProvided.innerRef}>
+            <Show visible={!sectionContent.length}>
+              <Row justifyContent="center">Drop content here</Row>
+            </Show>
+            {sectionContent.map((ic, contentInSectionIndex) => {
+              // Only display content in this section.
+              // The original index is needed to provide the ability to drag+drop content into other sections.
+              if (ic.content == null) return null;
+              return (
+                <Draggable
+                  key={`${ic.sectionName}-${ic.contentId}-${ic.originalIndex}`}
+                  draggableId={`${ic.sectionName}__${ic.contentId}__${ic.originalIndex}`}
+                  index={contentInSectionIndex}
+                  isDragDisabled={disabled}
+                >
+                  {(draggable) => {
+                    if (!ic.content) return <></>;
 
-                      return (
-                        <div
-                          ref={draggable.innerRef}
-                          {...draggable.dragHandleProps}
-                          {...draggable.draggableProps}
-                        >
-                          <ReportContentSectionRow
-                            disabled={disabled}
-                            row={ic}
-                            contentIndex={contentInSectionIndex}
-                            show={!ic.contentId ? 'all' : 'none'}
-                            onRemove={(index) => handleRemoveContent(index)}
-                            showSelectSection
-                            sectionOptions={sectionOptions}
-                            onChangeSection={(sectionName, row) => {
-                              handleChangeSection(sectionName, row, instance);
-                            }}
-                            showSortOrder
-                            onBlurSortOrder={(row) => handleChangeSortOrder(row, instance)}
-                          />
-                        </div>
-                      );
-                    }}
-                  </Draggable>
-                );
-              })}
-              {droppableProvided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </Show>
+                    return (
+                      <div
+                        ref={draggable.innerRef}
+                        {...draggable.dragHandleProps}
+                        {...draggable.draggableProps}
+                      >
+                        <ReportContentSectionRow
+                          disabled={disabled}
+                          row={ic}
+                          contentIndex={contentInSectionIndex}
+                          show={!ic.contentId ? 'all' : 'none'}
+                          onRemove={(index) => handleRemoveContent(index)}
+                          showSelectSection
+                          sectionOptions={sectionOptions}
+                          onChangeSection={(sectionName, row) => {
+                            handleChangeSection(sectionName, row, instance);
+                          }}
+                          showSortOrder
+                          onBlurSortOrder={(row) => handleChangeSortOrder(row, instance)}
+                        />
+                      </div>
+                    );
+                  }}
+                </Draggable>
+              );
+            })}
+            {droppableProvided.placeholder}
+          </div>
+        )}
+      </Droppable>
     </Col>
   );
 };

@@ -45,7 +45,7 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({
     (result: DropResult, provided: ResponderProvided) => {
       if (instance) {
         const newItems = moveContent(result, instance.content);
-        setFieldValue(`instances.0.content`, newItems);
+        if (newItems) setFieldValue(`instances.0.content`, newItems);
       }
     },
     [instance, setFieldValue],
@@ -83,6 +83,7 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({
       </Row>
       <DragDropContext onDragEnd={handleDrop}>
         {values.sections.map((section, index) => {
+          // Only display content and gallery sections if it's the stories tab.
           if (
             form === 'stories' &&
             ![ReportSectionTypeName.Content, ReportSectionTypeName.Gallery].includes(
