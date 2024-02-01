@@ -12,8 +12,14 @@ export const ContentList = styled.div`
       margin-left: auto;
       margin-right: auto;
     }
+    audio {
+      margin-left: auto;
+      margin-right: auto;
+    }
     .copyright-text {
       margin-top: 0.5rem;
+      font-size: 0.9rem;
+      display: flex;
       margin-left: auto;
       margin-right: auto;
       color: ${(props) => props.theme.css.iconGrayColor};

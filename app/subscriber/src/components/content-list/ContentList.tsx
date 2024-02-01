@@ -98,7 +98,11 @@ export const ContentList: React.FC<IContentListProps> = ({ content, setSelected,
                   )}
                   <Show visible={!!activeStream}>
                     <Col className="media-playback">
-                      <video controls src={activeStream} />
+                      {activeFileReference?.contentType.includes('audio') ? (
+                        <audio controls src={activeStream} />
+                      ) : (
+                        <video controls src={activeStream} />
+                      )}
                       <div className="copyright-text">
                         <FaCopyright />
                         Copyright protected and owned by broadcaster. Your licence is limited to
