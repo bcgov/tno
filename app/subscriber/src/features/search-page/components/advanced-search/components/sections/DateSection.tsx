@@ -8,14 +8,26 @@ import { QuickPickerNames } from './constants';
 import { determineActivePicker } from './utils';
 
 export const DateSection: React.FC = () => {
-  // disable quick picker when user selects a date on react-date-picker
-  const [disableQuickPick, setDisableQuickPick] = React.useState(false);
   const [
     {
       search: { filter },
     },
     { storeSearchFilter: storeFilter },
   ] = useContent();
+
+  // disable quick picker when user selects a date on react-date-picker
+  const [disableQuickPick, setDisableQuickPick] = React.useState(
+    filter?.startDate || filter?.endDate ? true : false,
+  );
+
+  // ensure quick pick is disabled if there's a start or end date
+  React.useEffect(() => {
+    if (filter?.startDate || filter?.endDate) {
+      setDisableQuickPick(true);
+    }
+    // only run when flag changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter?.startDate, filter?.endDate]);
 
   // ensure that date offset is cleared when using the custom date picker
   React.useEffect(() => {
@@ -61,7 +73,9 @@ export const DateSection: React.FC = () => {
       <ToggleGroup
         className="date-range-toggle"
         disabled={disableQuickPick}
-        defaultSelected={determineActivePicker(filter.dateOffset ?? 0)}
+        defaultSelected={
+          disableQuickPick ? undefined : determineActivePicker(filter.dateOffset ?? 0)
+        }
         options={[
           {
             label: QuickPickerNames.Today,
