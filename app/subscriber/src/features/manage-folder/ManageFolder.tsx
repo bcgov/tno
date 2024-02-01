@@ -142,12 +142,13 @@ export const ManageFolder: React.FC = () => {
                             <Row>
                               <Col>
                                 <Checkbox
+                                  checked={selected.includes(item)}
                                   className="checkbox"
-                                  onClick={() => {
-                                    if (selected.includes(item)) {
-                                      setSelected(selected.filter((i) => i !== item));
+                                  onClick={(e) => {
+                                    if (!(e.target as HTMLInputElement).checked) {
+                                      setSelected((selected) => selected.filter((i) => i !== item));
                                     } else {
-                                      setSelected([...selected, item]);
+                                      setSelected((selected) => [...selected, item]);
                                     }
                                   }}
                                 />
