@@ -3,7 +3,7 @@ import React from 'react';
 import { FaFileExport, FaPlay } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useReports } from 'store/hooks';
-import { IContentModel, IReportModel, Link, Row } from 'tno-core';
+import { IContentModel, IReportModel, Link, ReportSectionTypeName, Row } from 'tno-core';
 
 import * as styled from './styled';
 import { toInstanceContent } from './utils';
@@ -100,7 +100,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
   return (
     <styled.AddToMenu>
       <div data-tooltip-id="tooltip-add-to-report" className="action">
-        <FaFileExport /> <span>SELECT REPORT</span>
+        <FaFileExport /> <span>ADD TO REPORT</span>
         <TooltipMenu clickable openOnClick id="tooltip-add-to-report" place="bottom">
           <Row className="report">
             <FaFileExport /> SELECT REPORT...
@@ -122,15 +122,18 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
       <TooltipMenu place="right" id={`tooltip-add-to-section`} clickable openOnClick>
         <div className="list">
           <div className="row-title">SECTIONS:</div>
-          {activeReport?.sections.map((section) => (
-            <Row
-              key={section.id}
-              className="report-item"
-              onClick={() => addContentToReport(section.name)}
-            >
-              {section.settings.label}
-            </Row>
-          ))}
+          {activeReport?.sections.map(
+            (section) =>
+              section.sectionType === ReportSectionTypeName.Content && (
+                <Row
+                  key={section.id}
+                  className="report-item"
+                  onClick={() => addContentToReport(section.name)}
+                >
+                  {section.settings.label}
+                </Row>
+              ),
+          )}
         </div>
       </TooltipMenu>
     </styled.AddToMenu>
