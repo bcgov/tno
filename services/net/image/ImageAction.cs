@@ -63,7 +63,7 @@ public class ImageAction : IngestAction<ImageOptions>
         this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
 
         // This ingest has just begun running.
-        await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
+        await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
 
         // Extract the ingest configuration settings.
         var fileNameExp = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("fileName")) ? manager.Ingest.Source?.Code : manager.Ingest.GetConfigurationValue("fileName");
@@ -196,7 +196,7 @@ public class ImageAction : IngestAction<ImageOptions>
                     }
 
                     // This ingest has just imported a story.
-                    await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
+                    await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
                 }
             }
         }

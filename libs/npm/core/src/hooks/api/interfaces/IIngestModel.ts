@@ -36,4 +36,5 @@ export interface IIngestModel extends IAuditColumnsModel {
   // State properties
   lastRanOn?: string;
   failedAttempts: number;
+  creationDateOfLastItem?: string;
 }

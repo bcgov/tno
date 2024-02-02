@@ -43,11 +43,6 @@ public interface IServiceActionManager
     /// <returns></returns>
     public Task RecordFailureAsync(Exception? error = null);
 
-    /// <summary>
-    /// Updates service config/state.
-    /// </summary>
-    /// <returns></returns>
-    public Task UpdateIngestConfigAsync(string propName, object propValue);
 
     /// <summary>
     /// Send email alert of failure.

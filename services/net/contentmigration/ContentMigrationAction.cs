@@ -194,7 +194,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         // This ingest has just begun running.
-        await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
+        await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
 
         ImportMigrationType importMigrationType = manager.Ingest.GetConfigurationValue<ImportMigrationType>("importMigrationType", ImportMigrationType.Unknown);
         if (importMigrationType == ImportMigrationType.Unknown)
@@ -267,12 +267,12 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             }
             try
             {
-                creationDateOfLastImport = manager.Ingest.GetConfigurationValue<DateTime>("creationDateOfLastImport");
+                creationDateOfLastImport = manager.Ingest.CreationDateOfLastItem;
             }
             catch (Exception)
             {
                 // migration has never been run before.
-                this.Logger.LogInformation("No creationDateOfLastImport found for ingest '{name}'", manager.Ingest.Name);
+                this.Logger.LogInformation("CreationDateOfLastItem not found for ingest '{name}'", manager.Ingest.Name);
             }
         }
 
@@ -313,13 +313,13 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                         creationDateOfLastImport = newsItem.UpdatedOn;
 
                         // This ingest has just processed a story.
-                        await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
+                        await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
                     });
                 }
 
                 // might not have a date set here if the filter retrieved no records
                 if (creationDateOfLastImport != null)
-                    await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport!.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
+                    await manager.UpdateIngestStateCreationDateOfLastItemAsync(creationDateOfLastImport!.Value);
 
                 skip += countOfRecordsRetrieved;
             }
@@ -328,7 +328,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 Logger.LogError("Migration Failed on {skip}:{count}", skip, countOfRecordsRetrieved);
                 // only update the DateTime.MinValue value if it was set
                 if (creationDateOfLastImport != null)
-                    await manager.UpdateIngestConfigAsync("creationDateOfLastImport", creationDateOfLastImport!.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
+                    await manager.UpdateIngestStateCreationDateOfLastItemAsync(creationDateOfLastImport!.Value);
                 throw;
             }
         }

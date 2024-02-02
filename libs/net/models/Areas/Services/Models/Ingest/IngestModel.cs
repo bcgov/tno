@@ -101,6 +101,11 @@ public class IngestModel : AuditColumnsModel
     public DateTime? LastRanOn { get; set; }
 
     /// <summary>
+    /// get/set - Creation date of last ingested content item.
+    /// </summary>
+    public DateTime? CreationDateOfLastItem { get; set; }
+
+    /// <summary>
     /// get/set -
     /// </summary>
     public int RetryLimit { get; set; }
@@ -154,12 +159,15 @@ public class IngestModel : AuditColumnsModel
         this.IngestType = entity.IngestType != null ? new IngestTypeModel(entity.IngestType) : null;
         this.SourceId = entity.SourceId;
         this.Source = entity.Source != null ? new SourceModel(entity.Source, options) : null;
-        this.ScheduleType = entity.ScheduleType;
-        this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
-        this.LastRanOn = entity.State?.LastRanOn;
         this.RetryLimit = entity.RetryLimit;
         this.ResetRetryAfterDelayMs = entity.ResetRetryAfterDelayMs;
+        this.ScheduleType = entity.ScheduleType;
+
+        this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
+
+        this.LastRanOn = entity.State?.LastRanOn;
         this.FailedAttempts = entity.State?.FailedAttempts ?? 0;
+        this.CreationDateOfLastItem = entity.State?.CreationDateOfLastItem;
 
         this.IngestSchedules = entity.SchedulesManyToMany.Select(s => new IngestScheduleModel(s));
         this.DataLocations = entity.DataLocationsManyToMany.Where(d => d.DataLocation != null).Select(d => new DataLocationModel(d.DataLocation!, options));
@@ -196,6 +204,7 @@ public class IngestModel : AuditColumnsModel
             {
                 LastRanOn = model.LastRanOn,
                 FailedAttempts = model.FailedAttempts,
+                CreationDateOfLastItem = model.CreationDateOfLastItem
             },
             Version = model.Version ?? 0
         };

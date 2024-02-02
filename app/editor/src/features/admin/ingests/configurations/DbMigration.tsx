@@ -273,8 +273,8 @@ export const DbMigration: React.FC = (props) => {
           <FormikText
             label="Creation Date of Last Imported Item"
             disabled
-            name="configuration.creationDateOfLastImport"
-            value={values.configuration.creationDateOfLastImport}
+            name="creationDateOfLastItem"
+            value={values.creationDateOfLastItem}
             tooltip="The Creation Date of the last item imported from the Source System"
             formatter={(value) => formatDate(value, 'YYYY-MM-DD h:mm:ss a')}
           />
@@ -284,9 +284,9 @@ export const DbMigration: React.FC = (props) => {
           <Button
             tooltip="Reset"
             variant={ButtonVariant.danger}
-            disabled={!values.configuration.creationDateOfLastImport}
+            disabled={!values.creationDateOfLastItem}
             onClick={() => {
-              setFieldValue('configuration.creationDateOfLastImport', null);
+              setFieldValue('creationDateOfLastItem', null);
             }}
           >
             <FaTrash />

@@ -142,13 +142,6 @@ public interface IApiService
     /// <param name="ingest"></param>
     /// <returns></returns>
     public Task<API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestStateAsync(API.Areas.Services.Models.Ingest.IngestModel ingest);
-
-    /// <summary>
-    /// Make a request to the API to update the ingest configuration.
-    /// </summary>
-    /// <param name="ingest"></param>
-    /// <returns></returns>
-    public Task<API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestConfigAsync(API.Areas.Services.Models.Ingest.IngestModel ingest);
     #endregion
 
     #region Contents

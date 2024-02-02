@@ -60,7 +60,7 @@ public class ClipAction : CommandAction<ClipOptions>
         this.Logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
 
         // This ingest has just begun running.
-        await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
+        await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
 
         // Each schedule will have its own process.
         foreach (var schedule in GetSchedules(manager.Ingest))
@@ -118,7 +118,7 @@ public class ClipAction : CommandAction<ClipOptions>
             finally
             {
                 // This ingest has just completed running for one content item.
-                await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
+                await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
             }
         }
 
