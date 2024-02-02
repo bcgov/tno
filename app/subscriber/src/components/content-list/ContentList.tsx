@@ -31,7 +31,7 @@ export const ContentList: React.FC<IContentListProps> = ({
   const [, { stream }] = useContent();
 
   const [activeFileReference, setActiveFileReference] = React.useState<IFileReferenceModel>();
-  const [activeStream, setActiveStream] = React.useState<string>();
+  const [activeStream, setActiveStream] = React.useState<{ source: string; id: number }>();
 
   const handleCheckboxChange = React.useCallback(
     (item: IContentModel, isChecked: boolean) => {
@@ -45,9 +45,10 @@ export const ContentList: React.FC<IContentListProps> = ({
   );
 
   React.useEffect(() => {
-    if (activeFileReference) {
+    // do not set active stream if the active file reference is an image
+    if (activeFileReference && !activeFileReference.contentType.includes('image')) {
       stream(activeFileReference.path).then((result) => {
-        setActiveStream(result);
+        setActiveStream({ source: result, id: activeFileReference.contentId });
       });
     }
   }, [activeFileReference, stream, setActiveStream]);
@@ -100,7 +101,7 @@ export const ContentList: React.FC<IContentListProps> = ({
                       className="eye-slash"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setActiveStream('');
+                        setActiveStream({ source: '', id: 0 });
                       }}
                     />
                   </Show>
@@ -113,12 +114,13 @@ export const ContentList: React.FC<IContentListProps> = ({
                   {viewOptions.teaser && !!item.body && (
                     <div className="teaser">{truncateTeaser(item.body, 250)}</div>
                   )}
-                  <Show visible={!!activeStream}>
+                  <Show visible={!!activeStream?.source && activeStream.id === item.id}>
                     <Col className="media-playback">
-                      {activeFileReference?.contentType.includes('audio') ? (
-                        <audio controls src={activeStream} />
-                      ) : (
-                        <video controls src={activeStream} />
+                      {activeFileReference?.contentType.includes('audio') && (
+                        <audio controls src={activeStream?.source} />
+                      )}
+                      {activeFileReference?.contentType.includes('video') && (
+                        <video controls src={activeStream?.source} />
                       )}
                       <div className="copyright-text">
                         <FaCopyright />

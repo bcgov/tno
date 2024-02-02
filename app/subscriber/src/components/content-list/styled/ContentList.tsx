@@ -82,7 +82,7 @@ export const ContentList = styled.div`
     font-family: ${(props) => props.theme.css.fSecondary};
     font-size: 0.9rem;
     border-radius: 0.25rem;
-    padding: 0.25rem;
+    padding: 0.2rem;
     margin-bottom: 0.25rem;
     cursor: default;
   }
