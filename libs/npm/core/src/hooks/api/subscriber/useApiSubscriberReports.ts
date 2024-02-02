@@ -6,6 +6,7 @@ import {
   defaultEnvelope,
   ILifecycleToasts,
   IReportFilter,
+  IReportInstanceContentModel,
   IReportInstanceModel,
   IReportModel,
   IReportResultModel,
@@ -79,6 +80,12 @@ export const useApiSubscriberReports = (
         `/subscriber/reports/${reportId}/generate${
           regenerate !== undefined ? `?regenerate=${regenerate}` : ''
         }`,
+      );
+    },
+    addContentToReport: (reportId: number, content: IReportInstanceContentModel[]) => {
+      return api.post<never, AxiosResponse<IReportModel>, any>(
+        `/subscriber/reports/${reportId}/content`,
+        content,
       );
     },
   }).current;

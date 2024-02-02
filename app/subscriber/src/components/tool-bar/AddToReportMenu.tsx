@@ -12,7 +12,8 @@ export interface IAddToReportMenuProps {
   content: IContentModel[];
 }
 export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) => {
-  const [{ myReports }, { updateReport, findMyReports, getReport, generateReport }] = useReports();
+  const [{ myReports }, { addContentToReport, findMyReports, getReport, generateReport }] =
+    useReports();
   const [{ requests }] = useApp();
   const [activeReport, setActiveReport] = React.useState<IReportModel>();
   const [reportId, setReportId] = React.useState<number | null>(null);
@@ -26,7 +27,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
   }, []);
 
   /** Adds the content to the active report. */
-  const addContentToReport = React.useCallback(
+  const handleAddToReport = React.useCallback(
     (sectionName: string) => {
       if (!activeReport) {
         return;
@@ -40,11 +41,11 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
       );
       const update = (report: IReportModel) => {
         let navUrl = `reports/${report.id}/edit`;
-        updateReport(report, true)
+        addContentToReport(report.id, convertedContent)
           .then(() =>
             toast.success(() => (
               <div>
-                {content.length} storie(s) added to report:
+                {content.length} stories added to report:
                 <Link to={navUrl}>{report.name}</Link>
               </div>
             )),
@@ -76,7 +77,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
         update(report);
       }
     },
-    [activeReport, content, updateReport],
+    [activeReport, content, addContentToReport],
   );
 
   // ensure no concurrency errors rather than getting from profile store
@@ -128,7 +129,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
                 <Row
                   key={section.id}
                   className="report-item"
-                  onClick={() => addContentToReport(section.name)}
+                  onClick={() => handleAddToReport(section.name)}
                 >
                   {section.settings.label}
                 </Row>

@@ -16,9 +16,9 @@ using TNO.Services.Managers;
 using TNO.Services.Reporting.Config;
 using TNO.Services.Reporting.Models;
 using TNO.TemplateEngine;
+using TNO.TemplateEngine.Converters;
 using TNO.TemplateEngine.Models;
 using TNO.TemplateEngine.Models.Reports;
-using TNO.TemplateEngine.Converters;
 
 namespace TNO.Services.Reporting;
 
@@ -360,7 +360,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
             {
                 var sortOrder = 0;
-                section.Content = this.ReportEngine.OrderBySectionField(results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).OrderBy(c => c.SortOrder).ToArray(), section.Settings.SortBy);
+                section.Content = ReportEngine.OrderBySectionField(results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).OrderBy(c => c.SortOrder).ToArray(), section.Settings.SortBy);
                 if (results.Aggregations != null)
                 {
                     section.Aggregations = new Dictionary<string, TNO.TemplateEngine.Models.Reports.AggregationRootModel>();

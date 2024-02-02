@@ -120,5 +120,20 @@ public class ReportInstance : AuditColumns
     {
         this.OwnerId = ownerId;
     }
+
+    /// <summary>
+    /// Creates a new instance of a ReportInstance object, initializes with specified parameters.
+    /// This constructor provides a way to group content into sections.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="content"></param>
+    public ReportInstance(long instanceId, int reportId, int? ownerId, IEnumerable<ReportInstanceContent>? content = null)
+        : this(reportId, content)
+    {
+        this.Id = instanceId;
+        this.OwnerId = ownerId;
+    }
     #endregion
 }

@@ -24,7 +24,7 @@ public interface IReportEngine
     /// <param name="sortBy"></param>
     /// <returns>Ordered Content</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    ContentModel[] OrderBySectionField(ContentModel[] content, string sortBy);
+    IEnumerable<ContentModel> OrderBySectionField(IEnumerable<ContentModel> content, string sortBy);
 
     /// <summary>
     /// Executes the chart template provided to generate JSON, which is then sent with a request to the Charts API to generate a base64 image.

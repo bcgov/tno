@@ -317,7 +317,7 @@ public class ReportController : ControllerBase
         if (currentInstance == null)
         {
             // Generate a new instance of this report if there is no current instance, or if it has already been sent.
-            currentInstance = await _reportHelper.GenerateReportInstanceAsync(new Services.Models.Report.ReportModel(report, _serializerOptions), user.Id);
+            currentInstance = await _reportService.GenerateReportInstanceAsync(id, user.Id);
             currentInstance = _reportInstanceService.AddAndSave(currentInstance);
             instances = _reportService.GetLatestInstances(id, user.Id);
             currentInstance.ContentManyToMany.Clear();
@@ -331,7 +331,7 @@ public class ReportController : ControllerBase
                 || new[] { Entities.ReportStatus.Accepted, Entities.ReportStatus.Completed, Entities.ReportStatus.Failed, Entities.ReportStatus.Cancelled }.Contains(currentInstance.Status)))
         {
             // Generate a new instance because the prior was sent to CHES.
-            currentInstance = await _reportHelper.GenerateReportInstanceAsync(new Services.Models.Report.ReportModel(report, _serializerOptions), user.Id);
+            currentInstance = await _reportService.GenerateReportInstanceAsync(id, user.Id);
             currentInstance = _reportInstanceService.AddAndSave(currentInstance);
             instances = _reportService.GetLatestInstances(id, user.Id);
             currentInstance.ContentManyToMany.Clear();
@@ -343,7 +343,7 @@ public class ReportController : ControllerBase
         else if (regenerate && currentInstance.SentOn.HasValue == false)
         {
             // Regenerate the current instance, but do not create a new instance.
-            var regeneratedInstance = await _reportHelper.GenerateReportInstanceAsync(new Services.Models.Report.ReportModel(report, _serializerOptions), user.Id, currentInstance.Id);
+            var regeneratedInstance = await _reportService.GenerateReportInstanceAsync(id, user.Id, currentInstance.Id);
             _reportInstanceService.ClearChangeTracker();
             currentInstance.ContentManyToMany.Clear();
             var count = 0;
@@ -369,6 +369,32 @@ public class ReportController : ControllerBase
         }
 
         return new JsonResult(new ReportModel(report, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Add the specified content to the current report instance.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    /// <exception cref="NotAuthorizedException"></exception>
+    /// <exception cref="NoContentException"></exception>
+    [HttpPost("{id}/content")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public async Task<IActionResult> AddContentToReportAsync(int id, [FromBody] IEnumerable<ReportInstanceContentModel> content)
+    {
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        if (report.OwnerId != user.Id && // User does not own the report
+            !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
+            !report.IsPublic) throw new NotAuthorizedException("Not authorized to review this report"); // Report is not public
+
+        var result = await _reportService.AddContentToReportAsync(id, user.Id, content.Select((c) => (Entities.ReportInstanceContent)c)) ?? throw new NoContentException("Report does not exist");
+        return new JsonResult(new ReportModel(result, _serializerOptions));
     }
     #endregion
 }

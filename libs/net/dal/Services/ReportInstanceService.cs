@@ -254,6 +254,12 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         return base.Update(original);
     }
 
+    /// <summary>
+    /// Update and save the specified 'instance'
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <param name="instanceOnly"></param>
+    /// <returns></returns>
     public ReportInstance UpdateAndSave(ReportInstance instance, bool instanceOnly = false)
     {
         if (instanceOnly)
