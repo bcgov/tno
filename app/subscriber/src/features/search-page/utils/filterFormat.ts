@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { IFilterSettingsModel } from 'tno-core';
 
 export const filterFormat = (filter: IFilterSettingsModel) => {
