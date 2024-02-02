@@ -17,9 +17,9 @@ export interface IBrowserLoginProps {
 export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
   const keycloak = useKeycloakWrapper();
   const authority = keycloak.instance.authServerUrl?.replace(/\/$/, '') ?? window.location.href;
-  const isLocal = false;
-  // new URL(authority).host.startsWith('localhost') ||
-  // new URL(authority).host.startsWith('host.docker.internal');
+  const isLocal =
+    new URL(authority).host.startsWith('localhost') ||
+    new URL(authority).host.startsWith('host.docker.internal');
 
   const [, api] = useSystemMessages();
   const [systemMessage, setSystemMessage] = React.useState<ISystemMessageModel>();
