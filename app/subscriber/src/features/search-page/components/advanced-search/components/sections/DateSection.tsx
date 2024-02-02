@@ -42,6 +42,8 @@ export const DateSection: React.FC = () => {
       <Row className="picker">
         <ReactDatePicker
           className="date-picker"
+          // startDate must not be allowed to be AFTER the end date or AFTER today's date
+          maxDate={filter?.endDate ? new Date(filter.endDate) : new Date()}
           startDate={filter?.startDate ? new Date(filter.startDate) : null}
           selected={filter?.startDate ? new Date(filter.startDate) : null}
           selectsStart
@@ -57,6 +59,10 @@ export const DateSection: React.FC = () => {
         <p>to</p>
         <ReactDatePicker
           className="date-picker"
+          // endDate must not be allowed to be AFTER today's date
+          maxDate={new Date()}
+          // endDate must not be allowed to be BEFORE the startDate
+          minDate={!!filter.startDate ? new Date(filter.startDate) : undefined}
           startDate={filter?.startDate ? new Date(filter.startDate) : null}
           selected={filter?.endDate ? new Date(filter.endDate) : null}
           selectsEnd

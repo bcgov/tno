@@ -53,8 +53,30 @@ export const ConfigureFolder = styled(PageSection)`
       filter: grayscale(0.2);
     }
   }
+  .react-datepicker__time-list-item--selected,
   .react-datepicker__close-icon::after {
+    background-color: rgb(151, 29, 41) !important;
+  }
+  .react-datepicker__close-icon::after {n
     background-color: ${(props) => props.theme.css.btnBkPrimary};
+  }
+  .react-datepicker__day--keyboard-selected,
+  .react-datepicker__day--in-selecting-range {
+    background-color: rgb(151, 29, 41, 0.5);
+  }
+
+  .react-datepicker__day--in-range,
+  .react-datepicker__day--selected {
+    background-color: rgb(151, 29, 41);
+  }
+
+  .react-datepicker__day--keyboard-selected,
+  .react-datepicker__month-text--keyboard-selected,
+  .react-datepicker__quarter-text--keyboard-selected,
+  .react-datepicker__year-text--keyboard-selected {
+    &:hover {
+      background-color: rgb(151, 29, 41);
+    }
   }
   .main-container {
     padding: 1rem;
