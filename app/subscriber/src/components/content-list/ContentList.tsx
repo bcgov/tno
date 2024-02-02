@@ -45,8 +45,7 @@ export const ContentList: React.FC<IContentListProps> = ({
   );
 
   React.useEffect(() => {
-    // do not set active stream if the active file reference is an image
-    if (activeFileReference && !activeFileReference.contentType.includes('image')) {
+    if (activeFileReference) {
       stream(activeFileReference.path).then((result) => {
         setActiveStream({ source: result, id: activeFileReference.contentId });
       });
@@ -87,7 +86,13 @@ export const ContentList: React.FC<IContentListProps> = ({
                     <div className="date">{moment(item.publishedOn).format('DD-MMM-YYYY')}</div>
                   )}
                   <button className="headline">{item.headline}</button>
-                  <Show visible={!!item.fileReferences.length && !activeStream}>
+                  <Show
+                    visible={
+                      !!item.fileReferences.length &&
+                      !activeStream &&
+                      !item.fileReferences[0].contentType.includes('image')
+                    }
+                  >
                     <FaPlayCircle
                       className="play-icon"
                       onClick={(e) => {
