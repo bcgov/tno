@@ -25,12 +25,10 @@ export const BrowserLogin = styled.div`
 
   .idir-logo {
     padding: 1%;
-    background-image: url('/assets/idir_button.svg');
+    background-image: url('/assets/idir_logo_2.png');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    width: 140px;
-    height: 40px;
   }
 
   .login-content {
@@ -49,6 +47,19 @@ export const BrowserLogin = styled.div`
     height: 487px;
     display: flex;
     flex-direction: column;
+    float: left;
+    @media (max-width: 1450px) {
+      min-width: 98%;
+      margin-left: 1%;
+    }
+    @media (max-width: 768px) {
+      margin-bottom: 0.5em;
+    }
+    @media (min-width: 1450px) {
+      max-width: 50em;
+    }
+    width: 50em;
+    margin-right: 1%;
     .footer {
       padding: 2%;
       text-align: left;
@@ -84,7 +95,7 @@ export const BrowserLogin = styled.div`
     &.white {
       background-color: ${(props) => props.theme.css.bkWhite};
       &:hover {
-        background-color: #a61c29;
+        border: 2px solid #a61c29;
       }
     }
   }

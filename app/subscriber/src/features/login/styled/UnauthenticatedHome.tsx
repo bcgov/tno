@@ -5,13 +5,13 @@ import { IUnauthenticatedHomeProps } from '..';
 export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   position: relative;
   overflow-x: hidden;
+  overflow-y: hidden;
   background-color: ${(props) => props.theme.css.beigeBackgroundColor};
   width: 100%;
   height: 100dvh;
 
   .containing-row {
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
     /* accounts for top logo bar and footer */
     max-height: calc(100vh - 8.5em);
   }
@@ -52,7 +52,6 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
 
   .containing-box {
     padding: 2%;
-    padding-bottom: 6%;
   }
 
   .system-message-containing-box {
@@ -60,11 +59,16 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   }
 
   .system-message-box {
+    position: relative;
+    margin-top: 2%;
+    margin-left: 1%;
+    padding: 2%;
+    text-align: center;
+    height: 487px;
     b {
       color: red;
     }
     background-color: ${(props) => props.theme.css.stickyNoteColor};
-    border: 1px solid ${(props) => props.theme.css.lightBlue};
     align-self: center;
     @media (max-width: 1450px) {
       min-width: 98%;
@@ -97,19 +101,21 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   .main-box {
     box-shadow: 0px 2px 6px #0000000a;
     background-color: #ffffff;
-    @media (max-width: 1450px) {
-      min-width: 98%;
-      margin-left: 1%;
-      margin-bottom: 1%;
-    }
-    @media (min-width: 1450px) {
-      max-width: 1321px;
-    }
     max-height: fit-content;
-    @media (min-width: 1450px) {
-      margin-right: 1em;
-    }
     margin-right: 1em;
+    overflow: hidden;
+    width: 2000px;
+    // @media (max-width: 1450px) {
+    //   min-width: 98%;
+    //   margin-left: 1%;
+    //   margin-bottom: 1%;
+    // }
+    // @media (min-width: 1450px) {
+    //   max-width: 98%;
+    // }
+    // @media (min-width: 1450px) {
+    //   margin-right: 1em;
+    // }
     .top-bar-box {
       margin: 0;
       background-color: black;
