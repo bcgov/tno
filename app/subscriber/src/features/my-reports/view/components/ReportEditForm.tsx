@@ -25,7 +25,7 @@ export interface IReportEditFormProps {
   /** The active row. */
   activeRow?: IReportInstanceContentForm;
   /** Event fires when the content headline is clicked. */
-  onContentClick?: (content: IReportInstanceContentForm) => void;
+  onContentClick?: (content?: IReportInstanceContentForm, action?: 'previous' | 'next') => void;
 }
 
 /**
@@ -124,6 +124,16 @@ export const ReportEditForm: React.FC<IReportEditFormProps> = ({
 
   return (
     <PageSection
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.code === 'Escape') onContentClick?.();
+        else if (e.ctrlKey) {
+          if (e.code === 'ArrowUp' || e.code === 'ArrowLeft')
+            onContentClick?.(undefined, 'previous');
+          else if (e.code === 'ArrowDown' || e.code === 'ArrowRight')
+            onContentClick?.(undefined, 'next');
+        }
+      }}
       header={
         <Row flex="1" alignItems="center" gap="1rem">
           <Col flex="1" gap="0.5rem">
@@ -180,7 +190,15 @@ export const ReportEditForm: React.FC<IReportEditFormProps> = ({
         </Row>
       }
     >
-      <Tabs tabs={tabs} activeTab={path}>
+      <Tabs
+        tabs={tabs}
+        activeTab={path}
+        onChange={() => {
+          // Close story editing window.
+          onContentClick?.();
+          return Promise.resolve(true);
+        }}
+      >
         {(tab) => {
           if (tab?.key === 'preview') return <ReportPreviewForm />;
           else if (tab?.key === 'send') return <ReportSendForm />;

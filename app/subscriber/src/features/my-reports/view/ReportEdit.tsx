@@ -4,7 +4,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApiHub, useApp, useReportInstances, useReports } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, IReportMessageModel, MessageTargetName, ReportStatusName, Row } from 'tno-core';
+import {
+  Col,
+  IReportInstanceModel,
+  IReportMessageModel,
+  MessageTargetName,
+  ReportStatusName,
+  Row,
+} from 'tno-core';
 
 import { ReportFormSchema } from '../admin/validation/ReportFormSchema';
 import { defaultReport } from '../constants';
@@ -135,6 +142,23 @@ export const ReportEdit: React.FC = () => {
     [myReports, storeReportOutput, updateReport],
   );
 
+  const handleNavigate = React.useCallback(
+    (instance: IReportInstanceModel | undefined, action: 'previous' | 'next') => {
+      if (activeRow && instance && instance.content.length) {
+        let index = activeRow.originalIndex;
+
+        if (action === 'previous') index = index > 0 ? index - 1 : instance.content.length - 1;
+        else if (action === 'next') index = index < instance.content.length - 1 ? index + 1 : 0;
+
+        setActiveRow({
+          ...instance.content[index],
+          originalIndex: index,
+        });
+      }
+    },
+    [activeRow],
+  );
+
   return (
     <styled.ReportEdit>
       <FormikForm
@@ -156,8 +180,10 @@ export const ReportEdit: React.FC = () => {
                   disabled={!canEdit}
                   showAdd={!activeRow}
                   activeRow={activeRow}
-                  onContentClick={(content) => {
-                    setActiveRow(content);
+                  onContentClick={(content, action) => {
+                    if (action) {
+                      handleNavigate(instance, action);
+                    } else setActiveRow(content);
                   }}
                 />
               </Col>
@@ -167,6 +193,7 @@ export const ReportEdit: React.FC = () => {
                     disabled={!canEdit}
                     row={activeRow}
                     onUpdate={(row) => setActiveRow(row)}
+                    onNavigate={(action) => handleNavigate(instance, action)}
                   />
                 </Col>
               )}

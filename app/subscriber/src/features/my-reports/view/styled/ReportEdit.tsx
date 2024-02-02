@@ -25,16 +25,50 @@ export const ReportEdit = styled.div`
       align-items: center;
       gap: 0.25rem;
       padding: 0.5rem 0;
-      border-bottom: solid 1px ${(props) => props.theme.css.linePrimaryColor};
+      border-bottom: solid 1px ${(props) => props.theme.css.lineSecondaryColor};
 
       .frm-in {
         padding-bottom: 0;
+      }
+
+      > div {
+        &:nth-child(2) {
+          padding-right: 0.5rem;
+        }
+        &:nth-child(3) {
+          padding-right: 0.5rem;
+          text-transform: uppercase;
+        }
+        &:nth-child(8) {
+          svg {
+            width: 15px;
+            height: 15px;
+            min-height: 15px;
+            max-height: 15px;
+          }
+        }
       }
     }
 
     .section {
       border-left: solid 1px ${(props) => props.theme.css.lineTertiaryColor};
       border-right: solid 1px ${(props) => props.theme.css.lineTertiaryColor};
+
+      .section-header {
+        background-color: ${(props) => props.theme.css.sectionHeader};
+        color: ${(props) => props.theme.css.sectionHeaderText};
+
+        .section-label {
+          span:nth-child(1) {
+            min-width: 50px;
+            text-align: center;
+          }
+
+          svg:first-of-type {
+            margin-right: 1rem;
+          }
+        }
+      }
 
       .active-content {
         background-color: ${(props) => props.theme.css.highlightPrimary};
@@ -159,5 +193,13 @@ export const ReportEdit = styled.div`
     border-width: 1px;
     border-color: #8084b1;
     border-radius: 0.2em;
+  }
+
+  .edit-content {
+    > div:not(.content-bar) {
+      padding: 0.5rem 0.5rem 0 0.5rem;
+      margin: 0;
+    }
+    padding-bottom: 0.5rem;
   }
 `;
