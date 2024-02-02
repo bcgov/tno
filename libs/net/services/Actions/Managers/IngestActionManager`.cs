@@ -129,7 +129,7 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// <returns></returns>
     public async Task<IngestModel> UpdateIngestStateCreationDateOfLastItemAsync(DateTime creationDate)
     {
-        this.Ingest.CreationDateOfLastItem = creationDate;
+        this.Ingest.CreationDateOfLastItem = creationDate.ToUniversalTime();
         this.Ingest = await this.Api.UpdateIngestStateAsync(Ingest) ?? this.Ingest;
         return this.Ingest;
     }

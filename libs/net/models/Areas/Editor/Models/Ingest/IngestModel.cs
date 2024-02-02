@@ -138,6 +138,7 @@ public class IngestModel : AuditColumnsModel
 
         this.LastRanOn = entity.State?.LastRanOn;
         this.FailedAttempts = entity.State?.FailedAttempts ?? 0;
+        this.CreationDateOfLastItem = entity.State?.CreationDateOfLastItem;
 
         this.Schedules = entity.SchedulesManyToMany.Select(s => new IngestScheduleModel(s));
     }
