@@ -16,12 +16,15 @@
   bkQuaternary: $bk-quaternary;
   bkError: $bk-error;
   bkMain: $bk-main;
+  teaserBackground: $teaser-background;
 
   // Highlights
   highlightPrimary: $highlightPrimary;
   highlightSecondary: $highlightSecondary;
   highlightTertiary: $highlightTertiary;
   highlightActive: $highlight-active;
+  highlightYellow: $highlight-yellow;
+  highlightYellowDarker: $highlight-yellow-darker;
 
   // Fonts
   fPrimary: $f-primary;
@@ -30,12 +33,17 @@
   hPrimaryColor: $h-primary-color;
   fRedColor: $f-red-color;
 
+  // Tone related
+  toneGreen: $tone-green;
+  toneRed: $tone-red;
+  toneYellow: $tone-yellow;
+
   // Links
   linkPrimaryColor: $link-primary-color;
   linkPrimaryHoverColor: $link-primary-hover-color;
   linkPrimaryActiveColor: $link-primary-active-color;
   linkGrayColor: $link-gray-color;
-  
+
   // Icons
   iconPrimaryColor: $icon-primary-color;
   iconSecondaryColor: $icon-secondary-color;

@@ -1,3 +1,5 @@
+import { ViewOptions } from 'components/content-list';
+import { ContentListProvider } from 'components/content-list/ContentListContext';
 import { NavbarOptions, navbarOptions } from 'components/navbar/NavbarItems';
 import { PageSection } from 'components/section';
 import { Commentary } from 'features/commentary';
@@ -37,72 +39,75 @@ export const Landing: React.FC = () => {
 
   return (
     <styled.Landing className="main-container">
-      <Row className="contents-container">
-        <PageSection
-          ignoreMinWidth
-          activeContent={activeContent}
-          header={
-            <>
-              <Show visible={activeItem !== 'View'}>
-                {activeItem === NavbarOptions.settings.label
-                  ? 'Settings | My Minister'
-                  : activeItem}
-              </Show>
+      <ContentListProvider>
+        <Row className="contents-container">
+          <PageSection
+            ignoreMinWidth
+            activeContent={activeContent}
+            header={
+              <>
+                <Show visible={activeItem !== 'View'}>
+                  {activeItem === NavbarOptions.settings.label
+                    ? 'Settings | My Minister'
+                    : activeItem}
+                </Show>
+                <Show visible={activeItem === NavbarOptions.home.label}>
+                  <HomeFilters />
+                  <ViewOptions />
+                </Show>
+              </>
+            }
+            className="main-panel"
+            includeContentActions={activeItem === 'View'}
+          >
+            <div className="content">
+              {/* Home is default selected navigation item on login*/}
               <Show visible={activeItem === NavbarOptions.home.label}>
-                <HomeFilters />
+                <Home />
               </Show>
-            </>
-          }
-          className="main-panel"
-          includeContentActions={activeItem === 'View'}
-        >
-          <div className="content">
-            {/* Home is default selected navigation item on login*/}
-            <Show visible={activeItem === NavbarOptions.home.label}>
-              <Home />
-            </Show>
-            <Show visible={activeItem === 'View'}>
-              <ViewContent setActiveContent={setActiveContent} />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.settings.label}>
-              <MyMinisterSettings />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.myMinister.label}>
-              <MyMinister />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.todaysCommentary.label}>
-              <TodaysCommentary />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.todaysFrontPages.label}>
-              <TodaysFrontPages />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.topStories.label}>
-              <TopStories />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.myProducts.label}>
-              <MyProducts />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.pressGallery.label}>
-              <PressGallery />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.mySearches.label}>
-              <MySearches />
+              <Show visible={activeItem === 'View'}>
+                <ViewContent setActiveContent={setActiveContent} />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.settings.label}>
+                <MyMinisterSettings />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.myMinister.label}>
+                <MyMinister />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.todaysCommentary.label}>
+                <TodaysCommentary />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.todaysFrontPages.label}>
+                <TodaysFrontPages />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.topStories.label}>
+                <TopStories />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.myProducts.label}>
+                <MyProducts />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.pressGallery.label}>
+                <PressGallery />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.mySearches.label}>
+                <MySearches />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.eveningOverview.label}>
+                <AVOverviewPreview />
+              </Show>
+            </div>
+          </PageSection>
+          {/* unsure of whether these items will change depending on selected item */}
+          <Col className="right-panel">
+            <Show visible={activeItem !== NavbarOptions.eveningOverview.label}>
+              <Commentary />
             </Show>
             <Show visible={activeItem === NavbarOptions.eveningOverview.label}>
-              <AVOverviewPreview />
+              <MediaOverviewIcons />
             </Show>
-          </div>
-        </PageSection>
-        {/* unsure of whether these items will change depending on selected item */}
-        <Col className="right-panel">
-          <Show visible={activeItem !== NavbarOptions.eveningOverview.label}>
-            <Commentary />
-          </Show>
-          <Show visible={activeItem === NavbarOptions.eveningOverview.label}>
-            <MediaOverviewIcons />
-          </Show>
-        </Col>
-      </Row>
+          </Col>
+        </Row>
+      </ContentListProvider>
     </styled.Landing>
   );
 };

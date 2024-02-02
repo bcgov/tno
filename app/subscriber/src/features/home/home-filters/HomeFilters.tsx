@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { FaGear } from 'react-icons/fa6';
 import { useContent, useLookup } from 'store/hooks';
 import { Button, ButtonHeight, ContentTypeName, IFilterSettingsModel } from 'tno-core';
 
@@ -115,7 +114,6 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
           {filter.label}
         </Button>
       ))}
-      <FaGear className="cog" data-tooltip-id="view-options" />
     </styled.HomeFilters>
   );
 };

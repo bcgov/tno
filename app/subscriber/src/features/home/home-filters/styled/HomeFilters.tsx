@@ -4,6 +4,7 @@ import { Row } from 'tno-core';
 export const HomeFilters = styled(Row)`
   margin-left: auto;
   font-size: 0.3em;
+  align-items: center;
   button {
     min-width: fit-content;
     font-weight: bold;
@@ -21,14 +22,5 @@ export const HomeFilters = styled(Row)`
   }
   button:not(:last-child) {
     margin-right: 0.5em;
-  }
-  .cog {
-    height: 1.5rem;
-    width: 1.5rem;
-    color: ${(props) => props.theme.css.btnBkPrimary};
-    margin-left: 1em;
-    &:hover {
-      cursor: pointer;
-    }
   }
 `;
