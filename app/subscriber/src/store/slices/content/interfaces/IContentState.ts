@@ -23,6 +23,7 @@ export interface IContentState {
   pressGalleryFilter: {
     dateFilter?: IOptionItem | null;
     pressFilter?: IOptionItem | null;
+    filter: IFilterSettingsModel;
   };
   search: {
     content?: KnnSearchResponse<IContentModel>;

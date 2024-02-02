@@ -17,7 +17,7 @@ export const TodaysCommentary: React.FC = () => {
     {
       todaysCommentary: { filter },
     },
-    { findContentWithElasticsearch, storeTodayCommentaryFilter: storeFilter },
+    { findContentWithElasticsearch, storeTodaysCommentaryFilter: storeFilter },
   ] = useContent();
   const [{ actions }] = useLookup();
 
@@ -36,8 +36,8 @@ export const TodaysCommentary: React.FC = () => {
       findContentWithElasticsearch(
         generateQuery(
           filterFormat({
+            ...filter,
             actions: [commentaryAction],
-            contentTypes: [],
             startDate: moment(filter.startDate).toISOString(),
             endDate: moment(filter.endDate).toISOString(),
             searchUnpublished: false,

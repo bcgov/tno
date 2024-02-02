@@ -11,7 +11,7 @@ import {
 
 import { useAjaxWrapper } from '..';
 
-interface IContentController {
+export interface IContentController {
   findContentWithElasticsearch: (
     filter: MsearchMultisearchBody,
     includeUnpublishedContent: boolean,
@@ -24,7 +24,7 @@ interface IContentController {
   storeMyMinisterFilter: (filter: IFilterSettingsModel) => void;
   storeTopStoriesFilter: (filter: IFilterSettingsModel) => void;
   storeFrontPageFilter: (filter: IFilterSettingsModel) => void;
-  storeTodayCommentaryFilter: (filter: IFilterSettingsModel) => void;
+  storeTodaysCommentaryFilter: (filter: IFilterSettingsModel) => void;
   storeGalleryDateFilter: (dateFilter: IOptionItem | null) => void;
   storeGalleryPressFilter: (pressFilter: IOptionItem | null) => void;
   storeAvOverviewDateFilter: (filter: IFilterSettingsModel) => void;
@@ -91,7 +91,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       storeSearchFilter: actions.storeSearchFilter,
       storeHomeFilter: actions.storeHomeFilter,
       storeTopStoriesFilter: actions.storeTopStoriesFilter,
-      storeTodayCommentaryFilter: actions.storeTodaysCommentaryFilter,
+      storeTodaysCommentaryFilter: actions.storeTodaysCommentaryFilter,
       storeGalleryDateFilter: actions.storeGalleryDateFilter,
       storeGalleryPressFilter: actions.storeGalleryPressFilter,
       storeAvOverviewDateFilter: actions.storeAvOverviewDateFilter,

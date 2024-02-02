@@ -1,13 +1,13 @@
 import { ViewOptions } from 'components/content-list';
 import { ContentListProvider } from 'components/content-list/ContentListContext';
-import { NavbarOptions, navbarOptions } from 'components/navbar/NavbarItems';
+import { MediaTypeFilters } from 'components/media-type-filters';
+import { INavbarOptionItem, NavbarOptions, navbarOptions } from 'components/navbar/NavbarItems';
 import { PageSection } from 'components/section';
 import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
 import AVOverviewPreview from 'features/daily-overview/AVOverviewPreview';
 import { MediaOverviewIcons } from 'features/daily-overview/MediaOverviewIcons';
 import { Home } from 'features/home';
-import { HomeFilters } from 'features/home/home-filters';
 import { MyMinister } from 'features/my-minister/MyMinister';
 import { MyProducts } from 'features/my-products';
 import { MySearches } from 'features/my-searches';
@@ -28,13 +28,14 @@ import * as styled from './styled';
  */
 export const Landing: React.FC = () => {
   const { id } = useParams();
-  const [activeItem, setActiveItem] = React.useState<string>(NavbarOptions.home.label);
+  const [activeItem, setActiveItem] = React.useState<INavbarOptionItem | undefined>(
+    NavbarOptions.home,
+  );
   /* active content will be stored from this context in order to inject into subsequent components */
   const [activeContent, setActiveContent] = React.useState<IContentModel[]>();
   /* keep active item in sync with url */
   React.useEffect(() => {
-    if (id)
-      setActiveItem(navbarOptions.find((item) => item.path.includes(id ?? ''))?.label ?? 'View');
+    if (id) setActiveItem(navbarOptions.find((item) => item.path.includes(id ?? '')));
   }, [id]);
 
   return (
@@ -46,63 +47,65 @@ export const Landing: React.FC = () => {
             activeContent={activeContent}
             header={
               <>
-                <Show visible={activeItem !== 'View'}>
-                  {activeItem === NavbarOptions.settings.label
+                <Show visible={!!activeItem}>
+                  {activeItem === NavbarOptions.settings
                     ? 'Settings | My Minister'
-                    : activeItem}
+                    : activeItem?.label}
                 </Show>
-                <Show visible={activeItem === NavbarOptions.home.label}>
-                  <HomeFilters />
-                  <ViewOptions />
-                </Show>
+                {!!activeItem?.reduxFilterStore && (
+                  <>
+                    <MediaTypeFilters filterStoreName={activeItem?.reduxFilterStore} />
+                    <ViewOptions />
+                  </>
+                )}
               </>
             }
             className="main-panel"
-            includeContentActions={activeItem === 'View'}
+            includeContentActions={!activeItem}
           >
             <div className="content">
               {/* Home is default selected navigation item on login*/}
-              <Show visible={activeItem === NavbarOptions.home.label}>
+              <Show visible={activeItem === NavbarOptions.home}>
                 <Home />
               </Show>
-              <Show visible={activeItem === 'View'}>
+              <Show visible={!activeItem}>
                 <ViewContent setActiveContent={setActiveContent} />
               </Show>
-              <Show visible={activeItem === NavbarOptions.settings.label}>
+              <Show visible={activeItem === NavbarOptions.settings}>
                 <MyMinisterSettings />
               </Show>
-              <Show visible={activeItem === NavbarOptions.myMinister.label}>
+              <Show visible={activeItem === NavbarOptions.myMinister}>
                 <MyMinister />
               </Show>
-              <Show visible={activeItem === NavbarOptions.todaysCommentary.label}>
+              <Show visible={activeItem === NavbarOptions.todaysCommentary}>
                 <TodaysCommentary />
               </Show>
-              <Show visible={activeItem === NavbarOptions.todaysFrontPages.label}>
+              <Show visible={activeItem === NavbarOptions.todaysFrontPages}>
                 <TodaysFrontPages />
               </Show>
-              <Show visible={activeItem === NavbarOptions.topStories.label}>
+              <Show visible={activeItem === NavbarOptions.topStories}>
                 <TopStories />
               </Show>
-              <Show visible={activeItem === NavbarOptions.myProducts.label}>
+              <Show visible={activeItem === NavbarOptions.myProducts}>
                 <MyProducts />
               </Show>
-              <Show visible={activeItem === NavbarOptions.pressGallery.label}>
+              <Show visible={activeItem === NavbarOptions.pressGallery}>
                 <PressGallery />
               </Show>
-              <Show visible={activeItem === NavbarOptions.mySearches.label}>
+              <Show visible={activeItem === NavbarOptions.mySearches}>
                 <MySearches />
               </Show>
-              <Show visible={activeItem === NavbarOptions.eveningOverview.label}>
+              <Show visible={activeItem === NavbarOptions.eveningOverview}>
                 <AVOverviewPreview />
               </Show>
             </div>
           </PageSection>
           {/* unsure of whether these items will change depending on selected item */}
           <Col className="right-panel">
-            <Show visible={activeItem !== NavbarOptions.eveningOverview.label}>
+            <Show visible={activeItem !== NavbarOptions.eveningOverview}>
               <Commentary />
             </Show>
-            <Show visible={activeItem === NavbarOptions.eveningOverview.label}>
+            <Show visible={activeItem === NavbarOptions.eveningOverview}>
               <MediaOverviewIcons />
             </Show>
           </Col>

@@ -21,6 +21,7 @@ export const initialContentState: IContentState = {
   pressGalleryFilter: {
     dateFilter: null,
     pressFilter: null,
+    filter: defaultContentFilter,
   },
   search: {
     content: undefined,
