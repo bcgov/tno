@@ -18,6 +18,7 @@ public class CssHelper : ICssHelper
     #region Variables
     private readonly ICssEnvironmentService _cssService;
     private readonly IUserService _userService;
+    private readonly ILogger<CssHelper> _logger;
     #endregion
 
     #region Constructors
@@ -26,10 +27,11 @@ public class CssHelper : ICssHelper
     /// </summary>
     /// <param name="cssService"></param>
     /// <param name="userService"></param>
-    public CssHelper(ICssEnvironmentService cssService, IUserService userService)
+    public CssHelper(ICssEnvironmentService cssService, IUserService userService, ILogger<CssHelper> logger)
     {
         _cssService = cssService;
         _userService = userService;
+        _logger = logger;
     }
     #endregion
 
@@ -133,14 +135,16 @@ public class CssHelper : ICssHelper
         // If user doesn't exist, add them to the database.
         if (user == null)
         {
+            _logger.LogInformation($"Could not find an existing user using key:[{key}]");
             var username = principal.GetUsername() ?? throw new NotAuthorizedException("The 'username' is required by missing from token");
             var email = principal.GetEmail() ?? "";
             user = _userService.FindByUsername(username);
 
             if (user == null && !String.IsNullOrWhiteSpace(email))
             {
+                _logger.LogInformation($"Could not find an existing user using username:[{username}], trying by email:[{email}]");
                 // Check if the user has been manually added by their email address.
-                var users = _userService.FindByEmail(email).Where(u => u.IsEnabled);
+                var users = _userService.FindByEmail(email).Where(u => u.IsEnabled && (u.Status == Entities.UserStatus.Preapproved || u.Status == Entities.UserStatus.Approved));
 
                 // If only one account has the email, we can assume it's a preapproved user.
                 if (users.Count() == 1) user = users.First();
@@ -152,6 +156,8 @@ public class CssHelper : ICssHelper
             if (userRoles.Users.Length > 1) throw new NotAuthorizedException($"Keycloak has multiple users with the same username '{key}'");
             if (user == null)
             {
+                _logger.LogInformation($"Need to create a new MMI user with username:[{username}]");
+
                 user = new Entities.User(username, email, key)
                 {
                     DisplayName = principal.GetDisplayName() ?? "",
@@ -164,12 +170,13 @@ public class CssHelper : ICssHelper
                     LastLoginOn = DateTime.UtcNow,
                     Roles = String.Join(",", userRoles.Roles.Select(r => $"[{r.Name}]"))
                 };
-                auth = AuthorizeLocation(user, location);
                 // Add the user to the database.
                 user = _userService.AddAndSave(user);
             }
             else if (user != null)
             {
+                _logger.LogInformation($"Found existing user with username:[{username}]. Update Status and Roles");
+
                 // The user was created in TNO initially, but now the user has logged in and activated their account.
                 user.Username = username;
                 user.DisplayName = principal.GetDisplayName() ?? user.DisplayName;
@@ -180,7 +187,6 @@ public class CssHelper : ICssHelper
                 user.LastLoginOn = DateTime.UtcNow;
                 user.Status = Entities.UserStatus.Approved;
                 user.EmailVerified = principal.GetEmailVerified() ?? false;
-                auth = AuthorizeLocation(user, location);
 
                 // Apply the preapproved roles to the user.
                 var roles = await UpdateUserRolesAsync(key, user.Roles.Split(",").Select(r => r[1..^1]).ToArray());
@@ -190,10 +196,12 @@ public class CssHelper : ICssHelper
         }
         else
         {
+            _logger.LogInformation($"Found existing user with key:[{key}]");
             user.LastLoginOn = DateTime.UtcNow;
-            auth = AuthorizeLocation(user, location);
             user = _userService.UpdateAndSave(user);
         }
+
+        if (user != null) auth = AuthorizeLocation(user, location);
 
         return Tuple.Create(user, auth);
     }
