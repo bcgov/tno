@@ -10,11 +10,6 @@ export const filterFormat = (filter: IFilterSettingsModel) => {
     dateOffset: filter.dateOffset,
     defaultSearchOperator: filter.defaultSearchOperator ?? 'and',
     edition: filter.edition ?? '',
-    endDate: filter.endDate
-      ? filter.endDate
-      : filter.startDate
-      ? `${moment(filter.startDate).endOf('day').toISOString()}`
-      : undefined,
     from: 0,
     inByline: filter.inByline ?? false,
     inHeadline: filter.inHeadline ?? false,
@@ -29,6 +24,7 @@ export const filterFormat = (filter: IFilterSettingsModel) => {
     size: filter.size,
     sourceIds: filter.sourceIds ?? [],
     startDate: !!filter.startDate ? filter.startDate : undefined,
+    endDate: !!filter.endDate ? filter.endDate : undefined,
     tags: filter.tags ?? [],
   };
   return settings;

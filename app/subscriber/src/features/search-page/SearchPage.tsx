@@ -126,17 +126,8 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   }, [frontPageImagesMediaTypeId]);
 
   const handleSearch = React.useCallback(async () => {
-    console.log('***************filter*********************');
-    console.log(filter);
-    console.log('***************filter*********************');
     const settings = filterFormat(filter);
-    console.log('***************settings*********************');
-    console.log(settings);
-    console.log('***************settings*********************');
     const query = genQuery(settings);
-    console.log('***************query*********************');
-    console.log(query);
-    console.log('***************query*********************');
     fetchResults(query, filter.searchUnpublished);
   }, [fetchResults, filter, genQuery]);
 
