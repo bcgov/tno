@@ -1,4 +1,3 @@
-import { IContentController } from 'store/hooks';
 import { IContentState } from 'store/slices';
 
 export const determineStore = (target: keyof IContentState) => {
