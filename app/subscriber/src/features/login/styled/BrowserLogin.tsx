@@ -38,6 +38,7 @@ export const BrowserLogin = styled.div`
   }
 
   .login-box {
+    display: inline-block;
     position: relative;
     margin-top: 2%;
     border: 2px solid #971d29;
@@ -45,12 +46,9 @@ export const BrowserLogin = styled.div`
     padding: 2%;
     text-align: center;
     height: 487px;
-    display: flex;
-    flex-direction: column;
     float: left;
     @media (max-width: 1450px) {
-      min-width: 98%;
-      margin-left: 1%;
+      min-width: 50em;
     }
     @media (max-width: 768px) {
       margin-bottom: 0.5em;
@@ -59,7 +57,8 @@ export const BrowserLogin = styled.div`
       max-width: 50em;
     }
     width: 50em;
-    margin-right: 1%;
+    margin-right: auto;
+    margin-left: 20px;
     .footer {
       padding: 2%;
       text-align: left;
@@ -96,6 +95,7 @@ export const BrowserLogin = styled.div`
       background-color: ${(props) => props.theme.css.bkWhite};
       &:hover {
         border: 2px solid #a61c29;
+        color: ${(props) => props.theme.css.redHeadingColor};
       }
     }
   }

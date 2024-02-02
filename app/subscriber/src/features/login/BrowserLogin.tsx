@@ -17,9 +17,9 @@ export interface IBrowserLoginProps {
 export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
   const keycloak = useKeycloakWrapper();
   const authority = keycloak.instance.authServerUrl?.replace(/\/$/, '') ?? window.location.href;
-  const isLocal =
-    new URL(authority).host.startsWith('localhost') ||
-    new URL(authority).host.startsWith('host.docker.internal');
+  const isLocal = false;
+  // new URL(authority).host.startsWith('localhost') ||
+  // new URL(authority).host.startsWith('host.docker.internal');
 
   const [, api] = useSystemMessages();
   const [systemMessage, setSystemMessage] = React.useState<ISystemMessageModel>();
@@ -59,7 +59,7 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
                       ></Button>
                     </Show>
                     <Show visible={isLocal}>
-                      <Button className="red" onClick={() => login()}>
+                      <Button className="white" onClick={() => login()}>
                         Local
                       </Button>
                     </Show>
@@ -85,13 +85,13 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
                   </p>
                 </div>
               </Col>
-              <Col className="system-message-box">
-                <div className="system-message-containing-box">
-                  <Show visible={!!systemMessage?.message && systemMessage.isEnabled}>
+              <Show visible={!!systemMessage?.message && systemMessage.isEnabled}>
+                <Col className="system-message-box">
+                  <div className="system-message-containing-box">
                     <p>{parse(systemMessage?.message ?? '')}</p>
-                  </Show>
-                </div>
-              </Col>
+                  </div>
+                </Col>
+              </Show>
             </div>
           </Col>
         </Row>
@@ -142,6 +142,7 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
           </div>
         </div>
       </Show>
+      <img src="/assets/mm_logo.svg" alt="MM Logo" className="mm-logo" />
     </styled.BrowserLogin>
   );
 };

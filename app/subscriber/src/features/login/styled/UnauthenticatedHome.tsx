@@ -4,16 +4,18 @@ import { IUnauthenticatedHomeProps } from '..';
 
 export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   position: relative;
-  overflow-x: hidden;
+  overflow-x: auto;
   overflow-y: hidden;
   background-color: ${(props) => props.theme.css.beigeBackgroundColor};
   width: 100%;
   height: 100dvh;
 
   .containing-row {
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
     /* accounts for top logo bar and footer */
-    max-height: calc(100vh - 8.5em);
+    // max-height: calc(100vh - 8.5em);
+    height: auto;
   }
 
   .app-logo {
@@ -52,6 +54,13 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
 
   .containing-box {
     padding: 2%;
+    display: flex;
+    max-height: fit-content;
+    overflow: hidden;
+    @media (max-width: 1550px) {
+      display: inline-block;
+      margin-left: 7em;
+    }
   }
 
   .system-message-containing-box {
@@ -59,20 +68,18 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   }
 
   .system-message-box {
+    display: inline-block;
     position: relative;
     margin-top: 2%;
-    margin-left: 1%;
     padding: 2%;
-    text-align: center;
     height: 487px;
-    b {
-      color: red;
-    }
+    float: left;
     background-color: ${(props) => props.theme.css.stickyNoteColor};
-    align-self: center;
+    margin-right: auto;
+    margin-left: 20px;
     @media (max-width: 1450px) {
-      min-width: 98%;
-      margin-left: 1%;
+      min-width: 50em;
+      margin-left: auto;
     }
     @media (max-width: 768px) {
       margin-bottom: 0.5em;
@@ -80,6 +87,7 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
     @media (min-width: 1450px) {
       max-width: 50em;
     }
+    width: 50em;
   }
   .mm-logo {
     height: 8%;
@@ -104,15 +112,18 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
     max-height: fit-content;
     margin-right: 1em;
     overflow: hidden;
-    width: 2000px;
-    // @media (max-width: 1450px) {
-    //   min-width: 98%;
-    //   margin-left: 1%;
-    //   margin-bottom: 1%;
-    // }
-    // @media (min-width: 1450px) {
-    //   max-width: 98%;
-    // }
+    width: 110em;
+    @media (min-width: 850px) {
+      max-width: 70em;
+    }
+    @media (max-width: 1550px) {
+      min-width: 50em;
+      margin-left: 1%;
+      margin-bottom: 1%;
+    }
+    @media (min-width: 1450px) {
+      max-width: 130em;
+    }
     // @media (min-width: 1450px) {
     //   margin-right: 1em;
     // }
