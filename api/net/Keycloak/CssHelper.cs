@@ -198,7 +198,7 @@ public class CssHelper : ICssHelper
         {
             _logger.LogInformation($"Found existing user with key:[{key}], check Roles in CSS vs DB");
             var userRoles = await _cssService.GetRolesForUserAsync(key);
-            var rolesInCss = userRoles.Roles.Select(r => $"[{r.Name}]").Order();
+            var rolesInCss = userRoles.Roles.Select(r => r.Name).Order();
             var rolesInDb = user.Roles.Split(",").Select(r => r[1..^1]).Order();
             if (!rolesInCss.SequenceEqual(rolesInDb)) {
                 _logger.LogInformation($"User with key:[{key}] has mis-matched roles. CSS:[{String.Join(",",rolesInCss)}] DB:[{String.Join(",",rolesInDb)}]. CSS will be updated.");
