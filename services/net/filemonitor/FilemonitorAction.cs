@@ -56,7 +56,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
 
         // This ingest has just begun running.
-        await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
+        await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
 
         var dir = GetOutputPath(manager.Ingest);
 
@@ -471,7 +471,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                     }
                 }
                 // This ingest has just completed running for one content item.
-                await manager.UpdateIngestStateAsync(manager.Ingest.FailedAttempts);
+                await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
             }
             catch (Exception ex)
             {

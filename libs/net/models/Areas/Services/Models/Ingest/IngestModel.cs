@@ -101,6 +101,11 @@ public class IngestModel : AuditColumnsModel
     public DateTime? LastRanOn { get; set; }
 
     /// <summary>
+    /// get/set - Creation date of last ingested content item.
+    /// </summary>
+    public DateTime? CreationDateOfLastItem { get; set; }
+
+    /// <summary>
     /// get/set -
     /// </summary>
     public int RetryLimit { get; set; }
@@ -196,6 +201,7 @@ public class IngestModel : AuditColumnsModel
             {
                 LastRanOn = model.LastRanOn,
                 FailedAttempts = model.FailedAttempts,
+                CreationDateOfLastItem = model.CreationDateOfLastItem
             },
             Version = model.Version ?? 0
         };

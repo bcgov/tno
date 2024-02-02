@@ -165,12 +165,6 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     public abstract Task RecordFailureAsync(Exception? error = null);
 
     /// <summary>
-    /// Updates service config.
-    /// </summary>
-    /// <returns></returns>
-    public abstract Task UpdateIngestConfigAsync(string propName, object propValue);
-
-    /// <summary>
     /// Send email alert of failure.
     /// </summary>
     /// <param name="subject"></param>

@@ -21,10 +21,16 @@ public interface IIngestActionManager : IServiceActionManager
 
     #region Methods
     /// <summary>
-    /// Make AJAX request and update the ingest.
+    /// Make AJAX request and update the ingest state - Failed Attempts.
     /// </summary>
     /// <returns></returns>
-    Task<IngestModel> UpdateIngestStateAsync(int failedAttempts = 0);
+    Task<IngestModel> UpdateIngestStateFailedAttemptsAsync(int failedAttempts = 0);
+
+    /// <summary>
+    /// Make AJAX request and update the ingest state - Creation Date Of Last Item.
+    /// </summary>
+    /// <returns></returns>
+    Task<IngestModel> UpdateIngestStateCreationDateOfLastItemAsync(DateTime creationDate);
 
     /// <summary>
     /// Verify that the specified ingest ingestion action should be run.

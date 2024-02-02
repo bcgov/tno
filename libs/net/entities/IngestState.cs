@@ -7,7 +7,7 @@ namespace TNO.Entities;
 /// IngestState class, provides an entity model that is a one-to-one reference to ingest.
 /// This is used by the ingest services to keep track of service failures and runs.
 /// </summary>
-[Table("ingest_service")]
+[Table("ingest_state")]
 public class IngestState
 {
     #region Properties
@@ -28,6 +28,12 @@ public class IngestState
     /// </summary>
     [Column("last_ran_on")]
     public DateTime? LastRanOn { get; set; }
+
+    /// <summary>
+    /// get/set - Creation date of last ingest content item.
+    /// </summary>
+    [Column("creation_date_of_last_item")]
+    public DateTime? CreationDateOfLastItem { get; set; }
 
     /// <summary>
     /// get/set - Number of sequential failures that have occurred.

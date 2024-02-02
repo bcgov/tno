@@ -88,7 +88,7 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// <returns></returns>
     public override async Task RecordSuccessAsync()
     {
-        this.Ingest = await UpdateIngestStateAsync();
+        this.Ingest = await UpdateIngestStateFailedAttemptsAsync();
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// <returns></returns>
     public override async Task RecordFailureAsync(Exception? error = null)
     {
-        this.Ingest = await UpdateIngestStateAsync(this.Ingest.FailedAttempts + 1);
+        this.Ingest = await UpdateIngestStateFailedAttemptsAsync(this.Ingest.FailedAttempts + 1);
 
         // Reached limit return to ingest manager.
         if (this.Ingest.FailedAttempts + 1 >= this.Ingest.RetryLimit)
@@ -112,10 +112,10 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     }
 
     /// <summary>
-    /// Make AJAX request and update the ingest.
+    /// Make AJAX request and update the ingest state - Failed Attempts.
     /// </summary>
     /// <returns></returns>
-    public async Task<IngestModel> UpdateIngestStateAsync(int failedAttempts = 0)
+    public async Task<IngestModel> UpdateIngestStateFailedAttemptsAsync(int failedAttempts = 0)
     {
         this.Ingest.LastRanOn = DateTime.UtcNow;
         this.Ingest.FailedAttempts = failedAttempts;
@@ -124,15 +124,14 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     }
 
     /// <summary>
-    /// Update Ingest config at runtime.
+    /// Make AJAX request and update the ingest state - Creation Date Of Last Item.
     /// </summary>
-    /// <param name="propName"></param>
-    /// <param name="propValue"></param>
     /// <returns></returns>
-    public override async Task UpdateIngestConfigAsync(string propName, object propValue)
+    public async Task<IngestModel> UpdateIngestStateCreationDateOfLastItemAsync(DateTime creationDate)
     {
-        this.Ingest.Configuration[propName] = propValue;
-        this.Ingest = await this.Api.UpdateIngestConfigAsync(Ingest) ?? this.Ingest;
+        this.Ingest.CreationDateOfLastItem = creationDate;
+        this.Ingest = await this.Api.UpdateIngestStateAsync(Ingest) ?? this.Ingest;
+        return this.Ingest;
     }
 
     /// <summary>

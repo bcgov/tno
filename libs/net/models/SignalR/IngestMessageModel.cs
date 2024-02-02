@@ -35,6 +35,11 @@ public class IngestMessageModel : AuditColumnsModel
     /// get/set - When the ingest service was ingested last.
     /// </summary>
     public DateTime? LastRanOn { get; set; }
+
+    /// <summary>
+    /// get/set - Creation date of last ingested content item.
+    /// </summary>
+    public DateTime? CreationDateOfLastItem { get; set; }
     #endregion
 
     #region Constructors
@@ -56,6 +61,7 @@ public class IngestMessageModel : AuditColumnsModel
         this.RetryLimit = entity.RetryLimit;
         this.FailedAttempts = entity.State?.FailedAttempts ?? 0;
         this.LastRanOn = entity.State?.LastRanOn;
+        this.CreationDateOfLastItem = entity.State?.CreationDateOfLastItem;
     }
     #endregion
 }

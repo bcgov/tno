@@ -11,6 +11,7 @@ public class IngestStateConfiguration : IEntityTypeConfiguration<IngestState>
         builder.HasKey(m => m.IngestId);
         builder.Property(m => m.IngestId).IsRequired().ValueGeneratedNever();
         builder.Property(m => m.LastRanOn);
+        builder.Property(m => m.CreationDateOfLastItem);
         builder.Property(m => m.FailedAttempts).HasDefaultValue(0);
 
         builder.HasOne(m => m.Ingest).WithOne(m => m.State).HasForeignKey<IngestState>(m => m.IngestId).OnDelete(DeleteBehavior.Cascade);

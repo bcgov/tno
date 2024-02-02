@@ -333,19 +333,6 @@ public class ApiService : IApiService
         var jsonString = JsonSerializer.Serialize(ingest);
         return await RetryRequestAsync(async () => await this.OpenClient.SendAsync<TNO.API.Areas.Services.Models.Ingest.IngestModel>(url, HttpMethod.Put, JsonContent.Create(ingest)));
     }
-
-    /// <summary>
-    /// Make an HTTP request to the api to update the ingest configuration.
-    /// </summary>
-    /// <param name="ingest"></param>
-    /// <returns></returns>
-    public async Task<TNO.API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestConfigAsync(
-        TNO.API.Areas.Services.Models.Ingest.IngestModel ingest)
-    {
-        var url = this.Options.ApiUrl.Append($"services/ingests/{ingest.Id}/configuration");
-        var jsonString = JsonSerializer.Serialize(ingest);
-        return await RetryRequestAsync(async () => await this.OpenClient.SendAsync<TNO.API.Areas.Services.Models.Ingest.IngestModel>(url, HttpMethod.Put, JsonContent.Create(ingest)));
-    }
     #endregion
 
     #region Ingest Schedule Methods
