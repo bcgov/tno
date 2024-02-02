@@ -52,6 +52,7 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
 
   .containing-box {
     padding: 2%;
+    padding-bottom: 6%;
   }
 
   .system-message-containing-box {
@@ -102,7 +103,7 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
       margin-bottom: 1%;
     }
     @media (min-width: 1450px) {
-      max-width: 50em;
+      max-width: 1321px;
     }
     max-height: fit-content;
     @media (min-width: 1450px) {
@@ -114,6 +115,7 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
       background-color: black;
       color: white;
       padding: 1%;
+      text-align: center;
     }
   }
 `;

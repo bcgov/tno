@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="b" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 150 54">
+  <defs>
+    <style>
+      .e {
+        fill: #fcba19;
+      }
+
+      .e, .f, .g {
+        stroke-width: 0px;
+      }
+
+      .f {
+        fill: #036;
+      }
+
+      .h {
+        clip-path: url(#d);
+      }
+
+      .g {
+        fill: none;
+      }
+
+      .i {
+        font-family: GothicA1-Black, 'Gothic A1';
+        font-size: 24px;
+        font-weight: 800;
+      }
+    </style>
+    <clipPath id="d">
+      <rect class="g" width="150" height="54"/>
+    </clipPath>
+  </defs>
+  <g id="c" data-name="Layer 1">
+    <g class="h">
+      <g>
+        <path class="f" d="M150,59.03C99.98,36.9,50.02,71.11,0,48.97v-12.93c51.94,16.76,98.06-24.67,150-7.92,0,10.3,0,20.6,0,30.9Z"/>
+        <path class="e" d="M150,28.12C98.06,11.37,51.94,52.8,0,36.04v-1.54c52.17,16.09,97.83-26.15,150-10.06v3.68Z"/>
+      </g>
+    </g>
+    <text class="i" transform="translate(46.98 26)"><tspan x="0" y="0">IDIR</tspan></text>
+  </g>
+</svg>

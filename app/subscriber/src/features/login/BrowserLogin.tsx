@@ -17,12 +17,14 @@ export interface IBrowserLoginProps {
 export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
   const keycloak = useKeycloakWrapper();
   const authority = keycloak.instance.authServerUrl?.replace(/\/$/, '') ?? window.location.href;
-  const isLocal =
-    new URL(authority).host.startsWith('localhost') ||
-    new URL(authority).host.startsWith('host.docker.internal');
+  const isLocal = false;
+  // new URL(authority).host.startsWith('localhost') ||
+  // new URL(authority).host.startsWith('host.docker.internal');
 
   const [, api] = useSystemMessages();
   const [systemMessage, setSystemMessage] = React.useState<ISystemMessageModel>();
+
+  const [showModal, setShowModal] = React.useState(false);
 
   React.useEffect(() => {
     api.findSystemMessage().then((data) => {
@@ -42,45 +44,45 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
               subscribers to see British Columbia’s news at a glance.
             </p>
             <div className="containing-box">
-              <b>Key features: </b>
-              <ul>
-                <li>Aggregation of newspapers, radio shows, and online articles </li>
-                <li>Transcription services</li>
-                <li>BC’s top stories as they break</li>
-                <li>Articles related to major stories</li>
-              </ul>
-              <a href="www.google.ca">Learn more about obtaining a subscription... </a>
               <Col className="login-box">
-                <b>If you have a subscription, login here: </b>
-                <div className="login-content">
+                <b>Login to your MMI account with your BCeID or IDIR: </b>
+                <div>
                   <div className="buttons">
                     <Show visible={!isLocal}>
-                      <Button className="red" onClick={() => login(isLocal ? 'gcpe-oidc' : 'idir')}>
-                        IDIR
-                      </Button>
                       <Button
-                        className="cyan"
+                        className="white idir-logo"
+                        onClick={() => login(isLocal ? 'gcpe-oidc' : 'idir')}
+                      ></Button>
+                      <Button
+                        className="white bceid-logo"
                         onClick={() => login(isLocal ? 'gcpe-oidc' : 'bceid-basic')}
-                      >
-                        BCeID
-                      </Button>
+                      ></Button>
                     </Show>
                     <Show visible={isLocal}>
                       <Button className="red" onClick={() => login()}>
                         Local
                       </Button>
                     </Show>
+                    <br />
+                    <span
+                      className="modalOpen"
+                      onClick={() => {
+                        setShowModal(true);
+                      }}
+                    >
+                      Learn more about obtaining a subscription...
+                    </span>
                   </div>
-                  <div onClick={() => login()} className="copyright">
-                    <b>Copyright info:</b>
-                    <p>
-                      This account grants you access to copyrighted material for your own use. It
-                      does not grant you permission to fix, copy, reproduce or archive any of the
-                      material contained within. <br /> <br />
-                      You cannot redistribute this information to anyone without violating your
-                      copyright agreement.
-                    </p>
-                  </div>
+                </div>
+                <div className="footer" onClick={() => login()}>
+                  <b>Copyright info:</b>
+                  <p>
+                    This account grants you access to copyrighted material for your own use. It does
+                    not grant you permission to fix, copy, reproduce or archive any of the material
+                    contained within. <br /> <br />
+                    You cannot redistribute this information to anyone without violating your
+                    copyright agreement.
+                  </p>
                 </div>
               </Col>
             </div>
@@ -94,8 +96,52 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
           </Col>
         </Row>
       </Col>
-
-      <img src="/assets/mm_logo.svg" alt="MM Logo" className="mm-logo" />
+      <Show visible={showModal}>
+        <div id="myModal" className="modal">
+          <div className="modal-content">
+            <span
+              className="close"
+              onClick={() => {
+                setShowModal(false);
+              }}
+            >
+              &times;
+            </span>
+            <div>
+              <p>
+                <b>Thank you for your interest in Media Monitoring Insights.</b>
+              </p>
+              <p>
+                <b>Key features:</b>
+              </p>
+              <ul>
+                <li>Aggregation of newspapers, radio shows, and online articles</li>
+                <li>Transcription services</li>
+                <li>BC’s top stories as they break</li>
+                <li>Articles related to major stories</li>
+              </ul>
+              <p>
+                Access to this service is limited to Government of British Columbia staff as per our
+                agreements with our media suppliers.
+              </p>
+              <br />
+              <p>
+                <b>
+                  If you are eligible for access, email{' '}
+                  <a href="mailto:Scott.Ryckman@gov.bc.ca">Scott.Ryckman@gov.bc.ca</a> to get set
+                  up.
+                </b>
+              </p>
+              <br />
+              <p>
+                Note: <br />
+                There is a cost recovery charge in excess of $4,500 annually, please ensure that you
+                have authorization for this purchase prior to emailing.
+              </p>
+            </div>
+          </div>
+        </div>
+      </Show>
     </styled.BrowserLogin>
   );
 };
