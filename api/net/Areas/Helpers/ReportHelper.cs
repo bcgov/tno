@@ -8,10 +8,10 @@ using TNO.DAL.Services;
 using TNO.Elastic;
 using TNO.Elastic.Models;
 using TNO.TemplateEngine;
+using TNO.TemplateEngine.Converters;
 using TNO.TemplateEngine.Models;
 using TNO.TemplateEngine.Models.Charts;
 using TNO.TemplateEngine.Models.Reports;
-using TNO.TemplateEngine.Converters;
 
 namespace TNO.API.Helpers;
 
@@ -129,43 +129,6 @@ public class ReportHelper : IReportHelper
         // Get the Chart JSON data.
         model.ChartData ??= (await this.GenerateJsonAsync(model, isPreview)).Json;
         return await _reportEngine.GenerateBase64ImageAsync(model);
-    }
-
-    /// <summary>
-    /// Generate an instance of the report.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <param name="requestorId"></param>
-    /// <param name="instanceId"></param>
-    /// <returns></returns>
-    public async Task<Entities.ReportInstance> GenerateReportInstanceAsync(
-        Areas.Services.Models.Report.ReportModel model,
-        int? requestorId = null,
-        long instanceId = 0)
-    {
-        // Fetch content for every section within the report.  This will include folders and filters.
-        var sections = model.Sections.Select(s => new ReportSectionModel(s));
-        var searchResults = await _reportService.FindContentWithElasticsearchAsync((Entities.Report)model, requestorId);
-        var sectionContent = sections.ToDictionary(s => s.Name, section =>
-        {
-            if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
-            {
-                var sortOrder = 0;
-
-                section.Content = _reportEngine.OrderBySectionField(results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).ToArray(), section.Settings.SortBy);
-            }
-            return section;
-        });
-
-        return new Entities.ReportInstance(
-            model.Id,
-            requestorId ?? model.OwnerId,
-            sectionContent.SelectMany(s => s.Value.Content.Select(c => new Entities.ReportInstanceContent(instanceId, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray()
-        )
-        {
-            OwnerId = requestorId,
-            PublishedOn = DateTime.UtcNow
-        };
     }
 
     /// <summary>

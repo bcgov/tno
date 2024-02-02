@@ -18,6 +18,7 @@ public class ReportService : BaseService<Report, int>, IReportService
     #region Variables
     private readonly ElasticOptions _elasticOptions;
     private readonly ITNOElasticClient _elasticClient;
+    private readonly IReportInstanceService _reportInstanceService;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -27,12 +28,14 @@ public class ReportService : BaseService<Report, int>, IReportService
         ClaimsPrincipal principal,
         ITNOElasticClient elasticClient,
         IOptions<ElasticOptions> elasticOptions,
+        IReportInstanceService reportInstanceService,
         IServiceProvider serviceProvider,
         IOptions<JsonSerializerOptions> serializerOptions,
         ILogger<ReportService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
         _elasticClient = elasticClient;
         _elasticOptions = elasticOptions.Value;
+        _reportInstanceService = reportInstanceService;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -107,6 +110,7 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <returns></returns>
     public override Report? FindById(int id)
     {
+        // If you edit this function, also edit the related function in ReportEngine.OrderBySectionField
         return this.Context.Reports
             .Include(r => r.Owner)
             .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
@@ -116,28 +120,6 @@ public class ReportService : BaseService<Report, int>, IReportService
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
             .Include(r => r.Events).ThenInclude(s => s.Schedule)
             .FirstOrDefault(r => r.Id == id);
-    }
-
-    /// <summary>
-    /// Get the current instance for the specified report 'id'.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="ownerId">The owner of the instance.</param>
-    /// <param name="limit">Number of instances to return.</param>
-    /// <returns></returns>
-    public IEnumerable<ReportInstance> GetLatestInstances(int id, int? ownerId = null, int limit = 2)
-    {
-        var query = this.Context.ReportInstances
-            .Include(ri => ri.Owner)
-            .Where(ri => ri.ReportId == id);
-
-        if (ownerId.HasValue)
-            query = query.Where(ri => ri.OwnerId == ownerId);
-
-        return query
-            .OrderByDescending(ri => ri.Id)
-            .Take(limit)
-            .ToArray();
     }
 
     /// <summary>
@@ -367,17 +349,141 @@ public class ReportService : BaseService<Report, int>, IReportService
     }
 
     /// <summary>
-    /// Find the last report instance created for the specified 'reportId' and 'ownerId'.
+    /// Generate an instance of the report.
+    /// Populate the instance with content based on filters and folders.
     /// </summary>
-    /// <param name="reportId"></param>
+    /// <param name="id"></param>
+    /// <param name="requestorId"></param>
+    /// <param name="instanceId"></param>
+    /// <returns></returns>
+    public async Task<ReportInstance> GenerateReportInstanceAsync(
+        int id,
+        int? requestorId = null,
+        long instanceId = 0)
+    {
+        // Fetch content for every section within the report.  This will include folders and filters.
+        var report = FindById(id) ?? throw new NoContentException("Report does not exist");
+        var searchResults = await FindContentWithElasticsearchAsync(report, requestorId);
+        var instanceContent = new List<ReportInstanceContent>(searchResults.SelectMany(sr => sr.Value.Hits.Hits).Count());
+        report.Sections.ForEach(section =>
+        {
+            if (searchResults.TryGetValue(section.Name, out Elastic.Models.SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
+            {
+                // Apply the search results to the report instance.
+                var settings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(section.Settings, _serializerOptions);
+                var sortOrder = 0;
+                instanceContent.AddRange(OrderBySectionField(results.Hits.Hits.Select(c => new ReportInstanceContent(instanceId, c.Source.Id, section.Name, sortOrder++)), settings?.SortBy));
+            }
+        });
+
+        return new ReportInstance(
+            instanceId,
+            id,
+            requestorId ?? report.OwnerId,
+            instanceContent
+        )
+        {
+            OwnerId = requestorId,
+            PublishedOn = DateTime.UtcNow
+        };
+    }
+
+    /// <summary>
+    /// Order the content based on the session field.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="sortBy"></param>
+    /// <returns>Ordered Content</returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public static ReportInstanceContent[] OrderBySectionField(IEnumerable<ReportInstanceContent> content, string? sortBy)
+    {
+        return sortBy switch
+        {
+            "PublishedOn" => content.OrderBy(c => c.Content?.PublishedOn).ToArray(),
+            "MediaType" => content.OrderBy(c => c.Content?.MediaType?.Name).ToArray(),
+            "Series" => content.OrderBy(c => c.Content?.Series?.Name).ToArray(),
+            "Source" => content.OrderBy(c => c.Content?.Source?.Name).ToArray(),
+            "Sentiment" => content.OrderBy(c => c.Content?.TonePoolsManyToMany.Select(s => s.Value).Sum(v => v)).ToArray(),
+            "Byline" => content.OrderBy(c => c.Content?.Byline).ToArray(),
+            "Contributor" => content.OrderBy(c => c.Content?.Contributor?.Name).ToArray(),
+            "Topic" => content.OrderBy(c => string.Join(",", c.Content?.Topics.Select(x => x.Name).ToArray() ?? Array.Empty<string>())).ToArray(),
+            _ => content.OrderBy(c => c.SortOrder).ToArray(),
+        };
+    }
+
+    /// <summary>
+    /// Add the specified 'content' to the specified report 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    public async Task<Report?> AddContentToReportAsync(int id, int? ownerId, IEnumerable<ReportInstanceContent> content)
+    {
+        var report = FindById(id) ?? throw new NoContentException("Report does not exist");
+        var instance = GetCurrentReportInstance(id, ownerId, true);
+        if (instance == null)
+        {
+            // Create a new instance and populate it with the specified content.
+            instance = await GenerateReportInstanceAsync(id, ownerId);
+
+            // Add new content that does not already exist in the report and only for valid sections.
+            var addContent = content.Where(c => report.Sections.Any(s => s.Name == c.SectionName) && !instance.ContentManyToMany.Any(ic => ic.SectionName == c.SectionName && ic.ContentId == c.ContentId));
+            instance.ContentManyToMany.AddRange(addContent);
+
+            instance = _reportInstanceService.AddAndSave(instance);
+            report.Instances.Add(instance);
+        }
+        else
+        {
+            // Update current instance with new content.
+            await this.Context.Entry(instance).Collection(i => i.ContentManyToMany).LoadAsync();
+
+            // Add new content that does not already exist in the report and only for valid sections.
+            var addContent = content.Where(c => report.Sections.Any(s => s.Name == c.SectionName) && !instance.ContentManyToMany.Any(ic => ic.SectionName == c.SectionName && ic.ContentId == c.ContentId));
+            instance.ContentManyToMany.AddRange(addContent);
+
+            instance = _reportInstanceService.UpdateAndSave(instance);
+        }
+
+        return report;
+    }
+
+    /// <summary>
+    /// Get the latest instances for the specified report 'id' and 'ownerId'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="ownerId">The owner of the instance.</param>
+    /// <param name="limit">Number of instances to return.</param>
+    /// <returns></returns>
+    public IEnumerable<ReportInstance> GetLatestInstances(int id, int? ownerId = null, int limit = 2)
+    {
+        var query = this.Context.ReportInstances
+            .Include(ri => ri.Owner)
+            .Where(ri => ri.ReportId == id);
+
+        if (ownerId.HasValue)
+            query = query.Where(ri => ri.OwnerId == ownerId);
+
+        return query
+            .OrderByDescending(ri => ri.Id)
+            .Take(limit)
+            .ToArray();
+    }
+
+    /// <summary>
+    /// Find the last report instance created for the specified report 'id' and 'ownerId'.
+    /// </summary>
+    /// <param name="id"></param>
     /// <param name="ownerId"></param>
     /// <param name="includeContent"></param>
     /// <returns></returns>
-    public ReportInstance? GetCurrentReportInstance(int reportId, int? ownerId = null, bool includeContent = false)
+    public ReportInstance? GetCurrentReportInstance(int id, int? ownerId = null, bool includeContent = false)
     {
         var query = this.Context.ReportInstances
             .OrderByDescending(i => i.Id)
-            .Where(i => i.ReportId == reportId
+            .Where(i => i.ReportId == id
                 && (ownerId == null || i.OwnerId == ownerId));
 
         if (includeContent)
@@ -593,6 +699,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         }
         return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
     }
+
     /// <summary>
     /// Unsubscribe the specified 'userId' to the specified report.
     /// </summary>
@@ -619,6 +726,11 @@ public class ReportService : BaseService<Report, int>, IReportService
         return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
     }
 
+    /// <summary>
+    /// Unsubscribe the specified 'userId' from all reports.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
     public async Task<int> Unsubscribe(int userId)
     {
         var saveChanges = false;

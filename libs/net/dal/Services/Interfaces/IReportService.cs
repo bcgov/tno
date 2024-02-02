@@ -32,6 +32,27 @@ public interface IReportService : IBaseService<Report, int>
     Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(Report report, int? requestorId);
 
     /// <summary>
+    /// Generate an instance of the report.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="requestorId"></param>
+    /// <param name="instanceId"></param>
+    /// <returns></returns>
+    public Task<ReportInstance> GenerateReportInstanceAsync(
+        int id,
+        int? requestorId = null,
+        long instanceId = 0);
+
+    /// <summary>
+    /// Add the specified 'content' to the specified report 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    Task<Report?> AddContentToReportAsync(int id, int? ownerId, IEnumerable<ReportInstanceContent> content);
+
+    /// <summary>
     /// Get the current instance for the specified report 'id'.
     /// </summary>
     /// <param name="id"></param>

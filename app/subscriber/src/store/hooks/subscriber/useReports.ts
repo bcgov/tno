@@ -3,6 +3,7 @@ import { useAjaxWrapper } from 'store/hooks';
 import { IProfileState, useProfileStore } from 'store/slices';
 import {
   IReportFilter,
+  IReportInstanceContentModel,
   IReportInstanceModel,
   IReportModel,
   IReportResultModel,
@@ -20,6 +21,7 @@ interface IReportController {
   deleteReport: (model: IReportModel) => Promise<IReportModel>;
   previewReport: (id: number) => Promise<IReportResultModel>;
   generateReport: (id: number, regenerate?: boolean) => Promise<IReportModel>;
+  addContentToReport: (id: number, content: IReportInstanceContentModel[]) => Promise<IReportModel>;
 }
 
 export const useReports = (): [IProfileState, IReportController] => {
@@ -116,6 +118,23 @@ export const useReports = (): [IProfileState, IReportController] => {
           api.generateReport(id, regenerate),
         );
         storeMyReports((reports) => reports.map((r) => (r.id === id ? response.data : r)));
+        return response.data;
+      },
+      addContentToReport: async (id: number, content: IReportInstanceContentModel[]) => {
+        const response = await dispatch<IReportModel>('add-content-to-report', () =>
+          api.addContentToReport(id, content),
+        );
+        storeMyReports((reports) => {
+          if (!response.data) return reports;
+          var contains = false;
+          const results = reports.map((r) => {
+            if (r.id === id) contains = true;
+            return r.id === id ? response.data! : r;
+          });
+
+          if (contains) return results;
+          return [response.data!, ...reports];
+        });
         return response.data;
       },
     }),

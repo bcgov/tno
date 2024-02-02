@@ -120,9 +120,9 @@ public class ReportEngine : IReportEngine
     /// <param name="content"></param>
     /// <param name="sortBy"></param>
     /// <returns>Ordered Content</returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public ContentModel[] OrderBySectionField(ContentModel[] content, string sortBy)
+    public IEnumerable<ContentModel> OrderBySectionField(IEnumerable<ContentModel> content, string sortBy)
     {
+        // If you edit this function, also edit the related function in ReportService.OrderBySectionField
         return sortBy switch
         {
             "PublishedOn" => content.OrderBy(c => c.PublishedOn).ToArray(),

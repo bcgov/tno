@@ -10,10 +10,10 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
-  getReportSectionOrderByOptions,
   getSortableOptions,
   IOptionItem,
   OptionItem,
+  ReportSectionOrderByOptions,
   Row,
 } from 'tno-core';
 
@@ -38,7 +38,7 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
     const [filterOptions, setFilterOptions] = React.useState<IOptionItem[]>(
       getSortableOptions(filters),
     );
-    const [orderOptions] = React.useState<IOptionItem[]>(getReportSectionOrderByOptions());
+    const [orderOptions] = React.useState<IOptionItem[]>(ReportSectionOrderByOptions);
 
     const section = values.sections[index];
 
