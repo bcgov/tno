@@ -358,12 +358,12 @@ export const AdvancedSearch = styled(Row)`
 
   .react-datepicker__day--keyboard-selected,
   .react-datepicker__day--in-selecting-range {
-    background-color: rgb(151, 29, 41, 0.5);
+    background-color: ${(props) => props.theme.css.btnLightRedColor};
   }
 
   .react-datepicker__day--in-range,
   .react-datepicker__day--selected {
-    background-color: rgb(151, 29, 41);
+    background-color: ${(props) => props.theme.css.btnRedColor};
   }
 
   .react-datepicker__day--keyboard-selected,
@@ -371,7 +371,7 @@ export const AdvancedSearch = styled(Row)`
   .react-datepicker__quarter-text--keyboard-selected,
   .react-datepicker__year-text--keyboard-selected {
     &:hover {
-      background-color: rgb(151, 29, 41);
+      background-color: ${(props) => props.theme.css.btnRedColor};
     }
   }
 
