@@ -14,10 +14,12 @@ export interface IPageSectionProps extends React.HTMLAttributes<HTMLDivElement> 
   includeContentActions?: boolean;
   /** context of content if needed */
   activeContent?: IContentModel[];
-  /** set active content */
-  setActiveContent?: (content: IContentModel[]) => void;
   /** ignore min-width of fit-content for mobile */
   ignoreMinWidth?: boolean;
+  /** Event fires when keyboard is pressed in section form */
+  onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>;
+  /** Event fires when keyboard is pressed in section */
+  onKeyDownCapture?: React.KeyboardEventHandler<HTMLDivElement>;
 }
 
 /**
@@ -32,8 +34,9 @@ export const PageSection: React.FC<IPageSectionProps> = ({
   ignoreLastChildGap,
   includeContentActions,
   activeContent,
-  setActiveContent,
   ignoreMinWidth,
+  onKeyDown,
+  onKeyDownCapture,
   ...rest
 }) => {
   return (
@@ -41,6 +44,8 @@ export const PageSection: React.FC<IPageSectionProps> = ({
       $ignoreLastChildGap={ignoreLastChildGap}
       $ignoreMinWidth={ignoreMinWidth}
       className={`page-section${className ? ` ${className}` : ''}`}
+      onKeyDown={onKeyDown}
+      onKeyDownCapture={onKeyDownCapture}
       {...rest}
     >
       {includeContentActions && !!activeContent && (

@@ -1,10 +1,11 @@
+import { Action } from 'components/action';
 import { Button } from 'components/button';
 import { PageSection } from 'components/section';
 import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { toForm } from 'features/my-reports/utils';
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { FaCloud } from 'react-icons/fa6';
+import { FaArrowLeft, FaArrowRight, FaCloud } from 'react-icons/fa6';
 import { useApp, useContent, useReports } from 'store/hooks';
 import { Col, Row, Show } from 'tno-core';
 
@@ -18,6 +19,8 @@ export interface IContentEditFormProps {
   row?: IReportInstanceContentForm;
   /** Event fires when the update button is clicked and performs an update to the API. */
   onUpdate?: (row?: IReportInstanceContentForm) => void;
+  /** Event fires when user clicks previous/next buttons */
+  onNavigate?: (action: 'previous' | 'next') => void;
 }
 
 /**
@@ -26,13 +29,17 @@ export interface IContentEditFormProps {
  * @param param0 Component properties.
  * @returns Component.
  */
-export const ContentEditForm = ({ disabled, row: initialRow, onUpdate }: IContentEditFormProps) => {
+export const ContentEditForm = ({
+  disabled,
+  row: initialRow,
+  onUpdate,
+  onNavigate,
+}: IContentEditFormProps) => {
   const [{ userInfo }] = useApp();
   const { values, setSubmitting, isSubmitting, setValues } = useFormikContext<IReportForm>();
   const [, { updateReport }] = useReports();
   const [, { addContent, updateContent }] = useContent();
 
-  const [loading, setLoading] = React.useState(false);
   const [form, setForm] = React.useState(initialRow);
 
   const userId = userInfo?.id ?? 0;
@@ -44,7 +51,7 @@ export const ContentEditForm = ({ disabled, row: initialRow, onUpdate }: IConten
   const handleAddUpdateContent = React.useCallback(
     async (values: IReportForm, row: IReportInstanceContentForm) => {
       try {
-        setLoading(true);
+        setSubmitting(true);
         const content = row.content;
 
         if (!content) return null;
@@ -93,9 +100,9 @@ export const ContentEditForm = ({ disabled, row: initialRow, onUpdate }: IConten
 
             // Update the report instances with the latest content.
             const reportResult = await updateReport(updatedReport, true);
-            return toForm(reportResult);
+            if (reportResult) setValues(toForm(reportResult));
           } else {
-            return {
+            setValues({
               ...values,
               instances: values.instances.map((instance, index) =>
                 index === 0
@@ -107,21 +114,29 @@ export const ContentEditForm = ({ disabled, row: initialRow, onUpdate }: IConten
                     }
                   : instance,
               ),
-            };
+            });
           }
         }
       } catch {
       } finally {
-        setLoading(false);
+        setSubmitting(false);
       }
     },
-    [addContent, onUpdate, updateContent, updateReport],
+    [addContent, onUpdate, setSubmitting, setValues, updateContent, updateReport],
   );
 
   if (!form?.content) return <></>;
 
   return (
     <PageSection
+      onKeyDown={(e) => {
+        if (e.code === 'Escape') onUpdate?.();
+        else if (e.ctrlKey) {
+          if (e.code === 'Enter') handleAddUpdateContent(values, form);
+          else if (e.code === 'ArrowUp' || e.code === 'ArrowLeft') onNavigate?.('previous');
+          else if (e.code === 'ArrowDown' || e.code === 'ArrowRight') onNavigate?.('next');
+        }
+      }}
       header={
         <Col flex="1">
           <Row flex="1" alignItems="center" gap="1rem">
@@ -133,31 +148,27 @@ export const ContentEditForm = ({ disabled, row: initialRow, onUpdate }: IConten
             <Col gap="0.5rem">
               <Row gap="1rem" justifyContent="flex-end">
                 <Button
-                  onClick={() => onUpdate?.(undefined)}
+                  onClick={() => onUpdate?.()}
                   disabled={isSubmitting || disabled}
                   variant="secondary"
                 >
                   Cancel
                 </Button>
                 <Button
-                  onClick={async () => {
-                    // Save the updated story and then apply the results to the report.
-                    if (form.content) {
-                      try {
-                        setSubmitting(true);
-                        const result = await handleAddUpdateContent(values, form);
-                        if (result) setValues(result);
-                      } catch {
-                      } finally {
-                        setSubmitting(false);
-                      }
-                    }
+                  onClick={() => {
+                    handleAddUpdateContent(values, form);
                   }}
                   disabled={isSubmitting || disabled}
                 >
                   Save edits
                   <FaCloud />
                 </Button>
+                <Action
+                  icon={<FaArrowLeft size="20" />}
+                  title="Previous"
+                  onClick={() => onNavigate?.('previous')}
+                />
+                <Action icon={<FaArrowRight />} title="Next" onClick={() => onNavigate?.('next')} />
               </Row>
             </Col>
           </Row>
@@ -184,7 +195,7 @@ export const ContentEditForm = ({ disabled, row: initialRow, onUpdate }: IConten
           onContentChange={(content) => {
             setForm({ ...content });
           }}
-          loading={loading}
+          loading={isSubmitting}
         />
       ) : (
         <ContentForm
@@ -193,9 +204,10 @@ export const ContentEditForm = ({ disabled, row: initialRow, onUpdate }: IConten
           onContentChange={(content) => {
             setForm({ ...form, content });
           }}
-          loading={loading}
+          loading={isSubmitting}
         />
       )}
+      <span></span>
     </PageSection>
   );
 };

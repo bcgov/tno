@@ -105,5 +105,22 @@ export const ReportAdmin = styled.div`
   .section {
     border-left: solid 1px ${(props) => props.theme.css.lineTertiaryColor};
     border-right: solid 1px ${(props) => props.theme.css.lineTertiaryColor};
+
+    .section-header {
+      background: ${(props) => props.theme.css.sectionHeader};
+      color: ${(props) => props.theme.css.sectionHeaderText};
+
+      .section-label {
+        .section-header-label {
+          > span:nth-child(1) {
+            min-width: 50px;
+            text-align: center;
+          }
+          > svg:first-of-type {
+            padding-right: 0.5rem;
+          }
+        }
+      }
+    }
   }
 `;

@@ -1,6 +1,6 @@
 import { Action } from 'components/action';
 import { Section } from 'components/section';
-import { SectionIcon, SectionLabel } from 'features/my-reports/admin/components';
+import { SectionLabel } from 'features/my-reports/components';
 import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { moveContent } from 'features/my-reports/utils';
 import { useFormikContext } from 'formik';
@@ -96,13 +96,8 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({
           return (
             <Section
               key={section.id}
-              icon={<SectionIcon type={section.sectionType} />}
               open={section.open}
-              label={
-                <Row>
-                  <SectionLabel section={section} showIcon={false} />
-                </Row>
-              }
+              label={<SectionLabel section={section} />}
             >
               <Show visible={section.sectionType === ReportSectionTypeName.TableOfContents}>
                 <ReportSectionTableOfContents

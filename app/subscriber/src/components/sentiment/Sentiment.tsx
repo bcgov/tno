@@ -1,4 +1,4 @@
-import { FaRegCircle, FaRegFrown, FaRegMeh, FaRegSmile } from 'react-icons/fa';
+import { FaCircle, FaFrown, FaMeh, FaSmile } from 'react-icons/fa';
 import { Show } from 'tno-core';
 
 import * as styled from './styled';
@@ -21,16 +21,16 @@ export const Sentiment: React.FC<ISentimentProps> = ({ value, title, showValue }
   return (
     <styled.Sentiment value={value}>
       <Show visible={value === undefined}>
-        <FaRegCircle className="tone-icon" color="#E0E0E0" title={title} />
+        <FaCircle className="tone-icon" color="#E0E0E0" title={title} />
       </Show>
       <Show visible={value !== undefined && value < 0}>
-        <FaRegFrown className="tone-icon" color="#DC3545" title={title} />
+        <FaFrown className="tone-icon" color="#DC3545" title={title} />
       </Show>
       <Show visible={value !== undefined && value === 0}>
-        <FaRegMeh className="tone-icon" color="#FFC107" title={title} />
+        <FaMeh className="tone-icon" color="#FFC107" title={title} />
       </Show>
       <Show visible={value !== undefined && value > 0}>
-        <FaRegSmile className="tone-icon" color="#20C997" title={title} />
+        <FaSmile className="tone-icon" color="#20C997" title={title} />
       </Show>
       {showValue && <span>{value}</span>}
     </styled.Sentiment>

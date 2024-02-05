@@ -44,8 +44,8 @@ export const Section: React.FC<ISectionProps> = ({
     <styled.Section open={open} showOpen={showOpen} className={`section ${className}`} {...rest}>
       <div className="section-header">
         {icon && <div className="section-icon">{icon}</div>}
-        <div className="section-label">
-          <span onClick={() => showOpen && handleChange(!open)}>{label}</span>
+        <div className="section-label" onClick={() => showOpen && handleChange(!open)}>
+          {label}
         </div>
         {actions && (
           <div className="section-actions">

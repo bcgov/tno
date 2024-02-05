@@ -35,13 +35,9 @@ export const Section = styled.div<ISectionProps>`
     .section-label {
       flex: 1;
       overflow: hidden;
-
-      span {
-        display: block;
-        white-space: nowrap;
-        max-width: 500px;
-        cursor: ${(props) => (props.showOpen ? 'pointer' : 'unset')};
-      }
+      display: block;
+      white-space: nowrap;
+      cursor: ${(props) => (props.showOpen ? 'pointer' : 'unset')};
     }
 
     .section-actions {

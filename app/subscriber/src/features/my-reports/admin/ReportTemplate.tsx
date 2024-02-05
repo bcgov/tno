@@ -21,6 +21,7 @@ import {
   Text,
 } from 'tno-core';
 
+import { SectionLabel } from '../components';
 import { IReportForm } from '../interfaces';
 import {
   AddSectionBar,
@@ -29,7 +30,6 @@ import {
   ReportSectionMediaAnalytics,
   ReportSectionTableOfContents,
   ReportSectionText,
-  SectionLabel,
 } from './components';
 
 export interface IReportTemplateProps {
@@ -149,7 +149,7 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
                             open={section.open}
                             onChange={(open) => setFieldValue(`sections.${index}.open`, open)}
                             actions={
-                              <Row gap="1rem">
+                              <Row gap="1rem" alignItems="center">
                                 <Text
                                   name={`sections.${index}.sortOrder`}
                                   value={sortOrders.length > index ? sortOrders[index] : ''}
@@ -177,7 +177,6 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
                                             : 0,
                                         ),
                                     });
-                                    // setFieldValue(`sections.${index}.sortOrder`, +e.target.value);
                                   }}
                                 />
                                 <FormikCheckbox

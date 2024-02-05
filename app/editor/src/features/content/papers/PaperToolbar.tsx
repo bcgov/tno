@@ -39,22 +39,32 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
   const [{ mediaTypeOptions }] = useLookupOptions();
   const [{ publishReport }] = useReports();
   const [{ publishNotification }] = useNotifications();
-  const [{ settings }] = useLookup();
+  const [{ isReady, settings }] = useLookup();
   const { toggle, isShowing } = useModal();
 
   const [, setMediaTypeOptions] = React.useState<IOptionItem[]>([]);
-  const [morningReportId, setMorningReportId] = React.useState('');
-  const [frontPageImagesReportId, setFrontPageImagesReportId] = React.useState('');
-  const [topStoryAlertId, setTopStoryAlertId] = React.useState('');
+  const [morningReportId, setMorningReportId] = React.useState(0);
+  const [frontPageImagesReportId, setFrontPageImagesReportId] = React.useState(0);
+  const [topStoryAlertId, setTopStoryAlertId] = React.useState(0);
   const [sendInfo, setSendInfo] = React.useState<IReportInfo>();
 
   React.useEffect(() => {
-    setMorningReportId(settings.find((s) => s.name === Settings.MorningReport)?.value ?? '');
-    setFrontPageImagesReportId(
-      settings.find((s) => s.name === Settings.FrontPageImagesReport)?.value ?? '',
-    );
-    setTopStoryAlertId(settings.find((s) => s.name === Settings.TopStoryAlert)?.value ?? '');
-  }, [settings]);
+    if (isReady) {
+      const morningReportId = settings.find((s) => s.name === Settings.MorningReport)?.value;
+      if (morningReportId) setMorningReportId(+morningReportId);
+      else toast.error(`${Settings.MorningReport} setting needs to be configured.`);
+
+      const frontPageImagesReportId = settings.find(
+        (s) => s.name === Settings.FrontPageImagesReport,
+      )?.value;
+      if (frontPageImagesReportId) setFrontPageImagesReportId(+frontPageImagesReportId);
+      else toast.error(`${Settings.FrontPageImagesReport} setting needs to be configured.`);
+
+      const topStoryAlertId = settings.find((s) => s.name === Settings.TopStoryAlert)?.value;
+      if (topStoryAlertId) setTopStoryAlertId(+topStoryAlertId);
+      else toast.error(`${Settings.TopStoryAlert} setting needs to be configured.`);
+    }
+  }, [isReady, settings]);
 
   React.useEffect(() => {
     setMediaTypeOptions([new OptionItem<number>('Any', 0), ...mediaTypeOptions]);
