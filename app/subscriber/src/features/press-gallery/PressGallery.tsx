@@ -1,4 +1,5 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
+import { ContentList } from 'components/content-list';
 import { ContentListActionBar } from 'components/tool-bar';
 import { determineColumns } from 'features/home/constants';
 import { castToSearchResult, createFilterSettings } from 'features/utils';
@@ -178,14 +179,9 @@ export const PressGallery: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateOptions.length, aliases, pressSettings]);
 
-  /** controls the checking and unchecking of rows in the list view */
-  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentSearchResult>) => {
-    if (row.isSelected) {
-      setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
-    } else {
-      setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
-    }
-  };
+  const handleContentSelected = React.useCallback((content: IContentModel[]) => {
+    setSelected(content);
+  }, []);
 
   return (
     <styled.PressGallery>
@@ -269,24 +265,11 @@ export const PressGallery: React.FC = () => {
           }}
         />
       </Row>
-      <Row className="table-container">
-        <FlexboxTable
-          showHeader={false}
-          rowId="id"
-          columns={determineColumns('all')}
-          isLoading={loading}
-          isMulti
-          groupBy={(item) => item.original.source?.name ?? ''}
-          onRowClick={(e: any) => {
-            navigate(`/view/${e.original.id}`);
-          }}
-          data={content}
-          pageButtons={5}
-          onSelectedChanged={handleSelectedRowsChanged}
-          selectedRowIds={selectedIds}
-          showPaging={false}
-        />
-      </Row>
+      <ContentList
+        onContentSelected={handleContentSelected}
+        content={content}
+        selected={selected}
+      />
     </styled.PressGallery>
   );
 };
