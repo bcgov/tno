@@ -23,7 +23,7 @@ export interface IMediaTypeFiltersProps {
  * Component to filter media types on content list pages
  * @param filterStoreName - name of the filter in redux context
  */
-export const FilterOption: React.FC<IMediaTypeFiltersProps> = ({ filterStoreName }) => {
+export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreName }) => {
   const [active, setActive] = useState<FilterOptionTypes>(FilterOptionTypes.Papers);
   const filterStoreMethod = determineStore(filterStoreName);
   const [
