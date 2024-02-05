@@ -14,16 +14,20 @@ import {
   FaUsers,
   FaUserTie,
 } from 'react-icons/fa';
+import { IContentState } from 'store/slices';
+
+export interface INavbarOptionItem {
+  label: string;
+  path: string;
+  icon: JSX.Element;
+  groupName?: string;
+  secondaryIcon?: JSX.Element;
+  secondaryIconRoute?: string;
+  reduxFilterStore?: keyof IContentState;
+}
 
 export interface INavbarOptions {
-  [key: string]: {
-    label: string;
-    path: string;
-    icon: JSX.Element;
-    groupName?: string;
-    secondaryIcon?: JSX.Element;
-    secondaryIconRoute?: string;
-  };
+  [key: string]: INavbarOptionItem;
 }
 
 export const NavbarOptions: INavbarOptions = {
@@ -31,16 +35,19 @@ export const NavbarOptions: INavbarOptions = {
     label: 'Featured Stories',
     path: 'landing/home',
     icon: <FaHome />,
+    reduxFilterStore: 'home',
   },
   topStories: {
     label: 'Top Stories',
     path: 'landing/topstories',
     icon: <FaFire />,
+    reduxFilterStore: 'topStories',
   },
   todaysCommentary: {
     label: "Today's Commentary",
     path: 'landing/todayscommentary',
     icon: <FaComment />,
+    reduxFilterStore: 'todaysCommentary',
   },
   todaysFrontPages: {
     label: "Today's Front Pages",

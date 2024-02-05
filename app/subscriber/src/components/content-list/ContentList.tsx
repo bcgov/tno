@@ -45,7 +45,7 @@ export const ContentList: React.FC<IContentListProps> = ({
   );
 
   React.useEffect(() => {
-    if (activeFileReference) {
+    if (!!activeFileReference) {
       stream(activeFileReference.path).then((result) => {
         setActiveStream({ source: result, id: activeFileReference.contentId });
       });
@@ -107,6 +107,7 @@ export const ContentList: React.FC<IContentListProps> = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         setActiveStream({ source: '', id: 0 });
+                        setActiveFileReference(undefined);
                       }}
                     />
                   </Show>
