@@ -2,36 +2,131 @@ import styled from 'styled-components';
 
 export const MobileLogin = styled.div`
   .mobile-view {
-    .login-content {
-      display: flex;
-    }
     .mobile-title {
       min-width: 100%;
+    }
+    .app-logo {
+      padding: 1%;
+      width: 40vmax;
+      height: 25vmin;
+      background-image: url('/assets/MMinsights_logo_black.svg');
+      background-position: center;
+      background-repeat: no-repeat;
     }
     .top-bar-box {
       background-color: #221f1f;
       color: white;
       padding: 0.5em;
     }
-    .buttons {
-      margin-top: 13.5%;
+    .login-box {
+      margin-top: 2%;
+      margin-bottom: 2%;
+      border: 2px solid #971d29;
+      border-radius: 0.5rem;
+      padding: 2%;
+      text-align: center;
+      height: 91%;
+      .footer {
+        padding: 2%;
+        text-align: left;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        background-color: #ded9da;
+      }
     }
+
+    .main-box {
+      box-shadow: 0px 2px 6px #0000000a;
+      background-color: #ffffff;
+      margin-right: 1em;
+      width: auto;
+      @media (max-width: 1550px) {
+        margin-left: 1%;
+        margin-bottom: 1%;
+        min-width: auto;
+      }
+      .top-bar-box {
+        margin: 0;
+        background-color: black;
+        color: white;
+        padding: 1%;
+        text-align: center;
+      }
+    }
+
     .containing-box {
-      background-color: white;
+      padding: 2%;
+      display: flex;
+      max-height: fit-content;
+      overflow: hidden;
+      height: 37em;
+      @media (max-width: 1550px) {
+        display: inline-block;
+        margin-left: 1px;
+      }
+    }
+
+    .buttons {
+      margin-top: 5.5%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
 
     button {
-      border-radius: 1.25rem;
-      min-width: 5rem;
+      color: ${(props) => props.theme.css.redHeadingColor};
+      font-family: Noto Sans;
+      font-size: 28px;
+      font-weight: 400;
+      line-height: 38px;
+      letter-spacing: 0em;
+      margin-bottom: 5%;
+      min-width: 5em;
       border: none;
       display: flex;
       justify-content: center;
-      &.red {
-        background-color: #bc202e !important;
+      border: 1px solid black;
+      clear: both;
+      &.white {
+        background-color: ${(props) => props.theme.css.bkWhite};
+        &:hover {
+          border: 2px solid #a61c29;
+          color: ${(props) => props.theme.css.redHeadingColor};
+        }
       }
-      &.cyan {
-        background-color: #24b6d4 !important;
-      }
+    }
+
+    .containing-row {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    a {
+      color: ${(props) => props.theme.css.fRedColor};
+    }
+
+    .bceid-logo {
+      padding: 1%;
+      background-image: url('/assets/bceid_default_logo.jpg');
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    .idir-logo {
+      padding: 1%;
+      // background-image: url('/assets/idir_logo_2.png');
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    .login-content {
+      margin-top: 2%;
+      display: flex;
+      justify-content: space-between;
     }
   }
 `;

@@ -1,3 +1,4 @@
+import React from 'react';
 import { Button, Col, Row, Show, useKeycloakWrapper } from 'tno-core';
 
 import * as styled from './styled';
@@ -17,50 +18,49 @@ export const MobileLogin: React.FC<IMobileLoginProps> = ({ login }) => {
   const isLocal =
     new URL(authority).host.startsWith('localhost') ||
     new URL(authority).host.startsWith('host.docker.internal');
+
   return (
     <styled.MobileLogin>
       <Col className="mobile-view">
         <Row className="mobile-title">
-          <img alt="MMI Logo" src="/assets/MMinsights_logo_black.svg" />
+          <div className="app-logo"></div>
         </Row>
-        <Row>
-          <p className="top-bar-box">
-            Media Monitoring is a paid service offered through the BC Government that allows
-            subscribers to see British Columbia’s news at a glance.
-          </p>
-        </Row>
-        <Row>
-          <div className="containing-box">
-            <b>Key feautres: </b>
-            <ul>
-              <li>Aggregation of newspapers, radio shows, and online articles </li>
-              <li>Transcription services</li>
-              <li>BC’s top stories as they break</li>
-              <li>Articles related to major stories</li>
-            </ul>
-            <a href="www.google.ca">Learn more about obtaining a subscription... </a>
-            <Col className="login-box">
-              <b>If you have a subscription, login here: </b>
-              <div className="login-content">
-                <div className="buttons">
-                  <Show visible={!isLocal}>
-                    <Button className="red" onClick={() => login(isLocal ? 'gcpe-oidc' : 'idir')}>
-                      IDIR
-                    </Button>
-                    <Button
-                      className="cyan"
-                      onClick={() => login(isLocal ? 'gcpe-oidc' : 'bceid-basic')}
-                    >
-                      BCeID
-                    </Button>
-                  </Show>
-                  <Show visible={isLocal}>
-                    <Button className="red" onClick={() => login()}>
-                      Local
-                    </Button>
-                  </Show>
+        <Row className="containing-row">
+          <Col className="main-box">
+            <p className="top-bar-box">
+              Media Monitoring is a paid service offered through the BC Government that allows
+              subscribers to see British Columbia’s news at a glance.
+            </p>
+            <div className="containing-box centered-login-box">
+              <Col className="login-box">
+                <b>Login to your MMI account with your BCeID or IDIR: </b>
+                <div>
+                  <div className="buttons">
+                    <Show visible={!isLocal}>
+                      <Button
+                        className="white idir-logo"
+                        onClick={() => login(isLocal ? 'gcpe-oidc' : 'idir')}
+                      >
+                        IDIR
+                      </Button>
+                      <Button
+                        className="white bceid-logo"
+                        onClick={() => login(isLocal ? 'gcpe-oidc' : 'bceid-basic')}
+                      ></Button>
+                    </Show>
+                    <Show visible={isLocal}>
+                      <Button className="white" onClick={() => login()}>
+                        Local
+                      </Button>
+                    </Show>
+                    <br />
+                    <p>
+                      Learn more about obtaining a subscription contacting{' '}
+                      <a href="mailto:Scott.Ryckman@gov.bc.ca">Scott.Ryckman@gov.bc.ca</a>
+                    </p>
+                  </div>
                 </div>
-                <Row className="copyright">
+                <div className="footer" onClick={() => login()}>
                   <b>Copyright info:</b>
                   <p>
                     This account grants you access to copyrighted material for your own use. It does
@@ -69,12 +69,13 @@ export const MobileLogin: React.FC<IMobileLoginProps> = ({ login }) => {
                     You cannot redistribute this information to anyone without violating your
                     copyright agreement.
                   </p>
-                </Row>
-              </div>
-            </Col>
-          </div>
+                </div>
+              </Col>
+            </div>
+          </Col>
         </Row>
       </Col>
+      <img src="/assets/mm_logo.svg" alt="MM Logo" className="mm-logo" />
     </styled.MobileLogin>
   );
 };

@@ -4,16 +4,20 @@ import { IUnauthenticatedHomeProps } from '..';
 
 export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   position: relative;
-  overflow-x: hidden;
-  background-color: ${(props) => props.theme.css.beigeBackgroundColor};
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: linear-gradient(
+    179.77deg,
+    ${(props) => props.theme.css.primaryBackgroundColor} 15.35%,
+    ${(props) => props.theme.css.secondaryBackgroundColor} 101.64%
+  );
   width: 100%;
   height: 100dvh;
 
   .containing-row {
-    overflow-y: auto;
-    overflow-x: hidden;
-    /* accounts for top logo bar and footer */
-    max-height: calc(100vh - 8.5em);
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: auto;
   }
 
   .app-logo {
@@ -52,6 +56,20 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
 
   .containing-box {
     padding: 2%;
+    display: flex;
+    max-height: fit-content;
+    overflow: hidden;
+    @media (max-width: 1550px) {
+      display: inline-block;
+      margin-left: 5em;
+    }
+  }
+
+  .centered-login-box {
+    @media (min-width: 1450px) {
+      margin-left: auto;
+      margin-right: auto;
+    }
   }
 
   .system-message-containing-box {
@@ -59,15 +77,17 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   }
 
   .system-message-box {
-    b {
-      color: red;
-    }
+    display: inline-block;
+    position: relative;
+    margin-top: 2%;
+    padding: 2%;
+    height: 487px;
+    float: left;
     background-color: ${(props) => props.theme.css.stickyNoteColor};
-    border: 1px solid ${(props) => props.theme.css.lightBlue};
-    align-self: center;
+    margin-right: auto;
+    margin-left: 20px;
     @media (max-width: 1450px) {
-      min-width: 98%;
-      margin-left: 1%;
+      min-width: 50em;
     }
     @media (max-width: 768px) {
       margin-bottom: 0.5em;
@@ -75,6 +95,7 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
     @media (min-width: 1450px) {
       max-width: 50em;
     }
+    width: 50em;
   }
   .mm-logo {
     height: 8%;
@@ -96,24 +117,27 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   .main-box {
     box-shadow: 0px 2px 6px #0000000a;
     background-color: #ffffff;
-    @media (max-width: 1450px) {
-      min-width: 98%;
+    max-height: fit-content;
+    margin-right: 1em;
+    overflow: hidden;
+    width: 110em;
+    @media (min-width: 850px) {
+      max-width: 70em;
+    }
+    @media (max-width: 1550px) {
+      min-width: 50em;
       margin-left: 1%;
       margin-bottom: 1%;
     }
     @media (min-width: 1450px) {
-      max-width: 50em;
+      max-width: 130em;
     }
-    max-height: fit-content;
-    @media (min-width: 1450px) {
-      margin-right: 1em;
-    }
-    margin-right: 1em;
     .top-bar-box {
       margin: 0;
       background-color: black;
       color: white;
       padding: 1%;
+      text-align: center;
     }
   }
 `;
