@@ -35,4 +35,23 @@ export const DateFilter = styled(Row)`
     }
     max-width: 6.5em;
   }
+
+  .react-datepicker__day--keyboard-selected,
+  .react-datepicker__day--in-selecting-range {
+    background-color: ${(props) => props.theme.css.btnLightRedColor};
+  }
+
+  .react-datepicker__day--in-range,
+  .react-datepicker__day--selected {
+    background-color: ${(props) => props.theme.css.btnRedColor};
+  }
+
+  .react-datepicker__day--keyboard-selected,
+  .react-datepicker__month-text--keyboard-selected,
+  .react-datepicker__quarter-text--keyboard-selected,
+  .react-datepicker__year-text--keyboard-selected {
+    &:hover {
+      background-color: ${(props) => props.theme.css.btnRedColor};
+    }
+  }
 `;

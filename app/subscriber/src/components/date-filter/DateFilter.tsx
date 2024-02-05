@@ -62,6 +62,7 @@ export const DateFilter: React.FC<IDateFilterProps> = ({ filter, storeFilter }) 
         <FaCalendarDay className="calendar" onClick={() => setOpen(true)} />
         <ReactDatePicker
           open={open}
+          maxDate={new Date()}
           disabled
           dateFormat="dd-MMM-y"
           onChange={(e) => storeFilter({ ...filter, startDate: e?.toISOString() })}
