@@ -1,7 +1,9 @@
 import { ShareMenu } from 'components/share-menu';
+import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
 import { FaArrowLeft } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
+import { Tooltip } from 'react-tooltip';
 import { Checkbox, IContentModel, Row, Show } from 'tno-core';
 
 import { AddToFolderMenu } from './AddToFolderMenu';
@@ -38,8 +40,22 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
     <styled.ContentActionBar className={className}>
       <Show visible={showBackButton}>
         <div className="action left-side-items" onClick={() => (onBack ? onBack() : navigate(-1))}>
-          <FaArrowLeft className="back-arrow" />
-          BACK TO HEADLINES
+          {/* <FaArrowLeft className="back-arrow" /> */}
+          <img
+            className="back-button"
+            src={'/assets/back-button.svg'}
+            alt="Back"
+            data-tooltip-id="back-button"
+          />
+          <Tooltip
+            clickable={false}
+            className="back-tooltip"
+            classNameArrow="back-tooltip-arrow"
+            id="back-button"
+            place="top"
+            noArrow={false}
+            content="Back"
+          />
         </div>
       </Show>
       <Show visible={!!onSelectAll}>

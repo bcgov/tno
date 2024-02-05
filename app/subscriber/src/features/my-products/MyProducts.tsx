@@ -45,7 +45,7 @@ export const MyProducts: React.FC = () => {
 
   return (
     <styled.MyProducts>
-      <PageSection header="MMI Products">
+      <PageSection header="MMI Products" includeHeaderIcon>
         <div>
           <p>
             Access to all products is managed by the MMI Admin team. You may request to subscribe or

@@ -1,4 +1,6 @@
+import { navbarOptions } from 'components/navbar/NavbarItems';
 import { ContentActionBar } from 'components/tool-bar';
+import { useLocation } from 'react-router-dom';
 import { IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';
@@ -20,6 +22,7 @@ export interface IPageSectionProps extends React.HTMLAttributes<HTMLDivElement> 
   onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>;
   /** Event fires when keyboard is pressed in section */
   onKeyDownCapture?: React.KeyboardEventHandler<HTMLDivElement>;
+  includeHeaderIcon?: boolean;
 }
 
 /**
@@ -37,8 +40,13 @@ export const PageSection: React.FC<IPageSectionProps> = ({
   ignoreMinWidth,
   onKeyDown,
   onKeyDownCapture,
+  includeHeaderIcon,
   ...rest
 }) => {
+  const pathname = useLocation()?.pathname.replace(/^\/|\/$/g, '');
+  console.log(pathname);
+  const icon = navbarOptions.find((item) => item.path.includes(pathname ?? ''))?.icon;
+  console.log(navbarOptions.find((item) => item.path.includes(pathname ?? '')));
   return (
     <styled.PageSection
       $ignoreLastChildGap={ignoreLastChildGap}
@@ -51,7 +59,12 @@ export const PageSection: React.FC<IPageSectionProps> = ({
       {includeContentActions && !!activeContent && (
         <ContentActionBar className="content-actions" content={activeContent} showBackButton />
       )}
-      {header && <Row className="page-section-title">{header}</Row>}
+      {header && (
+        <Row className="page-section-title">
+          {includeHeaderIcon && icon && <div className="page-icon">{icon}</div>}
+          {header}
+        </Row>
+      )}
       {children}
     </styled.PageSection>
   );

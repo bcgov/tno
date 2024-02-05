@@ -72,4 +72,24 @@ export const ContentActionBar = styled(Row)`
       border-left: 1.5em solid ${(props) => props.theme.css.bkQuaternary};
     }
   }
+  .back-button {
+    height: 1.3em;
+    padding: 0.15em;
+  }
+  .back-tooltip {
+    height: 1em;
+    width: 2em;
+    padding-top: 0.25em;
+    background-color: ${(props) => props.theme.css.bkWhite};
+    color: black;
+    border: 1.5px solid #6e6fa2;
+    font-size: 1em;
+    border-radius: 0.5em;
+  }
+  .back-tooltip-arrow {
+    border: 1.5px solid #6e6fa2;
+    border-top: 0px;
+    border-left: 0px;
+    margin-bottom: -1.5px;
+  }
 `;

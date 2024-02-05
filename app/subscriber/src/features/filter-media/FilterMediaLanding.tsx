@@ -105,7 +105,7 @@ export const FilterMediaLanding: React.FC = () => {
   return (
     <styled.FilterMediaLanding>
       <Col className="filters">
-        <PageSection ignoreLastChildGap header="Filter by Media Type">
+        <PageSection ignoreLastChildGap header="Filter by Media Type" includeHeaderIcon>
           {/* TODO: Move into reusable component, this type of filter is only used on this page currently*/}
           <Row>
             <Col className="media-filter">

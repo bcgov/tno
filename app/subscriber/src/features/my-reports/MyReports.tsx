@@ -1,9 +1,10 @@
 import { Action } from 'components/action';
 import { Bar } from 'components/bar';
+import { navbarOptions } from 'components/navbar/NavbarItems';
 import { PageSection } from 'components/section';
 import React from 'react';
 import { FaClipboard } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useReports } from 'store/hooks';
 import { Col, IReportModel, Loading, Modal, Row, useModal } from 'tno-core';
@@ -17,6 +18,8 @@ export const MyReports: React.FC = () => {
   const { toggle, isShowing } = useModal();
   const navigate = useNavigate();
   const [{ requests }] = useApp();
+  const { id } = useParams();
+  const icon = navbarOptions.find((item) => item.path.includes(id ?? ''))?.icon;
 
   const [report, setReport] = React.useState<IReportModel>();
 
@@ -49,7 +52,7 @@ export const MyReports: React.FC = () => {
 
   return (
     <styled.MyReports>
-      <PageSection header="My Reports">
+      <PageSection header="My Reports" includeHeaderIcon>
         <Bar>
           <ReportFilter />
           <Row flex="1" justifyContent="flex-end">
