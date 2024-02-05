@@ -43,7 +43,16 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
               Media Monitoring is a paid service offered through the BC Government that allows
               subscribers to see British Columbia’s news at a glance.
             </p>
-            <div className="containing-box">
+            <div
+              className={
+                'containing-box' +
+                `${
+                  !(!!systemMessage?.message && systemMessage.isEnabled)
+                    ? ' centered-login-box'
+                    : ''
+                }`
+              }
+            >
               <Col className="login-box">
                 <b>Login to your MMI account with your BCeID or IDIR: </b>
                 <div>
@@ -52,7 +61,9 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
                       <Button
                         className="white idir-logo"
                         onClick={() => login(isLocal ? 'gcpe-oidc' : 'idir')}
-                      ></Button>
+                      >
+                        IDIR
+                      </Button>
                       <Button
                         className="white bceid-logo"
                         onClick={() => login(isLocal ? 'gcpe-oidc' : 'bceid-basic')}

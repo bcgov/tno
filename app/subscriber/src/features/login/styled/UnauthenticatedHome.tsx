@@ -59,7 +59,14 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
     overflow: hidden;
     @media (max-width: 1550px) {
       display: inline-block;
-      margin-left: 7em;
+      margin-left: 5em;
+    }
+  }
+
+  .centered-login-box {
+    @media (min-width: 1450px) {
+      margin-left: auto;
+      margin-right: auto;
     }
   }
 
@@ -79,7 +86,6 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
     margin-left: 20px;
     @media (max-width: 1450px) {
       min-width: 50em;
-      margin-left: auto;
     }
     @media (max-width: 768px) {
       margin-bottom: 0.5em;
@@ -124,9 +130,6 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
     @media (min-width: 1450px) {
       max-width: 130em;
     }
-    // @media (min-width: 1450px) {
-    //   margin-right: 1em;
-    // }
     .top-bar-box {
       margin: 0;
       background-color: black;
