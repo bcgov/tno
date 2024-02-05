@@ -17,8 +17,6 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   .containing-row {
     overflow-x: auto;
     overflow-y: hidden;
-    /* accounts for top logo bar and footer */
-    // max-height: calc(100vh - 8.5em);
     height: auto;
   }
 
