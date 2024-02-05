@@ -2,13 +2,13 @@ import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
-import { filterFormat } from 'features/search-page/utils';
+import { filterFormat, getFilterActions } from 'features/search-page/utils';
 import { createFilterSettings } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React, { useMemo } from 'react';
 import { useContent, useLookup } from 'store/hooks';
-import { generateQuery, IContentModel, IFilterSettingsModel, Row } from 'tno-core';
+import { ActionName, generateQuery, IContentModel, IFilterSettingsModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -75,15 +75,19 @@ export const Home: React.FC = () => {
     [findContentWithElasticsearch],
   );
 
+  const homePage = React.useMemo(() => {
+    return getFilterActions(actions)[ActionName.Homepage];
+  }, [actions]);
+
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
-    if (!filter.startDate) return;
+    if (!filter.startDate || !actions.length) return;
     fetchResults(
       generateQuery(
         filterFormat({
           ...settings,
+          actions: [homePage],
           contentTypes: !!contentType ? filter.contentTypes : [],
-          featured: true,
           startDate: filter.startDate,
           endDate: filter.endDate,
           mediaTypeIds: filter.mediaTypeIds ?? [],
@@ -91,7 +95,7 @@ export const Home: React.FC = () => {
         }),
       ),
     );
-  }, [fetchResults, filter, settings, contentType, actions]);
+  }, [fetchResults, filter, settings, contentType, actions, homePage]);
 
   return (
     <styled.Home>

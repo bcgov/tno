@@ -9,6 +9,7 @@ export const filterFormat = (filter: IFilterSettingsModel) => {
     dateOffset: filter.dateOffset,
     defaultSearchOperator: filter.defaultSearchOperator ?? 'and',
     edition: filter.edition ?? '',
+    featured: filter.featured ?? false,
     from: 0,
     inByline: filter.inByline ?? false,
     inHeadline: filter.inHeadline ?? false,

@@ -1,22 +1,18 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { ContentList } from 'components/content-list';
 import { ContentListActionBar } from 'components/tool-bar';
-import { determineColumns } from 'features/home/constants';
 import { castToSearchResult, createFilterSettings } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { FiRefreshCcw } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { useContributors } from 'store/hooks/subscriber/useContributors';
 import {
   FieldSize,
-  FlexboxTable,
   generateQuery,
   IContentModel,
   IFilterSettingsModel,
-  ITableInternalRow,
   Row,
   Select,
 } from 'tno-core';
@@ -26,7 +22,6 @@ import * as styled from './styled';
 import { generateDates } from './utils';
 
 export const PressGallery: React.FC = () => {
-  const navigate = useNavigate();
   const [
     {
       home: { filter },
@@ -46,8 +41,6 @@ export const PressGallery: React.FC = () => {
   const [pressSettings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(`${moment().startOf('day')}`, `${moment().subtract('2', 'weeks')}`),
   );
-
-  const selectedIds = selected.map((i) => i.id.toString());
 
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
