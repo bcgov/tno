@@ -1,1 +1,1 @@
-export * from './MediaTypeFilters';
+export * from './FilterOptions';

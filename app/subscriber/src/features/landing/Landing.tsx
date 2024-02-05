@@ -1,6 +1,6 @@
 import { ViewOptions } from 'components/content-list';
 import { ContentListProvider } from 'components/content-list/ContentListContext';
-import { MediaTypeFilters } from 'components/media-type-filters';
+import { FilterOption } from 'components/media-type-filters';
 import { INavbarOptionItem, NavbarOptions, navbarOptions } from 'components/navbar/NavbarItems';
 import { PageSection } from 'components/section';
 import { Commentary } from 'features/commentary';
@@ -54,7 +54,7 @@ export const Landing: React.FC = () => {
                 </Show>
                 {!!activeItem?.reduxFilterStore && (
                   <>
-                    <MediaTypeFilters filterStoreName={activeItem?.reduxFilterStore} />
+                    <FilterOption filterStoreName={activeItem?.reduxFilterStore} />
                     <ViewOptions />
                   </>
                 )}

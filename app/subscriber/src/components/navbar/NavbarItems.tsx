@@ -41,6 +41,7 @@ export const NavbarOptions: INavbarOptions = {
     label: 'Top Stories',
     path: 'landing/topstories',
     icon: <FaFire />,
+    reduxFilterStore: 'topStories',
   },
   todaysCommentary: {
     label: "Today's Commentary",
