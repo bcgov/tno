@@ -1,10 +1,9 @@
 import { Action } from 'components/action';
 import { Bar } from 'components/bar';
-import { navbarOptions } from 'components/navbar/NavbarItems';
 import { PageSection } from 'components/section';
 import React from 'react';
 import { FaClipboard } from 'react-icons/fa6';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useReports } from 'store/hooks';
 import { Col, IReportModel, Loading, Modal, Row, useModal } from 'tno-core';
