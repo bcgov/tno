@@ -17,10 +17,17 @@ export const PageSection = styled.div<{ $ignoreMinWidth?: boolean; $ignoreLastCh
     font-weight: 600;
     line-height: 32.68px;
     border-bottom: solid 1px ${(props) => props.theme.css.linePrimaryColor};
-    margin-bottom: 1rem;
+    margin-bottom: 0rem;
   }
   .page-section-icon {
     padding-right: 1rem;
+  }
+
+  .page-icon {
+    height: 1.5em;
+    width: 1.5em;
+    margin: 0.1em 0;
+    color: ${(props) => props.theme.css.iconPurpleColor};
   }
 
   ${(props) =>

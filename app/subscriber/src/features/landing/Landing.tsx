@@ -48,6 +48,7 @@ export const Landing: React.FC = () => {
             header={
               <>
                 <Show visible={!!activeItem}>
+                  {activeItem?.icon && <div className="page-icon">{activeItem?.icon}</div>}
                   {activeItem === NavbarOptions.settings
                     ? 'Settings | My Minister'
                     : activeItem?.label}

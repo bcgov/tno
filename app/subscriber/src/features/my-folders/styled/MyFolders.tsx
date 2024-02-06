@@ -1,7 +1,6 @@
 import styled from 'styled-components';
-import { Col } from 'tno-core';
 
-export const MyFolders = styled(Col)`
+export const MyFolders = styled.div`
   max-height: calc(100vh - 6.5em);
   /* option in tooltip */
   .option {

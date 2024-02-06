@@ -49,7 +49,7 @@ export const MyReports: React.FC = () => {
 
   return (
     <styled.MyReports>
-      <PageSection header="My Reports">
+      <PageSection header="My Reports" includeHeaderIcon>
         <Bar>
           <ReportFilter />
           <Row flex="1" justifyContent="flex-end">

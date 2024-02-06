@@ -24,6 +24,17 @@ export const ContentActionBar = styled(Row)`
     }
   }
 
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      visibility: hidden;
+    }
+    to {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
   .right-side-items {
     margin-left: auto;
     color: ${(props) => props.theme.css.btnBkPrimary};
@@ -32,6 +43,7 @@ export const ContentActionBar = styled(Row)`
         display: none;
       }
     }
+    animation: fade-in 0.5s linear;
   }
   .action {
     display: flex;
@@ -71,5 +83,25 @@ export const ContentActionBar = styled(Row)`
       border-bottom: 1.3em solid transparent;
       border-left: 1.5em solid ${(props) => props.theme.css.bkQuaternary};
     }
+  }
+  .back-button {
+    height: 1.3em;
+    padding: 0.15em;
+  }
+  .back-tooltip {
+    height: 1em;
+    width: 2em;
+    padding-top: 0.25em;
+    background-color: ${(props) => props.theme.css.bkWhite};
+    color: black;
+    border: 1.5px solid ${(props) => props.theme.css.navItemSecondaryBackgroundColor};
+    font-size: 1em;
+    border-radius: 0.5em;
+  }
+  .back-tooltip-arrow {
+    border: 1.5px solid ${(props) => props.theme.css.navItemSecondaryBackgroundColor};
+    border-top: 0px;
+    border-left: 0px;
+    margin-bottom: -1.5px;
   }
 `;

@@ -1,8 +1,9 @@
 import { ShareMenu } from 'components/share-menu';
-import React from 'react';
-import { FaArrowLeft } from 'react-icons/fa6';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Checkbox, IContentModel, Row, Show } from 'tno-core';
+import { Tooltip } from 'react-tooltip';
+import { useLookup } from 'store/hooks';
+import { Checkbox, IContentModel, Row, Settings, Show } from 'tno-core';
 
 import { AddToFolderMenu } from './AddToFolderMenu';
 import { AddToReportMenu } from './AddToReportMenu';
@@ -33,13 +34,52 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
   removeFolderItem,
 }) => {
   const navigate = useNavigate();
+  const [{ frontPageImagesMediaTypeId, settings, isReady }] = useLookup();
+  const [isFrontPageImage, setIsFrontPageImage] = useState(true);
+  const [contentId, setContentId] = useState(content?.[0]?.id ?? null);
+
+  // Only show action items in the bar if it's NOT front page image content
+  const showActionsItems = !isFrontPageImage;
+
+  React.useEffect(() => {
+    // Every time content changes, assume it's a front page image until we know it's not
+    // this prevents rendering the action items until we know they're needed
+    if (contentId !== content?.[0]?.id) {
+      setIsFrontPageImage(true);
+      setContentId(content?.[0]?.id);
+    }
+  }, [content, contentId]);
+
+  React.useEffect(() => {
+    if (isReady) {
+      const typeId =
+        frontPageImagesMediaTypeId ??
+        settings.find((s) => s.name === Settings.FrontPageImageMediaType)?.value;
+      if (typeId && +typeId !== content?.[0]?.mediaTypeId) {
+        setIsFrontPageImage(false);
+      }
+    }
+  }, [frontPageImagesMediaTypeId, settings, isReady, content]);
 
   return (
     <styled.ContentActionBar className={className}>
       <Show visible={showBackButton}>
         <div className="action left-side-items" onClick={() => (onBack ? onBack() : navigate(-1))}>
-          <FaArrowLeft className="back-arrow" />
-          BACK TO HEADLINES
+          <img
+            className="back-button"
+            src={'/assets/back-button.svg'}
+            alt="Back"
+            data-tooltip-id="back-button"
+          />
+          <Tooltip
+            clickable={false}
+            className="back-tooltip"
+            classNameArrow="back-tooltip-arrow"
+            id="back-button"
+            place="top"
+            noArrow={false}
+            content="Back"
+          />
         </div>
       </Show>
       <Show visible={!!onSelectAll}>
@@ -53,14 +93,16 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
         </Row>
         <div className="arrow" />
       </Show>
-      <div className="right-side-items">
-        <Row>
-          <ShareMenu content={content} />
-          <AddToFolderMenu content={content} />
-          <AddToReportMenu content={content} />
-          {!!removeFolderItem && <RemoveFromFolder onClick={removeFolderItem} />}
-        </Row>
-      </div>
+      {showActionsItems && (
+        <div className="right-side-items">
+          <Row>
+            <ShareMenu content={content} />
+            <AddToFolderMenu content={content} />
+            <AddToReportMenu content={content} />
+            {!!removeFolderItem && <RemoveFromFolder onClick={removeFolderItem} />}
+          </Row>
+        </div>
+      )}
     </styled.ContentActionBar>
   );
 };

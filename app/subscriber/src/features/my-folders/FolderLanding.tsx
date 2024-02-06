@@ -16,7 +16,7 @@ export const FolderLanding: React.FC<{}> = () => {
   return (
     <styled.FolderLanding split={!!action}>
       <Col className="left-side">
-        <PageSection header="My Folders">
+        <PageSection header="My Folders" includeHeaderIcon>
           <MyFolders
             myFolders={myFolders}
             setMyFolders={setMyFolders}

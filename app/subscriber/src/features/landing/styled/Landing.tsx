@@ -76,6 +76,7 @@ export const Landing = styled(Col)`
       }
       @media (min-width: 500px) {
         padding: 1em;
+        padding-top: 0;
       }
       min-height: calc(75dvh);
       overflow-y: auto;
