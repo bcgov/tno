@@ -69,7 +69,6 @@ const EventOfTheDayList: React.FC = () => {
 
   const handleSubmit = async (values: IFolderContentModel) => {
     try {
-      // setLoading(true);
       const result = await updateContentTopics(values.contentId, values.content!.topics);
       let index = items.findIndex((el) => el.contentId === values.contentId);
       let results = [...items];
@@ -77,8 +76,6 @@ const EventOfTheDayList: React.FC = () => {
       setItems(results);
     } catch {
       // Ignore error as it's handled globally.
-    } finally {
-      // setLoading(false);
     }
   };
 
