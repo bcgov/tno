@@ -25,6 +25,8 @@ export const DateSection: React.FC = () => {
   React.useEffect(() => {
     if (filter?.startDate || filter?.endDate) {
       setDisableQuickPick(true);
+    } else {
+      setDisableQuickPick(false);
     }
     // only run when flag changes
     // eslint-disable-next-line react-hooks/exhaustive-deps

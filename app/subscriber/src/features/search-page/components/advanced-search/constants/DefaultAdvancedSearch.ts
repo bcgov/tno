@@ -13,6 +13,8 @@ export const defaultAdvancedSearch = {
   page: '',
   publishedEndOn: '',
   publishedStartOn: '',
+  startDate: undefined,
+  endDate: undefined,
   search: '',
   section: '',
   sentiment: [],
