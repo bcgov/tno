@@ -36,7 +36,7 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
   return (
     <styled.BrowserLogin>
       <Col>
-        <img alt="MMI Logo" className="app-logo" src="/assets/MMinsights_logo_black.svg" />
+        <img alt="MMI Logo" className="app-logo" src="/assets/MMinsights_logo_dark_text.svg" />
         <Row className="containing-row">
           <Col className="main-box">
             <p className="top-bar-box">

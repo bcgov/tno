@@ -9,9 +9,10 @@ export const MobileLogin = styled.div`
       padding: 1%;
       width: 40vmax;
       height: 25vmin;
-      background-image: url('/assets/MMinsights_logo_black.svg');
+      background-image: url('/assets/MMinsights_logo_dark_text.svg');
       background-position: center;
       background-repeat: no-repeat;
+      background-size: contain;
     }
     .top-bar-box {
       background-color: #221f1f;
