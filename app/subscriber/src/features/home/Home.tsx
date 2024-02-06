@@ -86,7 +86,7 @@ export const Home: React.FC = () => {
       generateQuery(
         filterFormat({
           ...settings,
-          actions: [homePage],
+          actions: !!homePage ? [homePage] : [],
           contentTypes: !!contentType ? filter.contentTypes : [],
           startDate: filter.startDate,
           endDate: filter.endDate,

@@ -56,8 +56,6 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
     };
   }, [keycloak, setToken]);
 
-  console.log(keycloak.authenticated);
-
   hub.useHubEffect(MessageTargetName.ReportStatus, async (message: IReportMessageModel) => {
     // Report has been updated, go fetch latest.
     try {
