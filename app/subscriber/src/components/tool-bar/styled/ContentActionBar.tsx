@@ -94,12 +94,12 @@ export const ContentActionBar = styled(Row)`
     padding-top: 0.25em;
     background-color: ${(props) => props.theme.css.bkWhite};
     color: black;
-    border: 1.5px solid #6e6fa2;
+    border: 1.5px solid ${(props) => props.theme.css.navItemSecondaryBackgroundColor};
     font-size: 1em;
     border-radius: 0.5em;
   }
   .back-tooltip-arrow {
-    border: 1.5px solid #6e6fa2;
+    border: 1.5px solid ${(props) => props.theme.css.navItemSecondaryBackgroundColor};
     border-top: 0px;
     border-left: 0px;
     margin-bottom: -1.5px;
