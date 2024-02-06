@@ -1,17 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useLookup } from 'store/hooks';
 import {
   CellDate,
-  FieldSize,
-  getSortableOptions,
   IContentTopicModel,
   IFolderContentModel,
+  IOptionItem,
   ITableHookColumn,
+  ITopicModel,
   OptionItem,
   Select,
   Show,
-  TopicTypeName,
+  Spinner,
 } from 'tno-core';
 
 // item with id of 1 is the magic [Not Applicable] topic
@@ -25,9 +24,24 @@ const possibleScores = Array.from(Array(maxTopicScore + 1).keys()).map(
 
 export const useColumns = (
   handleSubmit: (values: IFolderContentModel) => Promise<void>,
-  loading: boolean,
+  topics: ITopicModel[],
+  topicOptions: IOptionItem<string | number | undefined>[],
 ): ITableHookColumn<IFolderContentModel>[] => {
-  const [{ topics }] = useLookup();
+  const [isContentUpdating, setIsContentUpdating] = React.useState<number[]>([]);
+  const toggleContentUpdatingStatus = (contentId: number) => {
+    setIsContentUpdating((state) => {
+      let returnVal: number[];
+      if (state.findIndex((el: number) => el === contentId) > -1) {
+        returnVal = state.filter((el) => el !== contentId);
+      } else {
+        returnVal = [...state, contentId];
+      }
+      return returnVal;
+    });
+  };
+  const isRowContentUpdating = (contentId: number) => {
+    return isContentUpdating.findIndex((el: number) => el === contentId) > -1;
+  };
 
   const handleTopicChange = async (event: any, cell: any) => {
     const topic = topics.find((x) => x.id === (event as OptionItem)?.value);
@@ -42,10 +56,20 @@ export const useColumns = (
       updatedFolderContent.content!.topics = [
         {
           ...(topic as IContentTopicModel),
-          score: topic!.id > topicIdNotApplicable ? cell.original.content!.topics![0].score : 0,
+          // if the original topic was "Not Applicable", it may be because no topic was set
+          // this logic below avoids a reference to an empty array
+          score:
+            topic!.id === topicIdNotApplicable
+              ? 0
+              : cell.original.content!.topics.length === 0
+              ? 0
+              : cell.original.content!.topics[0].score,
         },
       ];
-      await handleSubmit(updatedFolderContent);
+      toggleContentUpdatingStatus(cell.original.contentId);
+      await handleSubmit(updatedFolderContent).then(() => {
+        toggleContentUpdatingStatus(cell.original.contentId);
+      });
     }
   };
 
@@ -56,45 +80,11 @@ export const useColumns = (
         ...cell.original,
       } as IFolderContentModel;
       updatedFolderContent.content!.topics![0].score = +newScore;
-      await handleSubmit(updatedFolderContent);
+      toggleContentUpdatingStatus(cell.original.contentId);
+      await handleSubmit(updatedFolderContent).then(() => {
+        toggleContentUpdatingStatus(cell.original.contentId);
+      });
     }
-  };
-
-  const getTopicOptions = (cell: any) => {
-    return getSortableOptions(
-      topics,
-      cell.original.content!.topics?.length ? cell.original.content!.topics[0].id : undefined,
-      undefined,
-      (item) =>
-        new OptionItem(
-          (
-            <div
-              className={
-                (item.id > 1 ? `type-${item.topicType}` : 'type-none') +
-                // This extra style exists only to flag disabled topics that are disabled.
-                // These could show up because of migration from TNO, or through changes to
-                // content and topics that are possible
-                (!item.isEnabled ? ' type-disabled' : '')
-              }
-            >
-              {item.topicType === TopicTypeName.Issues
-                ? item.name
-                : `${item.name} (${item.topicType})`}
-            </div>
-          ),
-          item.id,
-          !item.isEnabled,
-        ),
-      (a, b) => {
-        if (a.topicType < b.topicType) return -1;
-        if (a.topicType > b.topicType) return 1;
-        if (a.sortOrder < b.sortOrder) return -1;
-        if (a.sortOrder > b.sortOrder) return 1;
-        if (a.name < b.name) return -1;
-        if (a.name > b.name) return 1;
-        return 0;
-      },
-    );
   };
 
   const result: ITableHookColumn<IFolderContentModel>[] = [
@@ -104,7 +94,11 @@ export const useColumns = (
       width: 1,
       cell: (cell) => {
         return (
-          <Link to={`/contents/${cell.original.contentId}`} target="blank">
+          <Link
+            to={`/contents/${cell.original.contentId}`}
+            target="blank"
+            className={isRowContentUpdating(cell.original.contentId) ? 'lock-control' : ''}
+          >
             {cell.original.content?.headline}
           </Link>
         );
@@ -120,22 +114,22 @@ export const useColumns = (
     {
       label: 'Topic',
       accessor: 'topic',
-      width: 1,
+      width: '50ch',
       cell: (cell) => {
         return (
           <Select
             name="topic"
-            options={getTopicOptions(cell)}
-            isDisabled={loading}
+            options={topicOptions}
+            isDisabled={isRowContentUpdating(cell.original.contentId)}
             isClearable={false}
-            value={getTopicOptions(cell)?.find(
+            className={isRowContentUpdating(cell.original.contentId) ? 'lock-control' : ''}
+            value={topicOptions?.find(
               (o) =>
                 o.value ===
                 (cell.original.content!.topics!.length > 0
                   ? cell.original.content!.topics![0].id
                   : topicIdNotApplicable),
             )}
-            width={FieldSize.Medium}
             onChange={async (e: any) => await handleTopicChange(e, cell)}
           />
         );
@@ -151,11 +145,12 @@ export const useColumns = (
             <Select
               name="score"
               isDisabled={
-                loading ||
+                isRowContentUpdating(cell.original.contentId) ||
                 (cell.original.content!.topics!.length > 0 &&
                   cell.original.content!.topics![0].id === topicIdNotApplicable)
               }
               isClearable={false}
+              className={isRowContentUpdating(cell.original.contentId) ? 'lock-control' : ''}
               width="10ch"
               options={possibleScores.filter(
                 // remove this filter if the editor needs to be able to override to any value they want
@@ -189,6 +184,18 @@ export const useColumns = (
           </>
         );
       },
+    },
+    {
+      label: '',
+      accessor: 'busy',
+      width: '4ch',
+      cell: (cell) => (
+        <>
+          <Show visible={isRowContentUpdating(cell.original.contentId)}>
+            <Spinner size="1rem" />
+          </Show>
+        </>
+      ),
     },
   ];
 

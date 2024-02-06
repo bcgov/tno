@@ -4,7 +4,18 @@ import { FaBinoculars } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
 import { useFolders } from 'store/hooks/admin';
-import { Button, FlexboxTable, FormPage, IFolderContentModel, Row, Settings } from 'tno-core';
+import {
+  Button,
+  FlexboxTable,
+  FormPage,
+  getSortableOptions,
+  IFolderContentModel,
+  IOptionItem,
+  OptionItem,
+  Row,
+  Settings,
+  TopicTypeName,
+} from 'tno-core';
 
 import { useColumns } from './hooks';
 import * as styled from './styled';
@@ -15,15 +26,17 @@ import * as styled from './styled';
  * @returns Component
  */
 const EventOfTheDayList: React.FC = () => {
-  const [{ isReady, settings }] = useLookup();
+  const [{ isReady, settings, topics }] = useLookup();
 
   const [, { getContentInFolder }] = useFolders();
   const [, { updateContentTopics }] = useContent();
 
-  const [loading, setLoading] = React.useState(false);
   const [eventOfTheDayFolderId, setEventOfTheDayFolderId] = React.useState(0);
   const [eventOfTheDayReportId, setEventOfTheDayReportId] = React.useState(0);
   const [items, setItems] = React.useState<IFolderContentModel[]>([]);
+  const [topicOptions, setTopicOptions] = React.useState<
+    IOptionItem<string | number | undefined>[]
+  >([]);
 
   React.useEffect(() => {
     if (isReady) {
@@ -42,23 +55,20 @@ const EventOfTheDayList: React.FC = () => {
 
   React.useEffect(() => {
     if (eventOfTheDayFolderId) {
-      setLoading(true);
       getContentInFolder(eventOfTheDayFolderId, true)
         .then((data) => {
           setItems(data);
         })
         .catch(() => {})
-        .finally(() => {
-          setLoading(false);
-        });
+        .finally(() => {});
     }
+    setTopicOptions(getSortedTopicOptions());
     // KGM - overridden to enforce only call once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventOfTheDayFolderId]);
 
   const handleSubmit = async (values: IFolderContentModel) => {
     try {
-      setLoading(true);
       const result = await updateContentTopics(values.contentId, values.content!.topics);
       let index = items.findIndex((el) => el.contentId === values.contentId);
       let results = [...items];
@@ -66,9 +76,44 @@ const EventOfTheDayList: React.FC = () => {
       setItems(results);
     } catch {
       // Ignore error as it's handled globally.
-    } finally {
-      setLoading(false);
     }
+  };
+
+  const getSortedTopicOptions = () => {
+    return getSortableOptions(
+      topics,
+      undefined,
+      undefined,
+      (item) =>
+        new OptionItem(
+          (
+            <div
+              className={
+                (item.id > 1 ? `type-${item.topicType}` : 'type-none') +
+                // This extra style exists only to flag disabled topics that are disabled.
+                // These could show up because of migration from TNO, or through changes to
+                // content and topics that are possible
+                (!item.isEnabled ? ' type-disabled' : '')
+              }
+            >
+              {item.topicType === TopicTypeName.Issues
+                ? item.name
+                : `${item.name} (${item.topicType})`}
+            </div>
+          ),
+          item.id,
+          !item.isEnabled,
+        ),
+      (a, b) => {
+        if (a.topicType < b.topicType) return -1;
+        if (a.topicType > b.topicType) return 1;
+        if (a.sortOrder < b.sortOrder) return -1;
+        if (a.sortOrder > b.sortOrder) return 1;
+        if (a.name < b.name) return -1;
+        if (a.name > b.name) return 1;
+        return 0;
+      },
+    );
   };
 
   return (
@@ -92,7 +137,7 @@ const EventOfTheDayList: React.FC = () => {
         <FlexboxTable
           rowId="contentId"
           data={items}
-          columns={useColumns(handleSubmit, loading)}
+          columns={useColumns(handleSubmit, topics, topicOptions)}
           groupBy={(item) => {
             if (item.original.content?.series?.name) return item.original.content?.series?.name;
             else if (item.original.content?.source?.name)
@@ -102,7 +147,6 @@ const EventOfTheDayList: React.FC = () => {
           showActive={false}
           showSort={false}
           pagingEnabled={false}
-          isLoading={loading}
         />
       </FormPage>
     </styled.EventOfTheDayList>
