@@ -31,7 +31,7 @@ export const Header: React.FC<IHeaderProps> = ({
           <Link to="/landing/home" title="MMI Home page" className="logo-container">
             <img
               className="mm-logo"
-              src={process.env.PUBLIC_URL + '/assets/MMinsights_logo_black.svg'}
+              src={process.env.PUBLIC_URL + '/assets/MMinsights_logo_dark_text.svg'}
               alt="MMinsights logo"
             />
           </Link>

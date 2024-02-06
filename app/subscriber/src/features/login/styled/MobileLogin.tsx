@@ -9,14 +9,19 @@ export const MobileLogin = styled.div`
       padding: 1%;
       width: 40vmax;
       height: 25vmin;
-      background-image: url('/assets/MMinsights_logo_black.svg');
+      background-image: url('/assets/MMinsights_logo_dark_text.svg');
       background-position: center;
       background-repeat: no-repeat;
+      background-size: contain;
     }
     .top-bar-box {
       background-color: #221f1f;
       color: white;
       padding: 0.5em;
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 22px;
+      letter-spacing: 0em;
     }
     .login-box {
       margin-top: 2%;
