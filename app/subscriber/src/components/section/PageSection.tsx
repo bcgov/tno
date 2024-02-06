@@ -44,9 +44,7 @@ export const PageSection: React.FC<IPageSectionProps> = ({
   ...rest
 }) => {
   const pathname = useLocation()?.pathname.replace(/^\/|\/$/g, '');
-  console.log(pathname);
   const icon = navbarOptions.find((item) => item.path.includes(pathname ?? ''))?.icon;
-  console.log(navbarOptions.find((item) => item.path.includes(pathname ?? '')));
   return (
     <styled.PageSection
       $ignoreLastChildGap={ignoreLastChildGap}
