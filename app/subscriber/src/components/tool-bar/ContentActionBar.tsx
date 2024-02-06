@@ -48,21 +48,17 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
       setIsFrontPageImage(true);
       setContentId(content?.[0]?.id);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content]);
+  }, [content, contentId]);
 
   React.useEffect(() => {
     if (isReady) {
       const typeId =
         frontPageImagesMediaTypeId ??
         settings.find((s) => s.name === Settings.FrontPageImageMediaType)?.value;
-      // Disabling eqeqeq as settings may store number as a string or an int
-      // eslint-disable-next-line eqeqeq
-      if (typeId && typeId != content?.[0]?.mediaTypeId) {
+      if (typeId && +typeId !== content?.[0]?.mediaTypeId) {
         setIsFrontPageImage(false);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [frontPageImagesMediaTypeId, settings, isReady, content]);
 
   return (
