@@ -1,21 +1,18 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
+import { ContentList } from 'components/content-list';
 import { ContentListActionBar } from 'components/tool-bar';
-import { determineColumns } from 'features/home/constants';
 import { castToSearchResult, createFilterSettings } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { FiRefreshCcw } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { useContributors } from 'store/hooks/subscriber/useContributors';
 import {
   FieldSize,
-  FlexboxTable,
   generateQuery,
   IContentModel,
   IFilterSettingsModel,
-  ITableInternalRow,
   Row,
   Select,
 } from 'tno-core';
@@ -25,7 +22,6 @@ import * as styled from './styled';
 import { generateDates } from './utils';
 
 export const PressGallery: React.FC = () => {
-  const navigate = useNavigate();
   const [
     {
       home: { filter },
@@ -45,8 +41,6 @@ export const PressGallery: React.FC = () => {
   const [pressSettings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(`${moment().startOf('day')}`, `${moment().subtract('2', 'weeks')}`),
   );
-
-  const selectedIds = selected.map((i) => i.id.toString());
 
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
@@ -178,14 +172,9 @@ export const PressGallery: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateOptions.length, aliases, pressSettings]);
 
-  /** controls the checking and unchecking of rows in the list view */
-  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentSearchResult>) => {
-    if (row.isSelected) {
-      setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
-    } else {
-      setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
-    }
-  };
+  const handleContentSelected = React.useCallback((content: IContentModel[]) => {
+    setSelected(content);
+  }, []);
 
   return (
     <styled.PressGallery>
@@ -269,24 +258,11 @@ export const PressGallery: React.FC = () => {
           }}
         />
       </Row>
-      <Row className="table-container">
-        <FlexboxTable
-          showHeader={false}
-          rowId="id"
-          columns={determineColumns('all')}
-          isLoading={loading}
-          isMulti
-          groupBy={(item) => item.original.source?.name ?? ''}
-          onRowClick={(e: any) => {
-            navigate(`/view/${e.original.id}`);
-          }}
-          data={content}
-          pageButtons={5}
-          onSelectedChanged={handleSelectedRowsChanged}
-          selectedRowIds={selectedIds}
-          showPaging={false}
-        />
-      </Row>
+      <ContentList
+        onContentSelected={handleContentSelected}
+        content={content}
+        selected={selected}
+      />
     </styled.PressGallery>
   );
 };

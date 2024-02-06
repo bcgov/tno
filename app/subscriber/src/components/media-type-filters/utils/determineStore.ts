@@ -6,6 +6,8 @@ export const determineStore = (target: keyof IContentState) => {
       return 'storeHomeFilter';
     case 'todaysCommentary':
       return 'storeTodaysCommentaryFilter';
+    case 'topStories':
+      return 'storeTopStoriesFilter';
     default:
       return 'storeHomeFilter';
   }

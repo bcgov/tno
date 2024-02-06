@@ -89,7 +89,7 @@ export const ContentList: React.FC<IContentListProps> = ({
                   <Show
                     visible={
                       !!item.fileReferences.length &&
-                      !activeStream &&
+                      !activeStream?.source &&
                       !item.fileReferences[0].contentType.includes('image')
                     }
                   >
@@ -101,7 +101,7 @@ export const ContentList: React.FC<IContentListProps> = ({
                       }}
                     />
                   </Show>
-                  <Show visible={!!activeStream}>
+                  <Show visible={!!activeStream && item.id === activeStream.id}>
                     <FaEyeSlash
                       className="eye-slash"
                       onClick={(e) => {
