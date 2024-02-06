@@ -115,12 +115,13 @@ export const BrowserLogin = styled.div`
   .modal-content {
     background-color: #fefefe;
     margin: auto;
-    padding-top: 8%;
+    padding-top: 2%;
     padding-left: 5%;
     padding-right: 5%;
-    border: 1px solid #888;
-    width: 80%;
-    height: 45%;
+    border: 2px solid #6c5d62;
+    border-radius: 0.5rem;
+    width: 50%;
+    height: 35%;
     font-size: 16px;
     line-height: 22px;
     letter-spacing: 0em;
@@ -128,7 +129,7 @@ export const BrowserLogin = styled.div`
   }
 
   .close {
-    color: #aaaaaa;
+    color: black;
     float: right;
     font-size: 28px;
     font-weight: bold;
