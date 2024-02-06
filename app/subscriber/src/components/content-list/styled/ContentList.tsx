@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
 export const ContentList = styled.div`
-  width: 100%;
   .group-title {
     border-bottom: 1px solid ${(props) => props.theme.css.border};
   }
@@ -53,9 +52,6 @@ export const ContentList = styled.div`
     justify-content: center;
     font-size: 1.1rem;
   }
-  .section {
-    margin-left: auto;
-  }
   .section,
   .page-number {
     font-family: ${(props) => props.theme.css.fPrimary};
@@ -65,9 +61,20 @@ export const ContentList = styled.div`
     margin-left: 0.25rem;
   }
 
+  .new-tab {
+    height: 20px;
+    margin-left: 0.5rem;
+    width: 20px;
+    color: ${(props) => props.theme.css.btnBkPrimary};
+    &:hover {
+      cursor: pointer;
+      transform: scale(1.1);
+    }
+  }
+
   .play-icon,
   .eye-slash {
-    margin-left: auto;
+    margin-left: 0.5rem;
     height: 20px;
     width: 20px;
     color: ${(props) => props.theme.css.btnBkPrimary};
@@ -89,6 +96,7 @@ export const ContentList = styled.div`
   .headline {
     background: none;
     border: none;
+    margin-right: auto;
     color: blue;
     padding: 0;
     cursor: pointer;
