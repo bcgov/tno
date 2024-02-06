@@ -3,24 +3,25 @@ import moment from 'moment';
 
 import { IGroupByState } from '../interfaces';
 
+const sortFunc = (key: string) => {
+  switch (key) {
+    case 'published':
+      return (a: IContentSearchResult, b: IContentSearchResult) =>
+        a.publishedOn > b.publishedOn ? 1 : -1;
+    case 'source':
+      return (a: IContentSearchResult, b: IContentSearchResult) => {
+        if (a.source && b.source) {
+          return a.source.sortOrder > b.source.sortOrder ? 1 : -1;
+        }
+        return -1;
+      };
+    default:
+      return (a: IContentSearchResult, b: IContentSearchResult) =>
+        a.publishedOn > b.publishedOn ? 1 : -1;
+  }
+};
+
 export const groupContent = (groupBy: IGroupByState, content: IContentSearchResult[]) => {
-  const sortFunc = (key: string) => {
-    switch (key) {
-      case 'published':
-        return (a: IContentSearchResult, b: IContentSearchResult) =>
-          a.publishedOn > b.publishedOn ? 1 : -1;
-      case 'source':
-        return (a: IContentSearchResult, b: IContentSearchResult) => {
-          if (a.source && b.source) {
-            return a.source.sortOrder > b.source.sortOrder ? 1 : -1;
-          }
-          return -1;
-        };
-      default:
-        return (a: IContentSearchResult, b: IContentSearchResult) =>
-          a.publishedOn > b.publishedOn ? 1 : -1;
-    }
-  };
   let firstSort = 'published';
   let secondSort = 'source';
 
