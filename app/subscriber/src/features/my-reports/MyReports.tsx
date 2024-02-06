@@ -18,8 +18,6 @@ export const MyReports: React.FC = () => {
   const { toggle, isShowing } = useModal();
   const navigate = useNavigate();
   const [{ requests }] = useApp();
-  const { id } = useParams();
-  const icon = navbarOptions.find((item) => item.path.includes(id ?? ''))?.icon;
 
   const [report, setReport] = React.useState<IReportModel>();
 

@@ -1,8 +1,5 @@
 import { ShareMenu } from 'components/share-menu';
-import { TooltipMenu } from 'components/tooltip-menu';
-import { useElastic } from 'features/my-searches/hooks';
 import React, { useState } from 'react';
-import { FaArrowLeft } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 import { useLookup } from 'store/hooks';
