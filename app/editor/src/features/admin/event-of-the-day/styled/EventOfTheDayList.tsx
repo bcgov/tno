@@ -67,4 +67,13 @@ export const EventOfTheDayList = styled.div`
     border-bottom: 1px red dashed;
     cursor: help;
   }
+  .col-2 .frm-in {
+    width: 100%;
+  }
+  .lock-control {
+    pointer-events: none;
+  }
+  .row:has(div a.lock-control) {
+    cursor: wait;
+  }
 `;
