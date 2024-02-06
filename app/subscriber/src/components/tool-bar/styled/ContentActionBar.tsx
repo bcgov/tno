@@ -24,6 +24,17 @@ export const ContentActionBar = styled(Row)`
     }
   }
 
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      visibility: hidden;
+    }
+    to {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
   .right-side-items {
     margin-left: auto;
     color: ${(props) => props.theme.css.btnBkPrimary};
@@ -32,6 +43,7 @@ export const ContentActionBar = styled(Row)`
         display: none;
       }
     }
+    animation: fade-in 0.5s linear;
   }
   .action {
     display: flex;
