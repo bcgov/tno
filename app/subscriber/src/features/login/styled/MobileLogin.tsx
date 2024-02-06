@@ -18,6 +18,10 @@ export const MobileLogin = styled.div`
       background-color: #221f1f;
       color: white;
       padding: 0.5em;
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 22px;
+      letter-spacing: 0em;
     }
     .login-box {
       margin-top: 2%;

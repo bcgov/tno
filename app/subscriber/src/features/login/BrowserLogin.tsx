@@ -17,9 +17,9 @@ export interface IBrowserLoginProps {
 export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
   const keycloak = useKeycloakWrapper();
   const authority = keycloak.instance.authServerUrl?.replace(/\/$/, '') ?? window.location.href;
-  const isLocal =
-    new URL(authority).host.startsWith('localhost') ||
-    new URL(authority).host.startsWith('host.docker.internal');
+  const isLocal = false;
+  // new URL(authority).host.startsWith('localhost') ||
+  // new URL(authority).host.startsWith('host.docker.internal');
 
   const [, api] = useSystemMessages();
   const [systemMessage, setSystemMessage] = React.useState<ISystemMessageModel>();
@@ -61,9 +61,7 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
                       <Button
                         className="white idir-logo"
                         onClick={() => login(isLocal ? 'gcpe-oidc' : 'idir')}
-                      >
-                        IDIR
-                      </Button>
+                      ></Button>
                       <Button
                         className="white bceid-logo"
                         onClick={() => login(isLocal ? 'gcpe-oidc' : 'bceid-basic')}

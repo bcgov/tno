@@ -11,8 +11,19 @@ export const BrowserLogin = styled.div`
   }
 
   .modalOpen {
+    margin-top: 8%;
     color: ${(props) => props.theme.css.fRedColor};
     cursor: pointer;
+  }
+
+  .top-bar-box {
+    background-color: #221f1f;
+    color: white;
+    padding: 0.5em;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: 0em;
   }
 
   .bceid-logo {
@@ -25,7 +36,7 @@ export const BrowserLogin = styled.div`
 
   .idir-logo {
     padding: 1%;
-    // background-image: url('/assets/idir_logo_2.png');
+    background-image: url('/assets/IDIR_button.png');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -70,7 +81,7 @@ export const BrowserLogin = styled.div`
   }
 
   .buttons {
-    margin-top: 5.5%;
+    margin-top: 10%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -79,13 +90,13 @@ export const BrowserLogin = styled.div`
 
   button {
     color: ${(props) => props.theme.css.redHeadingColor};
-    font-family: Noto Sans;
     font-size: 28px;
     font-weight: 400;
     line-height: 38px;
     letter-spacing: 0em;
-    margin-bottom: 5%;
-    min-width: 5em;
+    margin-top: 3%;
+    margin-bottom: 3%;
+    min-width: 4em;
     border: none;
     display: flex;
     justify-content: center;
