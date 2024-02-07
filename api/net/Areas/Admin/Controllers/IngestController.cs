@@ -63,7 +63,7 @@ public class IngestController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Find a page of content for the specified query filter.
+    /// retrieve all ingests
     /// </summary>
     /// <returns></returns>
     [HttpGet]
@@ -76,7 +76,7 @@ public class IngestController : ControllerBase
     }
 
     /// <summary>
-    /// Find a page of content for the specified query filter.
+    /// Find ingests based on the specified query filter.
     /// </summary>
     /// <returns></returns>
     [HttpGet("find")]
@@ -93,7 +93,7 @@ public class IngestController : ControllerBase
     }
 
     /// <summary>
-    /// Find content for the specified 'id'.
+    /// Retrieve ingest with the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -109,7 +109,7 @@ public class IngestController : ControllerBase
     }
 
     /// <summary>
-    /// Add content for the specified 'id'.
+    /// Add a new ingest
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -126,7 +126,7 @@ public class IngestController : ControllerBase
     }
 
     /// <summary>
-    /// Update content for the specified 'id'.
+    /// Update ingest with the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -145,7 +145,28 @@ public class IngestController : ControllerBase
     }
 
     /// <summary>
-    /// Delete content for the specified 'id'.
+    /// Update ingest with the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="newStatus"></param>
+    /// <returns></returns>
+    [HttpPut("{id}/enabled")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Ingest" })]
+    public async Task<IActionResult> UpdateIngestEnabledStatusAsync(int id, bool newStatus)
+    {
+        var model = _service.FindById(id) ?? throw new NoContentException();
+        model.IsEnabled = newStatus;
+        model = _service.UpdateAndSave(model, true);
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic,
+            new KafkaHubMessage(HubEvent.SendGroup, "editor", new KafkaInvocationMessage(MessageTarget.IngestUpdated, new[] { new IngestMessageModel(model) })));
+        return new JsonResult(new IngestModel(model, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Delete ingest with the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>

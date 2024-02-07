@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useIngests } from 'store/hooks/admin';
 import { useAdminStore } from 'store/slices';
 import { Col, FlexboxTable, IconButton, Row } from 'tno-core';
@@ -13,7 +14,7 @@ interface IIngestListProps {}
 
 const IngestList: React.FC<IIngestListProps> = (props) => {
   const navigate = useNavigate();
-  const [{ ingests }, { findAllIngests, updateIngest }] = useIngests();
+  const [{ ingests }, { findAllIngests, setIngestEnabledStatus }] = useIngests();
   const [{ ingestFilter }] = useAdminStore();
 
   const items = ingests.filter(
@@ -50,12 +51,13 @@ const IngestList: React.FC<IIngestListProps> = (props) => {
         data={items}
         columns={columns}
         showSort={true}
-        // onRowClick={(row) => navigate(`${row.original.id}`)}
         onCellClick={async (cell, row) => {
           if (cell.index !== 6) navigate(`${row.original.id}`);
           else {
-            await updateIngest({ ...row.original, isEnabled: !row.original.isEnabled }).catch(
-              () => {},
+            await setIngestEnabledStatus(row.original.id, !row.original.isEnabled).catch(() => {});
+            toast.success(
+              `Ingest [${row.original.name}] is now ` +
+                (row.original.isEnabled ? `disabled` : `enabled`),
             );
           }
         }}
