@@ -19,6 +19,7 @@ export const useAjaxWrapper = () => {
         request: () => Promise<AxiosResponse<T>>,
         group: string | string[] | undefined = undefined,
         isSilent: boolean = false,
+        onlyThrowError: boolean = false,
       ): Promise<AxiosResponse<T>> => {
         try {
           app.addRequest(name, group, isSilent);
@@ -52,13 +53,15 @@ export const useAjaxWrapper = () => {
               .map((p) => p.toString())
               .toString();
           }
-          app.addError({
-            status: ae.response?.status,
-            statusText: ae.response?.statusText,
-            data: ae.response?.data,
-            message: message,
-            detail,
-          });
+          if (!onlyThrowError) {
+            app.addError({
+              status: ae.response?.status,
+              statusText: ae.response?.statusText,
+              data: ae.response?.data,
+              message: message,
+              detail,
+            });
+          }
 
           throw error;
         } finally {

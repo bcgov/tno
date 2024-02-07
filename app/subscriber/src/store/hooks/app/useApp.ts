@@ -86,7 +86,7 @@ export const useApp = (): [IAppState, IAppController] => {
     () => ({
       getUserInfo: async (refresh: boolean = false) => {
         if (userInfo.id !== 0 && !refresh) return userInfo;
-        var location: IUserLocationModel;
+        var location: IUserLocationModel | undefined;
         try {
           // Generate a unique key for this user and store in local storage.
           var key = localStorage.getItem('device-key');
@@ -98,6 +98,7 @@ export const useApp = (): [IAppState, IAppController] => {
             'get-location',
             () => axios.get('https://geolocation-db.com/json/'),
             'location',
+            true,
             true,
           );
           location = { ...locationResponse.data, key };
