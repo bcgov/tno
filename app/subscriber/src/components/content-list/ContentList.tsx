@@ -98,7 +98,7 @@ export const ContentList: React.FC<IContentListProps> = ({
           <Droppable droppableId="droppable">
             {(provided) => (
               <div {...provided.droppableProps} ref={provided.innerRef}>
-                {content.map((item: any, index: number) => (
+                {content.map((item: IContentModel, index: number) => (
                   <Draggable key={item.id} draggableId={String(item.id)} index={index}>
                     {(provided) => (
                       <div
@@ -113,7 +113,6 @@ export const ContentList: React.FC<IContentListProps> = ({
                               ? 'checked'
                               : ''
                           }`}
-                          key={item.id}
                           popOutIds={popOutIds}
                           showDate={showDate}
                           styleOnSettings={styleOnSettings}

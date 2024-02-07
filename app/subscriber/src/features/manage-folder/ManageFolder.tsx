@@ -1,9 +1,11 @@
 import { ContentList } from 'components/content-list';
+import { reorderDragItems } from 'components/content-list/utils';
 import { PageSection } from 'components/section';
 import { ContentListActionBar } from 'components/tool-bar';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
 import React from 'react';
+import { DropResult } from 'react-beautiful-dnd';
 import { useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
@@ -60,25 +62,18 @@ export const ManageFolder: React.FC = () => {
 
   /** function that runs after a user drops an item in the list */
   const handleDrop = React.useCallback(
-    async (droppedItem: any) => {
-      if (!droppedItem.destination) {
-        return;
-      }
-      var updatedList = [...items];
-      // hold response
+    async (result: DropResult) => {
+      const { source, destination } = result;
+      if (!destination) return;
+      const reorderedItems = reorderDragItems(items, source.index, destination.index);
+      setItems(reorderedItems);
       let res: IFolderModel | undefined;
-      // Remove dragged item
-      const [reorderedItem] = updatedList.splice(droppedItem.source.index, 1);
-      // Add dropped item
-      updatedList.splice(droppedItem.destination.index, 0, reorderedItem);
-      // Update State
-      setItems(updatedList);
       // Update Folder
       if (!!folder) {
         try {
           res = await updateFolder({
             ...folder,
-            content: updatedList.map((item, index) => ({
+            content: reorderedItems.map((item, index) => ({
               ...item,
               contentId: item.id,
               sortOrder: index,
