@@ -38,22 +38,6 @@ export const Home: React.FC = () => {
     else return 'all';
   }, [filter.contentTypes]);
 
-  const sortFunc = (key: string) => {
-    switch (key) {
-      case 'published':
-        return (a: IContentModel, b: IContentModel) => (a.publishedOn > b.publishedOn ? 1 : -1);
-      case 'source':
-        return (a: IContentModel, b: IContentModel) => {
-          if (a.source && b.source) {
-            return a.source.sortOrder > b.source.sortOrder ? 1 : -1;
-          }
-          return -1;
-        };
-      default:
-        return (a: IContentModel, b: IContentModel) => (a.publishedOn > b.publishedOn ? 1 : -1);
-    }
-  };
-
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
   }, []);
@@ -61,15 +45,8 @@ export const Home: React.FC = () => {
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
-        let firstSort = 'published';
-        let secondSort = 'source';
         const res: any = await findContentWithElasticsearch(filter, false);
-        setContent(
-          res.hits.hits
-            .map((h: { _source: IContentModel }) => h._source)
-            .sort(sortFunc(firstSort))
-            .sort(sortFunc(secondSort)),
-        );
+        setContent(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
       } catch {}
     },
     [findContentWithElasticsearch],
