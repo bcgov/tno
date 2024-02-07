@@ -26,6 +26,8 @@ export interface IReportSectionMediaAnalyticsProps extends React.AllHTMLAttribut
   showForm?: boolean;
   /** Form is disabled. */
   disabled?: boolean;
+  /** Event fires when the row is clicked. */
+  onContentClick?: (content: IReportInstanceContentForm) => void;
 }
 
 /**
@@ -37,6 +39,7 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
   sectionIndex,
   showForm,
   disabled,
+  onContentClick,
   ...rest
 }) => {
   const { values, setFieldValue } = useFormikContext<IReportForm>();
@@ -114,15 +117,6 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
           disabled={disabled}
         />
       </Show>
-      <Show visible={!!section.filterId && !sectionContent.length}>
-        <p>No content was returned by the filter.</p>
-      </Show>
-      <Show visible={!!section.folderId && !sectionContent.length}>
-        <p>Folder is empty.</p>
-      </Show>
-      <Show visible={section.settings.useAllContent}>
-        <p>This section will use content from all other sections.</p>
-      </Show>
       <Show visible={!!instance.content.length}>
         <Droppable droppableId={section.name} isDropDisabled={disabled}>
           {(droppableProvided) => (
@@ -158,6 +152,7 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
                             }}
                             showSortOrder
                             onBlurSortOrder={(row) => handleChangeSortOrder(row, instance)}
+                            onContentClick={onContentClick}
                           />
                         </div>
                       );
@@ -169,6 +164,15 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
             </div>
           )}
         </Droppable>
+        <Show visible={!!section.filterId && !sectionContent.length}>
+          <p>No content was returned by the filter.</p>
+        </Show>
+        <Show visible={!!section.folderId && !sectionContent.length}>
+          <p>Folder is empty.</p>
+        </Show>
+        <Show visible={section.settings.useAllContent}>
+          <p>This section will use content from all other sections.</p>
+        </Show>
       </Show>
     </Col>
   );

@@ -179,15 +179,6 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
           disabled={disabled}
         />
       </Show>
-      <Show visible={!!section.filterId && !sectionContent.length}>
-        <p>No content was returned by the filter.</p>
-      </Show>
-      <Show visible={!!section.folderId && !sectionContent.length}>
-        <p>Folder is empty.</p>
-      </Show>
-      <Show visible={!section.filterId && !section.folderId && !sectionContent.length}>
-        <p>Section is empty</p>
-      </Show>
       <Droppable droppableId={section.name} isDropDisabled={disabled}>
         {(droppableProvided) => (
           <div {...droppableProvided.droppableProps} ref={droppableProvided.innerRef}>
@@ -259,6 +250,15 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
           </div>
         )}
       </Droppable>
+      <Show visible={!!section.filterId && !sectionContent.length}>
+        <p>No content was returned by the filter.</p>
+      </Show>
+      <Show visible={!!section.folderId && !sectionContent.length}>
+        <p>Folder is empty.</p>
+      </Show>
+      <Show visible={!section.filterId && !section.folderId && !sectionContent.length}>
+        <p>Section is empty</p>
+      </Show>
     </Col>
   );
 };

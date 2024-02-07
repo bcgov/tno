@@ -129,6 +129,7 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({
                   sectionIndex={index}
                   showForm={form === 'sections'}
                   disabled={disabled}
+                  onContentClick={onContentClick}
                 />
               </Show>
               <Show visible={section.sectionType === ReportSectionTypeName.Gallery}>
@@ -136,6 +137,7 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({
                   sectionIndex={index}
                   showForm={form === 'sections'}
                   disabled={disabled}
+                  onContentClick={onContentClick}
                 />
               </Show>
             </Section>
