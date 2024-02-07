@@ -7,7 +7,7 @@ const sortFunc = (key: string) => {
   switch (key) {
     case 'published':
       return (a: IContentSearchResult, b: IContentSearchResult) =>
-        a.publishedOn > b.publishedOn ? 1 : -1;
+        a.publishedOn < b.publishedOn ? 1 : -1;
     case 'source':
       return (a: IContentSearchResult, b: IContentSearchResult) => {
         if (a.source && b.source) {
@@ -17,7 +17,7 @@ const sortFunc = (key: string) => {
       };
     default:
       return (a: IContentSearchResult, b: IContentSearchResult) =>
-        a.publishedOn > b.publishedOn ? 1 : -1;
+        a.publishedOn < b.publishedOn ? 1 : -1;
   }
 };
 
