@@ -1,11 +1,6 @@
 import styled from 'styled-components';
 
 export const ManageFolder = styled.div`
-  .main-manage {
-    overflow-y: auto;
-    overflow-x: clip;
-    max-height: calc(100vh - 4em);
-  }
   .manage-title {
     margin-left: 0.5em;
   }
