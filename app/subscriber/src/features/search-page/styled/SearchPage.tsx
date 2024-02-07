@@ -11,12 +11,11 @@ export const SearchPage = styled.div`
   /* RIBBON CONTAINING SEARCH NAME IF MODIFYING */
   .viewed-name {
     display: flex;
+    padding-left: 1rem;
     border-bottom: 1px solid ${(props) => props.theme.css.linePrimaryColor};
     background-color: ${(props) => props.theme.css.bkWhite};
     padding-bottom: 0.5em;
     padding-top: 0.5em;
-    // margin-left: 0.5em;
-    // margin-right: 0.5em;
     svg {
       color: ${(props) => props.theme.css.iconPrimaryColor};
     }
@@ -31,11 +30,6 @@ export const SearchPage = styled.div`
 
   .add-page {
     margin-left: auto;
-  }
-  .checkbox {
-    height: 1.5em;
-    width: 1.5em;
-    margin-top: 0.25em;
   }
 
   .adv-search-container {
@@ -143,133 +137,5 @@ export const SearchPage = styled.div`
       margin-top: 0.25em;
       margin-left: 0.5em;
     }
-  }
-
-  .player {
-    width: 39%;
-  }
-
-  .show {
-    color: #178d6a;
-    background-color: #20c9971a;
-    border-color: #178d6a;
-  }
-
-  .playing {
-    background-color: white;
-    color: #e2616e;
-    border-color: #e2616e;
-  }
-
-  .tone-date {
-    margin-left: auto;
-    color: ${(props) => props.theme.css.fPrimaryColor};
-    svg {
-      margin-top: 0.15em;
-      margin-right: 0.5em;
-      margin-left: 0;
-    }
-  }
-
-  .summary {
-    width: 100%;
-  }
-
-  .rows {
-    .cols {
-      width: 100%;
-    }
-    padding: 0.5em;
-    background-color: white;
-    &:nth-child(even) {
-      background-color: rgb(233, 236, 239);
-    }
-  }
-
-  .padding-left {
-    padding-left: 0.5em;
-  }
-
-  .helper-text {
-    background-color: ${(props) => props.theme.css.bkWhite};
-    padding: 0.5em;
-    border-bottom-left-radius: 0.5em;
-    border-bottom-right-radius: 0.5em;
-  }
-
-  // tone column
-  .column.col-1 {
-    width: 2.5rem;
-    flex: unset;
-    div {
-      width: 100%;
-      justify-content: center;
-      svg.tone-icon {
-        margin-left: unset;
-      }
-    }
-  }
-
-  .checkBoxColumn {
-    width: 5%;
-    vertical-align: middle;
-  }
-
-  .sentimentColumn {
-    width: 5%;
-    vertical-align: middle;
-  }
-
-  .dateColumn {
-    width: 20%;
-    vertical-align: middle;
-  }
-
-  .sourceColumn {
-    width: 15%;
-    vertical-align: middle;
-  }
-
-  .headlineColumn {
-    width: 20%;
-    vertical-align: middle;
-  }
-
-  .linkColumn {
-    width: 15%;
-    vertical-align: middle;
-  }
-
-  .mediaColumn {
-    width: 15%;
-    vertical-align: middle;
-  }
-
-  .col-date {
-    white-space: nowrap;
-  }
-
-  .headline {
-    color: ${(props) => props.theme.css.btnBkPrimary};
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 20px;
-    letter-spacing: 0.25px;
-  }
-
-  .date {
-    color: ${(props) => props.theme.css.fPrimaryColor};
-    font-style: normal;
-    font-weight: 400;
-    line-height: 20px;
-    letter-spacing: 0.25px;
-    text-transform: uppercase;
-  }
-
-  .new-window {
-    cursor: pointer;
-    color: blue;
-    text-decoration: underline;
   }
 `;

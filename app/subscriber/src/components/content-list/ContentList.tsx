@@ -2,10 +2,10 @@ import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { FaPlayCircle } from 'react-icons/fa';
-import { FaCopyright, FaEyeSlash } from 'react-icons/fa6';
+import { FaCopyright, FaEyeSlash, FaSquareUpRight } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
-import { useContent } from 'store/hooks';
-import { Checkbox, Col, IContentModel, IFileReferenceModel, Row, Show } from 'tno-core';
+import { useContent, useLookup } from 'store/hooks';
+import { Checkbox, Col, IContentModel, IFileReferenceModel, Row, Settings, Show } from 'tno-core';
 
 import { ContentListContext } from './ContentListContext';
 import * as styled from './styled';
@@ -18,17 +18,24 @@ export interface IContentListProps {
   onContentSelected: (content: IContentModel[]) => void;
   /** array of selected content */
   selected: IContentModel[];
+  /** prop to determine whether to style the content based on user settings */
+  styleOnSettings?: boolean;
+  /** determine whether to show date next to the sentiment icon */
+  showDate?: boolean;
 }
 
 export const ContentList: React.FC<IContentListProps> = ({
   content,
   onContentSelected,
   selected,
+  styleOnSettings = false,
+  showDate = false,
 }) => {
   const navigate = useNavigate();
   const { groupBy, viewOptions } = React.useContext(ContentListContext);
   const grouped = groupContent(groupBy, content);
   const [, { stream }] = useContent();
+  const [{ settings }] = useLookup();
 
   const [activeFileReference, setActiveFileReference] = React.useState<IFileReferenceModel>();
   const [activeStream, setActiveStream] = React.useState<{ source: string; id: number }>();
@@ -51,6 +58,10 @@ export const ContentList: React.FC<IContentListProps> = ({
       });
     }
   }, [activeFileReference, stream, setActiveStream]);
+
+  const popOutIds = React.useMemo(() => {
+    return settings.find((setting) => setting.name === Settings.SearchPageResultsNewWindow)?.value;
+  }, [settings]);
 
   return (
     <styled.ContentList>
@@ -82,10 +93,23 @@ export const ContentList: React.FC<IContentListProps> = ({
                     }}
                   />
                   {viewOptions.sentiment && determineToneIcon(item.tonePools[0])}
-                  {viewOptions.date && (
+                  {showDate && (
                     <div className="date">{moment(item.publishedOn).format('DD-MMM-YYYY')}</div>
                   )}
                   <button className="headline">{item.headline}</button>
+                  <Show visible={viewOptions.section}>
+                    {item.section && <div className="section">{item.section}</div>}
+                    {item.page && <div className="page-number">{item.page}</div>}
+                  </Show>
+                  <Show visible={styleOnSettings && popOutIds?.includes(String(item.mediaTypeId))}>
+                    <FaSquareUpRight
+                      className={`new-tab ${!item.section && 'no-section'}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(`/view/${item.id}`, '_blank');
+                      }}
+                    />
+                  </Show>
                   <Show
                     visible={
                       !!item.fileReferences.length &&
@@ -110,10 +134,6 @@ export const ContentList: React.FC<IContentListProps> = ({
                         setActiveFileReference(undefined);
                       }}
                     />
-                  </Show>
-                  <Show visible={viewOptions.section}>
-                    {item.section && <div className="section">{item.section}</div>}
-                    {item.page && <div className="page-number">{item.page}</div>}
                   </Show>
                 </Row>
                 <Row>
