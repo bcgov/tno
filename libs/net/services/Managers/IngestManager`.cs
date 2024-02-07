@@ -137,7 +137,6 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                                 && ingest.LastRanOn.Value.AddSeconds(ingest.ResetRetryAfterDelayMs) <= DateTime.UtcNow) {
                                 this.Logger.LogInformation("Ingest '{name}' failure auto reset after '{resetRetryDelay}' seconds", ingest.Name, ingest.ResetRetryAfterDelayMs);
                                 manager.Ingest.FailedAttempts = 0;
-                                // this.State.ResetFailures();        
                             } else {
                                 this.Logger.LogWarning("Ingest '{name}' has reached maximum failure limit", ingest.Name);
                                 continue;
@@ -152,7 +151,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                     }
                     catch (HttpRequestException ex)
                     {
-                        this.Logger.LogError(ex, "Ingest '{name}' failed to run. Response: {Data}", ingest.Name, ex.Data["Body"]);
+                        this.Logger.LogError(ex, "Ingest '{name}' failed to run. This is failure {failures} out of {maxFailures} maximum retries. Response: {Data}", ingest.Name, manager.Ingest.FailedAttempts+1,manager.Ingest.RetryLimit, ex.Data["Body"]);
 
                         // Update ingest with failure.
                         await manager.RecordFailureAsync(ex);
@@ -160,7 +159,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                     }
                     catch (Exception ex)
                     {
-                        this.Logger.LogError(ex, "Ingest '{name}' failed to run", ingest.Name);
+                        this.Logger.LogError(ex, "Ingest '{name}' failed to run. This is failure {failures} out of {maxFailures} maximum retries.", ingest.Name, manager.Ingest.FailedAttempts+1,manager.Ingest.RetryLimit);
 
                         // Update ingest with failure.
                         await manager.RecordFailureAsync(ex);
