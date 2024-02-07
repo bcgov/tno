@@ -1,4 +1,4 @@
-import { IContentModel } from 'tno-core';
+import { IContentSearchResult } from 'features/utils/interfaces';
 
 /**
  * Reorder the drag items
@@ -8,12 +8,15 @@ import { IContentModel } from 'tno-core';
  * @returns The items in the new order
  */
 export const reorderDragItems = (
-  items: IContentModel[],
+  items: IContentSearchResult[],
   startIndex: number,
   endIndex: number,
-): IContentModel[] => {
-  const result = Array.from(items);
+): IContentSearchResult[] => {
+  // shallow copy of the items
+  const result = [...items];
+  // remove the item from the start index
   const [removed] = result.splice(startIndex, 1);
+  // add the removed item to the end index
   result.splice(endIndex, 0, removed);
   return result;
 };

@@ -4,6 +4,7 @@ import { PageSection } from 'components/section';
 import { ContentListActionBar } from 'components/tool-bar';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
+import { IContentSearchResult } from 'features/utils/interfaces';
 import React from 'react';
 import { DropResult } from 'react-beautiful-dnd';
 import { useParams } from 'react-router-dom';
@@ -22,8 +23,9 @@ export const ManageFolder: React.FC = () => {
   const [, { getFolder, updateFolder }] = useFolders();
   const [, { findContentWithElasticsearch }] = useContent();
   const [folder, setFolder] = React.useState<IFolderModel>();
-  const [items, setItems] = React.useState<any>([]);
+  const [items, setItems] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
+
   /** TODO: Folder content only contains contentId and sortOrder so we have to make an additional call based off of the contentIds to get the headline/summary etc..
    * assuming we want this to differ eventually.
    *
@@ -67,8 +69,8 @@ export const ManageFolder: React.FC = () => {
       if (!destination) return;
       const reorderedItems = reorderDragItems(items, source.index, destination.index);
       setItems(reorderedItems);
-      let res: IFolderModel | undefined;
       // Update Folder
+      let res: IFolderModel | undefined;
       if (!!folder) {
         try {
           res = await updateFolder({
@@ -83,12 +85,12 @@ export const ManageFolder: React.FC = () => {
       }
       setFolder(res);
     },
-    [folder, items, updateFolder],
+    [folder, items, setItems, updateFolder],
   );
 
   /** function that will remove items from the folder when the button is clicked */
   const removeItems = React.useCallback(async () => {
-    const updatedList = items.filter((item: any) => !selected.includes(item));
+    const updatedList = items.filter((item: IContentSearchResult) => !selected.includes(item));
     setItems(updatedList);
     let res: IFolderModel | undefined;
     if (!!folder) {

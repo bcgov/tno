@@ -35,7 +35,7 @@ export const ContentList: React.FC<IContentListProps> = ({
 }) => {
   const navigate = useNavigate();
   const { groupBy, setActiveStream, activeFileReference } = React.useContext(ContentListContext);
-  const grouped = groupContent(groupBy, content);
+  const grouped = groupContent(groupBy, [...content]);
   const [, { stream }] = useContent();
   const [{ settings }] = useLookup();
 
