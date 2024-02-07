@@ -110,6 +110,17 @@ export const ReportAdmin = styled.div`
       background: ${(props) => props.theme.css.sectionHeader};
       color: ${(props) => props.theme.css.sectionHeaderText};
 
+      .frm-in {
+        max-height: 25px;
+        padding: 0;
+        > div {
+          max-height: 25px;
+          > input {
+            max-height: 25px;
+          }
+        }
+      }
+
       .section-label {
         .section-header-label {
           > span:nth-child(1) {

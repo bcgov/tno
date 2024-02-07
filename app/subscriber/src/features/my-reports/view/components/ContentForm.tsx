@@ -54,7 +54,10 @@ export const ContentForm: React.FC<IContentFormProps> = ({
             : ''}
         </Col>
         <Col className="sentiment">
-          <Sentiment value={content.tonePools[0].value} showValue />
+          <Sentiment
+            value={content.tonePools.length ? content.tonePools[0].value : undefined}
+            showValue
+          />
         </Col>
       </Bar>
       <Show visible={show === 'all'}>

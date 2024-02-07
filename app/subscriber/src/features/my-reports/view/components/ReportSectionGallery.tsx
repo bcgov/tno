@@ -27,6 +27,8 @@ export interface IReportSectionGalleryProps extends React.AllHTMLAttributes<HTML
   showForm?: boolean;
   /** Form is disabled. */
   disabled?: boolean;
+  /** Event fires when the row is clicked. */
+  onContentClick?: (content: IReportInstanceContentForm) => void;
 }
 
 /**
@@ -38,6 +40,7 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
   sectionIndex,
   showForm,
   disabled,
+  onContentClick,
   ...rest
 }) => {
   const { values, setFieldValue } = useFormikContext<IReportForm>();
@@ -115,15 +118,6 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
           disabled={disabled}
         />
       </Show>
-      <Show visible={!!section.filterId && !sectionContent.length}>
-        <p>No content was returned by the filter.</p>
-      </Show>
-      <Show visible={!!section.folderId && !sectionContent.length}>
-        <p>Folder is empty.</p>
-      </Show>
-      <Show visible={!section.filterId && !section.folderId && !sectionContent.length}>
-        <p>Section is empty</p>
-      </Show>
       <Droppable droppableId={section.name} isDropDisabled={disabled}>
         {(droppableProvided) => (
           <div {...droppableProvided.droppableProps} ref={droppableProvided.innerRef}>
@@ -163,6 +157,7 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
                           }}
                           showSortOrder
                           onBlurSortOrder={(row) => handleChangeSortOrder(row, instance)}
+                          onContentClick={onContentClick}
                         />
                       </div>
                     );
@@ -174,6 +169,15 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
           </div>
         )}
       </Droppable>
+      <Show visible={!!section.filterId && !sectionContent.length}>
+        <p>No content was returned by the filter.</p>
+      </Show>
+      <Show visible={!!section.folderId && !sectionContent.length}>
+        <p>Folder is empty.</p>
+      </Show>
+      <Show visible={!section.filterId && !section.folderId && !sectionContent.length}>
+        <p>Section is empty</p>
+      </Show>
     </Col>
   );
 };

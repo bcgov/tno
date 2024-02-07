@@ -28,7 +28,27 @@ export const ReportEdit = styled.div`
       border-bottom: solid 1px ${(props) => props.theme.css.lineSecondaryColor};
 
       .frm-in {
-        padding-bottom: 0;
+        max-height: 25px;
+        padding: 0;
+        > div {
+          max-height: 25px;
+          > input {
+            max-height: 25px;
+          }
+        }
+      }
+
+      .frm-select {
+        max-height: 25px;
+        padding: 0;
+        > div {
+          max-height: 25px;
+          min-height: unset;
+          > div {
+            align-content: center;
+            max-height: 25px;
+          }
+        }
       }
 
       > div {
@@ -57,6 +77,17 @@ export const ReportEdit = styled.div`
       .section-header {
         background-color: ${(props) => props.theme.css.sectionHeader};
         color: ${(props) => props.theme.css.sectionHeaderText};
+
+        .frm-in {
+          max-height: 25px;
+          padding: 0;
+          > div {
+            max-height: 25px;
+            > input {
+              max-height: 25px;
+            }
+          }
+        }
 
         .section-label {
           span:nth-child(1) {
