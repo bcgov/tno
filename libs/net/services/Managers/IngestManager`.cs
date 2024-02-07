@@ -173,6 +173,9 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
             // It could also result in a longer than planned delay if the action manager is awaited (currently it is).
             this.Logger.LogDebug("Service sleeping for {delay:n0} ms", delay);
             await Task.Delay(delay);
+            
+            // after the service has slept after a number of failures it needs to be woken up
+            this.State.Resume();
 
             await RefreshIngestsAsync();
         }
