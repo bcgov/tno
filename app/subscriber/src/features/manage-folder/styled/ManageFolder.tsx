@@ -22,43 +22,4 @@ export const ManageFolder = styled.div`
   .title {
     margin-left: auto;
   }
-
-  .full-draggable {
-    &:nth-child(even) {
-      background-color: rgb(233, 236, 239);
-    }
-  }
-  .item-draggable {
-    padding: 0.25em;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-    .tone-date {
-      margin-left: auto;
-      .date {
-        color: #8f929d;
-      }
-      svg {
-        margin-top: 0.5em;
-        margin-right: 0.5em;
-        margin-left: 0;
-      }
-    }
-    .checkbox {
-      height: 1.5em;
-      width: 1.5em;
-      margin-top: 0.25em;
-    }
-    .item-headline {
-      color: #3847aa;
-      font-size: 1.15em;
-      text-decoration: underline;
-      :hover {
-        cursor: pointer;
-      }
-    }
-    .grip-lines {
-      margin-top: 0.5em;
-      margin-left: auto;
-    }
-  }
 `;
