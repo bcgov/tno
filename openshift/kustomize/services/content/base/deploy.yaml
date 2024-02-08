@@ -124,21 +124,6 @@ spec:
                 configMapKeyRef:
                   name: content-service
                   key: MAX_FAIL_LIMIT
-            - name: Service__UnpublishedIndex
-              valueFrom:
-                configMapKeyRef:
-                  name: content-service
-                  key: UNPUBLISHED_INDEX
-            - name: Service__PublishedIndex
-              valueFrom:
-                configMapKeyRef:
-                  name: content-service
-                  key: PUBLISHED_INDEX
-            - name: Service__NotificationTopic
-              valueFrom:
-                configMapKeyRef:
-                  name: content-service
-                  key: NOTIFICATION_TOPIC
 
             # CHES Configuration
             - name: CHES__From

@@ -6,7 +6,7 @@ metadata:
   name: content-service
   namespace: default
   annotations:
-    description: Audio Capture service configuration settings
+    description: Content TNO service configuration settings
     created-by: jeremy.foster
   labels:
     name: content-service
@@ -18,9 +18,6 @@ type: Opaque
 data:
   KAFKA_CLIENT_ID: Content
   MAX_FAIL_LIMIT: "5"
-  UNPUBLISHED_INDEX: unpublished_content
-  PUBLISHED_INDEX: content
-  NOTIFICATION_TOPIC: ""
-  CHES_FROM: Media Monitoring Insights <mmi@gov.bc.ca>
-  CHES_EMAIL_ENABLED: "true"
-  CHES_EMAIL_AUTHORIZED: "true"
+  # CHES_FROM: Media Monitoring Insights <mmi@gov.bc.ca>
+  # CHES_EMAIL_ENABLED: "true"
+  # CHES_EMAIL_AUTHORIZED: "true"
