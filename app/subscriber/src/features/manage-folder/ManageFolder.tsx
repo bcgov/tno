@@ -1,16 +1,16 @@
+import { ContentList } from 'components/content-list';
+import { reorderDragItems } from 'components/content-list/utils';
 import { PageSection } from 'components/section';
-import { Sentiment } from 'components/sentiment';
 import { ContentListActionBar } from 'components/tool-bar';
 import { filterFormat } from 'features/search-page/utils';
-import { castToSearchResult, determinePreview } from 'features/utils';
-import parse from 'html-react-parser';
+import { castToSearchResult } from 'features/utils';
+import { IContentSearchResult } from 'features/utils/interfaces';
 import React from 'react';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { FaGripLines } from 'react-icons/fa';
-import { useNavigate, useParams } from 'react-router-dom';
+import { DropResult } from 'react-beautiful-dnd';
+import { useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { Checkbox, Col, generateQuery, IContentModel, IFolderModel, Row } from 'tno-core';
+import { generateQuery, IContentModel, IFolderModel } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -21,11 +21,11 @@ import * as styled from './styled';
 export const ManageFolder: React.FC = () => {
   const { id } = useParams();
   const [, { getFolder, updateFolder }] = useFolders();
-  const navigate = useNavigate();
   const [, { findContentWithElasticsearch }] = useContent();
   const [folder, setFolder] = React.useState<IFolderModel>();
-  const [items, setItems] = React.useState<any>([]);
+  const [items, setItems] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
+
   /** TODO: Folder content only contains contentId and sortOrder so we have to make an additional call based off of the contentIds to get the headline/summary etc..
    * assuming we want this to differ eventually.
    *
@@ -64,25 +64,18 @@ export const ManageFolder: React.FC = () => {
 
   /** function that runs after a user drops an item in the list */
   const handleDrop = React.useCallback(
-    async (droppedItem: any) => {
-      if (!droppedItem.destination) {
-        return;
-      }
-      var updatedList = [...items];
-      // hold response
-      let res: IFolderModel | undefined;
-      // Remove dragged item
-      const [reorderedItem] = updatedList.splice(droppedItem.source.index, 1);
-      // Add dropped item
-      updatedList.splice(droppedItem.destination.index, 0, reorderedItem);
-      // Update State
-      setItems(updatedList);
+    async (result: DropResult) => {
+      const { source, destination } = result;
+      if (!destination) return;
+      const reorderedItems = reorderDragItems(items, source.index, destination.index);
+      setItems(reorderedItems);
       // Update Folder
+      let res: IFolderModel | undefined;
       if (!!folder) {
         try {
           res = await updateFolder({
             ...folder,
-            content: updatedList.map((item, index) => ({
+            content: reorderedItems.map((item, index) => ({
               ...item,
               contentId: item.id,
               sortOrder: index,
@@ -92,12 +85,12 @@ export const ManageFolder: React.FC = () => {
       }
       setFolder(res);
     },
-    [folder, items, updateFolder],
+    [folder, items, setItems, updateFolder],
   );
 
   /** function that will remove items from the folder when the button is clicked */
   const removeItems = React.useCallback(async () => {
-    const updatedList = items.filter((item: any) => !selected.includes(item));
+    const updatedList = items.filter((item: IContentSearchResult) => !selected.includes(item));
     setItems(updatedList);
     let res: IFolderModel | undefined;
     if (!!folder) {
@@ -116,6 +109,10 @@ export const ManageFolder: React.FC = () => {
     setSelected([]);
   }, [folder, items, selected, updateFolder]);
 
+  const handleContentSelected = React.useCallback((content: IContentModel[]) => {
+    setSelected(content);
+  }, []);
+
   return (
     <styled.ManageFolder>
       <PageSection header={`Manage Folder: ${folder?.name}`}>
@@ -125,65 +122,13 @@ export const ManageFolder: React.FC = () => {
             onSelectAll={(e) => (e.target.checked ? setSelected(items) : setSelected([]))}
             removeFolderItem={removeItems}
           />
-          <DragDropContext onDragEnd={handleDrop}>
-            <Droppable droppableId="droppable">
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef}>
-                  {items.map((item: any, index: number) => (
-                    <Draggable key={item.id} draggableId={String(item.id)} index={index}>
-                      {(provided) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className="full-draggable"
-                        >
-                          <Col className="item-draggable">
-                            <Row>
-                              <Col>
-                                <Checkbox
-                                  checked={selected.includes(item)}
-                                  className="checkbox"
-                                  onClick={(e) => {
-                                    if (!(e.target as HTMLInputElement).checked) {
-                                      setSelected((selected) => selected.filter((i) => i !== item));
-                                    } else {
-                                      setSelected((selected) => [...selected, item]);
-                                    }
-                                  }}
-                                />
-                              </Col>
-                              <Col className="tone-date">
-                                <Row>
-                                  <Sentiment
-                                    value={item.tonePools?.length ? item.tonePools[0].value : 0}
-                                  />
-                                  <p className="date text-content">
-                                    {new Date(item.publishedOn).toDateString()}
-                                  </p>
-                                </Row>
-                              </Col>
-                            </Row>
-                            <Row>
-                              <div
-                                onClick={() => navigate(`/view/${item.id}`)}
-                                className="item-headline"
-                              >
-                                {item.headline}
-                              </div>
-                              <FaGripLines className="grip-lines" />
-                            </Row>
-                            <div className="item-preview">{parse(determinePreview(item))}</div>
-                          </Col>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+          <ContentList
+            handleDrop={handleDrop}
+            content={items}
+            showDate
+            selected={selected}
+            onContentSelected={handleContentSelected}
+          />
         </div>
       </PageSection>
     </styled.ManageFolder>

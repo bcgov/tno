@@ -11,4 +11,8 @@ export const defaultValueListContext: IContentListContext = {
   setViewOptions: () => {},
   groupBy: 'source',
   setGroupBy: () => {},
+  activeStream: { id: 0, source: '' },
+  setActiveStream: () => {},
+  activeFileReference: undefined,
+  setActiveFileReference: () => {},
 };
