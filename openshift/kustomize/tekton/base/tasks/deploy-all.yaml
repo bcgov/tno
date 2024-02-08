@@ -291,7 +291,7 @@ spec:
 
         declare -A COMPONENT22=(
           [id]="contentmigration"
-          [name]="contentmigration-service-historic"
+          [name]="contentmigration-historic-service"
           [type]="dc"
           [replicas]="1"
           [action]="stop"
