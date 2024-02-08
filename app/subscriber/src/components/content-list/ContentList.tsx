@@ -23,6 +23,8 @@ export interface IContentListProps {
   showDate?: boolean;
   /** used to determine if the content list is draggable and what to do for handling drop */
   handleDrop?: any;
+  /** whether or not the content list is scrollable from within the content list container*/
+  scrollWithin?: boolean;
 }
 
 export const ContentList: React.FC<IContentListProps> = ({
@@ -32,6 +34,7 @@ export const ContentList: React.FC<IContentListProps> = ({
   styleOnSettings = false,
   showDate = false,
   handleDrop,
+  scrollWithin = false,
 }) => {
   const navigate = useNavigate();
   const { groupBy, setActiveStream, activeFileReference } = React.useContext(ContentListContext);
@@ -63,7 +66,7 @@ export const ContentList: React.FC<IContentListProps> = ({
   }, [settings]);
 
   return (
-    <styled.ContentList>
+    <styled.ContentList scrollWithin={scrollWithin}>
       <Show visible={!handleDrop}>
         {Object.keys(grouped).map((group) => (
           <div key={group}>
