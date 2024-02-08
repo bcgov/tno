@@ -13,6 +13,11 @@ public class ContentOptions : ServiceOptions
     /// get/set - A comma separated list of topics to consume.
     /// </summary>
     public string ContentTopics { get; set; } = "";
+    
+    /// <summary>
+    /// get/set - A comma separated list of topics to NOT consume.
+    /// </summary>
+    public string ContentTopicsToExclude { get; set; } = "";
 
     /// <summary>
     /// get/set - A topic that the Transcription Service subscribes to.
@@ -52,6 +57,17 @@ public class ContentOptions : ServiceOptions
     {
         var topics = this.ContentTopics?.Split(',').Where(v => !String.IsNullOrWhiteSpace(v)).Select(v => v.Trim()).ToArray() ?? Array.Empty<string>();
         return topics.Length > 0 ? topics : defaultTopics ?? Array.Empty<string>();
+    }
+
+    /// <summary>
+    /// Get a list of topics to exclude.
+    /// </summary>
+    /// <param name="defaultTopics"></param>
+    /// <returns></returns>
+    public string[] GetContentTopicsToExclude()
+    {
+        var topics = this.ContentTopicsToExclude?.Split(',').Where(v => !String.IsNullOrWhiteSpace(v)).Select(v => v.Trim()).ToArray() ?? Array.Empty<string>();
+        return topics.Length > 0 ? topics : Array.Empty<string>();
     }
     #endregion
 }

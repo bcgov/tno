@@ -111,6 +111,9 @@ public class ContentManager : ServiceManager<ContentOptions>
                     var kafkaTopics = this.KafkaAdmin.ListTopics();
                     topics = topics.Except(topics.Except(kafkaTopics)).ToArray();
 
+                    // finally exclude any topics that are set to exclude
+                    topics = topics.Except(this.Options.GetContentTopicsToExclude()).ToArray();
+
                     if (topics.Length != 0)
                     {
                         this.Listener.Subscribe(topics);

@@ -12,16 +12,16 @@ generatorOptions:
 patches:
   - target:
       kind: DeploymentConfig
-      name: content-tno-service
+      name: content-historic-service
     patch: |-
       # - op: replace
       #   path: /spec/replicas
       #   value: 1
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
-        value: content-tno-service:prod
-      - op: add
-        path: /spec/template/spec/containers/0/env/-
-        value:
-          name: Service__ContentTopics
-          value: "TNO-HISTORIC"
+        value: content-historic-service:prod
+      # - op: add
+      #   path: /spec/template/spec/containers/0/env/-
+      #   value:
+      #     name: Service__ContentTopics
+      #     value: "TNO-HISTORIC"
