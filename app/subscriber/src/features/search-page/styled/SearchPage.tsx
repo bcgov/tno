@@ -56,7 +56,7 @@ export const SearchPage = styled.div`
   }
 
   .page-section {
-    max-height: calc(100vh - 10em);
+    max-height: calc(100vh - 11em);
     overflow: hidden;
   }
   .adv-search-container > div {
