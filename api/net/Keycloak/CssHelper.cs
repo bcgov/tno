@@ -135,14 +135,14 @@ public class CssHelper : ICssHelper
         // If user doesn't exist, add them to the database.
         if (user == null)
         {
-            _logger.LogTrace($"Could not find an existing user using key:[{key}]");
+            _logger.LogTrace("Could not find an existing user using key:[{key}]", key);
             var username = principal.GetUsername() ?? throw new NotAuthorizedException("The 'username' is required by missing from token");
             var email = principal.GetEmail() ?? "";
             user = _userService.FindByUsername(username);
 
             if (user == null && !String.IsNullOrWhiteSpace(email))
             {
-                _logger.LogTrace($"Could not find an existing user using username:[{username}], trying by email:[{email}]");
+                _logger.LogTrace("Could not find an existing user using username:[{username}], trying by email:[{email}]", username, email);
                 // Check if the user has been manually added by their email address.
                 var users = _userService.FindByEmail(email).Where(u => u.IsEnabled && (u.Status == Entities.UserStatus.Preapproved || u.Status == Entities.UserStatus.Approved));
 
@@ -156,7 +156,7 @@ public class CssHelper : ICssHelper
             if (userRoles.Users.Length > 1) throw new NotAuthorizedException($"Keycloak has multiple users with the same username '{key}'");
             if (user == null)
             {
-                _logger.LogTrace($"Need to create a new MMI user with username:[{username}]");
+                _logger.LogTrace("Need to create a new MMI user with username:[{username}]", username);
 
                 user = new Entities.User(username, email, key)
                 {
@@ -175,7 +175,7 @@ public class CssHelper : ICssHelper
             }
             else if (user != null)
             {
-                _logger.LogTrace($"Found existing user with username:[{username}]. Update Status and Roles");
+                _logger.LogTrace("Found existing user with username:[{username}]. Update Status and Roles", username);
 
                 // The user was created in TNO initially, but now the user has logged in and activated their account.
                 user.Username = username;
@@ -189,19 +189,20 @@ public class CssHelper : ICssHelper
                 user.EmailVerified = principal.GetEmailVerified() ?? false;
 
                 // Apply the preapproved roles to the user.
-                var roles = await UpdateUserRolesAsync(key, user.Roles.Split(",").Select(r => r[1..^1]).ToArray());
+                var roles = await UpdateUserRolesAsync(key, user.Roles.Replace("[", "").Replace("]", "").Split(",").Select(r => r.Trim()).ToArray());
                 user.Roles = String.Join(",", roles.Select(r => $"[{r}]"));
                 user = _userService.UpdateAndSave(user);
             }
         }
         else
         {
-            _logger.LogTrace($"Found existing user with key:[{key}], check Roles in CSS vs DB");
+            _logger.LogTrace("Found existing user with key:[{key}], check Roles in CSS vs DB", key);
             var userRoles = await _cssService.GetRolesForUserAsync(key);
             var rolesInCss = userRoles.Roles.Select(r => r.Name).Order();
-            var rolesInDb = user.Roles.Split(",").Select(r => r[1..^1]).Order();
-            if (!rolesInCss.SequenceEqual(rolesInDb)) {
-                _logger.LogTrace($"User with key:[{key}] has mis-matched roles. CSS:[{String.Join(",",rolesInCss)}] DB:[{String.Join(",",rolesInDb)}]. CSS will be updated.");
+            var rolesInDb = user.Roles.Replace("[", "").Replace("]", "").Split(",").Select(r => r.Trim()).Order();
+            if (!rolesInCss.SequenceEqual(rolesInDb))
+            {
+                _logger.LogTrace("User with key:[{key}] has mis-matched roles. CSS:[{rolesInCss}] DB:[{rolesInDb}]. CSS will be updated.", key, String.Join(",", rolesInCss), String.Join(",", rolesInDb));
                 await UpdateUserRolesAsync(key, rolesInDb.ToArray());
             }
 
