@@ -61,7 +61,7 @@ export const Home: React.FC = () => {
     if (!!homePage && !!filter.startDate && !isReady) {
       setIsReady(true);
     }
-  }, [homePage]);
+  }, [homePage, filter.startDate, isReady]);
 
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
