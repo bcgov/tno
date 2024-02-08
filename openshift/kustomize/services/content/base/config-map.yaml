@@ -18,6 +18,7 @@ type: Opaque
 data:
   KAFKA_CLIENT_ID: Content
   MAX_FAIL_LIMIT: "5"
-  # CHES_FROM: Media Monitoring Insights <mmi@gov.bc.ca>
-  # CHES_EMAIL_ENABLED: "true"
-  # CHES_EMAIL_AUTHORIZED: "true"
+  CONTENT_TOPICS_EXCLUSIONS: "TNO-HISTORIC"
+  CHES_FROM: Media Monitoring Insights <mmi@gov.bc.ca>
+  CHES_EMAIL_ENABLED: "true"
+  CHES_EMAIL_AUTHORIZED: "true"

@@ -70,35 +70,16 @@ spec:
       type: string
       default: https://mmi-dev.apps.silver.devops.gov.bc.ca
 
-  workspaces:
-    - name: source
-      description: |
-        Git repo source code.
-    - name: conditions
-      description: |
-        Pipeline configuration file.
-    - name: build
-      description: |
-        Pipeline build volume
-    - name: owasp-settings
-      description: |
-        mounts /zap/wrk to store generated configs and results.
-
   tasks:
     - name: wait
-      taskRef:
-        name: pipeline-wait
-        kind: Task
       params:
         - name: PIPELINE_NAME
           value: $(context.pipelineRun.name)
+      taskRef:
+        kind: Task
+        name: pipeline-wait
 
     - name: git
-      taskRef:
-        name: git-conditions
-        kind: Task
-      runAfter:
-        - wait
       params:
         - name: GIT_SOURCE
           value: $(params.GIT_SOURCE)
@@ -106,6 +87,11 @@ spec:
           value: $(params.GIT_REF)
         - name: CONTEXT
           value: $(params.CONTEXT)
+      runAfter:
+        - wait
+      taskRef:
+        kind: Task
+        name: git-conditions
       workspaces:
         - name: source
           workspace: source
@@ -113,11 +99,6 @@ spec:
           workspace: conditions
 
     - name: build-all
-      taskRef:
-        name: build-all
-        kind: Task
-      runAfter:
-        - git
       params:
         - name: CONTEXT
           value: $(params.CONTEXT)
@@ -125,6 +106,11 @@ spec:
           value: $(params.IMAGE_TAG)
         - name: BUILD
           value: $(params.COMPONENT)
+      runAfter:
+        - git
+      taskRef:
+        kind: Task
+        name: build-all
       workspaces:
         - name: source
           workspace: source
@@ -134,11 +120,6 @@ spec:
           workspace: build
 
     - name: maintenance-on-editor
-      runAfter:
-        - build-all
-      taskRef:
-        name: oc-patch-route
-        kind: Task
       params:
         - name: PROJECT
           value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
@@ -146,13 +127,13 @@ spec:
           value: editor-tls
         - name: SERVICE
           value: nginx
-
-    - name: maintenance-on-subscriber
       runAfter:
         - build-all
       taskRef:
-        name: oc-patch-route
         kind: Task
+        name: oc-patch-route
+
+    - name: maintenance-on-subscriber
       params:
         - name: PROJECT
           value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
@@ -160,14 +141,13 @@ spec:
           value: subscriber-tls
         - name: SERVICE
           value: nginx
+      runAfter:
+        - build-all
+      taskRef:
+        kind: Task
+        name: oc-patch-route
 
     - name: db-migration
-      runAfter:
-        - maintenance-on-editor
-        - maintenance-on-subscriber
-      taskRef:
-        name: db-migration-conditional
-        kind: Task
       params:
         - name: DB_SECRET_NAME
           value: crunchy-pguser-admin
@@ -181,40 +161,41 @@ spec:
           value: $(params.COMPONENT)
         - name: DEPLOY_TO
           value: $(params.DEPLOY_TO)
+      runAfter:
+        - maintenance-on-editor
+        - maintenance-on-subscriber
+      taskRef:
+        kind: Task
+        name: db-migration-conditional
       workspaces:
         - name: conditions
           workspace: conditions
 
-    - name: elastic-migration
-      runAfter:
-        - db-migration
-      taskRef:
-#        name: elastic-migration-conditional
-        name: elastic-migration
-        kind: Task
-      params:
-        - name: DB_SECRET_NAME
-          value: crunchy-pguser-admin
-        - name: API_NAME
-          value: api
-        - name: IMAGE
-          value: elastic-migration
-        - name: IMAGE_TAG
-          value: $(params.IMAGE_TAG)
-        - name: DEPLOY
-          value: $(params.COMPONENT)
-        - name: DEPLOY_TO
-          value: $(params.DEPLOY_TO)
-      workspaces:
-        - name: conditions
-          workspace: conditions
+#     - name: elastic-migration
+#       params:
+#         - name: DB_SECRET_NAME
+#           value: crunchy-pguser-admin
+#         - name: API_NAME
+#           value: api
+#         - name: IMAGE
+#           value: elastic-migration
+#         - name: IMAGE_TAG
+#           value: $(params.IMAGE_TAG)
+#         - name: DEPLOY
+#           value: $(params.COMPONENT)
+#         - name: DEPLOY_TO
+#           value: $(params.DEPLOY_TO)
+#       runAfter:
+#         - db-migration
+#       taskRef:
+#         kind: Task
+# #        name: elastic-migration-conditional
+#         name: elastic-migration
+#       workspaces:
+#         - name: conditions
+#           workspace: conditions
 
     - name: deploy-all
-      runAfter:
-        - elastic-migration
-      taskRef:
-        name: deploy-all
-        kind: Task
       params:
         - name: PROJECT_SHORTNAME
           value: $(params.PROJECT_SHORTNAME)
@@ -226,16 +207,17 @@ spec:
           value: $(params.COMPONENT)
         - name: WAIT
           value: $(params.WAIT)
+      runAfter:
+        # - elastic-migration
+        - db-migration
+      taskRef:
+        kind: Task
+        name: deploy-all
       workspaces:
         - name: conditions
           workspace: conditions
 
     - name: maintenance-off-editor
-      runAfter:
-        - deploy-all
-      taskRef:
-        name: oc-patch-route
-        kind: Task
       params:
         - name: PROJECT
           value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
@@ -243,13 +225,13 @@ spec:
           value: editor-tls
         - name: SERVICE
           value: editor
-
-    - name: maintenance-off-subscriber
       runAfter:
         - deploy-all
       taskRef:
-        name: oc-patch-route
         kind: Task
+        name: oc-patch-route
+
+    - name: maintenance-off-subscriber
       params:
         - name: PROJECT
           value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
@@ -257,13 +239,13 @@ spec:
           value: subscriber-tls
         - name: SERVICE
           value: subscriber
+      runAfter:
+        - deploy-all
+      taskRef:
+        kind: Task
+        name: oc-patch-route
 
     - name: owasp-scan-editor
-      taskRef:
-        name: owasp-scanner
-        kind: Task
-      runAfter:
-        - maintenance-off-editor
       params:
         - name: TARGET_URL
           value: $(params.EDITOR_URL)
@@ -271,16 +253,16 @@ spec:
           value: quick
         - name: SCAN_DURATION
           value: "1"
+      runAfter:
+        - maintenance-off-editor
+      taskRef:
+        kind: Task
+        name: owasp-scanner
       workspaces:
         - name: owasp-settings
           workspace: owasp-settings
 
     - name: owasp-scan-subscriber
-      taskRef:
-        name: owasp-scanner
-        kind: Task
-      runAfter:
-        - maintenance-off-subscriber
       params:
         - name: TARGET_URL
           value: $(params.SUBSCRIBER_URL)
@@ -288,6 +270,25 @@ spec:
           value: quick
         - name: SCAN_DURATION
           value: "1"
+      runAfter:
+        - maintenance-off-subscriber
+      taskRef:
+        kind: Task
+        name: owasp-scanner
       workspaces:
         - name: owasp-settings
           workspace: owasp-settings
+
+  workspaces:
+    - description: |
+        Git repo source code.
+      name: source
+    - description: |
+        Pipeline configuration file.
+      name: conditions
+    - description: |
+        Pipeline build volume
+      name: build
+    - description: |
+        mounts /zap/wrk to store generated configs and results.
+      name: owasp-settings

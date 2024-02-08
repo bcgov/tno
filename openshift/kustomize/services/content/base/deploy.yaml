@@ -124,6 +124,11 @@ spec:
                 configMapKeyRef:
                   name: content-service
                   key: MAX_FAIL_LIMIT
+            - name: Service__ContentTopicsToExclude
+              valueFrom:
+                configMapKeyRef:
+                  name: content-service
+                  key: CONTENT_TOPICS_EXCLUSIONS
 
             # CHES Configuration
             - name: CHES__From

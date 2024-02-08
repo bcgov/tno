@@ -3,23 +3,23 @@
 kind: DeploymentConfig
 apiVersion: apps.openshift.io/v1
 metadata:
-  name: content-tno-service
+  name: content-historic-service
   namespace: default
   annotations:
-    description: Defines how to deploy content-tno-service
+    description: Defines how to deploy content-historic-service
     created-by: jeremy.foster
   labels:
-    name: content-tno-service
+    name: content-historic-service
     part-of: tno
     version: 1.0.0
-    component: content-tno-service
+    component: content-historic-service
     managed-by: kustomize
 spec:
   replicas: 1
   selector:
-    name: content-tno-service
+    name: content-historic-service
     part-of: tno
-    component: content-tno-service
+    component: content-historic-service
   strategy:
     rollingParams:
       intervalSeconds: 1
@@ -30,18 +30,18 @@ spec:
     type: Rolling
   template:
     metadata:
-      name: content-tno-service
+      name: content-historic-service
       labels:
-        name: content-tno-service
+        name: content-historic-service
         part-of: tno
-        component: content-tno-service
+        component: content-historic-service
     spec:
       volumes:
         - name: ingest-storage
           persistentVolumeClaim:
             claimName: ingest-storage
       containers:
-        - name: content-tno-service
+        - name: content-historic-service
           image: ""
           imagePullPolicy: Always
           ports:
@@ -52,11 +52,11 @@ spec:
               mountPath: /data
           resources:
             limits:
-              cpu: 150m
-              memory: 500Mi
+              cpu: 50m
+              memory: 256Mi
             requests:
-              cpu: 100m
-              memory: 200Mi
+              cpu: 25m
+              memory: 128Mi
           env:
             # .NET Configuration
             - name: ASPNETCORE_ENVIRONMENT
@@ -99,7 +99,7 @@ spec:
             - name: Kafka__Consumer__GroupId
               valueFrom:
                 configMapKeyRef:
-                  name: content-tno-service
+                  name: content-historic-service
                   key: KAFKA_CLIENT_ID
             - name: Kafka__Consumer__BootstrapServers
               valueFrom:
@@ -107,10 +107,10 @@ spec:
                   name: services
                   key: KAFKA_BOOTSTRAP_SERVERS
 
-            - name: Kafka__Producer__ClientId
+            - name: Kafka__Producer__GroupId
               valueFrom:
                 configMapKeyRef:
-                  name: content-tno-service
+                  name: content-historic-service
                   key: KAFKA_CLIENT_ID
             - name: Kafka__Producer__BootstrapServers
               valueFrom:
@@ -122,8 +122,13 @@ spec:
             - name: Service__MaxFailLimit
               valueFrom:
                 configMapKeyRef:
-                  name: content-tno-service
+                  name: content-historic-service
                   key: MAX_FAIL_LIMIT
+            - name: Service__ContentTopics
+              valueFrom:
+                configMapKeyRef:
+                  name: content-historic-service
+                  key: CONTENT_TOPICS_OVERRIDE
 
             # CHES Configuration
             - name: CHES__From
@@ -193,8 +198,8 @@ spec:
       imageChangeParams:
         automatic: true
         containerNames:
-          - content-tno-service
+          - content-historic-service
         from:
           kind: ImageStreamTag
           namespace: 9b301c-tools
-          name: content-tno-service:dev
+          name: content-service:dev

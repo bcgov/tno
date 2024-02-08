@@ -119,7 +119,7 @@ spec:
 
         declare -A COMPONENT5=(
           [id]="content"
-          [name]="content-tno-service"
+          [name]="content-historic-service"
           [type]="dc"
           [replicas]="1"
           [action]="stop"

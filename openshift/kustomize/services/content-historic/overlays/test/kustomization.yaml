@@ -12,26 +12,33 @@ generatorOptions:
 patches:
   - target:
       kind: ConfigMap
-      name: content-tno-service
+      name: content-historic-service
     patch: |-
       - op: replace
         path: /data/CHES_FROM
         value: (TEST) Media Monitoring Insights <mmi@gov.bc.ca>
   - target:
       kind: DeploymentConfig
-      name: content-tno-service
+      name: content-historic-service
     patch: |-
-      # - op: replace
-      #   path: /spec/replicas
-      #   value: 1
+      - op: replace
+        path: /spec/replicas
+        value: 1
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: 50m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: 200Mi
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: 75m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: 500Mi
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
-        value: content-tno-service:test
-      - op: add
-        path: /spec/template/spec/containers/0/env/-
-        value:
-          name: Service__ContentTopics
-          value: "TNO-HISTORIC"
+        value: content-service:test
       - op: add
         path: /spec/template/spec/containers/0/env/-
         value:
