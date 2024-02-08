@@ -2,13 +2,13 @@ import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
-import { filterFormat, getFilterActions } from 'features/search-page/utils';
+import { filterFormat } from 'features/search-page/utils';
 import { createFilterSettings } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React, { useMemo } from 'react';
 import { useContent, useLookup } from 'store/hooks';
-import { ActionName, generateQuery, IContentModel, IFilterSettingsModel, Row } from 'tno-core';
+import { generateQuery, IContentModel, IFilterSettingsModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -54,7 +54,15 @@ export const Home: React.FC = () => {
   );
 
   const homePage = React.useMemo(() => {
-    return getFilterActions(actions)[ActionName.Homepage];
+    const featured = actions.find((a) => a.name === 'Featured Story');
+    if (!featured?.id) return undefined;
+    const featuredFilterValue = {
+      id: featured?.id,
+      value: String(true),
+      valueType: featured?.valueType,
+    };
+
+    return featuredFilterValue;
   }, [actions]);
 
   React.useEffect(() => {
