@@ -79,6 +79,8 @@ export const Home: React.FC = () => {
         }),
       ),
     );
+    // only run when filter is ready, and when filter.startDate changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady, filter.startDate]);
 
   return (
