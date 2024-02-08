@@ -9,7 +9,7 @@ import * as styled from './styled';
 export const ViewOptions: React.FC = () => {
   const { viewOptions, setGroupBy, setViewOptions, groupBy } = React.useContext(ContentListContext);
   return (
-    <styled.ViewOptions>
+    <styled.ViewOptions className="view-options">
       <FaGear className="gear" data-tooltip-id="view-options" />
       <TooltipMenu clickable openOnClick place="right" id="view-options">
         <div className="show">
