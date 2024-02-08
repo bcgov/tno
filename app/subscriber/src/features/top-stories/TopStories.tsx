@@ -28,7 +28,7 @@ export const TopStories: React.FC = () => {
     if (!actions.length || !filter.startDate) return;
 
     let actionFilters = getFilterActions(actions);
-    const topStoryAction = actionFilters[ActionName.Commentary];
+    const topStoryAction = actionFilters[ActionName.TopStory];
 
     findContentWithElasticsearch(
       generateQuery(

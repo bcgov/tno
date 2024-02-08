@@ -25,6 +25,7 @@ export const Home: React.FC = () => {
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const [isReady, setIsReady] = React.useState<boolean>(false);
   const [settings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(
       filter.startDate ?? moment().startOf('day').toISOString(),
@@ -57,8 +58,14 @@ export const Home: React.FC = () => {
   }, [actions]);
 
   React.useEffect(() => {
+    if (!!homePage && !!filter.startDate && !isReady) {
+      setIsReady(true);
+    }
+  }, [homePage, filter.startDate, isReady]);
+
+  React.useEffect(() => {
     // stops invalid requests before filter is synced with date
-    if (!filter.startDate || !actions.length) return;
+    if (!isReady) return;
     fetchResults(
       generateQuery(
         filterFormat({
@@ -72,7 +79,9 @@ export const Home: React.FC = () => {
         }),
       ),
     );
-  }, [fetchResults, filter, settings, contentType, actions, homePage]);
+    // only run when filter is ready, and when filter.startDate changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isReady, filter.startDate]);
 
   return (
     <styled.Home>

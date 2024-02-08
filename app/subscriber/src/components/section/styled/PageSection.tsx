@@ -24,10 +24,10 @@ export const PageSection = styled.div<{ $ignoreMinWidth?: boolean; $ignoreLastCh
   }
 
   .page-icon {
-    height: 1.5em;
-    width: 1.5em;
-    margin: 0.1em 0;
+    margin: 0.1em 0.25em 0 0;
     color: ${(props) => props.theme.css.iconPurpleColor};
+    // size of font and icons
+    max-height: 26px;
   }
 
   ${(props) =>
