@@ -745,5 +745,39 @@ public class ReportService : BaseService<Report, int>, IReportService
         });
         return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
     }
+
+    /// <summary>
+    /// Get all content for each report belonging to the specified 'userId'.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public Dictionary<int, long[]> GetAllContentInMyReports(int userId)
+    {
+        var reportIds = this.Context.Reports.Where(r => r.OwnerId == userId).Select(r => r.Id).ToArray();
+        var result = new Dictionary<int, long[]>();
+
+        foreach (var reportId in reportIds)
+        {
+            // Get current instance.
+            long? instanceId = (from ri in this.Context.ReportInstances
+                                where ri.ReportId == reportId
+                                orderby ri.Id descending
+                                select ri.Id).Take(1).FirstOrDefault();
+
+            if (instanceId.HasValue)
+            {
+                // Get content in instance.
+                var contentIds = (from ric in this.Context.ReportInstanceContents
+                                  where ric.InstanceId == instanceId
+                                  select ric.ContentId)
+                        .Distinct()
+                        .ToArray();
+
+                result.Add(reportId, contentIds);
+            }
+        }
+
+        return result;
+    }
     #endregion
 }

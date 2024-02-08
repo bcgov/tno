@@ -6,12 +6,12 @@ export const ContentRow = styled(Col)`
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
   border-bottom: 1px solid ${(props) => props.theme.css.bkStaticGray};
+
   .parent-row {
     flex-flow: nowrap;
     width: 100%;
   }
   &:hover {
-    cursor: pointer;
     background-color: ${(props) => props.theme.css.highlightYellow};
     .teaser {
       background-color: ${(props) => props.theme.css.highlightYellowDarker};
@@ -115,6 +115,9 @@ export const ContentRow = styled(Col)`
     font-family: ${(props) => props.theme.css.fSecondary};
     text-decoration: none;
     margin-right: auto;
+    &:hover {
+      cursor: pointer;
+    }
   }
   .checked {
     background-color: ${(props) => props.theme.css.highlightYellow};
@@ -127,5 +130,8 @@ export const ContentRow = styled(Col)`
     margin-right: 0.5rem;
     color: ${(props) => props.theme.css.btnBkPrimary};
     cursor: grab;
+  }
+  .content-report-pin {
+    margin-left: 0.5rem;
   }
 `;

@@ -88,5 +88,10 @@ export const useApiSubscriberReports = (
         content,
       );
     },
+    getAllContentInMyReports: () => {
+      return api.get<never, AxiosResponse<{ [reportId: number]: number[] }>, any>(
+        `/subscriber/reports/all-content`,
+      );
+    },
   }).current;
 };

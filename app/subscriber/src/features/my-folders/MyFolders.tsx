@@ -19,6 +19,7 @@ export interface IMyFoldersProps {
   /** the active folder */
   active?: IFolderModel;
 }
+
 /** contains a list of the user's folders, allows for edit and viewing */
 export const MyFolders: React.FC<IMyFoldersProps> = ({ myFolders, setMyFolders, setActive }) => {
   const [, { findMyFolders, addFolder }] = useFolders();

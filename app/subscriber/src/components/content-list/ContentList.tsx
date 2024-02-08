@@ -78,12 +78,6 @@ export const ContentList: React.FC<IContentListProps> = ({
                     selected.some((selectedItem) => selectedItem.id === item.id) ? 'checked' : ''
                   }`}
                   key={item.id}
-                  onClick={(e) => {
-                    // Ensure the target is an Element and use .closest to check if the click was inside a checkbox (see comment below)
-                    if (!(e.target instanceof Element) || !e.target.closest('.checkbox')) {
-                      navigate(`/view/${item.id}`);
-                    }
-                  }}
                   selected={selected}
                   popOutIds={popOutIds}
                   showDate={showDate}

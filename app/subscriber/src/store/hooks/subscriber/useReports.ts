@@ -22,12 +22,13 @@ interface IReportController {
   previewReport: (id: number) => Promise<IReportResultModel>;
   generateReport: (id: number, regenerate?: boolean) => Promise<IReportModel>;
   addContentToReport: (id: number, content: IReportInstanceContentModel[]) => Promise<IReportModel>;
+  getAllContentInMyReports: () => Promise<{ [reportId: number]: number[] }>;
 }
 
 export const useReports = (): [IProfileState, IReportController] => {
   const api = useApiSubscriberReports();
   const dispatch = useAjaxWrapper();
-  const [state, { storeMyReports }] = useProfileStore();
+  const [state, { storeMyReports, storeReportContent }] = useProfileStore();
 
   const controller = React.useMemo(
     () => ({
@@ -35,7 +36,9 @@ export const useReports = (): [IProfileState, IReportController] => {
         const response = await dispatch<IReportModel[]>('find-my-reports', async () => {
           return api.findMyReports(filter);
         });
-        storeMyReports(response.data);
+        if (response.status === 200) {
+          storeMyReports(response.data);
+        }
         return response.data;
       },
       findPublicReports: async (filter?: IReportFilter) => {
@@ -50,7 +53,7 @@ export const useReports = (): [IProfileState, IReportController] => {
           () => api.getReport(id, includeContent),
           'get-report',
         );
-        if (response.data) {
+        if (response.status === 200 && response.data) {
           storeMyReports((reports) => {
             if (!response.data) return reports;
             var contains = false;
@@ -62,6 +65,13 @@ export const useReports = (): [IProfileState, IReportController] => {
             if (contains) return results;
             return [response.data!, ...reports];
           });
+          storeReportContent((reports) => {
+            const result = { ...reports };
+            result[id] = response.data?.instances.length
+              ? response.data.instances[0].content.map((c) => c.contentId)
+              : reports[id] ?? [];
+            return result;
+          });
         }
         return response.data;
       },
@@ -69,42 +79,76 @@ export const useReports = (): [IProfileState, IReportController] => {
         const response = await dispatch<IReportInstanceModel[]>('get-report-instances', () =>
           api.findInstancesForReportId(id, ownerId),
         );
-        storeMyReports((reports) =>
-          reports.map((r) => (r.id === id ? { ...r, instances: response.data } : r)),
-        );
+        if (response.status === 200) {
+          storeMyReports((reports) =>
+            reports.map((r) => (r.id === id ? { ...r, instances: response.data } : r)),
+          );
+          storeReportContent((reports) => {
+            const result = { ...reports };
+            result[id] = response.data.length
+              ? response.data[0].content.map((c) => c.contentId)
+              : reports[id] ?? [];
+            return result;
+          });
+        }
         return response.data;
       },
       addReport: async (model: IReportModel) => {
         const response = await dispatch<IReportModel>('add-report', () => api.addReport(model));
         // Update store with report data.
-        storeMyReports((reports) => {
-          if (!response.data) return reports;
-          return [response.data!, ...reports].sort(sortable);
-        });
+        if (response.status === 201) {
+          storeMyReports((reports) => {
+            if (!response.data) return reports;
+            return [response.data!, ...reports].sort(sortable);
+          });
+          storeReportContent((reports) => {
+            const result = { ...reports };
+            result[model.id] = response.data.instances.length
+              ? response.data.instances[0].content.map((c) => c.contentId)
+              : reports[model.id] ?? [];
+            return result;
+          });
+        }
         return response.data;
       },
       updateReport: async (model: IReportModel, updateInstances: boolean | undefined) => {
         const response = await dispatch<IReportModel>('update-report', () =>
           api.updateReport(model, updateInstances),
         );
-        storeMyReports((reports) => {
-          if (!response.data) return reports;
-          var contains = false;
-          const results = reports.map((r) => {
-            if (r.id === model.id) contains = true;
-            return r.id === model.id ? response.data! : r;
-          });
+        if (response.status === 200) {
+          storeMyReports((reports) => {
+            if (!response.data) return reports;
+            var contains = false;
+            const results = reports.map((r) => {
+              if (r.id === model.id) contains = true;
+              return r.id === model.id ? response.data! : r;
+            });
 
-          if (contains) return results;
-          return [response.data!, ...reports];
-        });
+            if (contains) return results;
+            return [response.data!, ...reports];
+          });
+          storeReportContent((reports) => {
+            const result = { ...reports };
+            result[model.id] = response.data.instances.length
+              ? response.data.instances[0].content.map((c) => c.contentId)
+              : reports[model.id] ?? [];
+            return result;
+          });
+        }
         return response.data;
       },
       deleteReport: async (model: IReportModel) => {
         const response = await dispatch<IReportModel>('delete-report', () =>
           api.deleteReport(model),
         );
-        storeMyReports((reports) => reports.filter((r) => r.id !== model.id));
+        if (response.status === 200) {
+          storeMyReports((reports) => reports.filter((r) => r.id !== model.id));
+          storeReportContent((reports) => {
+            const result = { ...reports };
+            delete result[model.id];
+            return result;
+          });
+        }
         return response.data;
       },
       previewReport: async (id: number) => {
@@ -117,28 +161,53 @@ export const useReports = (): [IProfileState, IReportController] => {
         const response = await dispatch<IReportModel>('generate-report', () =>
           api.generateReport(id, regenerate),
         );
-        storeMyReports((reports) => reports.map((r) => (r.id === id ? response.data : r)));
+        if (response.status === 200) {
+          storeMyReports((reports) => reports.map((r) => (r.id === id ? response.data : r)));
+          storeReportContent((reports) => {
+            const result = { ...reports };
+            result[id] = response.data.instances.length
+              ? response.data.instances[0].content.map((c) => c.contentId)
+              : reports[id] ?? [];
+            return result;
+          });
+        }
         return response.data;
       },
       addContentToReport: async (id: number, content: IReportInstanceContentModel[]) => {
         const response = await dispatch<IReportModel>('add-content-to-report', () =>
           api.addContentToReport(id, content),
         );
-        storeMyReports((reports) => {
-          if (!response.data) return reports;
-          var contains = false;
-          const results = reports.map((r) => {
-            if (r.id === id) contains = true;
-            return r.id === id ? response.data! : r;
-          });
+        if (response.status === 200) {
+          storeMyReports((reports) => {
+            if (!response.data) return reports;
+            var contains = false;
+            const results = reports.map((r) => {
+              if (r.id === id) contains = true;
+              return r.id === id ? response.data! : r;
+            });
 
-          if (contains) return results;
-          return [response.data!, ...reports];
-        });
+            if (contains) return results;
+            return [response.data!, ...reports];
+          });
+          storeReportContent((reports) => {
+            const result = { ...reports };
+            result[id] = response.data.instances.length
+              ? response.data.instances[0].content.map((c) => c.contentId)
+              : reports[id] ?? [];
+            return result;
+          });
+        }
+        return response.data;
+      },
+      getAllContentInMyReports: async () => {
+        const response = await dispatch<{ [reportId: number]: number[] }>(
+          'get-all-report-content',
+          () => api.getAllContentInMyReports(),
+        );
         return response.data;
       },
     }),
-    [api, dispatch, storeMyReports],
+    [api, dispatch, storeMyReports, storeReportContent],
   );
 
   return [state, controller];
