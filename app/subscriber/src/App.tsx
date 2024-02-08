@@ -2,6 +2,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'react-tooltip/dist/react-tooltip.css';
 
 import { ReactKeycloakProvider } from '@react-keycloak/web';
+import { ContentListProvider } from 'components/content-list/ContentListContext';
 import { LayoutAnonymous } from 'components/layout';
 import { AppRouter } from 'features/router';
 import Keycloak from 'keycloak-js';
@@ -37,7 +38,9 @@ function App() {
           }
           onEvent={keycloakEventHandler(keycloak!)}
         >
-          <AppRouter name={appName} />
+          <ContentListProvider>
+            <AppRouter name={appName} />
+          </ContentListProvider>
         </ReactKeycloakProvider>
       </Show>
       <Show visible={!keycloak}>

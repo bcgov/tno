@@ -8,6 +8,14 @@ export const SearchPage = styled.div`
   max-height: 100vh;
   overflow: none;
 
+  .header-row {
+    width: 100%;
+    .view-options {
+      margin-left: auto;
+      margin-bottom: 0.67em;
+    }
+  }
+
   /* RIBBON CONTAINING SEARCH NAME IF MODIFYING */
   .viewed-name {
     display: flex;

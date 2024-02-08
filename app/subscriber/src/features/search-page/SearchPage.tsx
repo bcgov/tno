@@ -1,6 +1,6 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { BasicSearch } from 'components/basic-search';
-import { ContentList } from 'components/content-list';
+import { ContentList, ViewOptions } from 'components/content-list';
 import { PageSection } from 'components/section';
 import { ContentListActionBar } from 'components/tool-bar';
 import { useElastic } from 'features/my-searches/hooks';
@@ -112,9 +112,10 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
           </Show>
           <PageSection
             header={
-              <>
+              <Row className="header-row">
                 <h1 className="title">{`Search Results`}</h1>
-              </>
+                <ViewOptions />
+              </Row>
             }
           >
             <ContentListActionBar
