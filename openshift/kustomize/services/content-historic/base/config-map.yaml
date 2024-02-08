@@ -3,20 +3,20 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: content-service
+  name: content-tno-service
   namespace: default
   annotations:
     description: Content TNO service configuration settings
     created-by: jeremy.foster
   labels:
-    name: content-service
+    name: content-tno-service
     part-of: tno
     version: 1.0.0
-    component: content-service
+    component: content-tno-service
     managed-by: kustomize
 type: Opaque
 data:
-  KAFKA_CLIENT_ID: Content
+  KAFKA_CLIENT_ID: ContentHistoric-TNO
   MAX_FAIL_LIMIT: "5"
   # CHES_FROM: Media Monitoring Insights <mmi@gov.bc.ca>
   # CHES_EMAIL_ENABLED: "true"

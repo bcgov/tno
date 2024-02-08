@@ -3,23 +3,23 @@
 kind: DeploymentConfig
 apiVersion: apps.openshift.io/v1
 metadata:
-  name: content-service
+  name: content-tno-service
   namespace: default
   annotations:
-    description: Defines how to deploy content-service
+    description: Defines how to deploy content-tno-service
     created-by: jeremy.foster
   labels:
-    name: content-service
+    name: content-tno-service
     part-of: tno
     version: 1.0.0
-    component: content-service
+    component: content-tno-service
     managed-by: kustomize
 spec:
   replicas: 1
   selector:
-    name: content-service
+    name: content-tno-service
     part-of: tno
-    component: content-service
+    component: content-tno-service
   strategy:
     rollingParams:
       intervalSeconds: 1
@@ -30,18 +30,18 @@ spec:
     type: Rolling
   template:
     metadata:
-      name: content-service
+      name: content-tno-service
       labels:
-        name: content-service
+        name: content-tno-service
         part-of: tno
-        component: content-service
+        component: content-tno-service
     spec:
       volumes:
         - name: ingest-storage
           persistentVolumeClaim:
             claimName: ingest-storage
       containers:
-        - name: content-service
+        - name: content-tno-service
           image: ""
           imagePullPolicy: Always
           ports:
@@ -52,11 +52,11 @@ spec:
               mountPath: /data
           resources:
             limits:
-              cpu: 50m
-              memory: 256Mi
+              cpu: 150m
+              memory: 500Mi
             requests:
-              cpu: 25m
-              memory: 128Mi
+              cpu: 100m
+              memory: 200Mi
           env:
             # .NET Configuration
             - name: ASPNETCORE_ENVIRONMENT
@@ -99,7 +99,7 @@ spec:
             - name: Kafka__Consumer__GroupId
               valueFrom:
                 configMapKeyRef:
-                  name: content-service
+                  name: content-tno-service
                   key: KAFKA_CLIENT_ID
             - name: Kafka__Consumer__BootstrapServers
               valueFrom:
@@ -107,10 +107,10 @@ spec:
                   name: services
                   key: KAFKA_BOOTSTRAP_SERVERS
 
-            - name: Kafka__Producer__GroupId
+            - name: Kafka__Producer__ClientId
               valueFrom:
                 configMapKeyRef:
-                  name: content-service
+                  name: content-tno-service
                   key: KAFKA_CLIENT_ID
             - name: Kafka__Producer__BootstrapServers
               valueFrom:
@@ -122,7 +122,7 @@ spec:
             - name: Service__MaxFailLimit
               valueFrom:
                 configMapKeyRef:
-                  name: content-service
+                  name: content-tno-service
                   key: MAX_FAIL_LIMIT
 
             # CHES Configuration
@@ -193,8 +193,8 @@ spec:
       imageChangeParams:
         automatic: true
         containerNames:
-          - content-service
+          - content-tno-service
         from:
           kind: ImageStreamTag
           namespace: 9b301c-tools
-          name: content-service:dev
+          name: content-tno-service:dev

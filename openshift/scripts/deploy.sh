@@ -25,7 +25,7 @@ scale () {
 
 contentMigrationHistoricServiceName="contentmigration-historic-service"
 if [ "$env" = "dev" ]; then
-  contentMigrationHistoricServiceName="contentmigration-service-historic"
+  contentMigrationHistoricServiceName="contentmigration-historic-service"
 fi
 
 podsApi=$(getPods api sts $env)
@@ -65,7 +65,7 @@ scale subscriber 0 dc $env
 
 scale capture-service 0 dc $env
 scale contentmigration-service 0 dc $env
-scale contentmigration-service-historic 0 dc $env
+scale contentmigration-historic-service 0 dc $env
 scale filemonitor-service 0 dc $env
 scale syndication-service 0 dc $env
 scale image-service 0 dc $env
