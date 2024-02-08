@@ -39,11 +39,6 @@ patches:
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: content-service:dev
-      # - op: add
-      #   path: /spec/template/spec/containers/0/env/-
-      #   value:
-      #     name: Service__ContentTopics
-      #     value: "TNO-HISTORIC"
       - op: add
         path: /spec/template/spec/containers/0/env/-
         value:

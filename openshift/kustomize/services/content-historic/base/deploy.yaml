@@ -107,7 +107,7 @@ spec:
                   name: services
                   key: KAFKA_BOOTSTRAP_SERVERS
 
-            - name: Kafka__Producer__ClientId
+            - name: Kafka__Producer__GroupId
               valueFrom:
                 configMapKeyRef:
                   name: content-historic-service
