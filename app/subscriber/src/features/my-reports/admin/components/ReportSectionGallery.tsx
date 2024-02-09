@@ -85,7 +85,7 @@ export const ReportSectionGallery = React.forwardRef<HTMLDivElement, IReportSect
             name="frontPageImageFilter"
             label="Use default front page images filter"
             checked={useDefaultFrontPageImagesFilter}
-            onClick={() => {
+            onChange={() => {
               setFieldValue(
                 `sections.${index}.filterId`,
                 useDefaultFrontPageImagesFilter ? undefined : defaultFrontPageImagesFilterId,
