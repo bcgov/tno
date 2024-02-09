@@ -55,8 +55,8 @@ export const Home: React.FC = () => {
     [findContentWithElasticsearch],
   );
 
-  const featuredItemsName = React.useMemo(() => {
-    const value = appSettings?.find((s) => s.id === Settings.FeaturedItem)?.value;
+  const featuredItemId = React.useMemo(() => {
+    const value = appSettings?.find((s) => s.name === Settings.FeaturedItem)?.value;
     if (!value && !!appSettings?.length)
       toast.error(
         'No FeaturedItemsName found in settings. Please contact your administrator to update.',
@@ -65,7 +65,8 @@ export const Home: React.FC = () => {
   }, [appSettings]);
 
   const homePage = React.useMemo(() => {
-    const featured = actions.find((a) => a.name === featuredItemsName);
+    if (!featuredItemId) return undefined;
+    const featured = actions.find((a) => a.id === +featuredItemId);
     if (!featured?.id) return undefined;
     const featuredFilterValue = {
       id: featured?.id,
@@ -74,13 +75,13 @@ export const Home: React.FC = () => {
     };
 
     return featuredFilterValue;
-  }, [actions, featuredItemsName]);
+  }, [actions, featuredItemId]);
 
   React.useEffect(() => {
-    if (!!homePage && !!filter.startDate && !isReady && !!featuredItemsName) {
+    if (!!homePage && !!filter.startDate && !isReady && !!featuredItemId) {
       setIsReady(true);
     }
-  }, [homePage, filter.startDate, isReady, featuredItemsName]);
+  }, [homePage, filter.startDate, isReady, featuredItemId]);
 
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
@@ -100,7 +101,7 @@ export const Home: React.FC = () => {
     );
     // only run when filter is ready, and when filter.startDate changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isReady, filter.startDate, featuredItemsName]);
+  }, [isReady, filter.startDate, featuredItemId]);
 
   return (
     <styled.Home>
