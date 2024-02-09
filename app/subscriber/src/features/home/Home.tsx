@@ -2,13 +2,14 @@ import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
-import { filterFormat, getFilterActions } from 'features/search-page/utils';
-import { createFilterSettings } from 'features/utils';
+import { filterFormat } from 'features/search-page/utils';
+import { createFilterSettings, getBooleanActionValue } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React, { useMemo } from 'react';
+import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
-import { ActionName, generateQuery, IContentModel, IFilterSettingsModel, Row } from 'tno-core';
+import { generateQuery, IContentModel, IFilterSettingsModel, Row, Settings } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -23,6 +24,7 @@ export const Home: React.FC = () => {
     { findContentWithElasticsearch, storeHomeFilter: storeFilter },
   ] = useContent();
 
+  const [{ settings: appSettings }] = useLookup();
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [isReady, setIsReady] = React.useState<boolean>(false);
@@ -33,7 +35,6 @@ export const Home: React.FC = () => {
     ),
   );
 
-  const [{ actions }] = useLookup();
   const contentType = useMemo(() => {
     if (!!filter?.contentTypes?.length) return filter.contentTypes[0];
     else return 'all';
@@ -53,15 +54,25 @@ export const Home: React.FC = () => {
     [findContentWithElasticsearch],
   );
 
+  const featuredItemId = React.useMemo(() => {
+    const value = appSettings?.find((s) => s.name === Settings.FeaturedItem)?.value;
+    if (!value && !!appSettings?.length)
+      toast.error(
+        'No FeaturedItemId found in settings. Please contact your administrator to update.',
+      );
+    return value;
+  }, [appSettings]);
+
   const homePage = React.useMemo(() => {
-    return getFilterActions(actions)[ActionName.Homepage];
-  }, [actions]);
+    if (!featuredItemId) return;
+    return getBooleanActionValue(featuredItemId);
+  }, [featuredItemId]);
 
   React.useEffect(() => {
-    if (!!homePage && !!filter.startDate && !isReady) {
+    if (!!homePage && !!filter.startDate && !isReady && !!featuredItemId) {
       setIsReady(true);
     }
-  }, [homePage, filter.startDate, isReady]);
+  }, [homePage, filter.startDate, isReady, featuredItemId]);
 
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
@@ -81,7 +92,7 @@ export const Home: React.FC = () => {
     );
     // only run when filter is ready, and when filter.startDate changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isReady, filter.startDate]);
+  }, [isReady, filter.startDate, featuredItemId]);
 
   return (
     <styled.Home>
