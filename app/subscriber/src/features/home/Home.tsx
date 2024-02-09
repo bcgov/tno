@@ -3,7 +3,7 @@ import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
 import { filterFormat } from 'features/search-page/utils';
-import { createFilterSettings } from 'features/utils';
+import { createFilterSettings, getBooleanActionValue } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React, { useMemo } from 'react';
@@ -35,7 +35,6 @@ export const Home: React.FC = () => {
     ),
   );
 
-  const [{ actions }] = useLookup();
   const contentType = useMemo(() => {
     if (!!filter?.contentTypes?.length) return filter.contentTypes[0];
     else return 'all';
@@ -59,23 +58,15 @@ export const Home: React.FC = () => {
     const value = appSettings?.find((s) => s.name === Settings.FeaturedItem)?.value;
     if (!value && !!appSettings?.length)
       toast.error(
-        'No FeaturedItemsName found in settings. Please contact your administrator to update.',
+        'No FeaturedItemId found in settings. Please contact your administrator to update.',
       );
     return value;
   }, [appSettings]);
 
   const homePage = React.useMemo(() => {
-    if (!featuredItemId) return undefined;
-    const featured = actions.find((a) => a.id === +featuredItemId);
-    if (!featured?.id) return undefined;
-    const featuredFilterValue = {
-      id: featured?.id,
-      value: String(true),
-      valueType: featured?.valueType,
-    };
-
-    return featuredFilterValue;
-  }, [actions, featuredItemId]);
+    if (!featuredItemId) return;
+    return getBooleanActionValue(featuredItemId);
+  }, [featuredItemId]);
 
   React.useEffect(() => {
     if (!!homePage && !!filter.startDate && !isReady && !!featuredItemId) {
