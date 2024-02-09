@@ -8,7 +8,7 @@ import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React, { useMemo } from 'react';
 import { useContent, useLookup } from 'store/hooks';
-import { generateQuery, IContentModel, IFilterSettingsModel, Row } from 'tno-core';
+import { generateQuery, IContentModel, IFilterSettingsModel, Row, Settings } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -23,6 +23,7 @@ export const Home: React.FC = () => {
     { findContentWithElasticsearch, storeHomeFilter: storeFilter },
   ] = useContent();
 
+  const [{ settings: appSettings }] = useLookup();
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [isReady, setIsReady] = React.useState<boolean>(false);
@@ -53,8 +54,12 @@ export const Home: React.FC = () => {
     [findContentWithElasticsearch],
   );
 
+  const featuredItemsName = React.useMemo(() => {
+    return appSettings?.find((s) => s.name === Settings.FeaturedItemsName)?.value;
+  }, [appSettings]);
+
   const homePage = React.useMemo(() => {
-    const featured = actions.find((a) => a.name === 'Featured Story');
+    const featured = actions.find((a) => a.name === featuredItemsName);
     if (!featured?.id) return undefined;
     const featuredFilterValue = {
       id: featured?.id,
@@ -63,13 +68,13 @@ export const Home: React.FC = () => {
     };
 
     return featuredFilterValue;
-  }, [actions]);
+  }, [actions, featuredItemsName]);
 
   React.useEffect(() => {
-    if (!!homePage && !!filter.startDate && !isReady) {
+    if (!!homePage && !!filter.startDate && !isReady && !!featuredItemsName) {
       setIsReady(true);
     }
-  }, [homePage, filter.startDate, isReady]);
+  }, [homePage, filter.startDate, isReady, featuredItemsName]);
 
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
@@ -89,7 +94,7 @@ export const Home: React.FC = () => {
     );
     // only run when filter is ready, and when filter.startDate changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isReady, filter.startDate]);
+  }, [isReady, filter.startDate, featuredItemsName]);
 
   return (
     <styled.Home>
