@@ -7,6 +7,7 @@ import { createFilterSettings } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React, { useMemo } from 'react';
+import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
 import { generateQuery, IContentModel, IFilterSettingsModel, Row, Settings } from 'tno-core';
 
@@ -55,7 +56,12 @@ export const Home: React.FC = () => {
   );
 
   const featuredItemsName = React.useMemo(() => {
-    return appSettings?.find((s) => s.name === Settings.FeaturedItemsName)?.value;
+    const value = appSettings?.find((s) => s.id === Settings.FeaturedItem)?.value;
+    if (!value && !!appSettings?.length)
+      toast.error(
+        'No FeaturedItemsName found in settings. Please contact your administrator to update.',
+      );
+    return value;
   }, [appSettings]);
 
   const homePage = React.useMemo(() => {
