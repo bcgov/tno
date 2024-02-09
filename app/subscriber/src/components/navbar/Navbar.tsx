@@ -2,7 +2,7 @@ import { InfoShield } from 'components/info';
 import _ from 'lodash';
 import React from 'react';
 import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Row, Show } from 'tno-core';
 
 import { INavbarItem } from './constants/INavbarItem';
@@ -27,15 +27,19 @@ export const Navbar: React.FC<INavbarProps> = ({ options }) => {
   const navigate = useNavigate();
 
   const [expanded, setExpanded] = React.useState(true);
+  const { pathname } = useLocation();
 
   const grouplessOptions = options?.filter((option) => !option.groupName);
   const groupedOptions = options?.filter((option) => !!option.groupName);
   const groupByName = _.groupBy(groupedOptions, 'groupName');
 
-  const determineClassName = React.useCallback((path: string) => {
-    if (window.location.pathname.includes(path)) return 'active';
-    return '';
-  }, []);
+  const determineClassName = React.useCallback(
+    (path: string) => {
+      if (pathname.includes(path)) return 'active';
+      return '';
+    },
+    [pathname],
+  );
 
   return (
     <styled.Navbar $expanded={expanded}>
