@@ -3,8 +3,9 @@ import { IReportForm } from 'features/my-reports/interfaces';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaArrowAltCircleRight } from 'react-icons/fa';
-import { useFilters, useFolders } from 'store/hooks';
+import { useFilters, useFolders, useLookup } from 'store/hooks';
 import {
+  Checkbox,
   Col,
   FormikSelect,
   FormikText,
@@ -13,6 +14,8 @@ import {
   IOptionItem,
   OptionItem,
   Row,
+  Settings,
+  Show,
 } from 'tno-core';
 
 export interface IReportSectionGalleryProps {
@@ -24,7 +27,9 @@ export const ReportSectionGallery = React.forwardRef<HTMLDivElement, IReportSect
     const { values, setFieldValue } = useFormikContext<IReportForm>();
     const [{ myFolders: folders }, { findMyFolders }] = useFolders();
     const [{ myFilters: filters }, { findMyFilters }] = useFilters();
+    const [{ isReady, settings }] = useLookup();
 
+    const [defaultFrontPageImagesFilterId, setFrontPageImagesFilterId] = React.useState(0);
     const [folderOptions, setFolderOptions] = React.useState<IOptionItem[]>(
       getSortableOptions(folders),
     );
@@ -32,7 +37,19 @@ export const ReportSectionGallery = React.forwardRef<HTMLDivElement, IReportSect
       getSortableOptions(filters),
     );
 
+    React.useEffect(() => {
+      if (isReady) {
+        const defaultFrontPageImagesFilterId = settings.find(
+          (s) => s.name === Settings.FrontpageFilter,
+        )?.value;
+        if (defaultFrontPageImagesFilterId)
+          setFrontPageImagesFilterId(+defaultFrontPageImagesFilterId);
+      }
+    }, [isReady, settings]);
+
     const section = values.sections[index];
+    const useDefaultFrontPageImagesFilter =
+      values.sections[index].filterId === defaultFrontPageImagesFilterId;
 
     React.useEffect(() => {
       // TODO: Move to parent component so that it doesn't run multiple times.
@@ -64,54 +81,67 @@ export const ReportSectionGallery = React.forwardRef<HTMLDivElement, IReportSect
             Choose the data sources to populate this section of your report. You can select from
             your saved searches and/or your folders.
           </p>
-          <Row gap="1rem">
-            <Col flex="1" className="description">
-              <FormikSelect
-                name={`sections.${index}.filterId`}
-                label="My saved searches"
-                options={filterOptions}
-                value={filterOptions.find((o) => o.value === section.filterId) ?? ''}
-                onChange={(newValue: any) => {
-                  const option = newValue as OptionItem;
-                  const filter = filters.find((f) => f.id === option?.value);
-                  if (filter) setFieldValue(`sections.${index}.filter`, filter);
-                }}
-              >
-                <Button
-                  disabled={!values.sections[index].filterId}
-                  onClick={() =>
-                    window.open(`/search/advanced/${values.sections[index].filterId}`, '_blank')
-                  }
+          <Checkbox
+            name="frontPageImageFilter"
+            label="Use default front page images filter"
+            checked={useDefaultFrontPageImagesFilter}
+            onClick={() => {
+              setFieldValue(
+                `sections.${index}.filterId`,
+                useDefaultFrontPageImagesFilter ? undefined : defaultFrontPageImagesFilterId,
+              );
+            }}
+          />
+          <Show visible={!useDefaultFrontPageImagesFilter}>
+            <Row gap="1rem">
+              <Col flex="1" className="description">
+                <FormikSelect
+                  name={`sections.${index}.filterId`}
+                  label="My saved searches"
+                  options={filterOptions}
+                  value={filterOptions.find((o) => o.value === section.filterId) ?? ''}
+                  onChange={(newValue: any) => {
+                    const option = newValue as OptionItem;
+                    const filter = filters.find((f) => f.id === option?.value);
+                    if (filter) setFieldValue(`sections.${index}.filter`, filter);
+                  }}
                 >
-                  <FaArrowAltCircleRight />
-                </Button>
-              </FormikSelect>
-              {section.filter?.description && <p>{section.filter?.description}</p>}
-            </Col>
-            <Col flex="1" className="description">
-              <FormikSelect
-                name={`sections.${index}.folderId`}
-                label="My folders"
-                options={folderOptions}
-                value={folderOptions.find((o) => o.value === section.folderId) ?? ''}
-                onChange={(newValue: any) => {
-                  const option = newValue as OptionItem;
-                  const folder = folders.find((f) => f.id === option?.value);
-                  if (folder) setFieldValue(`sections.${index}.folder`, folder);
-                }}
-              >
-                <Button
-                  disabled={!values.sections[index].folderId}
-                  onClick={() =>
-                    window.open(`/folders/${values.sections[index].folderId}`, '_blank')
-                  }
+                  <Button
+                    disabled={!values.sections[index].filterId}
+                    onClick={() =>
+                      window.open(`/search/advanced/${values.sections[index].filterId}`, '_blank')
+                    }
+                  >
+                    <FaArrowAltCircleRight />
+                  </Button>
+                </FormikSelect>
+                {section.filter?.description && <p>{section.filter?.description}</p>}
+              </Col>
+              <Col flex="1" className="description">
+                <FormikSelect
+                  name={`sections.${index}.folderId`}
+                  label="My folders"
+                  options={folderOptions}
+                  value={folderOptions.find((o) => o.value === section.folderId) ?? ''}
+                  onChange={(newValue: any) => {
+                    const option = newValue as OptionItem;
+                    const folder = folders.find((f) => f.id === option?.value);
+                    if (folder) setFieldValue(`sections.${index}.folder`, folder);
+                  }}
                 >
-                  <FaArrowAltCircleRight />
-                </Button>
-              </FormikSelect>
-              {section.folder?.description && <p>{section.folder?.description}</p>}
-            </Col>
-          </Row>
+                  <Button
+                    disabled={!values.sections[index].folderId}
+                    onClick={() =>
+                      window.open(`/folders/${values.sections[index].folderId}`, '_blank')
+                    }
+                  >
+                    <FaArrowAltCircleRight />
+                  </Button>
+                </FormikSelect>
+                {section.folder?.description && <p>{section.folder?.description}</p>}
+              </Col>
+            </Row>
+          </Show>
         </Col>
       </>
     );
