@@ -16,7 +16,10 @@ export const Navbar = styled(Col)<{ $expanded: boolean }>`
     margin-left: ${(props) => (props.$expanded ? 'auto' : '1em')};
   }
   .option {
-    max-width: ${(props) => (props.$expanded ? '' : 'fit-content')};
+    &.active {
+      border-left: 0.45em solid ${(props) => props.theme.css.highlightActive};
+    }
+    min-width: ${(props) => (props.$expanded ? '10.5em' : 'fit-content')};
     padding: 0.5em;
     cursor: pointer;
     align-items: center;
