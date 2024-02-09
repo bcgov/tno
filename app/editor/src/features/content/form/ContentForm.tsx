@@ -290,7 +290,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       </Show>
                       <Show visible={props.values.contentType === ContentTypeName.PrintContent}>
                         <Row>
-                          <FormikText name="byline" label="Byline" required={!isEditing} />
+                          <FormikText name="byline" label="Byline" />
                           <FormikSelect
                             name="contributorId"
                             value={
