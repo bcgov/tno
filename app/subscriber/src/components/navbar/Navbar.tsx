@@ -32,13 +32,10 @@ export const Navbar: React.FC<INavbarProps> = ({ options }) => {
   const groupedOptions = options?.filter((option) => !!option.groupName);
   const groupByName = _.groupBy(groupedOptions, 'groupName');
 
-  const determineClassName = React.useCallback(
-    (path: string) => {
-      if (window.location.pathname.includes(path)) return 'active';
-      return '';
-    },
-    [window.location.pathname],
-  );
+  const determineClassName = React.useCallback((path: string) => {
+    if (window.location.pathname.includes(path)) return 'active';
+    return '';
+  }, []);
 
   return (
     <styled.Navbar $expanded={expanded}>
