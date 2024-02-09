@@ -17,8 +17,7 @@ export const createReportSection = (
       label: '',
       useAllContent: type === ReportSectionTypeName.MediaAnalytics,
       removeDuplicates: false,
-      showHeadlines:
-        type === ReportSectionTypeName.Content || type === ReportSectionTypeName.TableOfContents,
+      showHeadlines: type === ReportSectionTypeName.TableOfContents,
       showFullStory: type === ReportSectionTypeName.Content,
       showImage: type === ReportSectionTypeName.Gallery,
       hideEmpty: false,

@@ -135,11 +135,6 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
               tooltip="Remove content from this section that is in above sections"
             />
             <FormikCheckbox
-              name={`sections.${index}.settings.showHeadlines`}
-              label="Show Headlines"
-              tooltip="Display the story headline for each content item in this section"
-            />
-            <FormikCheckbox
               name={`sections.${index}.settings.showFullStory`}
               label="Show Full Story"
               tooltip="Display the full story for each content item in this section"
