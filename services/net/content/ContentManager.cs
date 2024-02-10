@@ -109,10 +109,10 @@ public class ContentManager : ServiceManager<ContentOptions>
 
                     // Only include topics that exist.
                     var kafkaTopics = this.KafkaAdmin.ListTopics();
-                    topics = topics.Except(topics.Except(kafkaTopics)).ToArray();
+                    topics = topics.Except(topics.Except(kafkaTopics), StringComparer.OrdinalIgnoreCase).ToArray();
 
                     // finally exclude any topics that are set to exclude
-                    topics = topics.Except(this.Options.GetContentTopicsToExclude()).ToArray();
+                    topics = topics.Except(this.Options.GetContentTopicsToExclude(), StringComparer.OrdinalIgnoreCase).ToArray();
 
                     if (topics.Length != 0)
                     {
