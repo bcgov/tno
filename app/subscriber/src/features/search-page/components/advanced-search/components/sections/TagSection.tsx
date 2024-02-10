@@ -13,9 +13,11 @@ export const TagSection: React.FC<IFilterDisplayProps> = ({ displayFiltersAsDrop
   ] = useContent();
   const [{ tags }] = useLookupOptions();
 
-  const tagOptions = tags.map((t) => {
-    return { value: t.code, label: `${t.name} [${t.code}]` };
-  });
+  const tagOptions = tags
+    .filter((t) => t.isEnabled)
+    .map((t) => {
+      return { value: t.code, label: `${t.name} [${t.code}]` };
+    });
 
   return (
     <Row justifyContent="center">
