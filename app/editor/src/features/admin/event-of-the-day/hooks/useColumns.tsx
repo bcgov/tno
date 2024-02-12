@@ -115,7 +115,7 @@ export const useColumns = (
         if (cell.original.content!.section && cell.original.content!.section.length > 0)
           cellTextComponents.push(cell.original.content!.section);
         var cellText: string =
-          cellTextComponents.length == 2
+          cellTextComponents.length === 2
             ? cellTextComponents.join(':')
             : cellTextComponents.join('');
         return <CellEllipsis>{cellText}</CellEllipsis>;
