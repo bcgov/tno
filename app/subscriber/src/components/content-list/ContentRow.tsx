@@ -2,6 +2,7 @@ import moment from 'moment';
 import React from 'react';
 import { FaPlayCircle } from 'react-icons/fa';
 import { FaCopyright, FaEyeSlash, FaGripVertical, FaSquareUpRight } from 'react-icons/fa6';
+import { Link } from 'react-router-dom';
 import { Checkbox, Col, IColProps, IContentModel, Row, Show } from 'tno-core';
 
 import { ContentListContext } from './ContentListContext';
@@ -53,7 +54,9 @@ export const ContentRow: React.FC<IContentRowProps> = ({
         />
         {viewOptions.sentiment && determineToneIcon(item.tonePools[0])}
         {showDate && <div className="date">{moment(item.publishedOn).format('DD-MMM-YYYY')}</div>}
-        <button className="headline">{item.headline}</button>
+        <Link to={`/view/${item.id}`} className="headline">
+          {item.headline}
+        </Link>
         <Show visible={viewOptions.section}>
           {item.section && <div className="section">{item.section}</div>}
           {item.page && <div className="page-number">{item.page}</div>}
