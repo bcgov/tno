@@ -53,10 +53,27 @@ const EventOfTheDayList: React.FC = () => {
     }
   }, [isReady, settings]);
 
+  const sortBySourceSortOrderAndPage = (data: IFolderContentModel[]) => {
+    data = data.sort((a, b) => {
+      // apply some default sortOrder and page values where neccesary for comparison
+      const firstItemSourceSortOrder = a.content?.source?.sortOrder ?? 99999;
+      const firstItemPage = a.content?.page ?? 'ZZZ';
+      const secondItemSourceSortOrder = b.content?.source?.sortOrder ?? 99999;
+      const secondItemPage = a.content?.page ?? 'ZZZ';
+      if (firstItemSourceSortOrder === secondItemSourceSortOrder) {
+        // Page is only important when Source.SortOrder are the same
+        return firstItemPage.localeCompare(secondItemPage);
+      }
+      return firstItemSourceSortOrder > secondItemSourceSortOrder ? 1 : -1;
+    });
+    return data;
+  };
+
   React.useEffect(() => {
     if (eventOfTheDayFolderId) {
       getContentInFolder(eventOfTheDayFolderId, true)
         .then((data) => {
+          data = sortBySourceSortOrderAndPage(data);
           setItems(data);
         })
         .catch(() => {})

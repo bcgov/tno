@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   CellDate,
+  CellEllipsis,
   IContentTopicModel,
   IFolderContentModel,
   IOptionItem,
@@ -103,6 +104,24 @@ export const useColumns = (
           </Link>
         );
       },
+    },
+    {
+      accessor: 'pageSection',
+      label: 'Page:Section',
+      cell: (cell) => {
+        var cellTextComponents = [];
+        if (cell.original.content!.page && cell.original.content!.page.length > 0)
+          cellTextComponents.push(cell.original.content!.page);
+        if (cell.original.content!.section && cell.original.content!.section.length > 0)
+          cellTextComponents.push(cell.original.content!.section);
+        var cellText: string =
+          cellTextComponents.length == 2
+            ? cellTextComponents.join(':')
+            : cellTextComponents.join('');
+        return <CellEllipsis>{cellText}</CellEllipsis>;
+      },
+      width: '20ch',
+      hAlign: 'left',
     },
     {
       accessor: 'publishedOn',
