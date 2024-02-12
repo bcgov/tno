@@ -6,6 +6,9 @@ export const ContentRow = styled(Col)`
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
   border-bottom: 1px solid ${(props) => props.theme.css.bkStaticGray};
+  .parent-row {
+    flex-flow: nowrap;
+  }
   &:hover {
     cursor: pointer;
     background-color: ${(props) => props.theme.css.highlightYellow};
@@ -56,6 +59,7 @@ export const ContentRow = styled(Col)`
     height: 20px;
     width: 20px;
     margin-right: 0.5rem;
+    flex-shrink: 0;
   }
   .checkbox {
     margin-right: 0.5rem;
