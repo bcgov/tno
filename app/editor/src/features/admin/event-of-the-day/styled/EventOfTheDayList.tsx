@@ -67,7 +67,7 @@ export const EventOfTheDayList = styled.div`
     border-bottom: 1px red dashed;
     cursor: help;
   }
-  .col-2 .frm-in {
+  .col-3 .frm-in {
     width: 100%;
   }
   .lock-control {
