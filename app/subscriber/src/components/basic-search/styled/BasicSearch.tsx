@@ -48,6 +48,14 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
       transform: scale(1.1);
     }
   }
+
+  @media only screen and (max-width: 900px) {
+    .search-row {
+      flex-flow: nowrap;
+      width: 100%;
+    }
+  }
+
   .search-input {
     input {
       outline: none;
@@ -62,13 +70,6 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
     padding: 0;
   }
 
-  /* MOBILE SEARCH  */
-  .search-mobile {
-    display: flex;
-    max-width: 13em;
-    margin-top: ${(props) => !props.inHeader && 'auto'};
-    padding: 0;
-  }
   /** SEARCH BUTTON */
   .search-button {
     display: flex;
@@ -121,11 +122,19 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
 
   /** HIDE SEARCH GROUP DISPLAY BASIC */
   @media only screen and (min-width: 900px) {
-    .search-mobile {
+    .mobile-search-input {
       display: none;
     }
   }
 
+  @media only screen and (max-width: 900px) {
+    .icon-search {
+      display: none;
+    }
+    .mobile-search-input {
+      padding-bottom: 0;
+    }
+  }
   @media only screen and (max-width: 900px) {
     .icon-search {
       display: none;
