@@ -2,6 +2,7 @@ import React from 'react';
 import { FaFolderPlus, FaPen } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
+import { useProfileStore } from 'store/slices';
 import {
   Button,
   Col,
@@ -24,6 +25,7 @@ export interface IFolderMenuProps {
 export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
   const [{ myFolders }, { findMyFolders, addFolder, updateFolder }] = useFolders();
   const [folderName, setFolderName] = React.useState('');
+  const [{ myReports }, { storeReportContent }] = useProfileStore();
 
   React.useEffect(() => {
     if (!myFolders.length) findMyFolders().catch(() => {});
@@ -72,6 +74,18 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
           ),
         })
           .then(() => {
+            // Update reports that use this folder.
+            myReports.forEach((report) => {
+              report.sections.forEach((section) => {
+                if (section.folderId === folder.id) {
+                  storeReportContent((reports) => {
+                    let result = { ...reports };
+                    result[report.id] = folder.content.map((content) => content.contentId);
+                    return result;
+                  });
+                }
+              });
+            });
             let navUrl = `folders/${folder.id}`;
             toast.success(() => (
               <div>
@@ -83,7 +97,7 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
           .catch(() => {});
       }
     },
-    [content, updateFolder],
+    [content, myReports, storeReportContent, updateFolder],
   );
 
   return (

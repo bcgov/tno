@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { Checkbox, Col, IColProps, IContentModel, Row, Show } from 'tno-core';
 
 import { ContentListContext } from './ContentListContext';
+import { ContentReportPin } from './ContentReportPin';
 import * as styled from './styled';
 import { determineToneIcon, truncateTeaser } from './utils';
 
@@ -95,6 +96,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
             }}
           />
         </Show>
+        <ContentReportPin contentId={item.id} />
       </Row>
       <Row>
         {viewOptions.teaser && !!item.body && (

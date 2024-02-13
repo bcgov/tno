@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
+import { useProfileStore } from 'store/slices';
 import {
   IReportInstanceModel,
   IReportResultModel,
@@ -23,6 +24,7 @@ interface IReportInstanceController {
 export const useReportInstances = (): [IReportInstanceController] => {
   const api = useApiSubscriberReportInstances();
   const dispatch = useAjaxWrapper();
+  const [, { storeReportContent }] = useProfileStore();
 
   const controller = React.useMemo(
     () => ({
@@ -31,24 +33,62 @@ export const useReportInstances = (): [IReportInstanceController] => {
           'get-report-instance',
           () => api.getReportInstance(id, includeContent),
         );
+        if (response.status === 200 && !!response.data) {
+          const instance = response.data;
+          storeReportContent((reports) => {
+            const result = { ...reports };
+            result[instance.reportId] = instance.content.length
+              ? instance.content.map((c) => c.contentId)
+              : reports[instance.reportId] ?? [];
+            return result;
+          });
+        }
         return response.data;
       },
       addReportInstance: async (model: IReportInstanceModel) => {
         const response = await dispatch<IReportInstanceModel>('add-report-instance', () =>
           api.addReportInstance(model),
         );
+        if (response.status === 201 && !!response.data) {
+          const instance = response.data;
+          storeReportContent((reports) => {
+            const result = { ...reports };
+            result[instance.reportId] = instance.content.length
+              ? instance.content.map((c) => c.contentId)
+              : reports[instance.reportId] ?? [];
+            return result;
+          });
+        }
         return response.data;
       },
       updateReportInstance: async (model: IReportInstanceModel) => {
         const response = await dispatch<IReportInstanceModel>('update-report-instance', () =>
           api.updateReportInstance(model),
         );
+        if (response.status === 200 && !!response.data) {
+          const instance = response.data;
+          storeReportContent((reports) => {
+            const result = { ...reports };
+            result[instance.reportId] = instance.content.length
+              ? instance.content.map((c) => c.contentId)
+              : reports[instance.reportId] ?? [];
+            return result;
+          });
+        }
         return response.data;
       },
       deleteReportInstance: async (model: IReportInstanceModel) => {
         const response = await dispatch<IReportInstanceModel>('delete-report-instance', () =>
           api.deleteReportInstance(model),
         );
+        if (response.status === 200 && !!response.data) {
+          const instance = response.data;
+          storeReportContent((reports) => {
+            const result = { ...reports };
+            delete result[instance.reportId];
+            return result;
+          });
+        }
         return response.data;
       },
       viewReportInstance: async (id: number, regenerate: boolean = false) => {
@@ -79,7 +119,7 @@ export const useReportInstances = (): [IReportInstanceController] => {
         return response.data;
       },
     }),
-    [api, dispatch],
+    [api, dispatch, storeReportContent],
   );
 
   return [controller];

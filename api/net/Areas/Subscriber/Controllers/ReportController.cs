@@ -396,5 +396,23 @@ public class ReportController : ControllerBase
         var result = await _reportService.AddContentToReportAsync(id, user.Id, content.Select((c) => (Entities.ReportInstanceContent)c)) ?? throw new NoContentException("Report does not exist");
         return new JsonResult(new ReportModel(result, _serializerOptions));
     }
+
+    /// <summary>
+    /// Find all content currently in any of 'my' reports current instances.
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="NotAuthorizedException"></exception>
+    [HttpGet("all-content")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(Dictionary<int, long[]>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult GetAllContentInMyReports()
+    {
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+
+        var result = _reportService.GetAllContentInMyReports(user.Id);
+        return new JsonResult(result);
+    }
     #endregion
 }

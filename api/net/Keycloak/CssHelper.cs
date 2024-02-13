@@ -27,6 +27,7 @@ public class CssHelper : ICssHelper
     /// </summary>
     /// <param name="cssService"></param>
     /// <param name="userService"></param>
+    /// <param name="logger"></param>
     public CssHelper(ICssEnvironmentService cssService, IUserService userService, ILogger<CssHelper> logger)
     {
         _cssService = cssService;

@@ -19,6 +19,7 @@ import {
   storeMyMinisters,
   storeMyProfile,
   storeMyReports,
+  storeReportContent,
   storeReportOutput,
   storeReportsFilter,
   storeSystemMessages,
@@ -38,6 +39,9 @@ export interface IProfileStore {
   storeReportsFilter: (filter: string | ActionDelegate<string>) => void;
   storeReportOutput: (
     output: IReportResultForm | undefined | ActionDelegate<IReportResultForm | undefined>,
+  ) => void;
+  storeReportContent: (
+    output: { [reportId: number]: number[] } | ActionDelegate<{ [reportId: number]: number[] }>,
   ) => void;
   storeSystemMessages: (
     ministers: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
@@ -92,6 +96,15 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
           dispatch(storeReportOutput(output(state.reportOutput)));
         } else dispatch(storeReportOutput(output));
       },
+      storeReportContent: (
+        reportContent:
+          | { [reportId: number]: number[] }
+          | ActionDelegate<{ [reportId: number]: number[] }>,
+      ) => {
+        if (typeof reportContent === 'function') {
+          dispatch(storeReportContent(reportContent(state.reportContent)));
+        } else dispatch(storeReportContent(reportContent));
+      },
       storeContributors: (
         contributors: IContributorModel[] | ActionDelegate<IContributorModel[]>,
       ) => {
@@ -117,6 +130,7 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
       state.myReports,
       state.reportsFilter,
       state.reportOutput,
+      state.reportContent,
       state.contributors,
       state.systemMessages,
     ],

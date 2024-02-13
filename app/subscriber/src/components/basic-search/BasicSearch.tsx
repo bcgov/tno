@@ -3,7 +3,7 @@ import { handleEnterPressed, isNumber } from 'features/utils';
 import { FaSearch } from 'react-icons/fa';
 import { FaPlay } from 'react-icons/fa6';
 import { useNavigate } from 'react-router';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { Button, IFilterSettingsModel, Row, Text } from 'tno-core';
 
@@ -17,6 +17,7 @@ export interface IBasicSearchProps {
 
 /** Basic search functionality (just search term), and an option to get to the advanced filter */
 export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
+  const { pathname } = useLocation();
   const { id } = useParams();
   const [
     {
@@ -26,7 +27,8 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
   ] = useContent();
   const navigate = useNavigate();
 
-  const filterId = id && isNumber(id) ? parseInt(id) : '';
+  // We only extract the param if this is the search page already.
+  const filterId = pathname.startsWith('/search/') && id && isNumber(id) ? parseInt(id) : '';
 
   const handleSearch = async () => {
     navigate(`/search`);

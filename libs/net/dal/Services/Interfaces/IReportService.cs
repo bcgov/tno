@@ -116,4 +116,11 @@ public interface IReportService : IBaseService<Report, int>
     /// <param name="userId"></param>
     /// <returns></returns>
     Task<int> Unsubscribe(int userId);
+
+    /// <summary>
+    /// Get all content for each report belonging to the specified 'userId'.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Dictionary<int, long[]> GetAllContentInMyReports(int userId);
 }

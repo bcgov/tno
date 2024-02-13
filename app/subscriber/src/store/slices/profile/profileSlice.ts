@@ -19,6 +19,7 @@ export const initialProfileState: IProfileState = {
   myMinisters: [],
   myReports: [],
   reportsFilter: '',
+  reportContent: {},
   systemMessages: [],
 };
 
@@ -50,6 +51,12 @@ export const profileSlice = createSlice({
     storeReportOutput(state: IProfileState, action: PayloadAction<IReportResultForm | undefined>) {
       state.reportOutput = action.payload;
     },
+    storeReportContent(
+      state: IProfileState,
+      action: PayloadAction<{ [reportId: number]: number[] }>,
+    ) {
+      state.reportContent = action.payload;
+    },
     contributors(state: IProfileState, action: PayloadAction<IContributorModel[]>) {
       state.contributors = action.payload;
     },
@@ -68,5 +75,6 @@ export const {
   storeMyReports,
   storeReportsFilter,
   storeReportOutput,
+  storeReportContent,
   storeSystemMessages,
 } = profileSlice.actions;
