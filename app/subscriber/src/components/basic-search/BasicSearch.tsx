@@ -46,10 +46,21 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
   return (
     <styled.BasicSearch inHeader={inHeader}>
       <label>SEARCH FOR: </label>
-      <Row className="icon-search">
-        <FaSearch onClick={() => handleSearch()} className="search-icon" />
+      <Row className="search-row">
+        <Row className="icon-search">
+          <FaSearch onClick={() => handleSearch()} className="search-icon" />
+          <Text
+            className="search-input"
+            onKeyDown={(e) => handleEnterPressed(e, handleSearch)}
+            name="search"
+            value={filter.search ?? ''}
+            onChange={(e) => {
+              storeSearchFilter({ ...filter, search: e.target.value });
+            }}
+          />
+        </Row>
         <Text
-          className="search-input"
+          className="mobile-search-input"
           onKeyDown={(e) => handleEnterPressed(e, handleSearch)}
           name="search"
           value={filter.search ?? ''}
@@ -57,16 +68,16 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
             storeSearchFilter({ ...filter, search: e.target.value });
           }}
         />
+        <Button
+          onClick={() => {
+            handleSearch();
+          }}
+          className="search-button"
+        >
+          Search
+          <FaPlay />
+        </Button>
       </Row>
-      <Button
-        onClick={() => {
-          handleSearch();
-        }}
-        className="search-button"
-      >
-        Search
-        <FaPlay />
-      </Button>
       <p onClick={() => navigate(`/search/advanced/${filterId}`)}>GO ADVANCED</p>
     </styled.BasicSearch>
   );

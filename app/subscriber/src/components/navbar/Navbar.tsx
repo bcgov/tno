@@ -3,7 +3,7 @@ import _ from 'lodash';
 import React from 'react';
 import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Row, Show } from 'tno-core';
+import { Row, Show, useWindowSize } from 'tno-core';
 
 import { INavbarItem } from './constants/INavbarItem';
 import * as styled from './styled';
@@ -28,6 +28,7 @@ export const Navbar: React.FC<INavbarProps> = ({ options }) => {
 
   const [expanded, setExpanded] = React.useState(true);
   const { pathname } = useLocation();
+  const { width } = useWindowSize();
 
   const grouplessOptions = options?.filter((option) => !option.groupName);
   const groupedOptions = options?.filter((option) => !!option.groupName);
@@ -40,6 +41,10 @@ export const Navbar: React.FC<INavbarProps> = ({ options }) => {
     },
     [pathname],
   );
+
+  React.useEffect(() => {
+    if (width && width < 700) setExpanded(false);
+  }, [width]);
 
   return (
     <styled.Navbar $expanded={expanded}>
@@ -92,11 +97,13 @@ export const Navbar: React.FC<INavbarProps> = ({ options }) => {
             </span>
           );
         })}
-        {expanded ? (
-          <FaAnglesLeft className="expand-control" onClick={() => setExpanded(false)} />
-        ) : (
-          <FaAnglesRight className="expand-control" onClick={() => setExpanded(true)} />
-        )}
+        <Show visible={!!width && width > 700}>
+          {expanded ? (
+            <FaAnglesLeft className="expand-control" onClick={() => setExpanded(false)} />
+          ) : (
+            <FaAnglesRight className="expand-control" onClick={() => setExpanded(true)} />
+          )}
+        </Show>
         <InfoShield />
       </>
     </styled.Navbar>

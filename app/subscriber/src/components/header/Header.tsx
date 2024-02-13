@@ -1,7 +1,7 @@
 import { BasicSearch } from 'components/basic-search';
 import { UserProfile } from 'components/user-profile';
 import React from 'react';
-import { Link, Row, Show } from 'tno-core';
+import { Link, Row, Show, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -33,6 +33,12 @@ export const Header: React.FC<IHeaderProps> = ({
               className="mm-logo"
               src={process.env.PUBLIC_URL + '/assets/MMinsights_logo_black.svg'}
               alt="MMinsights logo"
+            />
+            <img
+              className="mm-logo-no-text"
+              src={process.env.PUBLIC_URL + '/assets/mm_logo.svg'}
+              alt="MMinsights logo"
+              width="80"
             />
           </Link>
         )}
