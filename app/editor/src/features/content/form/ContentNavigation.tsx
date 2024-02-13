@@ -34,6 +34,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
   const { combined } = useCombinedView(values.contentType);
 
   const [currentItems] = useLocalStorage('currentContent', null);
+  const [, setCurrentItemId] = useLocalStorage('currentContentItemId', -1);
 
   const [indexPosition, setIndexPosition] = useState(0);
   const [enablePrev, setEnablePrev] = useState(false);
@@ -54,6 +55,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
     if (currentItems != null) {
       const targetId = (currentItems as IContentSearchResult[])[indexPosition + offset]?.id;
       if (!!targetId) {
+        setCurrentItemId(targetId);
         navigate(getContentPath(combined, targetId, values.contentType, combinedPath));
       }
     }
