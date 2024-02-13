@@ -64,12 +64,17 @@ const Papers: React.FC<IPapersProps> = (props) => {
   // This configures the shared storage between this list and any content tabs
   // that are opened.  Mainly used for navigation in the tab
   const [, setCurrentItems] = useLocalStorage('currentContent', {} as IContentSearchResult[]);
+  const [currentItemId, setCurrentItemId] = useLocalStorage('currentContentItemId', -1);
 
   // Stores the current page
   const [currentResultsPage, setCurrentResultsPage] = React.useState(defaultPage);
   React.useEffect(() => {
     setCurrentItems(currentResultsPage.items);
   }, [currentResultsPage, setCurrentItems]);
+  // if the user navigates next/previous in another window change the highlited row
+  React.useEffect(() => {
+    if (currentItemId !== -1) setContentId(currentItemId.toString());
+  }, [currentItemId, setContentId]);
 
   // Message process related states & logic:
   const [isProcessingMessages, setIsProcessingMessages] = React.useState<boolean>(false);
@@ -239,6 +244,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
   ) => {
     if (cell.index > 0 && cell.index !== 5) {
       setContentId(row.original.id.toString());
+      setCurrentItemId(row.original.id);
       if (event.ctrlKey) navigate(row.original.id, '/contents', NavigateOptions.NewTab);
       else navigate(row.original.id);
     }
