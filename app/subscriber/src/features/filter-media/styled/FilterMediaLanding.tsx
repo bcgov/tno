@@ -7,19 +7,22 @@ export const FilterMediaLanding = styled(Row)`
       max-height: calc(100dvh - 20rem);
       overflow-y: auto;
     }
-    .page-section {
-      position: fixed;
-      top: 4.25rem;
-      width: 40%;
-    }
     font-size: 1.2rem;
-    width: 45%;
+    @media (min-width: 1000px) {
+      width: 45%;
+    }
+    @media (max-width: 1000px) {
+      width: 100%;
+    }
     .show-all {
       font-weight: bold;
       cursor: pointer;
       &:hover {
         text-decoration: underline;
       }
+    }
+    .main-media {
+      flex-flow: nowrap;
     }
     .media-filter {
       margin-left: 1rem;
@@ -71,6 +74,7 @@ export const FilterMediaLanding = styled(Row)`
         background-color: ${(props) => props.theme.css.btnBkPrimary};
       }
       .alpha-filter {
+        flex-flow: wrap;
         .active-letter {
           color: ${(props) => props.theme.css.bkWhite};
           background-color: ${(props) => props.theme.css.btnBkPrimary};
@@ -89,10 +93,11 @@ export const FilterMediaLanding = styled(Row)`
     }
   }
   .results {
-    width: 55%;
-    .table {
-      max-height: calc(100dvh - 20rem);
-      overflow-y: auto;
+    @media (min-width: 1000px) {
+      width: 55%;
+    }
+    @media (max-width: 1000px) {
+      width: 100%;
     }
   }
 `;
