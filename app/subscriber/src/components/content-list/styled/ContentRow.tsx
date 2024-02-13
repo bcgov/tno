@@ -6,6 +6,10 @@ export const ContentRow = styled(Col)`
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
   border-bottom: 1px solid ${(props) => props.theme.css.bkStaticGray};
+  .parent-row {
+    flex-flow: nowrap;
+    width: 100%;
+  }
   &:hover {
     cursor: pointer;
     background-color: ${(props) => props.theme.css.highlightYellow};
@@ -56,12 +60,14 @@ export const ContentRow = styled(Col)`
     height: 20px;
     width: 20px;
     margin-right: 0.5rem;
+    flex-shrink: 0;
   }
   .checkbox {
     margin-right: 0.5rem;
   }
   .date {
     font-family: ${(props) => props.theme.css.fPrimary};
+    white-space: nowrap;
     display: flex;
     margin-right: 1rem;
     align-items: center;
@@ -106,19 +112,9 @@ export const ContentRow = styled(Col)`
     cursor: default;
   }
   .headline {
-    background: none;
-    border: none;
-    margin-right: auto;
-    color: blue;
-    padding: 0;
-    cursor: pointer;
     font-family: ${(props) => props.theme.css.fSecondary};
-  }
-
-  .headline:hover,
-  .headline:focus {
-    color: darkblue;
-    outline: none;
+    text-decoration: none;
+    margin-right: auto;
   }
   .checked {
     background-color: ${(props) => props.theme.css.highlightYellow};

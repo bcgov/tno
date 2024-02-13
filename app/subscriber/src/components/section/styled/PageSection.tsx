@@ -37,7 +37,6 @@ export const PageSection = styled.div<{ $ignoreMinWidth?: boolean; $ignoreLastCh
     display: flex;
     flex-direction: column;
     padding: 1rem;
-    min-width: fit-content;
     gap: 0.25rem;
   }
 
