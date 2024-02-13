@@ -14,6 +14,10 @@ export const getSortBy = (sortBy?: ISortBy[]) => {
     const column = sortBy[i].id;
     const value = `${sortBy[i].desc ? 'desc' : 'asc'}`;
     if (column === 'section') {
+      // sort by section will always include the source.sortOrder
+      // because the business wants content grouped by the manually set
+      // source.sortOrder when sorting by page/section
+      sort.push({ 'source.sortOrder': value });
       sort.push({ page: value });
       sort.push({ [column]: value });
     } else if (column === 'mediaType') {
