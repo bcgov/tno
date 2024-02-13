@@ -1,7 +1,7 @@
 import { BasicSearch } from 'components/basic-search';
 import { UserProfile } from 'components/user-profile';
 import React from 'react';
-import { Link, Row, Show, useWindowSize } from 'tno-core';
+import { Link, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 
