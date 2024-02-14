@@ -1,4 +1,4 @@
-import { createSubMediaGroups } from 'features/utils/createSubMediaGroups';
+import { useSubMediaGroups } from 'features/hooks';
 import React from 'react';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle } from 'react-icons/io';
 import { useContent } from 'store/hooks';
@@ -14,7 +14,6 @@ import {
   Show,
 } from 'tno-core';
 
-import { ISubMediaGroupExpanded, ISubMediaGroupItem } from '../../interfaces';
 import { IFilterDisplayProps } from './IFilterDisplayProps';
 import { determineSelectedMedia, sortableMediaOptions } from './utils';
 
@@ -29,14 +28,10 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
   sources,
   mediaTypes,
 }) => {
-  /** controls the sub group states for media sources. i.e) whether Daily Papers is expanded */
-  const [mediaGroupExpandedStates, setMediaGroupExpandedStates] =
-    React.useState<ISubMediaGroupExpanded>();
-  const [subMediaGroups, setSubMediaGroups] = React.useState<ISubMediaGroupItem[]>();
-
-  React.useEffect(() => {
-    createSubMediaGroups(sources, mediaTypes, setSubMediaGroups, setMediaGroupExpandedStates);
-  }, [sources, mediaTypes, setSubMediaGroups, setMediaGroupExpandedStates]);
+  const { subMediaGroups, setMediaGroupExpanded, mediaGroupExpanded } = useSubMediaGroups(
+    sources,
+    mediaTypes,
+  );
 
   const [
     {
@@ -52,19 +47,19 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
           <Row
             className="sub-group-title"
             onClick={() => {
-              setMediaGroupExpandedStates({
-                ...mediaGroupExpandedStates,
-                [mediaGroup.key]: !mediaGroupExpandedStates![mediaGroup.key],
+              setMediaGroupExpanded({
+                ...mediaGroupExpanded,
+                [mediaGroup.key]: !mediaGroupExpanded![mediaGroup.key],
               });
             }}
           >
             {`${mediaGroup.label} (${mediaGroup.options.length})`}
-            {!mediaGroupExpandedStates![mediaGroup.key] ? (
+            {!mediaGroupExpanded![mediaGroup.key] ? (
               <IoIosArrowDroprightCircle
                 className="drop-icon"
                 onClick={() =>
-                  setMediaGroupExpandedStates({
-                    ...mediaGroupExpandedStates,
+                  setMediaGroupExpanded({
+                    ...mediaGroupExpanded,
                     [mediaGroup.key]: true,
                   })
                 }
@@ -73,8 +68,8 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
               <IoIosArrowDropdownCircle
                 className="drop-icon"
                 onClick={() =>
-                  setMediaGroupExpandedStates({
-                    ...mediaGroupExpandedStates,
+                  setMediaGroupExpanded({
+                    ...mediaGroupExpanded,
                     [mediaGroup.key]: false,
                   })
                 }
@@ -82,9 +77,7 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
             )}
           </Row>
           <Row className="sub-container" justifyContent="center">
-            <Show
-              visible={!!mediaGroup.options.length && mediaGroupExpandedStates![mediaGroup.key]}
-            >
+            <Show visible={!!mediaGroup.options.length && mediaGroupExpanded![mediaGroup.key]}>
               <Show visible={!displayFiltersAsDropdown}>
                 <div className="check-box-list">
                   <div className="chk-box-container chk-source select-all">

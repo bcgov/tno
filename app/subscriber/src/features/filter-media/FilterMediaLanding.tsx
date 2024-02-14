@@ -1,6 +1,6 @@
 import { PageSection } from 'components/section';
+import { useSubMediaGroups } from 'features/hooks';
 import { ISubMediaGroupItem } from 'features/search-page/components/advanced-search/interfaces';
-import { createSubMediaGroups } from 'features/utils/createSubMediaGroups';
 import React from 'react';
 import { useContent, useLookup } from 'store/hooks';
 import { Col, ISourceModel, Row, Show } from 'tno-core';
@@ -18,12 +18,12 @@ export const FilterMediaLanding: React.FC = () => {
     { storeMediaTypeFilter: storeFilter },
   ] = useContent();
   const [{ sources, mediaTypes }] = useLookup();
+  const { subMediaGroups } = useSubMediaGroups(sources, mediaTypes);
   const [activeFilter, setActiveFilter] = React.useState<ISubMediaGroupItem>();
 
   const [activeLetter, setActiveLetter] = React.useState<string>('A');
   const [narrowedOptions, setNarrowedOptions] = React.useState<ISourceModel[]>([]);
   const [activeSource, setActiveSource] = React.useState<ISourceModel | null>(null);
-  const [subMediaGroups, setSubMediaGroups] = React.useState<ISubMediaGroupItem[]>();
   const [parentClicked, setParentClicked] = React.useState<boolean>(false);
 
   React.useEffect(() => {
@@ -47,10 +47,6 @@ export const FilterMediaLanding: React.FC = () => {
     // only want to fire when parentClicked changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [parentClicked]);
-
-  React.useEffect(() => {
-    createSubMediaGroups(sources, mediaTypes, setSubMediaGroups);
-  }, [sources, mediaTypes, setSubMediaGroups]);
 
   React.useEffect(() => {
     if (activeLetter && activeLetter !== 'All') {
