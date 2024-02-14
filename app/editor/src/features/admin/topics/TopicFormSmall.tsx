@@ -1,6 +1,5 @@
 import { FormikForm } from 'components/formik';
 import React from 'react';
-import { toast } from 'react-toastify';
 import {
   Button,
   ButtonVariant,
