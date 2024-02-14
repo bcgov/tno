@@ -1,26 +1,14 @@
-import { FormikForm } from 'components/formik';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useTopics } from 'store/hooks/admin';
-import {
-  Button,
-  ButtonVariant,
-  FieldSize,
-  FlexboxTable,
-  FormikSelect,
-  FormikText,
-  FormPage,
-  getEnumStringOptions,
-  ITopicModel,
-  Row,
-  TopicTypeName,
-} from 'tno-core';
+import { FlexboxTable, FormPage, ITopicModel } from 'tno-core';
 
 import { defaultTopic } from './constants';
 import { useColumns } from './hooks';
 import * as styled from './styled';
 import { TopicFilter } from './TopicFilter';
+import { TopicFormSmall } from './TopicFormSmall';
 
 /**
  * Provides a list of all topics.
@@ -32,37 +20,42 @@ const TopicList: React.FC = () => {
   const [, { findAllTopics, updateTopic, addTopic }] = useTopics();
 
   const [loading, setLoading] = React.useState(false);
-  const [topics, setTopics] = React.useState<ITopicModel[]>([]);
-  const [items, setItems] = React.useState<ITopicModel[]>([]);
+  const [allTopics, setAllTopics] = React.useState<ITopicModel[]>([]);
+  const [filteredTopics, setFilteredTopics] = React.useState<ITopicModel[]>([]);
   const [topicFilter, setTopicFilter] = React.useState('');
 
-  const topicTypeOptions = getEnumStringOptions(TopicTypeName);
-
   React.useEffect(() => {
-    if (!items.length && !loading && !topicFilter) {
+    if (!filteredTopics.length && !loading && !topicFilter) {
       setLoading(true);
       findAllTopics()
         .then((data) => {
-          setTopics(data.filter((t) => t.id !== 1));
-          setItems(data.filter((t) => t.id !== 1 && t.isEnabled));
+          setAllTopics(data.filter((t) => t.id !== 1));
+          setFilteredTopics(
+            data
+              .filter((t) => t.id !== 1 && t.isEnabled)
+              .sort(function (a, b) {
+                // sort by Topic Type then Topic Name
+                return b.topicType.localeCompare(a.topicType) || a.name.localeCompare(b.name);
+              }),
+          );
         })
         .catch(() => {})
         .finally(() => {
           setLoading(false);
         });
     }
-  }, [findAllTopics, items.length, loading, topicFilter]);
+  }, [findAllTopics, filteredTopics.length, loading, topicFilter]);
 
   const handleRemove = async (topicId: number) => {
-    const topic = items.find((i) => i.id === topicId);
+    const topic = filteredTopics.find((i) => i.id === topicId);
     if (!topic) return;
     try {
       setLoading(true);
       const removedTopic = await updateTopic({ ...topic, isEnabled: false });
-      setItems(items.filter((t) => t.id !== topic.id));
-      setTopics(topics.map((item) => (item.id === topic.id ? removedTopic : item)));
+      setAllTopics(allTopics.map((item) => (item.id === topic.id ? removedTopic : item)));
+      setFilteredTopics(filteredTopics.filter((t) => t.id !== topic.id));
       navigate('/admin/topics');
-      toast.success(`${topic.name} has successfully been deleted.`);
+      toast.success(`Topic with name [${topic.name}] has been deleted.`);
     } finally {
       setLoading(false);
     }
@@ -74,16 +67,18 @@ const TopicList: React.FC = () => {
       let results = [];
       let updatedTopics: ITopicModel[];
       // need case insensitive string compare here or we will end up with variations on names
-      const topicNameMatch = topics.find((x) => x.name.toUpperCase() === values.name.toUpperCase());
+      const topicNameMatch = allTopics.find(
+        (x) => x.name.toUpperCase() === values.name.toUpperCase(),
+      );
 
       if (values.id === 0) {
         if (!topicNameMatch) {
           const result = await addTopic(values);
-          results = [...items, result];
-          updatedTopics = [...topics, result];
+          results = [...filteredTopics, result];
+          updatedTopics = [...allTopics, result];
         } else {
           if (topicNameMatch.isEnabled) {
-            toast.warn(`${values.name} already exists.`);
+            toast.warn(`Topic with name [${values.name}] already exists.`);
             return;
           } else {
             const result = await updateTopic({
@@ -91,23 +86,31 @@ const TopicList: React.FC = () => {
               isEnabled: values.isEnabled,
               topicType: values.topicType,
             });
-            results = [...items, result];
-            updatedTopics = topics.map((i) => (i.id === topicNameMatch.id ? result : i));
+            results = [...filteredTopics, result];
+            updatedTopics = allTopics.map((i) => (i.id === topicNameMatch.id ? result : i));
           }
         }
       } else {
         if (!topicNameMatch || values.id === topicNameMatch.id) {
           const result = await updateTopic(values);
-          results = items.map((i) => (i.id === values.id ? result : i));
-          updatedTopics = topics.map((i) => (i.id === values.id ? result : i));
+          results = filteredTopics.map((i) => (i.id === values.id ? result : i));
+          updatedTopics = allTopics.map((i) => (i.id === values.id ? result : i));
         } else {
-          toast.warn(`${values.name} already exists.`);
+          toast.warn(`Topic with name [${values.name}] already exists.`);
           return;
         }
       }
-      setItems(results.filter((x) => x.isEnabled));
-      setTopics(updatedTopics);
-      toast.success(`${values.name} has successfully been saved.`);
+      setFilteredTopics(
+        results
+          .filter((x) => x.isEnabled)
+          .sort(function (a, b) {
+            // sort by Topic Type then Topic Name
+            return b.topicType.localeCompare(a.topicType) || a.name.localeCompare(b.name);
+          }),
+      );
+      setAllTopics(updatedTopics);
+      toast.success(`Topic with name [${values.name}] has been saved.`);
+
       // Do we have a better way here for the clean-up after adding a new topic?
       if (values.id === 0) {
         if (values.name !== defaultTopic.name) values.name = defaultTopic.name;
@@ -124,50 +127,14 @@ const TopicList: React.FC = () => {
     <styled.TopicList>
       <FormPage>
         <p className="list-title">Update Topics List (Event of the Day)</p>
-        <FormikForm
-          loading={false}
-          initialValues={defaultTopic}
-          onSubmit={async (values, { setSubmitting }) => {
-            await handleSubmit(values);
-            setSubmitting(false);
-          }}
-        >
-          {({ isSubmitting, values, setValues }) => (
-            <>
-              <Row>
-                <p>
-                  <b>Create a new topic</b>
-                </p>
-              </Row>
-              <Row alignItems="center">
-                <FormikText name="name" label="Topic Name" width="295px" />
-                <FormikSelect
-                  label="Type"
-                  name="topicType"
-                  isClearable={false}
-                  options={topicTypeOptions}
-                  value={topicTypeOptions.find((o) => o.value === values.topicType)}
-                  width={FieldSize.Medium}
-                />
-                <Button
-                  type="submit"
-                  variant={ButtonVariant.primary}
-                  disabled={isSubmitting || !values.name || !values.topicType}
-                  style={{ marginTop: '15px' }}
-                >
-                  Save
-                </Button>
-              </Row>
-            </>
-          )}
-        </FormikForm>
+        <TopicFormSmall onAddOrUpdate={handleSubmit}></TopicFormSmall>
         <TopicFilter
           onFilterChange={(filter) => {
             setTopicFilter(filter);
             if (filter && filter.length) {
               const value = filter.toLocaleLowerCase();
-              setItems(
-                topics.filter(
+              setFilteredTopics(
+                allTopics.filter(
                   (i) =>
                     i.isEnabled &&
                     (i.name.toLocaleLowerCase().includes(value) ||
@@ -176,15 +143,15 @@ const TopicList: React.FC = () => {
                 ),
               );
             } else {
-              setItems(topics.filter((x) => x.isEnabled));
+              setFilteredTopics(allTopics.filter((x) => x.isEnabled));
             }
           }}
         />
         <FlexboxTable
           rowId="id"
-          data={items}
+          data={filteredTopics}
           columns={useColumns(handleRemove, handleSubmit, loading)}
-          showSort={true}
+          showSort={false}
           pagingEnabled={false}
           isLoading={loading}
         />

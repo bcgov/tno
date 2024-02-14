@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   CellDate,
   CellEllipsis,
+  FieldSize,
   IContentTopicModel,
   IFolderContentModel,
   IOptionItem,
@@ -133,7 +134,6 @@ export const useColumns = (
     {
       label: 'Topic',
       accessor: 'topic',
-      width: '50ch',
       cell: (cell) => {
         return (
           <Select
@@ -149,6 +149,7 @@ export const useColumns = (
                   ? cell.original.content!.topics![0].id
                   : topicIdNotApplicable),
             )}
+            width={FieldSize.Big}
             onChange={async (e: any) => await handleTopicChange(e, cell)}
           />
         );

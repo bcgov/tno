@@ -55,7 +55,7 @@ public class TopicController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Topic" })]
     public IActionResult FindAll()
     {
-        return new JsonResult(_service.FindAll().Select(ds => new TopicModel(ds)));
+        return new JsonResult(_service.FindAll().OrderByDescending((k) => k.TopicType).ThenBy((k) => k.Name).Select(ds => new TopicModel(ds)));
     }
 
     /// <summary>

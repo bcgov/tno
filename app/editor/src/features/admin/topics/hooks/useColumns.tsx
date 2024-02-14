@@ -4,13 +4,10 @@ import {
   Button,
   ButtonVariant,
   Col,
-  FieldSize,
-  getEnumStringOptions,
   ITableHookColumn,
   ITopicModel,
-  OptionItem,
-  Select,
   Text,
+  ToggleGroup,
   TopicTypeName,
 } from 'tno-core';
 
@@ -33,8 +30,6 @@ export const useColumns = (
 
     await handleSubmit(topicModel);
   };
-
-  const topicTypeOptions = getEnumStringOptions(TopicTypeName);
 
   const result: ITableHookColumn<ITopicModel>[] = [
     {
@@ -65,24 +60,18 @@ export const useColumns = (
       width: 1,
       cell: (cell) => {
         return (
-          <Select
-            name="topicType"
-            options={topicTypeOptions}
-            isDisabled={loading}
-            isClearable={false}
-            value={topicTypeOptions?.find(
-              (o) =>
-                o.value ===
-                (topicModel && topicModel.id === cell.original.id
-                  ? topicModel.topicType
-                  : cell.original.topicType),
-            )}
-            width={FieldSize.Medium}
-            onChange={async (e) => {
-              const option = topicTypeOptions.find((x) => x.value === (e as OptionItem)?.value);
-              const updatedTopic = { ...cell.original, topicType: option?.value } as ITopicModel;
-              setTopicModel(updatedTopic);
-            }}
+          <ToggleGroup
+            className="inline-topic-type-toggle-group"
+            defaultSelected={cell.original.topicType}
+            options={Object.values(TopicTypeName).map((i) => ({
+              id: i,
+              label: i,
+              data: i,
+              onClick: () => {
+                const updatedTopic = { ...cell.original, topicType: i } as ITopicModel;
+                setTopicModel(updatedTopic);
+              },
+            }))}
             onBlur={async () => {
               if (
                 !topicModel ||
