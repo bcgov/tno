@@ -21,10 +21,14 @@ export interface IContentListProps {
   styleOnSettings?: boolean;
   /** determine whether to show date next to the sentiment icon */
   showDate?: boolean;
+  /** show the time the content was published */
+  showTime?: boolean;
   /** used to determine if the content list is draggable and what to do for handling drop */
   handleDrop?: any;
   /** whether or not the content list is scrollable from within the content list container*/
   scrollWithin?: boolean;
+  /** determine whether or not to show the series title */
+  showSeries?: boolean;
 }
 
 export const ContentList: React.FC<IContentListProps> = ({
@@ -35,6 +39,8 @@ export const ContentList: React.FC<IContentListProps> = ({
   showDate = false,
   handleDrop,
   scrollWithin = false,
+  showSeries = false,
+  showTime = false,
 }) => {
   const navigate = useNavigate();
   const { groupBy, setActiveStream, activeFileReference } = React.useContext(ContentListContext);
@@ -80,7 +86,9 @@ export const ContentList: React.FC<IContentListProps> = ({
                   key={item.id}
                   selected={selected}
                   popOutIds={popOutIds}
+                  showSeries={showSeries}
                   showDate={showDate}
+                  showTime={showTime}
                   styleOnSettings={styleOnSettings}
                   item={item}
                   onCheckboxChange={handleCheckboxChange}
