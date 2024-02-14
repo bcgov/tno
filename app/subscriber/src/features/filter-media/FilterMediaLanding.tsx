@@ -1,5 +1,6 @@
 import { PageSection } from 'components/section';
 import { ISubMediaGroupItem } from 'features/search-page/components/advanced-search/interfaces';
+import { createSubMediaGroups } from 'features/utils/createSubMediaGroups';
 import React from 'react';
 import { useContent, useLookup } from 'store/hooks';
 import { Col, ISourceModel, Row, Show } from 'tno-core';
@@ -48,39 +49,7 @@ export const FilterMediaLanding: React.FC = () => {
   }, [parentClicked]);
 
   React.useEffect(() => {
-    // exit early if inputs are not set completely
-    if (sources.length === 0 || mediaTypes.length === 0) return;
-
-    let mediaTypeSourceLookup: { [name: string]: ISourceModel[] } = {};
-    const allSourcesKey: string = 'All';
-    mediaTypeSourceLookup[allSourcesKey] = [];
-    // prime the dictionary - already in sort order set on Media Type
-    mediaTypes.forEach((mt) => {
-      mediaTypeSourceLookup[mt.name] = [];
-    });
-    sources.forEach((source) => {
-      mediaTypeSourceLookup[allSourcesKey].push(source);
-      source.mediaTypeSearchMappings.forEach((mapping) => {
-        mediaTypeSourceLookup[mapping.name].push(source);
-      });
-    });
-    // Remove Media Type entries with no assigned Sources
-    // Could also exclude specific Media Types her if required
-    mediaTypeSourceLookup = Object.fromEntries(
-      Object.entries(mediaTypeSourceLookup).filter(([_, v]) => v.length > 0),
-    );
-
-    let subMediaGroups: ISubMediaGroupItem[] = [];
-    for (let key in mediaTypeSourceLookup) {
-      // Use `key` and `value`
-      let value = mediaTypeSourceLookup[key];
-      subMediaGroups.push({
-        key: key,
-        label: key,
-        options: value,
-      });
-    }
-    setSubMediaGroups(subMediaGroups);
+    createSubMediaGroups(sources, mediaTypes, setSubMediaGroups);
   }, [sources, mediaTypes, setSubMediaGroups]);
 
   React.useEffect(() => {
