@@ -18,6 +18,8 @@ export interface IContentRowProps extends IColProps {
   showDate?: boolean;
   popOutIds?: string;
   styleOnSettings?: boolean;
+  showSeries?: boolean;
+  showTime?: boolean;
 }
 
 export const ContentRow: React.FC<IContentRowProps> = ({
@@ -27,6 +29,8 @@ export const ContentRow: React.FC<IContentRowProps> = ({
   styleOnSettings,
   canDrag,
   showDate,
+  showSeries,
+  showTime,
   popOutIds,
   ...rest
 }) => {
@@ -54,13 +58,20 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           }}
         />
         {viewOptions.sentiment && determineToneIcon(item.tonePools[0])}
-        {showDate && <div className="date">{moment(item.publishedOn).format('DD-MMM-YYYY')}</div>}
+        {showDate && (
+          <div className="date">{`${moment(item.publishedOn).format('DD-MMM-YYYY')} ${
+            showTime ? `(${moment(item.postedOn).format('HH:mm:ss')})` : ''
+          }`}</div>
+        )}
         <Link to={`/view/${item.id}`} className="headline">
           {item.headline}
         </Link>
         <Show visible={viewOptions.section}>
           {item.section && <div className="section">{item.section}</div>}
           {item.page && <div className="page-number">{item.page}</div>}
+        </Show>
+        <Show visible={showSeries}>
+          {item.series && <div className="series">{item.series.name}</div>}
         </Show>
         <Show visible={styleOnSettings && popOutIds?.includes(String(item.mediaTypeId))}>
           <FaSquareUpRight

@@ -61,6 +61,9 @@ export const FilterMedia: React.FC = () => {
       <ContentList
         onContentSelected={handleContentSelected}
         content={results}
+        showDate
+        showTime
+        showSeries
         selected={selected}
       />
       <Show visible={!results.length}>

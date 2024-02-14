@@ -21,16 +21,30 @@ export const FilterMediaLanding: React.FC = () => {
   const { subMediaGroups } = useSubMediaGroups(sources, mediaTypes);
   const [activeFilter, setActiveFilter] = React.useState<ISubMediaGroupItem>();
 
-  const [activeLetter, setActiveLetter] = React.useState<string>('A');
+  const [activeLetter, setActiveLetter] = React.useState<string>('All');
   const [narrowedOptions, setNarrowedOptions] = React.useState<ISourceModel[]>([]);
   const [activeSource, setActiveSource] = React.useState<ISourceModel | null>(null);
   const [parentClicked, setParentClicked] = React.useState<boolean>(false);
 
+  // remove all option from the subMediaGroups
+  const mediaGroups = React.useMemo(
+    () => subMediaGroups?.filter((sg) => sg.label !== 'All'),
+    [subMediaGroups],
+  );
+
+  const determineSourceIds = React.useCallback(() => {
+    return mediaGroups
+      ?.find((sg) => sg.label === activeFilter?.label)
+      ?.options.map((opt) => opt.id);
+  }, [activeFilter, mediaGroups]);
+
+  // init
   React.useEffect(() => {
-    setActiveFilter(subMediaGroups?.find((sg) => sg.label === 'All')); // default to All
-    // only want to fire when subMediaGroups loads
+    if (!activeFilter) setActiveFilter(mediaGroups.find((sg) => sg.label === 'Daily Print'));
+    storeFilter({ ...filter, sourceIds: determineSourceIds() });
+    // only want to fire when mediaGroups change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subMediaGroups]);
+  }, [mediaGroups, determineSourceIds]);
 
   /** When the parent group is clicked, we want to set the sourceIds to the sources of the parent group
    *   Additionally, we want to deselect the narrowed option
@@ -59,13 +73,7 @@ export const FilterMediaLanding: React.FC = () => {
     }
     // only want to fire when filters change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeLetter, activeFilter]);
-
-  const determineSourceIds = () => {
-    return subMediaGroups
-      ?.find((sg) => sg.label === activeFilter?.label)
-      ?.options.map((opt) => opt.id);
-  };
+  }, [activeLetter, activeFilter, mediaGroups]);
 
   return (
     <styled.FilterMediaLanding>
@@ -74,22 +82,18 @@ export const FilterMediaLanding: React.FC = () => {
           {/* TODO: Move into reusable component, this type of filter is only used on this page currently*/}
           <Row className="main-media">
             <Col className="media-filter">
-              {subMediaGroups?.map((mediaGroup) => (
+              {mediaGroups?.map((mediaGroup) => (
                 <div
                   key={`${mediaGroup.key}`}
                   onClick={() => {
-                    if (mediaGroup.label === 'Weekly Print' || mediaGroup.label === 'All')
-                      setActiveLetter('A');
+                    if (mediaGroup.label === 'Weekly Print') setActiveLetter('A');
                     else if (mediaGroup.label === 'Online') setActiveLetter('B');
                     else setActiveLetter('All');
                     setActiveFilter(mediaGroup);
                     setParentClicked(true);
                   }}
                   className={`${
-                    activeFilter?.label === mediaGroup.label ||
-                    (!activeFilter && mediaGroup.label === 'All') // default to All
-                      ? 'active'
-                      : 'inactive'
+                    activeFilter?.label === mediaGroup.label ? 'active' : 'inactive'
                   } option`}
                 >
                   {mediaGroup.label}
@@ -98,11 +102,7 @@ export const FilterMediaLanding: React.FC = () => {
             </Col>
             <Col className="narrowed-options">
               <Show
-                visible={
-                  activeFilter?.label === 'Online' ||
-                  activeFilter?.label === 'Weekly Print' ||
-                  activeFilter?.label === 'All'
-                }
+                visible={activeFilter?.label === 'Online' || activeFilter?.label === 'Weekly Print'}
               >
                 <Row className="alpha-filter">
                   {alphabetArray().map((letter) => {
@@ -118,33 +118,40 @@ export const FilterMediaLanding: React.FC = () => {
                   })}
                 </Row>
               </Show>
-              <div
-                onClick={() => {
-                  setActiveSource(null);
-                  setNarrowedOptions(activeFilter?.options ?? []);
-                }}
-                className="show-all"
-              >
-                Show all
-              </div>
-              <div className="scroll-container">
-                {narrowedOptions.map((opt) => {
-                  return (
-                    <div
-                      key={`${opt.id}`}
-                      onClick={() => {
-                        setActiveSource(opt);
-                        storeFilter({ ...filter, sourceIds: [opt.id] });
-                      }}
-                      className={`${
-                        activeSource?.name === opt.name ? 'active' : 'inactive'
-                      } narrowed-option`}
-                    >
-                      {opt.name}
-                    </div>
-                  );
-                })}
-              </div>
+              <Show visible={activeFilter?.label !== 'Events'}>
+                <div
+                  onClick={() => {
+                    setActiveSource(null);
+                    setNarrowedOptions(activeFilter?.options ?? []);
+                  }}
+                  className="show-all"
+                >
+                  Show all
+                </div>
+                <div className="scroll-container">
+                  {narrowedOptions.map((opt) => {
+                    return (
+                      <div
+                        key={`${opt.id}`}
+                        onClick={() => {
+                          setActiveSource(opt);
+                          storeFilter({ ...filter, sourceIds: [opt.id] });
+                        }}
+                        className={`${
+                          activeSource?.name === opt.name ? 'active' : 'inactive'
+                        } narrowed-option`}
+                      >
+                        {`${opt.name}  ${
+                          !!opt.shortName && opt.shortName !== opt.name ? `- ${opt.shortName}` : ''
+                        }`}
+                      </div>
+                    );
+                  })}
+                </div>
+              </Show>
+              <Show visible={activeFilter?.label === 'Events'}>
+                <div className="active narrowed-option">Showing all events</div>
+              </Show>
             </Col>
           </Row>
         </PageSection>

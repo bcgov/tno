@@ -69,6 +69,7 @@ export const ContentRow = styled(Col)`
     font-family: ${(props) => props.theme.css.fPrimary};
     white-space: nowrap;
     display: flex;
+    max-height: 1.5em;
     margin-right: 1rem;
     align-items: center;
     justify-content: center;
