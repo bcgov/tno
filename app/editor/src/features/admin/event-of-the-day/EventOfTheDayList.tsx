@@ -88,8 +88,7 @@ const EventOfTheDayList: React.FC = () => {
         setAllTopics(data);
         setTopicOptions(getSortedTopicOptions(data));
       })
-      .catch(() => {})
-      .finally(() => {});
+      .catch(() => {});
     // KGM - overridden to enforce only call once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventOfTheDayFolderId]);

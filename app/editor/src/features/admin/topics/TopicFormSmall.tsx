@@ -24,9 +24,7 @@ export const TopicFormSmall: React.FC<ITopicFormSmallProps> = ({ onAddOrUpdate }
   const handleSubmit = async (values: ITopicModel) => {
     try {
       onAddOrUpdate?.(values);
-    } catch {
-      toast.error(`Error saving topic ${values.name}.`);
-    }
+    } catch {}
   };
 
   return (
