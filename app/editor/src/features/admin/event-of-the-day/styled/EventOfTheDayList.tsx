@@ -50,7 +50,10 @@ export const EventOfTheDayList = styled.div`
     color: red;
   }
   .type-Proactive {
-    color: green;
+    color: #006600;
+  }
+  .type-Issues {
+    color: #bb1111;
   }
   .type-disabled {
     font-style: italic;
@@ -75,5 +78,10 @@ export const EventOfTheDayList = styled.div`
   }
   .row:has(div a.lock-control) {
     cursor: wait;
+  }
+  .topic-form-row {
+    .form-page {
+      padding: unset;
+    }
   }
 `;

@@ -3,7 +3,7 @@ import React from 'react';
 import { FaBinoculars } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
-import { useFolders } from 'store/hooks/admin';
+import { useFolders, useTopics } from 'store/hooks/admin';
 import {
   Button,
   FlexboxTable,
@@ -11,12 +11,14 @@ import {
   getSortableOptions,
   IFolderContentModel,
   IOptionItem,
+  ITopicModel,
   OptionItem,
   Row,
   Settings,
   TopicTypeName,
 } from 'tno-core';
 
+import { TopicFormSmall } from '../topics';
 import { useColumns } from './hooks';
 import * as styled from './styled';
 
@@ -26,7 +28,8 @@ import * as styled from './styled';
  * @returns Component
  */
 const EventOfTheDayList: React.FC = () => {
-  const [{ isReady, settings, topics }] = useLookup();
+  const [{ isReady, settings }] = useLookup();
+  const [, { findAllTopics, updateTopic, addTopic }] = useTopics();
 
   const [, { getContentInFolder }] = useFolders();
   const [, { updateContentTopics }] = useContent();
@@ -34,6 +37,7 @@ const EventOfTheDayList: React.FC = () => {
   const [eventOfTheDayFolderId, setEventOfTheDayFolderId] = React.useState(0);
   const [eventOfTheDayReportId, setEventOfTheDayReportId] = React.useState(0);
   const [items, setItems] = React.useState<IFolderContentModel[]>([]);
+  const [allTopics, setAllTopics] = React.useState<ITopicModel[]>([]);
   const [topicOptions, setTopicOptions] = React.useState<
     IOptionItem<string | number | undefined>[]
   >([]);
@@ -79,7 +83,12 @@ const EventOfTheDayList: React.FC = () => {
         .catch(() => {})
         .finally(() => {});
     }
-    setTopicOptions(getSortedTopicOptions());
+    findAllTopics()
+      .then((data) => {
+        setAllTopics(data);
+        setTopicOptions(getSortedTopicOptions(data));
+      })
+      .catch(() => {});
     // KGM - overridden to enforce only call once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventOfTheDayFolderId]);
@@ -96,11 +105,12 @@ const EventOfTheDayList: React.FC = () => {
     }
   };
 
-  const getSortedTopicOptions = () => {
+  const getSortedTopicOptions = (topics: ITopicModel[]) => {
+    const notApplicableTopic = topics.find((el) => el.id === 1);
     return getSortableOptions(
-      topics,
+      topics.filter((el) => el.id !== 1),
       undefined,
-      undefined,
+      [new OptionItem(notApplicableTopic!.name, notApplicableTopic!.id)],
       (item) =>
         new OptionItem(
           (
@@ -122,15 +132,45 @@ const EventOfTheDayList: React.FC = () => {
           !item.isEnabled,
         ),
       (a, b) => {
-        if (a.topicType < b.topicType) return -1;
-        if (a.topicType > b.topicType) return 1;
-        if (a.sortOrder < b.sortOrder) return -1;
-        if (a.sortOrder > b.sortOrder) return 1;
-        if (a.name < b.name) return -1;
-        if (a.name > b.name) return 1;
-        return 0;
+        // sort by Topic Type then Topic Name
+        return b.topicType.localeCompare(a.topicType) || a.name.localeCompare(b.name);
       },
     );
+  };
+
+  const handleAddOrUpdate = async (values: ITopicModel) => {
+    try {
+      let results: ITopicModel[] = [];
+      // need case insensitive string compare here or we will end up with variations on names
+      const topicNameMatch = allTopics.find(
+        (x) => x.name.toUpperCase() === values.name.toUpperCase(),
+      );
+
+      if (values.id === 0) {
+        if (!topicNameMatch) {
+          const result = await addTopic(values);
+          results = [...allTopics, result];
+          toast.success(`Topic with name [${values.name}] has been added.`);
+        } else {
+          if (topicNameMatch.isEnabled) {
+            toast.warn(`Topic with name [${values.name}] already exists.`);
+            return;
+          } else {
+            const result = await updateTopic({
+              ...topicNameMatch,
+              isEnabled: values.isEnabled,
+              topicType: values.topicType,
+            });
+            results = [...allTopics, result];
+            toast.success(`Topic with name [${values.name}] has been added.`);
+          }
+        }
+      }
+      setAllTopics(results);
+      setTopicOptions(getSortedTopicOptions(results));
+    } catch {
+      // Ignore error as it's handled globally.
+    }
   };
 
   return (
@@ -151,10 +191,13 @@ const EventOfTheDayList: React.FC = () => {
             </Button>
           </div>
         </Row>
+        <Row className="topic-form-row">
+          <TopicFormSmall onAddOrUpdate={handleAddOrUpdate} />
+        </Row>
         <FlexboxTable
           rowId="contentId"
           data={items}
-          columns={useColumns(handleSubmit, topics, topicOptions)}
+          columns={useColumns(handleSubmit, allTopics, topicOptions)}
           groupBy={(item) => {
             if (item.original.content?.series?.name) return item.original.content?.series?.name;
             else if (item.original.content?.source?.name)

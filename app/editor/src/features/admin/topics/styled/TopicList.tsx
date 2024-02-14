@@ -71,11 +71,6 @@ export const TopicList = styled.div`
     }
   }
 
-  form {
-    background-color: lightgrey;
-    padding: 5px;
-  }
-
   .topic-filter {
     padding: 5px;
   }
@@ -104,6 +99,15 @@ export const TopicList = styled.div`
       &.col-2 {
         padding-left: 15px;
       }
+    }
+  }
+  .inline-topic-type-toggle-group {
+    margin-right: 0.5rem;
+    padding: 0 0.5rem 0.5rem 0;
+    button.toggle-item {
+      height: unset;
+      padding: 8px;
+      font-size: inherit;
     }
   }
 `;

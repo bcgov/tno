@@ -1,0 +1,30 @@
+import styled from 'styled-components';
+import { FormPage } from 'tno-core';
+
+export const TopicFormSmall = styled(FormPage)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .back-button {
+    align-self: start;
+  }
+  .topic-type-toggle-group {
+    margin-right: 0.5rem;
+    div {
+      padding: 0;
+    }
+    div button.toggle-item {
+      height: unset;
+      padding: 8px;
+      font-size: inherit;
+    }
+  }
+  div.form {
+    width: 100%;
+  }
+  form {
+    background-color: lightgrey;
+    padding: 5px;
+  }
+`;
