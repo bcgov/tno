@@ -190,7 +190,7 @@ public class ReportEngine : IReportEngine
         var template = this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Subject)
             ?? throw new InvalidOperationException("Template does not exist");
 
-        var model = new ReportEngineContentModel(report, sectionContent);
+        var model = new ReportEngineContentModel(report, sectionContent, this.TemplateOptions);
         return await template.RunAsync(instance =>
         {
             instance.Model = model;
@@ -203,6 +203,7 @@ public class ReportEngine : IReportEngine
             instance.SubscriberAppUrl = this.TemplateOptions.SubscriberAppUrl;
             instance.ViewContentUrl = this.TemplateOptions.ViewContentUrl;
             instance.RequestTranscriptUrl = this.TemplateOptions.RequestTranscriptUrl;
+            instance.AddToReportUrl = this.TemplateOptions.AddToReportUrl;
         });
     }
 
@@ -232,7 +233,7 @@ public class ReportEngine : IReportEngine
         var template = this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Body)
             ?? throw new InvalidOperationException("Template does not exist");
 
-        var model = new ReportEngineContentModel(report, sectionContent, uploadPath);
+        var model = new ReportEngineContentModel(report, sectionContent, this.TemplateOptions, uploadPath);
         var body = await template.RunAsync(instance =>
         {
             instance.Model = model;

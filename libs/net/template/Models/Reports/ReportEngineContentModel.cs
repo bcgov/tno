@@ -44,11 +44,16 @@ public class ReportEngineContentModel : BaseTemplateModel<IEnumerable<ContentMod
     /// </summary>
     /// <param name="report"></param>
     /// <param name="content"></param>
-    public ReportEngineContentModel(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<ContentModel> content)
+    /// <param name="options"></param>
+    public ReportEngineContentModel(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<ContentModel> content, Config.TemplateOptions options)
         : base(content)
     {
         this.Settings = report.Settings;
         this.OwnerId = report.OwnerId;
+        this.SubscriberAppUrl = options.SubscriberAppUrl;
+        this.ViewContentUrl = options.ViewContentUrl;
+        this.RequestTranscriptUrl = options.RequestTranscriptUrl;
+        this.AddToReportUrl = options.AddToReportUrl;
     }
 
     /// <summary>
@@ -56,13 +61,18 @@ public class ReportEngineContentModel : BaseTemplateModel<IEnumerable<ContentMod
     /// </summary>
     /// <param name="report"></param>
     /// <param name="sections"></param>
+    /// <param name="options"></param>
     /// <param name="uploadPath"></param>
-    public ReportEngineContentModel(API.Areas.Services.Models.Report.ReportModel report, Dictionary<string, ReportSectionModel> sections, string? uploadPath = null)
+    public ReportEngineContentModel(API.Areas.Services.Models.Report.ReportModel report, Dictionary<string, ReportSectionModel> sections, Config.TemplateOptions options, string? uploadPath = null)
         : base(Array.Empty<ContentModel>())
     {
         this.Sections = sections;
         this.Settings = report.Settings;
         this.OwnerId = report.OwnerId;
+        this.SubscriberAppUrl = options.SubscriberAppUrl;
+        this.ViewContentUrl = options.ViewContentUrl;
+        this.RequestTranscriptUrl = options.RequestTranscriptUrl;
+        this.AddToReportUrl = options.AddToReportUrl;
 
         // Reference all section content in the root Content collection.
         this.Content = sections.SelectMany(s => s.Value.Content).DistinctBy(c => c.Id);
