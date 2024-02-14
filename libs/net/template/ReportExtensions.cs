@@ -1,7 +1,6 @@
 namespace TNO.TemplateEngine;
 
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using TemplateEngine.Models;
 using TemplateEngine.Models.Reports;
 
@@ -165,8 +164,8 @@ public static class ReportExtensions
     /// <returns></returns>
     public static string GetSentimentIcon(this ContentModel content, string format = "{0}")
     {
-        var tone = content.TonePools.FirstOrDefault()?.Value;
-        var icon = GetSentimentIcon(tone);
+        var value = content.TonePools.FirstOrDefault()?.Value;
+        var icon = GetSentimentIcon(value);
 
         return !String.IsNullOrEmpty(icon) ? String.Format(format, icon) : icon;
     }
@@ -174,16 +173,54 @@ public static class ReportExtensions
     /// <summary>
     /// Get the sentiment icon for the content.
     /// </summary>
+    /// <param name="value"></param>
+    /// <param name="showSentimentValue"></param>
+    /// <returns></returns>
+    public static string GetSentimentIcon(int? value, bool showSentimentValue = false)
+    {
+        return value switch
+        {
+            0 => $"<span style=\"color: #FFC107;\">😐{(showSentimentValue ? $" {value}</span>" : "")}",
+            <= -3 => $"<span style=\"color: #DC3545;\">☹️{(showSentimentValue ? $" {value}</span>" : "")}",
+            < 0 => $"<span style=\"color: #FFC107;\">😐{(showSentimentValue ? $" {value}</span>" : "")}",
+            >= 3 => $"<span style=\"color: #20C997;\">🙂{(showSentimentValue ? $" {value}</span>" : "")}",
+            > 0 => $"<span style=\"color: #FFC107;\">😐{(showSentimentValue ? $" {value}</span>" : "")}",
+            _ => "",
+        };
+    }
+
+    /// <summary>
+    /// Get the sentiment icon for the content.
+    /// </summary>
     /// <param name="content"></param>
+    /// <param name="context"></param>
+    /// <param name="showSentimentValue"></param>
     /// <param name="format"></param>
     /// <returns></returns>
-    public static string GetSentimentIcon(int? tone)
+    public static string GetSentimentImage(this ContentModel content, ReportEngineContentModel context, bool showSentimentValue = false, string format = "{0}")
     {
-        return tone switch
+        var value = content.TonePools.FirstOrDefault()?.Value;
+        var icon = context.GetSentimentImage(value, showSentimentValue);
+
+        return !String.IsNullOrEmpty(icon) ? String.Format(format, icon) : icon;
+    }
+
+    /// <summary>
+    /// Get the sentiment icon for the content.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="value"></param>
+    /// <param name="showSentimentValue"></param>
+    /// <returns></returns>
+    public static string GetSentimentImage(this ReportEngineContentModel context, int? value, bool showSentimentValue = false)
+    {
+        return value switch
         {
-            0 => "😐",
-            <= -3 => "☹️",
-            >= 3 => "🙂",
+            0 => $"<img style=\"height: 14px; width: 14px;\" src=\"{context.SubscriberAppUrl}assets/reports/face-neutral@2x.png\" alt=\"{value}\" />{(showSentimentValue ? $" <span style=\"color: #FFC107;font-size: 12px;\">{value}</span>" : "")}",
+            <= -3 => $"<img style=\"height: 14px; width: 14px;\" src=\"{context.SubscriberAppUrl}assets/reports/face-negative@2x.png\" alt=\"{value}\" />{(showSentimentValue ? $" <span style=\"color: #DC3545;font-size: 12px;\">{value}</span>" : "")}",
+            < 0 => $"<img style=\"height: 14px; width: 14px;\" src=\"{context.SubscriberAppUrl}assets/reports/face-neutral@2x.png\" alt=\"{value}\" />{(showSentimentValue ? $" <span style=\"color: #FFC107;font-size: 12px;\">{value}</span>" : "")}",
+            >= 3 => $"<img style=\"height: 14px; width: 14px;\" src=\"{context.SubscriberAppUrl}assets/reports/face-positive@2x.png\" alt=\"{value}\" />{(showSentimentValue ? $" <span style=\"color: #20C997;font-size: 12px;\">{value}</span>" : "")}",
+            > 0 => $"<img style=\"height: 14px; width: 14px;\" src=\"{context.SubscriberAppUrl}assets/reports/face-neutral@2x.png\" alt=\"{value}\" />{(showSentimentValue ? $" <span style=\"color: #FFC107;font-size: 12px;\">{value}</span>" : "")}",
             _ => "",
         };
     }
@@ -212,22 +249,15 @@ public static class ReportExtensions
     /// <returns></returns>
     public static string GetContentGroupByPropertyValue(this ContentModel content, string groupBy)
     {
-        switch (groupBy)
+        return groupBy switch
         {
-            case "mediaType":
-                return content.MediaType?.Name ?? "";
-            case "contentType":
-                return content.ContentType.ToString();
-            case "byline":
-                return content.Byline;
-            case "series":
-                return content.Series?.Name ?? "";
-            case "sentiment":
-                return GetSentimentIcon(content.TonePools.FirstOrDefault()?.Value ?? 0);
-            case "source":
-            default:
-                return content.OtherSource;
-        }
+            "mediaType" => content.MediaType?.Name ?? "",
+            "contentType" => content.ContentType.ToString(),
+            "byline" => content.Byline,
+            "series" => content.Series?.Name ?? "",
+            "sentiment" => GetSentimentIcon(content.TonePools.FirstOrDefault()?.Value ?? 0),
+            _ => content.OtherSource,
+        };
     }
 
     /// <summary>
@@ -235,10 +265,11 @@ public static class ReportExtensions
     /// </summary>
     /// <param name="content"></param>
     /// <param name="context"></param>
+    /// <param name="showSentimentValue"></param>
     /// <returns></returns>
-    public static string GetSentiment(this ContentModel content, ReportEngineContentModel context)
+    public static string GetSentiment(this ContentModel content, ReportEngineContentModel context, bool showSentimentValue = false)
     {
-        return (context.Settings.Headline.ShowSentiment ? content.GetSentimentIcon() : "");
+        return context.Settings.Headline.ShowSentiment ? content.GetSentimentImage(context, showSentimentValue) : "";
     }
 
     /// <summary>
@@ -301,10 +332,11 @@ public static class ReportExtensions
     /// <param name="includeLink"></param>
     /// <param name="href"></param>
     /// <param name="target"></param>
+    /// <param name="showSentimentValue"></param>
     /// <returns></returns>
-    public static string GetFullHeadline(this ContentModel content, ReportEngineContentModel context, int utcOffset = 0, bool includeLink = false, string href = "", string target = "")
+    public static string GetFullHeadline(this ContentModel content, ReportEngineContentModel context, int utcOffset = 0, bool includeLink = false, string href = "", string target = "", bool showSentimentValue = false)
     {
-        var sentiment = content.GetSentiment(context);
+        var sentiment = content.GetSentiment(context, showSentimentValue);
         var headline = content.GetHeadline(context);
         var actualHref = String.IsNullOrWhiteSpace(href) ? $"{context.ViewContentUrl}{content.Id}" : href;
         var actualTarget = String.IsNullOrWhiteSpace(target) ? "" : $" target=\"{target}\"";
@@ -323,11 +355,13 @@ public static class ReportExtensions
     /// <param name="knownValues">what are the values we want to have colors for</param>
     /// <param name="colorLookup">what are the corresponding colors for the known values</param>
     /// <returns></returns>
-    public static string GetColorFromName(string targetValue, string[] knownValues, string[] colorLookup) {
+    public static string GetColorFromName(string targetValue, string[] knownValues, string[] colorLookup)
+    {
         if (knownValues.Length != colorLookup.Length)
             throw new ArgumentException("Array length mismatch.  Each known value must have a corresponding color");
         int indexOfValue = knownValues.ToList().FindIndex(x => x.ToLower() == targetValue.ToLower());
-        if (indexOfValue >= 0) {
+        if (indexOfValue >= 0)
+        {
             return $"color:{colorLookup[indexOfValue]}";
         }
         else return string.Empty;

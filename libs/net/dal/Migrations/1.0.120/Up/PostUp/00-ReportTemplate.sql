@@ -15,7 +15,7 @@ UPDATE public.report_template SET
   a { text-decoration:none; }
   div { font-family:sans-serif; }
 </style>
-<img src="https://dev.mmi.gov.bc.ca/assets/MMinsights_logo_black.svg" width="600px">
+<img src="@($"{SubscriberAppUrl}assets/reports/MMI_logo.png")" width="600px">
 
 @* This is the Do Not Forward disclaimer *@
 <div><p style="background-color: #FFF7E1; color: #876503; text-align: center; font-size: 14px;	font-weight: 500; line-height: 110%; letter-spacing: 0.08px; padding: 10px 0px; margin: 6px 0px 20px 0px;">DO NOT FORWARD THIS EMAIL TO ANYONE</p></div>
@@ -70,7 +70,7 @@ else
                 @foreach (var content in tableSection.Value.Content)
                 {
                   var summary = OwnerId.HasValue ? content.Versions.ContainsKey(OwnerId.Value) ? content.Versions[OwnerId.Value].Summary : "" : "";
-                  <li style="padding-bottom:.5rem;"><div style="font-size:.95rem;">@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{tocCount}")</div> <div style="font-size:.8rem;">@summary</div></li>
+                  <li style="padding-bottom:.5rem;"><div style="font-size:.95rem;vertical-align:center;">@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{tocCount}")</div> <div style="font-size:.8rem;">@summary</div></li>
                   tocCount++;
                 }
               </ul>
@@ -140,6 +140,7 @@ else
           for (var i = 0; i < sectionContent.Length; i++)
           {
             var content = sectionContent[i];
+            var sentiment = ReportExtensions.GetSentiment(content, Model, true);
             var rawHeadline = ReportExtensions.GetHeadline(content, Model);
             var headline = Settings.Content.HighlightKeywords ? ReportExtensions.HighlightKeyWords(section.Value.Filter, rawHeadline, "headline")  : rawHeadline;
             var rawBody = ReportExtensions.GetBody(content, Model);
@@ -173,7 +174,7 @@ else
                   <span style="border: none; border-radius: 4px; padding: 2px 6px; margin-left: 0; background-color: #FEE2E5;"><a name="section-@section.Value.Id">@section.Value.Settings.Label</a></span>
                 </div>
               </div>
-              <h3 style="margin:10px 0px;">@headline</h3>
+              <h3 style="margin:10px 0px;">@(String.IsNullOrEmpty(sentiment) ? "" : $"{sentiment} ")@headline</h3>
               <div style="padding: 2px 0px 8px 12px; width:100%; border-bottom:1px solid #E8E9F1; font-size:.85rem; line-height:.9rem; text-transform:uppercase; margin-bottom:16px;">
                 <p><strong>@content.Source?.Name</strong></p>
                 <p>@content.PublishedOn?.AddHours(utcOffset).ToString("dddd, MMMM d, yyyy")</p>
@@ -199,8 +200,7 @@ else
               {
                 <div style="text-transform:uppercase;"><a style="color: #6750a4;" href="@($"{ViewContentUrl}{content.Id}")" target="_blank">View Article</a></div>
               }
-                </div>
-              </div>
+
             </div>
           }
         }
