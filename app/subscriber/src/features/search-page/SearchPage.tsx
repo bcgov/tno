@@ -7,7 +7,7 @@ import { useElastic } from 'features/my-searches/hooks';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import React from 'react';
 import { FaBookmark } from 'react-icons/fa6';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
@@ -34,6 +34,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const genQuery = useElastic();
   const [, { getFilter }] = useFilters();
   const [{ filter: activeFilter }, { storeFilter }] = useProfileStore();
+  const { pathname } = useLocation();
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
@@ -80,8 +81,9 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   }, []);
 
   React.useEffect(() => {
+    // Do not want it to fire on initial load of a user clicking "go advanced"
     // Need to wait until front page images are in redux store before making a request.
-    if (frontPageImagesMediaTypeId) {
+    if (frontPageImagesMediaTypeId && !pathname.includes('advanced')) {
       const settings = filterFormat(filter);
       const query = genQuery(settings);
       fetchResults(query, filter.searchUnpublished);
