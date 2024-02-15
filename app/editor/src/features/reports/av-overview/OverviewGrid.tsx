@@ -343,14 +343,17 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
 
                                       // from the potential summaries, generate suggestions that match current input
                                       let suggestions: Suggestion[] = [];
+                                      const sSet = new Set();
                                       if (value.length > 0 && summaries?.length) {
                                         const regex = new RegExp(`^${value}`, 'i');
                                         suggestions = summaries
                                           .sort()
-                                          .filter(
-                                            (v: Suggestion) =>
-                                              regex.test(v.text) && v.index !== itemIndex,
-                                          );
+                                          .filter((v: Suggestion) => regex.test(v.text))
+                                          .filter((item) => {
+                                            const duplicate = sSet.has(item.text);
+                                            sSet.add(item.text);
+                                            return !duplicate;
+                                          });
                                       }
                                       setShowAutoCompleteForIndex(itemIndex);
                                       setSearch({ suggestions, text: value });
