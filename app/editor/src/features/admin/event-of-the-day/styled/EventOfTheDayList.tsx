@@ -46,8 +46,9 @@ export const EventOfTheDayList = styled.div`
       }
     }
   }
-  .type-none {
-    color: red;
+  .type-not-applicable {
+    // color: red;
+    font-style: italic;
   }
   .type-Proactive {
     color: #006600;
@@ -57,6 +58,12 @@ export const EventOfTheDayList = styled.div`
   }
   .type-disabled {
     font-style: italic;
+  }
+  .topic-select {
+    width: 100%;
+  }
+  .score-select {
+    width: 10ch;
   }
   .score-max-hint-text {
     font-style: unset;
