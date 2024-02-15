@@ -61,7 +61,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
           name={`headline`}
           label="Headline"
           rows={1}
-          error={errors && errors.headline && errors.headline}
+          error={errors?.headline}
           required
           value={content.headline ?? ''}
           onChange={(e) => {
@@ -85,7 +85,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
         <Text
           name={`otherSource`}
           label="Source"
-          error={errors && errors.source && errors.source}
+          error={errors?.source}
           required
           value={content.otherSource ?? ''}
           onChange={(e) => {
@@ -112,7 +112,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
             label="Published On"
             required
             autoComplete="false"
-            error={errors && errors.publishedOn && errors.publishedOn}
+            error={errors?.publishedOn}
             width={FieldSize.Medium}
             selectedDate={
               !!content.publishedOn ? moment(content.publishedOn).toString() : undefined
