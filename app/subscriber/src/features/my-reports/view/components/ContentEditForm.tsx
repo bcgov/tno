@@ -1,13 +1,15 @@
 import { Action } from 'components/action';
 import { Button } from 'components/button';
 import { PageSection } from 'components/section';
+import { error } from 'console';
 import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
+import { IContentValidationErrors } from 'features/my-reports/interfaces/IContentValidationErrors';
 import { toForm } from 'features/my-reports/utils';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaArrowLeft, FaArrowRight, FaCloud } from 'react-icons/fa6';
 import { useApp, useContent, useReports } from 'store/hooks';
-import { Col, Row, Show } from 'tno-core';
+import { Col, IContentModel, Row, Show } from 'tno-core';
 
 import { ContentForm } from './ContentForm';
 import { UserContentForm } from './UserContentForm';
@@ -42,20 +44,43 @@ export const ContentEditForm = ({
 
   const [form, setForm] = React.useState(initialRow);
 
+  const [errors, setErrors] = React.useState<IContentValidationErrors>();
+
   const userId = userInfo?.id ?? 0;
 
   React.useEffect(() => {
     setForm(initialRow);
   }, [initialRow]);
 
+  const validate = (values: IContentModel) => {
+    const err: IContentValidationErrors = { hasErrors: false };
+    if (!values.headline) {
+      err.headline = 'Headline is Required.';
+      err.hasErrors = true;
+    }
+    if (!values.otherSource) {
+      err.source = 'Source is Required.';
+      err.hasErrors = true;
+    }
+    if (!values.publishedOn) {
+      err.publishedOn = 'Published On is Required.';
+      err.hasErrors = true;
+    }
+    setErrors(err);
+    return err;
+  };
+
   const handleAddUpdateContent = React.useCallback(
     async (values: IReportForm, row: IReportInstanceContentForm) => {
       try {
+        // alert('checking form !');
+        //console.log('VALIDATIONTEST', row);
         setSubmitting(true);
         const content = row.content;
-
         if (!content) return null;
-
+        const err = validate(content);
+        console.log('VALIDATIONTEST', errors);
+        if (err.hasErrors) return null;
         const originalId = content.id;
         const contentResult = !content.id
           ? await addContent(content)
@@ -190,6 +215,7 @@ export const ContentEditForm = ({
     >
       {form.content?.ownerId === userId && form.content?.isPrivate ? (
         <UserContentForm
+          errors={errors}
           content={form}
           show={'all'}
           onContentChange={(content) => {

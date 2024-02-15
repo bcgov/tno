@@ -1,4 +1,5 @@
 import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
+import { IContentValidationErrors } from 'features/my-reports/interfaces/IContentValidationErrors';
 import { getTime } from 'features/my-reports/utils';
 import moment from 'moment';
 import React from 'react';
@@ -27,6 +28,7 @@ export interface IUserContentFormProps extends React.HTMLAttributes<HTMLDivEleme
   loading?: boolean;
   /** Event fires when content properties are changed. */
   onContentChange?: (content: IReportInstanceContentForm) => void;
+  errors: IContentValidationErrors | undefined;
 }
 
 /**
@@ -36,6 +38,7 @@ export interface IUserContentFormProps extends React.HTMLAttributes<HTMLDivEleme
  */
 export const UserContentForm: React.FC<IUserContentFormProps> = ({
   content: values,
+  errors,
   show = 'none',
   loading,
   className,
@@ -58,6 +61,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
           name={`headline`}
           label="Headline"
           rows={1}
+          error={errors && errors.headline && errors.headline}
           required
           value={content.headline ?? ''}
           onChange={(e) => {
@@ -81,6 +85,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
         <Text
           name={`otherSource`}
           label="Source"
+          error={errors && errors.source && errors.source}
           required
           value={content.otherSource ?? ''}
           onChange={(e) => {
@@ -107,6 +112,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
             label="Published On"
             required
             autoComplete="false"
+            error={errors && errors.publishedOn && errors.publishedOn}
             width={FieldSize.Medium}
             selectedDate={
               !!content.publishedOn ? moment(content.publishedOn).toString() : undefined
