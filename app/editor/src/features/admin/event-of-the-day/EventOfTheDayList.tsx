@@ -92,7 +92,6 @@ const EventOfTheDayList: React.FC = () => {
     findAllTopics()
       .then((data) => {
         setAllTopics(data);
-        // setTopicOptions(getSortedTopicOptions(data));
         setGroupedOptions(convertToGroupedOptions(data));
       })
       .catch(() => {});
