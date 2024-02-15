@@ -69,8 +69,7 @@ export const AdvancedSearch = styled(Row)`
     .frm-in {
       width: 40%;
     }
-    background-color: #e8e9f1;
-    color: #847379;
+    background-color: ${(props) => props.theme.css.bkQuaternary};
     width: 100%;
     padding: 0.5em;
     align-items: center;
@@ -78,14 +77,14 @@ export const AdvancedSearch = styled(Row)`
       margin-right: 0.5em;
       max-height: 30px;
       background-color: white;
-      border-color: #6750a4;
+      border-color: ${(props) => props.theme.css.btnBkPrimary};
       border-width: 1px;
       border-radius: 0.25em;
       svg {
         height: 1.25em;
         width: 1.25em;
         margin-top: 0.15em;
-        color: #6750a4;
+        color: ${(props) => props.theme.css.btnBkPrimary};
       }
       &:hover {
         cursor: pointer;
@@ -117,7 +116,7 @@ export const AdvancedSearch = styled(Row)`
       cursor: pointer;
       color: ${(props) => props.theme.css.btnBkPrimaryColor};
       &:hover {
-        color: ${(props) => props.theme.css.subscriberPurple};
+        color: ${(props) => props.theme.css.btnBkPrimary};
         transform: scale(1, 1.1);
       }
     }
@@ -261,28 +260,18 @@ export const AdvancedSearch = styled(Row)`
   .paper-attributes,
   .expandable-section {
     width: 100%;
-    border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
+    border-bottom: 1px solid ${(props) => props.theme.css.lineTertiaryColor};
   }
   .toggles {
     margin-left: 1em;
   }
   .sub-group {
     &:hover {
-      background-color: ${(props) => props.theme.css.searchItemHover};
+      background-color: ${(props) => props.theme.css.highlightPrimary};
     }
     padding: 0.1em;
     margin-left: 0.1em;
-    border-bottom: 1px solid ${(props) => props.theme.css.bsGray500};
-
-    .sub-options {
-      font-size: 0.8em;
-      max-width: 100%;
-      white-space: nowrap;
-      &:hover {
-        cursor: pointer;
-        background-color: ${(props) => props.theme.css.searchItemHover};
-      }
-    }
+    border-bottom: 1px solid ${(props) => props.theme.css.lineTertiaryColor};
   }
 
   .story-options-group,
@@ -345,7 +334,7 @@ export const AdvancedSearch = styled(Row)`
     .date-picker {
       width: 5.5em;
       border-radius: 0.25em;
-      border: 1px solid #a8aab3;
+      border: 1px solid ${(props) => props.theme.css.linePrimaryColor};
     }
     .clear {
       margin-left: 0.25em;
@@ -374,15 +363,8 @@ export const AdvancedSearch = styled(Row)`
       background-color: ${(props) => props.theme.css.btnRedColor};
     }
   }
-
   .sub-group-title {
     max-height: 100%;
     min-width: 15em;
   }
-  // .sub-container {
-  //   max-height: 10em;
-  //   max-width: 100%;
-  //   overflow-y: auto;
-  //   overflow-x: hidden;
-  // }
 `;

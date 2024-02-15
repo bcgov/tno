@@ -2,14 +2,12 @@ import styled from 'styled-components';
 import { Col } from 'tno-core';
 
 export const MyMinisterSettings = styled(Col)`
-  background-color: ${(props) => props.theme.css.lightGray};
   padding: 0.5em;
   .description {
   }
 
   .option-container {
     margin-top: 2em;
-    background-color: ${(props) => props.theme.css.lightGray};
   }
   .chk-container {
     padding-bottom: 0.5rem;
@@ -27,7 +25,6 @@ export const MyMinisterSettings = styled(Col)`
   }
   .ministers {
     & div:first-child {
-      background-color: ${(props) => props.theme.css.lightGray};
       padding: 0.25em;
       span {
         margin-bottom: 0.25em;
@@ -39,9 +36,8 @@ export const MyMinisterSettings = styled(Col)`
   }
 
   button {
-    background-color: ${(props) => props.theme.css.menuItemColor};
-    &:hover {
-      background-color: ${(props) => props.theme.css.selectedMenuItemColor};
-    }
+    background-color: ${(props) => props.theme.css.btnBkPrimary};
+    border: none;
+    border-radius: 0.25em;
   }
 `;

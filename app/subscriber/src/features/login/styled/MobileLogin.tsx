@@ -26,7 +26,7 @@ export const MobileLogin = styled.div`
     .login-box {
       margin-top: 2%;
       margin-bottom: 2%;
-      border: 2px solid #971d29;
+      border: 2px solid ${(props) => props.theme.css.btnRedColor};
       border-radius: 0.5rem;
       padding: 2%;
       text-align: center;
@@ -81,7 +81,7 @@ export const MobileLogin = styled.div`
     }
 
     button {
-      color: ${(props) => props.theme.css.redHeadingColor};
+      color: ${(props) => props.theme.css.btnRedColor};
       font-family: Noto Sans;
       font-size: 28px;
       font-weight: 400;
@@ -98,7 +98,7 @@ export const MobileLogin = styled.div`
         background-color: ${(props) => props.theme.css.bkWhite};
         &:hover {
           border: 2px solid #a61c29;
-          color: ${(props) => props.theme.css.redHeadingColor};
+          color: ${(props) => props.theme.css.btnRedColor};
         }
       }
     }

@@ -117,7 +117,7 @@ export const ReportEdit = styled.div`
   }
 
   .preview-report {
-    border: solid 2px ${(props) => props.theme.css.primaryColor};
+    border: solid 2px ${(props) => props.theme.css.linePrimaryColor};
     border-radius: 0.5rem;
     display: flex;
     flex-flow: column;
@@ -126,7 +126,7 @@ export const ReportEdit = styled.div`
 
     .preview-subject {
       padding: 1rem;
-      background-color: ${(props) => props.theme.css.primaryLightColor};
+      background-color: ${(props) => props.theme.css.btnBkPrimary};
       color: #fff;
     }
 
