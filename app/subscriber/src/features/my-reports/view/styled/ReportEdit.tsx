@@ -233,4 +233,8 @@ export const ReportEdit = styled.div`
     }
     padding-bottom: 0.5rem;
   }
+
+  [role='alert'] {
+    color: ${(props) => props.theme.css.fRedColor};
+  }
 `;
