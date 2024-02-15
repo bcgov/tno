@@ -73,13 +73,10 @@ export const ContentEditForm = ({
   const handleAddUpdateContent = React.useCallback(
     async (values: IReportForm, row: IReportInstanceContentForm) => {
       try {
-        // alert('checking form !');
-        //console.log('VALIDATIONTEST', row);
         setSubmitting(true);
         const content = row.content;
         if (!content) return null;
         const err = validate(content);
-        console.log('VALIDATIONTEST', errors);
         if (err.hasErrors) return null;
         const originalId = content.id;
         const contentResult = !content.id
