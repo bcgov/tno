@@ -11,6 +11,9 @@ export const ContentRow = styled(Col)`
     flex-flow: nowrap;
     width: 100%;
   }
+  .series {
+    margin-right: 0.5rem;
+  }
   &:hover {
     background-color: ${(props) => props.theme.css.highlightYellow};
     .teaser {
