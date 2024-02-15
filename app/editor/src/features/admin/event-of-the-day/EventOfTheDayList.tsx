@@ -9,6 +9,7 @@ import {
   FlexboxTable,
   FormPage,
   getSortableOptions,
+  IContentTopicModel,
   IFolderContentModel,
   IOptionItem,
   ITopicModel,
@@ -101,7 +102,11 @@ const EventOfTheDayList: React.FC = () => {
 
   const handleSubmit = async (values: IFolderContentModel) => {
     try {
-      const result = await updateContentTopics(values.contentId, values.content!.topics);
+      var result: IContentTopicModel[];
+      if (values.content!.topics[0].id === topicIdNotApplicable)
+        result = await updateContentTopics(values.contentId, undefined);
+      else result = await updateContentTopics(values.contentId, values.content!.topics);
+
       let index = items.findIndex((el) => el.contentId === values.contentId);
       let results = [...items];
       results[index].content!.topics = result;
