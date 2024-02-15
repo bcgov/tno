@@ -22,6 +22,14 @@ import { TopicFormSmall } from '../topics';
 import { useColumns } from './hooks';
 import * as styled from './styled';
 
+// item with id of 1 is the magic [Not Applicable] topic
+const topicIdNotApplicable = 1;
+
+export interface IGroupedOption {
+  readonly label: string;
+  readonly options: readonly IOptionItem<string | number | undefined>[];
+}
+
 /**
  * Provides a list of all topics.
  * Provides CRUD form for topics.
@@ -38,9 +46,7 @@ const EventOfTheDayList: React.FC = () => {
   const [eventOfTheDayReportId, setEventOfTheDayReportId] = React.useState(0);
   const [items, setItems] = React.useState<IFolderContentModel[]>([]);
   const [allTopics, setAllTopics] = React.useState<ITopicModel[]>([]);
-  const [topicOptions, setTopicOptions] = React.useState<
-    IOptionItem<string | number | undefined>[]
-  >([]);
+  const [groupedOptions, setGroupedOptions] = React.useState<IGroupedOption[]>([]);
 
   React.useEffect(() => {
     if (isReady) {
@@ -86,7 +92,7 @@ const EventOfTheDayList: React.FC = () => {
     findAllTopics()
       .then((data) => {
         setAllTopics(data);
-        setTopicOptions(getSortedTopicOptions(data));
+        setGroupedOptions(convertToGroupedOptions(data));
       })
       .catch(() => {});
     // KGM - overridden to enforce only call once
@@ -105,37 +111,61 @@ const EventOfTheDayList: React.FC = () => {
     }
   };
 
-  const getSortedTopicOptions = (topics: ITopicModel[]) => {
-    const notApplicableTopic = topics.find((el) => el.id === 1);
-    return getSortableOptions(
-      topics.filter((el) => el.id !== 1),
-      undefined,
-      [new OptionItem(notApplicableTopic!.name, notApplicableTopic!.id)],
-      (item) =>
-        new OptionItem(
-          (
-            <div
-              className={
-                (item.id > 1 ? `type-${item.topicType}` : 'type-none') +
-                // This extra style exists only to flag disabled topics that are disabled.
-                // These could show up because of migration from TNO, or through changes to
-                // content and topics that are possible
-                (!item.isEnabled ? ' type-disabled' : '')
-              }
-            >
-              {item.topicType === TopicTypeName.Issues
-                ? item.name
-                : `${item.name} (${item.topicType})`}
-            </div>
-          ),
-          item.id,
-          !item.isEnabled,
-        ),
-      (a, b) => {
-        // sort by Topic Type then Topic Name
-        return b.topicType.localeCompare(a.topicType) || a.name.localeCompare(b.name);
-      },
+  const formatTopicOption = (item: ITopicModel): OptionItem => {
+    return new OptionItem(
+      (
+        <div
+          className={
+            (item.id === topicIdNotApplicable ? `type-not-applicable` : `type-${item.topicType}`) +
+            // This extra style exists only to flag disabled topics that are disabled.
+            // These could show up because of migration from TNO, or through changes to
+            // content and topics that are possible
+            (!item.isEnabled ? ' type-disabled' : '')
+          }
+        >
+          {item.name}
+        </div>
+      ),
+      item.id,
+      !item.isEnabled,
     );
+  };
+
+  const convertToGroupedOptions = (topics: ITopicModel[]): IGroupedOption[] => {
+    const groupedOptions: IGroupedOption[] = [];
+    const notApplicableTopic = topics.find((el) => el.id === topicIdNotApplicable);
+    if (notApplicableTopic)
+      groupedOptions.push({
+        label: 'Not Applicable',
+        options: getSortableOptions([notApplicableTopic], undefined, undefined, (item) =>
+          formatTopicOption(item),
+        ),
+      });
+    const topicNames = Object.keys(TopicTypeName);
+    // reverse the sort here because the customer wants the secon enum first
+    topicNames
+      .slice()
+      .reverse()
+      .forEach((key) => {
+        let filteredTopics = topics.filter(
+          (el) => el.id !== topicIdNotApplicable && el.topicType === key,
+        );
+        if (filteredTopics)
+          groupedOptions.push({
+            label: key,
+            options: getSortableOptions(
+              filteredTopics,
+              undefined,
+              undefined,
+              (item) => formatTopicOption(item),
+              (a, b) => {
+                // sort Topic Name
+                return a.name.localeCompare(b.name);
+              },
+            ),
+          });
+      });
+    return groupedOptions;
   };
 
   const handleAddOrUpdate = async (values: ITopicModel) => {
@@ -167,7 +197,7 @@ const EventOfTheDayList: React.FC = () => {
         }
       }
       setAllTopics(results);
-      setTopicOptions(getSortedTopicOptions(results));
+      setGroupedOptions(convertToGroupedOptions(results));
     } catch {
       // Ignore error as it's handled globally.
     }
@@ -197,7 +227,7 @@ const EventOfTheDayList: React.FC = () => {
         <FlexboxTable
           rowId="contentId"
           data={items}
-          columns={useColumns(handleSubmit, allTopics, topicOptions)}
+          columns={useColumns(handleSubmit, allTopics, groupedOptions)}
           groupBy={(item) => {
             if (item.original.content?.series?.name) return item.original.content?.series?.name;
             else if (item.original.content?.source?.name)

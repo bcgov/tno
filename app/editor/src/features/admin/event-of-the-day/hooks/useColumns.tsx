@@ -1,19 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Select from 'react-select';
 import {
   CellDate,
   CellEllipsis,
-  FieldSize,
   IContentTopicModel,
   IFolderContentModel,
-  IOptionItem,
   ITableHookColumn,
   ITopicModel,
   OptionItem,
-  Select,
   Show,
   Spinner,
 } from 'tno-core';
+
+import { IGroupedOption } from '../EventOfTheDayList';
 
 // item with id of 1 is the magic [Not Applicable] topic
 const topicIdNotApplicable = 1;
@@ -27,7 +27,7 @@ const possibleScores = Array.from(Array(maxTopicScore + 1).keys()).map(
 export const useColumns = (
   handleSubmit: (values: IFolderContentModel) => Promise<void>,
   topics: ITopicModel[],
-  topicOptions: IOptionItem<string | number | undefined>[],
+  groupedTopicOptions: IGroupedOption[],
 ): ITableHookColumn<IFolderContentModel>[] => {
   const [isContentUpdating, setIsContentUpdating] = React.useState<number[]>([]);
   const toggleContentUpdatingStatus = (contentId: number) => {
@@ -89,6 +89,20 @@ export const useColumns = (
     }
   };
 
+  const getTopicOption = (targetTopicId: number): any => {
+    for (var groupCounter = 0; groupCounter < groupedTopicOptions.length; groupCounter++) {
+      for (
+        var optionCounter = 0;
+        optionCounter < groupedTopicOptions[groupCounter].options.length;
+        optionCounter++
+      ) {
+        if (groupedTopicOptions[groupCounter].options[optionCounter].value === targetTopicId) {
+          return groupedTopicOptions[groupCounter].options[optionCounter];
+        }
+      }
+    }
+  };
+
   const result: ITableHookColumn<IFolderContentModel>[] = [
     {
       label: 'Topic Name',
@@ -136,22 +150,24 @@ export const useColumns = (
       accessor: 'topic',
       cell: (cell) => {
         return (
-          <Select
-            name="topic"
-            options={topicOptions}
-            isDisabled={isRowContentUpdating(cell.original.contentId)}
-            isClearable={false}
-            className={isRowContentUpdating(cell.original.contentId) ? 'lock-control' : ''}
-            value={topicOptions?.find(
-              (o) =>
-                o.value ===
-                (cell.original.content!.topics!.length > 0
+          <>
+            <Select
+              name="topic"
+              options={groupedTopicOptions}
+              isDisabled={isRowContentUpdating(cell.original.contentId)}
+              isClearable={false}
+              className={
+                'topic-select ' +
+                (isRowContentUpdating(cell.original.contentId) ? 'lock-control' : '')
+              }
+              value={getTopicOption(
+                cell.original.content!.topics!.length > 0
                   ? cell.original.content!.topics![0].id
-                  : topicIdNotApplicable),
-            )}
-            width={FieldSize.Big}
-            onChange={async (e: any) => await handleTopicChange(e, cell)}
-          />
+                  : topicIdNotApplicable,
+              )}
+              onChange={async (e: any) => await handleTopicChange(e, cell)}
+            />
+          </>
         );
       },
     },
@@ -170,8 +186,10 @@ export const useColumns = (
                   cell.original.content!.topics![0].id === topicIdNotApplicable)
               }
               isClearable={false}
-              className={isRowContentUpdating(cell.original.contentId) ? 'lock-control' : ''}
-              width="10ch"
+              className={
+                'score-select ' +
+                (isRowContentUpdating(cell.original.contentId) ? 'lock-control' : '')
+              }
               options={possibleScores.filter(
                 // remove this filter if the editor needs to be able to override to any value they want
                 (s) => s.value <= (cell.original.maxTopicScore ?? maxTopicScore),
