@@ -1,7 +1,6 @@
 import { Action } from 'components/action';
 import { Button } from 'components/button';
 import { PageSection } from 'components/section';
-import { error } from 'console';
 import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { IContentValidationErrors } from 'features/my-reports/interfaces/IContentValidationErrors';
 import { toForm } from 'features/my-reports/utils';
