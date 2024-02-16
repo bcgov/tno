@@ -6,11 +6,7 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   position: relative;
   overflow-x: auto;
   overflow-y: hidden;
-  background: linear-gradient(
-    179.77deg,
-    ${(props) => props.theme.css.primaryBackgroundColor} 15.35%,
-    ${(props) => props.theme.css.secondaryBackgroundColor} 101.64%
-  );
+  background: ${(props) => props.theme.css.bkPrimary};
   width: 100%;
   height: 100dvh;
 

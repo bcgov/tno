@@ -7,7 +7,7 @@ export const AccessRequest = styled.div`
   width: 100%;
   margin: 0 5% 0 5%;
   padding: 2em;
-  background-color: ${(props) => props.theme.css.formBackgroundColor};
+  background-color: ${(props) => props.theme.css.bkForm};
 
   .welcome {
     gap: 1em;

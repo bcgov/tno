@@ -51,13 +51,13 @@ export const ContentRow = styled(Col)`
     }
   }
   .positive {
-    color: ${(props) => props.theme.css.toneGreen};
+    color: ${(props) => props.theme.css.tonePositive};
   }
   .negative {
-    color: ${(props) => props.theme.css.toneRed};
+    color: ${(props) => props.theme.css.toneNegative};
   }
   .neutral {
-    color: ${(props) => props.theme.css.toneYellow};
+    color: ${(props) => props.theme.css.toneNeutral};
   }
   .tone-icon {
     height: 20px;

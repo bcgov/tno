@@ -58,7 +58,7 @@ export const FolderMenu = styled(Col)`
     color: ${(props) => props.theme.css.fPrimaryColor};
     margin-top: 0.5em;
     &:hover {
-      background-color: ${(props) => props.theme.css.searchItemHover};
+      background-color: ${(props) => props.theme.css.highlightPrimary};
     }
     .popout-icon {
       margin-left: auto;

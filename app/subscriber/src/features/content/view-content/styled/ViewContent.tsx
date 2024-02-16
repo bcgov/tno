@@ -41,13 +41,13 @@ export const ViewContent = styled.div`
     color: ${(props) => props.theme.css.hPrimaryColor};
   }
   .neg {
-    color: #dc3545;
+    color: ${(props) => props.theme.css.toneNegative};
   }
   .pos {
-    color: #20c997;
+    color: ${(props) => props.theme.css.tonePositive};
   }
   .neut {
-    color: #ffc107;
+    color: ${(props) => props.theme.css.toneNeutral};
   }
   .transcribe-button {
     border: 2px solid rgb(0, 51, 102) !important;
@@ -57,7 +57,7 @@ export const ViewContent = styled.div`
     }
     svg,
     .spinner {
-      color: ${(props) => props.theme.css.itemActiveColor};
+      color: ${(props) => props.theme.css.highlightActive};
       align-self: center;
       margin-left: 0.5em;
     }
