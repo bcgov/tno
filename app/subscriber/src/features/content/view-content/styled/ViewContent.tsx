@@ -10,7 +10,7 @@ export const ViewContent = styled.div`
     margin-right: -1.25em;
     padding-left: 1.25em;
     padding-right: 1.25em;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     text-transform: uppercase;
     .byline {
       font-weight: 600;
