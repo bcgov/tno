@@ -124,7 +124,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
           )
         }
       >
-        {filter.homepage ? `Remove from` : `Add to`} Homepage
+        {filter.homepage ? `Remove from` : `Add to`} Featured Stories
       </Button>
       <Button
         variant={ButtonVariant.secondary}
