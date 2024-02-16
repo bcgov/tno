@@ -24,6 +24,7 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
 
   /** SEARCH FOR TEXT */
   label {
+    text-transform: uppercase;
     font-size: 1em;
     margin-right: 0.5em;
     align-self: center;
@@ -63,7 +64,7 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
       height: 2em;
     }
 
-    width: calc(90% - 15px);
+    width: calc(90% - 1rem);
     margin-top: auto;
     margin-bottom: auto;
     padding: 0;
@@ -105,12 +106,14 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
   }
 
   /* GO ADVANCED TEXT */
-  p {
+  .go-advanced {
     font-size: 1em;
     margin-left: ${(props) => (props.inHeader ? '3em' : 'auto')};
     align-self: center;
     margin-right: 0.5em;
     color: ${(props) => props.theme.css.fRedColor};
+    text-decoration: none;
+    text-transform: uppercase;
     &:hover {
       cursor: pointer;
       text-decoration: underline;

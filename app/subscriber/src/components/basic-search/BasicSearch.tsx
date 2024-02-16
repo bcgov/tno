@@ -3,7 +3,7 @@ import { handleEnterPressed, isNumber } from 'features/utils';
 import { FaSearch } from 'react-icons/fa';
 import { FaPlay } from 'react-icons/fa6';
 import { useNavigate } from 'react-router';
-import { useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { Button, IFilterSettingsModel, Row, Text } from 'tno-core';
 
@@ -46,7 +46,7 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
   return (
     <styled.BasicSearch inHeader={inHeader}>
       <Row className="search-row">
-        <label>SEARCH FOR: </label>
+        <label>Search for: </label>
         <Row className="icon-search">
           <FaSearch onClick={() => handleSearch()} className="search-icon" />
           <Text
@@ -77,7 +77,9 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
           Search
           <FaPlay />
         </Button>
-        <p onClick={() => navigate(`/search/advanced/${filterId}`)}>GO ADVANCED</p>
+        <Link to={`/search/advanced/${filterId}`} className="go-advanced">
+          Go Advanced
+        </Link>
       </Row>
     </styled.BasicSearch>
   );
