@@ -14,7 +14,7 @@
   bkStaticGray: $bk-static-gray;
   bkQuaternary: $bk-quaternary;
   bkError: $bk-error;
-  bkWhite: $bk-white;
+  bkForm: $bk-form;
   bkMain: $bk-main;
   teaserBackground: $teaser-background;
   stickyNoteColor: $sticky-note-color;
@@ -35,9 +35,9 @@
   fRedColor: $f-red-color;
 
   // Tone related
-  toneGreen: $tone-green;
-  toneRed: $tone-red;
-  toneYellow: $tone-yellow;
+  tonePositive: $tone-positive;
+  toneNegative: $tone-negative;
+  toneNeutral: $tone-neutral;
 
   // Links
   linkPrimaryColor: $link-primary-color;

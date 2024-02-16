@@ -41,13 +41,13 @@ export const ViewContent = styled.div`
     color: ${(props) => props.theme.css.hPrimaryColor};
   }
   .neg {
-    color: ${(props) => props.theme.css.toneRed};
+    color: ${(props) => props.theme.css.toneNegative};
   }
   .pos {
-    color: ${(props) => props.theme.css.toneGreen};
+    color: ${(props) => props.theme.css.tonePositive};
   }
   .neut {
-    color: ${(props) => props.theme.css.toneYellow};
+    color: ${(props) => props.theme.css.toneNeutral};
   }
   .transcribe-button {
     border: 2px solid rgb(0, 51, 102) !important;
