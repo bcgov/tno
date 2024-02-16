@@ -5,7 +5,7 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
   ${(props) =>
     props.inHeader &&
     `
-      width: 60%;
+      width: 100%;
     `}
   ${(props) =>
     !props.inHeader &&
@@ -24,7 +24,7 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
 
   /** SEARCH FOR TEXT */
   label {
-    font-size: 0.8em;
+    font-size: 1em;
     margin-right: 0.5em;
     align-self: center;
     margin-left: ${(props) => props.inHeader && '5%'};
@@ -32,6 +32,7 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
 
   /** GROUP CONTAINING ICON AND SEARCH INPUT  */
   .icon-search {
+    width: 30%;
     border: 0.5px solid ${(props) => props.theme.css.linePrimaryColor};
     border-radius: 1.5em;
     background-color: ${(props) => props.theme.css.bkWhite};
@@ -49,11 +50,9 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
     }
   }
 
-  @media only screen and (max-width: 900px) {
-    .search-row {
-      flex-flow: nowrap;
-      width: 100%;
-    }
+  .search-row {
+    flex-flow: nowrap;
+    width: 100%;
   }
 
   .search-input {
@@ -64,7 +63,7 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
       height: 2em;
     }
 
-    width: 85%;
+    width: calc(90% - 15px);
     margin-top: auto;
     margin-bottom: auto;
     padding: 0;
@@ -107,7 +106,7 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
 
   /* GO ADVANCED TEXT */
   p {
-    font-size: 0.8em;
+    font-size: 1em;
     margin-left: ${(props) => (props.inHeader ? '3em' : 'auto')};
     align-self: center;
     margin-right: 0.5em;

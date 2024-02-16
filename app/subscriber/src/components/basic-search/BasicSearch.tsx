@@ -45,8 +45,8 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
 
   return (
     <styled.BasicSearch inHeader={inHeader}>
-      <label>SEARCH FOR: </label>
       <Row className="search-row">
+        <label>SEARCH FOR: </label>
         <Row className="icon-search">
           <FaSearch onClick={() => handleSearch()} className="search-icon" />
           <Text
@@ -77,8 +77,8 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
           Search
           <FaPlay />
         </Button>
+        <p onClick={() => navigate(`/search/advanced/${filterId}`)}>GO ADVANCED</p>
       </Row>
-      <p onClick={() => navigate(`/search/advanced/${filterId}`)}>GO ADVANCED</p>
     </styled.BasicSearch>
   );
 };
