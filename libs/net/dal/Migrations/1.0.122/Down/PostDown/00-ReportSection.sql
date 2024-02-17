@@ -17,9 +17,9 @@ WHERE name = 'Event of the Day'
 AND owner_id = (select id from public."user" where username = 'service-account');
 
 -- Create invisble report sections with folder that will be cleared on report send.
-DELETE public."report_section" 
+DELETE FROM public."report_section" 
 WHERE "name" = '696adda3-f98a-40d0-8efe-90b614853fde'
-AND "report_id" = ReportId,
+AND "report_id" = ReportId
 AND "folder_id" = FolderId;
 
 END $$;
