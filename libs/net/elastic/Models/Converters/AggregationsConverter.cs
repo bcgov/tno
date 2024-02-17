@@ -50,13 +50,16 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
             switch (propName.ToLower())
             {
                 case var _ when propName.Equals(PropNameDocCount.ToLower()):
-                    dto.DocCount = reader.GetInt64();
+                    dto.DocCount = reader.GetInt64(); // this result is not reliable
                     break;
                 default:
                     dto.ChildAggregation = ParseAggregationModel(ref reader, propName);
                     break;
             }
         }
+        // calculate the sum DocCount of ChildAggregation.Buckets
+        if (dto.ChildAggregation.Buckets.Any())
+            dto.DocCount = dto.ChildAggregation.Buckets.Sum(b => b.DocCount);
         return dto;
     }
     private static AggregationModel ParseAggregationModel(ref Utf8JsonReader reader, string aggregateName)
@@ -105,7 +108,7 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
                 switch (propName.ToLower())
                 {
                     case var _ when propName.Equals(PropNameDocCount.ToLower()):
-                        bucket.DocCount = reader.GetInt64();
+                        bucket.DocCount = reader.GetInt64(); // unreliable
                         break;
                     case var _ when propName.Equals(PropNameKey.ToLower()):
                         bucket.Key = reader.GetString() ?? "";
@@ -114,6 +117,8 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
                         bucket.ChildAggregation = ParseAggregationModel(ref reader, propName);
                         break;
                 }
+                if (bucket.ChildAggregation != null && bucket.ChildAggregation.Buckets.Any())
+                    bucket.DocCount = bucket.ChildAggregation.Buckets.Sum(b => b.DocCount);
             }
             else if (reader.TokenType == JsonTokenType.StartObject)
             {

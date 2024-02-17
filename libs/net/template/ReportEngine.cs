@@ -253,7 +253,7 @@ public class ReportEngine : IReportEngine
         {
             var aggregateSection = new Dictionary<string, ReportSectionModel>();
             // Collect all section content for report summary charts.
-            report.Sections.Where(section => section.SectionType == Entities.ReportSectionType.Content).ForEach(section =>
+            report.Sections.Where(section => section.SectionType == Entities.ReportSectionType.Content && section.IsEnabled).ForEach(section =>
             {
                 // If the section has content add it to the chart request.
                 if (sectionContent.TryGetValue(section.Name, out ReportSectionModel? sectionData) && sectionData != null)
@@ -262,7 +262,7 @@ public class ReportEngine : IReportEngine
                 }
             });
 
-            await report.Sections.Where(section => section.SectionType == Entities.ReportSectionType.MediaAnalytics).ForEachAsync(async section =>
+            await report.Sections.Where(section => section.SectionType == Entities.ReportSectionType.MediaAnalytics && section.IsEnabled).ForEachAsync(async section =>
             {
                 var settings = section.Settings;
                 List<ContentModel> content = new();
