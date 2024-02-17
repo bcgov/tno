@@ -58,7 +58,7 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
             }
         }
         // calculate the sum DocCount of ChildAggregation.Buckets
-        if (dto.ChildAggregation.Buckets.Any())
+        if (dto.ChildAggregation != null & dto.ChildAggregation.Buckets.Any())
             dto.DocCount = dto.ChildAggregation.Buckets.Sum(b => b.DocCount);
         return dto;
     }
