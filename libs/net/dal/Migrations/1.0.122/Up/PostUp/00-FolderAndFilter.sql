@@ -28,45 +28,94 @@ SET
     "description" = 'This filter returns the top X topics used over the last 24 hours. Will not include content set with topic "Not Applicable"',
     "query" = 
 '{
-  "aggs": {
-    "aggTopics": {
-      "aggs": {
-        "aggTopicType": {
-          "aggs": {
-            "aggTopicName": {
-              "terms": {
-                "size": 100,
-                "field": "topics.name",
-                "order": [
-                  {
-                    "_count": "desc"
-                  }
-                ],
-                "exclude": "Not Applicable"
-              }
+    "aggs": {
+        "aggTopics": {
+            "aggs": {
+                "aggTopicType": {
+                    "aggs": {
+                        "aggTopicName": {
+                            "terms": {
+                                "size": 100,
+                                "field": "topics.name",
+                                "order": [
+                                    {
+                                        "_count": "desc"
+                                    }
+                                ],
+                                "exclude": "Not Applicable"
+                            }
+                        }
+                    },
+                    "terms": {
+                        "field": "topics.topicType",
+                        "order": [
+                            {
+                                "_key": "desc"
+                            }
+                        ]
+                    }
+                }
+            },
+            "nested": {
+                "path": "topics"
             }
-          },
-          "terms": {
-            "field": "topics.topicType",
-            "order": [
-              {
-                "_key": "desc"
-              }
-            ]
-          }
         }
-      },
-      "nested": {
-        "path": "topics"
-      }
+    },
+    "size": 255,
+    "sort": [
+        {
+            "publishedOn": "desc"
+        }
+    ],
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "range": {
+                        "publishedOn": {
+                            "gte": "now-1d/d",
+                            "time_zone": "US/Pacific"
+                        }
+                    }
+                },
+                {
+                    "nested": {
+                        "path": "topics",
+                        "query": {
+                            "exists": {
+                                "field": "topics"
+                            }
+                        }
+                    }
+                }
+            ],
+            "must_not": [
+                {
+                    "terms": {
+                        "mediaTypeId": [
+                            10
+                        ]
+                    }
+                },
+                {
+                    "nested": {
+                        "path": "topics",
+                        "query": {
+                            "bool": {
+                                "must": [
+                                    {
+                                        "match": {
+                                            "topics.name": "Not Applicable"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        }
     }
-  },
-  "size": 255,
-  "sort": [
-    {
-      "publishedOn": "desc"
-    }
-  ]
 }',
   "settings" =
 '{
