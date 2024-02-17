@@ -8,8 +8,6 @@ public class ContentReferenceFilter : PageFilter
 {
     #region Properties
     public WorkflowStatus? Status { get; set; }
-    public int? Offset { get; set; }
-    public int? Partition { get; set; }
     public string[]? Sources { get; set; }
     public int[]? MediaTypeIds { get; set; }
     public string? Uid { get; set; }
@@ -36,9 +34,6 @@ public class ContentReferenceFilter : PageFilter
         this.MediaTypeIds = filter.GetIntArrayValue(nameof(this.MediaTypeIds));
         this.Uid = filter.GetStringValue(nameof(this.Uid));
         this.Topic = filter.GetStringValue(nameof(this.Topic));
-
-        this.Offset = filter.GetIntNullValue(nameof(this.Offset));
-        this.Partition = filter.GetIntNullValue(nameof(this.Partition));
 
         this.PublishedOn = filter.GetDateTimeNullValue(nameof(this.PublishedOn));
         this.PublishedStartOn = filter.GetDateTimeNullValue(nameof(this.PublishedStartOn));

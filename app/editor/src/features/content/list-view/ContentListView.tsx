@@ -68,7 +68,7 @@ const ContentListView: React.FC = () => {
   React.useEffect(() => {
     setCurrentItems(currentResultsPage.items);
   }, [currentResultsPage, setCurrentItems]);
-  // if the user navigates next/previous in another window change the highlited row
+  // if the user navigates next/previous in another window change the highlighted row
   React.useEffect(() => {
     if (currentItemId !== -1) setContentId(currentItemId.toString());
   }, [currentItemId, setContentId]);

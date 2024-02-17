@@ -96,24 +96,5 @@ public class ContentReferenceController : ControllerBase
         var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(new ContentReferenceModel(result, _serializerOptions));
     }
-
-    /// <summary>
-    /// Update content reference in database with Kafka information.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    [HttpPut("{source}/kafka")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ContentReferenceModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "ContentReference" })]
-    public IActionResult UpdateKafka(ContentReferenceModel model)
-    {
-        var reference = _service.FindByKey(model.Source, model.Uid) ?? throw new NoContentException();
-        reference.Offset = model.Offset;
-        reference.Partition = model.Partition;
-        var result = _service.UpdateAndSave(reference);
-        return new JsonResult(new ContentReferenceModel(result, _serializerOptions));
-    }
     #endregion
 }

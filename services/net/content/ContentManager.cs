@@ -510,9 +510,9 @@ public class ContentManager : ServiceManager<ContentOptions>
                 }
                 catch
                 {
-                    Logger.LogError("{class}.{method}: [version: {version}; offset: {offset}; partition: {partition}]",
+                    Logger.LogError("{class}.{method}: [version: {version};]",
                         nameof(ContentManager), nameof(HandleMessageAsync),
-                        reference.Version, reference.Offset, reference.Partition);
+                        reference.Version);
                     throw;
                 }
             }
