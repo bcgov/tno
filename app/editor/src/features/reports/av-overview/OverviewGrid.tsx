@@ -55,8 +55,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
 
   const eveningOverviewItemTypeOptions = castEnumToOptions(AVOverviewItemTypeName);
   const items = values.sections[index].items;
-  const [params] = useSearchParams();
-  const queryDate = params.get('date') ? moment(params.get('date')) : moment(Date.now());
+  const queryDate = values.publishedOn ? moment(values.publishedOn) : moment(Date.now());
   const startTime = values.sections[index]?.startTime?.split(':');
 
   /** flag to keep track of when new complete start time is entered and trigger another search
