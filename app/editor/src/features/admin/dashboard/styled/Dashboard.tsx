@@ -22,20 +22,17 @@ export const Dashboard = styled.div`
     }
 
     .ingest {
-      height: 100px;
-      width: 200px;
+      flex: 1 1 24%;
       display: flex;
       flex-direction: column;
       padding: 0;
 
       & div:first-child {
         flex: 1 1 100%;
-        overflow: hidden;
 
         h3 {
           flex: 1 1 100%;
           padding: 0.25rem;
-          overflow: auto;
         }
 
         .icon {

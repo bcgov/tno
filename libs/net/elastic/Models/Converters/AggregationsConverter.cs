@@ -1,4 +1,3 @@
-using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -30,7 +29,7 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
 
             if (reader.TokenType == JsonTokenType.PropertyName)
             {
-                string aggregateName = (reader.GetString() ?? "");
+                string aggregateName = reader.GetString() ?? "";
                 reader.Read();
                 dto.Add(aggregateName, ParseAggregationRootModels(ref reader, aggregateName));
             }
@@ -45,7 +44,7 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
 
         while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
         {
-            string propName = (reader.GetString() ?? "");
+            string propName = reader.GetString() ?? "";
             reader.Read();
             switch (propName.ToLower())
             {
@@ -58,8 +57,8 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
             }
         }
         // calculate the sum DocCount of ChildAggregation.Buckets
-        if (dto.ChildAggregation != null & dto.ChildAggregation.Buckets.Any())
-            dto.DocCount = dto.ChildAggregation.Buckets.Sum(b => b.DocCount);
+        if (dto.ChildAggregation != null && dto.ChildAggregation?.Buckets.Any() == true)
+            dto.DocCount = dto.ChildAggregation?.Buckets.Sum(b => b.DocCount) ?? 0;
         return dto;
     }
     private static AggregationModel ParseAggregationModel(ref Utf8JsonReader reader, string aggregateName)
@@ -68,7 +67,7 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
 
         while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
         {
-            string propName = (reader.GetString() ?? "");
+            string propName = reader.GetString() ?? "";
             reader.Read();
             switch (propName.ToLower())
             {
@@ -89,7 +88,7 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
     private static IEnumerable<AggregationBucketModel> ParseAggregationBucketModels(ref Utf8JsonReader reader)
     {
         var buckets = new List<AggregationBucketModel>();
-        AggregationBucketModel bucket = new AggregationBucketModel();
+        AggregationBucketModel bucket = new();
         reader.Read();
 
         // if the array is empty?
@@ -100,10 +99,10 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
 
         while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
         {
-            if ((reader.TokenType != JsonTokenType.StartObject) 
+            if ((reader.TokenType != JsonTokenType.StartObject)
                 && (reader.TokenType != JsonTokenType.EndObject))
             {
-                string propName = (reader.GetString() ?? "");
+                string propName = reader.GetString() ?? "";
                 reader.Read();
                 switch (propName.ToLower())
                 {
@@ -149,7 +148,7 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
     public void WriteAggregationRootModel(Utf8JsonWriter writer, AggregationRootModel value, JsonSerializerOptions options)
     {
         writer.WriteNumber(PropNameDocCount, value.DocCount);
-        
+
         if (value.ChildAggregation != null)
             WriteAggregationModel(writer, value.ChildAggregation, options);
     }

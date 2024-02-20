@@ -3,18 +3,21 @@ import moment from 'moment';
 import React from 'react';
 import { Row as rtRow, SortingRule } from 'react-table';
 import { toast } from 'react-toastify';
-import { useApp } from 'store/hooks';
+import { useApp, useLookup } from 'store/hooks';
 import { useContentReferences } from 'store/hooks/admin';
 import {
   FieldSize,
+  getSortableOptions,
   IconButton,
   IContentReferenceFilter,
   IContentReferenceModel,
   IIngestModel,
   IPage,
+  OptionItem,
   Page,
   PagedTable,
   Row,
+  Select,
   SelectDate,
   Text,
 } from 'tno-core';
@@ -31,21 +34,33 @@ export interface IContentReferenceListProps {}
 
 const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
   const [{ requests }] = useApp();
-  const [, api] = useContentReferences();
+  const [, { findContentReferences, findContentIds }] = useContentReferences();
   const { values } = useFormikContext<IIngestModel>();
-
-  const sources = [
-    values.source?.code,
-    ...(values.configuration?.sources?.split('&').map((s: string) => s.split('=').slice(-1)) ?? []),
-  ].filter((s) => s !== undefined) as string[];
+  const [{ sources }] = useLookup();
 
   const [filter, setFilter] = React.useState<IContentReferenceListFilter>({
     ...defaultContentReferenceFilter,
-    sources: sources,
+    sources: values.source?.code ? [values.source.code] : [],
     mediaTypeIds: [values.mediaTypeId],
   });
   const [page, setPage] = React.useState<IPage<IContentReferenceModel>>(
     defaultContentReferencePage,
+  );
+
+  // Extract possible sources for this ingest from the configuration, or list all options.
+  const configSources = [values.source?.code]
+    .concat(values.configuration?.sources?.split('&').map((s: string) => s.split('=')[1]) ?? [])
+    .filter((s) => s !== undefined) as string[];
+  const ingestSources = configSources.length
+    ? configSources
+        .map((code) => sources.find((source) => source.code === code)!)
+        .filter((source) => !!source)
+    : sources;
+  const sourceOptions = getSortableOptions(
+    ingestSources,
+    values.sourceId,
+    [],
+    (i) => new OptionItem(`(${i.code}) ${i.name}`, i.id),
   );
 
   const fetch = React.useCallback(
@@ -67,12 +82,12 @@ const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
             : undefined,
           sort: filter.sort.length ? filter.sort.map((s) => `${s.id}${s.desc ? ' desc' : ''}`) : [],
         };
-        const result = await api.findContentReferences(query);
+        const result = await findContentReferences(query);
         setPage(new Page(result.page - 1, result.quantity, result.items, result.total));
         return result;
       } catch {}
     },
-    [api],
+    [findContentReferences],
   );
 
   React.useEffect(() => {
@@ -102,14 +117,14 @@ const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
 
   const handleRowClick = React.useCallback(
     async (row: rtRow<IContentReferenceModel>) => {
-      const ids = await api.findContentIds(row.original.uid);
+      const ids = await findContentIds(row.original.uid);
       if (ids.length) {
         window.open(`/contents/${ids[0]}`, '_blank');
       } else {
         toast.error('No content found, the uid may have been changed.');
       }
     },
-    [api],
+    [findContentIds],
   );
 
   return (
@@ -126,6 +141,17 @@ const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
           onBlur={(e) => {
             setFilter({ ...filter, uid: e.target.value });
           }}
+        />
+        <Select
+          label="Source"
+          name="sources"
+          options={sourceOptions}
+          onChange={(newValue: any) => {
+            // Use the source.code to set the Kafka topic.
+            const source = sources.find((s) => s.id === newValue.value);
+            setFilter({ ...filter, sources: source ? [source.code] : [] });
+          }}
+          clearValue={''}
         />
         <SelectDate
           name="startDate"

@@ -5,8 +5,6 @@ export interface IContentReferenceModel {
   uid: string;
   topic: string;
   status: WorkflowStatusName;
-  offset: number;
-  partition: number;
   publishedOn?: string;
   sourceUpdatedOn?: string;
 }

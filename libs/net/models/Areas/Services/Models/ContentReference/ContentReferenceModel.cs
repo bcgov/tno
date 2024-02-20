@@ -4,7 +4,8 @@ using TNO.Entities;
 
 namespace TNO.API.Areas.Services.Models.ContentReference;
 
-public static class ContentReferenceMetaDataKeys {
+public static class ContentReferenceMetaDataKeys
+{
     #region Constants
     public const string MetadataKeyUpdatedOn = "UpdatedOn";
     public const string MetadataKeyIngestSource = "IngestSource";
@@ -33,16 +34,6 @@ public class ContentReferenceModel : AuditColumnsModel
     /// get/set -
     /// </summary>
     public int Status { get; set; }
-
-    /// <summary>
-    /// get/set -
-    /// </summary>
-    public long Offset { get; set; } = -1;
-
-    /// <summary>
-    /// get/set -
-    /// </summary>
-    public int Partition { get; set; } = -1;
 
     /// <summary>
     /// get/set -
@@ -82,8 +73,6 @@ public class ContentReferenceModel : AuditColumnsModel
         this.Uid = entity.Uid;
         this.Status = (int)entity.Status;
         this.Topic = entity.Topic;
-        this.Offset = entity.Offset;
-        this.Partition = entity.Partition;
         this.PublishedOn = entity.PublishedOn;
         this.SourceUpdateOn = entity.SourceUpdateOn;
         this.Metadata = entity?.Metadata != null
@@ -111,7 +100,7 @@ public class ContentReferenceModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.ContentReference(ContentReferenceModel model)
     {
-        var entity = new Entities.ContentReference(model.Source, model.Uid, model.Topic, model.Offset, model.Partition, (WorkflowStatus)Enum.ToObject(typeof(WorkflowStatus), model.Status))
+        var entity = new Entities.ContentReference(model.Source, model.Uid, model.Topic, (WorkflowStatus)Enum.ToObject(typeof(WorkflowStatus), model.Status))
         {
             Metadata = JsonDocument.Parse(JsonSerializer.Serialize(model.Metadata)),
             PublishedOn = model.PublishedOn,

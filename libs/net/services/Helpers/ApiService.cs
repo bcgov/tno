@@ -392,19 +392,6 @@ public class ApiService : IApiService
         var content = JsonContent.Create(contentReference);
         return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.ContentReference.ContentReferenceModel>(url, content));
     }
-
-    /// <summary>
-    /// Make an HTTP request to the api to update the specified content reference with Kafka information.
-    /// </summary>
-    /// <param name="contentReference"></param>
-    /// <returns></returns>
-    public async Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> UpdateContentReferenceKafkaAsync(
-        API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference)
-    {
-        var url = this.Options.ApiUrl.Append($"services/content/references/{contentReference.Source}/kafka?uid={contentReference.Uid}");
-        var content = JsonContent.Create(contentReference);
-        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.ContentReference.ContentReferenceModel>(url, content));
-    }
     #endregion
 
     #region Content Methods

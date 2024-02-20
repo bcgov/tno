@@ -168,13 +168,6 @@ public interface IApiService
     public Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> UpdateContentReferenceAsync(API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference);
 
     /// <summary>
-    /// Make a request to the API to update the specified content reference with Kafka information.
-    /// </summary>
-    /// <param name="contentReference"></param>
-    /// <returns></returns>
-    public Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> UpdateContentReferenceKafkaAsync(API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference);
-
-    /// <summary>
     /// Make a request to the API to add the specified content.
     /// </summary>
     /// <param name="content"></param>

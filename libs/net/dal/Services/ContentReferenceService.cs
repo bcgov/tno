@@ -47,11 +47,6 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
                     where filter.MediaTypeIds.Contains(c.MediaTypeId)
                     select cf;
 
-        if (filter.Offset.HasValue)
-            query = query.Where(c => c.Offset == filter.Offset);
-        if (filter.Partition.HasValue)
-            query = query.Where(c => c.Partition == filter.Partition);
-
         if (filter.PublishedOn.HasValue)
             query = query.Where(c => c.PublishedOn == filter.PublishedOn.Value.ToUniversalTime());
         if (filter.PublishedStartOn.HasValue && filter.PublishedEndOn.HasValue)

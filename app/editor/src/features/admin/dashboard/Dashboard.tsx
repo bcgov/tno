@@ -2,6 +2,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { FaEdit } from 'react-icons/fa';
+import { FaBugSlash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { useApiHub, useLookupOptions } from 'store/hooks';
 import { useIngests, useIngestTypes } from 'store/hooks/admin';
@@ -33,7 +34,7 @@ const groupIngests = (ingests: IIngestModel[], typeId?: number) => {
 };
 
 export const Dashboard: React.FC = () => {
-  const [{ ingests }, { findAllIngests, storeIngest }] = useIngests();
+  const [{ ingests }, { findAllIngests, storeIngest, updateIngest }] = useIngests();
   const [, { findAllIngestTypes }] = useIngestTypes();
   const [{ ingestTypeOptions }] = useLookupOptions();
   const navigate = useNavigate();
@@ -86,6 +87,15 @@ export const Dashboard: React.FC = () => {
     );
   });
 
+  const handleUpdate = React.useCallback(
+    async (ingest: IIngestModel) => {
+      try {
+        await updateIngest(ingest);
+      } catch {}
+    },
+    [updateIngest],
+  );
+
   return (
     <styled.Dashboard>
       <FormPage>
@@ -111,28 +121,52 @@ export const Dashboard: React.FC = () => {
         </Row>
         <Row>
           {Object.entries(groups)
-            .filter((g) => showAll || g[1].some((i) => i.isEnabled))
+            .filter((g) => showAll || g[1].some((ingest) => ingest.isEnabled))
             .map((g) => (
               <React.Fragment key={g[0]}>
                 {g[1]
-                  .filter((i) => showAll || i.isEnabled)
-                  .map((i) => (
-                    <Section key={i.id} className={`ingest ${getClassName(getStatus(i))}`}>
+                  .filter((ingest) => showAll || ingest.isEnabled)
+                  .map((ingest) => (
+                    <Section
+                      key={ingest.id}
+                      className={`ingest ${getClassName(getStatus(ingest))}`}
+                    >
                       <Row nowrap>
-                        {getIngestIcon(i)}
-                        <h3>{i.name}</h3>
+                        {getIngestIcon(ingest)}
+                        <h3>{ingest.name}</h3>
                         <div>
                           <FaEdit
                             title="Edit"
                             className="btn-link"
-                            onClick={() => navigate(`/admin/ingests/${i.id}`)}
+                            onClick={() => navigate(`/admin/ingests/${ingest.id}`)}
+                          />
+                        </div>
+                        <div>
+                          <FaBugSlash
+                            title="Reset"
+                            className="btn-link"
+                            onClick={() => handleUpdate({ ...ingest, failedAttempts: 0 })}
                           />
                         </div>
                       </Row>
                       <Col className="lastRan">
-                        {i.lastRanOn ? moment(i.lastRanOn).format('YYYY-MM-DD hh:mm:ss') : ''}
+                        {ingest.lastRanOn
+                          ? moment(ingest.lastRanOn).format('YYYY-MM-DD hh:mm:ss')
+                          : ''}
                       </Col>
-                      <div>{getStatus(i)}</div>
+                      <Row nowrap alignItems="center">
+                        <Col>{getStatus(ingest)}</Col>
+                        <Col>
+                          <Checkbox
+                            name={`chkIsEnabled-${ingest.id}`}
+                            label="Enabled"
+                            checked={ingest.isEnabled}
+                            onChange={(e) =>
+                              handleUpdate({ ...ingest, isEnabled: e.target.checked })
+                            }
+                          />
+                        </Col>
+                      </Row>
                     </Section>
                   ))}
               </React.Fragment>
