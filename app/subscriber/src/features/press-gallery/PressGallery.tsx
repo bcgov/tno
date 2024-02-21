@@ -30,12 +30,13 @@ export const PressGallery: React.FC = () => {
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [pressMembers, setPressMembers] = React.useState<IPressMember[]>([]);
+  // initial load underway no requests at this time
   const [initialLoad, setInitialLoad] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [dateOptions, setDateOptions] = React.useState<IDateOptions[]>([]);
   const [aliases, setAliases] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(false);
-  const [groupedContent, setGroupedContent] = React.useState<IGroupedDates[] | undefined>();
+  const [contentByDate, setContentByDate] = React.useState<IGroupedDates | undefined>();
   const [pressSettings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(`${moment().startOf('day')}`, `${moment().subtract('2', 'weeks')}`),
   );
@@ -79,16 +80,7 @@ export const PressGallery: React.FC = () => {
         acc[date].push(content);
         return acc;
       }, {});
-      // !groupedContent?.length &&
-      setGroupedContent(
-        Object.entries(grouped).map(
-          ([key, value]) =>
-            ({
-              date: key,
-              content: value as IContentSearchResult[],
-            } as IGroupedDates),
-        ),
-      );
+      setContentByDate(grouped);
     }
   }, [content]);
 
@@ -189,7 +181,7 @@ export const PressGallery: React.FC = () => {
             return {
               label: `${d.label} ${
                 !pressGalleryFilter.dateFilter
-                  ? `(${groupedContent?.find((c) => c.date === d.label)?.content.length ?? 0})`
+                  ? `(${contentByDate?.[d.label as keyof IGroupedDates]?.length ?? 0})`
                   : ''
               }`,
               value: d.value,
