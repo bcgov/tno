@@ -60,7 +60,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
         {viewOptions.sentiment && determineToneIcon(item.tonePools[0])}
         {showDate && (
           <div className="date">{`${moment(item.publishedOn).format('DD-MMM-YYYY')} ${
-            showTime ? `(${moment(item.publishedOn).format('HH:mm:ss')})` : ''
+            showTime ? `(${moment(item.publishedOn).format('HH:mm')})` : ''
           }`}</div>
         )}
         <Link to={`/view/${item.id}`} className="headline">

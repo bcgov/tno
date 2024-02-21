@@ -5,7 +5,7 @@ import { castToSearchResult, createFilterSettings } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { FiRefreshCcw } from 'react-icons/fi';
+import { FaFilterCircleXmark } from 'react-icons/fa6';
 import { useContent } from 'store/hooks';
 import { useContributors } from 'store/hooks/subscriber/useContributors';
 import {
@@ -17,27 +17,26 @@ import {
   Select,
 } from 'tno-core';
 
-import { IDateOptions, IPressMember } from './interfaces';
+import { IDateOptions, IGroupedDates, IPressMember } from './interfaces';
 import * as styled from './styled';
-import { generateDates } from './utils';
+import { generateDates, seperateAlias } from './utils';
 
 export const PressGallery: React.FC = () => {
-  const [
-    {
-      home: { filter },
-    },
-    { findContentWithElasticsearch },
-  ] = useContent();
   const [, api] = useContributors();
-  const [{ pressGalleryFilter }, { storeGalleryDateFilter, storeGalleryPressFilter }] =
-    useContent();
+  const [
+    { pressGalleryFilter },
+    { storeGalleryDateFilter, findContentWithElasticsearch, storeGalleryPressFilter },
+  ] = useContent();
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [pressMembers, setPressMembers] = React.useState<IPressMember[]>([]);
+  // initial load underway no requests at this time
+  const [initialLoad, setInitialLoad] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [dateOptions, setDateOptions] = React.useState<IDateOptions[]>([]);
   const [aliases, setAliases] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const [contentByDate, setContentByDate] = React.useState<IGroupedDates | undefined>();
   const [pressSettings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(`${moment().startOf('day')}`, `${moment().subtract('2', 'weeks')}`),
   );
@@ -65,32 +64,25 @@ export const PressGallery: React.FC = () => {
     [],
   );
 
-  /** separate requests to find total hits for each press member */
-  const fetchResultHits = React.useCallback(
-    async (filter: MsearchMultisearchBody, name?: string, date?: string) => {
-      try {
-        const res = await findContentWithElasticsearch(filter, false);
-        if (!!name)
-          setPressMembers((pressMembers) =>
-            pressMembers.map((c) =>
-              c.name === name ? { ...c, hits: (res.hits.total as any).value } : c,
-            ),
-          );
-        if (!!date)
-          setDateOptions((dates) =>
-            dates.map((d) =>
-              d.value === date ? { ...d, hits: (res.hits.total as any).value } : d,
-            ),
-          );
-      } catch {}
-    },
-    [findContentWithElasticsearch],
-  );
-
   React.useEffect(() => {
     const dates = generateDates();
     setDateOptions(dates);
   }, []);
+
+  // group content by date on the frontend instead of addtioanl fetches for each date
+  React.useEffect(() => {
+    if (!!content.length) {
+      const grouped = content.reduce((acc: any, content) => {
+        const date = moment(content.publishedOn).format('YYYY-MM-DD');
+        if (!acc[date]) {
+          acc[date] = [];
+        }
+        acc[date].push(content);
+        return acc;
+      }, {});
+      setContentByDate(grouped);
+    }
+  }, [content]);
 
   React.useEffect(() => {
     api.findAllContributors().then((contributors) => {
@@ -104,7 +96,8 @@ export const PressGallery: React.FC = () => {
             return contributor.name;
           }
         });
-      setAliases(allAliases.map((alias) => `"${alias}"`));
+      const formattedAliases = seperateAlias(allAliases);
+      setAliases(formattedAliases);
     });
     // run on init
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -119,11 +112,12 @@ export const PressGallery: React.FC = () => {
       endDate = `${moment(pressGalleryFilter.dateFilter.value).endOf('day')}`;
     }
     // only fetch once the aliases are ready
-    if (!!aliases.length) {
-      var aliasesFilter = aliases.toString().split(',').join(' ');
+    if (!!aliases.length && !initialLoad) {
+      var aliasesFilter = aliases.toString();
       if (!!pressGalleryFilter.pressFilter) {
         aliasesFilter =
-          pressMembers.find((c) => c.name === pressGalleryFilter.pressFilter?.value)?.aliases ?? '';
+          pressMembers.find((c) => c.aliases === pressGalleryFilter.pressFilter?.value)?.aliases ??
+          '';
       }
       fetchResults(
         generateQuery({
@@ -134,43 +128,9 @@ export const PressGallery: React.FC = () => {
           endDate,
         }),
       );
+      setInitialLoad(true);
     }
-  }, [aliases, pressSettings, fetchResults, pressGalleryFilter, pressMembers]);
-
-  React.useEffect(() => {
-    pressMembers.forEach((contributor) => {
-      fetchResultHits(
-        generateQuery({
-          ...pressSettings,
-          search: contributor.aliases,
-          startDate: `${moment(filter.startDate).subtract(2, 'weeks')}`,
-          endDate: `${moment()}`,
-        }),
-        contributor.name,
-      );
-    });
-    // only want to run when press members are loaded
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pressMembers.length]);
-
-  React.useEffect(() => {
-    !!aliases.length &&
-      dateOptions.forEach((date) => {
-        fetchResultHits(
-          generateQuery({
-            ...pressSettings,
-            defaultSearchOperator: 'or',
-            search: aliases.toString().split(',').join(' '),
-            startDate: `${moment(date.value).startOf('day')}`,
-            endDate: `${moment(date.value).endOf('day')}`,
-          }),
-          '',
-          String(date.value),
-        );
-      });
-    // only want to run when date options/ aliases are loaded
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dateOptions.length, aliases, pressSettings]);
+  }, [aliases, pressSettings, initialLoad, fetchResults, pressGalleryFilter, pressMembers]);
 
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
@@ -191,32 +151,39 @@ export const PressGallery: React.FC = () => {
           clearValue={() => storeGalleryPressFilter(null)}
           value={pressGalleryFilter.pressFilter}
           onChange={(e: any) => {
-            storeGalleryDateFilter(null);
             storeGalleryPressFilter(e);
-            // can only use one of the two filters
             fetchResults(
               generateQuery({
                 ...pressSettings,
-                search: pressMembers.find((c) => c.name === e.value)?.aliases ?? '',
-                startDate: `${moment().subtract(2, 'weeks')}`,
-                endDate: `${moment()}`,
+                defaultSearchOperator: 'or',
+                search: pressMembers.find((c) => c.aliases === e.value)?.aliases ?? '',
+                startDate: pressGalleryFilter.dateFilter
+                  ? `${moment(pressGalleryFilter.dateFilter.value).startOf('day')}`
+                  : `${moment().subtract(2, 'weeks')}`,
+                endDate: pressGalleryFilter.dateFilter
+                  ? `${moment(pressGalleryFilter.dateFilter.value).endOf('day')}`
+                  : `${moment()}`,
               }),
             );
           }}
           options={pressMembers.map((c) => {
             return {
-              label: `${c.name} (${c.hits ?? 0})`,
+              label: `${c.name}`,
               value: c.aliases ?? c.name,
             };
           })}
         />
-        <p className="or">or</p>
         <Select
           value={pressGalleryFilter.dateFilter}
+          key={pressGalleryFilter.pressFilter?.value}
           isClearable={false}
           options={dateOptions.map((d) => {
             return {
-              label: `${d.label} (${d.hits ?? 0})`,
+              label: `${d.label} ${
+                !pressGalleryFilter.dateFilter
+                  ? `(${contentByDate?.[d.label as keyof IGroupedDates]?.length ?? 0})`
+                  : ''
+              }`,
               value: d.value,
             };
           })}
@@ -225,13 +192,14 @@ export const PressGallery: React.FC = () => {
           onChange={(e: any) => {
             if (!!e.value) {
               storeGalleryDateFilter(e);
-              // can only use one of the two filters
-              storeGalleryPressFilter(null);
               fetchResults(
                 generateQuery({
                   ...pressSettings,
                   defaultSearchOperator: 'or',
-                  search: aliases.toString().split(',').join(' '),
+                  search: pressGalleryFilter.pressFilter?.value
+                    ? pressMembers.find((c) => c.aliases === pressGalleryFilter.pressFilter?.value)
+                        ?.aliases ?? ''
+                    : aliases.toString().split(',').join(' '),
                   startDate: `${moment(e.value).startOf('day')}`,
                   endDate: `${moment(e.value).endOf('day')}`,
                 }),
@@ -241,7 +209,7 @@ export const PressGallery: React.FC = () => {
           name="date-select"
           width={FieldSize.Medium}
         />
-        <FiRefreshCcw
+        <FaFilterCircleXmark
           className="reset"
           onClick={() => {
             storeGalleryDateFilter(null);
@@ -250,8 +218,8 @@ export const PressGallery: React.FC = () => {
               generateQuery({
                 ...pressSettings,
                 defaultSearchOperator: 'or',
-                search: aliases.toString().split(',').join(' '),
-                startDate: `${moment(filter.startDate).subtract(2, 'weeks')}`,
+                search: aliases.toString(),
+                startDate: `${moment().subtract(2, 'weeks')}`,
                 endDate: `${moment()}`,
               }),
             );
