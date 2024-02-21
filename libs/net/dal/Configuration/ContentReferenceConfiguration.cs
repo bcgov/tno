@@ -11,12 +11,10 @@ public class ContentReferenceConfiguration : AuditColumnsConfiguration<ContentRe
         builder.Property(m => m.Source).IsRequired().HasMaxLength(100).ValueGeneratedNever();
         builder.Property(m => m.Uid).IsRequired().HasMaxLength(500).ValueGeneratedNever();
         builder.Property(m => m.Topic).IsRequired().HasMaxLength(50);
-        builder.Property(m => m.Offset);
-        builder.Property(m => m.Partition);
         builder.Property(m => m.PublishedOn);
         builder.Property(m => m.SourceUpdateOn);
 
-        builder.HasIndex(m => new { m.PublishedOn, m.Partition, m.Offset, m.Status }, "IX_content_reference");
+        builder.HasIndex(m => new { m.PublishedOn, m.Status }, "IX_content_reference");
         builder.HasIndex(m => new { m.Source, m.Uid }, "IX_source_uid");
 
         base.Configure(builder);

@@ -49,7 +49,7 @@ export const Landing = styled(Col)`
     background-color: white;
     padding: 0.5em;
     font-size: 1.35em;
-    color: #971d29;
+    color: ${(props) => props.theme.css.btnRedColor};
     font-weight: bold;
     border-bottom: 1px solid #56537a;
   }

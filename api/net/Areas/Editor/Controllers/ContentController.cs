@@ -309,7 +309,10 @@ public class ContentController : ControllerBase
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
-            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Index));
+            if (updatedContent.Status == ContentStatus.Publish || updatedContent.Status == ContentStatus.Published)
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Publish));
+            else
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Index));
         }
         else
             _logger.LogWarning("Kafka indexing topic not configured.");

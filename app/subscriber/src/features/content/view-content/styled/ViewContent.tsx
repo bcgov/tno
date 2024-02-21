@@ -10,7 +10,7 @@ export const ViewContent = styled.div`
     margin-right: -1.25em;
     padding-left: 1.25em;
     padding-right: 1.25em;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     text-transform: uppercase;
     .byline {
       font-weight: 600;
@@ -41,13 +41,13 @@ export const ViewContent = styled.div`
     color: ${(props) => props.theme.css.hPrimaryColor};
   }
   .neg {
-    color: #dc3545;
+    color: ${(props) => props.theme.css.toneNegative};
   }
   .pos {
-    color: #20c997;
+    color: ${(props) => props.theme.css.tonePositive};
   }
   .neut {
-    color: #ffc107;
+    color: ${(props) => props.theme.css.toneNeutral};
   }
   .transcribe-button {
     border: 2px solid rgb(0, 51, 102) !important;
@@ -57,7 +57,7 @@ export const ViewContent = styled.div`
     }
     svg,
     .spinner {
-      color: ${(props) => props.theme.css.itemActiveColor};
+      color: ${(props) => props.theme.css.highlightActive};
       align-self: center;
       margin-left: 0.5em;
     }

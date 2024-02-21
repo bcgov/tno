@@ -11,6 +11,10 @@
   font-weight: bold;
 }
 
+.spinner {
+  color: $btn-bk-primary;
+}
+
 html {
   font-size: 14px;
   font-weight: 500;
@@ -24,6 +28,15 @@ html {
 input[type='checkbox'],
 input[type='radio'] {
   accent-color: $btn-bk-primary;
+}
+
+.toggle-item.active {
+  background-color: $btn-bk-primary;
+  color: $btn-primary-color;
+}
+
+.toggle-item:not(.active) {
+  background-color: $btn-primary-color;
 }
 
 body {
@@ -96,37 +109,37 @@ h4 {
 // *************************************************
 .type-light.place-top {
   padding: 2px 5px 2px 5px;
-  border: solid 1px $primary-color;
+  border: solid 1px $line-primary-color;
 
   &:after {
-    border-top: 5px solid $primary-color !important;
+    border-top: 5px solid $line-primary-color !important;
   }
 }
 
 .type-light.place-left {
   padding: 2px 5px 2px 5px;
-  border: solid 1px $primary-color;
+  border: solid 1px $line-primary-color;
 
   &:after {
-    border-left: 5px solid $primary-color !important;
+    border-left: 5px solid $line-primary-color !important;
   }
 }
 
 .type-light.place-right {
   padding: 2px 5px 2px 5px;
-  border: solid 1px $primary-color;
+  border: solid 1px $line-primary-color;
 
   &:after {
-    border-right: 5px solid $primary-color !important;
+    border-right: 5px solid $line-primary-color !important;
   }
 }
 
 .type-light.place-bottom {
   padding: 2px 5px 2px 5px;
-  border: solid 1px $primary-color;
+  border: solid 1px $line-primary-color;
 
   &:after {
-    border-bottom: 5px solid $primary-color !important;
+    border-bottom: 5px solid $line-primary-color !important;
   }
 }
 

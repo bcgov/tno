@@ -52,7 +52,7 @@ export const BrowserLogin = styled.div`
     display: inline-block;
     position: relative;
     margin-top: 2%;
-    border: 2px solid #971d29;
+    border: 2px solid ${(props) => props.theme.css.btnRedColor};
     border-radius: 0.5rem;
     padding: 2%;
     text-align: center;
@@ -89,7 +89,7 @@ export const BrowserLogin = styled.div`
   }
 
   button {
-    color: ${(props) => props.theme.css.redHeadingColor};
+    color: ${(props) => props.theme.css.btnRedColor};
     font-size: 28px;
     font-weight: 400;
     line-height: 38px;

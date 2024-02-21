@@ -1264,14 +1264,6 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("metadata");
 
-                    b.Property<long>("Offset")
-                        .HasColumnType("bigint")
-                        .HasColumnName("offset");
-
-                    b.Property<int>("Partition")
-                        .HasColumnType("integer")
-                        .HasColumnName("partition");
-
                     b.Property<DateTime?>("PublishedOn")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("published_on");
@@ -1311,7 +1303,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("Source", "Uid");
 
-                    b.HasIndex(new[] { "PublishedOn", "Partition", "Offset", "Status" }, "IX_content_reference");
+                    b.HasIndex(new[] { "PublishedOn", "Status" }, "IX_content_reference");
 
                     b.HasIndex(new[] { "Source", "Uid" }, "IX_source_uid");
 

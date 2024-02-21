@@ -1,21 +1,25 @@
 import { getPreviewReportRoute } from 'features/content';
 import React from 'react';
-import { FaBinoculars } from 'react-icons/fa';
+import { FaBinoculars, FaPaperPlane } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
-import { useFolders, useTopics } from 'store/hooks/admin';
+import { useFolders, useReports, useTopics } from 'store/hooks/admin';
 import {
   Button,
   FlexboxTable,
   FormPage,
   getSortableOptions,
+  IContentTopicModel,
   IFolderContentModel,
   IOptionItem,
+  IReportModel,
   ITopicModel,
+  Modal,
   OptionItem,
   Row,
   Settings,
   TopicTypeName,
+  useModal,
 } from 'tno-core';
 
 import { TopicFormSmall } from '../topics';
@@ -38,6 +42,9 @@ export interface IGroupedOption {
 const EventOfTheDayList: React.FC = () => {
   const [{ isReady, settings }] = useLookup();
   const [, { findAllTopics, updateTopic, addTopic }] = useTopics();
+  const [, { getReport, publishReport }] = useReports();
+
+  const { toggle, isShowing } = useModal();
 
   const [, { getContentInFolder }] = useFolders();
   const [, { updateContentTopics }] = useContent();
@@ -101,7 +108,11 @@ const EventOfTheDayList: React.FC = () => {
 
   const handleSubmit = async (values: IFolderContentModel) => {
     try {
-      const result = await updateContentTopics(values.contentId, values.content!.topics);
+      var result: IContentTopicModel[];
+      if (values.content!.topics[0].id === topicIdNotApplicable)
+        result = await updateContentTopics(values.contentId, undefined);
+      else result = await updateContentTopics(values.contentId, values.content!.topics);
+
       let index = items.findIndex((el) => el.contentId === values.contentId);
       let results = [...items];
       results[index].content!.topics = result;
@@ -203,6 +214,13 @@ const EventOfTheDayList: React.FC = () => {
     }
   };
 
+  const handlePublish = async () => {
+    try {
+      await getReport(eventOfTheDayReportId).then((report: IReportModel) => publishReport(report));
+      toast.success('Event of the Day report has been successfully requested.');
+    } catch {}
+  };
+
   return (
     <styled.EventOfTheDayList>
       <FormPage>
@@ -218,6 +236,9 @@ const EventOfTheDayList: React.FC = () => {
               }
             >
               Preview <FaBinoculars className="icon" />
+            </Button>
+            <Button onClick={() => toggle()}>
+              Send <FaPaperPlane className="icon" />
             </Button>
           </div>
         </Row>
@@ -239,6 +260,23 @@ const EventOfTheDayList: React.FC = () => {
           pagingEnabled={false}
         />
       </FormPage>
+      <Modal
+        headerText="Confirm Send"
+        body="Are you sure you wish to send the Event of the Day report?"
+        isShowing={isShowing}
+        hide={toggle}
+        type="default"
+        confirmText="Yes, Send"
+        onConfirm={async () => {
+          try {
+            await handlePublish();
+          } catch {
+            // Globally handled
+          } finally {
+            toggle();
+          }
+        }}
+      />
     </styled.EventOfTheDayList>
   );
 };

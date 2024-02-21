@@ -6,7 +6,7 @@ export const ViewContentToolbar = styled(Col)`
   width: 100%;
   .folder-menu {
     /* boxs hadow */
-    box-shadow: 0 0 0.5rem ${(props) => props.theme.css.searchItemHover};
+    box-shadow: 0 0 0.5rem ${(props) => props.theme.css.highlightPrimary};
     opacity: 1;
   }
   .main-row {

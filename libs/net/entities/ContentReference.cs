@@ -40,18 +40,6 @@ public class ContentReference : AuditColumns
     public string Topic { get; set; } = "";
 
     /// <summary>
-    /// get/set - The Kafka offset it was sent to.
-    /// </summary>
-    [Column("offset")]
-    public long Offset { get; set; }
-
-    /// <summary>
-    /// get/set - The Kafka partition it was sent to.
-    /// </summary>
-    [Column("partition")]
-    public int Partition { get; set; }
-
-    /// <summary>
     /// get/set - Content metadata.
     /// </summary>
     [Column("metadata")]
@@ -73,7 +61,7 @@ public class ContentReference : AuditColumns
     #region Constructors
     protected ContentReference() { }
 
-    public ContentReference(string source, string uid, string topic, long offset, int partition, WorkflowStatus status)
+    public ContentReference(string source, string uid, string topic, WorkflowStatus status)
     {
         if (String.IsNullOrWhiteSpace(source)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(source));
         if (String.IsNullOrWhiteSpace(uid)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(uid));
@@ -82,8 +70,6 @@ public class ContentReference : AuditColumns
         this.Source = source;
         this.Uid = uid;
         this.Topic = topic;
-        this.Offset = offset;
-        this.Partition = partition;
         this.Status = status;
     }
     #endregion

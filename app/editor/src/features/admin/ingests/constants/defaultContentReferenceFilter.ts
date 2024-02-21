@@ -2,7 +2,7 @@ import { IContentReferenceListFilter } from '../interfaces';
 
 export const defaultContentReferenceFilter: IContentReferenceListFilter = {
   pageIndex: 0,
-  pageSize: 100,
+  pageSize: 50,
   sources: [],
   mediaTypeIds: [],
   uid: '',

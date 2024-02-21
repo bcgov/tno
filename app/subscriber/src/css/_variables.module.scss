@@ -2,7 +2,6 @@
 
 :export {
   // The purpose of this file is to help us create a theme so that when UI colour changes we can control them in one place.
-
   // Shadows
   dropShadow: $drop-shadow;
   boxShadow: $box-shadow;
@@ -15,8 +14,10 @@
   bkStaticGray: $bk-static-gray;
   bkQuaternary: $bk-quaternary;
   bkError: $bk-error;
+  bkForm: $bk-form;
   bkMain: $bk-main;
   teaserBackground: $teaser-background;
+  stickyNoteColor: $sticky-note-color;
 
   // Highlights
   highlightPrimary: $highlightPrimary;
@@ -34,9 +35,9 @@
   fRedColor: $f-red-color;
 
   // Tone related
-  toneGreen: $tone-green;
-  toneRed: $tone-red;
-  toneYellow: $tone-yellow;
+  tonePositive: $tone-positive;
+  toneNegative: $tone-negative;
+  toneNeutral: $tone-neutral;
 
   // Links
   linkPrimaryColor: $link-primary-color;
@@ -51,6 +52,8 @@
   iconTertiaryColor: $icon-tertiary-color;
   iconDarkColor: $icon-dark-color;
   iconPurpleColor: $icon-purple-color;
+  sideBarIconColor: $sidebar-icon-color;
+  sideBarIconHoverColor: $sidebar-icon-hover-color;
 
   // Buttons
   btnBkPrimary: $btn-bk-primary;
@@ -60,6 +63,7 @@
   btnLightRedColor: $btn-light-red-color;
   btnYellowColor: $btn-yellow-color;
   btnYellowBkColor: $btn-yellow-bk-color;
+  inputGrey: $input-grey;
 
   // Lines
   linePrimaryColor: $line-primary-color;
@@ -87,87 +91,6 @@
   sectionHeader: $section-header;
   sectionHeaderText: $section-header-text;
 
-  /////////////////////////////////////
-  //  STOP USING ANYTHING BELOW THIS!
-  /////////////////////////////////////
-
-  actionButtonColor: $action-button-color;
-  backgroundColor: $background-color;
-  primaryColor: $primary-color;
-  primaryColorRgb: $primary-color-rgb;
-  primaryLightColor: $primary-light-color;
-  primaryLightColorRgb: $primary-light-color-rgb;
-  secondaryVariantColor: $secondary-variant-color;
-  secondaryVariantColorRgb: $secondary-variant-color-rgb;
-  lightVariantColor: $light-variant-color;
-  lightLabelColor: $light-label-color;
-  darkVariantColor: $dark-variant-color;
-  textColor: $text-color;
-  accentColor: $accent-color;
-  lightAccentColor: $light-accent-color;
-  sresIconColor: $sres-icon-color;
-  dangerColor: $danger-color;
-  completedColor: $completed-color;
-  lightDangerColor: $light-danger-color;
-  iconLightColor: $icon-light-color;
-  activeColor: $active-color;
-  completedColor: $completed-color;
-  filterBackgroundColor: $filter-background-color;
-  darkerBackgroundColor: $darker-background-color;
-  slideOutBlue: $slide-out-blue;
-  borderColor: $border-color;
-  actionIconColor: $action-icon-color;
-  activeTabColor: $active-tab-color;
-  productionBackgroundColor: $production-background-color;
-  developmentBackgroundColor: $development-background-color;
-  testBackgroundColor: $test-background-color;
-  // Subscriber
-  redHeadingColor: $red-heading-color;
-  beigeBackgroundColor: $beige-background-color;
-  primaryBackgroundColor: $primary-background-color;
-  secondaryBackgroundColor: $secondary-background-color;
+  // Header variants
   darkHeaderColor: $dark-header-color;
-  itemActiveColor: $item-active-color;
-  menuItemColor: $menu-item-color;
-  selectedMenuItemColor: $selected-menu-item-color;
-  lightInactiveButton: $light-inactive-button;
-  stickyNoteColor: $sticky-note-color;
-  lightBlue: $light-blue;
-  lightGray: $light-gray;
-  defaultRed: $bs-red;
-  sideBarIconColor: $sidebar-icon-color;
-  sideBarIconHoverColor: $sidebar-icon-hover-color;
-  inputGrey: $input-grey;
-  bsGray500: $bs-gray-500;
-  searchItemHover: $search-item-hover;
-  subscriberPurple: $subscriber-purple;
-  // Table
-  tableColor: $table-color;
-  tableHeaderColor: $table-header-color;
-  tableEvenRowColor: $table-even-row-color;
-  tableOddRowColor: $table-odd-row-color;
-  // Form
-  formBackgroundColor: $form-background-color;
-  dropdownBackgroundColor: $dropdown-background-color;
-  inputRequiredBorderColor: $input-required-border-color;
-  primary: $bs-primary;
-  secondary: $bs-secondary;
-  success: $bs-success;
-  info: $bs-info;
-  warning: $bs-warning;
-  danger: $bs-danger;
-  light: $bs-light;
-  dark: $bs-dark;
-  primaryRgb: $bs-primary-rgb;
-  secondaryRgb: $bs-secondary-rgb;
-  successRgb: $bs-success-rgb;
-  infoRgb: $bs-info-rgb;
-  warningRgb: $bs-warning-rgb;
-  dangerRgb: $bs-danger-rgb;
-  lightRgb: $bs-light-rgb;
-  darkRgb: $bs-dark-rgb;
-  whiteRgb: $bs-white-rgb;
-  blackRgb: $bs-black-rgb;
-  textOpacity: $bs-text-opacity;
-  bcSans: $f-primary;
 }

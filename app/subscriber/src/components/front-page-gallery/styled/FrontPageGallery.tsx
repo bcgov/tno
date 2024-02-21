@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 export const FrontPageGallery = styled.div`
-  background-color: ${(props) => props.theme.css.lightGray};
   img {
     padding: 0.5em;
     cursor: pointer;
