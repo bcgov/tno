@@ -3,7 +3,6 @@ import moment from 'moment';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaGripLines, FaTrash } from 'react-icons/fa';
-import { useSearchParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import {
   AVOverviewItemTypeName,
