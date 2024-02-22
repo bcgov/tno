@@ -173,8 +173,8 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
                                           a.sortOrder < b.sortOrder
                                             ? -1
                                             : a.sortOrder > b.sortOrder
-                                              ? 1
-                                              : 0,
+                                            ? 1
+                                            : 0,
                                         ),
                                     });
                                   }}
