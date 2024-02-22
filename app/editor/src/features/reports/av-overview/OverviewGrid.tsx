@@ -3,7 +3,6 @@ import moment from 'moment';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaGripLines, FaTrash } from 'react-icons/fa';
-import { useSearchParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import {
   AVOverviewItemTypeName,
@@ -55,8 +54,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
 
   const eveningOverviewItemTypeOptions = castEnumToOptions(AVOverviewItemTypeName);
   const items = values.sections[index].items;
-  const [params] = useSearchParams();
-  const queryDate = params.get('date') ? moment(params.get('date')) : moment(Date.now());
+  const queryDate = values.publishedOn ? moment(values.publishedOn) : moment(Date.now());
   const startTime = values.sections[index]?.startTime?.split(':');
 
   /** flag to keep track of when new complete start time is entered and trigger another search
@@ -347,9 +345,11 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                         const regex = new RegExp(`^${value}`, 'i');
                                         suggestions = summaries
                                           .sort()
+                                          .filter((v: Suggestion) => regex.test(v.text))
                                           .filter(
-                                            (v: Suggestion) =>
-                                              regex.test(v.text) && v.index !== itemIndex,
+                                            (value, index, self) =>
+                                              index ===
+                                              self.findIndex((t) => t.text === value.text),
                                           );
                                       }
                                       setShowAutoCompleteForIndex(itemIndex);
