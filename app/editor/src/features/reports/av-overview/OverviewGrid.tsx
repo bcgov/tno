@@ -347,11 +347,11 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                         suggestions = summaries
                                           .sort()
                                           .filter((v: Suggestion) => regex.test(v.text))
-                                          .filter((item) => {
-                                            const duplicate = sSet.has(item.text);
-                                            sSet.add(item.text);
-                                            return !duplicate;
-                                          });
+                                          .filter(
+                                            (value, index, self) =>
+                                              index ===
+                                              self.findIndex((t) => t.text === value.text),
+                                          );
                                       }
                                       setShowAutoCompleteForIndex(itemIndex);
                                       setSearch({ suggestions, text: value });
