@@ -3,7 +3,7 @@ import { Sentiment } from 'components/sentiment';
 import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { FaGripLines, FaX } from 'react-icons/fa6';
+import { FaGripVertical, FaX } from 'react-icons/fa6';
 import { useApp } from 'store/hooks';
 import { Checkbox, Col, IOptionItem, Row, Select, Text } from 'tno-core';
 
@@ -71,7 +71,7 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
   return (
     <Col>
       <Row className="content-row" flex="1">
-        <Col>{!disabled && <FaGripLines />}</Col>
+        <Col>{!disabled && <FaGripVertical />}</Col>
         {showCheckbox && (
           <Col>
             <Checkbox
