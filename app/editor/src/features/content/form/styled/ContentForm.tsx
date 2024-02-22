@@ -172,6 +172,6 @@ export const ContentForm = styled.div`
   }
 
   .tab-layout {
-    width: 50%;
+    width: 65%;
   }
 `;
