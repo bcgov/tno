@@ -341,7 +341,6 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
 
                                       // from the potential summaries, generate suggestions that match current input
                                       let suggestions: Suggestion[] = [];
-                                      const sSet = new Set();
                                       if (value.length > 0 && summaries?.length) {
                                         const regex = new RegExp(`^${value}`, 'i');
                                         suggestions = summaries
