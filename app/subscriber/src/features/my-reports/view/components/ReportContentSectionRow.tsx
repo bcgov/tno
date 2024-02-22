@@ -71,7 +71,7 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
   return (
     <Col>
       <Row className="content-row" flex="1">
-        <Col>{!disabled && <FaGripVertical />}</Col>
+        <Col>{!disabled && <FaGripVertical className="grip-bar" />}</Col>
         {showCheckbox && (
           <Col>
             <Checkbox

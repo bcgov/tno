@@ -1,6 +1,9 @@
 import styled from 'styled-components';
 
 export const ReportAdmin = styled.div`
+  .grip-bar {
+    color: ${(props) => props.theme.css.btnBkPrimary};
+  }
   form {
     background: unset;
   }

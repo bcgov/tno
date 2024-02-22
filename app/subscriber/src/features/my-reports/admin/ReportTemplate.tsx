@@ -144,7 +144,7 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
                           {...provided.draggableProps}
                         >
                           <Section
-                            icon={<FaGripVertical />}
+                            icon={<FaGripVertical className="grip-bar" />}
                             label={<SectionLabel section={section} />}
                             open={section.open}
                             onChange={(open) => setFieldValue(`sections.${index}.open`, open)}
