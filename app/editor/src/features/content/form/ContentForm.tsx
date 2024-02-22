@@ -536,7 +536,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     </Col>
                   </Show>
                 </Row>
-                <Row className="tab-section fvh">
+                <Row flex="1" wrap="nowrap" gap="0.5rem" className="section-upload tab-section fvh">
                   <Show
                     visible={
                       props.values.contentType !== ContentTypeName.PrintContent &&
@@ -544,7 +544,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     }
                   >
                     <Tabs
-                      className={`fvh ${size === 1 ? 'small' : 'large'}`}
+                      className={`fvh ${size === 1 ? 'small' : 'large'} tab-layout`}
                       tabs={
                         <>
                           <Tab
@@ -635,31 +635,34 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       checkTags={(c: string[]) => parseTags(c)}
                     />
                   </Show>
+                  {/** Audio Video layout */}
                   <Show visible={props.values.contentType === ContentTypeName.AudioVideo}>
-                    <Upload
-                      className="media"
-                      contentType={props.values.contentType}
-                      id="upload"
-                      name="file"
-                      file={file}
-                      stream={stream}
-                      downloadable={fileReference?.isUploaded}
-                      onSelect={(e) => {
-                        const file = (e as IFile).name ? (e as IFile) : undefined;
-                        props.setFieldValue('file', file);
-                        // Remove file reference.
-                        props.setFieldValue('fileReferences', []);
-                      }}
-                      onDownload={() => {
-                        download(
-                          props.values.id,
-                          file?.name ?? `${props.values.otherSource}-${props.values.id}`,
-                        );
-                      }}
-                      onDelete={() => {
-                        setStream(undefined);
-                      }}
-                    />
+                    <Col flex="1 1 0%" justifyContent="center">
+                      <Upload
+                        className="media"
+                        contentType={props.values.contentType}
+                        id="upload"
+                        name="file"
+                        file={file}
+                        stream={stream}
+                        downloadable={fileReference?.isUploaded}
+                        onSelect={(e) => {
+                          const file = (e as IFile).name ? (e as IFile) : undefined;
+                          props.setFieldValue('file', file);
+                          // Remove file reference.
+                          props.setFieldValue('fileReferences', []);
+                        }}
+                        onDownload={() => {
+                          download(
+                            props.values.id,
+                            file?.name ?? `${props.values.otherSource}-${props.values.id}`,
+                          );
+                        }}
+                        onDelete={() => {
+                          setStream(undefined);
+                        }}
+                      />
+                    </Col>
                   </Show>
                 </Row>
                 <Row gap="0.5rem">
