@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 import { ILayoutProps } from '..';
+import env from '../env.json';
 
 export const Layout = styled.div<ILayoutProps>`
   &:not(.unauth) {
@@ -25,7 +26,13 @@ export const Layout = styled.div<ILayoutProps>`
       overflow: clip;
       display: grid;
       transition: 300ms;
-      background-color: ${(props) => props.theme.css.bkMain};
+      background-color: ${(props) => {
+        if (env.dev.includes(window.location.hostname))
+          return props.theme.css.developmentBackgroundColor;
+        else if (env.test.includes(window.location.hostname))
+          return props.theme.css.testBackgroundColor;
+        else return props.theme.css.bkMain;
+      }};
       grid-template-areas:
         'header header'
         'nav-bar content';
