@@ -9,7 +9,7 @@ import {
   DropResult,
   ResponderProvided,
 } from 'react-beautiful-dnd';
-import { FaAngleDown, FaGripLines, FaMinus, FaTrash } from 'react-icons/fa6';
+import { FaAngleDown, FaGripVertical, FaMinus, FaTrash } from 'react-icons/fa6';
 import {
   Col,
   FormikCheckbox,
@@ -144,7 +144,7 @@ export const ReportTemplate: React.FC<IReportTemplateProps> = ({ onChange }) => 
                           {...provided.draggableProps}
                         >
                           <Section
-                            icon={<FaGripLines />}
+                            icon={<FaGripVertical className="grip-bar" />}
                             label={<SectionLabel section={section} />}
                             open={section.open}
                             onChange={(open) => setFieldValue(`sections.${index}.open`, open)}
