@@ -13,7 +13,7 @@ import {
   Spinner,
 } from 'tno-core';
 
-import { IGroupedOption } from '../EventOfTheDayList';
+import { IGroupedOption, ITopicOptionItem } from '../EventOfTheDayList';
 
 // item with id of 1 is the magic [Not Applicable] topic
 const topicIdNotApplicable = 1;
@@ -103,6 +103,28 @@ export const useColumns = (
     }
   };
 
+  const formatOptionLabel = (data: ITopicOptionItem) => (
+    <div
+      className={
+        (data.value === topicIdNotApplicable ? `type-not-applicable` : `type-${data.topicType}`) +
+        // This extra style exists only to flag disabled topics that are disabled.
+        // These could show up because of migration from TNO, or through changes to
+        // content and topics that are possible
+        (data.isDisabled ? ' type-disabled' : '')
+      }
+    >
+      <span
+        className={
+          `option-hint ` +
+          (data.value === topicIdNotApplicable ? `type-not-applicable` : `type-${data.topicType}`)
+        }
+      >
+        {data.topicType.charAt(0)}
+      </span>
+      {data.label}
+    </div>
+  );
+
   const result: ITableHookColumn<IFolderContentModel>[] = [
     {
       label: 'Topic Name',
@@ -166,6 +188,7 @@ export const useColumns = (
                   : topicIdNotApplicable,
               )}
               onChange={async (e: any) => await handleTopicChange(e, cell)}
+              formatOptionLabel={formatOptionLabel}
             />
           </>
         );
