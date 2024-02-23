@@ -193,8 +193,6 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// <exception cref="ArgumentNullException"></exception>
     public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
-        // This ingest has just begun running.
-        await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
 
         ImportMigrationType importMigrationType = manager.Ingest.GetConfigurationValue<ImportMigrationType>("importMigrationType", ImportMigrationType.Unknown);
         if (importMigrationType == ImportMigrationType.Unknown)
@@ -214,6 +212,9 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             this.Logger.LogInformation("Skipping Ingest [{ingestName}]. Import Migration Type: [{migrationType}] not in supported list [{supportedMigrationTypes}]", manager.Ingest.Name, importMigrationType.ToString(), this.Options.SupportedImportMigrationTypes);
             return ServiceActionResult.Skipped;
         }
+
+        // This service is configured to run this ingest, so reset failed attempts.
+        await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
 
         this.Logger.LogDebug("Performing ingestion service action for Ingest '{name}'", manager.Ingest.Name);
         IContentMigrator contentMigrator = _migratorFactory.GetContentMigrator(manager.Ingest.IngestType!.Name);
