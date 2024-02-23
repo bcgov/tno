@@ -170,4 +170,8 @@ export const ContentForm = styled.div`
     flex-direction: column;
     justify-content: center;
   }
+
+  .tab-layout {
+    width: 65%;
+  }
 `;
