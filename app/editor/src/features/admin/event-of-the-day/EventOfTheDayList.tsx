@@ -15,29 +15,12 @@ import {
   Modal,
   Row,
   Settings,
-  TopicTypeName,
   useModal,
 } from 'tno-core';
 
 import { TopicFormSmall } from '../topics';
 import { useColumns } from './hooks';
 import * as styled from './styled';
-
-// item with id of 1 is the magic [Not Applicable] topic
-const topicIdNotApplicable = 1;
-
-export interface ITopicOptionItem {
-  // discriminator: 'IOption';
-  value: number;
-  label: string;
-  topicType: TopicTypeName;
-  isDisabled: boolean;
-}
-
-export interface IGroupedOption {
-  readonly label: string;
-  readonly options: readonly ITopicOptionItem[];
-}
 
 /**
  * Provides a list of all topics.
@@ -58,7 +41,6 @@ const EventOfTheDayList: React.FC = () => {
   const [eventOfTheDayReportId, setEventOfTheDayReportId] = React.useState(0);
   const [items, setItems] = React.useState<IFolderContentModel[]>([]);
   const [allTopics, setAllTopics] = React.useState<ITopicModel[]>([]);
-  const [groupedOptions, setGroupedOptions] = React.useState<IGroupedOption[]>([]);
 
   React.useEffect(() => {
     if (isReady) {
@@ -104,7 +86,6 @@ const EventOfTheDayList: React.FC = () => {
     findAllTopics()
       .then((data) => {
         setAllTopics(data);
-        setGroupedOptions(convertToGroupedOptions(data));
       })
       .catch(() => {});
     // KGM - overridden to enforce only call once
@@ -125,51 +106,6 @@ const EventOfTheDayList: React.FC = () => {
     } catch {
       // Ignore error as it's handled globally.
     }
-  };
-
-  const convertToGroupedOptions = (topics: ITopicModel[]): IGroupedOption[] => {
-    const groupedOptions: IGroupedOption[] = [];
-    const notApplicableTopic = topics.find((el) => el.id === topicIdNotApplicable);
-    if (notApplicableTopic)
-      groupedOptions.push({
-        label: 'Not Applicable',
-        options: [
-          {
-            isDisabled: false,
-            label: 'Not Applicable',
-            topicType: TopicTypeName.Issues,
-            value: topicIdNotApplicable,
-          } as ITopicOptionItem,
-        ],
-      });
-    const topicNames = Object.keys(TopicTypeName);
-    // reverse the sort here because the customer wants the secon enum first
-    topicNames
-      .slice()
-      .reverse()
-      .forEach((key) => {
-        let filteredTopics = topics.filter(
-          (el) => el.id !== topicIdNotApplicable && el.topicType === key && el.isEnabled,
-        );
-        if (filteredTopics)
-          filteredTopics = filteredTopics.sort((a, b) => {
-            // sort by Topic Name
-            return a.name.localeCompare(b.name);
-          });
-        groupedOptions.push({
-          label: key,
-          options: filteredTopics.map(
-            (t) =>
-              ({
-                isDisabled: !t.isEnabled,
-                label: t.name,
-                topicType: t.topicType,
-                value: t.id,
-              } as ITopicOptionItem),
-          ),
-        });
-      });
-    return groupedOptions;
   };
 
   const handleAddOrUpdate = async (values: ITopicModel) => {
@@ -201,7 +137,6 @@ const EventOfTheDayList: React.FC = () => {
         }
       }
       setAllTopics(results);
-      setGroupedOptions(convertToGroupedOptions(results));
     } catch {
       // Ignore error as it's handled globally.
     }
@@ -241,7 +176,7 @@ const EventOfTheDayList: React.FC = () => {
         <FlexboxTable
           rowId="contentId"
           data={items}
-          columns={useColumns(handleSubmit, allTopics, groupedOptions)}
+          columns={useColumns(allTopics, handleSubmit)}
           groupBy={(item) => {
             if (item.original.content?.series?.name) return item.original.content?.series?.name;
             else if (item.original.content?.source?.name)
