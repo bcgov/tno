@@ -180,7 +180,9 @@ public class ContentController : ControllerBase
             tag.Id = result.Id;
         }
 
-        _topicScoreHelper.SetContentScore(model);
+        // only assign a default score to content which has a source relevent to Event of the Day
+        if ((model.Source != null) && model.Source.UseInTopics)
+            _topicScoreHelper.SetContentScore(model);
         
         var content = _contentService.AddAndSave((Content)model);
 

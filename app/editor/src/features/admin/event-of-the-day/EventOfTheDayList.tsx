@@ -8,14 +8,11 @@ import {
   Button,
   FlexboxTable,
   FormPage,
-  getSortableOptions,
   IContentTopicModel,
   IFolderContentModel,
-  IOptionItem,
   IReportModel,
   ITopicModel,
   Modal,
-  OptionItem,
   Row,
   Settings,
   TopicTypeName,
@@ -29,9 +26,17 @@ import * as styled from './styled';
 // item with id of 1 is the magic [Not Applicable] topic
 const topicIdNotApplicable = 1;
 
+export interface ITopicOptionItem {
+  // discriminator: 'IOption';
+  value: number;
+  label: string;
+  topicType: TopicTypeName;
+  isDisabled: boolean;
+}
+
 export interface IGroupedOption {
   readonly label: string;
-  readonly options: readonly IOptionItem<string | number | undefined>[];
+  readonly options: readonly ITopicOptionItem[];
 }
 
 /**
@@ -108,10 +113,10 @@ const EventOfTheDayList: React.FC = () => {
 
   const handleSubmit = async (values: IFolderContentModel) => {
     try {
-      var result: IContentTopicModel[];
-      if (values.content!.topics[0].id === topicIdNotApplicable)
-        result = await updateContentTopics(values.contentId, undefined);
-      else result = await updateContentTopics(values.contentId, values.content!.topics);
+      var result: IContentTopicModel[] = await updateContentTopics(
+        values.contentId,
+        values.content!.topics,
+      );
 
       let index = items.findIndex((el) => el.contentId === values.contentId);
       let results = [...items];
@@ -122,35 +127,20 @@ const EventOfTheDayList: React.FC = () => {
     }
   };
 
-  const formatTopicOption = (item: ITopicModel): OptionItem => {
-    return new OptionItem(
-      (
-        <div
-          className={
-            (item.id === topicIdNotApplicable ? `type-not-applicable` : `type-${item.topicType}`) +
-            // This extra style exists only to flag disabled topics that are disabled.
-            // These could show up because of migration from TNO, or through changes to
-            // content and topics that are possible
-            (!item.isEnabled ? ' type-disabled' : '')
-          }
-        >
-          {item.name}
-        </div>
-      ),
-      item.id,
-      !item.isEnabled,
-    );
-  };
-
   const convertToGroupedOptions = (topics: ITopicModel[]): IGroupedOption[] => {
     const groupedOptions: IGroupedOption[] = [];
     const notApplicableTopic = topics.find((el) => el.id === topicIdNotApplicable);
     if (notApplicableTopic)
       groupedOptions.push({
         label: 'Not Applicable',
-        options: getSortableOptions([notApplicableTopic], undefined, undefined, (item) =>
-          formatTopicOption(item),
-        ),
+        options: [
+          {
+            isDisabled: false,
+            label: 'Not Applicable',
+            topicType: TopicTypeName.Issues,
+            value: topicIdNotApplicable,
+          } as ITopicOptionItem,
+        ],
       });
     const topicNames = Object.keys(TopicTypeName);
     // reverse the sort here because the customer wants the secon enum first
@@ -159,22 +149,25 @@ const EventOfTheDayList: React.FC = () => {
       .reverse()
       .forEach((key) => {
         let filteredTopics = topics.filter(
-          (el) => el.id !== topicIdNotApplicable && el.topicType === key,
+          (el) => el.id !== topicIdNotApplicable && el.topicType === key && el.isEnabled,
         );
         if (filteredTopics)
-          groupedOptions.push({
-            label: key,
-            options: getSortableOptions(
-              filteredTopics,
-              undefined,
-              undefined,
-              (item) => formatTopicOption(item),
-              (a, b) => {
-                // sort Topic Name
-                return a.name.localeCompare(b.name);
-              },
-            ),
+          filteredTopics = filteredTopics.sort((a, b) => {
+            // sort by Topic Name
+            return a.name.localeCompare(b.name);
           });
+        groupedOptions.push({
+          label: key,
+          options: filteredTopics.map(
+            (t) =>
+              ({
+                isDisabled: !t.isEnabled,
+                label: t.name,
+                topicType: t.topicType,
+                value: t.id,
+              } as ITopicOptionItem),
+          ),
+        });
       });
     return groupedOptions;
   };
