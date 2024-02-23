@@ -178,7 +178,6 @@ export const useColumns = (
               options={groupedTopicOptions}
               isDisabled={isRowContentUpdating(cell.original.contentId)}
               isClearable={false}
-              isSearchable={true}
               className={
                 'topic-select ' +
                 (isRowContentUpdating(cell.original.contentId) ? 'lock-control' : '')
@@ -210,7 +209,6 @@ export const useColumns = (
                   cell.original.content!.topics![0].id === topicIdNotApplicable)
               }
               isClearable={false}
-              isSearchable={true}
               className={
                 'score-select ' +
                 (isRowContentUpdating(cell.original.contentId) ? 'lock-control' : '')
