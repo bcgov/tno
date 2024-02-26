@@ -1,3 +1,4 @@
+import { Topic } from 'features/content';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select';
@@ -13,8 +14,6 @@ import {
   Spinner,
 } from 'tno-core';
 
-import { IGroupedOption, ITopicOptionItem } from '../EventOfTheDayList';
-
 // item with id of 1 is the magic [Not Applicable] topic
 const topicIdNotApplicable = 1;
 
@@ -25,9 +24,8 @@ const possibleScores = Array.from(Array(maxTopicScore + 1).keys()).map(
 );
 
 export const useColumns = (
-  handleSubmit: (values: IFolderContentModel) => Promise<void>,
   topics: ITopicModel[],
-  groupedTopicOptions: IGroupedOption[],
+  handleSubmit: (values: IFolderContentModel) => Promise<void>,
 ): ITableHookColumn<IFolderContentModel>[] => {
   const [isContentUpdating, setIsContentUpdating] = React.useState<number[]>([]);
   const toggleContentUpdatingStatus = (contentId: number) => {
@@ -45,8 +43,7 @@ export const useColumns = (
     return isContentUpdating.findIndex((el: number) => el === contentId) > -1;
   };
 
-  const handleTopicChange = async (event: any, cell: any) => {
-    const topic = topics.find((x) => x.id === (event as OptionItem)?.value);
+  const handleTopicChange = async (topic: ITopicModel, cell: any) => {
     if (
       (topic && cell.original.content.topics.length === 0) ||
       (!topic && cell.original.content.topics.length > 0) ||
@@ -88,42 +85,6 @@ export const useColumns = (
       });
     }
   };
-
-  const getTopicOption = (targetTopicId: number): any => {
-    for (var groupCounter = 0; groupCounter < groupedTopicOptions.length; groupCounter++) {
-      for (
-        var optionCounter = 0;
-        optionCounter < groupedTopicOptions[groupCounter].options.length;
-        optionCounter++
-      ) {
-        if (groupedTopicOptions[groupCounter].options[optionCounter].value === targetTopicId) {
-          return groupedTopicOptions[groupCounter].options[optionCounter];
-        }
-      }
-    }
-  };
-
-  const formatOptionLabel = (data: ITopicOptionItem) => (
-    <div
-      className={
-        (data.value === topicIdNotApplicable ? `type-not-applicable` : `type-${data.topicType}`) +
-        // This extra style exists only to flag disabled topics that are disabled.
-        // These could show up because of migration from TNO, or through changes to
-        // content and topics that are possible
-        (data.isDisabled ? ' type-disabled' : '')
-      }
-    >
-      <span
-        className={
-          `option-hint ` +
-          (data.value === topicIdNotApplicable ? `type-not-applicable` : `type-${data.topicType}`)
-        }
-      >
-        {data.topicType.charAt(0)}
-      </span>
-      {data.label}
-    </div>
-  );
 
   const result: ITableHookColumn<IFolderContentModel>[] = [
     {
@@ -172,25 +133,21 @@ export const useColumns = (
       accessor: 'topic',
       cell: (cell) => {
         return (
-          <>
-            <Select
-              name="topic"
-              options={groupedTopicOptions}
-              isDisabled={isRowContentUpdating(cell.original.contentId)}
-              isClearable={false}
-              className={
-                'topic-select ' +
-                (isRowContentUpdating(cell.original.contentId) ? 'lock-control' : '')
-              }
-              value={getTopicOption(
-                cell.original.content!.topics!.length > 0
-                  ? cell.original.content!.topics![0].id
-                  : topicIdNotApplicable,
-              )}
-              onChange={async (e: any) => await handleTopicChange(e, cell)}
-              formatOptionLabel={formatOptionLabel}
-            />
-          </>
+          <Topic
+            name={'topic'}
+            isDisabled={isRowContentUpdating(cell.original.contentId)}
+            className={
+              'topic-select ' +
+              (isRowContentUpdating(cell.original.contentId) ? 'lock-control' : '')
+            }
+            filteredTopics={topics}
+            value={
+              !!cell.original.content!.topics!.length
+                ? cell.original.content!.topics[0].id
+                : topicIdNotApplicable
+            }
+            handleTopicChange={async (e: any) => await handleTopicChange(e, cell)}
+          />
         );
       },
     },

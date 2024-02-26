@@ -494,8 +494,22 @@ const ContentForm: React.FC<IContentFormProps> = ({
                           }
                         >
                           <Row>
-                            <div className="vl" />
-                            <Topic />
+                            <div className="frm-in">
+                              <label htmlFor="selTopic">Topic</label>
+                              <Topic
+                                name={'selTopic'}
+                                className={'topic-select'}
+                                value={
+                                  !!props.values.topics?.length
+                                    ? props.values.topics[0].id
+                                    : undefined
+                                }
+                                isDisabled={!props.values.sourceId}
+                                handleTopicChange={(topic) => {
+                                  props.setFieldValue('topics', [topic]);
+                                }}
+                              />
+                            </div>
                           </Row>
                         </Show>
                       </Row>
