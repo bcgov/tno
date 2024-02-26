@@ -1,7 +1,14 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
-import { IPaged, ITopicFilter, ITopicModel, useApiAdminTopics } from 'tno-core';
+import {
+  IPaged,
+  ITopicFilter,
+  ITopicModel,
+  saveToLocalStorage,
+  StorageKeys,
+  useApiAdminTopics,
+} from 'tno-core';
 
 interface ITopicController {
   findAllTopics: () => Promise<ITopicModel[]>;
@@ -45,12 +52,14 @@ export const useTopics = (): [IAdminState, ITopicController] => {
       },
       addTopic: async (model: ITopicModel) => {
         const response = await dispatch<ITopicModel>('add-topic', () => api.addTopic(model));
+        let items: ITopicModel[] = [];
+
         store.storeTopics((topics) => {
-          var items = [...topics];
+          items = [...topics];
           items.splice(model.sortOrder, 0, response.data);
           return items;
         });
-        await lookup.getLookups();
+        saveToLocalStorage(StorageKeys.Topics, items, store.storeTopics);
         return response.data;
       },
       updateTopic: async (model: ITopicModel) => {

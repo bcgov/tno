@@ -219,7 +219,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           'lookup',
         );
       },
-      getTopics: async () => {
+      getTopics: async (refresh?: boolean) => {
         return await fetchIfNoneMatch<ITopicModel[]>(
           StorageKeys.Topics,
           dispatch,
@@ -227,6 +227,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           (results) => {
             const values = results ?? [];
             store.storeTopics(values);
+            if (!!refresh)
+              saveToLocalStorage(StorageKeys.Topics, values, store.storeTopics);
             return values;
           },
           true,
