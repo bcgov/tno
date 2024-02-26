@@ -5,10 +5,10 @@ export const Topic = styled.div`
     font-style: italic;
   }
   .type-Proactive {
-    color: #006600;
+    color: ${(props) => props.theme.css.eotdEventTypeProactive};
   }
   .type-Issues {
-    color: #bb1111;
+    color: ${(props) => props.theme.css.eotdEventTypeIssues};
   }
   .type-disabled {
     font-style: italic;
@@ -25,11 +25,12 @@ export const Topic = styled.div`
     margin-right: 0.25rem;
     text-transform: uppercase;
   }
+
   .option-hint.type-Proactive {
-    background-color: #006600;
+    background-color: ${(props) => props.theme.css.eotdEventTypeProactive};
   }
   .option-hint.type-Issues {
-    background-color: #bb1111;
+    background-color: ${(props) => props.theme.css.eotdEventTypeIssues};
   }
   .option-hint.type-not-applicable {
     display: none;
