@@ -99,6 +99,39 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
     #region Methods
     /// <summary>
+    /// Send email alert of failure.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    public async Task SendEmailAsync(string subject, string message)
+    {
+        if (this.Options.SendEmailOnFailure)
+        {
+            try
+            {
+                var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, this.Options.EmailTo, subject, message);
+                await this.Ches.SendEmailAsync(email);
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Email failed to send");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Send email alert of failure.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="ex"></param>
+    /// <returns></returns>
+    public async Task SendEmailAsync(string subject, Exception ex)
+    {
+        await this.SendEmailAsync(subject, $"<div>{ex.GetAllMessages()}</div>{Environment.NewLine}<div>{ex.StackTrace}</div>");
+    }
+
+    /// <summary>
     /// Listen to active topics and import content.
     /// </summary>
     /// <returns></returns>
@@ -142,6 +175,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 {
                     this.Logger.LogError(ex, "Service had an unexpected failure.");
                     this.State.RecordFailure();
+                    await this.SendEmailAsync("Reporting Service Unexpected Failure", ex);
                 }
             }
 
@@ -252,10 +286,12 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             if (ex is HttpClientRequestException httpEx)
             {
                 this.Logger.LogError(ex, "HTTP exception while consuming. {response}", httpEx.Data["body"] ?? "");
+                await this.SendEmailAsync("HTTP exception while consuming. {response}", ex);
             }
             else
             {
                 this.Logger.LogError(ex, "Failed to handle message");
+                await this.SendEmailAsync("Failed to handle message", ex);
             }
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
         }
