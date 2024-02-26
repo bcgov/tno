@@ -227,8 +227,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           (results) => {
             const values = results ?? [];
             store.storeTopics(values);
-            if (!!refresh)
-              saveToLocalStorage(StorageKeys.Topics, values, store.storeTopics);
+            if (!!refresh) saveToLocalStorage(StorageKeys.Topics, values, store.storeTopics);
             return values;
           },
           true,
