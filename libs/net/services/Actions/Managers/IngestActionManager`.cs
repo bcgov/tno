@@ -67,6 +67,16 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// <returns></returns>
     protected override Task<bool> PreRunAsync()
     {
+        if (this.Ingest.IsEnabled && (!this.Ingest.IngestSchedules.Any() || this.Ingest.IngestSchedules.All(s => s.Schedule == null))) {
+            this.Logger.LogWarning($"Ingest [{this.Ingest.Name}] is enabled but has NO schedules.  Ingest will be SKIPPED.");
+            return Task.FromResult(false);
+        }
+        
+        if (this.Ingest.IsEnabled && !this.Ingest.IngestSchedules.Any(s => s.Schedule?.IsEnabled == true)) {
+            this.Logger.LogWarning($"Ingest [{this.Ingest.Name}] is enabled but has NO enabled schedules.  Ingest will be SKIPPED.");
+            return Task.FromResult(false);
+        }
+
         var result = VerifyIngest() && this.Ingest.IngestSchedules.Where(s => s.Schedule != null).Any(s => VerifySchedule(s.Schedule!));
 
         return Task.FromResult(result);
@@ -151,6 +161,8 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// <returns></returns>
     public virtual bool VerifySchedule(ScheduleModel schedule)
     {
+        if (!schedule.IsEnabled) return false;
+
         return VerifySchedule(GetSourceDateTime(DateTime.Now), schedule);
     }
 
