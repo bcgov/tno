@@ -128,7 +128,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <returns></returns>
     public async Task SendEmailAsync(string subject, Exception ex)
     {
-        await this.SendEmailAsync(subject, $"<div>{ex.GetAllMessages()}</div>{Environment.NewLine}<div>{ex.StackTrace}</div>");
+        await this.SendEmailAsync($"Reporting Service - {subject}", $"<div>{ex.GetAllMessages()}</div>{Environment.NewLine}<div>{ex.StackTrace}</div>");
     }
 
     /// <summary>
@@ -175,7 +175,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 {
                     this.Logger.LogError(ex, "Service had an unexpected failure.");
                     this.State.RecordFailure();
-                    await this.SendEmailAsync("Reporting Service Unexpected Failure", ex);
+                    await this.SendEmailAsync("Service had an Unexpected Failure", ex);
                 }
             }
 
