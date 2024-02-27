@@ -133,7 +133,7 @@ export const ContentRow = styled(Col)`
     height: 20px;
     margin-right: 0.5rem;
     color: ${(props) => props.theme.css.btnBkPrimary};
-    cursor: grab;
+    cursor: row-resize;
   }
   .content-report-pin {
     margin-left: 0.5rem;
