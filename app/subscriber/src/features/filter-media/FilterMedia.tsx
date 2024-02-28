@@ -3,7 +3,7 @@ import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
 import { IContentSearchResult } from 'features/utils/interfaces';
-import React, { FunctionComponent } from 'react';
+import React from 'react';
 import { useContent } from 'store/hooks';
 import { generateQuery, IContentModel, Show } from 'tno-core';
 

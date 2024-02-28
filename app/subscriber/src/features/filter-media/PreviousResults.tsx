@@ -2,7 +2,7 @@ import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { useContent } from 'store/hooks';
-import { generateQuery, Row } from 'tno-core';
+import { Row } from 'tno-core';
 
 import { IPreviousDate } from './interfaces';
 import * as styled from './styled';
