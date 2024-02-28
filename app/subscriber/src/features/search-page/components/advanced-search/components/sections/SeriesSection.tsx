@@ -24,9 +24,11 @@ export const SeriesSection: React.FC<IFilterDisplayProps> = ({ displayFiltersAsD
   const [{ series }] = useLookup();
   const seriesOptions = useMemo(
     () =>
-      series.map((s) => {
-        return { value: s.id, label: s.name };
-      }),
+      series
+        .filter((f) => !f.isOther)
+        .map((s) => {
+          return { value: s.id, label: s.name };
+        }),
     [series],
   );
   return (

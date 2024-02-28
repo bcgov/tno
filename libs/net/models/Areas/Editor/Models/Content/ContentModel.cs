@@ -322,7 +322,8 @@ public class ContentModel : AuditColumnsModel
 
         if (!String.IsNullOrWhiteSpace(model.OtherSeries))
         {
-            entity.Series = new Entities.Series(model.OtherSeries, model.SourceId);
+            // any content that comes in with a "new series" means it fall into the "Other" category
+            entity.Series = new Entities.Series(model.OtherSeries, true, model.SourceId);
         }
 
         entity.ActionsManyToMany.AddRange(model.Actions.Select(a => a.ToEntity(entity.Id)));
