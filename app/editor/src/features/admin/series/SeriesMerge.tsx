@@ -1,6 +1,5 @@
 import { FormikForm } from 'components/formik';
 import React from 'react';
-import { FaExclamationCircle } from 'react-icons/fa';
 import { useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';

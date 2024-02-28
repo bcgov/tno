@@ -1,38 +1,8 @@
-import { FormikForm } from 'components/formik';
-import { noop } from 'lodash';
-import moment from 'moment';
 import React from 'react';
-import { FaExclamationCircle } from 'react-icons/fa';
-import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { useLookup } from 'store/hooks';
-import { useSeries } from 'store/hooks/admin';
-import {
-  Button,
-  ButtonVariant,
-  Col,
-  FieldSize,
-  FormikCheckbox,
-  FormikDatePicker,
-  FormikSelect,
-  FormikText,
-  FormikTextArea,
-  getSourceOptions,
-  IconButton,
-  IOptionItem,
-  Modal,
-  OptionItem,
-  Row,
-  Show,
-  Tab,
-  Tabs,
-  useModal,
-} from 'tno-core';
+import { Outlet, useNavigate, useParams } from 'react-router-dom';
+import { Col, IconButton, Row, Tab, Tabs } from 'tno-core';
 
-import { defaultSeries } from './constants';
-import { ISeriesForm } from './interfaces';
 import * as styled from './styled';
-import { toForm, toModel } from './utils';
 
 /** The page used to view and edit series the administrative section. */
 const SeriesForm: React.FC = () => {
