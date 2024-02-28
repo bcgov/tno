@@ -47,5 +47,10 @@ export const useApiAdminSeries = (
         { data: model },
       );
     },
+    mergeSeries: (fromSeriesId: number, intoSeriesId: number) => {
+      return api.put<ISeriesModel, AxiosResponse<ISeriesModel>, any>(
+        `/admin/series/${intoSeriesId}/merge/${fromSeriesId}`,
+      );
+    },
   }).current;
 };

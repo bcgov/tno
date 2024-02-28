@@ -39,8 +39,10 @@ const ReachEarnedMedia = lazy(() => import('features/admin/sources/ReachEarnedMe
 const ReportAdmin = lazy(() => import('features/admin/reports/ReportAdmin'));
 const ReportForm = lazy(() => import('features/admin/reports/ReportForm'));
 const ReportTemplateForm = lazy(() => import('features/admin/report-templates/ReportTemplateForm'));
+const SeriesDetails = lazy(() => import('features/admin/series/SeriesDetails'));
 const SeriesForm = lazy(() => import('features/admin/series/SeriesForm'));
 const SeriesList = lazy(() => import('features/admin/series/SeriesList'));
+const SeriesMerge = lazy(() => import('features/admin/series/SeriesMerge'));
 const SettingForm = lazy(() => import('features/admin/settings/SettingForm'));
 const SettingList = lazy(() => import('features/admin/settings/SettingList'));
 const SourceDetails = lazy(() => import('features/admin/sources/SourceDetails'));
@@ -80,8 +82,15 @@ export const AdminRouter: React.FC = () => {
 
         <Route path="system-message" element={<SystemMessageForm />} />
 
+        {/* <Route path="programs" element={<SeriesList />} />
+        <Route path="programs/:id" element={<SeriesForm />} /> */}
+
         <Route path="programs" element={<SeriesList />} />
-        <Route path="programs/:id" element={<SeriesForm />} />
+        <Route path="programs/:id" element={<SeriesForm />}>
+          <Route index element={<SeriesDetails />} />
+          <Route path="details" element={<SeriesDetails />} />
+          <Route path="merge" element={<SeriesMerge />} />
+        </Route>
 
         <Route path="contributors" element={<ContributorList />} />
         <Route path="contributors/:id" element={<ContributorForm />} />

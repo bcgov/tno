@@ -10,6 +10,7 @@ interface ISeriesController {
   addSeries: (model: ISeriesModel) => Promise<ISeriesModel>;
   updateSeries: (model: ISeriesModel) => Promise<ISeriesModel>;
   deleteSeries: (model: ISeriesModel) => Promise<ISeriesModel>;
+  mergeSeries: (fromSeriesId: number, intoSeriesId: number) => Promise<ISeriesModel>;
 }
 
 export const useSeries = (): [IAdminState, ISeriesController] => {
@@ -67,6 +68,13 @@ export const useSeries = (): [IAdminState, ISeriesController] => {
           api.deleteSeries(model),
         );
         store.storeSeries((series) => series.filter((ds) => ds.id !== response.data.id));
+        await lookup.getLookups();
+        return response.data;
+      },
+      mergeSeries: async (fromSeriesId: number, intoSeriesId: number) => {
+        const response = await dispatch<ISeriesModel>('merge-series', () =>
+          api.mergeSeries(fromSeriesId, intoSeriesId),
+        );
         await lookup.getLookups();
         return response.data;
       },

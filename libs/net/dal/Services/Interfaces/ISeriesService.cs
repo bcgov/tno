@@ -8,4 +8,5 @@ public interface ISeriesService : IBaseService<Series, int>
 {
     IEnumerable<Series> FindAll();
     IPaged<Series> Find(SeriesFilter filter);
+    Series? Merge(int intoId, int fromId);
 }
