@@ -5,6 +5,8 @@ using Renci.SshNet;
 using Renci.SshNet.Common;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Areas.Services.Models.DataLocation;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
@@ -39,6 +41,16 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// </summary>
     protected IKafkaListener<string, SourceContent> Listener { get; private set; }
 
+    /// <summary>
+    /// get - CHES service.
+    /// </summary>
+    protected IChesService Ches { get; }
+
+    /// <summary>
+    /// get - CHES options.
+    /// </summary>
+    protected ChesOptions ChesOptions { get; }
+
     #endregion
 
     #region Constructors
@@ -54,11 +66,15 @@ public class ContentManager : ServiceManager<ContentOptions>
         IKafkaAdmin kafkaAdmin,
         IKafkaListener<string, SourceContent> kafkaListener,
         IApiService api,
+        IChesService chesService,
+        IOptions<ChesOptions> chesOptions,
         IOptions<ContentOptions> options,
         ILogger<ContentManager> logger)
         : base(api, options, logger)
     {
         this.KafkaAdmin = kafkaAdmin;
+        this.Ches = chesService;
+        this.ChesOptions = chesOptions.Value;
         this.Listener = kafkaListener;
         this.Listener.IsLongRunningJob = false;
         this.Listener.OnError += ListenerErrorHandler;
@@ -67,6 +83,39 @@ public class ContentManager : ServiceManager<ContentOptions>
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Send email alert of failure.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    public async Task SendEmailAsync(string subject, string message)
+    {
+        if (this.Options.SendEmailOnFailure)
+        {
+            try
+            {
+                var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, this.Options.EmailTo, subject, message);
+                await this.Ches.SendEmailAsync(email);
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Email failed to send");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Send email alert of failure.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="ex"></param>
+    /// <returns></returns>
+    public async Task SendEmailAsync(string subject, Exception ex)
+    {
+        await this.SendEmailAsync($"Content Service - {subject}", $"<div>{ex.GetAllMessages()}</div>{Environment.NewLine}<div>{ex.StackTrace}</div>");
+    }
+
     /// <summary>
     /// Continually poll for updated data source configuration.
     /// When there are topics to listen too it will initialize a Kafka consumer.
@@ -128,6 +177,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 {
                     this.Logger.LogError(ex, "Service had an unexpected failure.");
                     this.State.RecordFailure();
+                    await this.SendEmailAsync("Service had an Unexpected Failure", ex);
                 }
             }
 
@@ -256,10 +306,12 @@ public class ContentManager : ServiceManager<ContentOptions>
             if (ex is HttpClientRequestException httpEx)
             {
                 this.Logger.LogError(ex, "HTTP exception while consuming. {response}", httpEx.Data["body"] ?? "");
+                await this.SendEmailAsync("HTTP exception while consuming. {response}", ex);
             }
             else
             {
                 this.Logger.LogError(ex, "Failed to handle message");
+                await this.SendEmailAsync("Failed to handle message", ex);
             }
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
         }
