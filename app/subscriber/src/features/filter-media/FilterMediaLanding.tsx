@@ -18,7 +18,8 @@ export const FilterMediaLanding: React.FC = () => {
     { storeMediaTypeFilter: storeFilter },
   ] = useContent();
   const [{ sources, mediaTypes }] = useLookup();
-  const { subMediaGroups } = useSubMediaGroups(sources, mediaTypes);
+  const { subMediaGroups = [] } = useSubMediaGroups(sources, mediaTypes);
+  const [mediaGroups, setMediaGroups] = React.useState<ISubMediaGroupItem[]>();
   const [activeFilter, setActiveFilter] = React.useState<ISubMediaGroupItem>();
 
   const [activeLetter, setActiveLetter] = React.useState<string>('All');
@@ -26,25 +27,41 @@ export const FilterMediaLanding: React.FC = () => {
   const [activeSource, setActiveSource] = React.useState<ISourceModel | null>(null);
   const [parentClicked, setParentClicked] = React.useState<boolean>(false);
 
-  // remove all option from the subMediaGroups
-  const mediaGroups = React.useMemo(
-    () => subMediaGroups?.filter((sg) => sg.label !== 'All'),
-    [subMediaGroups],
+  const [loaded, setLoaded] = React.useState<boolean>(false);
+
+  const determineSourceIds = React.useCallback(
+    (mediaGroupFilter?: ISubMediaGroupItem) => {
+      if (!mediaGroupFilter) mediaGroupFilter = activeFilter;
+      return mediaGroups
+        ?.find((sg) => sg.label === mediaGroupFilter?.label)
+        ?.options.map((opt) => opt.id);
+    },
+    [activeFilter, mediaGroups],
   );
 
-  const determineSourceIds = React.useCallback(() => {
-    return mediaGroups
-      ?.find((sg) => sg.label === activeFilter?.label)
-      ?.options.map((opt) => opt.id);
-  }, [activeFilter, mediaGroups]);
+  React.useEffect(() => {
+    if (subMediaGroups && subMediaGroups.length > 0) {
+      setLoaded(true);
+
+      // remove all option from the subMediaGroups
+      setMediaGroups(subMediaGroups?.filter((sg) => sg.label !== 'All'));
+    }
+  }, [subMediaGroups]);
 
   // init
   React.useEffect(() => {
-    if (!activeFilter) setActiveFilter(mediaGroups.find((sg) => sg.label === 'Daily Print'));
-    storeFilter({ ...filter, sourceIds: determineSourceIds() });
-    // only want to fire when mediaGroups change
+    if (loaded && mediaGroups && !activeFilter) {
+      const dailyPrintMediaGroup = mediaGroups.find((sg) => sg.label === 'Daily Print');
+
+      if (dailyPrintMediaGroup) {
+        setActiveFilter(dailyPrintMediaGroup);
+        const sourceIds = determineSourceIds(dailyPrintMediaGroup);
+        storeFilter({ ...filter, sourceIds });
+      }
+    }
+    // only when media groups / relevant data is loaded & ready
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mediaGroups, determineSourceIds]);
+  }, [loaded]);
 
   /** When the parent group is clicked, we want to set the sourceIds to the sources of the parent group
    *   Additionally, we want to deselect the narrowed option
@@ -158,7 +175,7 @@ export const FilterMediaLanding: React.FC = () => {
       </Col>
       <Col className="results">
         <PageSection>
-          <FilterMedia />
+          <FilterMedia loaded={loaded} />
         </PageSection>
       </Col>
     </styled.FilterMediaLanding>

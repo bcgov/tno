@@ -2,30 +2,27 @@ import moment from 'moment';
 import React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { FaCalendarDay, FaCaretLeft, FaCaretRight } from 'react-icons/fa6';
+import { useContent } from 'store/hooks';
 import { IFilterSettingsModel } from 'tno-core';
 
 import * as styled from './styled';
 
 export interface IDateFilterProps {
+  loaded?: boolean;
   filter: IFilterSettingsModel;
   storeFilter: (filter: IFilterSettingsModel) => void;
 }
 
 /** Custom date filter for the subscriber home page. Control the calendar state with custom button, custom styling also applied. Also allows user to navigate a day at a time via arrow buttons. */
-export const DateFilter: React.FC<IDateFilterProps> = ({ filter, storeFilter }) => {
+export const DateFilter: React.FC<IDateFilterProps> = ({ loaded, filter, storeFilter }) => {
   /** control state of open calendar from outside components. i.e custom calendar button */
+  const [
+    {
+      mediaType: { filter: storedFilter },
+    },
+  ] = useContent();
   const [open, setOpen] = React.useState(false);
 
-  React.useEffect(() => {
-    if (!filter.startDate) {
-      storeFilter({
-        ...filter,
-        startDate: moment().startOf('day').toISOString(),
-        endDate: moment().endOf('day').toISOString(),
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter]);
   // /** close calendar after a date has been selected, and fetch related content */
   React.useEffect(() => {
     setOpen(false);
@@ -33,14 +30,23 @@ export const DateFilter: React.FC<IDateFilterProps> = ({ filter, storeFilter }) 
 
   /** update state variable when date changes, can be controlled via date picker or arrows */
   React.useEffect(() => {
-    storeFilter({
-      ...filter,
-      startDate: moment(filter.startDate).startOf('day').toISOString(),
-      endDate: moment(filter.startDate).endOf('day').toISOString(),
-    });
+    if (!filter.startDate) {
+      storeFilter({
+        ...filter,
+        startDate: moment().startOf('day').toISOString(),
+        endDate: moment().endOf('day').toISOString(),
+      });
+      return;
+    } else if (storedFilter.startDate !== filter.startDate) {
+      storeFilter({
+        ...filter,
+        startDate: moment(filter.startDate).startOf('day').toISOString(),
+        endDate: moment(filter.startDate).endOf('day').toISOString(),
+      });
+    }
     // only want the above to trigger when date changes, not when filterAdvanced changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter.startDate]);
+  }, [filter, filter?.startDate]);
 
   /** function to help manipulate the current date based on user input */
   const adjustDate = (days: number, direction: 'forwards' | 'backwards') => {

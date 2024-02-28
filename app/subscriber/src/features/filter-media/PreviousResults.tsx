@@ -8,28 +8,34 @@ import { IPreviousDate } from './interfaces';
 import * as styled from './styled';
 
 export interface IPreviousResultsProps {
-  results: IContentSearchResult[];
+  loaded: boolean;
+  currDateResults: IContentSearchResult[];
+  prevDateResults: IContentSearchResult[];
   setResults: React.Dispatch<React.SetStateAction<IContentSearchResult[]>>;
 }
-export const PreviousResults: React.FC<IPreviousResultsProps> = ({ results }) => {
+export const PreviousResults: React.FC<IPreviousResultsProps> = ({
+  loaded,
+  currDateResults,
+  prevDateResults,
+}) => {
   const [
     {
       mediaType: { filter },
     },
-    { findContentWithElasticsearch, storeMediaTypeFilter: storeFilter },
+    { storeMediaTypeFilter: storeFilter },
   ] = useContent();
 
   const [prevResults, setPrevResults] = React.useState<IPreviousDate[]>([]);
 
   React.useEffect(() => {
     // wait for startDate, and also do not want to fetch if results are returned
-    if (!filter.startDate || !!results.length) return;
+    if (!loaded || !filter.startDate || !!currDateResults.length) return;
     createDateRanges(filter.startDate);
     // only want to run when start date or source ids change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter.startDate, filter.sourceIds]);
+  }, [filter.startDate, filter.sourceIds, currDateResults, prevDateResults]);
 
-  const createDateRanges = async (startDateStr: string) => {
+  const createDateRanges = (startDateStr: string) => {
     // Parse the input strings into Date objects
     const startDate = new Date(startDateStr);
 
@@ -40,22 +46,24 @@ export const PreviousResults: React.FC<IPreviousResultsProps> = ({ results }) =>
 
     // Generate the previous 5 days from the read date
     for (let i = 1; i <= 5; i++) {
-      const currentStartDate = new Date(startDate.getTime() - i * dayInMillis);
-      const currentEndDate = new Date(currentStartDate.getTime() + dayInMillis - 1);
+      const currStartDate = new Date(startDate.getTime() - i * dayInMillis);
+      const currEndDate = new Date(currStartDate.getTime() + dayInMillis - 1);
 
-      const result = await findContentWithElasticsearch(
-        generateQuery({
-          ...filter,
-          startDate: currentStartDate.toISOString(),
-          endDate: currentEndDate.toISOString(),
-        }),
-        false,
-      );
+      const currResults = prevDateResults.filter((res) => {
+        const resDate = new Date(res.publishedOn);
+        if (
+          resDate.getTime() >= currStartDate.getTime() &&
+          resDate.getTime() <= currEndDate.getTime()
+        ) {
+          return true;
+        }
+        return false;
+      });
 
       dateRanges.push({
-        startDate: currentStartDate.toISOString(),
-        endDate: currentEndDate.toISOString(),
-        hits: result.hits.hits.length,
+        startDate: currStartDate.toISOString(),
+        endDate: currEndDate.toISOString(),
+        hits: currResults.length,
       });
     }
     setPrevResults(dateRanges);

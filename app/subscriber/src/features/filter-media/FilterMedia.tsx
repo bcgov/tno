@@ -3,14 +3,18 @@ import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
 import { IContentSearchResult } from 'features/utils/interfaces';
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import { useContent } from 'store/hooks';
 import { generateQuery, IContentModel, Show } from 'tno-core';
 
 import { PreviousResults } from './PreviousResults';
 import * as styled from './styled';
 
-export const FilterMedia: React.FC = () => {
+interface IFilterMediaProps {
+  loaded?: boolean;
+}
+
+export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
   const [
     {
       mediaType: { filter },
@@ -18,14 +22,47 @@ export const FilterMedia: React.FC = () => {
     { findContentWithElasticsearch, storeMediaTypeFilter: storeFilter },
   ] = useContent();
 
-  const [results, setResults] = React.useState<IContentSearchResult[]>([]);
+  const [currDateResults, setCurrDateResults] = React.useState<IContentSearchResult[]>([]);
+  const [prevDateResults, setPrevDateResults] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
   const fetchResults = React.useCallback(
-    async (filter: MsearchMultisearchBody) => {
+    async (requestFilter: MsearchMultisearchBody) => {
+      if (!filter.startDate) return;
+      const dayInMillis = 24 * 60 * 60 * 1000; // Hours*Minutes*Seconds*Milliseconds
+      const currStartDate = new Date(filter.startDate);
+      const prevStartDate = new Date(currStartDate.getTime() - 5 * dayInMillis);
+      const currEndDate = new Date(currStartDate.getTime() + dayInMillis - 1);
+      const query = generateQuery({
+        ...filter,
+        mediaTypeIds: filter.mediaTypeIds ?? [],
+        sourceIds: filter.sourceIds ?? [],
+        startDate: prevStartDate.toISOString(),
+        endDate: currEndDate.toISOString(),
+      });
       try {
-        const res: any = await findContentWithElasticsearch(filter, false);
-        setResults(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
+        const res: any = await findContentWithElasticsearch(query, false);
+        const currDateResults: IContentSearchResult[] = [],
+          prevDateResults: IContentSearchResult[] = [];
+
+        res.hits.hits.forEach((h: { _source: IContentSearchResult }) => {
+          const resDate = new Date(h._source.publishedOn);
+          if (
+            resDate.getTime() >= currStartDate.getTime() &&
+            resDate.getTime() <= currEndDate.getTime()
+          ) {
+            // result occured during currently selected date
+            currDateResults.push(h._source);
+          } else if (
+            // result occured sometime in past 5 days
+            resDate.getTime() >= prevStartDate.getTime() &&
+            resDate.getTime() <= currEndDate.getTime()
+          ) {
+            prevDateResults.push(h._source);
+          }
+        });
+        setCurrDateResults(currDateResults);
+        setPrevDateResults(prevDateResults);
       } catch {}
     },
     // only run on filter change
@@ -34,15 +71,9 @@ export const FilterMedia: React.FC = () => {
   );
 
   React.useEffect(() => {
-    // stops invalid requests before filter is synced with date
-    if (!filter.startDate) return;
-    fetchResults(
-      generateQuery({
-        ...filter,
-        mediaTypeIds: filter.mediaTypeIds ?? [],
-        sourceIds: filter.sourceIds ?? [],
-      }),
-    );
+    // stops invalid requests before data is loaded or filter is synced with date
+    if (!loaded || !filter.startDate) return;
+    fetchResults(filter);
     // only run on filter change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
@@ -51,23 +82,30 @@ export const FilterMedia: React.FC = () => {
     setSelected(content);
   }, []);
 
+  if (!loaded) return <>Loading</>;
+
   return (
     <styled.FilterMedia>
       <ContentListActionBar
         content={selected}
-        onSelectAll={(e) => (e.target.checked ? setSelected(results) : setSelected([]))}
+        onSelectAll={(e) => (e.target.checked ? setSelected(currDateResults) : setSelected([]))}
       />
-      <DateFilter filter={filter} storeFilter={storeFilter} />
+      <DateFilter loaded={loaded} filter={filter} storeFilter={storeFilter} />
       <ContentList
         onContentSelected={handleContentSelected}
-        content={results}
+        content={currDateResults}
         showDate
         showTime
         showSeries
         selected={selected}
       />
-      <Show visible={!results.length}>
-        <PreviousResults results={results} setResults={setResults} />
+      <Show visible={!currDateResults.length}>
+        <PreviousResults
+          loaded={loaded}
+          currDateResults={currDateResults}
+          prevDateResults={prevDateResults}
+          setResults={setPrevDateResults}
+        />
       </Show>
     </styled.FilterMedia>
   );
