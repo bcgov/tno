@@ -27,11 +27,7 @@ export const StatusSection: React.FC<IStatusSectionProps> = ({
     <Col alignContent="center" className="toolbar-status">
       <ToolBarSection>
         <Col>
-          <ContentNavigation
-            values={values}
-            fetchContent={fetchContent}
-            combinedPath={combinedPath}
-          />
+          <ContentNavigation values={values} fetchContent={fetchContent} />
           <Row justifyContent="center" className="title-container">
             Details
           </Row>

@@ -4,6 +4,7 @@ import { ContentStatusName, ContentTypeName } from 'tno-core';
 import { IContentForm } from '../interfaces';
 
 export const defaultFormValues = (contentType: ContentTypeName): IContentForm => {
+  const publishedOn = moment();
   return {
     id: 0,
     uid: '',
@@ -25,8 +26,8 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     headline: '',
     summary: '',
     body: '',
-    publishedOn: '',
-    publishedOnTime: '',
+    publishedOn: publishedOn.format('MMM D, yyyy HH:mm:ss'),
+    publishedOnTime: publishedOn.format('HH:mm:ss'),
     isHidden: false,
     isApproved: contentType !== ContentTypeName.AudioVideo,
     isPrivate: false,
@@ -44,6 +45,6 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     section: '',
     edition: '',
     byline: '',
-    createdOn: moment().toString(),
+    createdOn: publishedOn.toString(),
   };
 };

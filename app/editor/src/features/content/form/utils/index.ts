@@ -3,6 +3,7 @@ export * from './getContentPath';
 export * from './getDefaultCommentaryExpiryValue';
 export * from './isHoliday';
 export * from './isSummaryRequired';
+export * from './setTime';
 export * from './switchStatus';
 export * from './toForm';
 export * from './toModel';

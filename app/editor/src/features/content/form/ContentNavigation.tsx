@@ -3,7 +3,7 @@ import { FaChevronLeft, FaChevronRight, FaSpinner } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useLocalStorage } from 'store/hooks';
 import { IContentSearchResult } from 'store/slices';
-import { Button, ButtonVariant, Row, Show, useCombinedView } from 'tno-core';
+import { Button, ButtonVariant, Row, Show } from 'tno-core';
 
 import { IContentForm } from './interfaces/IContentForm';
 import { getContentPath } from './utils';
@@ -13,8 +13,6 @@ export interface IContentNavigationProps {
   values: IContentForm;
   /** Function to fetch content. */
   fetchContent: (id: number) => void;
-  /** Root path for combined view. */
-  combinedPath?: string;
   /** Whether to show the refresh button */
   showRefresh?: boolean;
 }
@@ -27,11 +25,9 @@ export interface IContentNavigationProps {
 export const ContentNavigation: React.FC<IContentNavigationProps> = ({
   values,
   fetchContent,
-  combinedPath,
   showRefresh = true,
 }) => {
   const navigate = useNavigate();
-  const { combined } = useCombinedView(values.contentType);
 
   const [currentItems] = useLocalStorage('currentContent', null);
   const [, setCurrentItemId] = useLocalStorage('currentContentItemId', -1);
@@ -56,7 +52,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
       const targetId = (currentItems as IContentSearchResult[])[indexPosition + offset]?.id;
       if (!!targetId) {
         setCurrentItemId(targetId);
-        navigate(getContentPath(combined, targetId, values.contentType, combinedPath));
+        navigate(getContentPath(targetId, values.contentType));
       }
     }
   };

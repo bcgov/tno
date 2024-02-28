@@ -215,11 +215,12 @@ public class ContentController : ControllerBase
         newContent.OwnerId = user.Id;
         newContent.PostedOn = newContent.Status == ContentStatus.Publish || newContent.Status == ContentStatus.Published ? DateTime.UtcNow : null;
 
-        // only assign a default score to content which has a source relevent to Event of the Day
-        if (newContent.SourceId.HasValue) {
+        // only assign a default score to content which has a source relevant to Event of the Day
+        if (newContent.SourceId.HasValue)
+        {
             var source = _sourceService.FindById(newContent.SourceId.Value);
             if (source != null && source.UseInTopics)
-               _topicScoreHelper.SetContentScore(newContent);
+                _topicScoreHelper.SetContentScore(newContent);
         }
 
         var content = _contentService.AddAndSave(newContent);
