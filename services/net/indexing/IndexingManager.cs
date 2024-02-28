@@ -4,6 +4,8 @@ using Elastic.Transport;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Content;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Entities;
 using TNO.Kafka;
@@ -40,6 +42,16 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// get - The Elasticsearch client.
     /// </summary>
     protected ElasticsearchClient Client { get; private set; }
+
+    /// <summary>
+    /// get - CHES service.
+    /// </summary>
+    protected IChesService Ches { get; }
+
+    /// <summary>
+    /// get - CHES options.
+    /// </summary>
+    protected ChesOptions ChesOptions { get; }
     #endregion
 
     #region Constructors
@@ -49,18 +61,24 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <param name="kafkaAdmin"></param>
     /// <param name="listener"></param>
     /// <param name="api"></param>
+    /// <param name="chesService"></param>
+    /// <param name="chesOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public IndexingManager(
         IKafkaAdmin kafkaAdmin,
         IKafkaListener<string, IndexRequestModel> listener,
         IApiService api,
+        IChesService chesService,
+        IOptions<ChesOptions> chesOptions,
         IOptions<IndexingOptions> options,
         ILogger<IndexingManager> logger)
         : base(api, options, logger)
     {
         this.KafkaAdmin = kafkaAdmin;
         this.Listener = listener;
+        this.Ches = chesService;
+        this.ChesOptions = chesOptions.Value;
         this.Listener.IsLongRunningJob = false;
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
@@ -73,6 +91,39 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Send email alert of failure.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    public async Task SendEmailAsync(string subject, string message)
+    {
+        if (this.Options.SendEmailOnFailure)
+        {
+            try
+            {
+                var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, this.Options.EmailTo, subject, message);
+                await this.Ches.SendEmailAsync(email);
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Email failed to send");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Send email alert of failure.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="ex"></param>
+    /// <returns></returns>
+    public async Task SendEmailAsync(string subject, Exception ex)
+    {
+        await this.SendEmailAsync($"Indexing Service - {subject}", $"<div>{ex.Message}</div>{Environment.NewLine}<div>{ex.StackTrace}</div>");
+    }
+
     /// <summary>
     /// Continually polls for updated configuration.
     /// Listens to Kafka topic(s) for content to send to Elasticsearch.
@@ -121,6 +172,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 {
                     this.Logger.LogError(ex, "Service had an unexpected failure.");
                     this.State.RecordFailure();
+                    await this.SendEmailAsync("Service had an Unexpected Failure", ex);
                 }
             }
 
@@ -244,10 +296,12 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             if (ex is HttpClientRequestException httpEx)
             {
                 this.Logger.LogError(ex, "HTTP exception while consuming. {response}", httpEx.Data["body"] ?? "");
+                await this.SendEmailAsync("HTTP exception while consuming. {response}", ex);
             }
             else
             {
                 this.Logger.LogError(ex, "Failed to handle message");
+                await this.SendEmailAsync("Failed to handle message", ex);
             }
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
         }
