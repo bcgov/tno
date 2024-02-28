@@ -194,7 +194,7 @@ export const MyMinister: React.FC = () => {
               label={`${m.name} (${m.contentCount})`}
               className="option"
               checked={!m.hide}
-              onClick={(e) => {
+              onChange={(e) => {
                 hideGroup(m, !(e.target as HTMLInputElement).checked);
               }}
             />

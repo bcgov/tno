@@ -20,6 +20,7 @@ export const useElasticsearch = () => {
         searchUnpublished: !filter.onlyPublished,
         size: filter.pageSize,
         from: filter.pageIndex * filter.pageSize,
+        contentIds: filter.contentIds,
         mediaTypeIds: filter.mediaTypeIds ?? undefined,
         sourceIds: filter.sourceIds ?? undefined,
         contentTypes: filter.contentTypes ?? [],

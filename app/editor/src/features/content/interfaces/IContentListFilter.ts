@@ -15,6 +15,7 @@ export interface IContentListFilter {
   mediaTypeIds: number[];
   sourceIds: number[];
   excludeSourceIds: number[];
+  contentIds?: number[];
   // Actions
   showOnly?: string;
   onTicker: boolean;

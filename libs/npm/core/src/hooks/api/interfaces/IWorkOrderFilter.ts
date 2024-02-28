@@ -3,7 +3,7 @@ import { WorkOrderStatusName, WorkOrderTypeName } from '../constants';
 export interface IWorkOrderFilter {
   keywords?: string;
   isApproved?: boolean;
-  status?: WorkOrderStatusName;
+  status?: WorkOrderStatusName[];
   workType?: WorkOrderTypeName;
   contentId?: number;
   mediaTypeIds?: number[];

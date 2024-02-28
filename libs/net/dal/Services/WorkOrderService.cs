@@ -2,9 +2,9 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.DAL.Extensions;
-using TNO.Models.Filters;
 using TNO.Entities;
 using TNO.Entities.Models;
+using TNO.Models.Filters;
 
 namespace TNO.DAL.Services;
 
@@ -46,8 +46,8 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
 
         if (filter.WorkType.HasValue)
             query = query.Where(c => c.WorkType == filter.WorkType);
-        if (filter.Status.HasValue)
-            query = query.Where(c => c.Status == filter.Status);
+        if (filter.Status?.Any() == true)
+            query = query.Where(c => filter.Status.Contains(c.Status));
 
         if (filter.ContentId.HasValue)
             query = query.Where(c => c.ContentId == filter.ContentId || EF.Functions.JsonContains(c.Configuration, $"{{\"contentId\":{filter.ContentId}}}"));
@@ -134,8 +134,8 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
 
         if (filter.WorkType.HasValue)
             query = query.Where(c => c.WorkType == filter.WorkType);
-        if (filter.Status.HasValue)
-            query = query.Where(c => c.Status == filter.Status);
+        if (filter.Status?.Any() == true)
+            query = query.Where(c => filter.Status.Contains(c.Status));
 
         if (filter.ContentId.HasValue)
             query = query.Where(c => c.ContentId == filter.ContentId || EF.Functions.JsonContains(c.Configuration, $"{{\"contentId\":{filter.ContentId}}}"));

@@ -23,7 +23,7 @@ public class WorkOrderFilter : PageFilter
     /// <summary>
     /// get/set - Only include work order with this status.
     /// </summary>
-    public WorkOrderStatus? Status { get; set; }
+    public WorkOrderStatus[]? Status { get; set; }
 
     /// <summary>
     /// get/set - Only include work order with this work type.
@@ -113,7 +113,7 @@ public class WorkOrderFilter : PageFilter
         this.Keywords = filter.GetStringValue(nameof(this.Keywords));
 
         this.IsApproved = filter.GetBoolNullValue(nameof(this.IsApproved));
-        this.Status = filter.GetEnumNullValue<WorkOrderStatus>(nameof(this.Status));
+        this.Status = filter.GetEnumArrayValue<WorkOrderStatus>(nameof(this.Status));
         this.WorkType = filter.GetEnumNullValue<WorkOrderType>(nameof(this.WorkType));
 
         this.RequestorId = filter.GetIntNullValue(nameof(this.RequestorId));

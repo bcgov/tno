@@ -33,12 +33,12 @@ export const WorkOrderFilter = ({ filter, onFilterChange }: IWorkOrderFilterProp
       <Checkbox
         name="ready"
         label="Ready for review"
-        checked={filter.status === WorkOrderStatusName.Completed}
+        checked={filter.status?.includes(WorkOrderStatusName.Completed)}
         onChange={(e) =>
           onFilterChange({
             ...filter,
             isApproved: e.target.checked ? false : undefined,
-            status: e.target.checked ? WorkOrderStatusName.Completed : undefined,
+            status: e.target.checked ? [WorkOrderStatusName.Completed] : undefined,
           })
         }
       />
