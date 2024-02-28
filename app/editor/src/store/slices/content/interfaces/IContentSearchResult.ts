@@ -1,4 +1,4 @@
-import { ContentStatusName, ContentTypeName } from 'tno-core';
+import { ContentStatusName, ContentTypeName, WorkOrderStatusName } from 'tno-core';
 
 export interface IContentSearchResult {
   id: number;
@@ -24,5 +24,5 @@ export interface IContentSearchResult {
   // React-Table Properties
   // TODO: Should not be part of the API interface.
   isSelected?: boolean;
-  transcriptStatus?: string;
+  transcriptStatus?: WorkOrderStatusName;
 }

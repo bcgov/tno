@@ -49,7 +49,7 @@ export const InputOption: React.FC<any> = ({
       getStyles={getStyles}
       innerProps={props}
     >
-      <input type="checkbox" id={children} checked={isSelected} />
+      <input type="checkbox" id={children} defaultChecked={isSelected} />
       <styled.SelectLabel
         className="label"
         onClick={() => document.getElementById(children)?.click()}

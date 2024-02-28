@@ -200,7 +200,7 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
                 name="pendingTranscript"
                 label="Pending Transcript"
                 tooltip="Pending Transcript"
-                checked={filter.pendingTranscript}
+                checked={filter.pendingTranscript ?? false}
                 onChange={(e) => {
                   onChange({
                     ...filter,

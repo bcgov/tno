@@ -86,7 +86,7 @@ export const subscriberColumns = (
         <Checkbox
           id={`user-${cell.original.id}-target-status`}
           value={true}
-          checked={product.subscribers.some(
+          defaultChecked={product.subscribers.some(
             (u) => u.id === cell.original.id && u.requestedIsSubscribedStatus,
           )}
           disabled={true}

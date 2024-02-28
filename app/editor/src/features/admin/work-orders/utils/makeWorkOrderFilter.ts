@@ -6,7 +6,7 @@ import { IWorkOrderListFilter } from '../interfaces/IWorkOrderListFilter';
 export const makeWorkOrderFilter = (filter: IWorkOrderListFilter): IWorkOrderFilter => {
   return {
     ...filter,
-    status: filter.status === '' ? undefined : filter.status,
+    status: filter.status === '' ? undefined : [filter.status],
     workType: filter.workType === '' ? undefined : filter.workType,
     page: filter.pageIndex + 1,
     quantity: filter.pageSize,

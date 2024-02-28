@@ -29,7 +29,7 @@ export interface IColumnProps {
 export const useColumns = ({ fetch }: IColumnProps): ITableHookColumn<IContentSearchResult>[] => {
   const [{ filter, filterAdvanced }, { storeFilterAdvanced }] = useContent();
 
-  return [
+  let columns: ITableHookColumn<IContentSearchResult>[] = [
     {
       accessor: 'headline',
       label: (
@@ -121,7 +121,10 @@ export const useColumns = ({ fetch }: IColumnProps): ITableHookColumn<IContentSe
       width: '55px',
       cell: (cell) => <Status value={cell.original.status} />,
     },
-    {
+  ];
+
+  if (filter.pendingTranscript) {
+    columns.push({
       accessor: 'transcript',
       label: 'Transcript',
       hAlign: 'center',
@@ -147,6 +150,8 @@ export const useColumns = ({ fetch }: IColumnProps): ITableHookColumn<IContentSe
           return <FaCirclePause className="cancelled" title="Cancelled" />;
         return cell.original.transcriptStatus;
       },
-    },
-  ];
+    });
+  }
+
+  return columns;
 };

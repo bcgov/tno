@@ -1,5 +1,6 @@
-import { SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
+import { KnnSearchResponse, SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import { NavigateOptions, useTab } from 'components/tab-control';
+import moment from 'moment';
 import React, { lazy } from 'react';
 import { useParams } from 'react-router-dom';
 import { useApiHub, useApp, useContent, useLocalStorage, useWorkOrders } from 'store/hooks';
@@ -11,11 +12,13 @@ import {
   FlexboxTable,
   IContentMessageModel,
   IContentModel,
+  IPaged,
   ITableInternalRow,
   ITablePage,
   ITableSort,
   IWorkOrderFilter,
   IWorkOrderMessageModel,
+  IWorkOrderModel,
   MessageTargetName,
   Page,
   replaceQueryParams,
@@ -198,53 +201,63 @@ const ContentListView: React.FC = () => {
         if (!isLoading) {
           setIsLoading(true);
 
-          const endDate = new Date();
-          const startDate = new Date();
-          startDate.setDate(endDate.getDate() - 3);
-          const woFilter: IWorkOrderFilter = {
-            createdStartOn: startDate.toLocaleDateString('en-US'),
-            createdEndOn: endDate.toLocaleDateString('en-US'),
-            status: WorkOrderStatusName.InProgress, // kgm: bring back only what we are interested in
+          let workOrders: IPaged<IWorkOrderModel> = {
+            page: 0,
+            quantity: 0,
+            total: 0,
+            items: [],
           };
+          if (filter.pendingTranscript) {
+            // Make a request for transcript work orders.
+            const startDate = moment().add(-3, 'day').startOf('day');
+            const endDate = moment().endOf('day');
+            const woFilter: IWorkOrderFilter = {
+              page: 1,
+              quantity: 1000,
+              createdStartOn: startDate.toISOString(),
+              createdEndOn: endDate.toISOString(),
+              workType: WorkOrderTypeName.Transcription,
+              status: [
+                WorkOrderStatusName.InProgress,
+                WorkOrderStatusName.Completed,
+                WorkOrderStatusName.Failed,
+              ],
+            };
 
-          const [results, workOrders] = await Promise.all([
-            findContentWithElasticsearch(toFilter(filter), true),
-            findWorkOrders(woFilter),
-          ]);
+            const response = await findWorkOrders(woFilter);
+            workOrders = response.data;
+            filter.contentIds = workOrders.items
+              .filter((wo) => !!wo.contentId)
+              .map((wo) => wo.contentId!);
+          }
 
-          const items = results.hits?.hits?.map((h) =>
+          const doSearch =
+            !filter.pendingTranscript || (filter.pendingTranscript && workOrders.items.length);
+          const searchResults: KnnSearchResponse<IContentModel> = doSearch
+            ? await findContentWithElasticsearch(toFilter(filter), true)
+            : ({
+                hits: { hits: [], total: { value: 0 } },
+              } as unknown as KnnSearchResponse<IContentModel>);
+          let items = searchResults.hits?.hits?.map((h) =>
             castContentToSearchResult(h._source as IContentModel),
           );
 
-          if (filter.pendingTranscript && items) {
-            let itemsWithStatus: IContentSearchResult[] | undefined = items.map((m) => {
-              let v = { ...m };
-              v.transcriptStatus = workOrders.data.items.find((w) => w.contentId === m.id)?.status;
-              return v;
+          if (filter.pendingTranscript) {
+            // Apply the transcript work order to the content.
+            items = items.map((content) => {
+              const workOrder = workOrders.items.find((wo) => wo.contentId === content.id);
+              return { ...content, transcriptStatus: workOrder?.status };
             });
-            if (itemsWithStatus) {
-              itemsWithStatus = itemsWithStatus.filter(
-                (x) => x.transcriptStatus === WorkOrderStatusName.InProgress,
-              );
-            }
-            if (results && itemsWithStatus) {
-              const page = new Page(1, filter.pageSize, itemsWithStatus, itemsWithStatus.length);
-              setCurrentResultsPage(page);
-              return page;
-            } else {
-              setCurrentResultsPage(defaultPage);
-              return defaultPage as Page<IContentSearchResult>;
-            }
-          } else {
-            const page = new Page(
-              1,
-              filter.pageSize,
-              items,
-              (results.hits?.total as SearchTotalHits).value,
-            );
-            setCurrentResultsPage(page);
-            return page;
           }
+
+          const page = new Page(
+            1,
+            filter.pageSize,
+            items,
+            (searchResults.hits?.total as SearchTotalHits).value,
+          );
+          setCurrentResultsPage(page);
+          return page;
         }
       } catch {
       } finally {
