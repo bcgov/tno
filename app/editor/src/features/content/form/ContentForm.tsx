@@ -4,6 +4,7 @@ import moment from 'moment';
 import React from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import CreatableSelect from 'react-select/creatable';
 import { useLookup, useLookupOptions } from 'store/hooks';
 import { IAjaxRequest } from 'store/slices';
 import {
@@ -27,6 +28,7 @@ import {
   FormPage,
   hasErrors,
   IOptionItem,
+  ISeriesModel,
   Modal,
   OptionItem,
   Row,
@@ -117,6 +119,8 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const [parsedTags, setParsedTags] = React.useState<string[]>([]);
 
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
+  const [seriesOtherOptions, setSeriesOtherOptions] = React.useState<IOptionItem[]>([]);
+  const [seriesOtherCreated, setSeriesOtherCreated] = React.useState<string>('');
 
   const source = sources.find((s) => s.id === form.sourceId);
   const program = series.find((s) => s.id === form.seriesId);
@@ -152,8 +156,21 @@ const ContentForm: React.FC<IContentFormProps> = ({
   }, [form.publishedOn, setForm]);
 
   React.useEffect(() => {
-    setSeriesOptions(series.map((m: any) => new OptionItem(m.name, m.id, !m.isEnabled)));
+    setSeriesOptions(
+      series.filter((f) => !f.isOther).map((m: any) => new OptionItem(m.name, m.id, !m.isEnabled)),
+    );
   }, [series]);
+
+  React.useEffect(() => {
+    // create a list of "Other Series" options
+    // and concat the created value if neccesary
+    let filteredSeriesOptions = series
+      .filter((f) => f.isOther)
+      .map((m: any) => new OptionItem(m.name, m.id, !m.isEnabled));
+    if (seriesOtherCreated)
+      filteredSeriesOptions = filteredSeriesOptions.concat(new OptionItem(seriesOtherCreated, ''));
+    setSeriesOtherOptions(filteredSeriesOptions);
+  }, [series, seriesOtherCreated]);
 
   React.useEffect(() => {
     if (form.id) setIsEditing(true);
@@ -462,27 +479,54 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                     props.setFieldValue('otherSeries', '');
                                   }}
                                 />
-                                <FormikText
-                                  name="otherSeries"
-                                  label="Other Show/Program"
-                                  width={FieldSize.Medium}
-                                  onChange={(e) => {
-                                    const value = e.currentTarget.value;
-                                    props.setFieldValue('otherSeries', value);
-                                    if (!!value) props.setFieldValue('seriesId', undefined);
-                                  }}
-                                  onBlur={() => {
-                                    const found = series.find(
-                                      (s) =>
-                                        s.name.toLocaleLowerCase() ===
-                                        props.values.otherSeries.toLocaleLowerCase(),
-                                    );
-                                    if (!!found) {
-                                      props.setFieldValue('seriesId', found.id);
-                                      props.setFieldValue('otherSeries', '');
+                                <div className="frm-in">
+                                  <label htmlFor="selOtherSeries">Other Show/Program</label>
+                                  <CreatableSelect
+                                    name={'selOtherSeries'}
+                                    className={'other-series-select'}
+                                    isClearable
+                                    options={seriesOtherOptions}
+                                    onChange={(e: any) => {
+                                      let foundSeries: ISeriesModel | undefined;
+                                      foundSeries = series.find((c) => c.id === e.value);
+                                      if (!!foundSeries && foundSeries.isOther) {
+                                        // this is a known "Other Series"
+                                        props.setFieldValue('otherSeries', '');
+                                        props.setFieldValue('seriesId', foundSeries.id);
+                                        setSeriesOtherCreated('');
+                                      }
+                                    }}
+                                    onCreateOption={(inputValue: string) => {
+                                      // this is a "created" option, but we need to check if
+                                      // it's a duplicate of an existing option this is !isOther
+                                      let foundSeries: ISeriesModel | undefined = series.find(
+                                        (s) =>
+                                          s.name.toLocaleLowerCase() ===
+                                          inputValue.toLocaleLowerCase(),
+                                      );
+                                      if (!!foundSeries) {
+                                        // this is an existing series - not isOther
+                                        props.setFieldValue('seriesId', foundSeries.id);
+                                        props.setFieldValue('otherSeries', '');
+                                        setSeriesOtherCreated('');
+                                      } else {
+                                        // this is a new "other" series
+                                        props.setFieldValue('otherSeries', inputValue);
+                                        props.setFieldValue('seriesId', undefined);
+                                        // save the new created series/program name
+                                        setSeriesOtherCreated(inputValue);
+                                      }
+                                    }}
+                                    value={
+                                      seriesOtherOptions.find(
+                                        (s: any) =>
+                                          (props.values.otherSeries.length > 0 &&
+                                            s.label === props.values.otherSeries) ||
+                                          s.value === props.values.seriesId,
+                                      ) ?? ''
                                     }
-                                  }}
-                                />
+                                  />
+                                </div>
                               </Row>
                             </Show>
                           </Row>

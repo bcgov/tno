@@ -34,6 +34,13 @@ export const columns: ITableHookColumn<ISeriesModel>[] = [
     cell: (cell) => <CellCheckbox checked={cell.original.useInTopics} />,
   },
   {
+    label: 'Is Other',
+    accessor: 'isOther',
+    width: 1,
+    hAlign: 'center',
+    cell: (cell) => <CellCheckbox checked={cell.original.isOther} />,
+  },
+  {
     label: 'Enabled',
     accessor: 'isEnabled',
     width: 1,

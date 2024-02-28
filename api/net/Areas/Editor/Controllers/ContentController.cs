@@ -52,7 +52,7 @@ public class ContentController : ControllerBase
     private readonly IWorkOrderHelper _workOrderHelper;
     private readonly IUserService _userService;
     private readonly IActionService _actionService;
-    private readonly ITopicService _topicService;
+    private readonly ISourceService _sourceService;
     private readonly StorageOptions _storageOptions;
     private readonly IConnectionHelper _connection;
     private readonly ITopicScoreHelper _topicScoreHelper;
@@ -75,7 +75,7 @@ public class ContentController : ControllerBase
     /// <param name="workOrderHelper"></param>
     /// <param name="userService"></param>
     /// <param name="actionService"></param>
-    /// <param name="topicService"></param>
+    /// <param name="sourceService"></param>
     /// <param name="connection"></param>
     /// <param name="topicScoreHelper"></param>
     /// <param name="storageOptions"></param>
@@ -92,7 +92,7 @@ public class ContentController : ControllerBase
         IWorkOrderHelper workOrderHelper,
         IUserService userService,
         IActionService actionService,
-        ITopicService topicService,
+        ISourceService sourceService,
         IConnectionHelper connection,
         ITopicScoreHelper topicScoreHelper,
         IOptions<StorageOptions> storageOptions,
@@ -109,7 +109,7 @@ public class ContentController : ControllerBase
         _workOrderHelper = workOrderHelper;
         _userService = userService;
         _actionService = actionService;
-        _topicService = topicService;
+        _sourceService = sourceService;
         _storageOptions = storageOptions.Value;
         _connection = connection;
         _topicScoreHelper = topicScoreHelper;
@@ -216,8 +216,11 @@ public class ContentController : ControllerBase
         newContent.PostedOn = newContent.Status == ContentStatus.Publish || newContent.Status == ContentStatus.Published ? DateTime.UtcNow : null;
 
         // only assign a default score to content which has a source relevent to Event of the Day
-        if (newContent.Source.UseInTopics)
-            _topicScoreHelper.SetContentScore(newContent);
+        if (newContent.SourceId.HasValue) {
+            var source = _sourceService.FindById(newContent.SourceId.Value);
+            if (source != null && source.UseInTopics)
+               _topicScoreHelper.SetContentScore(newContent);
+        }
 
         var content = _contentService.AddAndSave(newContent);
 

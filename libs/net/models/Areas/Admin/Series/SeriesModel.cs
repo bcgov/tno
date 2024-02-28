@@ -52,6 +52,12 @@ public class SeriesModel : AuditColumnsModel
     /// get/set - Whether to show the topics on the content form.
     /// </summary>
     public bool UseInTopics { get; set; }
+
+    /// <summary>
+    /// get/set - Is a secondary source - generally added via use of "Other" field.
+    /// Will not be displayed in the primary Series/Source dropdown or in search filters
+    /// </summary>
+    public bool IsOther { get; set; }
     #endregion
 
     #region Constructors
@@ -75,6 +81,7 @@ public class SeriesModel : AuditColumnsModel
         this.IsEnabled = entity.IsEnabled;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.UseInTopics = entity.UseInTopics;
+        this.IsOther = entity.IsOther;
     }
     #endregion
 
@@ -93,6 +100,7 @@ public class SeriesModel : AuditColumnsModel
             SortOrder = model.SortOrder,
             AutoTranscribe = model.AutoTranscribe,
             UseInTopics = model.UseInTopics,
+            IsOther = model.IsOther,
             Version = model.Version ?? 0,
         };
         return entity;

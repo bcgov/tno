@@ -109,6 +109,14 @@ const SeriesForm: React.FC = () => {
                 className="sort-order"
               />
               <Col gap="0.5rem">
+                <Row>
+                  <FormikCheckbox
+                    label="Is Other"
+                    name="isOther"
+                    tooltip="Shows/Programs marked as 'Other' will not display in the Advanced Search filter
+                  *OR* the main Show/Programs drop down list on the main content page."
+                  />
+                </Row>
                 <FormikCheckbox label="Is Enabled" name="isEnabled" />
                 <FormikCheckbox label="Use in Topics" name="useInTopics" />
                 <FormikCheckbox label="Automatically transcribe when saved" name="autoTranscribe" />

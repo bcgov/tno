@@ -6,6 +6,7 @@ export const defaultSeries: ISeriesForm = {
   description: '',
   sourceId: '',
   isEnabled: true,
+  isOther: false,
   sortOrder: 0,
   autoTranscribe: false,
   useInTopics: false,

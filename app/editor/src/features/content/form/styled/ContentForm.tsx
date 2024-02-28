@@ -175,6 +175,10 @@ export const ContentForm = styled.div`
     width: 65%;
   }
 
+  .other-series-select {
+    width: 30ch;
+  }
+
   .topic-select {
     width: 30ch;
   }

@@ -3,6 +3,9 @@ import styled from 'styled-components';
 export const ReportAdmin = styled.div`
   .grip-bar {
     color: ${(props) => props.theme.css.btnBkPrimary};
+    &:hover {
+      cursor: row-resize;
+    }
   }
   form {
     background: unset;

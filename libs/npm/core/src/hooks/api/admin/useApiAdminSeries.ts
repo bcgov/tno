@@ -4,7 +4,7 @@ import React from 'react';
 import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
 import { IPaged, ISeriesModel, useApi } from '..';
-import { ITagFilter } from '../interfaces/ITagFilter';
+import { ISeriesFilter } from '../interfaces';
 
 /**
  * Common hook to make requests to the API.
@@ -24,7 +24,7 @@ export const useApiAdminSeries = (
     findAllSeries: () => {
       return api.get<never, AxiosResponse<ISeriesModel[]>, any>(`/admin/series/all`);
     },
-    findSeries: (filter: ITagFilter) => {
+    findSeries: (filter: ISeriesFilter) => {
       return api.get<never, AxiosResponse<IPaged<ISeriesModel>>, any>(
         `/admin/Series?${toQueryString(filter)}`,
       );

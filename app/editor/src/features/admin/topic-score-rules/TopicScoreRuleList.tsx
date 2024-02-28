@@ -211,14 +211,14 @@ const TopicScoreRuleList: React.FC = () => {
                         <div className={`center`}>
                           <FormikText
                             name={`${index}.pageMin`}
-                            width="3em"
+                            width="4em"
                             className="text-right"
                           />
                         </div>
                         <div className={`center`}>
                           <FormikText
                             name={`${index}.pageMax`}
-                            width="3em"
+                            width="4em"
                             className="text-right"
                           />
                         </div>
