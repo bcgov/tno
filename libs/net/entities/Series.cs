@@ -35,6 +35,13 @@ public class Series : BaseType<int>
     public bool UseInTopics { get; set; }
 
     /// <summary>
+    /// get/set - Is a secondary source - generally added via use of "Other" field.
+    /// Will not be displayed in the primary Series/Source dropdown or in search filters
+    /// </summary>
+    [Column("is_other")]
+    public bool IsOther { get; set; }
+
+    /// <summary>
     /// get - List of content linked to this series.
     /// </summary>
     public virtual List<Content> Contents { get; } = new List<Content>();
@@ -70,6 +77,17 @@ public class Series : BaseType<int>
     public Series(string name, int? sourceId = null) : base(name)
     {
         this.SourceId = sourceId;
+    }
+    
+    /// <summary>
+    /// Creates a new instance of a Series object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="isOther"></param>
+    /// <param name="sourceId"></param>
+    public Series(string name, bool isOther, int? sourceId = null) : this(name, sourceId)
+    {
+        this.IsOther = isOther;
     }
     #endregion
 }

@@ -17,6 +17,12 @@ public class SeriesModel : BaseTypeModel<int>
     /// get/set - Whether to show the topics on the content form.
     /// </summary>
     public bool UseInTopics { get; set; }
+
+    /// <summary>
+    /// get/set - Is a secondary source - generally added via use of "Other" field.
+    /// Will not be displayed in the primary Series/Source dropdown or in search filters
+    /// </summary>
+    public bool IsOther { get; set; }
     #endregion
 
     #region Constructors
@@ -33,6 +39,7 @@ public class SeriesModel : BaseTypeModel<int>
     {
         this.SourceId = entity.SourceId;
         this.UseInTopics = entity.UseInTopics;
+        this.IsOther = entity.IsOther;
     }
     #endregion
 }

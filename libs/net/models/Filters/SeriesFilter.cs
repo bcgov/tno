@@ -9,6 +9,8 @@ public class SeriesFilter : PageFilter
     public string? Name { get; set; }
     public string? Description { get; set; }
     public string[] Sort { get; set; } = Array.Empty<string>();
+
+    public bool? IsOther { get; set; }
     #endregion
 
     #region Constructors
@@ -20,6 +22,10 @@ public class SeriesFilter : PageFilter
 
         this.Name = filter.GetStringValue(nameof(this.Name));
         this.Description = filter.GetStringValue(nameof(this.Description));
+
+        var isOtherValue = filter.GetStringValue(nameof(this.IsOther));
+        if (!string.IsNullOrEmpty(isOtherValue))
+            this.IsOther = bool.Parse(isOtherValue);
 
         this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }
