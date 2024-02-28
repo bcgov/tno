@@ -126,6 +126,28 @@ public class SeriesController : ControllerBase
     }
 
     /// <summary>
+    /// Merge two series records..
+    /// </summary>
+    /// <param name="id">the master series record</param>
+    /// <param name="fromId">the record to be merged into the master</param>
+    /// <returns></returns>
+    [HttpPut("{id}/merge/{fromId}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(SeriesModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Series" })]
+    public IActionResult Merge(int id, int fromId)
+    {
+        // make sure the merge target exists
+        var result = _service.FindById(id) ?? throw new NoContentException();
+        // make sure the merge source exists
+        result = _service.FindById(fromId) ?? throw new NoContentException();
+        // merge the source into the target
+        result = _service.Merge(id, fromId);
+        return new JsonResult(new SeriesModel(result));
+    }
+
+    /// <summary>
     /// Delete series for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>

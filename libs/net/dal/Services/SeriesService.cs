@@ -85,5 +85,24 @@ public class SeriesService : BaseService<Series, int>, ISeriesService
             .Include(s => s.Source)
             .FirstOrDefault(s => s.Id == id);
     }
+
+    public Series? Merge(int intoId, int fromId)
+    {
+        // get a list of content ids by finding all content records which refer to the fromId
+        var contentIdsToUpdate = this.Context.Contents.Where((c) => c.SeriesId == fromId).Select((c) => c.Id).ToList();
+        // if there are in fact records to update, update them
+        if (contentIdsToUpdate.Any()) {
+            this.Context.Contents
+                .Where(f => contentIdsToUpdate.Contains(f.Id))
+                .ExecuteUpdate(f => f.SetProperty(x => x.SeriesId, x => intoId));
+            this.Context.CommitTransaction();
+        }
+        // find the from Series and delete it
+        var fromSeries = this.FindById(fromId);
+        if (fromSeries != null)
+            this.DeleteAndSave(fromSeries);
+
+        return this.FindById(intoId);
+    }
     #endregion
 }
