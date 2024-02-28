@@ -83,6 +83,15 @@ export const Upload: React.FC<IUploadProps> = ({
   }, [initFile]);
 
   React.useEffect(() => {
+    if (!stream) {
+      // When the stream is removed it needs to update the state in this component.
+      // Worried this may result in an odd race condition with 'file' and 'stream'.
+      setFile(undefined);
+      setFileName(undefined);
+    }
+  }, [stream]);
+
+  React.useEffect(() => {
     const updatedFileName = generateName(file);
     setFileName(updatedFileName);
     async function updateFileBlobUrl() {
