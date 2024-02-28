@@ -15,7 +15,6 @@ import {
   IResponseErrorModel,
   IWorkOrderMessageModel,
   MessageTargetName,
-  useCombinedView,
   WorkOrderStatusName,
   WorkOrderTypeName,
 } from 'tno-core';
@@ -28,7 +27,6 @@ import { getContentPath, toForm, toModel, triggerFormikValidate } from '../utils
 
 export const useContentForm = ({
   contentType: initContentType = ContentTypeName.AudioVideo,
-  combinedPath,
 }: IContentFormProps) => {
   const hub = useApiHub();
   const { id } = useParams();
@@ -54,8 +52,7 @@ export const useContentForm = ({
   const [stream, setStream] = React.useState<IStream>(); // TODO: Remove dependency coupling with storage component.
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const { combined, formType } = useCombinedView(initContentType);
-  const [contentType, setContentType] = React.useState(formType ?? initContentType);
+  const [contentType, setContentType] = React.useState(initContentType);
   const [form, setForm] = React.useState<IContentForm>({
     ...defaultFormValues(contentType),
     id: parseInt(id ?? '0'),
@@ -249,7 +246,7 @@ export const useContentForm = ({
         }
 
         if (!originalId) {
-          navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
+          navigate(getContentPath(contentResult.id, contentResult?.contentType));
           // resetForm(result);
         }
       } catch {
@@ -257,8 +254,7 @@ export const useContentForm = ({
         if (!!contentResult) {
           result = toForm(contentResult);
           setForm({ ...result, workOrders: form.workOrders });
-          if (!originalId)
-            navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
+          if (!originalId) navigate(getContentPath(contentResult.id, contentResult?.contentType));
         }
       } finally {
         setIsSubmitting(false);
@@ -268,7 +264,6 @@ export const useContentForm = ({
     [
       addContent,
       attach,
-      combined,
       contentType,
       form,
       getSeries,
@@ -393,10 +388,10 @@ export const useContentForm = ({
 
   const goToNext = React.useCallback(
     (form: IContentForm) => {
-      navigate(getContentPath(combined, 0, form.contentType));
+      navigate(getContentPath(0, form.contentType));
       resetForm(form);
     },
-    [combined, navigate, resetForm],
+    [navigate, resetForm],
   );
 
   return {

@@ -56,7 +56,7 @@ import { useContentForm } from './hooks';
 import { ImageSection } from './ImageSection';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
-import { toModel } from './utils';
+import { setTime, toModel } from './utils';
 import { WorkOrderStatus } from './WorkOrderStatus';
 
 export interface IContentFormProps {
@@ -125,35 +125,9 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const source = sources.find((s) => s.id === form.sourceId);
   const program = series.find((s) => s.id === form.seriesId);
 
-  const getHours = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const date = new Date(form.publishedOn);
-    const hours = e.target.value?.split(':');
-    if (!!hours && !!e.target.value && !e.target.value.includes('_')) {
-      date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
-      return date;
-    }
-    return null;
-  };
-
   const parseTags = (x: string[]) => {
     setParsedTags(x);
   };
-
-  React.useEffect(() => {
-    setForm({
-      ...form,
-      publishedOnTime: !!form.publishedOn ? moment(form.publishedOn).format('HH:mm:ss') : '',
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.publishedOn, setForm]);
-
-  /** set default value to todays date */
-  React.useEffect(() => {
-    if (!form.publishedOn) {
-      setForm({ ...form, publishedOn: moment().format('MMM D, yyyy HH:mm:ss') });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.publishedOn, setForm]);
 
   React.useEffect(() => {
     setSeriesOptions(
@@ -163,7 +137,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
 
   React.useEffect(() => {
     // create a list of "Other Series" options
-    // and concat the created value if neccesary
+    // and concat the created value if necessary
     let filteredSeriesOptions = series
       .filter((f) => f.isOther)
       .map((m: any) => new OptionItem(m.name, m.id, !m.isEnabled));
@@ -440,8 +414,12 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   if (e.target.value.indexOf('_')) {
                                     e.target.value = e.target.value.replaceAll('_', '0');
                                   }
-                                  const date = getHours(e);
+                                  const date = setTime(props.values.publishedOn, e.target.value);
                                   if (!!date) {
+                                    props.setFieldValue(
+                                      'publishedOn',
+                                      moment(date).format('MMM D, yyyy HH:mm:ss'),
+                                    );
                                     props.setFieldValue(
                                       'publishedOnTime',
                                       moment(date).format('HH:mm:ss'),
@@ -449,8 +427,12 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   }
                                 }}
                                 onChange={(e) => {
-                                  const date = getHours(e);
+                                  const date = setTime(props.values.publishedOn, e.target.value);
                                   if (!!date) {
+                                    props.setFieldValue(
+                                      'publishedOn',
+                                      moment(date).format('MMM D, yyyy HH:mm:ss'),
+                                    );
                                     props.setFieldValue(
                                       'publishedOnTime',
                                       moment(date).format('HH:mm:ss'),
@@ -872,7 +854,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       <ContentNavigation
                         values={props.values}
                         fetchContent={fetchContent}
-                        combinedPath={combinedPath}
                         showRefresh={false}
                       />
                     </Row>

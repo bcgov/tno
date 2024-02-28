@@ -2,20 +2,11 @@ import { ContentTypeName } from 'tno-core';
 
 /**
  * Get the URL path for the specified `contentType`.
- * @param combined Whether the path is the combined page.
  * @param id The content id.
  * @param contentType The content type.
- * @param combinedPath Root path of combined view (default: /contents).
  * @returns The URL path.
  */
-export const getContentPath = (
-  combined: boolean,
-  id: number | string = 0,
-  contentType?: ContentTypeName,
-  combinedPath: string = '/contents/combined',
-) => {
-  if (combined) return `${combinedPath}/${id}${window.location.search}`;
-
+export const getContentPath = (id: number | string = 0, contentType?: ContentTypeName) => {
   switch (contentType) {
     case ContentTypeName.AudioVideo:
       return `/snippets/${id}${window.location.search}`;
