@@ -146,6 +146,7 @@ export const Topic: React.FC<ITopicProps> = ({
             border: '1px solid rgb(96, 96, 96)',
           }),
         }}
+        menuPosition={'fixed'}
       />
     </styled.Topic>
   );
