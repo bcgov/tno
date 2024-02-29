@@ -3,6 +3,8 @@ using System.Text.Json.Nodes;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Elastic;
@@ -45,6 +47,16 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
     /// get - The Elasticsearch client.
     /// </summary>
     protected ITNOElasticClient Client { get; private set; }
+
+    /// <summary>
+    /// get - CHES service.
+    /// </summary>
+    protected IChesService Ches { get; }
+
+    /// <summary>
+    /// get - CHES options.
+    /// </summary>
+    protected ChesOptions ChesOptions { get; }
     #endregion
 
     #region Constructors
@@ -56,6 +68,8 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
     /// <param name="kafkaAdmin"></param>
     /// <param name="consumer"></param>
     /// <param name="api"></param>
+    /// <param name="chesService"></param>
+    /// <param name="chesOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public FolderCollectionManager(
@@ -64,6 +78,8 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
         IKafkaAdmin kafkaAdmin,
         IKafkaListener<string, IndexRequestModel> consumer,
         IApiService api,
+        IChesService chesService,
+        IOptions<ChesOptions> chesOptions,
         IOptions<FolderCollectionOptions> options,
         ILogger<FolderCollectionManager> logger)
         : base(api, options, logger)
@@ -71,6 +87,8 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
         this.Client = elasticClient;
         this.ElasticOptions = elasticOptions.Value;
         this.KafkaAdmin = kafkaAdmin;
+        this.Ches = chesService;
+        this.ChesOptions = chesOptions.Value;
         this.Listener = consumer;
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
@@ -78,6 +96,45 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Send email alert of failure.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    public async Task SendEmailAsync(string subject, string message)
+    {
+        if (this.Options.SendEmailOnFailure)
+        {
+            try
+            {
+                var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, this.Options.EmailTo, subject, message);
+                await this.Ches.SendEmailAsync(email);
+            }
+            catch (ChesException ex)
+            {
+                this.Logger.LogError(ex, "Email failed to send. {error}", ex.Data);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Send email alert of failure.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="ex"></param>
+    /// <returns></returns>
+    public async Task SendEmailAsync(string subject, Exception ex)
+    {
+        string serviceName = "Folder Collection";
+        string errorMsg = $"<div>An error occured while executing the {serviceName} service.</div>{Environment.NewLine}" +
+        $"<div>Error Message:</div>{Environment.NewLine}" +
+        $"<div>{ex.GetAllMessages()}</div>{Environment.NewLine}" +
+        $"<div>StackTrace:</div>{Environment.NewLine}" +
+        $"<div>{ex.StackTrace}</div>";
+        await this.SendEmailAsync($"{serviceName} Service - {subject}", errorMsg);
+    }
+
     /// <summary>
     /// Continually polls for updated configuration.
     /// Listens to Kafka topic(s) for content to add to folders.
@@ -126,6 +183,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
                 {
                     this.Logger.LogError(ex, "Service had an unexpected failure.");
                     this.State.RecordFailure();
+                    await this.SendEmailAsync("Service had an Unexpected Failure", ex);
                 }
             }
 
@@ -236,6 +294,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
         catch (HttpClientRequestException ex)
         {
             this.Logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"] ?? "");
+            await this.SendEmailAsync("HTTP exception while consuming. {response}", ex);
         }
     }
 
