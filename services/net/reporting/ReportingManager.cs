@@ -113,6 +113,10 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, this.Options.EmailTo, subject, message);
                 await this.Ches.SendEmailAsync(email);
             }
+            catch (ChesException ex)
+            {
+                this.Logger.LogError(ex, "Email failed to send. {error}", ex.Data);
+            }
             catch (Exception ex)
             {
                 this.Logger.LogError(ex, "Email failed to send");
@@ -432,10 +436,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var fullTextFormatTo = fullTextFormatSubscribers.Select(s => s.User!.Email).ToArray();
 
         var subject = await this.ReportEngine.GenerateReportSubjectAsync(report, sectionContent, false, false);
-        
+
         ReportInstanceContent[] reportInstanceContents = sectionContent.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
         // KGM: this logic should be removed once the underlying problem of malformed data for report content is found
-        if (request.GenerateInstance) {
+        if (request.GenerateInstance)
+        {
             // filter out Content with no valid ContentId
             reportInstanceContents = sectionContent.SelectMany(s => s.Value.Content.Where(c => c.Id > 0).Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
             ReportInstanceContent[] reportInstanceContentsBad = sectionContent.SelectMany(s => s.Value.Content.Where(c => c.Id == 0).Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
