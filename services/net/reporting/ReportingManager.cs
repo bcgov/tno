@@ -432,13 +432,23 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var fullTextFormatTo = fullTextFormatSubscribers.Select(s => s.User!.Email).ToArray();
 
         var subject = await this.ReportEngine.GenerateReportSubjectAsync(report, sectionContent, false, false);
+        
+        ReportInstanceContent[] reportInstanceContents = sectionContent.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
+        // KGM: this logic should be removed once the underlying problem of malformed data for report content is found
+        if (request.GenerateInstance) {
+            // filter out Content with no valid ContentId
+            reportInstanceContents = sectionContent.SelectMany(s => s.Value.Content.Where(c => c.Id > 0).Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
+            ReportInstanceContent[] reportInstanceContentsBad = sectionContent.SelectMany(s => s.Value.Content.Where(c => c.Id == 0).Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
+            if (reportInstanceContentsBad.Any())
+                this.Logger.LogWarning($"Report [{report.Name}] {request.GenerateInstance}has malformed content. It will be generated, but may not match expectations.");
+        }
 
         // Save the report instance.
         // Group content by the section name.
         var instance = new ReportInstance(
             report.Id,
             request.RequestorId,
-            sectionContent.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray()
+            reportInstanceContents
             )
         {
             OwnerId = request.RequestorId ?? report.OwnerId,
