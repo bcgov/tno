@@ -100,7 +100,14 @@ public class ContentManager : ServiceManager<ContentOptions>
             }
             catch (Exception ex)
             {
-                this.Logger.LogError(ex, "Email failed to send");
+                if (ex is ChesException chesEx)
+                {
+                    this.Logger.LogError(ex, "Ches exception while sending email. {response}", chesEx.Data["body"] ?? "");
+                }
+                else
+                {
+                    this.Logger.LogError(ex, "Email failed to send. {error}", ex.Data);
+                }
             }
         }
     }
