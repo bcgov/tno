@@ -140,6 +140,8 @@ spec:
           echo 'BUILD_REPORTING=true' >> build.env
         elif grep -s libs/net/template <<< $DIFF; then
           echo 'BUILD_REPORTING=true' >> build.env
+        elif grep -s services/net/reporting <<< $DIFF; then
+          echo 'BUILD_REPORTING=true' >> build.env
         fi
 
         build_service 'capture'
