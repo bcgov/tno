@@ -46,7 +46,7 @@ export const DateFilter: React.FC<IDateFilterProps> = ({ loaded, filter, storeFi
     }
     // only want the above to trigger when date changes, not when filterAdvanced changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, filter?.startDate]);
+  }, [filter?.startDate]);
 
   /** function to help manipulate the current date based on user input */
   const adjustDate = (days: number, direction: 'forwards' | 'backwards') => {
