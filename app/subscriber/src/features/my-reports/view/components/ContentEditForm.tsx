@@ -5,7 +5,7 @@ import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/int
 import { IContentValidationErrors } from 'features/my-reports/interfaces/IContentValidationErrors';
 import { toForm } from 'features/my-reports/utils';
 import { useFormikContext } from 'formik';
-import React from 'react';
+import React, { RefObject } from 'react';
 import { FaArrowLeft, FaArrowRight, FaCloud } from 'react-icons/fa6';
 import { useApp, useContent, useReports } from 'store/hooks';
 import { Col, IContentModel, Row, Show } from 'tno-core';
@@ -21,7 +21,7 @@ export interface IContentEditFormProps {
   /** Event fires when the update button is clicked and performs an update to the API. */
   onUpdate?: (row?: IReportInstanceContentForm) => void;
   /** Event fires when user clicks previous/next buttons */
-  onNavigate?: (action: 'previous' | 'next') => void;
+  onNavigate?: (action: 'previous' | 'next', currentContentId?: number) => void;
 }
 
 /**
@@ -146,18 +146,42 @@ export const ContentEditForm = ({
     [addContent, onUpdate, setSubmitting, setValues, updateContent, updateReport],
   );
 
+  const handleKeyDown = React.useCallback(
+    (e: KeyboardEvent) => {
+      if (!form?.content) return;
+      if (e.code === 'Escape') onUpdate?.();
+      // added metaKey support for MAC
+      // allows use of Command key as well as Control key for windows
+      else if (e.ctrlKey || e.metaKey) {
+        if (e.code === 'Enter') handleAddUpdateContent(values, form);
+        else if (e.code === 'ArrowUp' || e.code === 'ArrowLeft') {
+          console.log('NAV PREV');
+          onNavigate?.('previous');
+          e.stopImmediatePropagation();
+          e.preventDefault();
+        } else if (e.code === 'ArrowDown' || e.code === 'ArrowRight') {
+          console.log('NAV NEXT');
+          onNavigate?.('next');
+          e.stopImmediatePropagation();
+          e.preventDefault();
+        }
+      }
+    },
+    [form, handleAddUpdateContent, onNavigate, onUpdate, values],
+  );
+
+  // refresh the window event listener anytime the handler changes due to content changes
+  React.useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
+
   if (!form?.content) return <></>;
 
   return (
     <PageSection
-      onKeyDown={(e) => {
-        if (e.code === 'Escape') onUpdate?.();
-        else if (e.ctrlKey) {
-          if (e.code === 'Enter') handleAddUpdateContent(values, form);
-          else if (e.code === 'ArrowUp' || e.code === 'ArrowLeft') onNavigate?.('previous');
-          else if (e.code === 'ArrowDown' || e.code === 'ArrowRight') onNavigate?.('next');
-        }
-      }}
       header={
         <Col flex="1">
           <Row flex="1" alignItems="center" gap="1rem">

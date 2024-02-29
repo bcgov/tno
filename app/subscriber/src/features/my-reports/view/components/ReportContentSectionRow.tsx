@@ -128,7 +128,7 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
               <Action
                 icon={<FaX />}
                 title="remove"
-                onClick={() => onRemove?.(row.originalIndex, row)}
+                onClick={() => (row.originalIndex ? onRemove?.(row.originalIndex, row) : null)}
                 disabled={disabled}
                 className="remove-link"
               />

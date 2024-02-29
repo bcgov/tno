@@ -2,7 +2,7 @@ import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { IContentValidationErrors } from 'features/my-reports/interfaces/IContentValidationErrors';
 import { getTime } from 'features/my-reports/utils';
 import moment from 'moment';
-import React from 'react';
+import React, { RefObject } from 'react';
 import { useLookup } from 'store/hooks';
 import {
   Col,
