@@ -174,6 +174,7 @@ export const useContentForm = ({
       otherSource: values.otherSource,
       publishedOn: updatedDate.toLocaleString(),
     });
+    setStream(undefined);
   }, []);
 
   const setAvStream = React.useCallback(() => {
@@ -388,8 +389,8 @@ export const useContentForm = ({
 
   const goToNext = React.useCallback(
     (form: IContentForm) => {
-      navigate(getContentPath(0, form.contentType));
       resetForm(form);
+      navigate(getContentPath(0, form.contentType));
     },
     [navigate, resetForm],
   );
