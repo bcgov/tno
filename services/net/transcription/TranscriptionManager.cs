@@ -6,6 +6,8 @@ using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Content;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
@@ -34,6 +36,16 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// get - Kafka Consumer object.
     /// </summary>
     protected IKafkaListener<string, TranscriptRequestModel> Listener { get; private set; }
+
+    /// <summary>
+    /// get - CHES service.
+    /// </summary>
+    protected IChesService Ches { get; }
+
+    /// <summary>
+    /// get - CHES options.
+    /// </summary>
+    protected ChesOptions ChesOptions { get; }
     #endregion
 
     #region Constructors
@@ -42,15 +54,21 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// </summary>
     /// <param name="listener"></param>
     /// <param name="api"></param>
+    /// <param name="chesService"></param>
+    /// <param name="chesOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public TranscriptionManager(
         IKafkaListener<string, TranscriptRequestModel> listener,
         IApiService api,
+        IChesService chesService,
+        IOptions<ChesOptions> chesOptions,
         IOptions<TranscriptionOptions> options,
         ILogger<TranscriptionManager> logger)
         : base(api, options, logger)
     {
+        this.Ches = chesService;
+        this.ChesOptions = chesOptions.Value;
         this.Listener = listener;
         this.Listener.IsLongRunningJob = true;
         this.Listener.OnError += ListenerErrorHandler;
@@ -59,6 +77,39 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Send email alert of failure.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    public async Task SendEmailAsync(string subject, string message)
+    {
+        if (this.Options.SendEmailOnFailure)
+        {
+            try
+            {
+                var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, this.Options.EmailTo, subject, message);
+                await this.Ches.SendEmailAsync(email);
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Email failed to send");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Send email alert of failure.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="ex"></param>
+    /// <returns></returns>
+    public async Task SendEmailAsync(string subject, Exception ex)
+    {
+        await this.SendEmailAsync($"Transcription Service - {subject}", $"<div>{ex.Message}</div>{Environment.NewLine}<div>{ex.StackTrace}</div>");
+    }
+
     /// <summary>
     /// Listen to active topics and import content.
     /// </summary>
@@ -103,6 +154,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                 {
                     this.Logger.LogError(ex, "Service had an unexpected failure.");
                     this.State.RecordFailure();
+                    await this.SendEmailAsync("Service had an Unexpected Failure", ex);
                 }
             }
 
@@ -224,10 +276,12 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             if (ex is HttpClientRequestException httpEx)
             {
                 this.Logger.LogError(ex, "HTTP exception while consuming. {response}", httpEx.Data["body"] ?? "");
+                await this.SendEmailAsync("HTTP exception while consuming. {response}", ex);
             }
             else
             {
                 this.Logger.LogError(ex, "Failed to handle message");
+                await this.SendEmailAsync("Failed to handle message", ex);
             }
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
         }
