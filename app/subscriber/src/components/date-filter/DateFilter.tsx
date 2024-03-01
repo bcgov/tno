@@ -2,7 +2,6 @@ import moment from 'moment';
 import React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { FaCalendarDay, FaCaretLeft, FaCaretRight } from 'react-icons/fa6';
-import { useContent } from 'store/hooks';
 import { IFilterSettingsModel } from 'tno-core';
 
 import * as styled from './styled';
