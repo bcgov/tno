@@ -155,12 +155,10 @@ export const ContentEditForm = ({
       else if (e.ctrlKey || e.metaKey) {
         if (e.code === 'Enter') handleAddUpdateContent(values, form);
         else if (e.code === 'ArrowUp' || e.code === 'ArrowLeft') {
-          console.log('NAV PREV');
           onNavigate?.('previous');
           e.stopImmediatePropagation();
           e.preventDefault();
         } else if (e.code === 'ArrowDown' || e.code === 'ArrowRight') {
-          console.log('NAV NEXT');
           onNavigate?.('next');
           e.stopImmediatePropagation();
           e.preventDefault();
