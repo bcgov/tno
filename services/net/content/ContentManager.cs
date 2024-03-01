@@ -49,6 +49,8 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <param name="kafkaAdmin"></param>
     /// <param name="kafkaListener"></param>
     /// <param name="api"></param>
+    /// <param name="chesService"></param>
+    /// <param name="chesOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public ContentManager(

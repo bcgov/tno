@@ -54,7 +54,8 @@ public abstract class ServiceManager<TOption> : IServiceManager
     /// Creates a new instance of a ServiceManager object, initializes with specified parameters.
     /// </summary>
     /// <param name="api">Service to communicate with the api.</param>
-    /// <param name="factory">Data source manager factory.</param>
+    /// <param name="chesService"></param>
+    /// <param name="chesOptions"></param>
     /// <param name="options">Configuration options.</param>
     /// <param name="logger">Logging client.</param>
     public ServiceManager(
