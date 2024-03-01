@@ -125,15 +125,6 @@ export const ReportEditForm: React.FC<IReportEditFormProps> = ({
   return (
     <PageSection
       tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.code === 'Escape') onContentClick?.();
-        else if (e.ctrlKey) {
-          if (e.code === 'ArrowUp' || e.code === 'ArrowLeft')
-            onContentClick?.(undefined, 'previous');
-          else if (e.code === 'ArrowDown' || e.code === 'ArrowRight')
-            onContentClick?.(undefined, 'next');
-        }
-      }}
       header={
         <Row flex="1" alignItems="center" gap="1rem">
           <Col flex="1" gap="0.5rem">

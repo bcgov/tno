@@ -146,18 +146,40 @@ export const ContentEditForm = ({
     [addContent, onUpdate, setSubmitting, setValues, updateContent, updateReport],
   );
 
+  const handleKeyDown = React.useCallback(
+    (e: KeyboardEvent) => {
+      if (!form?.content) return;
+      if (e.code === 'Escape') onUpdate?.();
+      // added metaKey support for MAC
+      // allows use of Command key as well as Control key for windows
+      else if (e.ctrlKey || e.metaKey) {
+        if (e.code === 'Enter') handleAddUpdateContent(values, form);
+        else if (e.code === 'ArrowUp' || e.code === 'ArrowLeft') {
+          onNavigate?.('previous');
+          e.stopImmediatePropagation();
+          e.preventDefault();
+        } else if (e.code === 'ArrowDown' || e.code === 'ArrowRight') {
+          onNavigate?.('next');
+          e.stopImmediatePropagation();
+          e.preventDefault();
+        }
+      }
+    },
+    [form, handleAddUpdateContent, onNavigate, onUpdate, values],
+  );
+
+  // refresh the window event listener anytime the handler changes due to content changes
+  React.useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
+
   if (!form?.content) return <></>;
 
   return (
     <PageSection
-      onKeyDown={(e) => {
-        if (e.code === 'Escape') onUpdate?.();
-        else if (e.ctrlKey) {
-          if (e.code === 'Enter') handleAddUpdateContent(values, form);
-          else if (e.code === 'ArrowUp' || e.code === 'ArrowLeft') onNavigate?.('previous');
-          else if (e.code === 'ArrowDown' || e.code === 'ArrowRight') onNavigate?.('next');
-        }
-      }}
       header={
         <Col flex="1">
           <Row flex="1" alignItems="center" gap="1rem">
