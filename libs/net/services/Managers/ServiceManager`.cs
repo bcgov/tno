@@ -94,7 +94,7 @@ public abstract class ServiceManager<TOption> : IServiceManager
             }
             catch (ChesException ex)
             {
-                this.Logger.LogError(ex, "Ches exception while sending email. {response}", ex.Data["body"] ?? "");
+                this.Logger.LogError(ex, "Ches exception while sending email. {response}", ex.Data.Contains("body") ? ex.Data["body"] : ex.Message);
             }
             catch (Exception ex)
             {
