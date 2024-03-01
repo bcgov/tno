@@ -25,11 +25,8 @@ export const DateFilter: React.FC<IDateFilterProps> = ({ loaded, filter, storeFi
   // set initial DateFilter date
   React.useEffect(() => {
     if (!filter.startDate) {
-      storeFilter({
-        ...filter,
-        startDate: moment().startOf('day').toISOString(),
-        endDate: moment().endOf('day').toISOString(),
-      });
+      const todaysDate = moment().toISOString();
+      handleDateChange({ startDate: todaysDate });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
@@ -45,24 +42,24 @@ export const DateFilter: React.FC<IDateFilterProps> = ({ loaded, filter, storeFi
 
   const handleDateChange = ({
     startDate,
-    days,
-    direction,
+    dateOffset,
   }: {
     startDate?: string;
-    days?: number;
-    direction?: 'forwards' | 'backwards';
+    dateOffset?: number;
   }) => {
-    if (!filter.startDate) return;
+    // must have at least an initial filter.startDate to go off, or an explicit startDate passed in
+    if (!filter.startDate && !startDate) return;
+
     let newDate;
     if (startDate) {
       newDate = new Date(startDate);
-    } else if (days && direction) {
+    } else if (filter.startDate && dateOffset) {
       newDate = new Date(filter.startDate);
-      if (direction === 'backwards') newDate.setDate(newDate.getDate() - days);
-      if (direction === 'forwards') newDate.setDate(newDate.getDate() + days);
+      newDate.setDate(newDate.getDate() + dateOffset);
     }
-    // only store filter if the new date differs from stored date
-    if (newDate?.toISOString() !== filter.startDate) {
+
+    // only store filter there's no initial startDate yet, or if the new date differs from stored date
+    if (!filter.startDate || newDate?.toISOString() !== new Date(filter.startDate).toISOString()) {
       storeFilter({
         ...filter,
         startDate: moment(newDate).startOf('day').toISOString(),
@@ -73,10 +70,7 @@ export const DateFilter: React.FC<IDateFilterProps> = ({ loaded, filter, storeFi
 
   return (
     <styled.DateFilter alignItems="center" justifyContent="center" className="date-navigator">
-      <FaCaretLeft
-        className="caret"
-        onClick={() => handleDateChange({ days: 1, direction: 'backwards' })}
-      />
+      <FaCaretLeft className="caret" onClick={() => handleDateChange({ dateOffset: -1 })} />
       <div className="date">
         <FaCalendarDay className="calendar" onClick={() => setOpen(true)} />
         <ReactDatePicker
@@ -88,10 +82,7 @@ export const DateFilter: React.FC<IDateFilterProps> = ({ loaded, filter, storeFi
           selected={!!filter.startDate ? new Date(filter.startDate) : new Date()}
         />
       </div>
-      <FaCaretRight
-        className="caret"
-        onClick={() => handleDateChange({ days: 1, direction: 'forwards' })}
-      />
+      <FaCaretRight className="caret" onClick={() => handleDateChange({ dateOffset: 1 })} />
     </styled.DateFilter>
   );
 };
