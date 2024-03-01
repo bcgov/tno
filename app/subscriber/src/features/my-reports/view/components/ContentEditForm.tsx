@@ -5,7 +5,7 @@ import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/int
 import { IContentValidationErrors } from 'features/my-reports/interfaces/IContentValidationErrors';
 import { toForm } from 'features/my-reports/utils';
 import { useFormikContext } from 'formik';
-import React, { RefObject } from 'react';
+import React from 'react';
 import { FaArrowLeft, FaArrowRight, FaCloud } from 'react-icons/fa6';
 import { useApp, useContent, useReports } from 'store/hooks';
 import { Col, IContentModel, Row, Show } from 'tno-core';
@@ -21,7 +21,7 @@ export interface IContentEditFormProps {
   /** Event fires when the update button is clicked and performs an update to the API. */
   onUpdate?: (row?: IReportInstanceContentForm) => void;
   /** Event fires when user clicks previous/next buttons */
-  onNavigate?: (action: 'previous' | 'next', currentContentId?: number) => void;
+  onNavigate?: (action: 'previous' | 'next') => void;
 }
 
 /**
