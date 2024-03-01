@@ -2,7 +2,6 @@ import moment from 'moment';
 import React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { FaCalendarDay, FaCaretLeft, FaCaretRight } from 'react-icons/fa6';
-import { useContent } from 'store/hooks';
 import { IFilterSettingsModel } from 'tno-core';
 
 import * as styled from './styled';
@@ -16,11 +15,6 @@ export interface IDateFilterProps {
 /** Custom date filter for the subscriber home page. Control the calendar state with custom button, custom styling also applied. Also allows user to navigate a day at a time via arrow buttons. */
 export const DateFilter: React.FC<IDateFilterProps> = ({ loaded, filter, storeFilter }) => {
   /** control state of open calendar from outside components. i.e custom calendar button */
-  const [
-    {
-      mediaType: { filter: storedFilter },
-    },
-  ] = useContent();
   const [open, setOpen] = React.useState(false);
 
   // /** close calendar after a date has been selected, and fetch related content */
@@ -28,42 +22,54 @@ export const DateFilter: React.FC<IDateFilterProps> = ({ loaded, filter, storeFi
     setOpen(false);
   }, [filter.startDate, setOpen]);
 
-  /** update state variable when date changes, can be controlled via date picker or arrows */
+  // set initial DateFilter date
   React.useEffect(() => {
     if (!filter.startDate) {
+      const todaysDate = moment().toISOString();
+      handleDateChange({ startDate: todaysDate });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
+
+  /** update state variable when date changes, can be controlled via date picker or arrows */
+  React.useEffect(() => {
+    if (filter.startDate) {
+      handleDateChange({ startDate: filter.startDate });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter.startDate]);
+
+  const handleDateChange = ({
+    startDate,
+    dateOffset,
+  }: {
+    startDate?: string;
+    dateOffset?: number;
+  }) => {
+    // must have at least an initial filter.startDate to go off, or an explicit startDate passed in
+    if (!filter.startDate && !startDate) return;
+
+    let newDate;
+    if (startDate) {
+      newDate = new Date(startDate);
+    } else if (filter.startDate && dateOffset) {
+      newDate = new Date(filter.startDate);
+      newDate.setDate(newDate.getDate() + dateOffset);
+    }
+
+    // only store filter there's no initial startDate yet, or if the new date differs from stored date
+    if (!filter.startDate || newDate?.toISOString() !== new Date(filter.startDate).toISOString()) {
       storeFilter({
         ...filter,
-        startDate: moment().startOf('day').toISOString(),
-        endDate: moment().endOf('day').toISOString(),
-      });
-      return;
-    } else if (storedFilter.startDate !== filter.startDate) {
-      storeFilter({
-        ...filter,
-        startDate: moment(filter.startDate).startOf('day').toISOString(),
-        endDate: moment(filter.startDate).endOf('day').toISOString(),
+        startDate: moment(newDate).startOf('day').toISOString(),
+        endDate: moment(newDate).endOf('day').toISOString(),
       });
     }
-    // only want the above to trigger when date changes, not when filterAdvanced changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter?.startDate]);
-
-  /** function to help manipulate the current date based on user input */
-  const adjustDate = (days: number, direction: 'forwards' | 'backwards') => {
-    if (!filter.startDate) return;
-    let tempDate = new Date(filter.startDate);
-    if (direction === 'backwards') tempDate.setDate(tempDate.getDate() - days);
-    if (direction === 'forwards') tempDate.setDate(tempDate.getDate() + days);
-    storeFilter({
-      ...filter,
-      startDate: moment(tempDate).startOf('day').toISOString(),
-      endDate: moment(tempDate).endOf('day').toISOString(),
-    });
   };
 
   return (
     <styled.DateFilter alignItems="center" justifyContent="center" className="date-navigator">
-      <FaCaretLeft className="caret" onClick={() => adjustDate(1, 'backwards')} />
+      <FaCaretLeft className="caret" onClick={() => handleDateChange({ dateOffset: -1 })} />
       <div className="date">
         <FaCalendarDay className="calendar" onClick={() => setOpen(true)} />
         <ReactDatePicker
@@ -71,11 +77,11 @@ export const DateFilter: React.FC<IDateFilterProps> = ({ loaded, filter, storeFi
           maxDate={new Date()}
           disabled
           dateFormat="dd-MMM-y"
-          onChange={(e) => storeFilter({ ...filter, startDate: e?.toISOString() })}
+          onChange={(e) => handleDateChange({ startDate: e?.toISOString() })}
           selected={!!filter.startDate ? new Date(filter.startDate) : new Date()}
         />
       </div>
-      <FaCaretRight className="caret" onClick={() => adjustDate(1, 'forwards')} />
+      <FaCaretRight className="caret" onClick={() => handleDateChange({ dateOffset: 1 })} />
     </styled.DateFilter>
   );
 };
