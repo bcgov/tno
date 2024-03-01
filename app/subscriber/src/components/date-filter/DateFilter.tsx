@@ -36,7 +36,6 @@ export const DateFilter: React.FC<IDateFilterProps> = ({ loaded, filter, storeFi
     if (filter.startDate) {
       handleDateChange({ startDate: filter.startDate });
     }
-    // only want the above to trigger when date changes, not when filterAdvanced changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter.startDate]);
 
