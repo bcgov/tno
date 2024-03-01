@@ -36,16 +36,6 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// get - Kafka Consumer object.
     /// </summary>
     protected IKafkaListener<string, TranscriptRequestModel> Listener { get; private set; }
-
-    /// <summary>
-    /// get - CHES service.
-    /// </summary>
-    protected IChesService Ches { get; }
-
-    /// <summary>
-    /// get - CHES options.
-    /// </summary>
-    protected ChesOptions ChesOptions { get; }
     #endregion
 
     #region Constructors
@@ -65,10 +55,8 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         IOptions<ChesOptions> chesOptions,
         IOptions<TranscriptionOptions> options,
         ILogger<TranscriptionManager> logger)
-        : base(api, options, logger)
+        : base(api, chesService, chesOptions, options, logger)
     {
-        this.Ches = chesService;
-        this.ChesOptions = chesOptions.Value;
         this.Listener = listener;
         this.Listener.IsLongRunningJob = true;
         this.Listener.OnError += ListenerErrorHandler;
@@ -77,39 +65,6 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     #endregion
 
     #region Methods
-    /// <summary>
-    /// Send email alert of failure.
-    /// </summary>
-    /// <param name="subject"></param>
-    /// <param name="message"></param>
-    /// <returns></returns>
-    public async Task SendEmailAsync(string subject, string message)
-    {
-        if (this.Options.SendEmailOnFailure)
-        {
-            try
-            {
-                var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, this.Options.EmailTo, subject, message);
-                await this.Ches.SendEmailAsync(email);
-            }
-            catch (Exception ex)
-            {
-                this.Logger.LogError(ex, "Email failed to send");
-            }
-        }
-    }
-
-    /// <summary>
-    /// Send email alert of failure.
-    /// </summary>
-    /// <param name="subject"></param>
-    /// <param name="ex"></param>
-    /// <returns></returns>
-    public async Task SendEmailAsync(string subject, Exception ex)
-    {
-        await this.SendEmailAsync($"Transcription Service - {subject}", $"<div>{ex.Message}</div>{Environment.NewLine}<div>{ex.StackTrace}</div>");
-    }
-
     /// <summary>
     /// Listen to active topics and import content.
     /// </summary>

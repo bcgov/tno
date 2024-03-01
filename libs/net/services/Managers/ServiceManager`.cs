@@ -1,5 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TNO.Ches;
+using TNO.Ches.Configuration;
+using TNO.Core.Exceptions;
 using TNO.Services.Config;
 
 namespace TNO.Services.Managers;
@@ -34,6 +37,16 @@ public abstract class ServiceManager<TOption> : IServiceManager
     /// get - Api service controller.
     /// </summary>
     protected IApiService Api { get; private set; }
+
+    /// <summary>
+    /// get - CHES service.
+    /// </summary>
+    protected IChesService Ches { get; }
+
+    /// <summary>
+    /// get - CHES options.
+    /// </summary>
+    protected ChesOptions ChesOptions { get; }
     #endregion
 
     #region Constructors
@@ -46,12 +59,16 @@ public abstract class ServiceManager<TOption> : IServiceManager
     /// <param name="logger">Logging client.</param>
     public ServiceManager(
         IApiService api,
+        IChesService chesService,
+        IOptions<ChesOptions> chesOptions,
         IOptions<TOption> options,
         ILogger<ServiceManager<TOption>> logger)
     {
         this.Api = api;
         // All requests will be identified by the service type name.
         this.Api.OpenClient.Client.DefaultRequestHeaders.Add("User-Agent", GetType().FullName);
+        this.Ches = chesService;
+        this.ChesOptions = chesOptions.Value;
         this.Options = options.Value;
         this.Logger = logger;
         this.State = new ServiceState(this.Options);
@@ -59,6 +76,49 @@ public abstract class ServiceManager<TOption> : IServiceManager
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Send email alert of failure.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    public async Task SendEmailAsync(string subject, string message)
+    {
+        if (this.Options.SendEmailOnFailure)
+        {
+            try
+            {
+                var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, this.Options.EmailTo, subject, message);
+                await this.Ches.SendEmailAsync(email);
+            }
+            catch (ChesException ex)
+            {
+                this.Logger.LogError(ex, "Ches exception while sending email. {response}", ex.Data["body"] ?? "");
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Email failed to send. {error}", ex.Data);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Send email alert of failure.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="ex"></param>
+    /// <returns></returns>
+    public async Task SendEmailAsync(string subject, Exception ex)
+    {
+        string? serviceName = GetType().FullName ?? "Service";
+        string errorMsg = $"<div>An error occured while executing the {serviceName} service.</div>{Environment.NewLine}" +
+        $"<div>Error Message:</div>{Environment.NewLine}" +
+        $"<div>{ex.Message}</div>{Environment.NewLine}" +
+        $"<div>StackTrace:</div>{Environment.NewLine}" +
+        $"<div>{ex.StackTrace}</div>";
+        await this.SendEmailAsync($"{serviceName} Service - {subject}", errorMsg);
+    }
+
     /// <summary>
     /// Run the service manager.
     /// </summary>

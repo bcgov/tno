@@ -40,17 +40,6 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// get - Kafka message consumer.
     /// </summary>
     protected IKafkaListener<string, SourceContent> Listener { get; private set; }
-
-    /// <summary>
-    /// get - CHES service.
-    /// </summary>
-    protected IChesService Ches { get; }
-
-    /// <summary>
-    /// get - CHES options.
-    /// </summary>
-    protected ChesOptions ChesOptions { get; }
-
     #endregion
 
     #region Constructors
@@ -70,11 +59,9 @@ public class ContentManager : ServiceManager<ContentOptions>
         IOptions<ChesOptions> chesOptions,
         IOptions<ContentOptions> options,
         ILogger<ContentManager> logger)
-        : base(api, options, logger)
+        : base(api, chesService, chesOptions, options, logger)
     {
         this.KafkaAdmin = kafkaAdmin;
-        this.Ches = chesService;
-        this.ChesOptions = chesOptions.Value;
         this.Listener = kafkaListener;
         this.Listener.IsLongRunningJob = false;
         this.Listener.OnError += ListenerErrorHandler;
@@ -83,39 +70,6 @@ public class ContentManager : ServiceManager<ContentOptions>
     #endregion
 
     #region Methods
-    /// <summary>
-    /// Send email alert of failure.
-    /// </summary>
-    /// <param name="subject"></param>
-    /// <param name="message"></param>
-    /// <returns></returns>
-    public async Task SendEmailAsync(string subject, string message)
-    {
-        if (this.Options.SendEmailOnFailure)
-        {
-            try
-            {
-                var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, this.Options.EmailTo, subject, message);
-                await this.Ches.SendEmailAsync(email);
-            }
-            catch (Exception ex)
-            {
-                this.Logger.LogError(ex, "Email failed to send");
-            }
-        }
-    }
-
-    /// <summary>
-    /// Send email alert of failure.
-    /// </summary>
-    /// <param name="subject"></param>
-    /// <param name="ex"></param>
-    /// <returns></returns>
-    public async Task SendEmailAsync(string subject, Exception ex)
-    {
-        await this.SendEmailAsync($"Content Service - {subject}", $"<div>{ex.GetAllMessages()}</div>{Environment.NewLine}<div>{ex.StackTrace}</div>");
-    }
-
     /// <summary>
     /// Continually poll for updated data source configuration.
     /// When there are topics to listen too it will initialize a Kafka consumer.

@@ -18,17 +18,6 @@ namespace TNO.Services.Scheduler;
 /// </summary>
 public class SchedulerManager : ServiceManager<SchedulerOptions>
 {
-    #region Properties
-    /// <summary>
-    /// get - CHES service.
-    /// </summary>
-    protected IChesService Ches { get; }
-
-    /// <summary>
-    /// get - CHES options.
-    /// </summary>
-    protected ChesOptions ChesOptions { get; }
-    #endregion
     #region Constructors
     /// <summary>
     /// Creates a new instance of a SchedulerManager object, initializes with specified parameters.
@@ -44,59 +33,12 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
         IOptions<ChesOptions> chesOptions,
         IOptions<SchedulerOptions> options,
         ILogger<SchedulerManager> logger)
-        : base(api, options, logger)
+        : base(api, chesService, chesOptions, options, logger)
     {
-        this.Ches = chesService;
-        this.ChesOptions = chesOptions.Value;
     }
     #endregion
 
     #region Methods
-    /// <summary>
-    /// Send email alert of failure.
-    /// </summary>
-    /// <param name="subject"></param>
-    /// <param name="message"></param>
-    /// <returns></returns>
-    public async Task SendEmailAsync(string subject, string message)
-    {
-        if (this.Options.SendEmailOnFailure)
-        {
-            try
-            {
-                var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, this.Options.EmailTo, subject, message);
-                await this.Ches.SendEmailAsync(email);
-            }
-            catch (Exception ex)
-            {
-                if (ex is ChesException chesEx)
-                {
-                    this.Logger.LogError(ex, "Ches exception while sending email. {response}", chesEx.Data["body"] ?? "");
-                }
-                else
-                {
-                    this.Logger.LogError(ex, "Email failed to send. {error}", ex.Data);
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    /// Send email alert of failure.
-    /// </summary>
-    /// <param name="subject"></param>
-    /// <param name="ex"></param>
-    /// <returns></returns>
-    public async Task SendEmailAsync(string subject, Exception ex)
-    {
-        string serviceName = "Scheduler";
-        string errorMsg = $"<div>An error occured while executing the {serviceName} service.</div>{Environment.NewLine}" +
-        $"<div>Error Message:</div>{Environment.NewLine}" +
-        $"<div>{ex.GetAllMessages()}</div>{Environment.NewLine}" +
-        $"<div>StackTrace:</div>{Environment.NewLine}" +
-        $"<div>{ex.StackTrace}</div>";
-        await this.SendEmailAsync($"{serviceName} Service - {subject}", errorMsg);
-    }
 
     /// <summary>
     /// Continuous loop fetches event configurations and sends messages to Kafka when scheduled.
