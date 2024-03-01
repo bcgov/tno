@@ -125,10 +125,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const source = sources.find((s) => s.id === form.sourceId);
   const program = series.find((s) => s.id === form.seriesId);
 
-  const parseTags = (x: string[]) => {
-    setParsedTags(x);
-  };
-
   React.useEffect(() => {
     setSeriesOptions(
       series.filter((f) => !f.isOther).map((m: any) => new OptionItem(m.name, m.id, !m.isEnabled)),
@@ -546,7 +542,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                   <Show visible={props.values.contentType === ContentTypeName.Image}>
                     <ContentStoryForm
                       contentType={ContentTypeName.Image}
-                      checkTags={(c: string[]) => parseTags(c)}
+                      setParsedTags={setParsedTags}
                     />
                     <Col flex="1 1 0%" justifyContent="center">
                       <Upload
@@ -651,11 +647,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       <Show visible={active === 'summary'}>
                         <ContentStoryForm
                           contentType={props.values.contentType}
-                          checkTags={(c: string[]) => parseTags(c)}
+                          setParsedTags={setParsedTags}
                         />
                       </Show>
                       <Show visible={active === 'transcript'}>
-                        <ContentTranscriptForm />
+                        <ContentTranscriptForm setParsedTags={setParsedTags} />
                       </Show>
                       <Show visible={active === 'clips'}>
                         <ContentClipForm
@@ -672,7 +668,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                   <Show visible={props.values.contentType === ContentTypeName.PrintContent}>
                     <ContentStoryForm
                       contentType={props.values.contentType}
-                      checkTags={(c: string[]) => parseTags(c)}
+                      setParsedTags={setParsedTags}
                     />
                   </Show>
                   {/** Audio Video layout */}
