@@ -13,6 +13,7 @@ import {
   useWindowSize,
 } from 'tno-core';
 
+import { useExtractTags } from './hooks';
 import { IContentForm } from './interfaces';
 import { MediaSummary } from './MediaSummary';
 import * as styled from './styled';
@@ -21,7 +22,7 @@ import { isSummaryRequired } from './utils';
 export interface IContentStoryFormProps {
   contentType: ContentTypeName;
   summaryRequired?: boolean;
-  checkTags?: Function;
+  setParsedTags?: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 /**
@@ -32,38 +33,17 @@ export interface IContentStoryFormProps {
 export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   contentType,
   summaryRequired: initSummaryRequired,
-  checkTags,
+  setParsedTags,
 }) => {
-  const { values, setFieldValue } = useFormikContext<IContentForm>();
+  const { values } = useFormikContext<IContentForm>();
   const [showExpandModal, setShowExpandModal] = React.useState(false);
   const { height } = useWindowSize();
   const [{ tags }] = useLookup();
+  const getTags = useExtractTags({ setParsedTags });
 
   const [summaryRequired, setSummaryRequired] = React.useState(
     initSummaryRequired ?? isSummaryRequired(values),
   );
-
-  const getTags = (name: string, e: string) => {
-    setFieldValue(name, e);
-    if (!checkTags) {
-      return;
-    }
-    const noTagString = e.replace(/<\/?p>/g, '');
-    const regex = new RegExp(/\[([^\]]*)\]$/);
-    const t = noTagString.match(regex);
-    const availiableTags = tags.filter((t) => t.isEnabled).map((t) => t.code.toUpperCase());
-    const parsedTags: string[] = [];
-    t?.forEach((i: string) => {
-      const s = i.replace(/[\][]/g, '').split(/[\s,]+/);
-      s.forEach((j: string) => {
-        if (availiableTags.includes(j.toUpperCase())) {
-          parsedTags.push(j.toUpperCase());
-        }
-      });
-    });
-    const uniqueParsedTags = Array.from(new Set(parsedTags));
-    checkTags(uniqueParsedTags);
-  };
 
   React.useEffect(() => {
     setSummaryRequired(isSummaryRequired(values));
@@ -95,7 +75,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           name="body"
           expandModal={setShowExpandModal}
           tags={tags}
-          onChange={(e) => getTags('body', e)}
+          onChange={(text) => getTags('body', text)}
         />
       </Show>
       <Modal
@@ -117,13 +97,13 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
                 : 'summary'
             }
             tags={tags}
-            onChange={(e) =>
+            onChange={(text) =>
               getTags(
                 contentType === ContentTypeName.PrintContent ||
                   contentType === ContentTypeName.Internet
                   ? 'body'
                   : 'summary',
-                e,
+                text,
               )
             }
           />
