@@ -4,6 +4,8 @@ using TNO.Services.Managers;
 using TNO.Services.Capture.Config;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Models.Extensions;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 
 namespace TNO.Services.Capture;
 
@@ -18,16 +20,20 @@ public class CaptureManager : IngestManager<CaptureIngestActionManager, CaptureO
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <param name="api"></param>
+    /// <param name="chesService"></param>
+    /// <param name="chesOptions"></param>
     /// <param name="factory"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public CaptureManager(
         IServiceProvider serviceProvider,
         IApiService api,
+        IChesService chesService,
+        IOptions<ChesOptions> chesOptions,
         IngestManagerFactory<CaptureIngestActionManager, CaptureOptions> factory,
         IOptions<CaptureOptions> options,
         ILogger<CaptureManager> logger)
-        : base(serviceProvider, api, factory, options, logger)
+        : base(serviceProvider, api, chesService, chesOptions, factory, options, logger)
     {
     }
 

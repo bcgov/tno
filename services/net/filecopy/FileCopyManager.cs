@@ -10,6 +10,8 @@ using TNO.Core.Exceptions;
 using TNO.Entities;
 using TNO.Models.Extensions;
 using System.Web;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 
 namespace TNO.Services.FileCopy;
 
@@ -39,14 +41,18 @@ public class FileCopyManager : ServiceManager<FileCopyOptions>
     /// </summary>
     /// <param name="listener"></param>
     /// <param name="api"></param>
+    /// <param name="chesService"></param>
+    /// <param name="chesOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public FileCopyManager(
         IKafkaListener<string, FileRequestModel> listener,
         IApiService api,
+        IChesService chesService,
+        IOptions<ChesOptions> chesOptions,
         IOptions<FileCopyOptions> options,
         ILogger<FileCopyManager> logger)
-        : base(api, options, logger)
+        : base(api, chesService, chesOptions, options, logger)
     {
         this.Listener = listener;
         this.Listener.IsLongRunningJob = true;

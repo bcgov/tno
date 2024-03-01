@@ -42,16 +42,6 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// get - The Elasticsearch client.
     /// </summary>
     protected ElasticsearchClient Client { get; private set; }
-
-    /// <summary>
-    /// get - CHES service.
-    /// </summary>
-    protected IChesService Ches { get; }
-
-    /// <summary>
-    /// get - CHES options.
-    /// </summary>
-    protected ChesOptions ChesOptions { get; }
     #endregion
 
     #region Constructors
@@ -73,12 +63,10 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         IOptions<ChesOptions> chesOptions,
         IOptions<IndexingOptions> options,
         ILogger<IndexingManager> logger)
-        : base(api, options, logger)
+        : base(api, chesService, chesOptions, options, logger)
     {
         this.KafkaAdmin = kafkaAdmin;
         this.Listener = listener;
-        this.Ches = chesService;
-        this.ChesOptions = chesOptions.Value;
         this.Listener.IsLongRunningJob = false;
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
@@ -91,39 +79,6 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     #endregion
 
     #region Methods
-    /// <summary>
-    /// Send email alert of failure.
-    /// </summary>
-    /// <param name="subject"></param>
-    /// <param name="message"></param>
-    /// <returns></returns>
-    public async Task SendEmailAsync(string subject, string message)
-    {
-        if (this.Options.SendEmailOnFailure)
-        {
-            try
-            {
-                var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, this.Options.EmailTo, subject, message);
-                await this.Ches.SendEmailAsync(email);
-            }
-            catch (Exception ex)
-            {
-                this.Logger.LogError(ex, "Email failed to send");
-            }
-        }
-    }
-
-    /// <summary>
-    /// Send email alert of failure.
-    /// </summary>
-    /// <param name="subject"></param>
-    /// <param name="ex"></param>
-    /// <returns></returns>
-    public async Task SendEmailAsync(string subject, Exception ex)
-    {
-        await this.SendEmailAsync($"Indexing Service - {subject}", $"<div>{ex.Message}</div>{Environment.NewLine}<div>{ex.StackTrace}</div>");
-    }
-
     /// <summary>
     /// Continually polls for updated configuration.
     /// Listens to Kafka topic(s) for content to send to Elasticsearch.

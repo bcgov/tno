@@ -48,16 +48,6 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// get - Razor report template engine.
     /// </summary>
     protected IReportEngine ReportEngine { get; }
-
-    /// <summary>
-    /// get - CHES service.
-    /// </summary>
-    protected IChesService Ches { get; }
-
-    /// <summary>
-    /// get - CHES options.
-    /// </summary>
-    protected ChesOptions ChesOptions { get; }
     #endregion
 
     #region Constructors
@@ -83,12 +73,10 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         IOptions<JsonSerializerOptions> serializationOptions,
         IOptions<ReportingOptions> reportOptions,
         ILogger<ReportingManager> logger)
-        : base(api, reportOptions, logger)
+        : base(api, chesService, chesOptions, reportOptions, logger)
     {
         _user = user;
         this.ReportEngine = reportEngine;
-        this.Ches = chesService;
-        this.ChesOptions = chesOptions.Value;
         _serializationOptions = serializationOptions.Value;
         this.Listener = listener;
         this.Listener.IsLongRunningJob = true;
@@ -98,43 +86,6 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     #endregion
 
     #region Methods
-    /// <summary>
-    /// Send email alert of failure.
-    /// </summary>
-    /// <param name="subject"></param>
-    /// <param name="message"></param>
-    /// <returns></returns>
-    public async Task SendEmailAsync(string subject, string message)
-    {
-        if (this.Options.SendEmailOnFailure)
-        {
-            try
-            {
-                var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, this.Options.EmailTo, subject, message);
-                await this.Ches.SendEmailAsync(email);
-            }
-            catch (ChesException ex)
-            {
-                this.Logger.LogError(ex, "Email failed to send. {error}", ex.Data);
-            }
-            catch (Exception ex)
-            {
-                this.Logger.LogError(ex, "Email failed to send");
-            }
-        }
-    }
-
-    /// <summary>
-    /// Send email alert of failure.
-    /// </summary>
-    /// <param name="subject"></param>
-    /// <param name="ex"></param>
-    /// <returns></returns>
-    public async Task SendEmailAsync(string subject, Exception ex)
-    {
-        await this.SendEmailAsync($"Reporting Service - {subject}", $"<div>{ex.GetAllMessages()}</div>{Environment.NewLine}<div>{ex.StackTrace}</div>");
-    }
-
     /// <summary>
     /// Listen to active topics and import content.
     /// </summary>

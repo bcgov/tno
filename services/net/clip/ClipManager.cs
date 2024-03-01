@@ -4,6 +4,8 @@ using TNO.Services.Managers;
 using TNO.Services.Clip.Config;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Models.Extensions;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 
 namespace TNO.Services.Clip;
 
@@ -18,16 +20,20 @@ public class ClipManager : IngestManager<ClipIngestActionManager, ClipOptions>
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <param name="api"></param>
+    /// <param name="chesService"></param>
+    /// <param name="chesOptions"></param>
     /// <param name="factory"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public ClipManager(
         IServiceProvider serviceProvider,
         IApiService api,
+        IChesService chesService,
+        IOptions<ChesOptions> chesOptions,
         IngestManagerFactory<ClipIngestActionManager, ClipOptions> factory,
         IOptions<ClipOptions> options,
         ILogger<ClipManager> logger)
-        : base(serviceProvider, api, factory, options, logger)
+        : base(serviceProvider, api, chesService, chesOptions, factory, options, logger)
     {
     }
 

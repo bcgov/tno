@@ -3,6 +3,8 @@ using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Content;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Entities;
 using TNO.Kafka;
@@ -47,15 +49,19 @@ public class NlpManager : ServiceManager<NLPOptions>
     /// <param name="consumer"></param>
     /// <param name="producer"></param>
     /// <param name="api"></param>
+    /// <param name="chesService"></param>
+    /// <param name="chesOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public NlpManager(
         IKafkaListener<string, NlpRequestModel> consumer,
         IKafkaMessenger producer,
         IApiService api,
+        IChesService chesService,
+        IOptions<ChesOptions> chesOptions,
         IOptions<NLPOptions> options,
         ILogger<NlpManager> logger)
-        : base(api, options, logger)
+        : base(api, chesService, chesOptions, options, logger)
     {
         this.Producer = producer;
         this.Listener = consumer;
