@@ -614,6 +614,42 @@
       "problemMatcher": "$msCompile"
     },
     {
+      "label": "build-extract-quotes",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/services/net/extract-quotes/TNO.Services.ExtractQuotes.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-extract-quotes",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/services/net/extract-quotes/TNO.Services.ExtractQuotes.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-extract-quotes",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/services/net/extract-quotes/TNO.Services.ExtractQuotes.csproj",
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
       "label": "build-event-handler",
       "command": "dotnet",
       "type": "process",

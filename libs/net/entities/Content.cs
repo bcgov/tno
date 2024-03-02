@@ -293,6 +293,12 @@ public class Content : AuditColumns
     /// get - Collection of work orders that are for this content.
     /// </summary>
     public virtual List<WorkOrder> WorkOrders { get; } = new List<WorkOrder>();
+
+    /// <summary>
+    /// get - Collection of Quotes associated with this content.
+    /// </summary>
+    public virtual List<Quote> Quotes { get; } = new List<Quote>();
+
     #endregion
 
     #region Constructors
