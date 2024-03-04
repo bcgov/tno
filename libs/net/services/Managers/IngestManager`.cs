@@ -162,6 +162,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                         // Update ingest with failure.
                         await manager.RecordFailureAsync(ex);
                         this.State.RecordFailure();
+                        await this.SendEmailAsync($"Ingest '{ingest.Name}' failed to run. This is failure {manager.Ingest.FailedAttempts+1} out of {manager.Ingest.RetryLimit} maximum retries.", ex);
                     }
                     catch (Exception ex)
                     {
@@ -170,6 +171,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                         // Update ingest with failure.
                         await manager.RecordFailureAsync(ex);
                         this.State.RecordFailure();
+                        await this.SendEmailAsync($"Ingest '{ingest.Name}' failed to run. This is failure {manager.Ingest.FailedAttempts+1} out of {manager.Ingest.RetryLimit} maximum retries.", ex);
                     }
                 }
             }
@@ -254,6 +256,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
             {
                 this.Logger.LogError(ex, "Failed to fetch ingests for ingest type '{type}'", ingestType);
                 this.State.RecordFailure();
+                await this.SendEmailAsync($"Failed to fetch ingests for ingest type '{ingestType}", ex);
             }
         }
 

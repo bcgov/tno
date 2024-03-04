@@ -274,6 +274,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
 
             this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}'", manager.Ingest.Name);
             await manager.RecordFailureAsync(ex);
+            await manager.SendEmailAsync($"Failed to ingest item for ingest '{manager.Ingest.Name}'", ex);
         }
     }
 
@@ -481,6 +482,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
 
                 this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}', File: {file}", ingest.Name, path);
                 await manager.RecordFailureAsync(ex);
+                await manager.SendEmailAsync($"Failed to ingest item for ingest '{manager.Ingest.Name}', File: {path}", ex);
             }
         }
     }
@@ -563,6 +565,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
 
                 this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}', File: {file}", ingest.Name, path);
                 await manager.RecordFailureAsync(ex);
+                await manager.SendEmailAsync($"Failed to ingest item for ingest '{manager.Ingest.Name}', File: {path}", ex);
             }
         }
     }

@@ -132,6 +132,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
 
                 this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}'", manager.Ingest.Name);
                 await manager.RecordFailureAsync(ex);
+                await manager.SendEmailAsync($"Failed to ingest item for ingest '{manager.Ingest.Name}'", ex);
             }
             finally
             {

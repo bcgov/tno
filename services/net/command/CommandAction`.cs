@@ -246,6 +246,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
             {
                 this.Logger.LogError("Service arguments '{args}' exited", args);
                 await manager.RecordFailureAsync();
+                await manager.SendEmailAsync($"Service arguments '{args}' exited", new Exception($"Service arguments '{args}' exited"));
             }
             else
             {
