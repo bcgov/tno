@@ -15,7 +15,7 @@ using TNO.Services.ExtractQuotes.Config;
 namespace TNO.Services.ExtractQuotes;
 
 /// <summary>
-/// ExtractQuotesManager class, provides a Kafka Consumer service which imports audio from all active topics.
+/// ExtractQuotesManager class, provides a Kafka Consumer service which extracts quotes from content from all active topics.
 /// </summary>
 public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
 {
