@@ -97,6 +97,7 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
               <Show visible={!!systemMessage?.message && systemMessage.isEnabled}>
                 <Col className="system-message-box">
                   <div className="system-message-containing-box">
+                    <b className="alert-title">System Alerts &amp; Info</b>
                     <p>{parse(systemMessage?.message ?? '')}</p>
                   </div>
                 </Col>
@@ -151,7 +152,6 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
           </div>
         </div>
       </Show>
-      <img src="/assets/mm_logo.svg" alt="MM Logo" className="mm-logo" />
     </styled.BrowserLogin>
   );
 };

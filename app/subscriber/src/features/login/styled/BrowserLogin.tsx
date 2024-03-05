@@ -16,16 +16,6 @@ export const BrowserLogin = styled.div`
     cursor: pointer;
   }
 
-  .top-bar-box {
-    background-color: #221f1f;
-    color: white;
-    padding: 0.5em;
-    font-size: 18px;
-    font-weight: 400;
-    line-height: 22px;
-    letter-spacing: 0em;
-  }
-
   .bceid-logo {
     padding: 1%;
     background-image: url('/assets/bceid_default_logo.jpg');
@@ -70,14 +60,6 @@ export const BrowserLogin = styled.div`
     width: 50em;
     margin-right: auto;
     margin-left: 20px;
-    .footer {
-      padding: 2%;
-      text-align: left;
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      background-color: #ded9da;
-    }
   }
 
   .buttons {

@@ -9,6 +9,15 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   background: ${(props) => props.theme.css.bkPrimary};
   width: 100%;
   height: 100dvh;
+  .footer {
+    padding: 2%;
+    text-align: left;
+    position: absolute;
+    border-radius: 0 0 0.5em 0.5em;
+    bottom: 0;
+    left: 0;
+    background-color: ${(props) => props.theme.css.dialogBoxBkSecondary};
+  }
 
   .containing-row {
     overflow-x: auto;
@@ -130,9 +139,13 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
     }
     .top-bar-box {
       margin: 0;
-      background-color: black;
+      background-color: ${(props) => props.theme.css.dialogBoxBkPrimary};
       color: white;
-      padding: 1%;
+      padding: 0.5em;
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 22px;
+      letter-spacing: 0em;
       text-align: center;
     }
   }

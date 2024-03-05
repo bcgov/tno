@@ -36,7 +36,7 @@ export interface IUnauthenticatedHomeProps {
  * @param backgroundColor Div background-color element attribute.
  * @returns TextBox component.
  */
-export const UnauthenticatedHome: React.FC<IUnauthenticatedHomeProps> = (props) => {
+export const UnauthenticatedHome: React.FC<IUnauthenticatedHomeProps> = () => {
   const keycloak = useKeycloakWrapper();
 
   const [isMobile, setIsMobile] = React.useState(false);
@@ -58,7 +58,7 @@ export const UnauthenticatedHome: React.FC<IUnauthenticatedHomeProps> = (props) 
   React.useEffect(() => {
     const mobileMediaQuery = window.matchMedia('(max-width: 767px)'); // Adjust the breakpoint as needed
 
-    const handleMobileChange = (event: any) => {
+    const handleMobileChange = (event: MediaQueryListEvent) => {
       setIsMobile(event.matches);
     };
 
