@@ -23,11 +23,6 @@ scale () {
   oc scale $type $name -n 9b301c-$env --replicas=$replicas
 }
 
-contentMigrationHistoricServiceName="contentmigration-historic-service"
-if [ "$env" = "dev" ]; then
-  contentMigrationHistoricServiceName="contentmigration-historic-service"
-fi
-
 podsApi=$(getPods api sts $env)
 podsCharts=$(getPods charts-api dc $env)
 podsEditor=$(getPods editor dc $env)
@@ -35,14 +30,14 @@ podsSubscriber=$(getPods subscriber dc $env)
 
 podsCapture=$(getPods capture-service dc $env)
 podsContentMigration=$(getPods contentmigration-service dc $env)
-podsContentMigrationHistoric=$(getPods $contentMigrationHistoricServiceName dc $env)
+podsContentMigrationHistoric=$(getPods contentmigration-historic-service dc $env)
 podsFileMonitor=$(getPods filemonitor-service dc $env)
 podsSyndication=$(getPods syndication-service dc $env)
 podsImage=$(getPods image-service dc $env)
 
 podsIndexing=$(getPods indexing-service dc $env)
 podsContent=$(getPods content-service dc $env)
-podsContentTNO=$(getPods content-tno-service dc $env)
+podsContentTNO=$(getPods content-historic-service dc $env)
 
 podsFileCopy=$(getPods filecopy-service dc $env)
 podsFolderCollection=$(getPods folder-collection-service dc $env)
@@ -72,7 +67,7 @@ scale image-service 0 dc $env
 
 scale indexing-service 0 dc $env
 scale content-service 0 dc $env
-scale content-tno-service 0 dc $env
+scale content-historic-service 0 dc $env
 
 scale filecopy-service 0 dc $env
 scale folder-collection-service 0 dc $env
@@ -134,14 +129,14 @@ scale subscriber $podsSubscriber dc $env
 
 scale capture-service $podsCapture dc $env
 scale contentmigration-service $podsContentMigration dc $env
-scale $contentMigrationHistoricServiceName $podsContentMigrationHistoric dc $env
+scale contentmigration-historic-service $podsContentMigrationHistoric dc $env
 scale filemonitor-service $podsFileMonitor dc $env
 scale syndication-service $podsSyndication dc $env
 scale image-service $podsImage dc $env
 
 scale indexing-service $podsIndexing dc $env
 scale content-service $podsContent dc $env
-scale content-tno-service $podsContentTNO dc $env
+scale content-historic-service $podsContentTNO dc $env
 
 scale filecopy-service $podsFileCopy dc $env
 scale folder-collection-service $podsFolderCollection dc $env

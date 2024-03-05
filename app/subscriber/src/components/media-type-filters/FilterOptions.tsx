@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useContent, useLookup } from 'store/hooks';
 import { Button, ButtonHeight, ContentTypeName, IFilterSettingsModel } from 'tno-core';
 
-import { FilterOptionTypes } from './constants';
+import { defaultFilter, FilterOptionTypes } from './constants';
 import * as styled from './styled';
 import { determineStore } from './utils';
 
@@ -34,42 +34,45 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
   ] = useContent();
   const [{ sources, mediaTypes }] = useLookup();
 
-  const defaultFilter: Partial<IFilterSettingsModel> = {
-    contentTypes: [],
-    sourceIds: [],
-    mediaTypeIds: [],
-  };
+  const handleFilterClick = React.useCallback(
+    (type: FilterOptionTypes) => {
+      const updatedFilter: Partial<IFilterSettingsModel> = { ...defaultFilter };
 
-  const handleFilterClick = (type: FilterOptionTypes) => {
-    const updatedFilter = { ...defaultFilter };
-
-    switch (type) {
-      case FilterOptionTypes.Papers:
-        updatedFilter.contentTypes = [ContentTypeName.PrintContent];
-        break;
-      case FilterOptionTypes.RadioTV:
-        updatedFilter.contentTypes = [ContentTypeName.AudioVideo];
-        updatedFilter.mediaTypeIds = mediaTypes.filter((p) => p.name !== 'Events').map((p) => p.id);
-        break;
-      case FilterOptionTypes.Internet:
-        updatedFilter.contentTypes = [ContentTypeName.Internet];
-        updatedFilter.sourceIds = sources.filter((s) => s.code !== 'CPNEWS').map((s) => s.id);
-        updatedFilter.mediaTypeIds = mediaTypes.filter((p) => p.name !== 'Events').map((p) => p.id);
-        break;
-      case FilterOptionTypes.CPNews:
-        updatedFilter.contentTypes = [ContentTypeName.Internet];
-        updatedFilter.sourceIds = [sources.find((s) => s.code === 'CPNEWS')?.id ?? 0];
-        break;
-      case FilterOptionTypes.Events:
-        updatedFilter.mediaTypeIds = [mediaTypes.find((s) => s.name === 'Events')?.id ?? 0];
-        break;
-      case FilterOptionTypes.All:
-        break;
-      default:
-        break;
-    }
-    storeFilter({ ...filter, ...updatedFilter });
-  };
+      switch (type) {
+        case FilterOptionTypes.Papers:
+          updatedFilter.contentTypes = [ContentTypeName.PrintContent];
+          break;
+        case FilterOptionTypes.RadioTV:
+          updatedFilter.contentTypes = [ContentTypeName.AudioVideo];
+          updatedFilter.mediaTypeIds = mediaTypes
+            .filter((p) => p.name !== 'Events')
+            .map((p) => p.id);
+          break;
+        case FilterOptionTypes.Internet:
+          updatedFilter.contentTypes = [ContentTypeName.Internet];
+          updatedFilter.sourceIds = sources.filter((s) => s.code !== 'CPNEWS').map((s) => s.id);
+          updatedFilter.mediaTypeIds = mediaTypes
+            .filter((p) => p.name !== 'Events')
+            .map((p) => p.id);
+          break;
+        case FilterOptionTypes.CPNews:
+          updatedFilter.contentTypes = [ContentTypeName.Internet];
+          updatedFilter.sourceIds = [sources.find((s) => s.code === 'CPNEWS')?.id ?? 0];
+          break;
+        case FilterOptionTypes.Events:
+          updatedFilter.mediaTypeIds = [mediaTypes.find((s) => s.name === 'Events')?.id ?? 0];
+          break;
+        case FilterOptionTypes.All:
+        default:
+          break;
+      }
+      storeFilter({
+        ...filter,
+        ...updatedFilter,
+      });
+    },
+    [filter, mediaTypes, sources, storeFilter],
+  );
 
   const getClassName = (type: FilterOptionTypes) => (type === active ? 'active' : 'inactive');
 
