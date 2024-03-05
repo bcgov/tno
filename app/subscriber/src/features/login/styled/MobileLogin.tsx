@@ -19,7 +19,6 @@ export const MobileLogin = styled.div`
       margin-bottom: 2%;
       border: 2px solid ${(props) => props.theme.css.btnRedColor};
       border-radius: 0.5rem;
-      padding: 2%;
       text-align: center;
       max-height: 91%;
     }
@@ -41,7 +40,6 @@ export const MobileLogin = styled.div`
       display: flex;
       max-height: fit-content;
       overflow: hidden;
-      height: 37em;
       @media (max-width: 1550px) {
         display: inline-block;
         margin-left: 1px;
@@ -98,7 +96,6 @@ export const MobileLogin = styled.div`
 
     .idir-logo {
       padding: 1%;
-      // background-image: url('/assets/idir_logo_2.png');
       background-position: center;
       background-repeat: no-repeat;
       background-size: cover;

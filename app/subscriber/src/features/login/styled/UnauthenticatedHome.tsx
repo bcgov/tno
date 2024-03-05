@@ -9,15 +9,6 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   background: ${(props) => props.theme.css.bkPrimary};
   width: 100%;
   height: 100dvh;
-  .footer {
-    padding: 2%;
-    text-align: left;
-    position: absolute;
-    border-radius: 0 0 0.5em 0.5em;
-    bottom: 0;
-    left: 0;
-    background-color: ${(props) => props.theme.css.dialogBoxBkSecondary};
-  }
 
   .containing-row {
     overflow-x: auto;
@@ -50,11 +41,6 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
     margin-bottom: 2.5%;
   }
 
-  .copyright {
-    font-size: 0.8em;
-    margin-left: 5%;
-  }
-
   a {
     margin-bottom: 2%;
   }
@@ -62,6 +48,7 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   .containing-box {
     padding: 2%;
     display: flex;
+    justify-content: center;
     max-height: fit-content;
     overflow: hidden;
     @media (max-width: 1550px) {
@@ -77,31 +64,6 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
     }
   }
 
-  .system-message-containing-box {
-    padding: 1%;
-  }
-
-  .system-message-box {
-    display: inline-block;
-    position: relative;
-    margin-top: 2%;
-    padding: 2%;
-    height: 487px;
-    float: left;
-    background-color: ${(props) => props.theme.css.stickyNoteColor};
-    margin-right: auto;
-    margin-left: 20px;
-    @media (max-width: 1450px) {
-      min-width: 50em;
-    }
-    @media (max-width: 768px) {
-      margin-bottom: 0.5em;
-    }
-    @media (min-width: 1450px) {
-      max-width: 50em;
-    }
-    width: 50em;
-  }
   .mm-logo {
     height: 8%;
     @media (max-width: 768px) {

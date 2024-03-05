@@ -1,6 +1,12 @@
 import styled from 'styled-components';
 
 export const BrowserLogin = styled.div`
+  .system-message-box {
+    height: 410px;
+    margin-right: auto;
+    margin-left: 20px;
+    width: 50em;
+  }
   .containing-row {
     margin-left: auto;
     margin-right: auto;
@@ -41,12 +47,11 @@ export const BrowserLogin = styled.div`
   .login-box {
     display: inline-block;
     position: relative;
-    margin-top: 2%;
     border: 2px solid ${(props) => props.theme.css.btnRedColor};
     border-radius: 0.5rem;
-    padding: 2%;
+    padding-top: 2%;
     text-align: center;
-    height: 487px;
+    height: fit-content;
     float: left;
     @media (max-width: 1450px) {
       min-width: 50em;
@@ -58,8 +63,6 @@ export const BrowserLogin = styled.div`
       max-width: 50em;
     }
     width: 50em;
-    margin-right: auto;
-    margin-left: 20px;
   }
 
   .buttons {
