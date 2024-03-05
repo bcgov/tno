@@ -7,8 +7,11 @@ export const PageSection = styled.div<{ $ignoreMinWidth?: boolean; $ignoreLastCh
   background: ${(props) => props.theme.css.bkSecondary};
   box-shadow: ${(props) => props.theme.css.boxShadow};
   align-self: stretch;
-  margin: 0 1rem 1rem 1rem;
   min-width: ${(props) => (props.$ignoreMinWidth ? 'unset' : 'fit-content')};
+
+  @media (min-width: 500px) {
+    margin: 0 1rem 1rem 1rem;
+  }
 
   .page-section-title {
     margin: 1rem;

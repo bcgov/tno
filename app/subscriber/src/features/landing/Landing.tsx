@@ -2,6 +2,7 @@ import { ViewOptions } from 'components/content-list';
 import { FilterOptions } from 'components/media-type-filters';
 import { INavbarOptionItem, NavbarOptions, navbarOptions } from 'components/navbar/NavbarItems';
 import { PageSection } from 'components/section';
+import { TopDomains } from 'components/top-domains';
 import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
 import AVOverviewPreview from 'features/daily-overview/AVOverviewPreview';
@@ -103,6 +104,7 @@ export const Landing: React.FC = () => {
         <Col className="right-panel">
           <Show visible={activeItem !== NavbarOptions.eveningOverview}>
             <Commentary />
+            <TopDomains />
           </Show>
           <Show visible={activeItem === NavbarOptions.eveningOverview}>
             <MediaOverviewIcons />

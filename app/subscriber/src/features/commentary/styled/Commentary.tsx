@@ -7,10 +7,6 @@ export const Commentary = styled.div`
     margin-bottom: 0.5em;
   }
 
-  @media (min-width: 1702px) {
-    margin-bottom: 5%;
-  }
-
   .headline {
     color: #3847aa;
     cursor: pointer;
