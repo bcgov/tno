@@ -31,6 +31,7 @@ export const Landing = styled(Col)`
     margin-right: auto;
 
     display: flex;
+    flex-flow: column;
 
     input {
       min-height: 3em;
