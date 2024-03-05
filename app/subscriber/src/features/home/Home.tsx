@@ -6,10 +6,10 @@ import { filterFormat } from 'features/search-page/utils';
 import { createFilterSettings, getBooleanActionValue } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
-import { generateQuery, IContentModel, IFilterSettingsModel, Row, Settings } from 'tno-core';
+import { generateQuery, IContentModel, Row, Settings } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -27,18 +27,6 @@ export const Home: React.FC = () => {
   const [{ settings: appSettings }] = useLookup();
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-  const [isReady, setIsReady] = React.useState<boolean>(false);
-  const [settings] = React.useState<IFilterSettingsModel>(
-    createFilterSettings(
-      filter.startDate ?? moment().startOf('day').toISOString(),
-      filter.endDate ?? moment().endOf('day').toISOString(),
-    ),
-  );
-
-  const contentType = useMemo(() => {
-    if (!!filter?.contentTypes?.length) return filter.contentTypes[0];
-    else return 'all';
-  }, [filter.contentTypes]);
 
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
@@ -63,36 +51,25 @@ export const Home: React.FC = () => {
     return value;
   }, [appSettings]);
 
-  const homePage = React.useMemo(() => {
-    if (!featuredItemId) return;
-    return getBooleanActionValue(featuredItemId);
-  }, [featuredItemId]);
-
-  React.useEffect(() => {
-    if (!!homePage && !!filter.startDate && !isReady && !!featuredItemId) {
-      setIsReady(true);
-    }
-  }, [homePage, filter.startDate, isReady, featuredItemId]);
-
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
-    if (!isReady) return;
-    fetchResults(
-      generateQuery(
-        filterFormat({
-          ...settings,
-          actions: !!homePage ? [homePage] : [],
-          contentTypes: !!contentType ? filter.contentTypes : [],
-          startDate: filter.startDate,
-          endDate: filter.endDate,
-          mediaTypeIds: filter.mediaTypeIds ?? [],
-          sourceIds: filter.sourceIds ?? [],
-        }),
-      ),
-    );
-    // only run when filter is ready, and when filter.startDate changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isReady, filter.startDate, featuredItemId]);
+    if (!!featuredItemId && !!filter.startDate) {
+      fetchResults(
+        generateQuery(
+          filterFormat({
+            ...createFilterSettings(
+              filter.startDate ?? moment().startOf('day').toISOString(),
+              filter.endDate ?? moment().endOf('day').toISOString(),
+            ),
+            actions: [getBooleanActionValue(featuredItemId)],
+            contentTypes: filter.contentTypes ?? [],
+            mediaTypeIds: filter.mediaTypeIds ?? [],
+            sourceIds: filter.sourceIds ?? [],
+          }),
+        ),
+      );
+    }
+  }, [filter, fetchResults, featuredItemId]);
 
   return (
     <styled.Home>
