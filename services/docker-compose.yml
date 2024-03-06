@@ -509,11 +509,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
-          memory: 250M
+          cpus: '1'
+          memory: 2G
         reservations:
           cpus: '0.05'
-          memory: 50M
+          memory: 100M
     env_file:
       - services/net/ffmpeg/.env
     ports:

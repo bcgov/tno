@@ -208,12 +208,7 @@ export const Upload: React.FC<IUploadProps> = ({
                     : handleFFmpeg(values)
                 }
                 disabled={
-                  !onDownload ||
-                  !!file ||
-                  !downloadable ||
-                  !fileName ||
-                  !fileReference ||
-                  processing
+                  !onDownload || !file || !downloadable || !fileName || !fileReference || processing
                 }
                 className="file-name"
                 tooltip="Process file"
@@ -224,7 +219,7 @@ export const Upload: React.FC<IUploadProps> = ({
             <Button
               variant={ButtonVariant.link}
               onClick={() => onDownload?.()}
-              disabled={!onDownload || !!file || !downloadable || !fileName || !fileReference}
+              disabled={!onDownload || !file || !downloadable || !fileName || !fileReference}
               className="file-name"
               tooltip={`Download ${!!fileName ? fileName : 'not available'}`}
             >
