@@ -64,7 +64,10 @@ export const EventOfTheDayList = styled.div`
     border-bottom: 1px red dashed;
     cursor: help;
   }
-  .col-3 .frm-in {
+  .column.col-0 {
+    gap: unset;
+  }
+  .column.col-3 .frm-in {
     width: 100%;
   }
   .lock-control {
@@ -77,5 +80,17 @@ export const EventOfTheDayList = styled.div`
     .form-page {
       padding: unset;
     }
+  }
+  .clipboard-icon {
+    display: none;
+    cursor: pointer;
+    width: 1.5rem;
+  }
+  .row:hover .clipboard-icon {
+    display: block;
+  }
+  .clipboard-icon.animate {
+    transition: all 1s;
+    transform: rotateY(180deg);
   }
 `;

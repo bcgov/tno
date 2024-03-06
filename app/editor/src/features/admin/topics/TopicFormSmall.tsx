@@ -44,7 +44,7 @@ export const TopicFormSmall: React.FC<ITopicFormSmallProps> = ({ onAddOrUpdate }
               </p>
             </Row>
             <Row alignItems="center">
-              <FormikText name="name" label="Topic Name" width={FieldSize.Big} />
+              <FormikText name="name" label="Topic Name" width={FieldSize.Big} autoComplete="off" />
               <div className="topic-type-toggle-group frm-in">
                 <label>Type</label>
                 <ToggleGroup
