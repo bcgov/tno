@@ -10,6 +10,7 @@ interface IIngestController {
   addIngest: (model: IIngestModel) => Promise<IIngestModel>;
   updateIngest: (model: IIngestModel) => Promise<IIngestModel>;
   setIngestEnabledStatus: (ingestId: number, newStatus: boolean) => Promise<IIngestModel>;
+  resetIngest: (ingestId: number) => Promise<IIngestModel>;
   deleteIngest: (model: IIngestModel) => Promise<IIngestModel>;
   storeIngest: (ingests: IIngestModel[]) => void;
 }
@@ -82,6 +83,18 @@ export const useIngests = (): [IAdminState, IIngestController] => {
       },
       storeIngest: (ingests: IIngestModel[]) => {
         store.storeIngests(ingests);
+      },
+      resetIngest: async (ingestId: number) => {
+        const response = await dispatch<IIngestModel>('reset-ingest', () =>
+          api.resetIngest(ingestId),
+        );
+        store.storeIngests((ingests) =>
+          ingests.map((ds) => {
+            if (ds.id === response.data.id) return response.data;
+            return ds;
+          }),
+        );
+        return response.data;
       },
     }),
     [dispatch, store, api],

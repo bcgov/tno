@@ -166,6 +166,29 @@ public class IngestController : ControllerBase
     }
 
     /// <summary>
+    /// Update ingest with the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpPut("{id}/reset")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Ingest" })]
+    public async Task<IActionResult> UpdateIngestResetAsync(int id)
+    {
+        var model = _service.FindById(id) ?? throw new NoContentException();
+        model.State = new Entities.IngestState(model)
+        {
+            FailedAttempts = 0
+        };
+        model = _service.UpdateAndSave(model, true);
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic,
+            new KafkaHubMessage(HubEvent.SendGroup, "editor", new KafkaInvocationMessage(MessageTarget.IngestUpdated, new[] { new IngestMessageModel(model) })));
+        return new JsonResult(new IngestModel(model, _serializerOptions));
+    }
+
+    /// <summary>
     /// Delete ingest with the specified 'id'.
     /// </summary>
     /// <param name="model"></param>

@@ -34,7 +34,8 @@ const groupIngests = (ingests: IIngestModel[], typeId?: number) => {
 };
 
 export const Dashboard: React.FC = () => {
-  const [{ ingests }, { findAllIngests, storeIngest, updateIngest }] = useIngests();
+  const [{ ingests }, { findAllIngests, storeIngest, setIngestEnabledStatus, resetIngest }] =
+    useIngests();
   const [, { findAllIngestTypes }] = useIngestTypes();
   const [{ ingestTypeOptions }] = useLookupOptions();
   const navigate = useNavigate();
@@ -87,13 +88,22 @@ export const Dashboard: React.FC = () => {
     );
   });
 
-  const handleUpdate = React.useCallback(
-    async (ingest: IIngestModel) => {
+  const handleStatus = React.useCallback(
+    async (id: number, status: boolean) => {
       try {
-        await updateIngest(ingest);
+        await setIngestEnabledStatus(id, status);
       } catch {}
     },
-    [updateIngest],
+    [setIngestEnabledStatus],
+  );
+
+  const handleReset = React.useCallback(
+    async (id: number) => {
+      try {
+        await resetIngest(id);
+      } catch {}
+    },
+    [resetIngest],
   );
 
   return (
@@ -145,7 +155,7 @@ export const Dashboard: React.FC = () => {
                           <FaBugSlash
                             title="Reset"
                             className="btn-link"
-                            onClick={() => handleUpdate({ ...ingest, failedAttempts: 0 })}
+                            onClick={() => handleReset(ingest.id)}
                           />
                         </div>
                       </Row>
@@ -161,9 +171,7 @@ export const Dashboard: React.FC = () => {
                             name={`chkIsEnabled-${ingest.id}`}
                             label="Enabled"
                             checked={ingest.isEnabled}
-                            onChange={(e) =>
-                              handleUpdate({ ...ingest, isEnabled: e.target.checked })
-                            }
+                            onChange={(e) => handleStatus(ingest.id, e.target.checked)}
                           />
                         </Col>
                       </Row>

@@ -77,25 +77,9 @@ public abstract class BaseService<TEntity, TKey> : BaseService, IBaseService<TEn
 
     public virtual TEntity UpdateAndSave(TEntity entity)
     {
-        try
-        {
-            var result = Update(entity);
-            this.Context.CommitTransaction();
-            return result;
-        }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            var result = Update(entity);
-            var e = ex.Entries.Single();
-            var databaseValues = e.GetDatabaseValues();
-            if (databaseValues != null)
-            {
-                // Merge changes and retry update
-                e.OriginalValues.SetValues(databaseValues);
-            }
-            this.Context.CommitTransaction();
-            return result;
-        }
+        var result = Update(entity);
+        this.Context.CommitTransaction();
+        return result;
     }
 
     public virtual void Delete(TEntity entity)
