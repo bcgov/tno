@@ -109,15 +109,6 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     public override async Task RecordFailureAsync(Exception? error = null)
     {
         this.Ingest = await UpdateIngestStateFailedAttemptsAsync(this.Ingest.FailedAttempts + 1);
-
-        // Reached limit return to ingest manager.
-        if (this.Ingest.FailedAttempts + 1 >= this.Ingest.RetryLimit)
-        {
-            if (error != null)
-                await this.SendEmailAsync($"Ingest Failure - {this.Ingest.Name}", error);
-            else
-                await this.SendEmailAsync($"Ingest Failure - {this.Ingest.Name}", "Failure limit reached");
-        }
         this.IsRunning = false;
     }
 
