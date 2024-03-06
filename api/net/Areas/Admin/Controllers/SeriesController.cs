@@ -139,11 +139,11 @@ public class SeriesController : ControllerBase
     public IActionResult Merge(int id, int fromId)
     {
         // make sure the merge target exists
-        var result = _service.FindById(id) ?? throw new NoContentException();
+        var _ = _service.FindById(id) ?? throw new NoContentException();
         // make sure the merge source exists
-        result = _service.FindById(fromId) ?? throw new NoContentException();
+        _ = _service.FindById(fromId) ?? throw new NoContentException();
         // merge the source into the target
-        result = _service.Merge(id, fromId);
+        var result = _service.Merge(id, fromId) ?? throw new NoContentException();
         return new JsonResult(new SeriesModel(result));
     }
 

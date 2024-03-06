@@ -15,6 +15,9 @@
     <ProjectReference Include="..\..\..\libs\net\kafka\TNO.Kafka.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="FTTLib.dll" Version="1.1.5" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="*.json">

@@ -1,9 +1,11 @@
-using System.IO;
 using Confluent.Kafka;
+using FTTLib;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Models.Settings;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
@@ -45,9 +47,11 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
     public FFmpegManager(
         IKafkaListener<string, FFmpegRequestModel> listener,
         IApiService api,
+        IChesService chesService,
+        IOptions<ChesOptions> chesOptions,
         IOptions<FFmpegOptions> options,
         ILogger<FFmpegManager> logger)
-            : base(api, options, logger)
+            : base(api, chesService, chesOptions, options, logger)
     {
         this.Listener = listener;
         this.Listener.IsLongRunningJob = true;
@@ -257,7 +261,7 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
                     {
                         var convertFrom = action.Arguments.ContainsKey("from") ? action.Arguments["from"] : "";
                         var convertTo = action.Arguments.ContainsKey("to") ? action.Arguments["to"] : "";
-                        var contentType = action.Arguments.ContainsKey("contentType") ? action.Arguments["contentType"] : MimeTypeMap.GetMimeType(convertTo.Replace(".", ""));
+                        var contentType = action.Arguments.ContainsKey("contentType") ? action.Arguments["contentType"] : FTT.GetMimeType(convertTo.Replace(".", ""));
                         if (convertFrom.Equals(sourceExt, StringComparison.OrdinalIgnoreCase))
                         {
                             if (!String.IsNullOrWhiteSpace(convertTo))
@@ -347,6 +351,7 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
         process.StartInfo.Verb = $"Convert File";
         process.StartInfo.FileName = "/bin/sh";
         process.StartInfo.Arguments = $"-c \"ffmpeg -i '{sourceFile}' -y '{destFile}' 2>&1 \"";
+        // process.StartInfo.Arguments = $"-c \"ffmpeg -i '{sourceFile}' -crf 17 -strict -2 -pix_fmt yuv420p -y '{destFile}' 2>&1 \"";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.CreateNoWindow = true;
