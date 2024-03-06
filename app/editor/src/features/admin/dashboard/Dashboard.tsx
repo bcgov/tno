@@ -34,8 +34,10 @@ const groupIngests = (ingests: IIngestModel[], typeId?: number) => {
 };
 
 export const Dashboard: React.FC = () => {
-  const [{ ingests }, { findAllIngests, storeIngest, setIngestEnabledStatus, resetIngest }] =
-    useIngests();
+  const [
+    { ingests },
+    { findAllIngests, storeIngest, setIngestEnabledStatus, resetIngestFailures },
+  ] = useIngests();
   const [, { findAllIngestTypes }] = useIngestTypes();
   const [{ ingestTypeOptions }] = useLookupOptions();
   const navigate = useNavigate();
@@ -100,10 +102,10 @@ export const Dashboard: React.FC = () => {
   const handleReset = React.useCallback(
     async (id: number) => {
       try {
-        await resetIngest(id);
+        await resetIngestFailures(id);
       } catch {}
     },
-    [resetIngest],
+    [resetIngestFailures],
   );
 
   return (

@@ -170,7 +170,7 @@ public class IngestController : ControllerBase
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    [HttpPut("{id}/reset")]
+    [HttpPut("{id}/resetfailures")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
@@ -178,10 +178,17 @@ public class IngestController : ControllerBase
     public async Task<IActionResult> UpdateIngestResetAsync(int id)
     {
         var model = _service.FindById(id) ?? throw new NoContentException();
-        model.State = new Entities.IngestState(model)
+        if (model.State != null)
         {
-            FailedAttempts = 0
-        };
+            model.State.FailedAttempts = 0;
+        }
+        else
+        {
+            model.State = new Entities.IngestState(model)
+            {
+                FailedAttempts = 0
+            };
+        }
         model = _service.UpdateAndSave(model, true);
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic,
             new KafkaHubMessage(HubEvent.SendGroup, "editor", new KafkaInvocationMessage(MessageTarget.IngestUpdated, new[] { new IngestMessageModel(model) })));
