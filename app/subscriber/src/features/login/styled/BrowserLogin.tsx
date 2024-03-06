@@ -4,8 +4,10 @@ export const BrowserLogin = styled.div`
   .system-message-box {
     height: 410px;
     margin-right: auto;
-    margin-left: 20px;
-    width: 50em;
+    width: 48em;
+    @media (max-width: 1440px) {
+      margin-top: 1em;
+    }
   }
   .containing-row {
     margin-left: auto;
