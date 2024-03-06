@@ -66,6 +66,8 @@ export const EventOfTheDayList = styled.div`
   }
   .column.col-0 {
     gap: unset;
+    display: block;
+    align-self: center;
   }
   .column.col-3 .frm-in {
     width: 100%;
@@ -82,12 +84,12 @@ export const EventOfTheDayList = styled.div`
     }
   }
   .clipboard-icon {
-    display: none;
+    visibility: hidden;
     cursor: pointer;
-    width: 1.5rem;
+    margin-left: 0.25rem;
   }
   .row:hover .clipboard-icon {
-    display: block;
+    visibility: visible;
   }
   .clipboard-icon.animate {
     transition: all 1s;
