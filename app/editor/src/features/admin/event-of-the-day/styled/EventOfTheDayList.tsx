@@ -86,11 +86,11 @@ export const EventOfTheDayList = styled.div`
     cursor: pointer;
     width: 1.5rem;
   }
+  .row:hover .clipboard-icon {
+    display: block;
+  }
   .clipboard-icon.animate {
     transition: all 1s;
     transform: rotateY(180deg);
-  }
-  .row:hover .clipboard-icon {
-    display: block;
   }
 `;
