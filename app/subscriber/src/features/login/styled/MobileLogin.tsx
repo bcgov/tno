@@ -14,31 +14,13 @@ export const MobileLogin = styled.div`
       background-repeat: no-repeat;
       background-size: contain;
     }
-    .top-bar-box {
-      background-color: #221f1f;
-      color: white;
-      padding: 0.5em;
-      font-size: 18px;
-      font-weight: 400;
-      line-height: 22px;
-      letter-spacing: 0em;
-    }
     .login-box {
       margin-top: 2%;
       margin-bottom: 2%;
       border: 2px solid ${(props) => props.theme.css.btnRedColor};
       border-radius: 0.5rem;
-      padding: 2%;
       text-align: center;
-      height: 91%;
-      .footer {
-        padding: 2%;
-        text-align: left;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        background-color: #ded9da;
-      }
+      max-height: 91%;
     }
 
     .main-box {
@@ -51,13 +33,6 @@ export const MobileLogin = styled.div`
         margin-bottom: 1%;
         min-width: auto;
       }
-      .top-bar-box {
-        margin: 0;
-        background-color: black;
-        color: white;
-        padding: 1%;
-        text-align: center;
-      }
     }
 
     .containing-box {
@@ -65,7 +40,6 @@ export const MobileLogin = styled.div`
       display: flex;
       max-height: fit-content;
       overflow: hidden;
-      height: 37em;
       @media (max-width: 1550px) {
         display: inline-block;
         margin-left: 1px;
@@ -122,7 +96,6 @@ export const MobileLogin = styled.div`
 
     .idir-logo {
       padding: 1%;
-      // background-image: url('/assets/idir_logo_2.png');
       background-position: center;
       background-repeat: no-repeat;
       background-size: cover;

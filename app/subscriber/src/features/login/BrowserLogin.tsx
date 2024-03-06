@@ -1,9 +1,9 @@
-import parse from 'html-react-parser';
 import React from 'react';
-import { useSystemMessages } from 'store/hooks';
-import { Button, Col, ISystemMessageModel, Row, Show, useKeycloakWrapper } from 'tno-core';
+import { Button, Col, Row, Show, useKeycloakWrapper } from 'tno-core';
 
+import { Copyright } from './Copyright';
 import * as styled from './styled';
+import { SystemMessage } from './SystemMessage';
 
 export interface IBrowserLoginProps {
   login: (hint?: string) => void;
@@ -21,18 +21,8 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
     new URL(authority).host.startsWith('localhost') ||
     new URL(authority).host.startsWith('host.docker.internal');
 
-  const [, api] = useSystemMessages();
-  const [systemMessage, setSystemMessage] = React.useState<ISystemMessageModel>();
-
   const [showModal, setShowModal] = React.useState(false);
 
-  React.useEffect(() => {
-    api.findSystemMessage().then((data) => {
-      if (!!data) setSystemMessage(data);
-    });
-    // only want to run on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   return (
     <styled.BrowserLogin>
       <Col>
@@ -43,16 +33,7 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
               Media Monitoring is a paid service offered through the BC Government that allows
               subscribers to see British Columbia’s news at a glance.
             </p>
-            <div
-              className={
-                'containing-box' +
-                `${
-                  !(!!systemMessage?.message && systemMessage.isEnabled)
-                    ? ' centered-login-box'
-                    : ''
-                }`
-              }
-            >
+            <div className={'containing-box'}>
               <Col className="login-box">
                 <b>Login to your MMI account with your BCeID or IDIR: </b>
                 <div>
@@ -83,24 +64,9 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
                     </span>
                   </div>
                 </div>
-                <div className="footer" onClick={() => login()}>
-                  <b>Copyright info:</b>
-                  <p>
-                    This account grants you access to copyrighted material for your own use. It does
-                    not grant you permission to fix, copy, reproduce or archive any of the material
-                    contained within. <br /> <br />
-                    You cannot redistribute this information to anyone without violating your
-                    copyright agreement.
-                  </p>
-                </div>
+                <Copyright />
               </Col>
-              <Show visible={!!systemMessage?.message && systemMessage.isEnabled}>
-                <Col className="system-message-box">
-                  <div className="system-message-containing-box">
-                    <p>{parse(systemMessage?.message ?? '')}</p>
-                  </div>
-                </Col>
-              </Show>
+              <SystemMessage />
             </div>
           </Col>
         </Row>
@@ -151,7 +117,6 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
           </div>
         </div>
       </Show>
-      <img src="/assets/mm_logo.svg" alt="MM Logo" className="mm-logo" />
     </styled.BrowserLogin>
   );
 };

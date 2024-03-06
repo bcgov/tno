@@ -1,6 +1,12 @@
 import styled from 'styled-components';
 
 export const BrowserLogin = styled.div`
+  .system-message-box {
+    height: 410px;
+    margin-right: auto;
+    margin-left: 20px;
+    width: 50em;
+  }
   .containing-row {
     margin-left: auto;
     margin-right: auto;
@@ -14,16 +20,6 @@ export const BrowserLogin = styled.div`
     margin-top: 8%;
     color: ${(props) => props.theme.css.fRedColor};
     cursor: pointer;
-  }
-
-  .top-bar-box {
-    background-color: #221f1f;
-    color: white;
-    padding: 0.5em;
-    font-size: 18px;
-    font-weight: 400;
-    line-height: 22px;
-    letter-spacing: 0em;
   }
 
   .bceid-logo {
@@ -51,12 +47,11 @@ export const BrowserLogin = styled.div`
   .login-box {
     display: inline-block;
     position: relative;
-    margin-top: 2%;
     border: 2px solid ${(props) => props.theme.css.btnRedColor};
     border-radius: 0.5rem;
-    padding: 2%;
+    padding-top: 2%;
     text-align: center;
-    height: 487px;
+    height: fit-content;
     float: left;
     @media (max-width: 1450px) {
       min-width: 50em;
@@ -68,16 +63,6 @@ export const BrowserLogin = styled.div`
       max-width: 50em;
     }
     width: 50em;
-    margin-right: auto;
-    margin-left: 20px;
-    .footer {
-      padding: 2%;
-      text-align: left;
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      background-color: #ded9da;
-    }
   }
 
   .buttons {
