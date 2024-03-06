@@ -166,7 +166,7 @@ public class IngestController : ControllerBase
     }
 
     /// <summary>
-    /// Update ingest with the specified 'id'.
+    /// Reset ingest state with the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
