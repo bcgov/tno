@@ -111,13 +111,15 @@ public abstract class ServiceManager<TOption> : IServiceManager
     /// <returns></returns>
     public async Task SendEmailAsync(string subject, Exception ex)
     {
+        string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
         string? serviceName = GetType().FullName ?? "Service";
         string errorMsg = $"<div>An error occured while executing the {serviceName} service.</div>{Environment.NewLine}" +
+        $"<div>Environment: {env}</div>{Environment.NewLine}" +
         $"<div>Error Message:</div>{Environment.NewLine}" +
         $"<div>{ex.Message}</div>{Environment.NewLine}" +
         $"<div>StackTrace:</div>{Environment.NewLine}" +
         $"<div>{ex.StackTrace}</div>";
-        await this.SendEmailAsync($"{serviceName} Service - {subject}", errorMsg);
+        await this.SendEmailAsync($"{env} - {serviceName} Service - {subject}", errorMsg);
     }
 
     /// <summary>
