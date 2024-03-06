@@ -1,5 +1,6 @@
 import { Topic } from 'features/content';
 import React from 'react';
+import { FaRegClipboard } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import Select from 'react-select';
 import {
@@ -86,6 +87,15 @@ export const useColumns = (
     }
   };
 
+  const handleCopyTitle = (event: any, cell: any) => {
+    navigator.clipboard.writeText(cell.original.content!.headline);
+    // animate the clipboar icon to show something happened
+    event.target.classList.toggle('animate');
+    setTimeout(() => {
+      event.target.classList.toggle('animate');
+    }, 500);
+  };
+
   const result: ITableHookColumn<IFolderContentModel>[] = [
     {
       label: 'Topic Name',
@@ -93,13 +103,22 @@ export const useColumns = (
       width: 1,
       cell: (cell) => {
         return (
-          <Link
-            to={`/contents/${cell.original.contentId}`}
-            target="blank"
-            className={isRowContentUpdating(cell.original.contentId) ? 'lock-control' : ''}
-          >
-            {cell.original.content?.headline}
-          </Link>
+          <>
+            <Link
+              to={`/contents/${cell.original.contentId}`}
+              target="blank"
+              className={isRowContentUpdating(cell.original.contentId) ? 'lock-control' : ''}
+            >
+              {cell.original.content?.headline}
+            </Link>
+            <FaRegClipboard
+              className="clipboard-icon"
+              title="Copy Title to clipboard"
+              onClick={(e) => {
+                handleCopyTitle(e, cell);
+              }}
+            />
+          </>
         );
       },
     },
