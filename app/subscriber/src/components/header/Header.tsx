@@ -1,7 +1,7 @@
 import { BasicSearch } from 'components/basic-search';
 import { UserProfile } from 'components/user-profile';
 import React from 'react';
-import { Link, Row, Show } from 'tno-core';
+import { Link, Row, Show, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -24,6 +24,7 @@ export const Header: React.FC<IHeaderProps> = ({
   showProfile = true,
   showLogo = true,
 }) => {
+  const { width } = useWindowSize();
   return (
     <styled.Header className="header">
       <Row>
@@ -44,7 +45,7 @@ export const Header: React.FC<IHeaderProps> = ({
         )}
         {children}
       </Row>
-      <Show visible={!window.location.pathname.includes('search')}>
+      <Show visible={!window.location.pathname.includes('search') && !!width && width > 900}>
         <BasicSearch inHeader />
       </Show>
       {showProfile && <UserProfile />}

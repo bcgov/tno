@@ -1,3 +1,4 @@
+import { BasicSearch } from 'components/basic-search';
 import { Header } from 'components/header';
 import { Navbar } from 'components/navbar';
 import { navbarOptions } from 'components/navbar/NavbarItems';
@@ -74,6 +75,9 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
           <div className="grid-container">
             <div className="nav-bar">
               <Navbar options={navbarOptions} />
+            </div>
+            <div className="search-bar">
+              <BasicSearch />
             </div>
             <Header showLogo showProfile />
             <LayoutErrorBoundary>

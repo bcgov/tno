@@ -5,7 +5,7 @@ import { FaPlay } from 'react-icons/fa6';
 import { useNavigate } from 'react-router';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { Button, IFilterSettingsModel, Row, Text } from 'tno-core';
+import { Button, IFilterSettingsModel, Row, Text, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -18,6 +18,7 @@ export interface IBasicSearchProps {
 /** Basic search functionality (just search term), and an option to get to the advanced filter */
 export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
   const { pathname } = useLocation();
+  const { width } = useWindowSize();
   const { id } = useParams();
   const [
     {
@@ -59,15 +60,6 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
             }}
           />
         </Row>
-        <Text
-          className="mobile-search-input"
-          onKeyDown={(e) => handleEnterPressed(e, handleSearch)}
-          name="search"
-          value={filter.search ?? ''}
-          onChange={(e) => {
-            storeSearchFilter({ ...filter, search: e.target.value });
-          }}
-        />
         <Button
           onClick={() => {
             handleSearch();
@@ -78,7 +70,7 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
           <FaPlay />
         </Button>
         <Link to={`/search/advanced/${filterId}`} className="go-advanced">
-          Go Advanced
+          {!!width && width < 900 ? 'Advanced' : 'Go Advanced'}
         </Link>
       </Row>
     </styled.BasicSearch>
