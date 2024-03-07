@@ -1,3 +1,4 @@
+import { formatDate } from 'features/utils';
 import moment from 'moment';
 import React from 'react';
 import { FaPlayCircle } from 'react-icons/fa';
@@ -59,7 +60,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
         />
         {viewOptions.sentiment && determineToneIcon(item.tonePools[0])}
         {showDate && (
-          <div className="date">{`${moment(item.publishedOn).format('DD-MMM-YYYY')} ${
+          <div className="date">{`${formatDate(item.publishedOn)} ${
             showTime ? `(${moment(item.publishedOn).format('HH:mm')})` : ''
           }`}</div>
         )}

@@ -1,6 +1,6 @@
 import { Bar } from 'components/bar';
 import { Sentiment } from 'components/sentiment';
-import moment from 'moment';
+import { formatDate } from 'features/utils';
 import React from 'react';
 import { useApp } from 'store/hooks';
 import { Col, ContentTypeName, IContentModel, Loading, Show, TextArea, Wysiwyg } from 'tno-core';
@@ -45,7 +45,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       </Show>
       <Bar className="content-bar">
         <Col className="byline">by {content.byline}</Col>
-        <Col className="date">{moment(content.publishedOn).format('DD-MMM-YYYY hh:mm:ssA')}</Col>
+        <Col className="date">{formatDate(content.publishedOn, true)}</Col>
         <Col flex="1"></Col>
         <Col className="source">
           {content.source?.name ?? content.otherSource}

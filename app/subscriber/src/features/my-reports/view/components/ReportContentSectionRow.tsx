@@ -1,7 +1,7 @@
 import { Action } from 'components/action';
 import { Sentiment } from 'components/sentiment';
 import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
-import moment from 'moment';
+import { formatDate } from 'features/utils';
 import React from 'react';
 import { FaGripVertical, FaX } from 'react-icons/fa6';
 import { useApp } from 'store/hooks';
@@ -85,9 +85,7 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
         <Col>
           <Sentiment value={sentiment} />
         </Col>
-        <Col>
-          {row.content.publishedOn ? moment(row.content.publishedOn).format('DD-MMM-YYYY') : ''}
-        </Col>
+        <Col>{row.content.publishedOn ? formatDate(row.content.publishedOn) : ''}</Col>
         <Col flex="1">
           <span className="link" onClick={() => onContentClick?.(row)}>
             {headline}
