@@ -2,7 +2,6 @@ import { Action } from 'components/action';
 import { Button } from 'components/button';
 import { Section } from 'components/section';
 import { formatDate } from 'features/utils';
-import moment from 'moment';
 import React from 'react';
 import {
   FaChartPie,

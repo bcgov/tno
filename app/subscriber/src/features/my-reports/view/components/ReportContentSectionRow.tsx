@@ -2,7 +2,6 @@ import { Action } from 'components/action';
 import { Sentiment } from 'components/sentiment';
 import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { formatDate } from 'features/utils';
-import moment from 'moment';
 import React from 'react';
 import { FaGripVertical, FaX } from 'react-icons/fa6';
 import { useApp } from 'store/hooks';

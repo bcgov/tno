@@ -2,7 +2,6 @@ import { Bar } from 'components/bar';
 import { Sentiment } from 'components/sentiment';
 import { formatDate, showTranscription } from 'features/utils';
 import parse from 'html-react-parser';
-import moment from 'moment';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
