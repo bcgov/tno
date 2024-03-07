@@ -2,7 +2,13 @@ import styled from 'styled-components';
 import { Row } from 'tno-core';
 
 export const HomeFilters = styled(Row)`
-  margin-left: auto;
+  @media (min-width: 768px) {
+    margin-left: auto;
+  }
+  @media (max-width: 768px) {
+    margin-right: auto;
+    margin-top: 1em;
+  }
   font-size: 0.3em;
   align-items: center;
   button {

@@ -11,7 +11,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, IContentModel, Loading, Row, Show } from 'tno-core';
+import { Col, IContentModel, Loading, Row, Show, useWindowSize } from 'tno-core';
 
 import { AdvancedSearch } from './components';
 import * as styled from './styled';
@@ -31,6 +31,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     { findContentWithElasticsearch, storeSearchFilter },
   ] = useContent();
   const [{ frontPageImagesMediaTypeId }] = useLookup();
+  const { width } = useWindowSize();
   const genQuery = useElastic();
   const [, { getFilter }] = useFilters();
   const [{ filter: activeFilter }, { storeFilter }] = useProfileStore();
@@ -109,7 +110,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         </Show>
         {/* RIGHT SIDE */}
         <Col className={showAdvanced ? 'result-container' : 'result-container-full'}>
-          <Show visible={!showAdvanced}>
+          <Show visible={!showAdvanced && !!width && width > 900}>
             <BasicSearch onSearch={() => handleSearch()} />
           </Show>
           <PageSection

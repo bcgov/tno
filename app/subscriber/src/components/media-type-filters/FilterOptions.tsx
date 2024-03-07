@@ -1,6 +1,19 @@
 import React, { useEffect, useState } from 'react';
+import {
+  FaCalendar,
+  FaCanadianMapleLeaf,
+  FaGlobe,
+  FaNewspaper,
+  FaTowerCell,
+} from 'react-icons/fa6';
 import { useContent, useLookup } from 'store/hooks';
-import { Button, ButtonHeight, ContentTypeName, IFilterSettingsModel } from 'tno-core';
+import {
+  Button,
+  ButtonHeight,
+  ContentTypeName,
+  IFilterSettingsModel,
+  useWindowSize,
+} from 'tno-core';
 
 import { defaultFilter, FilterOptionTypes } from './constants';
 import * as styled from './styled';
@@ -32,6 +45,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
     },
     { [filterStoreMethod]: storeFilter },
   ] = useContent();
+  const { width } = useWindowSize();
   const [{ sources, mediaTypes }] = useLookup();
 
   const handleFilterClick = React.useCallback(
@@ -109,11 +123,11 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
   }, [filter, mediaTypes]);
 
   const filters = [
-    { type: FilterOptionTypes.Papers, label: 'PAPERS' },
-    { type: FilterOptionTypes.RadioTV, label: 'RADIO/TV' },
-    { type: FilterOptionTypes.Internet, label: 'INTERNET' },
-    { type: FilterOptionTypes.CPNews, label: 'CP NEWS' },
-    { type: FilterOptionTypes.Events, label: 'EVENTS' },
+    { type: FilterOptionTypes.Papers, label: 'PAPERS', icon: <FaNewspaper /> },
+    { type: FilterOptionTypes.RadioTV, label: 'RADIO/TV', icon: <FaTowerCell /> },
+    { type: FilterOptionTypes.Internet, label: 'INTERNET', icon: <FaGlobe /> },
+    { type: FilterOptionTypes.CPNews, label: 'CP NEWS', icon: <FaCanadianMapleLeaf /> },
+    { type: FilterOptionTypes.Events, label: 'EVENTS', icon: <FaCalendar /> },
     { type: FilterOptionTypes.All, label: 'ALL' },
   ];
 
@@ -127,7 +141,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
           className={getClassName(filter.type)}
           onClick={() => handleFilterClick(filter.type)}
         >
-          {filter.label}
+          {width && width < 768 ? filter.icon ?? 'All' : filter.label}
         </Button>
       ))}
     </styled.HomeFilters>

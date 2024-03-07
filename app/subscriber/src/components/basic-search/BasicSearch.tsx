@@ -13,10 +13,12 @@ export interface IBasicSearchProps {
   onSearch?: (filter: IFilterSettingsModel) => void;
   /** whether to display the header variant of the search */
   inHeader?: boolean;
+  /** whether or not this is the variant that is to be displayed on mobile */
+  mobile?: boolean;
 }
 
 /** Basic search functionality (just search term), and an option to get to the advanced filter */
-export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
+export const BasicSearch = ({ onSearch, inHeader, mobile }: IBasicSearchProps) => {
   const { pathname } = useLocation();
   const { id } = useParams();
   const [
@@ -44,7 +46,7 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
   };
 
   return (
-    <styled.BasicSearch inHeader={inHeader}>
+    <styled.BasicSearch inHeader={inHeader} mobile={mobile}>
       <Row className="search-row">
         <label>Search for: </label>
         <Row className="icon-search">
@@ -59,15 +61,6 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
             }}
           />
         </Row>
-        <Text
-          className="mobile-search-input"
-          onKeyDown={(e) => handleEnterPressed(e, handleSearch)}
-          name="search"
-          value={filter.search ?? ''}
-          onChange={(e) => {
-            storeSearchFilter({ ...filter, search: e.target.value });
-          }}
-        />
         <Button
           onClick={() => {
             handleSearch();
@@ -78,7 +71,7 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
           <FaPlay />
         </Button>
         <Link to={`/search/advanced/${filterId}`} className="go-advanced">
-          Go Advanced
+          {!!mobile ? 'Advanced' : 'Go Advanced'}
         </Link>
       </Row>
     </styled.BasicSearch>

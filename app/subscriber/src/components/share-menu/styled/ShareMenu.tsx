@@ -1,6 +1,12 @@
 import styled from 'styled-components';
 
 export const ShareMenu = styled.div`
+  .share-text {
+    text-transform: uppercase;
+    @media (max-width: 900px) {
+      display: none;
+    }
+  }
   /* share story button */
   .share-story {
     height: 2em;

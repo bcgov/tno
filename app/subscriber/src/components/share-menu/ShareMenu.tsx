@@ -87,7 +87,7 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
     <styled.ShareMenu className="share-sub-menu">
       <Row justifyContent="end" className="action">
         <div className="action" data-tooltip-id="share">
-          <FaEnvelope /> SHARE
+          <FaEnvelope /> <span className="share-text">Share</span>
         </div>
       </Row>
       <Tooltip
