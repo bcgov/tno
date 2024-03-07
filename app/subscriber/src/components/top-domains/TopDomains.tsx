@@ -9,7 +9,7 @@ export const TopDomains: React.FC = () => {
       <PageSection header="Top Domains">
         <iframe
           title="talkwalker-top-domains"
-          src="http://app.talkwalker.com/app/project/855b8383-dc00-429d-8207-6065d90ff277/cached/export_SocialMonitoring_bHIR978Y.html"
+          src="https://app.talkwalker.com/app/project/855b8383-dc00-429d-8207-6065d90ff277/cached/export_SocialMonitoring_bHIR978Y.html"
         ></iframe>
       </PageSection>
     </styled.TopDomains>
