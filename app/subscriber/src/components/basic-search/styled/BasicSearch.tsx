@@ -1,14 +1,12 @@
 import styled from 'styled-components';
 import { Row } from 'tno-core';
 
-export const BasicSearch = styled(Row)<{ inHeader?: boolean; mobile?: boolean }>`
-  ${(props) =>
-    props.mobile &&
-    `
-      border-top: 1px solid ${props.theme.css.linePrimaryColor};
-      padding: 0.25em;
-      border-bottom: 1px solid ${props.theme.css.linePrimaryColor};
-    `}
+export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
+  @media only screen and (max-width: 900px) {
+    border-top: 1px solid ${(props) => props.theme.css.linePrimaryColor};
+    padding: 0.25em;
+    border-bottom: 1px solid ${(props) => props.theme.css.linePrimaryColor};
+  }
   ${(props) =>
     props.inHeader &&
     `
@@ -16,8 +14,8 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean; mobile?: boolean }>
     `}
   ${(props) =>
     !props.inHeader &&
-    !props.mobile &&
     `
+ @media only screen and (min-width: 900px) {
       background: ${props.theme.css.bkSecondary};
       margin: 0.25em;
       border-color: ${props.theme.css.inputGrey};
@@ -27,6 +25,7 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean; mobile?: boolean }>
       border-radius: 1em;
       box-shadow: ${props.theme.css.boxShadow};
       padding: 0.5em;
+ }
   `}
   align-items: center;
 
@@ -40,8 +39,13 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean; mobile?: boolean }>
   }
 
   /** GROUP CONTAINING ICON AND SEARCH INPUT  */
+  @media only screen and (max-width: 900px) {
+    width: '';
+  }
+  @media only screen and (min-width: 900px) {
+    width: 30%;
+  }
   .icon-search {
-    width: ${(props) => (!props.mobile ? '30%' : '')};
     border: 0.5px solid ${(props) => props.theme.css.linePrimaryColor};
     border-radius: 1.5em;
     background-color: ${(props) => props.theme.css.bkWhite};

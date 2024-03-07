@@ -5,7 +5,7 @@ import { FaPlay } from 'react-icons/fa6';
 import { useNavigate } from 'react-router';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { Button, IFilterSettingsModel, Row, Text } from 'tno-core';
+import { Button, IFilterSettingsModel, Row, Text, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -13,13 +13,12 @@ export interface IBasicSearchProps {
   onSearch?: (filter: IFilterSettingsModel) => void;
   /** whether to display the header variant of the search */
   inHeader?: boolean;
-  /** whether or not this is the variant that is to be displayed on mobile */
-  mobile?: boolean;
 }
 
 /** Basic search functionality (just search term), and an option to get to the advanced filter */
-export const BasicSearch = ({ onSearch, inHeader, mobile }: IBasicSearchProps) => {
+export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
   const { pathname } = useLocation();
+  const { width } = useWindowSize();
   const { id } = useParams();
   const [
     {
@@ -46,7 +45,7 @@ export const BasicSearch = ({ onSearch, inHeader, mobile }: IBasicSearchProps) =
   };
 
   return (
-    <styled.BasicSearch inHeader={inHeader} mobile={mobile}>
+    <styled.BasicSearch inHeader={inHeader}>
       <Row className="search-row">
         <label>Search for: </label>
         <Row className="icon-search">
@@ -71,7 +70,7 @@ export const BasicSearch = ({ onSearch, inHeader, mobile }: IBasicSearchProps) =
           <FaPlay />
         </Button>
         <Link to={`/search/advanced/${filterId}`} className="go-advanced">
-          {!!mobile ? 'Advanced' : 'Go Advanced'}
+          {!!width && width < 900 ? 'Advanced' : 'Go Advanced'}
         </Link>
       </Row>
     </styled.BasicSearch>

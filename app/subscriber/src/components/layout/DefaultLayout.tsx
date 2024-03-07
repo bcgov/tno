@@ -77,7 +77,7 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
               <Navbar options={navbarOptions} />
             </div>
             <div className="search-bar">
-              <BasicSearch mobile />
+              <BasicSearch />
             </div>
             <Header showLogo showProfile />
             <LayoutErrorBoundary>
