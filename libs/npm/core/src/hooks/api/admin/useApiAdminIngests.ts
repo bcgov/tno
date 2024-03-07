@@ -42,6 +42,11 @@ export const useApiAdminIngests = (
         `/admin/ingests/${ingestId}/enabled?newStatus=${isEnabled}`,
       );
     },
+    resetIngestFailures: (ingestId: number) => {
+      return api.put<IIngestModel, AxiosResponse<IIngestModel>, any>(
+        `/admin/ingests/${ingestId}/resetfailures`,
+      );
+    },
     deleteIngest: (model: IIngestModel) => {
       return api.delete<IIngestModel, AxiosResponse<IIngestModel>, any>(
         `/admin/ingests/${model.id}`,
