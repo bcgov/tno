@@ -1,6 +1,7 @@
 import { Action } from 'components/action';
 import { Button } from 'components/button';
 import { Section } from 'components/section';
+import { formatDate } from 'features/utils';
 import moment from 'moment';
 import React from 'react';
 import {
@@ -101,7 +102,7 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => 
             {report.instances.length ? (
               <Row gap="1rem" alignItems="center">
                 <span className="fs1">
-                  {moment(report.instances[0].publishedOn).format('DD-MMM-YYYY h:mm:ss a')}
+                  {formatDate(report.instances[0].publishedOn ?? '', true)}
                 </span>
                 <Action
                   label={'VIEW'}

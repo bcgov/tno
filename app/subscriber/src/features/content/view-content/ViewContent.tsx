@@ -1,6 +1,6 @@
 import { Bar } from 'components/bar';
 import { Sentiment } from 'components/sentiment';
-import { showTranscription } from 'features/utils';
+import { formatDate, showTranscription } from 'features/utils';
 import parse from 'html-react-parser';
 import moment from 'moment';
 import React from 'react';
@@ -177,7 +177,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
           <div className="byline">{`BY ${content?.byline}`}</div>
         </Show>
         <div className="published-on">
-          {content?.publishedOn && moment(content.publishedOn).format('DD-MMM-YYYY HH:mm:ss')}
+          {content?.publishedOn && formatDate(content.publishedOn, true)}
         </div>
         <Row className="right-side">
           <div className="source-name">{content?.source?.name}</div>

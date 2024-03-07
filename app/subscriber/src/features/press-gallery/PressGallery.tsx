@@ -1,7 +1,7 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { ContentList } from 'components/content-list';
 import { ContentListActionBar } from 'components/tool-bar';
-import { castToSearchResult, createFilterSettings } from 'features/utils';
+import { castToSearchResult, createFilterSettings, formatDate } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
@@ -73,7 +73,7 @@ export const PressGallery: React.FC = () => {
   React.useEffect(() => {
     if (!!content.length) {
       const grouped = content.reduce((acc: any, content) => {
-        const date = moment(content.publishedOn).format('YYYY-MM-DD');
+        const date = formatDate(content.publishedOn);
         if (!acc[date]) {
           acc[date] = [];
         }

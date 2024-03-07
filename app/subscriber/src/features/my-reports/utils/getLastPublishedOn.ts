@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { formatDate } from 'features/utils';
 import { IReportModel } from 'tno-core';
 
 /**
@@ -8,5 +8,5 @@ import { IReportModel } from 'tno-core';
  */
 export const getLastPublishedOn = (report: IReportModel) => {
   const publishedOn = report.instances.find((i) => i.publishedOn !== undefined)?.publishedOn;
-  return !!publishedOn ? moment(publishedOn).format('yyyy-MM-DD hh:mm:ssA') : '';
+  return !!publishedOn ? formatDate(publishedOn, true) : '';
 };

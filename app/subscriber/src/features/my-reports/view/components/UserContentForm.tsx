@@ -1,6 +1,7 @@
 import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { IContentValidationErrors } from 'features/my-reports/interfaces/IContentValidationErrors';
 import { getTime } from 'features/my-reports/utils';
+import { formatDate } from 'features/utils';
 import moment from 'moment';
 import React from 'react';
 import { useLookup } from 'store/hooks';
@@ -117,7 +118,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
             selectedDate={
               !!content.publishedOn ? moment(content.publishedOn).toString() : undefined
             }
-            value={!!content.publishedOn ? moment(content.publishedOn).format('MMM D, yyyy') : ''}
+            value={!!content.publishedOn ? formatDate(content.publishedOn) : ''}
             onChange={(date) => {
               onContentChange?.({
                 ...values,
