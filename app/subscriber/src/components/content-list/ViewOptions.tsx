@@ -36,11 +36,15 @@ export const ViewOptions: React.FC = () => {
     if (userInfo?.preferences?.groupBy) {
       setGroupBy(userInfo.preferences.groupBy);
     }
+    // only want to run when we have the user's info to init
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo]);
 
   /** Save the user's preferences when they change */
   React.useEffect(() => {
     savePreferences();
+    // only want to run when the viewOptions or groupBy change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewOptions, groupBy]);
 
   return (
