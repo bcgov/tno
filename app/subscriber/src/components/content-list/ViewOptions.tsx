@@ -1,13 +1,48 @@
 import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
 import { FaGear } from 'react-icons/fa6';
-import { Checkbox, Col, Radio, Row } from 'tno-core';
+import { useUsers } from 'store/hooks';
+import { useAppStore } from 'store/slices';
+import { Checkbox, Col, IUserModel, Radio, Row } from 'tno-core';
 
 import { ContentListContext } from './ContentListContext';
 import * as styled from './styled';
 
 export const ViewOptions: React.FC = () => {
   const { viewOptions, setGroupBy, setViewOptions, groupBy } = React.useContext(ContentListContext);
+  const [{ userInfo }, store] = useAppStore();
+  const api = useUsers();
+
+  /** Save the user's preferences for view/grouping options under preferences */
+  const savePreferences = async () => {
+    if (userInfo) {
+      const user = {
+        ...userInfo,
+        preferences: { ...userInfo.preferences, viewOptions, groupBy },
+        isSystemAccount: false,
+        emailVerified: false,
+        uniqueLogins: 0,
+      } as IUserModel;
+      await api.updateUser(user, userInfo.id);
+      store.storeUserInfo({ ...userInfo, preferences: user.preferences });
+    }
+  };
+
+  /** Set the current state to match the saved preferences if they exist */
+  React.useEffect(() => {
+    if (userInfo?.preferences?.viewOptions) {
+      setViewOptions(userInfo.preferences.viewOptions);
+    }
+    if (userInfo?.preferences?.groupBy) {
+      setGroupBy(userInfo.preferences.groupBy);
+    }
+  }, [userInfo]);
+
+  /** Save the user's preferences when they change */
+  React.useEffect(() => {
+    savePreferences();
+  }, [viewOptions, groupBy]);
+
   return (
     <styled.ViewOptions className="view-options">
       <FaGear className="gear" data-tooltip-id="view-options" />
