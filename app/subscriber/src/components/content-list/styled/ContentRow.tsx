@@ -83,6 +83,10 @@ export const ContentRow = styled(Col)`
     font-family: ${(props) => props.theme.css.fPrimary};
   }
 
+  .source {
+    margin-right: 0.5rem;
+  }
+
   .page-number {
     margin-left: 0.25rem;
   }
