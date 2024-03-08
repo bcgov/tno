@@ -322,7 +322,7 @@ public class ContentModel : AuditColumnsModel
 
         if (!String.IsNullOrWhiteSpace(model.OtherSeries))
         {
-            entity.Series = new Entities.Series(model.OtherSeries, model.SourceId);
+            entity.Series = new Entities.Series(model.OtherSeries, true, model.SourceId);
         }
 
         entity.ActionsManyToMany.AddRange(model.Actions.Select(a => a.ToEntity(entity.Id)));
