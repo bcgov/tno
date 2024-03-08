@@ -231,6 +231,10 @@ export const ReportEdit = styled.div`
       padding: 0.5rem 0.5rem 0 0.5rem;
       margin: 0;
     }
+    input,
+    textarea {
+      border: solid 1px ${(props) => props.theme.css.linePrimaryColor};
+    }
     padding-bottom: 0.5rem;
   }
 
