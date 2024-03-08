@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Core.Exceptions;
@@ -120,6 +121,14 @@ public class SourceService : BaseService<Source, int>, ISourceService
     public override Source AddAndSave(Source entity)
     {
         entity.AddToContext(this.Context);
+        entity.MediaTypeSearchMappingsManyToMany?.ForEach(m =>
+            {
+                m.MediaType = this.Context.MediaTypes.FirstOrDefault(x => x.Id == m.MediaTypeId);
+                if (m.MediaType != null)
+                {
+                    this.Context.Add(m);
+                }
+            });
         base.AddAndSave(entity);
         return entity;
     }
@@ -144,6 +153,20 @@ public class SourceService : BaseService<Source, int>, ISourceService
     public Source UpdateAndSave(Source entity, bool updateChildren = false)
     {
         var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
+        var originalMedias = original.MediaTypeSearchMappingsManyToMany.ToArray();
+        originalMedias.Except(entity.MediaTypeSearchMappingsManyToMany).ForEach(s =>
+            {
+                this.Context.Remove(s);
+            });
+        entity.MediaTypeSearchMappingsManyToMany.ForEach(a =>
+            {
+                var originalMedia = originalMedias.FirstOrDefault(rs => rs.MediaTypeId == a.MediaTypeId);
+                if (originalMedia == null)
+                {
+                    a.MediaType = this.Context.MediaTypes.FirstOrDefault(x => x.Id == a.MediaTypeId);
+                    original.MediaTypeSearchMappingsManyToMany.Add(a);
+                }
+            });
         this.Context.UpdateContext(original, entity, updateChildren);
         return base.UpdateAndSave(original);
     }
