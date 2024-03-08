@@ -41,6 +41,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
     activeFileReference,
     setActiveFileReference,
     activeStream,
+    groupBy,
   } = React.useContext(ContentListContext);
 
   return (
@@ -67,6 +68,9 @@ export const ContentRow: React.FC<IContentRowProps> = ({
         <Link to={`/view/${item.id}`} className="headline">
           {item.headline}
         </Link>
+        <Show visible={groupBy === 'time'}>
+          {item.source && <div className="source">{item.source.name}</div>}
+        </Show>
         <Show visible={viewOptions.section}>
           {item.section && <div className="section">{item.section}</div>}
           {item.page && <div className="page-number">{item.page}</div>}
