@@ -120,6 +120,14 @@ public class SourceService : BaseService<Source, int>, ISourceService
     public override Source AddAndSave(Source entity)
     {
         entity.AddToContext(this.Context);
+        entity.MediaTypeSearchMappingsManyToMany?.ForEach(m =>
+            {
+                m.MediaType = this.Context.MediaTypes.FirstOrDefault(x => x.Id == m.MediaTypeId);
+                if (m.MediaType != null)
+                {
+                    this.Context.Add(m);
+                }
+            });
         base.AddAndSave(entity);
         return entity;
     }
@@ -145,6 +153,13 @@ public class SourceService : BaseService<Source, int>, ISourceService
     {
         var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
         this.Context.UpdateContext(original, entity, updateChildren);
+        original.MediaTypeSearchMappingsManyToMany.Clear();
+        entity.MediaTypeSearchMappingsManyToMany.ForEach(a =>
+            {
+                a.MediaType = this.Context.MediaTypes.FirstOrDefault(x => x.Id == a.MediaTypeId);
+                original.MediaTypeSearchMappingsManyToMany.Add(a);
+
+            });
         return base.UpdateAndSave(original);
     }
     #endregion
