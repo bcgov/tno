@@ -153,7 +153,6 @@ public class SourceService : BaseService<Source, int>, ISourceService
     public Source UpdateAndSave(Source entity, bool updateChildren = false)
     {
         var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
-        this.Context.UpdateContext(original, entity, updateChildren);
         var originalMedias = original.MediaTypeSearchMappingsManyToMany.ToArray();
         originalMedias.Except(entity.MediaTypeSearchMappingsManyToMany).ForEach(s =>
             {
@@ -168,6 +167,7 @@ public class SourceService : BaseService<Source, int>, ISourceService
                     original.MediaTypeSearchMappingsManyToMany.Add(a);
                 }
             });
+        this.Context.UpdateContext(original, entity, updateChildren);
         return base.UpdateAndSave(original);
     }
     #endregion
