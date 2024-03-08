@@ -23,25 +23,31 @@ export const Tags: React.FC<ITagsProps> = ({ defaultTags }) => {
 
   const [showList, setShowList] = React.useState(false);
   const [tagOptions, setTagOptions] = React.useState(
-    tags.map((tag) => {
-      return {
-        label: tag.code,
-        value: tag.id,
-        isDisabled: !tag.isEnabled,
-      } as IOptionItem;
-    }),
-  );
-
-  React.useEffect(() => {
-    setTagOptions(
-      tags.map((tag) => {
+    tags
+      .filter((tag) => tag.isEnabled || values.tags.some((t) => t.id === tag.id))
+      .map((tag) => {
         return {
           label: tag.code,
           value: tag.id,
           isDisabled: !tag.isEnabled,
         } as IOptionItem;
       }),
+  );
+
+  React.useEffect(() => {
+    setTagOptions(
+      tags
+        .filter((tag) => tag.isEnabled || values.tags.some((t) => t.id === tag.id))
+        .map((tag) => {
+          return {
+            label: tag.code,
+            value: tag.id,
+            isDisabled: !tag.isEnabled,
+          } as IOptionItem;
+        }),
     );
+    // Only update options if the tags list is updated.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tags]);
 
   /** ensure table is in view depending on where user has scrolled to. */
