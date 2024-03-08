@@ -20,9 +20,11 @@ export const ContributorSection: React.FC<IFilterDisplayProps> = ({ displayFilte
   const filter = search.filter;
   const contributorOptions = useMemo(
     () =>
-      contributors.map((c) => {
-        return { value: c.id, label: c.name };
-      }),
+      contributors
+        .filter((c) => c.isEnabled)
+        .map((c) => {
+          return { value: c.id, label: c.name };
+        }),
     [contributors],
   );
   return (
