@@ -1,6 +1,8 @@
 using System.Security.Claims;
+using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TNO.Core.Exceptions;
 using TNO.DAL.Extensions;
 using TNO.Entities;
 using TNO.Entities.Models;
@@ -36,6 +38,7 @@ public class SeriesService : BaseService<Series, int>, ISeriesService
         return this.Context.Series
             .AsNoTracking()
             .Include(s => s.Source)
+            .Include(s => s.MediaTypeSearchMappingsManyToMany).ThenInclude(cc => cc.MediaType)
             .OrderBy(s => s.SortOrder).ThenBy(s => s.Name).ToArray();
     }
 
@@ -83,7 +86,53 @@ public class SeriesService : BaseService<Series, int>, ISeriesService
     {
         return this.Context.Series
             .Include(s => s.Source)
+            .Include(s => s.MediaTypeSearchMappingsManyToMany).ThenInclude(cc => cc.MediaType)
             .FirstOrDefault(s => s.Id == id);
+    }
+
+    /// <summary>
+    /// Add the specified data source to the database.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    public override Series AddAndSave(Series entity)
+    {
+        entity.MediaTypeSearchMappingsManyToMany?.ForEach(m =>
+            {
+                m.MediaType = this.Context.MediaTypes.FirstOrDefault(x => x.Id == m.MediaTypeId);
+                if (m.MediaType != null)
+                {
+                    this.Context.Add(m);
+                }
+            });
+        base.AddAndSave(entity);
+        return entity;
+    }
+
+    /// <summary>
+    /// Update the specified data Series in the database.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    public override Series UpdateAndSave(Series entity)
+    {
+        var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
+        var originalMedias = original.MediaTypeSearchMappingsManyToMany.ToArray();
+        originalMedias.Except(entity.MediaTypeSearchMappingsManyToMany).ForEach(s =>
+            {
+                this.Context.Remove(s);
+            });
+        entity.MediaTypeSearchMappingsManyToMany.ForEach(a =>
+            {
+                var originalMedia = originalMedias.FirstOrDefault(rs => rs.MediaTypeId == a.MediaTypeId);
+                if (originalMedia == null)
+                {
+                    a.MediaType = this.Context.MediaTypes.FirstOrDefault(x => x.Id == a.MediaTypeId);
+                    original.MediaTypeSearchMappingsManyToMany.Add(a);
+                }
+            });
+        return base.UpdateAndSave(original);
     }
 
     public Series? Merge(int intoId, int fromId)

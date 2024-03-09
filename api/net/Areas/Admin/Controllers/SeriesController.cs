@@ -120,7 +120,8 @@ public class SeriesController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Series" })]
     public IActionResult Update(SeriesModel model)
     {
-        var result = _service.UpdateAndSave((Series)model);
+        var entity = (Series)model;
+        var result = _service.UpdateAndSave(entity);
         result = _service.FindById(result.Id) ?? throw new NoContentException();
         return new JsonResult(new SeriesModel(result));
     }
