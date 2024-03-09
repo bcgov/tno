@@ -29,6 +29,6 @@ export const useExtractTags = ({ setParsedTags }: IExtractTagsProps) => {
         }
       });
     });
-    setParsedTags(Array.from(new Set(parsedTags)));
+    setParsedTags((tags) => Array.from(new Set(parsedTags)));
   };
 };
