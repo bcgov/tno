@@ -58,7 +58,6 @@ export const ReportForm = styled(FormPage)`
   }
 
   .preview-report {
-    height: 100%;
     border: solid 2px ${(props) => props.theme.css.primaryColor};
     border-radius: 0.5rem;
     display: flex;
@@ -74,8 +73,6 @@ export const ReportForm = styled(FormPage)`
 
     .preview-body {
       padding: 1rem;
-      max-height: calc(100vh - 600px);
-      overflow-y: auto;
     }
   }
 
