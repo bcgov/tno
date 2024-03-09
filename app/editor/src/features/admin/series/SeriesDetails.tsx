@@ -16,6 +16,7 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
+  getSortableOptions,
   getSourceOptions,
   IOptionItem,
   Modal,
@@ -37,6 +38,7 @@ const SeriesDetails: React.FC = () => {
   const { state } = useLocation();
   const { toggle, isShowing } = useModal();
   const [{ sources }] = useLookup();
+  const [lookups] = useLookup();
   const navigate = useNavigate();
 
   const [sourceOptions, setSourceOptions] = React.useState<IOptionItem[]>([]);
@@ -45,6 +47,7 @@ const SeriesDetails: React.FC = () => {
   );
 
   const targetSeriesId = Number(id);
+  const mediaTypesForSearchMapping = getSortableOptions(lookups.mediaTypes);
 
   React.useEffect(() => {
     if (!!targetSeriesId && targetSeries?.id !== targetSeriesId) {
@@ -62,9 +65,8 @@ const SeriesDetails: React.FC = () => {
   const handleSubmit = async (values: ISeriesForm) => {
     try {
       const originalId = values.id;
-      const result = !targetSeries.id
-        ? await api.addSeries(toModel(values))
-        : await api.updateSeries(toModel(values));
+      const model = toModel(values);
+      const result = !targetSeries.id ? await api.addSeries(model) : await api.updateSeries(model);
       setTargetSeries(result);
       toast.success(`${result.name} has successfully been saved.`);
       if (!originalId) navigate(`/admin/programs/${result.id}`);
@@ -96,6 +98,25 @@ const SeriesDetails: React.FC = () => {
                 clearValue=""
               />
               <FormikTextArea name="description" label="Description" width={FieldSize.Large} />
+              <FormikSelect
+                label="Media Type Search Group"
+                isMulti
+                name="mediaTypeSearchMappings"
+                tooltip="Select the Media Types that this Source will show up under the Advanced search UI."
+                options={mediaTypesForSearchMapping}
+                value={
+                  values.mediaTypeSearchMappings?.map((mt) =>
+                    mediaTypesForSearchMapping.find((o) => o.value === mt.id),
+                  ) ?? []
+                }
+                onChange={(newValue) => {
+                  const options = newValue as IOptionItem[];
+                  setFieldValue(
+                    'mediaTypeSearchMappings',
+                    lookups.mediaTypes.filter((mt) => options.some((o) => o.value === mt.id)),
+                  );
+                }}
+              />
               <FormikText
                 width={FieldSize.Tiny}
                 name="sortOrder"

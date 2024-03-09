@@ -24,6 +24,16 @@ public class SeriesModel : AuditColumnsModel
     public SourceModel? Source { get; set; }
 
     /// <summary>
+    /// get/set -
+    /// </summary>
+    public int? MediaTypeId { get; set; }
+
+    /// <summary>
+    /// get/set - Collection of media types used in search mapping, the many-to-many relationship.
+    /// </summary>
+    public IEnumerable<MediaTypeModel> MediaTypeSearchMappings { get; set; } = Array.Empty<MediaTypeModel>();
+
+    /// <summary>
     /// get/set - The unique name of the model.
     /// </summary>
     public string Name { get; set; } = "";
@@ -82,6 +92,7 @@ public class SeriesModel : AuditColumnsModel
         this.AutoTranscribe = entity.AutoTranscribe;
         this.UseInTopics = entity.UseInTopics;
         this.IsOther = entity.IsOther;
+        this.MediaTypeSearchMappings = entity.MediaTypeSearchMappingsManyToMany.Select(m => new MediaTypeModel(m.MediaType!));
     }
     #endregion
 
@@ -103,6 +114,7 @@ public class SeriesModel : AuditColumnsModel
             IsOther = model.IsOther,
             Version = model.Version ?? 0,
         };
+        entity.MediaTypeSearchMappingsManyToMany.AddRange(model.MediaTypeSearchMappings.Select(s => new Entities.SeriesMediaTypeSearchMapping(model.Id, s.Id)));
         return entity;
     }
     #endregion
