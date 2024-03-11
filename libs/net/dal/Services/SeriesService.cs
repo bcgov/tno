@@ -132,6 +132,8 @@ public class SeriesService : BaseService<Series, int>, ISeriesService
                     original.MediaTypeSearchMappingsManyToMany.Add(a);
                 }
             });
+        this.Context.Entry(original).CurrentValues.SetValues(entity);
+        this.Context.ResetVersion(original);
         return base.UpdateAndSave(original);
     }
 
