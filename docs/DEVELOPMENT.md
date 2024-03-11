@@ -49,14 +49,20 @@ In addition, it will also install all the associated plugins for VS Code.
 If you would like to be able to build the solution locally or run the various components locally (not with Docker), you will need to install the following dependencies.
 This can be helpful if your computer's performance is unable to support development within docker containers.
 
-| Dependency                                                                                                                                           |  Version | Description                                                |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------- | -------: | ---------------------------------------------------------- |
-| [Node](https://nodejs.org/en/download/)                                                                                                              | v16.10.0 |                                                            |
-| [nvm](https://github.com/coreybutler/nvm-windows#node-version-manager-nvm-for-windows)                                                               |          | Required if you need to support different versions of node |
-| [npm](https://docs.npmjs.com/cli/v7/configuring-npm/install)                                                                                         |   7.24.0 |                                                            |
-| [yarn](https://classic.yarnpkg.com/en/docs/install/#windows-stable)                                                                                  |  v1.22.5 |                                                            |
-| [jdk](https://docs.oracle.com/en/java/javase/11/install/installation-jdk-microsoft-windows-platforms.html#GUID-A7E27B90-A28D-4237-9383-A58B416071CA) |   17.0.2 |                                                            |
-| [maven](http://maven.apache.org/install.html)                                                                                                        |    3.8.2 |                                                            |
+| Dependency                                                                             |  Version | Description                                                |
+| -------------------------------------------------------------------------------------- | -------: | ---------------------------------------------------------- |
+| [Node](https://nodejs.org/en/download/)                                                | v18.19.0 |                                                            |
+| [nvm](https://github.com/coreybutler/nvm-windows#node-version-manager-nvm-for-windows) |          | Required if you need to support different versions of node |
+| [npm](https://docs.npmjs.com/cli/v7/configuring-npm/install)                           |   10.2.3 |                                                            |
+| [yarn](https://classic.yarnpkg.com/en/docs/install/#windows-stable)                    |    3.2.5 |                                                            |
+
+To install the correct version of yarn.
+
+```bash
+cd ./app/editor
+nvm use 18.19.0
+npm install --global yarn
+```
 
 ## Standup Local Environment
 
@@ -77,46 +83,89 @@ make
 The following containers are hosted in the TNO solution.
 The exposed container ports is configurable, but the defaults are identified below.
 
-| Container       |                Port | Description                                                                                   |
-| --------------- | ------------------: | --------------------------------------------------------------------------------------------- |
-| nginx           |        40080, 40081 | Provides a reverse proxy network configuration enable a single entry point to the application |
-| keycloak        |               40001 | Provides authentication and account management services                                       |
-| database        |               40000 | Provides PostgreSQL relational database for the API                                           |
-| elastic         |               40003 | Provides NoSQL Elasticsearch database for the API                                             |
-| azure-storage   | 40006, 40007, 40008 | Azurite local Azure Storage for development                                                   |
-| api             |               40010 | Provides the RESTful API which gives secure access to data                                    |
-| editor          |               40082 | Web application for Editors                                                                   |
-| subscriber      |               40083 | Web application for Subscribers                                                               |
-| zookeeper       |               40100 | Kafka Zookeeper to manage cluster                                                             |
-| broker          |        40101, 40102 | Kafka server and REST API v3                                                                  |
-| schema-registry |               40103 | Kafka schema registry services                                                                |
-| rest-proxy      |               40104 | Kafka REST API                                                                                |
-| connect         |               40105 | Kafka connect Control Center with Schema Registry                                             |
-| ksqldb-server   |               40106 | Kafka streaming services                                                                      |
+| Container  |         Port | Description                                                                                   |
+| ---------- | -----------: | --------------------------------------------------------------------------------------------- |
+| nginx      | 40080, 40081 | Provides a reverse proxy network configuration enable a single entry point to the application |
+| keycloak   |        40001 | Provides authentication and account management services                                       |
+| database   |        40000 | Provides PostgreSQL relational database for the API                                           |
+| elastic    |        40003 | Provides NoSQL Elasticsearch database for the API                                             |
+| api        |        40010 | Provides the RESTful API which gives secure access to data                                    |
+| editor     |        40082 | Web application for Editors                                                                   |
+| subscriber |        40083 | Web application for Subscribers                                                               |
+| zookeeper  |        40100 | Kafka Zookeeper to manage cluster                                                             |
+| broker     | 40101, 40102 | Kafka server and REST API v3                                                                  |
+| rest-proxy |        40104 | Kafka REST API                                                                                |
 
 The first time you do this takes a little longer as each container needs to be built and initialized.
 After the docker containers are ready it becomes much quicker.
 Additionally, there are a number of configuration settings (usernames, passwords, keys, etc) that are created the first time you execute this script.
 
 Many laptops cannot handle running all containers running at one time, so you may want to use the other `make p=$profile` commands specifically to only start what you need.
+Make sure you wait for each command to complete successfully.
+Laptops with low memory will need at least 8GB assigned to Docker Desktop.
 
 ```bash
 # Configure your local environment.
-# Start all of the containers that require initialization.
-# Initialize the PostgreSQL database.
-# Initialize the Kafka cluster topics.
-# Initialize the Elasticsearch indexes.
-make init
+make setup
+
+# Run the PostgreSQL database.
+make up n=database
+
+# Run Keycloak
+make up n=keycloak
+
+# After keycloak starts go to http://localhost:40001 and login to confirm it has successfully initialized.
+# There should be a tno realm.  You can review the predefined user accounts.
+
+# Copy the tno-service-account credentials secret and paste it into the following configuration file.
+# Keycloak__Secret={GET KEYCLOAK SERVICE ACCOUNT}
+cd ./tools/css-api/.env
+# Auth__Keycloak__Secret={GET KEYCLOAK SERVICE ACCOUNT}
+cd ./services/net/indexing/.env
+
+# Setup the database
+make db-update
+
+# Run Kafka.
+make up n=broker
+
+# Setup Kafka topics
+make kafka-update
+
+# Run Elasticsearch.
+make up n=elastic
+
+# Setup the Elastic indexes
+make elastic-update
+
+# Run Common Single Sign-on API
+
+make up n=css
+
+# Run the API
+make up n=api
+
+# Run Indexing service
+make up n=indexing
+
+# Run the Editor application
+make up n=editor
+
+# Run the Subscriber application
+make up n=subscriber
+
+# Run nginx
+make up n=nginx
+# After the editor application starts go to http://localhost:40080 and login with a predefined keycloak user account.
+# After the subscriber application start go to http:/localhost:40081 and login with a predefined keycloak user account.
 ```
 
 If you choose to only run what you need for specific types of feature development/testing you can use the following commands.
 Or if you choose to run everything use the `make up` command.
 
 ```bash
-# Start up containers for the web applications.
-make up p=editor
-# Start up containers for Kafka.
-make up p=kafka
+# Once the main services are all running you can in the future simply use the following command.
+make up p=main
 ```
 
 You can now view the application in your browser.

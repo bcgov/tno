@@ -43,14 +43,6 @@ setup: ## Setup local environment for development, generate configuration files.
 	@mkdir -p ./app/editor/node_modules
 	@mkdir -p ./app/subscriber/node_modules
 
-init: ## Initialize your local environment and start the core solution.
-	$(info Initialize your local environment and start the core solution)
-	@make setup
-	@make up p=init
-	@make db-update
-	@make elastic-update
-	@make kafka-update
-
 nuke: ## Stop all containers, delete all containers, volumes, and configuration
 	$(info Stop all containers, delete all containers, volumes, and configuration)
 	@make down
