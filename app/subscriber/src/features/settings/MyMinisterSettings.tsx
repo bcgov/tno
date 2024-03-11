@@ -2,7 +2,7 @@ import React from 'react';
 import { toast } from 'react-toastify';
 import { useApp, useLookup, useUsers } from 'store/hooks';
 import { useAppStore } from 'store/slices';
-import { Button, Checkbox, IUserInfoModel, IUserModel, Row } from 'tno-core';
+import { Button, Checkbox, ISubscriberUserModel, IUserInfoModel, IUserModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -22,10 +22,7 @@ export const MyMinisterSettings: React.FC = () => {
       var user = {
         ...userInfo,
         preferences: { ...userInfo.preferences, myMinisters: values },
-        isSystemAccount: false,
-        emailVerified: false,
-        uniqueLogins: 0,
-      } as IUserModel;
+      } as ISubscriberUserModel;
       user = await api.updateUser(user, userInfo.id);
       toast.success(`Your minister(s) have successfully been updated.`);
       store.storeUserInfo({ ...userInfo, preferences: user.preferences });

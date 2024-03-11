@@ -5,12 +5,12 @@ import {
   IFolderModel,
   IMinisterModel,
   IReportModel,
+  ISubscriberUserModel,
   ISystemMessageModel,
-  IUserModel,
 } from 'tno-core';
 
 export interface IProfileState {
-  profile?: IUserModel;
+  profile?: ISubscriberUserModel;
   filter?: IFilterModel;
   myFilters: IFilterModel[];
   myFolders: IFolderModel[];

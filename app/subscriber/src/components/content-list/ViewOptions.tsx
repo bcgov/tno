@@ -3,7 +3,7 @@ import React from 'react';
 import { FaGear } from 'react-icons/fa6';
 import { useUsers } from 'store/hooks';
 import { useAppStore } from 'store/slices';
-import { Checkbox, Col, IUserModel, Radio, Row } from 'tno-core';
+import { Checkbox, Col, ISubscriberUserModel, Radio, Row } from 'tno-core';
 
 import { ContentListContext } from './ContentListContext';
 import * as styled from './styled';
@@ -19,10 +19,7 @@ export const ViewOptions: React.FC = () => {
       const user = {
         ...userInfo,
         preferences: { ...userInfo.preferences, viewOptions, groupBy },
-        isSystemAccount: false,
-        emailVerified: false,
-        uniqueLogins: 0,
-      } as IUserModel;
+      } as ISubscriberUserModel;
       await api.updateUser(user, userInfo.id);
       store.storeUserInfo({ ...userInfo, preferences: user.preferences });
     }
