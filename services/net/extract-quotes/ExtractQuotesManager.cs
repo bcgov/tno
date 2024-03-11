@@ -6,11 +6,15 @@ using Microsoft.Extensions.Options;
 using TNO.Ches;
 using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
-using TNO.Core.Extensions;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Managers;
 using TNO.Services.ExtractQuotes.Config;
+using TNO.Services.NLP.ExtractQuotes;
+using TNO.API.Areas.Services.Models.Minister;
+using TNO.Services.ExtractQuotes.CoreNLP.models;
+using System.Text;
+using HtmlAgilityPack;
 
 namespace TNO.Services.ExtractQuotes;
 
@@ -33,6 +37,11 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     /// get - Kafka Consumer.
     /// </summary>
     protected IKafkaListener<string, IndexRequestModel> Listener { get; }
+
+    /// <summary>
+    /// get - Core NLP Service wrapper.
+    /// </summary>
+    protected ICoreNLPService CoreNLPService { get; private set; }
     #endregion
 
     #region Constructors
@@ -43,6 +52,7 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     /// <param name="api"></param>
     /// <param name="user"></param>
     /// <param name="reportEngine"></param>
+    /// <param name="coreNLPService"></param>
     /// <param name="chesService"></param>
     /// <param name="chesOptions"></param>
     /// <param name="serializationOptions"></param>
@@ -52,6 +62,7 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         IKafkaListener<string, IndexRequestModel> listener,
         IApiService api,
         ClaimsPrincipal user,
+        ICoreNLPService coreNLPService,
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
@@ -65,6 +76,8 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         this.Listener.IsLongRunningJob = true;
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
+
+        this.CoreNLPService = coreNLPService;
     }
     #endregion
 
@@ -255,10 +268,44 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         {
             // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
             var content = await this.Api.FindContentByIdAsync(result.Message.Value.ContentId);
+            var ministers = await this.Api.GetMinistersAsync();
             if (content != null)
             {
                 // Update the unpublished content with the latest data and status.
-                await ExtractQuotesAsync(content);
+
+                var text = new StringBuilder();
+                // Only use Summary if Body is empty
+                if (String.IsNullOrWhiteSpace(content.Body) && !String.IsNullOrWhiteSpace(content.Summary)) {
+                    var html = new HtmlDocument();
+                    html.LoadHtml(content.Summary);
+                    foreach (HtmlNode node in html.DocumentNode.SelectNodes("//text()"))
+                    {
+                        text.AppendLine(node.InnerText);
+                    }
+                }
+
+                if (!String.IsNullOrWhiteSpace(content.Body)) {
+                    var html = new HtmlDocument();
+                    html.LoadHtml(content.Body);
+                    foreach (HtmlNode node in html.DocumentNode.SelectNodes("//text()"))
+                    {
+                        text.AppendLine(node.InnerText);
+                    }
+                }
+
+                var annotations = await CoreNLPService.PerformAnnotation(text.ToString());
+                if (annotations != null && annotations.Quotes.Any()) {
+                    var speakersAndQuotes = ExtractSpeakersAndQuotes(ministers, annotations);
+
+                    List<API.Areas.Services.Models.Content.QuoteModel> quotesToAdd = new List<API.Areas.Services.Models.Content.QuoteModel>();
+                    foreach(var speaker in speakersAndQuotes.Keys) {
+                        foreach(var quote in speakersAndQuotes[speaker]) {
+                            quotesToAdd.Add(new API.Areas.Services.Models.Content.QuoteModel() {Id = 0, ContentId = content.Id, Byline = speaker, Statement = quote});
+                        }
+                    }
+                    content = await this.Api.AddQuotesToContentAsync(content.Id, quotesToAdd);
+                }
+
             }
             else
             {
@@ -268,19 +315,37 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         this.Logger.LogDebug($"ProcessIndexRequestAsync:END:{result.Message.Key}");
     }
 
-    /// <summary>
-    /// Extract quotes from content.
-    /// </summary>
-    /// <param name="content"></param>
-    /// <returns></returns>
-    private async Task ExtractQuotesAsync(API.Areas.Services.Models.Content.ContentModel content)
+    // /// <summary>
+    // /// Extract quotes from content.
+    // /// </summary>
+    // /// <param name="content"></param>
+    // /// <returns></returns>
+    // private async Task ExtractQuotesAsync(API.Areas.Services.Models.Content.ContentModel content)
+    // {
+    //     this.Logger.LogDebug($"ExtractQuotesAsync:BEGIN:{content.Id}");
+
+    //     // do magic stuff here to extract quotes
+    //     // return a reponse as to whether any quotes were extracted or whether the process failed...?
+
+    //     this.Logger.LogDebug($"ExtractQuotesAsync:END:{content.Id}");
+    // }
+    
+    private Dictionary<string, List<string>> ExtractSpeakersAndQuotes(IEnumerable<MinisterModel> ministers, AnnotationResponse annotations)
     {
-        this.Logger.LogDebug($"ExtractQuotesAsync:BEGIN:{content.Id}");
+        Dictionary<string, List<string>> speakersAndQuotes = new Dictionary<string, List<string>>();
 
-        // do magic stuff here to extract quotes
-        // return a reponse as to whether any quotes were extracted or whether the process failed...?
+        foreach(var quote in annotations.Quotes) {
+            var canonicalSpeaker = quote.speaker;
+            
+            var quotedMinister = ministers.FirstOrDefault((m) => m.Name.Contains(canonicalSpeaker));
+            if (quotedMinister != null) canonicalSpeaker = quotedMinister.Name;
 
-        this.Logger.LogDebug($"ExtractQuotesAsync:END:{content.Id}");
+            if (!speakersAndQuotes.ContainsKey(canonicalSpeaker)) speakersAndQuotes.Add(canonicalSpeaker, new List<string>());
+
+            speakersAndQuotes[canonicalSpeaker].Add(quote.text);
+        }
+
+        return speakersAndQuotes;
     }
 
     #endregion

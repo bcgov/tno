@@ -1,7 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
+using TNO.Core.Http;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.ExtractQuotes.Config;
+using TNO.Services.NLP.ExtractQuotes;
 using TNO.Services.Runners;
 
 namespace TNO.Services.ExtractQuotes;
@@ -40,7 +42,9 @@ public class ExtractQuotesService : KafkaConsumerService
         services
             .Configure<ExtractQuotesOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IKafkaListener<string, IndexRequestModel>, KafkaListener<string, IndexRequestModel>>()
-            .AddScoped<IServiceManager, ExtractQuotesManager>();
+            .AddScoped<IServiceManager, ExtractQuotesManager>()
+            .AddScoped<IHttpRequestClient, HttpRequestClient>()
+            .AddScoped<ICoreNLPService, CoreNLPService>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<ExtractQuotesOptions>()

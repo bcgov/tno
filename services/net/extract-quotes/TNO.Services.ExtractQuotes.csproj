@@ -22,4 +22,8 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.59" />
+  </ItemGroup>
+
 </Project>

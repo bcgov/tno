@@ -19,6 +19,11 @@ public abstract class ServiceManager<TOption> : IServiceManager
 
     #region Properties
     /// <summary>
+    /// get - Number of sequential failures.
+    /// </summary>
+    public int FailureCount { get; private set; }
+
+    /// <summary>
     /// get - The state of the service.
     /// </summary>
     public ServiceState State { get; private set; }

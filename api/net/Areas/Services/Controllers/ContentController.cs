@@ -45,6 +45,7 @@ public class ContentController : ControllerBase
     private readonly IFileReferenceService _fileReferenceService;
     private readonly IUserService _userService;
     private readonly ITagService _tagService;
+    private readonly IQuoteService _quoteService;
     private readonly ITopicService _topicService;
     private readonly ISourceService _sourceService;
     private readonly ITopicScoreHelper _topicScoreHelper;
@@ -65,6 +66,7 @@ public class ContentController : ControllerBase
     /// <param name="fileReferenceService"></param>
     /// <param name="userService"></param>
     /// <param name="tagService"></param>
+    /// <param name="quoteService"></param>
     /// <param name="topicService"></param>
     /// <param name="sourceService"></param>
     /// <param name="topicScoreHelper"></param>
@@ -80,6 +82,7 @@ public class ContentController : ControllerBase
         IFileReferenceService fileReferenceService,
         IUserService userService,
         ITagService tagService,
+        IQuoteService quoteService,
         ITopicService topicService,
         ISourceService sourceService,
         ITopicScoreHelper topicScoreHelper,
@@ -95,6 +98,7 @@ public class ContentController : ControllerBase
         _fileReferenceService = fileReferenceService;
         _userService = userService;
         _tagService = tagService;
+        _quoteService = quoteService;
         _topicService = topicService;
         _sourceService = sourceService;
         _topicScoreHelper = topicScoreHelper;
@@ -388,6 +392,37 @@ public class ContentController : ControllerBase
             await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Index));
 
         if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
+
+        return new JsonResult(new ContentModel(content, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Attach quotes to a piece of content.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="quotes"></param>
+    /// <returns></returns>
+    [HttpPost("{id}/quotes")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> AttachQuotes([FromRoute] long id, [FromBody] IEnumerable<QuoteModel> quotes)
+    {
+        var content = _contentService.FindById(id);
+        if (content == null) return new JsonResult(new { Error = "Content does not exist" })
+        {
+            StatusCode = StatusCodes.Status400BadRequest
+        };
+
+        if (!quotes.Any()) return new JsonResult(new { Error = "No quotes added." })
+        {
+            StatusCode = StatusCodes.Status400BadRequest
+        };
+
+        _quoteService.Attach(content, Array.ConvertAll(quotes.ToArray(), item => (Quote)item));
+
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content, "file") })));
 
         return new JsonResult(new ContentModel(content, _serializerOptions));
     }

@@ -77,6 +77,7 @@ INDEXING_PORT=$portIndexing
 IMAGE_PORT=$portImage
 TRANSCRIPTION_PORT=$portTranscription
 NLP_PORT=$portNlp
+CORENLP_PORT=$portCoreNlp
 FILECOPY_PORT=$portFileCopy
 NOTIFICATION_PORT=$portNotification
 REPORTING_PORT=$portReporting
@@ -945,8 +946,7 @@ Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
-Charts__Url=http://charts:8080
-# Charts__Url=http://localhost:$portChartsApi
+Service__OpenNLPApiUrl=http://host.docker.internal:$portCoreNlp
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
 

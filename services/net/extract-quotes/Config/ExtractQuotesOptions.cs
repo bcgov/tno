@@ -13,5 +13,11 @@ public class ExtractQuotesOptions : ServiceOptions
     /// get/set - A comma separated list of topics to consume.
     /// </summary>
     public string Topics { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The URL to the OpenNLP API.
+    /// </summary>
+    public string OpenNLPApiUrl { get; set; } = "";
+
     #endregion
 }
