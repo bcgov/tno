@@ -21,7 +21,6 @@ export const Tags: React.FC<ITagsProps> = ({ defaultTags = [] }) => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [{ tags }] = useLookup();
 
-  const [originalTags, setOriginalTags] = React.useState(defaultTags ?? []);
   const [showList, setShowList] = React.useState(false);
   const [tagOptions, setTagOptions] = React.useState(
     tags
@@ -59,16 +58,11 @@ export const Tags: React.FC<ITagsProps> = ({ defaultTags = [] }) => {
   }, [showList]);
 
   React.useEffect(() => {
-    const removeTags = originalTags.filter((code) => !defaultTags.includes(code));
     const initTags = tags.filter((tag) =>
       defaultTags.some((code) => code === tag.code.toUpperCase()),
     );
-    const newTags = _.uniqBy(
-      values.tags.filter((t) => !removeTags.includes(t.code.toUpperCase())).concat(initTags),
-      (tag) => tag.code,
-    );
+    const newTags = _.uniqBy(values.tags.concat(initTags), (tag) => tag.code);
     setFieldValue('tags', newTags);
-    setOriginalTags(defaultTags);
     // Only update if the default values have changed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultTags]);
