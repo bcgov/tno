@@ -1,0 +1,27 @@
+---
+# Open up ports to communicate with the app.
+kind: Service
+apiVersion: v1
+metadata:
+  name: corenlp
+  namespace: default
+  annotations:
+    description: Exposes and load balances the application pods.
+  labels:
+    name: corenlp
+    part-of: tno
+    version: 1.0.0
+    component: corenlp
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  ports:
+    - name: 9000-tcp
+      port: 9000
+      protocol: TCP
+      targetPort: 9000
+  selector:
+    part-of: tno
+    component: corenlp
+  sessionAffinity: None
+  type: ClusterIP

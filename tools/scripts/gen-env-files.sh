@@ -946,7 +946,7 @@ Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
-Service__OpenNLPApiUrl=http://host.docker.internal:$portCoreNlp
+Service__CoreNLPApiUrl=http://host.docker.internal:$portCoreNlp
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
 

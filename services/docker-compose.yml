@@ -524,14 +524,14 @@ services:
       - broker
     networks:
       - tno
-    volumes:
-      - tno-api-data:/data
-    healthcheck:
-      test: curl -s -f http://localhost:8081/health || exit 1
-      interval: 1m
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+    # volumes:
+    #   - tno-api-data:/data
+    # healthcheck:
+    #   test: curl -s -f http://localhost:8081/health || exit 1
+    #   interval: 1m
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 30s
 
   ffmpeg:
     image: tno:ffmpeg

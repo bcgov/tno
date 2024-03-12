@@ -17,7 +17,7 @@ public class ExtractQuotesOptions : ServiceOptions
     /// <summary>
     /// get/set - The URL to the OpenNLP API.
     /// </summary>
-    public string OpenNLPApiUrl { get; set; } = "";
+    public string CoreNLPApiUrl { get; set; } = "";
 
     #endregion
 }

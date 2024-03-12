@@ -122,6 +122,11 @@ spec:
                 configMapKeyRef:
                   name: extract-quotes-service
                   key: TOPICS
+            - name: CoreNlp__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: CORENLP_URL
 
             # CHES Configuration
             - name: CHES__From

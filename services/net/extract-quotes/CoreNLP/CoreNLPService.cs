@@ -122,7 +122,7 @@ public class CoreNLPService: ICoreNLPService
     {
         // Send request to CoreNLP API to annotate text in request
         var body = new StringContent(text);
-        return await RetryRequestAsync(async () => await this.HttpClient.PostAsync<AnnotationResponse>(this.Options.OpenNLPApiUrl, body));
+        return await RetryRequestAsync(async () => await this.HttpClient.PostAsync<AnnotationResponse>(this.Options.CoreNLPApiUrl, body));
     }
     #endregion
 }

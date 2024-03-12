@@ -1,0 +1,93 @@
+---
+# How the app will be deployed to the pod.
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: corenlp
+  namespace: default
+  annotations:
+    description: Defines how to deploy corenlp
+  labels:
+    name: corenlp
+    part-of: tno
+    version: 1.0.0
+    component: corenlp
+    managed-by: kustomize
+    created-by: kyle.morris
+spec:
+  replicas: 1
+  selector:
+    name: corenlp
+    part-of: tno
+    component: corenlp
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  triggers:
+    - type: ConfigChange
+  template:
+    metadata:
+      name: corenlp
+      labels:
+        name: corenlp
+        part-of: tno
+        component: corenlp
+    spec:
+      volumes:
+        - name: corenlp-config
+          configMap:
+            name: corenlp
+            items:
+              - key: config.yaml
+                path: config.yaml
+      containers:
+        - name: corenlp
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/corenlp:v4.5.6
+          # args:
+          #   - --config.filepath=/etc/corenlp/config.yaml
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+          # volumeMounts:
+          #   - name: corenlp-config
+          #     mountPath: /etc/corenlp
+          resources:
+            requests:
+              cpu: 10m
+              memory: 2G
+            limits:
+              cpu: 50m
+              memory: 4G
+          # env:
+          #   - name: KAFKA_BROKERS
+          #     value: kafka-broker-0.kafka-headless:29092,kafka-broker-1.kafka-headless:29092,kafka-broker-2.kafka-headless:29092
+          # livenessProbe:
+          #   httpGet:
+          #     path: '/health'
+          #     port: 8082
+          #     scheme: HTTP
+          #   initialDelaySeconds: 30
+          #   timeoutSeconds: 60
+          #   periodSeconds: 10
+          #   successThreshold: 1
+          #   failureThreshold: 3
+          # readinessProbe:
+          #   httpGet:
+          #     path: '/health'
+          #     port: 8082
+          #     scheme: HTTP
+          #   initialDelaySeconds: 10
+          #   timeoutSeconds: 60
+          #   periodSeconds: 10
+          #   successThreshold: 1
+          #   failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

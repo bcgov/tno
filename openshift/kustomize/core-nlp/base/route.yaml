@@ -1,0 +1,30 @@
+# The route for the app.
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: corenlp
+  namespace: default
+  annotations:
+    # haproxy.router.openshift.io/rewrite-target: /
+  labels:
+    name: corenlp
+    part-of: tno
+    version: 1.0.0
+    component: corenlp
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  host: corenlp-dev.apps.silver.devops.gov.bc.ca
+  # path: /corenlp
+  port:
+    targetPort: 9000-tcp
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+    # caCertificate: ""
+    # certificate: ""
+    # key: ""
+  to:
+    kind: Service
+    name: corenlp
+    weight: 100
