@@ -14,6 +14,7 @@ public class SeriesConfiguration : BaseTypeConfiguration<Series, int>
         builder.Property(m => m.UseInTopics).IsRequired();
 
         builder.HasOne(m => m.Source).WithMany(m => m.Series).HasForeignKey(m => m.SourceId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(m => m.MediaTypeSearchMappings).WithMany(m => m.SeriesSearchMappings).UsingEntity<SeriesMediaTypeSearchMapping>();
 
         // CREATE UNIQUE INDEX "IX_series_name" ON public."series"
         // ("name") WHERE "source_id" IS NULL;
