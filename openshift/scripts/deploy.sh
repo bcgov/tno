@@ -45,6 +45,7 @@ podsFolderCollection=$(getPods folder-collection-service dc $env)
 podsClip=$(getPods clip-service dc $env)
 podsFFmpeg=$(getPods ffmpeg-service dc $env)
 podsNLP=$(getPods nlp-service dc $env)
+podsExtractQuotes=$(getPods extract-quotes-service dc $env)
 podsTranscription=$(getPods transcription-service dc $env)
 
 podsScheduler=$(getPods scheduler-service dc $env)
@@ -75,6 +76,7 @@ scale folder-collection-service 0 dc $env
 scale clip-service 0 dc $env
 scale ffmpeg-service 0 dc $env
 scale nlp-service 0 dc $env
+scale extract-quotes-service 0 dc $env
 scale transcription-service 0 dc $env
 
 scale scheduler-service 0 dc $env
@@ -113,6 +115,7 @@ oc tag folder-collection-service:latest folder-collection-service:$env
 oc tag clip-service:latest clip-service:$env
 oc tag ffmpeg-service:latest ffmpeg-service:$env
 oc tag nlp-service:latest nlp-service:$env
+oc tag extract-quotes-service:latest extract-quotes-service:$env
 oc tag transcription-service:latest transcription-service:$env
 
 # Output Services
@@ -144,6 +147,7 @@ scale folder-collection-service $podsFolderCollection dc $env
 scale clip-service $podsClip dc $env
 scale ffmpeg-service $podsFFmpeg dc $env
 scale nlp-service $podsNLP dc $env
+scale extract-quotes-service $podsExtractQuotes dc $env
 scale transcription-service $podsTranscription dc $env
 
 scale scheduler-service $podsScheduler dc $env
