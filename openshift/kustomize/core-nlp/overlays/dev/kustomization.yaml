@@ -29,10 +29,4 @@ patches:
       # - op: replace
       #   path: /spec/template/spec/containers/0/resources/limits/memory
       #   value: 100Mi
-  - target:
-      kind: Route
-      name: corenlp
-    patch: |-
-      - op: replace
-        path: /spec/host
-        value: corenlp-dev.apps.silver.devops.gov.bc.ca
+

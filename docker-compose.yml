@@ -453,14 +453,8 @@ services:
         reservations:
           cpus: '0.50'
           memory: 2G
-    # ulimits:
-    #   memlock:
-    #     soft: -1
-    #     hard: -1
     ports:
       - ${CORENLP_PORT:-40038}:9000
-    # volumes:
-    #   - tno-elastic-data:/usr/share/elasticsearch/data
     extra_hosts:
       - host.docker.internal:host-gateway
     networks:

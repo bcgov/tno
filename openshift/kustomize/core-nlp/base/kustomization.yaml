@@ -6,7 +6,6 @@ resources:
   - network-policy.yaml
   - deploy.yaml
   - service.yaml
-  - route.yaml
 
 generatorOptions:
   disableNameSuffixHash: true
