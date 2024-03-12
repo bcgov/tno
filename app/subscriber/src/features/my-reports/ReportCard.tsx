@@ -3,20 +3,13 @@ import { Button } from 'components/button';
 import { Section } from 'components/section';
 import { formatDate } from 'features/utils';
 import React from 'react';
-import {
-  FaChartPie,
-  FaFileLines,
-  FaGear,
-  FaNewspaper,
-  FaPen,
-  FaRegCalendarDays,
-  FaTrashCan,
-} from 'react-icons/fa6';
+import { FaChartPie, FaGear, FaNewspaper, FaPen, FaTrashCan } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useApp, useReports } from 'store/hooks';
 import { Col, IReportModel, ReportSectionTypeName, Row, Spinner } from 'tno-core';
 
-import { calcNextSend, getLastSent } from './utils';
+import { calcNextScheduleSend, getLastSent } from './utils';
 
 export interface IReportCardProps {
   /** The report to display on this card. */
@@ -62,60 +55,71 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => 
       actions={
         <>
           <Button onClick={() => navigate(`/reports/${report.id}/edit`)}>
-            Edit <FaPen />
+            View report <FaPen />
           </Button>
           <Action icon={<FaGear />} onClick={() => navigate(`/reports/${report.id}`)} />
-          <Action
-            icon={<FaTrashCan />}
-            onClick={() => {
-              onDelete?.(report);
-            }}
-          />
         </>
       }
       onChange={(open) => open && fetchReport(report.id)}
     >
-      <Row>
-        <Col gap="1rem" flex="1">
-          {report.description && <div>{report.description}</div>}
-          <div className="report-schedule">
+      <Row gap="1rem">
+        <Col flex="1" gap="1rem">
+          <div>
             <div>
-              <FaRegCalendarDays />
+              <h3 className="upper">Report Description</h3>
+              <p>{report.description ? report.description : 'NO DESCRIPTION PROVIDED'}</p>
             </div>
-            <Col>
-              <Row gap="1rem" className="fs1">
-                <label className="b7">Last sent:</label>
-                <span>{getLastSent(report)}</span>
-              </Row>
-              <Row gap="1rem" className="fs1">
-                <label className="b7">Next scheduled send:</label>
-                <span>{calcNextSend(report)}</span>
-              </Row>
-            </Col>
           </div>
-          <div className="report-instance">
-            <div>
-              <FaFileLines />
-            </div>
-            <label className="b7 fs1">Current instance created:</label>
-            {report.instances.length ? (
-              <Row gap="1rem" alignItems="center">
-                <span className="fs1">
-                  {formatDate(report.instances[0].publishedOn ?? '', true)}
-                </span>
-                <Action
-                  label={'VIEW'}
-                  onClick={() => {
-                    if (report.instances.length)
-                      navigate(`/report/instances/${report.instances[0].id}/view`);
-                    else navigate(`/reports/${report.id}/view`);
-                  }}
-                />
+          <div>
+            <h3 className="upper">Status</h3>
+            <Row>
+              <Col>Last sent:</Col>
+              <Col flex="1">{formatDate(getLastSent(report), true)}</Col>
+            </Row>
+            {report.instances.length > 0 && (
+              <Row>
+                <Col>Draft created:</Col>
+                <Col flex="1">{formatDate(report.instances[0].publishedOn ?? '', true)}</Col>
               </Row>
-            ) : (
-              'NA'
             )}
           </div>
+        </Col>
+        <Col flex="1" gap="1rem">
+          <div>
+            <h3 className="upper">Settings</h3>
+            <Link to={`/reports/${report.id}`}>edit settings</Link>
+          </div>
+          {report.events.map((schedule, index) => {
+            return (
+              <div key={`${schedule.id}-${index}`}>
+                <Row>
+                  <h3>Schedule {index + 1}</h3>
+                  <Col flex="1">
+                    {schedule.isEnabled ? (
+                      <span className="report-schedule-enabled">enabled</span>
+                    ) : (
+                      <span className="report-schedule-disabled">disabled</span>
+                    )}
+                  </Col>
+                  {schedule.settings.autoSend && <Col>autosend</Col>}
+                </Row>
+                <Row>
+                  <Col flex="1">Next scheduled send:</Col>
+                  <Col flex="1" alignItems="flex-end">
+                    {formatDate(calcNextScheduleSend(schedule) ?? '', true)}
+                  </Col>
+                </Row>
+              </div>
+            );
+          })}
+          <Row justifyContent="flex-end">
+            <Action
+              icon={<FaTrashCan />}
+              onClick={() => {
+                onDelete?.(report);
+              }}
+            />
+          </Row>
         </Col>
         {isLoading && (
           <Col alignContent="center" justifyContent="center">

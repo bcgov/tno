@@ -32,6 +32,7 @@ export const MyReports = styled.div`
     height: calc(100dvh - 260px);
     overflow-y: auto;
   }
+
   .report-schedule {
     display: flex;
     flex-direction: row;
@@ -88,18 +89,70 @@ export const MyReports = styled.div`
     }
   }
 
-  .b7 {
-    font-weight: 700;
-  }
-
-  .fs1 {
-    font-size: 0.75rem;
-  }
-
   .loading {
     position: relative;
     align-content: center;
     justify-content: center;
     min-height: 100px;
+  }
+
+  .section {
+    .section-body {
+      h3 {
+        &.upper {
+          text-transform: uppercase;
+        }
+        margin-bottom: 0;
+      }
+
+      > div {
+        > div:first-child {
+          > div:not(:first-child) {
+            > div:nth-child(3) {
+              margin-top: 0.5rem;
+            }
+
+            > div {
+              > div:first-child {
+                min-width: 100px;
+              }
+            }
+          }
+        }
+
+        > div:nth-child(2) {
+          border-left: solid 1px black;
+
+          > div h3 {
+            display: inline;
+            margin-right: 1rem;
+          }
+
+          > div:not(:last-child) {
+            padding: 0 2rem;
+          }
+
+          > div:not(:first-child):not(:last-child) {
+            > div:nth-child(2) {
+              border-top: solid 1px ${(props) => props.theme.css.linePrimaryColor};
+            }
+          }
+
+          > div:not(:first-child) {
+            > div {
+              padding-top: 0.5rem;
+            }
+          }
+        }
+      }
+
+      .report-schedule-enabled {
+        color: ${(props) => props.theme.css.tonePositive};
+      }
+
+      .report-schedule-disabled {
+        color: ${(props) => props.theme.css.toneNegative};
+      }
+    }
   }
 `;
