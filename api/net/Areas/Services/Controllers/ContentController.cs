@@ -46,6 +46,7 @@ public class ContentController : ControllerBase
     private readonly IUserService _userService;
     private readonly ITagService _tagService;
     private readonly ITopicService _topicService;
+    private readonly ISourceService _sourceService;
     private readonly ITopicScoreHelper _topicScoreHelper;
     private readonly IWorkOrderHelper _workOrderHelper;
     private readonly StorageOptions _storageOptions;
@@ -65,6 +66,7 @@ public class ContentController : ControllerBase
     /// <param name="userService"></param>
     /// <param name="tagService"></param>
     /// <param name="topicService"></param>
+    /// <param name="sourceService"></param>
     /// <param name="topicScoreHelper"></param>
     /// <param name="workOrderHelper"></param>
     /// <param name="kafkaMessenger"></param>
@@ -79,6 +81,7 @@ public class ContentController : ControllerBase
         IUserService userService,
         ITagService tagService,
         ITopicService topicService,
+        ISourceService sourceService,
         ITopicScoreHelper topicScoreHelper,
         IWorkOrderHelper workOrderHelper,
         IKafkaMessenger kafkaMessenger,
@@ -93,6 +96,7 @@ public class ContentController : ControllerBase
         _userService = userService;
         _tagService = tagService;
         _topicService = topicService;
+        _sourceService = sourceService;
         _topicScoreHelper = topicScoreHelper;
         _workOrderHelper = workOrderHelper;
         _kafkaMessenger = kafkaMessenger;
@@ -181,9 +185,13 @@ public class ContentController : ControllerBase
         }
 
         // only assign a default score to content which has a source relevent to Event of the Day
-        if ((model.Source != null) && model.Source.UseInTopics)
-            _topicScoreHelper.SetContentScore(model);
-        
+        if (model.SourceId.HasValue)
+        {
+            var source = _sourceService.FindById(model.SourceId.Value);
+            if (source != null && source.UseInTopics)
+                _topicScoreHelper.SetContentScore(model);
+        }
+
         var content = _contentService.AddAndSave((Content)model);
 
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentAdded, new[] { new ContentMessageModel(content) })));
