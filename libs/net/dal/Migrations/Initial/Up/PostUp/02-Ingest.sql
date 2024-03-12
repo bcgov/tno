@@ -463,7 +463,7 @@ INSERT INTO public.ingest (
   , 'GLOBE' -- topic
   , frontPageId -- product_id
   , '{ "path": "gandm/papers",
-      "fileName": "sv-GLB-<date>-.+?\.jpg",
+      "fileName": "sv-GLB-<date>-.+?\\.jpg",
       "dateFormat": "ddd-ddMMyyyy",
       "uppercaseDate": true,
       "publishedOnExpression": "^sv-GLB-[A-Za-z]{3}-(?<day>[0-9]{2})(?<month>[0-9]{2})(?<year>[0-9]{4})",
@@ -485,7 +485,7 @@ INSERT INTO public.ingest (
   , frontPageId -- product_id
   , '{ "path": "infomart/papers",
       "pathDateFormat": "yyyy/MM/dd",
-      "fileName": "NTNP.+\.(zip)|(jpg)|(jpeg)",
+      "fileName": "NTNP.+\\.(zip)|(jpg)|(jpeg)",
       "publishedOnExpression": "^NTNP(?<year>[0-9]{4})(?<month>[0-9]{2})(?<day>[0-9]{2})(?<hour>[0-9]{2})(?<minute>[0-9]{2})(?<second>[0-9]{2})",
       "post": true,
       "import": true }' -- configuration
@@ -505,7 +505,7 @@ INSERT INTO public.ingest (
   , frontPageId -- product_id
   , '{ "path": "infomart/papers",
       "pathDateFormat": "yyyy/MM/dd",
-      "fileName": "VAPR.+\.(zip)|(jpg)|(jpeg)",
+      "fileName": "VAPR.+\\.(zip)|(jpg)|(jpeg)",
       "publishedOnExpression": "^VAPR(?<year>[0-9]{4})(?<month>[0-9]{2})(?<day>[0-9]{2})(?<hour>[0-9]{2})(?<minute>[0-9]{2})(?<second>[0-9]{2})",
       "post": true,
       "import": true }' -- configuration
@@ -525,7 +525,7 @@ INSERT INTO public.ingest (
   , frontPageId -- product_id
   , '{ "path": "infomart/papers",
       "pathDateFormat": "yyyy/MM/dd",
-      "fileName": "VITC.+\.(zip)|(jpg)|(jpeg)",
+      "fileName": "VITC.+\\.(zip)|(jpg)|(jpeg)",
       "publishedOnExpression": "^VITC(?<year>[0-9]{4})(?<month>[0-9]{2})(?<day>[0-9]{2})(?<hour>[0-9]{2})(?<minute>[0-9]{2})(?<second>[0-9]{2})",
       "post": true,
       "import": true }' -- configuration
@@ -545,7 +545,7 @@ INSERT INTO public.ingest (
   , frontPageId -- product_id
   , '{ "path": "infomart/papers",
       "pathDateFormat": "yyyy/MM/dd",
-      "fileName": "VASN.+\.(zip)|(jpg)|(jpeg)",
+      "fileName": "VASN.+\\.(zip)|(jpg)|(jpeg)",
       "publishedOnExpression": "^VASN(?<year>[0-9]{4})(?<month>[0-9]{2})(?<day>[0-9]{2})(?<hour>[0-9]{2})(?<minute>[0-9]{2})(?<second>[0-9]{2})",
       "post": true,
       "import": true }' -- configuration

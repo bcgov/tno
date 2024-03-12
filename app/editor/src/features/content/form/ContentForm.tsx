@@ -702,7 +702,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                   </Show>
                 </Row>
                 <Row gap="0.5rem">
-                  <Tags selectedExternal={parsedTags} />
+                  <Tags defaultTags={parsedTags} />
                   <Show visible={props.values.contentType !== ContentTypeName.Image}>
                     <FormikSentiment name="tonePools" options={tonePools} required />
                     <Show
@@ -842,7 +842,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
                             props.values.contentType === ContentTypeName.AudioVideo
                           }
                         >
-                          <Button variant={ButtonVariant.cyan} onClick={() => goToNext(form)}>
+                          <Button
+                            variant={ButtonVariant.cyan}
+                            onClick={() => goToNext(props.values)}
+                          >
                             Next Snippet
                           </Button>
                         </Show>

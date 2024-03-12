@@ -1,28 +1,54 @@
 import { IContentForm } from 'features/content/form/interfaces';
 import { useFormikContext } from 'formik';
+import _ from 'lodash';
 import React from 'react';
 import { FaListAlt } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
-import { Button, Col, FieldSize, IOptionItem, ITagModel, Row, Select } from 'tno-core';
+import { Button, Col, FieldSize, IOptionItem, Row, Select } from 'tno-core';
 
 import { DraggableTagList } from './DraggableTagList';
 import * as styled from './styled';
 
 export interface ITagsProps {
-  selectedExternal?: string[];
+  defaultTags?: string[];
 }
 
 /**
  * The component that renders tags for a given text field
  * @returns the Tags component
  */
-export const Tags: React.FC<ITagsProps> = ({ selectedExternal }) => {
+export const Tags: React.FC<ITagsProps> = ({ defaultTags = [] }) => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [{ tags }] = useLookup();
+
   const [showList, setShowList] = React.useState(false);
-  const [initialTagsLoad, setInitialTagsLoad] = React.useState(true);
-  const [externalTags, setExternalTags] = React.useState<ITagModel[]>([]);
-  const [manualTags, setManualTags] = React.useState<ITagModel[]>([]);
+  const [tagOptions, setTagOptions] = React.useState(
+    tags
+      .filter((tag) => tag.isEnabled || values.tags.some((t) => t.id === tag.id))
+      .map((tag) => {
+        return {
+          label: tag.code,
+          value: tag.id,
+          isDisabled: !tag.isEnabled,
+        } as IOptionItem;
+      }),
+  );
+
+  React.useEffect(() => {
+    setTagOptions(
+      tags
+        .filter((tag) => tag.isEnabled || values.tags.some((t) => t.id === tag.id))
+        .map((tag) => {
+          return {
+            label: tag.code,
+            value: tag.id,
+            isDisabled: !tag.isEnabled,
+          } as IOptionItem;
+        }),
+    );
+    // Only update options if the tags list is updated.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tags]);
 
   /** ensure table is in view depending on where user has scrolled to. */
   React.useEffect(() => {
@@ -32,47 +58,24 @@ export const Tags: React.FC<ITagsProps> = ({ selectedExternal }) => {
   }, [showList]);
 
   React.useEffect(() => {
-    if (initialTagsLoad) {
-      if (values.tags.length > 0) {
-        setManualTags(values.tags);
-        setInitialTagsLoad(false);
-      }
-    }
-  }, [initialTagsLoad, values.tags]);
-
-  React.useEffect(() => {
-    const ext = tags.filter((tag) => selectedExternal?.some((t: string) => t === tag.code));
-    setExternalTags(ext);
-    const newTags = ext.concat(manualTags);
-    setFieldValue('tags', newTags);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedExternal]);
-
-  /** convert tags to IOptionItem format */
-  const tagOptions: IOptionItem[] = tags.map((tag) => {
-    return {
-      label: tag.code,
-      value: tag.id,
-      isDisabled: !tag.isEnabled,
-    } as IOptionItem;
-  });
-
-  /** prepare tags to proper format for the API */
-  const convertTags = (selectedTags: IOptionItem[]) => {
-    return tags
-      .filter((tag) => selectedTags.some((t: IOptionItem) => t.value === tag.id))
-      .map((tag) => tag);
-  };
-
-  const addManualTags = (selectedTags: any) => {
-    const extCodes = externalTags.map((x: ITagModel) => x.code);
-    const manualTags = convertTags(selectedTags).filter(
-      (x: ITagModel) => !extCodes.includes(x.code),
+    const initTags = tags.filter((tag) =>
+      defaultTags.some((code) => code === tag.code.toUpperCase()),
     );
-    setManualTags(manualTags);
-    const newTags = manualTags.concat(externalTags);
+    const newTags = _.uniqBy(values.tags.concat(initTags), (tag) => tag.code);
     setFieldValue('tags', newTags);
-  };
+    // Only update if the default values have changed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultTags]);
+
+  const addTags = React.useCallback(
+    (selectedTags: any) => {
+      const newTags = tags
+        .filter((tag) => selectedTags.some((t: IOptionItem) => t.value === tag.id))
+        .map((tag) => tag);
+      setFieldValue('tags', newTags);
+    },
+    [setFieldValue, tags],
+  );
 
   return (
     <styled.Tags className="multi-group">
@@ -92,7 +95,7 @@ export const Tags: React.FC<ITagsProps> = ({ selectedExternal }) => {
             value={tagOptions.filter((option) =>
               values.tags.find((tag) => tag.id === option.value),
             )}
-            onChange={(selectedTags) => addManualTags(selectedTags)}
+            onChange={(selectedTags) => addTags(selectedTags)}
           />
           <Button
             tooltip="Show tag list"
