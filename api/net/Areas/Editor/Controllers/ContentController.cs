@@ -266,8 +266,12 @@ public class ContentController : ControllerBase
             updateContent.PostedOn = DateTime.UtcNow;
 
         // only assign a default score to content which has a source relevent to Event of the Day
-        if ((updateContent.Source != null) && updateContent.Source.UseInTopics)
-            _topicScoreHelper.SetContentScore(updateContent);
+        if (updateContent.SourceId.HasValue)
+        {
+            var source = _sourceService.FindById(updateContent.SourceId.Value);
+            if (source != null && source.UseInTopics)
+                _topicScoreHelper.SetContentScore(updateContent);
+        }
 
         var content = _contentService.UpdateAndSave(updateContent);
 
