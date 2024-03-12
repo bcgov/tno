@@ -3285,6 +3285,70 @@ namespace TNO.DAL.Migrations
                     b.ToTable("product");
                 });
 
+            modelBuilder.Entity("TNO.Entities.Quote", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Byline")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("byline");
+
+                    b.Property<long>("ContentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("content_id");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Statement")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("statement");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContentId");
+
+                    b.HasIndex(new[] { "Statement" }, "IX_statement");
+
+                    b.ToTable("quote");
+                });
+
             modelBuilder.Entity("TNO.Entities.Report", b =>
                 {
                     b.Property<int>("Id")
@@ -6169,6 +6233,17 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Parent");
                 });
 
+            modelBuilder.Entity("TNO.Entities.Quote", b =>
+                {
+                    b.HasOne("TNO.Entities.Content", "Content")
+                        .WithMany("Quotes")
+                        .HasForeignKey("ContentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Content");
+                });
+
             modelBuilder.Entity("TNO.Entities.Report", b =>
                 {
                     b.HasOne("TNO.Entities.User", "Owner")
@@ -6682,6 +6757,8 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Logs");
 
                     b.Navigation("NotificationsManyToMany");
+
+                    b.Navigation("Quotes");
 
                     b.Navigation("ReportsManyToMany");
 

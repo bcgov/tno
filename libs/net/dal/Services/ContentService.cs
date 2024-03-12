@@ -456,6 +456,7 @@ public class ContentService : BaseService<Content, long>, IContentService
             .Include(c => c.TimeTrackings)
             .Include(c => c.FileReferences)
             .Include(c => c.Links)
+            .Include(c => c.Quotes)
             .FirstOrDefault(c => c.Id == id);
     }
 
@@ -482,6 +483,7 @@ public class ContentService : BaseService<Content, long>, IContentService
             .Include(c => c.TimeTrackings)
             .Include(c => c.FileReferences)
             .Include(c => c.Links)
+            .Include(c => c.Quotes)
             .Where(c => c.Uid == uid);
 
         if (!String.IsNullOrWhiteSpace(source))

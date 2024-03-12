@@ -77,6 +77,7 @@ INDEXING_PORT=$portIndexing
 IMAGE_PORT=$portImage
 TRANSCRIPTION_PORT=$portTranscription
 NLP_PORT=$portNlp
+CORENLP_PORT=$portCoreNlp
 FILECOPY_PORT=$portFileCopy
 NOTIFICATION_PORT=$portNotification
 REPORTING_PORT=$portReporting
@@ -84,6 +85,7 @@ FOLDER_COLLECTION_PORT=$portFolderCollection
 FFMPEG_PORT=$portFFmpeg
 SCHEDULER_PORT=$portScheduler
 EVENTHANDER_PORT=$portEventHandler
+EXTRACT_QUOTES_PORT=$portExtractQuotes
 
 #############################
 # Kafka Configuration
@@ -929,6 +931,33 @@ CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}" >> ./services/net/event-handler/.env
     echo "./services/net/event-handler/.env created"
 fi
+
+## Extract Quotes Service
+if test -f "./services/net/extract-quotes/.env"; then
+    echo "./services/net/extract-quotes/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__CoreNLPApiUrl=http://host.docker.internal:$portCoreNlp
+
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
+
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}" >> ./services/net/extract-quotes/.env
+    echo "./services/net/extract-quotes/.env created"
+fi
+
 
 
 ###########################################################################

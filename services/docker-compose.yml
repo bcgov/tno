@@ -496,6 +496,35 @@ services:
       retries: 3
       start_period: 30s
 
+
+  extract-quotes:
+    image: tno:extract-quotes
+    profiles:
+      - all
+      - service
+    restart: "no"
+    container_name: tno-extract-quotes
+    build:
+      context: ./
+      dockerfile: services/net/extract-quotes/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
+    env_file:
+      - services/net/extract-quotes/.env
+    ports:
+      - ${EXTRACT_QUOTES_PORT:-40037}:8081
+    depends_on:
+      - api
+      - broker
+    networks:
+      - tno
+
   ffmpeg:
     image: tno:ffmpeg
     profiles:

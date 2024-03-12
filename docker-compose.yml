@@ -433,6 +433,33 @@ services:
     networks:
       - tno
 
+####################### CoreNLP #######################
+  corenlp:
+    profiles:
+      - all
+      - utility
+      - init
+      - service
+      - main
+    restart: "no"
+    container_name: tno-corenlp
+    build:
+      context: tools/corenlp
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 4G
+        reservations:
+          cpus: '0.50'
+          memory: 2G
+    ports:
+      - ${CORENLP_PORT:-40038}:9000
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks:
+      - tno
+
 ####################### Volumes Definition #######################
 volumes:
   tno-database-data:

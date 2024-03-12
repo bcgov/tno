@@ -85,6 +85,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.ContentMigrati
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.FolderCollection", "services\net\folder-collection\TNO.Services.FolderCollection.csproj", "{B559B641-F1F0-41D6-9938-A23EC06542A2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.ExtractQuotes", "services\net\extract-quotes\TNO.Services.ExtractQuotes.csproj", "{9BC92B16-7AF9-4B45-BA18-C6A98E2AD87E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -226,6 +228,10 @@ Global
 		{B559B641-F1F0-41D6-9938-A23EC06542A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B559B641-F1F0-41D6-9938-A23EC06542A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B559B641-F1F0-41D6-9938-A23EC06542A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BC92B16-7AF9-4B45-BA18-C6A98E2AD87E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BC92B16-7AF9-4B45-BA18-C6A98E2AD87E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BC92B16-7AF9-4B45-BA18-C6A98E2AD87E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BC92B16-7AF9-4B45-BA18-C6A98E2AD87E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{16EA028B-B4C8-416D-BE54-D73D75483668} = {F627B24A-217D-4BF1-BC77-E1A92DBCD07F}
@@ -265,5 +271,6 @@ Global
 		{A2DD9547-A4AA-4E07-9239-77D689F49C47} = {448D6DE6-6887-48EC-A202-18C7EB428ACD}
 		{7D0917C1-DFE3-420E-9980-D81947AC405F} = {448D6DE6-6887-48EC-A202-18C7EB428ACD}
 		{B559B641-F1F0-41D6-9938-A23EC06542A2} = {448D6DE6-6887-48EC-A202-18C7EB428ACD}
+		{9BC92B16-7AF9-4B45-BA18-C6A98E2AD87E} = {448D6DE6-6887-48EC-A202-18C7EB428ACD}
 	EndGlobalSection
 EndGlobal

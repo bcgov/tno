@@ -55,6 +55,7 @@ public class TNOContext : DbContext
     public DbSet<ContentLabel> ContentLabels => Set<ContentLabel>();
     public DbSet<ContentTonePool> ContentTonePools => Set<ContentTonePool>();
     public DbSet<ContentAction> ContentActions => Set<ContentAction>();
+    public DbSet<Quote> Quotes => Set<Quote>();
     #endregion
 
     #region Content Metadata

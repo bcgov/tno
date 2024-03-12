@@ -240,6 +240,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
 
                 // Inform Kafka this message is completed.
                 this.Listener.Commit(result);
+                this.Listener.Resume();
 
                 // Successful run clears any errors.
                 this.State.ResetFailures();

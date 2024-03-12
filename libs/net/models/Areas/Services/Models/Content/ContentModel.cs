@@ -234,6 +234,11 @@ public class ContentModel : AuditColumnsModel
     /// get/set - An array of notification instances.
     /// </summary>
     public IEnumerable<NotificationInstanceModel> Notifications { get; set; } = Array.Empty<NotificationInstanceModel>();
+
+    /// <summary>
+    /// get/set - An array of quotes.
+    /// </summary>
+    public IEnumerable<QuoteModel> Quotes { get; set; } = Array.Empty<QuoteModel>();
     #endregion
 
     #region Constructors
@@ -287,6 +292,7 @@ public class ContentModel : AuditColumnsModel
         this.Labels = entity.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = entity.TonePoolsManyToMany.Select(e => new ContentTonePoolModel(e));
         this.FileReferences = entity.FileReferences.Select(e => new FileReferenceModel(e));
+        this.Quotes = entity.Quotes.Select(e => new QuoteModel(e));
         this.Versions = entity.Versions;
     }
     #endregion
@@ -333,6 +339,7 @@ public class ContentModel : AuditColumnsModel
         entity.TonePoolsManyToMany.AddRange(model.TonePools.Select(tp => tp.ToEntity(entity.Id)));
         entity.FileReferences.AddRange(model.FileReferences.Select(f => f.ToEntity(entity.Id)));
         entity.NotificationsManyToMany.AddRange(model.Notifications.Select(n => (Entities.NotificationInstance)n));
+        entity.Quotes.AddRange(model.Quotes.Select(f => f.ToEntity(entity.Id)));
 
         return entity;
     }

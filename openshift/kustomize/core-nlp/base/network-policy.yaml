@@ -1,0 +1,25 @@
+---
+# Allow the app to communicate with the api.
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: pod-from-pod-permit-corenlp
+  namespace: default
+  labels:
+    name: corenlp
+    part-of: tno
+    version: 1.0.0
+    component: corenlp
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  #description: Allow corenlp pod(s) to receive communication from any pod(s).
+  podSelector:
+    matchLabels:
+      solution: tno
+      app: corenlp
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              solution: tno
