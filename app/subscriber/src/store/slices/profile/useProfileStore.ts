@@ -7,8 +7,8 @@ import {
   IFolderModel,
   IMinisterModel,
   IReportModel,
+  ISubscriberUserModel,
   ISystemMessageModel,
-  IUserModel,
 } from 'tno-core';
 
 import { storeContributors } from '../lookup';
@@ -27,7 +27,9 @@ import {
 import { IProfileState } from './interfaces';
 
 export interface IProfileStore {
-  storeMyProfile: (user: IUserModel | ActionDelegate<IUserModel | undefined> | undefined) => void;
+  storeMyProfile: (
+    user: ISubscriberUserModel | ActionDelegate<ISubscriberUserModel | undefined> | undefined,
+  ) => void;
   storeFilter: (filter: IFilterModel | ActionDelegate<IFilterModel | undefined>) => void;
   storeMyFilters: (filters: IFilterModel[] | ActionDelegate<IFilterModel[]>) => void;
   storeMyFolders: (folders: IFolderModel[] | ActionDelegate<IFolderModel[]>) => void;
@@ -54,7 +56,9 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
 
   const controller = React.useMemo(
     () => ({
-      storeMyProfile: (user: IUserModel | ActionDelegate<IUserModel | undefined> | undefined) => {
+      storeMyProfile: (
+        user: ISubscriberUserModel | ActionDelegate<ISubscriberUserModel | undefined> | undefined,
+      ) => {
         if (typeof user === 'function') {
           dispatch(storeMyProfile(user(state.profile)));
         } else dispatch(storeMyProfile(user));

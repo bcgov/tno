@@ -1,13 +1,49 @@
 import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
 import { FaGear } from 'react-icons/fa6';
-import { Checkbox, Col, Radio, Row } from 'tno-core';
+import { useUsers } from 'store/hooks';
+import { useAppStore } from 'store/slices';
+import { Checkbox, Col, ISubscriberUserModel, Radio, Row } from 'tno-core';
 
 import { ContentListContext } from './ContentListContext';
 import * as styled from './styled';
 
 export const ViewOptions: React.FC = () => {
   const { viewOptions, setGroupBy, setViewOptions, groupBy } = React.useContext(ContentListContext);
+  const [{ userInfo }, store] = useAppStore();
+  const api = useUsers();
+
+  /** Save the user's preferences for view/grouping options under preferences */
+  const savePreferences = async () => {
+    if (userInfo) {
+      const user = {
+        ...userInfo,
+        preferences: { ...userInfo.preferences, viewOptions, groupBy },
+      } as ISubscriberUserModel;
+      await api.updateUser(user, userInfo.id);
+      store.storeUserInfo({ ...userInfo, preferences: user.preferences });
+    }
+  };
+
+  /** Set the current state to match the saved preferences if they exist */
+  React.useEffect(() => {
+    if (userInfo?.preferences?.viewOptions) {
+      setViewOptions(userInfo.preferences.viewOptions);
+    }
+    if (userInfo?.preferences?.groupBy) {
+      setGroupBy(userInfo.preferences.groupBy);
+    }
+    // only want to run when we have the user's info to init
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userInfo]);
+
+  /** Save the user's preferences when they change */
+  React.useEffect(() => {
+    savePreferences();
+    // only want to run when the viewOptions or groupBy change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewOptions, groupBy]);
+
   return (
     <styled.ViewOptions className="view-options">
       <FaGear className="gear" data-tooltip-id="view-options" />

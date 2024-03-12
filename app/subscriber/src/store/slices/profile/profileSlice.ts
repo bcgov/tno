@@ -6,8 +6,8 @@ import {
   IFolderModel,
   IMinisterModel,
   IReportModel,
+  ISubscriberUserModel,
   ISystemMessageModel,
-  IUserModel,
 } from 'tno-core';
 
 import { IProfileState } from './interfaces';
@@ -27,7 +27,7 @@ export const profileSlice = createSlice({
   name: 'profile',
   initialState: initialProfileState,
   reducers: {
-    storeMyProfile(state: IProfileState, action: PayloadAction<IUserModel | undefined>) {
+    storeMyProfile(state: IProfileState, action: PayloadAction<ISubscriberUserModel | undefined>) {
       state.profile = action.payload;
     },
     storeFilter(state: IProfileState, action: PayloadAction<IFilterModel | undefined>) {
