@@ -2,7 +2,7 @@ import { Action } from 'components/action';
 import { Button } from 'components/button';
 import { Section } from 'components/section';
 import { IReportForm } from 'features/my-reports/interfaces';
-import { calcNextSend, getLastSent } from 'features/my-reports/utils';
+import { calcNextReportSend, getLastSent } from 'features/my-reports/utils';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaTelegramPlane, FaTrash } from 'react-icons/fa';
@@ -142,7 +142,7 @@ export const ReportSendForm: React.FC = () => {
               </Row>
               <Row gap="1rem" className="fs1">
                 <label className="b7">Next scheduled send:</label>
-                <span>{calcNextSend(values)}</span>
+                <span>{calcNextReportSend(values)}</span>
               </Row>
             </Col>
           </Row>

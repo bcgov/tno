@@ -22,12 +22,25 @@ export const Section = styled.div<ISectionProps>`
     border-bottom-right-radius: ${(props) => (!props.open ? '0.25rem' : 'unset')};
     border-bottom-left-radius: ${(props) => (!props.open ? '0.25rem' : 'unset')};
 
+    .section-active {
+      width: 6px;
+      background-color: ${(props) => props.theme.css.highlightActive};
+    }
+
     .section-icon {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-items: center;
+
       svg {
         color: ${(props) => props.theme.css.iconPrimaryColor};
-        height: 27px;
-        min-height: 27px;
-        max-height: 27px;
+        height: 25px;
+        min-height: 25px;
+        max-height: 25px;
+        width: 25px;
+        min-width: 25px;
+        max-width: 25px;
         flex-shrink: 0;
       }
     }
