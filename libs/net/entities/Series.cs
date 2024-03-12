@@ -50,6 +50,16 @@ public class Series : BaseType<int>
     /// get - List of topic score rules linked to this series.
     /// </summary>
     public virtual List<TopicScoreRule> ScoreRules { get; } = new List<TopicScoreRule>();
+
+    /// <summary>
+    /// get - Collection of media types - used in search mapping.
+    /// </summary>
+    public virtual List<MediaType> MediaTypeSearchMappings { get; } = new List<MediaType>();
+
+    /// <summary>
+    /// get - Collection of media types used in search mapping, the many-to-many relationship.
+    /// </summary>
+    public virtual List<SeriesMediaTypeSearchMapping> MediaTypeSearchMappingsManyToMany { get; } = new List<SeriesMediaTypeSearchMapping>();
     #endregion
 
     #region Constructors
