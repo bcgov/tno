@@ -43,8 +43,8 @@ const MediaTypeForm: React.FC = () => {
   );
   const [settings, setSettings] = React.useState('');
   const listOptions = [
-    new OptionItem('Source', `${ListOption.Source}`),
-    new OptionItem('Program/Show', `${ListOption.Series}`),
+    new OptionItem('Source', ListOption[ListOption.Source]),
+    new OptionItem('Program/Show', ListOption[ListOption.Series]),
   ];
 
   React.useEffect(() => {
