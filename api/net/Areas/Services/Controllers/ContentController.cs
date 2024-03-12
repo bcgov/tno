@@ -415,12 +415,12 @@ public class ContentController : ControllerBase
             StatusCode = StatusCodes.Status400BadRequest
         };
 
-        if (!quotes.Any()) return new JsonResult(new { Error = "No quotes added." })
-        {
-            StatusCode = StatusCodes.Status400BadRequest
-        };
+        // no quotes passed in so just return the existing content model
+        if (!quotes.Any()) return new JsonResult(new ContentModel(content, _serializerOptions));
 
-        _quoteService.Attach(content, Array.ConvertAll(quotes.ToArray(), item => (Quote)item));
+        _quoteService.Attach(Array.ConvertAll(quotes.ToArray(), item => (Quote)item));
+        
+        content = _contentService.FindById(id);
 
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content, "file") })));
 

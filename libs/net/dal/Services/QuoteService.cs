@@ -22,9 +22,9 @@ public class QuoteService : BaseService<Quote, long>, IQuoteService {
     /// <param name="content"></param>
     /// <param name="quote"></param>
     /// <returns></returns>
-    public Quote Attach(Content content, Quote quote, bool commitTransaction = true)
+    public Quote Attach(Quote quote, bool commitTransaction = true)
     {
-        quote.ContentId = content.Id;
+        if (quote.ContentId == 0) throw new ArgumentException("Parameter 'quote.ContentId' must be greater than zero.", nameof(quote));
 
         if (quote.Id == 0)
             this.Context.Add(quote);
@@ -42,11 +42,11 @@ public class QuoteService : BaseService<Quote, long>, IQuoteService {
     /// <param name="content"></param>
     /// <param name="quote"></param>
     /// <returns></returns>
-    public IEnumerable<Quote> Attach(Content content, IEnumerable<Quote> quotes)
+    public IEnumerable<Quote> Attach(IEnumerable<Quote> quotes)
     {
         List<Quote> returnVal = new List<Quote>();
         foreach(var quote in quotes) {
-            returnVal.Add(Attach(content, quote, false));
+            returnVal.Add(Attach(quote, false));
         }
 
         this.Context.CommitTransaction();

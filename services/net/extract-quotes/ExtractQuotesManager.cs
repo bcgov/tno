@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -15,6 +13,7 @@ using TNO.API.Areas.Services.Models.Minister;
 using TNO.Services.ExtractQuotes.CoreNLP.models;
 using System.Text;
 using HtmlAgilityPack;
+using System.Text.RegularExpressions;
 
 namespace TNO.Services.ExtractQuotes;
 
@@ -28,8 +27,6 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     private int _retries = 0;
-    private readonly JsonSerializerOptions _serializationOptions;
-    private readonly ClaimsPrincipal _user;
     #endregion
 
     #region Properties
@@ -61,17 +58,13 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     public ExtractQuotesManager(
         IKafkaListener<string, IndexRequestModel> listener,
         IApiService api,
-        ClaimsPrincipal user,
         ICoreNLPService coreNLPService,
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
-        IOptions<JsonSerializerOptions> serializationOptions,
         IOptions<ExtractQuotesOptions> extractQuotesOptions,
         ILogger<ExtractQuotesManager> logger)
         : base(api, chesService, chesOptions, extractQuotesOptions, logger)
     {
-        _user = user;
-        _serializationOptions = serializationOptions.Value;
         this.Listener = listener;
         this.Listener.IsLongRunningJob = true;
         this.Listener.OnError += ListenerErrorHandler;
@@ -269,10 +262,8 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
             // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
             var content = await this.Api.FindContentByIdAsync(result.Message.Value.ContentId);
             var ministers = await this.Api.GetMinistersAsync();
-            if (content != null)
+            if (content != null) // need to check here if this content uses a transcript and if it does, skip if transcript is not approved
             {
-                // Update the unpublished content with the latest data and status.
-
                 var text = new StringBuilder();
                 // Only use Summary if Body is empty
                 if (String.IsNullOrWhiteSpace(content.Body) && !String.IsNullOrWhiteSpace(content.Summary)) {
@@ -300,12 +291,13 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
                     List<API.Areas.Services.Models.Content.QuoteModel> quotesToAdd = new List<API.Areas.Services.Models.Content.QuoteModel>();
                     foreach(var speaker in speakersAndQuotes.Keys) {
                         foreach(var quote in speakersAndQuotes[speaker]) {
-                            quotesToAdd.Add(new API.Areas.Services.Models.Content.QuoteModel() {Id = 0, ContentId = content.Id, Byline = speaker, Statement = quote});
+                            // only add quotes which dont match any previously captured
+                            if (!content.Quotes.Any((q) => q.Byline.Equals(speaker) && q.Statement.Equals(quote)))
+                                quotesToAdd.Add(new API.Areas.Services.Models.Content.QuoteModel() {Id = 0, ContentId = content.Id, Byline = speaker, Statement = quote});
                         }
                     }
                     content = await this.Api.AddQuotesToContentAsync(content.Id, quotesToAdd);
                 }
-
             }
             else
             {
@@ -315,34 +307,28 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         this.Logger.LogDebug($"ProcessIndexRequestAsync:END:{result.Message.Key}");
     }
 
-    // /// <summary>
-    // /// Extract quotes from content.
-    // /// </summary>
-    // /// <param name="content"></param>
-    // /// <returns></returns>
-    // private async Task ExtractQuotesAsync(API.Areas.Services.Models.Content.ContentModel content)
-    // {
-    //     this.Logger.LogDebug($"ExtractQuotesAsync:BEGIN:{content.Id}");
-
-    //     // do magic stuff here to extract quotes
-    //     // return a reponse as to whether any quotes were extracted or whether the process failed...?
-
-    //     this.Logger.LogDebug($"ExtractQuotesAsync:END:{content.Id}");
-    // }
-    
     private Dictionary<string, List<string>> ExtractSpeakersAndQuotes(IEnumerable<MinisterModel> ministers, AnnotationResponse annotations)
     {
         Dictionary<string, List<string>> speakersAndQuotes = new Dictionary<string, List<string>>();
 
         foreach(var quote in annotations.Quotes) {
-            var canonicalSpeaker = quote.speaker;
+            var canonicalSpeaker = quote.canonicalSpeaker;
+            // if nlp isnt willing to guess a speaker, see if we can find a PERSON mentioned in the same sentence as the Quote
+            if (canonicalSpeaker.Equals("Unknown")) {
+                var speakerInSameSentenceAsQuote = annotations.Sentences[quote.beginSentence].entityMentions.FirstOrDefault((m) => m.ner.Equals("PERSON"));
+                if (speakerInSameSentenceAsQuote != null) canonicalSpeaker = speakerInSameSentenceAsQuote.text;
+            }
             
             var quotedMinister = ministers.FirstOrDefault((m) => m.Name.Contains(canonicalSpeaker));
             if (quotedMinister != null) canonicalSpeaker = quotedMinister.Name;
 
             if (!speakersAndQuotes.ContainsKey(canonicalSpeaker)) speakersAndQuotes.Add(canonicalSpeaker, new List<string>());
 
-            speakersAndQuotes[canonicalSpeaker].Add(quote.text);
+            var cleanedQuoteText = quote.text;
+            cleanedQuoteText = Regex.Replace(cleanedQuoteText, "^\"", string.Empty); // remove quote from start
+            cleanedQuoteText = Regex.Replace(cleanedQuoteText, "\"$", string.Empty); // remove quote from end
+
+            speakersAndQuotes[canonicalSpeaker].Add(cleanedQuoteText);
         }
 
         return speakersAndQuotes;
