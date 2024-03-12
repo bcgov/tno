@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TNO.DAL;
@@ -14,9 +15,11 @@ using TNO.Entities.Models;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    partial class TNOContextModelSnapshot : ModelSnapshot
+    [Migration("20240311192020_1.0.130")]
+    partial class _10130
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3289,74 +3292,6 @@ namespace TNO.DAL.Migrations
                     b.ToTable("product");
                 });
 
-            modelBuilder.Entity("TNO.Entities.Quote", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Byline")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("byline");
-
-                    b.Property<long>("ContentId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("content_id");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<bool>("IsRelevant")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_relevant");
-
-                    b.Property<string>("Statement")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("statement");
-
-                    b.Property<string>("UpdatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("updated_by");
-
-                    b.Property<DateTime>("UpdatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("version")
-                        .HasDefaultValueSql("0");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContentId");
-
-                    b.HasIndex(new[] { "Statement" }, "IX_statement");
-
-                    b.ToTable("quote");
-                });
-
             modelBuilder.Entity("TNO.Entities.Report", b =>
                 {
                     b.Property<int>("Id")
@@ -4190,54 +4125,6 @@ namespace TNO.DAL.Migrations
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_series_is_enabled");
 
                     b.ToTable("series");
-                });
-
-            modelBuilder.Entity("TNO.Entities.SeriesMediaTypeSearchMapping", b =>
-                {
-                    b.Property<int>("SeriesId")
-                        .HasColumnType("integer")
-                        .HasColumnName("series_id");
-
-                    b.Property<int>("MediaTypeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("media_type_id");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("UpdatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("updated_by");
-
-                    b.Property<DateTime>("UpdatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("version")
-                        .HasDefaultValueSql("0");
-
-                    b.HasKey("SeriesId", "MediaTypeId");
-
-                    b.HasIndex("MediaTypeId");
-
-                    b.ToTable("series_media_type_search_mapping");
                 });
 
             modelBuilder.Entity("TNO.Entities.Setting", b =>
@@ -6241,17 +6128,6 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("TNO.Entities.Quote", b =>
-                {
-                    b.HasOne("TNO.Entities.Content", "Content")
-                        .WithMany("Quotes")
-                        .HasForeignKey("ContentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Content");
-                });
-
             modelBuilder.Entity("TNO.Entities.Report", b =>
                 {
                     b.HasOne("TNO.Entities.User", "Owner")
@@ -6395,25 +6271,6 @@ namespace TNO.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Source");
-                });
-
-            modelBuilder.Entity("TNO.Entities.SeriesMediaTypeSearchMapping", b =>
-                {
-                    b.HasOne("TNO.Entities.MediaType", "MediaType")
-                        .WithMany("SeriesSearchMappingsManyToMany")
-                        .HasForeignKey("MediaTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TNO.Entities.Series", "Series")
-                        .WithMany("MediaTypeSearchMappingsManyToMany")
-                        .HasForeignKey("SeriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MediaType");
-
-                    b.Navigation("Series");
                 });
 
             modelBuilder.Entity("TNO.Entities.Source", b =>
@@ -6766,8 +6623,6 @@ namespace TNO.DAL.Migrations
 
                     b.Navigation("NotificationsManyToMany");
 
-                    b.Navigation("Quotes");
-
                     b.Navigation("ReportsManyToMany");
 
                     b.Navigation("TagsManyToMany");
@@ -6835,8 +6690,6 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Contents");
 
                     b.Navigation("Ingests");
-
-                    b.Navigation("SeriesSearchMappingsManyToMany");
 
                     b.Navigation("SourceSearchMappingsManyToMany");
 
@@ -6916,8 +6769,6 @@ namespace TNO.DAL.Migrations
             modelBuilder.Entity("TNO.Entities.Series", b =>
                 {
                     b.Navigation("Contents");
-
-                    b.Navigation("MediaTypeSearchMappingsManyToMany");
 
                     b.Navigation("ScoreRules");
                 });

@@ -12,11 +12,14 @@ import {
   FieldSize,
   FormikCheckbox,
   FormikDatePicker,
+  FormikSelect,
   FormikText,
   FormikTextArea,
   IconButton,
   IMediaTypeModel,
+  ListOption,
   Modal,
+  OptionItem,
   Row,
   Show,
   TextArea,
@@ -39,6 +42,10 @@ const MediaTypeForm: React.FC = () => {
     (state as any)?.mediaType ?? defaultMediaType,
   );
   const [settings, setSettings] = React.useState('');
+  const listOptions = [
+    new OptionItem('Source', `${ListOption.Source}`),
+    new OptionItem('Program/Show', `${ListOption.Series}`),
+  ];
 
   React.useEffect(() => {
     if (!!mediaTypeId && mediaType?.id !== mediaTypeId) {
@@ -91,6 +98,7 @@ const MediaTypeForm: React.FC = () => {
             <Col className="form-inputs">
               <FormikText width={FieldSize.Large} name="name" label="Name" />
               <FormikTextArea name="description" label="Description" width={FieldSize.Large} />
+              <FormikSelect label="List Option" name="listOption" options={listOptions} />
               <FormikText
                 width={FieldSize.Tiny}
                 name="sortOrder"
