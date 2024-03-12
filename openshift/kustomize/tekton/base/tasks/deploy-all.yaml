@@ -158,6 +158,16 @@ spec:
         )
 
         declare -A COMPONENT9=(
+          [id]="extract-quotes"
+          [name]="extract-quotes-service"
+          [type]="dc"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT10=(
           [id]="filecopy"
           [name]="filecopy-service"
           [type]="dc"
@@ -167,7 +177,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT10=(
+        declare -A COMPONENT11=(
           [id]="reporting"
           [name]="reporting-service"
           [type]="dc"
@@ -177,7 +187,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT11=(
+        declare -A COMPONENT12=(
           [id]="notification"
           [name]="notification-service"
           [type]="dc"
@@ -187,7 +197,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT12=(
+        declare -A COMPONENT13=(
           [id]="scheduler"
           [name]="scheduler-service"
           [type]="dc"
@@ -197,8 +207,8 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT13=(
-          [id]="foldercollection"
+        declare -A COMPONENT14=(
+          [id]="folder-collection"
           [name]="folder-collection-service"
           [type]="dc"
           [replicas]="1"
@@ -207,7 +217,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT14=(
+        declare -A COMPONENT15=(
           [id]="ffmpeg"
           [name]="ffmpeg-service"
           [type]="dc"
@@ -217,8 +227,8 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT15=(
-          [id]="eventhandler"
+        declare -A COMPONENT16=(
+          [id]="event-handler"
           [name]="event-handler-service"
           [type]="dc"
           [replicas]="1"
@@ -229,7 +239,7 @@ spec:
 
         # Ingest Services
 
-        declare -A COMPONENT16=(
+        declare -A COMPONENT17=(
           [id]="syndication"
           [name]="syndication-service"
           [type]="dc"
@@ -239,7 +249,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT17=(
+        declare -A COMPONENT18=(
           [id]="filemonitor"
           [name]="filemonitor-service"
           [type]="dc"
@@ -249,7 +259,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT18=(
+        declare -A COMPONENT19=(
           [id]="image"
           [name]="image-service"
           [type]="dc"
@@ -259,7 +269,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT19=(
+        declare -A COMPONENT20=(
           [id]="capture"
           [name]="capture-service"
           [type]="dc"
@@ -269,7 +279,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT20=(
+        declare -A COMPONENT21=(
           [id]="clip"
           [name]="clip-service"
           [type]="dc"
@@ -279,7 +289,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT21=(
+        declare -A COMPONENT22=(
           [id]="contentmigration"
           [name]="contentmigration-service"
           [type]="dc"
@@ -289,7 +299,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT22=(
+        declare -A COMPONENT23=(
           [id]="contentmigration"
           [name]="contentmigration-historic-service"
           [type]="dc"
