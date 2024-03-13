@@ -27,6 +27,12 @@ public class QuoteModel : AuditColumnsModel
     /// get/set - The person attributed to the statement.
     /// </summary>
     public string Byline { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Is this a relevant quote, one that adds value to content.
+    /// </summary>
+    public bool IsRelevant  { get; set; } = true;
+    
     #endregion
 
     #region Constructors
@@ -45,6 +51,7 @@ public class QuoteModel : AuditColumnsModel
         this.ContentId = entity.ContentId;
         this.Statement = entity.Statement;
         this.Byline = entity.Byline;
+        this.IsRelevant = entity.IsRelevant;
     }
     #endregion
 
@@ -67,7 +74,7 @@ public class QuoteModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.Quote(QuoteModel model)
     {
-        return new Entities.Quote(model.ContentId, model.Statement, model.Byline)
+        return new Entities.Quote(model.ContentId, model.Statement, model.Byline, model.IsRelevant)
         {
             Id = model.Id,
             Version = model.Version ?? 0,

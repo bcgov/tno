@@ -14,6 +14,7 @@ import {
   ContentTypeName,
   IContentModel,
   IMinisterModel,
+  IQuoteModel,
   IWorkOrderModel,
   Row,
   Show,
@@ -53,6 +54,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   const [content, setContent] = React.useState<IContentModel>();
   const [avStream, setAVStream] = React.useState<IStream>();
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
+  const [filteredQuotes, setFilteredQuotes] = React.useState<IQuoteModel[]>([]);
 
   const fileReference = content?.fileReferences ? content?.fileReferences[0] : undefined;
 
@@ -143,7 +145,8 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
         if (!!content) {
           setActiveContent && setActiveContent([content]);
           setContent(content);
-        } else {
+          if (!!content.quotes.length)
+            setFilteredQuotes(content.quotes.filter((q) => q.isRelevant));
         }
       });
       findWorkOrders({ contentId: id }).then((res) => {
@@ -184,10 +187,10 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
           <div className="source-section">{`${content?.section} ${
             content?.page && `:${content.page}`
           }`}</div>
-          <Show visible={!!content?.quotes?.length}>
+          <Show visible={!!filteredQuotes.length}>
             <span className="divider">|</span>
             <a href="#quotes-anchor" title="go to Quotes">
-              [{content?.quotes?.length}] Quotes
+              [{filteredQuotes.length}] Quotes
             </a>
           </Show>
           {content?.tonePools && content?.tonePools.length && (
@@ -285,14 +288,14 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
         visible={
           (content?.contentType === ContentTypeName.PrintContent ||
             content?.contentType === ContentTypeName.Internet) &&
-          !!content.quotes?.length
+          !!filteredQuotes.length
         }
       >
         <hr />
         <h3 id="quotes-anchor">Quotes:</h3>
         <Row>
           <ul className="quotes-container">
-            {content?.quotes.map((q) => {
+            {filteredQuotes.map((q) => {
               return (
                 <li key={q.id}>
                   <q className="quote-statement">{q.statement}</q>

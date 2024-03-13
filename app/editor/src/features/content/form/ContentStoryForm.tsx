@@ -71,7 +71,11 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
       >
         <FormikContentWysiwyg
           className="content-body"
-          label="Story"
+          label={
+            contentType === ContentTypeName.PrintContent || contentType === ContentTypeName.Internet
+              ? 'Story'
+              : 'Summary'
+          }
           name="body"
           expandModal={setShowExpandModal}
           tags={tags}

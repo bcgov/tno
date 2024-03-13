@@ -1,6 +1,7 @@
 export * from './ContentClipForm';
 export * from './ContentForm';
 export * from './ContentLabelsForm';
+export * from './ContentQuotesForm';
 export * from './ContentStoryForm';
 export * from './ContentTranscriptForm';
 export * from './MediaSummary';
