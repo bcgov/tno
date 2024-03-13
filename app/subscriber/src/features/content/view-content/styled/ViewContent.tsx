@@ -67,4 +67,18 @@ export const ViewContent = styled.div`
     max-width: 100%;
     max-height: 100%;
   }
+
+  ul.quotes-container {
+    list-style-type: none;
+    margin: 0rem 2rem;
+    padding: 0;
+    li {
+      margin-bottom: 1rem;
+    }
+    label.quote-byline {
+      font-weight: bold;
+      font-style: italic;
+      padding-left: 1rem;
+    }
+  }
 `;

@@ -40,6 +40,7 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     fileReferences: [],
     links: [],
     workOrders: [],
+    quotes: [],
     versions: {},
     // Print Content
     section: '',
