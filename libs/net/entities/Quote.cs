@@ -33,7 +33,7 @@ public class Quote : AuditColumns
     /// <summary>
     /// get/set - Is this a relevant quote, one that adds value to content.
     /// </summary>
-    [Column("IsRelevant")]
+    [Column("is_relevant")]
     public bool IsRelevant { get; set; } = true;
 
     /// <summary>

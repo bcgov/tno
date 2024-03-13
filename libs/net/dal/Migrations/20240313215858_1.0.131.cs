@@ -13,7 +13,7 @@ namespace TNO.DAL.Migrations
         {
             PreUp(migrationBuilder);
             migrationBuilder.AddColumn<bool>(
-                name: "IsRelevant",
+                name: "is_relevant",
                 table: "quote",
                 type: "boolean",
                 nullable: false,
@@ -26,7 +26,7 @@ namespace TNO.DAL.Migrations
         {
             PreDown(migrationBuilder);
             migrationBuilder.DropColumn(
-                name: "IsRelevant",
+                name: "is_relevant",
                 table: "quote");
             PostDown(migrationBuilder);
         }

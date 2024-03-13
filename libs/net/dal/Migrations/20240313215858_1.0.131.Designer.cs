@@ -15,7 +15,7 @@ using TNO.Entities.Models;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20240313164234_1.0.131")]
+    [Migration("20240313215858_1.0.131")]
     partial class _10131
     {
         /// <inheritdoc />
@@ -3321,7 +3321,7 @@ namespace TNO.DAL.Migrations
 
                     b.Property<bool>("IsRelevant")
                         .HasColumnType("boolean")
-                        .HasColumnName("IsRelevant");
+                        .HasColumnName("is_relevant");
 
                     b.Property<string>("Statement")
                         .IsRequired()

@@ -3318,7 +3318,7 @@ namespace TNO.DAL.Migrations
 
                     b.Property<bool>("IsRelevant")
                         .HasColumnType("boolean")
-                        .HasColumnName("IsRelevant");
+                        .HasColumnName("is_relevant");
 
                     b.Property<string>("Statement")
                         .IsRequired()
