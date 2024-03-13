@@ -283,8 +283,12 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
                         text.AppendLine(node.InnerText);
                     }
                 }
-
-                var annotations = await CoreNLPService.PerformAnnotation(text.ToString());
+                var annotationInput = text.ToString();
+                if (annotationInput.Length == 0) {
+                    this.Logger.LogInformation("Content ID: {Key} has no text to extract quotes from.", result.Message.Key);
+                    return;
+                }
+                var annotations = await CoreNLPService.PerformAnnotation(annotationInput);
                 if (annotations != null && annotations.Quotes.Any()) {
                     this.Logger.LogInformation("Extracted [{quoteCount}] Quotes from Content ID: {Key}", annotations.Quotes.Count, result.Message.Key);
 
