@@ -254,7 +254,7 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     {
         this.Logger.LogDebug($"ProcessIndexRequestAsync:BEGIN:{result.Message.Key}");
 
-        this.Logger.LogInformation("Indexing content from Topic: {Topic}, Content ID: {Key}", result.Topic, result.Message.Key);
+        this.Logger.LogInformation("Extracting Quotes from Topic: {Topic}, Content ID: {Key}", result.Topic, result.Message.Key);
         var model = result.Message.Value;
 
         if (model.Action == IndexAction.Index || model.Action == IndexAction.Publish)
@@ -286,6 +286,8 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
 
                 var annotations = await CoreNLPService.PerformAnnotation(text.ToString());
                 if (annotations != null && annotations.Quotes.Any()) {
+                    this.Logger.LogInformation("Extracted [{quoteCount}] Quotes from Content ID: {Key}", annotations.Quotes.Count, result.Message.Key);
+
                     var speakersAndQuotes = ExtractSpeakersAndQuotes(ministers, annotations);
 
                     List<API.Areas.Services.Models.Content.QuoteModel> quotesToAdd = new List<API.Areas.Services.Models.Content.QuoteModel>();
@@ -297,6 +299,8 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
                         }
                     }
                     content = await this.Api.AddQuotesToContentAsync(content.Id, quotesToAdd);
+                } else {
+                    this.Logger.LogInformation("Extracted [{quoteCount}] Quotes from Content ID: {Key}", 0, result.Message.Key);
                 }
             }
             else
