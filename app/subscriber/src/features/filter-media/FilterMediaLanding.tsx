@@ -3,7 +3,7 @@ import { useSubMediaGroups } from 'features/hooks';
 import { ISubMediaGroupItem } from 'features/search-page/components/advanced-search/interfaces';
 import React from 'react';
 import { useContent, useLookup } from 'store/hooks';
-import { Col, ISourceModel, Row, Show } from 'tno-core';
+import { Col, ISeriesModel, ISourceModel, Row, Show } from 'tno-core';
 
 import { FilterMedia } from './FilterMedia';
 import * as styled from './styled';
@@ -17,14 +17,15 @@ export const FilterMediaLanding: React.FC = () => {
     },
     { storeMediaTypeFilter: storeFilter },
   ] = useContent();
-  const [{ sources, mediaTypes }] = useLookup();
-  const { subMediaGroups = [] } = useSubMediaGroups(sources, mediaTypes);
+  const [{ sources, mediaTypes, series }] = useLookup();
+  const { subMediaGroups = [] } = useSubMediaGroups(sources, series, mediaTypes);
   const [mediaGroups, setMediaGroups] = React.useState<ISubMediaGroupItem[]>();
   const [activeFilter, setActiveFilter] = React.useState<ISubMediaGroupItem>();
 
   const [activeLetter, setActiveLetter] = React.useState<string>('All');
   const [narrowedOptions, setNarrowedOptions] = React.useState<ISourceModel[]>([]);
   const [activeSource, setActiveSource] = React.useState<ISourceModel | null>(null);
+  // const [activeSerie, setActiveSerie] = React.useState<ISeriesModel | null>(null);
   const [parentClicked, setParentClicked] = React.useState<boolean>(false);
 
   const [loaded, setLoaded] = React.useState<boolean>(false);
@@ -107,6 +108,7 @@ export const FilterMediaLanding: React.FC = () => {
                     else if (mediaGroup.label === 'Online') setActiveLetter('B');
                     else setActiveLetter('All');
                     setActiveFilter(mediaGroup);
+                    console.log('mediaFilter', mediaGroup);
                     setParentClicked(true);
                   }}
                   className={`${

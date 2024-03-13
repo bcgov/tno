@@ -95,7 +95,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
   );
 
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
-  const [{ sources, mediaTypes }] = useLookup();
+  const [{ sources, series, mediaTypes }] = useLookup();
 
   React.useEffect(() => {
     // remove [ and ] and everything in between from query
@@ -251,6 +251,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
                 <MediaSection
                   displayFiltersAsDropdown={displayFiltersAsDropdown}
                   sources={sources.filter((s) => s.isEnabled)}
+                  series={series.filter((s) => s.isEnabled)}
                   mediaTypes={mediaTypes.filter((s) => s.isEnabled)}
                 />
               </ExpandableRow>

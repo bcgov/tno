@@ -3,7 +3,7 @@ import {
   ISubMediaGroupItem,
 } from 'features/search-page/components/advanced-search/interfaces';
 import { useEffect, useMemo, useState } from 'react';
-import { IMediaTypeModel, ISourceModel } from 'tno-core';
+import { IMediaTypeModel, ISeriesModel, ISourceModel } from 'tno-core';
 
 /**
  * Custom hook to create and manage sub media groups.
@@ -13,6 +13,7 @@ import { IMediaTypeModel, ISourceModel } from 'tno-core';
  */
 export const useSubMediaGroups = (
   sources: ISourceModel[],
+  series: ISeriesModel[],
   mediaTypes: IMediaTypeModel[],
 ): {
   subMediaGroups: ISubMediaGroupItem[];
@@ -38,6 +39,23 @@ export const useSubMediaGroups = (
     // Filter out media types with no sources
     return Object.fromEntries(Object.entries(lookup).filter(([_, value]) => value.length > 0));
   }, [sources, mediaTypes]);
+
+  // Determine mediaTypeSourceLookup only when sources or mediaTypes change
+  const mediaTypeSeriesLookup = useMemo(() => {
+    const lookup: { [key: string]: ISeriesModel[] } = { All: [...series] }; // Initialize with 'All' key
+    mediaTypes.forEach((mt) => {
+      lookup[mt.name] = []; // Initialize media type keys
+    });
+    series.forEach((serie) => {
+      serie.mediaTypeSearchMappings?.forEach((mapping) => {
+        if (lookup[mapping.name]) {
+          lookup[mapping.name].push(serie);
+        }
+      });
+    });
+    // Filter out media types with no sources
+    return Object.fromEntries(Object.entries(lookup).filter(([_, value]) => value.length > 0));
+  }, [series, mediaTypes]);
 
   useEffect(() => {
     const subGroups: ISubMediaGroupItem[] = Object.keys(mediaTypeSourceLookup).map((key) => ({
