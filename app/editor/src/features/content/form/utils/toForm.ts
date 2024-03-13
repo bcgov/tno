@@ -49,7 +49,7 @@ export function toForm(model: IContentModel): IContentForm {
     links: model.links ?? [],
     workOrders: [],
     versions: model.versions,
-    quotes: [],
+    quotes: model.quotes,
     // Print Content
     section: model.section ?? '',
     edition: model.edition ?? '',

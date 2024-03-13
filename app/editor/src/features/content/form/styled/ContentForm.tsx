@@ -172,7 +172,7 @@ export const ContentForm = styled.div`
   }
 
   .tab-layout {
-    width: 65%;
+    // width: 65%;
   }
 
   .other-series-select {

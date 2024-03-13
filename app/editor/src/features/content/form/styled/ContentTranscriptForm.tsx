@@ -4,7 +4,8 @@ export const ContentTranscriptForm = styled.div`
   flex: 1 1 100%;
   display: flex;
   flex-direction: column;
-  margin: 1em;
+  margin-top: 1em;
+  min-height: 200px;
 
   .quill-body {
     flex: 1;

@@ -1,4 +1,4 @@
-import { IContentModel, IWorkOrderModel } from 'tno-core';
+import { IContentModel, IQuoteModel, IWorkOrderModel } from 'tno-core';
 
 export interface IContentForm
   extends Omit<
@@ -22,6 +22,7 @@ export interface IContentForm
   uid: string;
   sourceUrl: string;
   workOrders: IWorkOrderModel[];
+  quotes: IQuoteModel[];
   publishedOnTime: string;
   file?: File | null;
   prep?: number;

@@ -31,6 +31,12 @@ public class Quote : AuditColumns
     public string Byline { get; set; } = "";
 
     /// <summary>
+    /// get/set - Is this a relevant quote, one that adds value to content.
+    /// </summary>
+    [Column("IsRelevant")]
+    public bool IsRelevant { get; set; } = true;
+
+    /// <summary>
     /// get/set - Foreign key to the owning content.
     /// </summary>
     [Column("content_id")]
@@ -53,10 +59,11 @@ public class Quote : AuditColumns
     /// </summary>
     /// <param name="statement"></param>
     /// <param name="byline"></param>
-    public Quote(string statement, string byline) : base()
+    public Quote(string statement, string byline, bool isRelevant = true) : base()
     {
         this.Statement = statement;
         this.Byline = byline;
+        this.IsRelevant = isRelevant;
     }
 
     /// <summary>
@@ -65,8 +72,8 @@ public class Quote : AuditColumns
     /// <param name="contentId"></param>
     /// <param name="statement"></param>
     /// <param name="byline"></param>
-    public Quote(long contentId, string statement, string byline)
-        : this(statement, byline)
+    public Quote(long contentId, string statement, string byline, bool isRelevant)
+        : this(statement, byline, isRelevant)
     {
         this.ContentId = contentId;
     }
@@ -77,8 +84,8 @@ public class Quote : AuditColumns
     /// <param name="content"></param>
     /// <param name="statement"></param>
     /// <param name="byline"></param>
-    public Quote(Content content, string statement, string byline)
-         : this(content.Id, statement, byline)
+    public Quote(Content content, string statement, string byline, bool isRelevant)
+         : this(content.Id, statement, byline, isRelevant)
     {
     }
     #endregion

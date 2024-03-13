@@ -5,4 +5,5 @@ export interface IQuoteModel extends IAuditColumnsModel {
   contentId: number;
   statement: string;
   byline: string;
+  isRelevant: boolean;
 }
