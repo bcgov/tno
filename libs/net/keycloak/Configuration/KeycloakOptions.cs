@@ -1,7 +1,7 @@
-using TNO.Core.Exceptions;
-using TNO.Core.Http.Configuration;
 using System;
 using System.ComponentModel.DataAnnotations;
+using TNO.Core.Exceptions;
+using TNO.Core.Http.Configuration;
 
 namespace TNO.Keycloak.Configuration
 {
@@ -17,6 +17,16 @@ namespace TNO.Keycloak.Configuration
         /// <value></value>
         [Required(ErrorMessage = "Configuration 'Realm' is required.")]
         public string Realm { get; set; } = "";
+
+        /// <summary>
+        /// get/set - Path to realm endpoints.
+        /// </summary>
+        public string RealmPath { get; set; } = "/auth/realms/";
+
+        /// <summary>
+        /// get/set - Path to admin endpoints.
+        /// </summary>
+        public string AdminPath { get; set; } = "/auth/admin/realms/";
         #endregion
 
         #region Methods

@@ -1,6 +1,6 @@
 {
   "realm": "tno",
-  "auth-server-url": "http://host.docker.internal:40001/auth/",
+  "auth-server-url": "http://localhost:40001/",
   "ssl-required": "external",
   "resource": "tno-app",
   "public-client": true,
