@@ -186,7 +186,9 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
           }`}</div>
           <Show visible={!!content?.quotes?.length}>
             <span className="divider">|</span>
-            <a href="#quotes-anchor" title="go to Quotes">[{content?.quotes?.length}] Quotes</a>
+            <a href="#quotes-anchor" title="go to Quotes">
+              [{content?.quotes?.length}] Quotes
+            </a>
           </Show>
           {content?.tonePools && content?.tonePools.length && (
             <Row className="tone-group">
@@ -293,7 +295,8 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
             {content?.quotes.map((q) => {
               return (
                 <li key={q.id}>
-                  <q className="quote-statement">{q.statement}</q><br/>
+                  <q className="quote-statement">{q.statement}</q>
+                  <br />
                   <label className="quote-byline">&mdash; {q.byline}</label>
                 </li>
               );
