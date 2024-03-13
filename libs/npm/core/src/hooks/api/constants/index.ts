@@ -15,7 +15,7 @@ export * from './ContentType';
 export * from './ContentTypeName';
 export * from './FFmpegAction';
 export * from './FFmpegActionName';
-export * from './ListOption';
+export * from './ListOptionName';
 export * from './LogicalOperator';
 export * from './MessageTargetName';
 export * from './NotificationStatus';

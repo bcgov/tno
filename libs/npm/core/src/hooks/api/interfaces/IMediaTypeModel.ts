@@ -1,8 +1,8 @@
-import { ListOption } from '../constants';
+import { ListOptionName } from '../constants';
 import { IMediaTypeSettingsModel, ISortableModel } from '.';
 
 export interface IMediaTypeModel extends ISortableModel<number> {
   autoTranscribe: boolean;
-  listOption: ListOption;
+  listOption: ListOptionName;
   settings: IMediaTypeSettingsModel;
 }

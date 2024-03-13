@@ -17,7 +17,7 @@ import {
   FormikTextArea,
   IconButton,
   IMediaTypeModel,
-  ListOption,
+  ListOptionName,
   Modal,
   OptionItem,
   Row,
@@ -43,8 +43,8 @@ const MediaTypeForm: React.FC = () => {
   );
   const [settings, setSettings] = React.useState('');
   const listOptions = [
-    new OptionItem('Source', ListOption[ListOption.Source]),
-    new OptionItem('Program/Show', ListOption[ListOption.Series]),
+    new OptionItem('Source', ListOptionName.Source),
+    new OptionItem('Program/Show', ListOptionName.Series),
   ];
 
   React.useEffect(() => {

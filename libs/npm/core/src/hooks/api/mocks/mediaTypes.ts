@@ -1,5 +1,5 @@
 import { IMediaTypeModel } from '..';
-import { ListOption } from '../constants';
+import { ListOptionName } from '../constants';
 export const mockMediaTypes: IMediaTypeModel[] = [
   {
     id: 1,
@@ -9,7 +9,7 @@ export const mockMediaTypes: IMediaTypeModel[] = [
     isEnabled: true,
     autoTranscribe: false,
     settings: {},
-    listOption: ListOption.Source,
+    listOption: ListOptionName.Source,
   },
   {
     id: 2,
@@ -19,6 +19,6 @@ export const mockMediaTypes: IMediaTypeModel[] = [
     isEnabled: true,
     autoTranscribe: false,
     settings: {},
-    listOption: ListOption.Source,
+    listOption: ListOptionName.Source,
   },
 ];
