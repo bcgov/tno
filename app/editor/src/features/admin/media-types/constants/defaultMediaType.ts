@@ -1,4 +1,4 @@
-import { IMediaTypeModel, ListOption } from 'tno-core';
+import { IMediaTypeModel, ListOptionName } from 'tno-core';
 
 export const defaultMediaType: IMediaTypeModel = {
   id: 0,
@@ -8,5 +8,5 @@ export const defaultMediaType: IMediaTypeModel = {
   isEnabled: true,
   sortOrder: 0,
   settings: {},
-  listOption: ListOption.Source,
+  listOption: ListOptionName.Source,
 };
