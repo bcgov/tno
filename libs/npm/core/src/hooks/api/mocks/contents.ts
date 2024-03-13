@@ -32,6 +32,7 @@ export const mockContents: IContentModel[] = [
     timeTrackings: [],
     fileReferences: [],
     links: [],
+    quotes: [],
     versions: {},
   },
   {
@@ -64,6 +65,7 @@ export const mockContents: IContentModel[] = [
     timeTrackings: [],
     fileReferences: [],
     links: [],
+    quotes: [],
     versions: {},
   },
   {
@@ -96,6 +98,7 @@ export const mockContents: IContentModel[] = [
     timeTrackings: [],
     fileReferences: [],
     links: [],
+    quotes: [],
     versions: {},
   },
   {
@@ -128,6 +131,7 @@ export const mockContents: IContentModel[] = [
     timeTrackings: [],
     fileReferences: [],
     links: [],
+    quotes: [],
     versions: {},
   },
   {
@@ -160,6 +164,7 @@ export const mockContents: IContentModel[] = [
     timeTrackings: [],
     fileReferences: [],
     links: [],
+    quotes: [],
     versions: {},
   },
   {
@@ -192,6 +197,7 @@ export const mockContents: IContentModel[] = [
     timeTrackings: [],
     fileReferences: [],
     links: [],
+    quotes: [],
     versions: {},
   },
 ];
