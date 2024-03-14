@@ -1,3 +1,4 @@
+using TNO.API.Areas.Services.Models.Content;
 using TNO.Core.Http;
 
 namespace TNO.Services;
@@ -275,6 +276,14 @@ public interface IApiService
     Task<API.Areas.Services.Models.User.UserModel?> GetUserAsync(int id);
     #endregion
 
+    #region Ministers
+    /// <summary>
+    /// Make a request to the API to fetch the list of all Ministers.
+    /// </summary>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.Minister.MinisterModel>> GetMinistersAsync();
+    #endregion
+
     #region Notifications
     /// <summary>
     /// Make a request to the API to fetch all the notifications.
@@ -440,5 +449,13 @@ public interface IApiService
     /// <param name="toBottom"></param>
     /// <returns></returns>
     Task<HttpResponseMessage> AddContentToFolderAsync(long contentId, int folderId, bool toBottom = true);
+
+    /// <summary>
+    /// Add the quotes to the specified content.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="quotes"></param>
+    /// <returns></returns>
+    Task<ContentModel?> AddQuotesToContentAsync(long contentId, IEnumerable<QuoteModel> quotes);
     #endregion
 }

@@ -47,6 +47,7 @@ export function toModel(values: IContentForm): IContentModel {
     tonePools: values.tonePools,
     fileReferences: values.fileReferences,
     links: values.links,
+    quotes: values.quotes,
     versions: values.versions,
     // Print Content
     edition: values.edition,

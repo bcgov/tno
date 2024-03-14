@@ -17,6 +17,7 @@ import {
   IContentVersionModel,
   IContributorModel,
   IFileReferenceModel,
+  IQuoteModel,
   ISourceModel,
   ITimeTrackingModel,
 } from '.';
@@ -61,6 +62,7 @@ export interface IContentModel extends IAuditColumnsModel {
   timeTrackings: ITimeTrackingModel[];
   fileReferences: IFileReferenceModel[];
   links: IContentLinkModel[];
+  quotes: IQuoteModel[];
   versions: Record<number, IContentVersionModel>;
 
   // React-Table Properties

@@ -233,6 +233,12 @@ public class ContentModel : AuditColumnsModel
     /// get - An array of content links.
     /// </summary>
     public IEnumerable<ContentLinkModel> Links { get; set; } = Array.Empty<ContentLinkModel>();
+
+    /// <summary>
+    /// get - An array of content quotes.
+    /// </summary>
+    public IEnumerable<QuoteModel> Quotes { get; set; } = Array.Empty<QuoteModel>();
+
     #endregion
 
     #region Constructors
@@ -287,6 +293,7 @@ public class ContentModel : AuditColumnsModel
         this.FileReferences = entity.FileReferences.Select(e => new FileReferenceModel(e));
         this.TimeTrackings = entity.TimeTrackings.Select(e => new TimeTrackingModel(e));
         this.Links = entity.Links.Select(e => new ContentLinkModel(e));
+        this.Quotes = entity.Quotes.Select(e => new QuoteModel(e));
         this.Versions = entity.Versions;
     }
     #endregion
@@ -334,6 +341,7 @@ public class ContentModel : AuditColumnsModel
         entity.Links.AddRange(model.Links.Select(l => l.ToEntity(entity.Id)));
         entity.FileReferences.AddRange(model.FileReferences.Select(f => f.ToEntity(entity.Id)));
         entity.TimeTrackings.AddRange(model.TimeTrackings.Select(t => t.ToEntity(entity.Id)));
+        entity.Quotes.AddRange(model.Quotes.Select(f => f.ToEntity(entity.Id)));
 
         return entity;
     }

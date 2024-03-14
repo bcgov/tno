@@ -14,8 +14,6 @@ namespace TNO.Keycloak;
 public partial class KeycloakService : IKeycloakService
 {
     #region Variables
-    private const string AUTH_URL = "/auth/realms/";
-    private const string ADMIN_URL = "/auth/admin/realms/";
     private readonly IOpenIdConnectRequestClient _client;
     #endregion
 
@@ -52,7 +50,7 @@ public partial class KeycloakService : IKeycloakService
     /// <returns></returns>
     private Uri GetAuthorityUrl()
     {
-        return new Uri(this.Options.Authority).Append(AUTH_URL, this.Options.Realm);
+        return new Uri(this.Options.Authority).Append(this.Options.RealmPath, this.Options.Realm);
     }
 
     /// <summary>
@@ -61,7 +59,7 @@ public partial class KeycloakService : IKeycloakService
     /// <returns></returns>
     private Uri GetBaseUrl()
     {
-        return new Uri(this.Options.Authority).Append(ADMIN_URL, this.Options.Realm);
+        return new Uri(this.Options.Authority).Append(this.Options.AdminPath, this.Options.Realm);
     }
 
     /// <summary>

@@ -205,6 +205,11 @@ public class ContentModel : AuditColumnsModel
     /// get/set - An array of tone pools.
     /// </summary>
     public IEnumerable<ContentTonePoolModel> TonePools { get; set; } = Array.Empty<ContentTonePoolModel>();
+
+    /// <summary>
+    /// get/set - An array of quotes.
+    /// </summary>
+    public IEnumerable<QuoteModel> Quotes { get; set; } = Array.Empty<QuoteModel>();
     #endregion
 
     #region Constructors
@@ -255,6 +260,7 @@ public class ContentModel : AuditColumnsModel
         this.FileReferences = entity.FileReferences.Select(e => new FileReferenceModel(e));
         this.Labels = entity.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = entity.TonePoolsManyToMany.Select(e => new ContentTonePoolModel(e));
+        this.Quotes = entity.Quotes.Select(e => new QuoteModel(e));
         this.Versions = entity.Versions;
     }
     #endregion
@@ -299,6 +305,7 @@ public class ContentModel : AuditColumnsModel
         entity.FileReferences.AddRange(model.FileReferences.Select(f => f.ToEntity(entity.Id)));
         entity.Labels.AddRange(model.Labels.Select(f => f.ToEntity(entity.Id)));
         entity.TonePoolsManyToMany.AddRange(model.TonePools.Select(tp => tp.ToEntity(entity.Id)));
+        entity.Quotes.AddRange(model.Quotes.Select(f => f.ToEntity(entity.Id)));
 
         return entity;
     }

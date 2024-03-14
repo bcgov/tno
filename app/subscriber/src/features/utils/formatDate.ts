@@ -5,10 +5,12 @@ import moment from 'moment';
  * @returns {string} - The formatted date
  * @description - This function takes a date and returns a formatted date string
  */
-export const formatDate = (date: string | Date, includeTime?: boolean) => {
+export const formatDate = (date: string | Date, includeTime?: boolean): string => {
+  const result = moment(date);
+  if (!result.isValid()) return '';
   if (includeTime) {
-    return moment(date).format('MMMM DD, YYYY hh:mm:ss');
+    return result.format('MMMM DD, YYYY hh:mm:ss');
   } else {
-    return moment(date).format('MMMM DD, YYYY');
+    return result.format('MMMM DD, YYYY');
   }
 };

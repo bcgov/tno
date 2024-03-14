@@ -89,10 +89,8 @@ function getNextReportSend(report: IReportModel): string {
  * @param report Report model.
  * @returns The next send on date.
  */
-export const calcNextSend = (report: IReportModel) => {
-  const schedules = report.events.filter(
-    (s: IReportScheduleModel) => s.isEnabled && s.settings.autoSend,
-  );
+export const calcNextReportSend = (report: IReportModel) => {
+  const schedules = report.events.filter((s: IReportScheduleModel) => s.isEnabled);
   if (!schedules.length) return 'NA';
   return getNextReportSend(report);
 };

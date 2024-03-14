@@ -46,7 +46,7 @@ namespace TNO.API.Helpers
                     const int defaultTopicId = 1;
                     Topic? defaultTopic = _topicService.FindById(defaultTopicId);
                     if (defaultTopic != null)
-                        content.TopicsManyToMany.Add(new ContentTopic(content, defaultTopic, 0));
+                        content.TopicsManyToMany.Add(new ContentTopic(content, defaultTopic, topicScore.Value));
                     else
                         _logger.LogWarning($"Couldn't retrieve default Topic with ID: [{defaultTopicId}] for Event of the day. Score will not be set on content.");
                 }

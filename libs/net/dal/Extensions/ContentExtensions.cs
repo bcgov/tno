@@ -81,6 +81,7 @@ public static class ContentExtensions
         var ofilereferences = context.FileReferences.Where(a => a.ContentId == updated.Id).ToArray();
         var olinks = context.ContentLinks.Where(a => a.ContentId == updated.Id).ToArray();
         var olabels = context.ContentLabels.Where(a => a.ContentId == updated.Id).ToArray();
+        var oquotes = context.Quotes.Where(a => a.ContentId == updated.Id).ToArray();
 
         oactions.Except(updated.ActionsManyToMany).ForEach(a =>
         {
@@ -94,6 +95,24 @@ public static class ContentExtensions
             else if (current.Value != a.Value)
             {
                 current.Value = a.Value;
+                current.Version = a.Version;
+            }
+        });
+
+        // oquotes.Except(updated.Quotes).ForEach(a =>
+        // {
+        //     context.Entry(a).State = EntityState.Deleted;
+        // });
+        updated.Quotes.ForEach(a =>
+        {
+            var current = a.Id != 0 ? oquotes.FirstOrDefault(o => o.Id == a.Id) : null;
+            if (current == null)
+                original.Quotes.Add(a);
+            else if (current.Byline != a.Byline || current.Statement != a.Statement|| current.IsRelevant != a.IsRelevant)
+            {
+                current.Byline = a.Byline;
+                current.Statement = a.Statement;
+                current.IsRelevant = a.IsRelevant;
                 current.Version = a.Version;
             }
         });

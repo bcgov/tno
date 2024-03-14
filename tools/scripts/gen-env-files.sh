@@ -77,6 +77,7 @@ INDEXING_PORT=$portIndexing
 IMAGE_PORT=$portImage
 TRANSCRIPTION_PORT=$portTranscription
 NLP_PORT=$portNlp
+CORENLP_PORT=$portCoreNlp
 FILECOPY_PORT=$portFileCopy
 NOTIFICATION_PORT=$portNotification
 REPORTING_PORT=$portReporting
@@ -84,6 +85,7 @@ FOLDER_COLLECTION_PORT=$portFolderCollection
 FFMPEG_PORT=$portFFmpeg
 SCHEDULER_PORT=$portScheduler
 EVENTHANDER_PORT=$portEventHandler
+EXTRACT_QUOTES_PORT=$portExtractQuotes
 
 #############################
 # Kafka Configuration
@@ -156,19 +158,16 @@ if test -f "./auth/keycloak/.env"; then
 else
 echo \
 "PROXY_ADDRESS_FORWARDING=true
-KEYCLOAK_USER=$keycloakUser
-KEYCLOAK_PASSWORD=$keycloakPassword
-KEYCLOAK_IMPORT='/tmp/realm-export.json -Dkeycloak.profile.feature.scripts=enabled -Dkeycloak.profile.feature.upload_scripts=enabled'
 KEYCLOAK_LOGLEVEL=WARN
 ROOT_LOGLEVEL=WARN
 
-DB_VENDOR=POSTGRES
-DB_ADDR=database
-DB_PORT=5432
-DB_SCHEMA=public
-DB_DATABASE=$keycloakDbName
-DB_USER=$dbUser
-DB_PASSWORD=$password" >> ./auth/keycloak/.env
+KC_DB=postgres
+KC_DB_URL=jdbc:postgresql://database/$keycloakDbName
+KC_DB_USERNAME=$dbUser
+KC_DB_PASSWORD=$password
+KC_HOSTNAME=localhost
+KEYCLOAK_ADMIN=$keycloakUser
+KEYCLOAK_ADMIN_PASSWORD=$keycloakPassword" >> ./auth/keycloak/.env
     echo "./auth/keycloak/.env created"
 fi
 
@@ -262,14 +261,14 @@ KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBrokerAdvertisedExternal
 ################################################
 # Local Keycloak
 ################################################
-keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+keycloak__Authority=http://host.docker.internal:$portKeycloak/realms/tno
 Keycloak__Audience=tno-app,tno-service-account
 Keycloak__Issuer=tno-app,tno-service-account
 CSS__ApiUrl=http://host.docker.internal:$portCssApi/api
 CSS__Authority=http://host.docker.internal:$portCssApi
 CSS__TokenPath=/api/v1/token
 CSS__ClientId=service-account-team-795-4127
-CSS__Secret={https://bcgov.github.io/sso-requests}" >> ./api/net/.env
+CSS__Secret={GET KEYCLOAK tno-service-account CLIENT SECRET}" >> ./api/net/.env
     echo "./api/net/.env created"
 fi
 
@@ -282,6 +281,8 @@ echo \
 ASPNETCORE_URLS=http://+:8080
 
 # Keycloak API
+Keycloak__RealmPath=/realms/
+Keycloak__AdminPath=/admin/realms/
 Keycloak__Secret={GET KEYCLOAK SERVICE ACCOUNT}" >> ./tools/css-api/.env
     echo "./tools/css-api/.env created"
 fi
@@ -490,7 +491,7 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -516,7 +517,7 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -543,7 +544,7 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -570,7 +571,7 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -597,7 +598,7 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -624,7 +625,7 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -653,7 +654,7 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -681,7 +682,7 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -708,7 +709,7 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -737,7 +738,7 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -763,7 +764,7 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -789,7 +790,7 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -814,7 +815,7 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -841,7 +842,7 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -870,7 +871,7 @@ ASPNETCORE_URLS=http://+:8081
 ###########################################
 # Local
 ###########################################
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -895,7 +896,7 @@ ASPNETCORE_URLS=http://+:8081
 ###########################################
 # Local
 ###########################################
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -913,7 +914,7 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
@@ -929,6 +930,33 @@ CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}" >> ./services/net/event-handler/.env
     echo "./services/net/event-handler/.env created"
 fi
+
+## Extract Quotes Service
+if test -f "./services/net/extract-quotes/.env"; then
+    echo "./services/net/extract-quotes/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__CoreNLPApiUrl=http://host.docker.internal:$portCoreNlp
+
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
+
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}" >> ./services/net/extract-quotes/.env
+    echo "./services/net/extract-quotes/.env created"
+fi
+
 
 
 ###########################################################################

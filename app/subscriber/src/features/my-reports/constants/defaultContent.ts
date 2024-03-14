@@ -28,5 +28,6 @@ export const defaultContent: IContentModel = {
   timeTrackings: [],
   fileReferences: [],
   links: [],
+  quotes: [],
   versions: {},
 };

@@ -717,6 +717,19 @@ public class ApiService : IApiService
     }
     #endregion
 
+    #region Ministers
+    /// <summary>
+    /// Make a request to the API to fetch the list of all Ministers.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.Minister.MinisterModel>> GetMinistersAsync()
+    {
+        var url = this.Options.ApiUrl.Append($"editor/ministers");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Minister.MinisterModel>>(url)) ?? Array.Empty<API.Areas.Services.Models.Minister.MinisterModel>();
+    }
+
+    #endregion
+
     #region Event Schedules
     /// <summary>
     /// Make a request to the API to fetch all event schedules.
@@ -832,5 +845,20 @@ public class ApiService : IApiService
         return await RetryRequestAsync(async () => await this.OpenClient.PutAsync(url));
     }
     #endregion
+
+    #region Quotes
+    /// <summary>
+    /// Add the quotes to the specified content.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="quotes"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.Content.ContentModel?> AddQuotesToContentAsync(long contentId, IEnumerable<API.Areas.Services.Models.Content.QuoteModel> quotes)
+    {
+        var url = this.Options.ApiUrl.Append($"services/contents/{contentId}/quotes");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.Content.ContentModel?>(url, JsonContent.Create(quotes)));
+    }
+    #endregion
+
     #endregion
 }

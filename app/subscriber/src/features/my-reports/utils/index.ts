@@ -1,4 +1,5 @@
-export * from './calcNextSend';
+export * from './calcNextReportSend';
+export * from './calcNextScheduleSend';
 export * from './createReportInstanceContent';
 export * from './getDestinationIndex';
 export * from './getHideEmpty';

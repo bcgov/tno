@@ -2,7 +2,8 @@ import { AxiosResponse } from 'axios';
 import React from 'react';
 
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IUserModel, useApi } from '..';
+import { useApi } from '..';
+import { ISubscriberUserModel } from '../interfaces/ISubscriberUserModel';
 
 /**
  * Common hook to make requests to the API.
@@ -19,8 +20,8 @@ export const useApiSubscriberUsers = (
   const api = useApi(options);
 
   return React.useRef({
-    updateUser: (model: IUserModel) => {
-      return api.put<IUserModel, AxiosResponse<IUserModel>, any>(
+    updateUser: (model: ISubscriberUserModel) => {
+      return api.put<ISubscriberUserModel, AxiosResponse<ISubscriberUserModel>, any>(
         `/subscriber/users/${model.id}`,
         model,
       );

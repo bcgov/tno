@@ -48,6 +48,7 @@ import {
   ContentClipForm,
   ContentLabelsForm,
   ContentNavigation,
+  ContentQuotesForm,
   ContentStoryForm,
   ContentTranscriptForm,
 } from '.';
@@ -538,8 +539,8 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     </Col>
                   </Show>
                 </Row>
-                <Row flex="1" wrap="nowrap" gap="0.5rem" className="section-upload">
-                  <Show visible={props.values.contentType === ContentTypeName.Image}>
+                <Show visible={props.values.contentType === ContentTypeName.Image}>
+                  <Row flex="1" wrap="nowrap" gap="0.5rem" className="section-upload">
                     <ContentStoryForm
                       contentType={ContentTypeName.Image}
                       setParsedTags={setParsedTags}
@@ -570,110 +571,114 @@ const ContentForm: React.FC<IContentFormProps> = ({
                         }}
                       />
                     </Col>
-                  </Show>
-                </Row>
+                  </Row>
+                </Show>
                 <Row flex="1" wrap="nowrap" gap="0.5rem" className="section-upload tab-section fvh">
-                  <Show
-                    visible={
-                      props.values.contentType !== ContentTypeName.PrintContent &&
-                      props.values.contentType !== ContentTypeName.Image
-                    }
-                  >
-                    <Tabs
-                      className={`fvh ${size === 1 ? 'small' : 'large'} tab-layout`}
-                      tabs={
-                        <>
-                          <Tab
-                            label="Summary"
-                            onClick={() => {
-                              setActive('summary');
-                            }}
-                            active={active === 'summary'}
-                            hasErrors={
-                              hasErrors(props.errors, ['publishedOn', 'tone', 'summary']) &&
-                              active !== 'summary'
-                            }
-                            showErrorOnSave={{ value: true, savePressed: savePressed }}
-                            setShowValidationToast={setShowValidationToast}
-                          />
-                          <Show visible={props.values.contentType === ContentTypeName.AudioVideo}>
+                  <Show visible={props.values.contentType !== ContentTypeName.Image}>
+                    <Col flex="1 1 auto" justifyContent="center">
+                      <Tabs
+                        className={`fvh ${size === 1 ? 'small' : 'large'} tab-layout`}
+                        tabs={
+                          <>
                             <Tab
-                              onClick={() => setActive('transcript')}
-                              active={active === 'transcript'}
+                              label={
+                                props.values.contentType === ContentTypeName.PrintContent ||
+                                props.values.contentType === ContentTypeName.Internet
+                                  ? 'Story'
+                                  : 'Summary'
+                              }
+                              onClick={() => {
+                                setActive('summary');
+                              }}
+                              active={active === 'summary'}
+                              hasErrors={
+                                hasErrors(props.errors, ['publishedOn', 'tone', 'summary']) &&
+                                active !== 'summary'
+                              }
+                              showErrorOnSave={{ value: true, savePressed: savePressed }}
+                              setShowValidationToast={setShowValidationToast}
+                            />
+                            <Tab
+                              label="Quotes"
+                              onClick={() => setActive('quotes')}
+                              active={active === 'quotes'}
+                            />
+                            <Show visible={props.values.contentType === ContentTypeName.AudioVideo}>
+                              <Tab
+                                onClick={() => setActive('transcript')}
+                                active={active === 'transcript'}
+                              >
+                                <Row alignItems="center" gap="0.25rem">
+                                  <WorkOrderStatus
+                                    workOrders={form.workOrders}
+                                    type={WorkOrderTypeName.Transcription}
+                                  />
+                                  <span>Transcript</span>
+                                  <Show visible={!!props.values.body}>
+                                    <FormikCheckbox
+                                      name="isApproved"
+                                      label="Approved"
+                                      className="approve-transcript"
+                                    />
+                                  </Show>
+                                </Row>
+                              </Tab>
+                              {/* <Tab
+                                label="Clips"
+                                onClick={() => setActive('clips')}
+                                active={active === 'clips'}
+                                hasErrors={!!clipErrors && active !== 'clips'}
+                                showErrorOnSave={{ value: true, savePressed: savePressed }}
+                              /> */}
+                            </Show>
+                            {/* <Show
+                              visible={
+                                props.values.contentType !== ContentTypeName.Image &&
+                                props.values.contentType !== ContentTypeName.AudioVideo
+                              }
                             >
-                              <Row alignItems="center" gap="0.25rem">
+                              <Tab
+                                label="Labels"
+                                onClick={() => setActive('labels')}
+                                active={active === 'labels'}
+                              >
                                 <WorkOrderStatus
                                   workOrders={form.workOrders}
-                                  type={WorkOrderTypeName.Transcription}
+                                  type={WorkOrderTypeName.NaturalLanguageProcess}
                                 />
-                                <span>Transcript</span>
-                                <Show visible={!!props.values.body}>
-                                  <FormikCheckbox
-                                    name="isApproved"
-                                    label="Approved"
-                                    className="approve-transcript"
-                                  />
-                                </Show>
-                              </Row>
-                            </Tab>
-                            {/* <Tab
-                              label="Clips"
-                              onClick={() => setActive('clips')}
-                              active={active === 'clips'}
-                              hasErrors={!!clipErrors && active !== 'clips'}
-                              showErrorOnSave={{ value: true, savePressed: savePressed }}
-                            /> */}
-                          </Show>
-                          {/* <Show
-                            visible={
-                              props.values.contentType !== ContentTypeName.Image &&
-                              props.values.contentType !== ContentTypeName.AudioVideo
-                            }
-                          >
-                            <Tab
-                              label="Labels"
-                              onClick={() => setActive('labels')}
-                              active={active === 'labels'}
-                            >
-                              <WorkOrderStatus
-                                workOrders={form.workOrders}
-                                type={WorkOrderTypeName.NaturalLanguageProcess}
-                              />
-                            </Tab>
-                          </Show> */}
-                        </>
-                      }
-                    >
-                      <Show visible={active === 'summary'}>
-                        <ContentStoryForm
-                          contentType={props.values.contentType}
-                          setParsedTags={setParsedTags}
-                        />
-                      </Show>
-                      <Show visible={active === 'transcript'}>
-                        <ContentTranscriptForm setParsedTags={setParsedTags} />
-                      </Show>
-                      <Show visible={active === 'clips'}>
-                        <ContentClipForm
-                          content={form}
-                          setContent={setForm}
-                          setClipErrors={setClipErrors}
-                        />
-                      </Show>
-                      <Show visible={active === 'labels'}>
-                        <ContentLabelsForm />
-                      </Show>
-                    </Tabs>
-                  </Show>
-                  <Show visible={props.values.contentType === ContentTypeName.PrintContent}>
-                    <ContentStoryForm
-                      contentType={props.values.contentType}
-                      setParsedTags={setParsedTags}
-                    />
+                              </Tab>
+                            </Show> */}
+                          </>
+                        }
+                      >
+                        <Show visible={active === 'summary'}>
+                          <ContentStoryForm
+                            contentType={props.values.contentType}
+                            setParsedTags={setParsedTags}
+                          />
+                        </Show>
+                        <Show visible={active === 'quotes'}>
+                          <ContentQuotesForm />
+                        </Show>
+                        <Show visible={active === 'transcript'}>
+                          <ContentTranscriptForm setParsedTags={setParsedTags} />
+                        </Show>
+                        <Show visible={active === 'clips'}>
+                          <ContentClipForm
+                            content={form}
+                            setContent={setForm}
+                            setClipErrors={setClipErrors}
+                          />
+                        </Show>
+                        <Show visible={active === 'labels'}>
+                          <ContentLabelsForm />
+                        </Show>
+                      </Tabs>
+                    </Col>
                   </Show>
                   {/** Audio Video layout */}
                   <Show visible={props.values.contentType === ContentTypeName.AudioVideo}>
-                    <Col flex="1 1 0%" justifyContent="center">
+                    <Col flex="0 0 35rem" justifyContent="center">
                       <Upload
                         className="media"
                         contentType={props.values.contentType}
