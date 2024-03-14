@@ -19,6 +19,12 @@ public class MediaType : BaseType<int>
     public bool AutoTranscribe { get; set; }
 
     /// <summary>
+    /// get/set - The type of entity that should be listed with this media type
+    /// </summary>
+    [Column("list_option")]
+    public ListOption ListOption { get; set; }
+
+    /// <summary>
     /// get/set - Configuration settings for media type.
     /// </summary>
     public JsonDocument Settings { get; set; } = JsonDocument.Parse("{}");

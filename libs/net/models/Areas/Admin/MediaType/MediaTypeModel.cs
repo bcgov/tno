@@ -16,6 +16,11 @@ public class MediaTypeModel : BaseTypeWithAuditColumnsModel<int>
     public bool AutoTranscribe { get; set; }
 
     /// <summary>
+    /// get/set - The type of entity that should be listed with this media type
+    /// </summary>
+    public Entities.ListOption ListOption { get; set; }
+
+    /// <summary>
     /// get/set - MediaType settings.
     /// </summary>
     public MediaTypeSettingsModel Settings { get; set; } = new MediaTypeSettingsModel();
@@ -35,6 +40,7 @@ public class MediaTypeModel : BaseTypeWithAuditColumnsModel<int>
     public MediaTypeModel(Entities.MediaType entity, JsonSerializerOptions options) : base(entity)
     {
         this.AutoTranscribe = entity.AutoTranscribe;
+        this.ListOption = entity.ListOption;
         this.Settings = JsonSerializer.Deserialize<MediaTypeSettingsModel>(entity.Settings, options) ?? new();
     }
     #endregion
@@ -65,6 +71,7 @@ public class MediaTypeModel : BaseTypeWithAuditColumnsModel<int>
             AutoTranscribe = model.AutoTranscribe,
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
+            ListOption = model.ListOption,
             Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
             Version = model.Version ?? 0
         };
