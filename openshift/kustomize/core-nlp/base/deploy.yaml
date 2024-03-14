@@ -47,10 +47,10 @@ spec:
               protocol: TCP
           resources:
             requests:
-              cpu: 10m
+              cpu: 250m
               memory: 2G
             limits:
-              cpu: 50m
+              cpu: 500m
               memory: 4G
       dnsPolicy: ClusterFirst
       restartPolicy: Always
