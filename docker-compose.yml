@@ -63,7 +63,7 @@ services:
     env_file:
       - auth/keycloak/.env
     volumes:
-      - ./auth/keycloak/config/realm-export.json:/tmp/realm-export.json
+      - ./auth/keycloak/config:/opt/keycloak/data/import
     ports:
       - ${KEYCLOAK_HTTP_PORT:-40001}:8080
       - ${KEYCLOAK_HTTPS_PORT:-40002}:443
