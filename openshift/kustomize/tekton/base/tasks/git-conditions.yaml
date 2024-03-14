@@ -66,8 +66,14 @@ spec:
 
         # Identify what needs to be built and deployed.
         function build_service {
-          BUILD=BUILD_${1^^}=true
-          if grep -s services/net/$1 <<< $DIFF; then
+          # use the folder name as-is, might have dashes
+          folderName=$1
+          # replace dashes with underscore first
+          buildVar="${1/\-/\_}"
+          # convert to uppercase
+          buildVar="${buildVar^^}"
+          BUILD=BUILD_${buildVar}=true
+          if grep -s services/net/$folderName <<< $DIFF; then
             echo $BUILD >> build.env
           elif grep -s libs/net/services <<< $DIFF; then
             echo $BUILD >> build.env
