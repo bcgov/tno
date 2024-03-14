@@ -3,7 +3,7 @@ import {
   ISubMediaGroupItem,
 } from 'features/search-page/components/advanced-search/interfaces';
 import { useEffect, useMemo, useState } from 'react';
-import { IMediaTypeModel, ISeriesModel, ISourceModel } from 'tno-core';
+import { IMediaTypeModel, ISeriesModel, ISourceModel, ListOptionName } from 'tno-core';
 
 /**
  * Custom hook to create and manage sub media groups.
@@ -26,9 +26,11 @@ export const useSubMediaGroups = (
   // Determine mediaTypeSourceLookup only when sources or mediaTypes change
   const mediaTypeSourceLookup = useMemo(() => {
     const lookup: { [key: string]: ISourceModel[] } = { All: [...sources] }; // Initialize with 'All' key
-    mediaTypes.forEach((mt) => {
-      lookup[mt.name] = []; // Initialize media type keys
-    });
+    mediaTypes
+      .filter((x) => x.listOption === ListOptionName.Source)
+      .forEach((mt) => {
+        lookup[mt.name] = []; // Initialize media type keys
+      });
     sources.forEach((source) => {
       source.mediaTypeSearchMappings.forEach((mapping) => {
         if (lookup[mapping.name]) {
@@ -43,9 +45,11 @@ export const useSubMediaGroups = (
   // Determine mediaTypeSourceLookup only when sources or mediaTypes change
   const mediaTypeSeriesLookup = useMemo(() => {
     const lookup: { [key: string]: ISeriesModel[] } = { All: [...series] }; // Initialize with 'All' key
-    mediaTypes.forEach((mt) => {
-      lookup[mt.name] = []; // Initialize media type keys
-    });
+    mediaTypes
+      .filter((x) => x.listOption === ListOptionName.Series)
+      .forEach((mt) => {
+        lookup[mt.name] = []; // Initialize media type keys
+      });
     series.forEach((serie) => {
       serie.mediaTypeSearchMappings?.forEach((mapping) => {
         if (lookup[mapping.name]) {
@@ -58,11 +62,26 @@ export const useSubMediaGroups = (
   }, [series, mediaTypes]);
 
   useEffect(() => {
-    const subGroups: ISubMediaGroupItem[] = Object.keys(mediaTypeSourceLookup).map((key) => ({
-      key,
-      label: key,
-      options: mediaTypeSourceLookup[key],
-    }));
+    const subGroups: ISubMediaGroupItem[] = [];
+    Object.keys(mediaTypeSourceLookup)
+      .map((key) => ({
+        key,
+        label: key,
+        options: mediaTypeSourceLookup[key],
+      }))
+      .forEach((o) => {
+        subGroups.push(o);
+      });
+
+    // Object.keys(mediaTypeSeriesLookup)
+    //   .map((key) => ({
+    //     key,
+    //     label: key,
+    //     options: mediaTypeSeriesLookup[key],
+    //   }))
+    //   .forEach((o) => {
+    //     subGroups.push(o);
+    //   });
 
     const expandedStates: ISubMediaGroupExpanded = subGroups.reduce(
       (acc: ISubMediaGroupExpanded, { key }) => {
@@ -72,9 +91,11 @@ export const useSubMediaGroups = (
       {},
     );
 
+    console.log('mediaFilter', 'load groups', mediaTypeSourceLookup, mediaTypeSeriesLookup);
+
     setSubMediaGroups(subGroups);
     setMediaGroupExpanded(expandedStates);
-  }, [mediaTypeSourceLookup]);
+  }, [mediaTypeSeriesLookup, mediaTypeSourceLookup]);
 
   return {
     subMediaGroups,

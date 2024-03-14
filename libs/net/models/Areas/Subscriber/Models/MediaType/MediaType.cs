@@ -12,6 +12,11 @@ public class MediaTypeModel : BaseTypeModel<int>
     /// get/set - Whether content should be automatically transcribed.
     /// </summary>
     public bool AutoTranscribe { get; set; }
+
+    /// <summary>
+    /// get/set - The type of entity that should be listed with this media type
+    /// </summary>
+    public Entities.ListOption ListOption { get; set; }
     #endregion
 
     #region Constructors
@@ -27,6 +32,7 @@ public class MediaTypeModel : BaseTypeModel<int>
     public MediaTypeModel(Entities.MediaType entity) : base(entity)
     {
         this.AutoTranscribe = entity.AutoTranscribe;
+        this.ListOption = entity.ListOption;
     }
     #endregion
 }
