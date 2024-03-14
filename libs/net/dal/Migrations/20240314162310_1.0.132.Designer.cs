@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TNO.DAL;
@@ -14,9 +15,11 @@ using TNO.Entities.Models;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    partial class TNOContextModelSnapshot : ModelSnapshot
+    [Migration("20240314162310_1.0.132")]
+    partial class _10132
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,7 +93,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("TemplateType", "PublishedOn");
 
-                    b.ToTable("av_overview_instance", (string)null);
+                    b.ToTable("av_overview_instance");
                 });
 
             modelBuilder.Entity("TNO.Entities.AVOverviewSection", b =>
@@ -180,7 +183,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("SourceId");
 
-                    b.ToTable("av_overview_section", (string)null);
+                    b.ToTable("av_overview_section");
                 });
 
             modelBuilder.Entity("TNO.Entities.AVOverviewSectionItem", b =>
@@ -257,7 +260,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("av_overview_section_item", (string)null);
+                    b.ToTable("av_overview_section_item");
                 });
 
             modelBuilder.Entity("TNO.Entities.AVOverviewTemplate", b =>
@@ -305,7 +308,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("TemplateId");
 
-                    b.ToTable("av_overview_template", (string)null);
+                    b.ToTable("av_overview_template");
                 });
 
             modelBuilder.Entity("TNO.Entities.AVOverviewTemplateSection", b =>
@@ -395,7 +398,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("TemplateType");
 
-                    b.ToTable("av_overview_template_section", (string)null);
+                    b.ToTable("av_overview_template_section");
                 });
 
             modelBuilder.Entity("TNO.Entities.AVOverviewTemplateSectionItem", b =>
@@ -466,7 +469,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("av_overview_template_section_item", (string)null);
+                    b.ToTable("av_overview_template_section_item");
                 });
 
             modelBuilder.Entity("TNO.Entities.Action", b =>
@@ -564,7 +567,7 @@ namespace TNO.DAL.Migrations
                     b.HasIndex(new[] { "Name" }, "IX_name")
                         .IsUnique();
 
-                    b.ToTable("action", (string)null);
+                    b.ToTable("action");
                 });
 
             modelBuilder.Entity("TNO.Entities.Cache", b =>
@@ -623,7 +626,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "Key", "Value" }, "IX_cache");
 
-                    b.ToTable("cache", (string)null);
+                    b.ToTable("cache");
                 });
 
             modelBuilder.Entity("TNO.Entities.ChartTemplate", b =>
@@ -713,7 +716,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_charttemplate_is_enabled");
 
-                    b.ToTable("chart_template", (string)null);
+                    b.ToTable("chart_template");
                 });
 
             modelBuilder.Entity("TNO.Entities.Connection", b =>
@@ -805,7 +808,7 @@ namespace TNO.DAL.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_name1");
 
-                    b.ToTable("connection", (string)null);
+                    b.ToTable("connection");
                 });
 
             modelBuilder.Entity("TNO.Entities.Content", b =>
@@ -1000,7 +1003,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "Edition", "Section", "Byline" }, "IX_print_content");
 
-                    b.ToTable("content", (string)null);
+                    b.ToTable("content");
                 });
 
             modelBuilder.Entity("TNO.Entities.ContentAction", b =>
@@ -1054,7 +1057,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("ActionId");
 
-                    b.ToTable("content_action", (string)null);
+                    b.ToTable("content_action");
                 });
 
             modelBuilder.Entity("TNO.Entities.ContentLabel", b =>
@@ -1119,7 +1122,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "Key", "Value" }, "IX_content_label");
 
-                    b.ToTable("content_label", (string)null);
+                    b.ToTable("content_label");
                 });
 
             modelBuilder.Entity("TNO.Entities.ContentLink", b =>
@@ -1172,7 +1175,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("LinkId");
 
-                    b.ToTable("content_link", (string)null);
+                    b.ToTable("content_link");
                 });
 
             modelBuilder.Entity("TNO.Entities.ContentLog", b =>
@@ -1233,7 +1236,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("ContentId");
 
-                    b.ToTable("content_log", (string)null);
+                    b.ToTable("content_log");
                 });
 
             modelBuilder.Entity("TNO.Entities.ContentReference", b =>
@@ -1307,7 +1310,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "Source", "Uid" }, "IX_source_uid");
 
-                    b.ToTable("content_reference", (string)null);
+                    b.ToTable("content_reference");
                 });
 
             modelBuilder.Entity("TNO.Entities.ContentTag", b =>
@@ -1355,7 +1358,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("content_tag", (string)null);
+                    b.ToTable("content_tag");
                 });
 
             modelBuilder.Entity("TNO.Entities.ContentTonePool", b =>
@@ -1407,7 +1410,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("TonePoolId");
 
-                    b.ToTable("content_tone", (string)null);
+                    b.ToTable("content_tone");
                 });
 
             modelBuilder.Entity("TNO.Entities.ContentTopic", b =>
@@ -1459,7 +1462,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("TopicId");
 
-                    b.ToTable("content_topic", (string)null);
+                    b.ToTable("content_topic");
                 });
 
             modelBuilder.Entity("TNO.Entities.ContentTypeAction", b =>
@@ -1507,7 +1510,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("ActionId");
 
-                    b.ToTable("content_type_action", (string)null);
+                    b.ToTable("content_type_action");
                 });
 
             modelBuilder.Entity("TNO.Entities.Contributor", b =>
@@ -1597,7 +1600,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_contributor_is_enabled");
 
-                    b.ToTable("contributor", (string)null);
+                    b.ToTable("contributor");
                 });
 
             modelBuilder.Entity("TNO.Entities.DataLocation", b =>
@@ -1678,7 +1681,7 @@ namespace TNO.DAL.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_name2");
 
-                    b.ToTable("data_location", (string)null);
+                    b.ToTable("data_location");
                 });
 
             modelBuilder.Entity("TNO.Entities.EarnedMedia", b =>
@@ -1732,7 +1735,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("SourceId", "ContentType");
 
-                    b.ToTable("earned_media", (string)null);
+                    b.ToTable("earned_media");
                 });
 
             modelBuilder.Entity("TNO.Entities.EventSchedule", b =>
@@ -1836,7 +1839,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("ScheduleId");
 
-                    b.ToTable("event_schedule", (string)null);
+                    b.ToTable("event_schedule");
                 });
 
             modelBuilder.Entity("TNO.Entities.FileReference", b =>
@@ -1917,7 +1920,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("ContentId");
 
-                    b.ToTable("file_reference", (string)null);
+                    b.ToTable("file_reference");
                 });
 
             modelBuilder.Entity("TNO.Entities.Filter", b =>
@@ -2009,7 +2012,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_filter_is_enabled");
 
-                    b.ToTable("filter", (string)null);
+                    b.ToTable("filter");
                 });
 
             modelBuilder.Entity("TNO.Entities.Folder", b =>
@@ -2100,7 +2103,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_folder_is_enabled");
 
-                    b.ToTable("folder", (string)null);
+                    b.ToTable("folder");
                 });
 
             modelBuilder.Entity("TNO.Entities.FolderContent", b =>
@@ -2152,7 +2155,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("ContentId");
 
-                    b.ToTable("folder_content", (string)null);
+                    b.ToTable("folder_content");
                 });
 
             modelBuilder.Entity("TNO.Entities.Ingest", b =>
@@ -2278,7 +2281,7 @@ namespace TNO.DAL.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_name3");
 
-                    b.ToTable("ingest", (string)null);
+                    b.ToTable("ingest");
                 });
 
             modelBuilder.Entity("TNO.Entities.IngestDataLocation", b =>
@@ -2326,7 +2329,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("DataLocationId");
 
-                    b.ToTable("ingest_data_location", (string)null);
+                    b.ToTable("ingest_data_location");
                 });
 
             modelBuilder.Entity("TNO.Entities.IngestSchedule", b =>
@@ -2374,7 +2377,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("ScheduleId");
 
-                    b.ToTable("ingest_schedule", (string)null);
+                    b.ToTable("ingest_schedule");
                 });
 
             modelBuilder.Entity("TNO.Entities.IngestState", b =>
@@ -2399,7 +2402,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("IngestId");
 
-                    b.ToTable("ingest_state", (string)null);
+                    b.ToTable("ingest_state");
                 });
 
             modelBuilder.Entity("TNO.Entities.IngestType", b =>
@@ -2486,7 +2489,7 @@ namespace TNO.DAL.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_name4");
 
-                    b.ToTable("ingest_type", (string)null);
+                    b.ToTable("ingest_type");
                 });
 
             modelBuilder.Entity("TNO.Entities.License", b =>
@@ -2565,7 +2568,7 @@ namespace TNO.DAL.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_name5");
 
-                    b.ToTable("license", (string)null);
+                    b.ToTable("license");
                 });
 
             modelBuilder.Entity("TNO.Entities.MediaType", b =>
@@ -2654,7 +2657,7 @@ namespace TNO.DAL.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_name6");
 
-                    b.ToTable("media_type", (string)null);
+                    b.ToTable("media_type");
                 });
 
             modelBuilder.Entity("TNO.Entities.Metric", b =>
@@ -2729,7 +2732,7 @@ namespace TNO.DAL.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_name7");
 
-                    b.ToTable("metric", (string)null);
+                    b.ToTable("metric");
                 });
 
             modelBuilder.Entity("TNO.Entities.Minister", b =>
@@ -2825,7 +2828,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_minister_is_enabled");
 
-                    b.ToTable("minister", (string)null);
+                    b.ToTable("minister");
                 });
 
             modelBuilder.Entity("TNO.Entities.Notification", b =>
@@ -2939,7 +2942,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_notification_is_enabled");
 
-                    b.ToTable("notification", (string)null);
+                    b.ToTable("notification");
                 });
 
             modelBuilder.Entity("TNO.Entities.NotificationInstance", b =>
@@ -3025,7 +3028,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("NotificationId");
 
-                    b.ToTable("notification_instance", (string)null);
+                    b.ToTable("notification_instance");
                 });
 
             modelBuilder.Entity("TNO.Entities.NotificationTemplate", b =>
@@ -3122,7 +3125,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_notificationtemplate_is_enabled");
 
-                    b.ToTable("notification_template", (string)null);
+                    b.ToTable("notification_template");
                 });
 
             modelBuilder.Entity("TNO.Entities.Organization", b =>
@@ -3200,7 +3203,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_organization_is_enabled");
 
-                    b.ToTable("organization", (string)null);
+                    b.ToTable("organization");
                 });
 
             modelBuilder.Entity("TNO.Entities.Product", b =>
@@ -3286,7 +3289,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_product_is_enabled");
 
-                    b.ToTable("product", (string)null);
+                    b.ToTable("product");
                 });
 
             modelBuilder.Entity("TNO.Entities.Quote", b =>
@@ -3449,7 +3452,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_report_is_enabled");
 
-                    b.ToTable("report", (string)null);
+                    b.ToTable("report");
                 });
 
             modelBuilder.Entity("TNO.Entities.ReportInstance", b =>
@@ -3537,7 +3540,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "PublishedOn", "CreatedOn" }, "IX_report_dates");
 
-                    b.ToTable("report_instance", (string)null);
+                    b.ToTable("report_instance");
                 });
 
             modelBuilder.Entity("TNO.Entities.ReportInstanceContent", b =>
@@ -3596,7 +3599,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("ContentId");
 
-                    b.ToTable("report_instance_content", (string)null);
+                    b.ToTable("report_instance_content");
                 });
 
             modelBuilder.Entity("TNO.Entities.ReportSection", b =>
@@ -3703,7 +3706,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_reportsection_is_enabled");
 
-                    b.ToTable("report_section", (string)null);
+                    b.ToTable("report_section");
                 });
 
             modelBuilder.Entity("TNO.Entities.ReportSectionChartTemplate", b =>
@@ -3762,7 +3765,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("ChartTemplateId");
 
-                    b.ToTable("report_section_chart_template", (string)null);
+                    b.ToTable("report_section_chart_template");
                 });
 
             modelBuilder.Entity("TNO.Entities.ReportTemplate", b =>
@@ -3865,7 +3868,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_reporttemplate_is_enabled");
 
-                    b.ToTable("report_template", (string)null);
+                    b.ToTable("report_template");
                 });
 
             modelBuilder.Entity("TNO.Entities.ReportTemplateChartTemplate", b =>
@@ -3913,7 +3916,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("ChartTemplateId");
 
-                    b.ToTable("report_template_chart_template", (string)null);
+                    b.ToTable("report_template_chart_template");
                 });
 
             modelBuilder.Entity("TNO.Entities.Schedule", b =>
@@ -4018,7 +4021,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "Name", "IsEnabled" }, "IX_schedule");
 
-                    b.ToTable("schedule", (string)null);
+                    b.ToTable("schedule");
                 });
 
             modelBuilder.Entity("TNO.Entities.Sentiment", b =>
@@ -4100,7 +4103,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_sentiment_is_enabled");
 
-                    b.ToTable("sentiment", (string)null);
+                    b.ToTable("sentiment");
                 });
 
             modelBuilder.Entity("TNO.Entities.Series", b =>
@@ -4189,7 +4192,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_series_is_enabled");
 
-                    b.ToTable("series", (string)null);
+                    b.ToTable("series");
                 });
 
             modelBuilder.Entity("TNO.Entities.SeriesMediaTypeSearchMapping", b =>
@@ -4237,7 +4240,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("MediaTypeId");
 
-                    b.ToTable("series_media_type_search_mapping", (string)null);
+                    b.ToTable("series_media_type_search_mapping");
                 });
 
             modelBuilder.Entity("TNO.Entities.Setting", b =>
@@ -4319,7 +4322,7 @@ namespace TNO.DAL.Migrations
                     b.HasIndex(new[] { "Name" }, "IX_setting_name")
                         .IsUnique();
 
-                    b.ToTable("setting", (string)null);
+                    b.ToTable("setting");
                 });
 
             modelBuilder.Entity("TNO.Entities.Source", b =>
@@ -4447,7 +4450,7 @@ namespace TNO.DAL.Migrations
                     b.HasIndex(new[] { "Name" }, "IX_source_name")
                         .IsUnique();
 
-                    b.ToTable("source", (string)null);
+                    b.ToTable("source");
                 });
 
             modelBuilder.Entity("TNO.Entities.SourceMediaTypeSearchMapping", b =>
@@ -4495,7 +4498,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("MediaTypeId");
 
-                    b.ToTable("source_media_type_search_mapping", (string)null);
+                    b.ToTable("source_media_type_search_mapping");
                 });
 
             modelBuilder.Entity("TNO.Entities.SourceMetric", b =>
@@ -4561,7 +4564,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("MetricId");
 
-                    b.ToTable("source_metric", (string)null);
+                    b.ToTable("source_metric");
                 });
 
             modelBuilder.Entity("TNO.Entities.SystemMessage", b =>
@@ -4620,7 +4623,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("system_message", (string)null);
+                    b.ToTable("system_message");
                 });
 
             modelBuilder.Entity("TNO.Entities.Tag", b =>
@@ -4703,7 +4706,7 @@ namespace TNO.DAL.Migrations
                     b.HasIndex(new[] { "Name" }, "IX_tag_name")
                         .IsUnique();
 
-                    b.ToTable("tag", (string)null);
+                    b.ToTable("tag");
                 });
 
             modelBuilder.Entity("TNO.Entities.TimeTracking", b =>
@@ -4770,7 +4773,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("time_tracking", (string)null);
+                    b.ToTable("time_tracking");
                 });
 
             modelBuilder.Entity("TNO.Entities.TonePool", b =>
@@ -4852,7 +4855,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_tonepool_is_enabled");
 
-                    b.ToTable("tone_pool", (string)null);
+                    b.ToTable("tone_pool");
                 });
 
             modelBuilder.Entity("TNO.Entities.Topic", b =>
@@ -4930,7 +4933,7 @@ namespace TNO.DAL.Migrations
                     b.HasIndex(new[] { "Name" }, "IX_topic_name")
                         .IsUnique();
 
-                    b.ToTable("topic", (string)null);
+                    b.ToTable("topic");
                 });
 
             modelBuilder.Entity("TNO.Entities.TopicScoreRule", b =>
@@ -5030,7 +5033,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "SourceId", "SeriesId", "Section" }, "IX_source_id_series_id_section");
 
-                    b.ToTable("topic_score_rule", (string)null);
+                    b.ToTable("topic_score_rule");
                 });
 
             modelBuilder.Entity("TNO.Entities.User", b =>
@@ -5192,7 +5195,7 @@ namespace TNO.DAL.Migrations
                     b.HasIndex(new[] { "Username" }, "IX_username")
                         .IsUnique();
 
-                    b.ToTable("user", (string)null);
+                    b.ToTable("user");
                 });
 
             modelBuilder.Entity("TNO.Entities.UserAVOverview", b =>
@@ -5244,7 +5247,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("TemplateType");
 
-                    b.ToTable("user_av_overview", (string)null);
+                    b.ToTable("user_av_overview");
                 });
 
             modelBuilder.Entity("TNO.Entities.UserColleague", b =>
@@ -5292,7 +5295,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("ColleagueId");
 
-                    b.ToTable("user_colleague", (string)null);
+                    b.ToTable("user_colleague");
                 });
 
             modelBuilder.Entity("TNO.Entities.UserMediaType", b =>
@@ -5340,7 +5343,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("MediaTypeId");
 
-                    b.ToTable("user_media_type", (string)null);
+                    b.ToTable("user_media_type");
                 });
 
             modelBuilder.Entity("TNO.Entities.UserNotification", b =>
@@ -5396,7 +5399,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("NotificationId");
 
-                    b.ToTable("user_notification", (string)null);
+                    b.ToTable("user_notification");
                 });
 
             modelBuilder.Entity("TNO.Entities.UserOrganization", b =>
@@ -5444,7 +5447,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("OrganizationId");
 
-                    b.ToTable("user_organization", (string)null);
+                    b.ToTable("user_organization");
                 });
 
             modelBuilder.Entity("TNO.Entities.UserProduct", b =>
@@ -5495,7 +5498,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("user_product", (string)null);
+                    b.ToTable("user_product");
                 });
 
             modelBuilder.Entity("TNO.Entities.UserReport", b =>
@@ -5550,7 +5553,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("ReportId");
 
-                    b.ToTable("user_report", (string)null);
+                    b.ToTable("user_report");
                 });
 
             modelBuilder.Entity("TNO.Entities.UserSource", b =>
@@ -5598,7 +5601,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("SourceId");
 
-                    b.ToTable("user_source", (string)null);
+                    b.ToTable("user_source");
                 });
 
             modelBuilder.Entity("TNO.Entities.WorkOrder", b =>
@@ -5689,7 +5692,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "WorkType", "Status", "CreatedOn", "RequestorId", "AssignedId" }, "IX_work_order");
 
-                    b.ToTable("work_order", (string)null);
+                    b.ToTable("work_order");
                 });
 
             modelBuilder.Entity("TNO.Entities.AVOverviewInstance", b =>
