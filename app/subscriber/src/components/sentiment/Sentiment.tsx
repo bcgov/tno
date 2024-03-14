@@ -10,6 +10,8 @@ export interface ISentimentProps {
   title?: string;
   /** Whether to also show the value. */
   showValue?: boolean;
+  /** Whether to show the icon. */
+  showIcon?: boolean;
 }
 
 /**
@@ -17,20 +19,27 @@ export interface ISentimentProps {
  * @param tone the numeric value used to determine the icon to present
  * @returns An svg image that represents the tone
  */
-export const Sentiment: React.FC<ISentimentProps> = ({ value, title, showValue }) => {
+export const Sentiment: React.FC<ISentimentProps> = ({
+  value,
+  title,
+  showIcon = true,
+  showValue,
+}) => {
   return (
     <styled.Sentiment value={value}>
-      <Show visible={value === undefined}>
-        <FaCircle className="tone-icon" color="#E0E0E0" title={title} />
-      </Show>
-      <Show visible={value !== undefined && value < 0}>
-        <FaFrown className="tone-icon" color="#DC3545" title={title} />
-      </Show>
-      <Show visible={value !== undefined && value === 0}>
-        <FaMeh className="tone-icon" color="#FFC107" title={title} />
-      </Show>
-      <Show visible={value !== undefined && value > 0}>
-        <FaSmile className="tone-icon" color="#20C997" title={title} />
+      <Show visible={showIcon}>
+        <Show visible={value === undefined}>
+          <FaCircle className="tone-icon" color="#E0E0E0" title={title} />
+        </Show>
+        <Show visible={value !== undefined && value < 0}>
+          <FaFrown className="tone-icon" color="#DC3545" title={title} />
+        </Show>
+        <Show visible={value !== undefined && value === 0}>
+          <FaMeh className="tone-icon" color="#FFC107" title={title} />
+        </Show>
+        <Show visible={value !== undefined && value > 0}>
+          <FaSmile className="tone-icon" color="#20C997" title={title} />
+        </Show>
       </Show>
       {showValue && <span>{value}</span>}
     </styled.Sentiment>
