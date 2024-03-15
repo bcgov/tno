@@ -91,7 +91,12 @@ const ContributorForm: React.FC = () => {
           <div className="form-container">
             <Col className="form-inputs">
               <FormikText width={FieldSize.Large} name="name" label="Name" />
-              <FormikText width={FieldSize.Large} name="aliases" label="Aliases" />
+              <FormikText
+                width={FieldSize.Large}
+                name="aliases"
+                label="Aliases"
+                tooltip="Create a comma seperated list of values to search by. ex.) John Doe, J. Doe, Sir Doe"
+              />
 
               <FormikSelect
                 label="Source"

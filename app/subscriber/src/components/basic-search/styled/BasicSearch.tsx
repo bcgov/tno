@@ -42,9 +42,6 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
   @media only screen and (max-width: 900px) {
     width: '';
   }
-  @media only screen and (min-width: 900px) {
-    width: 30%;
-  }
   .icon-search {
     border: 0.5px solid ${(props) => props.theme.css.linePrimaryColor};
     border-radius: 1.5em;
@@ -112,7 +109,6 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
   /* BUTTON APPEAR ON RIGHT SIDE OF SEARCH IF SCREEN IS LESS THAN 900px */
   @media only screen and (max-width: 900px) {
     .search-button {
-      margin-left: auto;
       margin-right: 0.5em;
     }
   }
