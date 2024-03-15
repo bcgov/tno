@@ -2,7 +2,7 @@
 
 # Check if a command-line argument was provided
 if [ $# -eq 0 ]; then
-    echo "Please provide the secret as an argument."
+    echo "Please provide the secret as an argument. You can find it in keycloak admin => tno realm => clients => tno-service-account. "
     exit 1
 fi
 
