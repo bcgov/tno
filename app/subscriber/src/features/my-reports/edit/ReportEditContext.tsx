@@ -1,14 +1,16 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useReportInstances, useReports } from 'store/hooks';
 import { IReportInstanceModel } from 'tno-core';
 
 import { defaultReport } from '../constants';
 import { IReportForm, IReportInstanceContentForm } from '../interfaces';
+import { toForm } from '../utils';
 import {
   ReportContentMenuOption,
   ReportMainMenuOption,
-  ReportPreviewMenuOption,
   ReportSettingsMenuOption,
 } from './constants';
 
@@ -40,7 +42,9 @@ export interface IReportEditContext {
   isSubmitting: boolean;
   setSubmitting: (isSubmitting: boolean) => void;
   submitForm: (() => Promise<void>) & (() => Promise<any>);
-  handleNavigate: (instance: IReportInstanceModel | undefined, action: 'previous' | 'next') => void;
+  onNavigate: (instance: IReportInstanceModel | undefined, action: 'previous' | 'next') => void;
+  onExport: (report: IReportForm) => void;
+  onRegenerate: (values: IReportForm, regenerate: boolean) => Promise<IReportForm | undefined>;
 }
 
 /**
@@ -55,7 +59,9 @@ export const ReportEditContext = React.createContext<IReportEditContext>({
   isSubmitting: false,
   setSubmitting: () => {},
   submitForm: () => Promise.resolve(),
-  handleNavigate: () => {},
+  onNavigate: () => {},
+  onExport: () => {},
+  onRegenerate: () => Promise.resolve(undefined),
 });
 
 /**
@@ -85,11 +91,14 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
   const { values, setFieldValue, setValues, isSubmitting, setSubmitting, submitForm } =
     useFormikContext<IReportForm>();
   const { path1, path2 } = useParams();
+  const [{ exportReport }] = useReportInstances();
+  const [, { generateReport }] = useReports();
 
   const [active, setActive] = React.useState<string>();
   const [activeRow, setActiveRow] = React.useState<IReportInstanceContentForm>();
 
   React.useEffect(() => {
+    // Set the active form based on the route.
     const main = path1?.toLocaleLowerCase();
     const secondary = path2?.toLocaleLowerCase();
     const path = `${main ?? ''}${secondary ? `/${secondary}` : ''}`;
@@ -102,11 +111,12 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
     else if (path === ReportMainMenuOption.Content) setActive(ReportMainMenuOption.Content);
     else if (path === ReportContentMenuOption.Sort) setActive(ReportContentMenuOption.Sort);
     else if (path === ReportContentMenuOption.Summary) setActive(ReportContentMenuOption.Summary);
-    else if (path === ReportPreviewMenuOption.Preview) setActive(ReportPreviewMenuOption.Preview);
+    else if (path === ReportMainMenuOption.View) setActive(ReportMainMenuOption.View);
+    else if (path === ReportMainMenuOption.Send) setActive(ReportMainMenuOption.Send);
     else setActive(ReportMainMenuOption.Settings);
   }, [path1, path2]);
 
-  const handleNavigate = React.useCallback(
+  const onNavigate = React.useCallback(
     (instance: IReportInstanceModel | undefined, action: 'previous' | 'next') => {
       if (activeRow && instance && instance.content.length) {
         let index = activeRow.originalIndex;
@@ -122,6 +132,40 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
     [activeRow],
   );
 
+  const onExport = React.useCallback(
+    async (report: IReportForm) => {
+      try {
+        if (report?.id) {
+          const instance = report.instances.length ? report.instances[0] : 0;
+          if (instance) {
+            const filename = report.name.replace(/[^a-zA-Z0-9 ]/g, '');
+            await toast.promise(exportReport(instance.id, filename), {
+              pending: 'Downloading file',
+              success: 'Download complete',
+              error: 'Download failed',
+            });
+          } else {
+            toast.error(`The report has not been generated.`);
+          }
+        }
+      } catch {}
+    },
+    [exportReport],
+  );
+
+  const onRegenerate = React.useCallback(
+    async (values: IReportForm, regenerate: boolean) => {
+      try {
+        const report = await generateReport(values.id, regenerate);
+        const form = toForm(report, true);
+        setValues(form);
+        if (regenerate) toast.success('Report has been regenerated');
+        return form;
+      } catch {}
+    },
+    [generateReport, setValues],
+  );
+
   return (
     <ReportEditContext.Provider
       value={{
@@ -135,7 +179,9 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
         isSubmitting,
         setSubmitting,
         submitForm,
-        handleNavigate,
+        onNavigate,
+        onExport,
+        onRegenerate,
       }}
     >
       {children}

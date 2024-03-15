@@ -5,6 +5,8 @@ import { Col, IContentModel, Loading, Show, TextArea, Wysiwyg } from 'tno-core';
 export interface IContentFormProps extends React.HTMLAttributes<HTMLDivElement> {
   /** The content being edited */
   content?: IContentModel;
+  /** Whether form is disabled. */
+  disabled?: boolean;
   /** Which parts of the form to display */
   show: 'all' | 'summary' | 'none';
   /** Whether content is loading */
@@ -20,6 +22,7 @@ export interface IContentFormProps extends React.HTMLAttributes<HTMLDivElement> 
  */
 export const ContentForm: React.FC<IContentFormProps> = ({
   content,
+  disabled,
   show = 'none',
   loading,
   className,
@@ -45,6 +48,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           name={`headline`}
           label="Headline"
           rows={1}
+          disabled={disabled}
           onChange={(e) => {
             const values = {
               ...content,
@@ -66,6 +70,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           name={`summary`}
           label="Summary"
           value={content.versions?.[userId]?.summary ?? ''}
+          disabled={disabled}
           onChange={(text) => {
             const values = {
               ...content,
@@ -86,6 +91,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           name={`body`}
           label="Body"
           value={content.versions?.[userId]?.body ?? (content.isApproved ? content.body ?? '' : '')}
+          disabled={disabled}
           onChange={(text) => {
             const values = {
               ...content,

@@ -459,13 +459,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 model.Content.ForEach(ric => ric.InstanceId = model.Id);
                 model.Subject = subject;
                 model.Body = fullTextFormatBody;
-                instance.SentOn = instance.Status == ReportStatus.Accepted ? DateTime.UtcNow : null;
+                if (request.SendToSubscribers)
+                    instance.SentOn = instance.Status == ReportStatus.Accepted ? DateTime.UtcNow : null;
                 if (model.PublishedOn == null) model.PublishedOn = DateTime.UtcNow;
                 await this.Api.UpdateReportInstanceAsync(model);
             }
         }
 
-        if (report.Settings.Content.ClearFolders && request.GenerateInstance)
+        if (report.Settings.Content.ClearFolders && request.SendToSubscribers)
         {
             // Make a request to clear content from folders in this report.
             await this.Api.ClearFoldersInReport(report.Id);
@@ -557,17 +558,20 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
             }
 
-            // Update the report instance.
-            instance.Subject = subject;
-            instance.Body = fullTextFormatBody;
             if (request.GenerateInstance)
-                instance.SentOn = instance.Status == ReportStatus.Accepted ? DateTime.UtcNow : null;
-            instance.Content = searchResults;
-            if (instance.PublishedOn == null) instance.PublishedOn = DateTime.UtcNow;
-            await this.Api.UpdateReportInstanceAsync(instance);
+            {
+                // Update the report instance.
+                instance.Subject = subject;
+                instance.Body = fullTextFormatBody;
+                if (request.SendToSubscribers)
+                    instance.SentOn = instance.Status == ReportStatus.Accepted ? DateTime.UtcNow : null;
+                instance.Content = searchResults;
+                if (instance.PublishedOn == null) instance.PublishedOn = DateTime.UtcNow;
+                await this.Api.UpdateReportInstanceAsync(instance);
+            }
         }
 
-        if (report.Settings.Content.ClearFolders && request.GenerateInstance)
+        if (report.Settings.Content.ClearFolders && request.SendToSubscribers)
         {
             // Make a request to clear content from folders in this report.
             await this.Api.ClearFoldersInReport(report.Id);

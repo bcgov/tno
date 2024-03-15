@@ -3,7 +3,6 @@ import styled from 'styled-components';
 export const AddSectionBar = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 0.5rem;
   padding: 0.5rem;
   gap: 0.25rem;
 

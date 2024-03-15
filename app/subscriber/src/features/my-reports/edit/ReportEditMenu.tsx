@@ -1,10 +1,10 @@
 import { Action } from 'components/action';
+import { MenuButton } from 'components/button';
 import { FaRecycle } from 'react-icons/fa';
-import { FaRightToBracket } from 'react-icons/fa6';
+import { FaCaretRight, FaRightToBracket } from 'react-icons/fa6';
 import { useProfileStore } from 'store/slices';
 import { Show } from 'tno-core';
 
-import { MenuButton } from './components';
 import {
   ReportContentMenuOption,
   ReportMainMenuOption,
@@ -36,7 +36,9 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
             label="Settings"
             active={!active || active?.startsWith(ReportMainMenuOption.Settings)}
             onClick={() => onChange?.(`/reports/${values.id}/settings`)}
-          />
+          >
+            <FaCaretRight className="caret" />
+          </MenuButton>
         </div>
         <div>
           <MenuButton
@@ -44,14 +46,25 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
             active={active?.startsWith(ReportMainMenuOption.Content)}
             disabled={!values.id}
             onClick={() => onChange?.(`/reports/${values.id}/content`)}
-          />
+          >
+            <FaCaretRight className="caret" />
+          </MenuButton>
         </div>
         <div>
           <MenuButton
             label="Report Preview"
-            active={active?.startsWith(ReportMainMenuOption.Preview)}
+            active={active?.startsWith(ReportMainMenuOption.View)}
             disabled={!values.id}
-            onClick={() => onChange?.(`/reports/${values.id}/preview`)}
+            onClick={() => onChange?.(`/reports/${values.id}/view`)}
+          >
+            <FaCaretRight className="caret" />
+          </MenuButton>
+        </div>
+        <div>
+          <MenuButton
+            label="Send"
+            active={active === ReportMainMenuOption.Send}
+            onClick={() => onChange?.(`/reports/${values.id}/send`)}
           />
         </div>
       </div>
@@ -62,21 +75,27 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
               label="Template Design"
               active={active === ReportMainMenuOption.Settings}
               onClick={() => onChange?.(`/reports/${values.id}/settings`)}
-            />
+            >
+              <FaCaretRight className="caret" />
+            </MenuButton>
           </div>
           <div>
             <MenuButton
               label="Data Sources"
               active={active === ReportSettingsMenuOption.DataSources}
               onClick={() => onChange?.(`/reports/${values.id}/settings/sources`)}
-            />
+            >
+              <FaCaretRight className="caret" />
+            </MenuButton>
           </div>
           <div>
             <MenuButton
               label="Report Preferences"
               active={active === ReportSettingsMenuOption.Preferences}
               onClick={() => onChange?.(`/reports/${values.id}/settings/preferences`)}
-            />
+            >
+              <FaCaretRight className="caret" />
+            </MenuButton>
           </div>
           <div>
             <MenuButton
@@ -93,14 +112,18 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
               label="Curate Stories"
               active={active === ReportMainMenuOption.Content}
               onClick={() => onChange?.(`/reports/${values.id}/content`)}
-            />
+            >
+              <FaCaretRight className="caret" />
+            </MenuButton>
           </div>
           <div>
             <MenuButton
               label="Quick Sort"
               active={active === ReportContentMenuOption.Sort}
               onClick={() => onChange?.(`/reports/${values.id}/content/sort`)}
-            />
+            >
+              <FaCaretRight className="caret" />
+            </MenuButton>
           </div>
           <div>
             <MenuButton
@@ -111,12 +134,12 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
           </div>
         </Show>
         {/* Preview secondary menu */}
-        <Show visible={active?.startsWith(ReportMainMenuOption.Preview)}>
+        <Show visible={active?.startsWith(ReportMainMenuOption.View)}>
           <div>
             <MenuButton
               label="View"
-              active={active === ReportMainMenuOption.Preview}
-              onClick={() => onChange?.(`/reports/${values.id}/preview`)}
+              active={active === ReportMainMenuOption.View}
+              onClick={() => onChange?.(`/reports/${values.id}/view`)}
             />
           </div>
           <div>
@@ -124,6 +147,16 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
               icon={<FaRecycle className="icon-green" />}
               label="Refresh Preview"
               onClick={() => storeReportOutput(undefined)}
+            />
+          </div>
+        </Show>
+        {/* Send secondary menu */}
+        <Show visible={active?.startsWith(ReportMainMenuOption.Send)}>
+          <div>
+            <MenuButton
+              label="Subscribers"
+              active={active === ReportMainMenuOption.Send}
+              onClick={() => onChange?.(`/reports/${values.id}/send`)}
             />
           </div>
         </Show>

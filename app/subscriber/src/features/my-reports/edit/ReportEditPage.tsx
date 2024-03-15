@@ -16,12 +16,16 @@ import { IReportMessageModel, MessageTargetName, ReportStatusName, Settings } fr
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
 import { sortContent, toForm } from '../utils';
-import { ContentEditForm } from './content/components';
+import { ContentEditForm } from './content';
 import { ReportEditContextProvider } from './ReportEditContext';
 import { ReportEditForm } from './ReportEditForm';
 import * as styled from './styled';
 import { ReportFormSchema } from './validation';
 
+/**
+ * Provides component to administer a report template, to manage the content in the report, and send the report to subscribers.
+ * @returns Component
+ */
 export const ReportEditPage = () => {
   const [{ userInfo }] = useApp();
   const { id, path1, path2 } = useParams();
@@ -60,6 +64,7 @@ export const ReportEditPage = () => {
   }, []);
 
   React.useEffect(() => {
+    // Get the default template to assign to new reports.
     if (isReady) {
       const defaultReportTemplateId = settings.find(
         (s) => s.name === Settings.DefaultReportTemplate,
@@ -70,8 +75,8 @@ export const ReportEditPage = () => {
   }, [isReady, settings]);
 
   React.useEffect(() => {
-    // TODO: Templates don't change much and don't need to be fetched often.
-    if (defaultReportTemplateId && report.templateId !== defaultReportTemplateId) {
+    // Only fetch the template for new reports.
+    if (!report.id && defaultReportTemplateId && report.templateId !== defaultReportTemplateId) {
       getReportTemplate(defaultReportTemplateId)
         .then((template) => {
           if (template) {
@@ -84,10 +89,11 @@ export const ReportEditPage = () => {
         })
         .catch(() => {});
     }
-  }, [defaultReportTemplateId, getReportTemplate, report.templateId]);
+  }, [defaultReportTemplateId, getReportTemplate, report.id, report.templateId]);
 
   React.useEffect(() => {
     // When the page loads the first time the user info will change.
+    // Make sure the report is assigned to them as the owner.
     if (userInfo?.id && !report.id) setReport((report) => ({ ...report, ownerId: userInfo.id }));
   }, [report.id, userInfo?.id]);
 
@@ -201,8 +207,7 @@ export const ReportEditPage = () => {
         }}
       >
         <ReportEditContextProvider>
-          <ReportEditForm />
-
+          <ReportEditForm disabled={!canEdit} updateForm={(form) => setReport(form)} />
           <ContentEditForm disabled={!canEdit} />
         </ReportEditContextProvider>
       </FormikForm>

@@ -3,7 +3,7 @@ import { Button } from 'components/button';
 import { Section } from 'components/section';
 import { formatDate } from 'features/utils';
 import React from 'react';
-import { FaChartPie, FaGear, FaNewspaper, FaPen, FaTrashCan } from 'react-icons/fa6';
+import { FaChartPie, FaNewspaper, FaPen, FaTrashCan } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useApp, useReports } from 'store/hooks';
@@ -53,12 +53,9 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => 
       }
       label={report.name}
       actions={
-        <>
-          <Button onClick={() => navigate(`/reports/${report.id}/edit`)}>
-            View report <FaPen />
-          </Button>
-          <Action icon={<FaGear />} onClick={() => navigate(`/reports/${report.id}`)} />
-        </>
+        <Button onClick={() => navigate(`/reports/${report.id}/edit`)}>
+          View report <FaPen />
+        </Button>
       }
       onChange={(open) => open && fetchReport(report.id)}
     >

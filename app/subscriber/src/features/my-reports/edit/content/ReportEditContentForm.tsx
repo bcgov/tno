@@ -7,7 +7,7 @@ import { FaRecycle } from 'react-icons/fa';
 import { FaAngleDown, FaMinus } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useReportInstances, useReports } from 'store/hooks';
+import { useReports } from 'store/hooks';
 import { useModal } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
@@ -25,6 +25,11 @@ export interface IReportEditContentFormProps {
   onContentClick?: (content?: IReportInstanceContentForm, action?: 'previous' | 'next') => void;
 }
 
+/**
+ * Provides component to manage the content in a report.
+ * @param param0 Component properties.
+ * @returns Component.
+ */
 export const ReportEditContentForm = ({
   disabled,
   showAdd,
@@ -32,32 +37,10 @@ export const ReportEditContentForm = ({
   onContentClick,
 }: IReportEditContentFormProps) => {
   const navigate = useNavigate();
-  const { values, isSubmitting, setValues, setFieldValue } = useReportEditContext();
+  const { values, isSubmitting, setValues, setFieldValue, onExport } = useReportEditContext();
   const { path1 } = useParams();
   const { isShowing, toggle } = useModal();
   const [, { generateReport }] = useReports();
-  const [{ exportReport }] = useReportInstances();
-
-  const handleExport = React.useCallback(
-    async (report: IReportForm) => {
-      try {
-        if (report?.id) {
-          const instance = report.instances.length ? report.instances[0] : 0;
-          if (instance) {
-            const filename = report.name.replace(/[^a-zA-Z0-9 ]/g, '');
-            await toast.promise(exportReport(instance.id, filename), {
-              pending: 'Downloading file',
-              success: 'Download complete',
-              error: 'Download failed',
-            });
-          } else {
-            toast.error(`The report has not been generated.`);
-          }
-        }
-      } catch {}
-    },
-    [exportReport],
-  );
 
   const handleRegenerate = React.useCallback(
     async (values: IReportForm, regenerate: boolean) => {
@@ -113,7 +96,7 @@ export const ReportEditContentForm = ({
               <img className="excel-icon" src={'/assets/excel-icon.svg'} alt="Export to Excel" />
             }
             disabled={isSubmitting}
-            onClick={() => handleExport(values)}
+            onClick={() => onExport(values)}
           />
         </div>
       </div>

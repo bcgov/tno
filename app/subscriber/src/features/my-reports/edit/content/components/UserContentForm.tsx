@@ -21,6 +21,8 @@ import {
 } from 'tno-core';
 
 export interface IUserContentFormProps extends React.HTMLAttributes<HTMLDivElement> {
+  /** Whether the form is disabled. */
+  disabled?: boolean;
   /** The content being edited */
   content?: IReportInstanceContentForm;
   /** Which parts of the form to display */
@@ -38,6 +40,7 @@ export interface IUserContentFormProps extends React.HTMLAttributes<HTMLDivEleme
  * @returns A component.
  */
 export const UserContentForm: React.FC<IUserContentFormProps> = ({
+  disabled,
   content: values,
   errors,
   show = 'none',
@@ -61,6 +64,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
         <TextArea
           name={`headline`}
           label="Headline"
+          disabled={disabled}
           rows={1}
           error={errors?.headline}
           required
@@ -75,6 +79,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
         <Text
           name={`sourceUrl`}
           label="URL"
+          disabled={disabled}
           value={content.sourceUrl ?? ''}
           onChange={(e) => {
             onContentChange?.({
@@ -86,6 +91,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
         <Text
           name={`otherSource`}
           label="Source"
+          disabled={disabled}
           error={errors?.source}
           required
           value={content.otherSource ?? ''}
@@ -99,6 +105,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
         <Text
           name={`byline`}
           label="Byline"
+          disabled={disabled}
           value={content.byline ?? ''}
           onChange={(e) => {
             onContentChange?.({
@@ -111,6 +118,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
           <SelectDate
             name={`publishedOn`}
             label="Published On"
+            disabled={disabled}
             required
             autoComplete="false"
             error={errors?.publishedOn}
@@ -129,7 +137,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
           <TimeInput
             name={`publishedOn`}
             label="Time"
-            disabled={!content.publishedOn}
+            disabled={!content.publishedOn || disabled}
             width="7em"
             value={!!content.publishedOn ? moment(content.publishedOn).format('HH:mm:ss') : ''}
             placeholder={'HH:MM:SS'}
@@ -165,6 +173,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
         <Wysiwyg
           name={`summary`}
           label="Summary"
+          disabled={disabled}
           value={content.summary ?? ''}
           onChange={(text) => {
             onContentChange?.({ ...values, content: { ...content, summary: text } });
@@ -175,6 +184,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
         <Wysiwyg
           name={`body`}
           label="Body"
+          disabled={disabled}
           value={content.body ?? ''}
           onChange={(text) => {
             onContentChange?.({ ...values, content: { ...content, body: text } });
@@ -183,6 +193,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
         <SentimentPicker
           name="tonePools"
           value={content.tonePools.length ? content.tonePools[0].value : 0}
+          disabled={disabled}
           onChange={(value: number) => {
             const contentTonePools: IContentTonePoolModel[] = content.tonePools.length
               ? content.tonePools.map<IContentTonePoolModel>((tp, index) =>

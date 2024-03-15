@@ -30,6 +30,7 @@ import {
   ReportSectionTableOfContents,
   ReportSectionText,
 } from './components';
+import * as styled from './styled';
 
 export const ReportEditTemplateForm = () => {
   const { values, setFieldValue, setValues } = useReportEditContext();
@@ -78,7 +79,7 @@ export const ReportEditTemplateForm = () => {
   );
 
   return (
-    <div>
+    <styled.ReportEditTemplateForm>
       <AddSectionBar />
       <Row className="template-action-bar">
         {!!values.sections.length &&
@@ -221,6 +222,6 @@ export const ReportEditTemplateForm = () => {
           <div></div>
         </DragDropContext>
       </Col>
-    </div>
+    </styled.ReportEditTemplateForm>
   );
 };

@@ -21,8 +21,12 @@ export const ReportEditMenu = styled.div`
     /* Menu rows */
     display: flex;
     gap: 0.5rem;
-    padding: 0.25rem;
+    padding: 0.25rem 2rem 0.25rem 0.25rem;
     border-bottom: solid 1px ${(props) => props.theme.css.linePrimaryColor};
+
+    .caret {
+      color: ${(props) => props.theme.css.linePrimaryColor};
+    }
   }
 
   > div:nth-child(1) {

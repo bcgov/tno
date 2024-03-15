@@ -8,11 +8,9 @@ import React from 'react';
 import { useApp, useContent, useReports } from 'store/hooks';
 import { Col, ContentTypeName, IContentModel } from 'tno-core';
 
-import { useReportEditContext } from '../../ReportEditContext';
-import { ContentActions } from './ContentActions';
-import { ContentForm } from './ContentForm';
+import { useReportEditContext } from '../ReportEditContext';
+import { ContentActions, ContentForm, UserContentForm } from './components';
 import * as styled from './styled';
-import { UserContentForm } from './UserContentForm';
 
 export interface IContentEditFormProps {
   /** Whether edit functionality is disabled. */
@@ -29,15 +27,8 @@ export const ContentEditForm = ({ disabled }: IContentEditFormProps) => {
   const [{ userInfo }] = useApp();
   const [, { updateReport }] = useReports();
   const [, { addContent, updateContent }] = useContent();
-  const {
-    values,
-    handleNavigate,
-    isSubmitting,
-    setSubmitting,
-    setValues,
-    activeRow,
-    setActiveRow,
-  } = useReportEditContext();
+  const { values, onNavigate, isSubmitting, setSubmitting, setValues, activeRow, setActiveRow } =
+    useReportEditContext();
 
   const [form, setForm] = React.useState<IReportInstanceContentForm | undefined>(activeRow);
   const [errors, setErrors] = React.useState<IContentValidationErrors>();
@@ -153,17 +144,17 @@ export const ContentEditForm = ({ disabled }: IContentEditFormProps) => {
       else if (e.ctrlKey || e.metaKey) {
         if (e.code === 'Enter') handleAddUpdateContent(values, form);
         else if (e.code === 'ArrowUp' || e.code === 'ArrowLeft') {
-          handleNavigate(instance, 'previous');
+          onNavigate(instance, 'previous');
           e.stopImmediatePropagation();
           e.preventDefault();
         } else if (e.code === 'ArrowDown' || e.code === 'ArrowRight') {
-          handleNavigate(instance, 'next');
+          onNavigate(instance, 'next');
           e.stopImmediatePropagation();
           e.preventDefault();
         }
       }
     },
-    [form, handleAddUpdateContent, handleNavigate, instance, setActiveRow, values],
+    [form, handleAddUpdateContent, onNavigate, instance, setActiveRow, values],
   );
 
   // refresh the window event listener anytime the handler changes due to content changes
@@ -215,6 +206,7 @@ export const ContentEditForm = ({ disabled }: IContentEditFormProps) => {
             setForm({ ...content });
           }}
           loading={isSubmitting}
+          disabled={disabled}
         />
       ) : (
         <ContentForm
@@ -224,13 +216,14 @@ export const ContentEditForm = ({ disabled }: IContentEditFormProps) => {
             setForm({ ...form, content });
           }}
           loading={isSubmitting}
+          disabled={disabled}
         />
       )}
       <ContentActions
         disabled={disabled}
         onCancel={() => setForm(undefined)}
         onUpdate={() => handleAddUpdateContent(values, form)}
-        onNavigate={(action) => handleNavigate(instance, action)}
+        onNavigate={(action) => onNavigate(instance, action)}
       />
     </styled.ContentEditForm>
   );

@@ -5,6 +5,7 @@ export interface IMenuButtonProps {
   active?: boolean;
   disabled?: boolean;
   className?: string;
+  children?: React.ReactNode;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 
@@ -13,6 +14,7 @@ export const MenuButton = ({
   active = false,
   className,
   disabled,
+  children,
   onClick,
 }: IMenuButtonProps) => {
   return (
@@ -23,6 +25,7 @@ export const MenuButton = ({
       onClick={onClick}
     >
       {label}
+      {children}
     </styled.MenuButton>
   );
 };

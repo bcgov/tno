@@ -28,6 +28,11 @@ export interface IReportSectionsProps {
   onContentClick?: (content: IReportInstanceContentForm) => void;
 }
 
+/**
+ * Provides component that displays the report sections.
+ * @param param0 Component properties.
+ * @returns Component.
+ */
 export const ReportSections: React.FC<IReportSectionsProps> = ({
   disabled,
   showAdd,

@@ -1,7 +1,8 @@
 export enum ReportMainMenuOption {
   Settings = 'settings',
   Content = 'content',
-  Preview = 'preview',
+  View = 'view',
+  Send = 'send',
 }
 
 export enum ReportSettingsMenuOption {
@@ -16,6 +17,6 @@ export enum ReportContentMenuOption {
   Summary = 'content/summary',
 }
 
-export enum ReportPreviewMenuOption {
-  Preview = 'preview',
+export enum ReportViewMenuOption {
+  Send = 'view/send',
 }
