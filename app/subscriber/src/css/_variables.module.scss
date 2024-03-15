@@ -37,6 +37,7 @@
   fPrimaryColor: $f-primary-color;
   hPrimaryColor: $h-primary-color;
   fRedColor: $f-red-color;
+  fSecondaryColor: $f-secondary-color;
 
   // Dialog boxes
   dialogBoxBkPrimary: $dialog-box-bk-primary;
@@ -62,10 +63,12 @@
   iconPurpleColor: $icon-purple-color;
   sideBarIconColor: $sidebar-icon-color;
   sideBarIconHoverColor: $sidebar-icon-hover-color;
+  iconGreen: $icon-green;
 
   // Buttons
   btnBkPrimary: $btn-bk-primary;
   btnPrimaryColor: $btn-primary-color;
+  btnBkSecondary: $btn-bk-secondary;
   btnGrayColor: $btn-gray-color;
   btnRedColor: $btn-red-color;
   btnLightRedColor: $btn-light-red-color;
@@ -102,4 +105,7 @@
 
   // Header variants
   darkHeaderColor: $dark-header-color;
+
+  // Forms
+  inputRequiredBorderColor: $inputRequiredBorderColor;
 }
