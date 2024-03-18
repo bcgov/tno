@@ -5,7 +5,7 @@ import { useReports } from 'store/hooks';
 
 import { ReportInstanceView } from './ReportInstanceView';
 
-export const ReportPreview = () => {
+export const ReportView = () => {
   const [, { generateReport }] = useReports();
   const { id } = useParams();
 

@@ -97,6 +97,11 @@ export const MyReports = styled.div`
   }
 
   .section {
+    .section-header {
+      .section-open {
+        padding: 0;
+      }
+    }
     .section-body {
       h3 {
         &.upper {

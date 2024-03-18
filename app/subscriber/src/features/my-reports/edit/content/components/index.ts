@@ -1,4 +1,4 @@
-export * from './ContentEditForm';
+export * from './ContentActions';
 export * from './ContentForm';
 export * from './ReportContentSectionRow';
 export * from './ReportSectionContent';

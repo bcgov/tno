@@ -16,6 +16,11 @@ export interface IContentActionsProps {
   onNavigate?: (action: 'previous' | 'next') => void;
 }
 
+/**
+ * Provides component with action buttons for the content form.
+ * @param param0 Component properties.
+ * @returns Component.
+ */
 export const ContentActions = ({
   disabled,
   onCancel,
@@ -26,7 +31,7 @@ export const ContentActions = ({
 
   return (
     <styled.ContentActions>
-      <Button onClick={() => onCancel?.()} disabled={isSubmitting || disabled} variant="secondary">
+      <Button onClick={() => onCancel?.()} disabled={isSubmitting} variant="secondary">
         Cancel
       </Button>
       <Button onClick={() => onUpdate?.()} disabled={isSubmitting || disabled}>
@@ -36,13 +41,13 @@ export const ContentActions = ({
       <Action
         icon={<FaArrowLeft size="20" />}
         title="Previous"
-        disabled={isSubmitting || disabled}
+        disabled={isSubmitting}
         onClick={() => onNavigate?.('previous')}
       />
       <Action
         icon={<FaArrowRight />}
         title="Next"
-        disabled={isSubmitting || disabled}
+        disabled={isSubmitting}
         onClick={() => onNavigate?.('next')}
       />
     </styled.ContentActions>

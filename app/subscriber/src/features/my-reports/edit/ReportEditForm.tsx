@@ -1,14 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { Show } from 'tno-core';
 
-import { IReportInstanceContentForm } from '../interfaces';
+import { IReportForm, IReportInstanceContentForm } from '../interfaces';
 import {
   ReportContentMenuOption,
   ReportMainMenuOption,
   ReportSettingsMenuOption,
 } from './constants';
 import { ReportEditContentForm, ReportEditSortForm, ReportEditSummaryForm } from './content';
-import { ReportPreview } from './preview';
 import { ReportEditActions } from './ReportEditActions';
 import { useReportEditContext } from './ReportEditContext';
 import { ReportEditMenu } from './ReportEditMenu';
@@ -19,21 +18,25 @@ import {
   ReportEditTemplateForm,
 } from './settings';
 import * as styled from './styled';
+import { ReportSendForm, ReportView } from './view';
 
 export interface IReportEditFormProps {
   /** Whether edit functionality is disabled. */
   disabled?: boolean;
   /** Event fires when the content headline is clicked. */
   onContentClick?: (content?: IReportInstanceContentForm, action?: 'previous' | 'next') => void;
+  /** Event to update the original report. */
+  updateForm: (values: IReportForm) => void;
 }
 
 /**
  * Provides a component which displays the correct form based on the active menu.
+ * @param param0 Component properties.
  * @returns Component.
  */
-export const ReportEditForm = ({ disabled }: IReportEditFormProps) => {
+export const ReportEditForm = ({ disabled, updateForm }: IReportEditFormProps) => {
   const navigate = useNavigate();
-  const { values, active, activeRow, setActiveRow, handleNavigate } = useReportEditContext();
+  const { values, active, activeRow, setActiveRow, onNavigate } = useReportEditContext();
 
   const instance = values.instances.length ? values.instances[0] : undefined;
 
@@ -66,7 +69,7 @@ export const ReportEditForm = ({ disabled }: IReportEditFormProps) => {
           showAdd={!activeRow}
           onContentClick={(content, action) => {
             if (action) {
-              handleNavigate(instance, action);
+              onNavigate(instance, action);
             } else setActiveRow(content);
           }}
         />
@@ -78,10 +81,14 @@ export const ReportEditForm = ({ disabled }: IReportEditFormProps) => {
         <ReportEditSummaryForm disabled={disabled} />
       </Show>
       {/* Preview Menu */}
-      <Show visible={active === ReportMainMenuOption.Preview}>
-        <ReportPreview />
+      <Show visible={active === ReportMainMenuOption.View}>
+        <ReportView />
       </Show>
-      <ReportEditActions />
+      {/* Send Menu */}
+      <Show visible={active === ReportMainMenuOption.Send}>
+        <ReportSendForm />
+      </Show>
+      <ReportEditActions disabled={disabled} updateForm={updateForm} />
     </styled.ReportEditForm>
   );
 };
