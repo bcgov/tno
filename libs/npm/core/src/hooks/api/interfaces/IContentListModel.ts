@@ -2,7 +2,7 @@ import { ContentListActionName } from '../constants';
 
 export interface IContentListModel {
   action: ContentListActionName;
-  actionName?: string;
+  actionId?: number;
   actionValue?: string;
   contentIds: number[];
 }

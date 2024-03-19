@@ -12,9 +12,9 @@ public class ContentListModel
     public ContentListAction Action { get; set; }
 
     /// <summary>
-    /// get/set - The name of the action to add to the content.
+    /// get/set - The id of the action to add to the content.
     /// </summary>
-    public string? ActionName { get; set; }
+    public int? ActionId { get; set; }
 
     /// <summary>
     /// get/set - The value to apply depending on the action.

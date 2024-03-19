@@ -1,9 +1,8 @@
 import { getIn, useFormikContext } from 'formik';
 import React from 'react';
 import { FaHourglassHalf } from 'react-icons/fa';
-import { useLookup } from 'store/hooks';
+import { useLookup, useSettings } from 'store/hooks';
 import {
-  ActionName,
   Checkbox,
   ContentTypeName,
   FieldSize,
@@ -49,6 +48,7 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
 }) => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [{ actions, holidays }] = useLookup();
+  const { featuredStoryActionId, commentaryActionId, alertActionId } = useSettings();
   const { field } = useNamespace(name);
 
   const formActions: IContentActionModel[] = getIn(values, name, []);
@@ -58,7 +58,7 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
   filter ??= (action: IActionModel) => action.contentTypes.includes(values.contentType);
   const options = actions.filter((a) => a.isEnabled && filter?.(a));
   addRowOn ??= (action: IActionModel, index: number) =>
-    options.length > 4 && action.name === ActionName.Commentary;
+    options.length > 4 && action.id === commentaryActionId;
 
   React.useEffect(() => {
     // Needed this to reset the hidden values when new content is loaded.
@@ -81,20 +81,26 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
           found = { ...action, value: action.defaultValue };
           defaultActions.push(found);
         }
-        if (
-          found.name === ActionName.Alert &&
-          values.contentType === ContentTypeName.PrintContent
-        ) {
+        if (found.id === alertActionId && values.contentType === ContentTypeName.PrintContent) {
           // Default PrintContent to not alert.
           found.value = 'false';
         }
-        if (found.name === ActionName.Homepage && values.contentType === ContentTypeName.Image) {
+        if (found.id === featuredStoryActionId && values.contentType === ContentTypeName.Image) {
           found.value = 'true';
         }
       });
       setFieldValue(name, defaultActions);
     }
-  }, [setFieldValue, actions, values.actions, init, name, values.contentType]);
+  }, [
+    setFieldValue,
+    actions,
+    values.actions,
+    init,
+    name,
+    values.contentType,
+    featuredStoryActionId,
+    alertActionId,
+  ]);
 
   React.useEffect(() => {
     // When form action values are changed the hidden checkbox values must update so that the checkbox works correctly.
@@ -150,7 +156,7 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
         )}
         {a.valueType === ValueType.String && (
           <Row>
-            {a.name === ActionName.Commentary && <FaHourglassHalf className="icon-indicator" />}
+            {a.id === commentaryActionId && <FaHourglassHalf className="icon-indicator" />}
             <FormikText
               name={field('value', actionIndex)}
               disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}

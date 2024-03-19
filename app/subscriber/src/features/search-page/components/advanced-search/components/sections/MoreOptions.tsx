@@ -1,18 +1,12 @@
-import { getFilterActions } from 'features/search-page/utils';
+import { useActionFilters } from 'features/search-page/hooks';
 import React from 'react';
-import { useContent, useLookup } from 'store/hooks';
-import {
-  ActionName,
-  Checkbox,
-  Col,
-  IFilterActionSettingsModel,
-  Row,
-  Settings,
-  Text,
-} from 'tno-core';
+import { useContent, useLookup, useSettings } from 'store/hooks';
+import { Checkbox, Col, Row, Settings, Text } from 'tno-core';
 
 export const MoreOptions: React.FC = () => {
-  const [{ settings, actions }] = useLookup();
+  const [{ settings }] = useLookup();
+  const getActionFilters = useActionFilters();
+  const { topStoryActionId } = useSettings();
   const [
     {
       search: { filter: filterSettings },
@@ -20,10 +14,8 @@ export const MoreOptions: React.FC = () => {
     { storeSearchFilter },
   ] = useContent();
 
-  const [actionFilters] = React.useState<{ [actionName: string]: IFilterActionSettingsModel }>(
-    getFilterActions(actions),
-  );
-  const topStoryAction = actionFilters[ActionName.TopStory];
+  const actionFilters = getActionFilters();
+  const topStoryAction = actionFilters.find((a) => a.id === topStoryActionId);
 
   const [size, setSize] = React.useState<number | string>(filterSettings.size);
 
@@ -56,15 +48,17 @@ export const MoreOptions: React.FC = () => {
           <Checkbox
             label="are marked as top stories"
             name="topStory"
-            checked={filterSettings.actions?.map((a) => a.id).includes(topStoryAction.id)}
+            checked={filterSettings.actions?.map((a) => a.id).includes(topStoryAction?.id ?? 0)}
             onChange={(e) => {
-              const newFilterSettings = {
-                ...filterSettings,
-                actions: e.target.checked
-                  ? [...(filterSettings.actions ?? []), topStoryAction] // add it
-                  : filterSettings.actions?.filter((a) => a.id !== topStoryAction?.id), // remove it
-              };
-              storeSearchFilter(newFilterSettings);
+              if (topStoryAction) {
+                const newFilterSettings = {
+                  ...filterSettings,
+                  actions: e.target.checked
+                    ? [...(filterSettings.actions ?? []), topStoryAction] // add it
+                    : filterSettings.actions?.filter((a) => a.id !== topStoryAction.id), // remove it
+                };
+                storeSearchFilter(newFilterSettings);
+              }
             }}
           />
           <Checkbox

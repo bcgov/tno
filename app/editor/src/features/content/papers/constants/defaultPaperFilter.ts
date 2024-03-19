@@ -24,10 +24,9 @@ export const defaultPaperFilter = (sources: ISourceModel[] = []): IContentListFi
     ownerId: 0,
     userId: '',
     timeFrame: 0,
-    onTicker: false,
     commentary: false,
     topStory: false,
-    homepage: false,
+    featuredStory: false,
     sort: [],
   };
 };

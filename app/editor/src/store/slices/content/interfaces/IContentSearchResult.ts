@@ -1,4 +1,4 @@
-import { ContentStatusName, ContentTypeName, WorkOrderStatusName } from 'tno-core';
+import { ContentStatusName, ContentTypeName, IContentModel, WorkOrderStatusName } from 'tno-core';
 
 export interface IContentSearchResult {
   id: number;
@@ -19,10 +19,11 @@ export interface IContentSearchResult {
   isHidden: boolean;
   isApproved: boolean;
   hasTranscript: boolean;
-  version?: number;
-
-  // React-Table Properties
-  // TODO: Should not be part of the API interface.
+  isTopStory: boolean;
+  isCommentary: boolean;
+  isFeaturedStory: boolean;
   isSelected?: boolean;
   transcriptStatus?: WorkOrderStatusName;
+  original: IContentModel;
+  version?: number;
 }

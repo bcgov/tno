@@ -298,7 +298,7 @@ public class ContentController : ControllerBase
     {
         var content = (Content)model;
         var fileRef = model.FileReferences.FirstOrDefault() ?? throw new InvalidOperationException("File missing");
-        var file = _fileReferenceService.UpdateAndSave((FileReference)fileRef);
+        _fileReferenceService.UpdateAndSave((FileReference)fileRef);
 
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content, "file") })));
 
@@ -419,8 +419,12 @@ public class ContentController : ControllerBase
         if (!quotes.Any()) return new JsonResult(new ContentModel(content, _serializerOptions));
 
         _quoteService.Attach(Array.ConvertAll(quotes.ToArray(), item => (Quote)item));
-        
+
         content = _contentService.FindById(id);
+        if (content == null) return new JsonResult(new { Error = "Content does not exist" })
+        {
+            StatusCode = StatusCodes.Status400BadRequest
+        };
 
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content, "file") })));
 

@@ -18,10 +18,9 @@ export interface IContentListFilter {
   contentIds?: number[];
   // Actions
   showOnly?: string;
-  onTicker: boolean;
   commentary: boolean;
   topStory: boolean;
-  homepage: boolean;
+  featuredStory: boolean;
   sort: ISortBy[];
   pendingTranscript?: boolean;
 }
