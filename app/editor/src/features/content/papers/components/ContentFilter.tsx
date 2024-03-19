@@ -49,7 +49,7 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
                       isHidden: false,
                       topStory: false,
                       commentary: false,
-                      homepage: false,
+                      featuredStory: false,
                     }),
                 },
                 {
@@ -61,7 +61,7 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
                       isHidden: false,
                       topStory: true,
                       commentary: true,
-                      homepage: true,
+                      featuredStory: true,
                     }),
                 },
                 {
@@ -74,7 +74,7 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
                       isHidden: true,
                       topStory: false,
                       commentary: false,
-                      homepage: false,
+                      featuredStory: false,
                     });
                   },
                 },

@@ -5,7 +5,7 @@ import React, { lazy } from 'react';
 import { useParams } from 'react-router-dom';
 import { useApiHub, useApp, useContent, useLocalStorage, useWorkOrders } from 'store/hooks';
 import { IContentSearchResult } from 'store/slices';
-import { castContentToSearchResult } from 'store/slices/content/utils';
+import { useCastContentToSearchResult } from 'store/slices/content/hooks';
 import {
   Col,
   ContentTypeName,
@@ -55,6 +55,7 @@ const ContentListView: React.FC = () => {
   const { navigate } = useTab({ showNav: false });
   const hub = useApiHub();
   const toFilter = useElasticsearch();
+  const castContentToSearchResult = useCastContentToSearchResult();
 
   const [contentId, setContentId] = React.useState(id);
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
@@ -115,7 +116,7 @@ const ContentListView: React.FC = () => {
         }
       }
     },
-    [currentResultsPage, getContent],
+    [castContentToSearchResult, currentResultsPage, getContent],
   );
   hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
 
@@ -140,7 +141,7 @@ const ContentListView: React.FC = () => {
         } catch {}
       }
     },
-    [userId, currentResultsPage, getContent],
+    [userId, getContent, currentResultsPage, castContentToSearchResult],
   );
   hub.useHubEffect(MessageTargetName.ContentAdded, onContentAdded);
 
@@ -166,7 +167,7 @@ const ContentListView: React.FC = () => {
         } catch {}
       }
     },
-    [currentResultsPage, getContent],
+    [castContentToSearchResult, currentResultsPage, getContent],
   );
   hub.useHubEffect(MessageTargetName.ContentUpdated, onContentUpdated);
 

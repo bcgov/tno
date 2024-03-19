@@ -88,10 +88,10 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
           <Checkbox
             id="chk-featuredStories"
             label="Featured Stories"
-            checked={filter.homepage}
+            checked={filter.featuredStory}
             tooltip="Content identified as a feature stories"
             onChange={(e) => {
-              onFilterChange({ ...filter, homepage: e.target.checked });
+              onFilterChange({ ...filter, featuredStory: e.target.checked });
             }}
           />
           <Checkbox

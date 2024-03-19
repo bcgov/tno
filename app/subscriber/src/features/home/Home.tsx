@@ -43,7 +43,7 @@ export const Home: React.FC = () => {
   );
 
   const featuredItemId = React.useMemo(() => {
-    const value = appSettings?.find((s) => s.name === Settings.FeaturedItem)?.value;
+    const value = appSettings?.find((s) => s.name === Settings.FeaturedAction)?.value;
     if (!value && !!appSettings?.length)
       toast.error(
         'No FeaturedItemId found in settings. Please contact your administrator to update.',

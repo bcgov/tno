@@ -37,6 +37,12 @@ export const Settings = {
   SearchPageResultsShowPage: 'SearchPageResultsShowPage',
   /** Media types that hide the Source on search results */
   SearchPageResultsHideSource: 'SearchPageResultsHideSource',
-  /** The id for feautred content */
-  FeaturedItem: 'FeaturedItemId',
+  /** The action id for featured content */
+  FeaturedAction: 'FeaturedActionId',
+  /** The action id for top story content */
+  TopStoryAction: 'TopStoryActionId',
+  /** The action id for commentary content */
+  CommentaryAction: 'CommentaryActionId',
+  /** The action id for alerting content */
+  AlertAction: 'AlertActionId',
 };

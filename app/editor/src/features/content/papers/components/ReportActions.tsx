@@ -4,10 +4,9 @@ import { getDefaultCommentaryExpiryValue } from 'features/content/form/utils';
 import { IContentListFilter } from 'features/content/interfaces';
 import * as React from 'react';
 import { toast } from 'react-toastify';
-import { useContent, useLookup } from 'store/hooks';
+import { useContent, useLookup, useSettings } from 'store/hooks';
 import { IContentSearchResult } from 'store/slices';
 import {
-  ActionName,
   Button,
   ButtonVariant,
   Col,
@@ -47,16 +46,17 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
   const [, { updateContentList }] = useContent();
 
   const [{ holidays }] = useLookup();
+  const { commentaryActionId, featuredStoryActionId, topStoryActionId } = useSettings();
 
   const [commentary] = React.useState(`${getDefaultCommentaryExpiryValue(new Date(), holidays)}`);
 
   const handleAction = React.useCallback(
-    async (action: ContentListActionName, name?: string, value?: string) => {
+    async (action: ContentListActionName, actionId?: number, value?: string) => {
       try {
         setLoading(true);
         const items = await updateContentList({
           action,
-          actionName: name,
+          actionId: actionId,
           actionValue: value,
           contentIds: selected.length
             ? selected.map((s) => s.id)
@@ -106,7 +106,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
         onClick={() =>
           handleAction(
             ContentListActionName.Action,
-            ActionName.TopStory,
+            topStoryActionId,
             filter.topStory ? 'false' : 'true',
           )
         }
@@ -119,12 +119,12 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
         onClick={() =>
           handleAction(
             ContentListActionName.Action,
-            ActionName.Homepage,
-            filter.homepage ? 'false' : 'true',
+            featuredStoryActionId,
+            filter.featuredStory ? 'false' : 'true',
           )
         }
       >
-        {filter.homepage ? `Remove from` : `Add to`} Featured Stories
+        {filter.featuredStory ? `Remove from` : `Add to`} Featured Stories
       </Button>
       <Button
         variant={ButtonVariant.secondary}
@@ -132,7 +132,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
         onClick={() =>
           handleAction(
             ContentListActionName.Action,
-            ActionName.Commentary,
+            commentaryActionId,
             filter.commentary ? `` : commentary,
           )
         }
@@ -147,7 +147,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
         >
           Publish Selected
         </Button>
-        <Show visible={filter.commentary || filter.topStory || filter.homepage}>
+        <Show visible={filter.commentary || filter.topStory || filter.featuredStory}>
           <Button
             variant={ButtonVariant.success}
             onClick={() => handleAction(ContentListActionName.Publish)}

@@ -3,15 +3,14 @@ import { NavigateOptions, useTab } from 'components/tab-control';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApiHub, useApp, useContent, useLocalStorage, useLookup } from 'store/hooks';
+import { useApiHub, useContent, useLocalStorage, useLookup, useSettings } from 'store/hooks';
 import { IContentSearchResult, storeContentFilterAdvanced } from 'store/slices';
-import { castContentToSearchResult } from 'store/slices/content/utils';
+import { useCastContentToSearchResult } from 'store/slices/content/hooks/useCastContentToSearchResult';
 import {
   Col,
+  ContentStatusName,
   FlexboxTable,
-  IContentMessageModel,
   IContentModel,
-  IPage,
   ITableInternalCell,
   ITableInternalRow,
   ITablePage,
@@ -28,8 +27,9 @@ import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
 import { defaultPage } from '../list-view/constants';
 import { queryToFilter, queryToFilterAdvanced } from '../list-view/utils';
 import { ReportActions } from './components';
-import { defaultPaperFilter } from './constants';
+import { defaultPaperFilter, defaultTotals } from './constants';
 import { useColumns } from './hooks';
+import { ITotalsInfo } from './interfaces';
 import { PaperToolbar } from './PaperToolbar';
 import * as styled from './styled';
 
@@ -41,138 +41,126 @@ export interface IPapersProps extends React.HTMLAttributes<HTMLDivElement> {}
  * @returns Component.
  */
 const Papers: React.FC<IPapersProps> = (props) => {
-  const [{ userInfo }] = useApp();
   const { id } = useParams();
   const [
     { filterPaper: filter, filterPaperAdvanced: filterAdvanced },
     { findContentWithElasticsearch, storeFilterPaper, updateContent: updateStatus, getContent },
   ] = useContent();
   const [{ sources }] = useLookup();
-
   const { navigate } = useTab();
   const hub = useApiHub();
   const toFilter = useElasticsearch();
-
-  const [contentId, setContentId] = React.useState(id);
-
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [isFilterLoading, setIsFilterLoading] = React.useState(true);
-  const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
-  const selectedIds = selected.map((i) => i.id.toString());
-  const userId = userInfo?.id ?? '';
+  const castContentToSearchResult = useCastContentToSearchResult();
+  const { isReady: settingsReady } = useSettings(true);
 
   // This configures the shared storage between this list and any content tabs
   // that are opened.  Mainly used for navigation in the tab
   const [, setCurrentItems] = useLocalStorage('currentContent', {} as IContentSearchResult[]);
   const [currentItemId, setCurrentItemId] = useLocalStorage('currentContentItemId', -1);
 
-  // Stores the current page
+  const [contentId, setContentId] = React.useState(id);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [isFilterLoading, setIsFilterLoading] = React.useState(true);
+  const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
   const [currentResultsPage, setCurrentResultsPage] = React.useState(defaultPage);
+  const [totals, setTotals] = React.useState<ITotalsInfo>(defaultTotals);
+
+  const selectedIds = selected.map((i) => i.id.toString());
+
+  const calcTotals = React.useCallback(
+    (items: IContentSearchResult[], filter: IContentListFilter) => {
+      const topStories = items.filter((i) => i.isTopStory).length;
+      const commentary = items.filter((i) => i.isCommentary).length;
+      const featuredStories = items.filter((i) => i.isFeaturedStory).length;
+      const published = items.filter((i) =>
+        [ContentStatusName.Publish, ContentStatusName.Published].includes(i.status),
+      ).length;
+      if (
+        !filter.topStory &&
+        !filter.commentary &&
+        !filter.featuredStory &&
+        !filter.onlyPublished
+      ) {
+        setTotals((totals) => ({
+          ...totals,
+          topStories,
+          commentary,
+          featuredStories,
+          published,
+        }));
+      }
+      if (filter.topStory) setTotals((totals) => ({ ...totals, topStories }));
+      if (filter.commentary) setTotals((totals) => ({ ...totals, commentary }));
+      if (filter.featuredStory) setTotals((totals) => ({ ...totals, featuredStories }));
+      if (filter.onlyPublished) setTotals((totals) => ({ ...totals, published }));
+    },
+    [],
+  );
+
+  hub.useHubEffect(MessageTargetName.ContentUpdated, (message) => {
+    getContent(message.id)
+      .then((content) => {
+        if (content) {
+          setCurrentResultsPage((page) => {
+            const newPage = {
+              ...page,
+              items: page.items.map((q) =>
+                q.id === content.id ? castContentToSearchResult(content) : q,
+              ),
+            };
+            if (
+              filter.topStory ||
+              filter.commentary ||
+              filter.featuredStory ||
+              filter.onlyPublished
+            ) {
+              newPage.items = newPage.items.filter((i) =>
+                filter.topStory
+                  ? i.isTopStory
+                  : true && filter.commentary
+                  ? i.isCommentary
+                  : true && filter.featuredStory
+                  ? i.isFeaturedStory
+                  : true && filter.onlyPublished
+                  ? [ContentStatusName.Publish, ContentStatusName.Published].includes(i.status)
+                  : true,
+              );
+            }
+            calcTotals(newPage.items, filter);
+            return newPage;
+          });
+        }
+      })
+      .catch(() => {});
+  });
+
+  // Stores the current page
   React.useEffect(() => {
     setCurrentItems(currentResultsPage.items);
   }, [currentResultsPage, setCurrentItems]);
-  // if the user navigates next/previous in another window change the highlited row
+
+  // if the user navigates next/previous in another window change the highlighted row
   React.useEffect(() => {
     if (currentItemId !== -1) setContentId(currentItemId.toString());
   }, [currentItemId, setContentId]);
 
-  // Message process related states & logic:
-  const [isProcessingMessages, setIsProcessingMessages] = React.useState<boolean>(false);
-  const [contentUpdatesQueue, setContentUpdatesQueue] = React.useState<IContentMessageModel[]>([]);
-  const [delayProcessing, setDelayProcessing] = React.useState<boolean>(false);
-
-  hub.useHubEffect(MessageTargetName.ContentAdded, (message) => {
-    if (message.ownerId === userId) {
-      setContentUpdatesQueue((queue) => [...queue, message]);
-    }
-  });
-
-  hub.useHubEffect(MessageTargetName.ContentUpdated, (message) => {
-    setContentUpdatesQueue((queue) => [...queue, message]);
-  });
-
-  React.useEffect(() => {
-    if (!isProcessingMessages && !delayProcessing && contentUpdatesQueue?.length) {
-      setDelayProcessing(true); // delays processing too soon, allows msgs to queue up
-      setIsProcessingMessages(true);
-      processContentUpdates(contentUpdatesQueue);
-    }
-    // this timeout allows queue messages to be batched if they appear in
-    // quick succession, e.g. less than 200ms between messages.
-    const timer = setTimeout(() => {
-      setDelayProcessing(false);
-    }, 200);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contentUpdatesQueue, isProcessingMessages, delayProcessing]);
-
-  const updateCurrentResultsPage = (newPage: IPage<IContentSearchResult>, forceUpdate = false) => {
-    if ((!isProcessingMessages || forceUpdate) && newPage) {
-      setCurrentResultsPage(newPage);
-    }
-  };
-
-  // Process messages in the queue, fetching updated content data is neccesary,
-  // finally it updates the content results in the page to reflect the updated data.
-  const processContentUpdates = async (messages: IContentMessageModel[]) => {
-    if (!isProcessingMessages && messages?.length) {
-      const processedMessages: number[] = [];
-      const updatedItems: IContentSearchResult[] = [];
-      const resultsPage = currentResultsPage;
-
-      // we must await otherwise we end up with fractured state updates
-      await Promise.all(
-        messages.map(async (message) => {
-          if (processedMessages.includes(message.id)) return; // skip if content id processed already
-          processedMessages.push(message.id);
-          const containsItem = resultsPage?.items?.some((c) => c.id === message?.id);
-          if (containsItem) {
-            try {
-              const result = await getContent(message.id);
-              if (!!result) {
-                updatedItems.push(castContentToSearchResult(result));
-              }
-            } catch {}
-          }
-        }),
-      );
-
-      if (updatedItems?.length) {
-        const newPage = {
-          ...resultsPage,
-          items: resultsPage.items.map((i) => {
-            const index = updatedItems.findIndex((updatedItem) => updatedItem.id === i.id);
-            if (index > -1) {
-              return updatedItems[index];
-            } else {
-              return i;
-            }
-          }),
-        };
-        updateCurrentResultsPage(newPage, true);
-      }
-
-      setContentUpdatesQueue((queue) => queue.filter((q) => !processedMessages.includes(q.id)));
-      setIsProcessingMessages(false);
-    }
-  };
-
   const handleClickUse = React.useCallback(
     (content: IContentSearchResult) => {
-      getContent(content.id)
-        .then((response) => {
-          if (response) {
-            return updateStatus({ ...response, status: content.status }).then((content) => {
-              setContentUpdatesQueue((queue) => [...queue, content]);
-              toast.success(
-                `"${content.headline}" has been updated.  A request has been sent to update the index.`,
-              );
-            });
-          } else Promise.reject('Content does not exist');
+      updateStatus({ ...content.original, status: content.status })
+        .then((content) => {
+          setCurrentResultsPage((page) => ({
+            ...page,
+            items: page.items.map((i) =>
+              i.id === content.id ? castContentToSearchResult(content) : i,
+            ),
+          }));
+          toast.success(
+            `"${content.headline}" has been updated.  A request has been sent to update the index.`,
+          );
         })
         .catch((error) => {});
     },
-    [getContent, updateStatus],
+    [castContentToSearchResult, updateStatus],
   );
 
   const fetch = React.useCallback(
@@ -189,17 +177,16 @@ const Papers: React.FC<IPapersProps> = (props) => {
           items,
           (results.hits?.total as SearchTotalHits).value,
         );
-        updateCurrentResultsPage(page);
+        setCurrentResultsPage(page);
+        calcTotals(page.items, filter);
         return page;
       } catch (error) {
-        // TODO: Handle error
         throw error;
       } finally {
         setIsLoading(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [findContentWithElasticsearch, toFilter],
+    [calcTotals, castContentToSearchResult, findContentWithElasticsearch, toFilter],
   );
 
   const columns = useColumns({ fetch, onClickUse: handleClickUse });
@@ -230,12 +217,10 @@ const Papers: React.FC<IPapersProps> = (props) => {
 
   React.useEffect(() => {
     // Do not want to fetch while the default paper filter is still loading
-    if (isFilterLoading) return;
-    if (isProcessingMessages) return;
-    fetch({ ...filter, ...filterAdvanced });
+    if (!isFilterLoading && settingsReady) fetch({ ...filter, ...filterAdvanced });
     // Do not want to fetch when the advanced filter changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, isFilterLoading]);
+  }, [filter, isFilterLoading, settingsReady]);
 
   const handleRowClick = (
     cell: ITableInternalCell<IContentSearchResult>,
@@ -283,7 +268,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
 
   const handleContentHidden = React.useCallback(
     async (contentToHide: IContentModel[]) => {
-      if (isProcessingMessages) return;
       try {
         let filteredItems = currentResultsPage.items;
         contentToHide.forEach((c) => {
@@ -293,17 +277,35 @@ const Papers: React.FC<IPapersProps> = (props) => {
           ...currentResultsPage,
           items: filteredItems,
         };
-        updateCurrentResultsPage(newPage);
+        setCurrentResultsPage(newPage);
       } catch {}
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentResultsPage, isProcessingMessages],
+    [currentResultsPage],
   );
 
   return (
     <styled.Papers>
       <Col wrap="nowrap">
         <PaperToolbar onSearch={fetch} />
+        <div className="paper-totals">
+          <div>
+            <div>Top Stories:</div>
+            <div>{totals.topStories}</div>
+          </div>
+          <div>
+            <div>Commentary:</div>
+            <div>{totals.commentary}</div>
+          </div>
+          <div>
+            <div>Featured Stories:</div>
+            <div>{totals.featuredStories}</div>
+          </div>
+          <div>
+            <div>Published:</div>
+            <div>{totals.published}</div>
+          </div>
+        </div>
         <Row className="content-list">
           <FlexboxTable
             rowId="id"

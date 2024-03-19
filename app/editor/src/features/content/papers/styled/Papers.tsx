@@ -88,4 +88,26 @@ export const Papers = styled(FormPage)`
       cursor: pointer;
     }
   }
+
+  .paper-totals {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    justify-content: center;
+
+    > div {
+      display: flex;
+      flex-direction: row;
+      gap: 0.5rem;
+      background: lightgray;
+      border-radius: 0.25rem;
+      padding: 0.15rem 0.5rem;
+
+      > div:last-child {
+        background: white;
+        border-radius: 0.25rem;
+        padding: 0 0.15rem;
+      }
+    }
+  }
 `;

@@ -265,7 +265,7 @@ public class ContentController : ControllerBase
             updateContent.Status == ContentStatus.Published))
             updateContent.PostedOn = DateTime.UtcNow;
 
-        // only assign a default score to content which has a source relevent to Event of the Day
+        // only assign a default score to content which has a source relevant to Event of the Day
         if (updateContent.SourceId.HasValue)
         {
             var source = _sourceService.FindById(updateContent.SourceId.Value);
@@ -392,12 +392,12 @@ public class ContentController : ControllerBase
             else if (model.Action == ContentListAction.Action)
             {
                 var latestContent = _contentService.FindById(content.Id);
-                var currentAction = latestContent?.ActionsManyToMany.FirstOrDefault(a => a.Action!.Name == model.ActionName);
+                var currentAction = latestContent?.ActionsManyToMany.FirstOrDefault(a => a.Action?.Id == model.ActionId);
                 if (currentAction == null)
                 {
-                    var action = (!string.IsNullOrWhiteSpace(model.ActionName) ?
-                        _actionService.FindByName(model.ActionName) :
-                        null) ?? throw new InvalidOperationException($"Action specified '{model.ActionName}' does not exist.");
+                    var action = (model.ActionId.HasValue ?
+                        _actionService.FindById(model.ActionId.Value) :
+                        null) ?? throw new InvalidOperationException($"Action specified '{model.ActionId}' does not exist.");
                     latestContent?.ActionsManyToMany.Add(new ContentAction(latestContent, action, model.ActionValue ?? ""));
                     if (latestContent != null) update.Add(_contentService.Update(latestContent));
                 }
@@ -419,6 +419,8 @@ public class ContentController : ControllerBase
         {
             foreach (var content in update)
             {
+                await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content) })));
+
                 // If a request is submitted to unpublish we do it regardless of the current state of the content.
                 if (content.Status == ContentStatus.Unpublish)
                     await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Unpublish));
@@ -429,6 +431,7 @@ public class ContentController : ControllerBase
 
                 // Always index the content.
                 await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Index));
+
             }
         }
         else
