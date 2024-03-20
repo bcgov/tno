@@ -1,5 +1,3 @@
-import { ISourceModel } from 'tno-core';
-
 import { IGroupOption } from '../../../interfaces/IGroupOption';
 
 export const sortableMediaOptions = (mediaSource: IGroupOption[]) => {
