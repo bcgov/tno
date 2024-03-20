@@ -24,6 +24,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
   const [, { storeReportOutput }] = useProfileStore();
   const [, { getReport, generateReport }] = useReports();
 
+  const [isLoading, setIsLoading] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const instance = report?.instances.length ? report.instances[0] : undefined;
@@ -42,10 +43,17 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
   // If there is no instance first fetch the report information to see if there should be one.
   // If there still is no instance, then it must be initialized.
   React.useEffect(() => {
-    if (!!report && !instance?.id) {
-      fetchReport(report.id);
+    if (!!report && !instance && !isLoading) {
+      setIsLoading(true);
+      fetchReport(report.id)
+        .then((report) => {
+          onFetch?.(report);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
-  }, [fetchReport, instance?.id, report]);
+  }, [fetchReport, instance, isLoading, onFetch, report]);
 
   const handleRefresh = React.useCallback(
     async (instanceId: number, regenerate?: boolean) => {
