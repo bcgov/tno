@@ -32,6 +32,8 @@ export interface IWysiwygProps {
   name?: string;
   /** optional label to appear above the WYSIWYG */
   label?: string;
+  /** Whether component is disabled. */
+  disabled?: boolean;
   /** whether or not it is a required field */
   required?: boolean;
   /** The value */
@@ -60,6 +62,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
   name,
   label,
   value,
+  disabled,
   required,
   className,
   expandModal,
@@ -162,10 +165,12 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
             modules={modules}
             formats={formats}
             onBlur={onBlur}
+            readOnly={disabled}
           />
           <textarea
             id={id}
             name={name}
+            disabled={disabled}
             className="raw-editor"
             onChange={(e) => setState({ ...state, text: e.target.value })}
             value={state.text}

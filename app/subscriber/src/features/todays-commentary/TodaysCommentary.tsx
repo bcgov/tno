@@ -1,13 +1,14 @@
 import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
-import { filterFormat, getFilterActions } from 'features/search-page/utils';
+import { useActionFilters } from 'features/search-page/hooks';
+import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { useContent, useLookup } from 'store/hooks';
-import { ActionName, generateQuery, IContentModel } from 'tno-core';
+import { useContent, useSettings } from 'store/hooks';
+import { generateQuery, IContentModel } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -19,7 +20,8 @@ export const TodaysCommentary: React.FC = () => {
     },
     { findContentWithElasticsearch, storeTodaysCommentaryFilter: storeFilter },
   ] = useContent();
-  const [{ actions }] = useLookup();
+  const getActionFilters = useActionFilters();
+  const { commentaryActionId, isReady } = useSettings();
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
@@ -29,15 +31,15 @@ export const TodaysCommentary: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    if (!!actions && actions.length > 0) {
-      let actionFilters = getFilterActions(actions);
-      const commentaryAction = actionFilters[ActionName.Commentary];
+    if (isReady) {
+      let actionFilters = getActionFilters();
+      const commentaryAction = actionFilters.find((a) => a.id === commentaryActionId);
 
       findContentWithElasticsearch(
         generateQuery(
           filterFormat({
             ...filter,
-            actions: [commentaryAction],
+            actions: commentaryAction ? [commentaryAction] : [],
             startDate: moment(filter.startDate).toISOString(),
             endDate: moment(filter.endDate).toISOString(),
             searchUnpublished: false,
@@ -56,9 +58,7 @@ export const TodaysCommentary: React.FC = () => {
         })
         .catch();
     }
-    // only run this effect when the filter changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [actions, filter]);
+  }, [commentaryActionId, filter, findContentWithElasticsearch, getActionFilters, isReady]);
 
   return (
     <styled.TodaysCommentary>

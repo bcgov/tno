@@ -20,10 +20,9 @@ export const initialContentState: IContentState = {
     sourceIds: [],
     excludeSourceIds: [],
     timeFrame: 0,
-    onTicker: false,
     commentary: false,
     topStory: false,
-    homepage: false,
+    featuredStory: false,
     sort: [],
   },
   filterAdvanced: {
@@ -45,10 +44,9 @@ export const initialContentState: IContentState = {
     sourceIds: [],
     excludeSourceIds: [],
     timeFrame: 0,
-    onTicker: false,
     commentary: false,
     topStory: false,
-    homepage: false,
+    featuredStory: false,
     sort: [],
   },
   filterPaperAdvanced: {

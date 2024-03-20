@@ -7,7 +7,8 @@ import { MyColleagues } from 'features/my-colleagues';
 import { ColleagueEdit } from 'features/my-colleagues/ColleagueEdit';
 import { FolderLanding } from 'features/my-folders';
 import { MyProducts } from 'features/my-products';
-import { MyReports, ReportAdmin, ReportEdit, ReportView } from 'features/my-reports';
+import { MyReports, ReportView } from 'features/my-reports';
+import { ReportEditPage } from 'features/my-reports/edit';
 import { SearchPage } from 'features/search-page';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
@@ -123,28 +124,34 @@ export const AppRouter: React.FC<IAppRouter> = () => {
           path="/reports"
           element={<PrivateRoute claims={Claim.subscriber} element={<MyReports />}></PrivateRoute>}
         />
-        <Route
+        {/* <Route
           path="/reports/:id/edit"
           element={<PrivateRoute claims={Claim.subscriber} element={<ReportEdit />}></PrivateRoute>}
         />
         <Route
           path="/reports/:id/edit/:path"
           element={<PrivateRoute claims={Claim.subscriber} element={<ReportEdit />}></PrivateRoute>}
-        />
+        /> */}
         <Route
           path="/reports/:id/view"
           element={<PrivateRoute claims={Claim.subscriber} element={<ReportView />}></PrivateRoute>}
         />
         <Route
-          path="/reports/:id/:path"
+          path="/reports/:id/:path1"
           element={
-            <PrivateRoute claims={Claim.subscriber} element={<ReportAdmin />}></PrivateRoute>
+            <PrivateRoute claims={Claim.subscriber} element={<ReportEditPage />}></PrivateRoute>
+          }
+        />
+        <Route
+          path="/reports/:id/:path1/:path2"
+          element={
+            <PrivateRoute claims={Claim.subscriber} element={<ReportEditPage />}></PrivateRoute>
           }
         />
         <Route
           path="/reports/:id"
           element={
-            <PrivateRoute claims={Claim.subscriber} element={<ReportAdmin />}></PrivateRoute>
+            <PrivateRoute claims={Claim.subscriber} element={<ReportEditPage />}></PrivateRoute>
           }
         />
         <Route

@@ -1,12 +1,13 @@
 import { PageSection } from 'components/section';
 import { Sentiment } from 'components/sentiment';
-import { filterFormat, getFilterActions } from 'features/search-page/utils';
+import { useActionFilters } from 'features/search-page/hooks';
+import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { useContent, useLookup, useNavigateAndScroll } from 'store/hooks';
-import { ActionName, generateQuery, IContentModel, Row } from 'tno-core';
+import { useContent, useNavigateAndScroll, useSettings } from 'store/hooks';
+import { generateQuery, IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 import { DetermineContentIcon, isWeekday } from './utils';
@@ -15,7 +16,8 @@ export const Commentary: React.FC = () => {
   const [, { findContentWithElasticsearch }] = useContent();
   const [commentary, setCommentary] = React.useState<IContentSearchResult[]>();
   const navigateAndScroll = useNavigateAndScroll();
-  const [{ actions }] = useLookup();
+  const { commentaryActionId, isReady } = useSettings();
+  const getActionFilters = useActionFilters();
 
   /** determine how far back to grab commentary */
   const determineCommentaryTime = () => {
@@ -29,14 +31,14 @@ export const Commentary: React.FC = () => {
   };
 
   React.useEffect(() => {
-    if (!!actions && actions.length > 0) {
-      let actionFilters = getFilterActions(actions);
-      const commentaryAction = actionFilters[ActionName.Commentary];
+    if (isReady) {
+      let actionFilters = getActionFilters();
+      const commentaryAction = actionFilters.find((a) => a.id === commentaryActionId);
 
       findContentWithElasticsearch(
         generateQuery(
           filterFormat({
-            actions: [commentaryAction],
+            actions: commentaryAction ? [commentaryAction] : [],
             searchUnpublished: false,
             startDate: determineCommentaryTime(),
             size: 100,
@@ -52,9 +54,7 @@ export const Commentary: React.FC = () => {
         );
       });
     }
-    // only run once
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [actions]);
+  }, [commentaryActionId, findContentWithElasticsearch, getActionFilters, isReady]);
 
   return (
     <styled.Commentary>

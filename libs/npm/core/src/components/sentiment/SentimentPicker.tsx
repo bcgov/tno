@@ -13,6 +13,8 @@ export interface ISentimentPickerProps<T> {
   name: string | keyof T;
   /** The label of the field. */
   label?: string;
+  /** Whether component is disabled. */
+  disabled?: boolean;
   /** Whether this field is required. */
   required?: boolean;
   value?: number;
@@ -29,6 +31,7 @@ export const SentimentPicker = <T extends object>({
   name,
   label = 'Sentiment',
   value: initValue,
+  disabled,
   error,
   onChange,
   required,
@@ -64,6 +67,7 @@ export const SentimentPicker = <T extends object>({
               className={active === option ? 'active' : ''}
               type="button"
               key={option}
+              disabled={disabled}
               onClick={() => {
                 setActive(option);
                 onChange?.(option);

@@ -32,10 +32,9 @@ export const queryToFilter = (
       mediaTypeIds: search.mediaTypeIds?.map((v: any) => convertTo(v, 'number', undefined)),
       sourceIds: search.sourceIds?.map((v: any) => convertTo(v, 'number', undefined)),
       // Actions
-      onTicker: convertTo(search.onTicker, 'boolean', filter.onTicker),
       commentary: convertTo(search.commentary, 'boolean', filter.commentary),
       topStory: convertTo(search.topStory, 'boolean', filter.topStory),
-      homepage: convertTo(search.homepage, 'boolean', filter.homepage),
+      featuredStory: convertTo(search.featuredStory, 'boolean', filter.featuredStory),
       sort: convertTo(search.sort, 'string', filter.sort),
     };
   }

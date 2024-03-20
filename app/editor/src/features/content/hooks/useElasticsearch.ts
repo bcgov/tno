@@ -1,18 +1,18 @@
 import moment from 'moment';
 import React from 'react';
-import { useLookup } from 'store/hooks';
 import { ContentStatusName, generateQuery, IFilterSettingsModel } from 'tno-core';
 
 import { AdvancedSearchKeys } from '../constants';
 import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
-import { getActionFilters, getSortBy } from '../utils';
+import { useActionFilters } from '../papers/hooks';
+import { getSortBy } from '../utils';
 
 /**
  * Provides method to generate an Elasticsearch query.
  * @returns Function to convert a filter to an Elasticsearch query.
  */
 export const useElasticsearch = () => {
-  const [{ actions }] = useLookup();
+  const getActionFilters = useActionFilters();
 
   return React.useCallback(
     (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
@@ -37,7 +37,7 @@ export const useElasticsearch = () => {
             : filter.timeFrame
             ? +filter.timeFrame
             : 0,
-        actions: getActionFilters(filter, actions),
+        actions: getActionFilters(filter),
         seriesIds: [],
         contributorIds: [],
         tags: [],
@@ -63,6 +63,6 @@ export const useElasticsearch = () => {
       }
       return generateQuery(settings);
     },
-    [actions],
+    [getActionFilters],
   );
 };
