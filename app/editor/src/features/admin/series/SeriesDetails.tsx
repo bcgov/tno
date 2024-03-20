@@ -102,7 +102,7 @@ const SeriesDetails: React.FC = () => {
                 label="Media Type Search Group"
                 isMulti
                 name="mediaTypeSearchMappings"
-                tooltip="Select the Media Types that this Source will show up under the Advanced search UI."
+                tooltip="Select the Media Types that this Show/Program will show up under the Advanced search UI."
                 options={mediaTypesForSearchMapping}
                 value={
                   values.mediaTypeSearchMappings?.map((mt) =>
