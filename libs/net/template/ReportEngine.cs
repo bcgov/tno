@@ -172,6 +172,7 @@ public class ReportEngine : IReportEngine
     /// Generate the output of the report with the Razor engine.
     /// </summary>
     /// <param name="report"></param>
+    /// <param name="reportInstanceId"></param>
     /// <param name="sectionContent"></param>
     /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
@@ -179,6 +180,7 @@ public class ReportEngine : IReportEngine
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<string> GenerateReportSubjectAsync(
         API.Areas.Services.Models.Report.ReportModel report,
+        API.Areas.Services.Models.ReportInstance.ReportInstanceModel? reportInstance,
         Dictionary<string, ReportSectionModel> sectionContent,
         bool viewOnWebOnly = false,
         bool isPreview = false)
@@ -190,9 +192,11 @@ public class ReportEngine : IReportEngine
         var template = this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Subject)
             ?? throw new InvalidOperationException("Template does not exist");
 
-        var model = new ReportEngineContentModel(report, sectionContent, this.TemplateOptions);
+        var model = new ReportEngineContentModel(report, reportInstance, sectionContent, this.TemplateOptions);
         return await template.RunAsync(instance =>
         {
+            instance.ReportId = report.Id;
+            instance.ReportInstanceId = reportInstance?.Id;
             instance.Model = model;
             instance.Settings = model.Settings;
             instance.Content = model.Content;
@@ -211,6 +215,7 @@ public class ReportEngine : IReportEngine
     /// Generate the output of the report with the Razor engine.
     /// </summary>
     /// <param name="report"></param>
+    /// <param name="reportInstanceId"></param>
     /// <param name="sectionContent"></param>
     /// <param name="getLinkedReport"></param>
     /// <param name="uploadPath"></param>
@@ -220,6 +225,7 @@ public class ReportEngine : IReportEngine
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<string> GenerateReportBodyAsync(
         API.Areas.Services.Models.Report.ReportModel report,
+        API.Areas.Services.Models.ReportInstance.ReportInstanceModel? reportInstance,
         Dictionary<string, ReportSectionModel> sectionContent,
         Func<int, int?, Task<Dictionary<string, ReportSectionModel>>> getLinkedReportAsync,
         string? uploadPath = null,
@@ -233,9 +239,11 @@ public class ReportEngine : IReportEngine
         var template = this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Body)
             ?? throw new InvalidOperationException("Template does not exist");
 
-        var model = new ReportEngineContentModel(report, sectionContent, this.TemplateOptions, uploadPath);
+        var model = new ReportEngineContentModel(report, reportInstance, sectionContent, this.TemplateOptions, uploadPath);
         var body = await template.RunAsync(instance =>
         {
+            instance.ReportId = report.Id;
+            instance.ReportInstanceId = reportInstance?.Id;
             instance.Model = model;
             instance.Settings = model.Settings;
             instance.Content = model.Content;

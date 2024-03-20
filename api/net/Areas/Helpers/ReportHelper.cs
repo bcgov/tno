@@ -162,7 +162,7 @@ public class ReportHelper : IReportHelper
             return new ReportSectionModel(section, content);
         });
 
-        return await GenerateReportAsync(reportModel, sections, viewOnWebOnly, isPreview);
+        return await GenerateReportAsync(reportModel, model, sections, viewOnWebOnly, isPreview);
     }
 
     /// <summary>
@@ -206,7 +206,7 @@ public class ReportHelper : IReportHelper
             return new ReportSectionModel(section, content, aggregations);
         });
 
-        var result = await GenerateReportAsync(model, sections, viewOnWebOnly, isPreview);
+        var result = await GenerateReportAsync(model, null, sections, viewOnWebOnly, isPreview);
         result.Data = elasticResults;
         return result;
 
@@ -217,6 +217,7 @@ public class ReportHelper : IReportHelper
     /// Use the Razor templates to generate the output.
     /// </summary>
     /// <param name="report"></param>
+    /// <param name="reportInstance"></param>
     /// <param name="sections"></param>
     /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
@@ -224,12 +225,13 @@ public class ReportHelper : IReportHelper
     /// <exception cref="InvalidOperationException"></exception>
     private async Task<ReportResultModel> GenerateReportAsync(
         Areas.Services.Models.Report.ReportModel report,
+        Areas.Services.Models.ReportInstance.ReportInstanceModel? reportInstance,
         Dictionary<string, ReportSectionModel> sections,
         bool viewOnWebOnly = false,
         bool isPreview = false)
     {
-        var subject = await _reportEngine.GenerateReportSubjectAsync(report, sections, viewOnWebOnly, isPreview);
-        var body = await _reportEngine.GenerateReportBodyAsync(report, sections, GetLinkedReportContent, _storageOptions.GetUploadPath(), viewOnWebOnly, isPreview);
+        var subject = await _reportEngine.GenerateReportSubjectAsync(report, reportInstance, sections, viewOnWebOnly, isPreview);
+        var body = await _reportEngine.GenerateReportBodyAsync(report, reportInstance, sections, GetLinkedReportContent, _storageOptions.GetUploadPath(), viewOnWebOnly, isPreview);
 
         return new ReportResultModel(subject, body);
     }

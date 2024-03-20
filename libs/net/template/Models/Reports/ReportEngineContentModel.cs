@@ -43,11 +43,18 @@ public class ReportEngineContentModel : BaseTemplateModel<IEnumerable<ContentMod
     /// Creates a new instance of a ReportEngineContentModel, initializes with specified parameters.
     /// </summary>
     /// <param name="report"></param>
+    /// <param name="reportInstance"></param>
     /// <param name="content"></param>
     /// <param name="options"></param>
-    public ReportEngineContentModel(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<ContentModel> content, Config.TemplateOptions options)
+    public ReportEngineContentModel(
+        API.Areas.Services.Models.Report.ReportModel report,
+        API.Areas.Services.Models.ReportInstance.ReportInstanceModel? reportInstance,
+        IEnumerable<ContentModel> content,
+        Config.TemplateOptions options)
         : base(content)
     {
+        this.ReportId = report.Id;
+        this.ReportInstanceId = reportInstance?.Id;
         this.Settings = report.Settings;
         this.OwnerId = report.OwnerId;
         this.SubscriberAppUrl = options.SubscriberAppUrl;
@@ -60,12 +67,20 @@ public class ReportEngineContentModel : BaseTemplateModel<IEnumerable<ContentMod
     /// Creates a new instance of a ReportEngineContentModel, initializes with specified parameters.
     /// </summary>
     /// <param name="report"></param>
+    /// <param name="reportInstance"></param>
     /// <param name="sections"></param>
     /// <param name="options"></param>
     /// <param name="uploadPath"></param>
-    public ReportEngineContentModel(API.Areas.Services.Models.Report.ReportModel report, Dictionary<string, ReportSectionModel> sections, Config.TemplateOptions options, string? uploadPath = null)
+    public ReportEngineContentModel(
+        API.Areas.Services.Models.Report.ReportModel report,
+        API.Areas.Services.Models.ReportInstance.ReportInstanceModel? reportInstance,
+        Dictionary<string, ReportSectionModel> sections,
+        Config.TemplateOptions options,
+        string? uploadPath = null)
         : base(Array.Empty<ContentModel>())
     {
+        this.ReportId = report.Id;
+        this.ReportInstanceId = reportInstance?.Id;
         this.Sections = sections;
         this.Settings = report.Settings;
         this.OwnerId = report.OwnerId;

@@ -131,11 +131,11 @@ export const AppRouter: React.FC<IAppRouter> = () => {
         <Route
           path="/reports/:id/edit/:path"
           element={<PrivateRoute claims={Claim.subscriber} element={<ReportEdit />}></PrivateRoute>}
-        />
+        /> */}
         <Route
           path="/reports/:id/view"
           element={<PrivateRoute claims={Claim.subscriber} element={<ReportView />}></PrivateRoute>}
-        /> */}
+        />
         <Route
           path="/reports/:id/:path1"
           element={
