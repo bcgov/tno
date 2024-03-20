@@ -1,6 +1,22 @@
 import styled from 'styled-components';
 
 export const MyReports = styled.div`
+  display: flex;
+  flex-direction: row;
+
+  > div {
+    flex: 1;
+  }
+
+  .icon-close {
+    height: 14px;
+    min-height: 14px;
+    max-height: 14px;
+    width: 14px;
+    min-width: 14px;
+    max-width: 14px;
+  }
+
   .txt-filter {
     flex-direction: row;
     align-items: center;
@@ -96,7 +112,7 @@ export const MyReports = styled.div`
     min-height: 100px;
   }
 
-  .section {
+  .section.report-card {
     .section-header {
       .section-open {
         padding: 0;
@@ -112,6 +128,11 @@ export const MyReports = styled.div`
 
       > div {
         > div:first-child {
+          p {
+            /* Need this to stop the paragraph from making the div wider than it should be */
+            width: 0;
+            min-width: 100%;
+          }
           > div:not(:first-child) {
             > div:nth-child(3) {
               margin-top: 0.5rem;
@@ -157,6 +178,42 @@ export const MyReports = styled.div`
 
       .report-schedule-disabled {
         color: ${(props) => props.theme.css.toneNegative};
+      }
+    }
+  }
+
+  .report-preview {
+    .report-title {
+      h2 {
+        margin: 0.5rem;
+      }
+    }
+    .bar {
+      > div:last-child {
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+      }
+    }
+    .preview-section {
+      .preview-subject {
+        padding: 0.25rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        background: ${(props) => props.theme.css.highlightPrimary};
+      }
+
+      p {
+        /* Need this to stop the paragraph from making the div wider than it should be */
+        width: 0;
+        min-width: 100%;
+      }
+
+      .article {
+        /* Need this to stop the paragraph from making the div wider than it should be */
+        width: 0;
+        min-width: 100%;
       }
     }
   }

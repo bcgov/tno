@@ -10,9 +10,9 @@ export interface IBarProps extends React.HTMLAttributes<HTMLDivElement> {
 /**
  * Provides a common styled horizontal bar.
  */
-export const Bar: React.FC<IBarProps> = ({ children, vanilla = false, ...rest }) => {
+export const Bar: React.FC<IBarProps> = ({ children, vanilla = false, className, ...rest }) => {
   return (
-    <styled.Bar {...rest} $vanilla={vanilla}>
+    <styled.Bar className={`bar${className ? ` ${className}` : ''}`} {...rest} $vanilla={vanilla}>
       {children}
     </styled.Bar>
   );

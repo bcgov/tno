@@ -115,7 +115,7 @@ export const ReportEditForm: React.FC<IReportEditFormProps> = ({
         if (regenerate) toast.success('Report has been regenerated');
         else {
           toast.success('Report has been generated');
-          navigate(`/reports/${values.id}/edit/content`);
+          navigate(`/reports/${values.id}/content`);
         }
       } catch {}
     },
