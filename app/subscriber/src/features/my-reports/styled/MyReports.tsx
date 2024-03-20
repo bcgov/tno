@@ -193,7 +193,8 @@ export const MyReports = styled.div`
         flex: 1;
         display: flex;
         flex-direction: row;
-        justify-content: flex-end;
+        // TODO: Need to fix right panel layout so this button can float right.
+        /* justify-content: flex-end; */
       }
     }
     .preview-section {

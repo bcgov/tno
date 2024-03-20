@@ -24,7 +24,7 @@ interface IReportInstanceController {
 export const useReportInstances = (): [IReportInstanceController] => {
   const api = useApiSubscriberReportInstances();
   const dispatch = useAjaxWrapper();
-  const [, { storeReportContent }] = useProfileStore();
+  const [, { storeMyReports, storeReportContent }] = useProfileStore();
 
   const controller = React.useMemo(
     () => ({
@@ -42,6 +42,13 @@ export const useReportInstances = (): [IReportInstanceController] => {
               : reports[instance.reportId] ?? [];
             return result;
           });
+          storeMyReports((reports) =>
+            reports.map((report) => {
+              const instances = report.instances.map((i) => (i.id === instance.id ? instance : i));
+              if (!instances.some((i) => i.id === instance.id)) instances.unshift(instance);
+              return report.id === instance.reportId ? { ...report, instances } : report;
+            }),
+          );
         }
         return response.data;
       },
@@ -58,6 +65,13 @@ export const useReportInstances = (): [IReportInstanceController] => {
               : reports[instance.reportId] ?? [];
             return result;
           });
+          storeMyReports((reports) =>
+            reports.map((report) =>
+              report.id === instance.reportId
+                ? { ...report, instances: [instance, ...report.instances] }
+                : report,
+            ),
+          );
         }
         return response.data;
       },
@@ -74,6 +88,13 @@ export const useReportInstances = (): [IReportInstanceController] => {
               : reports[instance.reportId] ?? [];
             return result;
           });
+          storeMyReports((reports) =>
+            reports.map((report) => {
+              const instances = report.instances.map((i) => (i.id === instance.id ? instance : i));
+              if (!instances.some((i) => i.id === instance.id)) instances.unshift(instance);
+              return report.id === instance.reportId ? { ...report, instances } : report;
+            }),
+          );
         }
         return response.data;
       },
@@ -88,6 +109,12 @@ export const useReportInstances = (): [IReportInstanceController] => {
             delete result[instance.reportId];
             return result;
           });
+          storeMyReports((reports) =>
+            reports.map((report) => {
+              const instances = report.instances.filter((i) => i.id !== instance.id);
+              return report.id === instance.reportId ? { ...report, instances } : report;
+            }),
+          );
         }
         return response.data;
       },
@@ -119,7 +146,7 @@ export const useReportInstances = (): [IReportInstanceController] => {
         return response.data;
       },
     }),
-    [api, dispatch, storeReportContent],
+    [api, dispatch, storeMyReports, storeReportContent],
   );
 
   return [controller];
