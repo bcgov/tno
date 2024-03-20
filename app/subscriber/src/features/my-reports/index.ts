@@ -1,3 +1,2 @@
-export * from './admin';
+export * from './edit';
 export * from './MyReports';
-export * from './view';
