@@ -11,6 +11,16 @@ public abstract class BaseTemplateModel<T> : RazorEngineTemplateBase
 {
     #region Properties
     /// <summary>
+    /// get/set - The primary key to the report.
+    /// </summary>
+    public int ReportId { get; set; }
+
+    /// <summary>
+    /// get/set - The primary key to the report instance.
+    /// </summary>
+    public long? ReportInstanceId { get; set; }
+
+    /// <summary>
     /// get/set - The main model.
     /// </summary>
     public T Content { get; set; }

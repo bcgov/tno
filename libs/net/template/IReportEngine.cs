@@ -38,12 +38,14 @@ public interface IReportEngine
     /// Generate the output of the report with the Razor engine.
     /// </summary>
     /// <param name="report"></param>
+    /// <param name="reportInstance"></param>
     /// <param name="sectionContent"></param>
     /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
     /// <returns></returns>
     Task<string> GenerateReportSubjectAsync(
         API.Areas.Services.Models.Report.ReportModel report,
+        API.Areas.Services.Models.ReportInstance.ReportInstanceModel? reportInstance,
         Dictionary<string, ReportSectionModel> sectionContent,
         bool viewOnWebOnly = false,
         bool isPreview = false);
@@ -52,6 +54,7 @@ public interface IReportEngine
     /// Generate the output of the report with the Razor engine.
     /// </summary>
     /// <param name="report"></param>
+    /// <param name="reportInstance"></param>
     /// <param name="sectionContent"></param>
     /// <param name="getLinkedReport"></param>
     /// <param name="uploadPath"></param>
@@ -60,6 +63,7 @@ public interface IReportEngine
     /// <returns></returns>
     Task<string> GenerateReportBodyAsync(
         API.Areas.Services.Models.Report.ReportModel report,
+        API.Areas.Services.Models.ReportInstance.ReportInstanceModel? reportInstance,
         Dictionary<string, ReportSectionModel> sectionContent,
         Func<int, int?, Task<Dictionary<string, ReportSectionModel>>> getLinkedReport,
         string? uploadPath = null,
