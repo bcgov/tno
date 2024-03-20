@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Row } from 'tno-core';
 
-export const AdvancedSearch = styled(Row)`
+export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   position: relative;
   max-height: calc(100vh - 10em);
   .page-section {
@@ -106,10 +106,38 @@ export const AdvancedSearch = styled(Row)`
     }
   }
   /* HEADER OF THE ADVANCED SEARCH COMPONENT */
+  .page-section-title {
+    border-bottom: ${(props) => (!props.expanded ? 'none' : '')};
+    margin: ${(props) => (!props.expanded ? '0.25em' : '')};
+  }
   .top-bar {
+    .tools {
+      margin-left: auto;
+      font-size: 0.65em;
+      .back-text {
+        cursor: pointer;
+        text-transform: uppercase;
+        font-size: 0.75em;
+        margin-right: 0.5em;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+      .minimize,
+      .back-text,
+      .expand {
+        align-self: center;
+      }
+      .minimize,
+      .expand {
+        color: ${(props) => props.theme.css.iconPrimaryColor};
+        fill: ${(props) => props.theme.css.iconPrimaryColor};
+        cursor: pointer;
+        margin-right: 0.5em;
+      }
+    }
     width: 100%;
     .reset {
-      margin-left: auto;
       align-self: center;
       height: 1.25em;
       width: 1.25em;
