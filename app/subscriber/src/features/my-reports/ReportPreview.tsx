@@ -118,7 +118,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
           <FaArrowsRotate />
         </Button>
         <Button
-          onClick={() => navigate(`/reports/${report?.id}/edit`)}
+          onClick={() => navigate(`/reports/${report?.id}/content`)}
           disabled={!report || isSubmitting}
         >
           Edit
