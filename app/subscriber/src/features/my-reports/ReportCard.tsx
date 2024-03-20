@@ -4,7 +4,6 @@ import { Section } from 'components/section';
 import { formatDate } from 'features/utils';
 import React from 'react';
 import { FaChartPie, FaNewspaper, FaPen, FaTrashCan } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useApp, useReports } from 'store/hooks';
 import { Col, IReportModel, ReportSectionTypeName, Row, Spinner } from 'tno-core';
@@ -14,6 +13,8 @@ import { calcNextScheduleSend, getLastSent } from './utils';
 export interface IReportCardProps {
   /** The report to display on this card. */
   report: IReportModel;
+  /** Event fires when header is clicked. */
+  onClick?: (report?: IReportModel) => void;
   /** Event fires when user requests to delete report. This event does not delete the report itself. */
   onDelete?: (report: IReportModel) => void;
 }
@@ -23,15 +24,14 @@ export interface IReportCardProps {
  * @param param0 Component properties.
  * @returns Component.
  */
-export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => {
-  const navigate = useNavigate();
+export const ReportCard: React.FC<IReportCardProps> = ({ report, onClick, onDelete }) => {
   const [, { getReport }] = useReports();
   const [{ requests }] = useApp();
 
   const fetchReport = React.useCallback(
     async (id: number) => {
       try {
-        await getReport(id);
+        return await getReport(id);
       } catch {}
     },
     [getReport],
@@ -42,6 +42,7 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => 
   return (
     <Section
       key={report.id}
+      className="report-card"
       icon={
         report.sections.some(
           (section) => section.sectionType === ReportSectionTypeName.MediaAnalytics,
@@ -53,11 +54,15 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onDelete }) => 
       }
       label={report.name}
       actions={
-        <Button onClick={() => navigate(`/reports/${report.id}/edit`)}>
+        <Button onClick={() => onClick?.(report)}>
           View report <FaPen />
         </Button>
       }
-      onChange={(open) => open && fetchReport(report.id)}
+      onChange={async (open) => {
+        if (open) {
+          await fetchReport(report.id);
+        }
+      }}
     >
       <Row gap="1rem">
         <Col flex="1" gap="1rem">

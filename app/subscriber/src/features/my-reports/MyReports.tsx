@@ -5,18 +5,31 @@ import React from 'react';
 import { FaClipboard } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp, useReports } from 'store/hooks';
-import { Col, IReportModel, Loading, Modal, Row, useModal } from 'tno-core';
+import { useApiHub, useApp, useReportInstances, useReports } from 'store/hooks';
+import {
+  Col,
+  IReportMessageModel,
+  IReportModel,
+  Loading,
+  MessageTargetName,
+  Modal,
+  ReportStatusName,
+  Row,
+  useModal,
+} from 'tno-core';
 
 import { ReportCard } from './ReportCard';
 import { ReportFilter } from './ReportFilter';
+import { ReportPreview } from './ReportPreview';
 import * as styled from './styled';
 
 export const MyReports: React.FC = () => {
   const [{ myReports, reportsFilter }, { findMyReports, deleteReport }] = useReports();
+  const [{ getReportInstance }] = useReportInstances();
   const { toggle, isShowing } = useModal();
   const navigate = useNavigate();
   const [{ requests }] = useApp();
+  const hub = useApiHub();
 
   const [report, setReport] = React.useState<IReportModel>();
 
@@ -31,6 +44,22 @@ export const MyReports: React.FC = () => {
     // Only do this on init.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  hub.useHubEffect(MessageTargetName.ReportStatus, async (message: IReportMessageModel) => {
+    if (report) {
+      try {
+        if (message.status === ReportStatusName.Accepted) {
+          const instance = await getReportInstance(message.id, false);
+          if (instance) {
+            setReport({
+              ...report,
+              instances: report.instances.map((i) => (i.id === message.id ? instance : i)),
+            });
+          }
+        }
+      } catch {}
+    }
+  });
 
   const handleDelete = React.useCallback(
     (report: IReportModel) => {
@@ -49,7 +78,7 @@ export const MyReports: React.FC = () => {
 
   return (
     <styled.MyReports>
-      <PageSection header="My Reports" includeHeaderIcon>
+      <PageSection header="My Reports" includeHeaderIcon className="my-reports">
         <Bar>
           <ReportFilter />
           <Row flex="1" justifyContent="flex-end">
@@ -71,6 +100,7 @@ export const MyReports: React.FC = () => {
               <ReportCard
                 key={report.id}
                 report={report}
+                onClick={(report) => setReport(report)}
                 onDelete={(report) => {
                   setReport(report);
                   toggle();
@@ -80,6 +110,13 @@ export const MyReports: React.FC = () => {
           })}
         </div>
       </PageSection>
+      {report && (
+        <ReportPreview
+          report={report}
+          onFetch={(report) => setReport(report)}
+          onClose={() => setReport(undefined)}
+        />
+      )}
       <Modal
         headerText="Confirm Delete"
         body={`Are you sure you wish to delete the '${report?.name}' report?`}

@@ -4,6 +4,7 @@ import { useProfileStore } from 'store/slices';
 import { Col, Loading, Show } from 'tno-core';
 
 export interface IReportInstanceViewProps {
+  /** Report instance id. */
   instanceId: number;
 }
 
@@ -25,7 +26,7 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({ instanc
   );
 
   React.useEffect(() => {
-    if (instanceId && !reportOutput) {
+    if (instanceId && reportOutput?.instanceId !== instanceId) {
       handlePreviewReport(instanceId);
     }
     // The functions will result in infinite loop.

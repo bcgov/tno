@@ -28,4 +28,8 @@ export const ReportEditForm = styled.div`
     content: ' *';
     color: rgb(216, 41, 47);
   }
+
+  .active-content {
+    background-color: ${(props) => props.theme.css.highlightPrimary};
+  }
 `;
