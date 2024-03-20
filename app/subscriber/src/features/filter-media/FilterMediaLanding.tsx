@@ -1,9 +1,10 @@
 import { PageSection } from 'components/section';
 import { useSubMediaGroups } from 'features/hooks';
 import { ISubMediaGroupItem } from 'features/search-page/components/advanced-search/interfaces';
+import { IGroupOption } from 'features/search-page/components/advanced-search/interfaces/IGroupOption';
 import React from 'react';
 import { useContent, useLookup } from 'store/hooks';
-import { Col, ISourceModel, Row, Show } from 'tno-core';
+import { Col, ListOptionName, Row, Show } from 'tno-core';
 
 import { FilterMedia } from './FilterMedia';
 import * as styled from './styled';
@@ -17,27 +18,18 @@ export const FilterMediaLanding: React.FC = () => {
     },
     { storeMediaTypeFilter: storeFilter },
   ] = useContent();
-  const [{ sources, mediaTypes }] = useLookup();
-  const { subMediaGroups = [] } = useSubMediaGroups(sources, mediaTypes);
+  const [{ sources, mediaTypes, series }] = useLookup();
+  const { subMediaGroups = [] } = useSubMediaGroups(sources, series, mediaTypes);
   const [mediaGroups, setMediaGroups] = React.useState<ISubMediaGroupItem[]>();
   const [activeFilter, setActiveFilter] = React.useState<ISubMediaGroupItem>();
 
   const [activeLetter, setActiveLetter] = React.useState<string>('All');
-  const [narrowedOptions, setNarrowedOptions] = React.useState<ISourceModel[]>([]);
-  const [activeSource, setActiveSource] = React.useState<ISourceModel | null>(null);
+  const [narrowedOptions, setNarrowedOptions] = React.useState<IGroupOption[]>([]);
+  const [activeSource, setActiveSource] = React.useState<IGroupOption | null>(null);
+  // const [activeSerie, setActiveSerie] = React.useState<ISeriesModel | null>(null);
   const [parentClicked, setParentClicked] = React.useState<boolean>(false);
 
   const [loaded, setLoaded] = React.useState<boolean>(false);
-
-  const determineSourceIds = React.useCallback(
-    (mediaGroupFilter?: ISubMediaGroupItem) => {
-      if (!mediaGroupFilter) mediaGroupFilter = activeFilter;
-      return mediaGroups
-        ?.find((sg) => sg.label === mediaGroupFilter?.label)
-        ?.options.map((opt) => opt.id);
-    },
-    [activeFilter, mediaGroups],
-  );
 
   React.useEffect(() => {
     if (subMediaGroups && subMediaGroups.length > 0) {
@@ -52,11 +44,8 @@ export const FilterMediaLanding: React.FC = () => {
   React.useEffect(() => {
     if (loaded && mediaGroups && !activeFilter) {
       const dailyPrintMediaGroup = mediaGroups.find((sg) => sg.label === 'Daily Print');
-
       if (dailyPrintMediaGroup) {
         setActiveFilter(dailyPrintMediaGroup);
-        const sourceIds = determineSourceIds(dailyPrintMediaGroup);
-        storeFilter({ ...filter, sourceIds });
       }
     }
     // only when media groups / relevant data is loaded & ready
@@ -68,10 +57,6 @@ export const FilterMediaLanding: React.FC = () => {
    * */
   React.useEffect(() => {
     if (parentClicked) {
-      storeFilter({
-        ...filter,
-        sourceIds: determineSourceIds(),
-      });
       setActiveSource(null); // deselect the narrowed option
       setParentClicked(false);
     }
@@ -90,7 +75,7 @@ export const FilterMediaLanding: React.FC = () => {
     }
     // only want to fire when filters change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeLetter, activeFilter, mediaGroups]);
+  }, [activeLetter, activeFilter]);
 
   return (
     <styled.FilterMediaLanding>
@@ -99,13 +84,19 @@ export const FilterMediaLanding: React.FC = () => {
           {/* TODO: Move into reusable component, this type of filter is only used on this page currently*/}
           <Row className="main-media">
             <Col className="media-filter">
-              {mediaGroups?.map((mediaGroup) => (
+              {subMediaGroups?.map((mediaGroup) => (
                 <div
                   key={`${mediaGroup.key}`}
                   onClick={() => {
                     if (mediaGroup.label === 'Weekly Print') setActiveLetter('A');
                     else if (mediaGroup.label === 'Online') setActiveLetter('B');
                     else setActiveLetter('All');
+                    storeFilter({
+                      ...filter,
+                      sourceIds: [],
+                      seriesIds: [],
+                      mediaTypeIds: [mediaGroup.key],
+                    });
                     setActiveFilter(mediaGroup);
                     setParentClicked(true);
                   }}
@@ -149,18 +140,20 @@ export const FilterMediaLanding: React.FC = () => {
                   {narrowedOptions.map((opt) => {
                     return (
                       <div
-                        key={`${opt.id}`}
+                        key={`${opt.id}|${opt.listOption}`}
                         onClick={() => {
                           setActiveSource(opt);
-                          storeFilter({ ...filter, sourceIds: [opt.id] });
+                          if (opt.listOption === ListOptionName.Source) {
+                            storeFilter({ ...filter, seriesIds: [], sourceIds: [opt.id] });
+                          } else if (opt.listOption === ListOptionName.Series) {
+                            storeFilter({ ...filter, seriesIds: [opt.id], sourceIds: [] });
+                          }
                         }}
                         className={`${
                           activeSource?.name === opt.name ? 'active' : 'inactive'
                         } narrowed-option`}
                       >
-                        {`${opt.name}  ${
-                          !!opt.shortName && opt.shortName !== opt.name ? `- ${opt.shortName}` : ''
-                        }`}
+                        {opt.name}
                       </div>
                     );
                   })}

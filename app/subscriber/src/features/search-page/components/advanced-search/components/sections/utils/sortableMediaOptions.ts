@@ -1,6 +1,6 @@
-import { ISourceModel } from 'tno-core';
+import { IGroupOption } from '../../../interfaces/IGroupOption';
 
-export const sortableMediaOptions = (mediaSource: ISourceModel[]) => {
+export const sortableMediaOptions = (mediaSource: IGroupOption[]) => {
   return mediaSource
     .map((option) => ({
       label: option.name,

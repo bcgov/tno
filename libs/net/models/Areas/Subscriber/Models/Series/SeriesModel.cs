@@ -1,4 +1,5 @@
 using TNO.API.Models;
+using TNO.API.Areas.Subscriber.Models.MediaType;
 
 namespace TNO.API.Areas.Subscriber.Models.Series;
 
@@ -23,6 +24,16 @@ public class SeriesModel : BaseTypeModel<int>
     /// Will not be displayed in the primary Series/Source dropdown or in search filters
     /// </summary>
     public bool IsOther { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public int? MediaTypeId { get; set; }
+
+    /// <summary>
+    /// get/set - Collection of media types used in search mapping, the many-to-many relationship.
+    /// </summary>
+    public IEnumerable<MediaTypeModel> MediaTypeSearchMappings { get; set; } = Array.Empty<MediaTypeModel>();
     #endregion
 
     #region Constructors
@@ -40,6 +51,7 @@ public class SeriesModel : BaseTypeModel<int>
         this.SourceId = entity.SourceId;
         this.UseInTopics = entity.UseInTopics;
         this.IsOther = entity.IsOther;
+        this.MediaTypeSearchMappings = entity.MediaTypeSearchMappingsManyToMany.Select(m => new MediaTypeModel(m.MediaType!));
     }
     #endregion
 }

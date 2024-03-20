@@ -8,6 +8,7 @@ import {
   Checkbox,
   Col,
   IMediaTypeModel,
+  ISeriesModel,
   ISourceModel,
   Row,
   Select,
@@ -19,6 +20,7 @@ import { determineSelectedMedia, sortableMediaOptions } from './utils';
 
 export interface IMediaSectionProps extends IFilterDisplayProps {
   sources: ISourceModel[];
+  series: ISeriesModel[];
   mediaTypes: IMediaTypeModel[];
 }
 
@@ -26,10 +28,12 @@ export interface IMediaSectionProps extends IFilterDisplayProps {
 export const MediaSection: React.FC<IMediaSectionProps> = ({
   displayFiltersAsDropdown,
   sources,
+  series,
   mediaTypes,
 }) => {
   const { subMediaGroups, setMediaGroupExpanded, mediaGroupExpanded } = useSubMediaGroups(
     sources,
+    series,
     mediaTypes,
   );
 

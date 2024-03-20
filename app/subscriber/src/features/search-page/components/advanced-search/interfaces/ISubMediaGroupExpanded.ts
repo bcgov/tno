@@ -1,3 +1,3 @@
 export interface ISubMediaGroupExpanded {
-  [name: string]: boolean;
+  [id: string]: boolean;
 }
