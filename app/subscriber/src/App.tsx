@@ -5,6 +5,7 @@ import { ReactKeycloakProvider } from '@react-keycloak/web';
 import { ContentListProvider } from 'components/content-list/ContentListContext';
 import { LayoutAnonymous } from 'components/layout';
 import { AppRouter } from 'features/router';
+import { SearchPageProvider } from 'features/search-page';
 import Keycloak from 'keycloak-js';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
@@ -39,7 +40,9 @@ function App() {
           onEvent={keycloakEventHandler(keycloak!)}
         >
           <ContentListProvider>
-            <AppRouter name={appName} />
+            <SearchPageProvider>
+              <AppRouter name={appName} />
+            </SearchPageProvider>
           </ContentListProvider>
         </ReactKeycloakProvider>
       </Show>

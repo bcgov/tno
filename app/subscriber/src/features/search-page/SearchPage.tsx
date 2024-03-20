@@ -14,6 +14,7 @@ import { useProfileStore } from 'store/slices';
 import { Col, IContentModel, Loading, Row, Show, useWindowSize } from 'tno-core';
 
 import { AdvancedSearch } from './components';
+import { useSearchPageContext } from './SearchPageContext';
 import * as styled from './styled';
 import { filterFormat } from './utils';
 
@@ -40,6 +41,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
+  const { expanded } = useSearchPageContext();
   const [init, setInit] = React.useState(true); // React hooks are horrible...
 
   const filterId = id ? parseInt(id) : 0;
@@ -100,7 +102,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   }, [fetchResults, filter, genQuery]);
 
   return (
-    <styled.SearchPage>
+    <styled.SearchPage expanded={expanded}>
       <Row className="search-container">
         {/* LEFT SIDE */}
         <Show visible={showAdvanced}>

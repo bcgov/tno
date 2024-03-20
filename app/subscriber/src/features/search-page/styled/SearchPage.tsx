@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const SearchPage = styled.div`
+export const SearchPage = styled.div<{ expanded: boolean }>`
   .divider {
     margin-left: 0.5em;
     margin-right: 0.5em;
@@ -49,7 +49,9 @@ export const SearchPage = styled.div`
   }
 
   .result-container {
-    width: 55%;
+    width: ${(props) => (props.expanded ? '55%' : '100%')};
+    margin-left: ${(props) => (props.expanded ? '' : '1em')};
+    margin-top: ${(props) => (props.expanded ? '0' : '1em')};
   }
 
   .result-container-full {
