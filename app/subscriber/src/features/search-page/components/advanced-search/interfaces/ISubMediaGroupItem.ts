@@ -1,9 +1,8 @@
-import { ISourceModel } from 'tno-core';
-
-import { ISubMediaGroupExpanded } from './ISubMediaGroupExpanded';
+import { IGroupOption } from './IGroupOption';
 
 export interface ISubMediaGroupItem {
   label: string;
-  options: ISourceModel[];
-  key: keyof ISubMediaGroupExpanded;
+  options: IGroupOption[];
+  key: number;
+  sortOrder: number;
 }

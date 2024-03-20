@@ -2,8 +2,16 @@ import {
   ISubMediaGroupExpanded,
   ISubMediaGroupItem,
 } from 'features/search-page/components/advanced-search/interfaces';
+import { IGroupOption } from 'features/search-page/components/advanced-search/interfaces/IGroupOption';
 import { useEffect, useMemo, useState } from 'react';
 import { IMediaTypeModel, ISeriesModel, ISourceModel, ListOptionName } from 'tno-core';
+
+interface ILookup {
+  id: number;
+  label: string;
+  sortOrder: number;
+  options: IGroupOption[];
+}
 
 /**
  * Custom hook to create and manage sub media groups.
@@ -25,63 +33,104 @@ export const useSubMediaGroups = (
 
   // Determine mediaTypeSourceLookup only when sources or mediaTypes change
   const mediaTypeSourceLookup = useMemo(() => {
-    const lookup: { [key: string]: ISourceModel[] } = { All: [...sources] }; // Initialize with 'All' key
+    const lookup: ILookup[] = [];
     mediaTypes
       .filter((x) => x.listOption === ListOptionName.Source)
       .forEach((mt) => {
-        lookup[mt.name] = []; // Initialize media type keys
+        const l: ILookup = {
+          id: mt.id,
+          label: mt.name,
+          sortOrder: mt.sortOrder,
+          options: [],
+        };
+        sources
+          .filter(
+            (s) =>
+              s.mediaTypeSearchMappings !== undefined &&
+              s.mediaTypeSearchMappings.length > 0 &&
+              s.mediaTypeSearchMappings.findIndex((x) => x.id === mt.id) > -1,
+          )
+          .forEach((s) => {
+            l.options.push({
+              id: s.id,
+              listOption: ListOptionName.Source,
+              name: `${s.name}  ${
+                !!s.shortName && s.shortName !== s.name ? `- ${s.shortName}` : ''
+              }`,
+              sortOrder: s.sortOrder,
+            });
+          });
+        lookup.push(l);
       });
-    sources.forEach((source) => {
-      source.mediaTypeSearchMappings.forEach((mapping) => {
-        if (lookup[mapping.name]) {
-          lookup[mapping.name].push(source);
-        }
-      });
-    });
-    // Filter out media types with no sources
-    return Object.fromEntries(Object.entries(lookup).filter(([_, value]) => value.length > 0));
-  }, [sources, mediaTypes]);
+    return lookup;
+  }, [mediaTypes, sources]);
 
   // Determine mediaTypeSourceLookup only when sources or mediaTypes change
   const mediaTypeSeriesLookup = useMemo(() => {
-    const lookup: { [key: string]: ISeriesModel[] } = { All: [...series] }; // Initialize with 'All' key
+    const lookup: ILookup[] = [];
     mediaTypes
       .filter((x) => x.listOption === ListOptionName.Series)
       .forEach((mt) => {
-        lookup[mt.name] = []; // Initialize media type keys
+        const l: ILookup = {
+          id: mt.id,
+          label: mt.name,
+          sortOrder: mt.sortOrder,
+          options: [],
+        };
+        series
+          .filter(
+            (s) =>
+              s.mediaTypeSearchMappings !== undefined &&
+              s.mediaTypeSearchMappings.length > 0 &&
+              s.mediaTypeSearchMappings.findIndex((x) => x.id === mt.id) > -1,
+          )
+          .forEach((s) => {
+            l.options.push({
+              id: s.id,
+              listOption: ListOptionName.Series,
+              name: s.name,
+              sortOrder: s.sortOrder,
+            });
+          });
+        lookup.push(l);
       });
-    series.forEach((serie) => {
-      serie.mediaTypeSearchMappings?.forEach((mapping) => {
-        if (lookup[mapping.name]) {
-          lookup[mapping.name].push(serie);
-        }
-      });
-    });
-    // Filter out media types with no sources
-    return Object.fromEntries(Object.entries(lookup).filter(([_, value]) => value.length > 0));
+    return lookup;
   }, [series, mediaTypes]);
 
   useEffect(() => {
-    const subGroups: ISubMediaGroupItem[] = [];
-    Object.keys(mediaTypeSourceLookup)
-      .map((key) => ({
-        key,
-        label: key,
-        options: mediaTypeSourceLookup[key],
-      }))
-      .forEach((o) => {
-        subGroups.push(o);
-      });
+    const sourceOptions: IGroupOption[] = sources.map((x) => {
+      return {
+        id: x.id,
+        name: `${x.name}  ${!!x.shortName && x.shortName !== x.name ? `- ${x.shortName}` : ''}`,
+        listOption: ListOptionName.Source,
+        sortOrder: x.sortOrder,
+      };
+    });
 
-    // Object.keys(mediaTypeSeriesLookup)
-    //   .map((key) => ({
-    //     key,
-    //     label: key,
-    //     options: mediaTypeSeriesLookup[key],
-    //   }))
-    //   .forEach((o) => {
-    //     subGroups.push(o);
-    //   });
+    const subGroups: ISubMediaGroupItem[] = [];
+    // Add 'All' option
+    subGroups.push({
+      sortOrder: 0,
+      key: 0,
+      label: 'All',
+      options: sourceOptions,
+    });
+    mediaTypeSourceLookup.forEach((x) => {
+      subGroups.push({
+        key: x.id,
+        label: x.label,
+        sortOrder: x.sortOrder,
+        options: x.options,
+      });
+    });
+    mediaTypeSeriesLookup.forEach((x) => {
+      subGroups.push({
+        key: x.id,
+        label: x.label,
+        sortOrder: x.sortOrder,
+        options: x.options,
+      });
+    });
 
     const expandedStates: ISubMediaGroupExpanded = subGroups.reduce(
       (acc: ISubMediaGroupExpanded, { key }) => {
@@ -91,11 +140,9 @@ export const useSubMediaGroups = (
       {},
     );
 
-    console.log('mediaFilter', 'load groups', mediaTypeSourceLookup, mediaTypeSeriesLookup);
-
-    setSubMediaGroups(subGroups);
+    setSubMediaGroups(subGroups.sort((a, b) => a.sortOrder - b.sortOrder));
     setMediaGroupExpanded(expandedStates);
-  }, [mediaTypeSeriesLookup, mediaTypeSourceLookup]);
+  }, [mediaTypeSeriesLookup, mediaTypeSourceLookup, mediaTypes, series, sources]);
 
   return {
     subMediaGroups,
