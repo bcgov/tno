@@ -52,6 +52,7 @@
     "react-toastify": "9.1.1",
     "react-tooltip": "5.10.0",
     "redux-logger": "3.0.6",
+    "sheetjs": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz",
     "styled-components": "5.3.9",
     "tno-core": "0.1.42"
   },

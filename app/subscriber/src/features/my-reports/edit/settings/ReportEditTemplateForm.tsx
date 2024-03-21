@@ -30,6 +30,7 @@ import {
   ReportSectionTableOfContents,
   ReportSectionText,
 } from './components';
+import { ReportExporter } from './ReportExporter';
 import * as styled from './styled';
 
 export const ReportEditTemplateForm = () => {
@@ -108,6 +109,11 @@ export const ReportEditTemplateForm = () => {
               }}
             />
           ))}
+      </Row>
+      <Row>
+        <Row justifyContent="flex-end">
+          <ReportExporter />
+        </Row>
       </Row>
       <Col className="report-template report-edit-section">
         <Section label="Report Name / Description" open={show} onChange={(open) => setShow(open)}>
