@@ -28,6 +28,7 @@ import {
   validateEmail,
 } from 'tno-core';
 
+import { ReportSubscriberExporter } from './ReportSubscriberExporter';
 import * as styled from './styled';
 
 /**
@@ -153,17 +154,23 @@ export const ReportSendForm: React.FC = () => {
             </Col>
           </Row>
         )}
-        <Col flex="1" alignContent="center" justifyContent="center">
-          <Button
-            disabled={
-              isSubmitting || !instanceId || instance?.status === ReportStatusName.Submitted
-            }
-            onClick={() => toggle()}
-          >
-            Send to subscribers
-            <FaTelegramPlane />
-          </Button>
-        </Col>
+        <Row flex="1" gap="1rem" justifyContent="space-between">
+          <div></div>
+          <Col>
+            <Button
+              disabled={
+                isSubmitting || !instanceId || instance?.status === ReportStatusName.Submitted
+              }
+              onClick={() => toggle()}
+            >
+              Send to subscribers
+              <FaTelegramPlane />
+            </Button>
+          </Col>
+          <Row justifyContent="flex-end">
+            <ReportSubscriberExporter />
+          </Row>
+        </Row>
         <Show visible={instance?.status === ReportStatusName.Submitted}>
           <Col>
             <Spinner />

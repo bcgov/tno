@@ -34,4 +34,8 @@ export const ReportSendForm = styled.div`
       }
     }
   }
+
+  .hide {
+    display: none;
+  }
 `;
