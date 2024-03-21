@@ -10567,7 +10567,7 @@ __metadata:
     sass-extract: 2.1.0
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
-    sheetjs: "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz"
+    sheetjs: "file:packages/xlsx-0.20.1.tgz"
     styled-components: 5.3.9
     tno-core: 0.1.42
     typescript: 4.9.5
@@ -13819,9 +13819,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sheetjs@https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz":
+"sheetjs@file:packages/xlsx-0.20.1.tgz::locator=mmi-subscriber-app%40workspace%3A.":
   version: 0.20.1
-  resolution: "sheetjs@https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz"
+  resolution: "sheetjs@file:packages/xlsx-0.20.1.tgz::locator=mmi-subscriber-app%40workspace%3A."
   bin:
     xlsx: ./bin/xlsx.njs
   checksum: 01a13543382bcf9749d6ed435303cba049b4f5b12cfcd5fbc77b4c27d3aed132bd27acb9ce0d1e14ce7a475e4acb178c31d4a2c0057e921d2cb87eccab5a6058
