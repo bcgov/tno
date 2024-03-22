@@ -22,7 +22,7 @@ export const ReportFormInstance: React.FC = () => {
 
   React.useEffect(() => {
     findInstancesForReportId(values.id).then((instances) => {
-      setInstances(instances);
+      setInstances(instances ?? []);
     });
     // Only load the report instances when clicking on the tab.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -84,6 +84,7 @@ export const ReportFormInstance: React.FC = () => {
           onPreview: handlePreview,
         })}
         showActive={false}
+        showPaging={false}
       />
       <Modal
         headerText="Confirm Removal"

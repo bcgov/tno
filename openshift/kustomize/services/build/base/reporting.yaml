@@ -1,0 +1,59 @@
+---
+# The final build image.
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: reporting-service
+  annotations:
+    description: Destination for built images.
+    created-by: jeremy.foster
+  labels:
+    name: reporting-service
+    part-of: tno
+    version: 1.0.0
+    component: reporting
+    managed-by: kustomize
+
+---
+# The build config that will be created will be named for the branch you created it for.
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: reporting-service.dev
+  annotations:
+    description: Build image from Dockerfile in git repo.
+    created-by: jeremy.foster
+  labels:
+    name: reporting-service
+    part-of: tno
+    version: 1.0.0
+    component: reporting
+    managed-by: kustomize
+    branch: dev
+spec:
+  completionDeadlineSeconds: 1800
+  triggers:
+    - type: ImageChange
+    - type: ConfigChange
+  runPolicy: Serial
+  source:
+    git:
+      uri: https://github.com/fosol/tno.git
+      ref: tno-1944
+    contextDir: ./
+  strategy:
+    type: Docker
+    dockerStrategy:
+      imageOptimizationPolicy: SkipLayers
+      dockerfilePath: services/net/reporting/Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: reporting-service:latest
+  resources:
+    requests:
+      cpu: 20m
+      memory: 250Mi
+    limits:
+      cpu: 500m
+      memory: 2Gi

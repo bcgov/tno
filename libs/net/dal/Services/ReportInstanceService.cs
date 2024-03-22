@@ -40,8 +40,10 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
     /// </summary>
     /// <param name="reportId"></param>
     /// <param name="ownerId"></param>
+    /// <param name="skip"></param>
+    /// <param name="take"></param>
     /// <returns></returns>
-    public IEnumerable<ReportInstance> FindInstancesForReportId(int reportId, int? ownerId)
+    public IEnumerable<ReportInstance> FindInstancesForReportId(int reportId, int? ownerId, int skip = 0, int take = 10)
     {
         var query = this.Context.ReportInstances
             .AsNoTracking()
@@ -51,7 +53,7 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         if (ownerId.HasValue)
             query = query.Where(ri => ri.OwnerId == ownerId);
 
-        query = query.OrderByDescending(ri => ri.Id);
+        query = query.OrderByDescending(ri => ri.Id).Skip(skip).Take(take);
 
         return query.ToArray();
     }
@@ -252,27 +254,6 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         this.Context.ResetVersion(original);
 
         return base.Update(original);
-    }
-
-    /// <summary>
-    /// Update and save the specified 'instance'
-    /// </summary>
-    /// <param name="instance"></param>
-    /// <param name="instanceOnly"></param>
-    /// <returns></returns>
-    public ReportInstance UpdateAndSave(ReportInstance instance, bool instanceOnly = false)
-    {
-        if (instanceOnly)
-        {
-            base.Update(instance);
-            this.Context.CommitTransaction();
-        }
-        else
-        {
-            base.UpdateAndSave(instance);
-        }
-
-        return instance;
     }
     #endregion
 }
