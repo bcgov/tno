@@ -122,6 +122,8 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
             Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
+            Filter = model.Filter != null ? (Entities.Filter)model.Filter : null,
+            Folder = model.Folder != null ? (Entities.Folder)model.Folder : null,
             Version = model.Version ?? 0
         };
 

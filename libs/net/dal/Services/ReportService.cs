@@ -294,7 +294,17 @@ public class ReportService : BaseService<Report, int>, IReportService
                 originalSection.Settings = updatedSection.Settings;
                 originalSection.ReportId = updatedSection.ReportId;
                 originalSection.FilterId = updatedSection.FilterId;
+                if (updatedSection.Filter != null && originalSection.Filter != null && updatedSection.Filter.OwnerId != originalSection.Filter?.OwnerId)
+                {
+                    originalSection.Filter!.OwnerId = updatedSection.Filter.OwnerId;
+                    this.Context.Update(originalSection.Filter);
+                }
                 originalSection.FolderId = updatedSection.FolderId;
+                if (updatedSection.Folder != null && originalSection.Folder != null && updatedSection.Folder.OwnerId != originalSection.Folder?.OwnerId)
+                {
+                    originalSection.Folder!.OwnerId = updatedSection.Folder.OwnerId;
+                    this.Context.Update(originalSection.Folder);
+                }
                 originalSection.LinkedReportId = updatedSection.LinkedReportId;
                 originalSection.Version = updatedSection.Version;
 
@@ -509,10 +519,10 @@ public class ReportService : BaseService<Report, int>, IReportService
         var reportSettings = JsonSerializer.Deserialize<ReportSettingsModel>(report.Settings.ToJson(), _serializerOptions) ?? new();
 
         var ownerId = requestorId ?? report.OwnerId; // TODO: Handle users generating instances for a report they do not own.
-        var prevInstance = GetCurrentReportInstance(report.Id, ownerId);
+        var currentInstance = GetCurrentReportInstance(report.Id, ownerId);
 
-        // Fetch the current instance of this report to exclude any content within it.
-        var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical ? this.GetReportInstanceContentToExclude(report.Id, ownerId) : Array.Empty<long>();
+        // Create an array of content from the previous instance.
+        var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical ? currentInstance?.ContentManyToMany.Select((c) => c.ContentId).ToArray() ?? Array.Empty<long>() : Array.Empty<long>();
 
         // Fetch other reports to exclude any content within them.
         var excludeReportContentIds = reportSettings.Content.ExcludeReports.Any()
@@ -581,7 +591,7 @@ public class ReportService : BaseService<Report, int>, IReportService
 
                 // Only include content that has been posted since the last report instance.
                 if (reportSettings.Content.OnlyNewContent)
-                    query = query.IncludeOnlyLatestPosted(prevInstance?.PublishedOn);
+                    query = query.IncludeOnlyLatestPosted(currentInstance?.PublishedOn);
 
                 // Determine index.
                 var searchUnpublished = section.Filter.Settings.GetElementValue(".searchUnpublished", false);

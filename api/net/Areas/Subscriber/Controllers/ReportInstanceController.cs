@@ -76,7 +76,7 @@ public class ReportInstanceController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Find content for the specified 'id'.
+    /// Find report instance for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
     /// <param name="includeContent"></param>
@@ -103,7 +103,7 @@ public class ReportInstanceController : ControllerBase
     }
 
     /// <summary>
-    /// Add content for the specified 'id'.
+    /// Add report instance for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -125,7 +125,7 @@ public class ReportInstanceController : ControllerBase
     }
 
     /// <summary>
-    /// Update content for the specified 'id'.
+    /// Update report instance for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -141,12 +141,12 @@ public class ReportInstanceController : ControllerBase
         var instance = _reportInstanceService.FindByKey(model.Id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to update this report"); // Report is not public
         _reportInstanceService.ClearChangeTracker();
-        _reportInstanceService.UpdateAndSave((Entities.ReportInstance)model);
+        _reportInstanceService.UpdateAndSave((Entities.ReportInstance)model, true);
         return FindById(model.Id);
     }
 
     /// <summary>
-    /// Delete content for the specified 'id'.
+    /// Delete report instance for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>

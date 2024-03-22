@@ -109,151 +109,179 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
     /// Update the report instance in the context, but do not save to the database yet.
     /// </summary>
     /// <param name="entity"></param>
+    /// <param name="updateChildren"></param>
     /// <returns></returns>
-    public override ReportInstance Update(ReportInstance entity)
+    public ReportInstance Update(ReportInstance entity, bool updateChildren = false)
     {
-        // Fetch all content currently belonging to this report instance.
-        var original = this.Context.ReportInstances.FirstOrDefault(ri => ri.Id == entity.Id) ?? throw new InvalidOperationException("Report instance does not exist");
-        var originalInstanceContents = this.Context.ReportInstanceContents
-            .AsNoTracking()
-            .Include(ic => ic.Content)
-            .Where(ric => ric.InstanceId == entity.Id).ToArray();
+        if (updateChildren)
+        {
+            // Fetch all content currently belonging to this report instance.
+            var original = this.Context.ReportInstances.FirstOrDefault(ri => ri.Id == entity.Id) ?? throw new InvalidOperationException("Report instance does not exist");
+            var originalInstanceContents = this.Context.ReportInstanceContents
+                .AsNoTracking()
+                .Include(ic => ic.Content)
+                .Where(ric => ric.InstanceId == entity.Id).ToArray();
 
-        // Delete removed content and add new content.
-        originalInstanceContents.Except(entity.ContentManyToMany).ForEach(ric =>
-        {
-            this.Context.Entry(ric).State = EntityState.Deleted;
-            // Content that is private will only exist on a single report.
-            // If it's removed from the report we can remove it from the database.
-            if (ric.Content?.IsPrivate == true) this.Context.Entry(ric.Content).State = EntityState.Deleted;
-        });
-        entity.ContentManyToMany.ForEach(ric =>
-        {
-            // Duplicate content can be in multiple sections, so we grab the first copy.
-            var originalContent = originalInstanceContents.FirstOrDefault(o => o.ContentId == ric.ContentId)?.Content;
-            var originalInstanceContent = originalInstanceContents.FirstOrDefault(o => o.ContentId == ric.ContentId && o.SectionName == ric.SectionName);
-            if (originalInstanceContent == null)
+            // Delete removed content and add new content.
+            originalInstanceContents.Except(entity.ContentManyToMany).ForEach(ric =>
             {
-                // If the content is new too, upload it to the database.
-                if (ric.Content?.Id == 0)
+                this.Context.Entry(ric).State = EntityState.Deleted;
+                // Content that is private will only exist on a single report.
+                // If it's removed from the report we can remove it from the database.
+                if (ric.Content?.IsPrivate == true) this.Context.Entry(ric.Content).State = EntityState.Deleted;
+            });
+            entity.ContentManyToMany.ForEach(ric =>
+            {
+                // Duplicate content can be in multiple sections, so we grab the first copy.
+                var originalContent = originalInstanceContents.FirstOrDefault(o => o.ContentId == ric.ContentId)?.Content;
+                var originalInstanceContent = originalInstanceContents.FirstOrDefault(o => o.ContentId == ric.ContentId && o.SectionName == ric.SectionName);
+                if (originalInstanceContent == null)
                 {
-                    ric.Content.IsPrivate = true;
-                    ric.Content.GuaranteeUid();
-                    ric.Content.AddToContext(this.Context);
-                    this.Context.Add(ric.Content);
+                    // If the content is new too, upload it to the database.
+                    if (ric.Content?.Id == 0)
+                    {
+                        ric.Content.IsPrivate = true;
+                        ric.Content.GuaranteeUid();
+                        ric.Content.AddToContext(this.Context);
+                        this.Context.Add(ric.Content);
+                    }
+                    else
+                    {
+                        // Make certain the content exists in the database.
+                        if (!this.Context.Contents.Any(c => c.Id == ric.ContentId)) throw new InvalidOperationException($"Content '{ric.ContentId}' does not exist.");
+
+                        // Do not allow updating content not owned by the user.
+                        if (ric.Content != null)
+                        {
+                            // TODO: Small security issue as the JSON could lie about this data.
+                            if (ric.Content.IsPrivate &&
+                                (ric.Content.Headline != originalInstanceContent?.Content?.Headline ||
+                                ric.Content.Summary != originalInstanceContent.Content?.Summary ||
+                                ric.Content.SourceId != originalInstanceContent.Content?.SourceId ||
+                                ric.Content.OtherSource != originalInstanceContent.Content?.OtherSource ||
+                                ric.Content.PublishedOn != originalInstanceContent.Content?.PublishedOn ||
+                                ric.Content.Byline != originalInstanceContent.Content?.Byline ||
+                                ric.Content.SourceUrl != originalInstanceContent.Content?.SourceUrl ||
+                                ric.Content.Uid != originalInstanceContent.Content?.Uid ||
+                                ric.Content.TonePoolsManyToMany.Any(tp =>
+                                {
+                                    var otp = originalInstanceContent.Content.TonePoolsManyToMany.FirstOrDefault(otp => otp.TonePoolId == tp.TonePoolId);
+                                    return otp?.Value != tp.Value;
+                                })))
+                                this.Context.Entry(ric.Content).State = EntityState.Modified;
+                            else
+                                this.Context.Entry(ric.Content).State = EntityState.Unchanged;
+                        }
+                    }
+
+                    // Add new content to the report.
+                    ric.Instance = null;
+                    ric.InstanceId = entity.Id;
+                    this.Context.ReportInstanceContents.Add(ric);
                 }
                 else
                 {
-                    // Make certain the content exists in the database.
-                    if (!this.Context.Contents.Any(c => c.Id == ric.ContentId)) throw new InvalidOperationException($"Content '{ric.ContentId}' does not exist.");
-
-                    // Do not allow updating content not owned by the user.
-                    if (ric.Content != null)
+                    if (ric.Content != null &&
+                        originalContent != null &&
+                        entity.OwnerId.HasValue)
                     {
-                        // TODO: Small security issue as the JSON could lie about this data.
-                        if (ric.Content.IsPrivate &&
-                            (ric.Content.Headline != originalInstanceContent?.Content?.Headline ||
-                            ric.Content.Summary != originalInstanceContent.Content?.Summary ||
-                            ric.Content.SourceId != originalInstanceContent.Content?.SourceId ||
-                            ric.Content.OtherSource != originalInstanceContent.Content?.OtherSource ||
-                            ric.Content.PublishedOn != originalInstanceContent.Content?.PublishedOn ||
-                            ric.Content.Byline != originalInstanceContent.Content?.Byline ||
-                            ric.Content.SourceUrl != originalInstanceContent.Content?.SourceUrl ||
-                            ric.Content.Uid != originalInstanceContent.Content?.Uid ||
-                            ric.Content.TonePoolsManyToMany.Any(tp =>
+                        if (originalContent.IsPrivate &&
+                            (originalContent.Headline != ric.Content.Headline ||
+                            originalContent.Summary != ric.Content.Summary ||
+                            originalContent.Body != ric.Content.Body ||
+                            originalContent.Byline != ric.Content.Byline ||
+                            originalContent.Section != ric.Content.Section ||
+                            originalContent.Page != ric.Content.Page ||
+                            originalContent.SourceId != ric.Content.SourceId ||
+                            originalContent.OtherSource != ric.Content.OtherSource ||
+                            originalContent.SourceId != ric.Content.SourceId ||
+                            originalContent.PublishedOn != ric.Content.PublishedOn ||
+                            originalContent.Uid != ric.Content.Uid ||
+                            originalContent.TonePoolsManyToMany.Any(tp =>
                             {
-                                var otp = originalInstanceContent.Content.TonePoolsManyToMany.FirstOrDefault(otp => otp.TonePoolId == tp.TonePoolId);
-                                return otp?.Value != tp.Value;
+                                var ntp = ric.Content.TonePoolsManyToMany.FirstOrDefault(ntp => ntp.TonePoolId == tp.TonePoolId);
+                                return ntp?.Value != tp.Value;
                             })))
-                            this.Context.Entry(ric.Content).State = EntityState.Modified;
-                        else
-                            this.Context.Entry(ric.Content).State = EntityState.Unchanged;
-                    }
-                }
-
-                // Add new content to the report.
-                ric.Instance = null;
-                ric.InstanceId = entity.Id;
-                this.Context.ReportInstanceContents.Add(ric);
-            }
-            else
-            {
-                if (ric.Content != null &&
-                    originalContent != null &&
-                    entity.OwnerId.HasValue)
-                {
-                    if (originalContent.IsPrivate &&
-                        (originalContent.Headline != ric.Content.Headline ||
-                        originalContent.Summary != ric.Content.Summary ||
-                        originalContent.Body != ric.Content.Body ||
-                        originalContent.Byline != ric.Content.Byline ||
-                        originalContent.Section != ric.Content.Section ||
-                        originalContent.Page != ric.Content.Page ||
-                        originalContent.SourceId != ric.Content.SourceId ||
-                        originalContent.OtherSource != ric.Content.OtherSource ||
-                        originalContent.SourceId != ric.Content.SourceId ||
-                        originalContent.PublishedOn != ric.Content.PublishedOn ||
-                        originalContent.Uid != ric.Content.Uid ||
-                        originalContent.TonePoolsManyToMany.Any(tp =>
                         {
-                            var ntp = ric.Content.TonePoolsManyToMany.FirstOrDefault(ntp => ntp.TonePoolId == tp.TonePoolId);
-                            return ntp?.Value != tp.Value;
-                        })))
-                    {
-                        if (ric.Content.GuaranteeUid() && originalContent.Uid != ric.Content.Uid) originalContent.Uid = ric.Content.Uid;
-                        this.Context.UpdateContext(originalContent, ric.Content);
-                        this.Context.Update(originalContent);
-                    }
-                    else if (ric.Content.Versions.TryGetValue(entity.OwnerId.Value, out Entities.Models.ContentVersion? newVersion))
-                    {
-                        // Update the content versions if they have been provided.
-                        if (originalContent.Versions.TryGetValue(entity.OwnerId.Value, out Entities.Models.ContentVersion? currentVersion))
+                            if (ric.Content.GuaranteeUid() && originalContent.Uid != ric.Content.Uid) originalContent.Uid = ric.Content.Uid;
+                            this.Context.UpdateContext(originalContent, ric.Content);
+                            this.Context.Update(originalContent);
+                        }
+                        else if (ric.Content.Versions.TryGetValue(entity.OwnerId.Value, out Entities.Models.ContentVersion? newVersion))
                         {
-                            // Check if this content has already been updated in another section.  If so ignore.
-                            if (this.Context.Entry(originalContent).State != EntityState.Modified && (
-                                newVersion.Summary != currentVersion.Summary ||
-                                newVersion.Body != currentVersion.Body ||
-                                newVersion.Byline != currentVersion.Byline ||
-                                newVersion.Edition != currentVersion.Edition ||
-                                newVersion.Headline != currentVersion.Headline ||
-                                newVersion.Page != currentVersion.Page ||
-                                newVersion.Section != currentVersion.Section ||
-                                newVersion.OwnerId != currentVersion.OwnerId
-                            ))
+                            // Update the content versions if they have been provided.
+                            if (originalContent.Versions.TryGetValue(entity.OwnerId.Value, out Entities.Models.ContentVersion? currentVersion))
                             {
-                                // Only update the versions information.
-                                originalContent.Versions[entity.OwnerId.Value] = newVersion;
-                                this.Context.Update(originalContent);
+                                // Check if this content has already been updated in another section.  If so ignore.
+                                if (this.Context.Entry(originalContent).State != EntityState.Modified && (
+                                    newVersion.Summary != currentVersion.Summary ||
+                                    newVersion.Body != currentVersion.Body ||
+                                    newVersion.Byline != currentVersion.Byline ||
+                                    newVersion.Edition != currentVersion.Edition ||
+                                    newVersion.Headline != currentVersion.Headline ||
+                                    newVersion.Page != currentVersion.Page ||
+                                    newVersion.Section != currentVersion.Section ||
+                                    newVersion.OwnerId != currentVersion.OwnerId
+                                ))
+                                {
+                                    // Only update the versions information.
+                                    originalContent.Versions[entity.OwnerId.Value] = newVersion;
+                                    this.Context.Update(originalContent);
+                                    this.Context.Entry(originalContent).State = EntityState.Modified;
+                                }
+                            }
+                            else
+                            {
+                                originalContent.Versions.Add(entity.OwnerId.Value, newVersion);
                                 this.Context.Entry(originalContent).State = EntityState.Modified;
                             }
                         }
-                        else
-                        {
-                            originalContent.Versions.Add(entity.OwnerId.Value, newVersion);
-                            this.Context.Entry(originalContent).State = EntityState.Modified;
-                        }
+                    }
+                    if (originalInstanceContent.SortOrder != ric.SortOrder)
+                    {
+                        originalInstanceContent.SortOrder = ric.SortOrder;
+                        this.Context.Entry(originalInstanceContent).State = EntityState.Modified;
                     }
                 }
-                if (originalInstanceContent.SortOrder != ric.SortOrder)
-                {
-                    originalInstanceContent.SortOrder = ric.SortOrder;
-                    this.Context.Entry(originalInstanceContent).State = EntityState.Modified;
-                }
-            }
-        });
+            });
 
-        original.Status = entity.Status;
-        original.OwnerId = entity.OwnerId;
-        original.PublishedOn = entity.PublishedOn;
-        original.SentOn = entity.SentOn;
-        original.ReportId = entity.ReportId;
-        original.Subject = entity.Subject;
-        original.Body = entity.Body;
-        original.Response = entity.Response;
-        original.Version = entity.Version;
-        this.Context.ResetVersion(original);
+            original.Status = entity.Status;
+            original.OwnerId = entity.OwnerId;
+            original.PublishedOn = entity.PublishedOn;
+            original.SentOn = entity.SentOn;
+            original.ReportId = entity.ReportId;
+            original.Subject = entity.Subject;
+            original.Body = entity.Body;
+            original.Response = entity.Response;
+            original.Version = entity.Version;
+            this.Context.ResetVersion(original);
+            return base.Update(original);
+        }
+        else
+            return base.Update(entity);
+    }
 
-        return base.Update(original);
+    /// <summary>
+    /// Update the report instance in the context, but do not save to the database yet.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    public override ReportInstance Update(ReportInstance entity)
+    {
+        return this.Update(entity, false);
+    }
+
+    /// <summary>
+    /// Update the report instance in the context and the database.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="updateChildren"></param>
+    /// <returns></returns>
+    public ReportInstance UpdateAndSave(ReportInstance entity, bool updateChildren = false)
+    {
+        var report = this.Update(entity, updateChildren);
+        this.CommitTransaction();
+        return report;
     }
     #endregion
 }

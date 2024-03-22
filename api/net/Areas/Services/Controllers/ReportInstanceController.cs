@@ -109,7 +109,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public async Task<IActionResult> UpdateAsync(ReportInstanceModel model)
     {
-        var result = _reportInstanceService.UpdateAndSave((Entities.ReportInstance)model) ?? throw new NoContentException();
+        var result = _reportInstanceService.UpdateAndSave((Entities.ReportInstance)model, true) ?? throw new NoContentException();
         var ownerId = result.OwnerId ?? result.Report?.OwnerId;
         if (ownerId.HasValue)
         {

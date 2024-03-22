@@ -21,4 +21,20 @@ public interface IReportInstanceService : IBaseService<ReportInstance, long>
     /// <param name="id"></param>
     /// <returns></returns>
     IEnumerable<ReportInstanceContent> GetContentForInstance(long id);
+
+    /// <summary>
+    /// Update the report instance in the context, but do not save to the database yet.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="updateChildren"></param>
+    /// <returns></returns>
+    ReportInstance Update(ReportInstance entity, bool updateChildren = false);
+
+    /// <summary>
+    /// Update the report instance in the context, but do not save to the database yet.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="updateChildren"></param>
+    /// <returns></returns>
+    ReportInstance UpdateAndSave(ReportInstance entity, bool updateChildren = false);
 }
