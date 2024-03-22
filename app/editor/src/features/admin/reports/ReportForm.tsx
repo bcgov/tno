@@ -219,6 +219,9 @@ const ReportForm: React.FC = () => {
                         />
                         <Tab
                           label="Scheduler"
+                          showErrorOnSave={{ value: true, savePressed: savePressed }}
+                          setShowValidationToast={setShowValidationToast}
+                          hasErrors={hasErrors(errors, ['events'])}
                           onClick={() => {
                             setActive('scheduler');
                           }}
