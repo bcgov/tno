@@ -71,8 +71,8 @@ spec:
               mountPath: /mnt/ingest
           resources:
             limits:
-              cpu: 300m
-              memory: 750Mi
+              cpu: 500m
+              memory: 1536Mi
             requests:
               cpu: 100m
               memory: 350Mi

@@ -9,8 +9,10 @@ public interface IReportInstanceService : IBaseService<ReportInstance, long>
     /// </summary>
     /// <param name="reportId"></param>
     /// <param name="ownerId"></param>
+    /// <param name="skip"></param>
+    /// <param name="take"></param>
     /// <returns></returns>
-    IEnumerable<ReportInstance> FindInstancesForReportId(int reportId, int? ownerId);
+    IEnumerable<ReportInstance> FindInstancesForReportId(int reportId, int? ownerId, int skip = 0, int take = 10);
 
 
     /// <summary>
@@ -19,12 +21,4 @@ public interface IReportInstanceService : IBaseService<ReportInstance, long>
     /// <param name="id"></param>
     /// <returns></returns>
     IEnumerable<ReportInstanceContent> GetContentForInstance(long id);
-
-    /// <summary>
-    /// Update only the instance and not the content.
-    /// </summary>
-    /// <param name="instance"></param>
-    /// <param name="instanceOnly"></param>
-    /// <returns></returns>
-    ReportInstance UpdateAndSave(ReportInstance instance, bool instanceOnly = false);
 }

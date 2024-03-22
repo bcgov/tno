@@ -244,7 +244,7 @@ public class ReportInstanceController : ControllerBase
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to publish this report"); // User does not own the report
 
         instance.Status = Entities.ReportStatus.Submitted;
-        instance = _reportInstanceService.UpdateAndSave(instance, true);
+        instance = _reportInstanceService.UpdateAndSave(instance);
 
         var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, instance.ReportId, instance.Id, new { })
         {

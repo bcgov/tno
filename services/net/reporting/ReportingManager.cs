@@ -413,10 +413,12 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 this.Logger.LogWarning($"Report [{report.Name}] {request.GenerateInstance}has malformed content. It will be generated, but may not match expectations.");
 
             // Update instance
-            instance.Subject = subject;
-            instance.Body = fullTextFormatBody;
-            instance.ContentManyToMany.AddRange(reportInstanceContents);
-            instance.ContentManyToMany.ForEach(ric => ric.InstanceId = instanceModel.Id);
+            instanceModel.Subject = subject;
+            instanceModel.Body = fullTextFormatBody;
+            instanceModel.Content = reportInstanceContents.Select((ric) => new API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel(ric)
+            {
+                InstanceId = instanceModel.Id
+            });
             instanceModel = await this.Api.UpdateReportInstanceAsync(instanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
         }
 

@@ -62,6 +62,10 @@ export const ReportSectionContent = ({ index }: IReportSectionContentProps) => {
       <Col>
         <label>Options</label>
         <FormikCheckbox
+          name={`sections.${index}.settings.hideEmpty`}
+          label="Hide section if empty"
+        />
+        <FormikCheckbox
           name={`sections.${index}.settings.showHeadlines`}
           label="Show Headlines"
           tooltip="Display the story headlines in this section.  This is similar to a table of contents, but only for this section"
