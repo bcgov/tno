@@ -1,4 +1,6 @@
-import { object, string } from 'yup';
+import { array, object, string } from 'yup';
+
+import { ReportFormScheduleSchema } from './ReportFormScheduleSchema';
 
 export const ReportFormSchema = object().shape(
   {
@@ -7,6 +9,7 @@ export const ReportFormSchema = object().shape(
     settings: object({
       subject: object({ text: string().required('Email subject line should have a text.') }),
     }),
+    events: array().of(ReportFormScheduleSchema),
   },
   [],
 );
