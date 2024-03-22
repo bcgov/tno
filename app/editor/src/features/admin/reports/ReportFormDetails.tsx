@@ -5,6 +5,8 @@ import React from 'react';
 import { useApp } from 'store/hooks';
 import { useUsers } from 'store/hooks/admin';
 import {
+  Button,
+  ButtonVariant,
   Col,
   FieldSize,
   FormikCheckbox,
@@ -24,7 +26,7 @@ import {
  * @returns Component.
  */
 export const ReportFormDetails: React.FC = () => {
-  const { values, setFieldValue } = useFormikContext<IReportModel>();
+  const { values, setFieldValue, setValues } = useFormikContext<IReportModel>();
   const [{ userInfo }] = useApp();
   const [{ users }, { findUsers }] = useUsers();
 
@@ -48,6 +50,27 @@ export const ReportFormDetails: React.FC = () => {
     return results;
   }, 500);
 
+  const handleReassignOwnership = React.useCallback(() => {
+    const report = {
+      ...values,
+      sections: values.sections.map((section) => ({
+        ...section,
+        filter: section.filter ? { ...section.filter, ownerId: values.ownerId } : section.filter,
+        folder: section.folder
+          ? {
+              ...section.folder,
+              ownerId: values.ownerId,
+              filter: section.folder.filter
+                ? { ...section.folder.filter, ownerId: values.ownerId }
+                : section.folder.filter,
+            }
+          : section.folder,
+      })),
+    };
+    setValues(report);
+    console.debug(report.sections);
+  }, [setValues, values]);
+
   return (
     <>
       <Col className="form-inputs">
@@ -65,23 +88,31 @@ export const ReportFormDetails: React.FC = () => {
           placeholder="Enter unique report name"
         />
         <FormikTextArea name="description" label="Description" />
-        <FormikSelect
-          name="ownerId"
-          label="Owner"
-          options={userOptions}
-          value={userOptions.find((u) => u.value === values.ownerId) || ''}
-          onChange={(e) => {
-            const option = e as OptionItem;
-            setFieldValue(
-              'values.ownerId',
-              option?.value ? parseInt(option.value.toString()) : undefined,
-            );
-          }}
-          onInputChange={(newValue) => {
-            // TODO: Does not need to fire when an option is manually selected.
-            handleFindUsers(newValue);
-          }}
-        />
+        <Row alignItems="end">
+          <FormikSelect
+            name="ownerId"
+            label="Owner"
+            options={userOptions}
+            value={userOptions.find((u) => u.value === values.ownerId) || ''}
+            width="50ch"
+            onChange={(e) => {
+              const option = e as OptionItem;
+              setFieldValue(
+                'values.ownerId',
+                option?.value ? parseInt(option.value.toString()) : undefined,
+              );
+            }}
+            onInputChange={(newValue) => {
+              // TODO: Does not need to fire when an option is manually selected.
+              handleFindUsers(newValue);
+            }}
+          />
+          <Col className="frm-in">
+            <Button variant={ButtonVariant.secondary} onClick={() => handleReassignOwnership()}>
+              Apply ownership to filters/folders in report
+            </Button>
+          </Col>
+        </Row>
         <Row alignItems="center">
           <FormikText
             width={FieldSize.Tiny}

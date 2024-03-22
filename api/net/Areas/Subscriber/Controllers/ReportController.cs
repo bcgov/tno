@@ -222,7 +222,7 @@ public class ReportController : ControllerBase
         if (updateInstances && instanceModel != null)
         {
             // Only update the first instance.
-            instance = _reportInstanceService.Update((Entities.ReportInstance)instanceModel);
+            instance = _reportInstanceService.Update((Entities.ReportInstance)instanceModel, true);
         }
         _reportInstanceService.CommitTransaction();
         var report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
@@ -354,7 +354,7 @@ public class ReportController : ControllerBase
                 return c;
             });
             currentInstance.ContentManyToMany.AddRange(newContent);
-            currentInstance = _reportInstanceService.UpdateAndSave(currentInstance);
+            currentInstance = _reportInstanceService.UpdateAndSave(currentInstance, true);
             instances = _reportService.GetLatestInstances(id, user.Id);
             currentInstance.ContentManyToMany.Clear();
             currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));

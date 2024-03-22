@@ -1,7 +1,6 @@
 import React from 'react';
 import { FaFileImage, FaFileInvoice } from 'react-icons/fa';
 import { FaFileArrowUp } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useLookup, useLookupOptions, useNotifications, useReports } from 'store/hooks';
 import {
@@ -34,7 +33,6 @@ export interface IPaperToolbarProps {
  * @returns Component.
  */
 export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
-  const navigate = useNavigate();
   const [{ filterPaper: filter }, { storeFilterPaper }] = useContent();
   const [{ mediaTypeOptions }] = useLookupOptions();
   const [{ publishReport }] = useReports();
@@ -89,8 +87,7 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
             onClick={(e) => {
               if (frontPageImagesReportId) {
                 const route = getPreviewReportRoute(+frontPageImagesReportId);
-                if (!e.ctrlKey) navigate(route);
-                else window.open(route, '_blank');
+                window.open(route, '_blank');
               } else
                 toast.error(
                   `Configuration setting "${Settings.FrontPageImagesReport}" is missing.`,
@@ -103,8 +100,7 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
             onClick={(e) => {
               if (morningReportId) {
                 const route = getPreviewReportRoute(+morningReportId);
-                if (!e.ctrlKey) navigate(route);
-                else window.open(route, '_blank');
+                window.open(route, '_blank');
               } else toast.error(`Configuration setting "${Settings.MorningReport}" is missing.`);
             }}
           />

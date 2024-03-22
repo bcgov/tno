@@ -46,14 +46,21 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
     if (!!report && !instance && !isLoading) {
       setIsLoading(true);
       fetchReport(report.id)
-        .then((report) => {
-          onFetch?.(report);
+        .then(async (report) => {
+          try {
+            if (report && !report?.instances.length) {
+              const result = await generateReport(report.id, true);
+              onFetch?.(result);
+            } else onFetch?.(report);
+          } catch (ex) {
+            throw ex;
+          }
         })
         .finally(() => {
           setIsLoading(false);
         });
     }
-  }, [fetchReport, instance, isLoading, onFetch, report]);
+  }, [fetchReport, generateReport, instance, isLoading, onFetch, report]);
 
   const handleRefresh = React.useCallback(
     async (instanceId: number, regenerate?: boolean) => {
@@ -83,15 +90,15 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
     [generateReport, navigate],
   );
 
-  const handlePublish = React.useCallback(
-    async (report: IReportModel, id: number) => {
+  const handleSend = React.useCallback(
+    async (report: IReportModel, instanceId: number) => {
       try {
         setIsSubmitting(true);
-        const updatedInstance = await publishReportInstance(id);
+        const updatedInstance = await publishReportInstance(instanceId);
         onFetch?.({
           ...report,
           instances: report.instances.map((i) =>
-            i.id === id ? { ...updatedInstance, content: instance?.content ?? [] } : i,
+            i.id === instanceId ? { ...updatedInstance, content: instance?.content ?? [] } : i,
           ),
         });
         toast.success('Report has been submitted.');
@@ -117,21 +124,30 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
         <h2>{report?.name}</h2>
       </div>
       <Bar>
-        <Button
-          variant="secondary"
-          onClick={() => instance?.id && handleRefresh(instance?.id, true)}
-          disabled={isSubmitting}
+        <Show
+          visible={
+            !instance?.sentOn &&
+            ![ReportStatusName.Accepted, ReportStatusName.Completed].some(
+              (value) => instance?.status === value,
+            )
+          }
         >
-          Refresh
-          <FaArrowsRotate />
-        </Button>
-        <Button
-          onClick={() => navigate(`/reports/${report?.id}/content`)}
-          disabled={!report || isSubmitting}
-        >
-          Edit
-          <FaPen />
-        </Button>
+          <Button
+            variant="secondary"
+            onClick={() => instance?.id && handleRefresh(instance?.id, true)}
+            disabled={isSubmitting}
+          >
+            Refresh
+            <FaArrowsRotate />
+          </Button>
+          <Button
+            onClick={() => navigate(`/reports/${report?.id}/content`)}
+            disabled={!report || isSubmitting}
+          >
+            Edit
+            <FaPen />
+          </Button>
+        </Show>
         <div>
           <Show visible={!!instance}>
             {!instance?.sentOn &&
@@ -139,7 +155,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
               (value) => instance?.status === value,
             ) ? (
               <Button
-                onClick={() => report && instance && handlePublish(report, instance.id)}
+                onClick={() => report && instance && handleSend(report, instance.id)}
                 disabled={isSubmitting}
               >
                 Send
