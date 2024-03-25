@@ -196,6 +196,12 @@ public class ContentController : ControllerBase
                 _topicScoreHelper.SetContentScore(model);
         }
 
+        // Published content should also have a posted date.
+        if (!model.PostedOn.HasValue &&
+            (model.Status == ContentStatus.Publish ||
+            model.Status == ContentStatus.Published))
+            model.PostedOn = DateTime.UtcNow;
+
         var content = _contentService.AddAndSave((Content)model);
 
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentAdded, new[] { new ContentMessageModel(content) })));
@@ -246,6 +252,11 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> UpdateAsync(ContentModel model, bool index = false, int? requestorId = null)
     {
+        // Published content should also have a posted date.
+        if (!model.PostedOn.HasValue &&
+            (model.Status == ContentStatus.Publish ||
+            model.Status == ContentStatus.Published))
+            model.PostedOn = DateTime.UtcNow;
         var content = _contentService.UpdateAndSave((Content)model);
 
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content) })));
