@@ -65,14 +65,14 @@ export const ReportSectionGallery = ({ index }: IReportSectionGalleryProps) => {
         <Row alignItems="center">
           <Col>
             <FormikCheckbox
-              name={`sections.${index}.settings.showHeadlines`}
-              label="Show Headlines"
-              tooltip="Display the story headlines in this section.  This is similar to a table of contents, but only for this section"
-            />
-            <FormikCheckbox
               name={`sections.${index}.settings.removeDuplicates`}
               label="Remove Duplicate Content"
               tooltip="Remove content from this section that is in above sections"
+            />
+            <FormikCheckbox
+              name={`sections.${index}.settings.showImage`}
+              label="Show Image"
+              tooltip="Display the image for each content item in this section (if there is an image)"
             />
           </Col>
           <FormikSelect

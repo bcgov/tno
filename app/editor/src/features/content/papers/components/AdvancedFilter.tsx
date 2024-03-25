@@ -1,13 +1,15 @@
 import { AdvancedSearchKeys, advancedSearchOptions } from 'features/content/constants';
 import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
+import moment from 'moment';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
-import { useContent } from 'store/hooks';
+import { useContent, useLookupOptions } from 'store/hooks';
 import {
   Checkbox,
   Col,
   ContentStatusName,
   FieldSize,
+  filterEnabledOptions,
   fromQueryString,
   getEnumStringOptions,
   instanceOfIOption,
@@ -16,6 +18,7 @@ import {
   replaceQueryParams,
   Row,
   Select,
+  SelectDate,
   Show,
   Text,
   ToolBarSection,
@@ -42,6 +45,7 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
 }) => {
   const [{ filterPaper, filterPaperAdvanced: filterAdvanced }, { storeFilterPaperAdvanced }] =
     useContent();
+  const [{ sourceOptions }] = useLookupOptions();
 
   const [statusOptions] = React.useState(getEnumStringOptions(ContentStatusName));
 
@@ -108,8 +112,9 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
           <Row>
             <Select
               name="fieldType"
-              options={advancedSearchOptions.filter((ft) => ft.value !== AdvancedSearchKeys.Source)}
+              options={advancedSearchOptions}
               className="select"
+              width="20ch"
               isClearable={false}
               value={advancedSearchOptions.find((ft) => ft.value === filterAdvanced.fieldType)}
               onChange={(newValue) => {
@@ -124,7 +129,17 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
                 });
               }}
             />
-            <Show visible={filterAdvanced.fieldType !== AdvancedSearchKeys.Status}>
+            <Show
+              visible={
+                ![
+                  AdvancedSearchKeys.Source,
+                  AdvancedSearchKeys.Status,
+                  AdvancedSearchKeys.PublishedOn,
+                  AdvancedSearchKeys.CreatedOn,
+                  AdvancedSearchKeys.UpdatedOn,
+                ].includes(filterAdvanced.fieldType)
+              }
+            >
               <Text
                 name="searchTerm"
                 value={filterAdvanced.searchTerm}
@@ -162,6 +177,53 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
                 value={statusOptions.find(
                   (s) => String(s.value) === String(filterAdvanced.searchTerm),
                 )}
+              />
+            </Show>
+            <Show visible={filterAdvanced.fieldType === AdvancedSearchKeys.Source}>
+              <Select
+                name="searchTerm"
+                width={FieldSize.Medium}
+                onChange={(newValue: any) => {
+                  if (!newValue) storeFilterPaperAdvanced({ ...filterAdvanced, searchTerm: '' });
+                  else {
+                    const optionItem = filterEnabledOptions(sourceOptions, newValue.value).find(
+                      (ds) => ds.value === newValue.value,
+                    );
+                    storeFilterPaperAdvanced({
+                      ...filterAdvanced,
+                      searchTerm: optionItem?.value?.toString() ?? '',
+                    });
+                  }
+                }}
+                options={filterEnabledOptions(sourceOptions, filterAdvanced.searchTerm)}
+                value={sourceOptions.find(
+                  (s: IOptionItem) => String(s.value) === String(filterAdvanced.searchTerm),
+                )}
+              />
+            </Show>
+            <Show
+              visible={[
+                AdvancedSearchKeys.Status,
+                AdvancedSearchKeys.PublishedOn,
+                AdvancedSearchKeys.CreatedOn,
+                AdvancedSearchKeys.UpdatedOn,
+              ].includes(filterAdvanced.fieldType)}
+            >
+              <SelectDate
+                name="searchTeam"
+                width="15ch"
+                isClearable
+                value={
+                  moment(filterAdvanced.searchTerm).isValid()
+                    ? filterAdvanced.searchTerm
+                    : undefined
+                }
+                onChange={(value) => {
+                  storeFilterPaperAdvanced({
+                    ...filterAdvanced,
+                    searchTerm: moment(value).format('YYYY-MM-DD'),
+                  });
+                }}
               />
             </Show>
           </Row>

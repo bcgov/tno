@@ -36,6 +36,7 @@ import {
   Tab,
   Tabs,
   TimeInput,
+  toTitleCase,
   useModal,
   useTabValidationToasts,
   WorkOrderStatusName,
@@ -185,7 +186,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                   </Show>
                   <Show visible={size === 1}>
                     <Col flex="1.5 1 0%">
-                      <Row wrap="nowrap">
+                      <Row>
                         <Col flex="1 1 0%">
                           <FormikTextArea
                             name="headline"
@@ -273,7 +274,14 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       </Show>
                       <Show visible={props.values.contentType === ContentTypeName.PrintContent}>
                         <Row>
-                          <FormikText name="byline" label="Byline" />
+                          <FormikText
+                            name="byline"
+                            label="Byline"
+                            width="50ch"
+                            onChange={(e) => {
+                              props.setFieldValue('byline', toTitleCase(e.target.value));
+                            }}
+                          />
                           <FormikSelect
                             name="contributorId"
                             value={

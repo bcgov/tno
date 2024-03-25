@@ -1,4 +1,5 @@
 import { AdvancedSearchKeys, advancedSearchOptions } from 'features/content/constants';
+import moment from 'moment';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
 import { FaX } from 'react-icons/fa6';
@@ -15,6 +16,7 @@ import {
   replaceQueryParams,
   Row,
   Select,
+  SelectDate,
   Show,
   Text,
   ToolBarSection,
@@ -117,10 +119,37 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
             />
           </Show>
           <Show
+            visible={[
+              AdvancedSearchKeys.Status,
+              AdvancedSearchKeys.PublishedOn,
+              AdvancedSearchKeys.CreatedOn,
+              AdvancedSearchKeys.UpdatedOn,
+            ].includes(filterAdvanced.fieldType)}
+          >
+            <SelectDate
+              name="searchTeam"
+              width="15ch"
+              isClearable
+              value={
+                moment(filterAdvanced.searchTerm).isValid() ? filterAdvanced.searchTerm : undefined
+              }
+              onChange={(value) => {
+                storeFilterAdvanced({
+                  ...filterAdvanced,
+                  searchTerm: moment(value).format('YYYY-MM-DD'),
+                });
+              }}
+            />
+          </Show>
+          <Show
             visible={
-              ![AdvancedSearchKeys.Source, AdvancedSearchKeys.Status].includes(
-                filterAdvanced.fieldType,
-              )
+              ![
+                AdvancedSearchKeys.Source,
+                AdvancedSearchKeys.Status,
+                AdvancedSearchKeys.PublishedOn,
+                AdvancedSearchKeys.CreatedOn,
+                AdvancedSearchKeys.UpdatedOn,
+              ].includes(filterAdvanced.fieldType)
             }
           >
             <Text

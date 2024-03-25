@@ -67,8 +67,8 @@ export const ReportSectionContent = ({ index }: IReportSectionContentProps) => {
         />
         <FormikCheckbox
           name={`sections.${index}.settings.showHeadlines`}
-          label="Show Headlines"
-          tooltip="Display the story headlines in this section.  This is similar to a table of contents, but only for this section"
+          label="Show Table of Content for this section"
+          tooltip="Display a Table of Contents at the beginning of this section."
         />
         <FormikCheckbox
           name={`sections.${index}.settings.showFullStory`}
@@ -76,14 +76,14 @@ export const ReportSectionContent = ({ index }: IReportSectionContentProps) => {
           tooltip="Display the full story for each content item in this section"
         />
         <FormikCheckbox
-          name={`sections.${index}.settings.showImage`}
-          label="Show Image"
-          tooltip="Display the image for each content item in this section (if there is an image)"
-        />
-        <FormikCheckbox
           name={`sections.${index}.settings.removeDuplicates`}
           label="Remove Duplicate Content"
           tooltip="Remove content from this section that is in above sections"
+        />
+        <FormikCheckbox
+          name={`sections.${index}.settings.showImage`}
+          label="Show Image"
+          tooltip="Display the image for each content item in this section (if there is an image)"
         />
       </Col>
       <Col>

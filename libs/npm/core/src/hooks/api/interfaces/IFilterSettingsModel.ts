@@ -11,9 +11,10 @@ export interface IFilterSettingsModel {
   contentIds?: number[];
   contentTypes?: ContentTypeName[];
   contributorIds?: number[];
-  dateOffset?: number;
   edition?: string;
-  endDate?: string;
+  headline?: string;
+  summary?: string;
+  body?: string;
   featured?: boolean;
   hasTopic?: boolean;
   inByline?: boolean;
@@ -32,7 +33,12 @@ export interface IFilterSettingsModel {
   actions?: IFilterActionSettingsModel[];
   sourceIds?: number[];
   tags?: string[];
+  dateOffset?: number;
   startDate?: string;
+  endDate?: string;
+  publishedOn?: string;
+  createdOn?: string;
+  updatedOn?: string;
   status?: ContentStatusName;
   userId?: number;
   sort?: ISortField[];
