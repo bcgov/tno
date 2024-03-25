@@ -117,6 +117,7 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
               name="sourceIds"
               className="select sources"
               isMulti
+              hideSelectedOptions={false}
               placeholder="Sources"
               options={sourceOptions}
               value={sourceOptions.filter((opt) => filter.sourceIds?.includes(Number(opt.value)))}

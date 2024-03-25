@@ -5,10 +5,15 @@ import {
   getSortableOptions,
   getSourceOptions,
   IOptionItem,
+  ISourceModel,
   IUserModel,
   OptionItem,
   useKeycloakWrapper,
 } from 'tno-core';
+
+export interface ILookupOptionsProps {
+  sourceMap?: (item: ISourceModel) => IOptionItem<number>;
+}
 
 export interface ILookupOptionsState extends ILookupState {
   ingestTypeOptions: IOptionItem[];
@@ -23,7 +28,10 @@ export interface ILookupOptionsState extends ILookupState {
  * Simplify converting data sources into options for dropdowns.
  * @returns An array of data source options for dropdowns.
  */
-export const useLookupOptions = (): [ILookupOptionsState, ILookupController] => {
+export const useLookupOptions = ({ sourceMap }: ILookupOptionsProps = {}): [
+  ILookupOptionsState,
+  ILookupController,
+] => {
   const keycloak = useKeycloakWrapper();
   const [state, controller] = useLookup();
 
@@ -38,8 +46,8 @@ export const useLookupOptions = (): [ILookupOptionsState, ILookupController] => 
     state.users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id ?? 0;
 
   React.useEffect(() => {
-    setSourceOptions(getSourceOptions(state.sources));
-  }, [state.sources]);
+    setSourceOptions(getSourceOptions(state.sources, [], sourceMap));
+  }, [sourceMap, state.sources]);
 
   React.useEffect(() => {
     setSeriesOptions(getSortableOptions(state.series));
