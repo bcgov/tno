@@ -59,16 +59,16 @@ export const ContentFormSchema = object<IContentForm>().shape(
       return array();
     }),
     // TODO: validation for print content.
-    section: string().when('contentType', (value: string[]) => {
-      if (value[0] === ContentTypeName.PrintContent)
-        return string().trim().required('Section is a required field.');
-      return string();
-    }),
-    byline: string().when('contentType', (value: string[]) => {
-      if (value[0] === ContentTypeName.PrintContent)
-        return string().trim().required('Byline is a required field.');
-      return string();
-    }),
+    // section: string().when('contentType', (value: string[]) => {
+    //   if (value[0] === ContentTypeName.PrintContent)
+    //     return string().trim().required('Section is a required field.');
+    //   return string();
+    // }),
+    // byline: string().when('contentType', (value: string[]) => {
+    //   if (value[0] === ContentTypeName.PrintContent)
+    //     return string().trim().required('Byline is a required field.');
+    //   return string();
+    // }),
   },
   [['sourceId', 'tempSource']],
 );

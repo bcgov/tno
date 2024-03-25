@@ -116,7 +116,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const [textDecorationStyle, setTextDecorationStyle] = React.useState('none');
   const [cursorStyle, setCursorStyle] = React.useState('text');
   const [savePressed, setSavePressed] = React.useState(false);
-  const [isEditing, setIsEditing] = React.useState(false);
   const [parsedTags, setParsedTags] = React.useState<string[]>([]);
 
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
@@ -142,10 +141,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
       filteredSeriesOptions = filteredSeriesOptions.concat(new OptionItem(seriesOtherCreated, ''));
     setSeriesOtherOptions(filteredSeriesOptions);
   }, [series, seriesOtherCreated]);
-
-  React.useEffect(() => {
-    if (form.id) setIsEditing(true);
-  }, [form.id]);
 
   return (
     <styled.ContentForm className="content-form fvh">
@@ -291,7 +286,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                             options={contributorOptions}
                           />
                           <FormikText name="edition" label="Edition" />
-                          <FormikText name="section" label="Section" required={!isEditing} />
+                          <FormikText name="section" label="Section" />
                           <FormikText name="page" label="Page" />
                         </Row>
                       </Show>
