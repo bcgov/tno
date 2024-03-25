@@ -81,7 +81,6 @@ export const FilterMediaLanding: React.FC = () => {
     <styled.FilterMediaLanding>
       <Col className="filters">
         <PageSection ignoreLastChildGap header="Filter by Media Type" includeHeaderIcon>
-          {/* TODO: Move into reusable component, this type of filter is only used on this page currently*/}
           <Row className="main-media">
             <Col className="media-filter">
               {subMediaGroups?.map((mediaGroup) => (
@@ -94,7 +93,7 @@ export const FilterMediaLanding: React.FC = () => {
                     storeFilter({
                       ...filter,
                       sourceIds: [],
-                      seriesIds: [],
+                      seriesIds: mediaGroup.options.map((o) => o.id),
                       mediaTypeIds: [mediaGroup.key],
                     });
                     setActiveFilter(mediaGroup);
