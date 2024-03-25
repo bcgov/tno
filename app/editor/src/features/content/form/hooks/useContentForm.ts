@@ -172,7 +172,8 @@ export const useContentForm = ({
       sourceId: values.sourceId,
       mediaTypeId: values.mediaTypeId,
       otherSource: values.otherSource,
-      publishedOn: updatedDate.toLocaleString(),
+      publishedOn: updatedDate.format('MMM D, yyyy HH:mm:ss'),
+      publishedOnTime: updatedDate.format('HH:mm:ss'),
     });
     setStream(undefined);
   }, []);
