@@ -5,6 +5,9 @@ import { AdvancedSearchKeys } from '.';
 export const advancedSearchOptions = [
   new OptionItem('Id', AdvancedSearchKeys.Id),
   new OptionItem('Headline', AdvancedSearchKeys.Headline),
+  new OptionItem('Summary', AdvancedSearchKeys.Summary),
+  new OptionItem('Story', AdvancedSearchKeys.Story),
+  new OptionItem('Transcript', AdvancedSearchKeys.Story),
   new OptionItem('Source', AdvancedSearchKeys.Source),
   new OptionItem('Byline', AdvancedSearchKeys.Byline),
   new OptionItem('Section', AdvancedSearchKeys.Section),

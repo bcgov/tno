@@ -1,8 +1,11 @@
+import moment from 'moment';
+
 import { IFilterSettingsModel } from '../../hooks';
 import { generatePublishedOnQuery } from './generatePublishedOnQuery';
 import { generateQueryForActions } from './generateQueryForActions';
 import { generateQueryForExistCheck } from './generateQueryForExistCheck';
 import { generateRangeForArrayField } from './generateRangeForArrayField';
+import { generateRangeForDates } from './generateRangeForDates';
 import { generateTerm } from './generateTerm';
 import { generateTerms } from './generateTerms';
 import { generateTermsForArrayField } from './generateTermsForArrayField';
@@ -39,6 +42,27 @@ export const generateQueryValues = (
     settings.hasTopic ? generateQueryForExistCheck('topics') : undefined,
     settings.id ? generateTerm('id', settings.id) : undefined,
     settings.isHidden !== undefined ? generateTerm('isHidden', settings.isHidden) : undefined,
+    settings.publishedOn
+      ? generateRangeForDates(
+          'publishedOn',
+          moment(settings.publishedOn).startOf('day'),
+          moment(settings.publishedOn).endOf('day'),
+        )
+      : undefined,
+    settings.createdOn
+      ? generateRangeForDates(
+          'createdOn',
+          moment(settings.createdOn).startOf('day'),
+          moment(settings.createdOn).endOf('day'),
+        )
+      : undefined,
+    settings.updatedOn
+      ? generateRangeForDates(
+          'updatedOn',
+          moment(settings.updatedOn).startOf('day'),
+          moment(settings.updatedOn).endOf('day'),
+        )
+      : undefined,
   ].filter((v) => v !== undefined);
   return values;
 };

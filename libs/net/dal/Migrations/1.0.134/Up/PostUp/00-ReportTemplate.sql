@@ -1,4 +1,8 @@
-@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
+DO $$
+BEGIN
+
+UPDATE public.report_template SET
+    "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
 @using System
 @using System.Linq
 @using TNO.Entities
@@ -283,4 +287,7 @@ else
       <b>Copying, retransmitting, archiving, redistributing, selling, licensing, or emailing the material to any third party or any employee of the Province who is not authorized to access the material is prohibited.</b>
     </p>
   </div>
-</div>
+</div>'
+WHERE "name" = 'Custom Report';
+
+END $$;
