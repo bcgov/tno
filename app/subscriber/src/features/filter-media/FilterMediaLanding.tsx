@@ -175,7 +175,7 @@ export const FilterMediaLanding: React.FC = () => {
                                 })
                               : storeFilter({
                                   ...filter,
-                                  seriesIds: filter.seriesIds?.filter((id) => id != opt.id),
+                                  seriesIds: filter.seriesIds?.filter((id) => id !== opt.id),
                                 });
                           }}
                         />
