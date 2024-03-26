@@ -7,10 +7,7 @@ import { useFilters, useFolders, useLookup } from 'store/hooks';
 import {
   Checkbox,
   Col,
-  FormikCheckbox,
   FormikSelect,
-  FormikText,
-  FormikTextArea,
   getSortableOptions,
   IOptionItem,
   OptionItem,
@@ -74,8 +71,6 @@ export const ReportSectionGallery = React.forwardRef<HTMLDivElement, IReportSect
 
     return (
       <>
-        <FormikText name={`sections.${index}.settings.label`} label="Section heading:" />
-        <FormikTextArea name={`sections.${index}.description`} label="Summary text:" />
         <Col className="frm-in">
           <label>Data source</label>
           <p>
@@ -92,11 +87,6 @@ export const ReportSectionGallery = React.forwardRef<HTMLDivElement, IReportSect
                 useDefaultFrontPageImagesFilter ? undefined : defaultFrontPageImagesFilterId,
               );
             }}
-          />
-          <FormikCheckbox
-            name={`sections.${index}.settings.showImage`}
-            label="Show Image"
-            tooltip="Display the image for each content item in this section (if there is an image)"
           />
           <Show visible={!useDefaultFrontPageImagesFilter}>
             <Row gap="1rem">

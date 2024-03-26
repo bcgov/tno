@@ -14,7 +14,6 @@ import {
   Col,
   getEnumStringOptions,
   IUserReportModel,
-  Modal,
   OptionItem,
   ReportDistributionFormatName,
   ReportStatusName,
@@ -24,11 +23,9 @@ import {
   Spinner,
   Text,
   useApiAdminUsers,
-  useModal,
   validateEmail,
 } from 'tno-core';
 
-import { ReportSubscriberExporter } from './ReportSubscriberExporter';
 import * as styled from './styled';
 
 /**
@@ -37,9 +34,8 @@ import * as styled from './styled';
  */
 export const ReportSendForm: React.FC = () => {
   const { values, isSubmitting, setFieldValue } = useFormikContext<IReportForm>();
-  const [{ sendReportInstance, publishReportInstance }] = useReportInstances();
+  const [{ sendReportInstance }] = useReportInstances();
   const [{ userInfo }] = useApp();
-  const { isShowing, toggle } = useModal();
   const { findUsers } = useApiAdminUsers();
 
   const [to, setTo] = React.useState('');
@@ -58,22 +54,6 @@ export const ReportSendForm: React.FC = () => {
       } catch {}
     },
     [sendReportInstance],
-  );
-
-  const handlePublish = React.useCallback(
-    async (id: number) => {
-      try {
-        const updatedInstance = await publishReportInstance(id);
-        setFieldValue(
-          'instances',
-          values.instances.map((i) =>
-            i.id === id ? { ...updatedInstance, content: instance?.content } : i,
-          ),
-        );
-        toast.success('Report has been submitted.');
-      } catch {}
-    },
-    [instance?.content, publishReportInstance, setFieldValue, values.instances],
   );
 
   const addSubscriber = React.useCallback(
@@ -154,23 +134,6 @@ export const ReportSendForm: React.FC = () => {
             </Col>
           </Row>
         )}
-        <Row flex="1" gap="1rem" justifyContent="space-between">
-          <div></div>
-          <Col>
-            <Button
-              disabled={
-                isSubmitting || !instanceId || instance?.status === ReportStatusName.Submitted
-              }
-              onClick={() => toggle()}
-            >
-              Send to subscribers
-              <FaTelegramPlane />
-            </Button>
-          </Col>
-          <Row justifyContent="flex-end">
-            <ReportSubscriberExporter />
-          </Row>
-        </Row>
         <Show visible={instance?.status === ReportStatusName.Submitted}>
           <Col>
             <Spinner />
@@ -251,23 +214,6 @@ export const ReportSendForm: React.FC = () => {
           </Col>
         )}
       </Col>
-      <Modal
-        headerText="Send Report to Subscribers"
-        body={`Do you want to send an email to the subscribers of this report? ${
-          instance?.sentOn ? 'This report has already been sent out by email.' : ''
-        }`}
-        isShowing={isShowing}
-        hide={toggle}
-        type="default"
-        confirmText="Yes, send report to subscribers"
-        onConfirm={async () => {
-          try {
-            if (instanceId) await handlePublish(instanceId);
-          } finally {
-            toggle();
-          }
-        }}
-      />
     </styled.ReportSendForm>
   );
 };

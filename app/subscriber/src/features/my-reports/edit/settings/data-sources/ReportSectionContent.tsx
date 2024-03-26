@@ -8,8 +8,6 @@ import {
   Col,
   FormikCheckbox,
   FormikSelect,
-  FormikText,
-  FormikTextArea,
   getSortableOptions,
   IOptionItem,
   OptionItem,
@@ -64,14 +62,24 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
 
     return (
       <Col gap="0.5rem">
-        <Row gap="1rem">
-          <FormikCheckbox
-            name={`sections.${index}.settings.hideEmpty`}
-            label="Hide When Section Is Empty"
+        <FormikCheckbox
+          name={`sections.${index}.settings.removeDuplicates`}
+          label="Remove Duplicate Content"
+          tooltip="Remove content from this section that is in above sections"
+        />
+        <Row>
+          <FormikSelect
+            name={`sections.${index}.settings.sortBy`}
+            label="Sort by"
+            options={orderOptions}
+            value={orderOptions.find((o) => o.value === section.settings.sortBy) ?? ''}
+            onChange={(newValue: any) => {
+              const option = newValue as OptionItem;
+              const order = orderOptions.find((f) => f.value === option?.value);
+              if (order) setFieldValue(`sections.${index}.settings.sortBy`, order.value);
+            }}
           />
         </Row>
-        <FormikText name={`sections.${index}.settings.label`} label="Section heading:" />
-        <FormikTextArea name={`sections.${index}.description`} label="Summary text:" />
         <Col className="frm-in">
           <label>Data source</label>
           <p>
@@ -127,43 +135,6 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
             </Col>
           </Row>
         </Col>
-        <Row>
-          <Col flex="1" className="description">
-            <FormikCheckbox
-              name={`sections.${index}.settings.removeDuplicates`}
-              label="Remove Duplicate Content"
-              tooltip="Remove content from this section that is in above sections"
-            />
-            <FormikCheckbox
-              name={`sections.${index}.settings.showHeadlines`}
-              label="Show additional Table of Content for this section"
-              tooltip="Display a Table of Contents at the beginning of this section."
-            />
-            <FormikCheckbox
-              name={`sections.${index}.settings.showFullStory`}
-              label="Show Full Story"
-              tooltip="Display the full story for each content item in this section"
-            />
-            <FormikCheckbox
-              name={`sections.${index}.settings.showImage`}
-              label="Show Image"
-              tooltip="Display the image for each content item in this section (if there is an image)"
-            />
-          </Col>
-          <Col flex="1" className="description">
-            <FormikSelect
-              name={`sections.${index}.settings.sortBy`}
-              label="Sort by"
-              options={orderOptions}
-              value={orderOptions.find((o) => o.value === section.settings.sortBy) ?? ''}
-              onChange={(newValue: any) => {
-                const option = newValue as OptionItem;
-                const order = orderOptions.find((f) => f.value === option?.value);
-                if (order) setFieldValue(`sections.${index}.settings.sortBy`, order.value);
-              }}
-            />
-          </Col>
-        </Row>
       </Col>
     );
   },
