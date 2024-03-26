@@ -90,9 +90,12 @@ export const ContentEditForm = ({ disabled }: IContentEditFormProps) => {
             const sectionIndex = instance.content.findIndex(
               (c) => c.sectionName === row.sectionName,
             );
-            if (sectionIndex === -1) return null;
-
-            instance.content.splice(sectionIndex, 0, instanceContent);
+            if (sectionIndex === -1) {
+              // The section has no content yet.
+              instance.content.push(instanceContent);
+            } else {
+              instance.content.splice(sectionIndex, 0, instanceContent);
+            }
             let contentIndex = 0;
 
             const updatedReport = {
@@ -221,7 +224,10 @@ export const ContentEditForm = ({ disabled }: IContentEditFormProps) => {
       )}
       <ContentActions
         disabled={disabled}
-        onCancel={() => setForm(undefined)}
+        onCancel={() => {
+          setForm(undefined);
+          setActiveRow(undefined);
+        }}
         onUpdate={() => handleAddUpdateContent(values, form)}
         onNavigate={(action) => onNavigate(instance, action)}
       />
