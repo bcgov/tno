@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormikText, FormikTextArea } from 'tno-core';
+import { FormikText } from 'tno-core';
 
 export interface IReportSectionTableOfContentsProps {
   index: number;
@@ -15,7 +15,6 @@ export const ReportSectionTableOfContents = React.forwardRef<
   return (
     <>
       <FormikText name={`sections.${index}.settings.label`} label="Section heading:" />
-      <FormikTextArea name={`sections.${index}.description`} label="Summary text:" />
     </>
   );
 });

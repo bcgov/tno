@@ -1,12 +1,20 @@
+import { Action } from 'components/action';
 import { Button } from 'components/button';
-import { FaSave } from 'react-icons/fa';
-import { FaFileCirclePlus } from 'react-icons/fa6';
+import { Modal } from 'components/modal';
+import React from 'react';
+import { FaSave, FaTelegramPlane } from 'react-icons/fa';
+import { FaFileCirclePlus, FaTrash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
-import { ReportStatusName } from 'tno-core';
+import { toast } from 'react-toastify';
+import { useReportInstances } from 'store/hooks';
+import { ReportStatusName, Show, useModal } from 'tno-core';
 
 import { IReportForm } from '../interfaces';
+import { ReportMainMenuOption } from './constants';
 import { useReportEditContext } from './ReportEditContext';
+import { ReportExporter } from './settings/ReportExporter';
 import * as styled from './styled';
+import { ReportSubscriberExporter } from './view/ReportSubscriberExporter';
 
 export interface IReportEditActionsProps {
   /** Control which buttons are enabled. */
@@ -21,36 +29,132 @@ export interface IReportEditActionsProps {
  * @returns Component.
  */
 export const ReportEditActions = ({ disabled, updateForm }: IReportEditActionsProps) => {
-  const { isSubmitting, submitForm, onRegenerate } = useReportEditContext();
+  const {
+    values,
+    isSubmitting,
+    submitForm,
+    onRegenerate,
+    activeRow,
+    setFieldValue,
+    setValues,
+    active,
+  } = useReportEditContext();
   const navigate = useNavigate();
-  const { values } = useReportEditContext();
+  const { toggle: toggleRemove, isShowing: isShowingRemove } = useModal();
+  const { toggle: toggleSend, isShowing: isShowingSend } = useModal();
+  const [{ publishReportInstance }] = useReportInstances();
 
   const instance = values.instances.length ? values.instances[0] : undefined;
 
+  const handleRemoveContent = React.useCallback(() => {
+    setValues({
+      ...values,
+      instances: values.instances.map((i) =>
+        i.id === instance?.id ? { ...instance, content: [] } : i,
+      ),
+    });
+    submitForm();
+  }, [instance, setValues, submitForm, values]);
+
+  const handlePublish = React.useCallback(
+    async (id: number) => {
+      try {
+        const updatedInstance = await publishReportInstance(id);
+        setFieldValue(
+          'instances',
+          values.instances.map((i) =>
+            i.id === id ? { ...updatedInstance, content: instance?.content } : i,
+          ),
+        );
+        toast.success('Report has been submitted.');
+      } catch {}
+    },
+    [instance?.content, publishReportInstance, setFieldValue, values.instances],
+  );
+
   return (
     <styled.ReportEditActions className="report-edit-actions">
-      <Button variant="secondary" onClick={() => navigate('/reports')}>
-        Cancel
-      </Button>
+      <Show visible={active?.startsWith(ReportMainMenuOption.Send)}>
+        <ReportSubscriberExporter />
 
-      {/* Show save during submitted to handle scenario when email fails */}
-      {!disabled || instance?.status === ReportStatusName.Submitted ? (
-        <Button onClick={() => submitForm()} disabled={isSubmitting}>
-          Save
-          <FaSave />
-        </Button>
-      ) : (
         <Button
-          disabled={isSubmitting}
-          onClick={async () => {
-            const form = await onRegenerate(values, true);
-            if (form) updateForm(form);
-          }}
+          disabled={isSubmitting || !instance || instance?.status === ReportStatusName.Submitted}
+          onClick={() => toggleSend()}
         >
-          Start next report
-          <FaFileCirclePlus />
+          Send to subscribers
+          <FaTelegramPlane />
         </Button>
-      )}
+      </Show>
+      <Show visible={active?.startsWith(ReportMainMenuOption.Settings)}>
+        <ReportExporter />
+      </Show>
+      <Show
+        visible={!!instance?.content.length && active?.startsWith(ReportMainMenuOption.Content)}
+      >
+        <Action icon={<FaTrash />} label="Remove all stories" onClick={() => toggleRemove()} />
+      </Show>
+
+      <Show
+        visible={
+          !activeRow &&
+          (active?.startsWith(ReportMainMenuOption.Settings) ||
+            active?.startsWith(ReportMainMenuOption.Content))
+        }
+      >
+        <Button variant="secondary" onClick={() => navigate('/reports')}>
+          Cancel
+        </Button>
+
+        {/* Show save during submitted to handle scenario when email fails */}
+        {!disabled ||
+        instance?.status === ReportStatusName.Pending ||
+        active?.startsWith(ReportMainMenuOption.Settings) ? (
+          <Button onClick={() => submitForm()} disabled={isSubmitting}>
+            Save report
+            <FaSave />
+          </Button>
+        ) : (
+          <Button
+            disabled={isSubmitting}
+            onClick={async () => {
+              const form = await onRegenerate(values, true);
+              if (form) updateForm(form);
+            }}
+          >
+            Start next report
+            <FaFileCirclePlus />
+          </Button>
+        )}
+      </Show>
+      <Modal
+        headerText="Confirm Remove Content"
+        body={`Are you sure you wish to remove content from the '${values?.name}' report?`}
+        isShowing={isShowingRemove}
+        hide={toggleRemove}
+        type="delete"
+        confirmText="Yes, remove content"
+        onConfirm={() => {
+          handleRemoveContent();
+          toggleRemove();
+        }}
+      />
+      <Modal
+        headerText="Send Report to Subscribers"
+        body={`Do you want to send an email to the subscribers of this report? ${
+          instance?.sentOn ? 'This report has already been sent out by email.' : ''
+        }`}
+        isShowing={isShowingSend}
+        hide={toggleSend}
+        type="default"
+        confirmText="Yes, send report to subscribers"
+        onConfirm={async () => {
+          try {
+            if (instance) await handlePublish(instance.id);
+          } finally {
+            toggleSend();
+          }
+        }}
+      />
     </styled.ReportEditActions>
   );
 };

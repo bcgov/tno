@@ -22,6 +22,7 @@ import {
 } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
+import * as styled from './styled';
 import {
   AddSectionBar,
   ReportSectionContent,
@@ -29,9 +30,7 @@ import {
   ReportSectionMediaAnalytics,
   ReportSectionTableOfContents,
   ReportSectionText,
-} from './components';
-import { ReportExporter } from './ReportExporter';
-import * as styled from './styled';
+} from './template';
 
 export const ReportEditTemplateForm = () => {
   const { values, setFieldValue, setValues } = useReportEditContext();
@@ -110,11 +109,6 @@ export const ReportEditTemplateForm = () => {
             />
           ))}
       </Row>
-      <Row>
-        <Row justifyContent="flex-end">
-          <ReportExporter />
-        </Row>
-      </Row>
       <Col className="report-template report-edit-section">
         <Section label="Report Name / Description" open={show} onChange={(open) => setShow(open)}>
           <p>Name your report and provide a description that will help you identify it.</p>
@@ -148,14 +142,15 @@ export const ReportEditTemplateForm = () => {
                             icon={<FaGripVertical className="grip-bar" />}
                             label={<SectionLabel section={section} />}
                             open={section.open}
+                            className="template-section"
                             onChange={(open) => setFieldValue(`sections.${index}.open`, open)}
                             actions={
                               <Row gap="1rem" alignItems="center">
                                 <Text
                                   name={`sections.${index}.sortOrder`}
                                   value={sortOrders.length > index ? sortOrders[index] : ''}
-                                  width="6ch"
-                                  className="align-right"
+                                  width="5ch"
+                                  className="section-sort"
                                   onChange={(e) => {
                                     setSortOrders(
                                       values.sections.map((s, i) =>

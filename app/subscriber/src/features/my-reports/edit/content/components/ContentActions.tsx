@@ -35,7 +35,7 @@ export const ContentActions = ({
         Cancel
       </Button>
       <Button onClick={() => onUpdate?.()} disabled={isSubmitting || disabled}>
-        Save
+        Save story
         <FaSave />
       </Button>
       <Action

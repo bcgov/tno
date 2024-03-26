@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const ReportEditTemplateForm = styled.div`
+export const ReportEditDataSourcesForm = styled.div`
   display: flex;
   flex-direction: column;
 
@@ -15,24 +15,11 @@ export const ReportEditTemplateForm = styled.div`
     display: flex;
     flex-direction: column;
     padding: 0 1rem;
+    gap: 0.15rem;
   }
 
-  > div:nth-child(2) {
-    display: flex;
-    flex-direction: row;
-    gap: 0.25rem;
-  }
-
-  .report-template {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-
-    > div:not(:first-child) {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
+  > div:last-child {
+    margin-bottom: 0.25rem;
   }
 
   .section {

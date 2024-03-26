@@ -177,7 +177,7 @@ export const ReportEditPage = () => {
             values.instances[0].content = sortContent(values.instances[0].content, true);
           }
           const report = originalId
-            ? await updateReport(values, true)
+            ? await updateReport(values, instance?.status === ReportStatusName.Pending)
             : await addReport({ ...values, ownerId: values.ownerId ?? userInfo?.id ?? 0 });
 
           storeReportOutput(undefined); // Clear the preview
@@ -192,7 +192,17 @@ export const ReportEditPage = () => {
         }
       } catch {}
     },
-    [addReport, myReports, navigate, path1, path2, storeReportOutput, updateReport, userInfo?.id],
+    [
+      addReport,
+      instance?.status,
+      myReports,
+      navigate,
+      path1,
+      path2,
+      storeReportOutput,
+      updateReport,
+      userInfo?.id,
+    ],
   );
 
   return (

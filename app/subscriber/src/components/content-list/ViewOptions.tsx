@@ -16,12 +16,16 @@ export const ViewOptions: React.FC = () => {
   /** Save the user's preferences for view/grouping options under preferences */
   const savePreferences = async () => {
     if (userInfo) {
-      const user = {
-        ...userInfo,
-        preferences: { ...userInfo.preferences, viewOptions, groupBy },
-      } as ISubscriberUserModel;
-      await api.updateUser(user, userInfo.id);
-      store.storeUserInfo({ ...userInfo, preferences: user.preferences });
+      try {
+        const user = {
+          ...userInfo,
+          preferences: { ...userInfo.preferences, viewOptions, groupBy },
+        } as ISubscriberUserModel;
+        await api.updateUser(user, userInfo.id);
+        store.storeUserInfo({ ...userInfo, preferences: user.preferences });
+      } catch (error) {
+        console.debug('Is this the optimistic concurrency error?', error);
+      }
     }
   };
 

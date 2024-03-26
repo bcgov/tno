@@ -1,6 +1,6 @@
 import { Col, FormikCheckbox, FormikText, Row } from 'tno-core';
 
-import { ReportSchedule } from './components';
+import { ReportSchedule } from './template';
 
 export const ReportEditSendForm = () => {
   return (
