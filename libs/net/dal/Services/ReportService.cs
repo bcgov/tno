@@ -432,7 +432,7 @@ public class ReportService : BaseService<Report, int>, IReportService
     public async Task<Report?> AddContentToReportAsync(int id, int? ownerId, IEnumerable<ReportInstanceContent> content)
     {
         var report = FindById(id) ?? throw new NoContentException("Report does not exist");
-        var instance = GetCurrentReportInstance(id, ownerId, true);
+        var instance = GetCurrentReportInstance(id, ownerId);
         if (instance == null)
         {
             // Create a new instance and populate it with the specified content.
@@ -447,14 +447,11 @@ public class ReportService : BaseService<Report, int>, IReportService
         }
         else
         {
-            // Update current instance with new content.
-            await this.Context.Entry(instance).Collection(i => i.ContentManyToMany).LoadAsync();
-
             // Add new content that does not already exist in the report and only for valid sections.
             var addContent = content.Where(c => report.Sections.Any(s => s.Name == c.SectionName) && !instance.ContentManyToMany.Any(ic => ic.SectionName == c.SectionName && ic.ContentId == c.ContentId));
             instance.ContentManyToMany.AddRange(addContent);
 
-            instance = _reportInstanceService.UpdateAndSave(instance);
+            instance = _reportInstanceService.UpdateAndSave(instance, true);
         }
 
         return report;

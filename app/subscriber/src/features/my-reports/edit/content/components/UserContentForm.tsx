@@ -17,6 +17,7 @@ import {
   Text,
   TextArea,
   TimeInput,
+  toTitleCase,
   Wysiwyg,
 } from 'tno-core';
 
@@ -108,9 +109,10 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
           disabled={disabled}
           value={content.byline ?? ''}
           onChange={(e) => {
+            const value = toTitleCase(e.target.value) ?? '';
             onContentChange?.({
               ...values,
-              content: { ...content, byline: e.target.value },
+              content: { ...content, byline: value },
             });
           }}
         />

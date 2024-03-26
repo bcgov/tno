@@ -64,7 +64,7 @@ public class ReportInstanceContentModel : AuditColumnsModel
         return new Entities.ReportInstanceContent(model.InstanceId, model.ContentId, model.SectionName)
         {
             SortOrder = model.SortOrder,
-            Content = model.Content != null ? (Entities.Content)model.Content : null,
+            // Content = model.Content != null ? (Entities.Content)model.Content : null,
             Version = model.Version ?? 0
         };
     }

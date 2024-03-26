@@ -215,7 +215,7 @@ public class ReportController : ControllerBase
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var result = _reportService.FindById(model.Id) ?? throw new NoContentException("Report does not exist");
-        if (result?.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to update this report");
+        if (result?.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to update this report");
         result = _reportService.Update(model.ToEntity(_serializerOptions));
         var instanceModel = model.Instances.FirstOrDefault();
         Entities.ReportInstance? instance = null;
@@ -228,7 +228,9 @@ public class ReportController : ControllerBase
         var report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
         if (updateInstances && instance != null && instanceModel != null)
         {
-            report.Instances.Add(instance);
+            var instances = _reportService.GetLatestInstances(model.Id, user.Id).Select(i => i.Id == instance.Id ? instance : i);
+            report.Instances.Clear();
+            report.Instances.AddRange(instances);
             instance.ContentManyToMany.Clear();
             instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(instance.Id));
 
