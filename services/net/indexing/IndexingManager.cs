@@ -390,7 +390,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             content = await this.Api.UpdateContentAsync(content) ?? throw new InvalidOperationException($"Content failed to update. ID:{content.Id}");
         }
 
-        var document = new DeleteRequest<ContentModel>(content, this.Options.PublishedIndex, content.Uid);
+        var document = new DeleteRequest<ContentModel>(content, this.Options.PublishedIndex, content.Id);
         var response = await this.Client.DeleteAsync(document);
         if (response.IsSuccess())
         {
