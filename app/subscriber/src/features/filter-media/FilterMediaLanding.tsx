@@ -4,7 +4,7 @@ import { ISubMediaGroupItem } from 'features/search-page/components/advanced-sea
 import { IGroupOption } from 'features/search-page/components/advanced-search/interfaces/IGroupOption';
 import React from 'react';
 import { useContent, useLookup } from 'store/hooks';
-import { Col, ListOptionName, Row, Show } from 'tno-core';
+import { Checkbox, Col, ListOptionName, Row, Show } from 'tno-core';
 
 import { FilterMedia } from './FilterMedia';
 import * as styled from './styled';
@@ -81,7 +81,6 @@ export const FilterMediaLanding: React.FC = () => {
     <styled.FilterMediaLanding>
       <Col className="filters">
         <PageSection ignoreLastChildGap header="Filter by Media Type" includeHeaderIcon>
-          {/* TODO: Move into reusable component, this type of filter is only used on this page currently*/}
           <Row className="main-media">
             <Col className="media-filter">
               {subMediaGroups?.map((mediaGroup) => (
@@ -94,7 +93,7 @@ export const FilterMediaLanding: React.FC = () => {
                     storeFilter({
                       ...filter,
                       sourceIds: [],
-                      seriesIds: [],
+                      seriesIds: mediaGroup.options.map((o) => o.id),
                       mediaTypeIds: [mediaGroup.key],
                     });
                     setActiveFilter(mediaGroup);
@@ -127,7 +126,7 @@ export const FilterMediaLanding: React.FC = () => {
                 </Row>
               </Show>
               <Show visible={activeFilter?.label !== 'Events'}>
-                <div
+                <Row
                   onClick={() => {
                     setActiveSource(null);
                     setNarrowedOptions(activeFilter?.options ?? []);
@@ -135,11 +134,22 @@ export const FilterMediaLanding: React.FC = () => {
                   className="show-all"
                 >
                   Show all
-                </div>
+                  <Checkbox
+                    className="opt-chk"
+                    checked={filter.seriesIds?.length === activeFilter?.options.length}
+                    onChange={(e) => {
+                      setActiveSource(null);
+                      storeFilter({
+                        ...filter,
+                        seriesIds: e.target.checked ? activeFilter?.options.map((o) => o.id) : [],
+                      });
+                    }}
+                  />
+                </Row>
                 <div className="scroll-container">
                   {narrowedOptions.map((opt) => {
                     return (
-                      <div
+                      <Row
                         key={`${opt.id}|${opt.listOption}`}
                         onClick={() => {
                           setActiveSource(opt);
@@ -154,7 +164,22 @@ export const FilterMediaLanding: React.FC = () => {
                         } narrowed-option`}
                       >
                         {opt.name}
-                      </div>
+                        <Checkbox
+                          className="opt-chk"
+                          checked={filter.seriesIds?.includes(opt.id)}
+                          onChange={(e) => {
+                            e.target.checked
+                              ? storeFilter({
+                                  ...filter,
+                                  seriesIds: [...(filter.seriesIds ?? []), opt.id],
+                                })
+                              : storeFilter({
+                                  ...filter,
+                                  seriesIds: filter.seriesIds?.filter((id) => id !== opt.id),
+                                });
+                          }}
+                        />
+                      </Row>
                     );
                   })}
                 </div>

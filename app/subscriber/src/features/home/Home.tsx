@@ -46,7 +46,7 @@ export const Home: React.FC = () => {
     const value = appSettings?.find((s) => s.name === Settings.FeaturedAction)?.value;
     if (!value && !!appSettings?.length)
       toast.error(
-        'No FeaturedItemId found in settings. Please contact your administrator to update.',
+        'No FeaturedActionId found in settings. Please contact your administrator to update.',
       );
     return value;
   }, [appSettings]);

@@ -95,7 +95,9 @@ const ContributorForm: React.FC = () => {
                 width={FieldSize.Large}
                 name="aliases"
                 label="Aliases"
-                tooltip="Create a comma seperated list of values to search by. ex.) John Doe, J. Doe, Sir Doe"
+                tooltip={
+                  'Create a comma separated list of values to search by. ex.) "John Doe", "J. Doe", "Sir Doe"'
+                }
               />
 
               <FormikSelect

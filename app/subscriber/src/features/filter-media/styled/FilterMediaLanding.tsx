@@ -16,6 +16,7 @@ export const FilterMediaLanding = styled(Row)`
     }
     .show-all {
       font-weight: bold;
+      padding: 0.25em;
       cursor: pointer;
       &:hover {
         text-decoration: underline;
@@ -57,6 +58,9 @@ export const FilterMediaLanding = styled(Row)`
         width: 10rem;
       }
     }
+    .opt-chk {
+      margin-left: auto;
+    }
     .narrowed-options {
       margin-left: 1rem;
       margin-bottom: 0.5rem;
@@ -67,11 +71,7 @@ export const FilterMediaLanding = styled(Row)`
         &:hover {
           text-decoration: underline;
         }
-        max-width: fit-content;
-      }
-      .active {
-        color: ${(props) => props.theme.css.bkWhite};
-        background-color: ${(props) => props.theme.css.btnBkPrimary};
+        max-width: 100%;
       }
       .alpha-filter {
         flex-flow: wrap;
