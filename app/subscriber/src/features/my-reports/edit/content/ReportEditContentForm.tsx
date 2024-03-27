@@ -11,7 +11,7 @@ import { useReports } from 'store/hooks';
 import { useModal } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
-import { ReportSections } from './components';
+import { ReportSections } from './stories';
 import * as styled from './styled';
 
 export interface IReportEditContentFormProps {

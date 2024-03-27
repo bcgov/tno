@@ -2,7 +2,7 @@ import { Action } from 'components/action';
 import { FaAngleDown, FaMinus } from 'react-icons/fa6';
 
 import { useReportEditContext } from '../ReportEditContext';
-import { ReportSections } from './components';
+import { ReportSections } from './stories';
 import * as styled from './styled';
 
 export interface IReportEditSummaryFormProps {

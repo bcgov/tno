@@ -11,13 +11,12 @@ import {
   IReportInstanceModel,
   OptionItem,
   ReportSectionTypeName,
-  Row,
   Show,
 } from 'tno-core';
 
 import { ReportContentSectionRow } from './ReportContentSectionRow';
 
-export interface IReportSectionGalleryProps extends React.AllHTMLAttributes<HTMLDivElement> {
+export interface IReportSectionMediaAnalyticsProps extends React.AllHTMLAttributes<HTMLDivElement> {
   /** Array index position of section. */
   sectionIndex: number;
   /** Icon to display in header */
@@ -35,7 +34,7 @@ export interface IReportSectionGalleryProps extends React.AllHTMLAttributes<HTML
  * Content can be provided by a filter or a folder.
  * A content section can also display charts.
  */
-export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
+export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsProps> = ({
   sectionIndex,
   showForm,
   disabled,
@@ -117,65 +116,62 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
           disabled={disabled}
         />
       </Show>
-      <Droppable droppableId={section.name} isDropDisabled={disabled}>
-        {(droppableProvided) => (
-          <div {...droppableProvided.droppableProps} ref={droppableProvided.innerRef}>
-            <Show visible={!sectionContent.length}>
-              <Row justifyContent="center">Drop content here</Row>
-            </Show>
-            {sectionContent.map((ic, contentInSectionIndex) => {
-              // Only display content in this section.
-              // The original index is needed to provide the ability to drag+drop content into other sections.
-              if (ic.content == null) return null;
-              return (
-                <Draggable
-                  key={`${ic.sectionName}-${ic.contentId}-${ic.originalIndex}`}
-                  draggableId={`${ic.sectionName}__${ic.contentId}__${ic.originalIndex}`}
-                  index={contentInSectionIndex}
-                  isDragDisabled={disabled}
-                >
-                  {(draggable) => {
-                    if (!ic.content) return <></>;
-
-                    return (
-                      <div
-                        ref={draggable.innerRef}
-                        {...draggable.dragHandleProps}
-                        {...draggable.draggableProps}
-                      >
-                        <ReportContentSectionRow
-                          disabled={disabled}
-                          row={ic}
-                          contentIndex={contentInSectionIndex}
-                          show={!ic.contentId ? 'all' : 'none'}
-                          onRemove={(index) => handleRemoveContent(index)}
-                          showSelectSection
-                          sectionOptions={sectionOptions}
-                          onChangeSection={(sectionName, row) => {
-                            handleChangeSection(sectionName, row, instance);
-                          }}
-                          showSortOrder
-                          onBlurSortOrder={(row) => handleChangeSortOrder(row, instance)}
-                          onContentClick={onContentClick}
-                        />
-                      </div>
-                    );
-                  }}
-                </Draggable>
-              );
-            })}
-            {droppableProvided.placeholder}
-          </div>
-        )}
-      </Droppable>
-      <Show visible={!!section.filterId && !sectionContent.length}>
-        <p>No content was returned by the filter.</p>
-      </Show>
-      <Show visible={!!section.folderId && !sectionContent.length}>
-        <p>Folder is empty.</p>
-      </Show>
-      <Show visible={!section.filterId && !section.folderId && !sectionContent.length}>
-        <p>Section is empty</p>
+      <Show visible={!!instance.content.length}>
+        <Droppable droppableId={section.name} isDropDisabled={disabled}>
+          {(droppableProvided) => (
+            <div {...droppableProvided.droppableProps} ref={droppableProvided.innerRef}>
+              {sectionContent.map((ic, contentInSectionIndex) => {
+                // Only display content in this section.
+                // The original index is needed to provide the ability to drag+drop content into other sections.
+                if (ic.content == null) return null;
+                return (
+                  <Draggable
+                    key={`${ic.sectionName}-${ic.contentId}-${ic.originalIndex}`}
+                    draggableId={`${ic.sectionName}__${ic.contentId}__${ic.originalIndex}`}
+                    index={contentInSectionIndex}
+                    isDragDisabled={disabled}
+                  >
+                    {(draggable) => {
+                      return (
+                        <div
+                          ref={draggable.innerRef}
+                          {...draggable.dragHandleProps}
+                          {...draggable.draggableProps}
+                        >
+                          <ReportContentSectionRow
+                            disabled={disabled}
+                            row={ic}
+                            contentIndex={contentInSectionIndex}
+                            show={!ic.contentId ? 'all' : 'none'}
+                            onRemove={(index) => handleRemoveContent(index)}
+                            showSelectSection={false}
+                            sectionOptions={sectionOptions}
+                            onChangeSection={(sectionName, row) => {
+                              handleChangeSection(sectionName, row, instance);
+                            }}
+                            showSortOrder
+                            onBlurSortOrder={(row) => handleChangeSortOrder(row, instance)}
+                            onContentClick={onContentClick}
+                          />
+                        </div>
+                      );
+                    }}
+                  </Draggable>
+                );
+              })}
+              {droppableProvided.placeholder}
+            </div>
+          )}
+        </Droppable>
+        <Show visible={!!section.filterId && !sectionContent.length}>
+          <p>No content was returned by the filter.</p>
+        </Show>
+        <Show visible={!!section.folderId && !sectionContent.length}>
+          <p>Folder is empty.</p>
+        </Show>
+        <Show visible={section.settings.useAllContent}>
+          <p>This section will use content from all other sections.</p>
+        </Show>
       </Show>
     </Col>
   );
