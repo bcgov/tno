@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { FaGear } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
+import { SelectInstance } from 'react-select';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useFolders } from 'store/hooks';
 import {
@@ -46,6 +47,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
 
   const [activeFilter, setActiveFilter] = React.useState<IFilterModel>();
   const [actionName, setActionName] = React.useState<'delete' | 'empty'>();
+  const selectRef = React.useRef<SelectInstance<IOptionItem, false>>(null);
   const [currentFolder, setCurrentFolder] = React.useState<IFolderModel>();
   const [filterOptions, setFilterOptions] = React.useState<IOptionItem[]>(
     getFilterOptions(myFilters, activeFilter?.id ?? 0),
@@ -76,6 +78,10 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
         .then((data) => {
           setCurrentFolder(data);
           if (data.filter) setActiveFilter(data.filter);
+          else {
+            setActiveFilter(undefined);
+            selectRef?.current?.clearValue();
+          }
         })
         .catch(() => {
           toast.error('Failed to load folder.');
@@ -160,6 +166,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
             <Select
               options={filterOptions}
               name="filters"
+              ref={selectRef}
               isClearable
               className="filter-select"
               value={filterOptions.find((option) => option.value === activeFilter?.id ?? null)}
