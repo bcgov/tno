@@ -45,9 +45,8 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
   const { toggle, isShowing } = useModal();
   const navigate = useNavigate();
 
-  const [activeFilter, setActiveFilter] = React.useState<IFilterModel>();
+  const [activeFilter, setActiveFilter] = React.useState<IFilterModel | null>();
   const [actionName, setActionName] = React.useState<'delete' | 'empty'>();
-  const selectRef = React.useRef<SelectInstance<IOptionItem, false>>(null);
   const [currentFolder, setCurrentFolder] = React.useState<IFolderModel>();
   const [filterOptions, setFilterOptions] = React.useState<IOptionItem[]>(
     getFilterOptions(myFilters, activeFilter?.id ?? 0),
@@ -79,8 +78,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
           setCurrentFolder(data);
           if (data.filter) setActiveFilter(data.filter);
           else {
-            setActiveFilter(undefined);
-            selectRef?.current?.clearValue();
+            setActiveFilter(null);
           }
         })
         .catch(() => {
@@ -166,7 +164,6 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
             <Select
               options={filterOptions}
               name="filters"
-              ref={selectRef}
               isClearable
               className="filter-select"
               value={filterOptions.find((option) => option.value === activeFilter?.id ?? null)}
