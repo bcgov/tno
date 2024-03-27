@@ -75,7 +75,15 @@ export const ReportEditForm = ({ disabled, updateForm }: IReportEditFormProps) =
         />
       </Show>
       <Show visible={active === ReportContentMenuOption.Sort}>
-        <ReportEditSortForm />
+        <ReportEditSortForm
+          disabled={disabled}
+          activeRow={activeRow}
+          onContentClick={(content, action) => {
+            if (action) {
+              onNavigate(instance, action);
+            } else setActiveRow(content);
+          }}
+        />
       </Show>
       <Show visible={active === ReportContentMenuOption.Summary}>
         <ReportEditSummaryForm disabled={disabled} />
