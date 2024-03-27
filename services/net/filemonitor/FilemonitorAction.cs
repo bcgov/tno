@@ -361,7 +361,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 try
                 {
                     XmlNodeList nodeList = story.GetElementsByTagName(value);
-                    result = nodeList is not null && nodeList.Count > 0 ? nodeList[0]!.InnerText : "";
+                    result = nodeList is not null && nodeList.Count > 0 ? nodeList[0]!.InnerXml : "";
                 }
                 catch (Exception e)
                 {
