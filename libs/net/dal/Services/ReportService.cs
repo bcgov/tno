@@ -284,6 +284,10 @@ public class ReportService : BaseService<Report, int>, IReportService
             {
                 original.Sections.Add(updatedSection);
                 this.Context.AddRange(updatedSection.ChartTemplatesManyToMany);
+
+                // A filter/folder cannot be added this way and it may be used in a separate section.
+                if (updatedSection.Filter != null) updatedSection.Filter = null;
+                if (updatedSection.Folder != null) updatedSection.Folder = null;
             }
             else
             {
@@ -595,15 +599,16 @@ public class ReportService : BaseService<Report, int>, IReportService
                 var defaultIndex = searchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
 
                 var content = await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
+                var contentHits = content.Hits.Hits.ToArray();
 
                 if (sectionSettings.RemoveDuplicates)
-                    content.Hits.Hits = content.Hits.Hits.Where(c => !excludeAboveSectionContentIds.Contains(c.Source.Id));
+                    content.Hits.Hits = contentHits.Where(c => !excludeAboveSectionContentIds.Contains(c.Source.Id)).ToArray();
 
                 if (excludeContentIds.Any())
-                    content.Hits.Hits = content.Hits.Hits.Where(c => !excludeContentIds.Contains(c.Source.Id));
+                    content.Hits.Hits = contentHits.Where(c => !excludeContentIds.Contains(c.Source.Id)).ToArray();
 
                 // Fetch custom content versions for the requestor.
-                var contentIds = content.Hits.Hits.Select(h => h.Source).Select(c => c.Id).Distinct().ToArray();
+                var contentIds = content.Hits.Hits.Select(h => h.Source.Id).Distinct().ToArray();
                 var results = this.Context.Contents.Where(c => contentIds.Contains(c.Id)).Select(c => new { c.Id, c.Versions }).ToArray();
                 content.Hits.Hits.ForEach(h =>
                 {
@@ -611,7 +616,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                 });
 
                 searchResults.Add(section.Name, content);
-                excludeAboveSectionContentIds.AddRange(content.Hits.Hits.Select(c => c.Source.Id).ToArray());
+                excludeAboveSectionContentIds.AddRange(contentIds);
             }
         }
 
