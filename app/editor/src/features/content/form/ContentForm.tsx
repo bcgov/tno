@@ -305,7 +305,13 @@ const ContentForm: React.FC<IContentFormProps> = ({
                         }
                       >
                         <Row>
-                          <FormikText name="byline" label="Byline" />
+                          <FormikText
+                            name="byline"
+                            label="Byline"
+                            onChange={(e) => {
+                              props.setFieldValue('byline', toTitleCase(e.target.value));
+                            }}
+                          />
                           <FormikSelect
                             name="contributorId"
                             value={
