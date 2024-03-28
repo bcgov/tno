@@ -219,6 +219,7 @@ const ContentListView: React.FC = () => {
               createdEndOn: endDate.toISOString(),
               workType: WorkOrderTypeName.Transcription,
               status: [
+                WorkOrderStatusName.Submitted,
                 WorkOrderStatusName.InProgress,
                 WorkOrderStatusName.Completed,
                 WorkOrderStatusName.Failed,
@@ -245,10 +246,12 @@ const ContentListView: React.FC = () => {
 
           if (filter.pendingTranscript) {
             // Apply the transcript work order to the content.
-            items = items.map((content) => {
-              const workOrder = workOrders.items.find((wo) => wo.contentId === content.id);
-              return { ...content, transcriptStatus: workOrder?.status };
-            });
+            items = items
+              .filter((content) => !content.isApproved)
+              .map((content) => {
+                const workOrder = workOrders.items.find((wo) => wo.contentId === content.id);
+                return { ...content, transcriptStatus: workOrder?.status };
+              });
           }
 
           const page = new Page(
