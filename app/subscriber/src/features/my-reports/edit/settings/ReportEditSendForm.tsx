@@ -1,30 +1,35 @@
-import { Col, FormikCheckbox, FormikText, Row } from 'tno-core';
+import { FaInfoCircle } from 'react-icons/fa';
+import { FormikCheckbox, FormikText } from 'tno-core';
 
+import * as styled from './styled';
 import { ReportSchedule } from './template';
 
 export const ReportEditSendForm = () => {
   return (
-    <div>
-      <Row alignItems="center">
-        <Col flex="1">
-          <FormikText name="settings.subject.text" label="Email subject line:" required />
-        </Col>
-        <FormikCheckbox name="settings.subject.showTodaysDate" label="Append today's date" />
-      </Row>
-      <Col className="frm-in">
-        <label>Recipients:</label>
-      </Col>
-      <Col className="frm-in schedules">
-        <label>Schedules:</label>
-        <Row gap="1rem">
-          <Col flex="1">
-            <ReportSchedule index={0} label="Schedule 1" />
-          </Col>
-          <Col flex="1">
-            <ReportSchedule index={1} label="Schedule 2" />
-          </Col>
-        </Row>
-      </Col>
-    </div>
+    <styled.ReportEditSendForm>
+      <h2>Email options</h2>
+      <div>
+        <FormikText name="settings.subject.text" label="Email subject line:" required />
+        <FormikCheckbox
+          name="settings.subject.showTodaysDate"
+          label="Append the report date to the subject line"
+        />
+      </div>
+
+      <h2>Scheduling</h2>
+      <div className="info">
+        <div>
+          <FaInfoCircle /> Scheduling...
+        </div>
+        Scheduling a report will populate it and send to its subscribers automatically. Each report
+        can have up to TWO schedules. The second schedule may be used for sending out reports at a
+        different time on certain days.
+      </div>
+
+      <div className="schedules">
+        <ReportSchedule index={0} label="Schedule 1" />
+        <ReportSchedule index={1} label="Schedule 2" />
+      </div>
+    </styled.ReportEditSendForm>
   );
 };
