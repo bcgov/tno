@@ -318,6 +318,10 @@ public static class ReportExtensions
     /// <returns></returns>
     public static string GetPublishedOn(this ContentModel content, ReportEngineContentModel context, int utcOffset = 0)
     {
+        if (content.IsAV())
+            return context.Settings.Headline.ShowPublishedOn
+                    ? $"{content.PublishedOn?.AddHours(utcOffset):dd-MMM-yyyy H:mm tt}"
+                    : "";
         return context.Settings.Headline.ShowPublishedOn
                 ? $"{content.PublishedOn?.AddHours(utcOffset):dd-MMM-yyyy}"
                 : "";
