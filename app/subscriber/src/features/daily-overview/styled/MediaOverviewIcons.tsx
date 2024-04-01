@@ -33,17 +33,17 @@ export const MediaOverviewIcons = styled.div`
     align-items: center;
   }
 
-  .scroll-icon {
+  .transcript-icon {
     height: 1.25em !important;
     width: 1.25em !important;
-    color: #23b6d4;
+    color: ${(props) => props.theme.css.overviewTranscript};
     padding-right: 1em;
   }
 
   .video-icon {
     height: 1.25em !important;
     width: 1.25em !important;
-    color: #22c997;
+    color: ${(props) => props.theme.css.overviewVideo};
     padding-right: 1em;
   }
 `;

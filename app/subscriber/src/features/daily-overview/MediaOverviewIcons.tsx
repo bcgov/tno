@@ -10,7 +10,7 @@ export const MediaOverviewIcons: React.FC = () => {
       <PageSection header="Media Overview Icons">
         <div className="content">
           <div>
-            <FaFeather className="scroll-icon" />
+            <FaFeather className="transcript-icon" />
             <span>Headlines with this icon feature a transcript. Click icon to view.</span>
           </div>
           <div>
