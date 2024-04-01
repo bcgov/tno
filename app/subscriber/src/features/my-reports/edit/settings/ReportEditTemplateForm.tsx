@@ -10,16 +10,7 @@ import {
   ResponderProvided,
 } from 'react-beautiful-dnd';
 import { FaAngleDown, FaGripVertical, FaMinus, FaTrash } from 'react-icons/fa6';
-import {
-  Col,
-  FormikCheckbox,
-  FormikText,
-  FormikTextArea,
-  ReportSectionTypeName,
-  Row,
-  Show,
-  Text,
-} from 'tno-core';
+import { Col, FormikCheckbox, ReportSectionTypeName, Row, Show, Text } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';
@@ -35,7 +26,6 @@ import {
 export const ReportEditTemplateForm = () => {
   const { values, setFieldValue, setValues } = useReportEditContext();
 
-  const [show, setShow] = React.useState(true);
   const [sortOrders, setSortOrders] = React.useState<number[]>(
     values.sections.map((s) => s.sortOrder),
   );
@@ -88,7 +78,6 @@ export const ReportEditTemplateForm = () => {
               icon={<FaMinus />}
               label="Close All"
               onClick={() => {
-                setShow(false);
                 setFieldValue(
                   `sections`,
                   values.sections.map((s) => ({ ...s, open: false })),
@@ -100,7 +89,6 @@ export const ReportEditTemplateForm = () => {
               icon={<FaAngleDown />}
               label="Open All"
               onClick={() => {
-                setShow(true);
                 setFieldValue(
                   'sections',
                   values.sections.map((s) => ({ ...s, open: true })),
@@ -110,19 +98,6 @@ export const ReportEditTemplateForm = () => {
           ))}
       </Row>
       <Col className="report-template report-edit-section">
-        <Section label="Report Name / Description" open={show} onChange={(open) => setShow(open)}>
-          <p>Name your report and provide a description that will help you identify it.</p>
-          <FormikText
-            name="name"
-            label="Report Name:"
-            required
-            placeholder="Enter unique report name"
-            onChange={(e) => {
-              setFieldValue('name', e.target.value);
-            }}
-          />
-          <FormikTextArea name="description" label="Description:" />
-        </Section>
         <DragDropContext onDragEnd={handleDrop}>
           <Droppable droppableId="report-sections-container">
             {(provided) => (

@@ -32,4 +32,16 @@ export const ReportEditForm = styled.div`
   .active-content {
     background-color: ${(props) => props.theme.css.highlightPrimary};
   }
+
+  .info {
+    > div {
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
+      align-items: center;
+      background: ${(props) => props.theme.css.bkInfo};
+      font-weight: 600;
+    }
+    color: ${(props) => props.theme.css.fInfo};
+  }
 `;

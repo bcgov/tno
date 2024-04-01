@@ -6,6 +6,8 @@ export enum ReportMainMenuOption {
 }
 
 export enum ReportSettingsMenuOption {
+  Info = 'settings',
+  Sections = 'settings/sections',
   DataSources = 'settings/sources',
   Preferences = 'settings/preferences',
   Send = 'settings/send',
@@ -18,5 +20,9 @@ export enum ReportContentMenuOption {
 }
 
 export enum ReportViewMenuOption {
-  Send = 'view/send',
+  View = 'view',
+}
+
+export enum ReportSendMenuOption {
+  Send = 'send',
 }
