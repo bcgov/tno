@@ -27,12 +27,23 @@ public class FolderService : BaseService<Folder, int>, IFolderService
 
     public override Folder? FindById(int id)
     {
-        return this.Context.Folders
+        return FindById(id, false);
+    }
+    
+    public Folder? FindById(int id, bool includeContent = false)
+    {
+        var query = this.Context.Folders
             .Include(f => f.Owner)
             .Include(f => f.Filter)
             .Include(f => f.Events).ThenInclude(f => f.Schedule)
-            .Include(f => f.ContentManyToMany)
-            .FirstOrDefault(f => f.Id == id);
+            .Where(f => f.Id == id);
+
+        if (includeContent)
+            query = query.Include(i => i.ContentManyToMany).ThenInclude(c => c.Content);
+        else
+            query = query.Include(i => i.ContentManyToMany);
+
+        return query.FirstOrDefault();
     }
 
     public IEnumerable<Folder> FindMyFolders(int userId)

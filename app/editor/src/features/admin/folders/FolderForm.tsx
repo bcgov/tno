@@ -36,7 +36,7 @@ export const FolderForm: React.FC = () => {
   React.useEffect(() => {
     if (!!folderId && folder?.id !== folderId) {
       setFolder({ ...defaultFolder, id: folderId }); // Do this to stop double fetch.
-      getFolder(folderId).then((data) => {
+      getFolder(folderId, true).then((data) => {
         setFolder(toForm(data));
       });
     }

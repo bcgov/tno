@@ -17,7 +17,7 @@ export interface ISentimentProps {
  */
 export const Sentiment: React.FC<ISentimentProps> = ({ value, title }) => {
   return (
-    <styled.Sentiment>
+    <styled.Sentiment className='sentiment'>
       <Show visible={value === undefined}>
         <FaRegCircle className="tone-icon" color="#E0E0E0" title={title} />
       </Show>

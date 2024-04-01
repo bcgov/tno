@@ -5,7 +5,7 @@ import { IFolderContentModel, IFolderModel, useApiAdminFolders } from 'tno-core'
 
 interface IFolderController {
   findAllFolders: () => Promise<IFolderModel[]>;
-  getFolder: (id: number) => Promise<IFolderModel>;
+  getFolder: (id: number, includeContent: boolean) => Promise<IFolderModel>;
   getContentInFolder: (id: number, includeMaxTopicScore: boolean) => Promise<IFolderContentModel[]>;
   addFolder: (model: IFolderModel) => Promise<IFolderModel>;
   updateFolder: (model: IFolderModel) => Promise<IFolderModel>;
@@ -29,8 +29,10 @@ export const useFolders = (): [IAdminState & { initialized: boolean }, IFolderCo
         setInitialized(true);
         return response.data;
       },
-      getFolder: async (id: number) => {
-        const response = await dispatch<IFolderModel>('get-folder', () => api.getFolder(id));
+      getFolder: async (id: number, includeContent: boolean = false) => {
+        const response = await dispatch<IFolderModel>('get-folder', () =>
+          api.getFolder(id, includeContent),
+        );
         store.storeFolders((folders) =>
           folders.map((ds) => {
             if (ds.id === response.data.id) return response.data;

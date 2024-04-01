@@ -54,12 +54,12 @@ export const ContentRow: React.FC<IContentRowProps> = ({
   return (
     <styled.ContentRow className="content-row">
       <Show visible={showGrip}>
-        <div>
+        <div className='row-grip'>
           <FaGripVertical />
         </div>
       </Show>
       <Show visible={showCheckbox}>
-        <div>
+        <div className='row-selector'>
           <Checkbox
             name={`chk-row-${row.content.id}`}
             checked={row.selected}
@@ -69,24 +69,22 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           />
         </div>
       </Show>
-      {to ? <Link to={to}>{row.content.headline}</Link> : <div>{row.content.headline}</div>}
-      <div>{row.content.byline ? row.content.byline : row.content.contributor?.name}</div>
-      <div>
+      {to ? <Link className='headline-link' to={to}>{row.content.headline}</Link> : <div className='headline'>{row.content.headline}</div>}
+      <div className='byline'>{row.content.byline ? row.content.byline : row.content.contributor?.name}</div>
+      <div className='section-page'>
         {row.content.section}
         {row.content.page ? `:${row.content.page}` : ''}
       </div>
-      <div>{row.content.otherSource}</div>
-      <div>
+      <div className='other-source'>{row.content.otherSource}</div>
+      <div className='published-on'>
         {row.content.publishedOn ? moment(row.content.publishedOn).format('yyyy-MM-DD') : ''}
       </div>
-      <div>
-        <Sentiment
-          value={row.content.tonePools?.[0]?.value}
-          title={`${row.content.tonePools?.[0]?.value ?? ''}`}
-        />
-      </div>
+      <Sentiment
+        value={row.content.tonePools?.[0]?.value}
+        title={`${row.content.tonePools?.[0]?.value ?? ''}`}
+      />
       <Show visible={showSortOrder}>
-        <div>
+        <div className='sort-order'>
           <Text
             className="frm-in number"
             name={`sortOrder-${row.content.id}`}
@@ -105,10 +103,10 @@ export const ContentRow: React.FC<IContentRowProps> = ({
         </div>
       </Show>
       <Show visible={!!actions}>
-        <div>{actions}</div>
+        <div className='actions'>{actions}</div>
       </Show>
       <Show visible={!!onRemove && !!row.content}>
-        <div>
+        <div className='delete'>
           <FaX className="btn btn-link red" onClick={() => onRemove?.(row)} title="Remove" />
         </div>
       </Show>

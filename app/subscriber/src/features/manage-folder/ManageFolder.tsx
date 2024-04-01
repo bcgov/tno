@@ -31,7 +31,7 @@ export const ManageFolder: React.FC = () => {
    *
    */
   React.useEffect(() => {
-    getFolder(Number(id)).then((folder) => {
+    getFolder(Number(id), true).then((folder) => {
       setFolder(folder);
       if (folder.content.length === 0) return setItems([]);
       findContentWithElasticsearch(
