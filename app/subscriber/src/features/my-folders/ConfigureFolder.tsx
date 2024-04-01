@@ -72,7 +72,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
 
   React.useEffect(() => {
     if ((!currentFolder && id) || currentFolder?.id !== Number(id)) {
-      getFolder(Number(id))
+      getFolder(Number(id), false)
         .then((data) => {
           setCurrentFolder(data);
           if (data.filter) setActiveFilter(data.filter);
