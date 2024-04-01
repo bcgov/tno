@@ -190,7 +190,7 @@ UPDATE public."report_template" SET
 
             <h3 style="margin:16px 0px 10px 0px;">@(String.IsNullOrEmpty(sentiment) ? "" : $"{sentiment} ")@headline</h3>
             <div style="padding: 2px 0px 8px 12px; width:100%; border-bottom:1px solid #E8E9F1; color:#584C50; font-size:.85rem; line-height:.9rem; text-transform:uppercase; margin-bottom:16px;">
-              <span style="display: block; font-size: 14px; line-height: 110%;">
+              <div style="display: block; font-size: 14px; line-height: 110%;">
                 <strong>@content.Source?.Name</strong><br/>
                 <strong>@content.PublishedOn?.AddHours(utcOffset).ToString("dddd, MMMM d yyyy")</strong><br/>
                 @if (!string.IsNullOrWhiteSpace(content.Page))
@@ -201,7 +201,7 @@ UPDATE public."report_template" SET
                 {
                   <span>By @byline</span><br/>
                 }
-              </span>
+              </div>
             </div>
             @if (!String.IsNullOrEmpty(body))
             {
@@ -217,7 +217,7 @@ UPDATE public."report_template" SET
               @* LINK TO STORY ON WEBSITE *@
               <div>
                 <span style="font-size: .85em; text-transform:uppercase; vertical-align: middle; background-color:#FFF; border:#ccc 1px solid; margin:20 auto; padding:6px 10px;">
-                  <a href="@($"{ViewContentUrl}{content.Id}")" target="_blank" style="color: #6750a4; text-decoration: none;">View Article <img height="14" valign=absmiddle src="https://www.bobbibjornholt.com/mmi-temp/follow_link.png"></a>
+                  <a href="@($"{ViewContentUrl}{content.Id}")" target="_blank" style="color: #6750a4; text-decoration: none;">View Article <img height="14" valign="absmiddle" src="@($"{SubscriberAppUrl}assets/reports/follow_link.png")"></a>
                 </span>
               </div>
             }
@@ -280,7 +280,9 @@ UPDATE public."report_template" SET
   <div style="margin-top:20px; background-color:#F5F6F9; color:#6C5D62; text-align: center; font-size: 11px; font-style: normal; font-weight: 500; line-height: 110%; letter-spacing: 0.08px; padding: 10px 0; width:100%;">
     <p>Terms of Use</p>
     <p>
-      This summary is a service provided by Government Communications and Public Engagement and is only intended for original addressee. All content is the copyrighted property of a third party creator of the material.<br /><br />
+      This summary is a service provided by Government Communications and Public Engagement and is only intended for original addressee. All content is the copyrighted property of a third party creator of the material.
+    </p>
+    <p>
       <b>Copying, retransmitting, archiving, redistributing, selling, licensing, or emailing the material to any third party or any employee of the Province who is not authorized to access the material is prohibited.</b>
     </p>
   </div>
