@@ -14,7 +14,7 @@ public class NerConfidences
     public double? DATE { get; set; }
 
     [JsonPropertyName("TIME")]
-    public int? TIME { get; set; }
+    public double? TIME { get; set; }
 
     [JsonPropertyName("LOCATION")]
     public double? LOCATION { get; set; }
