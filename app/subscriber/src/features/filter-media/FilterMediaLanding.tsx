@@ -188,7 +188,9 @@ export const FilterMediaLanding: React.FC = () => {
                         {opt.name}
                         <Checkbox
                           className="opt-chk"
-                          checked={filter.seriesIds?.includes(opt.id)}
+                          checked={
+                            filter.seriesIds?.includes(opt.id) || filter.sourceIds?.includes(opt.id)
+                          }
                           onChange={(e) => {
                             handleClick(opt, e.target);
                           }}
