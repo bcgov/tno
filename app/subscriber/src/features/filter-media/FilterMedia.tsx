@@ -51,10 +51,10 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
             resDate.getTime() >= currStartDate.getTime() &&
             resDate.getTime() <= currEndDate.getTime()
           ) {
-            // result occured during currently selected date
+            // result occurred during currently selected date
             currDateResults.push(h._source);
           } else if (
-            // result occured sometime in past 5 days
+            // result occurred sometime in past 5 days
             resDate.getTime() >= prevStartDate.getTime() &&
             resDate.getTime() <= currEndDate.getTime()
           ) {
