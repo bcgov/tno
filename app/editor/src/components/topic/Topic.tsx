@@ -64,7 +64,11 @@ export const Topic: React.FC<ITopicProps> = ({
       .reverse()
       .forEach((key) => {
         let filteredTopics = topics.filter(
-          (el) => el.id !== topicIdNotApplicable && el.topicType === key && el.isEnabled,
+          (el) =>
+            el.id !== topicIdNotApplicable &&
+            el.topicType === key &&
+            // show all enabled Topics or disabled Topic if it's set as current
+            (el.isEnabled || (!el.isEnabled && el.id == value)),
         );
         if (filteredTopics)
           filteredTopics = filteredTopics.sort((a, b) => {
