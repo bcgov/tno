@@ -122,7 +122,7 @@ export const FilterMediaLanding: React.FC = () => {
                     storeFilter({
                       ...filter,
                       sourceIds: [],
-                      seriesIds: mediaGroup.options.map((o) => o.id),
+                      seriesIds: [],
                       mediaTypeIds: [mediaGroup.key],
                     });
                     setActiveFilter(mediaGroup);
