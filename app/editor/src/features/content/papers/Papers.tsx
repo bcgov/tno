@@ -3,7 +3,7 @@ import { NavigateOptions, useTab } from 'components/tab-control';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApiHub, useContent, useLocalStorage, useLookup, useSettings } from 'store/hooks';
+import { useApiHub, useContent, useLocalStorage, useSettings } from 'store/hooks';
 import { IContentSearchResult, storeContentFilterAdvanced } from 'store/slices';
 import { useCastContentToSearchResult } from 'store/slices/content/hooks/useCastContentToSearchResult';
 import {
@@ -28,7 +28,7 @@ import { defaultPage } from '../list-view/constants';
 import { queryToFilter, queryToFilterAdvanced } from '../list-view/utils';
 import { ReportActions } from './components';
 import { defaultPaperFilter, defaultTotals } from './constants';
-import { useColumns } from './hooks';
+import { useColumns, usePaperSources } from './hooks';
 import { ITotalsInfo } from './interfaces';
 import { PaperToolbar } from './PaperToolbar';
 import * as styled from './styled';
@@ -46,7 +46,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
     { filterPaper: filter, filterPaperAdvanced: filterAdvanced },
     { findContentWithElasticsearch, storeFilterPaper, updateContent: updateStatus, getContent },
   ] = useContent();
-  const [{ sources }] = useLookup();
+  const paperSources = usePaperSources();
   const { navigate } = useTab();
   const hub = useApiHub();
   const toFilter = useElasticsearch();
@@ -194,12 +194,12 @@ const Papers: React.FC<IPapersProps> = (props) => {
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
     if (!window.location.search) {
-      replaceQueryParams(defaultPaperFilter(sources), { includeEmpty: false });
+      replaceQueryParams(defaultPaperFilter(paperSources), { includeEmpty: false });
     }
     storeFilterPaper({
       ...queryToFilter(
         {
-          ...defaultPaperFilter(sources),
+          ...defaultPaperFilter(paperSources),
         },
         window.location.search,
       ),

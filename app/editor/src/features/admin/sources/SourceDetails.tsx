@@ -124,6 +124,7 @@ const SourceDetails: React.FC<ISourceDetailsProps> = () => {
       <Col>
         <FormikCheckbox label="Enabled" name="isEnabled" />
         <FormikCheckbox label="Use in Topics" name="useInTopics" />
+        <FormikCheckbox label="Default filter for papers" name="configuration.isDailyPaper" />
         <FormikCheckbox label="Automatically transcribe when saved" name="autoTranscribe" />
         <FormikCheckbox label="Disable transcript requests" name="disableTranscribe" />
       </Col>

@@ -91,7 +91,6 @@ const SourceList: React.FC<ISourceListProps> = (props) => {
         data={items}
         columns={columns}
         showSort={true}
-        onRowClick={(row) => navigate(`${row.original.id}`)}
         pagingEnabled={false}
       />
     </styled.SourceList>
