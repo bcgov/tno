@@ -56,7 +56,6 @@ export const FilterMediaLanding: React.FC = () => {
       setActiveSource(opt);
       // if checkboxed is checked or if there is no checkbox (meaning the user clicked the row)
       if (!!checkbox?.checked) {
-        alert(opt.id);
         if (opt.listOption === ListOptionName.Source) {
           storeFilter({
             ...filter,
