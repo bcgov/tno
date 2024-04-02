@@ -141,7 +141,11 @@ export const Topic: React.FC<ITopicProps> = ({
         onChange={(e: any) => {
           let value;
           if (!!e?.value) {
-            value = topics.find((c) => c.id === e.value);
+            if (filteredTopics) {
+              value = filteredTopics.find((c) => c.id === e.value);
+            } else {
+              value = topics.find((c) => c.id === e.value);
+            }
           }
           handleTopicChange?.(!!value ? value : undefined);
         }}
