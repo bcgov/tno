@@ -2,8 +2,6 @@ import { IContentListFilter } from 'features/content/interfaces';
 import { defaultPage } from 'features/content/list-view/constants';
 import { ContentTypeName, ISourceModel } from 'tno-core';
 
-import { defaultSources } from '.';
-
 /**
  * Creates a default paper filter.
  * @param sources An array of sources.
@@ -20,7 +18,7 @@ export const defaultPaperFilter = (sources: ISourceModel[] = []): IContentListFi
     otherSource: '',
     mediaTypeIds: [],
     excludeSourceIds: [],
-    sourceIds: defaultSources(sources).map((s) => s.id),
+    sourceIds: sources.map((s) => s.id),
     ownerId: 0,
     userId: '',
     timeFrame: 0,

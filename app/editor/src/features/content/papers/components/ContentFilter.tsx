@@ -13,7 +13,7 @@ import {
   ToggleGroup,
 } from 'tno-core';
 
-import { defaultSources } from '../constants';
+import { usePaperSources } from '../hooks';
 import * as styled from './styled';
 
 export interface IContentFilter {
@@ -29,7 +29,8 @@ export interface IContentFilter {
  * @returns Component.
  */
 export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter }) => {
-  const [{ mediaTypeOptions, sourceOptions, sources }] = useLookupOptions();
+  const [{ mediaTypeOptions, sourceOptions }] = useLookupOptions();
+  const paperSources = usePaperSources();
 
   return (
     <styled.ContentFilter label="FILTER CONTENT" icon={<FaFilter />}>
@@ -140,7 +141,7 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
               onClick={() => {
                 onFilterChange({
                   ...filter,
-                  sourceIds: defaultSources(sources).map((s) => s.id),
+                  sourceIds: paperSources.map((s) => s.id),
                 });
               }}
             >
