@@ -7,7 +7,7 @@ export const openPreviewInNewTab = (previewContent: IReportResultModel) => {
         <title>Report Preview</title>
       </head>
       <body>
-        <h1>Preview Subject: ${previewContent.subject}</h1>
+        <h1> ${previewContent.subject}</h1>
         <div>${previewContent.body}</div>
       </body>
       </html>
