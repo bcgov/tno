@@ -7,7 +7,7 @@ export const advancedSearchOptions = [
   new OptionItem('Headline', AdvancedSearchKeys.Headline),
   new OptionItem('Summary', AdvancedSearchKeys.Summary),
   new OptionItem('Story', AdvancedSearchKeys.Story),
-  new OptionItem('Transcript', AdvancedSearchKeys.Story),
+  new OptionItem('Transcript', AdvancedSearchKeys.Body),
   new OptionItem('Source', AdvancedSearchKeys.Source),
   new OptionItem('Byline', AdvancedSearchKeys.Byline),
   new OptionItem('Section', AdvancedSearchKeys.Section),
