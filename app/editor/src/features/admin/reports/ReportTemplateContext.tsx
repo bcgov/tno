@@ -3,6 +3,7 @@ import React from 'react';
 import { IReportModel, IReportResultModel } from 'tno-core';
 
 import { defaultReport } from './constants';
+import { openPreviewInNewTab } from './utils/openPreviewInNewTab';
 
 /*******************************************************************
  * All related report context code is in a single file because it will never be used separately.
@@ -20,6 +21,8 @@ export interface IReportTemplateContext {
   values: IReportModel;
   /** Formik setFieldValue function */
   setFieldValue: (field: string, value: any, shouldValidate?: boolean | undefined) => void;
+  /** Open the preview in a new tab. */
+  openPreview: () => void;
 }
 
 /**
@@ -30,6 +33,7 @@ export const ReportTemplateContext = React.createContext<IReportTemplateContext>
   setPreview: (value: React.SetStateAction<IReportResultModel | undefined>) => {},
   values: defaultReport,
   setFieldValue: (field: string, value: any, shouldValidate?: boolean | undefined) => {},
+  openPreview: () => {},
 });
 
 /**
@@ -63,8 +67,12 @@ export const ReportTemplateContextProvider: React.FC<IReportTemplateContextProvi
 
   const [preview, setPreview] = React.useState<IReportResultModel | undefined>(value);
 
+  const openPreview = () => preview && openPreviewInNewTab(preview);
+
   return (
-    <ReportTemplateContext.Provider value={{ preview, setPreview, values, setFieldValue }}>
+    <ReportTemplateContext.Provider
+      value={{ preview, setPreview, values, setFieldValue, openPreview }}
+    >
       {children}
     </ReportTemplateContext.Provider>
   );
