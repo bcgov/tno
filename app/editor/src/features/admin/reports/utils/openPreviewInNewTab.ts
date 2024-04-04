@@ -15,5 +15,9 @@ export const openPreviewInNewTab = (previewContent: IReportResultModel) => {
 
   const blob = new Blob([previewHTML], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
-  window.open(url, '_blank');
+  const windowName = 'ReportPreviewWindow';
+  const previewWindow = window.open(url, windowName);
+  if (previewWindow) {
+    previewWindow.focus();
+  }
 };
