@@ -17,5 +17,10 @@ public class FileMonitorOptions : IngestServiceOptions
     /// get/set - The path to private key files
     /// </summary>
     public string PrivateKeysPath { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The text to insert into the body of a story that failed to be imported because the source file format was invalid.
+    /// </summary>
+    public string FailedStoryBody { get; set; } = "";
     #endregion
 }
