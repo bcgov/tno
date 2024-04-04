@@ -1,5 +1,5 @@
 FROM alpine:3.8 as builder
-MAINTAINER Arne Neumann <nlpbox.programming@arne.cl>
+# MAINTAINER Arne Neumann <nlpbox.programming@arne.cl>
 # taken from https://github.com/NLPbox/stanford-corenlp-docker
 
 RUN apk update && \
@@ -45,7 +45,7 @@ ADD test_api.py .
 ENV JAVA_XMX 4g
 #ENV ANNOTATORS tokenize,ssplit,parse,quote
 ENV ANNOTATORS quote
-ENV TIMEOUT_MILLISECONDS 15000
+ENV TIMEOUT_MILLISECONDS 20000
 
 ENV PORT 9000
 

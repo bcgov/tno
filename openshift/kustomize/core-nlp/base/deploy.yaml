@@ -51,7 +51,7 @@ spec:
               memory: 2G
             limits:
               cpu: 500m
-              memory: 4G
+              memory: 6G
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       securityContext: {}
