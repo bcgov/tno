@@ -13,7 +13,7 @@ export interface IReportFormPreviewProps {}
  * @returns Component.
  */
 export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
-  const { values, preview, setPreview } = useReportTemplateContext();
+  const { values, preview, setPreview, openPreview } = useReportTemplateContext();
   const [, { sendReport, previewReport }] = useReports();
 
   const [sendTo, setSendTo] = React.useState('');
@@ -48,6 +48,9 @@ export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
     },
     [previewReport, setPreview],
   );
+  React.useEffect(() => {
+    preview && openPreview();
+  }, [preview, openPreview]);
 
   return (
     <>
@@ -83,16 +86,6 @@ export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
           </Col>
         )}
       </Row>
-      <Col className="preview-report">
-        <div
-          className="preview-subject"
-          dangerouslySetInnerHTML={{ __html: preview?.subject ?? '' }}
-        ></div>
-        <div
-          className="preview-body"
-          dangerouslySetInnerHTML={{ __html: preview?.body ?? '' }}
-        ></div>
-      </Col>
     </>
   );
 };
