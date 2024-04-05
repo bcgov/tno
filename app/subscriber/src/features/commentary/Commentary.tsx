@@ -45,14 +45,16 @@ export const Commentary: React.FC = () => {
           }),
         ),
         false,
-      ).then((res) => {
-        setCommentary(
-          res.hits.hits.map((r) => {
-            const content = r._source as IContentModel;
-            return castToSearchResult(content);
-          }),
-        );
-      });
+      )
+        .then((res) => {
+          setCommentary(
+            res.hits.hits.map((r) => {
+              const content = r._source as IContentModel;
+              return castToSearchResult(content);
+            }),
+          );
+        })
+        .catch(() => {});
     }
   }, [commentaryActionId, findContentWithElasticsearch, getActionFilters, isReady]);
 
