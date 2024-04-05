@@ -27,11 +27,12 @@ import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
 import { defaultPage } from '../list-view/constants';
 import { queryToFilter, queryToFilterAdvanced } from '../list-view/utils';
 import { ReportActions } from './components';
-import { defaultPaperFilter, defaultTotals } from './constants';
-import { useColumns, usePaperSources } from './hooks';
+import { defaultPaperFilter, defaultSort, defaultTotals } from './constants';
+import { useColumns, usePaperSources, useSortContent } from './hooks';
 import { ITotalsInfo } from './interfaces';
 import { PaperToolbar } from './PaperToolbar';
 import * as styled from './styled';
+import { calcTotals } from './utils';
 
 export interface IPapersProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -52,6 +53,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const toFilter = useElasticsearch();
   const castContentToSearchResult = useCastContentToSearchResult();
   const { isReady: settingsReady } = useSettings(true);
+  const sortContent = useSortContent();
 
   // This configures the shared storage between this list and any content tabs
   // that are opened.  Mainly used for navigation in the tab
@@ -66,36 +68,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const [totals, setTotals] = React.useState<ITotalsInfo>(defaultTotals);
 
   const selectedIds = selected.map((i) => i.id.toString());
-
-  const calcTotals = React.useCallback(
-    (items: IContentSearchResult[], filter: IContentListFilter) => {
-      const topStories = items.filter((i) => i.isTopStory).length;
-      const commentary = items.filter((i) => i.isCommentary).length;
-      const featuredStories = items.filter((i) => i.isFeaturedStory).length;
-      const published = items.filter((i) =>
-        [ContentStatusName.Publish, ContentStatusName.Published].includes(i.status),
-      ).length;
-      if (
-        !filter.topStory &&
-        !filter.commentary &&
-        !filter.featuredStory &&
-        !filter.onlyPublished
-      ) {
-        setTotals((totals) => ({
-          ...totals,
-          topStories,
-          commentary,
-          featuredStories,
-          published,
-        }));
-      }
-      if (filter.topStory) setTotals((totals) => ({ ...totals, topStories }));
-      if (filter.commentary) setTotals((totals) => ({ ...totals, commentary }));
-      if (filter.featuredStory) setTotals((totals) => ({ ...totals, featuredStories }));
-      if (filter.onlyPublished) setTotals((totals) => ({ ...totals, published }));
-    },
-    [],
-  );
 
   hub.useHubEffect(MessageTargetName.ContentUpdated, (message) => {
     getContent(message.id)
@@ -126,7 +98,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
                   : true,
               );
             }
-            calcTotals(newPage.items, filter);
+            setTotals((values) => calcTotals(newPage.items, filter, values));
             return newPage;
           });
         }
@@ -167,10 +139,17 @@ const Papers: React.FC<IPapersProps> = (props) => {
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
       try {
         setIsLoading(true);
-        const results = await findContentWithElasticsearch(toFilter(filter), true);
+        const results = await findContentWithElasticsearch(
+          toFilter({
+            ...filter,
+          }),
+          true,
+        );
         const items = results.hits.hits
           .filter((h) => !!h._source)
-          .map((h) => castContentToSearchResult(h._source! as IContentModel));
+          .map((h) => h._source! as IContentModel)
+          .sort(sortContent(filter.sort))
+          .map((c) => castContentToSearchResult(c));
         const page = new Page(
           1,
           filter.pageSize,
@@ -178,7 +157,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
           (results.hits?.total as SearchTotalHits).value,
         );
         setCurrentResultsPage(page);
-        calcTotals(page.items, filter);
+        setTotals((values) => calcTotals(page.items, filter, values));
         return page;
       } catch (error) {
         throw error;
@@ -186,7 +165,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
         setIsLoading(false);
       }
     },
-    [calcTotals, castContentToSearchResult, findContentWithElasticsearch, toFilter],
+    [castContentToSearchResult, findContentWithElasticsearch, toFilter, sortContent],
   );
 
   const columns = useColumns({ fetch, onClickUse: handleClickUse });
@@ -253,7 +232,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const handleChangeSort = React.useCallback(
     (sort: ITableSort<IContentSearchResult>[]) => {
       const sorts = sort.filter((s) => s.isSorted).map((s) => ({ id: s.id, desc: s.isSortedDesc }));
-      storeFilterPaper({ ...filter, sort: sorts });
+      storeFilterPaper({ ...filter, sort: sorts.length ? sorts : defaultSort });
     },
     [filter, storeFilterPaper],
   );
