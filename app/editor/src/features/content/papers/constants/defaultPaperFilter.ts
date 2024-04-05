@@ -2,6 +2,8 @@ import { IContentListFilter } from 'features/content/interfaces';
 import { defaultPage } from 'features/content/list-view/constants';
 import { ContentTypeName, ISourceModel } from 'tno-core';
 
+import { defaultSort } from './defaultSort';
+
 /**
  * Creates a default paper filter.
  * @param sources An array of sources.
@@ -25,6 +27,6 @@ export const defaultPaperFilter = (sources: ISourceModel[] = []): IContentListFi
     commentary: false,
     topStory: false,
     featuredStory: false,
-    sort: [],
+    sort: defaultSort,
   };
 };
