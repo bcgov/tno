@@ -1,4 +1,6 @@
 
+using System.Text.Json;
+using TNO.API.Areas.Editor.Models.WorkOrder;
 using TNO.Entities;
 using TNO.Entities.Models;
 using TNO.Models.Filters;
@@ -19,7 +21,7 @@ public interface IWorkOrderService : IBaseService<WorkOrder, long>
     /// </summary>
     /// <param name="filter">Filter to apply to the query.</param>
     /// <returns>A page of work order items that match the filter.</returns>
-    IPaged<WorkOrder> FindDistinctWorkOrders(WorkOrderFilter filter);
+    IPaged<WorkOrderModel> FindDistinctWorkOrders(WorkOrderFilter filter, JsonSerializerOptions options);
 
     /// <summary>
     /// Find all work orders for the specified 'contentId'.

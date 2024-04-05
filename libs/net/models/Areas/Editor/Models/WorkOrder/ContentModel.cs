@@ -32,9 +32,24 @@ public class ContentModel
     public string? MediaType { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to the media type.
+    /// </summary>
+    public int? MediaTypeId { get; set; }
+
+    /// <summary>
     /// get/set - The series name.
     /// </summary>
     public string? Series { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to the series.
+    /// </summary>
+    public int? SeriesId { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to the source.
+    /// </summary>
+    public int? SourceId { get; set; }
 
     /// <summary>
     /// get/set - The contributor name.
