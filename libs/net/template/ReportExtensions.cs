@@ -340,14 +340,16 @@ public static class ReportExtensions
     /// <returns></returns>
     public static string GetFullHeadline(this ContentModel content, ReportEngineContentModel context, int utcOffset = 0, bool includeLink = false, string href = "", string target = "", bool showSentimentValue = false)
     {
-        var sentiment = content.GetSentiment(context, showSentimentValue);
+        var byline = context.Settings.Headline.ShowByline && !String.IsNullOrWhiteSpace(content.Byline) ? $" - {content.Byline}" : "";
+        var sentiment = context.Settings.Headline.ShowSentiment ? content.GetSentiment(context, showSentimentValue) : "";
         var headline = content.GetHeadline(context);
+        var headlineValue = !String.IsNullOrWhiteSpace(headline) ? headline : "NO HEADLINE";
         var actualHref = String.IsNullOrWhiteSpace(href) ? $"{context.ViewContentUrl}{content.Id}" : href;
         var actualTarget = String.IsNullOrWhiteSpace(target) ? "" : $" target=\"{target}\"";
-        var link = includeLink ? $"<a href=\"{actualHref}\"{actualTarget}>{headline}</a>" : headline;
-        var source = content.GetSource(context);
-        var publishedOn = content.GetPublishedOn(context, utcOffset);
-        return $"{(String.IsNullOrWhiteSpace(sentiment) ? "" : $"{sentiment} - ")}{link}{(String.IsNullOrWhiteSpace(source) ? "" : $" - {source}")}{(String.IsNullOrWhiteSpace(publishedOn) ? "" : $" - {publishedOn}")}";
+        var link = includeLink ? $"<a href=\"{actualHref}\"{actualTarget}>{headlineValue}</a>" : headlineValue;
+        var source = context.Settings.Headline.ShowSource ? content.GetSource(context) : "";
+        var publishedOn = context.Settings.Headline.ShowPublishedOn ? content.GetPublishedOn(context, utcOffset) : "";
+        return $"{(String.IsNullOrWhiteSpace(sentiment) ? "" : $"{sentiment} - ")}{link}{byline}{(String.IsNullOrWhiteSpace(source) ? "" : $" - {source}")}{(String.IsNullOrWhiteSpace(publishedOn) ? "" : $" - {publishedOn}")}";
     }
 
     /// <summary>
