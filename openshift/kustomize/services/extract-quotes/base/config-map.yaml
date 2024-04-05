@@ -6,7 +6,7 @@ metadata:
   namespace: default
   annotations:
     description: Extract Quotes service configuration settings
-    created-by: jeremy.foster
+    created-by: kyle.morris
   labels:
     name: extract-quotes-service
     part-of: tno
@@ -22,6 +22,8 @@ data:
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"
   CORENLP_URL: http://corenlp:9000
+  EXTRACT_QUOTES_ON_INDEX: "false"
+  EXTRACT_QUOTES_ON_PUBLISH: "true"
 
 ---
 kind: ConfigMap

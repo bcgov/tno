@@ -127,6 +127,16 @@ spec:
                 configMapKeyRef:
                   name: extract-quotes-service
                   key: CORENLP_URL
+            - name: Service__ExtractQuotesOnIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: EXTRACT_QUOTES_ON_INDEX
+            - name: Service__ExtractQuotesOnPublish
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: EXTRACT_QUOTES_ON_PUBLISH
 
             # CHES Configuration
             - name: CHES__From
