@@ -1,5 +1,5 @@
 FROM alpine:3.8 as builder
-MAINTAINER Arne Neumann <nlpbox.programming@arne.cl>
+# MAINTAINER Arne Neumann <nlpbox.programming@arne.cl>
 # taken from https://github.com/NLPbox/stanford-corenlp-docker
 
 RUN apk update && \
@@ -43,13 +43,12 @@ COPY --from=builder /opt/corenlp .
 ADD test_api.py .
 
 ENV JAVA_XMX 4g
-#ENV ANNOTATORS tokenize,ssplit,parse,quote
-ENV ANNOTATORS quote
-ENV TIMEOUT_MILLISECONDS 15000
+ENV ANNOTATORS tokenize,pos,lemma,ner,coref,quote
+ENV TIMEOUT_MILLISECONDS 20000
 
 ENV PORT 9000
 
 EXPOSE $PORT
 
 
-CMD java -Xmx$JAVA_XMX -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer -annotators "$ANNOTATORS" -port $PORT -timeout $TIMEOUT_MILLISECONDS
+CMD java -Xmx$JAVA_XMX -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer -annotators "$ANNOTATORS" -preload  "$ANNOTATORS" -quote.nthreads 4 -port $PORT -timeout $TIMEOUT_MILLISECONDS
