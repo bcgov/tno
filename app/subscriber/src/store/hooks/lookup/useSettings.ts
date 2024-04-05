@@ -1,5 +1,6 @@
 import React from 'react';
 import { toast } from 'react-toastify';
+import { useSettingsStore } from 'store/slices';
 import { Settings } from 'tno-core';
 
 import { useLookup } from './useLookup';
@@ -19,29 +20,27 @@ export interface ISettings {
  */
 export const useSettings = (validate?: boolean) => {
   const [{ isReady, settings }] = useLookup();
-
-  const [values, setValues] = React.useState<ISettings>({ isReady: false }); // TODO: Move to redux store for single data management.
-  const [isLoaded, setIsLoaded] = React.useState(0);
+  const [values, { storeValues, storeLoading }] = useSettingsStore();
 
   React.useEffect(() => {
-    if (isReady) {
+    if (isReady && values.loadingState === 0) {
       const commentaryActionId = settings.find((s) => s.name === Settings.CommentaryAction)?.value;
       const topStoryActionId = settings.find((s) => s.name === Settings.TopStoryAction)?.value;
       const featuredStoryActionId = settings.find((s) => s.name === Settings.FeaturedAction)?.value;
       const alertActionId = settings.find((s) => s.name === Settings.AlertAction)?.value;
-      setValues({
+      storeValues({
+        loadingState: 1,
         isReady,
         commentaryActionId: commentaryActionId ? +commentaryActionId : undefined,
         topStoryActionId: topStoryActionId ? +topStoryActionId : undefined,
         featuredStoryActionId: featuredStoryActionId ? +featuredStoryActionId : undefined,
         alertActionId: alertActionId ? +alertActionId : undefined,
       });
-      setIsLoaded(1);
     }
-  }, [isReady, settings]);
+  }, [values.loadingState, isReady, settings, storeValues]);
 
   React.useEffect(() => {
-    if (isLoaded === 1 && validate) {
+    if (values.loadingState === 1 && validate) {
       if (!values.commentaryActionId)
         toast.error(`Configuration "${Settings.CommentaryAction}" is missing from settings.`);
 
@@ -53,15 +52,16 @@ export const useSettings = (validate?: boolean) => {
 
       if (!values.alertActionId)
         toast.error(`Configuration "${Settings.AlertAction}" is missing from settings.`);
-      setIsLoaded(2);
+      storeLoading(2);
     }
   }, [
     validate,
-    isLoaded,
+    storeLoading,
     values.alertActionId,
     values.commentaryActionId,
     values.featuredStoryActionId,
     values.topStoryActionId,
+    values.loadingState,
   ]);
 
   return values;
