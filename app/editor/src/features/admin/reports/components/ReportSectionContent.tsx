@@ -67,7 +67,7 @@ export const ReportSectionContent = ({ index }: IReportSectionContentProps) => {
         />
         <FormikCheckbox
           name={`sections.${index}.settings.showHeadlines`}
-          label="Show Table of Content for this section"
+          label="Show Table of Contents in this section for this section.  This is separate from the Table of Contents you can add for the whole report."
           tooltip="Display a Table of Contents at the beginning of this section."
         />
         <FormikCheckbox

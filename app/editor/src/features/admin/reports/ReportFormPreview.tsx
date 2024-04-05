@@ -48,9 +48,6 @@ export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
     },
     [previewReport, setPreview],
   );
-  React.useEffect(() => {
-    preview && openPreview();
-  }, [preview, openPreview]);
 
   return (
     <>
@@ -62,9 +59,18 @@ export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
             correct content. Previewed reports must have a filter. When testing a custom report
             change it temporarily to a filter.
           </p>
-          <Button variant={ButtonVariant.success} onClick={() => handlePreviewReport(values)}>
-            Generate Preview
-          </Button>
+          <Row gap="1rem">
+            <Button variant={ButtonVariant.success} onClick={() => handlePreviewReport(values)}>
+              Generate Preview
+            </Button>
+            <Button
+              variant={ButtonVariant.secondary}
+              onClick={() => openPreview()}
+              disabled={!preview}
+            >
+              Open in New Window
+            </Button>
+          </Row>
         </Col>
         {values.id && (
           <Col flex="1">
@@ -86,6 +92,16 @@ export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
           </Col>
         )}
       </Row>
+      <Col className="preview-report">
+        <div
+          className="preview-subject"
+          dangerouslySetInnerHTML={{ __html: preview?.subject ?? '' }}
+        ></div>
+        <div
+          className="preview-body"
+          dangerouslySetInnerHTML={{ __html: preview?.body ?? '' }}
+        ></div>
+      </Col>
     </>
   );
 };
