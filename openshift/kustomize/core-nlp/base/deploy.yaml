@@ -30,6 +30,15 @@ spec:
     type: Rolling
   triggers:
     - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - corenlp
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: corenlp:dev
   template:
     metadata:
       name: corenlp
@@ -40,7 +49,7 @@ spec:
     spec:
       containers:
         - name: corenlp
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/corenlp:v4.5.6
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/corenlp:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 9000

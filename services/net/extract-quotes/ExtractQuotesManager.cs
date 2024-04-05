@@ -254,11 +254,12 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     {
         this.Logger.LogDebug($"ProcessIndexRequestAsync:BEGIN:{result.Message.Key}");
 
-        this.Logger.LogInformation("Extracting Quotes from Topic: {Topic}, Content ID: {Key}", result.Topic, result.Message.Key);
         var model = result.Message.Value;
 
-        if (model.Action == IndexAction.Index || model.Action == IndexAction.Publish)
+        if ((model.Action == IndexAction.Index && this.Options.ExtractQuotesOnIndex) || 
+            (model.Action == IndexAction.Publish && this.Options.ExtractQuotesOnPublish))
         {
+            this.Logger.LogInformation("Extracting Quotes from Topic: {Topic}, Action: {Action}, Content ID: {Key}", result.Topic, model.Action, result.Message.Key);
             // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
             var content = await this.Api.FindContentByIdAsync(result.Message.Value.ContentId);
             var ministers = await this.Api.GetMinistersAsync();
@@ -288,29 +289,37 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
                     this.Logger.LogInformation("Content ID: {Key} has no text to extract quotes from.", result.Message.Key);
                     return;
                 }
-                var annotations = await CoreNLPService.PerformAnnotation(annotationInput);
-                if (annotations != null && annotations.Quotes.Any()) {
-                    this.Logger.LogInformation("Extracted [{quoteCount}] Quotes from Content ID: {Key}", annotations.Quotes.Count, result.Message.Key);
 
-                    var speakersAndQuotes = ExtractSpeakersAndQuotes(ministers, annotations);
+                try {
+                    var annotations = await CoreNLPService.PerformAnnotation(annotationInput);
+                    if (annotations != null && annotations.Quotes.Any()) {
+                        this.Logger.LogInformation("Extracted [{quoteCount}] Quotes from Content ID: {Key}", annotations.Quotes.Count, result.Message.Key);
 
-                    List<API.Areas.Services.Models.Content.QuoteModel> quotesToAdd = new List<API.Areas.Services.Models.Content.QuoteModel>();
-                    foreach(var speaker in speakersAndQuotes.Keys) {
-                        foreach(var quote in speakersAndQuotes[speaker]) {
-                            // only add quotes which dont match any previously captured
-                            if (!content.Quotes.Any((q) => q.Byline.Equals(speaker) && q.Statement.Equals(quote)))
-                                quotesToAdd.Add(new API.Areas.Services.Models.Content.QuoteModel() {Id = 0, ContentId = content.Id, Byline = speaker, Statement = quote});
+                        var speakersAndQuotes = ExtractSpeakersAndQuotes(ministers, annotations);
+
+                        List<API.Areas.Services.Models.Content.QuoteModel> quotesToAdd = new List<API.Areas.Services.Models.Content.QuoteModel>();
+                        foreach(var speaker in speakersAndQuotes.Keys) {
+                            foreach(var quote in speakersAndQuotes[speaker]) {
+                                // only add quotes which dont match any previously captured
+                                if (!content.Quotes.Any((q) => q.Byline.Equals(speaker) && q.Statement.Equals(quote)))
+                                    quotesToAdd.Add(new API.Areas.Services.Models.Content.QuoteModel() {Id = 0, ContentId = content.Id, Byline = speaker, Statement = quote});
+                            }
                         }
+                        content = await this.Api.AddQuotesToContentAsync(content.Id, quotesToAdd);
+                    } else {
+                        this.Logger.LogInformation("Extracted [{quoteCount}] Quotes from Content ID: {Key}", 0, result.Message.Key);
                     }
-                    content = await this.Api.AddQuotesToContentAsync(content.Id, quotesToAdd);
-                } else {
-                    this.Logger.LogInformation("Extracted [{quoteCount}] Quotes from Content ID: {Key}", 0, result.Message.Key);
+                } catch (Exception) {
+                    this.Logger.LogError("Quote Extraction failed for Content ID: {Key}", result.Message.Key);
+                    throw;
                 }
             }
             else
             {
                 this.Logger.LogWarning("Content does not exists. Content ID: {ContentId}", result.Message.Value.ContentId);
             }
+        } else {
+            this.Logger.LogInformation("SKIPPED: Extracting Quotes from Topic: {Topic}, Action: {Action}, Content ID: {Key}", result.Topic, model.Action, result.Message.Key);
         }
         this.Logger.LogDebug($"ProcessIndexRequestAsync:END:{result.Message.Key}");
     }

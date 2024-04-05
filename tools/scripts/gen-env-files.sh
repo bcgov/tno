@@ -946,6 +946,8 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 Service__CoreNLPApiUrl=http://host.docker.internal:$portCoreNlp
+Service__ExtractQuotesOnIndex=false
+Service__ExtractQuotesOnPublish=true
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
 
