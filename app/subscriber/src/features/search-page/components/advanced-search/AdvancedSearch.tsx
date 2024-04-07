@@ -92,7 +92,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     if (!query && !!search.search) {
       setQuery(search.search);
     }
-  }, [search]);
+  }, [search, query]);
 
   const displayFiltersAsDropdownCookieKey = 'advancedSearch:displayFiltersAsDropdown';
   const [displayFiltersAsDropdown, setDisplayFiltersAsDropdown] = React.useState<boolean>(() => {
