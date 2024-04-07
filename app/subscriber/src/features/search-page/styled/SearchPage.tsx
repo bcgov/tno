@@ -8,12 +8,21 @@ export const SearchPage = styled.div<{ expanded: boolean }>`
   max-height: 100vh;
   overflow: none;
 
+  .header-col {
+    width: 100%;
+  }
   .header-row {
     width: 100%;
     .view-options {
       margin-left: auto;
       margin-bottom: 0.67em;
     }
+  }
+  .result-total {
+    font-size: 0.5em;
+    margin: 0;
+    text-transform: uppercase;
+    color: ${(props) => props.theme.css.fPrimaryColor};
   }
 
   /* RIBBON CONTAINING SEARCH NAME IF MODIFYING */
