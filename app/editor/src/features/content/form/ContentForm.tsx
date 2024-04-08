@@ -608,7 +608,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                               setShowValidationToast={setShowValidationToast}
                             />
                             <Tab
-                              label="Quotes"
+                              label={`Quotes (${props.values.quotes.length})`}
                               onClick={() => setActive('quotes')}
                               active={active === 'quotes'}
                             />

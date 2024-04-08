@@ -437,7 +437,7 @@ public class ContentController : ControllerBase
             StatusCode = StatusCodes.Status400BadRequest
         };
 
-        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content, "file") })));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content, "quotes") })));
 
         return new JsonResult(new ContentModel(content, _serializerOptions));
     }

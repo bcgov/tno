@@ -143,10 +143,17 @@ export const useContentForm = ({
             // TODO: Don't overwrite the user's edits.
             fetchContent(message.id);
           } catch {}
-        } else if (message.reason === 'file') {
+        } else if (message.reason) {
           getContent(form.id)
             .then((values) => {
-              setForm({ ...form, fileReferences: values?.fileReferences ?? [] });
+              switch (message.reason) {
+                case 'file':
+                  setForm({ ...form, fileReferences: values?.fileReferences ?? [] });
+                  break;
+                case 'quotes':
+                  setForm({ ...form, quotes: values?.quotes ?? [] });
+                  break;
+              }
             })
             .catch(() => {});
         }
