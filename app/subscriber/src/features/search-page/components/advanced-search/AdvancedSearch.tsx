@@ -76,6 +76,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     },
     { storeSearchFilter },
   ] = useContent();
+
   const genQuery = useElastic();
   const { expanded, setExpanded } = useSearchPageContext();
   const [{ userInfo }] = useApp();
@@ -85,6 +86,13 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
 
   const [searchName, setSearchName] = React.useState<string>(activeFilter?.name ?? '');
   const [query, setQuery] = React.useState<string>(search.search ?? '');
+
+  // replace query with search when search is present
+  React.useEffect(() => {
+    if (!query && !!search.search) {
+      setQuery(search.search);
+    }
+  }, [search, query]);
 
   const displayFiltersAsDropdownCookieKey = 'advancedSearch:displayFiltersAsDropdown';
   const [displayFiltersAsDropdown, setDisplayFiltersAsDropdown] = React.useState<boolean>(() => {
