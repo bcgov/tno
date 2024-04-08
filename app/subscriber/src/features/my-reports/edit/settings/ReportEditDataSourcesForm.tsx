@@ -1,7 +1,9 @@
 import { Action } from 'components/action';
 import { Section } from 'components/section';
 import { SectionLabel } from 'features/my-reports/components';
+import React from 'react';
 import { FaAngleDown, FaGripVertical, FaMinus } from 'react-icons/fa6';
+import { useFilters, useFolders, useReports } from 'store/hooks';
 import { Col, ReportSectionTypeName, Row, Show } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
@@ -14,6 +16,23 @@ import * as styled from './styled';
 
 export const ReportEditDataSourcesForm = () => {
   const { values, setFieldValue } = useReportEditContext();
+  const [{ myFolders }, { findMyFolders }] = useFolders();
+  const [{ myFilters }, { findMyFilters }] = useFilters();
+  const [{ myReports }, { findMyReports }] = useReports();
+
+  React.useEffect(() => {
+    if (!myFolders.length) {
+      findMyFolders().catch(() => {});
+    }
+    if (!myFilters.length) {
+      findMyFilters().catch(() => {});
+    }
+    if (!myReports.length) {
+      findMyReports().catch(() => {});
+    }
+    // Only do on init.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <styled.ReportEditDataSourcesForm>
