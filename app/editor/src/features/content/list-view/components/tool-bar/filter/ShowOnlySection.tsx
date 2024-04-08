@@ -151,6 +151,20 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
                   });
                 }}
               />
+              <Checkbox
+                className="spaced"
+                name="pendingTranscript"
+                label="Pending Transcript"
+                tooltip="Pending Transcript"
+                checked={filter.pendingTranscript ?? false}
+                onChange={(e) => {
+                  onChange({
+                    ...filter,
+                    pageIndex: 0,
+                    pendingTranscript: e.target.checked,
+                  });
+                }}
+              />
             </Row>
             <Row>
               <Checkbox
@@ -191,20 +205,6 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
                     ...filter,
                     pageIndex: 0,
                     onlyPublished: e.target.checked,
-                  });
-                }}
-              />
-              <Checkbox
-                className="spaced"
-                name="pendingTranscript"
-                label="Pending Transcript"
-                tooltip="Pending Transcript"
-                checked={filter.pendingTranscript ?? false}
-                onChange={(e) => {
-                  onChange({
-                    ...filter,
-                    pageIndex: 0,
-                    pendingTranscript: e.target.checked,
                   });
                 }}
               />
