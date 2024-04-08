@@ -40,6 +40,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const [totalResults, setTotalResults] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(false);
   const { expanded } = useSearchPageContext();
   const [init, setInit] = React.useState(true); // React hooks are horrible...
@@ -67,6 +68,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         setIsLoading(true);
         const res: any = await findContentWithElasticsearch(filter, searchUnpublished, 'search');
         setContent(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
+        setTotalResults(res.hits.total.value);
         if (res.hits.total.value >= 500)
           toast.warn(
             'Search returned 500+ results, only showing first 500. Please consider refining your search.',
@@ -117,10 +119,15 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
           </Show>
           <PageSection
             header={
-              <Row className="header-row">
-                <h1 className="title">{`Search Results`}</h1>
-                <ViewOptions />
-              </Row>
+              <Col className="header-col">
+                <Row className="header-row">
+                  <h1 className="title">{`Search Results`}</h1>
+                  <ViewOptions />
+                </Row>
+                {!!totalResults && (
+                  <p className="result-total">{`${totalResults} stories found`}</p>
+                )}
+              </Col>
             }
           >
             <ContentListActionBar
