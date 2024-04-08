@@ -26,8 +26,8 @@ export const useApiSubscriberFolders = (
         `/subscriber/folders/my-folders`,
       );
     },
-    getFolder: (id: number) => {
-      return api.get<IFolderModel, AxiosResponse<IFolderModel>, any>(`/subscriber/folders/${id}`);
+    getFolder: (id: number, includeContent: boolean = false) => {
+      return api.get<IFolderModel, AxiosResponse<IFolderModel>, any>(`/subscriber/folders/${id}?includeContent=${includeContent}`);
     },
     addFolder: (model: IFolderModel) => {
       return api.post<IFolderModel, AxiosResponse<IFolderModel>, any>(`/subscriber/folders`, model);

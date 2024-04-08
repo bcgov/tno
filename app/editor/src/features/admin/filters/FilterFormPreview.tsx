@@ -3,7 +3,6 @@ import 'prismjs/components/prism-csharp';
 import 'prismjs/components/prism-cshtml';
 import 'prismjs/components/prism-json';
 
-import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
@@ -22,9 +21,12 @@ export const FilterFormPreview: React.FC = () => {
   const [results, setResults] = React.useState<any>([]);
 
   const fetchResults = React.useCallback(
-    async (filter: MsearchMultisearchBody) => {
+    async (filter: IFilterModel) => {
       try {
-        const res = await findContentWithElasticsearch(filter, false);
+        const res = await findContentWithElasticsearch(
+          filter.query,
+          filter.settings.searchUnpublished,
+        );
         setResults(res);
       } catch {}
     },
@@ -35,7 +37,7 @@ export const FilterFormPreview: React.FC = () => {
     <Col>
       <h2>{values.name}</h2>
       <Row>
-        <Button variant={ButtonVariant.success} onClick={() => fetchResults(values.query)}>
+        <Button variant={ButtonVariant.success} onClick={() => fetchResults(values)}>
           Fetch Results
         </Button>
       </Row>

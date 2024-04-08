@@ -26,7 +26,6 @@ export const FilterMediaLanding: React.FC = () => {
   const [activeLetter, setActiveLetter] = React.useState<string>('All');
   const [narrowedOptions, setNarrowedOptions] = React.useState<IGroupOption[]>([]);
   const [activeSource, setActiveSource] = React.useState<IGroupOption | null>(null);
-  // const [activeSerie, setActiveSerie] = React.useState<ISeriesModel | null>(null);
   const [parentClicked, setParentClicked] = React.useState<boolean>(false);
 
   const [loaded, setLoaded] = React.useState<boolean>(false);
@@ -51,6 +50,36 @@ export const FilterMediaLanding: React.FC = () => {
     // only when media groups / relevant data is loaded & ready
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded]);
+
+  const handleClick = React.useCallback(
+    (opt: IGroupOption, checkbox?: HTMLInputElement) => {
+      setActiveSource(opt);
+      // if checkboxed is checked or if there is no checkbox (meaning the user clicked the row)
+      if (!!checkbox?.checked || !checkbox) {
+        if (opt.listOption === ListOptionName.Source) {
+          storeFilter({
+            ...filter,
+            seriesIds: [],
+            sourceIds: [...(filter.sourceIds ?? []), opt.id],
+          });
+        } else if (opt.listOption === ListOptionName.Series) {
+          storeFilter({
+            ...filter,
+            seriesIds: [...(filter.seriesIds ?? []), opt.id],
+            sourceIds: [],
+          });
+        }
+      } else {
+        // filter out unchecked options depending on the listOption
+        if (opt.listOption === ListOptionName.Source) {
+          storeFilter({ ...filter, sourceIds: filter.sourceIds?.filter((id) => id !== opt.id) });
+        } else if (opt.listOption === ListOptionName.Series) {
+          storeFilter({ ...filter, seriesIds: filter.seriesIds?.filter((id) => id !== opt.id) });
+        }
+      }
+    },
+    [filter, storeFilter],
+  );
 
   /** When the parent group is clicked, we want to set the sourceIds to the sources of the parent group
    *   Additionally, we want to deselect the narrowed option
@@ -93,7 +122,7 @@ export const FilterMediaLanding: React.FC = () => {
                     storeFilter({
                       ...filter,
                       sourceIds: [],
-                      seriesIds: mediaGroup.options.map((o) => o.id),
+                      seriesIds: [],
                       mediaTypeIds: [mediaGroup.key],
                     });
                     setActiveFilter(mediaGroup);
@@ -151,14 +180,7 @@ export const FilterMediaLanding: React.FC = () => {
                     return (
                       <Row
                         key={`${opt.id}|${opt.listOption}`}
-                        onClick={() => {
-                          setActiveSource(opt);
-                          if (opt.listOption === ListOptionName.Source) {
-                            storeFilter({ ...filter, seriesIds: [], sourceIds: [opt.id] });
-                          } else if (opt.listOption === ListOptionName.Series) {
-                            storeFilter({ ...filter, seriesIds: [opt.id], sourceIds: [] });
-                          }
-                        }}
+                        onClick={() => handleClick(opt)}
                         className={`${
                           activeSource?.name === opt.name ? 'active' : 'inactive'
                         } narrowed-option`}
@@ -166,17 +188,11 @@ export const FilterMediaLanding: React.FC = () => {
                         {opt.name}
                         <Checkbox
                           className="opt-chk"
-                          checked={filter.seriesIds?.includes(opt.id)}
+                          checked={
+                            filter.seriesIds?.includes(opt.id) || filter.sourceIds?.includes(opt.id)
+                          }
                           onChange={(e) => {
-                            e.target.checked
-                              ? storeFilter({
-                                  ...filter,
-                                  seriesIds: [...(filter.seriesIds ?? []), opt.id],
-                                })
-                              : storeFilter({
-                                  ...filter,
-                                  seriesIds: filter.seriesIds?.filter((id) => id !== opt.id),
-                                });
+                            handleClick(opt, e.target);
                           }}
                         />
                       </Row>

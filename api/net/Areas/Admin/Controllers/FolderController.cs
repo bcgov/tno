@@ -75,15 +75,16 @@ public class FolderController : ControllerBase
     /// Find folder for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="includeContent">populate the Content in the returned data</param>
     /// <returns></returns>
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Folder" })]
-    public IActionResult FindById(int id)
+    public IActionResult FindById(int id, bool includeContent = false)
     {
-        var result = _folderService.FindById(id) ?? throw new NoContentException();
+        var result = _folderService.FindById(id, includeContent) ?? throw new NoContentException();
         return new JsonResult(new FolderModel(result, _serializerOptions));
     }
 

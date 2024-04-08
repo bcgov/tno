@@ -13,4 +13,5 @@ export enum AdvancedSearchKeys {
   PublishedOn = 'publishedOn',
   CreatedOn = 'createdOn',
   UpdatedOn = 'updatedOn',
+  Body = 'body',
 }

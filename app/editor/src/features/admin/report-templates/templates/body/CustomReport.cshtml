@@ -13,14 +13,14 @@
 </style>
 
 @* LOGO *@
-@* orignal image <center><div style="margin-bottom: 25px; color:#FFFFF6;"><img src="@($"{SubscriberAppUrl}assets/reports/MMI_logo.png")" width="600"></div></center>  *@
+@* original image <center><div style="margin-bottom: 25px; color:#FFFFF6;"><img src="@($"{SubscriberAppUrl}assets/reports/MMI_logo.png")" width="600"></div></center>  *@
 @* Temporary path to NEW LOGO (with a white bg) *@
 <center><div style="margin-bottom: 25px; color:#FFFFF6;"><img src="https://bobbibjornholt.com/mmi-temp/MMI_logo_report.png" width="600"></div></center>
 
 @* This is the Do Not Forward disclaimer *@
 <div><p style="background-color: #FFF7E1; color: #876503; text-align: center; font-size: 1em; font-weight: 700; line-height: 1.1em; letter-spacing: 0.08px; padding: 10px 0px; margin: 6px 0px 20px 0px;">DO NOT FORWARD THIS EMAIL TO ANYONE</p></div>
 
-<a name="top">
+<a id="top" name="top">
   <h1 style="color: #971D29; font-size: 30px; line-height: 34px; margin: 0px; border-bottom: #971D29 1px solid;">@Settings.Subject.Text</h1>
   <div style="font-size:22px; font-weight:500;"><p>@(Settings.Subject.ShowTodaysDate ? $" {ReportExtensions.GetTodaysDate():dd-MMM-yyyy}" : "")</p></div>
 </a>
@@ -29,11 +29,7 @@
 {
   <p>There is no content in this report.</p>
 }
-@if (ViewOnWebOnly)
-{
-  <a href="@SubscriberAppUrl" target="_blank">Click to view this report online</a>
-}
-else
+@if (!ViewOnWebOnly)
 {
   var contentCount = 0;
   var allContent = Content.ToArray();
@@ -47,7 +43,7 @@ else
     <div style="@pageBreak">
       @if (!String.IsNullOrEmpty(section.Value.Settings.Label))
       {
-        <div id="section-@section.Value.Id" style="color:#41393B; width:100%; background-color:#F0EEEE; margin: 20px 0px 10px 0px; padding: 4px"> <h2 font-size="16px"><a name="section-@section.Value.Id">@section.Value.Settings.Label</a></h2></div>
+        <div style="color:#41393B; width:100%; background-color:#F0EEEE; margin: 20px 0px 10px 0px; padding: 4px"> <h2 font-size="16px"><a id="section-@section.Value.Id" name="section-@section.Value.Id">@section.Value.Settings.Label</a></h2></div>
       }
       @if (!String.IsNullOrEmpty(section.Value.Description))
       {
@@ -62,9 +58,9 @@ else
         {
           if (!tableSection.Value.Settings.HideEmpty || tableSection.Value.Content.Any())
           {
-            <div id="toc">
+            <div id="toc" name="toc">
               <div style="border-bottom:1px solid #675f62; margin: 2px 0 4px 0;">
-                <a style="color:#41393B; text-decoration:none;" href="#@($"section-{tableSection.Value.Id}")"><strong>@tableSection.Value.Settings.Label</strong></a>
+                <a style="color:#41393B; text-decoration:none;" href="#section-@tableSection.Value.Id"><strong>@tableSection.Value.Settings.Label</strong></a>
               </div>
 
               @if (section.Value.Settings.ShowHeadlines && tableSection.Value.Content.Any() && tableSection.Value.SectionType != ReportSectionType.Gallery)
@@ -73,7 +69,7 @@ else
                   @foreach (var content in tableSection.Value.Content)
                   {
                     var summary = OwnerId.HasValue ? content.Versions.ContainsKey(OwnerId.Value) ? content.Versions[OwnerId.Value].Summary : "" : "";
-                    <div style="vertical-align:center; margin-bottom:4px ;"> @ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{tocCount}") @summary</div>
+                    <div style="vertical-align:center; margin-bottom:4px ;"> @ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{tocCount}", "", true) @summary</div>
                     tocCount++;
                   }
                 </div>
@@ -107,11 +103,11 @@ else
                     positionInTOC++;
                     if (section.Value.Settings.ShowFullStory)
                     {
-                      <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{headlineLink}")</li>
+                      <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{headlineLink}", "", true)</li>
                     }
                     else
                     {
-                      <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, "", "_blank")</li>
+                      <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, "", "_blank", true)</li>
                     }
                   }
                 </ul>
@@ -127,11 +123,11 @@ else
                 positionInTOC++;
                 @if (section.Value.Settings.ShowFullStory)
                 {
-                  <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{headlineLink}")</li>
+                  <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{headlineLink}", "", true)</li>
                 }
                 else
                 {
-                  <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, "", "_blank")</li>
+                  <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, "", "_blank", true)</li>
                 }
               }
             </ul>
@@ -157,8 +153,8 @@ else
             var next = hasNext ? contentCount + 1 : 0;
             var itemPosition = contentCount;
             contentCount++;
-            <div id="item-@itemPosition" style="display: flex; align-items: center;">
-              <a name="item-@content.Id"></a>
+            <div style="display: flex; align-items: center;">
+              <a id="item-@itemPosition" name="item-@itemPosition"></a>
             </div>
             <div class="story_separator" style="margin:20px 0 4px 0;" >
               <hr />
@@ -168,7 +164,7 @@ else
             <table width="100%" margin-bottom="25px">
               <tr style="font-size: 12px;">
                 <td align="left">
-                  <span style="border: none; padding:4px 6px; background-color: #FEE2E5; text-transform: uppercase; font-size:.8rem;"><a name="section-@section.Value.Id" style="text-decoration:none;">@section.Value.Settings.Label</a></span>
+                  <span style="border: none; padding:4px 6px; background-color: #FEE2E5; text-transform: uppercase; font-size:.8rem;"><a id="section-@section.Value.Id" name="section-@section.Value.Id" style="text-decoration:none;">@section.Value.Settings.Label</a></span>
                 </td>
 
                 <td align="right">
@@ -189,7 +185,7 @@ else
 
             <h3 style="margin:16px 0px 10px 0px;">@(String.IsNullOrEmpty(sentiment) ? "" : $"{sentiment} ")@headline</h3>
             <div style="padding: 2px 0px 8px 12px; width:100%; border-bottom:1px solid #E8E9F1; color:#584C50; font-size:.85rem; line-height:.9rem; text-transform:uppercase; margin-bottom:16px;">
-              <span style="display: block; font-size: 14px; line-height: 110%;">
+              <div style="display: block; font-size: 14px; line-height: 110%;">
                 <strong>@content.Source?.Name</strong><br/>
                 <strong>@content.PublishedOn?.AddHours(utcOffset).ToString("dddd, MMMM d yyyy")</strong><br/>
                 @if (!string.IsNullOrWhiteSpace(content.Page))
@@ -200,7 +196,7 @@ else
                 {
                   <span>By @byline</span><br/>
                 }
-              </span>
+              </div>
             </div>
             @if (!String.IsNullOrEmpty(body))
             {
@@ -216,7 +212,7 @@ else
               @* LINK TO STORY ON WEBSITE *@
               <div>
                 <span style="font-size: .85em; text-transform:uppercase; vertical-align: middle; background-color:#FFF; border:#ccc 1px solid; margin:20 auto; padding:6px 10px;">
-                  <a href="@($"{ViewContentUrl}{content.Id}")" target="_blank" style="color: #6750a4; text-decoration: none;">View Article <img height="14" valign=absmiddle src="https://www.bobbibjornholt.com/mmi-temp/follow_link.png"></a>
+                  <a href="@($"{ViewContentUrl}{content.Id}")" target="_blank" style="color: #6750a4; text-decoration: none;">View Article <img height="14" valign="absmiddle" src="@($"{SubscriberAppUrl}assets/reports/follow_link.png")"></a>
                 </span>
               </div>
             }
@@ -279,7 +275,9 @@ else
   <div style="margin-top:20px; background-color:#F5F6F9; color:#6C5D62; text-align: center; font-size: 11px; font-style: normal; font-weight: 500; line-height: 110%; letter-spacing: 0.08px; padding: 10px 0; width:100%;">
     <p>Terms of Use</p>
     <p>
-      This summary is a service provided by Government Communications and Public Engagement and is only intended for original addressee. All content is the copyrighted property of a third party creator of the material.<br /><br />
+      This summary is a service provided by Government Communications and Public Engagement and is only intended for original addressee. All content is the copyrighted property of a third party creator of the material.
+    </p>
+    <p>
       <b>Copying, retransmitting, archiving, redistributing, selling, licensing, or emailing the material to any third party or any employee of the Province who is not authorized to access the material is prohibited.</b>
     </p>
   </div>

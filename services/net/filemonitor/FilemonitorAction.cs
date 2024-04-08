@@ -26,7 +26,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
 {
     #region Variables
     // Regex to find the story closing tag.
-    private readonly Regex _storyTag = new Regex(@"</story\>[\t\s\n]*<date>[0-9]{2}\-[0-9]{2}\-[0-9]{4}</date>[\t\s\n]*<page>.*</page>[\t\s\n]*</bcng>[\t\s\n]*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex _storyTag = new Regex(@"</story\>[\t\s\n]*(<date>[0-9]{2}\-[0-9]{2}\-[0-9]{4}</date>)[\t\s\n]*<page>.*</page>[\t\s\n]*</bcng>[\t\s\n]*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex _storyBody = new Regex(@"<story>(?<body>.*)</story>.*?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     #endregion
 
     #region Constructors
@@ -723,6 +724,13 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         if (!_storyTag.Match(xml).Success)
         {
             xml = $"{xml}</story><date>{DateTime.Now:MM-dd-yyyy}</date></bcng>";
+
+            var match = _storyBody.Match(xml);
+            if (match.Success)
+            {
+                xml = xml.Replace(match.Groups["body"].Value, this.Options.FailedStoryBody);
+            }
+
             File.WriteAllText(filePath, xml);
             this.Logger.LogError("The file '{path}' is missing data", filePath);
         }

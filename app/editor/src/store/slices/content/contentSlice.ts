@@ -47,7 +47,7 @@ export const initialContentState: IContentState = {
     commentary: false,
     topStory: false,
     featuredStory: false,
-    sort: [],
+    sort: [{ id: 'source.sortOrder' }, { id: 'otherSource' }, { id: 'page' }],
   },
   filterPaperAdvanced: {
     fieldType: AdvancedSearchKeys.Headline,

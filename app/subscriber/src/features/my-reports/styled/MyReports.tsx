@@ -183,6 +183,7 @@ export const MyReports = styled.div`
   }
 
   .report-preview {
+    min-width: min-content;
     .report-title {
       h2 {
         margin: 0.5rem;

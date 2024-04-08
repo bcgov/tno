@@ -8,8 +8,25 @@ export const ContentRow = styled.div`
   gap: 0.5rem;
   padding: 0.15rem;
 
-  & div:nth-child(3) {
-    flex: 1 1 100%;
+  & div.headline {
+    flex: 2 1 100%;
+  }
+
+  & div.byline,
+  & div.section-page {
+    flex: 1 1 15%;
+  }
+
+  & div.other-source {
+    flex-basis: 5rem;
+  }
+
+  & div.published-on {
+    flex-basis: 10rem;
+  }
+
+  & div.sentiment svg.tone-icon {
+    margin-left: unset;
   }
 
   .frm-in {

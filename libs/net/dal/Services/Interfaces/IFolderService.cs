@@ -6,6 +6,7 @@ public interface IFolderService : IBaseService<Folder, int>
 {
     IEnumerable<Folder> FindMyFolders(int userId);
     IEnumerable<Folder> FindAll();
+    Folder? FindById(int id, bool includeContent = false);
     IEnumerable<FolderContent> GetContentInFolder(int folderId);
     void RemoveContentFromFolders(long contentId);
     IEnumerable<Folder> GetFoldersWithFilters();

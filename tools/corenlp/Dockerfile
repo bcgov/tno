@@ -1,5 +1,5 @@
 FROM alpine:3.8 as builder
-MAINTAINER Arne Neumann <nlpbox.programming@arne.cl>
+# MAINTAINER Arne Neumann <nlpbox.programming@arne.cl>
 # taken from https://github.com/NLPbox/stanford-corenlp-docker
 
 RUN apk update && \
@@ -7,10 +7,10 @@ RUN apk update && \
     pip install setuptools
 
 # install grepurl script to retrieve the most current download URL of CoreNLP
-WORKDIR /opt
-RUN git clone https://github.com/arne-cl/grepurl.git
-WORKDIR /opt/grepurl
-RUN python setup.py install
+# WORKDIR /opt
+# RUN git clone https://github.com/arne-cl/grepurl.git
+# WORKDIR /opt/grepurl
+# RUN python setup.py install
 
 # install latest CoreNLP release
 WORKDIR /opt
@@ -28,28 +28,30 @@ RUN wget https://nlp.stanford.edu/software/stanford-corenlp-4.5.6.zip && \
 # This command get's the first model file (at least for English there are two)
 # and extracts its property file.
 WORKDIR /opt/corenlp
-RUN wget $(grepurl -r 'english.*jar$' -a http://stanfordnlp.github.io/CoreNLP | head -n 1)
-
+# RUN wget $(grepurl -r 'english.*jar$' -a http://stanfordnlp.github.io/CoreNLP | head -n 1)
+RUN wget https://search.maven.org/remotecontent?filepath=edu/stanford/nlp/stanford-corenlp/4.5.6/stanford-corenlp-4.5.6-models-english.jar
 
 # only keep the things we need to run and test CoreNLP
 FROM alpine:3.8
 
-RUN apk update && apk add openjdk8-jre-base py3-pip && \
-    pip3 install pytest pexpect requests
+# RUN apk update && apk add openjdk8-jre-base py3-pip && \
+#     pip3 install pytest pexpect requests
+RUN apk update && apk add openjdk8-jre-base py3-pip
 
 WORKDIR /opt/corenlp
 COPY --from=builder /opt/corenlp .
 
-ADD test_api.py .
+# ADD test_api.py .
 
 ENV JAVA_XMX 4g
-#ENV ANNOTATORS tokenize,ssplit,parse,quote
-ENV ANNOTATORS quote
-ENV TIMEOUT_MILLISECONDS 15000
+ENV ANNOTATORS tokenize,pos,lemma,ner,coref,quote
+ENV PRELOAD tokenize,pos,lemma,ner
+ENV TIMEOUT_MILLISECONDS 20000
+ENV THREADS 1
 
 ENV PORT 9000
 
 EXPOSE $PORT
 
 
-CMD java -Xmx$JAVA_XMX -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer -annotators "$ANNOTATORS" -port $PORT -timeout $TIMEOUT_MILLISECONDS
+CMD java -Xmx$JAVA_XMX -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer -annotators "$ANNOTATORS" -preload "$PRELOAD" -threads $THREADS -port $PORT -timeout $TIMEOUT_MILLISECONDS

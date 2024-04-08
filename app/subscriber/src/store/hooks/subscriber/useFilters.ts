@@ -20,14 +20,14 @@ export const useFilters = (): [IProfileState, IFilterController] => {
   const controller = React.useMemo(
     () => ({
       findMyFilters: async () => {
-        const response = await dispatch<IFilterModel[]>('find-my-folders', () =>
+        const response = await dispatch<IFilterModel[]>('find-my-filter', () =>
           api.findMyFilters(),
         );
         store.storeMyFilters(response.data);
         return response.data;
       },
       getFilter: async (id: number) => {
-        const response = await dispatch<IFilterModel>('get-folder', () => api.getFilter(id));
+        const response = await dispatch<IFilterModel>('get-filter', () => api.getFilter(id));
         const filter = response.data;
         store.storeMyFilters((filters) =>
           filters.map((ds) => {
@@ -39,13 +39,13 @@ export const useFilters = (): [IProfileState, IFilterController] => {
         return filter;
       },
       addFilter: async (model: IFilterModel) => {
-        const response = await dispatch<IFilterModel>('add-folder', () => api.addFilter(model));
+        const response = await dispatch<IFilterModel>('add-filter', () => api.addFilter(model));
         store.storeMyFilters((filters) => [...filters, response.data]);
         store.storeFilter((state) => (state?.id === model.id ? response.data : state));
         return response.data;
       },
       updateFilter: async (model: IFilterModel) => {
-        const response = await dispatch<IFilterModel>('update-folder', () =>
+        const response = await dispatch<IFilterModel>('update-filter', () =>
           api.updateFilter(model),
         );
         store.storeMyFilters((filters) =>
@@ -58,7 +58,7 @@ export const useFilters = (): [IProfileState, IFilterController] => {
         return response.data;
       },
       deleteFilter: async (model: IFilterModel) => {
-        const response = await dispatch<IFilterModel>('delete-folder', () =>
+        const response = await dispatch<IFilterModel>('delete-filter', () =>
           api.deleteFilter(model),
         );
         store.storeMyFilters((filters) => filters.filter((ds) => ds.id !== response.data.id));

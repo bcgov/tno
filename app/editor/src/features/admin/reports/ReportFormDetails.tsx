@@ -45,7 +45,7 @@ export const ReportFormDetails: React.FC = () => {
   }, [userInfo?.id]);
 
   const handleFindUsers = debounce(async (text: string) => {
-    const results = await findUsers({ quantity: 50, username: text }, true);
+    const results = await findUsers({ quantity: 50, keyword: text }, true);
     setUserOptions(getUserOptions(results.items));
     return results;
   }, 500);

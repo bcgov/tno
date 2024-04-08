@@ -4,8 +4,9 @@ import { Show } from 'tno-core';
 import { IReportForm, IReportInstanceContentForm } from '../interfaces';
 import {
   ReportContentMenuOption,
-  ReportMainMenuOption,
+  ReportSendMenuOption,
   ReportSettingsMenuOption,
+  ReportViewMenuOption,
 } from './constants';
 import { ReportEditContentForm, ReportEditSortForm, ReportEditSummaryForm } from './content';
 import { ReportEditActions } from './ReportEditActions';
@@ -13,6 +14,7 @@ import { useReportEditContext } from './ReportEditContext';
 import { ReportEditMenu } from './ReportEditMenu';
 import {
   ReportEditDataSourcesForm,
+  ReportEditDetailsForm,
   ReportEditPreferencesForm,
   ReportEditSendForm,
   ReportEditTemplateForm,
@@ -49,7 +51,10 @@ export const ReportEditForm = ({ disabled, updateForm }: IReportEditFormProps) =
         }}
       />
       {/* Settings Menu */}
-      <Show visible={active === ReportMainMenuOption.Settings}>
+      <Show visible={active === ReportSettingsMenuOption.Info}>
+        <ReportEditDetailsForm />
+      </Show>
+      <Show visible={active === ReportSettingsMenuOption.Sections}>
         <ReportEditTemplateForm />
       </Show>
       <Show visible={active === ReportSettingsMenuOption.DataSources}>
@@ -62,7 +67,7 @@ export const ReportEditForm = ({ disabled, updateForm }: IReportEditFormProps) =
         <ReportEditSendForm />
       </Show>
       {/* Content Menu */}
-      <Show visible={active === ReportMainMenuOption.Content}>
+      <Show visible={active === ReportContentMenuOption.Content}>
         <ReportEditContentForm
           disabled={disabled}
           activeRow={activeRow}
@@ -75,17 +80,25 @@ export const ReportEditForm = ({ disabled, updateForm }: IReportEditFormProps) =
         />
       </Show>
       <Show visible={active === ReportContentMenuOption.Sort}>
-        <ReportEditSortForm />
+        <ReportEditSortForm
+          disabled={disabled}
+          activeRow={activeRow}
+          onContentClick={(content, action) => {
+            if (action) {
+              onNavigate(instance, action);
+            } else setActiveRow(content);
+          }}
+        />
       </Show>
       <Show visible={active === ReportContentMenuOption.Summary}>
         <ReportEditSummaryForm disabled={disabled} />
       </Show>
       {/* Preview Menu */}
-      <Show visible={active === ReportMainMenuOption.View}>
+      <Show visible={active === ReportViewMenuOption.View}>
         <ReportView />
       </Show>
       {/* Send Menu */}
-      <Show visible={active === ReportMainMenuOption.Send}>
+      <Show visible={active === ReportSendMenuOption.Send}>
         <ReportSendForm />
       </Show>
       <ReportEditActions disabled={disabled} updateForm={updateForm} />

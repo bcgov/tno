@@ -28,10 +28,10 @@ export const ReportEditTemplateForm = styled.div`
     flex-direction: column;
     gap: 0.25rem;
 
-    > div:not(:first-child) {
+    > div:first-child {
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
+      gap: 0.15rem;
     }
   }
 

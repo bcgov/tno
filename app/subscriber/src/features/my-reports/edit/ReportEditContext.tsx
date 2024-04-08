@@ -12,6 +12,7 @@ import {
   ReportContentMenuOption,
   ReportMainMenuOption,
   ReportSettingsMenuOption,
+  ReportViewMenuOption,
 } from './constants';
 
 /*******************************************************************
@@ -103,16 +104,21 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
     const secondary = path2?.toLocaleLowerCase();
     const path = `${main ?? ''}${secondary ? `/${secondary}` : ''}`;
     if (path === ReportMainMenuOption.Settings) setActive(ReportMainMenuOption.Settings);
+    else if (path === ReportSettingsMenuOption.Info) setActive(ReportSettingsMenuOption.Info);
+    else if (path === ReportSettingsMenuOption.Sections)
+      setActive(ReportSettingsMenuOption.Sections);
     else if (path === ReportSettingsMenuOption.DataSources)
       setActive(ReportSettingsMenuOption.DataSources);
     else if (path === ReportSettingsMenuOption.Preferences)
       setActive(ReportSettingsMenuOption.Preferences);
-    else if (path === ReportSettingsMenuOption.Send) setActive(ReportSettingsMenuOption.Send);
     else if (path === ReportMainMenuOption.Content) setActive(ReportMainMenuOption.Content);
+    else if (path === ReportContentMenuOption.Content) setActive(ReportContentMenuOption.Content);
     else if (path === ReportContentMenuOption.Sort) setActive(ReportContentMenuOption.Sort);
     else if (path === ReportContentMenuOption.Summary) setActive(ReportContentMenuOption.Summary);
     else if (path === ReportMainMenuOption.View) setActive(ReportMainMenuOption.View);
+    else if (path === ReportViewMenuOption.View) setActive(ReportViewMenuOption.View);
     else if (path === ReportMainMenuOption.Send) setActive(ReportMainMenuOption.Send);
+    else if (path === ReportSettingsMenuOption.Send) setActive(ReportSettingsMenuOption.Send);
     else setActive(ReportMainMenuOption.Settings);
   }, [path1, path2]);
 

@@ -44,7 +44,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
   const { toggle, isShowing } = useModal();
   const navigate = useNavigate();
 
-  const [activeFilter, setActiveFilter] = React.useState<IFilterModel>();
+  const [activeFilter, setActiveFilter] = React.useState<IFilterModel | null>();
   const [actionName, setActionName] = React.useState<'delete' | 'empty'>();
   const [currentFolder, setCurrentFolder] = React.useState<IFolderModel>();
   const [filterOptions, setFilterOptions] = React.useState<IOptionItem[]>(
@@ -72,10 +72,13 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
 
   React.useEffect(() => {
     if ((!currentFolder && id) || currentFolder?.id !== Number(id)) {
-      getFolder(Number(id))
+      getFolder(Number(id), false)
         .then((data) => {
           setCurrentFolder(data);
           if (data.filter) setActiveFilter(data.filter);
+          else {
+            setActiveFilter(null);
+          }
         })
         .catch(() => {
           toast.error('Failed to load folder.');

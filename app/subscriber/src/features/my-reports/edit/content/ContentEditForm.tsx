@@ -9,7 +9,7 @@ import { useApp, useContent, useReports } from 'store/hooks';
 import { Col, ContentTypeName, IContentModel } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
-import { ContentActions, ContentForm, UserContentForm } from './components';
+import { ContentActions, ContentForm, UserContentForm } from './stories';
 import * as styled from './styled';
 
 export interface IContentEditFormProps {

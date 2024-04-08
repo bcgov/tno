@@ -35,7 +35,7 @@ export const MoreOptions: React.FC = () => {
       <Row gap="1rem">
         <Col>
           <Checkbox
-            label="featured stories ONLY - uncheck to search ALL content"
+            label="only stories published by MMI editors (uncheck to search ALL content)"
             name="featured"
             checked={!filterSettings.searchUnpublished}
             onChange={(e) => {

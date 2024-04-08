@@ -1,4 +1,5 @@
 import { FormikForm } from 'components/formik';
+import { PageSection } from 'components/section';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -11,7 +12,14 @@ import {
   useReportTemplates,
 } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { IReportMessageModel, MessageTargetName, ReportStatusName, Settings } from 'tno-core';
+import {
+  Col,
+  IReportMessageModel,
+  MessageTargetName,
+  ReportStatusName,
+  Settings,
+  Show,
+} from 'tno-core';
 
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
@@ -136,12 +144,14 @@ export const ReportEditPage = () => {
               setReport(toForm(report));
             }
           })
-          .catch(() => {});
+          .catch(() => {
+            setReport((report) => ({ ...report, id: -1 }));
+          });
       }
     }
     // Only make a request when 'id' changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, myReports.length]);
 
   hub.useHubEffect(MessageTargetName.ReportStatus, async (message: IReportMessageModel) => {
     // Report has been updated, go fetch latest.
@@ -207,20 +217,29 @@ export const ReportEditPage = () => {
 
   return (
     <styled.ReportEditPage className="report-edit-page">
-      <FormikForm
-        initialValues={report}
-        validationSchema={ReportFormSchema}
-        validateOnChange={false}
-        onSubmit={async (values, { setSubmitting }) => {
-          await handleSubmit(values);
-          setSubmitting(false);
-        }}
-      >
-        <ReportEditContextProvider>
-          <ReportEditForm disabled={!canEdit} updateForm={(form) => setReport(form)} />
-          <ContentEditForm disabled={!canEdit} />
-        </ReportEditContextProvider>
-      </FormikForm>
+      <Show visible={report.id === -1}>
+        <PageSection>
+          <Col alignContent="center" justifyContent="center">
+            Report does not exist
+          </Col>
+        </PageSection>
+      </Show>
+      <Show visible={report.id !== -1}>
+        <FormikForm
+          initialValues={report}
+          validationSchema={ReportFormSchema}
+          validateOnChange={false}
+          onSubmit={async (values, { setSubmitting }) => {
+            await handleSubmit(values);
+            setSubmitting(false);
+          }}
+        >
+          <ReportEditContextProvider>
+            <ReportEditForm disabled={!canEdit} updateForm={(form) => setReport(form)} />
+            <ContentEditForm disabled={!canEdit} />
+          </ReportEditContextProvider>
+        </FormikForm>
+      </Show>
     </styled.ReportEditPage>
   );
 };

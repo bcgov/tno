@@ -40,6 +40,8 @@ export const Topic: React.FC<ITopicProps> = ({
     } else if (topics) {
       setGroupedOptions(convertToGroupedOptions(topics));
     }
+    // It's safe to ignore `convertToGroupedOptions`
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topics, filteredTopics]);
 
   const convertToGroupedOptions = (topics: ITopicModel[]): IGroupedTopicOptions[] => {
@@ -64,7 +66,11 @@ export const Topic: React.FC<ITopicProps> = ({
       .reverse()
       .forEach((key) => {
         let filteredTopics = topics.filter(
-          (el) => el.id !== topicIdNotApplicable && el.topicType === key && el.isEnabled,
+          (el) =>
+            el.id !== topicIdNotApplicable &&
+            el.topicType === key &&
+            // show all enabled Topics or disabled Topic if it's set as current
+            (el.isEnabled || (!el.isEnabled && el.id === value)),
         );
         if (filteredTopics)
           filteredTopics = filteredTopics.sort((a, b) => {
@@ -135,7 +141,11 @@ export const Topic: React.FC<ITopicProps> = ({
         onChange={(e: any) => {
           let value;
           if (!!e?.value) {
-            value = topics.find((c) => c.id === e.value);
+            if (filteredTopics) {
+              value = filteredTopics.find((c) => c.id === e.value);
+            } else {
+              value = topics.find((c) => c.id === e.value);
+            }
           }
           handleTopicChange?.(!!value ? value : undefined);
         }}

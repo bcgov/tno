@@ -13,7 +13,7 @@ export interface IReportFormPreviewProps {}
  * @returns Component.
  */
 export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
-  const { values, preview, setPreview } = useReportTemplateContext();
+  const { values, preview, setPreview, openPreview } = useReportTemplateContext();
   const [, { sendReport, previewReport }] = useReports();
 
   const [sendTo, setSendTo] = React.useState('');
@@ -59,9 +59,18 @@ export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
             correct content. Previewed reports must have a filter. When testing a custom report
             change it temporarily to a filter.
           </p>
-          <Button variant={ButtonVariant.success} onClick={() => handlePreviewReport(values)}>
-            Generate Preview
-          </Button>
+          <Row gap="1rem">
+            <Button variant={ButtonVariant.success} onClick={() => handlePreviewReport(values)}>
+              Generate Preview
+            </Button>
+            <Button
+              variant={ButtonVariant.secondary}
+              onClick={() => openPreview()}
+              disabled={!preview}
+            >
+              Open in New Window
+            </Button>
+          </Row>
         </Col>
         {values.id && (
           <Col flex="1">

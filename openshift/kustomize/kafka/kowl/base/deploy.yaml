@@ -47,7 +47,7 @@ spec:
                 path: config.yaml
       containers:
         - name: kowl
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/kafka:v1.5.0
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/kowl:v1.5.0
           # args:
           #   - --config.filepath=/etc/kowl/config.yaml
           imagePullPolicy: Always
