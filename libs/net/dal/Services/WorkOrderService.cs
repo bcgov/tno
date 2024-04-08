@@ -209,7 +209,7 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
             query = query.Where(c => filter.Status.Contains(c.Status));
 
         if (filter.ContentId.HasValue)
-            query = query.Where(c => c.ContentId == filter.ContentId || EF.Functions.JsonContains(c.Configuration, $"{{\"contentId\":{filter.ContentId}}}"));
+            query = query.Where(c => c.ContentId == filter.ContentId);
         if (filter.RequestorId.HasValue)
             query = query.Where(c => c.RequestorId == filter.RequestorId);
         if (filter.AssignedId.HasValue)
