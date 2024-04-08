@@ -122,19 +122,15 @@ const ContentListView: React.FC = () => {
 
   const onContentAdded = React.useCallback(
     async (message: IContentMessageModel) => {
+      // add new unfiltered content to the search results
+      // if it was created by the current user
       if (message.ownerId === userId) {
         try {
           const result = await getContent(message.id);
           if (!!result) {
             const newPage = {
               ...currentResultsPage,
-              items: currentResultsPage.items.map((i) => {
-                if (i.id === result.id) {
-                  return castContentToSearchResult(result);
-                } else {
-                  return i;
-                }
-              }),
+              items: [...[castContentToSearchResult(result)], ...currentResultsPage.items],
             };
             setCurrentResultsPage(newPage);
           }
