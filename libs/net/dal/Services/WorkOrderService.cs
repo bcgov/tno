@@ -263,7 +263,7 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
         var skip = (filter.Page - 1) * filter.Quantity;
         query = query.Skip(skip).Take(filter.Quantity);
 
-        var items = query.ToArray() ?? Array.Empty<WorkOrderModel>();
+        var items = query?.ToArray() ?? Array.Empty<WorkOrderModel>();
         
         return new Paged<WorkOrderModel>(items, filter.Page, filter.Quantity, total);
     }
