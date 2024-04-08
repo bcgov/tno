@@ -71,4 +71,11 @@ export const ReportEditDataSourcesForm = styled.div`
       }
     }
   }
+
+  .description {
+    p {
+      padding: 0.5rem;
+      background: ${(props) => props.theme.css.stickyNoteColor};
+    }
+  }
 `;
