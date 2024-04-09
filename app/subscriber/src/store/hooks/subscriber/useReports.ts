@@ -21,6 +21,7 @@ interface IReportController {
   deleteReport: (model: IReportModel) => Promise<IReportModel>;
   previewReport: (id: number) => Promise<IReportResultModel>;
   generateReport: (id: number, regenerate?: boolean) => Promise<IReportModel>;
+  regenerateSection: (id: number, sectionId: number) => Promise<IReportInstanceModel>;
   addContentToReport: (id: number, content: IReportInstanceContentModel[]) => Promise<IReportModel>;
   getAllContentInMyReports: () => Promise<{ [reportId: number]: number[] }>;
 }
@@ -168,6 +169,31 @@ export const useReports = (): [IProfileState, IReportController] => {
             result[id] = response.data.instances.length
               ? response.data.instances[0].content.map((c) => c.contentId)
               : reports[id] ?? [];
+            return result;
+          });
+        }
+        return response.data;
+      },
+      regenerateSection: async (id: number, sectionId: number) => {
+        const response = await dispatch<IReportInstanceModel>('generate-report-section', () =>
+          api.regenerateReportSection(id, sectionId),
+        );
+        if (response.status === 200) {
+          storeMyReports((reports) =>
+            reports.map((r) =>
+              r.id === response.data.reportId
+                ? {
+                    ...r,
+                    instances: r.instances.map((instance) =>
+                      instance.id === response.data.id ? response.data : instance,
+                    ),
+                  }
+                : r,
+            ),
+          );
+          storeReportContent((reports) => {
+            const result = { ...reports };
+            result[id] = response.data.content.map((c) => c.contentId);
             return result;
           });
         }

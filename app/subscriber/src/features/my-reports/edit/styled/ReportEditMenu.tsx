@@ -63,4 +63,8 @@ export const ReportEditMenu = styled.div`
       justify-items: center;
     }
   }
+
+  .report-secondary-menu {
+    background: ${(props) => props.theme.css.bkTertiary};
+  }
 `;

@@ -186,7 +186,7 @@ public class ReportHelper : IReportHelper
         if (model.Template == null) throw new ArgumentException("Parameter 'model.Template' is required");
 
         // Fetch all content for this report.
-        var elasticResults = await _reportService.FindContentWithElasticsearchAsync(model.ToEntity(_serializerOptions), requestorId);
+        var elasticResults = await _reportService.FindContentWithElasticsearchAsync(model.ToEntity(_serializerOptions), null, requestorId);
 
         // Link each result with the section name.
         var sections = model.Sections.OrderBy(s => s.SortOrder).ToDictionary(section => section.Name, section =>

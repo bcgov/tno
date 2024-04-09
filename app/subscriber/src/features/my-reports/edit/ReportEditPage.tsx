@@ -125,6 +125,7 @@ export const ReportEditPage = () => {
 
   React.useEffect(() => {
     const reportId = parseInt(id ?? '0');
+    const originalReportSections = report.sections;
     if (!!reportId && myReports?.length) {
       const existingReport = myReports.find((r) => r.id === reportId);
       const hasFetchedContent = existingReport?.instances.some((r) => r.content?.length);
@@ -141,7 +142,18 @@ export const ReportEditPage = () => {
         getReport(reportId, true)
           .then(async (report) => {
             if (report) {
-              setReport(toForm(report));
+              setReport(
+                toForm({
+                  ...report,
+                  sections: report.sections.map((section, index) => {
+                    const originalSection =
+                      originalReportSections.length > index
+                        ? originalReportSections[index]
+                        : undefined;
+                    return { ...section, open: originalSection?.open };
+                  }),
+                }),
+              );
             }
           })
           .catch(() => {
@@ -174,6 +186,7 @@ export const ReportEditPage = () => {
     async (values: IReportForm) => {
       try {
         const originalId = values.id;
+        const originalReportSections = values.sections;
         const sameNameReport = myReports.some(
           (r) =>
             r.name.trim().toLocaleLowerCase() === values.name.trim().toLocaleLowerCase() &&
@@ -184,7 +197,10 @@ export const ReportEditPage = () => {
         } else {
           if (values.instances.length) {
             // Apply new sort order values for content to stop content from moving around when it has the same sort order value.
-            values.instances[0].content = sortContent(values.instances[0].content, true);
+            values.instances[0] = {
+              ...values.instances[0],
+              content: sortContent(values.instances[0].content, true),
+            };
           }
           const report = originalId
             ? await updateReport(values, instance?.status === ReportStatusName.Pending)
@@ -196,11 +212,24 @@ export const ReportEditPage = () => {
             navigate(`/reports/${report.id}${path1 ? `/${path1}` : ''}${path2 ? `/${path2}` : ''}`);
             toast.success(`Successfully created '${report.name}'.`);
           } else {
-            setReport(toForm(report));
+            setReport(
+              toForm({
+                ...report,
+                sections: report.sections.map((section, index) => {
+                  const originalSection =
+                    originalReportSections.length > index
+                      ? originalReportSections[index]
+                      : undefined;
+                  return { ...section, open: originalSection?.open };
+                }),
+              }),
+            );
             toast.success(`Successfully updated '${report.name}'.`);
           }
         }
-      } catch {}
+      } catch (ex) {
+        console.error(ex);
+      }
     },
     [
       addReport,

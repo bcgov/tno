@@ -18,9 +18,17 @@ export const ReportSections = styled.div`
 
       .add-story {
         border-bottom: solid 1px ${(props) => props.theme.css.linePrimaryColor};
-        justify-content: center;
+        justify-content: space-between;
         padding-bottom: 0.15rem;
         margin-bottom: 0.25rem;
+
+        > div {
+          align-items: center;
+        }
+
+        > div:last-child {
+          align-items: flex-end;
+        }
       }
 
       > div {

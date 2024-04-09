@@ -94,7 +94,7 @@ public class ReportController : ControllerBase
     {
         var report = _service.FindById(id);
         if (report == null) return NoContent();
-        var results = await _service.FindContentWithElasticsearchAsync(report, requestorId);
+        var results = await _service.FindContentWithElasticsearchAsync(report, null, requestorId);
         return new JsonResult(results);
     }
 

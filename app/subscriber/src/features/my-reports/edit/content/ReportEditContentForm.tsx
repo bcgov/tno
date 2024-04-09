@@ -1,13 +1,10 @@
 import { Action } from 'components/action';
 import { Modal } from 'components/modal';
-import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
-import { toForm } from 'features/my-reports/utils';
+import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import React from 'react';
 import { FaRecycle } from 'react-icons/fa';
 import { FaAngleDown, FaMinus } from 'react-icons/fa6';
-import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { useReports } from 'store/hooks';
+import { useParams } from 'react-router-dom';
 import { useModal } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
@@ -36,26 +33,9 @@ export const ReportEditContentForm = ({
   activeRow,
   onContentClick,
 }: IReportEditContentFormProps) => {
-  const navigate = useNavigate();
-  const { values, isSubmitting, setValues, setFieldValue, onExport } = useReportEditContext();
+  const { values, isSubmitting, setFieldValue, onExport, onGenerate } = useReportEditContext();
   const { path1 } = useParams();
   const { isShowing, toggle } = useModal();
-  const [, { generateReport }] = useReports();
-
-  const handleRegenerate = React.useCallback(
-    async (values: IReportForm, regenerate: boolean) => {
-      try {
-        const report = await generateReport(values.id, regenerate);
-        setValues(toForm(report, true));
-        if (regenerate) toast.success('Report has been regenerated');
-        else {
-          toast.success('Report has been generated');
-          navigate(`/reports/${values.id}/edit/content`);
-        }
-      } catch {}
-    },
-    [generateReport, navigate, setValues],
-  );
 
   return (
     <styled.ReportEditContentForm className="report-edit-section">
@@ -90,7 +70,13 @@ export const ReportEditContentForm = ({
           )}
         </div>
         <div>
-          <Action icon={<FaRecycle />} disabled={isSubmitting} onClick={(e) => toggle()} />
+          <Action
+            icon={<FaRecycle />}
+            label="Regenerate report"
+            disabled={isSubmitting}
+            onClick={(e) => toggle()}
+            direction="row-reverse"
+          />
           <Action
             icon={
               <img className="excel-icon" src={'/assets/excel-icon.svg'} alt="Export to Excel" />
@@ -109,14 +95,22 @@ export const ReportEditContentForm = ({
       />
       <Modal
         headerText="Regenerate Report"
-        body="Regenerating a report will rerun all filters and update content in the report.  Do you want to proceed?"
+        body={
+          <>
+            <p>
+              Regenerating a report will remove all content, then apply each folder, and rerun each
+              filter to populate the report.
+            </p>
+            <p>Do you want to proceed?</p>
+          </>
+        }
         isShowing={isShowing}
         hide={toggle}
         type="default"
         confirmText="Yes, Regenerate It"
         onConfirm={async () => {
           try {
-            await handleRegenerate(values, true);
+            await onGenerate(values, true);
           } finally {
             toggle();
           }

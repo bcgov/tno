@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Button, ButtonVariant } from 'tno-core';
-import { Row } from 'tno-core/dist/components/flex';
+import { Col, Row } from 'tno-core/dist/components/flex';
 
 import * as styled from './styled';
 
@@ -54,7 +54,7 @@ export const Modal: React.FC<IModalProps> = ({
                     <h1>{headerText}</h1>
                   </Row>
                 )}
-                <Row>{body}</Row>
+                <Col alignItems="flex-start">{body}</Col>
                 {!!!customButtons && (
                   <Row className="button-row">
                     <Button

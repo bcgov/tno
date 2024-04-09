@@ -374,6 +374,35 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
+    /// Regenerate the current report instance for the specified 'sectionId' in the specified report 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="sectionId"></param>
+    /// <returns></returns>
+    /// <exception cref="NotAuthorizedException"></exception>
+    /// <exception cref="NoContentException"></exception>
+    [HttpPost("{id}/sections/{sectionId}/regenerate")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public async Task<IActionResult> RegenerateSection(int id, int sectionId)
+    {
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        if (report.OwnerId != user.Id && // User does not own the report
+            !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
+            !report.IsPublic) throw new NotAuthorizedException("Not authorized to review this report"); // Report is not public
+
+        var instance = await _reportService.RegenerateReportInstanceSectionAsync(id, sectionId, user.Id);
+        _reportInstanceService.ClearChangeTracker();
+        instance = _reportInstanceService.UpdateAndSave(instance, true);
+
+        return new JsonResult(new ReportInstanceModel(instance));
+    }
+
+    /// <summary>
     /// Add the specified content to the current report instance.
     /// </summary>
     /// <param name="id"></param>

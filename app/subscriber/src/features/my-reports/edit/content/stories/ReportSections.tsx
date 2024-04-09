@@ -62,9 +62,11 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({
           // Only display content and gallery sections if it's the stories tab.
           if (
             form === 'stories' &&
-            ![ReportSectionTypeName.Content, ReportSectionTypeName.Gallery].includes(
-              section.sectionType,
-            )
+            ![
+              ReportSectionTypeName.Content,
+              ReportSectionTypeName.Gallery,
+              ReportSectionTypeName.MediaAnalytics,
+            ].includes(section.sectionType)
           ) {
             return <React.Fragment key={section.id}></React.Fragment>;
           }

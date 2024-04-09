@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useReportInstances, useReports } from 'store/hooks';
 import { IReportInstanceModel } from 'tno-core';
@@ -45,7 +45,8 @@ export interface IReportEditContext {
   submitForm: (() => Promise<void>) & (() => Promise<any>);
   onNavigate: (instance: IReportInstanceModel | undefined, action: 'previous' | 'next') => void;
   onExport: (report: IReportForm) => void;
-  onRegenerate: (values: IReportForm, regenerate: boolean) => Promise<IReportForm | undefined>;
+  onGenerate: (report: IReportForm, regenerate: boolean) => Promise<IReportForm | undefined>;
+  onRegenerateSection: (report: IReportForm, sectionId: number) => Promise<IReportForm | undefined>;
 }
 
 /**
@@ -62,7 +63,8 @@ export const ReportEditContext = React.createContext<IReportEditContext>({
   submitForm: () => Promise.resolve(),
   onNavigate: () => {},
   onExport: () => {},
-  onRegenerate: () => Promise.resolve(undefined),
+  onGenerate: () => Promise.resolve(undefined),
+  onRegenerateSection: () => Promise.resolve(undefined),
 });
 
 /**
@@ -89,11 +91,12 @@ export interface IReportEditContextProviderProps {
 export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps> = ({
   children,
 }) => {
+  const navigate = useNavigate();
   const { values, setFieldValue, setValues, isSubmitting, setSubmitting, submitForm } =
     useFormikContext<IReportForm>();
   const { path1, path2 } = useParams();
   const [{ exportReport }] = useReportInstances();
-  const [, { generateReport }] = useReports();
+  const [, { generateReport, regenerateSection }] = useReports();
 
   const [active, setActive] = React.useState<string>();
   const [activeRow, setActiveRow] = React.useState<IReportInstanceContentForm>();
@@ -159,17 +162,38 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
     [exportReport],
   );
 
-  const onRegenerate = React.useCallback(
-    async (values: IReportForm, regenerate: boolean) => {
+  const onGenerate = React.useCallback(
+    async (report: IReportForm, regenerate: boolean) => {
       try {
-        const report = await generateReport(values.id, regenerate);
-        const form = toForm(report, true);
+        const result = await generateReport(report.id, regenerate);
+        const form = toForm(result, true);
         setValues(form);
         if (regenerate) toast.success('Report has been regenerated');
+        else {
+          toast.success('Report has been generated');
+          navigate(`/reports/${form.id}/edit/content`);
+        }
         return form;
       } catch {}
     },
-    [generateReport, setValues],
+    [generateReport, navigate, setValues],
+  );
+
+  const onRegenerateSection = React.useCallback(
+    async (report: IReportForm, sectionId: number) => {
+      try {
+        const instance = await regenerateSection(report.id, sectionId);
+        const instances = report.instances.map((i) => (i.id === instance.id ? instance : i));
+        const result = {
+          ...report,
+          instances: instances,
+        };
+        setFieldValue('instances', instances);
+        toast.success('Report section has been regenerated');
+        return result;
+      } catch {}
+    },
+    [regenerateSection, setFieldValue],
   );
 
   return (
@@ -187,7 +211,8 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
         submitForm,
         onNavigate,
         onExport,
-        onRegenerate,
+        onGenerate,
+        onRegenerateSection,
       }}
     >
       {children}
