@@ -145,4 +145,10 @@ export const ReportForm = styled(FormPage)`
       filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
     }
   }
+
+  .preferred {
+    padding: 0 0.5rem;
+    border-radius: 0.5rem;
+    background: ${(props) => props.theme.css.lightAccentColor};
+  }
 `;

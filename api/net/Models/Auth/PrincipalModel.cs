@@ -32,6 +32,11 @@ public class PrincipalModel
     public string? Email { get; set; }
 
     /// <summary>
+    /// get/set - User's preferred email address.
+    /// </summary>
+    public string? PreferredEmail { get; set; }
+
+    /// <summary>
     /// get/set - Friendly name to display.
     /// </summary>
     public string? DisplayName { get; set; }
@@ -103,6 +108,7 @@ public class PrincipalModel
         this.Username = principal.GetUsername();
         this.DisplayName = principal.GetDisplayName();
         this.Email = principal.GetEmail();
+        this.PreferredEmail = user?.PreferredEmail;
         this.FirstName = principal.GetFirstName();
         this.LastName = principal.GetLastName();
         this.Status = user?.Status;

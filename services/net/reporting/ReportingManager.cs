@@ -392,14 +392,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         // Generate and send report to subscribers who want an email with a link to the website.
         // We do this first because we don't want to save the output of this in the instance.
-        var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.Email)).ToArray();
+        var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.GetEmail())).ToArray();
         var linkOnlyFormatBody = linkOnlyFormatSubscribers.Any() ? await this.ReportEngine.GenerateReportBodyAsync(report, instanceModel, sectionContent, GetLinkedReportAsync, null, true, false) : "";
-        var linkOnlyFormatTo = linkOnlyFormatSubscribers.Select(s => s.User!.Email).ToArray();
+        var linkOnlyFormatTo = linkOnlyFormatSubscribers.Select(s => s.User!.GetEmail()).ToArray();
 
         // Generate and send report to subscribers who want an email format.
-        var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.Email)).ToArray();
+        var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.GetEmail())).ToArray();
         var fullTextFormatBody = await this.ReportEngine.GenerateReportBodyAsync(report, instanceModel, sectionContent, GetLinkedReportAsync, null, false, false);
-        var fullTextFormatTo = fullTextFormatSubscribers.Select(s => s.User!.Email).ToArray();
+        var fullTextFormatTo = fullTextFormatSubscribers.Select(s => s.User!.GetEmail()).ToArray();
 
         var reportInstanceContents = sectionContent.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
 
@@ -516,16 +516,16 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         // We do this first because we don't want to save the output of this in the instance.
         var linkOnlyFormatTo = request.SendToSubscribers ?
             report.Subscribers
-                .Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.Email))
-                .Select(s => s.User!.Email)
+                .Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.GetEmail()))
+                .Select(s => s.User!.GetEmail())
                 .ToArray() :
             Array.Empty<string>();
         var linkOnlyFormatBody = linkOnlyFormatTo.Any() ? await this.ReportEngine.GenerateReportBodyAsync(instance.Report, instance, sectionContent, GetLinkedReportAsync, null, true, false) : "";
 
         // Generate and send report to subscribers who want an email format.
         var fullTextFormatTo = report.Subscribers
-            .Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.Email))
-            .Select(s => s.User!.Email)
+            .Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.GetEmail()))
+            .Select(s => s.User!.GetEmail())
             .ToArray();
         var fullTextFormatBody = await this.ReportEngine.GenerateReportBodyAsync(instance.Report, instance, sectionContent, GetLinkedReportAsync, null, false, false);
 
@@ -599,7 +599,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var model = new AVOverviewInstanceModel(instance);
         var template = instance.Template ?? throw new InvalidOperationException($"Report template was not included in model.");
 
-        var to = instance.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.Email) && s.IsSubscribed).Select(s => s.Email).ToArray();
+        var to = instance.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.GetEmail()) && s.IsSubscribed).Select(s => s.GetEmail()).ToArray();
         // No need to send an email if there are no subscribers.
         if (request.SendToSubscribers && (to.Length > 0 || !String.IsNullOrEmpty(request.To)))
         {
@@ -673,7 +673,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         if (requestorId.HasValue)
         {
             var user = await this.Api.GetUserAsync(requestorId.Value);
-            if (user != null) email = user.Email;
+            if (user != null) email = user.GetEmail();
         }
         var identity = _user.Identity as ClaimsIdentity ?? throw new ConfigurationException("CHES requires an active ClaimsPrincipal");
         identity.RemoveClaim(_user.FindFirst(ClaimTypes.Email));

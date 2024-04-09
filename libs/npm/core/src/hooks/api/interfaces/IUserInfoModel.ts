@@ -6,6 +6,7 @@ export interface IUserInfoModel {
   key: string;
   username: string;
   email: string;
+  preferredEmail: string;
   displayName: string;
   firstName?: string;
   lastName?: string;

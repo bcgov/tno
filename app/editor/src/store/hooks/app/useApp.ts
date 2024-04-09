@@ -23,6 +23,7 @@ let userInfo: IUserInfoModel = {
   key: '',
   username: '',
   email: '',
+  preferredEmail: '',
   status: UserStatusName.Requested,
   displayName: '',
   isEnabled: false,
@@ -104,13 +105,17 @@ export const useApp = (): [IAppState, IAppController] => {
         store.storeUserOptions(options);
       },
       getUserInfo: async (refresh: boolean = false) => {
-        if (userInfo.id !== 0 && !refresh) return userInfo;
-        const response = await dispatch('get-user-info', () => api.getUserInfo());
-        userInfo = response.data;
-        store.storeUserInfo(userInfo);
-        if ((!keycloak.hasClaim() || refresh) && !!response.data.roles.length)
-          await keycloak.instance.updateToken(86400);
-        return userInfo;
+        try {
+          if (userInfo.id !== 0 && !refresh) return userInfo;
+          const response = await dispatch('get-user-info', () => api.getUserInfo());
+          userInfo = response.data;
+          store.storeUserInfo(userInfo);
+          if ((!keycloak.hasClaim() || refresh) && !!response.data.roles.length)
+            await keycloak.instance.updateToken(86400);
+          return userInfo;
+        } catch (error) {
+          throw error;
+        }
       },
       requestCode: async (model: IRegisterModel) => {
         return (await dispatch<IRegisterModel>('request-code', () => api.requestCode(model))).data;

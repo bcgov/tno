@@ -24,6 +24,11 @@ public class UserModel : AuditColumnsModel
     public string Email { get; set; } = "";
 
     /// <summary>
+    /// get/set - The user's preferred email address.
+    /// </summary>
+    public string PreferredEmail { get; set; } = "";
+
+    /// <summary>
     /// get/set - Display name of user.
     /// </summary>
     public string DisplayName { get; set; } = "";
@@ -56,6 +61,7 @@ public class UserModel : AuditColumnsModel
             this.Id = entity.Id;
             this.Username = entity.Username;
             this.Email = entity.Email;
+            this.PreferredEmail = entity.PreferredEmail;
             this.DisplayName = entity.DisplayName;
             this.FirstName = entity.FirstName;
             this.LastName = entity.LastName;
@@ -73,6 +79,7 @@ public class UserModel : AuditColumnsModel
         {
             this.Username = entity.User.Username;
             this.Email = entity.User.Email;
+            this.PreferredEmail = entity.User.PreferredEmail;
             this.DisplayName = entity.User.DisplayName;
             this.FirstName = entity.User.FirstName;
             this.LastName = entity.User.LastName;

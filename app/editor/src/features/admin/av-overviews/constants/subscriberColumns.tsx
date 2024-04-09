@@ -1,4 +1,4 @@
-import { CellEllipsis, Checkbox, ITableHookColumn, IUserAVOverviewModel } from 'tno-core';
+import { CellEllipsis, Checkbox, Col, ITableHookColumn, IUserAVOverviewModel } from 'tno-core';
 
 import { IAVOverviewTemplateForm } from '../interfaces';
 
@@ -49,6 +49,13 @@ export const subscriberColumns = (
     label: 'Email',
     accessor: 'email',
     width: 2,
-    cell: (cell) => <CellEllipsis>{cell.original.email}</CellEllipsis>,
+    cell: (cell) => (
+      <Col>
+        <CellEllipsis>{cell.original.email}</CellEllipsis>
+        {cell.original.preferredEmail && (
+          <CellEllipsis className="preferred">{cell.original.preferredEmail}</CellEllipsis>
+        )}
+      </Col>
+    ),
   },
 ];

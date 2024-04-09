@@ -5,6 +5,7 @@ export const defaultUser: IUserModel = {
   key: '00000000-0000-0000-0000-000000000000',
   username: '',
   email: '',
+  preferredEmail: '',
   displayName: '',
   firstName: '',
   lastName: '',

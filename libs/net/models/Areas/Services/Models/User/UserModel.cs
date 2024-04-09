@@ -27,6 +27,11 @@ public class UserModel
     public string Email { get; set; } = "";
 
     /// <summary>
+    /// get/set - The user's preferred email address.
+    /// </summary>
+    public string PreferredEmail { get; set; } = "";
+
+    /// <summary>
     /// get/set - Display name of user.
     /// </summary>
     public string DisplayName { get; set; } = "";
@@ -68,11 +73,23 @@ public class UserModel
         this.Key = entity.Key;
         this.Username = entity.Username;
         this.Email = entity.Email;
+        this.PreferredEmail = entity.PreferredEmail;
         this.DisplayName = entity.DisplayName;
         this.FirstName = entity.FirstName;
         this.LastName = entity.LastName;
         this.IsEnabled = entity.IsEnabled;
         this.EmailVerified = entity.EmailVerified;
+    }
+    #endregion
+
+    #region Methods
+    /// <summary>
+    /// Get the preferred email if it has been set.
+    /// </summary>
+    /// <returns></returns>
+    public string GetEmail()
+    {
+        return String.IsNullOrWhiteSpace(this.PreferredEmail) ? this.Email : this.PreferredEmail;
     }
     #endregion
 }

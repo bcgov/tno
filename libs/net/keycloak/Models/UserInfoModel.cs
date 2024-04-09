@@ -34,6 +34,11 @@ namespace TNO.Keycloak.Models
         public string? Email { get; set; }
 
         /// <summary>
+        /// get/set - The user's preferred email.
+        /// </summary>
+        public string? PreferredEmail { get; set; }
+
+        /// <summary>
         /// get/set - Whether the user's email has been verified.
         /// </summary>
         public bool EmailVerified { get; set; }

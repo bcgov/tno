@@ -1,6 +1,7 @@
 import {
   CellEllipsis,
   Checkbox,
+  Col,
   INotificationModel,
   ITableHookColumn,
   IUserNotificationModel,
@@ -53,6 +54,13 @@ export const subscriberColumns = (
     label: 'Email',
     accessor: 'email',
     width: 2,
-    cell: (cell) => <CellEllipsis>{cell.original.email}</CellEllipsis>,
+    cell: (cell) => (
+      <Col>
+        <CellEllipsis>{cell.original.email}</CellEllipsis>
+        {cell.original.preferredEmail && (
+          <CellEllipsis className="preferred">{cell.original.preferredEmail}</CellEllipsis>
+        )}
+      </Col>
+    ),
   },
 ];

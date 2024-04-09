@@ -90,12 +90,7 @@ const UserForm: React.FC = () => {
           <div className="form-container">
             <Row>
               <Col className="form-inputs">
-                <FormikText
-                  name="username"
-                  label="Username"
-                  required={!values.id}
-                  disabled={!!user.id}
-                />
+                <FormikText name="username" label="Username" required={!values.id} />
               </Col>
               <Col
                 className="form-inputs"
@@ -111,13 +106,8 @@ const UserForm: React.FC = () => {
                 </Show>
               </Col>
             </Row>
-            <FormikText
-              name="email"
-              label="Email"
-              type="email"
-              required={!values.id}
-              disabled={!!user.id}
-            />
+            <FormikText name="email" label="Email" type="email" required={!values.id} />
+            <FormikText name="preferredEmail" label="Preferred Email" type="email" />
             <Row>
               <Col className="form-inputs">
                 <FormikText

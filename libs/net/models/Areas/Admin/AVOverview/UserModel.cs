@@ -22,6 +22,11 @@ public class UserModel
     public string Email { get; set; } = "";
 
     /// <summary>
+    /// get/set - The user's preferred email address.
+    /// </summary>
+    public string PreferredEmail { get; set; } = "";
+
+    /// <summary>
     /// get/set - Display name of user.
     /// </summary>
     public string DisplayName { get; set; } = "";
@@ -58,6 +63,7 @@ public class UserModel
         this.Id = entity.Id;
         this.Username = entity.Username;
         this.Email = entity.Email;
+        this.PreferredEmail = entity.PreferredEmail;
         this.DisplayName = entity.DisplayName;
         this.FirstName = entity.FirstName;
         this.LastName = entity.LastName;

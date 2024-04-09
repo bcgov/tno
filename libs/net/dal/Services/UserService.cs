@@ -140,6 +140,7 @@ public class UserService : BaseService<User, int>, IUserService
         original.Key = entity.Key;
         original.Username = entity.Username;
         original.Email = entity.Email;
+        original.PreferredEmail = entity.PreferredEmail;
         original.DisplayName = entity.DisplayName;
         original.EmailVerified = entity.EmailVerified;
         original.IsEnabled = entity.IsEnabled;

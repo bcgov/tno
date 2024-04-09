@@ -56,4 +56,10 @@ export const AVOverview = styled(FormPage)`
       }
     }
   }
+
+  .preferred {
+    padding: 0 0.5rem;
+    border-radius: 0.5rem;
+    background: ${(props) => props.theme.css.lightAccentColor};
+  }
 `;

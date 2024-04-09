@@ -9,6 +9,7 @@ export interface IUserReportModel {
   /** User properties */
   username: string;
   email: string;
+  preferredEmail: string;
   emailVerified: boolean;
   displayName: string;
   firstName: string;

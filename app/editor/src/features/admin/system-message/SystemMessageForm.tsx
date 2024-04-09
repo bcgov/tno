@@ -38,9 +38,12 @@ const SystemMessageForm: React.FC = () => {
   const systemMessageId = !!systemMessage.id ? systemMessage.id : 0;
 
   React.useEffect(() => {
-    api.findSystemMessage().then((data) => {
-      if (!!data) setSystemMessage(data);
-    });
+    api
+      .findSystemMessage()
+      .then((data) => {
+        if (!!data) setSystemMessage(data);
+      })
+      .catch(() => {});
     // only want to run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
