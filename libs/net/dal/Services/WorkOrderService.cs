@@ -167,7 +167,7 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
             Note = t.Note,
             Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(t.Configuration, options) ?? new Dictionary<string, object>(),
             RequestorId = t.RequestorId,
-            Requestor = t.AssignedId != null ? new UserModel {
+            Requestor = t.RequestorId != null ? new UserModel {
                 Id = u.Id,
                 Username = u.Username,
                 Email = u.Email,
