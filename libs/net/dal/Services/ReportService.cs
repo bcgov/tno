@@ -379,7 +379,7 @@ public class ReportService : BaseService<Report, int>, IReportService
     public async Task<ReportInstance> GenerateReportInstanceAsync(
         int id,
         int? requestorId = null,
-        long instanceId = 0)
+        long? instanceId = null)
     {
         // Fetch content for every section within the report.  This will include folders and filters.
         var report = FindById(id) ?? throw new NoContentException("Report does not exist");
@@ -392,7 +392,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                 // Apply the search results to the report instance.
                 var settings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(section.Settings, _serializerOptions);
                 var sortOrder = 0;
-                instanceContent.AddRange(OrderBySectionField(results.Hits.Hits.Select(c => new ReportInstanceContent(instanceId, c.Source.Id, section.Name, sortOrder++)
+                instanceContent.AddRange(OrderBySectionField(results.Hits.Hits.Select(c => new ReportInstanceContent(instanceId ?? 0, c.Source.Id, section.Name, sortOrder++)
                 {
                     Content = c.Source != null ? (Content)c.Source : null
                 }), settings?.SortBy));
@@ -400,7 +400,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         });
 
         return new ReportInstance(
-            instanceId,
+            instanceId ?? 0,
             id,
             requestorId ?? report.OwnerId,
             instanceContent
@@ -570,14 +570,16 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <param name="ownerId"></param>
     /// <param name="includeContent"></param>
     /// <returns></returns>
-    public ReportInstance? GetPreviousReportInstance(int id, long instanceId, int? ownerId = null, bool includeContent = false)
+    public ReportInstance? GetPreviousReportInstance(int id, long? instanceId, int? ownerId = null, bool includeContent = false)
     {
         var query = this.Context.ReportInstances
             .AsNoTracking()
             .OrderByDescending(i => i.Id)
             .Where(i => i.ReportId == id
-                && i.Id < instanceId
                 && i.SentOn != null);
+
+        if (instanceId.HasValue == true)
+            query = query.Where(ri => ri.Id < instanceId);
 
         if (ownerId.HasValue == true)
             query = query.Where(ri => ri.OwnerId == ownerId);
@@ -606,7 +608,7 @@ public class ReportService : BaseService<Report, int>, IReportService
 
         var ownerId = requestorId ?? report.OwnerId; // TODO: Handle users generating instances for a report they do not own.
         var currentInstance = !instanceId.HasValue ? GetCurrentReportInstance(report.Id, ownerId) : null;
-        var previousInstance = GetPreviousReportInstance(report.Id, instanceId.HasValue ? instanceId.Value : (currentInstance?.Id ?? 0), ownerId);
+        var previousInstance = currentInstance?.SentOn.HasValue == true ? currentInstance : GetPreviousReportInstance(report.Id, instanceId ?? (currentInstance?.Id), ownerId);
 
         // Create an array of content from the previous instance to exclude.
         var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical ? previousInstance?.ContentManyToMany.Select((c) => c.ContentId).ToArray() ?? Array.Empty<long>() : Array.Empty<long>();

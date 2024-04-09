@@ -47,6 +47,7 @@ export interface IReportEditContext {
   onExport: (report: IReportForm) => void;
   onGenerate: (report: IReportForm, regenerate: boolean) => Promise<IReportForm | undefined>;
   onRegenerateSection: (report: IReportForm, sectionId: number) => Promise<IReportForm | undefined>;
+  instance?: IReportInstanceModel;
 }
 
 /**
@@ -100,6 +101,8 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
 
   const [active, setActive] = React.useState<string>();
   const [activeRow, setActiveRow] = React.useState<IReportInstanceContentForm>();
+
+  const instance = values.instances.length ? values.instances[0] : undefined;
 
   React.useEffect(() => {
     // Set the active form based on the route.
@@ -213,6 +216,7 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
         onExport,
         onGenerate,
         onRegenerateSection,
+        instance,
       }}
     >
       {children}

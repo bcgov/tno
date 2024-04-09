@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React from 'react';
 import { FaFolderPlus, FaPen } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
@@ -25,7 +26,7 @@ export interface IFolderMenuProps {
 export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
   const [{ myFolders }, { findMyFolders, addFolder, updateFolder }] = useFolders();
   const [folderName, setFolderName] = React.useState('');
-  const [{ myReports }, { storeReportContent }] = useProfileStore();
+  const [{ myReports }, { storeReportContent, storeMyReports }] = useProfileStore();
 
   React.useEffect(() => {
     if (!myFolders.length) findMyFolders().catch(() => {});
@@ -73,19 +74,35 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
             (c, index) => ({ ...c, sortOrder: index }),
           ),
         })
-          .then(() => {
+          .then((folder) => {
             // Update reports that use this folder.
-            myReports.forEach((report) => {
-              report.sections.forEach((section) => {
+            const results = myReports.map((report) => {
+              // If a report is linked to this folder than remove the instances so that the next time the user views it, it will load from the API.
+              let clearInstances = false;
+
+              const sections = report.sections.map((section) => {
                 if (section.folderId === folder.id) {
                   storeReportContent((reports) => {
                     let result = { ...reports };
-                    result[report.id] = folder.content.map((content) => content.contentId);
+                    result[report.id] = _.uniq([
+                      ...result[report.id],
+                      ...folder.content.map((content) => content.contentId),
+                    ]);
                     return result;
                   });
+                  section.folder = folder;
+                  clearInstances = true;
                 }
+                return section;
               });
+              return {
+                ...report,
+                sections: sections,
+                instances: clearInstances ? [] : report.instances,
+              };
             });
+            storeMyReports(results);
+
             let navUrl = `folders/${folder.id}`;
             toast.success(() => (
               <div>
@@ -97,13 +114,13 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
           .catch(() => {});
       }
     },
-    [content, myReports, storeReportContent, updateFolder],
+    [content, myReports, storeMyReports, storeReportContent, updateFolder],
   );
 
   return (
     <styled.FolderMenu>
       <Row className="title-row">
-        <FaPen /> Create new folder:{' '}
+        <FaPen /> Create new folder:
       </Row>
       <Row className="add-row">
         <Text
@@ -123,7 +140,7 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
       <Col>
         <Row className="add-title">
           <FaFolderPlus />
-          Add to folder:{' '}
+          Add to folder:
         </Row>
         {myFolders.map((folder) => {
           return (

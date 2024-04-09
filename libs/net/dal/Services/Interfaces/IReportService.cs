@@ -51,7 +51,7 @@ public interface IReportService : IBaseService<Report, int>
     public Task<ReportInstance> GenerateReportInstanceAsync(
         int id,
         int? requestorId = null,
-        long instanceId = 0);
+        long? instanceId = null);
 
     /// <summary>
     /// Regenerate the content for the current report instance for the specified report 'id' and 'sectionId'.
@@ -100,7 +100,7 @@ public interface IReportService : IBaseService<Report, int>
     /// <param name="ownerId"></param>
     /// <param name="includeContent"></param>
     /// <returns></returns>
-    ReportInstance? GetPreviousReportInstance(int id, long instanceId, int? ownerId = null, bool includeContent = false);
+    ReportInstance? GetPreviousReportInstance(int id, long? instanceId, int? ownerId = null, bool includeContent = false);
 
     /// <summary>
     /// Get the content from the current report instance for the specified 'reportId'.

@@ -121,7 +121,7 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
           disabled={disabled}
         />
       </Show>
-      {!!section.id && !section.linkedReportId && (
+      {!!section.id && !section.linkedReportId && !disabled && (
         <Col flex="1">
           <Action
             icon={<FaRecycle />}
@@ -197,6 +197,7 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
           !section.filterId &&
           !section.folderId &&
           !section.linkedReportId &&
+          !section.settings.useAllContent &&
           !sectionContent.length
         }
       >

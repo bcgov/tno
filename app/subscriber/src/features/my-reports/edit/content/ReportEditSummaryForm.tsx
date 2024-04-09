@@ -1,9 +1,10 @@
 import { Action } from 'components/action';
+import { StartNextReportInfo } from 'features/my-reports/components';
 import { FaAngleDown, FaMinus } from 'react-icons/fa6';
 
 import { useReportEditContext } from '../ReportEditContext';
-import { ReportSections } from './stories';
 import * as styled from './styled';
+import { ReportSections } from './summaries';
 
 export interface IReportEditSummaryFormProps {
   /** Whether edit functionality is disabled. */
@@ -15,6 +16,7 @@ export const ReportEditSummaryForm = ({ disabled }: IReportEditSummaryFormProps)
 
   return (
     <styled.ReportEditSummaryForm className="report-edit-section">
+      <StartNextReportInfo />
       <div className="section-actions">
         {values.sections.some((s) => s.open) ? (
           <Action
@@ -43,7 +45,7 @@ export const ReportEditSummaryForm = ({ disabled }: IReportEditSummaryFormProps)
           />
         )}
       </div>
-      <ReportSections disabled={disabled} form={'sections'} />
+      <ReportSections disabled={disabled} />
     </styled.ReportEditSummaryForm>
   );
 };

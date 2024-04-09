@@ -15,10 +15,7 @@ export const defaultContentBodyRazorTemplate = `@inherits RazorEngineCore.RazorE
   a { text-decoration:none; }
 </style>
 
-@* LOGO *@
-@* original image <center><div style="margin-bottom: 25px; color:#FFFFF6;"><img src="@($"{SubscriberAppUrl}assets/reports/MMI_logo.png")" width="600"></div></center>  *@
-@* Temporary path to NEW LOGO (with a white bg) *@
-<center><div style="margin-bottom: 25px; color:#FFFFF6;"><img src="https://bobbibjornholt.com/mmi-temp/MMI_logo_report.png" width="600"></div></center>
+<center><div style="margin-bottom: 25px; color:#FFFFF6;"><img src="@($"{SubscriberAppUrl}assets/reports/MMI_logo_white.png")" width="600"></div></center>
 
 @* This is the Do Not Forward disclaimer *@
 <div><p style="background-color: #FFF7E1; color: #876503; text-align: center; font-size: 1em; font-weight: 700; line-height: 1.1em; letter-spacing: 0.08px; padding: 10px 0px; margin: 6px 0px 20px 0px;">DO NOT FORWARD THIS EMAIL TO ANYONE</p></div>

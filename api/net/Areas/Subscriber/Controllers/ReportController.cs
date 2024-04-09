@@ -320,6 +320,7 @@ public class ReportController : ControllerBase
         {
             // Generate a new instance of this report if there is no current instance, or if it has already been sent.
             currentInstance = await _reportService.GenerateReportInstanceAsync(id, user.Id);
+            _reportInstanceService.ClearChangeTracker();
             currentInstance = _reportInstanceService.AddAndSave(currentInstance);
             instances = _reportService.GetLatestInstances(id, user.Id);
             currentInstance.ContentManyToMany.Clear();
@@ -334,6 +335,7 @@ public class ReportController : ControllerBase
         {
             // Generate a new instance because the prior was sent to CHES.
             currentInstance = await _reportService.GenerateReportInstanceAsync(id, user.Id);
+            _reportInstanceService.ClearChangeTracker();
             currentInstance = _reportInstanceService.AddAndSave(currentInstance);
             instances = _reportService.GetLatestInstances(id, user.Id);
             currentInstance.ContentManyToMany.Clear();

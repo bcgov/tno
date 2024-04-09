@@ -59,4 +59,15 @@ export const ReportEditForm = styled.div`
       text-transform: uppercase;
     }
   }
+
+  .report-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    border: solid 1px ${(props) => props.theme.css.lineTertiaryColor};
+    border-radius: 0.5rem;
+    background: ${(props) => props.theme.css.bkInfo};
+    color: ${(props) => props.theme.css.fInfo};
+  }
 `;
