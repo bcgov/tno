@@ -296,6 +296,7 @@ public class ReportController : ControllerBase
     /// <summary>
     /// Execute the report template and generate the results for reviewing.
     /// This generates a report instance if one does not currently exist.
+    /// If an instance already exists the 'regenerate' option controls the behaviour.
     /// </summary>
     /// <param name="id"></param>
     /// <param name="regenerate"></param>
@@ -326,8 +327,7 @@ public class ReportController : ControllerBase
             currentInstance.ContentManyToMany.Clear();
             currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
             report.Instances.Clear();
-            report.Instances.Add(currentInstance);
-            report.Instances.AddRange(instances.Where(i => i.Id != currentInstance.Id));
+            report.Instances.AddRange(instances);
         }
         else if (regenerate
             && (currentInstance.SentOn.HasValue
@@ -341,8 +341,7 @@ public class ReportController : ControllerBase
             currentInstance.ContentManyToMany.Clear();
             currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
             report.Instances.Clear();
-            report.Instances.Add(currentInstance);
-            report.Instances.AddRange(instances.Where(i => i.Id != currentInstance.Id));
+            report.Instances.AddRange(instances);
         }
         else if (regenerate && currentInstance.SentOn.HasValue == false)
         {
@@ -363,8 +362,7 @@ public class ReportController : ControllerBase
             currentInstance.ContentManyToMany.Clear();
             currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
             report.Instances.Clear();
-            report.Instances.Add(currentInstance);
-            report.Instances.AddRange(instances.Where(i => i.Id != currentInstance.Id));
+            report.Instances.AddRange(instances);
         }
         else
         {
@@ -427,6 +425,15 @@ public class ReportController : ControllerBase
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to review this report"); // Report is not public
 
         var result = await _reportService.AddContentToReportAsync(id, user.Id, content.Select((c) => (Entities.ReportInstanceContent)c)) ?? throw new NoContentException("Report does not exist");
+
+        var instances = _reportService.GetLatestInstances(id, user.Id);
+        var currentInstance = instances.FirstOrDefault();
+        if (currentInstance == null) throw new InvalidOperationException("Unable to add content to a report without an instance");
+
+        currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
+        result.Instances.Clear();
+        result.Instances.AddRange(instances);
+
         return new JsonResult(new ReportModel(result, _serializerOptions));
     }
 

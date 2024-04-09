@@ -134,7 +134,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
         >
           <Button
             variant="secondary"
-            onClick={() => instance?.id && handleRefresh(instance?.id, true)}
+            onClick={() => instance?.id && handleRefresh(instance?.id, true).catch(() => {})}
             disabled={isSubmitting}
           >
             Refresh
@@ -155,7 +155,9 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
               (value) => instance?.status === value,
             ) ? (
               <Button
-                onClick={() => report && instance && handleSend(report, instance.id)}
+                onClick={() =>
+                  report && instance && handleSend(report, instance.id).catch(() => {})
+                }
                 disabled={isSubmitting}
               >
                 Send
@@ -163,7 +165,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
               </Button>
             ) : (
               <Button
-                onClick={() => report && handleGenerate(report, true)}
+                onClick={() => report && handleGenerate(report, true).catch(() => {})}
                 disabled={isSubmitting}
                 variant="success"
               >
