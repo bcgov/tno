@@ -23,59 +23,47 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
     if (!myReports.length && !isLoading) {
       findMyReports().catch(() => {});
     }
+    // Only do this on initialization.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /** Adds the content to the active report. */
   const handleAddToReport = React.useCallback(
-    (sectionName: string) => {
-      if (!activeReport) {
-        return;
-      }
+    async (sectionName: string) => {
+      if (!activeReport) return;
 
-      const convertedContent = toInstanceContent(
-        content,
-        activeReport.instances[0].id,
-        sectionName,
-        0,
-      );
-      const update = (report: IReportModel) => {
-        let navUrl = `reports/${report.id}/edit`;
-        addContentToReport(report.id, convertedContent)
-          .then(() =>
-            toast.success(() => (
-              <div>
-                {content.length} stories added to report:
-                <Link to={navUrl}>{report.name}</Link>
-              </div>
-            )),
-          )
-          .catch(() => {});
-      };
+      try {
+        var instance = activeReport.instances.length ? activeReport.instances[0] : undefined;
+        if (!instance || instance.sentOn) {
+          toast.error('Unable to generate a new report');
+          return;
+        }
 
-      if (!!activeReport.instances.length) {
-        // get the latest instance content and append to it
-        // 0 will always be the latest instance
-        const instContent = [...activeReport.instances[0].content, ...convertedContent];
+        const convertedContent = toInstanceContent(
+          content,
+          activeReport.instances[0].id,
+          sectionName,
+          0,
+        );
 
-        // find the latest instance and replace the content with old content appended with new
-        // this should handle create new instance if there is no instance
-        const instances = activeReport.instances.map((inst, index) => {
-          if (index === 0) {
-            return {
-              ...inst,
-              content: instContent,
-            };
-          } else {
-            return inst;
-          }
-        });
+        const instances = activeReport.instances.map((i) =>
+          i.id === instance!.id ? { ...i, content: [...i.content, ...convertedContent] } : i,
+        );
+
         const report = {
           ...activeReport,
           instances: instances,
         };
-        update(report);
-      }
+
+        await addContentToReport(report.id, convertedContent);
+
+        toast.success(() => (
+          <div>
+            {content.length} stories added to report:
+            <Link to={`reports/${report.id}/content`}>{report.name}</Link>
+          </div>
+        ));
+      } catch {}
     },
     [activeReport, content, addContentToReport],
   );
@@ -88,7 +76,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
           setActiveReport(report);
           // check for instances and if the report has been sent
           if (!report?.instances?.length || !!report?.instances[0]?.sentOn) {
-            const result = await generateReport(reportId);
+            const result = await generateReport(reportId, true);
             setActiveReport(result);
           }
         })
@@ -129,7 +117,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
                 <Row
                   key={section.id}
                   className="report-item"
-                  onClick={() => handleAddToReport(section.name)}
+                  onClick={() => handleAddToReport(section.name).catch(() => {})}
                 >
                   {section.settings.label}
                 </Row>

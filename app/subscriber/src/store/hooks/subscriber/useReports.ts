@@ -208,6 +208,7 @@ export const useReports = (): [IProfileState, IReportController] => {
             if (!response.data) return reports;
             var contains = false;
             const results = reports.map((r) => {
+              // If the report exists then we don't need to add it.
               if (r.id === id) contains = true;
               return r.id === id ? response.data! : r;
             });
