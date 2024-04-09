@@ -167,14 +167,14 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
             Note = t.Note,
             Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(t.Configuration, options) ?? new Dictionary<string, object>(),
             RequestorId = t.RequestorId,
-            Requestor = new UserModel {
+            Requestor = t.RequestorId != null ? new UserModel {
                 Id = u.Id,
                 Username = u.Username,
                 Email = u.Email,
                 DisplayName = u.DisplayName,
                 FirstName = u.FirstName,
                 LastName = u.LastName
-            },
+            } : null,
             AssignedId = t.AssignedId,
             Assigned = t.AssignedId != null ? new UserModel {
                 Id = u0.Id,
@@ -185,7 +185,7 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
                 LastName = u0.LastName
             } : null,
             ContentId = t.ContentId,
-            Content = new ContentModel {
+            Content = t.ContentId != null ? new ContentModel {
                 Id = c.Id,
                 Headline = c.Headline,
                 OtherSource = c.OtherSource,
@@ -195,7 +195,7 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
                 SeriesId = s.Id,
                 SourceId = s0.Id,
                 MediaTypeId = m.Id,
-            },
+            } : null,
             CreatedOn = t.CreatedOn,
             CreatedBy = t.CreatedBy,
             UpdatedOn = t.UpdatedOn,
