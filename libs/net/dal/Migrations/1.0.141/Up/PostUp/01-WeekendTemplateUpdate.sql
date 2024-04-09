@@ -1,8 +1,9 @@
-export const defaultAVOverviewSubjectRazorTemplate = `@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.ReportEngineAVOverviewModel>
-@using TNO.TemplateEngine
-Daily Today's News Online Media Overview - @($"{Instance.PublishedOn:dddd, MMMM dd, yyyy}")`;
+DO $$
+BEGIN
 
-export const defaultAVOverviewBodyRazorTemplate = `@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.ReportEngineAVOverviewModel>
+UPDATE public.report_template SET
+"body" = '
+@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.ReportEngineAVOverviewModel>
 @using System
 @using System.Linq
 @using TNO.Entities
@@ -110,4 +111,8 @@ a { text-decoration:none; }
 		</p>
 	</div>
 </div>
-</div>`;
+</div>
+'
+WHERE "name" = 'AV Overview - Weekend';
+
+END $$;
