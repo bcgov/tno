@@ -1,8 +1,10 @@
-import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
+import { Action } from 'components/action';
+import { Modal } from 'components/modal';
+import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { sortContent, sortReportContent } from 'features/my-reports/utils';
-import { useFormikContext } from 'formik';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
+import { FaRecycle } from 'react-icons/fa6';
 import {
   Col,
   FormikText,
@@ -13,8 +15,10 @@ import {
   ReportSectionTypeName,
   Row,
   Show,
+  useModal,
 } from 'tno-core';
 
+import { useReportEditContext } from '../../ReportEditContext';
 import { ReportContentSectionRow } from './ReportContentSectionRow';
 
 export interface IReportSectionGalleryProps extends React.AllHTMLAttributes<HTMLDivElement> {
@@ -42,7 +46,8 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
   onContentClick,
   ...rest
 }) => {
-  const { values, setFieldValue } = useFormikContext<IReportForm>();
+  const { values, isSubmitting, setFieldValue, onRegenerateSection } = useReportEditContext();
+  const { isShowing, toggle } = useModal();
 
   const section = values.sections[sectionIndex];
   const instance = values.instances.length ? values.instances[0] : null;
@@ -117,6 +122,17 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
           disabled={disabled}
         />
       </Show>
+      {!!section.id && (
+        <Col flex="1">
+          <Action
+            icon={<FaRecycle />}
+            label="Regenerate section"
+            disabled={isSubmitting}
+            onClick={(e) => toggle()}
+            direction="row-reverse"
+          />
+        </Col>
+      )}
       <Droppable droppableId={section.name} isDropDisabled={disabled}>
         {(droppableProvided) => (
           <div {...droppableProvided.droppableProps} ref={droppableProvided.innerRef}>
@@ -169,14 +185,41 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
         )}
       </Droppable>
       <Show visible={!!section.filterId && !sectionContent.length}>
-        <p>No content was returned by the filter.</p>
+        <p>No content was returned by the filter, or duplicate content was removed.</p>
       </Show>
       <Show visible={!!section.folderId && !sectionContent.length}>
-        <p>Folder is empty.</p>
+        <p>Folder is empty, or duplicate content was removed.</p>
       </Show>
       <Show visible={!section.filterId && !section.folderId && !sectionContent.length}>
-        <p>Section is empty</p>
+        <p>Section has no data source configured.</p>
       </Show>
+      <Modal
+        headerText="Regenerate Section"
+        body={
+          <>
+            <p>
+              Regenerating this section will remove content and then rerun the data source to
+              populate with content.
+            </p>
+            <p>
+              This process will not update other sections. As such report content options that
+              remove duplicates in subsequent sections will not be applied.
+            </p>
+            <p>Do you want to proceed?</p>
+          </>
+        }
+        isShowing={isShowing}
+        hide={toggle}
+        type="default"
+        confirmText="Yes, Regenerate It"
+        onConfirm={async () => {
+          try {
+            await onRegenerateSection(values, section.id);
+          } finally {
+            toggle();
+          }
+        }}
+      />
     </Col>
   );
 };

@@ -1,14 +1,14 @@
 import { Action } from 'components/action';
-import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
+import { Modal } from 'components/modal';
+import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import {
   createReportInstanceContent,
   sortContent,
   sortReportContent,
 } from 'features/my-reports/utils';
-import { useFormikContext } from 'formik';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaRecycle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useApp, useLookup } from 'store/hooks';
 import {
@@ -22,8 +22,10 @@ import {
   Row,
   Settings,
   Show,
+  useModal,
 } from 'tno-core';
 
+import { useReportEditContext } from '../../ReportEditContext';
 import { ReportContentSectionRow } from './ReportContentSectionRow';
 
 export interface IReportSectionContentProps extends React.AllHTMLAttributes<HTMLDivElement> {
@@ -60,8 +62,9 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
   onContentClick,
 }) => {
   const [{ userInfo }] = useApp();
-  const { values, setFieldValue } = useFormikContext<IReportForm>();
+  const { values, isSubmitting, setFieldValue, onRegenerateSection } = useReportEditContext();
   const [{ isReady, settings }] = useLookup();
+  const { isShowing, toggle } = useModal();
 
   const [defaultLicenseId, setDefaultLicenseId] = React.useState(0);
   const [defaultMediaTypeId, setDefaultMediaTypeId] = React.useState(0);
@@ -187,11 +190,27 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
           <div {...droppableProvided.droppableProps} ref={droppableProvided.innerRef}>
             {showAdd && !disabled && (
               <Row className="add-story">
-                <Action
-                  icon={<FaPlus />}
-                  label="Create a story"
-                  onClick={() => addStory(instance.id, section.name)}
-                />
+                <Col flex="1"></Col>
+                <Col flex="1">
+                  <Action
+                    icon={<FaPlus />}
+                    label="Create a story"
+                    onClick={() => addStory(instance.id, section.name)}
+                  />
+                </Col>
+                {!!section.id ? (
+                  <Col flex="1">
+                    <Action
+                      icon={<FaRecycle />}
+                      label="Regenerate section"
+                      disabled={isSubmitting}
+                      onClick={(e) => toggle()}
+                      direction="row-reverse"
+                    />
+                  </Col>
+                ) : (
+                  <Col flex="1"></Col>
+                )}
               </Row>
             )}
             <Show visible={!sectionContent.length}>
@@ -254,14 +273,41 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
         )}
       </Droppable>
       <Show visible={!!section.filterId && !sectionContent.length}>
-        <p>No content was returned by the filter.</p>
+        <p>No content was returned by the filter, or duplicate content was removed.</p>
       </Show>
       <Show visible={!!section.folderId && !sectionContent.length}>
-        <p>Folder is empty.</p>
+        <p>Folder is empty, or duplicate content was removed.</p>
       </Show>
       <Show visible={!section.filterId && !section.folderId && !sectionContent.length}>
-        <p>Section is empty</p>
+        <p>Section has no data source configured.</p>
       </Show>
+      <Modal
+        headerText="Regenerate Section"
+        body={
+          <>
+            <p>
+              Regenerating this section will remove content and then rerun the data source to
+              populate with content.
+            </p>
+            <p>
+              This process will not update other sections. As such report content options that
+              remove duplicates in subsequent sections will not be applied.
+            </p>
+            <p>Do you want to proceed?</p>
+          </>
+        }
+        isShowing={isShowing}
+        hide={toggle}
+        type="default"
+        confirmText="Yes, Regenerate It"
+        onConfirm={async () => {
+          try {
+            await onRegenerateSection(values, section.id);
+          } finally {
+            toggle();
+          }
+        }}
+      />
     </Col>
   );
 };

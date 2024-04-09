@@ -37,9 +37,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
             label="Settings"
             active={!active || active?.startsWith(ReportMainMenuOption.Settings)}
             onClick={() => onChange?.(`/reports/${values.id}/${ReportMainMenuOption.Settings}`)}
-          >
-            <FaCaretRight className="caret" />
-          </MenuButton>
+          ></MenuButton>
         </div>
         <div>
           <MenuButton
@@ -47,9 +45,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
             active={active?.startsWith(ReportMainMenuOption.Content)}
             disabled={!values.id}
             onClick={() => onChange?.(`/reports/${values.id}/${ReportMainMenuOption.Content}`)}
-          >
-            <FaCaretRight className="caret" />
-          </MenuButton>
+          ></MenuButton>
         </div>
         <div>
           <MenuButton
@@ -57,9 +53,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
             active={active?.startsWith(ReportMainMenuOption.View)}
             disabled={!values.id}
             onClick={() => onChange?.(`/reports/${values.id}/${ReportMainMenuOption.View}`)}
-          >
-            <FaCaretRight className="caret" />
-          </MenuButton>
+          ></MenuButton>
         </div>
         <div>
           <MenuButton

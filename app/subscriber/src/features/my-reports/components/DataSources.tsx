@@ -74,19 +74,19 @@ export const DataSources = ({
   );
 
   React.useEffect(() => {
-    if (!myFolders.length) {
+    if (myFolders.length) {
       setFolderOptions(getSortableOptions(myFolders));
     }
   }, [myFolders]);
 
   React.useEffect(() => {
-    if (!myFilters.length) {
+    if (myFilters.length) {
       setFilterOptions(getSortableOptions(myFilters));
     }
   }, [myFilters]);
 
   React.useEffect(() => {
-    if (!myReports.length) {
+    if (myReports.length) {
       setReportOptions(getSortableOptions(myReports));
     }
   }, [myReports]);

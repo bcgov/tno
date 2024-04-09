@@ -22,14 +22,24 @@ public interface IReportService : IBaseService<Report, int>
 
     /// <summary>
     /// Make a request to Elasticsearch to find content for the specified 'report'.
-    /// Makes a request for each section.
-    /// If the section also references a folder it will make a request for the folder content too.
+    /// It will generate content for each section.
     /// </summary>
     /// <param name="report"></param>
+    /// <param name="instanceId"></param>
     /// <param name="requestorId"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(Report report, int? requestorId);
+    Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(Report report, long? instanceId, int? requestorId);
+
+    /// <summary>
+    /// Find content with Elasticsearch for the specified `reportInstance` and `section`.
+    /// </summary>
+    /// <param name="reportInstance"></param>
+    /// <param name="section"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(ReportInstance reportInstance, ReportSection section, int? requestorId);
 
     /// <summary>
     /// Generate an instance of the report.
@@ -42,6 +52,18 @@ public interface IReportService : IBaseService<Report, int>
         int id,
         int? requestorId = null,
         long instanceId = 0);
+
+    /// <summary>
+    /// Regenerate the content for the current report instance for the specified report 'id' and 'sectionId'.
+    /// This provides a way to only refresh a single section within a report.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="sectionId"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    Task<ReportInstance> RegenerateReportInstanceSectionAsync(int id, int sectionId, int? requestorId = null);
 
     /// <summary>
     /// Add the specified 'content' to the specified report 'id'.
@@ -69,6 +91,16 @@ public interface IReportService : IBaseService<Report, int>
     /// <param name="includeContent"></param>
     /// <returns></returns>
     ReportInstance? GetCurrentReportInstance(int reportId, int? ownerId = null, bool includeContent = false);
+
+    /// <summary>
+    /// Find the previous report instance created for the specified report 'id' and 'ownerId'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="instanceId"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="includeContent"></param>
+    /// <returns></returns>
+    ReportInstance? GetPreviousReportInstance(int id, long instanceId, int? ownerId = null, bool includeContent = false);
 
     /// <summary>
     /// Get the content from the current report instance for the specified 'reportId'.

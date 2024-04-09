@@ -83,5 +83,24 @@ export const ReportEditTemplateForm = styled.div`
         max-width: 20px;
       }
     }
+
+    .charts {
+      > div {
+        border-radius: 0.5rem;
+        border: solid 1px ${(props) => props.theme.css.tableEvenRow};
+      }
+
+      .chart-header {
+        background: ${(props) => props.theme.css.tableHoverRow};
+        padding: 0.25rem 1rem;
+        justify-items: center;
+        align-items: center;
+      }
+
+      .chart-settings {
+        padding: 1rem;
+        gap: 1rem;
+      }
+    }
   }
 `;

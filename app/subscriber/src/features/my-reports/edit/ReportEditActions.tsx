@@ -3,14 +3,19 @@ import { Button } from 'components/button';
 import { Modal } from 'components/modal';
 import React from 'react';
 import { FaSave, FaTelegramPlane } from 'react-icons/fa';
-import { FaFileCirclePlus, FaTrash } from 'react-icons/fa6';
+import { FaCaretRight, FaFileCirclePlus, FaTrash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useReportInstances } from 'store/hooks';
 import { ReportStatusName, Show, useModal } from 'tno-core';
 
 import { IReportForm } from '../interfaces';
-import { ReportMainMenuOption } from './constants';
+import {
+  ReportContentMenuOption,
+  ReportMainMenuOption,
+  ReportSettingsMenuOption,
+  ReportViewMenuOption,
+} from './constants';
 import { useReportEditContext } from './ReportEditContext';
 import { ReportExporter } from './settings/ReportExporter';
 import * as styled from './styled';
@@ -33,7 +38,7 @@ export const ReportEditActions = ({ disabled, updateForm }: IReportEditActionsPr
     values,
     isSubmitting,
     submitForm,
-    onRegenerate,
+    onGenerate,
     activeRow,
     setFieldValue,
     setValues,
@@ -117,7 +122,7 @@ export const ReportEditActions = ({ disabled, updateForm }: IReportEditActionsPr
           <Button
             disabled={isSubmitting}
             onClick={async () => {
-              const form = await onRegenerate(values, true);
+              const form = await onGenerate(values, true);
               if (form) updateForm(form);
             }}
           >
@@ -125,6 +130,37 @@ export const ReportEditActions = ({ disabled, updateForm }: IReportEditActionsPr
             <FaFileCirclePlus />
           </Button>
         )}
+      </Show>
+      <Show
+        visible={
+          active?.startsWith(ReportMainMenuOption.Settings) ||
+          active?.startsWith(ReportMainMenuOption.Content)
+        }
+      >
+        <Button
+          variant="secondary"
+          onClick={() => {
+            if (active === ReportSettingsMenuOption.Info)
+              navigate(`/reports/${values.id}/${ReportSettingsMenuOption.Sections}`);
+            else if (active === ReportSettingsMenuOption.Sections)
+              navigate(`/reports/${values.id}/${ReportSettingsMenuOption.DataSources}`);
+            else if (active === ReportSettingsMenuOption.DataSources)
+              navigate(`/reports/${values.id}/${ReportSettingsMenuOption.Preferences}`);
+            else if (active === ReportSettingsMenuOption.Preferences)
+              navigate(`/reports/${values.id}/${ReportSettingsMenuOption.Send}`);
+            else if (active === ReportSettingsMenuOption.Send)
+              navigate(`/reports/${values.id}/${ReportMainMenuOption.Content}`);
+            else if (active === ReportContentMenuOption.Content)
+              navigate(`/reports/${values.id}/${ReportContentMenuOption.Sort}`);
+            else if (active === ReportContentMenuOption.Sort)
+              navigate(`/reports/${values.id}/${ReportContentMenuOption.Summary}`);
+            else if (active === ReportContentMenuOption.Summary)
+              navigate(`/reports/${values.id}/${ReportViewMenuOption.View}`);
+          }}
+        >
+          Next Step
+          <FaCaretRight className="caret" />
+        </Button>
       </Show>
       <Modal
         headerText="Confirm Remove Content"

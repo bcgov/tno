@@ -54,7 +54,7 @@
     "redux-logger": "3.0.6",
     "sheetjs": "file:packages/xlsx-0.20.1.tgz",
     "styled-components": "5.3.9",
-    "tno-core": "0.1.44"
+    "tno-core": "0.1.45"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "5.16.5",

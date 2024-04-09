@@ -111,7 +111,7 @@ public class ReportService : BaseService<Report, int>, IReportService
     public override Report? FindById(int id)
     {
         // If you edit this function, also edit the related function in ReportEngine.OrderBySectionField
-        return this.Context.Reports
+        var report = this.Context.Reports
             .Include(r => r.Owner)
             .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
             .Include(r => r.Sections).ThenInclude(s => s.Filter)
@@ -120,6 +120,12 @@ public class ReportService : BaseService<Report, int>, IReportService
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
             .Include(r => r.Events).ThenInclude(s => s.Schedule)
             .FirstOrDefault(r => r.Id == id);
+
+        // Reorganize sections.
+        var sections = report?.Sections.OrderBy(s => s.SortOrder).ToArray() ?? Array.Empty<ReportSection>();
+        report?.Sections.Clear();
+        report?.Sections.AddRange(sections);
+        return report;
     }
 
     /// <summary>
@@ -377,7 +383,7 @@ public class ReportService : BaseService<Report, int>, IReportService
     {
         // Fetch content for every section within the report.  This will include folders and filters.
         var report = FindById(id) ?? throw new NoContentException("Report does not exist");
-        var searchResults = await FindContentWithElasticsearchAsync(report, requestorId);
+        var searchResults = await FindContentWithElasticsearchAsync(report, instanceId, requestorId);
         var instanceContent = new List<ReportInstanceContent>(searchResults.SelectMany(sr => sr.Value.Hits.Hits).Count());
         report.Sections.ForEach(section =>
         {
@@ -386,7 +392,10 @@ public class ReportService : BaseService<Report, int>, IReportService
                 // Apply the search results to the report instance.
                 var settings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(section.Settings, _serializerOptions);
                 var sortOrder = 0;
-                instanceContent.AddRange(OrderBySectionField(results.Hits.Hits.Select(c => new ReportInstanceContent(instanceId, c.Source.Id, section.Name, sortOrder++)), settings?.SortBy));
+                instanceContent.AddRange(OrderBySectionField(results.Hits.Hits.Select(c => new ReportInstanceContent(instanceId, c.Source.Id, section.Name, sortOrder++)
+                {
+                    Content = c.Source != null ? (Content)c.Source : null
+                }), settings?.SortBy));
             }
         });
 
@@ -400,6 +409,50 @@ public class ReportService : BaseService<Report, int>, IReportService
             OwnerId = requestorId,
             PublishedOn = DateTime.UtcNow
         };
+    }
+
+    /// <summary>
+    /// Regenerate the content for the current report instance for the specified report 'id' and 'sectionId'.
+    /// This provides a way to only refresh a single section within a report.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="sectionId"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task<ReportInstance> RegenerateReportInstanceSectionAsync(int id, int sectionId, int? requestorId = null)
+    {
+        // Fetch content for every section within the report.  This will include folders and filters.
+        var report = FindById(id) ?? throw new NoContentException("Report does not exist");
+        var section = this.Context.ReportSections.FirstOrDefault(rs => rs.Id == sectionId) ?? throw new InvalidOperationException("Report section does not exist");
+
+        var ownerId = requestorId ?? report.OwnerId; // TODO: Handle users generating instances for a report they do not own.
+        var currentInstance = GetCurrentReportInstance(report.Id, ownerId, true) ?? new ReportInstance(id, ownerId)
+        {
+            PublishedOn = DateTime.UtcNow
+        };
+        currentInstance.Report = report;
+
+        var searchResults = await FindContentWithElasticsearchAsync(currentInstance, section, requestorId);
+        var instanceContent = new List<ReportInstanceContent>(searchResults.SelectMany(sr => sr.Value.Hits.Hits).Count());
+        report.Sections.ForEach(section =>
+        {
+            if (searchResults.TryGetValue(section.Name, out Elastic.Models.SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
+            {
+                // Apply the search results to the report instance.
+                var settings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(section.Settings, _serializerOptions);
+                var sortOrder = 0;
+                instanceContent.AddRange(OrderBySectionField(results.Hits.Hits.Select(c => new ReportInstanceContent(currentInstance.Id, c.Source.Id, section.Name, sortOrder++)
+                {
+                    Content = c.Source != null ? (Content)c.Source : null
+                }), settings?.SortBy));
+            }
+        });
+
+        currentInstance.ContentManyToMany.Clear();
+        currentInstance.ContentManyToMany.AddRange(instanceContent);
+        return currentInstance;
     }
 
     /// <summary>
@@ -493,9 +546,41 @@ public class ReportService : BaseService<Report, int>, IReportService
     public ReportInstance? GetCurrentReportInstance(int id, int? ownerId = null, bool includeContent = false)
     {
         var query = this.Context.ReportInstances
+            .AsNoTracking()
+            .OrderByDescending(i => i.Id)
+            .Where(i => i.ReportId == id);
+
+        if (ownerId.HasValue == true)
+            query = query.Where(ri => ri.OwnerId == ownerId);
+
+        if (includeContent)
+            query = query.Include(i => i.ContentManyToMany).ThenInclude(c => c.Content);
+        else
+            query = query.Include(i => i.ContentManyToMany);
+
+        return query.FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Find the previous report instance created for the specified report 'id' and 'ownerId'.
+    /// Find the previous report instance that was sent.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="instanceId"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="includeContent"></param>
+    /// <returns></returns>
+    public ReportInstance? GetPreviousReportInstance(int id, long instanceId, int? ownerId = null, bool includeContent = false)
+    {
+        var query = this.Context.ReportInstances
+            .AsNoTracking()
             .OrderByDescending(i => i.Id)
             .Where(i => i.ReportId == id
-                && (ownerId == null || i.OwnerId == ownerId));
+                && i.Id < instanceId
+                && i.SentOn != null);
+
+        if (ownerId.HasValue == true)
+            query = query.Where(ri => ri.OwnerId == ownerId);
 
         if (includeContent)
             query = query.Include(i => i.ContentManyToMany).ThenInclude(c => c.Content);
@@ -507,23 +592,24 @@ public class ReportService : BaseService<Report, int>, IReportService
 
     /// <summary>
     /// Make a request to Elasticsearch to find content for the specified 'report'.
-    /// Makes a request for each section.
-    /// If the section also references a folder it will make a request for the folder content too.
+    /// It will generate content for each section.
     /// </summary>
     /// <param name="report"></param>
+    /// <param name="instanceId"></param>
     /// <param name="requestorId"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(Report report, int? requestorId)
+    public async Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(Report report, long? instanceId, int? requestorId)
     {
         var searchResults = new Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>();
         var reportSettings = JsonSerializer.Deserialize<ReportSettingsModel>(report.Settings.ToJson(), _serializerOptions) ?? new();
 
         var ownerId = requestorId ?? report.OwnerId; // TODO: Handle users generating instances for a report they do not own.
-        var currentInstance = GetCurrentReportInstance(report.Id, ownerId);
+        var currentInstance = !instanceId.HasValue ? GetCurrentReportInstance(report.Id, ownerId) : null;
+        var previousInstance = GetPreviousReportInstance(report.Id, instanceId.HasValue ? instanceId.Value : (currentInstance?.Id ?? 0), ownerId);
 
-        // Create an array of content from the previous instance.
-        var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical ? currentInstance?.ContentManyToMany.Select((c) => c.ContentId).ToArray() ?? Array.Empty<long>() : Array.Empty<long>();
+        // Create an array of content from the previous instance to exclude.
+        var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical ? previousInstance?.ContentManyToMany.Select((c) => c.ContentId).ToArray() ?? Array.Empty<long>() : Array.Empty<long>();
 
         // Fetch other reports to exclude any content within them.
         var excludeReportContentIds = reportSettings.Content.ExcludeReports.Any()
@@ -533,7 +619,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         var excludeContentIds = excludeHistoricalContentIds.AppendRange(excludeReportContentIds).Distinct();
         var excludeAboveSectionContentIds = new List<long>();
 
-        foreach (var section in report.Sections)
+        foreach (var section in report.Sections.OrderBy(s => s.SortOrder))
         {
             var sectionSettings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(section.Settings.ToJson(), _serializerOptions) ?? new();
 
@@ -576,8 +662,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                 searchResults.Add(section.Name, folderContent);
                 excludeAboveSectionContentIds.AddRange(content.Select(c => c.ContentId).ToArray());
             }
-            // Content in a filter is added second.
-            if (section.FilterId.HasValue)
+            else if (section.FilterId.HasValue)
             {
                 if (section.Filter == null) throw new InvalidOperationException($"Section '{section.Name}' filter is missing from report object.");
 
@@ -592,7 +677,7 @@ public class ReportService : BaseService<Report, int>, IReportService
 
                 // Only include content that has been posted since the last report instance.
                 if (reportSettings.Content.OnlyNewContent)
-                    query = query.IncludeOnlyLatestPosted(currentInstance?.PublishedOn);
+                    query = query.IncludeOnlyLatestPosted(previousInstance?.PublishedOn);
 
                 // Determine index.
                 var searchUnpublished = section.Filter.Settings.GetElementValue(".searchUnpublished", false);
@@ -618,6 +703,140 @@ public class ReportService : BaseService<Report, int>, IReportService
                 searchResults.Add(section.Name, content);
                 excludeAboveSectionContentIds.AddRange(contentIds);
             }
+        }
+
+        return searchResults;
+    }
+
+    /// <summary>
+    /// Find content with Elasticsearch for the specified `reportInstance` and `section`.
+    /// This method supports regenerating content within a section.
+    /// The specified 'reportInstance' is treated like the current instance.
+    /// </summary>
+    /// <param name="reportInstance"></param>
+    /// <param name="section"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(ReportInstance reportInstance, ReportSection section, int? requestorId)
+    {
+        var report = reportInstance.Report ?? throw new InvalidOperationException("Report instance must include report");
+        var searchResults = new Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>();
+        var reportSettings = JsonSerializer.Deserialize<ReportSettingsModel>(report.Settings.ToJson(), _serializerOptions) ?? new();
+
+        var ownerId = requestorId ?? reportInstance.OwnerId; // TODO: Handle users generating instances for a report they do not own.
+        var previousInstance = reportInstance != null ? GetPreviousReportInstance(report.Id, reportInstance.Id, ownerId) : null;
+
+        // Organize the content sections, and remove the specified section.
+        var currentInstanceContent = reportInstance?.ContentManyToMany.Where(c => c.SectionName != section.Name).ToArray() ?? Array.Empty<ReportInstanceContent>();
+        var contentAbove = new List<ReportInstanceContent>();
+        report.Sections.Where(s => s.Name != section.Name).OrderBy(s => s.SortOrder).ForEach(s =>
+        {
+            var sectionContent = currentInstanceContent.Where(c => c.SectionName == s.Name);
+            if (s.SortOrder < section.SortOrder) contentAbove.AddRange(sectionContent);
+
+            var sectionResults = new Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>();
+            sectionResults.Hits.Hits = sectionContent
+                .Select(c => new Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>()
+                {
+                    Source = new API.Areas.Services.Models.Content.ContentModel(c.Content!, _serializerOptions)
+                });
+            searchResults.Add(s.Name, sectionResults);
+        });
+
+        // Create an array of content from the previous instance to exclude from the report.
+        var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical && previousInstance != null ? previousInstance?.ContentManyToMany.Select((c) => c.ContentId).ToArray() ?? Array.Empty<long>() : Array.Empty<long>();
+
+        // Fetch other reports to exclude any content within them.
+        var excludeReportContentIds = reportSettings.Content.ExcludeReports.Any()
+            ? reportSettings.Content.ExcludeReports.SelectMany((reportId) => this.GetReportInstanceContentToExclude(reportId, ownerId)).Distinct()
+            : Array.Empty<long>();
+
+        var excludeContentIds = excludeHistoricalContentIds.AppendRange(excludeReportContentIds).Distinct();
+        var excludeAboveSectionContentIds = new List<long>();
+
+        // Identify any content above that may need to be excluded.
+        if (reportInstance != null)
+            excludeAboveSectionContentIds.AddRange(contentAbove.Select(c => c.ContentId).ToArray());
+
+        var sectionSettings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(section.Settings.ToJson(), _serializerOptions) ?? new();
+
+        if (section.FolderId.HasValue)
+        {
+            var query = this.Context.FolderContents
+                .Include(fc => fc.Content)
+                .Include(fc => fc.Content).ThenInclude(c => c!.Source)
+                .Include(fc => fc.Content).ThenInclude(c => c!.Series)
+                .Include(fc => fc.Content).ThenInclude(c => c!.MediaType)
+                .Include(fc => fc.Content).ThenInclude(c => c!.Contributor)
+                .Include(fc => fc.Content).ThenInclude(c => c!.Owner)
+                .Include(fc => fc.Content).ThenInclude(c => c!.Labels)
+                .Include(fc => fc.Content).ThenInclude(c => c!.FileReferences)
+                .Include(fc => fc.Content).ThenInclude(c => c!.TimeTrackings)
+                .Include(fc => fc.Content).ThenInclude(c => c!.Tags)
+                .Include(fc => fc.Content).ThenInclude(c => c!.ActionsManyToMany).ThenInclude(t => t.Action)
+                .Include(fc => fc.Content).ThenInclude(c => c!.ActionsManyToMany).ThenInclude(t => t.Action)
+                .Include(fc => fc.Content).ThenInclude(c => c!.TopicsManyToMany).ThenInclude(t => t.Topic)
+                .Include(fc => fc.Content).ThenInclude(c => c!.TonePoolsManyToMany).ThenInclude(t => t.TonePool)
+                .Where(fc => fc.FolderId == section.FolderId);
+
+            if (sectionSettings.RemoveDuplicates)
+                query = query.Where(fc => !excludeAboveSectionContentIds.Contains(fc.ContentId));
+
+            if (excludeContentIds.Any())
+                query = query.Where(fc => !excludeContentIds.Contains(fc.ContentId));
+
+            var content = query
+                .OrderBy(fc => fc.SortOrder)
+                .ToArray();
+
+            var folderContent = new Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>();
+            folderContent.Hits.Hits = content
+                .Select(c => new Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>()
+                {
+                    Source = new API.Areas.Services.Models.Content.ContentModel(c.Content!, _serializerOptions)
+                });
+            searchResults.Add(section.Name, folderContent);
+        }
+        else if (section.FilterId.HasValue)
+        {
+            if (section.Filter == null) throw new InvalidOperationException($"Section '{section.Name}' filter is missing from report object.");
+
+            // Modify the query to exclude content.
+            var query = excludeContentIds.Any() ? section.Filter.Query.AddExcludeContent(excludeContentIds) : section.Filter.Query;
+
+            // Exclude sources and media types that the user cannot see.
+            var excludeSources = this.Context.UserSources.Where(us => us.UserId == ownerId).Select(us => us.SourceId).ToArray();
+            var excludeMediaTypes = this.Context.UserMediaTypes.Where(us => us.UserId == ownerId).Select(us => us.MediaTypeId).ToArray();
+            query = query.AddExcludeSources(excludeSources);
+            query = query.AddExcludeMediaTypes(excludeMediaTypes);
+
+            // Only include content that has been posted since the last report instance.
+            if (reportSettings.Content.OnlyNewContent)
+                query = query.IncludeOnlyLatestPosted(previousInstance?.PublishedOn);
+
+            // Determine index.
+            var searchUnpublished = section.Filter.Settings.GetElementValue(".searchUnpublished", false);
+            var defaultIndex = searchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
+
+            var content = await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
+            var contentHits = content.Hits.Hits.ToArray();
+
+            if (sectionSettings.RemoveDuplicates)
+                content.Hits.Hits = contentHits.Where(c => !excludeAboveSectionContentIds.Contains(c.Source.Id)).ToArray();
+
+            if (excludeContentIds.Any())
+                content.Hits.Hits = contentHits.Where(c => !excludeContentIds.Contains(c.Source.Id)).ToArray();
+
+            // Fetch custom content versions for the requestor.
+            var contentIds = content.Hits.Hits.Select(h => h.Source.Id).Distinct().ToArray();
+            var results = this.Context.Contents.Where(c => contentIds.Contains(c.Id)).Select(c => new { c.Id, c.Versions }).ToArray();
+            content.Hits.Hits.ForEach(h =>
+            {
+                h.Source.Versions = results.FirstOrDefault(r => r.Id == h.Source.Id)?.Versions ?? new();
+            });
+
+            searchResults.Add(section.Name, content);
         }
 
         return searchResults;

@@ -1,4 +1,4 @@
-import { IReportModel, ReportSectionTypeName } from 'tno-core';
+import { IReportModel } from 'tno-core';
 
 import { defaultReportSchedule } from '../constants';
 import { IReportForm } from '../interfaces';
@@ -17,7 +17,6 @@ export const toForm = (report: IReportModel, updateSortOrder: boolean = false): 
     hideEmptySections: getHideEmpty(report.sections),
     sections: report.sections.map((s) => ({
       ...s,
-      open: s.sectionType === ReportSectionTypeName.Content,
     })),
     events:
       report.events.length === 2

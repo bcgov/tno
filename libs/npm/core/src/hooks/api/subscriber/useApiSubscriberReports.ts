@@ -82,6 +82,11 @@ export const useApiSubscriberReports = (
         }`,
       );
     },
+    regenerateReportSection: (reportId: number, sectionId: number) => {
+      return api.post<never, AxiosResponse<IReportInstanceModel>, any>(
+        `/subscriber/reports/${reportId}/sections/${sectionId}/regenerate`,
+      );
+    },
     addContentToReport: (reportId: number, content: IReportInstanceContentModel[]) => {
       return api.post<never, AxiosResponse<IReportModel>, any>(
         `/subscriber/reports/${reportId}/content`,

@@ -39,5 +39,4 @@ export const defaultReportSection = (
     sortBy: '',
   },
   chartTemplates: [],
-  open: true,
 });

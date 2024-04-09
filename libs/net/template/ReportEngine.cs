@@ -283,7 +283,7 @@ public class ReportEngine : IReportEngine
                 }
                 if (section.LinkedReportId.HasValue)
                 {
-                    // Make request for linked report content.
+                    // Make request for linked report content if the current instance doesn't have any content for this section.
                     linkedReport = await getLinkedReportAsync(section.LinkedReportId.Value, null);
                 }
 
