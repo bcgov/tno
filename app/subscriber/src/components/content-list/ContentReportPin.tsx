@@ -51,7 +51,7 @@ export const ContentReportPin = ({ contentId }: IContentReportPinProps) => {
         </Row>
         {reports.map((report) => (
           <div key={report.id}>
-            <Link to={`/reports/${report.id}/edit`}>{report.name}</Link>
+            <Link to={`/reports/${report.id}/content`}>{report.name}</Link>
           </div>
         ))}
       </TooltipMenu>

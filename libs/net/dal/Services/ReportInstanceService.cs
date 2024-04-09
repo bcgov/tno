@@ -100,7 +100,10 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         {
             ric.Instance = entity;
             ric.InstanceId = entity.Id;
-            this.Context.ReportInstanceContents.Add(ric);
+            if (ric.ContentId == 0)
+                this.Context.Add(ric);
+            else
+                this.Context.Entry(ric).State = EntityState.Added;
         });
         return base.Add(entity);
     }

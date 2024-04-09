@@ -14,6 +14,7 @@ export const ViewOptions: React.FC = () => {
   const api = useUsers();
 
   /** Save the user's preferences for view/grouping options under preferences */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const savePreferences = async () => {
     if (userInfo) {
       try {
@@ -43,7 +44,7 @@ export const ViewOptions: React.FC = () => {
 
   /** Save the user's preferences when they change */
   React.useEffect(() => {
-    savePreferences();
+    // savePreferences(); // TODO: THIS IS BROKEN AND FIRES A MILLION TIMES
     // only want to run when the viewOptions or groupBy change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewOptions, groupBy]);

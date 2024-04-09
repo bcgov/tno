@@ -1,11 +1,11 @@
 import { Action } from 'components/action';
 import { Modal } from 'components/modal';
+import { StartNextReportInfo } from 'features/my-reports/components';
 import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
-import React from 'react';
 import { FaRecycle } from 'react-icons/fa';
 import { FaAngleDown, FaMinus } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
-import { useModal } from 'tno-core';
+import { Show, useModal } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
 import { ReportSections } from './stories';
@@ -39,6 +39,7 @@ export const ReportEditContentForm = ({
 
   return (
     <styled.ReportEditContentForm className="report-edit-section">
+      <StartNextReportInfo />
       <div className="section-actions">
         <div></div>
         <div>
@@ -70,13 +71,15 @@ export const ReportEditContentForm = ({
           )}
         </div>
         <div>
-          <Action
-            icon={<FaRecycle />}
-            label="Regenerate report"
-            disabled={isSubmitting}
-            onClick={(e) => toggle()}
-            direction="row-reverse"
-          />
+          <Show visible={!disabled}>
+            <Action
+              icon={<FaRecycle />}
+              label="Regenerate report"
+              disabled={isSubmitting}
+              onClick={(e) => toggle()}
+              direction="row-reverse"
+            />
+          </Show>
           <Action
             icon={
               <img className="excel-icon" src={'/assets/excel-icon.svg'} alt="Export to Excel" />

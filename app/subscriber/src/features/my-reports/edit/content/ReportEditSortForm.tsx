@@ -1,3 +1,4 @@
+import { StartNextReportInfo } from 'features/my-reports/components';
 import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { moveContent, sortContent, sortReportContent } from 'features/my-reports/utils';
 import React from 'react';
@@ -85,6 +86,7 @@ export const ReportEditSortForm = ({
 
   return (
     <styled.ReportEditSortForm className="report-edit-section">
+      <StartNextReportInfo />
       <DragDropContext onDragEnd={handleDrop}>
         {values.sections
           .filter((section) =>

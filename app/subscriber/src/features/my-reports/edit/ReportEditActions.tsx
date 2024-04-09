@@ -7,7 +7,7 @@ import { FaCaretRight, FaFileCirclePlus, FaTrash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useReportInstances } from 'store/hooks';
-import { ReportStatusName, Show, useModal } from 'tno-core';
+import { formatDate, ReportStatusName, Show, useModal } from 'tno-core';
 
 import { IReportForm } from '../interfaces';
 import {
@@ -47,9 +47,33 @@ export const ReportEditActions = ({ disabled, updateForm }: IReportEditActionsPr
   const navigate = useNavigate();
   const { toggle: toggleRemove, isShowing: isShowingRemove } = useModal();
   const { toggle: toggleSend, isShowing: isShowingSend } = useModal();
+  const { toggle: toggleStartNewReport, isShowing: isShowingStartNewReport } = useModal();
+
   const [{ publishReportInstance }] = useReportInstances();
 
   const instance = values.instances.length ? values.instances[0] : undefined;
+
+  const [showStartNextReport, setShowStartNextReport] = React.useState(true);
+
+  React.useEffect(() => {
+    if (
+      showStartNextReport &&
+      !isShowingStartNewReport &&
+      !active?.startsWith(ReportMainMenuOption.Settings) &&
+      instance &&
+      instance.sentOn
+    ) {
+      setShowStartNextReport(false);
+      toggleStartNewReport();
+    }
+  }, [
+    active,
+    disabled,
+    instance,
+    isShowingStartNewReport,
+    showStartNextReport,
+    toggleStartNewReport,
+  ]);
 
   const handleRemoveContent = React.useCallback(() => {
     setValues({
@@ -71,10 +95,22 @@ export const ReportEditActions = ({ disabled, updateForm }: IReportEditActionsPr
             i.id === id ? { ...updatedInstance, content: instance?.content } : i,
           ),
         );
-        toast.success('Report has been submitted.');
+        toast.success(
+          'Report has been submitted.  You will be notified when it is emailed to subscribers.',
+        );
       } catch {}
     },
     [instance?.content, publishReportInstance, setFieldValue, values.instances],
+  );
+
+  const handleStartNewReport = React.useCallback(
+    async (values: IReportForm) => {
+      try {
+        const form = await onGenerate(values, true);
+        if (form) updateForm(form);
+      } catch {}
+    },
+    [onGenerate, updateForm],
   );
 
   return (
@@ -85,6 +121,7 @@ export const ReportEditActions = ({ disabled, updateForm }: IReportEditActionsPr
         <Button
           disabled={isSubmitting || !instance || instance?.status === ReportStatusName.Submitted}
           onClick={() => toggleSend()}
+          variant="success"
         >
           Send to subscribers
           <FaTelegramPlane />
@@ -94,7 +131,11 @@ export const ReportEditActions = ({ disabled, updateForm }: IReportEditActionsPr
         <ReportExporter />
       </Show>
       <Show
-        visible={!!instance?.content.length && active?.startsWith(ReportMainMenuOption.Content)}
+        visible={
+          !disabled &&
+          !!instance?.content.length &&
+          active?.startsWith(ReportMainMenuOption.Content)
+        }
       >
         <Action icon={<FaTrash />} label="Remove all stories" onClick={() => toggleRemove()} />
       </Show>
@@ -121,10 +162,8 @@ export const ReportEditActions = ({ disabled, updateForm }: IReportEditActionsPr
         ) : (
           <Button
             disabled={isSubmitting}
-            onClick={async () => {
-              const form = await onGenerate(values, true);
-              if (form) updateForm(form);
-            }}
+            onClick={() => handleStartNewReport(values)}
+            variant="success"
           >
             Start next report
             <FaFileCirclePlus />
@@ -188,6 +227,29 @@ export const ReportEditActions = ({ disabled, updateForm }: IReportEditActionsPr
             if (instance) await handlePublish(instance.id);
           } finally {
             toggleSend();
+          }
+        }}
+      />
+      <Modal
+        headerText="Start Next Report"
+        body={
+          <>
+            <p>{`The current report was sent to subscribers on ${formatDate(
+              instance?.sentOn?.toLocaleString(),
+              'YYYY-MM-DD hh:mm:ss a',
+            )}.`}</p>
+            <p>Would you like to start the next report?</p>
+          </>
+        }
+        isShowing={isShowingStartNewReport}
+        hide={toggleStartNewReport}
+        type="default"
+        confirmText="Yes, start the next report"
+        onConfirm={async () => {
+          try {
+            await handleStartNewReport(values);
+          } finally {
+            toggleStartNewReport();
           }
         }}
       />

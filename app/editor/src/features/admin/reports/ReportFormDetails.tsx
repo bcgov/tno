@@ -68,7 +68,6 @@ export const ReportFormDetails: React.FC = () => {
       })),
     };
     setValues(report);
-    console.debug(report.sections);
   }, [setValues, values]);
 
   return (

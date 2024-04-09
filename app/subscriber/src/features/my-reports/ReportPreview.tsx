@@ -165,6 +165,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
               <Button
                 onClick={() => report && handleGenerate(report, true)}
                 disabled={isSubmitting}
+                variant="success"
               >
                 Start next report
                 <FaFileCirclePlus />
