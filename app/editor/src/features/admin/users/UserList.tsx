@@ -56,10 +56,7 @@ const UserList: React.FC = () => {
 
         setPage(page);
         return page;
-      } catch (error) {
-        // TODO: Handle error
-        throw error;
-      }
+      } catch {}
     },
     [findUsers],
   );

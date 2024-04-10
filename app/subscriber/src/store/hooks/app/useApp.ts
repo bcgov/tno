@@ -23,6 +23,7 @@ let userInfo: IUserInfoModel = {
   key: '',
   username: '',
   email: '',
+  preferredEmail: '',
   status: UserStatusName.Requested,
   displayName: '',
   isEnabled: false,

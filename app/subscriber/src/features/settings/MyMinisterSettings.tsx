@@ -48,6 +48,7 @@ export const MyMinisterSettings: React.FC = () => {
       if (inactiveSelectedMinisters.length !== 0) {
         var user = {
           ...userInfo,
+          preferredEmail: '',
           preferences: { ...userInfo.preferences, myMinisters: activeSelectedMinisters },
           isSystemAccount: false,
           emailVerified: false,

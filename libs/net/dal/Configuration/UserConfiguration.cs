@@ -12,6 +12,7 @@ public class UserConfiguration : AuditColumnsConfiguration<User>
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Property(m => m.Username).IsRequired().HasMaxLength(50);
         builder.Property(m => m.Email).IsRequired().HasMaxLength(250).HasDefaultValueSql("''");
+        builder.Property(m => m.PreferredEmail).IsRequired().HasMaxLength(250).HasDefaultValueSql("''");
         builder.Property(m => m.Key).IsRequired().HasMaxLength(250);
         builder.Property(m => m.DisplayName).IsRequired().HasMaxLength(100).HasDefaultValueSql("''");
         builder.Property(m => m.FirstName).IsRequired().HasMaxLength(100).HasDefaultValueSql("''");

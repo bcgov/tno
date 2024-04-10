@@ -31,11 +31,14 @@ export const UserInfo: React.FC<IUserInfoProps> = ({ children }) => {
   React.useEffect(() => {
     if (keycloak.authenticated && init) {
       setInit(false); // Required to stop make this request a thousand times...  I hate hook dependencies.
-      app.getUserInfo().then((ui) => {
-        if (ui.authState === AccountAuthStateName.Unauthorized) {
-          toggle();
-        }
-      });
+      app
+        .getUserInfo()
+        .then((ui) => {
+          if (ui.authState === AccountAuthStateName.Unauthorized) {
+            toggle();
+          }
+        })
+        .catch(() => {});
     } else if (!keycloak.authenticated) {
       appStore.storeUserInfo();
       setInit(true);

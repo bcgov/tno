@@ -2,6 +2,7 @@ import { useFormikContext } from 'formik';
 import {
   CellEllipsis,
   Checkbox,
+  Col,
   FormikSelect,
   getEnumStringOptions,
   IReportModel,
@@ -105,7 +106,14 @@ export const useSubscriberColumns = (): ITableHookColumn<IUserReportModel>[] => 
       label: 'Email',
       accessor: 'email',
       width: 2,
-      cell: (cell) => <CellEllipsis>{cell.original.email}</CellEllipsis>,
+      cell: (cell) => (
+        <Col>
+          <CellEllipsis>{cell.original.email}</CellEllipsis>
+          {cell.original.preferredEmail && (
+            <CellEllipsis className="preferred">{cell.original.preferredEmail}</CellEllipsis>
+          )}
+        </Col>
+      ),
     },
   ];
 };

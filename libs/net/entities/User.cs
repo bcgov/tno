@@ -33,6 +33,12 @@ public class User : AuditColumns
     public string Email { get; set; } = "";
 
     /// <summary>
+    /// get/set - The user's preferred email address.
+    /// </summary>
+    [Column("preferred_email")]
+    public string PreferredEmail { get; set; } = "";
+
+    /// <summary>
     /// get/set - A unique key to identify the user.  Primarily used for keycloak.
     /// </summary>
     [Column("key")]

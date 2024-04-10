@@ -16,6 +16,7 @@ export interface IUserModel extends IAuditColumnsModel {
   key: string;
   username: string;
   email: string;
+  preferredEmail: string;
   displayName: string;
   firstName: string;
   lastName: string;

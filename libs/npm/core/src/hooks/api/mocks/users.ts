@@ -7,6 +7,7 @@ export const mockUsers: IUserModel[] = [
     key: '03132449-c183-4341-b42a-2f0ec851d8dc',
     username: 'username',
     email: 'email',
+    preferredEmail: '',
     displayName: 'user',
     firstName: 'first',
     lastName: 'last',

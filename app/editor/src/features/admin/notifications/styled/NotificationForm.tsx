@@ -57,4 +57,10 @@ export const NotificationForm = styled(FormPage)`
       overflow-y: auto;
     }
   }
+
+  .preferred {
+    padding: 0 0.5rem;
+    border-radius: 0.5rem;
+    background: ${(props) => props.theme.css.lightAccentColor};
+  }
 `;

@@ -13,4 +13,10 @@ export const ProductForm = styled(FormPage)`
   .form {
     width: 100%;
   }
+
+  .preferred {
+    padding: 0 0.5rem;
+    border-radius: 0.5rem;
+    background: ${(props) => props.theme.css.lightAccentColor};
+  }
 `;

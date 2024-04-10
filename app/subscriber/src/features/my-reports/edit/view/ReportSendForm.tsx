@@ -157,7 +157,7 @@ export const ReportSendForm: React.FC = () => {
                 <Col flex="1">{sub.username}</Col>
                 <Col flex="1">{sub.lastName}</Col>
                 <Col flex="1">{sub.firstName}</Col>
-                <Col flex="2">{sub.email}</Col>
+                <Col flex="2">{sub.preferredEmail.length ? sub.preferredEmail : sub.email}</Col>
                 <Col>
                   {!isAdmin ? (
                     sub.format

@@ -19,15 +19,13 @@ export const UserInfo: React.FC<IUserInfoProps> = ({ children }) => {
   const [init, setInit] = React.useState(true);
 
   React.useEffect(() => {
-    try {
-      if (keycloak.authenticated && init) {
-        app.getUserInfo();
-        setInit(false);
-      } else if (!keycloak.authenticated) {
-        appStore.storeUserInfo();
-        setInit(true);
-      }
-    } catch {}
+    if (keycloak.authenticated && init) {
+      setInit(false);
+      app.getUserInfo().catch(() => {});
+    } else if (!keycloak.authenticated) {
+      appStore.storeUserInfo();
+      setInit(true);
+    }
   }, [app, appStore, keycloak.authenticated, init]);
 
   return <>{children}</>;

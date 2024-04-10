@@ -369,7 +369,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     {
         await HandleChesEmailOverrideAsync(request);
 
-        var to = notification.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email) && s.IsSubscribed).Select(s => s.User!.Email).ToArray();
+        var to = notification.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.GetEmail()) && s.IsSubscribed).Select(s => s.User!.GetEmail()).ToArray();
         var contexts = new List<EmailContextModel>();
         if (!String.IsNullOrWhiteSpace(request.To))
         {
@@ -453,7 +453,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         if (request.RequestorId.HasValue)
         {
             var user = await this.Api.GetUserAsync(request.RequestorId.Value);
-            if (user != null) email = user.Email;
+            if (user != null) email = user.GetEmail();
         }
         var identity = _user.Identity as ClaimsIdentity ?? throw new ConfigurationException("CHES requires an active ClaimsPrincipal");
         identity.RemoveClaim(_user.FindFirst(ClaimTypes.Email));
