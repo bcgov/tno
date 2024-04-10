@@ -18,6 +18,7 @@ import {
   Row,
   Select,
   sortObject,
+  Text,
   useModal,
 } from 'tno-core';
 
@@ -147,6 +148,14 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
       }
     >
       <div className="main-container">
+        <Text
+          name="name"
+          label="Folder name:"
+          value={currentFolder?.name}
+          onChange={(e) =>
+            setCurrentFolder({ ...currentFolder, name: e.target.value } as IFolderModel)
+          }
+        />
         <h2>Folder automation settings</h2>
         <Row>
           <FaGear className="small-gear" /> <h3>Content collection</h3>
@@ -199,6 +208,10 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
           <Button
             onClick={() => {
               handleSaveSchedule(currentFolder as IFolderModel);
+              // make sure to update the folder in the list
+              setMyFolders(
+                myFolders.map((item) => (item.id === currentFolder?.id ? currentFolder : item)),
+              );
             }}
             className="save"
           >
