@@ -78,6 +78,8 @@ public class TNOContext : DbContext
     public DbSet<TimeTracking> TimeTrackings => Set<TimeTracking>();
     public DbSet<UserSource> UserSources => Set<UserSource>();
     public DbSet<UserMediaType> UserMediaTypes => Set<UserMediaType>();
+
+    public DbSet<UserColleague> UserColleagues => Set<UserColleague>();
     #endregion
 
     #region Reports
@@ -110,14 +112,13 @@ public class TNOContext : DbContext
     public DbSet<NotificationInstance> NotificationInstances => Set<NotificationInstance>();
     public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
     public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
+    public DbSet<UserContentNotification> UserContentNotifications => Set<UserContentNotification>();
     #endregion
 
     #region Products
     public DbSet<Product> Products => Set<Product>();
     public DbSet<UserProduct> UserProducts => Set<UserProduct>();
     #endregion
-
-    public DbSet<UserColleague> UserColleagues => Set<UserColleague>();
 
     #endregion
 

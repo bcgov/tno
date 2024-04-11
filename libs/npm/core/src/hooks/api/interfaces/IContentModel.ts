@@ -20,6 +20,7 @@ import {
   IQuoteModel,
   ISourceModel,
   ITimeTrackingModel,
+  IUserContentNotificationModel,
 } from '.';
 
 export interface IContentModel extends IAuditColumnsModel {
@@ -63,6 +64,7 @@ export interface IContentModel extends IAuditColumnsModel {
   fileReferences: IFileReferenceModel[];
   links: IContentLinkModel[];
   quotes: IQuoteModel[];
+  userNotifications: IUserContentNotificationModel[];
   versions: Record<number, IContentVersionModel>;
 
   // React-Table Properties

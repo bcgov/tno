@@ -411,10 +411,11 @@ public class ApiService : IApiService
     /// Make an HTTP request to the api to get the specified content.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="includeUserNotifications"></param>
     /// <returns></returns>
-    public async Task<API.Areas.Services.Models.Content.ContentModel?> FindContentByIdAsync(long id)
+    public async Task<API.Areas.Services.Models.Content.ContentModel?> FindContentByIdAsync(long id, bool includeUserNotifications = false)
     {
-        var url = this.Options.ApiUrl.Append($"services/contents/{id}");
+        var url = this.Options.ApiUrl.Append($"services/contents/{id}{(includeUserNotifications ? "?includeUserNotifications=true" : "")}");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.Content.ContentModel?>(url));
     }
 

@@ -50,6 +50,7 @@ export function toForm(model: IContentModel): IContentForm {
     workOrders: [],
     versions: model.versions,
     quotes: model.quotes,
+    userNotifications: model.userNotifications,
     // Print Content
     section: model.section ?? '',
     edition: model.edition ?? '',

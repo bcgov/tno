@@ -1,5 +1,6 @@
 import {
   IAuditColumnsModel,
+  IUserContentNotificationModel,
   IUserModel,
   IWorkOrderContentModel,
   WorkOrderStatusName,
@@ -19,4 +20,5 @@ export interface IWorkOrderModel extends IAuditColumnsModel {
   configuration: any;
   contentId?: number;
   content?: IWorkOrderContentModel;
+  userNotifications?: IUserContentNotificationModel[];
 }

@@ -259,5 +259,20 @@ public class NotificationService : BaseService<Notification, int>, INotification
 
         return await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
     }
+
+    /// <summary>
+    /// Subscribe the user to the content so that they receive the specified notification.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="contentId"></param>
+    public void SubscriberUserToContent(int userId, long contentId)
+    {
+        var userContentNotifications = this.Context.UserContentNotifications.Where(ucn => ucn.UserId == userId && ucn.ContentId == contentId).Any();
+        if (!userContentNotifications)
+        {
+            this.Context.Add(new UserContentNotification(userId, contentId, true));
+            this.Context.CommitTransaction();
+        }
+    }
     #endregion
 }

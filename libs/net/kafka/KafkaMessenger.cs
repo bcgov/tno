@@ -153,8 +153,12 @@ public class KafkaMessenger : IKafkaMessenger
     public async Task<DeliveryResult<string, NotificationRequestModel>?> SendMessageAsync(string topic, NotificationRequestModel request)
     {
         if (request == null) throw new ArgumentNullException(nameof(request));
+        var key = "";
+        if (request.NotificationId.HasValue && request.ContentId.HasValue) key = $"notification-{request.NotificationId}:content={request.ContentId}";
+        else if (request.NotificationId.HasValue) key = $"notification-{request.NotificationId}";
+        else if (request.ContentId.HasValue) key = $"content-{request.ContentId}";
 
-        return await SendMessageAsync(topic, $"notification-{request.NotificationId}", request);
+        return await SendMessageAsync(topic, key, request);
     }
 
     /// <summary>

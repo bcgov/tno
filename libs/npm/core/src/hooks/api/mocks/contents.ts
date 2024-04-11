@@ -33,6 +33,7 @@ export const mockContents: IContentModel[] = [
     fileReferences: [],
     links: [],
     quotes: [],
+    userNotifications: [],
     versions: {},
   },
   {
@@ -66,6 +67,7 @@ export const mockContents: IContentModel[] = [
     fileReferences: [],
     links: [],
     quotes: [],
+    userNotifications: [],
     versions: {},
   },
   {
@@ -99,6 +101,7 @@ export const mockContents: IContentModel[] = [
     fileReferences: [],
     links: [],
     quotes: [],
+    userNotifications: [],
     versions: {},
   },
   {
@@ -132,6 +135,7 @@ export const mockContents: IContentModel[] = [
     fileReferences: [],
     links: [],
     quotes: [],
+    userNotifications: [],
     versions: {},
   },
   {
@@ -165,6 +169,7 @@ export const mockContents: IContentModel[] = [
     fileReferences: [],
     links: [],
     quotes: [],
+    userNotifications: [],
     versions: {},
   },
   {
@@ -198,6 +203,7 @@ export const mockContents: IContentModel[] = [
     fileReferences: [],
     links: [],
     quotes: [],
+    userNotifications: [],
     versions: {},
   },
 ];

@@ -252,6 +252,11 @@ public class User : AuditColumns
     /// get - Collection of media types this user does not have access to (many-to-many).
     /// </summary>
     public virtual List<UserMediaType> MediaTypesManyToMany { get; } = new List<UserMediaType>();
+
+    /// <summary>
+    /// get - List of content notifications this user is subscriber to.
+    /// </summary>
+    public virtual List<UserContentNotification> ContentNotifications { get; } = new List<UserContentNotification>();
     #endregion
 
     #region Constructors

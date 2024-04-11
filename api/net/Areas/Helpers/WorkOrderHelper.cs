@@ -25,10 +25,10 @@ public class WorkOrderHelper : IWorkOrderHelper
     private readonly IContentService _contentService;
     private readonly IWorkOrderService _workOrderService;
     private readonly IUserService _userService;
+    private readonly INotificationService _notificationService;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
     private readonly JsonSerializerOptions _serializerOptions;
-    private readonly ILogger<WorkOrderHelper> _logger;
     #endregion
 
     #region Properties
@@ -46,28 +46,28 @@ public class WorkOrderHelper : IWorkOrderHelper
     /// <param name="contentService"></param>
     /// <param name="workOrderService"></param>
     /// <param name="userService"></param>
+    /// <param name="notificationService"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
     /// <param name="serializerOptions"></param>
-    /// <param name="logger"></param>
     public WorkOrderHelper(
         ClaimsPrincipal principal,
         IContentService contentService,
         IWorkOrderService workOrderService,
         IUserService userService,
+        INotificationService notificationService,
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaOptions> kafkaOptions,
-        IOptions<JsonSerializerOptions> serializerOptions,
-        ILogger<WorkOrderHelper> logger)
+        IOptions<JsonSerializerOptions> serializerOptions)
     {
         _principal = principal;
         _contentService = contentService;
         _workOrderService = workOrderService;
         _userService = userService;
+        _notificationService = notificationService;
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
         _serializerOptions = serializerOptions.Value;
-        _logger = logger;
     }
     #endregion
 
@@ -137,13 +137,15 @@ public class WorkOrderHelper : IWorkOrderHelper
         // Only allow one work order transcript request at a time.
         // TODO: Handle blocked work orders stuck in progress.
         var workOrders = _workOrderService.FindByContentId(contentId);
+
+        string username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User is missing");
+
+        // Add the user to the content notification.
+        _notificationService.SubscriberUserToContent(user.Id, contentId);
+
         if (force || !workOrders.Any(o => o.WorkType == Entities.WorkOrderType.Transcription || !WorkLimiterStatus.Contains(o.Status)))
         {
-            string username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            Entities.User? user = _userService.FindByUsername(username);
-            if (user == null) {
-                _logger.LogInformation($"Transcript requesting user [{username}] does not exist");
-            }
             var workOrder = _workOrderService.AddAndSave(
                 new Entities.WorkOrder(
                     Entities.WorkOrderType.Transcription,
@@ -208,14 +210,14 @@ public class WorkOrderHelper : IWorkOrderHelper
             this.Content = _contentService.FindById(contentId) ?? throw new NoContentException("Content does not exist");
         if (String.IsNullOrWhiteSpace(_kafkaOptions.FFmpegTopic)) throw new ConfigurationException("Kafka FFmpeg topic not configured.");
 
+        var username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+
         // Only allow one work order transcript request at a time.
         // TODO: Handle blocked work orders stuck in progress.
         var workOrders = _workOrderService.FindByContentId(contentId);
         if (force || !workOrders.Any(o => o.WorkType == Entities.WorkOrderType.FFmpeg || !WorkLimiterStatus.Contains(o.Status)))
         {
-            var username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
-
             var workOrder = _workOrderService.AddAndSave(
                 new Entities.WorkOrder(
                     Entities.WorkOrderType.FFmpeg,

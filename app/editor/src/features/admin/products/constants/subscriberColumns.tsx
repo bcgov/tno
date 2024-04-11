@@ -1,10 +1,10 @@
 import {
   CellEllipsis,
   Checkbox,
-  Col,
   IProductModel,
   ITableHookColumn,
   IUserProductModel,
+  Row,
   Show,
   ToggleGroup,
 } from 'tno-core';
@@ -69,12 +69,12 @@ export const subscriberColumns = (
     accessor: 'email',
     width: 2,
     cell: (cell) => (
-      <Col>
+      <Row gap="0.15rem">
         <CellEllipsis>{cell.original.email}</CellEllipsis>
         {cell.original.preferredEmail && (
           <CellEllipsis className="preferred">{cell.original.preferredEmail}</CellEllipsis>
         )}
-      </Col>
+      </Row>
     ),
   },
   {

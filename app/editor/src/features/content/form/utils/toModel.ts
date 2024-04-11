@@ -48,6 +48,7 @@ export function toModel(values: IContentForm): IContentModel {
     fileReferences: values.fileReferences,
     links: values.links,
     quotes: values.quotes,
+    userNotifications: values.userNotifications,
     versions: values.versions,
     // Print Content
     edition: values.edition,

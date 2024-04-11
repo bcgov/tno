@@ -51,7 +51,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <summary>
     /// get - Notification validator.
     /// </summary>
-    protected NotificationValidator NotificationValidator { get; }
+    protected INotificationValidator NotificationValidator { get; }
     #endregion
 
     #region Constructors
@@ -280,9 +280,10 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         {
             if (request.ContentId.HasValue)
             {
-                var content = await this.Api.FindContentByIdAsync(request.ContentId.Value);
+                var content = await this.Api.FindContentByIdAsync(request.ContentId.Value, true);
                 if (content != null)
                 {
+                    await this.NotificationValidator.InitializeContentAsync(content);
                     // If the request specified a notification then use it, otherwise test all notifications.
                     if (request.NotificationId.HasValue)
                     {
@@ -291,7 +292,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                         {
                             if (notification.IsEnabled)
                             {
-                                await this.NotificationValidator.InitializeAsync(notification, content);
+                                this.NotificationValidator.InitializeNotification(notification);
                                 if (request.IgnoreValidation || this.NotificationValidator.ConfirmSend())
                                     await SendNotificationAsync(request, notification, content);
                                 else
@@ -312,7 +313,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                         });
                         foreach (var notification in notifications)
                         {
-                            await this.NotificationValidator.InitializeAsync(notification, content);
+                            this.NotificationValidator.InitializeNotification(notification);
                             if (request.IgnoreValidation || this.NotificationValidator.ConfirmSend())
                                 await SendNotificationAsync(request, notification, content);
                             else
@@ -341,6 +342,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                         {
                             foreach (var content in results.Hits.Hits.Select(h => h.Source).Where(c => c != null))
                             {
+                                this.NotificationValidator.Initialize(notification, content);
                                 await SendNotificationAsync(request, notification, content);
                             }
                         }
@@ -369,7 +371,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     {
         await HandleChesEmailOverrideAsync(request);
 
-        var to = notification.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.GetEmail()) && s.IsSubscribed).Select(s => s.User!.GetEmail()).ToArray();
+        var to = this.NotificationValidator.GetSubscriberEmails();
         var contexts = new List<EmailContextModel>();
         if (!String.IsNullOrWhiteSpace(request.To))
         {
@@ -386,6 +388,9 @@ public class NotificationManager : ServiceManager<NotificationOptions>
             }).ToList());
         }
 
+        // There are no subscribers, or a notification has been sent for this content to all the subscribers.
+        if (!contexts.Any()) return;
+
         var subject = await GenerateNotificationSubjectAsync(notification, content, request.IsPreview);
         var body = await GenerateNotificationBodyAsync(notification, content, null, request.IsPreview);
         var merge = new EmailMergeModel(this.ChesOptions.From, contexts, subject, body)
@@ -395,6 +400,9 @@ public class NotificationManager : ServiceManager<NotificationOptions>
             BodyType = EmailBodyTypes.Html,
             Priority = EmailPriorities.Normal,
         };
+
+        // Add the subscribers to the notification validator so that they don't receive more than one email for a specific content item.
+        this.NotificationValidator.AddUsers(notification.Subscribers);
 
         try
         {

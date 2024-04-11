@@ -207,7 +207,7 @@ public class NotificationController : ControllerBase
             IsPreview = true,
             IgnoreValidation = true,
         };
-        await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, $"notification-{notification.Id}-test", request);
+        await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, request);
         return new JsonResult(new NotificationModel(notification, _serializerOptions));
     }
     #endregion

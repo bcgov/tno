@@ -328,7 +328,7 @@ public class ContentController : ControllerBase
             IsPreview = true,
             IgnoreValidation = true,
         };
-        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.NotificationTopic, $"notification-{notification.Id}-test", request);
+        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.NotificationTopic, request);
         return new JsonResult(new NotificationModel(notification, _serializerOptions));
     }
 
@@ -361,7 +361,7 @@ public class ContentController : ControllerBase
             IsPreview = true,
             IgnoreValidation = true,
         };
-        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.NotificationTopic, $"notification-{notification.Id}-test", request);
+        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.NotificationTopic, request);
         return new JsonResult(new NotificationModel(notification, _serializerOptions));
     }
     #endregion

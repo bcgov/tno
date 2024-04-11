@@ -10,19 +10,15 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
-  getEnumStringOptions,
   INotificationModel,
-  NotificationTypeName,
-  ResendOptionName,
   Row,
   Show,
 } from 'tno-core';
 
+import { resendOptions } from './constants';
+
 export const NotificationFormDetails: React.FC = () => {
   const { values } = useFormikContext<INotificationModel>();
-
-  const NotificationTypeOptions = getEnumStringOptions(NotificationTypeName);
-  const resendOptions = getEnumStringOptions(ResendOptionName);
 
   return (
     <Col className="form-inputs">
@@ -40,13 +36,6 @@ export const NotificationFormDetails: React.FC = () => {
             <FormikCheckbox label="Is Public" name="isPublic" />
           </Col>
           <Col flex="1">
-            <FormikSelect
-              name="notificationType"
-              label="Notification Type"
-              options={NotificationTypeOptions}
-              required
-              isClearable={false}
-            />
             <FormikSelect
               name="resend"
               label="Resend Option"

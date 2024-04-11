@@ -108,7 +108,7 @@ export const Button = styled.button<IButtonProps>`
         case ButtonVariant.action:
           return '#003366';
         case ButtonVariant.warning:
-          return '#ffbb0e';
+          return '#fff6de';
         default:
           return '#fff';
       }

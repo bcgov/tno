@@ -49,18 +49,9 @@ export const ViewContent = styled.div`
   .neut {
     color: ${(props) => props.theme.css.toneNeutral};
   }
+
   .transcribe-button {
-    border: 2px solid rgb(0, 51, 102) !important;
     margin-left: auto;
-    .text {
-      color: black;
-    }
-    svg,
-    .spinner {
-      color: ${(props) => props.theme.css.highlightActive};
-      align-self: center;
-      margin-left: 0.5em;
-    }
   }
 
   img {
@@ -80,5 +71,11 @@ export const ViewContent = styled.div`
       font-style: italic;
       padding-left: 1rem;
     }
+  }
+
+  .transcript-status {
+    background: ${(props) => props.theme.css.stickyNoteColor};
+    padding: 1rem;
+    border-radius: 0.5rem;
   }
 `;

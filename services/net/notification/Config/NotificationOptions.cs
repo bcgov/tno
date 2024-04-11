@@ -18,6 +18,5 @@ public class NotificationOptions : ServiceOptions
     /// get/set - The primary key to the alert action.
     /// </summary>
     public int AlertId { get; set; }
-
     #endregion
 }

@@ -87,7 +87,7 @@ public class NotificationController : ControllerBase
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
         var request = new NotificationRequestModel(NotificationDestination.NotificationService, notification.Id, user.Id);
-        await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, $"notification-{notification.Id}", request);
+        await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, request);
         return new OkResult();
     }
     #endregion
