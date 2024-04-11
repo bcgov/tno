@@ -12,7 +12,9 @@ export const sortSource = <T extends ISourceModel>(a: T, b: T) => {
 };
 
 const displayName = (source: ISourceModel) => {
-  return source.name !== source.code ? `${source.name} (${source.code})` : source.name;
+  let chosenName = source.shortName ? source.shortName : source.name;
+
+  return chosenName !== source.code ? `${chosenName} (${source.code})` : chosenName;
 };
 
 /**
