@@ -138,7 +138,7 @@ export const useContentForm = ({
   const onContentUpdated = React.useCallback(
     async (message: IContentMessageModel) => {
       if (form.id === message.id) {
-        if (form.version !== message.version && !isSubmitting) {
+        if (form.version !== message.version) {
           try {
             // TODO: Don't overwrite the user's edits.
             fetchContent(message.id);
@@ -159,7 +159,7 @@ export const useContentForm = ({
         }
       }
     },
-    [fetchContent, form, getContent, isSubmitting],
+    [fetchContent, form, getContent],
   );
 
   hub.useHubEffect(MessageTargetName.ContentUpdated, onContentUpdated);
