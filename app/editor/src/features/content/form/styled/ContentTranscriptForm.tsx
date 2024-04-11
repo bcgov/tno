@@ -1,24 +1,27 @@
 import styled from 'styled-components';
 
 export const ContentTranscriptForm = styled.div`
-  flex: 1 1 100%;
   display: flex;
   flex-direction: column;
-  margin-top: 1em;
-  min-height: 200px;
 
-  .quill-body {
-    flex: 1;
+  .row-margins {
+    margin-top: 2%;
+  }
+
+  .top-spacer {
+    margin-top: 1.16em;
+  }
+
+  .content-body {
     display: flex;
     flex-flow: column;
-    padding-right: 0.5rem;
-    min-width: 500px;
+    min-height: 100%;
+    overflow: hidden;
 
     .quill {
       flex: 1;
 
       .ql-editor {
-        // TODO: Use Flexbox instead.
         height: 400px;
       }
     }
