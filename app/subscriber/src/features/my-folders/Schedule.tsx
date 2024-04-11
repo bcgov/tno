@@ -1,19 +1,11 @@
+import { TimeInput } from 'components/form/timeinput';
 import moment from 'moment';
 import * as React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { FaInfoCircle } from 'react-icons/fa';
 import { FaGear } from 'react-icons/fa6';
 import { Tooltip } from 'react-tooltip';
-import {
-  Checkbox,
-  Col,
-  FieldSize,
-  IFolderScheduleModel,
-  Row,
-  Show,
-  Text,
-  TimeInput,
-} from 'tno-core';
+import { Checkbox, Col, FieldSize, IFolderScheduleModel, Row, Show, Text } from 'tno-core';
 
 import { daysOfWeek } from './constants/daysOfWeek';
 
@@ -52,8 +44,8 @@ export const Schedule: React.FC<IScheduleProps> = ({ folderSchedule, onScheduleC
                 <Col>
                   <TimeInput
                     label="Run schedule at:"
-                    placeholder='e.g. "13:00:00"'
-                    value={folderSchedule && folderSchedule?.startAt}
+                    placeholder="hh:mm:ss"
+                    value={!!folderSchedule ? folderSchedule?.startAt : ''}
                     width={FieldSize.Small}
                     onChange={(e) => {
                       onScheduleChange?.({
@@ -63,7 +55,7 @@ export const Schedule: React.FC<IScheduleProps> = ({ folderSchedule, onScheduleC
                     }}
                   />
                 </Col>
-                <Col>
+                <Col className="start-after-col">
                   <label>Start after:</label>
                   <ReactDatePicker
                     minDate={new Date()}
