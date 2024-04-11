@@ -121,6 +121,7 @@ export const ManageFolder: React.FC = () => {
             content={selected}
             onSelectAll={(e) => (e.target.checked ? setSelected(items) : setSelected([]))}
             removeFolderItem={removeItems}
+            disableAddToFolder={true}
           />
           <ContentList
             handleDrop={handleDrop}
