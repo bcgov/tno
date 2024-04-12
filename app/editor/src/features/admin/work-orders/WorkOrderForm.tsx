@@ -4,8 +4,7 @@ import moment from 'moment';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useLookup } from 'store/hooks';
-import { useWorkOrders } from 'store/hooks/admin';
+import { useUsers, useWorkOrders } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -18,7 +17,6 @@ import {
   getEnumStringOptions,
   getUserOptions,
   IconButton,
-  IWorkOrderModel,
   Modal,
   OptionItem,
   Row,
@@ -28,7 +26,9 @@ import {
 } from 'tno-core';
 
 import { defaultWorkOrder } from './constants';
+import { IWorkOrderForm } from './interfaces';
 import * as styled from './styled';
+import { toForm, toModel } from './utils';
 
 /**
  * Provides a WorkOrder Form to manage, create, update and delete a workOrder.
@@ -39,30 +39,37 @@ const WorkOrderForm: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toggle, isShowing } = useModal();
-  const [lookups] = useLookup();
+  const [{ users }, { findUsers }] = useUsers();
 
-  const [workOrder, setWorkOrder] = React.useState<IWorkOrderModel>(defaultWorkOrder);
+  const [workOrder, setWorkOrder] = React.useState<IWorkOrderForm>(defaultWorkOrder);
+  const [userOptions, setUserOptions] = React.useState(
+    getUserOptions(users.items, [new OptionItem('None', undefined)]),
+  );
 
   const workOrderId = Number(id);
   const statusOptions = getEnumStringOptions(WorkOrderStatusName);
-  const userOptions = getUserOptions(lookups.users, [new OptionItem('None', undefined)]);
 
   React.useEffect(() => {
     if (!!workOrderId && workOrder?.id !== workOrderId) {
       setWorkOrder({ ...defaultWorkOrder, id: workOrderId }); // Do this to stop double fetch.
       api.getWorkOrder(workOrderId).then((data) => {
-        setWorkOrder(data);
+        setWorkOrder(toForm(data));
+        return findUsers({ includeUserId: data.requestorId, quantity: 50 });
       });
     }
-  }, [api, workOrder?.id, workOrderId]);
+  }, [api, findUsers, workOrder?.id, workOrderId]);
 
-  const handleSubmit = async (values: IWorkOrderModel) => {
+  React.useEffect(() => {
+    setUserOptions(getUserOptions(users.items, [new OptionItem('None', undefined)]));
+  }, [users]);
+
+  const handleSubmit = async (values: IWorkOrderForm) => {
     try {
       const originalId = values.id;
       const result = !workOrder.id
-        ? await api.addWorkOrder(values)
-        : await api.updateWorkOrder(values);
-      setWorkOrder(result);
+        ? await api.addWorkOrder(toModel(values))
+        : await api.updateWorkOrder(toModel(values));
+      setWorkOrder(toForm(result));
       toast.success(`Work order has successfully been saved.`);
       if (!originalId) navigate(`/work/orders/${result.id}`);
     } catch {}
@@ -87,7 +94,7 @@ const WorkOrderForm: React.FC = () => {
           setSubmitting(false);
         }}
       >
-        {({ values, isSubmitting }) => (
+        {({ values, isSubmitting, setFieldValue }) => (
           <div className="form-container">
             <Row>
               <Col flex="1 1 0">
@@ -96,7 +103,12 @@ const WorkOrderForm: React.FC = () => {
                   options={filterEnabledOptions(userOptions, values.requestorId)}
                   name="requestorId"
                   label="Requestor"
+                  isClearable={false}
                   value={userOptions.find((s) => s.value === values.requestorId) || ''}
+                  onChange={(newValue) => {
+                    const option = newValue as OptionItem;
+                    setFieldValue('requestorId', option.value);
+                  }}
                 />
                 <FormikTextArea name="description" label="Description" />
               </Col>
@@ -112,6 +124,10 @@ const WorkOrderForm: React.FC = () => {
                   name="assignedId"
                   label="Assigned"
                   value={userOptions.find((s) => s.value === values.assignedId) || ''}
+                  onChange={(newValue) => {
+                    const option = newValue as OptionItem;
+                    setFieldValue('assignedId', option.value);
+                  }}
                 />
                 <FormikTextArea name="note" label="Note" />
               </Col>
@@ -185,7 +201,7 @@ const WorkOrderForm: React.FC = () => {
               confirmText="Yes, Remove It"
               onConfirm={async () => {
                 try {
-                  await api.deleteWorkOrder(workOrder);
+                  await api.deleteWorkOrder(toModel(values));
                   toast.success(`Work order has successfully been deleted.`);
                   navigate('/admin/work/orders');
                 } finally {

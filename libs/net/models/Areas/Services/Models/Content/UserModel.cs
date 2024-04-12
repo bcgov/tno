@@ -63,4 +63,15 @@ public class UserModel
         this.LastName = entity.LastName;
     }
     #endregion
+
+    #region Methods
+    /// <summary>
+    /// Get the preferred email if it has been set.
+    /// </summary>
+    /// <returns></returns>
+    public string GetEmail()
+    {
+        return String.IsNullOrWhiteSpace(this.PreferredEmail) ? this.Email : this.PreferredEmail;
+    }
+    #endregion
 }

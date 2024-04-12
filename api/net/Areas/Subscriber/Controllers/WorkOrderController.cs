@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
+using TNO.API.Areas.Subscriber.Models.WorkOrder;
 using TNO.API.Helpers;
 using TNO.API.Models;
-using TNO.API.Models.SignalR;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Entities;
@@ -67,14 +67,16 @@ public class WorkOrderController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IPaged<WorkOrderMessageModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IPaged<WorkOrderModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public IActionResult Find()
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        var result = _workOrderService.Find(new WorkOrderFilter(query));
-        var page = new Paged<WorkOrderMessageModel>(result.Items.Select(i => new WorkOrderMessageModel(i, _serializerOptions)), result.Page, result.Quantity, result.Total);
+        var filter = new WorkOrderFilter(query);
+        var result = _workOrderService.Find(filter);
+        var content = filter.ContentId.HasValue ? _contentService.FindById(filter.ContentId.Value, true) : null;
+        var page = new Paged<WorkOrderModel>(result.Items.Select(i => new WorkOrderModel(i, content, _serializerOptions)), result.Page, result.Quantity, result.Total);
         return new JsonResult(page);
     }
 
@@ -86,18 +88,18 @@ public class WorkOrderController : ControllerBase
     /// <returns></returns>
     [HttpPost("transcribe/{contentId}")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(WorkOrderMessageModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public async Task<IActionResult> RequestTranscriptionAsync(long contentId)
     {
-        var content = _contentService.FindById(contentId) ?? throw new NoContentException();
+        var content = _contentService.FindById(contentId, true) ?? throw new NoContentException();
         if (content.Source?.DisableTranscribe == true) return BadRequest("Cannot request transcription");
         if (content.IsApproved)
         {
             // The transcript has already been approved, do not allow new requests.
             var workOrder = new Entities.WorkOrder(WorkOrderType.Transcription, "", content.Id, content.Headline);
-            return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions))
+            return new JsonResult(new WorkOrderModel(workOrder, content, _serializerOptions))
             {
                 StatusCode = (int)HttpStatusCode.AlreadyReported
             };
@@ -105,14 +107,14 @@ public class WorkOrderController : ControllerBase
         else
         {
             // If there is already a request it will return the existing one, or it will create a new request.
-            var workOrder = await _workOrderHelper.RequestTranscriptionAsync(contentId, true);
+            var workOrder = await _workOrderHelper.RequestTranscriptionAsync(contentId);
             if (WorkOrderHelper.WorkLimiterStatus.Contains(workOrder.Status))
-                return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions))
+                return new JsonResult(new WorkOrderModel(workOrder, content, _serializerOptions))
                 {
                     StatusCode = (int)HttpStatusCode.AlreadyReported
                 };
             else
-                return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions));
+                return new JsonResult(new WorkOrderModel(workOrder, content, _serializerOptions));
         }
     }
     #endregion

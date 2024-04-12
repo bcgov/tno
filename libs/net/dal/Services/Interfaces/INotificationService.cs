@@ -26,4 +26,11 @@ public interface INotificationService : IBaseService<Notification, int>
     /// <param name="requestorId"></param>
     /// <returns></returns>
     Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindContentWithElasticsearchAsync(Notification notification, int? requestorId);
+
+    /// <summary>
+    /// Subscribe the user to the content so that they receive the specified notification.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="contentId"></param>
+    void SubscriberUserToContent(int userId, long contentId);
 }

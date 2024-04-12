@@ -224,8 +224,9 @@ public interface IApiService
     /// Make a request to the API to get the specified content.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="includeUserNotifications"></param>
     /// <returns></returns>
-    Task<API.Areas.Services.Models.Content.ContentModel?> FindContentByIdAsync(long id);
+    Task<API.Areas.Services.Models.Content.ContentModel?> FindContentByIdAsync(long id, bool includeUserNotifications = false);
 
     /// <summary>
     /// Make a request to the API to get all notification instances for the specified 'contentId'.

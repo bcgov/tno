@@ -117,6 +117,7 @@ public class ContentController : ControllerBase
     /// Find content for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="includeUserNotifications"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -124,9 +125,9 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult FindById(long id)
+    public IActionResult FindById(long id, bool includeUserNotifications = false)
     {
-        var result = _contentService.FindById(id);
+        var result = _contentService.FindById(id, includeUserNotifications);
         if (result == null) return NoContent();
         return new JsonResult(new ContentModel(result, _serializerOptions));
     }
@@ -188,7 +189,7 @@ public class ContentController : ControllerBase
             tag.Id = result.Id;
         }
 
-        // only assign a default score to content which has a source relevent to Event of the Day
+        // only assign a default score to content which has a source relevant to Event of the Day
         if (model.SourceId.HasValue)
         {
             var source = _sourceService.FindById(model.SourceId.Value);

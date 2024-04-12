@@ -29,5 +29,6 @@ export const defaultContent: IContentModel = {
   fileReferences: [],
   links: [],
   quotes: [],
+  userNotifications: [],
   versions: {},
 };

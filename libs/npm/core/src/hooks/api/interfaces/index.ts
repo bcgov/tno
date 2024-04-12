@@ -108,6 +108,7 @@ export * from './ITopicModel';
 export * from './ITopicScoreRuleModel';
 export * from './IUserAVOverviewModel';
 export * from './IUserColleagueModel';
+export * from './IUserContentNotificationModel';
 export * from './IUserFilter';
 export * from './IUserInfoModel';
 export * from './IUserLocationModel';

@@ -280,6 +280,11 @@ public class Content : AuditColumns
     public virtual List<NotificationInstance> NotificationsManyToMany { get; } = new List<NotificationInstance>();
 
     /// <summary>
+    /// get - Collection of users who want to be notified about this content.
+    /// </summary>
+    public virtual List<UserContentNotification> UserNotifications { get; } = new List<UserContentNotification>();
+
+    /// <summary>
     /// get - Collection of folders that have this content.
     /// </summary>
     public virtual List<Folder> Folders { get; } = new List<Folder>();

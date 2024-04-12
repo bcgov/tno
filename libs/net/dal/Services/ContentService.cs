@@ -461,6 +461,38 @@ public class ContentService : BaseService<Content, long>, IContentService
     }
 
     /// <summary>
+    /// Get the content for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="includeUserNotifications"></param>
+    /// <returns></returns>
+    public Content? FindById(long id, bool includeUserNotifications)
+    {
+        var query = this.Context.Contents
+            .Include(c => c.MediaType)
+            .Include(c => c.Series)
+            .Include(c => c.Contributor)
+            .Include(c => c.License)
+            .Include(c => c.Source)
+            .Include(c => c.Owner)
+            .Include(c => c.ActionsManyToMany).ThenInclude(ca => ca.Action)
+            .Include(c => c.TopicsManyToMany).ThenInclude(cc => cc.Topic)
+            .Include(c => c.TonePoolsManyToMany).ThenInclude(ct => ct.TonePool)
+            .Include(c => c.TagsManyToMany).ThenInclude(ct => ct.Tag)
+            .Include(c => c.Labels)
+            .Include(c => c.TimeTrackings)
+            .Include(c => c.FileReferences)
+            .Include(c => c.Links)
+            .Include(c => c.Quotes)
+            .AsQueryable();
+
+        if (includeUserNotifications)
+            query = query.Include(c => c.UserNotifications).ThenInclude(un => un.User);
+
+        return query.FirstOrDefault(c => c.Id == id);
+    }
+
+    /// <summary>
     /// Get the content for the specified 'uid' and 'source'.
     /// </summary>
     /// <param name="uid"></param>
@@ -582,19 +614,25 @@ public class ContentService : BaseService<Content, long>, IContentService
     {
         var currentTopics = this.Context.ContentTopics.Where(ca => ca.ContentId == contentId);
 
-        foreach(var topic in currentTopics) {
+        foreach (var topic in currentTopics)
+        {
             var matchingTopic = topics.FirstOrDefault((t) => t.TopicId == topic.TopicId);
-            if(matchingTopic == null) {
+            if (matchingTopic == null)
+            {
                 // remove any topics no longer associated with the content
                 this.Context.Remove(topic);
-            } else if (topic.Score != matchingTopic.Score) {
+            }
+            else if (topic.Score != matchingTopic.Score)
+            {
                 // update topic score
                 topic.Score = matchingTopic.Score;
             }
         }
 
-        foreach(var topic in topics) {
-            if (!currentTopics.Any((t) => t.TopicId == topic.TopicId)) {
+        foreach (var topic in topics)
+        {
+            if (!currentTopics.Any((t) => t.TopicId == topic.TopicId))
+            {
                 // add new topics
                 this.Context.Add(topic);
             }

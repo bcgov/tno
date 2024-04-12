@@ -25,7 +25,6 @@ import {
 
 import * as styled from './styled';
 import { isWorkOrderStatus } from './utils';
-import { WorkOrderStatus } from './utils/WorkOrderStatus';
 
 export interface IStream {
   url: string;
@@ -65,6 +64,8 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
         setWorkOrders([response.data, ...workOrders]);
 
         if (response.status === 200) toast.success('A transcript has been requested');
+        if (response.status === 208)
+          toast.success('You will receive an email when the transcript is available');
         // In case of failure no message will be displayed to the Subscriber application user.
       }
     } catch {
@@ -141,28 +142,25 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
 
   const fetchContent = React.useCallback(
     (id: number) => {
-      getContent(id).then((content) => {
-        if (!!content) {
-          setActiveContent && setActiveContent([content]);
-          setContent(content);
-          if (!!content.quotes.length)
-            setFilteredQuotes(content.quotes.filter((q) => q.isRelevant));
-        }
-      });
-      findWorkOrders({ contentId: id }).then((res) => {
-        setWorkOrders(res.items);
-      });
+      getContent(id)
+        .then((content) => {
+          if (!!content) {
+            setActiveContent && setActiveContent([content]);
+            setContent(content);
+            if (!!content.quotes.length)
+              setFilteredQuotes(content.quotes.filter((q) => q.isRelevant));
+          }
+        })
+        .catch(() => {});
+      findWorkOrders({ contentId: id })
+        .then((res) => {
+          setWorkOrders(res.items);
+        })
+        .catch(() => {});
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [getContent, findWorkOrders],
   );
-
-  // add classname for colouring as well as formatting the tone value (+ sign for positive)
-  const showToneValue = (tone: number) => {
-    if (tone > 0) return <span className="pos">+{tone}</span>;
-    if (tone < 0) return <span className="neg">{tone}</span>;
-    if (tone === 0) return <span className="neut">{tone}</span>;
-  };
 
   // if statement avoids unwanted fetch when navigating back to home view
   React.useEffect(() => {
@@ -170,6 +168,26 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
       id && fetchContent(+id);
     }
   }, [id, fetchContent]);
+
+  // add classname for colouring as well as formatting the tone value (+ sign for positive)
+  const showToneValue = (tone: number) => {
+    if (tone > 0) return <span className="pos">+{tone}</span>;
+    if (tone < 0) return <span className="neg">{tone}</span>;
+    if (tone === 0) return <span className="neut">{tone}</span>;
+  };
+  const isAV = content?.contentType === ContentTypeName.AudioVideo;
+  const isTranscribing =
+    isAV &&
+    !content?.isApproved &&
+    isWorkOrderStatus(workOrders, WorkOrderTypeName.Transcription, [
+      WorkOrderStatusName.Completed,
+      WorkOrderStatusName.Submitted,
+    ]);
+  const isTranscriptRequestor = workOrders.some(
+    (wo) =>
+      wo.requestorId === userInfo?.id ||
+      wo.userNotifications?.some((un) => un.userId === userInfo?.id),
+  );
 
   return (
     <styled.ViewContent>
@@ -201,7 +219,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
           )}
         </Row>
       </Bar>
-      <Show visible={!!avStream && content?.contentType === ContentTypeName.AudioVideo}>
+      <Show visible={!!avStream && isAV}>
         <Row justifyContent="center">
           <Show visible={fileReference?.contentType.startsWith('audio/')}>
             <audio controls>
@@ -237,12 +255,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
           >
             <div>{parse(content?.body?.replace(/\n+/g, '<br><br>') ?? '')}</div>
           </Show>
-          <Show
-            visible={
-              content?.contentType === ContentTypeName.AudioVideo ||
-              content?.contentType === ContentTypeName.Image
-            }
-          >
+          <Show visible={isAV || content?.contentType === ContentTypeName.Image}>
             <span>{parse(content?.summary?.replace(/\n+/g, '<br><br>') ?? '')}</span>
           </Show>
           <Show visible={!!content?.sourceUrl}>
@@ -253,36 +266,44 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
         </Col>
         <Show
           visible={
-            content?.contentType === ContentTypeName.AudioVideo &&
+            isAV &&
             !content?.source?.disableTranscribe &&
-            !content.isApproved
+            !content.isApproved &&
+            !isTranscriptRequestor
           }
         >
           <Button
             onClick={() => handleTranscribe()}
-            variant={ButtonVariant.action}
+            variant={isTranscribing ? ButtonVariant.warning : ButtonVariant.primary}
             className="transcribe-button"
             disabled={
               (!!content?.fileReferences && !content?.fileReferences.length) ||
               (!!content?.fileReferences &&
                 content?.fileReferences.length > 0 &&
-                !content?.fileReferences[0].isUploaded) ||
-              isWorkOrderStatus(workOrders, WorkOrderTypeName.Transcription, [
-                WorkOrderStatusName.Completed,
-              ])
+                !content?.fileReferences[0].isUploaded)
             }
           >
-            <div className="text">Transcribe</div>
-            <WorkOrderStatus workOrders={workOrders} type={WorkOrderTypeName.Transcription} />
+            <Show visible={!isTranscribing}>Request Transcript</Show>
+            <Show visible={isTranscribing && !isTranscriptRequestor}>
+              Request Email when Transcript Complete
+            </Show>
           </Button>
         </Show>
       </Row>
-      <Show visible={content?.contentType === ContentTypeName.AudioVideo && !!content.body?.length}>
+      <Show visible={isAV && isTranscribing}>
         <hr />
         <h3>Transcription:</h3>
-        <Row>
-          <span>{content && parse(showTranscription(content))}</span>
-        </Row>
+        <Col className="transcript-status">
+          <p>
+            Transcript request has been submitted. Once reviewed and approved it will be displayed.
+          </p>
+          {isTranscriptRequestor && <p>You will receive an email once available.</p>}
+        </Col>
+      </Show>
+      <Show visible={isAV && !isTranscribing && !!content.body?.length}>
+        <hr />
+        <h3>Transcription:</h3>
+        <Col>{content && parse(showTranscription(content))}</Col>
       </Show>
       <Show
         visible={

@@ -8,6 +8,16 @@ namespace TNO.DAL.Services;
 
 public interface IContentService : IBaseService<Content, long>
 {
+
+
+    /// <summary>
+    /// Get the content for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="includeUserNotifications"></param>
+    /// <returns></returns>
+    Content? FindById(long id, bool includeUserNotifications);
+
     IPaged<Content> FindWithDatabase(ContentFilter filter, bool asNoTracking = true);
     Task<IPaged<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(string index, ContentFilter filter);
     Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(string index, JsonDocument filter);

@@ -1,9 +1,12 @@
-import { IWorkOrderModel, WorkOrderStatusName, WorkOrderTypeName } from 'tno-core';
+import { WorkOrderStatusName, WorkOrderTypeName } from 'tno-core';
 
-export const defaultWorkOrder: IWorkOrderModel = {
+import { IWorkOrderForm } from '../interfaces';
+
+export const defaultWorkOrder: IWorkOrderForm = {
   id: 0,
   description: '',
-  requestorId: 0,
+  requestorId: '',
+  assignedId: '',
   workType: WorkOrderTypeName.Transcription,
   status: WorkOrderStatusName.Submitted,
   note: '',

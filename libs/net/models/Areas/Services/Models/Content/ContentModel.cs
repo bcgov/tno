@@ -236,6 +236,11 @@ public class ContentModel : AuditColumnsModel
     public IEnumerable<NotificationInstanceModel> Notifications { get; set; } = Array.Empty<NotificationInstanceModel>();
 
     /// <summary>
+    /// get - Collection of users who want to be notified about this content.
+    /// </summary>
+    public IEnumerable<UserContentNotificationModel> UserNotifications { get; set; } = Array.Empty<UserContentNotificationModel>();
+
+    /// <summary>
     /// get/set - An array of quotes.
     /// </summary>
     public IEnumerable<QuoteModel> Quotes { get; set; } = Array.Empty<QuoteModel>();
@@ -293,6 +298,7 @@ public class ContentModel : AuditColumnsModel
         this.TonePools = entity.TonePoolsManyToMany.Select(e => new ContentTonePoolModel(e));
         this.FileReferences = entity.FileReferences.Select(e => new FileReferenceModel(e));
         this.Quotes = entity.Quotes.Select(e => new QuoteModel(e));
+        this.UserNotifications = entity.UserNotifications.Select(un => new UserContentNotificationModel(un));
         this.Versions = entity.Versions;
     }
     #endregion
