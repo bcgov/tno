@@ -23,6 +23,8 @@ export interface IContentActionBarProps {
   onSelectAll?: React.ChangeEventHandler<HTMLInputElement>;
   /** Whether to show remove from folder button */
   removeFolderItem?: Function;
+  /** whether to disable AddtoFolderMenu */
+  disableAddToFolder?: boolean;
 }
 
 export const ContentActionBar: React.FC<IContentActionBarProps> = ({
@@ -32,6 +34,7 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
   onBack,
   onSelectAll,
   removeFolderItem,
+  disableAddToFolder,
 }) => {
   const navigate = useNavigate();
   const [{ frontPageImagesMediaTypeId, settings, isReady }] = useLookup();
@@ -97,7 +100,7 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
         <div className="right-side-items">
           <Row>
             <ShareMenu content={content} />
-            <AddToFolderMenu content={content} />
+            {disableAddToFolder ? null : <AddToFolderMenu content={content} />}
             <AddToReportMenu content={content} />
             {!!removeFolderItem && <RemoveFromFolder onClick={removeFolderItem} />}
           </Row>

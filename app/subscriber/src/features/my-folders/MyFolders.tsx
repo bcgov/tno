@@ -8,6 +8,7 @@ import { FlexboxTable, IFolderModel, Row, Text } from 'tno-core';
 
 import { columns } from './constants/columns';
 import * as styled from './styled';
+import { getTotalContentLength } from './utils';
 
 export interface IMyFoldersProps {
   /** contains a list of the user's folders, allows for edit and viewing */
@@ -22,18 +23,19 @@ export interface IMyFoldersProps {
 
 /** contains a list of the user's folders, allows for edit and viewing */
 export const MyFolders: React.FC<IMyFoldersProps> = ({ myFolders, setMyFolders, setActive }) => {
-  const [, { findMyFolders, addFolder }] = useFolders();
+  const [state, { findMyFolders, addFolder }] = useFolders();
   const navigate = useNavigate();
   const { id } = useParams();
   const [newFolderName, setNewFolderName] = React.useState<string>('');
+  const myFoldersLength = getTotalContentLength(state.myFolders);
 
   React.useEffect(() => {
     findMyFolders().then((data) => {
       setMyFolders(data);
     });
-    // Only do this on init.
+    // do this only when numbers of contents changes in state.myFolders
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [myFoldersLength]);
 
   const handleAdd = () => {
     if (newFolderName)
