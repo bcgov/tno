@@ -5,10 +5,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
 import { FlexboxTable, IFolderModel, Row, Text } from 'tno-core';
-import { getTotalContentLength } from './utils';
 
 import { columns } from './constants/columns';
 import * as styled from './styled';
+import { getTotalContentLength } from './utils';
 
 export interface IMyFoldersProps {
   /** contains a list of the user's folders, allows for edit and viewing */
