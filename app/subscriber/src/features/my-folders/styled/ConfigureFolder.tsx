@@ -10,20 +10,15 @@ export const ConfigureFolder = styled(PageSection)`
     color: ${(props) => props.theme.css.iconGrayColor};
     align-self: center;
   }
-  .time-inputs {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-    input {
-      height: 2.5rem;
-      box-sizing: border-box;
-      border-radius: 0.5rem;
-      border-thickness: 0.1rem;
-      border-color: black;
-      box-shadow: none;
-    }
-  }
   .react-datepicker-ignore-onclickoutside {
     border-radius: 0.5rem;
+    height: 1.5em;
+  }
+  .react-datepicker__input-container {
+    input {
+      height: 1.6rem;
+      border-radius: 0.25em;
+    }
   }
   button:not(.react-datepicker__close-icon):not(.warning):not(.danger):not(.cancel) {
     background-color: ${(props) => props.theme.css.btnBkPrimary};
