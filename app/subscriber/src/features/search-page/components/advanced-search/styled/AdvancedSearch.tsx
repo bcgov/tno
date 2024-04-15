@@ -255,7 +255,7 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   }
 
   .more-options {
-    font-size: 0.8em;
+    font-size: 1em;
     margin-left: 0.5em;
   }
 
