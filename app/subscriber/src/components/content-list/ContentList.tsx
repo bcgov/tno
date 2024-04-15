@@ -29,6 +29,8 @@ export interface IContentListProps {
   scrollWithin?: boolean;
   /** determine whether or not to show the series title */
   showSeries?: boolean;
+  /** Whether to store the state of the checkboxes in cache */
+  cacheCheck?: boolean;
 }
 
 export const ContentList: React.FC<IContentListProps> = ({
@@ -41,12 +43,42 @@ export const ContentList: React.FC<IContentListProps> = ({
   scrollWithin = false,
   showSeries = false,
   showTime = false,
+  cacheCheck = true,
 }) => {
   const navigate = useNavigate();
   const { groupBy, setActiveStream, activeFileReference } = React.useContext(ContentListContext);
   const grouped = groupContent(groupBy, [...content]);
   const [, { stream }] = useContent();
   const [{ settings }] = useLookup();
+
+  // just on init we want to see if anything in local storage
+  React.useEffect(() => {
+    if (!cacheCheck) return;
+    const existing = localStorage.getItem('selected');
+    if (existing) {
+      onContentSelected(JSON.parse(existing));
+    }
+    // only want to fire once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // this will update the local storage with the selected content
+  React.useEffect(() => {
+    if (!cacheCheck) return;
+    const existing = localStorage.getItem('selected');
+    let array;
+    if (existing) {
+      array = JSON.parse(existing);
+    } else {
+      array = [];
+    }
+    if (array.lenth !== selected.length) {
+      array = selected;
+    }
+    localStorage.setItem('selected', JSON.stringify(array));
+    // only want to fire when selected changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected]);
 
   const handleCheckboxChange = React.useCallback(
     (item: IContentModel, isChecked: boolean) => {

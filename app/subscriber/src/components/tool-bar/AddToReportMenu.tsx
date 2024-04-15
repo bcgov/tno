@@ -10,8 +10,10 @@ import { toInstanceContent } from './utils';
 
 export interface IAddToReportMenuProps {
   content: IContentModel[];
+  // Callback to clear the selected content.
+  onClear?: () => void;
 }
-export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) => {
+export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onClear }) => {
   const [{ myReports }, { addContentToReport, findMyReports, getReport, generateReport }] =
     useReports();
   const [{ requests }] = useApp();
@@ -63,9 +65,10 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content }) =>
             <Link to={`reports/${report.id}/content`}>{report.name}</Link>
           </div>
         ));
+        onClear?.();
       } catch {}
     },
-    [activeReport, content, addContentToReport],
+    [activeReport, content, addContentToReport, onClear],
   );
 
   // ensure no concurrency errors rather than getting from profile store

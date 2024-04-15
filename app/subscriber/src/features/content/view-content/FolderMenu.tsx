@@ -20,10 +20,12 @@ import * as styled from './styled';
 export interface IFolderMenuProps {
   /** The current content that is being viewed. */
   content?: IFolderContentModel[];
+  /** Callback to clear the selected content. */
+  onClear?: () => void;
 }
 
 /** The submenu that appears in the tooltip when clicking on "Add folder" from the content tool bar */
-export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
+export const FolderMenu: React.FC<IFolderMenuProps> = ({ content, onClear }) => {
   const [{ myFolders }, { findMyFolders, addFolder, updateFolder }] = useFolders();
   const [folderName, setFolderName] = React.useState('');
   const [{ myReports }, { storeReportContent, storeMyReports }] = useProfileStore();
@@ -59,10 +61,11 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
             </div>
           ));
           setFolderName('');
+          onClear?.();
         })
         .catch(() => {});
     }
-  }, [addFolder, content, folderName]);
+  }, [addFolder, content, folderName, onClear]);
 
   const handleUpdate = React.useCallback(
     async (folder: IFolderModel) => {
@@ -110,11 +113,12 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content }) => {
                 <Link to={navUrl}>{folder.name}</Link>
               </div>
             ));
+            onClear?.();
           })
           .catch(() => {});
       }
     },
-    [content, myReports, storeMyReports, storeReportContent, updateFolder],
+    [content, myReports, storeMyReports, storeReportContent, updateFolder, onClear],
   );
 
   return (

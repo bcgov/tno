@@ -25,6 +25,8 @@ export interface IContentActionBarProps {
   removeFolderItem?: Function;
   /** whether to disable AddtoFolderMenu */
   disableAddToFolder?: boolean;
+  /** Event to fire when selection should be cleared */
+  onClear?: () => void;
 }
 
 export const ContentActionBar: React.FC<IContentActionBarProps> = ({
@@ -33,6 +35,7 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
   showBackButton,
   onBack,
   onSelectAll,
+  onClear,
   removeFolderItem,
   disableAddToFolder,
 }) => {
@@ -100,8 +103,9 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
         <div className="right-side-items">
           <Row>
             <ShareMenu content={content} />
-            {disableAddToFolder ? null : <AddToFolderMenu content={content} />}
+            {disableAddToFolder ? null : <AddToFolderMenu onClear={onClear} content={content} />}
             <AddToReportMenu content={content} />
+            <AddToReportMenu content={content} onClear={onClear} />
             {!!removeFolderItem && <RemoveFromFolder onClick={removeFolderItem} />}
           </Row>
         </div>
