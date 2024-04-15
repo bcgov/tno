@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from 'store/hooks';
-import { Col, IContentModel, Loading, Show, TextArea, Wysiwyg } from 'tno-core';
+import { Col, ContentTypeName, IContentModel, Loading, Show, TextArea, Wysiwyg } from 'tno-core';
 
 export interface IContentFormProps extends React.HTMLAttributes<HTMLDivElement> {
   /** The content being edited */
@@ -37,6 +37,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const headline = content.versions?.[userId]?.headline
     ? content.versions[userId].headline ?? ''
     : content.headline;
+  const isAV = content.contentType === ContentTypeName.AudioVideo;
 
   return show === 'none' ? null : (
     <Col className={`edit-content${className ? ` ${className}` : ''}`} {...rest}>
@@ -90,7 +91,14 @@ export const ContentForm: React.FC<IContentFormProps> = ({
         <Wysiwyg
           name={`body`}
           label="Body"
-          value={content.versions?.[userId]?.body ?? (content.isApproved ? content.body ?? '' : '')}
+          value={
+            content.versions?.[userId]?.body ??
+            (isAV
+              ? content.isApproved && content.body
+                ? content.body
+                : content.summary
+              : content.body)
+          }
           disabled={disabled}
           onChange={(text) => {
             const values = {

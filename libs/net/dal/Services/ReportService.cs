@@ -438,16 +438,24 @@ public class ReportService : BaseService<Report, int>, IReportService
         var instanceContent = new List<ReportInstanceContent>(searchResults.SelectMany(sr => sr.Value.Hits.Hits).Count());
         report.Sections.ForEach(section =>
         {
+            var sortOrder = 0;
             if (searchResults.TryGetValue(section.Name, out Elastic.Models.SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
             {
                 // Apply the search results to the report instance.
                 var settings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(section.Settings, _serializerOptions);
-                var sortOrder = 0;
-                instanceContent.AddRange(OrderBySectionField(results.Hits.Hits.Select(c => new ReportInstanceContent(currentInstance.Id, c.Source.Id, section.Name, sortOrder++)
-                {
-                    Content = c.Source != null ? (Content)c.Source : null
-                }), settings?.SortBy));
+                instanceContent.AddRange(
+                    OrderBySectionField(
+                        results.Hits.Hits.Select(c => new ReportInstanceContent(
+                            currentInstance.Id,
+                            c.Source.Id,
+                            section.Name,
+                            currentInstance.ContentManyToMany.FirstOrDefault(ci => ci.SectionName == section.Name && ci.ContentId == c.Source.Id)?.SortOrder ?? sortOrder++)
+                        {
+                            Content = c.Source != null ? (Content)c.Source : null
+                        }),
+                    settings?.SortBy));
             }
+            sortOrder = instanceContent.Any() ? instanceContent.Last().SortOrder + 1 : 0;
         });
 
         currentInstance.ContentManyToMany.Clear();
@@ -732,17 +740,20 @@ public class ReportService : BaseService<Report, int>, IReportService
         // Organize the content sections, and remove the specified section.
         var currentInstanceContent = reportInstance?.ContentManyToMany.Where(c => c.SectionName != section.Name).ToArray() ?? Array.Empty<ReportInstanceContent>();
         var contentAbove = new List<ReportInstanceContent>();
-        report.Sections.Where(s => s.Name != section.Name).OrderBy(s => s.SortOrder).ForEach(s =>
+        report.Sections.OrderBy(s => s.SortOrder).ForEach(s =>
         {
-            var sectionContent = currentInstanceContent.Where(c => c.SectionName == s.Name);
-            if (s.SortOrder < section.SortOrder) contentAbove.AddRange(sectionContent);
-
             var sectionResults = new Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>();
-            sectionResults.Hits.Hits = sectionContent
-                .Select(c => new Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>()
-                {
-                    Source = new API.Areas.Services.Models.Content.ContentModel(c.Content!, _serializerOptions)
-                });
+            if (s.Name != section.Name)
+            {
+                var sectionContent = currentInstanceContent.Where(c => c.SectionName == s.Name);
+                if (s.SortOrder < section.SortOrder) contentAbove.AddRange(sectionContent);
+
+                sectionResults.Hits.Hits = sectionContent
+                    .Select(c => new Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>()
+                    {
+                        Source = new API.Areas.Services.Models.Content.ContentModel(c.Content!, _serializerOptions)
+                    });
+            }
             searchResults.Add(s.Name, sectionResults);
         });
 
@@ -805,7 +816,9 @@ public class ReportService : BaseService<Report, int>, IReportService
             if (section.Filter == null) throw new InvalidOperationException($"Section '{section.Name}' filter is missing from report object.");
 
             // Modify the query to exclude content.
-            var query = excludeContentIds.Any() ? section.Filter.Query.AddExcludeContent(excludeContentIds) : section.Filter.Query;
+            var excludeAboveAndHistorical = excludeContentIds.AppendRange(excludeAboveSectionContentIds);
+            var query = excludeContentIds.Any() ||
+                (sectionSettings.RemoveDuplicates && excludeAboveSectionContentIds.Any()) ? section.Filter.Query.AddExcludeContent(excludeAboveAndHistorical) : section.Filter.Query;
 
             // Exclude sources and media types that the user cannot see.
             var excludeSources = this.Context.UserSources.Where(us => us.UserId == ownerId).Select(us => us.SourceId).ToArray();
@@ -824,7 +837,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             var content = await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
             var contentHits = content.Hits.Hits.ToArray();
 
-            if (sectionSettings.RemoveDuplicates)
+            if (sectionSettings.RemoveDuplicates && excludeAboveSectionContentIds.Any())
                 content.Hits.Hits = contentHits.Where(c => !excludeAboveSectionContentIds.Contains(c.Source.Id)).ToArray();
 
             if (excludeContentIds.Any())
@@ -838,7 +851,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                 h.Source.Versions = results.FirstOrDefault(r => r.Id == h.Source.Id)?.Versions ?? new();
             });
 
-            searchResults.Add(section.Name, content);
+            searchResults[section.Name] = content;
         }
 
         return searchResults;

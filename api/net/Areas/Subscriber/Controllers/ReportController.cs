@@ -350,7 +350,6 @@ public class ReportController : ControllerBase
             _reportInstanceService.ClearChangeTracker();
             currentInstance.ContentManyToMany.Clear();
             var count = 0;
-            currentInstance.ContentManyToMany.ForEach(c => c.SortOrder = count++);
             var newContent = regeneratedInstance.ContentManyToMany.Select(c =>
             {
                 c.SortOrder = count++;
@@ -398,6 +397,8 @@ public class ReportController : ControllerBase
         var instance = await _reportService.RegenerateReportInstanceSectionAsync(id, sectionId, user.Id);
         _reportInstanceService.ClearChangeTracker();
         instance = _reportInstanceService.UpdateAndSave(instance, true);
+        instance.ContentManyToMany.Clear();
+        instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(instance.Id));
 
         return new JsonResult(new ReportInstanceModel(instance));
     }
@@ -427,9 +428,7 @@ public class ReportController : ControllerBase
         var result = await _reportService.AddContentToReportAsync(id, user.Id, content.Select((c) => (Entities.ReportInstanceContent)c)) ?? throw new NoContentException("Report does not exist");
 
         var instances = _reportService.GetLatestInstances(id, user.Id);
-        var currentInstance = instances.FirstOrDefault();
-        if (currentInstance == null) throw new InvalidOperationException("Unable to add content to a report without an instance");
-
+        var currentInstance = instances.FirstOrDefault() ?? throw new InvalidOperationException("Unable to add content to a report without an instance");
         currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
         result.Instances.Clear();
         result.Instances.AddRange(instances);

@@ -653,7 +653,7 @@ public class ApiService : IApiService
     /// </summary>
     /// <param name="reportId"></param>
     /// <returns></returns>
-    public async Task<API.Areas.Services.Models.Report.ReportInstanceModel?> GetCurrentReportInstance(int reportId, int? ownerId)
+    public async Task<API.Areas.Services.Models.Report.ReportInstanceModel?> GetCurrentReportInstanceAsync(int reportId, int? ownerId)
     {
         var url = this.Options.ApiUrl.Append($"services/reports/{reportId}/instance{(ownerId.HasValue ? $"?ownerId={ownerId}" : "")}");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.Report.ReportInstanceModel?>(url));

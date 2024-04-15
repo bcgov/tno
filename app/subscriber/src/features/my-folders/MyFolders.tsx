@@ -8,7 +8,7 @@ import { FlexboxTable, IFolderModel, Row, Text } from 'tno-core';
 
 import { columns } from './constants/columns';
 import * as styled from './styled';
-import { getTotalContentLength } from './utils';
+import { getTotalContentLength, sortFolders } from './utils';
 
 export interface IMyFoldersProps {
   /** contains a list of the user's folders, allows for edit and viewing */
@@ -31,7 +31,7 @@ export const MyFolders: React.FC<IMyFoldersProps> = ({ myFolders, setMyFolders, 
 
   React.useEffect(() => {
     findMyFolders().then((data) => {
-      setMyFolders(data);
+      setMyFolders(sortFolders(data));
     });
     // do this only when numbers of contents changes in state.myFolders
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -55,7 +55,7 @@ import {
 } from './components';
 import { defaultAdvancedSearch, defaultFilter } from './constants';
 import * as styled from './styled';
-import { extractTags } from './utils/extractTags';
+import { extractTags, removeTags } from './utils';
 
 export interface IAdvancedSearchProps {
   /** Event fires when search button is clicked. */
@@ -85,14 +85,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     React.useState<IFilterSettingsModel>();
 
   const [searchName, setSearchName] = React.useState<string>(activeFilter?.name ?? '');
-  const [query, setQuery] = React.useState<string>(search.search ?? '');
-
-  // replace query with search when search is present
-  React.useEffect(() => {
-    if (!query && !!search.search) {
-      setQuery(search.search);
-    }
-  }, [search, query]);
 
   const displayFiltersAsDropdownCookieKey = 'advancedSearch:displayFiltersAsDropdown';
   const [displayFiltersAsDropdown, setDisplayFiltersAsDropdown] = React.useState<boolean>(() => {
@@ -115,16 +107,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
 
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
   const [{ sources, series, mediaTypes }] = useLookup();
-
-  React.useEffect(() => {
-    // remove [ and ] and everything in between from query
-    const newQuery = query.replace(/\[.*?\]/g, '');
-    // this can occur when the user is deleting characters in the query
-    if (newQuery.includes('[') || newQuery.includes(']')) return;
-    storeSearchFilter({ ...search, search: newQuery });
-    // only update when query changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
 
   React.useEffect(() => {
     if (activeFilter) {
@@ -229,17 +211,14 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
               <label className="label">SEARCH FOR:</label>
               <Col className="text-area-container">
                 <TextArea
-                  value={query}
+                  value={search.search}
                   className="text-area"
                   onKeyDown={(e) => handleEnterPressed(e, () => onSearch?.(search), true)}
                   name="search"
                   onChange={(e) => {
                     const { value } = e.target;
                     const tags = extractTags(value);
-                    setQuery(value);
-                    if (!!tags) {
-                      storeSearchFilter({ ...search, tags: tags });
-                    }
+                    storeSearchFilter({ ...search, search: removeTags(value), tags: tags ?? [] });
                   }}
                 />
                 <SearchInGroup />

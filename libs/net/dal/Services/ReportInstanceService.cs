@@ -80,6 +80,7 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
             .Include(cm2m => cm2m.Content).ThenInclude(c => c!.FileReferences)
             .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TonePoolsManyToMany).ThenInclude(t => t.TonePool)
             .Where(ric => ric.InstanceId == id)
+            .OrderBy(ric => ric.SortOrder)
             .ToArray();
     }
 
@@ -125,6 +126,7 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
                 .Include(ic => ic.Content)
                 .Where(ric => ric.InstanceId == entity.Id).ToArray();
 
+            var updatedContent = new Dictionary<long, Content>();
             // Delete removed content and add new content.
             originalInstanceContents.Except(entity.ContentManyToMany).ForEach(ric =>
             {
@@ -148,32 +150,40 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
                         ric.Content.AddToContext(this.Context);
                         this.Context.Add(ric.Content);
                     }
-                    else
+                    else if (ric.Content != null)
                     {
-                        // Make certain the content exists in the database.
-                        if (!this.Context.Contents.Any(c => c.Id == ric.ContentId)) throw new InvalidOperationException($"Content '{ric.ContentId}' does not exist.");
+                        // Fetch the original content from the database to compare.
+                        originalContent = this.Context.Contents
+                            .AsNoTracking()
+                            .Include(c => c.TonePoolsManyToMany)
+                            .FirstOrDefault(c => c.Id == ric.ContentId) ?? throw new InvalidOperationException($"Content in report instance does not exist {entity.Id}:{ric.ContentId}");
 
                         // Do not allow updating content not owned by the user.
-                        if (ric.Content != null)
-                        {
-                            // TODO: Small security issue as the JSON could lie about this data.
-                            if (ric.Content.IsPrivate &&
-                                (ric.Content.Headline != originalInstanceContent?.Content?.Headline ||
-                                ric.Content.Summary != originalInstanceContent.Content?.Summary ||
-                                ric.Content.SourceId != originalInstanceContent.Content?.SourceId ||
-                                ric.Content.OtherSource != originalInstanceContent.Content?.OtherSource ||
-                                ric.Content.PublishedOn != originalInstanceContent.Content?.PublishedOn ||
-                                ric.Content.Byline != originalInstanceContent.Content?.Byline ||
-                                ric.Content.SourceUrl != originalInstanceContent.Content?.SourceUrl ||
-                                ric.Content.Uid != originalInstanceContent.Content?.Uid ||
+                        // Content can be in more than one section.  Only the first copy that is modified will be used for the update.  All other copies will be synced.
+                        if (!updatedContent.TryGetValue(ric.ContentId, out Content? reportContent) &&
+                            originalContent.IsPrivate &&
+                            (ric.Content.Headline != originalContent.Headline ||
+                                ric.Content.Summary != originalContent.Summary ||
+                                ric.Content.SourceId != originalContent.SourceId ||
+                                ric.Content.OtherSource != originalContent.OtherSource ||
+                                ric.Content.PublishedOn != originalContent.PublishedOn ||
+                                ric.Content.Byline != originalContent.Byline ||
+                                ric.Content.SourceUrl != originalContent.SourceUrl ||
+                                ric.Content.Uid != originalContent.Uid ||
                                 ric.Content.TonePoolsManyToMany.Any(tp =>
                                 {
-                                    var otp = originalInstanceContent.Content.TonePoolsManyToMany.FirstOrDefault(otp => otp.TonePoolId == tp.TonePoolId);
+                                    var otp = originalContent.TonePoolsManyToMany.FirstOrDefault(otp => otp.TonePoolId == tp.TonePoolId);
                                     return otp?.Value != tp.Value;
                                 })))
-                                this.Context.Entry(ric.Content).State = EntityState.Modified;
-                            else
-                                this.Context.Entry(ric.Content).State = EntityState.Unchanged;
+                        {
+                            updatedContent.Add(ric.ContentId, ric.Content);
+                            this.Context.Entry(ric.Content).State = EntityState.Modified;
+                        }
+                        else
+                        {
+                            // This content exists in another section and was updated so we need to make them the same content.
+                            // If the client incorrectly submits the same content in more than one section and updates both of them differently, it will only use the first entry.
+                            ric.Content = reportContent;
                         }
                     }
 

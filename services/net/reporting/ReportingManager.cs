@@ -319,7 +319,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <returns></returns>
     private async Task<Dictionary<string, ReportSectionModel>> GetLinkedReportAsync(int reportId, int? ownerId)
     {
-        var instance = await this.Api.GetCurrentReportInstance(reportId, ownerId);
+        var instance = await this.Api.GetCurrentReportInstanceAsync(reportId, ownerId);
         if (instance == null) return new();
 
         var sections = instance.Report?.Sections.ToDictionary(section => section.Name, section =>
@@ -334,6 +334,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <summary>
     /// Send out an email for the specified report.
     /// Generate a report instance for this email.
+    /// If an unsent report instance exists, use it instead.
     /// Send an email merge to CHES.
     /// This will send out a separate email to each context provided.
     /// </summary>
@@ -343,50 +344,68 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <exception cref="ArgumentException"></exception>
     private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.Report.ReportModel report)
     {
-        // Fetch content for every section within the report.  This will include folders and filters.
+        // Check if there is an unsent report instance.
+        API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instanceModel;
         var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
-        var searchResults = await this.Api.FindContentForReportIdAsync(report.Id, request.RequestorId);
-        var sectionContent = sections.ToDictionary(s => s.Name, section =>
+        var sectionContent = new Dictionary<string, ReportSectionModel>();
+        var reportInstanceModel = await this.Api.GetCurrentReportInstanceAsync(report.Id, request.RequestorId);
+
+        if (reportInstanceModel == null || reportInstanceModel.SentOn.HasValue)
         {
-            if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
+            // Fetch content for every section within the report.  This will include folders and filters.
+            var searchResults = await this.Api.FindContentForReportIdAsync(report.Id, request.RequestorId);
+            sectionContent = sections.ToDictionary(s => s.Name, section =>
             {
-                var sortOrder = 0;
-                section.Content = ReportEngine.OrderBySectionField(results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).OrderBy(c => c.SortOrder).ToArray(), section.Settings.SortBy);
-                if (results.Aggregations != null)
+                if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
                 {
-                    section.Aggregations = new Dictionary<string, TNO.TemplateEngine.Models.Reports.AggregationRootModel>();
-                    foreach (var aggregation in results.Aggregations)
+                    var sortOrder = 0;
+                    section.Content = ReportEngine.OrderBySectionField(results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).OrderBy(c => c.SortOrder).ToArray(), section.Settings.SortBy);
+                    if (results.Aggregations != null)
                     {
-                        section.Aggregations.Add(aggregation.Key, aggregation.Value.Convert());
+                        section.Aggregations = new Dictionary<string, TNO.TemplateEngine.Models.Reports.AggregationRootModel>();
+                        foreach (var aggregation in results.Aggregations)
+                        {
+                            section.Aggregations.Add(aggregation.Key, aggregation.Value.Convert());
+                        }
                     }
                 }
-            }
-            return section;
-        });
+                return section;
+            });
 
-        // Fetch all image data.  Need to do this in a separate step because of async+await.
-        // TODO: Review this implementation due to performance issues.
-        foreach (var section in sectionContent)
-        {
-            foreach (var content in section.Value.Content.Where(c => c.ContentType == Entities.ContentType.Image))
+            // Fetch all image data.  Need to do this in a separate step because of async+await.
+            // TODO: Review this implementation due to performance issues.
+            foreach (var section in sectionContent)
             {
-                content.ImageContent = await this.Api.GetImageFile(content.Id);
+                foreach (var content in section.Value.Content.Where(c => c.ContentType == Entities.ContentType.Image))
+                {
+                    content.ImageContent = await this.Api.GetImageFile(content.Id);
+                }
             }
-        }
 
-        // Save the report instance.
-        // Group content by the section name.
-        var instance = new ReportInstance(
-            report.Id,
-            request.RequestorId
-            )
+            // Save the report instance.
+            // Group content by the section name.
+            var instance = new ReportInstance(
+                report.Id,
+                request.RequestorId
+                )
+            {
+                OwnerId = request.RequestorId ?? report.OwnerId,
+                PublishedOn = DateTime.UtcNow,
+            };
+
+            instanceModel = request.GenerateInstance ? (await this.Api.AddReportInstanceAsync(new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions))
+                ?? throw new InvalidOperationException("Report instance failed to be returned by API")) : null;
+        }
+        else
         {
-            OwnerId = request.RequestorId ?? report.OwnerId,
-            PublishedOn = DateTime.UtcNow,
-        };
-        // var model = ;
-        var instanceModel = request.GenerateInstance ? (await this.Api.AddReportInstanceAsync(new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions))
-            ?? throw new InvalidOperationException("Report instance failed to be returned by API")) : null;
+            // Extract the section content from the current instance.
+            instanceModel = new API.Areas.Services.Models.ReportInstance.ReportInstanceModel((Entities.ReportInstance)reportInstanceModel, _serializationOptions);
+            sectionContent = sections.ToDictionary(s => s.Name, section =>
+            {
+                section.Content = instanceModel.Content.Where(ric => ric.SectionName == section.Name && ric.Content != null).Select(ric => new ContentModel(ric.Content!, ric.SortOrder, ric.SectionName));
+                return section;
+            });
+        }
 
         var subject = await this.ReportEngine.GenerateReportSubjectAsync(report, instanceModel, sectionContent, false, false);
 
