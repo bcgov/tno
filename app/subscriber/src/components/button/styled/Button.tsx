@@ -18,9 +18,11 @@ export const Button = styled.button<IButtonProps>`
   background: ${(props) => {
     switch (props.variant) {
       case 'secondary':
-        return props.theme.css.bkWhite;
+      case 'info':
+      case 'link':
+        return !props.disabled ? props.theme.css.bkWhite : props.theme.css.btnGrayColor;
       case 'success':
-        return props.theme.css.btnBkSuccess;
+        return !props.disabled ? props.theme.css.btnBkSuccess : props.theme.css.btnGrayColor;
       case 'primary':
       default:
         return !props.disabled ? props.theme.css.btnBkPrimary : props.theme.css.btnGrayColor;
@@ -28,6 +30,8 @@ export const Button = styled.button<IButtonProps>`
   }};
   color: ${(props) => {
     switch (props.variant) {
+      case 'info':
+      case 'link':
       case 'secondary':
         return props.theme.css.btnBkPrimary;
       case 'success':
@@ -43,6 +47,8 @@ export const Button = styled.button<IButtonProps>`
         return `solid 1px ${props.theme.css.btnBkPrimary}`;
       case 'success':
         return props.theme.css.btnBkSuccess;
+      case 'info':
+      case 'link':
       case 'primary':
       default:
         return 'none';
@@ -65,6 +71,8 @@ export const Button = styled.button<IButtonProps>`
     color: ${(props) => {
       switch (props.variant) {
         case 'secondary':
+        case 'info':
+        case 'link':
           return props.theme.css.btnBkPrimary;
         case 'primary':
         default:

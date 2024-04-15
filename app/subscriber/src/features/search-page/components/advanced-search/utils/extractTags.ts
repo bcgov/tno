@@ -12,5 +12,5 @@ export const extractTags = (text: string) => {
     return contentArray;
   }
 
-  return null;
+  return [];
 };

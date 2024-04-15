@@ -1,11 +1,15 @@
 import { Action } from 'components/action';
 import { Button } from 'components/button';
 import { FaArrowLeft, FaArrowRight, FaSave } from 'react-icons/fa';
+import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
+import { IContentModel, Show } from 'tno-core';
 
 import { useReportEditContext } from '../../ReportEditContext';
 import * as styled from './styled';
 
 export interface IContentActionsProps {
+  /** The content being edited */
+  content?: IContentModel;
   /** Whether edit functionality is disabled. */
   disabled?: boolean;
   /** Cancel button event. */
@@ -22,6 +26,7 @@ export interface IContentActionsProps {
  * @returns Component.
  */
 export const ContentActions = ({
+  content,
   disabled,
   onCancel,
   onUpdate,
@@ -34,22 +39,33 @@ export const ContentActions = ({
       <Button onClick={() => onCancel?.()} disabled={isSubmitting} variant="secondary">
         Cancel
       </Button>
-      <Button onClick={() => onUpdate?.()} disabled={isSubmitting || disabled}>
-        Save story
-        <FaSave />
-      </Button>
-      <Action
-        icon={<FaArrowLeft size="20" />}
-        title="Previous"
-        disabled={isSubmitting}
-        onClick={() => onNavigate?.('previous')}
-      />
-      <Action
-        icon={<FaArrowRight />}
-        title="Next"
-        disabled={isSubmitting}
-        onClick={() => onNavigate?.('next')}
-      />
+      <Show visible={!!content}>
+        <Button
+          onClick={() => {
+            window.open(`/view/${content!.id}`, '_blank');
+          }}
+          variant="secondary"
+        >
+          View
+          <FaArrowUpRightFromSquare />
+        </Button>
+        <Button onClick={() => onUpdate?.()} disabled={isSubmitting || disabled}>
+          Save story
+          <FaSave />
+        </Button>
+        <Action
+          icon={<FaArrowLeft size="20" />}
+          title="Previous"
+          disabled={isSubmitting}
+          onClick={() => onNavigate?.('previous')}
+        />
+        <Action
+          icon={<FaArrowRight />}
+          title="Next"
+          disabled={isSubmitting}
+          onClick={() => onNavigate?.('next')}
+        />
+      </Show>
     </styled.ContentActions>
   );
 };

@@ -338,7 +338,7 @@ public interface IApiService
     /// <param name="reportId"></param>
     /// <param name="ownerId"></param>
     /// <returns></returns>
-    Task<API.Areas.Services.Models.Report.ReportInstanceModel?> GetCurrentReportInstance(int reportId, int? ownerId);
+    Task<API.Areas.Services.Models.Report.ReportInstanceModel?> GetCurrentReportInstanceAsync(int reportId, int? ownerId);
 
     /// <summary>
     /// Make a request to the API to fetch the report instance with the specified 'id'.

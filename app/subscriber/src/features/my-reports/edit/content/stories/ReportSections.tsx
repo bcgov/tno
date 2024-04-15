@@ -75,7 +75,7 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({
             <Section
               key={`${section.id}-${index}`}
               open={section.open}
-              label={<SectionLabel section={section} />}
+              label={<SectionLabel section={section} showTotal />}
             >
               <Show visible={section.sectionType === ReportSectionTypeName.TableOfContents}>
                 <ReportSectionTableOfContents

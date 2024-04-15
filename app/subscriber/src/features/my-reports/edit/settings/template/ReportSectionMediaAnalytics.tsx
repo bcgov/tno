@@ -181,11 +181,13 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
       </Show>
       <Col className="frm-in">
         <label>Report Section Options</label>
-        <FormikCheckbox
-          name={`sections.${index}.settings.removeDuplicates`}
-          label="Remove duplicate stories"
-          tooltip="Remove content from this section that is in above sections"
-        />
+        <Show visible={!section.settings.useAllContent}>
+          <FormikCheckbox
+            name={`sections.${index}.settings.removeDuplicates`}
+            label="Remove duplicate stories"
+            tooltip="Remove content from this section that is in above sections"
+          />
+        </Show>
         <FormikCheckbox
           name={`sections.${index}.settings.hideEmpty`}
           label="Hide this section in the report when empty"

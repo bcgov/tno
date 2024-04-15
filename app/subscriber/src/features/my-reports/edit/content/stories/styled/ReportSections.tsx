@@ -10,6 +10,10 @@ export const ReportSections = styled.div`
           text-transform: uppercase;
           margin-right: 1rem;
         }
+        > span.section-total {
+          flex: 1;
+          text-align: right;
+        }
       }
     }
 

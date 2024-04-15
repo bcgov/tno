@@ -108,6 +108,9 @@ public class WorkOrderController : ControllerBase
         {
             // If there is already a request it will return the existing one, or it will create a new request.
             var workOrder = await _workOrderHelper.RequestTranscriptionAsync(contentId);
+
+            // TODO: Send email to requestor to confirm we have receive their request for a transcript.
+
             if (WorkOrderHelper.WorkLimiterStatus.Contains(workOrder.Status))
                 return new JsonResult(new WorkOrderModel(workOrder, content, _serializerOptions))
                 {
