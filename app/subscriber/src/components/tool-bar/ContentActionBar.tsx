@@ -104,7 +104,6 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
           <Row>
             <ShareMenu content={content} />
             {disableAddToFolder ? null : <AddToFolderMenu onClear={onClear} content={content} />}
-            <AddToReportMenu content={content} />
             <AddToReportMenu content={content} onClear={onClear} />
             {!!removeFolderItem && <RemoveFromFolder onClick={removeFolderItem} />}
           </Row>
