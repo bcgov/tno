@@ -6,16 +6,19 @@ import { useAppStore } from 'store/slices';
 import { Checkbox, Col, ISubscriberUserModel, Radio, Row } from 'tno-core';
 
 import { ContentListContext } from './ContentListContext';
+import { IGroupByState, IToggleStates } from './interfaces';
 import * as styled from './styled';
 
 export const ViewOptions: React.FC = () => {
   const { viewOptions, setGroupBy, setViewOptions, groupBy } = React.useContext(ContentListContext);
   const [{ userInfo }, store] = useAppStore();
+  const [loadShowOptions, setLoadShowOptions] = React.useState(true);
   const api = useUsers();
 
   /** Save the user's preferences for view/grouping options under preferences */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const savePreferences = async () => {
+  const savePreferences = async (viewOptions: IToggleStates, groupBy: IGroupByState) => {
+    setLoadShowOptions(false);
     if (userInfo) {
       try {
         const user = {
@@ -32,22 +35,15 @@ export const ViewOptions: React.FC = () => {
 
   /** Set the current state to match the saved preferences if they exist */
   React.useEffect(() => {
-    if (userInfo?.preferences?.viewOptions) {
+    if (userInfo?.preferences?.viewOptions && loadShowOptions) {
       setViewOptions(userInfo.preferences.viewOptions);
     }
-    if (userInfo?.preferences?.groupBy) {
+    if (userInfo?.preferences?.groupBy && loadShowOptions) {
       setGroupBy(userInfo.preferences.groupBy);
     }
     // only want to run when we have the user's info to init
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo]);
-
-  /** Save the user's preferences when they change */
-  React.useEffect(() => {
-    // savePreferences(); // TODO: THIS IS BROKEN AND FIRES A MILLION TIMES
-    // only want to run when the viewOptions or groupBy change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewOptions, groupBy]);
 
   return (
     <styled.ViewOptions className="view-options">
@@ -61,7 +57,9 @@ export const ViewOptions: React.FC = () => {
             name="teaser"
             className="checkbox"
             onChange={(e) => {
-              setViewOptions({ ...viewOptions, teaser: e.target.checked });
+              const opt = { ...viewOptions, teaser: e.target.checked };
+              savePreferences(opt, groupBy);
+              setViewOptions(opt);
             }}
           />
           <Checkbox
@@ -70,7 +68,9 @@ export const ViewOptions: React.FC = () => {
             className="checkbox"
             checked={viewOptions.sentiment}
             onChange={(e) => {
-              setViewOptions({ ...viewOptions, sentiment: e.target.checked });
+              const opt = { ...viewOptions, sentiment: e.target.checked };
+              savePreferences(opt, groupBy);
+              setViewOptions(opt);
             }}
           />
           <Checkbox
@@ -79,7 +79,9 @@ export const ViewOptions: React.FC = () => {
             className="checkbox"
             checked={viewOptions.section}
             onChange={(e) => {
-              setViewOptions({ ...viewOptions, section: e.target.checked });
+              const opt = { ...viewOptions, section: e.target.checked };
+              savePreferences(opt, groupBy);
+              setViewOptions(opt);
             }}
           />
         </div>
@@ -91,7 +93,11 @@ export const ViewOptions: React.FC = () => {
               name="groupBy"
               id="source"
               checked={groupBy === 'source'}
-              onChange={(e) => setGroupBy(e.target.checked ? 'source' : 'time')}
+              onChange={(e) => {
+                const grp = e.target.checked ? 'source' : 'time';
+                savePreferences(viewOptions, grp);
+                setGroupBy(grp);
+              }}
             />
             <label htmlFor="source">Media Source</label>
           </Row>
@@ -101,7 +107,11 @@ export const ViewOptions: React.FC = () => {
               className="radio"
               id="time"
               checked={groupBy === 'time'}
-              onChange={(e) => setGroupBy(e.target.checked ? 'time' : 'source')}
+              onChange={(e) => {
+                const grp = e.target.checked ? 'time' : 'source';
+                savePreferences(viewOptions, grp);
+                setGroupBy(grp);
+              }}
             />
             <label htmlFor="time">Time</label>
           </Row>
