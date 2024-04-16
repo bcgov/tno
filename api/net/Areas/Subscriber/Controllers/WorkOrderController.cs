@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Subscriber.Models.WorkOrder;
+using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Entities.Models;
@@ -36,7 +38,12 @@ public class WorkOrderController : ControllerBase
     private readonly IContentService _contentService;
     private readonly IWorkOrderHelper _workOrderHelper;
     private readonly IWorkOrderService _workOrderService;
+    private readonly ISettingService _settingService;
+    private readonly IUserService _userService;
+    private readonly TNO.Kafka.IKafkaMessenger _kafkaProducer;
+    private readonly KafkaOptions _kafkaOptions;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly ApiOptions _apiOptions;
     #endregion
 
     #region Constructors
@@ -46,16 +53,31 @@ public class WorkOrderController : ControllerBase
     /// <param name="contentService"></param>
     /// <param name="workOrderService"></param>
     /// <param name="workOrderHelper"></param>
+    /// <param name="settingService"></param>
+    /// <param name="userService"></param>
+    /// <param name="kafkaProducer"></param>
+    /// <param name="kafkaOptions"></param>
+    /// <param name="apiOptions"></param>
     /// <param name="serializerOptions"></param>
     public WorkOrderController(
         IContentService contentService,
         IWorkOrderService workOrderService,
         IWorkOrderHelper workOrderHelper,
+        ISettingService settingService,
+        IUserService userService,
+        TNO.Kafka.IKafkaMessenger kafkaProducer,
+        IOptions<KafkaOptions> kafkaOptions,
+        IOptions<ApiOptions> apiOptions,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _contentService = contentService;
         _workOrderService = workOrderService;
         _workOrderHelper = workOrderHelper;
+        _settingService = settingService;
+        _userService = userService;
+        _kafkaProducer = kafkaProducer;
+        _kafkaOptions = kafkaOptions.Value;
+        _apiOptions = apiOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -109,7 +131,21 @@ public class WorkOrderController : ControllerBase
             // If there is already a request it will return the existing one, or it will create a new request.
             var workOrder = await _workOrderHelper.RequestTranscriptionAsync(contentId);
 
-            // TODO: Send email to requestor to confirm we have receive their request for a transcript.
+            // Send email to requestor to confirm we have receive their request for a transcript.
+            var settingValue = _settingService.FindByName(_apiOptions.TranscriptRequestConfirmationKey)?.Value ?? "";
+            if (workOrder.RequestorId.HasValue && int.TryParse(settingValue, out int notificationId))
+            {
+                var user = _userService.FindById(workOrder.RequestorId.Value) ?? throw new NotAuthorizedException($"User [{workOrder.RequestorId}] does not exist");
+
+                var request = new TNO.Kafka.Models.NotificationRequestModel(TNO.Kafka.Models.NotificationDestination.NotificationService, new { })
+                {
+                    NotificationId = notificationId,
+                    ContentId = contentId,
+                    RequestorId = workOrder.RequestorId,
+                    To = !String.IsNullOrWhiteSpace(user.PreferredEmail) ? user.PreferredEmail : user.Email,
+                };
+                await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, request);
+            }
 
             if (WorkOrderHelper.WorkLimiterStatus.Contains(workOrder.Status))
                 return new JsonResult(new WorkOrderModel(workOrder, content, _serializerOptions))

@@ -27,22 +27,24 @@ export const NotificationFormDetails: React.FC = () => {
       <Col alignContent="stretch">
         <Row gap="1rem">
           <Col flex="1">
+            <FormikCheckbox label="Is Enabled" name="isEnabled" />
+            <FormikCheckbox label="Is Public" name="isPublic" />
             <FormikCheckbox
               label="Run notification when content is indexed"
               name="alertOnIndex"
               tooltip="Every time content is indexed this notification will run to determine if it should send out an alert."
             />
-            <FormikCheckbox label="Is Enabled" name="isEnabled" />
-            <FormikCheckbox label="Is Public" name="isPublic" />
+            <Show visible={values.alertOnIndex}>
+              <FormikSelect
+                name="resend"
+                label="Resend Option"
+                options={resendOptions}
+                required
+                isClearable={false}
+              />
+            </Show>
           </Col>
           <Col flex="1">
-            <FormikSelect
-              name="resend"
-              label="Resend Option"
-              options={resendOptions}
-              required
-              isClearable={false}
-            />
             <FormikText
               width={FieldSize.Tiny}
               name="sortOrder"

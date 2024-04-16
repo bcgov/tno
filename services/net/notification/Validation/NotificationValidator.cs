@@ -150,7 +150,7 @@ public class NotificationValidator : INotificationValidator
     {
         if (this.Notification == null || this.Content == null) throw new InvalidOperationException("Notification and Content properties cannot be null");
 
-        var send = this.Notification.AlertOnIndex && (this.Notification.Resend switch
+        var send = !this.Notification.AlertOnIndex || (this.Notification.Resend switch
         {
             // Never resend after the first published alert.
             Entities.ResendOption.Never => this.Content.Status == Entities.ContentStatus.Published &&
@@ -180,7 +180,7 @@ public class NotificationValidator : INotificationValidator
     {
         if (this.Notification == null || this.Content == null) throw new InvalidOperationException("Notification and Content properties cannot be null");
 
-        var send = this.Notification.IsEnabled && this.Notification.Subscribers.Any();
+        var send = this.Notification.IsEnabled;
 
         if (!send) _logger.LogDebug("Notification '{name}' is not enabled or does not have subscribers.", this.Notification.Name);
         return send;

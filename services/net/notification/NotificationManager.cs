@@ -389,7 +389,11 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         }
 
         // There are no subscribers, or a notification has been sent for this content to all the subscribers.
-        if (!contexts.Any()) return;
+        if (!contexts.Any())
+        {
+            this.Logger.LogDebug("Notification '{name}' does not have subscribers.", notification.Name);
+            return;
+        }
 
         var subject = await GenerateNotificationSubjectAsync(notification, content, request.IsPreview);
         var body = await GenerateNotificationBodyAsync(notification, content, null, request.IsPreview);
