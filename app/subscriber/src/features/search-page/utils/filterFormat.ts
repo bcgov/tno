@@ -25,6 +25,8 @@ export const filterFormat = (filter: IFilterSettingsModel) => {
     sourceIds: filter.sourceIds ?? [],
     startDate: !!filter.startDate ? filter.startDate : undefined,
     endDate: !!filter.endDate ? filter.endDate : undefined,
+    startPostedDate: !!filter.startPostedDate ? filter.startPostedDate : undefined,
+    endPostedDate: !!filter.endPostedDate ? filter.endPostedDate : undefined,
     tags: filter.tags ?? [],
   };
   return settings;

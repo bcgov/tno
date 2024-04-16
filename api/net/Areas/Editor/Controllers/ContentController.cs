@@ -211,10 +211,10 @@ public class ContentController : ControllerBase
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var newContent = (Content)model;
         newContent.OwnerId = user.Id;
-        if (!model.PostedOn.HasValue &&
-            (model.Status == ContentStatus.Publish ||
-            model.Status == ContentStatus.Published))
-            model.PostedOn = DateTime.UtcNow;
+        if (!newContent.PostedOn.HasValue &&
+            (newContent.Status == ContentStatus.Publish ||
+            newContent.Status == ContentStatus.Published))
+            newContent.PostedOn = DateTime.UtcNow;
 
         // only assign a default score to content which has a source relevant to Event of the Day
         if (newContent.SourceId.HasValue)

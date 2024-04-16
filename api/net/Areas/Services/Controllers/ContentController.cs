@@ -12,7 +12,6 @@ using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
-using TNO.API.Models.SignalR;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
 using TNO.DAL.Services;
@@ -22,6 +21,7 @@ using TNO.Kafka.Models;
 using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 using TNO.Models.Filters;
+using SignalRModels = TNO.API.Models.SignalR;
 
 namespace TNO.API.Areas.Services.Controllers;
 
@@ -205,7 +205,7 @@ public class ContentController : ControllerBase
 
         var content = _contentService.AddAndSave((Content)model);
 
-        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentAdded, new[] { new ContentMessageModel(content) })));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentAdded, new[] { new SignalRModels.ContentMessageModel(content) })));
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
@@ -260,7 +260,7 @@ public class ContentController : ControllerBase
             model.PostedOn = DateTime.UtcNow;
         var content = _contentService.UpdateAndSave((Content)model);
 
-        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content) })));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new SignalRModels.ContentMessageModel(content) })));
 
         if (index && !String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
@@ -312,7 +312,7 @@ public class ContentController : ControllerBase
         var fileRef = model.FileReferences.FirstOrDefault() ?? throw new InvalidOperationException("File missing");
         _fileReferenceService.UpdateAndSave((FileReference)fileRef);
 
-        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content, "file") })));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new SignalRModels.ContentMessageModel(content, "file") })));
 
         if (index && !String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
@@ -360,7 +360,7 @@ public class ContentController : ControllerBase
     {
         var content = _contentService.UpdateStatusOnly((Content)model);
 
-        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content, "status") })));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new SignalRModels.ContentMessageModel(content, "status") })));
 
         return new JsonResult(new ContentModel(content, _serializerOptions));
     }
@@ -396,7 +396,7 @@ public class ContentController : ControllerBase
         if (content.FileReferences.Any()) await _fileReferenceService.UploadAsync(content, files.First(), _storageOptions.GetUploadPath());
         else await _fileReferenceService.UploadAsync(new ContentFileReference(content, files.First()), _storageOptions.GetUploadPath());
 
-        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content, "file") })));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new SignalRModels.ContentMessageModel(content, "file") })));
 
         if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
             await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Publish));
@@ -438,7 +438,7 @@ public class ContentController : ControllerBase
             StatusCode = StatusCodes.Status400BadRequest
         };
 
-        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content, "quotes") })));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new SignalRModels.ContentMessageModel(content, "quotes") })));
 
         return new JsonResult(new ContentModel(content, _serializerOptions));
     }
@@ -525,7 +525,7 @@ public class ContentController : ControllerBase
     {
         var action = _contentService.AddOrUpdateContentAction((ContentAction)model);
 
-        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentActionUpdated, new[] { new ContentActionMessageModel(action), })));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentActionUpdated, new[] { new SignalRModels.ContentActionMessageModel(action), })));
 
         return new JsonResult(new ContentActionModel(action));
     }

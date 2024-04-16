@@ -8,7 +8,7 @@ import {
 } from 'features/my-reports/utils';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { FaPlus, FaRecycle } from 'react-icons/fa';
+import { FaArrowsSpin, FaPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useLookup } from 'store/hooks';
 import {
@@ -201,7 +201,7 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
                 {!!section.id && !disabled ? (
                   <Col flex="1">
                     <Action
-                      icon={<FaRecycle />}
+                      icon={<FaArrowsSpin />}
                       label="Regenerate section"
                       disabled={isSubmitting}
                       onClick={(e) => toggle()}

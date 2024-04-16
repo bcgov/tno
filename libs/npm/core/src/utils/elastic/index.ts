@@ -3,6 +3,7 @@ export * from './generateFilterQuery';
 export * from './generateMultiMatch';
 export * from './generateMustNotQuery';
 export * from './generateMustQuery';
+export * from './generatePostedOnQuery';
 export * from './generatePublishedOnQuery';
 export * from './generateQuery';
 export * from './generateQueryForAction';

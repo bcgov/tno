@@ -1,6 +1,6 @@
 import { Action } from 'components/action';
 import { MenuButton } from 'components/button';
-import { FaRecycle } from 'react-icons/fa';
+import { FaArrowsSpin } from 'react-icons/fa6';
 import { FaCaretRight, FaRightToBracket } from 'react-icons/fa6';
 import { useProfileStore } from 'store/slices';
 import { Show } from 'tno-core';
@@ -154,7 +154,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
           </div>
           <div>
             <Action
-              icon={<FaRecycle className="icon-green" />}
+              icon={<FaArrowsSpin className="icon-green" />}
               label="Refresh Preview"
               onClick={() => storeReportOutput(undefined)}
             />

@@ -25,7 +25,7 @@ export const defaultReport = (ownerId: number, templateId: number): IReportForm 
         showSentiment: false,
       },
       content: {
-        excludeHistorical: false,
+        excludeHistorical: true,
         excludeReports: [],
         highlightKeywords: false,
         showLinkToStory: false,
@@ -33,7 +33,7 @@ export const defaultReport = (ownerId: number, templateId: number): IReportForm 
         onlyNewContent: false,
       },
       sections: {
-        usePageBreaks: false,
+        usePageBreaks: true,
       },
     },
     sections: [],

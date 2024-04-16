@@ -53,7 +53,7 @@ export function toModel(values: IContentForm): IContentModel {
     // Print Content
     edition: values.edition,
     section: values.section,
-    postedOn: values.postedOn ? moment(values.publishedOn).toISOString() : undefined,
+    postedOn: values.postedOn ? moment(values.postedOn).toISOString() : undefined,
     publishedOn: moment(values.publishedOn).toISOString(),
     version: values.version,
   };
