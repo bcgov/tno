@@ -77,6 +77,7 @@ export const Home: React.FC = () => {
         <ContentListActionBar
           content={selected}
           onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
+          onClear={() => setSelected([])}
         />
       </Row>
       <DateFilter filter={filter} storeFilter={storeFilter} />
