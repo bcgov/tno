@@ -2,7 +2,7 @@ import { Action } from 'components/action';
 import { Modal } from 'components/modal';
 import { StartNextReportInfo } from 'features/my-reports/components';
 import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
-import { FaRecycle } from 'react-icons/fa';
+import { FaArrowsSpin } from 'react-icons/fa6';
 import { FaAngleDown, FaMinus } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
 import { Show, useModal } from 'tno-core';
@@ -73,7 +73,7 @@ export const ReportEditContentForm = ({
         <div>
           <Show visible={!disabled}>
             <Action
-              icon={<FaRecycle />}
+              icon={<FaArrowsSpin />}
               label="Regenerate report"
               disabled={isSubmitting}
               onClick={(e) => toggle()}

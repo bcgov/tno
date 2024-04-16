@@ -70,6 +70,16 @@ public class FilterSettingsModel
     public DateTime? EndDate { get; set; }
 
     /// <summary>
+    /// get/set - Filter content that was posted on and after this date.
+    /// </summary>
+    public DateTime? StartPostedDate { get; set; }
+
+    /// <summary>
+    /// get/set - Filter content that was posted on and before this date.
+    /// </summary>
+    public DateTime? EndPostedDate { get; set; }
+
+    /// <summary>
     /// get/set - Filter content that is X days older than today.
     /// </summary>
     public int? DateOffset { get; set; }

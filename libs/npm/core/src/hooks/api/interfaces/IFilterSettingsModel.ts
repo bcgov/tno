@@ -37,6 +37,8 @@ export interface IFilterSettingsModel {
   startDate?: string;
   endDate?: string;
   publishedOn?: string;
+  startPostedDate?: string;
+  endPostedDate?: string;
   createdOn?: string;
   updatedOn?: string;
   status?: ContentStatusName;

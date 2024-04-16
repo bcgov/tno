@@ -1,7 +1,7 @@
 import { FaCamera, FaNewspaper, FaPlayCircle, FaTv } from 'react-icons/fa';
 import { ContentTypeName } from 'tno-core';
 
-import * as styled from './styled';
+import * as styled from '../components/styled';
 
 export interface IDetermineContentIconProps {
   contentType: ContentTypeName;

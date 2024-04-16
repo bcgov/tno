@@ -33,7 +33,7 @@ export function toForm(model: IContentModel): IContentForm {
     seriesId: model.seriesId ?? '',
     contributorId: model.contributorId ?? '',
     otherSeries: '',
-    postedOn: !!model.postedOn ? moment(model.postedOn).format('HH:mm:ss') : '',
+    postedOn: !!model.postedOn ? model.postedOn : '',
     publishedOn: model.publishedOn ?? '',
     publishedOnTime: !!model.publishedOn ? moment(model.publishedOn).format('HH:mm:ss') : '',
     isHidden: model.isHidden,

@@ -4,7 +4,7 @@ import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { sortContent, sortReportContent } from 'features/my-reports/utils';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { FaRecycle } from 'react-icons/fa6';
+import { FaArrowsSpin } from 'react-icons/fa6';
 import {
   Col,
   FormikText,
@@ -124,7 +124,7 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
       {!!section.id && !section.linkedReportId && !disabled && (
         <Col flex="1">
           <Action
-            icon={<FaRecycle />}
+            icon={<FaArrowsSpin />}
             label="Regenerate section"
             disabled={isSubmitting}
             onClick={(e) => toggle()}
