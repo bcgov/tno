@@ -391,7 +391,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         // There are no subscribers, or a notification has been sent for this content to all the subscribers.
         if (!contexts.Any())
         {
-            this.Logger.LogDebug("Notification '{name}' does not have subscribers.", notification.Name);
+            this.Logger.LogInformation("Notification '{name}' does not have subscribers.", notification.Name);
             return;
         }
 
