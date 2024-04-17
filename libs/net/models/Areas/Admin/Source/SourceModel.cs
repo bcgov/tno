@@ -45,6 +45,11 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
     public int? MediaTypeId { get; set; }
 
     /// <summary>
+    /// get/set - Override media type.
+    /// </summary>
+    public MediaTypeModel? MediaType { get; set; }
+
+    /// <summary>
     /// get/set - Collection of media types used in search mapping, the many-to-many relationship.
     /// </summary>
     public IEnumerable<MediaTypeModel> MediaTypeSearchMappings { get; set; } = Array.Empty<MediaTypeModel>();
@@ -99,6 +104,7 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
         this.License = entity.License != null ? new LicenseModel(entity.License) : null;
         this.OwnerId = entity.OwnerId;
         this.MediaTypeId = entity.MediaTypeId;
+        this.MediaType = entity.MediaType != null ? new MediaTypeModel(entity.MediaType) : null;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
