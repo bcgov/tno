@@ -64,7 +64,7 @@ SET "query" =
       }
     }
   },
-  "size": 0,
+  "size": 512,
   "query": {
     "bool": {
       "must": [
