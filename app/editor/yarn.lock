@@ -14703,45 +14703,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@file:./tno-core-0.1.48.tgz::locator=mmi-editor-app%40workspace%3A.":
-  version: 0.1.48
-  resolution: "tno-core@file:./tno-core-0.1.48.tgz::locator=mmi-editor-app%40workspace%3A."
-  dependencies:
-    "@elastic/elasticsearch": ^8.10.0
-    "@fortawesome/free-solid-svg-icons": ^6.4.2
-    "@fortawesome/react-fontawesome": ^0.2.0
-    "@headlessui/react": ^1.7.13
-    "@react-keycloak/web": ^3.4.0
-    axios: ^1.4.0
-    dequal: ^2.0.3
-    formik: ^2.2.9
-    js-beautify: ^1.14.11
-    keycloak-js: ^21.0.1
-    lodash: ^4.17.21
-    lodash.throttle: ^4.1.1
-    moment: ^2.29.4
-    moment-timezone: ^0.5.41
-    rc-slider: ^10.2.1
-    react: ^18.2.0
-    react-beautiful-dnd: ^13.1.1
-    react-datepicker: ^4.10.0
-    react-dom: ^18.2.0
-    react-icons: ^4.10.1
-    react-inlinesvg: ^3.0.2
-    react-quill: ^2.0.0
-    react-router-dom: ^6.9.0
-    react-select: ^5.8.0
-    react-table: ^7.8.0
-    react-text-mask: ^5.5.0
-    react-toastify: ^9.1.1
-    react-tooltip: ^5.10.0
-    styled-components: ^5.3.9
-    tno-core: 0.1.44
-    yup: ^1.1.1
-  checksum: 0c7e0401d869cd700a03f88a3a3c700abc114dc0a7993e72b72e08f4baf3f1484c5fed323750deb700c491a9ebec397468b5a433a5bbb3e1514e01b7a91732fc
-  languageName: node
-  linkType: hard
-
 "tno-core@npm:0.1.44":
   version: 0.1.44
   resolution: "tno-core@npm:0.1.44"
