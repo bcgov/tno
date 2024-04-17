@@ -5,6 +5,8 @@ export const Settings = {
   ApiPath: process.env.REACT_APP_API_URL ?? '/api',
   /** URL to the subscriber app */
   SubscriberUrl: 'SubscriberUrl',
+  /** URL to the editor app */
+  EditorUrl: 'EditorUrl',
   /** The default notification ID used for basic alerts. */
   DefaultAlert: 'AlertId',
   /** The notification ID used for top story alerts. */

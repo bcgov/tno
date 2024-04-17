@@ -5,4 +5,5 @@ export interface ISettingsState {
   topStoryActionId?: number;
   featuredStoryActionId?: number;
   alertActionId?: number;
+  editorUrl?: string;
 }

@@ -2,7 +2,7 @@ import { Action } from 'components/action';
 import { Button } from 'components/button';
 import { FaArrowLeft, FaArrowRight, FaSave } from 'react-icons/fa';
 import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
-import { IContentModel, Show } from 'tno-core';
+import { IContentModel, ReportStatusName, Show } from 'tno-core';
 
 import { useReportEditContext } from '../../ReportEditContext';
 import * as styled from './styled';
@@ -32,7 +32,9 @@ export const ContentActions = ({
   onUpdate,
   onNavigate,
 }: IContentActionsProps) => {
-  const { isSubmitting } = useReportEditContext();
+  const { values, isSubmitting } = useReportEditContext();
+
+  const instance = values.instances.length ? values.instances[0] : undefined;
 
   return (
     <styled.ContentActions>
@@ -49,7 +51,10 @@ export const ContentActions = ({
           View
           <FaArrowUpRightFromSquare />
         </Button>
-        <Button onClick={() => onUpdate?.()} disabled={isSubmitting || disabled}>
+        <Button
+          onClick={() => onUpdate?.()}
+          disabled={isSubmitting || disabled || instance?.status === ReportStatusName.Submitted}
+        >
           Save story
           <FaSave />
         </Button>

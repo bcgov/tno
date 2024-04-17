@@ -1,12 +1,17 @@
+import { Toggle } from 'components/form';
+import { TimeInput } from 'components/form/timeinput';
+import moment from 'moment';
 import {
   Col,
+  FieldSize,
   FormikCheckbox,
   FormikStringEnumCheckbox,
-  FormikTimeInput,
   Row,
   ScheduleWeekDayName,
   selectWeekDays,
 } from 'tno-core';
+
+import { useReportEditContext } from '../../ReportEditContext';
 
 export interface IReportScheduleProps {
   index: number;
@@ -14,21 +19,50 @@ export interface IReportScheduleProps {
 }
 
 export const ReportSchedule: React.FC<IReportScheduleProps> = ({ index, label }) => {
+  const { values, setFieldValue } = useReportEditContext();
+
+  const schedule = values.events.length > index ? values.events[index] : undefined;
+
   return (
     <Row gap="1rem" className="schedule">
-      <Col>
-        <h3>{label}</h3>
+      <Col gap="0.25rem" className="frm-in">
+        <label>{label}</label>
         <FormikCheckbox name={`events.${index}.isEnabled`} label="Enabled" value={true} />
         <FormikCheckbox
           name={`events.${index}.settings.autoSend`}
-          label="Auto Send"
+          label="Auto send"
           tooltip="Send emails to subscribers when report is run"
         />
-        <FormikTimeInput
-          name={`events.${index}.startAt`}
-          label="Run At"
-          width="7em"
+        <TimeInput
+          label="Run at"
           placeholder="HH:MM:SS"
+          value={schedule?.startAt ? schedule?.startAt : ''}
+          width={FieldSize.Small}
+          onChange={(e) => {
+            setFieldValue(`events.${index}.startAt`, e.target.value);
+          }}
+        />
+        <Toggle
+          name="reset"
+          label="Run again today"
+          value={!schedule?.requestSentOn}
+          disabled={!schedule?.startAt}
+          options={[
+            {
+              label: 'No',
+              value: false,
+            },
+            { label: 'Yes', value: true },
+          ]}
+          onChange={(value) => {
+            if (value) setFieldValue(`events.${index}.requestSentOn`, undefined);
+            else {
+              const now = new Date();
+              const dateStr = now.toISOString().split('T').shift();
+              const sentOn = moment(`${dateStr} ${schedule?.startAt ?? '00:00'}`);
+              setFieldValue(`events.${index}.requestSentOn`, sentOn.toISOString());
+            }
+          }}
         />
       </Col>
       <Col className="frm-in">

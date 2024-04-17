@@ -1,12 +1,15 @@
 import { NavigateOptions, useNavigate } from 'react-router-dom';
 
 import * as styled from './styled';
+import { FaLink } from 'react-icons/fa';
 
 export interface ILinkProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Route to navigate to. */
   to: string;
   /** Navigation options. */
   options?: NavigateOptions;
+  /** use icon*/
+  icon?: JSX.Element;
 }
 
 /**
@@ -20,6 +23,7 @@ export const Link: React.FC<ILinkProps> = ({
   options,
   className,
   children,
+  icon = <FaLink />,
   onClick,
   ...rest
 }) => {
@@ -34,6 +38,7 @@ export const Link: React.FC<ILinkProps> = ({
       }}
       {...rest}
     >
+      {icon}
       {children}
     </styled.Link>
   );

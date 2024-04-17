@@ -155,7 +155,10 @@ export const ReportEditActions = ({ disabled, updateForm }: IReportEditActionsPr
         {!disabled ||
         instance?.status === ReportStatusName.Pending ||
         active?.startsWith(ReportMainMenuOption.Settings) ? (
-          <Button onClick={() => submitForm()} disabled={isSubmitting}>
+          <Button
+            onClick={() => submitForm()}
+            disabled={isSubmitting || instance?.status === ReportStatusName.Submitted}
+          >
             Save report
             <FaSave />
           </Button>

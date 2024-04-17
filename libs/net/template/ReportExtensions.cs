@@ -372,5 +372,25 @@ public static class ReportExtensions
         }
         else return string.Empty;
     }
+    
+    /// <summary>
+    /// returns a the sum of all child Aggregations
+    /// </summary>
+    /// <param name="aggregations"></param>
+    /// <returns></returns>
+    public static double GetSumOfAggregations(Dictionary<string, AggregationRootModel> aggregations) {
+        double returnVal = 0;
+
+        foreach (KeyValuePair<string, AggregationRootModel> aggregation in aggregations)
+        {
+            double childAggregationSum = 0.0;
+            foreach(var bucket in aggregation.Value.ChildAggregation.Buckets) {
+                if (bucket.AggregationSum != null) childAggregationSum += bucket.AggregationSum.Value;
+            }
+            returnVal += childAggregationSum;
+        }
+
+        return returnVal;
+    }
     #endregion
 }
