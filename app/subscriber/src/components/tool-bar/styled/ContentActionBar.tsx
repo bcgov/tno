@@ -8,7 +8,7 @@ export const ContentActionBar = styled(Row)`
     }
   }
   align-items: center;
-  padding: 1em 0.5em 0;
+  padding: 1em 0.5em 0 0;
   font-size: 0.9em;
   width: 100%;
   svg {
@@ -17,6 +17,7 @@ export const ContentActionBar = styled(Row)`
   }
   .left-side-items {
     margin-left: 0.5em;
+    margin-right: 0;
     color: ${(props) => props.theme.css.btnBkPrimary};
     &:hover {
       text-decoration: underline;
@@ -44,6 +45,28 @@ export const ContentActionBar = styled(Row)`
       }
     }
     animation: fade-in 0.5s linear;
+  }
+  .editor-button {
+    display: flex;
+    svg {
+      height: 12px;
+      width: 12px;
+    }
+    align-items: center;
+    margin-right: 1em;
+    svg {
+      margin-right: 0.25em;
+    }
+    padding: 0.5em;
+    color: ${(props) => props.theme.css.fPrimaryColor};
+    background-color: ${(props) => props.theme.css.btnEditColor};
+    border: solid 2px ${(props) => props.theme.css.btnEditBorderColor};
+    height: 2em;
+    border-radius: 0.85em;
+    &:hover {
+      background-color: ${(props) => props.theme.css.btnEditHoverColor};
+      cursor: pointer;
+    }
   }
   .action {
     display: flex;
