@@ -1,7 +1,6 @@
 import React from 'react';
-import { toast } from 'react-toastify';
-import { useLookup } from 'store/hooks';
-import { generateMustNotQuery, generateQuery, IFilterSettingsModel, Settings } from 'tno-core';
+import { useSettings } from 'store/hooks';
+import { generateMustNotQuery, generateQuery, IFilterSettingsModel } from 'tno-core';
 
 /**
  * Hook provides helper function to generate elasticsearch query.
@@ -9,19 +8,7 @@ import { generateMustNotQuery, generateQuery, IFilterSettingsModel, Settings } f
  * @returns Function to generate an elasticsearch query from configuration.
  */
 export const useElastic = () => {
-  const [{ isReady, settings }] = useLookup();
-
-  const [frontPageImagesMediaTypeId, setFrontPageImagesMediaTypeId] = React.useState(0);
-
-  React.useEffect(() => {
-    if (isReady) {
-      const frontPageImagesMediaTypeId = settings.find(
-        (s) => s.name === Settings.FrontPageImageMediaType,
-      )?.value;
-      if (frontPageImagesMediaTypeId) setFrontPageImagesMediaTypeId(+frontPageImagesMediaTypeId);
-      else toast.error(`Configuration settings '${Settings.FrontPageImageMediaType}' is required.`);
-    }
-  }, [isReady, settings]);
+  const { frontPageImagesMediaTypeId } = useSettings();
 
   return React.useCallback(
     (

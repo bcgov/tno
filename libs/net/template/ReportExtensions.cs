@@ -280,11 +280,15 @@ public static class ReportExtensions
     /// <returns></returns>
     public static string GetSource(this ContentModel content, ReportEngineContentModel context)
     {
-        return context.Settings.Headline.ShowShortName && !String.IsNullOrEmpty(content.Source?.ShortName)
+        var name = context.Settings.Headline.ShowShortName && !String.IsNullOrEmpty(content.Source?.ShortName)
             ? $"{content.Source?.ShortName}"
-            : (context.Settings.Headline.ShowSource
-                ? content.OtherSource
+            : "";
+
+        var source = (context.Settings.Headline.ShowSource
+                ? content.OtherSource.ToUpperInvariant()
                 : "");
+
+        return $"{source}{(!String.IsNullOrWhiteSpace(name) ? $" - {name}" : "")}";
     }
 
     /// <summary>
@@ -347,7 +351,7 @@ public static class ReportExtensions
         var actualHref = String.IsNullOrWhiteSpace(href) ? $"{context.ViewContentUrl}{content.Id}" : href;
         var actualTarget = String.IsNullOrWhiteSpace(target) ? "" : $" target=\"{target}\"";
         var link = includeLink ? $"<a href=\"{actualHref}\"{actualTarget}>{headlineValue}</a>" : headlineValue;
-        var source = context.Settings.Headline.ShowSource ? content.GetSource(context) : "";
+        var source = content.GetSource(context);
         var publishedOn = context.Settings.Headline.ShowPublishedOn ? content.GetPublishedOn(context, utcOffset) : "";
         return $"{(String.IsNullOrWhiteSpace(sentiment) ? "" : $"{sentiment} - ")}{link}{byline}{(String.IsNullOrWhiteSpace(source) ? "" : $" - {source}")}{(String.IsNullOrWhiteSpace(publishedOn) ? "" : $" - {publishedOn}")}";
     }
@@ -372,19 +376,21 @@ public static class ReportExtensions
         }
         else return string.Empty;
     }
-    
+
     /// <summary>
     /// returns a the sum of all child Aggregations
     /// </summary>
     /// <param name="aggregations"></param>
     /// <returns></returns>
-    public static double GetSumOfAggregations(Dictionary<string, AggregationRootModel> aggregations) {
+    public static double GetSumOfAggregations(Dictionary<string, AggregationRootModel> aggregations)
+    {
         double returnVal = 0;
 
         foreach (KeyValuePair<string, AggregationRootModel> aggregation in aggregations)
         {
             double childAggregationSum = 0.0;
-            foreach(var bucket in aggregation.Value.ChildAggregation.Buckets) {
+            foreach (var bucket in aggregation.Value.ChildAggregation.Buckets)
+            {
                 if (bucket.AggregationSum != null) childAggregationSum += bucket.AggregationSum.Value;
             }
             returnVal += childAggregationSum;

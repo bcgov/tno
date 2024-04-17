@@ -10,6 +10,7 @@ export interface ISettings {
   topStoryActionId?: number;
   featuredStoryActionId?: number;
   alertActionId?: number;
+  frontPageImagesMediaTypeId?: number;
 }
 
 /**
@@ -29,12 +30,18 @@ export const useSettings = (validate?: boolean) => {
       const topStoryActionId = settings.find((s) => s.name === Settings.TopStoryAction)?.value;
       const featuredStoryActionId = settings.find((s) => s.name === Settings.FeaturedAction)?.value;
       const alertActionId = settings.find((s) => s.name === Settings.AlertAction)?.value;
+      const frontPageImagesMediaTypeId = settings.find(
+        (s) => s.name === Settings.FrontPageImageMediaType,
+      )?.value;
       setValues({
         isReady,
         commentaryActionId: commentaryActionId ? +commentaryActionId : undefined,
         topStoryActionId: topStoryActionId ? +topStoryActionId : undefined,
         featuredStoryActionId: featuredStoryActionId ? +featuredStoryActionId : undefined,
         alertActionId: alertActionId ? +alertActionId : undefined,
+        frontPageImagesMediaTypeId: frontPageImagesMediaTypeId
+          ? +frontPageImagesMediaTypeId
+          : undefined,
       });
       setIsLoaded(1);
     }
@@ -53,6 +60,11 @@ export const useSettings = (validate?: boolean) => {
 
       if (!values.alertActionId)
         toast.error(`Configuration "${Settings.AlertAction}" is missing from settings.`);
+
+      if (!values.frontPageImagesMediaTypeId)
+        toast.error(
+          `Configuration "${Settings.FrontPageImageMediaType}" is missing from settings.`,
+        );
       setIsLoaded(2);
     }
   }, [
@@ -62,6 +74,7 @@ export const useSettings = (validate?: boolean) => {
     values.commentaryActionId,
     values.featuredStoryActionId,
     values.topStoryActionId,
+    values.frontPageImagesMediaTypeId,
   ]);
 
   return values;

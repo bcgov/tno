@@ -54,7 +54,7 @@ const SourceDetails: React.FC<ISourceDetailsProps> = () => {
           placeholder="A unique code"
         />
         <FormikText
-          label="Friendly Name"
+          label="Common Call"
           name="shortName"
           tooltip="A common name used instead of the full legal name"
         />
