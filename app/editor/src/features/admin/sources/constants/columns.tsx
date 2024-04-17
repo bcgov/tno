@@ -18,6 +18,12 @@ export const columns: ITableHookColumn<ISourceModel>[] = [
     cell: (cell) => <CellEllipsis>{cell.original.code}</CellEllipsis>,
   },
   {
+    label: 'Media Type',
+    accessor: 'mediaType',
+    width: 2,
+    cell: (cell) => <CellEllipsis>{cell.original.mediaType?.name}</CellEllipsis>,
+  },
+  {
     label: 'Order',
     accessor: 'sortOrder',
     width: 1,
