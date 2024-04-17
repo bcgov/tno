@@ -51,6 +51,7 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
   // Only show action items in the bar if it's NOT front page image content
   const showActionsItems = !isFrontPageImage;
 
+  console.log(userInfo);
   React.useEffect(() => {
     // Every time content changes, assume it's a front page image until we know it's not
     // this prevents rendering the action items until we know they're needed
