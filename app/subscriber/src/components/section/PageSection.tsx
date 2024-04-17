@@ -56,7 +56,7 @@ export const PageSection: React.FC<IPageSectionProps> = ({
     >
       {/* TODO: This component is polluting the generic implementation.  It should be a separate component which include content related functionality */}
       {includeContentActions && !!activeContent && (
-        <ContentActionBar className="content-actions" content={activeContent} showBackButton />
+        <ContentActionBar className="content-actions" content={activeContent} viewingContent />
       )}
       {header && (
         <Row className="page-section-title">

@@ -1,8 +1,11 @@
 import { ShareMenu } from 'components/share-menu';
 import React, { useState } from 'react';
+import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { useLookup } from 'store/hooks';
+import { useAppStore } from 'store/slices';
 import { Checkbox, IContentModel, Row, Settings, Show } from 'tno-core';
 
 import { AddToFolderMenu } from './AddToFolderMenu';
@@ -15,8 +18,8 @@ export interface IContentActionBarProps {
   content: IContentModel[];
   /** Class name */
   className?: string;
-  /** Whether the back button is displayed */
-  showBackButton?: boolean;
+  /** Whether the user is viewing a single piece of content, helps with logic for conditional rendering */
+  viewingContent?: boolean;
   /** Event fires when back button is pressed */
   onBack?: () => void;
   /** Event fires when select all checkbox is changed */
@@ -32,7 +35,7 @@ export interface IContentActionBarProps {
 export const ContentActionBar: React.FC<IContentActionBarProps> = ({
   className,
   content,
-  showBackButton,
+  viewingContent,
   onBack,
   onSelectAll,
   onClear,
@@ -41,12 +44,14 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
 }) => {
   const navigate = useNavigate();
   const [{ frontPageImagesMediaTypeId, settings, isReady }] = useLookup();
+  const [{ userInfo }] = useAppStore();
   const [isFrontPageImage, setIsFrontPageImage] = useState(true);
   const [contentId, setContentId] = useState(content?.[0]?.id ?? null);
-
+  const editorUrl = settings.find((s) => s.name === Settings.EditorUrl)?.value;
   // Only show action items in the bar if it's NOT front page image content
   const showActionsItems = !isFrontPageImage;
 
+  console.log(userInfo);
   React.useEffect(() => {
     // Every time content changes, assume it's a front page image until we know it's not
     // this prevents rendering the action items until we know they're needed
@@ -69,7 +74,7 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
 
   return (
     <styled.ContentActionBar className={className}>
-      <Show visible={showBackButton}>
+      <Show visible={viewingContent && userInfo?.roles.includes('editor')}>
         <div className="action left-side-items" onClick={() => (onBack ? onBack() : navigate(-1))}>
           <img
             className="back-button"
@@ -106,6 +111,21 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
             {disableAddToFolder ? null : <AddToFolderMenu onClear={onClear} content={content} />}
             <AddToReportMenu content={content} onClear={onClear} />
             {!!removeFolderItem && <RemoveFromFolder onClick={removeFolderItem} />}
+            {viewingContent && (
+              <button
+                className="editor-button"
+                onClick={() => {
+                  if (editorUrl) {
+                    window.open(`${editorUrl}/contents/${contentId}`, '_blank');
+                  } else {
+                    toast.error('Editor URL not found, please set and try again.');
+                  }
+                }}
+              >
+                <FaArrowUpRightFromSquare />
+                Edit Story
+              </button>
+            )}
           </Row>
         </div>
       )}
