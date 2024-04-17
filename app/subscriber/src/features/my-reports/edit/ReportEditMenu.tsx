@@ -1,7 +1,9 @@
 import { Action } from 'components/action';
 import { MenuButton } from 'components/button';
+import React from 'react';
 import { FaArrowsSpin } from 'react-icons/fa6';
 import { FaCaretRight, FaRightToBracket } from 'react-icons/fa6';
+import { useReportInstances } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import { Show } from 'tno-core';
 
@@ -21,6 +23,19 @@ export interface IReportEditMenuProps {
 export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
   const { active, values } = useReportEditContext();
   const [, { storeReportOutput }] = useProfileStore();
+  const [{ viewReportInstance }] = useReportInstances();
+
+  const instance = values.instances.length ? values.instances[0] : undefined;
+
+  const handleViewReport = React.useCallback(
+    async (instanceId: number, regenerate?: boolean | undefined) => {
+      try {
+        const response = await viewReportInstance(instanceId, regenerate);
+        storeReportOutput({ ...response, instanceId });
+      } catch {}
+    },
+    [viewReportInstance, storeReportOutput],
+  );
 
   return (
     <styled.ReportEditMenu className="report-menu">
@@ -156,7 +171,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
             <Action
               icon={<FaArrowsSpin className="icon-green" />}
               label="Refresh Preview"
-              onClick={() => storeReportOutput(undefined)}
+              onClick={() => instance && handleViewReport(instance.id, true)}
             />
           </div>
         </Show>

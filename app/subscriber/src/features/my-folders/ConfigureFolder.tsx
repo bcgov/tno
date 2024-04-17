@@ -29,18 +29,12 @@ import { createSchedule } from './utils';
 
 export interface IConfigureFolderProps {
   active?: IFolderModel;
-  myFolders: IFolderModel[];
-  setMyFolders: React.Dispatch<React.SetStateAction<IFolderModel[]>>;
 }
 
-export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
-  active,
-  myFolders,
-  setMyFolders,
-}) => {
+export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => {
   const [{ myFilters }, { findMyFilters }] = useFilters();
   const [, { findContentWithElasticsearch }] = useContent();
-  const [, { findMyFolders, getFolder, updateFolder, deleteFolder }] = useFolders();
+  const [{ myFolders }, { findMyFolders, getFolder, updateFolder, deleteFolder }] = useFolders();
   const { id } = useParams();
   const { toggle, isShowing } = useModal();
   const navigate = useNavigate();
@@ -72,7 +66,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
   }, [currentFolder]);
 
   React.useEffect(() => {
-    if ((!currentFolder && id) || currentFolder?.id !== Number(id)) {
+    if ((myFolders.length && !currentFolder && id) || currentFolder?.id !== Number(id)) {
       getFolder(Number(id), false)
         .then((data) => {
           setCurrentFolder(data);
@@ -85,9 +79,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
           toast.error('Failed to load folder.');
         });
     }
-    // Only do when id / currentFolder changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentFolder, id]);
+  }, [myFolders, currentFolder, id, getFolder]);
 
   const handleRun = React.useCallback(
     async (filter: IFilterModel) => {
@@ -113,19 +105,17 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
             (item) => item.content.id,
           ).map((item, index) => ({ ...item, sortOrder: index }));
           await updateFolder({ ...currentFolder, content });
-          await findMyFolders().then((data) => {
-            setMyFolders(data);
-          });
+          await findMyFolders();
           toast.success(`Filter found and added ${results.hits.hits.length} content items.`);
         } else {
           toast.warning('No content found for this filter.');
         }
       } catch {}
     },
-    [findContentWithElasticsearch, currentFolder, updateFolder, findMyFolders, setMyFolders],
+    [findContentWithElasticsearch, currentFolder, updateFolder, findMyFolders],
   );
 
-  const handleSaveSchedule = React.useCallback(
+  const handleSaveFolder = React.useCallback(
     async (values: IFolderModel) => {
       try {
         const result = await updateFolder(values);
@@ -207,11 +197,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
           </Button>
           <Button
             onClick={() => {
-              handleSaveSchedule(currentFolder as IFolderModel);
-              // make sure to update the folder in the list
-              setMyFolders(
-                myFolders.map((item) => (item.id === currentFolder?.id ? currentFolder : item)),
-              );
+              handleSaveFolder(currentFolder as IFolderModel);
             }}
             className="save"
           >
@@ -261,12 +247,10 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
                 // need to clear state managed content as well
                 currentFolder && setCurrentFolder(data);
                 toast.success(`${active.name} updated successfully`);
-                setMyFolders(myFolders.map((item) => (item.id === active.id ? data : item)));
               });
             } else if (actionName === 'delete' && !!active) {
               deleteFolder(active).then(() => {
                 toast.success(`${active.name} deleted successfully`);
-                setMyFolders(myFolders.filter((folder) => folder.id !== active.id));
               });
             }
           } finally {

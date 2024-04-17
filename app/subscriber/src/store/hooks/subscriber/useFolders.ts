@@ -1,3 +1,4 @@
+import { sortFolders } from 'features/my-folders/utils';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { IProfileState, useProfileStore } from 'store/slices';
@@ -23,6 +24,7 @@ export const useFolders = (): [IProfileState, IFolderController] => {
         const response = await dispatch<IFolderModel[]>('find-all-folders', () =>
           api.findAllFolders(),
         );
+        console.debug('findAllFolders', response.data);
         store.storeMyFolders(response.data);
         return response.data;
       },
@@ -30,6 +32,7 @@ export const useFolders = (): [IProfileState, IFolderController] => {
         const response = await dispatch<IFolderModel[]>('find-my-folders', () =>
           api.findMyFolders(),
         );
+        console.debug('findMyFolders', response.data);
         store.storeMyFolders(response.data);
         return response.data;
       },
@@ -37,17 +40,16 @@ export const useFolders = (): [IProfileState, IFolderController] => {
         const response = await dispatch<IFolderModel>('get-folder', () =>
           api.getFolder(id, includeContent),
         );
-        store.storeMyFolders((folders) =>
-          folders.map((ds) => {
-            if (ds.id === response.data.id) return response.data;
-            return ds;
-          }),
-        );
+        console.debug('state', state.myFolders);
+        store.storeMyFolders((folders) => {
+          console.debug('getFolder', folders);
+          return folders.map((ds) => (ds.id === response.data.id ? response.data : ds));
+        });
         return response.data;
       },
       addFolder: async (model: IFolderModel) => {
         const response = await dispatch<IFolderModel>('add-folder', () => api.addFolder(model));
-        store.storeMyFolders((folders) => [...folders, response.data]);
+        store.storeMyFolders((folders) => sortFolders([...folders, response.data]));
         return response.data;
       },
       updateFolder: async (model: IFolderModel) => {
@@ -55,10 +57,7 @@ export const useFolders = (): [IProfileState, IFolderController] => {
           api.updateFolder(model),
         );
         store.storeMyFolders((folders) =>
-          folders.map((ds) => {
-            if (ds.id === response.data.id) return response.data;
-            return ds;
-          }),
+          sortFolders(folders.map((ds) => (ds.id === response.data.id ? response.data : ds))),
         );
         return response.data;
       },

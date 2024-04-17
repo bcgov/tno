@@ -10,18 +10,13 @@ import * as styled from './styled';
 
 export const FolderLanding: React.FC<{}> = () => {
   const [activeFolder, setActiveFolder] = React.useState<IFolderModel>();
-  const [myFolders, setMyFolders] = React.useState<IFolderModel[]>([]);
-  // action consits of the param of type /view /configure etc.
   const { action } = useParams();
+
   return (
     <styled.FolderLanding split={!!action}>
       <Col className="left-side">
         <PageSection header="My Folders" includeHeaderIcon>
-          <MyFolders
-            myFolders={myFolders}
-            setMyFolders={setMyFolders}
-            setActive={setActiveFolder}
-          />
+          <MyFolders setActive={setActiveFolder} />
         </PageSection>
       </Col>
       <Show visible={!!action}>
@@ -30,11 +25,7 @@ export const FolderLanding: React.FC<{}> = () => {
             <ManageFolder />
           </Show>
           <Show visible={action === 'configure'}>
-            <ConfigureFolder
-              active={activeFolder}
-              myFolders={myFolders}
-              setMyFolders={setMyFolders}
-            />
+            <ConfigureFolder active={activeFolder} />
           </Show>
         </Col>
       </Show>
