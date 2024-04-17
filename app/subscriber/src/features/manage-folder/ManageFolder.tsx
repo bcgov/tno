@@ -42,7 +42,7 @@ export const ManageFolder: React.FC = () => {
             size: 500,
           }),
         ),
-        false,
+        true,
       )
         .then((data) => {
           const items = data.hits.hits.map((r) => {
