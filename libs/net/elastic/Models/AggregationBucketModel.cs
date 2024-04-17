@@ -9,6 +9,8 @@ public class AggregationBucketModel
 
     public long DocCount { get; set; } = 0;
 
+    public AggregationSumModel? AggregationSum { get; set;}
+
     public AggregationModel? ChildAggregation { get; set;}
     #endregion
 }
