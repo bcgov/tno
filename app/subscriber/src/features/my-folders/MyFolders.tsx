@@ -4,17 +4,13 @@ import { FaFolderPlus, FaWandMagicSparkles } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
+import { useProfileStore } from 'store/slices';
 import { FlexboxTable, IFolderModel, Row, Text } from 'tno-core';
 
 import { columns } from './constants/columns';
 import * as styled from './styled';
-import { getTotalContentLength, sortFolders } from './utils';
 
 export interface IMyFoldersProps {
-  /** contains a list of the user's folders, allows for edit and viewing */
-  myFolders: IFolderModel[];
-  /** function to set the user's folders */
-  setMyFolders: React.Dispatch<React.SetStateAction<IFolderModel[]>>;
   /** function to set the active folder */
   setActive: React.Dispatch<React.SetStateAction<IFolderModel | undefined>>;
   /** the active folder */
@@ -22,20 +18,17 @@ export interface IMyFoldersProps {
 }
 
 /** contains a list of the user's folders, allows for edit and viewing */
-export const MyFolders: React.FC<IMyFoldersProps> = ({ myFolders, setMyFolders, setActive }) => {
-  const [state, { findMyFolders, addFolder }] = useFolders();
+export const MyFolders: React.FC<IMyFoldersProps> = ({ setActive }) => {
+  const [{ myFolders }, { findMyFolders, addFolder }] = useFolders();
   const navigate = useNavigate();
   const { id } = useParams();
   const [newFolderName, setNewFolderName] = React.useState<string>('');
-  const myFoldersLength = getTotalContentLength(state.myFolders);
+  const [, { storeMyFolders }] = useProfileStore();
 
   React.useEffect(() => {
-    findMyFolders().then((data) => {
-      setMyFolders(sortFolders(data));
-    });
-    // do this only when numbers of contents changes in state.myFolders
+    if (!myFolders.length) findMyFolders().catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [myFoldersLength]);
+  }, []);
 
   const handleAdd = () => {
     if (newFolderName)
@@ -54,7 +47,7 @@ export const MyFolders: React.FC<IMyFoldersProps> = ({ myFolders, setMyFolders, 
       }).then((data) => {
         toast.success(`${data.name} created successfully`);
         setNewFolderName('');
-        setMyFolders([...myFolders, data]);
+        storeMyFolders([...myFolders, data]);
       });
     else toast.warning(`Folder name is required.`);
   };

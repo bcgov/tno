@@ -72,9 +72,15 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
                     foreach (var ev in events.Where(e => e.IsEnabled && this.Options.EventTypes.Contains(e.EventType)))
                     {
                         var scheduledEvent = await this.Api.GetEventScheduleAsync(ev.Id) ?? throw new NoContentException($"Event does not exist {ev.Id}:{ev.Name}");
+                        var eventTypeId = scheduledEvent.EventType switch
+                        {
+                            EventScheduleType.Report => scheduledEvent.ReportId.ToString(),
+                            EventScheduleType.Notification => scheduledEvent.ReportId.ToString(),
+                            _ => "",
+                        };
                         if (VerifySchedule(scheduledEvent))
                         {
-                            this.Logger.LogInformation("Scheduled event '{name}' is running", scheduledEvent.Name);
+                            this.Logger.LogInformation("Scheduled event '{id}:{name}' is running", eventTypeId, scheduledEvent.Name);
 
                             if (ev.EventType == EventScheduleType.Report)
                                 await GenerateReportRequestAsync(scheduledEvent);
@@ -85,6 +91,10 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
 
                             scheduledEvent.RequestSentOn = DateTime.UtcNow;
                             await this.Api.UpdateEventScheduleAsync(scheduledEvent);
+                        }
+                        else
+                        {
+                            this.Logger.LogDebug("Schedule event '{id}:{name}' will not run", eventTypeId, scheduledEvent.Name);
                         }
                     }
                 }

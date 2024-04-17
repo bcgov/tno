@@ -1,10 +1,10 @@
+import { Button } from 'components/button';
 import * as React from 'react';
-import { FaGear } from 'react-icons/fa6';
+import { FaGear, FaTrash } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useFolders } from 'store/hooks';
 import {
-  Button,
   Checkbox,
   FieldSize,
   getDistinct,
@@ -29,28 +29,27 @@ import { createSchedule } from './utils';
 
 export interface IConfigureFolderProps {
   active?: IFolderModel;
-  myFolders: IFolderModel[];
-  setMyFolders: React.Dispatch<React.SetStateAction<IFolderModel[]>>;
 }
 
-export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
-  active,
-  myFolders,
-  setMyFolders,
-}) => {
+export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => {
   const [{ myFilters }, { findMyFilters }] = useFilters();
   const [, { findContentWithElasticsearch }] = useContent();
-  const [, { findMyFolders, getFolder, updateFolder, deleteFolder }] = useFolders();
+  const [{ myFolders }, { findMyFolders, getFolder, updateFolder, deleteFolder }] = useFolders();
   const { id } = useParams();
   const { toggle, isShowing } = useModal();
   const navigate = useNavigate();
 
-  const [activeFilter, setActiveFilter] = React.useState<IFilterModel | null>();
+  const [activeFilter, setActiveFilter] = React.useState<IFilterModel>();
   const [actionName, setActionName] = React.useState<'delete' | 'empty'>();
   const [currentFolder, setCurrentFolder] = React.useState<IFolderModel>();
   const [filterOptions, setFilterOptions] = React.useState<IOptionItem[]>(
     getFilterOptions(myFilters, activeFilter?.id ?? 0),
   );
+  const [init, setInit] = React.useState(false);
+
+  React.useEffect(() => {
+    if (myFolders.length) setInit(true);
+  }, [myFolders.length]);
 
   React.useEffect(() => {
     if (!myFilters.length) {
@@ -72,22 +71,19 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
   }, [currentFolder]);
 
   React.useEffect(() => {
-    if ((!currentFolder && id) || currentFolder?.id !== Number(id)) {
+    if (init && ((!currentFolder && id) || currentFolder?.id !== Number(id))) {
+      setInit(false);
       getFolder(Number(id), false)
-        .then((data) => {
-          setCurrentFolder(data);
-          if (data.filter) setActiveFilter(data.filter);
+        .then((folder) => {
+          setCurrentFolder(folder);
+          if (folder.filter) setActiveFilter(folder.filter);
           else {
-            setActiveFilter(null);
+            setActiveFilter(undefined);
           }
         })
-        .catch(() => {
-          toast.error('Failed to load folder.');
-        });
+        .catch(() => {});
     }
-    // Only do when id / currentFolder changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentFolder, id]);
+  }, [currentFolder, id, init, getFolder, myFolders]);
 
   const handleRun = React.useCallback(
     async (filter: IFilterModel) => {
@@ -113,19 +109,17 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
             (item) => item.content.id,
           ).map((item, index) => ({ ...item, sortOrder: index }));
           await updateFolder({ ...currentFolder, content });
-          await findMyFolders().then((data) => {
-            setMyFolders(data);
-          });
+          await findMyFolders();
           toast.success(`Filter found and added ${results.hits.hits.length} content items.`);
         } else {
           toast.warning('No content found for this filter.');
         }
       } catch {}
     },
-    [findContentWithElasticsearch, currentFolder, updateFolder, findMyFolders, setMyFolders],
+    [findContentWithElasticsearch, currentFolder, updateFolder, findMyFolders],
   );
 
-  const handleSaveSchedule = React.useCallback(
+  const handleSaveFolder = React.useCallback(
     async (values: IFolderModel) => {
       try {
         const result = await updateFolder(values);
@@ -151,7 +145,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
         <Text
           name="name"
           label="Folder name:"
-          value={currentFolder?.name}
+          value={currentFolder?.name ?? ''}
           onChange={(e) =>
             setCurrentFolder({ ...currentFolder, name: e.target.value } as IFolderModel)
           }
@@ -174,7 +168,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
               name="filters"
               isClearable
               className="filter-select"
-              value={filterOptions.find((option) => option.value === activeFilter?.id ?? null)}
+              value={filterOptions.find((option) => option.value === activeFilter?.id ?? '')}
               onChange={(newValue) => {
                 if (!newValue) {
                   setActiveFilter(undefined);
@@ -187,8 +181,12 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
                 setCurrentFolder({ ...currentFolder, filterId: targetFilter?.id } as IFolderModel);
               }}
             />
-            <Button className="run" onClick={() => !!activeFilter && handleRun(activeFilter)}>
-              Apply
+            <Button
+              className="run"
+              disabled={!activeFilter}
+              onClick={() => !!activeFilter && handleRun(activeFilter)}
+            >
+              Run Filter
             </Button>
           </Row>
         </div>
@@ -202,16 +200,12 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
           }}
         />
         <Row className="action-buttons">
-          <Button className="cancel" onClick={() => navigate(`/folders`)}>
+          <Button variant="secondary" onClick={() => navigate(`/folders`)}>
             Cancel
           </Button>
           <Button
             onClick={() => {
-              handleSaveSchedule(currentFolder as IFolderModel);
-              // make sure to update the folder in the list
-              setMyFolders(
-                myFolders.map((item) => (item.id === currentFolder?.id ? currentFolder : item)),
-              );
+              handleSaveFolder(currentFolder as IFolderModel);
             }}
             className="save"
           >
@@ -225,24 +219,27 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
           </Row>
           <div className="remove-action-buttons">
             <p>Proceed with caution as these actions may not be undone.</p>
-            <Button
-              className="warning"
-              onClick={() => {
-                setActionName('empty');
-                toggle();
-              }}
-            >
-              Empty folder
-            </Button>
-            <Button
-              className="danger"
-              onClick={() => {
-                setActionName('delete');
-                toggle();
-              }}
-            >
-              Delete folder
-            </Button>
+            <Row>
+              <Button
+                className="warning"
+                onClick={() => {
+                  setActionName('empty');
+                  toggle();
+                }}
+              >
+                Empty folder
+              </Button>
+              <Button
+                className="danger"
+                onClick={() => {
+                  setActionName('delete');
+                  toggle();
+                }}
+              >
+                Delete folder
+                <FaTrash />
+              </Button>
+            </Row>
           </div>
         </div>
       </div>
@@ -261,12 +258,10 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({
                 // need to clear state managed content as well
                 currentFolder && setCurrentFolder(data);
                 toast.success(`${active.name} updated successfully`);
-                setMyFolders(myFolders.map((item) => (item.id === active.id ? data : item)));
               });
             } else if (actionName === 'delete' && !!active) {
               deleteFolder(active).then(() => {
                 toast.success(`${active.name} deleted successfully`);
-                setMyFolders(myFolders.filter((folder) => folder.id !== active.id));
               });
             }
           } finally {

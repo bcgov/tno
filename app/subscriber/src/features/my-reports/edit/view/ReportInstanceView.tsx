@@ -15,7 +15,7 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({ instanc
 
   const isLoading = requests.some((r) => r.group.includes('view-report'));
 
-  const handlePreviewReport = React.useCallback(
+  const handleViewReport = React.useCallback(
     async (instanceId: number) => {
       try {
         const response = await viewReportInstance(instanceId);
@@ -27,7 +27,7 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({ instanc
 
   React.useEffect(() => {
     if (instanceId && reportOutput?.instanceId !== instanceId) {
-      handlePreviewReport(instanceId);
+      handleViewReport(instanceId);
     }
     // The functions will result in infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps

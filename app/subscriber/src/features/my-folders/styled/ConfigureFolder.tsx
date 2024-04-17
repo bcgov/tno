@@ -20,20 +20,6 @@ export const ConfigureFolder = styled(PageSection)`
       border-radius: 0.25em;
     }
   }
-  button:not(.react-datepicker__close-icon):not(.warning):not(.danger):not(.cancel) {
-    background-color: ${(props) => props.theme.css.btnBkPrimary};
-    border: none;
-    border-radius: 0.5rem;
-    font-size: 0.85rem;
-    max-width: fit-content;
-    height: 2.5rem;
-  }
-  button {
-    border-radius: 0.5rem;
-    font-size: 0.85rem;
-    max-width: fit-content;
-    height: 2.5rem;
-  }
 
   .danger {
     &:hover {
@@ -50,19 +36,19 @@ export const ConfigureFolder = styled(PageSection)`
   }
   .react-datepicker__time-list-item--selected,
   .react-datepicker__close-icon::after {
-    background-color: ${(props) => props.theme.css.btnRedColor}; !important;
+    background-color: ${(props) => props.theme.css.btnRedColor};
   }
-  .react-datepicker__close-icon::after {n
+  .react-datepicker__close-icon::after {
     background-color: ${(props) => props.theme.css.btnBkPrimary};
   }
   .react-datepicker__day--keyboard-selected,
   .react-datepicker__day--in-selecting-range {
-    background-color: ${(props) => props.theme.css.btnLightRedColor};;
+    background-color: ${(props) => props.theme.css.btnLightRedColor};
   }
 
   .react-datepicker__day--in-range,
   .react-datepicker__day--selected {
-    background-color: ${(props) => props.theme.css.btnRedColor};;
+    background-color: ${(props) => props.theme.css.btnRedColor};
   }
 
   .react-datepicker__day--keyboard-selected,
@@ -70,7 +56,7 @@ export const ConfigureFolder = styled(PageSection)`
   .react-datepicker__quarter-text--keyboard-selected,
   .react-datepicker__year-text--keyboard-selected {
     &:hover {
-      background-color: ${(props) => props.theme.css.btnRedColor};;
+      background-color: ${(props) => props.theme.css.btnRedColor};
     }
   }
   .main-container {
@@ -116,21 +102,23 @@ export const ConfigureFolder = styled(PageSection)`
   }
   .action-buttons {
     width: 100%;
-    align-items: end;
-    .cancel {
-      color: ${(props) => props.theme.css.btnBkPrimary};
-      background-color: ${(props) => props.theme.css.bkWhite};
-      border: 0.1rem solid ${(props) => props.theme.css.btnBkPrimary};
-      margin-right: 0.5rem;
-      margin-left: auto;
-    }
+    justify-content: flex-end;
+    gap: 1rem;
   }
   .remove-container {
     border-top: 0.1rem solid ${(props) => props.theme.css.btnBkPrimary};
     margin-top: 1rem;
     padding-top: 0.5rem;
     .remove-action-buttons {
-      margin-left: 1.5rem;
+      > div {
+        justify-content: center;
+
+        .danger {
+          svg {
+            color: ${(props) => props.theme.css.fRedColor};
+          }
+        }
+      }
       .warning {
         margin-right: 0.5rem;
       }
