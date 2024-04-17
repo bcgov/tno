@@ -354,6 +354,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         {
             // Fetch content for every section within the report.  This will include folders and filters.
             var searchResults = await this.Api.FindContentForReportIdAsync(report.Id, request.RequestorId);
+            var sortOrder = 0;
+            var instanceContent = searchResults.SelectMany((section) => section.Value.Hits.Hits.Select(hit => new ReportInstanceContent(0, hit.Source.Id, section.Key, sortOrder++))) ?? Array.Empty<ReportInstanceContent>();
             sectionContent = sections.ToDictionary(s => s.Name, section =>
             {
                 if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
@@ -386,7 +388,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             // Group content by the section name.
             var instance = new ReportInstance(
                 report.Id,
-                request.RequestorId
+                request.RequestorId,
+                instanceContent
                 )
             {
                 OwnerId = request.RequestorId ?? report.OwnerId,

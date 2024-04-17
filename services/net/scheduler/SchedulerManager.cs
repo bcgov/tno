@@ -92,10 +92,6 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
                             scheduledEvent.RequestSentOn = DateTime.UtcNow;
                             await this.Api.UpdateEventScheduleAsync(scheduledEvent);
                         }
-                        else
-                        {
-                            this.Logger.LogDebug("Schedule event '{id}:{name}' will not run", eventTypeId, scheduledEvent.Name);
-                        }
                     }
                 }
                 catch (Exception ex)

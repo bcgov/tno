@@ -169,7 +169,7 @@ export const ReportEditPage = () => {
     // Report has been updated, go fetch latest.
     // TODO: This can blow away a users' changes.
     try {
-      if (message.status === ReportStatusName.Accepted) {
+      if (message.id === report.id && message.status === ReportStatusName.Accepted) {
         const instance = await getReportInstance(message.id, true);
         if (instance) {
           setReport({

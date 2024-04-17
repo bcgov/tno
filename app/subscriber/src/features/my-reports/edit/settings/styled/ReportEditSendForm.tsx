@@ -26,5 +26,13 @@ export const ReportEditSendForm = styled.div`
     flex-direction: row;
     gap: 1rem;
     justify-content: space-evenly;
+
+    .schedule-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      justify-content: center;
+      max-width: 200px;
+    }
   }
 `;

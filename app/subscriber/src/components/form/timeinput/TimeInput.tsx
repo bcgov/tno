@@ -14,7 +14,7 @@ export interface ITimeInputProps
 }
 
 /** Component that will enforce the HH:MM:SS time format */
-export const TimeInput: React.FC<ITimeInputProps> = ({ label, error, ...rest }) => {
+export const TimeInput: React.FC<ITimeInputProps> = ({ label, error, className, ...rest }) => {
   const [showMenuOptions, setShowMenuOptions] = React.useState(false);
   const [hours, setHours] = React.useState('');
   const [minutes, setMinutes] = React.useState('');
@@ -75,7 +75,7 @@ export const TimeInput: React.FC<ITimeInputProps> = ({ label, error, ...rest }) 
   }, []);
 
   return (
-    <styled.TimeInput {...rest}>
+    <styled.TimeInput className={`frm-in${className ? ` ${className}` : ''}`} {...rest}>
       <Show visible={!!label}>
         <label className={rest.required ? 'required' : ''}>{label}</label>
       </Show>
