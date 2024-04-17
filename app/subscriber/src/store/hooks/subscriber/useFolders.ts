@@ -16,7 +16,7 @@ interface IFolderController {
 export const useFolders = (): [IProfileState, IFolderController] => {
   const api = useApiSubscriberFolders();
   const dispatch = useAjaxWrapper();
-  const [state, store] = useProfileStore();
+  const [state, { storeMyFolders }] = useProfileStore();
 
   const controller = React.useMemo(
     () => ({
@@ -24,39 +24,41 @@ export const useFolders = (): [IProfileState, IFolderController] => {
         const response = await dispatch<IFolderModel[]>('find-all-folders', () =>
           api.findAllFolders(),
         );
-        console.debug('findAllFolders', response.data);
-        store.storeMyFolders(response.data);
+        storeMyFolders(response.data);
         return response.data;
       },
       findMyFolders: async () => {
         const response = await dispatch<IFolderModel[]>('find-my-folders', () =>
           api.findMyFolders(),
         );
-        console.debug('findMyFolders', response.data);
-        store.storeMyFolders(response.data);
+        storeMyFolders(response.data);
         return response.data;
       },
       getFolder: async (id: number, includeContent: boolean = false) => {
         const response = await dispatch<IFolderModel>('get-folder', () =>
           api.getFolder(id, includeContent),
         );
-        console.debug('state', state.myFolders);
-        store.storeMyFolders((folders) => {
-          console.debug('getFolder', folders);
-          return folders.map((ds) => (ds.id === response.data.id ? response.data : ds));
+        storeMyFolders((folders) => {
+          let exists = false;
+          let results = folders.map((f) => {
+            if (f.id === response.data.id) exists = true;
+            return f.id === response.data.id ? response.data : f;
+          });
+          if (!exists) results = [...folders, response.data];
+          return results;
         });
         return response.data;
       },
       addFolder: async (model: IFolderModel) => {
         const response = await dispatch<IFolderModel>('add-folder', () => api.addFolder(model));
-        store.storeMyFolders((folders) => sortFolders([...folders, response.data]));
+        storeMyFolders((folders) => sortFolders([...folders, response.data]));
         return response.data;
       },
       updateFolder: async (model: IFolderModel) => {
         const response = await dispatch<IFolderModel>('update-folder', () =>
           api.updateFolder(model),
         );
-        store.storeMyFolders((folders) =>
+        storeMyFolders((folders) =>
           sortFolders(folders.map((ds) => (ds.id === response.data.id ? response.data : ds))),
         );
         return response.data;
@@ -65,11 +67,11 @@ export const useFolders = (): [IProfileState, IFolderController] => {
         const response = await dispatch<IFolderModel>('delete-folder', () =>
           api.deleteFolder(model),
         );
-        store.storeMyFolders((folders) => folders.filter((ds) => ds.id !== response.data.id));
+        storeMyFolders((folders) => folders.filter((ds) => ds.id !== response.data.id));
         return response.data;
       },
     }),
-    [api, dispatch, store],
+    [api, dispatch, storeMyFolders],
   );
 
   return [state, controller];

@@ -1,10 +1,10 @@
+import { Button } from 'components/button';
 import * as React from 'react';
-import { FaGear } from 'react-icons/fa6';
+import { FaGear, FaTrash } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useFolders } from 'store/hooks';
 import {
-  Button,
   Checkbox,
   FieldSize,
   getDistinct,
@@ -39,12 +39,17 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
   const { toggle, isShowing } = useModal();
   const navigate = useNavigate();
 
-  const [activeFilter, setActiveFilter] = React.useState<IFilterModel | null>();
+  const [activeFilter, setActiveFilter] = React.useState<IFilterModel>();
   const [actionName, setActionName] = React.useState<'delete' | 'empty'>();
   const [currentFolder, setCurrentFolder] = React.useState<IFolderModel>();
   const [filterOptions, setFilterOptions] = React.useState<IOptionItem[]>(
     getFilterOptions(myFilters, activeFilter?.id ?? 0),
   );
+  const [init, setInit] = React.useState(false);
+
+  React.useEffect(() => {
+    if (myFolders.length) setInit(true);
+  }, [myFolders.length]);
 
   React.useEffect(() => {
     if (!myFilters.length) {
@@ -66,20 +71,19 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
   }, [currentFolder]);
 
   React.useEffect(() => {
-    if ((myFolders.length && !currentFolder && id) || currentFolder?.id !== Number(id)) {
+    if (init && ((!currentFolder && id) || currentFolder?.id !== Number(id))) {
+      setInit(false);
       getFolder(Number(id), false)
-        .then((data) => {
-          setCurrentFolder(data);
-          if (data.filter) setActiveFilter(data.filter);
+        .then((folder) => {
+          setCurrentFolder(folder);
+          if (folder.filter) setActiveFilter(folder.filter);
           else {
-            setActiveFilter(null);
+            setActiveFilter(undefined);
           }
         })
-        .catch(() => {
-          toast.error('Failed to load folder.');
-        });
+        .catch(() => {});
     }
-  }, [myFolders, currentFolder, id, getFolder]);
+  }, [currentFolder, id, init, getFolder, myFolders]);
 
   const handleRun = React.useCallback(
     async (filter: IFilterModel) => {
@@ -141,7 +145,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
         <Text
           name="name"
           label="Folder name:"
-          value={currentFolder?.name}
+          value={currentFolder?.name ?? ''}
           onChange={(e) =>
             setCurrentFolder({ ...currentFolder, name: e.target.value } as IFolderModel)
           }
@@ -164,7 +168,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
               name="filters"
               isClearable
               className="filter-select"
-              value={filterOptions.find((option) => option.value === activeFilter?.id ?? null)}
+              value={filterOptions.find((option) => option.value === activeFilter?.id ?? '')}
               onChange={(newValue) => {
                 if (!newValue) {
                   setActiveFilter(undefined);
@@ -177,8 +181,12 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
                 setCurrentFolder({ ...currentFolder, filterId: targetFilter?.id } as IFolderModel);
               }}
             />
-            <Button className="run" onClick={() => !!activeFilter && handleRun(activeFilter)}>
-              Apply
+            <Button
+              className="run"
+              disabled={!activeFilter}
+              onClick={() => !!activeFilter && handleRun(activeFilter)}
+            >
+              Run Filter
             </Button>
           </Row>
         </div>
@@ -192,7 +200,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
           }}
         />
         <Row className="action-buttons">
-          <Button className="cancel" onClick={() => navigate(`/folders`)}>
+          <Button variant="secondary" onClick={() => navigate(`/folders`)}>
             Cancel
           </Button>
           <Button
@@ -211,24 +219,27 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
           </Row>
           <div className="remove-action-buttons">
             <p>Proceed with caution as these actions may not be undone.</p>
-            <Button
-              className="warning"
-              onClick={() => {
-                setActionName('empty');
-                toggle();
-              }}
-            >
-              Empty folder
-            </Button>
-            <Button
-              className="danger"
-              onClick={() => {
-                setActionName('delete');
-                toggle();
-              }}
-            >
-              Delete folder
-            </Button>
+            <Row>
+              <Button
+                className="warning"
+                onClick={() => {
+                  setActionName('empty');
+                  toggle();
+                }}
+              >
+                Empty folder
+              </Button>
+              <Button
+                className="danger"
+                onClick={() => {
+                  setActionName('delete');
+                  toggle();
+                }}
+              >
+                Delete folder
+                <FaTrash />
+              </Button>
+            </Row>
           </div>
         </div>
       </div>
