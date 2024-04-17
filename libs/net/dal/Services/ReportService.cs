@@ -464,7 +464,7 @@ public class ReportService : BaseService<Report, int>, IReportService
     }
 
     /// <summary>
-    /// Order the content based on the session field.
+    /// Order the content based on the section settings field.
     /// </summary>
     /// <param name="content"></param>
     /// <param name="sortBy"></param>
@@ -472,6 +472,7 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <exception cref="InvalidOperationException"></exception>
     public static ReportInstanceContent[] OrderBySectionField(IEnumerable<ReportInstanceContent> content, string? sortBy)
     {
+        // If you edit this function also edit the one in the ReportEngine.OrderBySectionField.
         return sortBy switch
         {
             "PublishedOn" => content.OrderBy(c => c.Content?.PublishedOn).ToArray(),

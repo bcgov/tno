@@ -64,7 +64,7 @@ export const ReportEditForm = ({ disabled, updateForm }: IReportEditFormProps) =
         <ReportEditPreferencesForm />
       </Show>
       <Show visible={active === ReportSettingsMenuOption.Send}>
-        <ReportEditSendForm />
+        <ReportEditSendForm updateForm={updateForm} />
       </Show>
       {/* Content Menu */}
       <Show visible={active === ReportContentMenuOption.Content}>

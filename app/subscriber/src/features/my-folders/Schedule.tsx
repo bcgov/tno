@@ -56,7 +56,7 @@ export const Schedule: React.FC<IScheduleProps> = ({ folderSchedule, onScheduleC
                   />
                 </Col>
                 <Col className="start-after-col">
-                  <label>Start after:</label>
+                  <label>Run at:</label>
                   <ReactDatePicker
                     minDate={new Date()}
                     showMonthDropdown

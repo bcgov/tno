@@ -7,9 +7,14 @@ export const Button = styled.button<IButtonProps>`
   flex-direction: row;
   gap: 0.5rem;
   align-items: center;
+  justify-content: center;
   padding: 0.25rem 0.75rem;
   border-radius: 0.5rem;
   outline: inherit;
+
+  font-size: 1rem;
+  line-height: unset;
+  font-weight: 400;
 
   &:not([disabled]) {
     cursor: pointer;
@@ -54,11 +59,6 @@ export const Button = styled.button<IButtonProps>`
         return 'none';
     }
   }};
-
-  font-size: 1rem;
-  line-height: unset;
-  font-weight: 400;
-  max-height: 26px;
 
   svg {
     flex-shrink: 0;
