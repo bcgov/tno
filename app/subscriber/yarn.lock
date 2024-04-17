@@ -10569,7 +10569,7 @@ __metadata:
     sass-extract-loader: 1.1.0
     sheetjs: "file:packages/xlsx-0.20.1.tgz"
     styled-components: 5.3.9
-    tno-core: 0.1.49
+    tno-core: 0.1.50
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -14652,9 +14652,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.1.49":
-  version: 0.1.49
-  resolution: "tno-core@npm:0.1.49"
+"tno-core@npm:0.1.50":
+  version: 0.1.50
+  resolution: "tno-core@npm:0.1.50"
   dependencies:
     "@elastic/elasticsearch": ^8.10.0
     "@fortawesome/free-solid-svg-icons": ^6.4.2
@@ -14687,7 +14687,7 @@ __metadata:
     styled-components: ^5.3.9
     tno-core: 0.1.44
     yup: ^1.1.1
-  checksum: 4f9d89c5a1b07817c8c73fe055ee4b33ff8fa604c14c8972f1ddbcf95191b44c90083b86c2ccbc6fa96b33cebd9e63f20efd07bd3b9a4b1b21b470074e5b355c
+  checksum: 4b6493cc4f60913b605d83fe8b8190173d939f72c7679f71a8ef05b679300bf0a9e418cd44e65e5b312d9b2f8e75c02c1a5c05bfe74bca19da96240fef55026b
   languageName: node
   linkType: hard
 
