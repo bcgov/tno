@@ -11,6 +11,7 @@ export interface ISettings {
   topStoryActionId?: number;
   featuredStoryActionId?: number;
   alertActionId?: number;
+  editorUrl?: string;
 }
 
 /**
@@ -28,6 +29,7 @@ export const useSettings = (validate?: boolean) => {
       const topStoryActionId = settings.find((s) => s.name === Settings.TopStoryAction)?.value;
       const featuredStoryActionId = settings.find((s) => s.name === Settings.FeaturedAction)?.value;
       const alertActionId = settings.find((s) => s.name === Settings.AlertAction)?.value;
+      const editorUrl = settings.find((s) => s.name === Settings.EditorUrl)?.value;
       storeValues({
         loadingState: 1,
         isReady,
@@ -35,6 +37,7 @@ export const useSettings = (validate?: boolean) => {
         topStoryActionId: topStoryActionId ? +topStoryActionId : undefined,
         featuredStoryActionId: featuredStoryActionId ? +featuredStoryActionId : undefined,
         alertActionId: alertActionId ? +alertActionId : undefined,
+        editorUrl: editorUrl ? editorUrl : undefined,
       });
     }
   }, [values.loadingState, isReady, settings, storeValues]);
@@ -52,6 +55,8 @@ export const useSettings = (validate?: boolean) => {
 
       if (!values.alertActionId)
         toast.error(`Configuration "${Settings.AlertAction}" is missing from settings.`);
+      if (!values.editorUrl)
+        toast.error(`Configuration "${Settings.EditorUrl}" is missing from settings.`);
       storeLoading(2);
     }
   }, [
@@ -62,6 +67,7 @@ export const useSettings = (validate?: boolean) => {
     values.featuredStoryActionId,
     values.topStoryActionId,
     values.loadingState,
+    values.editorUrl,
   ]);
 
   return values;

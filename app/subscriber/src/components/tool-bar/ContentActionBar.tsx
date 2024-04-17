@@ -4,7 +4,7 @@ import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
-import { useLookup } from 'store/hooks';
+import { useLookup, useSettings } from 'store/hooks';
 import { useAppStore } from 'store/slices';
 import { Checkbox, IContentModel, Row, Settings, Show } from 'tno-core';
 
@@ -44,10 +44,10 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
 }) => {
   const navigate = useNavigate();
   const [{ frontPageImagesMediaTypeId, settings, isReady }] = useLookup();
+  const { editorUrl } = useSettings();
   const [{ userInfo }] = useAppStore();
   const [isFrontPageImage, setIsFrontPageImage] = useState(true);
   const [contentId, setContentId] = useState(content?.[0]?.id ?? null);
-  const editorUrl = settings.find((s) => s.name === Settings.EditorUrl)?.value;
   // Only show action items in the bar if it's NOT front page image content
   const showActionsItems = !isFrontPageImage;
 
