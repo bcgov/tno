@@ -14,6 +14,7 @@ export interface ISourceModel extends ISortableModel<number> {
   license?: ILicenseModel;
   ownerId?: number;
   mediaTypeId?: number;
+  mediaType?: IMediaTypeModel;
   mediaTypeSearchMappings: IMediaTypeModel[];
   owner?: IUserModel;
   autoTranscribe: boolean;
