@@ -200,8 +200,9 @@ public class ImageAction : IngestAction<ImageOptions>
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
+            this.Logger.LogError(ex, "Failure to import image");
             // Any failure needs to disconnect.
             if (client.IsConnected)
                 client.Disconnect();
