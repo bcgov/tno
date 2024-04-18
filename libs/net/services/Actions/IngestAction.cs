@@ -142,7 +142,7 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     protected DateTime ToTimeZone(DateTime date, IngestModel ingest)
     {
         var tz = TimeZoneInfo.FindSystemTimeZoneById(IngestActionManager<TOptions>.GetTimeZone(ingest, this.Options.TimeZone));
-        return TimeZoneInfo.ConvertTimeToUtc(date, tz);
+        return TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(date, DateTimeKind.Unspecified), tz);
     }
 
     /// <summary>

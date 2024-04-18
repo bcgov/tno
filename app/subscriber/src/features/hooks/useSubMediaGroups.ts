@@ -13,6 +13,13 @@ interface ILookup {
   options: IGroupOption[];
 }
 
+const getSourceName = (source: ISourceModel) => {
+  const name = source.shortName ? source.shortName : source.name;
+  const code =
+    name.toLowerCase() === source.code.toLowerCase() ? '' : ` [${source.code.toUpperCase()}]`;
+  return `${name}${code}`;
+};
+
 /**
  * Custom hook to create and manage sub media groups.
  * @param sources Array of source models.
@@ -54,9 +61,7 @@ export const useSubMediaGroups = (
             l.options.push({
               id: s.id,
               listOption: ListOptionName.Source,
-              name: `${s.name}  ${
-                !!s.shortName && s.shortName !== s.name ? `- ${s.shortName}` : ''
-              }`,
+              name: getSourceName(s),
               sortOrder: s.sortOrder,
             });
           });
@@ -101,7 +106,7 @@ export const useSubMediaGroups = (
     const sourceOptions: IGroupOption[] = sources.map((x) => {
       return {
         id: x.id,
-        name: `${x.name}  ${!!x.shortName && x.shortName !== x.name ? `- ${x.shortName}` : ''}`,
+        name: getSourceName(x),
         listOption: ListOptionName.Source,
         sortOrder: x.sortOrder,
       };

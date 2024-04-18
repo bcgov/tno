@@ -19,7 +19,7 @@ public class Source : BaseType<int>
     public string Code { get; set; } = "";
 
     /// <summary>
-    /// get/set - Friendly name of the source.
+    /// get/set - Common call, or friendly name of the source.
     /// </summary>
     [Column("short_name")]
     public string ShortName { get; set; } = "";
