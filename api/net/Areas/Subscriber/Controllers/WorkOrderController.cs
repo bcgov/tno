@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -111,10 +112,14 @@ public class WorkOrderController : ControllerBase
     [HttpPost("transcribe/{contentId}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public async Task<IActionResult> RequestTranscriptionAsync(long contentId)
     {
+        string username = this.User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User is missing");
+
         var content = _contentService.FindById(contentId, true) ?? throw new NoContentException();
         if (content.Source?.DisableTranscribe == true) return BadRequest("Cannot request transcription");
         if (content.IsApproved)
@@ -129,14 +134,12 @@ public class WorkOrderController : ControllerBase
         else
         {
             // If there is already a request it will return the existing one, or it will create a new request.
-            var workOrder = await _workOrderHelper.RequestTranscriptionAsync(contentId);
+            var workOrder = await _workOrderHelper.RequestTranscriptionAsync(contentId, user);
 
             // Send email to requestor to confirm we have receive their request for a transcript.
             var settingValue = _settingService.FindByName(_apiOptions.TranscriptRequestConfirmationKey)?.Value ?? "";
             if (workOrder.RequestorId.HasValue && int.TryParse(settingValue, out int notificationId))
             {
-                var user = _userService.FindById(workOrder.RequestorId.Value) ?? throw new NotAuthorizedException($"User [{workOrder.RequestorId}] does not exist");
-
                 var request = new TNO.Kafka.Models.NotificationRequestModel(TNO.Kafka.Models.NotificationDestination.NotificationService, new { })
                 {
                     NotificationId = notificationId,
@@ -154,6 +157,53 @@ public class WorkOrderController : ControllerBase
                 };
             else
                 return new JsonResult(new WorkOrderModel(workOrder, content, _serializerOptions));
+        }
+    }
+
+    /// <summary>
+    /// Request a transcript for the content for the specified 'contentId'.
+    /// Publish message to kafka to request a transcription.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="uid"></param>
+    /// <returns></returns>
+    [AllowAnonymous]
+    [HttpGet("transcribe/{contentId}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "WorkOrder" })]
+    public async Task<IActionResult> RequestAnonymousTranscriptionAsync(long contentId, int uid)
+    {
+        var user = _userService.FindById(uid) ?? throw new NotAuthorizedException("User is missing");
+        var content = _contentService.FindById(contentId, true) ?? throw new NoContentException();
+        if (content.Source?.DisableTranscribe == true) return BadRequest("Cannot request transcription");
+        if (content.IsApproved)
+        {
+            // The transcript has already been approved, do not allow new requests.
+            return new OkResult();
+        }
+        else
+        {
+            // If there is already a request it will return the existing one, or it will create a new request.
+            var workOrder = await _workOrderHelper.RequestTranscriptionAsync(contentId, user);
+
+            // Send email to requestor to confirm we have receive their request for a transcript.
+            var settingValue = _settingService.FindByName(_apiOptions.TranscriptRequestConfirmationKey)?.Value ?? "";
+            if (workOrder.RequestorId.HasValue && int.TryParse(settingValue, out int notificationId))
+            {
+                var request = new TNO.Kafka.Models.NotificationRequestModel(TNO.Kafka.Models.NotificationDestination.NotificationService, new { })
+                {
+                    NotificationId = notificationId,
+                    ContentId = contentId,
+                    RequestorId = workOrder.RequestorId,
+                    To = !String.IsNullOrWhiteSpace(user.PreferredEmail) ? user.PreferredEmail : user.Email,
+                };
+                await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, request);
+            }
+
+            return new OkResult();
         }
     }
     #endregion

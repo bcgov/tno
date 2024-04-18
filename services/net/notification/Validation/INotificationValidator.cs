@@ -1,3 +1,5 @@
+using TNO.Ches.Models;
+
 namespace TNO.Services.Notification.Validation;
 
 /// <summary>
@@ -63,6 +65,6 @@ public interface INotificationValidator
     /// Get all valid subscribers who have not received a notification yet.
     /// </summary>
     /// <returns></returns>
-    IEnumerable<string> GetSubscriberEmails();
+    IEnumerable<EmailContextModel> GetSubscriberEmails();
     #endregion
 }

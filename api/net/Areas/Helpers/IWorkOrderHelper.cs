@@ -35,6 +35,19 @@ public interface IWorkOrderHelper
     Task<Entities.WorkOrder> RequestTranscriptionAsync(long contentId, bool force = false);
 
     /// <summary>
+    /// Request a transcript for the specified 'contentId'.
+    /// Only allow one active transcript request.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="requestor"></param>
+    /// <param name="force">Whether to force a request regardless of the prior requests state</param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    /// <exception cref="ConfigurationException"></exception>
+    /// <exception cref="NotAuthorizedException"></exception>
+    Task<Entities.WorkOrder> RequestTranscriptionAsync(long contentId, Entities.User requestor, bool force = false);
+
+    /// <summary>
     /// Request a natural language processing for the specified 'contentId'.
     /// Only allow one active nlp request.
     /// </summary>

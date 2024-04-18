@@ -371,7 +371,6 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     {
         await HandleChesEmailOverrideAsync(request);
 
-        var to = this.NotificationValidator.GetSubscriberEmails();
         var contexts = new List<EmailContextModel>();
         if (!String.IsNullOrWhiteSpace(request.To))
         {
@@ -381,11 +380,8 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         }
         else
         {
-            // TODO: Control when a notification is sent through configuration.
-            contexts.AddRange(to.Select(v => new EmailContextModel(new[] { v }, new Dictionary<string, object>(), DateTime.Now)
-            {
-                Tag = $"{notification.Name}-{content.Id}",
-            }).ToList());
+            // TODO: Control when a notification is sent through delay configuration.
+            contexts.AddRange(this.NotificationValidator.GetSubscriberEmails());
         }
 
         // There are no subscribers, or a notification has been sent for this content to all the subscribers.

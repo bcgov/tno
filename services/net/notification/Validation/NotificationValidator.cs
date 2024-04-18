@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TNO.Ches.Models;
 using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Services.Notification.Config;
@@ -274,14 +275,41 @@ public class NotificationValidator : INotificationValidator
     /// Get all valid subscribers who have not received a notification yet.
     /// </summary>
     /// <returns></returns>
-    public IEnumerable<string> GetSubscriberEmails()
+    public IEnumerable<EmailContextModel> GetSubscriberEmails()
     {
-        var emails = new List<string>();
-        if (this.Notification == null) return Array.Empty<string>();
+        var now = DateTime.Now;
+        var emails = new List<EmailContextModel>();
+        if (this.Notification == null) return Array.Empty<EmailContextModel>();
         if (this.Content != null)
-            emails.AddRange(this.Content.UserNotifications.Select(un => un.User!.GetEmail()));
-        emails.AddRange(this.Notification.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.GetEmail()) && s.IsSubscribed && !this.SentToUsers.Contains(s.UserId)).Select(s => s.User!.GetEmail()));
-        return emails.ToArray().Distinct();
+            emails.AddRange(this.Content.UserNotifications.Select(un =>
+            {
+                var email = un.User!.GetEmail();
+                var context = new Dictionary<string, object>() {
+                    { "id", un.UserId },
+                    { "firstName", un.User?.FirstName ?? "" },
+                    { "lastName", un.User?.LastName ?? "" },
+                };
+                return new EmailContextModel(new[] { email }, context, now)
+                {
+                    Tag = $"{this.Notification.Name}-{this.Content.Id}",
+                };
+            }));
+        emails.AddRange(this.Notification.Subscribers
+            .Where(s => !String.IsNullOrWhiteSpace(s.User?.GetEmail()) && s.IsSubscribed && !this.SentToUsers.Contains(s.UserId))
+            .Select(s =>
+            {
+                var email = s.User!.GetEmail();
+                var context = new Dictionary<string, object>() {
+                    { "id", s.UserId },
+                    { "firstName", s.User?.FirstName ?? "" },
+                    { "lastName", s.User?.LastName ?? "" },
+                };
+                return new EmailContextModel(new[] { email }, context, now)
+                {
+                    Tag = $"{this.Notification.Name}",
+                };
+            }));
+        return emails.GroupBy(context => String.Join(",", context.To)).Select(group => group.First());
     }
     #endregion
 }
