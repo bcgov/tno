@@ -84,7 +84,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
     #endregion
 
     #region Methods
-     /// <summary>
+    /// <summary>
     /// Continually polls for updated configuration.
     /// Listens to Kafka topic(s) for content to add to folders.
     /// </summary>
@@ -223,7 +223,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
     {
         try
         {
-            this.Logger.LogInformation("FolderCollection content from Topic: {Topic}, Content ID: {Key}", result.Topic, result.Message.Key);
+            this.Logger.LogDebug("FolderCollection content from Topic: {Topic}, Content ID: {Key}", result.Topic, result.Message.Key);
             var model = result.Message.Value;
 
             if (model.Action == IndexAction.Delete)
@@ -262,7 +262,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
             var activeFolders = folders.Where(f => f.Filter != null && f.Filter?.IsEnabled == true);
 
             if (activeFolders.Any())
-                this.Logger.LogInformation("Content being processed by folder filters.  Content ID: {contentId}", content.Id);
+                this.Logger.LogDebug("Content being processed by folder filters.  Content ID: {contentId}", content.Id);
             else
                 this.Logger.LogDebug("There are no active folder filters");
 
@@ -298,13 +298,13 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
 
         if (request.Action == IndexAction.Unpublish && folder.Filter.Settings.SearchUnpublished == false)
         {
-            this.Logger.LogDebug("Content ID: {contentId}, Folder ID: {folderId}.  Content being removed from folder.", content.Id, folder.Id);
+            this.Logger.LogInformation("Content ID: {contentId}, Folder ID: {folderId}.  Content being removed from folder.", content.Id, folder.Id);
             // Remove unpublished content from folders that filter out unpublished content.
             await this.Api.RemoveContentFromFoldersAsync(content.Id);
         }
         else if (await RunFilterAsync(content, folder.Filter))
         {
-            this.Logger.LogDebug("Content ID: {contentId}, Folder ID: {folderId}.  Content being added to folder.", content.Id, folder.Id);
+            this.Logger.LogInformation("Content ID: {contentId}, Folder ID: {folderId}.  Content being added to folder.", content.Id, folder.Id);
             // TODO: Sort order of content added to a folder should be configurable.
             await this.Api.AddContentToFolderAsync(content.Id, folder.Id);
         }
@@ -325,7 +325,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
         // Ignore empty Elasticsearch queries.
         if (IsEmpty(filter.Query))
         {
-            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  The folder filter query is empty.",content.Id, filter.Id);
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  The folder filter query is empty.", content.Id, filter.Id);
             return false;
         }
 
@@ -333,7 +333,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
 
         if (!filter.Settings.SearchUnpublished && content.Status == Entities.ContentStatus.Draft)
         {
-            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  Content.Status is Draft but the folder filter query is !SearchUnpublished.",content.Id, filter.Id);
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  Content.Status is Draft but the folder filter query is !SearchUnpublished.", content.Id, filter.Id);
             return false;
         }
 
@@ -417,30 +417,30 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
             return false;
         }
 
-        if (filter.Settings.DateOffset.HasValue && publishedOn?.Date < now.Date.AddDays(filter.Settings.DateOffset.Value))
+        if (filter.Settings.DateOffset.HasValue && publishedOn?.Date < now.Date.AddDays(filter.Settings.DateOffset.Value > 0 ? filter.Settings.DateOffset.Value * -1 : filter.Settings.DateOffset.Value))
         {
-            // Date offset will always non-positive to lookback fro today X days.
+            // Date offset will always non-positive to look back from today X days.
             // this comparison is checking whether the content is OLDER than Now MINUS DateOffset days
-            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}. Content.PublishedOn is {actual}, but the folder filter DateOffset is {target}.",
-                content.Id, filter.Id, content.PublishedOn, filter.Settings.DateOffset.Value);
+            this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}. Content.PublishedOn is {actual}, but the folder filter DateOffset is {target}:{now}.",
+                content.Id, filter.Id, content.PublishedOn, filter.Settings.DateOffset.Value, now);
             return false;
         }
 
-        if (filter.Settings.Edition != null && !content.Edition.Equals(filter.Settings.Edition, StringComparison.OrdinalIgnoreCase))
+        if (!String.IsNullOrWhiteSpace(filter.Settings.Edition) && !content.Edition.Equals(filter.Settings.Edition, StringComparison.OrdinalIgnoreCase))
         {
             this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}. Content.Edition is {actual}, but the folder filter is {target}.",
                 content.Id, filter.Id, content.Edition, filter.Settings.Edition);
             return false;
         }
 
-        if (filter.Settings.Section != null && !content.Section.Equals(filter.Settings.Section, StringComparison.OrdinalIgnoreCase))
+        if (!String.IsNullOrWhiteSpace(filter.Settings.Section) && !content.Section.Equals(filter.Settings.Section, StringComparison.OrdinalIgnoreCase))
         {
             this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}. Content.Section is {actual}, but the folder filter is {target}.",
                 content.Id, filter.Id, content.Section, filter.Settings.Section);
             return false;
         }
 
-        if (filter.Settings.Page != null && !content.Page.Equals(filter.Settings.Page, StringComparison.OrdinalIgnoreCase))
+        if (!String.IsNullOrWhiteSpace(filter.Settings.Page) && !content.Page.Equals(filter.Settings.Page, StringComparison.OrdinalIgnoreCase))
         {
             this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}. Content.Page is {actual}, but the folder filter is {target}.",
                 content.Id, filter.Id, content.Page, filter.Settings.Page);
@@ -453,7 +453,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
             return false;
         }
 
-        if (filter.Settings.Search != null)
+        if (!String.IsNullOrWhiteSpace(filter.Settings.Search))
         {
             var index = filter.Settings.SearchUnpublished ? this.ElasticOptions.UnpublishedIndex : this.ElasticOptions.PublishedIndex;
             var query = ModifyElasticQuery(filter.Query, content.Id);
