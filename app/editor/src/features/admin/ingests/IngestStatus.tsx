@@ -50,6 +50,12 @@ export const IngestStatus: React.FC<IIngestStatusProps> = (props) => {
           tooltip="After hitting the failure limit, the service will auto-reset after this many seconds. Set to [0] for no auto-reset."
           type="number"
           width={FieldSize.Tiny}
+          value={!!values.resetRetryAfterDelayMs ? +values.resetRetryAfterDelayMs / 1000 : ''}
+          min={1}
+          onChange={(e) => {
+            const value = Number(e.target.value) * 1000;
+            setFieldValue('resetRetryAfterDelayMs', value);
+          }}
         />
         <FormikText
           label="Failure Count"
