@@ -122,7 +122,7 @@ public class WorkOrderController : ControllerBase
 
         var content = _contentService.FindById(contentId, true) ?? throw new NoContentException();
         if (content.Source?.DisableTranscribe == true) return BadRequest("Cannot request transcription");
-        if (content.IsApproved)
+        if (content.IsApproved || content.ContentType != Entities.ContentType.AudioVideo || !content.FileReferences.Any())
         {
             // The transcript has already been approved, do not allow new requests.
             var workOrder = new Entities.WorkOrder(WorkOrderType.Transcription, "", content.Id, content.Headline);
@@ -179,7 +179,7 @@ public class WorkOrderController : ControllerBase
         var user = _userService.FindById(uid) ?? throw new NotAuthorizedException("User is missing");
         var content = _contentService.FindById(contentId, true) ?? throw new NoContentException();
         if (content.Source?.DisableTranscribe == true) return BadRequest("Cannot request transcription");
-        if (content.IsApproved)
+        if (content.IsApproved || content.ContentType != Entities.ContentType.AudioVideo || !content.FileReferences.Any())
         {
             // The transcript has already been approved, do not allow new requests.
             return new OkResult();
