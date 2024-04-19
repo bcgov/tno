@@ -79,7 +79,9 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
   const message =
     content.length > 0
       ? `Share ${content.length} selected content${content.length > 1 ? 's' : ''} with ${
-          emailAddress !== '' ? emailAddress : user?.colleague?.email
+          emailAddress !== ''
+            ? emailAddress
+            : user?.colleague?.preferredEmail ?? user?.colleague?.email
         } ?`
       : `Please select stories to share with your colleague.`;
 
@@ -104,14 +106,16 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
           {options.map((o) => {
             return (
               <li
-                key={o.colleague?.email}
+                key={o.colleague?.preferredEmail ?? o.colleague?.email}
                 onClick={() => {
                   setEmailAddress('');
                   setUser(o);
                   toggle();
                 }}
               >
-                {o.colleague?.displayName !== '' ? o.colleague?.displayName : o.colleague?.email}
+                {o.colleague?.displayName !== ''
+                  ? o.colleague?.displayName
+                  : o.colleague?.preferredEmail ?? o.colleague?.email}
               </li>
             );
           })}
@@ -141,7 +145,10 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
         type="default"
         confirmText="Share"
         enableConfirm={
-          content.length > 0 && (user?.colleague?.email !== undefined || emailAddress !== '')
+          content.length > 0 &&
+          (user?.colleague?.email !== undefined ||
+            user?.colleague?.preferredEmail !== undefined ||
+            emailAddress !== '')
         }
         onConfirm={() => {
           emailAddress !== '' ? handleSendEmail() : handleSendColleague();

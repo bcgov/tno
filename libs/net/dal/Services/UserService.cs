@@ -117,6 +117,12 @@ public class UserService : BaseService<User, int>, IUserService
             .Where(u => u.Email.ToLower() == email.ToLower());
     }
 
+    public IEnumerable<User> FindByPreferredEmail(string email)
+    {
+        return this.Context.Users
+            .Where(u => u.PreferredEmail.ToLower() == email.ToLower());
+    }
+
     public override User AddAndSave(User entity)
     {
         entity.SourcesManyToMany.ForEach(source =>

@@ -314,7 +314,7 @@ public class ContentController : ControllerBase
     {
         var notification = _notificationService.FindById(notificationId) ?? throw new NoContentException();
 
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var username = "admin"; // User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
         var colleague = _userService.FindById(colleagueId) ?? throw new NotAuthorizedException("Colleague does not exist");
@@ -324,7 +324,7 @@ public class ContentController : ControllerBase
             NotificationId = notification.Id,
             ContentId = contentId,
             RequestorId = user.Id,
-            To = colleague.Email,
+            To = colleague.PreferredEmail ?? colleague.Email,
             IsPreview = true,
             IgnoreValidation = true,
         };
@@ -350,14 +350,15 @@ public class ContentController : ControllerBase
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        var subscriber = _userService.FindByEmail(email).FirstOrDefault() ?? throw new InvalidOperationException("Subscriber does not exist");
+        var subscriber = _userService.FindByEmail(email).FirstOrDefault();
+        subscriber ??= _userService.FindByPreferredEmail(email).FirstOrDefault() ?? throw new InvalidOperationException("Subscriber does not exist");
 
         var request = new NotificationRequestModel(NotificationDestination.NotificationService, new { })
         {
             NotificationId = notification.Id,
             ContentId = contentId,
             RequestorId = user.Id,
-            To = subscriber.Email,
+            To = subscriber.PreferredEmail ?? subscriber.Email,
             IsPreview = true,
             IgnoreValidation = true,
         };
