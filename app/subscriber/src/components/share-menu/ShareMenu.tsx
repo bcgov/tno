@@ -108,7 +108,11 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
           {options.map((o) => {
             return (
               <li
-                key={o.colleague?.preferredEmail ?? o.colleague?.email}
+                key={
+                  o.colleague?.preferredEmail !== ''
+                    ? o.colleague?.preferredEmail
+                    : o.colleague?.email
+                }
                 onClick={() => {
                   setEmailAddress('');
                   setUser(o);
