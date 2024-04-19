@@ -18,6 +18,7 @@ public class TemplateEngine<T> : ITemplateEngine<T>
             "System",
             "System.Collections",
             "System.Private.Uri",
+            "System.Web.HttpUtility",
             "TNO.Core",
             "TNO.Entities",
             "TNO.Models",
@@ -42,7 +43,7 @@ public class TemplateEngine<T> : ITemplateEngine<T>
     /// <param name="razorEngine"></param>
     /// <param name="assemblyNames"></param>
     public TemplateEngine(IRazorEngine razorEngine, ILogger<TemplateEngine<T>> logger)
-        :this(razorEngine, logger, DEFAULT_ASSEMBLIES) {}
+        : this(razorEngine, logger, DEFAULT_ASSEMBLIES) { }
 
     /// <summary>
     /// Creates a new instance of a TemplateEngine object, initializes with specified parameters.
@@ -95,7 +96,7 @@ public class TemplateEngine<T> : ITemplateEngine<T>
     public ICompiledTemplate<T> GetOrAddTemplateInMemory(string key, string templateText)
     {
         var inputBytes = Encoding.UTF8.GetBytes(templateText);
-        var inputHash =Convert.ToHexString(SHA256.HashData(inputBytes));
+        var inputHash = Convert.ToHexString(SHA256.HashData(inputBytes));
         key = $"{key}:{inputHash}";
 
         bool containsKey = _cache.ContainsKey(key);

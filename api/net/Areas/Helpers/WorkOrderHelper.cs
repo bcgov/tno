@@ -130,6 +130,25 @@ public class WorkOrderHelper : IWorkOrderHelper
     /// <exception cref="NotAuthorizedException"></exception>
     public async Task<Entities.WorkOrder> RequestTranscriptionAsync(long contentId, bool force = false)
     {
+        string username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User is missing");
+
+        return await RequestTranscriptionAsync(contentId, user, force);
+    }
+
+    /// <summary>
+    /// Request a transcript for the specified 'contentId'.
+    /// Only allow one active transcript request.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="requestor"></param>
+    /// <param name="force">Whether to force a request regardless of the prior requests state</param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    /// <exception cref="ConfigurationException"></exception>
+    /// <exception cref="NotAuthorizedException"></exception>
+    public async Task<Entities.WorkOrder> RequestTranscriptionAsync(long contentId, Entities.User requestor, bool force = false)
+    {
         if (this.Content == null || this.Content.Id != contentId)
             this.Content = _contentService.FindById(contentId) ?? throw new NoContentException("Content does not exist");
         if (String.IsNullOrWhiteSpace(_kafkaOptions.TranscriptionTopic)) throw new ConfigurationException("Kafka transcription topic not configured.");
@@ -138,18 +157,15 @@ public class WorkOrderHelper : IWorkOrderHelper
         // TODO: Handle blocked work orders stuck in progress.
         var workOrders = _workOrderService.FindByContentId(contentId);
 
-        string username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User is missing");
-
         // Add the user to the content notification.
-        _notificationService.SubscriberUserToContent(user.Id, contentId);
+        _notificationService.SubscriberUserToContent(requestor.Id, contentId);
 
         if (force || !workOrders.Any(o => o.WorkType == Entities.WorkOrderType.Transcription || !WorkLimiterStatus.Contains(o.Status)))
         {
             var workOrder = _workOrderService.AddAndSave(
                 new Entities.WorkOrder(
                     Entities.WorkOrderType.Transcription,
-                    user,
+                    requestor,
                     "",
                     this.Content));
 
