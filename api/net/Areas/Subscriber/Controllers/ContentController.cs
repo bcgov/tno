@@ -324,7 +324,7 @@ public class ContentController : ControllerBase
             NotificationId = notification.Id,
             ContentId = contentId,
             RequestorId = user.Id,
-            To = colleague.PreferredEmail != "" ? colleague.PreferredEmail : colleague.Email,
+            To = !String.IsNullOrWhiteSpace(colleague.PreferredEmail) ? colleague.PreferredEmail : colleague.Email,
             IsPreview = true,
             IgnoreValidation = true,
         };
@@ -357,7 +357,7 @@ public class ContentController : ControllerBase
             NotificationId = notification.Id,
             ContentId = contentId,
             RequestorId = user.Id,
-            To = subscriber.PreferredEmail != "" ? subscriber.PreferredEmail : subscriber.Email,
+            To = !String.IsNullOrWhiteSpace(subscriber.PreferredEmail) ? subscriber.PreferredEmail : subscriber.Email,
             IsPreview = true,
             IgnoreValidation = true,
         };
