@@ -314,7 +314,7 @@ public class ContentController : ControllerBase
     {
         var notification = _notificationService.FindById(notificationId) ?? throw new NoContentException();
 
-        var username = "admin"; // User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
         var colleague = _userService.FindById(colleagueId) ?? throw new NotAuthorizedException("Colleague does not exist");
