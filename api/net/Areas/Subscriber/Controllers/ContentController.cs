@@ -324,7 +324,7 @@ public class ContentController : ControllerBase
             NotificationId = notification.Id,
             ContentId = contentId,
             RequestorId = user.Id,
-            To = colleague.Email,
+            To = !String.IsNullOrWhiteSpace(colleague.PreferredEmail) ? colleague.PreferredEmail : colleague.Email,
             IsPreview = true,
             IgnoreValidation = true,
         };
@@ -350,14 +350,14 @@ public class ContentController : ControllerBase
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        var subscriber = _userService.FindByEmail(email).FirstOrDefault() ?? throw new InvalidOperationException("Subscriber does not exist");
+        var subscriber = _userService.FindByEmail(email).FirstOrDefault()  ?? throw new InvalidOperationException("Subscriber does not exist");
 
         var request = new NotificationRequestModel(NotificationDestination.NotificationService, new { })
         {
             NotificationId = notification.Id,
             ContentId = contentId,
             RequestorId = user.Id,
-            To = subscriber.Email,
+            To = !String.IsNullOrWhiteSpace(subscriber.PreferredEmail) ? subscriber.PreferredEmail : subscriber.Email,
             IsPreview = true,
             IgnoreValidation = true,
         };

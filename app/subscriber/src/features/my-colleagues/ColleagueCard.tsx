@@ -20,7 +20,9 @@ export const ColleagueCard: React.FC<IColleagueCardProps> = ({ model, onDelete }
   return (
     <Section
       key={model.colleague?.id}
-      label={`${model.colleague?.username} - ${model.colleague?.email}`}
+      label={`${model.colleague?.username} - ${
+        model.colleague?.preferredEmail ? model.colleague?.preferredEmail : model.colleague?.email
+      }`}
       showOpen={false}
       actions={
         <>
