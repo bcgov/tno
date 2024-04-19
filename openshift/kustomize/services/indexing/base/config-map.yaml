@@ -23,6 +23,5 @@ data:
   UNPUBLISHED_INDEX: unpublished_content
   PUBLISHED_INDEX: content
   NOTIFICATION_TOPIC: notify
-  CHES_FROM: Media Monitoring Insights <mmi@gov.bc.ca>
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"

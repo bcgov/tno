@@ -78,7 +78,7 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: DATA_LOCATION
-            - name: Service__EmailTo__0
+            - name: Service__EmailTo
               valueFrom:
                 configMapKeyRef:
                   name: services
@@ -132,12 +132,17 @@ spec:
                 configMapKeyRef:
                   name: contentmigration-historic-service
                   key: DEFAULT_USERNAME_FOR_AUDIT
+            - name: Service__GenerateAlertsOnContentMigration
+              valueFrom:
+                configMapKeyRef:
+                  name: contentmigration-historic-service
+                  key: GENERATE_ALERTS_ON_CONTENT_MIGRATION
 
             # CHES Configuration
             - name: CHES__From
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-historic-service
+                  name: ches
                   key: CHES_FROM
             - name: CHES__EmailEnabled
               valueFrom:

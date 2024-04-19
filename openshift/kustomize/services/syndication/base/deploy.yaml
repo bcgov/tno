@@ -87,7 +87,7 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: DATA_LOCATION
-            - name: Service__EmailTo__0
+            - name: Service__EmailTo
               valueFrom:
                 configMapKeyRef:
                   name: services
@@ -116,12 +116,17 @@ spec:
                 configMapKeyRef:
                   name: syndication-service
                   key: MAX_FAIL_LIMIT
+            - name: Service__SendEmailOnFailure
+              valueFrom:
+                configMapKeyRef:
+                  name: syndication-service
+                  key: SEND_EMAIL_ON_FAILURE
 
             # CHES Configuration
             - name: CHES__From
               valueFrom:
                 configMapKeyRef:
-                  name: syndication-service
+                  name: ches
                   key: CHES_FROM
             - name: CHES__EmailEnabled
               valueFrom:

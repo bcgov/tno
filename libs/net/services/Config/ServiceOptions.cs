@@ -48,6 +48,6 @@ public class ServiceOptions
     /// <summary>
     /// get/set - Who to send email failures to.
     /// </summary>
-    public string[] EmailTo { get; set; } = Array.Empty<string>();
+    public string EmailTo { get; set; } = "";
     #endregion
 }

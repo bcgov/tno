@@ -19,13 +19,6 @@ patchesStrategicMerge:
 
 patches:
   - target:
-      kind: ConfigMap
-      name: notification-service
-    patch: |-
-      - op: replace
-        path: /data/CHES_FROM
-        value: (DEV) Media Monitoring Insights <mmi@gov.bc.ca>
-  - target:
       kind: DeploymentConfig
       name: notification-service
     patch: |-

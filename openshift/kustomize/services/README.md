@@ -12,3 +12,5 @@ KEYCLOAK_CLIENT_SECRET=${ValueFromKeycloak}
 
 KAFKA_BOOTSTRAP_SERVERS=kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092
 ```
+
+Any modifications for the `services` or `ches` ConfigMap should be made under `..\shared_resources\`

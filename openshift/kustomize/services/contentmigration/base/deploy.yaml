@@ -52,10 +52,10 @@ spec:
               mountPath: /data
           resources:
             limits:
-              cpu: 25m
+              cpu: 50m
               memory: 250Mi
             requests:
-              cpu: 10m
+              cpu: 20m
               memory: 128Mi
           env:
             # .NET Configuration
@@ -78,7 +78,7 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: DATA_LOCATION
-            - name: Service__EmailTo__0
+            - name: Service__EmailTo
               valueFrom:
                 configMapKeyRef:
                   name: services
@@ -137,7 +137,7 @@ spec:
             - name: CHES__From
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-service
+                  name: ches
                   key: CHES_FROM
             - name: CHES__EmailEnabled
               valueFrom:

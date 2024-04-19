@@ -73,7 +73,7 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: API_HOST_URL
-            - name: Service__EmailTo__0
+            - name: Service__EmailTo
               valueFrom:
                 configMapKeyRef:
                   name: services
@@ -150,7 +150,7 @@ spec:
             - name: CHES__From
               valueFrom:
                 configMapKeyRef:
-                  name: filecopy-service
+                  name: ches
                   key: CHES_FROM
             - name: CHES__EmailEnabled
               valueFrom:

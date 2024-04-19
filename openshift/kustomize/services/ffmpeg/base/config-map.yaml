@@ -20,6 +20,5 @@ data:
   MAX_FAIL_LIMIT: "5"
   TOPICS: ffmpeg
   VOLUME_PATH: /data
-  CHES_FROM: Media Monitoring Insights <mmi@gov.bc.ca>
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"

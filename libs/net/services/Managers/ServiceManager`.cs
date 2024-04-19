@@ -94,7 +94,8 @@ public abstract class ServiceManager<TOption> : IServiceManager
         {
             try
             {
-                var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, this.Options.EmailTo, subject, message);
+                var emailToList = this.Options.EmailTo?.Split(',').Where(v => !String.IsNullOrWhiteSpace(v)).Select(v => v.Trim()).ToArray() ?? Array.Empty<string>();
+                var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, emailToList, subject, message);
                 await this.Ches.SendEmailAsync(email);
             }
             catch (ChesException ex)

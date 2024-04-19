@@ -82,3 +82,9 @@ Deploy the tools below.
 ```bash
 oc kustomize cron/overlays/test | oc create -f -
 ```
+
+To update either the `services` or `ches` shared configMaps.
+
+```bash
+oc kustomize shared_resources/overlays/dev/ | oc apply -f -
+```

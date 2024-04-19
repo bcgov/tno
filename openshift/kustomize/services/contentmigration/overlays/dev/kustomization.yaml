@@ -11,13 +11,6 @@ generatorOptions:
 
 patches:
   - target:
-      kind: ConfigMap
-      name: contentmigration-service
-    patch: |-
-      - op: replace
-        path: /data/CHES_FROM
-        value: (DEV) Media Monitoring Insights <mmi@gov.bc.ca>
-  - target:
       kind: DeploymentConfig
       name: contentmigration-service
     patch: |-
@@ -26,13 +19,13 @@ patches:
         value: 1
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
-        value: 10m
+        value: 20m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
         value: 128Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
-        value: 25m
+        value: 50m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 250Mi

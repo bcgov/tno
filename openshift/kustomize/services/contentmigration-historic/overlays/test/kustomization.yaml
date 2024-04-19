@@ -11,16 +11,12 @@ generatorOptions:
 
 patches:
   - target:
-      kind: ConfigMap
-      name: contentmigration-historic-service
-    patch: |-
-      - op: replace
-        path: /data/CHES_FROM
-        value: (TEST) Media Monitoring Insights <mmi@gov.bc.ca>
-  - target:
       kind: DeploymentConfig
       name: contentmigration-historic-service
     patch: |-
+      - op: replace
+        path: /data/GENERATE_ALERTS_ON_CONTENT_MIGRATION
+        value: "false"
       - op: replace
         path: /spec/replicas
         value: 1

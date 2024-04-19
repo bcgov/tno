@@ -11,13 +11,6 @@ generatorOptions:
 
 patches:
   - target:
-      kind: ConfigMap
-      name: filecopy-service
-    patch: |-
-      - op: replace
-        path: /data/CHES_FROM
-        value: (DEV) Media Monitoring Insights <mmi@gov.bc.ca>
-  - target:
       kind: DeploymentConfig
       name: filecopy-service
     patch: |-
@@ -32,7 +25,7 @@ patches:
         value: 80Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
-        value: 50m
+        value: 75m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 150Mi

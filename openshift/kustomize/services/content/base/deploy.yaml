@@ -73,7 +73,7 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: API_HOST_URL
-            - name: Service__EmailTo__0
+            - name: Service__EmailTo
               valueFrom:
                 configMapKeyRef:
                   name: services
@@ -134,7 +134,7 @@ spec:
             - name: CHES__From
               valueFrom:
                 configMapKeyRef:
-                  name: content-service
+                  name: ches
                   key: CHES_FROM
             - name: CHES__EmailEnabled
               valueFrom:
@@ -146,6 +146,23 @@ spec:
                 configMapKeyRef:
                   name: content-service
                   key: CHES_EMAIL_AUTHORIZED
+            - name: Service__UnpublishedIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: content-service
+                  key: UNPUBLISHED_INDEX
+            - name: Service__PublishedIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: content-service
+                  key: PUBLISHED_INDEX
+            - name: Service__NotificationTopic
+              valueFrom:
+                configMapKeyRef:
+                  name: content-service
+                  key: NOTIFICATION_TOPIC
+            - name: Service__MigrationOptions__AllowSourceContentOverwrite
+              value: 'True'
 
             - name: CHES__AuthUrl
               valueFrom:
@@ -167,6 +184,9 @@ spec:
                 secretKeyRef:
                   name: ches
                   key: PASSWORD
+                  
+            - name: Kafka__Consumer__AutoOffsetReset
+              value: Latest
           livenessProbe:
             httpGet:
               path: "/health"

@@ -15,6 +15,9 @@ patches:
       name: contentmigration-historic-service
     patch: |-
       - op: replace
+        path: /data/GENERATE_ALERTS_ON_CONTENT_MIGRATION
+        value: "false"
+      - op: replace
         path: /spec/replicas
         value: 1
       - op: replace

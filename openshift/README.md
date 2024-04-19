@@ -55,6 +55,12 @@ The following command will update all objects in the template, apply configured 
 oc process -f ${pathToFile:-build.yaml} --param-file=${pathToFile:-build.dev.env} | oc apply -f -
 ```
 
+For Services, the process is slightly different. Use `apply` to patch values or `replace` to replace. Note that `apply` will not remove existing values if you change names.
+
+```bash
+oc kustomize ${pathToEnvironmentFolder} | oc [apply|replace] -f -
+```
+
 ## Port Forward
 
 The following command will port forward the specified container so that you can communicate with the pod directly from your computer.
