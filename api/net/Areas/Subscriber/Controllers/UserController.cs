@@ -110,8 +110,7 @@ public class UserController : ControllerBase
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
-        var colleague = _userService.FindByEmail(email).FirstOrDefault();
-        colleague ??= _userService.FindByPreferredEmail(email).FirstOrDefault() ?? throw new InvalidOperationException("There is no user with this email.");
+        var colleague = _userService.FindByEmail(email).FirstOrDefault() ?? throw new InvalidOperationException("There is no user with this email.");
         var result = _userColleagueService.AddColleague(new UserColleague(user.Id, colleague.Id));
         return CreatedAtAction(nameof(AddColleague), new { id = result.ColleagueId }, new UserColleagueModel(result));
     }

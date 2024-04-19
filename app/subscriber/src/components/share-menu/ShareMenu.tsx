@@ -81,7 +81,9 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
       ? `Share ${content.length} selected content${content.length > 1 ? 's' : ''} with ${
           emailAddress !== ''
             ? emailAddress
-            : user?.colleague?.preferredEmail ?? user?.colleague?.email
+            : user?.colleague?.preferredEmail !== ''
+            ? user?.colleague?.preferredEmail
+            : user?.colleague?.email
         } ?`
       : `Please select stories to share with your colleague.`;
 
@@ -115,7 +117,9 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
               >
                 {o.colleague?.displayName !== ''
                   ? o.colleague?.displayName
-                  : o.colleague?.preferredEmail ?? o.colleague?.email}
+                  : o.colleague?.preferredEmail !== ''
+                  ? o.colleague?.preferredEmail
+                  : o.colleague?.email}
               </li>
             );
           })}
