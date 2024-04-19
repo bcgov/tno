@@ -48,7 +48,19 @@ export const useColumns = (
                   : cell.original.name
               }
               onBlur={async () => await handleBlur(cell)}
-              onChange={async (e: any) => await handleChange(e, cell)}
+              onChange={async (e: any) => {
+                // because we update the related TopicModel with every change
+                // and the input value is bound to that model, we need to store
+                // the cursor position else it jumps to the end of the input box
+                // after each change.
+                e.persist();
+                const caretStart = e.target.selectionStart;
+                const caretEnd = e.target.selectionEnd;
+                // update the state
+                await handleChange(e, cell);
+                // reset the caret
+                e.target.setSelectionRange(caretStart, caretEnd);
+              }}
             />
           </Col>
         );

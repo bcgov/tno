@@ -187,6 +187,23 @@ const EventOfTheDayList: React.FC = () => {
           showSort={false}
           pagingEnabled={false}
         />
+        <Row className="page-header">
+          <div className="buttons">
+            <Button
+              onClick={() =>
+                window.open(
+                  `${getPreviewReportRoute(eventOfTheDayReportId)}?showNav=false`,
+                  '_blank',
+                )
+              }
+            >
+              Preview <FaBinoculars className="icon" />
+            </Button>
+            <Button onClick={() => toggle()}>
+              Send <FaPaperPlane className="icon" />
+            </Button>
+          </div>
+        </Row>
       </FormPage>
       <Modal
         headerText="Confirm Send"
