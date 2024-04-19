@@ -31,6 +31,7 @@ export const defaultReport = (ownerId: number, templateId: number): IReportForm 
         showLinkToStory: false,
         clearFolders: false,
         onlyNewContent: false,
+        copyPriorInstance: false,
       },
       sections: {
         usePageBreaks: true,

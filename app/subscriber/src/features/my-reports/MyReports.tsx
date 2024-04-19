@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApiHub, useApp, useReportInstances, useReports } from 'store/hooks';
 import {
-  Col,
   IReportMessageModel,
   IReportModel,
   Loading,
@@ -15,6 +14,7 @@ import {
   Modal,
   ReportStatusName,
   Row,
+  Show,
   useModal,
 } from 'tno-core';
 
@@ -90,16 +90,15 @@ export const MyReports: React.FC = () => {
           </Row>
         </Bar>
         <div className="my-reports-content">
-          {isLoading && (
-            <Col className="loading">
-              <Loading />
-            </Col>
-          )}
-          {applyFilter(myReports, reportsFilter).map((report) => {
+          <Show visible={isLoading}>
+            <Loading />
+          </Show>
+          {applyFilter(myReports, reportsFilter).map((item) => {
             return (
               <ReportCard
-                key={report.id}
-                report={report}
+                className={report?.id === item.id ? 'active' : ''}
+                key={item.id}
+                report={item}
                 onClick={(report) => setReport(report)}
                 onDelete={(report) => {
                   setReport(report);

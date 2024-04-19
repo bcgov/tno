@@ -1,9 +1,13 @@
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Show } from 'tno-core';
+import { toast } from 'react-toastify';
+import { useReportInstances } from 'store/hooks';
+import { formatDate, getReportKind, Modal, ReportKindName, Show, useModal } from 'tno-core';
 
 import { IReportForm, IReportInstanceContentForm } from '../interfaces';
 import {
   ReportContentMenuOption,
+  ReportMainMenuOption,
   ReportSendMenuOption,
   ReportSettingsMenuOption,
   ReportViewMenuOption,
@@ -38,9 +42,66 @@ export interface IReportEditFormProps {
  */
 export const ReportEditForm = ({ disabled, updateForm }: IReportEditFormProps) => {
   const navigate = useNavigate();
-  const { values, active, activeRow, setActiveRow, onNavigate } = useReportEditContext();
+  const { values, active, activeRow, setActiveRow, setFieldValue, onNavigate, onGenerate } =
+    useReportEditContext();
+  const [{ publishReportInstance }] = useReportInstances();
+  const { toggle: toggleStartNewReport, isShowing: isShowingStartNewReport } = useModal();
+  const { toggle: toggleSend, isShowing: isShowingSend } = useModal();
+
+  const [showStartNextReport, setShowStartNextReport] = React.useState(true);
 
   const instance = values.instances.length ? values.instances[0] : undefined;
+  const reportKind = getReportKind(values);
+
+  React.useEffect(() => {
+    if (
+      showStartNextReport &&
+      !isShowingStartNewReport &&
+      !active?.startsWith(ReportMainMenuOption.Settings) &&
+      instance &&
+      instance.sentOn &&
+      reportKind === ReportKindName.Manual
+    ) {
+      setShowStartNextReport(false);
+      toggleStartNewReport();
+    }
+  }, [
+    active,
+    disabled,
+    instance,
+    isShowingStartNewReport,
+    showStartNextReport,
+    toggleStartNewReport,
+    reportKind,
+  ]);
+
+  const handlePublish = React.useCallback(
+    async (id: number) => {
+      try {
+        const updatedInstance = await publishReportInstance(id);
+        setFieldValue(
+          'instances',
+          values.instances.map((i) =>
+            i.id === id ? { ...updatedInstance, content: instance?.content } : i,
+          ),
+        );
+        toast.success(
+          'Report has been submitted.  You will be notified when it is emailed to subscribers.',
+        );
+      } catch {}
+    },
+    [instance?.content, publishReportInstance, setFieldValue, values.instances],
+  );
+
+  const handleStartNewReport = React.useCallback(
+    async (values: IReportForm) => {
+      try {
+        const form = await onGenerate(values, true);
+        if (form) updateForm(form);
+      } catch {}
+    },
+    [onGenerate, updateForm],
+  );
 
   return (
     <styled.ReportEditForm className="report-edit-form">
@@ -64,7 +125,10 @@ export const ReportEditForm = ({ disabled, updateForm }: IReportEditFormProps) =
         <ReportEditPreferencesForm />
       </Show>
       <Show visible={active === ReportSettingsMenuOption.Send}>
-        <ReportEditSendForm updateForm={updateForm} />
+        <ReportEditSendForm
+          onPublish={() => toggleSend()}
+          onGenerate={() => toggleStartNewReport()}
+        />
       </Show>
       {/* Content Menu */}
       <Show visible={active === ReportContentMenuOption.Content}>
@@ -101,7 +165,51 @@ export const ReportEditForm = ({ disabled, updateForm }: IReportEditFormProps) =
       <Show visible={active === ReportSendMenuOption.Send}>
         <ReportSendForm />
       </Show>
-      <ReportEditActions disabled={disabled} updateForm={updateForm} />
+      <ReportEditActions
+        disabled={disabled}
+        onPublish={() => toggleSend()}
+        onGenerate={() => toggleStartNewReport()}
+      />
+      <Modal
+        headerText="Send Report to Subscribers"
+        body={`Do you want to send an email to the subscribers of this report? ${
+          instance?.sentOn ? 'This report has already been sent out by email.' : ''
+        }`}
+        isShowing={isShowingSend}
+        hide={toggleSend}
+        type="default"
+        confirmText="Yes, send report to subscribers"
+        onConfirm={async () => {
+          try {
+            if (instance) await handlePublish(instance.id);
+          } finally {
+            toggleSend();
+          }
+        }}
+      />
+      <Modal
+        headerText="Start Next Report"
+        body={
+          <>
+            <p>{`The current report was sent to subscribers on ${formatDate(
+              instance?.sentOn?.toLocaleString(),
+              'YYYY-MM-DD hh:mm:ss a',
+            )}.`}</p>
+            <p>Would you like to start the next report?</p>
+          </>
+        }
+        isShowing={isShowingStartNewReport}
+        hide={toggleStartNewReport}
+        type="default"
+        confirmText="Yes, start the next report"
+        onConfirm={async () => {
+          try {
+            await handleStartNewReport(values);
+          } finally {
+            toggleStartNewReport();
+          }
+        }}
+      />
     </styled.ReportEditForm>
   );
 };

@@ -5,4 +5,5 @@ export interface IReportContentSettingsModel {
   excludeReports: number[];
   showLinkToStory: boolean;
   highlightKeywords: boolean;
+  copyPriorInstance: boolean;
 }

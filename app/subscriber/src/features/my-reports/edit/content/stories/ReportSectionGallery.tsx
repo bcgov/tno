@@ -122,7 +122,7 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
           disabled={disabled}
         />
       </Show>
-      {!!section.id && !disabled && (
+      {!!section.id && !disabled && (section.filterId || section.folderId) && (
         <Col flex="1">
           <Action
             icon={<FaArrowsSpin />}

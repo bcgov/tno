@@ -454,14 +454,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 {
                     // Send the email.
                     var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
-                    responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions));
+                    responseModel.LinkOnlyFormatResponse = responseLinkOnly != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions)) : JsonDocument.Parse("{}");
                 }
 
                 if (fullTextFormatTo.Any() || !String.IsNullOrEmpty(request.To))
                 {
                     // Send the email.
                     var responseFullText = await SendEmailAsync(request, fullTextFormatTo, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
-                    responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions));
+                    responseModel.FullTextFormatResponse = responseFullText != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions)) : JsonDocument.Parse("{}");
                 }
 
                 if (instanceModel != null)
@@ -561,14 +561,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 {
                     // Send the email.
                     var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
-                    responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions));
+                    responseModel.LinkOnlyFormatResponse = responseLinkOnly != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions)) : JsonDocument.Parse("{}");
                 }
 
                 if (fullTextFormatTo.Any() || !String.IsNullOrEmpty(request.To))
                 {
                     // Send the email.
                     var responseFullText = await SendEmailAsync(request, fullTextFormatTo, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
-                    responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions));
+                    responseModel.FullTextFormatResponse = responseFullText != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions)) : JsonDocument.Parse("{}");
 
                 }
 
@@ -623,16 +623,20 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         var to = instance.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.GetEmail()) && s.IsSubscribed).Select(s => s.GetEmail()).ToArray();
         // No need to send an email if there are no subscribers.
-        if (request.SendToSubscribers && (to.Length > 0 || !String.IsNullOrEmpty(request.To)))
+        if (request.SendToSubscribers)
         {
-            var subject = await this.ReportEngine.GenerateReportSubjectAsync(template, model, false);
-            var body = await this.ReportEngine.GenerateReportBodyAsync(template, model, false);
+            if ((to.Length > 0 || !String.IsNullOrEmpty(request.To)))
+            {
+                var subject = await this.ReportEngine.GenerateReportSubjectAsync(template, model, false);
+                var body = await this.ReportEngine.GenerateReportBodyAsync(template, model, false);
 
-            // Send the email.
-            var response = await SendEmailAsync(request, to, subject, body, $"{instance.TemplateType}-{instance.Id}");
+                // Send the email.
+                var response = await SendEmailAsync(request, to, subject, body, $"{instance.TemplateType}-{instance.Id}");
 
-            // Update the report instance with the email response.
-            instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+                // Update the report instance with the email response.
+                instance.Response = response != null ? JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions)) : JsonDocument.Parse("{}");
+            }
+
             instance.IsPublished = true;
             await this.Api.UpdateAVOverviewInstanceAsync(instance);
         }
@@ -668,6 +672,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 Tag = tag,
             }).ToList());
         }
+
+        if (!contexts.Any()) return null;
 
         var merge = new EmailMergeModel(this.ChesOptions.From, contexts, subject, body)
         {

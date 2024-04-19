@@ -5,7 +5,7 @@ export const ReportEditActions = styled.div`
   flex-direction: row;
   justify-content: flex-end;
   gap: 1rem;
-  padding: 0.25rem 1rem;
+  padding: 0.75rem;
   background: ${(props) => props.theme.css.bkTertiary};
 
   position: sticky;

@@ -16,7 +16,6 @@ export const ViewOptions: React.FC = () => {
   const api = useUsers();
 
   /** Save the user's preferences for view/grouping options under preferences */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const savePreferences = async (viewOptions: IToggleStates, groupBy: IGroupByState) => {
     setLoadShowOptions(false);
     if (userInfo) {
@@ -27,9 +26,7 @@ export const ViewOptions: React.FC = () => {
         } as ISubscriberUserModel;
         await api.updateUser(user, userInfo.id);
         store.storeUserInfo({ ...userInfo, preferences: user.preferences });
-      } catch (error) {
-        console.debug('Is this the optimistic concurrency error?', error);
-      }
+      } catch {}
     }
   };
 

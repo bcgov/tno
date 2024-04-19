@@ -1,12 +1,13 @@
 import { Action } from 'components/action';
 import { MenuButton } from 'components/button';
 import React from 'react';
-import { FaArrowsSpin } from 'react-icons/fa6';
+import { FaArrowsSpin, FaLock } from 'react-icons/fa6';
 import { FaCaretRight, FaRightToBracket } from 'react-icons/fa6';
 import { useReportInstances } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Show } from 'tno-core';
+import { Row, Show } from 'tno-core';
 
+import { ReportKindIcon } from '../components';
 import {
   ReportContentMenuOption,
   ReportMainMenuOption,
@@ -46,7 +47,11 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
             onClick={() => onChange?.(`/reports`)}
           />
         </div>
-        <div className="report-name">{values.name ? values.name : 'New Report'}</div>
+        <div>
+          <div className="report-name">
+            {values.name ? values.name : 'New Report'} <ReportKindIcon report={values} />
+          </div>
+        </div>
         <div>
           <MenuButton
             label="Settings"
@@ -56,7 +61,14 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
         </div>
         <div>
           <MenuButton
-            label="Content"
+            label={
+              <Row gap="0.5rem" alignItems="center">
+                Content
+                <Show visible={!!instance?.sentOn}>
+                  <FaLock />
+                </Show>
+              </Row>
+            }
             active={active?.startsWith(ReportMainMenuOption.Content)}
             disabled={!values.id}
             onClick={() => onChange?.(`/reports/${values.id}/${ReportMainMenuOption.Content}`)}
@@ -134,7 +146,14 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
         <Show visible={active?.startsWith(ReportMainMenuOption.Content)}>
           <div>
             <MenuButton
-              label="Curate Stories"
+              label={
+                <Row gap="0.5rem" alignItems="center">
+                  Curate Stories
+                  <Show visible={!!instance?.sentOn}>
+                    <FaLock />
+                  </Show>
+                </Row>
+              }
               active={active === ReportMainMenuOption.Content}
               onClick={() => onChange?.(`/reports/${values.id}/${ReportMainMenuOption.Content}`)}
             >
@@ -143,7 +162,14 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
           </div>
           <div>
             <MenuButton
-              label="Quick Sort"
+              label={
+                <Row gap="0.5rem" alignItems="center">
+                  Quick Sort
+                  <Show visible={!!instance?.sentOn}>
+                    <FaLock />
+                  </Show>
+                </Row>
+              }
               active={active === ReportContentMenuOption.Sort}
               onClick={() => onChange?.(`/reports/${values.id}/${ReportContentMenuOption.Sort}`)}
             >
@@ -152,7 +178,14 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
           </div>
           <div>
             <MenuButton
-              label="Executive Summary"
+              label={
+                <Row gap="0.5rem" alignItems="center">
+                  Executive Summary
+                  <Show visible={!!instance?.sentOn}>
+                    <FaLock />
+                  </Show>
+                </Row>
+              }
               active={active === ReportContentMenuOption.Summary}
               onClick={() => onChange?.(`/reports/${values.id}/${ReportContentMenuOption.Summary}`)}
             />
@@ -160,20 +193,18 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
         </Show>
         {/* Preview secondary menu */}
         <Show visible={active?.startsWith(ReportMainMenuOption.View)}>
-          <div>
-            <MenuButton
-              label="View"
-              active={active === ReportMainMenuOption.View}
-              onClick={() => onChange?.(`/reports/${values.id}/${ReportMainMenuOption.View}`)}
-            />
-          </div>
-          <div>
+          <Show visible={!instance?.sentOn}>
             <Action
               icon={<FaArrowsSpin className="icon-green" />}
               label="Refresh Preview"
               onClick={() => instance && handleViewReport(instance.id, true)}
             />
-          </div>
+          </Show>
+          <MenuButton
+            label="View"
+            active={active === ReportMainMenuOption.View}
+            onClick={() => onChange?.(`/reports/${values.id}/${ReportMainMenuOption.View}`)}
+          />
         </Show>
         {/* Send secondary menu */}
         <Show visible={active?.startsWith(ReportMainMenuOption.Send)}>

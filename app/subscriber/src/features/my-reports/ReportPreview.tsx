@@ -8,9 +8,10 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useReportInstances, useReports } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { IReportModel, ReportStatusName, Row, Show } from 'tno-core';
+import { getReportKind, IReportModel, ReportKindName, Row, Show } from 'tno-core';
 
-import { ReportInstanceView } from './edit/view';
+import { ReportKindIcon } from './components';
+import { ReportInstanceView } from './ReportInstanceView';
 
 export interface IReportPreviewProps {
   report?: IReportModel;
@@ -110,6 +111,8 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
     [instance?.content, onFetch, publishReportInstance],
   );
 
+  if (!report) return null;
+
   return (
     <PageSection
       className="report-preview"
@@ -122,16 +125,10 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
     >
       <div className="report-title">
         <h2>{report?.name}</h2>
+        <ReportKindIcon report={report} />
       </div>
       <Bar>
-        <Show
-          visible={
-            !instance?.sentOn &&
-            ![ReportStatusName.Accepted, ReportStatusName.Completed].some(
-              (value) => instance?.status === value,
-            )
-          }
-        >
+        <Show visible={!instance?.sentOn}>
           <Button
             variant="secondary"
             onClick={() => instance?.id && handleRefresh(instance?.id, true).catch(() => {})}
@@ -140,6 +137,17 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
             Refresh
             <FaArrowsRotate />
           </Button>
+        </Show>
+        <Show visible={!!instance?.sentOn}>
+          <Button
+            onClick={() => navigate(`/reports/${report?.id}`)}
+            disabled={!report || isSubmitting}
+          >
+            Edit Settings
+            <FaPen />
+          </Button>
+        </Show>
+        <Show visible={!instance?.sentOn}>
           <Button
             onClick={() => navigate(`/reports/${report?.id}/content`)}
             disabled={!report || isSubmitting}
@@ -148,22 +156,18 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
             <FaPen />
           </Button>
         </Show>
-        <div>
-          <Show visible={!!instance}>
-            {!instance?.sentOn &&
-            ![ReportStatusName.Accepted, ReportStatusName.Completed].some(
-              (value) => instance?.status === value,
-            ) ? (
-              <Button
-                onClick={() =>
-                  report && instance && handleSend(report, instance.id).catch(() => {})
-                }
-                disabled={isSubmitting}
-              >
-                Send
-                <FaPaperPlane />
-              </Button>
-            ) : (
+        <Show visible={!!instance}>
+          <Show visible={!instance?.sentOn}>
+            <Button
+              onClick={() => report && instance && handleSend(report, instance.id).catch(() => {})}
+              disabled={isSubmitting}
+            >
+              Send
+              <FaPaperPlane />
+            </Button>
+          </Show>
+          <Show visible={!!instance?.sentOn}>
+            <Show visible={getReportKind(report) === ReportKindName.Manual}>
               <Button
                 onClick={() => report && handleGenerate(report, true).catch(() => {})}
                 disabled={isSubmitting}
@@ -172,9 +176,9 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
                 Start next report
                 <FaFileCirclePlus />
               </Button>
-            )}
+            </Show>
           </Show>
-        </div>
+        </Show>
       </Bar>
       <ReportInstanceView instanceId={instance?.id ?? 0} />
     </PageSection>

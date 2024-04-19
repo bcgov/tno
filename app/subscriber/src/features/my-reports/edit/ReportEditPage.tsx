@@ -6,20 +6,13 @@ import { toast } from 'react-toastify';
 import {
   useApiHub,
   useApp,
-  useLookup,
   useReportInstances,
   useReports,
   useReportTemplates,
+  useSettings,
 } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import {
-  Col,
-  IReportMessageModel,
-  MessageTargetName,
-  ReportStatusName,
-  Settings,
-  Show,
-} from 'tno-core';
+import { Col, IReportMessageModel, MessageTargetName, ReportStatusName, Show } from 'tno-core';
 
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
@@ -43,11 +36,10 @@ export const ReportEditPage = () => {
   const hub = useApiHub();
   const navigate = useNavigate();
   const [{ getReportTemplate }] = useReportTemplates();
-  const [{ isReady, settings }] = useLookup();
+  const { defaultReportTemplateId } = useSettings();
 
-  const [defaultReportTemplateId, setDefaultReportTemplateId] = React.useState(0);
   const [report, setReport] = React.useState<IReportForm>(
-    defaultReport(userInfo?.id ?? 0, defaultReportTemplateId),
+    defaultReport(userInfo?.id ?? 0, defaultReportTemplateId ?? 0),
   );
 
   const instance = report.instances.length ? report.instances[0] : undefined;
@@ -72,17 +64,6 @@ export const ReportEditPage = () => {
   }, []);
 
   React.useEffect(() => {
-    // Get the default template to assign to new reports.
-    if (isReady) {
-      const defaultReportTemplateId = settings.find(
-        (s) => s.name === Settings.DefaultReportTemplate,
-      )?.value;
-      if (defaultReportTemplateId) setDefaultReportTemplateId(+defaultReportTemplateId);
-      else toast.error(`Configuration settings '${Settings.DefaultReportTemplate}' is required.`);
-    }
-  }, [isReady, settings]);
-
-  React.useEffect(() => {
     // Only fetch the template for new reports.
     if (!report.id && defaultReportTemplateId && report.templateId !== defaultReportTemplateId) {
       getReportTemplate(defaultReportTemplateId)
@@ -105,21 +86,20 @@ export const ReportEditPage = () => {
     if (userInfo?.id && !report.id) setReport((report) => ({ ...report, ownerId: userInfo.id }));
   }, [report.id, userInfo?.id]);
 
-  // Helper func to generate report data if current report is missing it
-  const callGenerateReport = React.useCallback(async () => {
-    const reportId = parseInt(id ?? '0');
-    const result = await generateReport(reportId);
-    setReport(toForm(result, true));
-  }, [id, generateReport]);
-
   // Each time report data is refreshed, check if instances for report are loaded,
   // if not, call generateReport to populate instances array
   React.useEffect(() => {
     const reportId = parseInt(id ?? '0');
     // The report has either never generated an instance, or the last instance was already sent.
     if (report && !!reportId && report.id === reportId && !report?.instances?.length) {
-      callGenerateReport();
+      const reportId = parseInt(id ?? '0');
+      generateReport(reportId)
+        .then((result) => {
+          setReport(toForm(result, true));
+        })
+        .catch(() => {});
     }
+    // Only generate a report if it's missing an instance.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [report]);
 
@@ -204,7 +184,19 @@ export const ReportEditPage = () => {
           }
           const report = originalId
             ? await updateReport(values, instance?.status === ReportStatusName.Pending)
-            : await addReport({ ...values, ownerId: values.ownerId ?? userInfo?.id ?? 0 });
+            : await addReport({
+                ...values,
+                ownerId: values.ownerId ?? userInfo?.id ?? 0,
+                settings: {
+                  ...values.settings,
+                  subject: {
+                    ...values.settings.subject,
+                    text: values.settings.subject.text.length // Default email subject line
+                      ? values.settings.subject.text
+                      : values.name,
+                  },
+                },
+              });
 
           storeReportOutput(undefined); // Clear the preview
 

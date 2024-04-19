@@ -6,4 +6,6 @@ export interface ISettingsState {
   featuredStoryActionId?: number;
   alertActionId?: number;
   editorUrl?: string;
+  subscriberUrl?: string;
+  defaultReportTemplateId?: number;
 }

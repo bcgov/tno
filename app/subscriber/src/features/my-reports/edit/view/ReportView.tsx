@@ -1,44 +1,52 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { useReports } from 'store/hooks';
+import { useApp, useReportInstances } from 'store/hooks';
+import { useProfileStore } from 'store/slices';
+import { Col, Loading, Show } from 'tno-core';
 
-import { ReportInstanceView } from './ReportInstanceView';
+import { useReportEditContext } from '../ReportEditContext';
 
 export const ReportView = () => {
-  const [, { generateReport }] = useReports();
-  const { id } = useParams();
+  const { values } = useReportEditContext();
+  const [{ requests }] = useApp();
+  const [{ reportOutput }, { storeReportOutput }] = useProfileStore();
+  const [{ viewReportInstance }] = useReportInstances();
 
-  const reportId = parseInt(id ?? '');
-  const isInstance = () => {
-    return window.location.pathname.includes('/report/instances/');
-  };
-  const [instanceId, setInstanceId] = React.useState(isInstance() ? reportId : 0);
-  const [generate, setGenerate] = React.useState(true);
+  const isLoading = requests.some((r) => r.group.includes('view-report'));
+  const instanceId = values.instances.length ? values.instances[0].id : undefined;
+
+  const handleViewReport = React.useCallback(
+    async (instanceId: number) => {
+      try {
+        const response = await viewReportInstance(instanceId);
+        storeReportOutput({ ...response, instanceId });
+      } catch {}
+    },
+    [viewReportInstance, storeReportOutput],
+  );
 
   React.useEffect(() => {
-    setInstanceId(isInstance() ? parseInt(id ?? '') : 0);
-  }, [id]);
-
-  React.useEffect(() => {
-    if (reportId && generate && !isInstance()) {
-      generateReport(reportId)
-        .then((report) => {
-          if (report.instances.length) setInstanceId(report.instances[0].id);
-          else toast.error('An unexpected error occurred while generating the report');
-        })
-        .catch(() => {})
-        .finally(() => {
-          setGenerate(false);
-        });
+    if (instanceId && reportOutput?.instanceId !== instanceId) {
+      handleViewReport(instanceId);
     }
     // The functions will result in infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reportId]);
+  }, [instanceId, reportOutput]);
 
   return (
-    <div>
-      <ReportInstanceView instanceId={instanceId} />
+    <div className="preview-section">
+      <Show visible={isLoading}>
+        <Loading />
+      </Show>
+      <Col className="preview-report">
+        <div
+          className="preview-subject"
+          dangerouslySetInnerHTML={{ __html: reportOutput?.subject ?? '' }}
+        ></div>
+        <div
+          className="preview-body"
+          dangerouslySetInnerHTML={{ __html: reportOutput?.body ?? '' }}
+        ></div>
+      </Col>
     </div>
   );
 };

@@ -383,21 +383,31 @@ public class ReportService : BaseService<Report, int>, IReportService
     {
         // Fetch content for every section within the report.  This will include folders and filters.
         var report = FindById(id) ?? throw new NoContentException("Report does not exist");
-        var searchResults = await FindContentWithElasticsearchAsync(report, instanceId, requestorId);
-        var instanceContent = new List<ReportInstanceContent>(searchResults.SelectMany(sr => sr.Value.Hits.Hits).Count());
-        report.Sections.ForEach(section =>
+        var reportSettings = JsonSerializer.Deserialize<ReportSettingsModel>(report.Settings, _serializerOptions) ?? new ReportSettingsModel();
+        List<ReportInstanceContent> instanceContent;
+        if (reportSettings.Content.CopyPriorInstance)
         {
-            if (searchResults.TryGetValue(section.Name, out Elastic.Models.SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
+            var currentInstance = GetCurrentReportInstance(report.Id, requestorId) ?? new ReportInstance(report.Id);
+            instanceContent = currentInstance.ContentManyToMany.Select(c => new ReportInstanceContent(0, c.ContentId, c.SectionName, c.SortOrder)).ToList();
+        }
+        else
+        {
+            var searchResults = await FindContentWithElasticsearchAsync(report, instanceId, requestorId);
+            instanceContent = new List<ReportInstanceContent>(searchResults.SelectMany(sr => sr.Value.Hits.Hits).Count());
+            report.Sections.ForEach(section =>
             {
-                // Apply the search results to the report instance.
-                var settings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(section.Settings, _serializerOptions);
-                var sortOrder = 0;
-                instanceContent.AddRange(OrderBySectionField(results.Hits.Hits.Select(c => new ReportInstanceContent(instanceId ?? 0, c.Source.Id, section.Name, sortOrder++)
+                if (searchResults.TryGetValue(section.Name, out Elastic.Models.SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
                 {
-                    Content = c.Source != null ? (Content)c.Source : null
-                }), settings?.SortBy));
-            }
-        });
+                    // Apply the search results to the report instance.
+                    var settings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(section.Settings, _serializerOptions);
+                    var sortOrder = 0;
+                    instanceContent.AddRange(OrderBySectionField(results.Hits.Hits.Select(c => new ReportInstanceContent(instanceId ?? 0, c.Source.Id, section.Name, sortOrder++)
+                    {
+                        Content = c.Source != null ? (Content)c.Source : null
+                    }), settings?.SortBy));
+                }
+            });
+        }
 
         return new ReportInstance(
             instanceId ?? 0,

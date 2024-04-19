@@ -1,10 +1,10 @@
 import { TableBuilder, TableExporter } from 'components/export';
-import { IReportForm } from 'features/my-reports/interfaces';
-import { useFormikContext } from 'formik';
 import React from 'react';
 
+import { useReportEditContext } from '../ReportEditContext';
+
 export const ReportSubscriberExporter = () => {
-  const { values } = useFormikContext<IReportForm>();
+  const { values } = useReportEditContext();
   const tblRef = React.useRef(null);
 
   return (
