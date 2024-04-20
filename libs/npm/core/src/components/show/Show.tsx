@@ -4,7 +4,7 @@ export interface IShowProps {
   /** Whether the children will be visible. */
   visible?: boolean;
   /** Children nodes to display. */
-  children: React.ReactNode;
+  children: React.ReactNode | ((props: IShowProps) => React.ReactNode);
 }
 
 /**
@@ -14,5 +14,11 @@ export interface IShowProps {
  * @returns A new instance of a Show component.
  */
 export const Show: React.FC<IShowProps> = ({ visible, children }) => {
-  return !!visible ? <>{children}</> : null;
+  return !!visible ? (
+    <>
+      {typeof children === 'function'
+        ? (children as (props: IShowProps) => React.ReactNode)({ visible, children })
+        : children}
+    </>
+  ) : null;
 };

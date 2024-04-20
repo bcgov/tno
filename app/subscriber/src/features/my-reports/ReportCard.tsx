@@ -6,7 +6,7 @@ import React from 'react';
 import { FaChartPie, FaNewspaper, FaPen, FaTrashCan } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 import { useApp, useReports } from 'store/hooks';
-import { Col, IReportModel, ReportSectionTypeName, Row, Spinner } from 'tno-core';
+import { Col, IReportModel, ReportSectionTypeName, Row, Show, Spinner } from 'tno-core';
 
 import { ReportKindIcon } from './components';
 import { calcNextScheduleSend, getLastSent } from './utils';
@@ -77,71 +77,81 @@ export const ReportCard: React.FC<IReportCardProps> = ({
         }
       }}
     >
-      <Row gap="1rem">
-        <Col flex="1" gap="1rem">
-          <div>
+      {() => (
+        <Row gap="1rem">
+          <Col flex="1" gap="1rem">
             <div>
-              <h3 className="upper">Report Description</h3>
-              <p>{report.description ? report.description : 'NO DESCRIPTION PROVIDED'}</p>
-            </div>
-          </div>
-          <div>
-            <h3 className="upper">Status</h3>
-            <Row>
-              <Col>Last sent:</Col>
-              <Col flex="1">{formatDate(getLastSent(report), true)}</Col>
-            </Row>
-            {report.instances.length > 0 && (
-              <Row>
-                <Col>Draft created:</Col>
-                <Col flex="1">{formatDate(report.instances[0].publishedOn ?? '', true)}</Col>
-              </Row>
-            )}
-          </div>
-        </Col>
-        <Col flex="1" gap="1rem">
-          <div>
-            <h3 className="upper">Settings</h3>
-            <Link to={`/reports/${report.id}`}>edit settings</Link>
-          </div>
-          {report.events.map((schedule, index) => {
-            return (
-              <div key={`${schedule.id}-${index}`}>
-                <Row>
-                  <h3>Schedule {index + 1}</h3>
-                  <Col flex="1">
-                    {schedule.isEnabled ? (
-                      <span className="report-schedule-enabled">enabled</span>
-                    ) : (
-                      <span className="report-schedule-disabled">disabled</span>
-                    )}
-                  </Col>
-                  {schedule.settings.autoSend && <Col>autosend</Col>}
-                </Row>
-                <Row>
-                  <Col flex="1">Next scheduled send:</Col>
-                  <Col flex="1" alignItems="flex-end">
-                    {formatDate(calcNextScheduleSend(schedule) ?? '', true)}
-                  </Col>
-                </Row>
+              <div>
+                <h3 className="upper">Report Description</h3>
+                <p>{report.description ? report.description : 'NO DESCRIPTION PROVIDED'}</p>
               </div>
-            );
-          })}
-          <Row justifyContent="flex-end">
-            <Action
-              icon={<FaTrashCan />}
-              onClick={() => {
-                onDelete?.(report);
-              }}
-            />
-          </Row>
-        </Col>
-        {isLoading && (
-          <Col alignContent="center" justifyContent="center">
-            <Spinner />
+            </div>
+            <div>
+              <h3 className="upper">Status</h3>
+              <Row>
+                <Col>Last sent:</Col>
+                <Col flex="1">{formatDate(getLastSent(report), true)}</Col>
+              </Row>
+              {report.instances.length > 0 && (
+                <Row>
+                  <Col>Draft created:</Col>
+                  <Col flex="1">{formatDate(report.instances[0].publishedOn ?? '', true)}</Col>
+                </Row>
+              )}
+            </div>
           </Col>
-        )}
-      </Row>
+          <Col flex="1" gap="1rem" className="report-card-schedule">
+            <div>
+              <h3 className="upper">Settings</h3>
+              <Link to={`/reports/${report.id}`}>edit settings</Link>
+            </div>
+            <Show visible={!report.events.some((e) => e.isEnabled)}>
+              <Row>Manual Report</Row>
+            </Show>
+            <Show visible={report.events.some((e) => e.isEnabled)}>
+              {report.events.map((schedule, index) => {
+                const nextSend = formatDate(calcNextScheduleSend(report, schedule) ?? '', true);
+                return (
+                  <div key={`${schedule.id}-${index}`}>
+                    <Row>
+                      <h3>Schedule {index + 1}</h3>
+                      <Col flex="1">
+                        {schedule.isEnabled ? (
+                          <span className="report-schedule-enabled">enabled</span>
+                        ) : (
+                          <span className="report-schedule-disabled">disabled</span>
+                        )}
+                      </Col>
+                      {schedule.settings.autoSend ? <Col>auto send</Col> : <Col>auto</Col>}
+                    </Row>
+                    <Row>
+                      <Col flex="1">
+                        Next scheduled {schedule.settings.autoSend ? 'send' : 'run'}:
+                      </Col>
+                      <Col flex="1" alignItems="flex-end">
+                        {nextSend}
+                      </Col>
+                    </Row>
+                  </div>
+                );
+              })}
+            </Show>
+            <Row justifyContent="flex-end">
+              <Action
+                icon={<FaTrashCan />}
+                onClick={() => {
+                  onDelete?.(report);
+                }}
+              />
+            </Row>
+          </Col>
+          {isLoading && (
+            <Col alignContent="center" justifyContent="center">
+              <Spinner />
+            </Col>
+          )}
+        </Row>
+      )}
     </Section>
   );
 };

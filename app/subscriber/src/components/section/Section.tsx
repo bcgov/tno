@@ -11,7 +11,7 @@ export interface ISectionProps {
   open?: boolean;
   showOpen?: boolean;
   className?: string;
-  children?: React.ReactNode;
+  children?: React.ReactNode | ((props: ISectionProps) => React.ReactNode);
   onChange?: (open: boolean) => void;
 }
 
@@ -65,7 +65,23 @@ export const Section: React.FC<ISectionProps> = ({
           </div>
         )}
       </div>
-      {open && <div className="section-body">{children}</div>}
+      {open && (
+        <div className="section-body">
+          {typeof children === 'function'
+            ? (children as (props: ISectionProps) => React.ReactNode)({
+                icon,
+                label,
+                actions,
+                open,
+                showOpen,
+                className,
+                children,
+                onChange,
+                ...rest,
+              })
+            : children}
+        </div>
+      )}
     </styled.Section>
   );
 };
