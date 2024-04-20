@@ -13,8 +13,13 @@ export const ReportEditMenu = styled.div`
   }
 
   .report-name {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
     font-weight: 800;
     font-size: 1.25rem;
+    align-items: center;
   }
 
   > div {

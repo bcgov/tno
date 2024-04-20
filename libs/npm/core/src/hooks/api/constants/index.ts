@@ -25,6 +25,7 @@ export * from './ProductType';
 export * from './ProductTypeName';
 export * from './ReportDistributionFormat';
 export * from './ReportDistributionFormatName';
+export * from './ReportKindName';
 export * from './ReportSectionOrderByOptions';
 export * from './ReportSectionType';
 export * from './ReportSectionTypeName';

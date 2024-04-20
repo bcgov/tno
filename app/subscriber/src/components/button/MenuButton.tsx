@@ -1,7 +1,7 @@
 import * as styled from './styled';
 
 export interface IMenuButtonProps {
-  label?: string;
+  label?: React.ReactNode;
   active?: boolean;
   disabled?: boolean;
   className?: string;

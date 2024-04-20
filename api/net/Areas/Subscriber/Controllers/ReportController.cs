@@ -329,9 +329,7 @@ public class ReportController : ControllerBase
             report.Instances.Clear();
             report.Instances.AddRange(instances);
         }
-        else if (regenerate
-            && (currentInstance.SentOn.HasValue
-                || new[] { Entities.ReportStatus.Accepted, Entities.ReportStatus.Completed, Entities.ReportStatus.Failed, Entities.ReportStatus.Cancelled }.Contains(currentInstance.Status)))
+        else if (regenerate && currentInstance.SentOn.HasValue)
         {
             // Generate a new instance because the prior was sent to CHES.
             currentInstance = await _reportService.GenerateReportInstanceAsync(id, user.Id);

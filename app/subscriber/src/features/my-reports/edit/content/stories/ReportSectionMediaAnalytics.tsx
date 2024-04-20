@@ -121,17 +121,21 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
           disabled={disabled}
         />
       </Show>
-      {!!section.id && !section.linkedReportId && !disabled && (
-        <Col flex="1">
-          <Action
-            icon={<FaArrowsSpin />}
-            label="Regenerate section"
-            disabled={isSubmitting}
-            onClick={(e) => toggle()}
-            direction="row-reverse"
-          />
-        </Col>
-      )}
+      {!!section.id &&
+        !section.linkedReportId &&
+        !disabled &&
+        !section.reportId &&
+        (section.filterId || section.folderId) && (
+          <Col flex="1">
+            <Action
+              icon={<FaArrowsSpin />}
+              label="Regenerate section"
+              disabled={isSubmitting}
+              onClick={(e) => toggle()}
+              direction="row-reverse"
+            />
+          </Col>
+        )}
       <Show visible={!!instance.content.length}>
         <Droppable droppableId={section.name} isDropDisabled={disabled}>
           {(droppableProvided) => (

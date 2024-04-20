@@ -26,13 +26,24 @@ export const ReportEditSendForm = styled.div`
     flex-direction: row;
     gap: 1rem;
     justify-content: space-evenly;
+  }
 
-    .schedule-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      justify-content: center;
-      max-width: 200px;
+  .schedule-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+
+    > div {
+    }
+  }
+
+  .report-kind {
+    .info {
+      padding: 0 1rem;
+      background: ${(props) => props.theme.css.bkInfo};
+      border-top-left-radius: 1rem;
+      border-top-right-radius: 1rem;
     }
   }
 `;

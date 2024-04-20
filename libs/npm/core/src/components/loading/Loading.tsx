@@ -8,6 +8,7 @@ export interface ILoadingProps {
   size?: string;
   /** children to display in the loading overlay */
   children?: React.ReactNode;
+  className?: string;
 }
 
 /**
@@ -15,9 +16,9 @@ export interface ILoadingProps {
  * @param props Div element attributes.
  * @returns Loading component.
  */
-export const Loading: React.FC<ILoadingProps> = ({ size = '4rem', children }) => {
+export const Loading: React.FC<ILoadingProps> = ({ size = '4rem', children, className }) => {
   return (
-    <styled.Loading>
+    <styled.Loading className={`loading${className ? ` ${className}` : ''}`}>
       <Spinner size={size} />
       {children}
     </styled.Loading>

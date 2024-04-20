@@ -2,9 +2,10 @@
 
 // Background
 $bk-primary: linear-gradient(179.77deg, #f0eeee 15.35%, #d9d9d9 101.64%);
+$bk-primary-25: linear-gradient(179.77deg, rgb(240, 238, 238, 0.25) 15.35%, rgb(217, 217, 217, 0.25) 101.64%);
 
 $bk-secondary: linear-gradient(0deg, #ffffff, #ffffff),
-  linear-gradient(0deg, #f0eeee, #f0eeee);
+linear-gradient(0deg, #f0eeee, #f0eeee);
 $bk-tertiary: #e8e9f1;
 $bk-quaternary: #e8e9f1;
 $bk-form: #ffff;
@@ -38,14 +39,14 @@ $dialog-box-bk-secondary: #ded9da;
 
 // Fonts
 $f-primary: 'Source Sans 3',
-  'BCSans',
-  'Noto Sans',
-  Arial,
-  sans serif;
+'BCSans',
+'Noto Sans',
+Arial,
+sans serif;
 $f-secondary: 'BCSans',
-  'Noto Sans',
-  Arial,
-  sans serif;
+'Noto Sans',
+Arial,
+sans serif;
 $f-primary-color: #41393b;
 $h-primary-color: #971d29;
 $f-red-color: #d9293a;

@@ -5,15 +5,6 @@ import { Settings } from 'tno-core';
 
 import { useLookup } from './useLookup';
 
-export interface ISettings {
-  isReady: boolean;
-  commentaryActionId?: number;
-  topStoryActionId?: number;
-  featuredStoryActionId?: number;
-  alertActionId?: number;
-  editorUrl?: string;
-}
-
 /**
  * Provides a helper to centralize configuration setting values.
  * @param validate Whether to validate the settings configurations.
@@ -30,6 +21,10 @@ export const useSettings = (validate?: boolean) => {
       const featuredStoryActionId = settings.find((s) => s.name === Settings.FeaturedAction)?.value;
       const alertActionId = settings.find((s) => s.name === Settings.AlertAction)?.value;
       const editorUrl = settings.find((s) => s.name === Settings.EditorUrl)?.value;
+      const subscriberUrl = settings.find((s) => s.name === Settings.SubscriberUrl)?.value;
+      const defaultReportTemplateId = settings.find(
+        (s) => s.name === Settings.DefaultReportTemplate,
+      )?.value;
       storeValues({
         loadingState: 1,
         isReady,
@@ -38,6 +33,8 @@ export const useSettings = (validate?: boolean) => {
         featuredStoryActionId: featuredStoryActionId ? +featuredStoryActionId : undefined,
         alertActionId: alertActionId ? +alertActionId : undefined,
         editorUrl: editorUrl ? editorUrl : undefined,
+        subscriberUrl: subscriberUrl ? subscriberUrl : undefined,
+        defaultReportTemplateId: defaultReportTemplateId ? +defaultReportTemplateId : undefined,
       });
     }
   }, [values.loadingState, isReady, settings, storeValues]);
@@ -55,8 +52,15 @@ export const useSettings = (validate?: boolean) => {
 
       if (!values.alertActionId)
         toast.error(`Configuration "${Settings.AlertAction}" is missing from settings.`);
+
       if (!values.editorUrl)
+        toast.error(`Configuration "${Settings.SubscriberUrl}" is missing from settings.`);
+
+      if (!values.subscriberUrl)
         toast.error(`Configuration "${Settings.EditorUrl}" is missing from settings.`);
+
+      if (!values.defaultReportTemplateId)
+        toast.error(`Configuration "${Settings.DefaultReportTemplate}" is missing from settings.`);
       storeLoading(2);
     }
   }, [
@@ -68,6 +72,8 @@ export const useSettings = (validate?: boolean) => {
     values.topStoryActionId,
     values.loadingState,
     values.editorUrl,
+    values.subscriberUrl,
+    values.defaultReportTemplateId,
   ]);
 
   return values;

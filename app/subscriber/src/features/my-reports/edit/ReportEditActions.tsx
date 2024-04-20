@@ -5,11 +5,8 @@ import React from 'react';
 import { FaSave, FaTelegramPlane } from 'react-icons/fa';
 import { FaCaretRight, FaFileCirclePlus, FaTrash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { useReportInstances } from 'store/hooks';
-import { formatDate, ReportStatusName, Show, useModal } from 'tno-core';
+import { Col, getReportKind, ReportKindName, ReportStatusName, Show, useModal } from 'tno-core';
 
-import { IReportForm } from '../interfaces';
 import {
   ReportContentMenuOption,
   ReportMainMenuOption,
@@ -24,8 +21,10 @@ import { ReportSubscriberExporter } from './view/ReportSubscriberExporter';
 export interface IReportEditActionsProps {
   /** Control which buttons are enabled. */
   disabled?: boolean;
-  /** Event to update the original report. */
-  updateForm: (values: IReportForm) => void;
+  /** event to publish the report and send to subscribers. */
+  onPublish: () => void;
+  /** Event to request starting next report. */
+  onGenerate: () => void;
 }
 
 /**
@@ -33,47 +32,12 @@ export interface IReportEditActionsProps {
  * @param param0 Component properties.
  * @returns Component.
  */
-export const ReportEditActions = ({ disabled, updateForm }: IReportEditActionsProps) => {
-  const {
-    values,
-    isSubmitting,
-    submitForm,
-    onGenerate,
-    activeRow,
-    setFieldValue,
-    setValues,
-    active,
-  } = useReportEditContext();
+export const ReportEditActions = ({ disabled, onGenerate, onPublish }: IReportEditActionsProps) => {
+  const { values, isSubmitting, submitForm, setValues, active } = useReportEditContext();
   const navigate = useNavigate();
   const { toggle: toggleRemove, isShowing: isShowingRemove } = useModal();
-  const { toggle: toggleSend, isShowing: isShowingSend } = useModal();
-  const { toggle: toggleStartNewReport, isShowing: isShowingStartNewReport } = useModal();
-
-  const [{ publishReportInstance }] = useReportInstances();
 
   const instance = values.instances.length ? values.instances[0] : undefined;
-
-  const [showStartNextReport, setShowStartNextReport] = React.useState(true);
-
-  React.useEffect(() => {
-    if (
-      showStartNextReport &&
-      !isShowingStartNewReport &&
-      !active?.startsWith(ReportMainMenuOption.Settings) &&
-      instance &&
-      instance.sentOn
-    ) {
-      setShowStartNextReport(false);
-      toggleStartNewReport();
-    }
-  }, [
-    active,
-    disabled,
-    instance,
-    isShowingStartNewReport,
-    showStartNextReport,
-    toggleStartNewReport,
-  ]);
 
   const handleRemoveContent = React.useCallback(() => {
     setValues({
@@ -85,50 +49,17 @@ export const ReportEditActions = ({ disabled, updateForm }: IReportEditActionsPr
     submitForm();
   }, [instance, setValues, submitForm, values]);
 
-  const handlePublish = React.useCallback(
-    async (id: number) => {
-      try {
-        const updatedInstance = await publishReportInstance(id);
-        setFieldValue(
-          'instances',
-          values.instances.map((i) =>
-            i.id === id ? { ...updatedInstance, content: instance?.content } : i,
-          ),
-        );
-        toast.success(
-          'Report has been submitted.  You will be notified when it is emailed to subscribers.',
-        );
-      } catch {}
-    },
-    [instance?.content, publishReportInstance, setFieldValue, values.instances],
-  );
-
-  const handleStartNewReport = React.useCallback(
-    async (values: IReportForm) => {
-      try {
-        const form = await onGenerate(values, true);
-        if (form) updateForm(form);
-      } catch {}
-    },
-    [onGenerate, updateForm],
-  );
-
   return (
     <styled.ReportEditActions className="report-edit-actions">
       <Show visible={active?.startsWith(ReportMainMenuOption.Send)}>
-        <ReportSubscriberExporter />
-
-        <Button
-          disabled={isSubmitting || !instance || instance?.status === ReportStatusName.Submitted}
-          onClick={() => toggleSend()}
-          variant="success"
-        >
-          Send to subscribers
-          <FaTelegramPlane />
-        </Button>
+        <Col flex="1" alignItems="flex-start">
+          <ReportSubscriberExporter />
+        </Col>
       </Show>
       <Show visible={active?.startsWith(ReportMainMenuOption.Settings)}>
-        <ReportExporter />
+        <Col flex="1" alignItems="flex-start">
+          <ReportExporter />
+        </Col>
       </Show>
       <Show
         visible={
@@ -137,46 +68,48 @@ export const ReportEditActions = ({ disabled, updateForm }: IReportEditActionsPr
           active?.startsWith(ReportMainMenuOption.Content)
         }
       >
-        <Action icon={<FaTrash />} label="Remove all stories" onClick={() => toggleRemove()} />
+        <Col flex="1" alignItems="flex-start">
+          <Action icon={<FaTrash />} label="Remove all stories" onClick={() => toggleRemove()} />
+        </Col>
       </Show>
+      <Button variant="secondary" onClick={() => navigate('/reports')}>
+        Cancel
+      </Button>
 
+      {/* Show save during submitted to handle scenario when email fails */}
       <Show
         visible={
-          !activeRow &&
-          (active?.startsWith(ReportMainMenuOption.Settings) ||
-            active?.startsWith(ReportMainMenuOption.Content))
+          !disabled ||
+          !instance?.sentOn ||
+          active?.startsWith(ReportMainMenuOption.Settings) ||
+          active?.startsWith(ReportMainMenuOption.Send)
         }
       >
-        <Button variant="secondary" onClick={() => navigate('/reports')}>
-          Cancel
+        <Button
+          onClick={() => submitForm()}
+          disabled={isSubmitting || instance?.status === ReportStatusName.Submitted}
+        >
+          Save report
+          <FaSave />
         </Button>
-
-        {/* Show save during submitted to handle scenario when email fails */}
-        {!disabled ||
-        instance?.status === ReportStatusName.Pending ||
-        active?.startsWith(ReportMainMenuOption.Settings) ? (
-          <Button
-            onClick={() => submitForm()}
-            disabled={isSubmitting || instance?.status === ReportStatusName.Submitted}
-          >
-            Save report
-            <FaSave />
-          </Button>
-        ) : (
-          <Button
-            disabled={isSubmitting}
-            onClick={() => handleStartNewReport(values)}
-            variant="success"
-          >
-            Start next report
-            <FaFileCirclePlus />
-          </Button>
-        )}
+      </Show>
+      <Show
+        visible={
+          !!instance?.sentOn &&
+          !active?.startsWith(ReportMainMenuOption.Settings) &&
+          getReportKind(values) === ReportKindName.Manual
+        }
+      >
+        <Button disabled={isSubmitting} onClick={() => onGenerate()} variant="success">
+          Start next report
+          <FaFileCirclePlus />
+        </Button>
       </Show>
       <Show
         visible={
           active?.startsWith(ReportMainMenuOption.Settings) ||
-          active?.startsWith(ReportMainMenuOption.Content)
+          active?.startsWith(ReportMainMenuOption.Content) ||
+          active?.startsWith(ReportMainMenuOption.View)
         }
       >
         <Button
@@ -204,6 +137,16 @@ export const ReportEditActions = ({ disabled, updateForm }: IReportEditActionsPr
           <FaCaretRight className="caret" />
         </Button>
       </Show>
+      <Show visible={active?.startsWith(ReportMainMenuOption.Send) && !instance?.sentOn}>
+        <Button
+          disabled={isSubmitting || !instance || instance?.status === ReportStatusName.Submitted}
+          onClick={() => onPublish()}
+          variant="success"
+        >
+          Send to subscribers
+          <FaTelegramPlane />
+        </Button>
+      </Show>
       <Modal
         headerText="Confirm Remove Content"
         body={`Are you sure you wish to remove content from the '${values?.name}' report?`}
@@ -214,46 +157,6 @@ export const ReportEditActions = ({ disabled, updateForm }: IReportEditActionsPr
         onConfirm={() => {
           handleRemoveContent();
           toggleRemove();
-        }}
-      />
-      <Modal
-        headerText="Send Report to Subscribers"
-        body={`Do you want to send an email to the subscribers of this report? ${
-          instance?.sentOn ? 'This report has already been sent out by email.' : ''
-        }`}
-        isShowing={isShowingSend}
-        hide={toggleSend}
-        type="default"
-        confirmText="Yes, send report to subscribers"
-        onConfirm={async () => {
-          try {
-            if (instance) await handlePublish(instance.id);
-          } finally {
-            toggleSend();
-          }
-        }}
-      />
-      <Modal
-        headerText="Start Next Report"
-        body={
-          <>
-            <p>{`The current report was sent to subscribers on ${formatDate(
-              instance?.sentOn?.toLocaleString(),
-              'YYYY-MM-DD hh:mm:ss a',
-            )}.`}</p>
-            <p>Would you like to start the next report?</p>
-          </>
-        }
-        isShowing={isShowingStartNewReport}
-        hide={toggleStartNewReport}
-        type="default"
-        confirmText="Yes, start the next report"
-        onConfirm={async () => {
-          try {
-            await handleStartNewReport(values);
-          } finally {
-            toggleStartNewReport();
-          }
         }}
       />
     </styled.ReportEditActions>

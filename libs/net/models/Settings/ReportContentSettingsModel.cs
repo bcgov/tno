@@ -12,6 +12,7 @@ public class ReportContentSettingsModel
     public IEnumerable<int> ExcludeReports { get; set; } = Array.Empty<int>();
     public bool ShowLinkToStory { get; set; }
     public bool HighlightKeywords { get; set; }
+    public bool CopyPriorInstance { get; set; }
     #endregion
 
     #region Constructors
@@ -25,6 +26,7 @@ public class ReportContentSettingsModel
         this.ExcludeReports = settings.GetDictionaryJsonValue("excludeReports", Array.Empty<int>(), options)!;
         this.ShowLinkToStory = settings.GetDictionaryJsonValue("showLinkToStory", false, options)!;
         this.HighlightKeywords = settings.GetDictionaryJsonValue("highlightKeywords", false, options)!;
+        this.CopyPriorInstance = settings.GetDictionaryJsonValue("copyPriorInstance", false, options)!;
     }
     #endregion
 }

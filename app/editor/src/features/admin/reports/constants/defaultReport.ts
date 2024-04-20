@@ -29,6 +29,7 @@ export const defaultReport: IReportModel = {
       showLinkToStory: false,
       clearFolders: false,
       onlyNewContent: false,
+      copyPriorInstance: false,
     },
     sections: {
       usePageBreaks: false,

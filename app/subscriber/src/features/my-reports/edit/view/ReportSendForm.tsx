@@ -1,9 +1,7 @@
 import { Action } from 'components/action';
 import { Button } from 'components/button';
 import { Section } from 'components/section';
-import { IReportForm } from 'features/my-reports/interfaces';
 import { calcNextReportSend, getLastSent } from 'features/my-reports/utils';
-import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaTelegramPlane, FaTrash } from 'react-icons/fa';
 import { FaRegCalendarDays } from 'react-icons/fa6';
@@ -26,6 +24,7 @@ import {
   validateEmail,
 } from 'tno-core';
 
+import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';
 
 /**
@@ -33,7 +32,7 @@ import * as styled from './styled';
  * @returns Component.
  */
 export const ReportSendForm: React.FC = () => {
-  const { values, isSubmitting, setFieldValue } = useFormikContext<IReportForm>();
+  const { values, isSubmitting, setFieldValue } = useReportEditContext();
   const [{ sendReportInstance }] = useReportInstances();
   const [{ userInfo }] = useApp();
   const { findUsers } = useApiAdminUsers();
@@ -83,39 +82,6 @@ export const ReportSendForm: React.FC = () => {
 
   return (
     <styled.ReportSendForm className="report-send">
-      {isAdmin && (
-        <Col>
-          <Section showOpen label="Test">
-            <Row>
-              <Col flex="1">
-                <p>
-                  Sending a report to a specific email address does not register the 'Last sent'
-                  date. Only use this for testing.
-                </p>
-              </Col>
-              <Col flex="2">
-                <Row justifyContent="center" alignItems="center">
-                  <Text
-                    label="Send to:"
-                    name="email"
-                    value={to}
-                    onChange={(e) => setTo(e.target.value)}
-                    width="400px"
-                    type="email"
-                  />
-                  <Button
-                    disabled={isSubmitting || !to.length || !validateEmail(to)}
-                    onClick={() => !!instanceId && handleSend(instanceId, to)}
-                  >
-                    Send email
-                    <FaTelegramPlane />
-                  </Button>
-                </Row>
-              </Col>
-            </Row>
-          </Section>
-        </Col>
-      )}
       <Row>
         {values.events.some((e) => e.isEnabled) && (
           <Row gap="1rem">
@@ -197,23 +163,58 @@ export const ReportSendForm: React.FC = () => {
               </Row>
             );
           })}
-        {isAdmin && (
-          <Col>
-            <h2>Add subscribers to report</h2>
-            <Row alignItems="center">
+      </Col>
+      <Show visible={isAdmin}>
+        <Row gap="1rem">
+          <Col flex="1">
+            <Section label="Add subscribers to report" open showOpen={false}>
               <Text
                 name="email"
                 label="Search by email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-              />
-              <Button disabled={!validateEmail(email)} onClick={() => addSubscriber(email)}>
-                Add subscriber
-              </Button>
-            </Row>
+                width="300px"
+              >
+                <Button disabled={!validateEmail(email)} onClick={() => addSubscriber(email)}>
+                  Add subscriber
+                </Button>
+              </Text>
+            </Section>
           </Col>
-        )}
-      </Col>
+          <Col flex="1">
+            <Section label="Test" open showOpen={false}>
+              <Row>
+                <Col flex="1">
+                  <p>
+                    Sending a report to a specific email address does not register the 'Last sent'
+                    date. Only use this for testing.
+                  </p>
+                </Col>
+                <Col flex="2">
+                  <Row justifyContent="center" alignItems="center">
+                    <Text
+                      label="Send to:"
+                      name="email"
+                      value={to}
+                      onChange={(e) => setTo(e.target.value)}
+                      width="400px"
+                      type="email"
+                    >
+                      <Button
+                        disabled={isSubmitting || !to.length || !validateEmail(to)}
+                        onClick={() => !!instanceId && handleSend(instanceId, to)}
+                      >
+                        Send email
+                        <FaTelegramPlane />
+                      </Button>
+                    </Text>
+                  </Row>
+                </Col>
+              </Row>
+            </Section>
+          </Col>
+        </Row>
+      </Show>
     </styled.ReportSendForm>
   );
 };

@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { useApp, useReports } from 'store/hooks';
 import { Col, IReportModel, ReportSectionTypeName, Row, Spinner } from 'tno-core';
 
+import { ReportKindIcon } from './components';
 import { calcNextScheduleSend, getLastSent } from './utils';
 
 export interface IReportCardProps {
@@ -17,6 +18,8 @@ export interface IReportCardProps {
   onClick?: (report?: IReportModel) => void;
   /** Event fires when user requests to delete report. This event does not delete the report itself. */
   onDelete?: (report: IReportModel) => void;
+  /** Class name */
+  className?: string;
 }
 
 /**
@@ -24,7 +27,12 @@ export interface IReportCardProps {
  * @param param0 Component properties.
  * @returns Component.
  */
-export const ReportCard: React.FC<IReportCardProps> = ({ report, onClick, onDelete }) => {
+export const ReportCard: React.FC<IReportCardProps> = ({
+  className,
+  report,
+  onClick,
+  onDelete,
+}) => {
   const [, { getReport }] = useReports();
   const [{ requests }] = useApp();
 
@@ -42,7 +50,7 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onClick, onDele
   return (
     <Section
       key={report.id}
-      className="report-card"
+      className={`report-card${className ? ` ${className}` : ''}`}
       icon={
         report.sections.some(
           (section) => section.sectionType === ReportSectionTypeName.MediaAnalytics,
@@ -52,7 +60,12 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report, onClick, onDele
           <FaNewspaper />
         )
       }
-      label={report.name}
+      label={
+        <Row gap="1rem" alignItems="center" justifyContent="space-between">
+          {report.name}
+          <ReportKindIcon report={report} />
+        </Row>
+      }
       actions={
         <Button onClick={() => onClick?.(report)}>
           View report <FaPen />

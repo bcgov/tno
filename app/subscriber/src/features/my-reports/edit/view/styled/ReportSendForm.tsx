@@ -1,17 +1,20 @@
 import styled from 'styled-components';
 
 export const ReportSendForm = styled.div`
+  display: flex;
+  flex-direction: column;
   margin: 1rem;
   gap: 1rem;
 
   > div:last-child {
-    button {
-      margin-top: 1.5rem;
+    .frm-in {
+      > div {
+        gap: 1rem;
+      }
     }
   }
 
   .subscribers {
-    padding: 1rem 0;
     gap: 0.25rem;
 
     .header {

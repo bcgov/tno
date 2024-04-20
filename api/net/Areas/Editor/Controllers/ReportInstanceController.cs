@@ -78,7 +78,7 @@ public class ReportInstanceController : ControllerBase
         if (regenerate || String.IsNullOrWhiteSpace(instance.Body))
         {
             var report = instance.Report ?? throw new NoContentException("Report instance is missing report information");
-            if (!user.Roles.Split(',').Contains(ClientRole.Administrator.GetName()) && // User is not admin
+            if (!user.Roles.Split(',').Contains($"[{ClientRole.Administrator.GetName()}]") && // User is not admin
                 instance.OwnerId != user.Id && // User does not own the report instance
                 !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) && // User is not subscribed to the report
                 !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report"); // Report is not public

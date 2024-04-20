@@ -18,12 +18,11 @@ export const StartNextReportInfo = () => {
         <Row alignItems="center" gap="1rem">
           <FaInfoCircle />
           <p>
-            This current report was sent to subscribers on{' '}
-            {`${formatDate(instance?.sentOn?.toLocaleString(), 'YYYY-MM-DD hh:mm:ss a')}`}. As such
-            the current report is readonly until a new one is started.
+            This report was sent to subscribers on{' '}
+            {`${formatDate(instance?.sentOn?.toLocaleString(), 'YYYY-MM-DD hh:mm:ss a')}`}. The
+            report is <strong>readonly</strong> until the next one is auto generated.
           </p>
         </Row>
-        <p>To begin a new report click the "Start next report" button.</p>
       </div>
     </Show>
   );

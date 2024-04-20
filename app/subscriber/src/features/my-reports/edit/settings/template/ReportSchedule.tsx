@@ -28,11 +28,6 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ index, label })
       <Col gap="0.25rem" className="frm-in">
         <label>{label}</label>
         <FormikCheckbox name={`events.${index}.isEnabled`} label="Enabled" value={true} />
-        <FormikCheckbox
-          name={`events.${index}.settings.autoSend`}
-          label="Auto send"
-          tooltip="Send emails to subscribers when report is run"
-        />
         <TimeInput
           label="Run at"
           placeholder="HH:MM:SS"

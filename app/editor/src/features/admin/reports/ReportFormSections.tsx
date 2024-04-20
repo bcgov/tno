@@ -5,6 +5,7 @@ import { useFilters, useFolders } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
+  Checkbox,
   Col,
   FormikCheckbox,
   FormikText,
@@ -142,6 +143,14 @@ export const ReportFormSections = () => {
               label="Use Page Breaks"
               name="settings.sections.usePageBreaks"
               tooltip="use page breaks in each section for printing."
+            />
+            <Checkbox
+              name={`settings.content.copyPriorInstance`}
+              label="Empty report when starting next report"
+              checked={!values.settings.content.copyPriorInstance}
+              onChange={(e) => {
+                setFieldValue('settings.content.copyPriorInstance', !e.target.checked);
+              }}
             />
           </Col>
         </Col>

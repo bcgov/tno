@@ -47,6 +47,11 @@ export const MyReports = styled.div`
   .my-reports-content {
     height: calc(100dvh - 260px);
     overflow-y: auto;
+    position: relative;
+
+    > div.report-card.active div.section-header {
+      background: ${(props) => props.theme.css.highlightTertiary};
+    }
   }
 
   .report-schedule {
@@ -106,10 +111,8 @@ export const MyReports = styled.div`
   }
 
   .loading {
-    position: relative;
-    align-content: center;
-    justify-content: center;
     min-height: 100px;
+    background: ${(props) => props.theme.css.bkPrimary25};
   }
 
   .section.report-card {
@@ -185,6 +188,11 @@ export const MyReports = styled.div`
   .report-preview {
     min-width: min-content;
     .report-title {
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
+      align-items: center;
+
       h2 {
         margin: 0.5rem;
       }
@@ -199,6 +207,8 @@ export const MyReports = styled.div`
       }
     }
     .preview-section {
+      position: relative;
+
       .preview-subject {
         padding: 0.25rem;
         margin-bottom: 1rem;

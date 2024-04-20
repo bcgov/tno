@@ -198,7 +198,7 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
                     onClick={() => addStory(instance.id, section.name)}
                   />
                 </Col>
-                {!!section.id && !disabled ? (
+                {!!section.id && !disabled && (section.filterId || section.folderId) ? (
                   <Col flex="1">
                     <Action
                       icon={<FaArrowsSpin />}
