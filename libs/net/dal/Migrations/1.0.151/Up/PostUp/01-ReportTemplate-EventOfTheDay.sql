@@ -19,7 +19,7 @@ UPDATE public.report_template SET
 <a name="top"></a>
 <div style="color:red;">DO NOT FORWARD THIS EMAIL TO ANYONE</div>
 <br/>
-FFFFOOOOORRRWWWAAARRRDDD
+
 @if (Content.Count() == 0)
 {
   <p>There is no content in this report.</p>
