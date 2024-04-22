@@ -72,4 +72,9 @@ export const ReportEditMenu = styled.div`
   .report-secondary-menu {
     background: ${(props) => props.theme.css.bkTertiary};
   }
+
+  .error {
+    background: ${(props) => props.theme.css.bkError};
+    color: ${(props) => props.theme.css.fRedColor};
+  }
 `;

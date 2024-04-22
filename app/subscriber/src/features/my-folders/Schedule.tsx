@@ -47,16 +47,16 @@ export const Schedule: React.FC<IScheduleProps> = ({ folderSchedule, onScheduleC
                     placeholder="hh:mm:ss"
                     value={!!folderSchedule ? folderSchedule?.startAt : ''}
                     width={FieldSize.Small}
-                    onChange={(e) => {
+                    onChange={(value) => {
                       onScheduleChange?.({
                         ...folderSchedule,
-                        startAt: e.target.value,
+                        startAt: value,
                       } as IFolderScheduleModel);
                     }}
                   />
                 </Col>
                 <Col className="start-after-col">
-                  <label>Run at:</label>
+                  <label>Run on:</label>
                   <ReactDatePicker
                     minDate={new Date()}
                     showMonthDropdown

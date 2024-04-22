@@ -19,8 +19,8 @@ export const StartNextReportInfo = () => {
           <FaInfoCircle />
           <p>
             This report was sent to subscribers on{' '}
-            {`${formatDate(instance?.sentOn?.toLocaleString(), 'YYYY-MM-DD hh:mm:ss a')}`}. The
-            report is <strong>readonly</strong> until the next one is auto generated.
+            {`${formatDate(instance?.sentOn?.toLocaleString(), 'YYYY-MM-DD hh:mm:ss a')}`}. This
+            report is <strong>readonly</strong> until the next report is started.
           </p>
         </Row>
       </div>

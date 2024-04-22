@@ -3,7 +3,7 @@ import { Button } from 'components/button';
 import { Section } from 'components/section';
 import { formatDate } from 'features/utils';
 import React from 'react';
-import { FaChartPie, FaNewspaper, FaPen, FaTrashCan } from 'react-icons/fa6';
+import { FaChartPie, FaNewspaper, FaSquarePollVertical, FaTrashCan } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 import { useApp, useReports } from 'store/hooks';
 import { Col, IReportModel, ReportSectionTypeName, Row, Show, Spinner } from 'tno-core';
@@ -68,7 +68,7 @@ export const ReportCard: React.FC<IReportCardProps> = ({
       }
       actions={
         <Button onClick={() => onClick?.(report)}>
-          View report <FaPen />
+          View report <FaSquarePollVertical />
         </Button>
       }
       onChange={async (open) => {

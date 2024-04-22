@@ -22,7 +22,7 @@ export interface IReportEditMenuProps {
 }
 
 export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
-  const { active, values } = useReportEditContext();
+  const { active, values, errors, isValid } = useReportEditContext();
   const [, { storeReportOutput }] = useProfileStore();
   const [{ viewReportInstance }] = useReportInstances();
 
@@ -57,6 +57,9 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
             label="Settings"
             active={!active || active?.startsWith(ReportMainMenuOption.Settings)}
             onClick={() => onChange?.(`/reports/${values.id}/${ReportMainMenuOption.Settings}`)}
+            className={
+              !isValid && !active?.startsWith(ReportMainMenuOption.Settings) ? 'error' : ''
+            }
           ></MenuButton>
         </div>
         <div>
@@ -97,6 +100,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
               label="Info"
               active={active === ReportSettingsMenuOption.Info}
               onClick={() => onChange?.(`/reports/${values.id}/${ReportSettingsMenuOption.Info}`)}
+              className={errors.name ? 'error' : ''}
             >
               <FaCaretRight className="caret" />
             </MenuButton>
@@ -108,6 +112,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
               onClick={() =>
                 onChange?.(`/reports/${values.id}/${ReportSettingsMenuOption.Sections}`)
               }
+              className={errors.sections ? 'error' : ''}
             >
               <FaCaretRight className="caret" />
             </MenuButton>
@@ -119,6 +124,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
               onClick={() =>
                 onChange?.(`/reports/${values.id}/${ReportSettingsMenuOption.DataSources}`)
               }
+              className={errors.sections ? 'error' : ''}
             >
               <FaCaretRight className="caret" />
             </MenuButton>
@@ -139,6 +145,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
               label="Sending"
               active={active === ReportSettingsMenuOption.Send}
               onClick={() => onChange?.(`/reports/${values.id}/${ReportSettingsMenuOption.Send}`)}
+              className={errors.settings?.subject?.text || errors.events ? 'error' : ''}
             />
           </div>
         </Show>

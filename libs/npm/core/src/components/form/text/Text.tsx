@@ -2,6 +2,7 @@ import React, { InputHTMLAttributes } from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
 
 import { Row } from '../../flex';
+import { Error } from '..';
 import { FieldSize } from '../constants';
 import { TextVariant } from '.';
 import * as styled from './styled';
@@ -104,7 +105,7 @@ export const Text: React.FC<ITextProps> = ({
         />
         {children}
       </Row>
-      {error && <p role="alert">{error}</p>}
+      <Error error={error} />
     </styled.Text>
   );
 };

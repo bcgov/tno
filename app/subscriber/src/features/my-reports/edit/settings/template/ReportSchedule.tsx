@@ -1,5 +1,6 @@
 import { Toggle } from 'components/form';
 import { TimeInput } from 'components/form/timeinput';
+import { getIn } from 'formik';
 import moment from 'moment';
 import {
   Col,
@@ -19,7 +20,7 @@ export interface IReportScheduleProps {
 }
 
 export const ReportSchedule: React.FC<IReportScheduleProps> = ({ index, label }) => {
-  const { values, setFieldValue } = useReportEditContext();
+  const { values, setFieldValue, errors } = useReportEditContext();
 
   const schedule = values.events.length > index ? values.events[index] : undefined;
 
@@ -33,9 +34,10 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ index, label })
           placeholder="HH:MM:SS"
           value={schedule?.startAt ? schedule?.startAt : ''}
           width={FieldSize.Small}
-          onChange={(e) => {
-            setFieldValue(`events.${index}.startAt`, e.target.value);
+          onChange={(value) => {
+            setFieldValue(`events.${index}.startAt`, value);
           }}
+          error={getIn(errors, `events.${index}.startAt`)}
         />
         <Toggle
           name="reset"

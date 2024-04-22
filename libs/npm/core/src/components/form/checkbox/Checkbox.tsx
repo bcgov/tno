@@ -62,6 +62,10 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
   const LabelInput = <label htmlFor={labelId}>{label}</label>;
   const fieldValue = typeof value === 'boolean' ? (value ? 'true' : 'false') : value;
 
+  React.useEffect(() => {
+    setErrorMsg(error);
+  }, [error]);
+
   return (
     <styled.Checkbox
       className={`frm-in chk${className ? ` ${className}` : ''}`}
