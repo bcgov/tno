@@ -122,10 +122,8 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
         />
       </Show>
       {!!section.id &&
-        !section.linkedReportId &&
         !disabled &&
-        !section.reportId &&
-        (section.filterId || section.folderId) && (
+        (section.filterId || section.folderId || section.linkedReportId) && (
           <Col flex="1">
             <Action
               icon={<FaArrowsSpin />}

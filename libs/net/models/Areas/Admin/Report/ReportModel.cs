@@ -174,6 +174,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
                     SortOrder = modelSection.Folder.SortOrder,
                     Settings = JsonDocument.Parse(JsonSerializer.Serialize(modelSection.Folder.Settings))
                 } : null,
+                LinkedReportId = modelSection.LinkedReportId,
                 Settings = JsonDocument.Parse(JsonSerializer.Serialize(modelSection.Settings)),
                 Version = modelSection.Version ?? 0
             };
