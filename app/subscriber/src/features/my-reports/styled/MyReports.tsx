@@ -175,6 +175,10 @@ export const MyReports = styled.div`
         }
       }
 
+      .report-card-schedule {
+        justify-content: space-between;
+      }
+
       .report-schedule-enabled {
         color: ${(props) => props.theme.css.tonePositive};
       }

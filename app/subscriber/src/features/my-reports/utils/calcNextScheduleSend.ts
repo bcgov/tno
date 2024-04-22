@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { IReportScheduleModel } from 'tno-core';
+import { IReportModel, IReportScheduleModel } from 'tno-core';
 
 const WeekDays: Record<string, number> = {
   Sunday: 0,
@@ -16,14 +16,22 @@ interface ISchedule {
   time: string;
 }
 
-function getNextScheduleSend(schedule: IReportScheduleModel): string {
+/**
+ * Calculates the next time the schedule will be sent.
+ * @param report Report.
+ * @param schedule Report schedule.
+ * @returns The next send on date.
+ */
+export const calcNextScheduleSend = (report: IReportModel, schedule: IReportScheduleModel) => {
+  if (!schedule.isEnabled) return undefined;
+
   const currentTime: Date = new Date();
   const currentWeekDay = currentTime.toLocaleDateString('en-US', {
     timeZone: 'America/Vancouver',
     weekday: 'long',
   });
   const currentTimeOfDay = currentTime.toLocaleTimeString('en-US', {
-    // TODO: Store User's preferred timezone in profile/settings to use for coverting/storing
+    // TODO: Store User's preferred timezone in profile/settings to use for converting/storing
     // Server currently compares time in server local time, which is PST. Hence, use PST.
     timeZone: 'America/Vancouver',
     hour12: false,
@@ -38,12 +46,10 @@ function getNextScheduleSend(schedule: IReportScheduleModel): string {
   const weekDays = schedule.runOnWeekDays.split(',');
   for (let i = 0; i < weekDays.length; i++) {
     const key: string = weekDays[i].trim();
-    if (schedule.settings.autoSend) {
-      sends.push({
-        weekDayNum: WeekDays[key],
-        time: schedule.startAt ? schedule.startAt : '',
-      });
-    }
+    sends.push({
+      weekDayNum: WeekDays[key],
+      time: schedule.startAt ? schedule.startAt : '',
+    });
   }
 
   sends.sort((a, b) => a.weekDayNum - b.weekDayNum || a.time.localeCompare(b.time));
@@ -80,14 +86,4 @@ function getNextScheduleSend(schedule: IReportScheduleModel): string {
   const day = nextSendDate.toLocaleDateString('en-US', { day: '2-digit' });
   const nextSendDateTime = new Date(`${year}-${month}-${day}T${nextSend?.time}.000Z`);
   return moment(nextSendDateTime).utc(false).format('yyyy-MM-DD hh:mm:ssA');
-}
-
-/**
- * Calculates the next time the schedule will be sent.
- * @param schedule Report schedule.
- * @returns The next send on date.
- */
-export const calcNextScheduleSend = (schedule: IReportScheduleModel) => {
-  if (!schedule.isEnabled) return undefined;
-  return getNextScheduleSend(schedule);
 };

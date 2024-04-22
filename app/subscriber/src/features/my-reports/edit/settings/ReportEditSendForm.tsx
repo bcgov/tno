@@ -1,7 +1,17 @@
 import { Button } from 'components/button';
 import { IToggleOption, Toggle } from 'components/form';
 import { FaInfoCircle } from 'react-icons/fa';
-import { Checkbox, Col, FormikCheckbox, FormikText, ReportKindName, Row, Show } from 'tno-core';
+import { FaClock, FaUser, FaUserClock } from 'react-icons/fa6';
+import {
+  Checkbox,
+  Col,
+  FormikCheckbox,
+  FormikText,
+  getReportKind,
+  ReportKindName,
+  Row,
+  Show,
+} from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';
@@ -18,11 +28,35 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
   const { values, setValues, setFieldValue } = useReportEditContext();
 
   const instance = values.instances.length ? values.instances[0] : undefined;
-  const kind = values.events.some((e) => e.isEnabled) ? ReportKindName.Auto : ReportKindName.Manual;
+  const kind = getReportKind(values);
   const reportOptions: IToggleOption<ReportKindName>[] = [
-    { label: 'Manual Report', value: ReportKindName.Manual },
-    { label: 'Auto Report', value: ReportKindName.Auto },
-    { label: 'Auto Send Report', value: ReportKindName.AutoSend },
+    {
+      label: (
+        <Row gap="1rem" alignItems="center">
+          Manual Report
+          <FaUser />
+        </Row>
+      ),
+      value: ReportKindName.Manual,
+    },
+    {
+      label: (
+        <Row gap="1rem" alignItems="center">
+          Auto Report
+          <FaUserClock />
+        </Row>
+      ),
+      value: ReportKindName.Auto,
+    },
+    {
+      label: (
+        <Row gap="1rem" alignItems="center">
+          Auto Send Report
+          <FaClock />
+        </Row>
+      ),
+      value: ReportKindName.AutoSend,
+    },
   ];
   const isAuto = [ReportKindName.Auto, ReportKindName.AutoSend].includes(kind);
 

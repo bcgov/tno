@@ -1,5 +1,3 @@
-version: "3.5"
-
 ####################### Networks Definition #######################
 networks:
   tno:
