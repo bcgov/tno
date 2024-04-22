@@ -39,7 +39,7 @@ public class FolderService : BaseService<Folder, int>, IFolderService
             .Where(f => f.Id == id);
 
         if (includeContent)
-            query = query.Include(i => i.ContentManyToMany).ThenInclude(c => c.Content);
+            query = query.Include(i => i.ContentManyToMany).ThenInclude(c => c.Content).ThenInclude(c => c!.Topics);
         else
             query = query.Include(i => i.ContentManyToMany);
 

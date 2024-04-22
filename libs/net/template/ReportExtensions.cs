@@ -253,11 +253,74 @@ public static class ReportExtensions
         {
             "mediaType" => content.MediaType?.Name ?? "",
             "contentType" => content.ContentType.ToString(),
+            "topicType" => content.Topics.FirstOrDefault()?.TopicType.ToString() ?? "",
+            "topicName" => content.Topics.FirstOrDefault()?.Name ?? "",
             "byline" => content.Byline,
             "series" => content.Series?.Name ?? "",
             "sentiment" => GetSentimentIcon(content.TonePools.FirstOrDefault()?.Value ?? 0),
             _ => content.OtherSource,
         };
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="contentList"></param>
+    /// <returns></returns>
+    public static Dictionary<string, int> GetTotalScoresByTopicType(this IEnumerable<ContentModel> contentList) {
+        return contentList
+            .GroupBy(g => g.GetContentGroupByPropertyValue("topicType"))
+            .ToDictionary(
+                g => g.Key,
+                g => g.ToList().Sum(s => s.Topics.FirstOrDefault()?.Score ?? 0)
+            );
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="contentList"></param>
+    /// <returns></returns>
+    public static Dictionary<string, Dictionary<string,int>> GetTopicScoresByTopicTypeAndName(this IEnumerable<ContentModel> contentList) {
+        return contentList
+            .Where(x => x.Topics.All(a => a.Name != "Not Applicable"))
+            .GroupBy(g => g.GetContentGroupByPropertyValue("topicType"))
+            .ToDictionary(
+                g => g.Key,
+                g => g.ToList().GroupBy(g => g.GetContentGroupByPropertyValue("topicName"))
+                    .ToDictionary(
+                        gg => gg.Key,
+                        gg => gg.Sum(s => s.Topics.FirstOrDefault()?.Score ?? 0))
+            );
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="aggregations"></param>
+    /// <returns></returns>
+    public static Dictionary<string, int> GetTotalScoresByTopicType(this Dictionary<string, AggregationRootModel> aggregations) {
+        return aggregations.First().Value.ChildAggregation.Buckets
+            .ToDictionary(
+                g => g.Key,
+                g => (int)(g.AggregationSum?.Value ?? 0)
+            );
+    }
+
+    /// <summary>
+    /// Helper converts aggregated result from ElasticSearch to something easier to work with
+    /// </summary>
+    /// <param name="aggregations"></param>
+    /// <returns></returns>
+    public static Dictionary<string, Dictionary<string,int>> GetTopicScoresByTopicTypeAndName(this Dictionary<string, AggregationRootModel> aggregations) {
+        return aggregations.First().Value.ChildAggregation.Buckets
+            .ToDictionary(
+                g => g.Key,
+                g => g.ChildAggregation!.Buckets.ToDictionary(
+                    gg => gg.Key,
+                    gg => (int)(gg.AggregationSum?.Value ?? 0)
+                )
+            );
     }
 
     /// <summary>
