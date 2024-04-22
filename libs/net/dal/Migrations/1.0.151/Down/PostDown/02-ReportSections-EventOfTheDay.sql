@@ -24,10 +24,10 @@ from public."filter" f
 where f."name" = 'Event of the Day - 24hr Aggregate'
 and f.owner_id = 1;
 
--- replace usage of the filter with the folder
+-- replace usage of the folder with the filter
 -- update the first two sections of the report
 update public.report_section
-set folder_id = FolderId, filter_id = null
+set filter_id = FilterId, folder_id = null
 where (sort_order = 0 or sort_order = 1)
 and report_id = ReportId;
 
