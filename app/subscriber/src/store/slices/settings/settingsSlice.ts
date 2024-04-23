@@ -22,6 +22,8 @@ export const settingsSlice = createSlice({
       state.featuredStoryActionId = action.payload.featuredStoryActionId;
       state.alertActionId = action.payload.alertActionId;
       state.editorUrl = action.payload.editorUrl;
+      state.subscriberUrl = action.payload.subscriberUrl;
+      state.defaultReportTemplateId = action.payload.defaultReportTemplateId;
     },
   },
 });

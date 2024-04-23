@@ -65,7 +65,7 @@ export const ReportEditPage = () => {
 
   React.useEffect(() => {
     // Only fetch the template for new reports.
-    if (!report.id && defaultReportTemplateId && report.templateId !== defaultReportTemplateId) {
+    if (defaultReportTemplateId && report.templateId !== defaultReportTemplateId) {
       getReportTemplate(defaultReportTemplateId)
         .then((template) => {
           if (template) {

@@ -5,46 +5,50 @@ import { Col, Error, Row, Show } from 'tno-core';
 import * as styled from './styled';
 
 export interface ITimeInputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'children' | 'dangerouslySetInnerHTML'> {
+  extends Omit<
+    InputHTMLAttributes<HTMLInputElement>,
+    'children' | 'dangerouslySetInnerHTML' | 'onChange'
+  > {
+  /** Label of input. */
   label?: string;
-  /**
-   * Display errors.
-   */
+  /** Error message. */
   error?: string;
+  /** Event fires when the value changes. */
+  onChange?: (value: string) => void;
 }
 
-/** Component that will enforce the HH:MM:SS time format */
-export const TimeInput: React.FC<ITimeInputProps> = ({ label, error, className, ...rest }) => {
+/**
+ * Component that will enforce the HH:MM:SS time format
+ * @param param0 Component properties.
+ * @returns Component.
+ */
+export const TimeInput: React.FC<ITimeInputProps> = ({
+  label,
+  error,
+  className,
+  value: initValue = '',
+  onChange,
+  ...rest
+}) => {
   const [showMenuOptions, setShowMenuOptions] = React.useState(false);
+  const [value, setValue] = React.useState(String(initValue));
   const [hours, setHours] = React.useState('');
   const [minutes, setMinutes] = React.useState('');
   const [seconds, setSeconds] = React.useState('');
-  const [value, setValue] = React.useState('');
   const menuRef = React.useRef<HTMLDivElement>(null);
   const hourOptions = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
   const minuteSecondOptions = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
   React.useEffect(() => {
-    const incomingValue = String(rest.value);
-    // update if no user input yet and external value is differnt (navigating through list)
-    if (!value || incomingValue !== value) {
-      const isValidTimeFormat = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/.test(
-        incomingValue,
-      );
-      if (isValidTimeFormat) {
-        setValue(incomingValue);
-      }
-    }
-    // only update if value changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rest.value]);
+    setValue(String(initValue));
+  }, [initValue]);
 
   React.useEffect(() => {
     if (hours || minutes || seconds) {
       // Check if any of these are non-empty
       setValue(`${hours}:${minutes}:${seconds}`);
     } else {
-      !rest.value && setValue(''); // Set to empty to avoid "::"
+      !initValue && setValue(''); // Set to empty to avoid "::"
     }
     // only update when hours, minutes, or seconds change
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -84,6 +88,7 @@ export const TimeInput: React.FC<ITimeInputProps> = ({ label, error, className, 
           type="text"
           value={value}
           className="masked-input"
+          role={error ? 'alert' : 'none'}
           onChange={(e) => {
             const input = e.target.value;
             const originalInput = value;
@@ -104,12 +109,14 @@ export const TimeInput: React.FC<ITimeInputProps> = ({ label, error, className, 
 
             // this fixes backspace issue on first character
             if (input.length < originalInput.length) {
-              setValue(input);
+              if (onChange) onChange?.(input);
+              else setValue(input);
             } else {
               // enforce HH:MM:SS format with only valid numbers (eg 32:99:99 is invalid)
               const regex = /^([0-1]?[0-9]|2[0-3])?(:([0-5]?[0-9])(:([0-5]?[0-9])?)?)?$/;
               if (regex.test(formattedTime)) {
-                setValue(formattedTime);
+                if (onChange) onChange?.(formattedTime);
+                else setValue(formattedTime);
               }
             }
           }}
@@ -129,7 +136,10 @@ export const TimeInput: React.FC<ITimeInputProps> = ({ label, error, className, 
                   <div
                     className={`time-opt ${hour === hours ? 'selected' : ''}`}
                     onClick={() => {
-                      setHours(String(hour));
+                      setHours(hour);
+                      const value = `${hour}:${minutes}:${seconds}`;
+                      if (onChange) onChange(value);
+                      else setValue(value);
                     }}
                     key={`${hour.toString()}-hour`}
                   >
@@ -145,7 +155,10 @@ export const TimeInput: React.FC<ITimeInputProps> = ({ label, error, className, 
                   <div
                     className={`time-opt ${minute === minutes ? 'selected' : ''}`}
                     onClick={() => {
-                      setMinutes(String(minute));
+                      setMinutes(minute);
+                      const value = `${hours}:${minute}:${seconds}`;
+                      if (onChange) onChange(value);
+                      else setValue(value);
                     }}
                     key={`${minute.toString()}-minute`}
                   >
@@ -161,7 +174,10 @@ export const TimeInput: React.FC<ITimeInputProps> = ({ label, error, className, 
                   <div
                     className={`time-opt ${second === seconds ? 'selected' : ''}`}
                     onClick={() => {
-                      setSeconds(String(second));
+                      setSeconds(second);
+                      const value = `${hours}:${minutes}:${second}`;
+                      if (onChange) onChange(value);
+                      else setValue(value);
                     }}
                     key={`${second.toString()}-second`}
                   >

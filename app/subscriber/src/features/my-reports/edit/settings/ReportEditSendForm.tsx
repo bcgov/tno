@@ -89,7 +89,11 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
             <p>A Manual Report is created and sent manually.</p>
           </Col>
           <Col className="info" flex="1">
-            <p>An Auto Report is created for you on a schedule, but sent manually.</p>
+            <p>
+              An Auto Report is created for you on a schedule, but sent manually. If the report is
+              not sent before the next scheduled run, it will <strong>not</strong> generate a new
+              report.
+            </p>
           </Col>
           <Col className="info" flex="1">
             <p>An Auto Send Report is created for you on a schedule and sent at the same time.</p>
@@ -131,12 +135,6 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
       </Show>
       <Show visible={kind === ReportKindName.Manual}>
         <div className="schedule-actions">
-          <Col className="info" flex="1">
-            <p>
-              A schedule that has already populated a report in a given day, will not attempt to do
-              so again unless you allow it to 'Run again today'.
-            </p>
-          </Col>
           <Checkbox
             name={`settings.content.copyPriorInstance`}
             label="Empty report when starting next report"
@@ -146,10 +144,12 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
             }}
           />
           <Show visible={!instance || !!instance?.sentOn}>
-            <p>The current report has already been sent to subscribers. Start the next report.</p>
-            <Button variant="success" onClick={() => onGenerate()}>
-              Start next report
-            </Button>
+            <Row gap="1rem">
+              <p>The current report has already been sent to subscribers. Start the next report.</p>
+              <Button variant="success" onClick={() => onGenerate()}>
+                Start next report
+              </Button>
+            </Row>
           </Show>
         </div>
       </Show>

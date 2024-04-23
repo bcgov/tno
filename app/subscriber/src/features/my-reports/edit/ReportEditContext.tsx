@@ -1,4 +1,4 @@
-import { useFormikContext } from 'formik';
+import { FormikErrors, useFormikContext } from 'formik';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -33,6 +33,10 @@ export interface IReportEditContext {
   setActiveRow: React.Dispatch<React.SetStateAction<IReportInstanceContentForm | undefined>>;
   /** Formik values. */
   values: IReportForm;
+  /** Formik errors */
+  errors: FormikErrors<IReportForm>;
+  /** Formik isValid */
+  isValid: boolean;
   /** Formik setFieldValue function */
   setFieldValue: (field: string, value: any, shouldValidate?: boolean | undefined) => void;
   /** Formik setValues function */
@@ -59,6 +63,8 @@ export const ReportEditContext = React.createContext<IReportEditContext>({
   values: defaultReport(0, 0),
   setFieldValue: () => {},
   setValues: () => {},
+  errors: {},
+  isValid: true,
   isSubmitting: false,
   setSubmitting: () => {},
   submitForm: () => Promise.resolve(),
@@ -93,8 +99,16 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
   children,
 }) => {
   const navigate = useNavigate();
-  const { values, setFieldValue, setValues, isSubmitting, setSubmitting, submitForm } =
-    useFormikContext<IReportForm>();
+  const {
+    values,
+    setFieldValue,
+    setValues,
+    isSubmitting,
+    setSubmitting,
+    submitForm,
+    errors,
+    isValid,
+  } = useFormikContext<IReportForm>();
   const { path1, path2 } = useParams();
   const [{ exportReport }] = useReportInstances();
   const [, { generateReport, regenerateSection }] = useReports();
@@ -209,6 +223,8 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
         values,
         setFieldValue,
         setValues,
+        errors,
+        isValid,
         isSubmitting,
         setSubmitting,
         submitForm,

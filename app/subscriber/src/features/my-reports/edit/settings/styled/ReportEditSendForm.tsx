@@ -30,12 +30,10 @@ export const ReportEditSendForm = styled.div`
 
   .schedule-actions {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 1rem;
     align-items: center;
-
-    > div {
-    }
+    justify-content: space-around;
   }
 
   .report-kind {

@@ -1,8 +1,9 @@
+import { Modal } from 'components/modal';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useReportInstances } from 'store/hooks';
-import { formatDate, getReportKind, Modal, ReportKindName, Show, useModal } from 'tno-core';
+import { formatDate, getReportKind, ReportKindName, Show, useModal } from 'tno-core';
 
 import { IReportForm, IReportInstanceContentForm } from '../interfaces';
 import {
