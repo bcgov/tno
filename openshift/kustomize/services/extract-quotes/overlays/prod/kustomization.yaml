@@ -45,13 +45,3 @@ patches:
       - op: replace
         path: /data/CHES_EMAIL_AUTHORIZED
         value: "true"
-  - target:
-      kind: ConfigMap
-      name: ches
-    patch: |-
-      - op: replace
-        path: /data/CHES_AUTH_URL
-        value: https://loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
-      - op: replace
-        path: /data/CHES_HOST_URI
-        value: https://ches.api.gov.bc.ca/api/v1

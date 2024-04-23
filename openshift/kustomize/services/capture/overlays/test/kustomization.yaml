@@ -11,13 +11,6 @@ generatorOptions:
 
 patches:
   - target:
-      kind: ConfigMap
-      name: capture-service
-    patch: |-
-      - op: replace
-        path: /data/CHES_FROM
-        value: (TEST) Media Monitoring Insights <mmi@gov.bc.ca>
-  - target:
       kind: DeploymentConfig
       name: capture-service
     patch: |-

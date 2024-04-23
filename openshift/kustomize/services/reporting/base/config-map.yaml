@@ -18,27 +18,6 @@ data:
   KAFKA_CLIENT_ID: Reporting
   MAX_FAIL_LIMIT: "5"
   TOPICS: reporting
-  CHES_FROM: Media Monitoring Insights <mmi@gov.bc.ca>
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"
   CHARTS_URL: http://charts-api:8080
-
----
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: ches
-  namespace: default
-  annotations:
-    description: CHES configuration settings
-    created-by: jeremy.foster
-  labels:
-    name: ches
-    part-of: tno
-    version: 1.0.0
-    component: ches
-    managed-by: kustomize
-type: Opaque
-data:
-  CHES_AUTH_URL: https://loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
-  CHES_HOST_URI: https://ches.api.gov.bc.ca/api/v1

@@ -11,13 +11,6 @@ generatorOptions:
 
 patches:
   - target:
-      kind: ConfigMap
-      name: folder-collection-service
-    patch: |-
-      - op: replace
-        path: /data/CHES_FROM
-        value: (DEV) Media Monitoring Insights <mmi@gov.bc.ca>
-  - target:
       kind: DeploymentConfig
       name: folder-collection-service
     patch: |-

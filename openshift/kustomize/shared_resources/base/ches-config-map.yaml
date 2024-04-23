@@ -1,25 +1,22 @@
----
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: notification-service
+  name: ches
   namespace: default
   annotations:
-    description: Notification service configuration settings
+    description: CHES configuration settings
     created-by: jeremy.foster
   labels:
-    name: notification-service
+    name: ches
     part-of: tno
     version: 1.0.0
-    component: notification-service
+    component: ches
     managed-by: kustomize
 type: Opaque
 data:
-  KAFKA_CLIENT_ID: Notification
-  MAX_FAIL_LIMIT: "5"
-  TOPICS: notify
-  CHES_EMAIL_ENABLED: "true"
-  CHES_EMAIL_AUTHORIZED: "false"
+  CHES_AUTH_URL: https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+  CHES_HOST_URI: https://ches-dev.api.gov.bc.ca/api/v1
+  CHES_FROM: Media Monitoring Insights <mmi@gov.bc.ca>
   REPORTING_BASE_URL: "https://dev.mmi.gov.bc.ca/"
   REPORTING_VIEW_CONTENT_URL: "https://dev.mmi.gov.bc.ca/view/"
   REPORTING_REQUEST_TRANSCRIPT_URL: "https://dev.mmi.gov.bc.ca/api/subscriber/work/orders/transcribe/"

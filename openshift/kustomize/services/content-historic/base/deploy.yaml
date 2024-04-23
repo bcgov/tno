@@ -73,7 +73,7 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: API_HOST_URL
-            - name: Service__EmailTo__0
+            - name: Service__EmailTo
               valueFrom:
                 configMapKeyRef:
                   name: services
@@ -134,17 +134,17 @@ spec:
             - name: CHES__From
               valueFrom:
                 configMapKeyRef:
-                  name: content-service
+                  name: ches
                   key: CHES_FROM
             - name: CHES__EmailEnabled
               valueFrom:
                 configMapKeyRef:
-                  name: content-service
+                  name: content-historic-service
                   key: CHES_EMAIL_ENABLED
             - name: CHES__EmailAuthorized
               valueFrom:
                 configMapKeyRef:
-                  name: content-service
+                  name: content-historic-service
                   key: CHES_EMAIL_AUTHORIZED
 
             - name: CHES__AuthUrl

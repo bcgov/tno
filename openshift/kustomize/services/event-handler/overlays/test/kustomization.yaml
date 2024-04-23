@@ -8,13 +8,6 @@ resources:
 
 patches:
   - target:
-      kind: ConfigMap
-      name: event-handler-service
-    patch: |-
-      - op: replace
-        path: /data/CHES_FROM
-        value: (TEST) Media Monitoring Insights <mmi@gov.bc.ca>
-  - target:
       kind: DeploymentConfig
       name: event-handler-service
     patch: |-

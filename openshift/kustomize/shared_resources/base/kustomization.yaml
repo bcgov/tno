@@ -4,13 +4,15 @@ kind: Kustomization
 
 resources:
   - services-config-map.yaml
+  - ches-config-map.yaml
   - pvc.yaml
 
 generatorOptions:
   disableNameSuffixHash: true
 
-secretGenerator:
-  - name: ssh-key
-    type: stringData
-    files:
-      - id_rsa=secret.env
+# KGM - removed as un-used
+# secretGenerator:
+#   - name: ssh-key
+#     type: stringData
+#     files:
+#       - id_rsa=secret.env

@@ -18,16 +18,37 @@ patches:
         path: /data/KEYCLOAK_AUTHORITY
         value: https://test.loginproxy.gov.bc.ca/auth
   - target:
+      kind: ConfigMap
+      name: ches
+    patch: |-
+      - op: replace
+        path: /data/CHES_FROM
+        value: (TEST) Media Monitoring Insights <mmi@gov.bc.ca>
+  - target:
+      kind: ConfigMap
+      name: ches
+    patch: |-
+      - op: replace
+        path: /data/CHES_AUTH_URL
+        value: https://test.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+  - target:
+      kind: ConfigMap
+      name: ches
+    patch: |-
+      - op: replace
+        path: /data/CHES_HOST_URI
+        value: https://ches-test.api.gov.bc.ca/api/v1
+  - target:
       kind: PersistentVolumeClaim
       name: api-storage
     patch: |-
       - op: replace
         path: /spec/resources/requests/storage
-        value: 10Gi
+        value: 37Gi
   - target:
       kind: PersistentVolumeClaim
       name: ingest-storage
     patch: |-
       - op: replace
         path: /spec/resources/requests/storage
-        value: 10Gi
+        value: 35Gi

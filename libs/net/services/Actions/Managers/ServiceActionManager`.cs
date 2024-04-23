@@ -187,7 +187,8 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
         {
             try
             {
-                var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, this.Options.EmailTo, subject, message);
+                var emailToList = this.Options.EmailTo?.Split(',').Where(v => !String.IsNullOrWhiteSpace(v)).Select(v => v.Trim()).ToArray() ?? Array.Empty<string>();
+                var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, emailToList, subject, message);
                 await _ches.SendEmailAsync(email);
             }
             catch (Exception ex)

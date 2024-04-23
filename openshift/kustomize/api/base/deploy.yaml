@@ -205,7 +205,7 @@ spec:
             - name: CHES__From
               valueFrom:
                 configMapKeyRef:
-                  name: api
+                  name: ches
                   key: CHES_FROM
             - name: CHES__EmailEnabled
               valueFrom:
