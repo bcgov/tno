@@ -430,6 +430,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     {
         var ingest = manager.Ingest;
         var fileList = GetFileList(dir);
+        var isBylineTitleCase = manager.Ingest.GetConfigurationValue<bool>("bylineTitleCase", false);
 
         foreach (var path in fileList)
         {
@@ -450,6 +451,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                         var headline = GetXmlData(story, Fields.Headline, ingest);
                         var publishedOn = GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest, this.Options);
                         var contentHash = GetContentHash(code, headline, publishedOn);
+                        var author = GetXmlData(story, Fields.Author, ingest);
 
                         var item = new SourceContent(
                             this.Options.DataLocation,
@@ -465,7 +467,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                             Page = GetXmlData(story, Fields.Page, ingest),
                             Section = GetXmlData(story, Fields.Section, ingest),
                             Language = ingest.GetConfigurationValue("language"),
-                            Authors = GetAuthorList(GetXmlData(story, Fields.Author, ingest)),
+                            Authors = GetAuthorList(isBylineTitleCase ? ToTitleCase(author) : author),
                             ExternalUid = GetXmlData(story, Fields.Id, ingest)
                         };
 
@@ -511,6 +513,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     {
         var ingest = manager.Ingest;
         var fileList = GetFileList(dir);
+        var isBylineTitleCase = manager.Ingest.GetConfigurationValue<bool>("bylineTitleCase", false);
 
         // Iterate over the files in the list and process the stories they contain.
         foreach (var path in fileList)
@@ -530,6 +533,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                         // Single line mode prevents matching on "\n\n", so replace this with a meaningful field delimiter.
                         var papername = GetFmsData(entry, Fields.PaperName, ingest);
                         var code = GetItemSourceCode(ingest, papername, sources);
+                        var author = GetFmsData(entry, Fields.Author, ingest);
 
                         if (!String.IsNullOrEmpty(code)) // This is a valid newspaper source
                         {
@@ -550,7 +554,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                                 Language = ingest.GetConfigurationValue("language"),
 
                                 Labels = GetLabelList(entry, ingest),
-                                Authors = GetAuthorList(GetFmsData(entry, Fields.Author, ingest))
+                                Authors = GetAuthorList(isBylineTitleCase ? ToTitleCase(author) : author),
                             };
 
                             await ImportArticleAsync(manager, item);
@@ -862,6 +866,28 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
         return date.AddHours(offset);
     }
+
+    /// <summary>
+    /// Check is a string is All Caps excluding the spaces.
+    /// </summary>
+    /// <param name="text"></param>
+    /// <returns>bool</returns>
+    private static bool IsAllCaps(string text)
+    {
+        return text.Where(c => !Char.IsWhiteSpace(c)).All(x => char.IsUpper(x));
+    }
+
+    /// <summary>
+    /// Convert to Title Case if the text is All Caps.
+    /// </summary>
+    /// <param name="author"></param>
+    /// <returns>bool</returns>
+    private static string ToTitleCase(string author)
+    {
+        TextInfo tInfo = new CultureInfo("en-US",false).TextInfo;
+        return IsAllCaps(author) ? tInfo.ToTitleCase(author.ToLower()) : author;
+    }
+    
 
     /// <summary>
     /// Get the list of labels for this story. Currently only supported for FMS files.

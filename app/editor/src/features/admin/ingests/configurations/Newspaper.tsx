@@ -247,7 +247,14 @@ export const Newspaper: React.FC = (props) => {
             tooltip="The path to the language"
           />
         </Col>
-        <Col flex="1 1 0"></Col>
+        <Col flex="1 1 0">
+          <span className="checkbox-label">Byline Title Case</span>
+          <FormikCheckbox
+            label="Enable"
+            tooltip="Applies title case when the text is ALL CAPS"
+            name="configuration.bylineTitleCase"
+          />
+        </Col>
       </Row>
       <b>Sources</b>
       <FlexboxTable
