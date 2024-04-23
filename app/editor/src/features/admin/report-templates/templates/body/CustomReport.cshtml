@@ -30,14 +30,37 @@
 {
   var contentCount = 0;
   var allContent = Content.ToArray();
-  foreach (var section in Sections)
+  var startChartGroup = -1;
+  var endChartGroup = false;
+  for (var index = 0; index < Sections.Count(); index++)
   {
+    var section = Sections.ElementAt(index);
+    KeyValuePair<string, TNO.TemplateEngine.Models.Reports.ReportSectionModel>? nextSection = index + 1 < Sections.Count() ? Sections.ElementAt(index+1) : null;
     var sectionContent = section.Value.Content.ToArray();
 
     if (!section.Value.IsEnabled) continue;
     if (sectionContent.Length == 0 && section.Value.Settings.HideEmpty) continue;
 
-    <div style="@pageBreak">
+    // Horizontal Chart is if this section and the next section is a Media Analytics chart.
+    var horizontalCharts = section.Value.SectionType == ReportSectionType.MediaAnalytics && section.Value.Settings.Direction == "row"
+      && nextSection != null && nextSection?.Value.SectionType == ReportSectionType.MediaAnalytics;
+    startChartGroup = (horizontalCharts && startChartGroup == -1) ? index : startChartGroup;
+    endChartGroup = section.Value.SectionType == ReportSectionType.MediaAnalytics &&
+      (nextSection == null || nextSection?.Value.SectionType != ReportSectionType.MediaAnalytics);
+
+    if (startChartGroup == index)
+    {
+      @:<div style="@pageBreak"><table><tr>
+    }
+
+    if (!horizontalCharts && !endChartGroup)
+    {
+      @:<div style="@pageBreak">
+    }
+    else
+    {
+      @:<td style="padding:1rem;">
+    }
       @if (!String.IsNullOrEmpty(section.Value.Settings.Label))
       {
         <div style="color:#41393B; width:100%; background-color:#F0EEEE; margin: 20px 0px 10px 0px; padding: 4px"> <h2 font-size="16px"><a id="section-@section.Value.Id" name="section-@section.Value.Id">@section.Value.Settings.Label</a></h2></div>
@@ -239,7 +262,7 @@
 
         if (section.Value.Settings.Direction == "row" && section.Value.Settings.ShowImage)
         {
-          <div style="display:flex">
+          <div style="display:flex;flex-wrap:wrap;">
             @foreach(KeyValuePair<string, string> entry in imageDictionary)
             {
               <img style="height:min-content" src="@entry.Value" alt="@entry.Key" />
@@ -256,7 +279,20 @@
           }
         }
       }
-    </div>
+
+
+    @if (!horizontalCharts && !endChartGroup)
+    {
+      @:</div>
+    }
+    else
+    {
+      @:</td>
+    }
+    @if (endChartGroup)
+    {
+      @:</tr></table></div>
+    }
   }
 }
 

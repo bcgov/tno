@@ -27,7 +27,7 @@ export const defaultReportSection = (
     showHeadlines: showHeadlines ?? type === ReportSectionTypeName.TableOfContents,
     showFullStory: showFullStory ?? type === ReportSectionTypeName.Content,
     showImage: false,
-    direction: 'row',
+    direction: type === ReportSectionTypeName.Gallery ? 'row' : 'column',
     removeDuplicates: false,
     hideEmpty:
       type === ReportSectionTypeName.TableOfContents ||

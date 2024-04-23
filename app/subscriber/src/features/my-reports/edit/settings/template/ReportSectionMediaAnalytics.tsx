@@ -192,6 +192,18 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
           name={`sections.${index}.settings.hideEmpty`}
           label="Hide this section in the report when empty"
         />
+        <FormikCheckbox
+          name={`sections.${index}.settings.direction`}
+          label="Horizontally align the next media analytic chart"
+          tooltip="This controls the placement of the next media analytics chart"
+          checked={section.settings.direction === 'row'}
+          onChange={(e) => {
+            setFieldValue(
+              `sections.${index}.settings.direction`,
+              e.target.checked ? 'row' : 'column',
+            );
+          }}
+        />
       </Col>
     </Col>
   );

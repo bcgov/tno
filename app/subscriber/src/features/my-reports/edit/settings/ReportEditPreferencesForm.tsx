@@ -3,7 +3,14 @@ import { hideEmptySections } from 'features/my-reports/utils';
 import React from 'react';
 import { FaInfoCircle, FaSyncAlt } from 'react-icons/fa';
 import { useReports } from 'store/hooks';
-import { Checkbox, FormikCheckbox, FormikSelect, getSortableOptions, IOptionItem } from 'tno-core';
+import {
+  Checkbox,
+  FormikCheckbox,
+  FormikSelect,
+  getSortableOptions,
+  IOptionItem,
+  Row,
+} from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';
@@ -72,10 +79,16 @@ export const ReportEditPreferencesForm = () => {
           label="Omit all BC Updates and BC Calendars from report"
           disabled
         />
-        <FormikCheckbox
-          name="settings.content.onlyNewContent"
-          label="Include only new content posted after previous report"
-        />
+        <Row>
+          <FormikCheckbox
+            name="settings.content.onlyNewContent"
+            label="Include only new content posted after previous report"
+          />
+          <span className="info">
+            Only include content that has been 'posted' after the report has been 'created'. Posted
+            content is any content that an MMI Editor publishes.
+          </span>
+        </Row>
         <FormikCheckbox
           name="settings.content.excludeHistorical"
           label="Exclude stories that have been sent out in previous report"
