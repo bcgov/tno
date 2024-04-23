@@ -269,6 +269,7 @@ public static class ReportExtensions
     /// <returns></returns>
     public static Dictionary<string, int> GetTotalScoresByTopicType(this IEnumerable<ContentModel> contentList) {
         return contentList
+            .Where(x => x.Topics.All(a => a.Name != "Not Applicable"))
             .GroupBy(g => g.GetContentGroupByPropertyValue("topicType"))
             .ToDictionary(
                 g => g.Key,
