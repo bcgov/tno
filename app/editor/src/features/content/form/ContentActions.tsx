@@ -73,7 +73,7 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
 
   React.useEffect(() => {
     // Make sure the available actions are all included in the content.
-    if (!!init && !!actions.length && values.actions.length !== actions.length) {
+    if (!!init && alertActionId && !!actions.length && values.actions.length !== actions.length) {
       const defaultActions = [...values.actions];
       actions.forEach((action) => {
         let found = values.actions.find((va) => va.id === action.id);
@@ -84,8 +84,10 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
         if (found.id === alertActionId && values.contentType === ContentTypeName.PrintContent) {
           // Default PrintContent to not alert.
           found.value = 'false';
-        }
-        if (found.id === featuredStoryActionId && values.contentType === ContentTypeName.Image) {
+        } else if (
+          found.id === featuredStoryActionId &&
+          values.contentType === ContentTypeName.Image
+        ) {
           found.value = 'true';
         }
       });
