@@ -85,6 +85,18 @@ export const ReportSectionMediaAnalytics = ({ index }: IReportSectionMediaAnalyt
               tooltip="Remove content from this section that is in above sections"
             />
           </Show>
+          <FormikCheckbox
+            name={`sections.${index}.settings.direction`}
+            label="Horizontally align the next media analytic chart"
+            tooltip="This controls the placement of the next media analytics chart"
+            checked={section.settings.direction === 'row'}
+            onChange={(e) => {
+              setFieldValue(
+                `sections.${index}.settings.direction`,
+                e.target.checked ? 'row' : 'column',
+              );
+            }}
+          />
         </Row>
       </Col>
       <Show visible={!section.settings.useAllContent}>

@@ -1,7 +1,9 @@
-export const defaultContentSubjectRazorTemplate = `@using TNO.TemplateEngine
-@Settings.Subject.Text @(Settings.Subject.ShowTodaysDate ? $" - {ReportExtensions.GetTodaysDate():dd-MMM-yyyy}" : "")`;
+DO $$
+BEGIN
 
-export const defaultContentBodyRazorTemplate = `@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
+-- Update custom report with latest template.
+UPDATE public."report_template" SET
+    "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
 @using System
 @using System.Linq
 @using TNO.Entities
@@ -317,4 +319,7 @@ export const defaultContentBodyRazorTemplate = `@inherits RazorEngineCore.RazorE
       <b>Copying, retransmitting, archiving, redistributing, selling, licensing, or emailing the material to any third party or any employee of the Province who is not authorized to access the material is prohibited.</b>
     </p>
   </div>
-</div>`;
+</div>'
+WHERE "name" = 'Custom Report';
+
+END $$;
