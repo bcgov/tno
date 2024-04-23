@@ -50,7 +50,7 @@ export const ContentReportPin = ({ contentId }: IContentReportPinProps) => {
           Appears in {reports.length} reports.
         </Row>
         {reports.map((report) => (
-          <div key={report.id}>
+          <div key={report.id} className="report-link">
             <Link to={`/reports/${report.id}/content`}>{report.name}</Link>
           </div>
         ))}

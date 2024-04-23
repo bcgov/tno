@@ -21,4 +21,9 @@ export const TopStories = styled.div`
       cursor: pointer;
     }
   }
+  .headline {
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 `;

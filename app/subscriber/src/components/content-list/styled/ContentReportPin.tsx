@@ -20,5 +20,14 @@ export const ContentReportPin = styled.div`
     > div svg {
       color: ${(props) => props.theme.css.btnRedColor};
     }
+    .report-link {
+      transition: background-color 0.3s ease, border-radius 0.3s ease;
+      padding: 0.2rem;
+    }
+
+    .report-link:hover {
+      background-color: ${(props) => props.theme.css.stickyNoteColor};
+      border-radius: 0.5rem;
+    }
   }
 `;
