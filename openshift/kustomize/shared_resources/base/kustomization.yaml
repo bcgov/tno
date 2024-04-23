@@ -5,8 +5,7 @@ kind: Kustomization
 resources:
   - services-config-map.yaml
   - ches-config-map.yaml
-  # KGM - removed as un-used
-  # - pvc.yaml
+  - pvc.yaml
 
 generatorOptions:
   disableNameSuffixHash: true

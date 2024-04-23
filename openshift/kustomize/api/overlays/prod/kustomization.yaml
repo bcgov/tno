@@ -30,20 +30,6 @@ patches:
         path: /data/REPORTING_REQUEST_TRANSCRIPT_URL
         value: https://mmi.gov.bc.ca/api/subscriber/work/orders/transcribe/
   - target:
-      kind: PersistentVolumeClaim
-      name: api-storage
-    patch: |-
-      - op: replace
-        path: /spec/resources/requests/storage
-        value: 10Gi
-  - target:
-      kind: PersistentVolumeClaim
-      name: ingest-storage
-    patch: |-
-      - op: replace
-        path: /spec/resources/requests/storage
-        value: 5Gi
-  - target:
       kind: Route
       name: api-editor
     patch: |-

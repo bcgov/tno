@@ -38,18 +38,17 @@ patches:
       - op: replace
         path: /data/CHES_HOST_URI
         value: https://ches-test.api.gov.bc.ca/api/v1
-
-  # - target:
-  #     kind: PersistentVolumeClaim
-  #     name: api-storage
-  #   patch: |-
-  #     - op: replace
-  #       path: /spec/resources/requests/storage
-  #       value: 10Gi
-  # - target:
-  #     kind: PersistentVolumeClaim
-  #     name: ingest-storage
-  #   patch: |-
-  #     - op: replace
-  #       path: /spec/resources/requests/storage
-  #       value: 10Gi
+  - target:
+      kind: PersistentVolumeClaim
+      name: api-storage
+    patch: |-
+      - op: replace
+        path: /spec/resources/requests/storage
+        value: 37Gi
+  - target:
+      kind: PersistentVolumeClaim
+      name: ingest-storage
+    patch: |-
+      - op: replace
+        path: /spec/resources/requests/storage
+        value: 35Gi
