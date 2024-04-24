@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 export const MyReports = styled.div`
   display: flex;
-  flex-direction: row;
 
   > div {
     flex: 1;
@@ -190,7 +189,19 @@ export const MyReports = styled.div`
   }
 
   .report-preview {
-    min-width: min-content;
+    position: relative;
+    max-width: 50%;
+    width: 50%;
+    min-width: 50%;
+    overflow: hidden;
+
+    div.preview-body {
+      overflow-x: auto;
+      max-width: 100%;
+      width: 100%;
+      min-width: 100%;
+    }
+
     .report-title {
       display: flex;
       flex-direction: row;
