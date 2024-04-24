@@ -5,6 +5,7 @@ import { Column } from 'react-table';
 import { ITimeTrackingForm } from '../components/time-log/interfaces';
 import { IContentForm } from '../interfaces';
 
+const colWidth = window.innerWidth > 1500 ? 140 : 100;
 /** columns located within file for state manipulation */
 export const timeLogColumns = (
   setFieldValue: Function,
@@ -12,24 +13,28 @@ export const timeLogColumns = (
 ): Column<ITimeTrackingForm>[] => [
   {
     id: 'effort',
+    maxWidth: colWidth,
     Header: () => <div className="center">TIME</div>,
     accessor: 'effort',
     Cell: ({ value }) => <div className="center">{value} Min</div>,
   },
   {
     id: 'user',
+    maxWidth: colWidth,
     Header: () => <div className="center">USER</div>,
     accessor: 'userName',
     Cell: ({ value }) => <div className="center">{value}</div>,
   },
   {
     id: 'activity',
+    maxWidth: colWidth,
     Header: () => <div className="center">TASK</div>,
     accessor: 'activity',
     Cell: ({ value }) => <div className="center">{value}</div>,
   },
   {
     id: 'content',
+    maxWidth: colWidth,
     Header: () => <div className="center">DATE</div>,
     accessor: 'createdOn',
     Cell: ({ value }: any) => {
@@ -43,6 +48,7 @@ export const timeLogColumns = (
   },
   {
     id: 'actions',
+    maxWidth: colWidth,
     Header: () => <div className="center">ACTION</div>,
     Cell: ({ row, data }: any) => (
       <div className="center">
