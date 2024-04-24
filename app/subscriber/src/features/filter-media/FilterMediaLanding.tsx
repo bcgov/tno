@@ -106,6 +106,16 @@ export const FilterMediaLanding: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLetter, activeFilter]);
 
+  // a little bit funky, but needed to keep track if the select all option is checked to maintain checked state
+  const allSelected = {
+    sourceIds: narrowedOptions
+      .filter((opt) => opt.listOption === ListOptionName.Source)
+      .map((opt) => opt.id),
+    seriesIds: narrowedOptions
+      .filter((opt) => opt.listOption === ListOptionName.Series)
+      .map((opt) => opt.id),
+  };
+
   return (
     <styled.FilterMediaLanding>
       <Col className="filters">
@@ -165,13 +175,27 @@ export const FilterMediaLanding: React.FC = () => {
                   Show all
                   <Checkbox
                     className="opt-chk"
-                    checked={filter.seriesIds?.length === activeFilter?.options.length}
+                    checked={
+                      allSelected.seriesIds.length === filter.seriesIds?.length &&
+                      allSelected.sourceIds.length === filter.sourceIds?.length
+                    }
                     onChange={(e) => {
                       setActiveSource(null);
-                      storeFilter({
-                        ...filter,
-                        seriesIds: e.target.checked ? activeFilter?.options.map((o) => o.id) : [],
-                      });
+                      // if changing to unchecked, remove all sourceIds and seriesIds (toggle)
+                      if (!e.target.checked) {
+                        storeFilter({
+                          ...filter,
+                          sourceIds: undefined,
+                          seriesIds: undefined,
+                        });
+                      } else {
+                        // need to iterate through and check the options to their corresponding source or series id
+                        storeFilter({
+                          ...filter,
+                          sourceIds: allSelected.sourceIds,
+                          seriesIds: allSelected.seriesIds,
+                        });
+                      }
                     }}
                   />
                 </Row>
