@@ -192,12 +192,8 @@ export const FilterMediaLanding: React.FC = () => {
                         // need to iterate through and check the options to their corresponding source or series id
                         storeFilter({
                           ...filter,
-                          sourceIds: narrowedOptions
-                            .filter((opt) => opt.listOption === ListOptionName.Source)
-                            .map((opt) => opt.id),
-                          seriesIds: narrowedOptions
-                            .filter((opt) => opt.listOption === ListOptionName.Series)
-                            .map((opt) => opt.id),
+                          sourceIds: allSelected.sourceIds,
+                          seriesIds: allSelected.seriesIds,
                         });
                       }
                     }}
