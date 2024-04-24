@@ -119,22 +119,50 @@ public class ReportEngine : IReportEngine
     /// </summary>
     /// <param name="content"></param>
     /// <param name="sortBy"></param>
+    /// <param name="direction"></param>
     /// <returns>Ordered Content</returns>
-    public IEnumerable<ContentModel> OrderBySectionField(IEnumerable<ContentModel> content, string sortBy)
+    public IEnumerable<ContentModel> OrderBySectionField(IEnumerable<ContentModel> content, string sortBy, string? direction)
     {
         // If you edit this function, also edit the related function in ReportService.OrderBySectionField
-        return sortBy switch
+        IEnumerable<ContentModel> results;
+
+        if (direction == "desc")
         {
-            "PublishedOn" => content.OrderBy(c => c.PublishedOn).ToArray(),
-            "MediaType" => content.OrderBy(c => c.MediaType?.Name).ToArray(),
-            "Series" => content.OrderBy(c => c.Series?.Name).ToArray(),
-            "Source" => content.OrderBy(c => c.Source?.Name).ToArray(),
-            "Sentiment" => content.OrderBy(c => c.TonePools.Select(s => s.Value).Sum(v => v)).ToArray(),
-            "Byline" => content.OrderBy(c => c.Byline).ToArray(),
-            "Contributor" => content.OrderBy(c => c.Contributor?.Name).ToArray(),
-            "Topic" => content.OrderBy(c => string.Join(",", c.Topics.Select(x => x.Name).ToList())).ToArray(),
-            _ => content.OrderBy(c => c.SortOrder).ToArray(),
-        };
+            results = sortBy switch
+            {
+                "PublishedOn" => content.OrderByDescending(c => c.PublishedOn),
+                "MediaType" => content.OrderByDescending(c => c.MediaType?.Name),
+                "Series" => content.OrderByDescending(c => c.Series?.Name),
+                "Source" => content.OrderByDescending(c => c.Source?.SortOrder).ThenByDescending(c => c.OtherSource),
+                "Sentiment" => content.OrderByDescending(c => c.TonePools.Select(s => s.Value).Sum(v => v)), // TODO: Support custom sentiment.
+                "Byline" => content.OrderByDescending(c => c.Byline),
+                "Contributor" => content.OrderByDescending(c => c.Contributor?.Name),
+                "Topic" => content.OrderByDescending(c => string.Join(",", c.Topics.Select(x => x.Name) ?? Array.Empty<string>())),
+                _ => content.OrderByDescending(c => c.SortOrder),
+            };
+        }
+        else
+        {
+            results = sortBy switch
+            {
+                "PublishedOn" => content.OrderBy(c => c.PublishedOn),
+                "MediaType" => content.OrderBy(c => c.MediaType?.Name),
+                "Series" => content.OrderBy(c => c.Series?.Name),
+                "Source" => content.OrderBy(c => c.Source?.SortOrder).ThenBy(c => c.OtherSource),
+                "Sentiment" => content.OrderBy(c => c.TonePools.Select(s => s.Value).Sum(v => v)), // TODO: Support custom sentiment.
+                "Byline" => content.OrderBy(c => c.Byline),
+                "Contributor" => content.OrderBy(c => c.Contributor?.Name),
+                "Topic" => content.OrderBy(c => string.Join(",", c.Topics.Select(x => x.Name) ?? Array.Empty<string>())),
+                _ => content.OrderBy(c => c.SortOrder),
+            };
+        }
+
+        var sortOrder = 0;
+        return results.Select(c =>
+        {
+            c.SortOrder = sortOrder++;
+            return c;
+        }).ToArray();
     }
 
     /// <summary>

@@ -29,4 +29,21 @@ public class ContributorModel : BaseTypeModel<int>
         this.SourceId = entity.SourceId;
     }
     #endregion
+
+    #region Methods
+    /// <summary>
+    /// Explicit cast to entity.
+    /// </summary>
+    /// <param name="model"></param>
+    public static explicit operator Entities.Contributor(ContributorModel model)
+    {
+        return new Entities.Contributor(model.Name, model.SourceId)
+        {
+            Id = model.Id,
+            Description = model.Description,
+            IsEnabled = model.IsEnabled,
+            SortOrder = model.SortOrder,
+        };
+    }
+    #endregion
 }
