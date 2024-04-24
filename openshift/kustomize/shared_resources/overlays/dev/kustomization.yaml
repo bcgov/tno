@@ -25,6 +25,34 @@ patches:
         path: /data/CHES_FROM
         value: (DEV) Media Monitoring Insights <mmi@gov.bc.ca>
   - target:
+      kind: ConfigMap
+      name: reporting-shared
+    patch: |-
+      - op: replace
+        path: /data/REPORTING_BASE_URL
+        value: https://dev.mmi.gov.bc.ca/
+  - target:
+      kind: ConfigMap
+      name: reporting-shared
+    patch: |-
+      - op: replace
+        path: /data/REPORTING_VIEW_CONTENT_URL
+        value: https://dev.mmi.gov.bc.ca/view/
+  - target:
+      kind: ConfigMap
+      name: reporting-shared
+    patch: |-
+      - op: replace
+        path: /data/REPORTING_REQUEST_TRANSCRIPT_URL
+        value: https://dev.mmi.gov.bc.ca/api/subscriber/work/orders/transcribe/
+  - target:
+      kind: ConfigMap
+      name: reporting-shared
+    patch: |-
+      - op: replace
+        path: /data/REPORTING_ADD_TO_REPORT_URL
+        value: https://dev.mmi.gov.bc.ca
+  - target:
       kind: PersistentVolumeClaim
       name: api-storage
     patch: |-

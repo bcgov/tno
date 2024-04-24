@@ -20,7 +20,3 @@ data:
   TOPICS: reporting
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"
-  REPORTING_BASE_URL: "https://mmi.gov.bc.ca/"
-  REPORTING_VIEW_CONTENT_URL: "https://mmi.gov.bc.ca/view/"
-  REPORTING_REQUEST_TRANSCRIPT_URL: "https://mmi.gov.bc.ca/api/subscriber/work/orders/transcribe/"
-  REPORTING_ADD_TO_REPORT_URL: "https://mmi.gov.bc.ca"
