@@ -18,6 +18,11 @@ export const MyMinisterSettings: React.FC = () => {
     .sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name));
 
   const handleSubmit = async (values: number[], userInfo: IUserInfoModel) => {
+    if (!userInfo) {
+      toast.error('User information is missing. Please try again later');
+      return;
+    }
+
     try {
       var user = {
         ...userInfo,
@@ -76,11 +81,7 @@ export const MyMinisterSettings: React.FC = () => {
       </p>
       <div className="option-container">
         <Row justifyContent="flex-end">
-          <Button
-            type="submit"
-            onClick={() => handleSubmit(myMinisters, userInfo!)}
-            disabled={!userInfo}
-          >
+          <Button type="submit" onClick={() => handleSubmit(myMinisters, userInfo!)}>
             Save
           </Button>
         </Row>
@@ -106,11 +107,7 @@ export const MyMinisterSettings: React.FC = () => {
         })}
 
         <Row justifyContent="flex-end">
-          <Button
-            type="submit"
-            onClick={() => handleSubmit(myMinisters, userInfo!)}
-            disabled={!userInfo}
-          >
+          <Button type="submit" onClick={() => handleSubmit(myMinisters, userInfo!)}>
             Save
           </Button>
         </Row>
