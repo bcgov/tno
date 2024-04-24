@@ -6,6 +6,7 @@ import { useFilters, useFolders } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
+  Checkbox,
   Col,
   FormikCheckbox,
   FormikSelect,
@@ -142,7 +143,7 @@ export const ReportSectionContent = ({ index }: IReportSectionContentProps) => {
             {folder?.description && <p>{folder?.description}</p>}
           </Col>
         </Row>
-        <Row>
+        <Row alignItems="center">
           <Col flex="1">
             <FormikSelect
               name={`sections.${index}.settings.sortBy`}
@@ -156,6 +157,17 @@ export const ReportSectionContent = ({ index }: IReportSectionContentProps) => {
               }}
             />
           </Col>
+          <Checkbox
+            name={`sections.${index}.settings.sortDirection`}
+            label="Ascending"
+            checked={section.settings.sortDirection !== 'desc'}
+            onChange={(e) => {
+              setFieldValue(
+                `sections.${index}.settings.sortDirection`,
+                e.target.checked ? 'asc' : 'desc',
+              );
+            }}
+          />
           <Col flex="1" className="description">
             <FormikSelect
               label="Group By"

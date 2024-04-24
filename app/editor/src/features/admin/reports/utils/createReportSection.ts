@@ -27,6 +27,7 @@ export const createReportSection = (
           : 'column',
       groupBy: '',
       sortBy: '',
+      sortDirection: '',
     },
   };
 };
