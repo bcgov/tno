@@ -17,7 +17,3 @@ data:
   CHES_AUTH_URL: https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
   CHES_HOST_URI: https://ches-dev.api.gov.bc.ca/api/v1
   CHES_FROM: Media Monitoring Insights <mmi@gov.bc.ca>
-  REPORTING_BASE_URL: "https://dev.mmi.gov.bc.ca/"
-  REPORTING_VIEW_CONTENT_URL: "https://dev.mmi.gov.bc.ca/view/"
-  REPORTING_REQUEST_TRANSCRIPT_URL: "https://dev.mmi.gov.bc.ca/api/subscriber/work/orders/transcribe/"
-  REPORTING_ADD_TO_REPORT_URL: "https://dev.mmi.gov.bc.ca"

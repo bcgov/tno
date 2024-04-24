@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - services-config-map.yaml
   - ches-config-map.yaml
+  - reporting-shared-config-map.yaml
   - pvc.yaml
 
 generatorOptions:

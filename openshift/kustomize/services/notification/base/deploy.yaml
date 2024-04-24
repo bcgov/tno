@@ -134,25 +134,26 @@ spec:
                   name: notification-service
                   key: TOPICS
 
+            # Shared Reporting Configuration
             - name: Reporting__SubscriberAppUrl
               valueFrom:
                 configMapKeyRef:
-                  name: notification-service
+                  name: reporting-shared
                   key: REPORTING_BASE_URL
             - name: Reporting__ViewContentUrl
               valueFrom:
                 configMapKeyRef:
-                  name: notification-service
+                  name: reporting-shared
                   key: REPORTING_VIEW_CONTENT_URL
             - name: Reporting__RequestTranscriptUrl
               valueFrom:
                 configMapKeyRef:
-                  name: notification-service
+                  name: reporting-shared
                   key: REPORTING_REQUEST_TRANSCRIPT_URL
             - name: Reporting__AddToReportUrl
               valueFrom:
                 configMapKeyRef:
-                  name: notification-service
+                  name: reporting-shared
                   key: REPORTING_ADD_TO_REPORT_URL
 
             # CHES Configuration
