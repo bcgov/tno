@@ -181,7 +181,7 @@ export const FilterMediaLanding: React.FC = () => {
                     }
                     onChange={(e) => {
                       setActiveSource(null);
-                      console.log(e.target);
+                      // if changing to unchecked, remove all sourceIds and seriesIds (toggle)
                       if (!e.target.checked) {
                         storeFilter({
                           ...filter,
