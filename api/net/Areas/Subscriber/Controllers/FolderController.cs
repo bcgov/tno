@@ -123,20 +123,21 @@ public class FolderController : ControllerBase
     /// Update folder for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="updateContent"></param>
     /// <returns></returns>
     [HttpPut("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Folder" })]
-    public IActionResult Update(FolderModel model)
+    public IActionResult Update(FolderModel model, bool updateContent = false)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var folder = _folderService.FindById(model.Id) ?? throw new NoContentException("Folder does not exist");
         if (folder.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to update folder");
         _folderService.ClearChangeTracker();
-        var result = _folderService.UpdateAndSave(model.ToEntity(_serializerOptions));
+        var result = _folderService.UpdateAndSave(model.ToEntity(_serializerOptions), updateContent);
         folder = _folderService.FindById(result.Id) ?? throw new NoContentException("Folder does not exist");
         return new JsonResult(new FolderModel(folder, _serializerOptions));
     }

@@ -28,10 +28,10 @@ import * as styled from './styled';
 import { createSchedule } from './utils';
 
 export interface IConfigureFolderProps {
-  active?: IFolderModel;
+  folder?: IFolderModel;
 }
 
-export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => {
+export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ folder: initFolder }) => {
   const [{ myFilters }, { findMyFilters }] = useFilters();
   const [, { findContentWithElasticsearch }] = useContent();
   const [{ myFolders }, { findMyFolders, getFolder, updateFolder, deleteFolder }] = useFolders();
@@ -39,9 +39,9 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
   const { toggle, isShowing } = useModal();
   const navigate = useNavigate();
 
+  const [currentFolder, setCurrentFolder] = React.useState(initFolder);
   const [activeFilter, setActiveFilter] = React.useState<IFilterModel>();
   const [actionName, setActionName] = React.useState<'delete' | 'empty'>();
-  const [currentFolder, setCurrentFolder] = React.useState<IFolderModel>();
   const [filterOptions, setFilterOptions] = React.useState<IOptionItem[]>(
     getFilterOptions(myFilters, activeFilter?.id ?? 0),
   );
@@ -50,6 +50,10 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
   React.useEffect(() => {
     if (myFolders.length) setInit(true);
   }, [myFolders.length]);
+
+  React.useEffect(() => {
+    setCurrentFolder(initFolder);
+  }, [initFolder]);
 
   React.useEffect(() => {
     if (!myFilters.length) {
@@ -108,7 +112,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
             ],
             (item) => item.content.id,
           ).map((item, index) => ({ ...item, sortOrder: index }));
-          await updateFolder({ ...currentFolder, content });
+          await updateFolder({ ...currentFolder, content }, true);
           await findMyFolders();
           toast.success(`Filter found and added ${results.hits.hits.length} content items.`);
         } else {
@@ -122,7 +126,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
   const handleSaveFolder = React.useCallback(
     async (values: IFolderModel) => {
       try {
-        const result = await updateFolder(values);
+        const result = await updateFolder(values, false);
         setCurrentFolder(result);
         toast.success('Folder schedule saved.');
       } catch {
@@ -253,16 +257,20 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
         confirmText="Yes, Remove It"
         onConfirm={() => {
           try {
-            if (actionName === 'empty' && !!active) {
-              updateFolder({ ...active, content: [] }).then((data) => {
-                // need to clear state managed content as well
-                currentFolder && setCurrentFolder(data);
-                toast.success(`${active.name} updated successfully`);
-              });
-            } else if (actionName === 'delete' && !!active) {
-              deleteFolder(active).then(() => {
-                toast.success(`${active.name} deleted successfully`);
-              });
+            if (actionName === 'empty' && currentFolder) {
+              updateFolder({ ...currentFolder, content: [] }, true)
+                .then((data) => {
+                  // need to clear state managed content as well
+                  currentFolder && setCurrentFolder(data);
+                  toast.success(`${currentFolder.name} updated successfully`);
+                })
+                .catch(() => {});
+            } else if (actionName === 'delete' && !!currentFolder) {
+              deleteFolder(currentFolder)
+                .then(() => {
+                  toast.success(`${currentFolder.name} deleted successfully`);
+                })
+                .catch(() => {});
             }
           } finally {
             toggle();
