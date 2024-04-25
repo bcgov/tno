@@ -878,7 +878,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     }
 
     /// <summary>
-    /// Remove Special chars from a string.
+    /// Remove Special chars from a string replacing with a ' '.
     /// </summary>
     /// <param name="text"></param>
     /// <returns></returns>
