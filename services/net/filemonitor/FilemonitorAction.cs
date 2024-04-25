@@ -878,16 +878,31 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     }
 
     /// <summary>
+    /// Remove Special chars from a string.
+    /// </summary>
+    /// <param name="text"></param>
+    /// <returns></returns>
+    private static string RemoveSpecial(string text)
+    {
+        var arr = text.Select(ch => 
+                                ((ch >= 'a' && ch <= 'z') 
+                                    || (ch >= 'A' && ch <= 'Z') 
+                                    || (ch >= '0' && ch <= '9') 
+                                    ) ? ch : ' ').ToArray();
+        return new string(arr);
+    }
+
+    /// <summary>
     /// Convert to Title Case if the text is All Caps.
     /// </summary>
     /// <param name="author"></param>
     /// <returns>bool</returns>
     private static string ToTitleCase(string author)
     {
+        var stringCheck = RemoveSpecial(author.Replace("By", "BY"));
         TextInfo tInfo = new CultureInfo("en-US",false).TextInfo;
-        return IsAllCaps(author) ? tInfo.ToTitleCase(author.ToLower()) : author;
+        return IsAllCaps(stringCheck) ? tInfo.ToTitleCase(author.ToLower()) : author;
     }
-    
 
     /// <summary>
     /// Get the list of labels for this story. Currently only supported for FMS files.
