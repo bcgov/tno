@@ -29,7 +29,7 @@ public class FolderService : BaseService<Folder, int>, IFolderService
     {
         return FindById(id, false);
     }
-    
+
     public Folder? FindById(int id, bool includeContent = false)
     {
         var query = this.Context.Folders
@@ -89,7 +89,14 @@ public class FolderService : BaseService<Folder, int>, IFolderService
         return base.Add(entity);
     }
 
-    public override Folder Update(Folder entity)
+    public Folder UpdateAndSave(Folder entity, bool updateContent)
+    {
+        var folder = Update(entity, updateContent);
+        this.CommitTransaction();
+        return folder;
+    }
+
+    public Folder Update(Folder entity, bool updateContent)
     {
         var original = this.Context.Folders.FirstOrDefault(f => f.Id == entity.Id) ?? throw new NoContentException();
 
@@ -104,84 +111,92 @@ public class FolderService : BaseService<Folder, int>, IFolderService
         original.UpdatedOn = entity.UpdatedOn;
         original.Version = entity.Version;
 
-        var originalContents = this.Context.FolderContents.Where(fc => fc.FolderId == entity.Id).ToArray();
-        var removeContent = originalContents.Except(entity.ContentManyToMany).ToArray();
-        var removeContentIds = removeContent.Select(c => c.ContentId).ToArray();
-        removeContent.ForEach(s =>
+        if (updateContent)
         {
-            this.Context.Entry(s).State = EntityState.Deleted;
-        });
-        entity.ContentManyToMany.ForEach(folderContent =>
-        {
-            var originalContent = originalContents.FirstOrDefault(rs => rs.ContentId == folderContent.ContentId);
-            if (originalContent == null)
+            var originalContents = this.Context.FolderContents.Where(fc => fc.FolderId == entity.Id).ToArray();
+            var removeContent = originalContents.Except(entity.ContentManyToMany).ToArray();
+            var removeContentIds = removeContent.Select(c => c.ContentId).ToArray();
+            removeContent.ForEach(s =>
             {
-                this.Context.Add(folderContent);
-            }
-            else
+                this.Context.Entry(s).State = EntityState.Deleted;
+            });
+            entity.ContentManyToMany.ForEach(folderContent =>
             {
-                originalContent.SortOrder = folderContent.SortOrder;
-                this.Context.Update(originalContent);
-            }
-        });
-
-        if (entity.Events.Any())
-        {
-            foreach (var folderEvent in entity.Events)
-            {
-                folderEvent.FolderId = entity.Id;
-                if (folderEvent.Id == 0)
+                var originalContent = originalContents.FirstOrDefault(rs => rs.ContentId == folderContent.ContentId);
+                if (originalContent == null)
                 {
-                    if (folderEvent.ScheduleId == 0 && folderEvent.Schedule != null)
-                    {
-                        this.Context.Add(folderEvent.Schedule);
-                    }
-                    this.Context.Add(folderEvent);
+                    this.Context.Add(folderContent);
                 }
                 else
                 {
-                    if (folderEvent.Schedule != null)
+                    originalContent.SortOrder = folderContent.SortOrder;
+                    this.Context.Update(originalContent);
+                }
+            });
+
+            if (entity.Events.Any())
+            {
+                foreach (var folderEvent in entity.Events)
+                {
+                    folderEvent.FolderId = entity.Id;
+                    if (folderEvent.Id == 0)
                     {
-                        this.Context.Update(folderEvent.Schedule);
+                        if (folderEvent.ScheduleId == 0 && folderEvent.Schedule != null)
+                        {
+                            this.Context.Add(folderEvent.Schedule);
+                        }
+                        this.Context.Add(folderEvent);
                     }
-                    this.Context.Update(folderEvent);
+                    else
+                    {
+                        if (folderEvent.Schedule != null)
+                        {
+                            this.Context.Update(folderEvent.Schedule);
+                        }
+                        this.Context.Update(folderEvent);
+                    }
                 }
             }
-        }
 
-        // Update all report instances that have not been sent, and that reference this folder.
-        var sections = this.Context.ReportSections
-            .Include(rs => rs.Report)
-            .Where(rs => rs.FolderId == entity.Id &&
-                rs.Report!.Instances.Any(i => i.SentOn == null))
-            .ToArray();
-        foreach (var section in sections)
-        {
-            // Find all report instances that have not been sent.
-            var instances = this.Context.ReportInstances
-                .Include(i => i.ContentManyToMany)
-                .Where(i => i.ReportId == section.ReportId &&
-                    i.SentOn == null)
+            // Update all report instances that have not been sent, and that reference this folder.
+            var sections = this.Context.ReportSections
+                .Include(rs => rs.Report)
+                .Where(rs => rs.FolderId == entity.Id &&
+                    rs.Report!.Instances.Any(i => i.SentOn == null))
                 .ToArray();
-
-            foreach (var instance in instances)
+            foreach (var section in sections)
             {
-                instance.ContentManyToMany.ForEach(ic =>
+                // Find all report instances that have not been sent.
+                var instances = this.Context.ReportInstances
+                    .Include(i => i.ContentManyToMany)
+                    .Where(i => i.ReportId == section.ReportId &&
+                        i.SentOn == null)
+                    .ToArray();
+
+                foreach (var instance in instances)
                 {
-                    // If content was removed from the folder, remove it from the instance section.
-                    if (ic.SectionName == section.Name && removeContentIds.Contains(ic.ContentId))
-                        this.Context.Remove(ic);
-                });
-                entity.ContentManyToMany.ForEach(fc =>
-                {
-                    // If new content has been added to the folder and it doesn't exist in the instance, then add it.
-                    var add = !instance.ContentManyToMany.Any(ic => ic.ContentId == fc.ContentId && ic.SectionName == section.Name);
-                    if (add) this.Context.Add(new ReportInstanceContent(instance.Id, fc.ContentId, section.Name, fc.SortOrder));
-                });
+                    instance.ContentManyToMany.ForEach(ic =>
+                    {
+                        // If content was removed from the folder, remove it from the instance section.
+                        if (ic.SectionName == section.Name && removeContentIds.Contains(ic.ContentId))
+                            this.Context.Remove(ic);
+                    });
+                    entity.ContentManyToMany.ForEach(fc =>
+                    {
+                        // If new content has been added to the folder and it doesn't exist in the instance, then add it.
+                        var add = !instance.ContentManyToMany.Any(ic => ic.ContentId == fc.ContentId && ic.SectionName == section.Name);
+                        if (add) this.Context.Add(new ReportInstanceContent(instance.Id, fc.ContentId, section.Name, fc.SortOrder));
+                    });
+                }
             }
         }
 
         return base.Update(original);
+    }
+
+    public override Folder Update(Folder entity)
+    {
+        return Update(entity, true);
     }
 
     /// <summary>

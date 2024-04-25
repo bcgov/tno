@@ -73,14 +73,17 @@ export const ManageFolder: React.FC = () => {
       let res: IFolderModel | undefined;
       if (!!folder) {
         try {
-          res = await updateFolder({
-            ...folder,
-            content: reorderedItems.map((item, index) => ({
-              ...item,
-              contentId: item.id,
-              sortOrder: index,
-            })),
-          });
+          res = await updateFolder(
+            {
+              ...folder,
+              content: reorderedItems.map((item, index) => ({
+                ...item,
+                contentId: item.id,
+                sortOrder: index,
+              })),
+            },
+            true,
+          );
         } catch (error) {}
       }
       setFolder(res);
@@ -95,14 +98,17 @@ export const ManageFolder: React.FC = () => {
     let res: IFolderModel | undefined;
     if (!!folder) {
       try {
-        res = await updateFolder({
-          ...folder,
-          content: updatedList.map((item: any, index: any) => ({
-            ...item,
-            contentId: item.id,
-            sortOrder: index,
-          })),
-        });
+        res = await updateFolder(
+          {
+            ...folder,
+            content: updatedList.map((item: any, index: any) => ({
+              ...item,
+              contentId: item.id,
+              sortOrder: index,
+            })),
+          },
+          true,
+        );
       } catch (error) {}
     }
     setFolder(res);

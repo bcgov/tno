@@ -9,7 +9,7 @@ interface IFolderController {
   findMyFolders: () => Promise<IFolderModel[]>;
   getFolder: (id: number, includeContent: boolean) => Promise<IFolderModel>;
   addFolder: (model: IFolderModel) => Promise<IFolderModel>;
-  updateFolder: (model: IFolderModel) => Promise<IFolderModel>;
+  updateFolder: (model: IFolderModel, updateContent: boolean) => Promise<IFolderModel>;
   deleteFolder: (model: IFolderModel) => Promise<IFolderModel>;
 }
 
@@ -54,9 +54,9 @@ export const useFolders = (): [IProfileState, IFolderController] => {
         storeMyFolders((folders) => sortFolders([...folders, response.data]));
         return response.data;
       },
-      updateFolder: async (model: IFolderModel) => {
+      updateFolder: async (model: IFolderModel, updateContent: boolean) => {
         const response = await dispatch<IFolderModel>('update-folder', () =>
-          api.updateFolder(model),
+          api.updateFolder(model, updateContent),
         );
         storeMyFolders((folders) =>
           sortFolders(folders.map((ds) => (ds.id === response.data.id ? response.data : ds))),
