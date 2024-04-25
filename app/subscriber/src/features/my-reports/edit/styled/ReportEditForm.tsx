@@ -3,6 +3,7 @@ import styled from 'styled-components';
 export const ReportEditForm = styled.div`
   display: flex;
   flex-direction: column;
+  overflow-x: auto;
 
   .preview-report {
     border: solid 2px ${(props) => props.theme.css.linePrimaryColor};
@@ -21,6 +22,9 @@ export const ReportEditForm = styled.div`
 
     .preview-body {
       padding: 1rem;
+      img {
+        max-width: 100%;
+      }
     }
   }
 
