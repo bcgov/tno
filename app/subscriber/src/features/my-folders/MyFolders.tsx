@@ -5,21 +5,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
 import { useProfileStore } from 'store/slices';
-import { FlexboxTable, IFolderModel, Row, Text } from 'tno-core';
+import { FlexboxTable, Row, Text } from 'tno-core';
 
 import { columns } from './constants/columns';
+import { useMyFolderContext } from './MyFolderContext';
 import * as styled from './styled';
 
-export interface IMyFoldersProps {
-  /** function to set the active folder */
-  setActive: React.Dispatch<React.SetStateAction<IFolderModel | undefined>>;
-  /** the active folder */
-  active?: IFolderModel;
-}
+export interface IMyFoldersProps {}
 
 /** contains a list of the user's folders, allows for edit and viewing */
-export const MyFolders: React.FC<IMyFoldersProps> = ({ setActive }) => {
+export const MyFolders: React.FC<IMyFoldersProps> = () => {
   const [{ myFolders }, { findMyFolders, addFolder }] = useFolders();
+  const { setActiveFolder } = useMyFolderContext();
   const navigate = useNavigate();
   const { id } = useParams();
   const [newFolderName, setNewFolderName] = React.useState<string>('');
@@ -78,11 +75,11 @@ export const MyFolders: React.FC<IMyFoldersProps> = ({ setActive }) => {
         <SubscriberTableContainer>
           <FlexboxTable
             pagingEnabled={false}
-            columns={columns(setActive, Number(id), navigate)}
+            columns={columns(setActiveFolder, Number(id), navigate)}
             rowId={'id'}
             disableZebraStriping
             onRowClick={(e) => {
-              setActive(e.original);
+              setActiveFolder(e.original);
               navigate(`/folders/view/${e.original.id}`);
             }}
             data={myFolders}

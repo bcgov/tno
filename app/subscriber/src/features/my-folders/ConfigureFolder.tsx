@@ -23,16 +23,16 @@ import {
 } from 'tno-core';
 
 import { getFilterOptions } from './constants';
+import { useMyFolderContext } from './MyFolderContext';
 import { Schedule } from './Schedule';
 import * as styled from './styled';
 import { createSchedule } from './utils';
 
-export interface IConfigureFolderProps {
-  active?: IFolderModel;
-}
+export interface IConfigureFolderProps {}
 
-export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => {
+export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
   const [{ myFilters }, { findMyFilters }] = useFilters();
+  const { activeFolder: active, setActiveFolder } = useMyFolderContext();
   const [, { findContentWithElasticsearch }] = useContent();
   const [{ myFolders }, { findMyFolders, getFolder, updateFolder, deleteFolder }] = useFolders();
   const { id } = useParams();
@@ -41,7 +41,6 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
 
   const [activeFilter, setActiveFilter] = React.useState<IFilterModel>();
   const [actionName, setActionName] = React.useState<'delete' | 'empty'>();
-  const [currentFolder, setCurrentFolder] = React.useState<IFolderModel>();
   const [filterOptions, setFilterOptions] = React.useState<IOptionItem[]>(
     getFilterOptions(myFilters, activeFilter?.id ?? 0),
   );
@@ -62,20 +61,20 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
   }, []);
 
   React.useEffect(() => {
-    currentFolder &&
-      !currentFolder.events.length &&
-      setCurrentFolder({
-        ...currentFolder,
-        events: [createSchedule(currentFolder.name, currentFolder.description)],
+    active &&
+      !active.events.length &&
+      setActiveFolder({
+        ...active,
+        events: [createSchedule(active.name, active.description)],
       });
-  }, [currentFolder]);
+  }, [active]);
 
   React.useEffect(() => {
-    if (init && ((!currentFolder && id) || currentFolder?.id !== Number(id))) {
+    if (init && ((!active && id) || active?.id !== Number(id))) {
       setInit(false);
       getFolder(Number(id), false)
         .then((folder) => {
-          setCurrentFolder(folder);
+          setActiveFolder(folder);
           if (folder.filter) setActiveFilter(folder.filter);
           else {
             setActiveFilter(undefined);
@@ -83,18 +82,18 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
         })
         .catch(() => {});
     }
-  }, [currentFolder, id, init, getFolder, myFolders]);
+  }, [active, id, init, getFolder, myFolders]);
 
   const handleRun = React.useCallback(
     async (filter: IFilterModel) => {
-      if (!currentFolder) return;
+      if (!active) return;
       try {
         const results: any = await findContentWithElasticsearch(
           filter.query,
           filter.settings.searchUnpublished,
         );
         if (results.hits.hits.length) {
-          const existing = [...currentFolder.content].sort(sortObject((c) => c.sortOrder));
+          const existing = [...active.content].sort(sortObject((c) => c.sortOrder));
           const maxSortOrder = existing.length ? existing[existing.length - 1].sortOrder : 0;
           const content: IFolderContentModel[] = getDistinct(
             [
@@ -108,7 +107,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
             ],
             (item) => item.content.id,
           ).map((item, index) => ({ ...item, sortOrder: index }));
-          await updateFolder({ ...currentFolder, content });
+          await updateFolder({ ...active, content });
           await findMyFolders();
           toast.success(`Filter found and added ${results.hits.hits.length} content items.`);
         } else {
@@ -116,20 +115,21 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
         }
       } catch {}
     },
-    [findContentWithElasticsearch, currentFolder, updateFolder, findMyFolders],
+    [findContentWithElasticsearch, active, updateFolder, findMyFolders],
   );
 
   const handleSaveFolder = React.useCallback(
     async (values: IFolderModel) => {
       try {
         const result = await updateFolder(values);
-        setCurrentFolder(result);
+        setActiveFolder(result);
+        setActiveFolder(result);
         toast.success('Folder schedule saved.');
       } catch {
         toast.error('Failed to save folder schedule.');
       }
     },
-    [updateFolder, setCurrentFolder],
+    [updateFolder, setActiveFolder],
   );
 
   return (
@@ -137,7 +137,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
       ignoreLastChildGap
       header={
         <Row width={FieldSize.Stretch}>
-          <FaGear className="gear" /> {currentFolder?.name}
+          <FaGear className="gear" /> {active?.name}
         </Row>
       }
     >
@@ -145,10 +145,8 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
         <Text
           name="name"
           label="Folder name:"
-          value={currentFolder?.name ?? ''}
-          onChange={(e) =>
-            setCurrentFolder({ ...currentFolder, name: e.target.value } as IFolderModel)
-          }
+          value={active?.name ?? ''}
+          onChange={(e) => setActiveFolder({ ...active, name: e.target.value } as IFolderModel)}
         />
         <h2>Folder automation settings</h2>
         <Row>
@@ -172,13 +170,13 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
               onChange={(newValue) => {
                 if (!newValue) {
                   setActiveFilter(undefined);
-                  setCurrentFolder({ ...currentFolder, filterId: undefined } as IFolderModel);
+                  setActiveFolder({ ...active, filterId: undefined } as IFolderModel);
                   return;
                 }
                 const option = newValue as IOptionItem;
                 const targetFilter = myFilters.find((f) => f.id === option.value);
                 setActiveFilter(targetFilter);
-                setCurrentFolder({ ...currentFolder, filterId: targetFilter?.id } as IFolderModel);
+                setActiveFolder({ ...active, filterId: targetFilter?.id } as IFolderModel);
               }}
             />
             <Button
@@ -191,10 +189,10 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
           </Row>
         </div>
         <Schedule
-          folderSchedule={currentFolder?.events[0] ?? undefined}
+          folderSchedule={active?.events[0] ?? undefined}
           onScheduleChange={async (value: IFolderScheduleModel) => {
-            setCurrentFolder({
-              ...(currentFolder as IFolderModel),
+            setActiveFolder({
+              ...(active as IFolderModel),
               events: [value],
             });
           }}
@@ -205,7 +203,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
           </Button>
           <Button
             onClick={() => {
-              handleSaveFolder(currentFolder as IFolderModel);
+              handleSaveFolder(active as IFolderModel);
             }}
             className="save"
           >
@@ -256,7 +254,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ active }) => 
             if (actionName === 'empty' && !!active) {
               updateFolder({ ...active, content: [] }).then((data) => {
                 // need to clear state managed content as well
-                currentFolder && setCurrentFolder(data);
+                active && setActiveFolder(data);
                 toast.success(`${active.name} updated successfully`);
               });
             } else if (actionName === 'delete' && !!active) {
