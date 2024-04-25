@@ -8,7 +8,7 @@ export const ReportEditDetailsForm = () => {
   const { setFieldValue } = useReportEditContext();
 
   return (
-    <styled.ReportEditDetailsForm>
+    <styled.ReportEditDetailsForm className="report-edit-section">
       <div className="info">
         <div>
           <FaInfoCircle />

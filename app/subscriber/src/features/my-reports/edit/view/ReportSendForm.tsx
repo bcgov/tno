@@ -81,7 +81,7 @@ export const ReportSendForm: React.FC = () => {
   );
 
   return (
-    <styled.ReportSendForm className="report-send">
+    <styled.ReportSendForm className="report-send report-edit-section">
       <Row>
         {values.events.some((e) => e.isEnabled) && (
           <Row gap="1rem">

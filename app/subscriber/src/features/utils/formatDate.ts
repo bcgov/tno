@@ -9,7 +9,7 @@ export const formatDate = (date: string | Date, includeTime?: boolean): string =
   const result = moment(date);
   if (!result.isValid()) return '';
   if (includeTime) {
-    return result.format('MMMM DD, YYYY hh:mm:ss');
+    return result.format('MMMM DD, YYYY hh:mm:ss a');
   } else {
     return result.format('MMMM DD, YYYY');
   }

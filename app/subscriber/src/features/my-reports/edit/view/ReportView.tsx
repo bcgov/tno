@@ -33,7 +33,7 @@ export const ReportView = () => {
   }, [instanceId, reportOutput]);
 
   return (
-    <div className="preview-section">
+    <div className="preview-section report-edit-section">
       <Show visible={isLoading}>
         <Loading />
       </Show>

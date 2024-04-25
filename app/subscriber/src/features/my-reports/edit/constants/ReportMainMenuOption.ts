@@ -25,4 +25,5 @@ export enum ReportViewMenuOption {
 
 export enum ReportSendMenuOption {
   Send = 'send',
+  History = 'send/history',
 }
