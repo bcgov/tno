@@ -25,6 +25,9 @@ export const FilterMediaLanding = styled(Row)`
     .main-media {
       flex-flow: nowrap;
     }
+    .all-chk {
+      cursor: pointer;
+    }
     .media-filter {
       margin-left: 1rem;
       margin-bottom: 0.5rem;
