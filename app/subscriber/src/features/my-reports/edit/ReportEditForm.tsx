@@ -25,7 +25,7 @@ import {
   ReportEditTemplateForm,
 } from './settings';
 import * as styled from './styled';
-import { ReportSendForm, ReportView } from './view';
+import { ReportHistoryForm, ReportSendForm, ReportView } from './view';
 
 export interface IReportEditFormProps {
   /** Whether edit functionality is disabled. */
@@ -165,6 +165,9 @@ export const ReportEditForm = ({ disabled, updateForm }: IReportEditFormProps) =
       {/* Send Menu */}
       <Show visible={active === ReportSendMenuOption.Send}>
         <ReportSendForm />
+      </Show>
+      <Show visible={active === ReportSendMenuOption.History}>
+        <ReportHistoryForm />
       </Show>
       <ReportEditActions
         disabled={disabled}

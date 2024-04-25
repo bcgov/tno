@@ -215,13 +215,16 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
         </Show>
         {/* Send secondary menu */}
         <Show visible={active?.startsWith(ReportMainMenuOption.Send)}>
-          <div>
-            <MenuButton
-              label="Subscribers"
-              active={active === ReportSendMenuOption.Send}
-              onClick={() => onChange?.(`/reports/${values.id}/${ReportSendMenuOption.Send}`)}
-            />
-          </div>
+          <MenuButton
+            label="Subscribers"
+            active={active === ReportSendMenuOption.Send}
+            onClick={() => onChange?.(`/reports/${values.id}/${ReportSendMenuOption.Send}`)}
+          />
+          <MenuButton
+            label="History"
+            active={active === ReportSendMenuOption.History}
+            onClick={() => onChange?.(`/reports/${values.id}/${ReportSendMenuOption.History}`)}
+          />
         </Show>
       </div>
     </styled.ReportEditMenu>

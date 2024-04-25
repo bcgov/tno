@@ -61,7 +61,7 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
   const isAuto = [ReportKindName.Auto, ReportKindName.AutoSend].includes(kind);
 
   return (
-    <styled.ReportEditSendForm>
+    <styled.ReportEditSendForm className="report-edit-section">
       <h2>Email options</h2>
       <div>
         <FormikText name="settings.subject.text" label="Email subject line:" required />

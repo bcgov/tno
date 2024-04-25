@@ -3,7 +3,7 @@ import styled from 'styled-components';
 export const ReportEditForm = styled.div`
   display: flex;
   flex-direction: column;
-  overflow-x: auto;
+  overflow-x: clip;
 
   .preview-report {
     border: solid 2px ${(props) => props.theme.css.linePrimaryColor};
@@ -73,5 +73,9 @@ export const ReportEditForm = styled.div`
     border-radius: 0.5rem;
     background: ${(props) => props.theme.css.bkInfo};
     color: ${(props) => props.theme.css.fInfo};
+  }
+
+  .report-edit-section {
+    flex: 1;
   }
 `;

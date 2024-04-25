@@ -35,7 +35,7 @@ export const ReportEditDataSourcesForm = () => {
   }, []);
 
   return (
-    <styled.ReportEditDataSourcesForm>
+    <styled.ReportEditDataSourcesForm className="report-edit-section">
       <Row className="template-action-bar">
         {!!values.sections.length &&
           (values.sections.some((s) => s.open) ? (

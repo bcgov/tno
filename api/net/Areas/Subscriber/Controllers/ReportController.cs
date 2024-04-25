@@ -160,15 +160,19 @@ public class ReportController : ControllerBase
     /// </summary>
     /// <param name="reportId"></param>
     /// <param name="ownerId"></param>
+    /// <param name="page"></param>
+    /// <param name="qty"></param>
     /// <returns></returns>
     [HttpGet("{reportId}/instances")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<ReportInstanceModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult FindInstancesForReportId(int reportId, int? ownerId)
+    public IActionResult FindInstancesForReportId(int reportId, int? ownerId, int? page, int? qty)
     {
-        var result = _reportInstanceService.FindInstancesForReportId(reportId, ownerId);
+        var skip = page > 0 ? page.Value - 1 : 0;
+        var take = qty > 0 ? qty.Value : 10;
+        var result = _reportInstanceService.FindInstancesForReportId(reportId, ownerId, skip, take);
         return new JsonResult(result.Select(ri => new ReportInstanceModel(ri)));
     }
 
