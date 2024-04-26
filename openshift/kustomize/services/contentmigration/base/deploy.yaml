@@ -53,7 +53,7 @@ spec:
           resources:
             limits:
               cpu: 50m
-              memory: 250Mi
+              memory: 200Mi
             requests:
               cpu: 20m
               memory: 128Mi
@@ -98,7 +98,7 @@ spec:
             - name: Auth__Keycloak__Secret
               valueFrom:
                 secretKeyRef:
-                  name: services
+                  name: keycloak
                   key: KEYCLOAK_CLIENT_SECRET
 
             # Content Migration Service Configuration

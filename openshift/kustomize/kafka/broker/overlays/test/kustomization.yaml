@@ -9,14 +9,14 @@ resources:
 patches:
   - target:
       kind: StatefulSet
-      name: tno-kafka-broker
+      name: kafka-broker
     patch: |-
       - op: replace
         path: /spec/replicas
         value: 4
       - op: replace
         path: /spec/template/spec/containers/0/image
-        value: image-registry.openshift-image-registry.svc:5000/9b301c-tools/kafka:test
+        value: image-registry.openshift-image-registry.svc:5000/9b301c-tools/cp-kafka:7.6.1
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 50m

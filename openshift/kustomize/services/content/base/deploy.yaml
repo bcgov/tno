@@ -93,7 +93,7 @@ spec:
             - name: Auth__Keycloak__Secret
               valueFrom:
                 secretKeyRef:
-                  name: services
+                  name: keycloak
                   key: KEYCLOAK_CLIENT_SECRET
 
             - name: Kafka__Consumer__GroupId
@@ -162,7 +162,7 @@ spec:
                   name: content-service
                   key: NOTIFICATION_TOPIC
             - name: Service__MigrationOptions__AllowSourceContentOverwrite
-              value: 'True'
+              value: "True"
 
             - name: CHES__AuthUrl
               valueFrom:
@@ -184,7 +184,7 @@ spec:
                 secretKeyRef:
                   name: ches
                   key: PASSWORD
-                  
+
             - name: Kafka__Consumer__AutoOffsetReset
               value: Latest
           livenessProbe:

@@ -178,9 +178,9 @@ reset-consumer-offset: ## Reset the consumer group topic offset.
 	$(info Reset the consumer group topic offset)
 	@cd ./db/kafka/scripts/reset-consumer-offset.sh
 
-kafka-update: ## Run the kafka migration (n=migration name, r=rollback, b=bootstrap server)
+kafka-update: ## Run the kafka migration (n=migration name, r=rollback, b=bootstrap server, p=partitions)
 	$(info Run the kafka migration (n=$(n)))
-	@./db/kafka/scripts/migration.sh $(if $(n),-n $(n),) $(if $(r),-r,) $(if $(b),-b $(b),)
+	@./db/kafka/scripts/migration.sh $(if $(n),-n $(n),) $(if $(r),-r,) $(if $(b),-b $(b),) $(if $(p),-p $(p),)
 
 kafka-topic-add: ## Add a new kafka topic (e=environment, t=topic, b=bootstrap server, p=partitions, r=replications, i=index)
 	$(info Add a new kafka topic (e=$(if $(e),$(e),local), t=$(t)))

@@ -13,7 +13,7 @@ metadata:
     version: 1.0.0
     component: reporting-service
     managed-by: kustomize
-type: Opaque
+
 data:
   KAFKA_CLIENT_ID: Reporting
   MAX_FAIL_LIMIT: "5"

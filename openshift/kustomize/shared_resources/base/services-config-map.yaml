@@ -13,14 +13,13 @@ metadata:
     version: 1.0.0
     component: services
     managed-by: kustomize
-type: Opaque
 data:
   API_HOST_URL: http://api:8080
 
   KEYCLOAK_AUTHORITY: https://dev.loginproxy.gov.bc.ca/auth
   KEYCLOAK_AUDIENCE: mmia-service-account-3994
 
-  KAFKA_BOOTSTRAP_SERVERS: kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092
+  KAFKA_BOOTSTRAP_SERVERS: kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092,kafka-broker-3.kafka-headless:9092
 
   DATA_LOCATION: Openshift
 

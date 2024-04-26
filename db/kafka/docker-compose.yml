@@ -1,29 +1,4 @@
 services:
-  zookeeper:
-    image: tno:kafka-zookeeper
-    profiles:
-      - init
-      - all
-      - kafka
-      - kowl
-      - service
-      - main
-    restart: "no"
-    hostname: zookeeper
-    container_name: tno-zookeeper
-    build:
-      context: db/kafka/zookeeper
-    env_file:
-      - db/kafka/zookeeper/.env
-    ports:
-      - ${KAFKA_ZOOKEEPER_PORT:-40100}:2181
-    volumes:
-      - tno-zookeeper-data:/var/lib/zookeeper/data
-      - tno-zookeeper-log:/var/lib/zookeeper/log
-      - tno-zookeeper-secrets:/etc/zookeeper/secrets
-    networks:
-      - tno
-
   broker:
     image: tno:kafka-broker
     profiles:
@@ -40,8 +15,6 @@ services:
       context: db/kafka/broker
     env_file:
       - db/kafka/broker/.env
-    depends_on:
-      - zookeeper
     ports:
       - ${KAFKA_BROKER_ADVERTISED_HOST_PORT:-40101}:9092
       - ${KAFKA_BROKER_ADVERTISED_EXTERNAL_PORT:-40102}:29094
@@ -50,113 +23,6 @@ services:
       - tno-broker-secrets:/etc/kafka/secrets
     networks:
       - tno
-
-  # schema-registry:
-  #   image: tno:kafka-schema-registry
-  #   profiles:
-  #     - all
-  #     - kafka
-  #     - service
-  #     - data
-  #     - utility
-  #   restart: "no"
-  #   hostname: schema-registry
-  #   container_name: tno-schema-registry
-  #   build:
-  #     context: db/kafka/schema-registry
-  #   env_file:
-  #     - db/kafka/schema-registry/.env
-  #   depends_on:
-  #     - broker
-  #   ports:
-  #     - ${KAFKA_SCHEMA_REGISTRY_PORT:-40103}:8081
-  #   volumes:
-  #     - tno-schema-secrets:/etc/schema-registry/secrets
-  #   networks:
-  #     - tno
-
-  rest-proxy:
-    image: tno:kafka-rest-proxy
-    profiles:
-      - all
-      - kafka
-      - service
-    restart: "no"
-    hostname: rest-proxy
-    container_name: tno-rest-proxy
-    build:
-      context: db/kafka/rest-proxy
-    env_file:
-      - db/kafka/rest-proxy/.env
-    depends_on:
-      - broker
-      # - schema-registry
-    ports:
-      - ${KAFKA_REST_PROXY_PORT:-40104}:8082
-    networks:
-      - tno
-
-  # connect:
-  #   image: tno:kafka-connect
-  #   profiles:
-  #     - kafka
-  #     - data
-  #     - utility
-  #   restart: "no"
-  #   hostname: connect
-  #   container_name: tno-connect
-  #   build:
-  #     context: db/kafka/connect
-  #   env_file:
-  #     - db/kafka/connect/.env
-  #   depends_on:
-  #     - broker
-  #     - schema-registry
-  #   ports:
-  #     - ${KAFKA_CONNECT_PORT:-40105}:8083
-  #   volumes:
-  #     - ./db/kafka/connect/jars:/etc/kafka-connect/jars
-  #     - tno-connect-secrets:/etc/kafka-connect/secrets
-  #     - tno-connect-data:/var/lib/kafka/data
-  #     - tno-broker-secrets:/etc/kafka/secrets
-  #   networks:
-  #     - tno
-
-  # ksqldb:
-  #   image: tno:kafka-ksqldb
-  #   profiles:
-  #     - kafka
-  #     - data
-  #     - utility
-  #   restart: "no"
-  #   hostname: ksqldb
-  #   container_name: tno-ksqldb
-  #   build:
-  #     context: db/kafka/ksqldb
-  #   env_file:
-  #     - db/kafka/ksqldb/.env
-  #   depends_on:
-  #     - broker
-  #     - connect
-  #   ports:
-  #     - ${KAFKA_KSQLDB_PORT:-40106}:8088
-  #   networks:
-  #     - tno
-
-  # cat:
-  #   image: tno:kafkacat
-  #   profiles:
-  #     - utility
-  #     - data
-  #   restart: "no"
-  #   hostname: cat
-  #   container_name: tno-kafkacat
-  #   build:
-  #     context: db/kafka/cat
-  #   depends_on:
-  #     - broker
-  #   networks:
-  #     - tno
 
   ####################### Utilities #######################
 
@@ -174,10 +40,7 @@ services:
     volumes:
       - ./db/kafka/kowl/.env:/etc/kowl/config.yaml
     depends_on:
-      - zookeeper
       - broker
-      # - connect
-      # - schema-registry
     ports:
       - ${KAFKA_KOWL_PORT:-40180}:8080
     networks:
@@ -185,19 +48,7 @@ services:
 
 ####################### Volumes Definition #######################
 volumes:
-  tno-zookeeper-data:
-    name: tno-zookeeper-data
-  tno-zookeeper-log:
-    name: tno-zookeeper-log
-  tno-zookeeper-secrets:
-    name: tno-zookeeper-secrets
   tno-broker-data:
     name: tno-broker-data
   tno-broker-secrets:
     name: tno-broker-secrets
-  tno-connect-data:
-    name: tno-connect-data
-  tno-connect-secrets:
-    name: tno-connect-secrets
-  tno-schema-secrets:
-    name: tno-schema-secrets

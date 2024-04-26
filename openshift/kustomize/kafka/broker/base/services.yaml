@@ -6,7 +6,7 @@ metadata:
   name: kafka-host
   namespace: default
   labels:
-    name: kafka-broker
+    name: kafka-host
     part-of: tno
     version: 1.0.0
     component: kafka-broker
@@ -24,6 +24,10 @@ spec:
       port: 29094
       protocol: TCP
       targetPort: 29094
+    - name: controller
+      port: 29093
+      protocol: TCP
+      targetPort: 29093
   selector:
     part-of: tno
     component: kafka-broker
@@ -37,7 +41,7 @@ metadata:
   name: kafka-headless
   namespace: default
   labels:
-    name: kafka-broker
+    name: kafka-headless
     part-of: tno
     version: 1.0.0
     component: kafka-broker
@@ -55,6 +59,10 @@ spec:
       port: 29092
       protocol: TCP
       targetPort: 29092
+    - name: controller
+      port: 29093
+      protocol: TCP
+      targetPort: 29093
     - name: jmx
       port: 9101
       protocol: TCP
@@ -62,4 +70,4 @@ spec:
   selector:
     part-of: tno
     component: kafka-broker
-    statefulset: kafka-cluster
+    statefulset: kafka-broker-cluster

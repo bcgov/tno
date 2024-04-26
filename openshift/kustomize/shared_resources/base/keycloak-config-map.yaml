@@ -1,0 +1,24 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: keycloak
+  namespace: default
+  annotations:
+    description: Keycloak configuration settings
+  labels:
+    name: keycloak
+    part-of: tno
+    version: 1.0.0
+    component: keycloak
+    managed-by: kustomize
+    created-by: jeremy.foster
+data:
+  KEYCLOAK_AUTHORITY: https://loginproxy.gov.bc.ca/auth/realms/standard
+  KEYCLOAK_AUDIENCE: media-monitoring-mmia-3671,mmia-service-account-3994
+  KEYCLOAK_ISSUER: media-monitoring-mmia-3671,mmia-service-account-3994
+
+  CSS_INTEGRATION_ID: "3671"
+  CSS_ENVIRONMENT: dev
+  CSS_API_URL: https://api.loginproxy.gov.bc.ca
+  CSS_AUTHORITY: https://loginproxy.gov.bc.ca
+  CSS_CLIENT_ID: service-account-team-795-4127

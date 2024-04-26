@@ -6,29 +6,11 @@ namespace: 9b301c-prod
 resources:
   - ../../base
 
+patchesStrategicMerge:
+  - route-editor.env
+  - route-subscriber.env
+
 patches:
-  - target:
-      kind: ConfigMap
-      name: api
-    patch: |-
-      - op: replace
-        path: /data/KEYCLOAK_AUTHORITY
-        value: https://dev.loginproxy.gov.bc.ca/auth/realms/standard
-      - op: replace
-        path: /data/CSS_ENVIRONMENT
-        value: dev
-      - op: replace
-        path: /data/CSS_AUTHORITY
-        value: https://loginproxy.gov.bc.ca
-      - op: replace
-        path: /data/REPORTING_SUBSCRIBER_URL
-        value: https://mmi.gov.bc.ca
-      - op: replace
-        path: /data/REPORTING_VIEW_CONTENT_URL
-        value: https://mmi.gov.bc.ca/view/
-      - op: replace
-        path: /data/REPORTING_REQUEST_TRANSCRIPT_URL
-        value: https://mmi.gov.bc.ca/api/subscriber/work/orders/transcribe/
   - target:
       kind: Route
       name: api-editor
