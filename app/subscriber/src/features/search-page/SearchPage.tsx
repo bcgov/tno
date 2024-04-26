@@ -1,6 +1,7 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { BasicSearch } from 'components/basic-search';
 import { ContentList, ViewOptions } from 'components/content-list';
+import { DateFilter } from 'components/date-filter';
 import { PageSection } from 'components/section';
 import { ContentListActionBar } from 'components/tool-bar';
 import { useElastic } from 'features/my-searches/hooks';
@@ -103,6 +104,12 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     fetchResults(query, filter.searchUnpublished);
   }, [fetchResults, filter, genQuery]);
 
+  const executeSearch = React.useCallback(async () => {
+    const settings = filterFormat(filter);
+    const query = genQuery(settings);
+    fetchResults(query, filter.searchUnpublished);
+  }, [fetchResults, filter, genQuery]);
+
   return (
     <styled.SearchPage expanded={expanded}>
       <Row className="search-container">
@@ -135,6 +142,12 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
               onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
               className="search"
             />
+            <DateFilter
+              filter={filter}
+              storeFilter={storeSearchFilter}
+              onChangeDate={executeSearch}
+            />
+            <br />
             <Show visible={!!activeFilter}>
               <div className="viewed-name ">
                 <FaBookmark />
