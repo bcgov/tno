@@ -21,6 +21,8 @@ export const MobileLogin = styled.div`
       border-radius: 0.5rem;
       text-align: center;
       max-height: 91%;
+      flex-direction: row;
+      padding: 1em;
     }
 
     .main-box {
