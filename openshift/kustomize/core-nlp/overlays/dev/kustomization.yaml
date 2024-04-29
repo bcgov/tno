@@ -17,15 +17,15 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/image
         value: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/corenlp:latest
-      # - op: replace
-      #   path: /spec/template/spec/containers/0/resources/requests/cpu
-      #   value: 15m
-      # - op: replace
-      #   path: /spec/template/spec/containers/0/resources/requests/memory
-      #   value: 50Mi
-      # - op: replace
-      #   path: /spec/template/spec/containers/0/resources/limits/cpu
-      #   value: 50m
-      # - op: replace
-      #   path: /spec/template/spec/containers/0/resources/limits/memory
-      #   value: 100Mi
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: 250m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: 2G
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: 500m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: 6G

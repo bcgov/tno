@@ -35,4 +35,4 @@ patches:
     patch: |-
       - op: replace
         path: /spec/host
-        value: tno-kowl.gov.bc.ca
+        value: kowl.apps.silver.devops.gov.bc.ca

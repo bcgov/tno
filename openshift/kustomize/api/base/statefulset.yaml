@@ -97,8 +97,6 @@ spec:
               value: http://+:8080
             - name: HubPath
               value: /hub
-            - name: Charts__Url
-              value: "http://charts-api:8080"
 
             - name: Logging__LogLevel__TNO
               value: Information

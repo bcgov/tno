@@ -132,6 +132,11 @@ spec:
                 configMapKeyRef:
                   name: contentmigration-service
                   key: DEFAULT_USERNAME_FOR_AUDIT
+            - name: Service__AllowSourceContentOverwrite
+              valueFrom:
+                configMapKeyRef:
+                  name: contentmigration-service
+                  key: ALLOW_SOURCE_CONTENT_OVERWRITE
 
             # CHES Configuration
             - name: CHES__From

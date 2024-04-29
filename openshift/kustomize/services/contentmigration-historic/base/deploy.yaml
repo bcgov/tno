@@ -137,6 +137,11 @@ spec:
                 configMapKeyRef:
                   name: contentmigration-historic-service
                   key: GENERATE_ALERTS_ON_CONTENT_MIGRATION
+            - name: Service__AllowSourceContentOverwrite
+              valueFrom:
+                configMapKeyRef:
+                  name: contentmigration-service
+                  key: ALLOW_SOURCE_CONTENT_OVERWRITE
 
             # CHES Configuration
             - name: CHES__From
