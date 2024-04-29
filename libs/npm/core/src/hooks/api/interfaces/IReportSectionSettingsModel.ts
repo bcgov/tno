@@ -9,4 +9,5 @@ export interface IReportSectionSettingsModel {
   hideEmpty: boolean;
   groupBy: string;
   sortBy: string;
+  sortDirection: '' | 'asc' | 'desc';
 }

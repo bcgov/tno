@@ -10,10 +10,16 @@ export interface IDateFilterProps {
   loaded?: boolean;
   filter: IFilterSettingsModel;
   storeFilter: (filter: IFilterSettingsModel) => void;
+  onChangeDate?: () => void;
 }
 
 /** Custom date filter for the subscriber home page. Control the calendar state with custom button, custom styling also applied. Also allows user to navigate a day at a time via arrow buttons. */
-export const DateFilter: React.FC<IDateFilterProps> = ({ loaded, filter, storeFilter }) => {
+export const DateFilter: React.FC<IDateFilterProps> = ({
+  loaded,
+  filter,
+  storeFilter,
+  onChangeDate,
+}) => {
   /** control state of open calendar from outside components. i.e custom calendar button */
   const [open, setOpen] = React.useState(false);
 
@@ -64,6 +70,10 @@ export const DateFilter: React.FC<IDateFilterProps> = ({ loaded, filter, storeFi
         startDate: moment(newDate).startOf('day').toISOString(),
         endDate: moment(newDate).endOf('day').toISOString(),
       });
+    }
+
+    if (onChangeDate) {
+      onChangeDate();
     }
   };
 

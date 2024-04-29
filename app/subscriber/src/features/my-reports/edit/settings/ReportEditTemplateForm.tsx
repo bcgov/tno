@@ -69,7 +69,7 @@ export const ReportEditTemplateForm = () => {
   );
 
   return (
-    <styled.ReportEditTemplateForm>
+    <styled.ReportEditTemplateForm className="report-edit-section">
       <AddSectionBar />
       <Row className="template-action-bar">
         {!!values.sections.length &&

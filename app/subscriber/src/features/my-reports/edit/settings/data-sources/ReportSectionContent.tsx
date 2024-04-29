@@ -1,3 +1,4 @@
+import { IToggleOption, Toggle } from 'components/form';
 import { DataSources } from 'features/my-reports/components';
 import { IReportForm } from 'features/my-reports/interfaces';
 import { useFormikContext } from 'formik';
@@ -26,6 +27,10 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
     const { values, setFieldValue } = useFormikContext<IReportForm>();
 
     const [orderOptions] = React.useState<IOptionItem[]>(ReportSectionOrderByOptions);
+    const directionOptions: IToggleOption<string>[] = [
+      { label: 'Ascending', value: 'asc' },
+      { label: 'Descending', value: 'desc' },
+    ];
 
     const section = values.sections[index];
 
@@ -46,6 +51,14 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
               }}
             />
           </Col>
+          <Toggle
+            name={`sections.${index}.settings.sortDirection`}
+            options={directionOptions}
+            value={section.settings.sortDirection ? section.settings.sortDirection : 'asc'}
+            onChange={(value) => {
+              setFieldValue(`sections.${index}.settings.sortDirection`, value);
+            }}
+          />
         </Row>
         <Col className="frm-in">
           <label>Report Section Options</label>

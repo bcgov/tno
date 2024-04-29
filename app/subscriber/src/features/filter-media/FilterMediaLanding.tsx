@@ -104,7 +104,7 @@ export const FilterMediaLanding: React.FC = () => {
     }
     // only want to fire when filters change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeLetter, activeFilter]);
+  }, [activeLetter, activeFilter, filter]);
 
   // a little bit funky, but needed to keep track if the select all option is checked to maintain checked state
   const allSelected = {
@@ -172,9 +172,12 @@ export const FilterMediaLanding: React.FC = () => {
                   }}
                   className="show-all"
                 >
-                  Show all
+                  <label className="all-chk" htmlFor="all-chk">
+                    Show all
+                  </label>
                   <Checkbox
                     className="opt-chk"
+                    id="all-chk"
                     checked={
                       allSelected.seriesIds.length === filter.seriesIds?.length &&
                       allSelected.sourceIds.length === filter.sourceIds?.length
@@ -185,8 +188,8 @@ export const FilterMediaLanding: React.FC = () => {
                       if (!e.target.checked) {
                         storeFilter({
                           ...filter,
-                          sourceIds: undefined,
-                          seriesIds: undefined,
+                          sourceIds: [],
+                          seriesIds: [],
                         });
                       } else {
                         // need to iterate through and check the options to their corresponding source or series id

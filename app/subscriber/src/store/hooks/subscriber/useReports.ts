@@ -76,9 +76,14 @@ export const useReports = (): [IProfileState, IReportController] => {
         }
         return response.data;
       },
-      findInstancesForReportId: async (id: number, ownerId: number | undefined = undefined) => {
+      findInstancesForReportId: async (
+        id: number,
+        ownerId?: number,
+        page?: number,
+        quantity?: number,
+      ) => {
         const response = await dispatch<IReportInstanceModel[]>('get-report-instances', () =>
-          api.findInstancesForReportId(id, ownerId),
+          api.findInstancesForReportId(id, ownerId, page, quantity),
         );
         if (response.status === 200) {
           storeMyReports((reports) =>

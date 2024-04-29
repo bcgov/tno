@@ -19,4 +19,7 @@ public interface IFolderService : IBaseService<Folder, int>
     /// <param name="id"></param>
     /// <exception cref="NoContentException"></exception>
     void CleanFolder(int id);
+
+    Folder UpdateAndSave(Folder entity, bool updateContent);
+    Folder Update(Folder entity, bool updateContent);
 }

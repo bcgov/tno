@@ -38,4 +38,21 @@ public class MediaTypeModel : BaseTypeModel<int>
         this.Settings = JsonSerializer.Deserialize<MediaTypeSettingsModel>(entity.Settings, options) ?? new();
     }
     #endregion
+
+    #region Methods
+    /// <summary>
+    /// Explicit cast to entity.
+    /// </summary>
+    /// <param name="model"></param>
+    public static explicit operator Entities.MediaType(MediaTypeModel model)
+    {
+        return new Entities.MediaType(model.Name)
+        {
+            Id = model.Id,
+            Description = model.Description,
+            IsEnabled = model.IsEnabled,
+            SortOrder = model.SortOrder,
+        };
+    }
+    #endregion
 }

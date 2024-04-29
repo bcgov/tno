@@ -45,9 +45,15 @@ export const useApiSubscriberReports = (
         `/subscriber/reports/${id}${includeContent ? `?includeContent=true` : ''}`,
       );
     },
-    findInstancesForReportId: (id: number, ownerId: number | undefined = undefined) => {
+    findInstancesForReportId: (
+      id: number,
+      ownerId: number | undefined = undefined,
+      page?: number,
+      quantity?: number,
+    ) => {
+      const query = { ownerId, page, qty: quantity };
       return api.get<never, AxiosResponse<IReportInstanceModel[]>, any>(
-        `/subscriber/reports/${id}/instances?ownerId=${ownerId ? ownerId : ''}`,
+        `/subscriber/reports/${id}/instances${toQueryString(query)}`,
       );
     },
     addReport: (report: IReportModel) => {

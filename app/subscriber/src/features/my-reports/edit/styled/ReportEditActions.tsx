@@ -9,7 +9,5 @@ export const ReportEditActions = styled.div`
   background: ${(props) => props.theme.css.bkTertiary};
 
   position: sticky;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  inset-block-end: 0;
 `;

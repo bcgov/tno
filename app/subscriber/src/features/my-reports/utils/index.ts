@@ -6,6 +6,7 @@ export * from './getHideEmpty';
 export * from './getLastPublishedOn';
 export * from './getLastSent';
 export * from './getScheduleName';
+export * from './getStatus';
 export * from './getTime';
 export * from './hideEmptySections';
 export * from './isAutoSend';

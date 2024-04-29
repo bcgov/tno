@@ -11,6 +11,7 @@ import { toForm } from '../utils';
 import {
   ReportContentMenuOption,
   ReportMainMenuOption,
+  ReportSendMenuOption,
   ReportSettingsMenuOption,
   ReportViewMenuOption,
 } from './constants';
@@ -139,6 +140,7 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
     else if (path === ReportViewMenuOption.View) setActive(ReportViewMenuOption.View);
     else if (path === ReportMainMenuOption.Send) setActive(ReportMainMenuOption.Send);
     else if (path === ReportSettingsMenuOption.Send) setActive(ReportSettingsMenuOption.Send);
+    else if (path === ReportSendMenuOption.History) setActive(ReportSendMenuOption.History);
     else setActive(ReportMainMenuOption.Settings);
   }, [path1, path2]);
 

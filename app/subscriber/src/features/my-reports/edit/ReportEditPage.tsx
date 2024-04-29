@@ -22,6 +22,7 @@ import { ReportEditContextProvider } from './ReportEditContext';
 import { ReportEditForm } from './ReportEditForm';
 import * as styled from './styled';
 import { ReportFormSchema } from './validation';
+import { ReportHistoryView } from './view';
 
 /**
  * Provides component to administer a report template, to manage the content in the report, and send the report to subscribers.
@@ -258,6 +259,7 @@ export const ReportEditPage = () => {
           <ReportEditContextProvider>
             <ReportEditForm disabled={!canEdit} updateForm={(form) => setReport(form)} />
             <ContentEditForm disabled={!canEdit} />
+            <ReportHistoryView />
           </ReportEditContextProvider>
         </FormikForm>
       </Show>

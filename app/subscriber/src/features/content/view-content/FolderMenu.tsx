@@ -71,12 +71,15 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content, onClear }) => 
     async (folder: IFolderModel) => {
       if (!content?.length) toast.error('No content selected');
       if (!!content?.length) {
-        await updateFolder({
-          ...folder,
-          content: getDistinct([...folder.content, ...content], (item) => item.contentId).map(
-            (c, index) => ({ ...c, sortOrder: index }),
-          ),
-        })
+        await updateFolder(
+          {
+            ...folder,
+            content: getDistinct([...folder.content, ...content], (item) => item.contentId).map(
+              (c, index) => ({ ...c, sortOrder: index }),
+            ),
+          },
+          true,
+        )
           .then((folder) => {
             // Update reports that use this folder.
             const results = myReports.map((report) => {

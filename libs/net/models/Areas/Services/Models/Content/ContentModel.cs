@@ -349,5 +349,15 @@ public class ContentModel : AuditColumnsModel
 
         return entity;
     }
+
+    public Entities.Content ToContent()
+    {
+        var content = (Entities.Content)this;
+        content.Source = this.Source != null ? (Entities.Source)this.Source : null;
+        content.Series = this.Series != null ? (Entities.Series)this.Series : null;
+        content.MediaType = this.MediaType != null ? (Entities.MediaType)this.MediaType : null;
+        content.Contributor = this.Contributor != null ? (Entities.Contributor)this.Contributor : null;
+        return content;
+    }
     #endregion
 }

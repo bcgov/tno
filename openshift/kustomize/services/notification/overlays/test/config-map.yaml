@@ -19,4 +19,4 @@ data:
   MAX_FAIL_LIMIT: "5"
   TOPICS: notify
   CHES_EMAIL_ENABLED: "true"
-  CHES_EMAIL_AUTHORIZED: "false"
+  CHES_EMAIL_AUTHORIZED: "true"

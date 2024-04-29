@@ -25,7 +25,7 @@ export const FolderLanding: React.FC<{}> = () => {
             <ManageFolder />
           </Show>
           <Show visible={action === 'configure'}>
-            <ConfigureFolder active={activeFolder} />
+            <ConfigureFolder folder={activeFolder} />
           </Show>
         </Col>
       </Show>
