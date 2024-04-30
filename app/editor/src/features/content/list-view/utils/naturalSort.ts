@@ -7,13 +7,23 @@ function getPageSectionValue(row: IContentSearchResult) {
   }`.toLowerCase();
   return value;
 }
+function getSourceValue(row: IContentSearchResult): string {
+  // get source code for sorting
+  return row.original.source ? row.original.source.code.toLowerCase() : '';
+}
 
 export function naturalSortValue(row: IContentSearchResult) {
   const pageSectionValue = getPageSectionValue(row);
+  const source = getSourceValue(row);
+
   // Replace each segment of digits and non-digits with formatted strings
   // Digits are padded with zeros to the left to ensure correct natural sorting
   // Non-digits are left as is
-  return pageSectionValue.replace(/(\d+)|(\D+)/g, (_, $1, $2) =>
+  // eq. 'A2:sport' ->  'A0000000002:sport'
+  // eq. 'A02:sport' -> 'A0000000002:sport'
+  const formattedPageSectionValue = pageSectionValue.replace(/(\d+)|(\D+)/g, (_, $1, $2) =>
     $1 ? Number($1).toString().padStart(10, '0') : $2,
   );
+  // we do consider source as the primary key for sorting
+  return `${source}:${formattedPageSectionValue}`;
 }
