@@ -158,6 +158,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     storeSearchFilter,
     navigate,
     updateFilter,
+    myFilters,
   ]);
 
   return (
