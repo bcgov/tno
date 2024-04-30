@@ -41,7 +41,6 @@ export const ReportSendForm: React.FC = () => {
   const [email, setEmail] = React.useState('');
 
   const instance = values.instances.length ? values.instances[0] : undefined;
-  const instanceId = instance?.id;
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
   const formatOptions = getEnumStringOptions(ReportDistributionFormatName);
 
@@ -79,6 +78,8 @@ export const ReportSendForm: React.FC = () => {
     },
     [findUsers, setFieldValue, values.id, values.subscribers],
   );
+
+  console.debug(instance);
 
   return (
     <styled.ReportSendForm className="report-send report-edit-section">
@@ -202,7 +203,7 @@ export const ReportSendForm: React.FC = () => {
                     >
                       <Button
                         disabled={isSubmitting || !to.length || !validateEmail(to)}
-                        onClick={() => !!instanceId && handleSend(instanceId, to)}
+                        onClick={() => !!instance?.id && handleSend(instance.id, to)}
                       >
                         Send email
                         <FaTelegramPlane />

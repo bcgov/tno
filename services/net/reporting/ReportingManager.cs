@@ -473,7 +473,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
             catch (ChesException ex)
             {
-                if (responseModel.LinkOnlyFormatResponse == null)
+                if (responseModel.LinkOnlyFormatResponse != null)
                     responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
                 else
                     responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
@@ -581,7 +581,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
             catch (ChesException ex)
             {
-                if (responseModel.LinkOnlyFormatResponse == null)
+                if (responseModel.LinkOnlyFormatResponse != null)
                     responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
                 else
                     responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));

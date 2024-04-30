@@ -36,7 +36,7 @@ namespace TNO.Ches
         protected IHttpRequestClient Client { get; }
         public ChesOptions Options { get; }
         #endregion
-        private static readonly Regex Base64InlineImageRegex = new("src=\\\"data:(image\\/[a-zA-Z]*);base64,([^\\\"]*)\\\"",  RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        private static readonly Regex Base64InlineImageRegex = new("src=\\\"data:(image\\/[a-zA-Z]*);base64,([^\\\"]*)\\\"", RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
         #region Constructors
         /// <summary>
@@ -166,8 +166,9 @@ namespace TNO.Ches
             }
             catch (HttpClientRequestException ex)
             {
-                _logger.LogError(ex, "Failed to send/receive request: {code} {url}", ex.StatusCode, url);
                 var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
+                var error = String.Join(Environment.NewLine, response.Errors.Select(e => e.Message));
+                _logger.LogError(ex, "Failed to send/receive request: {code} {url}.  Error: {error}", ex.StatusCode, url, error);
                 throw new ChesException(ex, this.Client, response);
             }
         }
@@ -262,7 +263,8 @@ namespace TNO.Ches
         /// </summary>
         /// <param name="emailBody">email body as html markup - possibly containing base64 encoded images</param>
         /// <returns>dictionary of the images as attachments and the 'key' to use to search and replace them in the markup</returns>
-        private Dictionary<string, AttachmentModel> GetImagesFromEmailBody(string emailBody) {
+        private Dictionary<string, AttachmentModel> GetImagesFromEmailBody(string emailBody)
+        {
             Dictionary<string, AttachmentModel> imageDictionary = new Dictionary<string, AttachmentModel>();
 
             var inlineImageMatches = Base64InlineImageRegex.Matches(emailBody);
