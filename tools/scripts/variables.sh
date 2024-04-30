@@ -8,7 +8,7 @@
 
 export keycloakDbName="keycloak"
 
-export keycloakUser=$("$GREP" -Po 'KEYCLOAK_USER=\K.*$' ./auth/keycloak/.env 2>/dev/null)
+export keycloakUser=$("$GREP" -Po 'KEYCLOAK_ADMIN=\K.*$' ./auth/keycloak/.env 2>/dev/null)
 if [ -z "$keycloakUser" ]
 then
     echo 'Enter a username for the keycloak realm administrator'
@@ -18,7 +18,7 @@ else
     echo "Your keycloak username: $keycloakUser"
 fi
 
-export keycloakPassword=$("$GREP" -Po 'KEYCLOAK_PASSWORD=\K.*$' ./auth/keycloak/.env 2>/dev/null)
+export keycloakPassword=$("$GREP" -Po 'KEYCLOAK_ADMIN_PASSWORD=\K.*$' ./auth/keycloak/.env 2>/dev/null)
 if [ -z "$keycloakPassword" ]
 then
     echo 'Enter a password for the keycloak realm administrator'
