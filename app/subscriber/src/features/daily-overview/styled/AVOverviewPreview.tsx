@@ -61,6 +61,8 @@ export const AVOverviewPreview = styled.div`
     }
 
     > .preview-body {
+      display: flex;
+      justify-content: center;
       flex: 1;
       max-width: calc(100% - 2rem);
       background-color: white;
@@ -68,6 +70,11 @@ export const AVOverviewPreview = styled.div`
       border-bottom-right-radius: 0.5rem;
       border-bottom-left-radius: 0.5rem;
       box-shadow: 10px 5px 10px grey;
+      .video-icon,
+      .transcript-icon {
+        height: 1.25em;
+        width: 1.25em;
+      }
 
       img {
         max-width: 80%;
