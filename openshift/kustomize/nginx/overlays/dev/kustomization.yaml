@@ -8,13 +8,6 @@ resources:
 
 patches:
   - target:
-      kind: Route
-      name: nginx
-    patch: |-
-      - op: replace
-        path: /spec/host
-        value: tno-dev-nginx.apps.silver.devops.gov.bc.ca
-  - target:
       kind: DeploymentConfig
       name: nginx
     patch: |-

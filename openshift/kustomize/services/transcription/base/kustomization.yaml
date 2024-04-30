@@ -9,8 +9,3 @@ resources:
 
 generatorOptions:
   disableNameSuffixHash: true
-
-secretGenerator:
-  - name: azure-cognitive-services
-    type: stringData
-    env: secret.env

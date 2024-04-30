@@ -1,0 +1,38 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  annotations:
+    description: Run the database migration.
+  name: database-migration-only
+  namespace: 9b301c-tools
+spec:
+  params:
+    - default: latest
+      description: The tag given to the built images. Use this to create versioned images.
+      name: IMAGE_TAG
+      type: string
+    - default: dev
+      description: >-
+        Identify the environment to deploy the solution to
+        [dev,test,prod,tools].
+      name: DEPLOY_TO
+      type: string
+
+  tasks:
+    - name: db-migration
+      params:
+        - name: DB_SECRET_NAME
+          value: crunchy-pguser-admin
+        - name: API_NAME
+          value: api
+        - name: IMAGE
+          value: db-migration
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: DEPLOY
+          value: "yes"
+        - name: DEPLOY_TO
+          value: $(params.DEPLOY_TO)
+      taskRef:
+        kind: Task
+        name: db-migration

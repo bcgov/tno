@@ -14,7 +14,6 @@ metadata:
     version: 1.0.0
     component: content-historic-service
     managed-by: kustomize
-type: Opaque
 data:
   KAFKA_CLIENT_ID: ContentHistoric-TNO
   MAX_FAIL_LIMIT: "5"

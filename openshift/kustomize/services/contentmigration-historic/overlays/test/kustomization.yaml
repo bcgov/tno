@@ -11,12 +11,16 @@ generatorOptions:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: ConfigMap
       name: contentmigration-historic-service
     patch: |-
       - op: replace
         path: /data/GENERATE_ALERTS_ON_CONTENT_MIGRATION
         value: "false"
+  - target:
+      kind: DeploymentConfig
+      name: contentmigration-historic-service
+    patch: |-
       - op: replace
         path: /spec/replicas
         value: 1
@@ -31,7 +35,7 @@ patches:
         value: 25m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 250Mi
+        value: 200Mi
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: contentmigration-service:test

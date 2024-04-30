@@ -12,7 +12,6 @@ metadata:
     component: kowl
     managed-by: kustomize
     created-by: jeremy.foster
-type: Opaque
 data:
   config.yaml: |+
     kafka:

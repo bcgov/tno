@@ -22,13 +22,13 @@ patches:
         value: 50m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 150Mi
+        value: 80Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
         value: 100m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 350Mi
+        value: 150Mi
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: folder-collection-service:prod

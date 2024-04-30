@@ -53,7 +53,7 @@ spec:
           resources:
             limits:
               cpu: 25m
-              memory: 250Mi
+              memory: 200Mi
             requests:
               cpu: 10m
               memory: 128Mi
@@ -98,7 +98,7 @@ spec:
             - name: Auth__Keycloak__Secret
               valueFrom:
                 secretKeyRef:
-                  name: services
+                  name: keycloak
                   key: KEYCLOAK_CLIENT_SECRET
 
             # Content Migration Service Configuration
@@ -137,6 +137,11 @@ spec:
                 configMapKeyRef:
                   name: contentmigration-historic-service
                   key: GENERATE_ALERTS_ON_CONTENT_MIGRATION
+            - name: Service__AllowSourceContentOverwrite
+              valueFrom:
+                configMapKeyRef:
+                  name: contentmigration-service
+                  key: ALLOW_SOURCE_CONTENT_OVERWRITE
 
             # CHES Configuration
             - name: CHES__From

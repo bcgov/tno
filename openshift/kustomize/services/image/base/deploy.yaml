@@ -61,7 +61,7 @@ spec:
           resources:
             limits:
               cpu: 35m
-              memory: 100Mi
+              memory: 120Mi
             requests:
               cpu: 15m
               memory: 75Mi
@@ -106,7 +106,7 @@ spec:
             - name: Auth__Keycloak__Secret
               valueFrom:
                 secretKeyRef:
-                  name: services
+                  name: keycloak
                   key: KEYCLOAK_CLIENT_SECRET
 
             - name: Service__VolumePath

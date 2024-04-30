@@ -47,8 +47,8 @@ spec:
             defaultMode: 420
       containers:
         - name: filemonitor-service
-          filemonitor: ""
-          filemonitorPullPolicy: Always
+          image: ""
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -106,7 +106,7 @@ spec:
             - name: Auth__Keycloak__Secret
               valueFrom:
                 secretKeyRef:
-                  name: services
+                  name: keycloak
                   key: KEYCLOAK_CLIENT_SECRET
 
             - name: Service__VolumePath

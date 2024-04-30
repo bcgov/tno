@@ -6,7 +6,10 @@ namespace: 9b301c-dev
 secretGenerator:
   - name: ches
     type: stringData
-    env: secret.env
+    env: ches.env
+  - name: keycloak
+    envs:
+      - keycloak.env
 
 resources:
   - ../../base
@@ -17,18 +20,24 @@ generatorOptions:
 patches:
   - target:
       kind: ConfigMap
+      name: keycloak
+    patch: |-
+      - op: replace
+        path: /data/KEYCLOAK_AUTHORITY
+        value: https://dev.loginproxy.gov.bc.ca/auth/realms/standard
+      - op: replace
+        path: /data/CSS_ENVIRONMENT
+        value: dev
+      - op: replace
+        path: /data/CSS_AUTHORITY
+        value: https://loginproxy.gov.bc.ca
+  - target:
+      kind: ConfigMap
       name: services
     patch: |-
       - op: replace
         path: /data/KEYCLOAK_AUTHORITY
         value: https://dev.loginproxy.gov.bc.ca/auth
-  - target:
-      kind: ConfigMap
-      name: ches
-    patch: |-
-      - op: replace
-        path: /data/CHES_FROM
-        value: (DEV) Media Monitoring Insights <mmi@gov.bc.ca>
   - target:
       kind: ConfigMap
       name: reporting-shared

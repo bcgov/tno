@@ -71,4 +71,12 @@ deploy: ## Deploy to environment (e=environment).
 	$(info Deploy to environment (e=environment) [e=$(if $(e),$(e),dev)])
 	@cd ./scripts; ./deploy.sh $(if $(e),$(e),dev)
 
+stop: ## Stop environment (e=environment).
+	$(info Stop environment (e=environment) [e=$(if $(e),$(e),dev)])
+	@cd ./scripts; ./stop.sh $(if $(e),$(e),dev)
+
+up: ## Start up environment (e=environment).
+	$(info Start up environment (e=environment) [e=$(if $(e),$(e),dev)])
+	@cd ./scripts; ./up.sh $(if $(e),$(e),dev)
+
 .PHONY: local
