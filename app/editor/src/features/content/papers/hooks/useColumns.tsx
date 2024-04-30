@@ -2,6 +2,7 @@ import { Status } from 'components/status';
 import { TabControl } from 'components/tab-control';
 import { AdvancedSearchKeys } from 'features/content/constants';
 import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
+import { naturalSortValue } from 'features/content/list-view/utils/naturalSort';
 import { useContent } from 'store/hooks';
 import { IContentSearchResult } from 'store/slices';
 import { CellEllipsis, Checkbox, ITableHookColumn, LogicalOperator, Page, Row } from 'tno-core';
@@ -45,11 +46,7 @@ export const useColumns = ({
     },
     {
       accessor: 'section',
-      sort: (row) => {
-        return `${row.original.page ? row.original.page : ''}:${
-          row.original.section ? row.original.section : ''
-        }`;
-      },
+      sort: (row) => naturalSortValue(row.original),
       label: (
         <Row nowrap>
           Page:Section
