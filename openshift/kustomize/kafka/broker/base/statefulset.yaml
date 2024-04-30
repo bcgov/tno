@@ -17,13 +17,13 @@ spec:
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      statefulset: kafka-cluster
+      statefulset: kafka-broker-cluster
   serviceName: kafka-headless
   updateStrategy:
     type: RollingUpdate
   volumeClaimTemplates:
     - metadata:
-        name: kafka-data
+        name: kafka-broker-data
         annotations:
           volume.beta.kubernetes.io/storage-class: netapp-block-standard
         labels:
@@ -32,7 +32,6 @@ spec:
           component: kafka-broker
       spec:
         storageClassName: netapp-block-standard
-        persistentVolumeReclaimPolicy: Retain
         accessModes:
           - ReadWriteOnce
         resources:
@@ -44,7 +43,7 @@ spec:
         name: kafka-broker
         part-of: tno
         component: kafka-broker
-        statefulset: kafka-cluster
+        statefulset: kafka-broker-cluster
     spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
@@ -60,14 +59,14 @@ spec:
                   - key: statefulset
                     operator: In
                     values:
-                      - kafka-cluster
+                      - kafka-broker-cluster
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: kafka-broker
-          image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/kafka:dev
+          image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/cp-kafka:7.6.1
           imagePullPolicy: Always
           volumeMounts:
-            - name: kafka-data
+            - name: kafka-broker-data
               mountPath: /var/lib/kafka/data
           ports:
             - containerPort: 9092
@@ -104,7 +103,7 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.name
             # Set by entrypoint script, because this feature 'fieldPath' does not work.
-            # - name: KAFKA_BROKER_ID
+            # - name: KAFKA_NODE_ID
             #   valueFrom:
             #     fieldRef:
             #       apiVersion: v1

@@ -12,7 +12,6 @@ metadata:
     version: 1.0.0
     component: ches
     managed-by: kustomize
-type: Opaque
 data:
   CHES_AUTH_URL: https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
   CHES_HOST_URI: https://ches-dev.api.gov.bc.ca/api/v1

@@ -28,7 +28,7 @@ podsCharts=$(getPods charts-api dc $env)
 podsEditor=$(getPods editor dc $env)
 podsSubscriber=$(getPods subscriber dc $env)
 
-podsCapture=$(getPods capture-service dc $env)
+# podsCapture=$(getPods capture-service dc $env)
 podsContentMigration=$(getPods contentmigration-service dc $env)
 podsContentMigrationHistoric=$(getPods contentmigration-historic-service dc $env)
 podsFileMonitor=$(getPods filemonitor-service dc $env)
@@ -42,7 +42,7 @@ podsContentTNO=$(getPods content-historic-service dc $env)
 podsFileCopy=$(getPods filecopy-service dc $env)
 podsFolderCollection=$(getPods folder-collection-service dc $env)
 
-podsClip=$(getPods clip-service dc $env)
+# podsClip=$(getPods clip-service dc $env)
 podsFFmpeg=$(getPods ffmpeg-service dc $env)
 podsNLP=$(getPods nlp-service dc $env)
 podsExtractQuotes=$(getPods extract-quotes-service dc $env)
@@ -54,35 +54,7 @@ podsNotification=$(getPods notification-service dc $env)
 podsEventHandler=$(getPods event-handler-service dc $env)
 
 # Stop everyting
-# scale api 0 sts
-scale charts-api 0 dc $env
-scale editor 0 dc $env
-scale subscriber 0 dc $env
-
-scale capture-service 0 dc $env
-scale contentmigration-service 0 dc $env
-scale contentmigration-historic-service 0 dc $env
-scale filemonitor-service 0 dc $env
-scale syndication-service 0 dc $env
-scale image-service 0 dc $env
-
-scale indexing-service 0 dc $env
-scale content-service 0 dc $env
-scale content-historic-service 0 dc $env
-
-scale filecopy-service 0 dc $env
-scale folder-collection-service 0 dc $env
-
-scale clip-service 0 dc $env
-scale ffmpeg-service 0 dc $env
-scale nlp-service 0 dc $env
-scale extract-quotes-service 0 dc $env
-scale transcription-service 0 dc $env
-
-scale scheduler-service 0 dc $env
-scale reporting-service 0 dc $env
-scale notification-service 0 dc $env
-scale event-handler-service 0 dc $env
+./stop.sh $env
 
 # APIs
 oc tag api:latest api:$env
@@ -97,7 +69,7 @@ oc tag editor:latest editor:$env
 oc tag subscriber:latest subscriber:$env
 
 # Ingest Services
-oc tag capture-service:latest capture-service:$env
+# oc tag capture-service:latest capture-service:$env
 oc tag contentmigration-service:latest contentmigration-service:$env
 oc tag filemonitor-service:latest filemonitor-service:$env
 oc tag syndication-service:latest syndication-service:$env
@@ -112,7 +84,7 @@ oc tag filecopy-service:latest filecopy-service:$env
 oc tag folder-collection-service:latest folder-collection-service:$env
 
 # Transform Services
-oc tag clip-service:latest clip-service:$env
+# oc tag clip-service:latest clip-service:$env
 oc tag ffmpeg-service:latest ffmpeg-service:$env
 oc tag nlp-service:latest nlp-service:$env
 oc tag extract-quotes-service:latest extract-quotes-service:$env
@@ -130,7 +102,7 @@ scale charts-api $podsCharts dc $env
 scale editor $podsEditor dc $env
 scale subscriber $podsSubscriber dc $env
 
-scale capture-service $podsCapture dc $env
+# scale capture-service $podsCapture dc $env
 scale contentmigration-service $podsContentMigration dc $env
 scale contentmigration-historic-service $podsContentMigrationHistoric dc $env
 scale filemonitor-service $podsFileMonitor dc $env
@@ -144,7 +116,7 @@ scale content-historic-service $podsContentTNO dc $env
 scale filecopy-service $podsFileCopy dc $env
 scale folder-collection-service $podsFolderCollection dc $env
 
-scale clip-service $podsClip dc $env
+# scale clip-service $podsClip dc $env
 scale ffmpeg-service $podsFFmpeg dc $env
 scale nlp-service $podsNLP dc $env
 scale extract-quotes-service $podsExtractQuotes dc $env

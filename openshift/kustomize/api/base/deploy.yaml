@@ -95,53 +95,53 @@ spec:
             - name: Keycloak__Authority
               valueFrom:
                 configMapKeyRef:
-                  name: api
+                  name: keycloak
                   key: KEYCLOAK_AUTHORITY
             - name: Keycloak__Audience
               valueFrom:
                 configMapKeyRef:
-                  name: api
+                  name: keycloak
                   key: KEYCLOAK_AUDIENCE
             - name: Keycloak__Issuer
               valueFrom:
                 configMapKeyRef:
-                  name: api
+                  name: keycloak
                   key: KEYCLOAK_ISSUER
             - name: Keycloak__Secret
               valueFrom:
                 secretKeyRef:
-                  name: services
+                  name: keycloak
                   key: KEYCLOAK_CLIENT_SECRET
 
             - name: CSS__IntegrationId
               valueFrom:
                 configMapKeyRef:
-                  name: api
+                  name: keycloak
                   key: CSS_INTEGRATION_ID
             - name: CSS__Environment
               valueFrom:
                 configMapKeyRef:
-                  name: api
+                  name: keycloak
                   key: CSS_ENVIRONMENT
             - name: CSS__ApiUrl
               valueFrom:
                 configMapKeyRef:
-                  name: api
+                  name: keycloak
                   key: CSS_API_URL
             - name: CSS__Authority
               valueFrom:
                 configMapKeyRef:
-                  name: api
+                  name: keycloak
                   key: CSS_AUTHORITY
             - name: CSS__ClientId
               valueFrom:
                 configMapKeyRef:
-                  name: api
+                  name: keycloak
                   key: CSS_CLIENT_ID
             - name: CSS__Secret
               valueFrom:
                 secretKeyRef:
-                  name: api
+                  name: keycloak
                   key: CSS_SECRET
 
             - name: KAFKA_BOOTSTRAP_SERVERS
@@ -188,17 +188,17 @@ spec:
             - name: Reporting__SubscriberAppUrl
               valueFrom:
                 configMapKeyRef:
-                  name: api
-                  key: REPORTING_SUBSCRIBER_URL
+                  name: reporting-shared
+                  key: REPORTING_BASE_URL
             - name: Reporting__ViewContentUrl
               valueFrom:
                 configMapKeyRef:
-                  name: api
+                  name: reporting-shared
                   key: REPORTING_VIEW_CONTENT_URL
             - name: Reporting__RequestTranscriptUrl
               valueFrom:
                 configMapKeyRef:
-                  name: api
+                  name: reporting-shared
                   key: REPORTING_REQUEST_TRANSCRIPT_URL
 
             # CHES Configuration

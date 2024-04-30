@@ -13,7 +13,6 @@ metadata:
     version: 1.0.0
     component: extract-quotes-service
     managed-by: kustomize
-type: Opaque
 data:
   KAFKA_CLIENT_ID: ExtractQuotes
   MAX_FAIL_LIMIT: "5"

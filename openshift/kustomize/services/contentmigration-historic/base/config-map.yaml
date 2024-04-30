@@ -14,7 +14,6 @@ metadata:
     version: 1.0.0
     component: contentmigration-historic-service
     managed-by: kustomize
-#type: Opaque
 data:
   MAX_FAIL_LIMIT: "5"
   VOLUME_PATH: /data
@@ -26,3 +25,4 @@ data:
   GENERATE_ALERTS_ON_CONTENT_MIGRATION: "true"
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"
+  ALLOW_SOURCE_CONTENT_OVERWRITE: "true"

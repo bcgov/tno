@@ -6,6 +6,19 @@ namespace: 9b301c-prod
 resources:
   - ../../base
 
+generatorOptions:
+  disableNameSuffixHash: true
+
+secretGenerator:
+  - name: elastic
+    type: stringData
+    env: secret.env
+
+# Add the following files to this folder
+# They should contain the tls routes with the certificate information.
+patchesStrategicMerge:
+  - route.env
+
 patches:
   - target:
       kind: Route
@@ -13,7 +26,7 @@ patches:
     patch: |-
       - op: replace
         path: /spec/host
-        value: tno.gov.bc.ca
+        value: mmi.gov.bc.ca
   - target:
       kind: StatefulSet
       name: elastic

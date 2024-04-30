@@ -53,7 +53,7 @@ spec:
           resources:
             requests:
               cpu: 20m
-              memory: 100Mi
+              memory: 80Mi
             limits:
               cpu: 75m
               memory: 300Mi
@@ -93,7 +93,7 @@ spec:
             - name: Auth__Keycloak__Secret
               valueFrom:
                 secretKeyRef:
-                  name: services
+                  name: keycloak
                   key: KEYCLOAK_CLIENT_SECRET
 
             - name: Kafka__Admin__ClientId

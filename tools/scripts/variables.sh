@@ -189,11 +189,6 @@ export portScheduler=40035
 export portEventHandler=40036
 export portExtractQuotes=40037
 
-export portKafkaZookeeper=40100
 export portKafkaBrokerAdvertisedHost=40101
 export portKafkaBrokerAdvertisedExternal=40102
-export portKafkaSchemaRegistry=40103
-export portKafkaRestProxy=40104
-export portKafkaConnect=40105
-export portKafkaKsqlDb=40106
 export portKafkaKowl=40180

@@ -12,7 +12,6 @@ metadata:
     version: 1.0.0
     component: reporting-shared
     managed-by: kustomize
-type: Opaque
 data:
   REPORTING_BASE_URL: ""
   REPORTING_VIEW_CONTENT_URL: ""

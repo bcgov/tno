@@ -49,7 +49,7 @@ spec:
               memory: 250Mi
             requests:
               cpu: 20m
-              memory: 180Mi
+              memory: 80Mi
           env:
             # .NET Configuration
             - name: ASPNETCORE_ENVIRONMENT
@@ -86,7 +86,7 @@ spec:
             - name: Auth__Keycloak__Secret
               valueFrom:
                 secretKeyRef:
-                  name: services
+                  name: keycloak
                   key: KEYCLOAK_CLIENT_SECRET
 
             - name: Kafka__Consumer__GroupId

@@ -121,7 +121,6 @@ spec:
         accessModes:
           - ReadWriteOnce
         storageClassName: netapp-block-standard
-        persistentVolumeReclaimPolicy: Retain
         resources:
           requests:
             storage: 3Gi

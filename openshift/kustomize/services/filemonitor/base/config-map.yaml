@@ -14,7 +14,6 @@ metadata:
     version: 1.0.0
     component: filemonitor-service
     managed-by: kustomize
-type: Opaque
 data:
   MAX_FAIL_LIMIT: "5"
   VOLUME_PATH: /data

@@ -14,7 +14,6 @@ metadata:
     version: 1.0.0
     component: transcription-service
     managed-by: kustomize
-type: Opaque
 data:
   KAFKA_CLIENT_ID: Transcription
   MAX_FAIL_LIMIT: "5"

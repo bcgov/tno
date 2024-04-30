@@ -83,6 +83,12 @@ Enable the **Service Account** to pull images from external sources.
 oc policy add-role-to-user system:image-puller system:serviceaccount:9b301c-dev:default -n 9b301c-tools
 oc policy add-role-to-user system:image-puller system:serviceaccount:9b301c-test:default -n 9b301c-tools
 oc policy add-role-to-user system:image-puller system:serviceaccount:9b301c-prod:default -n 9b301c-tools
+
+# Or apply to the tno account
+oc policy add-role-to-user system:image-puller system:tno:9b301c-prod:default -n 9b301c-tools
+
+# Or apply this to all serviceaccounts
+oc policy add-role-to-group system:image-puller system:serviceaccounts:9b301c-prod -n 9b301c-tools
 ```
 
 There are additional default configurations in the `./templates/network-policy` folder.

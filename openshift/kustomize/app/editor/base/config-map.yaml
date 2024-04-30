@@ -14,7 +14,6 @@ metadata:
     component: editor
     managed-by: kustomize
     created-by: jeremy.foster
-type: Opaque
 data:
   keycloak.json: '{
     "realm": "standard",

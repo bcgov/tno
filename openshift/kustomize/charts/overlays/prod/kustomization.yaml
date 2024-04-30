@@ -20,13 +20,13 @@ patches:
     patch: |-
       - op: replace
         path: /spec/replicas
-        value: 3
+        value: 1
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 20m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 50Mi
+        value: 75Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
         value: 35m

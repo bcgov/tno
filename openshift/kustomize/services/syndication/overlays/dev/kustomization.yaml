@@ -27,13 +27,13 @@ patches:
         value: 20m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 100Mi
+        value: 80Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
         value: 40m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 150Mi
+        value: 128Mi
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: syndication-service:dev

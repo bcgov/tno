@@ -91,13 +91,8 @@ EXTRACT_QUOTES_PORT=$portExtractQuotes
 # Kafka Configuration
 #############################
 
-KAFKA_ZOOKEEPER_PORT=$portKafkaZookeeper
 KAFKA_BROKER_ADVERTISED_HOST_PORT=$portKafkaBrokerAdvertisedHost
 KAFKA_BROKER_ADVERTISED_EXTERNAL_PORT=$portKafkaBrokerAdvertisedExternal
-KAFKA_SCHEMA_REGISTRY_PORT=$portKafkaSchemaRegistry
-KAFKA_REST_PROXY_PORT=$portKafkaRestProxy
-KAFKA_CONNECT_PORT=$portKafkaConnect
-KAFKA_KSQLDB_PORT=$portKafkaKsqlDb
 KAFKA_KOWL_PORT=$portKafkaKowl" >> ./.env
     echo "./.env created"
 fi
@@ -326,140 +321,35 @@ fi
 # Kafka Configuration
 ###########################################################################
 
-# Kafka zookeeper
-if test -f "./db/kafka/zookeeper/.env"; then
-    echo "./db/kafka/zookeeper/.env exists"
-else
-echo \
-"ZOOKEEPER_TICK_TIME=2000
-ZOOKEEPER_CLIENT_PORT=2181" >> ./db/kafka/zookeeper/.env
-    echo "./db/kafka/zookeeper/.env created"
-fi
-
 # Kafka broker
 if test -f "./db/kafka/broker/.env"; then
     echo "./db/kafka/broker/.env exists"
 else
 echo \
-"KAFKA_BROKER_ID=1
-KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-KAFKA_LISTENERS=INTERNAL://broker:29092,HOST://broker:9092,EXTERNAL://broker:29094
-KAFKA_ADVERTISED_LISTENERS=INTERNAL://broker:29092,HOST://localhost:$portKafkaBrokerAdvertisedHost,EXTERNAL://host.docker.internal:$portKafkaBrokerAdvertisedExternal
-KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,HOST:PLAINTEXT,EXTERNAL:PLAINTEXT
-KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
-KAFKA_AUTO_CREATE_TOPICS_ENABLE='true'
+"CLUSTER_ID='MkU3OEVBNTcwNTJENDM2Qk'
+KAFKA_NODE_ID=1
+KAFKA_LISTENER_SECURITY_PROTOCOL_MAP='CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,HOST:PLAINTEXT,EXTERNAL:PLAINTEXT'
+KAFKA_ADVERTISED_LISTENERS='INTERNAL://broker:29092,HOST://localhost:9092,EXTERNAL://host.docker.internal:40102'
 KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
 KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
-
+KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
 KAFKA_JMX_PORT=9101
 KAFKA_JMX_HOSTNAME=host.docker.internal
-KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL=http://schema-registry:8081
-
+KAFKA_PROCESS_ROLES='broker,controller'
+KAFKA_CONTROLLER_QUORUM_VOTERS='1@broker:29093'
+KAFKA_LISTENERS='INTERNAL://broker:29092,CONTROLLER://broker:29093,HOST://0.0.0.0:9092,EXTERNAL://0.0.0.0:29094'
+KAFKA_INTER_BROKER_LISTENER_NAME='INTERNAL'
+KAFKA_CONTROLLER_LISTENER_NAMES='CONTROLLER'
+KAFKA_AUTO_CREATE_TOPICS_ENABLE='true'
+KAFKA_TOOLS_LOG4J_LOGLEVEL=WARN
+KAFKA_LOG4J_LOGGERS=org.apache.zookeeper=ERROR,org.apache.kafka=ERROR,kafka=ERROR,kafka.cluster=ERROR,kafka.controller=ERROR,kafka.coordinator=ERROR,kafka.log=ERROR,kafka.server=ERROR,kafka.zookeeper=ERROR,state.change.logger=ERROR
+KAFKA_LOG4J_ROOT_LEVEL=WARN
+KAFKA_HEAP_OPTS='-Xmx8G -Xms6G'
+KAFKA_JVM_PERFORMANCE_OPTS='-server -XX:MetaspaceSize=96m  -XX:G1HeapRegionSize=16M -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+ExplicitGCInvokesConcurrent -Djava.awt.headless=true'
 KAFKA_NUM_PARTITIONS=3
-
-# KAFKA_METRIC_REPORTERS=io.confluent.metrics.reporter.ConfluentMetricsReporter
-# KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR=1
-# KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR=1
-# KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
-# KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
-
-# CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS=broker:29092
-# CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS=1
-# CONFLUENT_METRICS_ENABLE='true'
-# CONFLUENT_SUPPORT_CUSTOMER_ID='anonymous'
-
-# Rest API v3
-# KAFKA_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS=broker:29092
-# KAFKA_CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT=zookeeper:2181
-# KAFKA_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS=3
-# KAFKA_CONFLUENT_METRICS_ENABLE='true'
-# KAFKA_CONFLUENT_SUPPORT_CUSTOMER_ID=anonymous
-# KAFKA_KAFKA_REST_ADVERTISED_LISTENERS=http://host.docker.internal:$portKafkaKowl
-# KAFKA_KAFKA_REST_ACCESS_CONTROL_ALLOW_ORIGIN='*'
-# KAFKA_KAFKA_REST_ACCESS_CONTROL_ALLOW_METHODS=GET,POST,PUT,DELETE
-# KAFKA_KAFKA_REST_ACCESS_CONTROL_ALLOW_HEADERS=origin,content-type,accept,authorization" >> ./db/kafka/broker/.env
+KAFKA_DEFAULT_REPLICATION_FACTOR=1" >> ./db/kafka/broker/.env
     echo "./db/kafka/broker/.env created"
-fi
-
-# Kafka schema-registry
-if test -f "./db/kafka/schema-registry/.env"; then
-    echo "./db/kafka/schema-registry/.env exists"
-else
-echo \
-"SCHEMA_REGISTRY_HOST_NAME=schema-registry
-SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS='broker:9092'
-SCHEMA_REGISTRY_LISTENERS=http://0.0.0.0:8081" >> ./db/kafka/schema-registry/.env
-    echo "./db/kafka/schema-registry/.env created"
-fi
-
-# Kafka rest-proxy
-if test -f "./db/kafka/rest-proxy/.env"; then
-    echo "./db/kafka/rest-proxy/.env exists"
-else
-echo \
-"KAFKA_REST_HOST_NAME=rest-proxy
-KAFKA_REST_BOOTSTRAP_SERVERS='broker:9092'
-KAFKA_REST_LISTENERS='http://0.0.0.0:8082'
-KAFKA_REST_SCHEMA_REGISTRY_URL='http://schema-registry:8081'" >> ./db/kafka/rest-proxy/.env
-    echo "./db/kafka/rest-proxy/.env created"
-fi
-
-# Kafka connect
-if test -f "./db/kafka/connect/.env"; then
-    echo "./db/kafka/connect/.env exists"
-else
-echo \
-"CONNECT_BOOTSTRAP_SERVERS='broker:9092'
-CONNECT_REST_ADVERTISED_HOST_NAME=connect
-CONNECT_REST_PORT=8083
-CONNECT_GROUP_ID=compose-connect-group
-CONNECT_CONFIG_STORAGE_TOPIC=docker-connect-configs
-CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR=1
-CONNECT_OFFSET_FLUSH_INTERVAL_MS=10000
-CONNECT_OFFSET_STORAGE_TOPIC=docker-connect-offsets
-CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR=1
-CONNECT_STATUS_STORAGE_TOPIC=docker-connect-status
-CONNECT_STATUS_STORAGE_REPLICATION_FACTOR=1
-CONNECT_KEY_CONVERTER=org.apache.kafka.connect.storage.StringConverter
-CONNECT_VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter
-CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
-# CLASSPATH required due to CC-2422
-CLASSPATH=/usr/share/java/monitoring-interceptors/monitoring-interceptors-6.2.1.jar
-CONNECT_PRODUCER_INTERCEPTOR_CLASSES='io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor'
-CONNECT_CONSUMER_INTERCEPTOR_CLASSES='io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor'
-CONNECT_PLUGIN_PATH='/usr/share/java,/usr/share/confluent-hub-components'
-CONNECT_LOG4J_LOGGERS=org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR" >> ./db/kafka/connect/.env
-    echo "./db/kafka/connect/.env created"
-fi
-
-# Kafka ksqldb
-if test -f "./db/kafka/ksqldb/.env"; then
-    echo "./db/kafka/ksqldb/.env exists"
-else
-echo \
-"KSQL_CONFIG_DIR='/etc/ksql'
-KSQL_BOOTSTRAP_SERVERS='broker:29092'
-KSQL_HOST_NAME=ksqldb
-KSQL_LISTENERS='http://0.0.0.0:8088'
-KSQL_CACHE_MAX_BYTES_BUFFERING=0
-KSQL_KSQL_SCHEMA_REGISTRY_URL='http://schema-registry:8081'
-KSQL_PRODUCER_INTERCEPTOR_CLASSES='io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor'
-KSQL_CONSUMER_INTERCEPTOR_CLASSES='io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor'
-KSQL_KSQL_CONNECT_URL='http://connect:8083'
-KSQL_KSQL_LOGGING_PROCESSING_TOPIC_REPLICATION_FACTOR=1
-KSQL_KSQL_SINK_REPLICAS=1
-KSQL_KSQL_STREAMS_REPLICATION_FACTOR=1
-KSQL_KSQL_STREAMS_NUM_STANDBY_REPLICAS=1
-
-## Recommended production settings
-# KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE='true'
-# KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE='true'
-# KSQL_KSQL_STREAMS_PRODUCER_RETRIES=2147483647
-# KSQL_KSQL_STREAMS_PRODUCER_CONFLUENT_BATCH_EXPIRY_MS=9223372036854775807
-# KSQL_KSQL_STREAMS_PRODUCER_REQUEST_TIMEOUT_MS=300000
-# KSQL_KSQL_STREAMS_PRODUCER_MAX_BLOCK_MS=9223372036854775807
-# KSQL_KSQL_STREAMS_STATE_DIR=/mnt/data" >> ./db/kafka/ksqldb/.env
-    echo "./db/kafka/ksqldb/.env created"
 fi
 
 # Kafka Kowl

@@ -28,7 +28,7 @@ patches:
         value: 35m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 100Mi
+        value: 120Mi
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: image-service:prod

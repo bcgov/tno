@@ -2,14 +2,14 @@
 kind: ImageStream
 apiVersion: image.openshift.io/v1
 metadata:
-  name: kafka
+  name: cp-kafka
   annotations:
     description: Destination for built images.
   labels:
-    name: kafka
+    name: cp-kafka
     part-of: tno
     version: 1.0.0
-    component: kafka
+    component: cp-kafka
     managed-by: kustomize
     created-by: jeremy.foster
 
@@ -17,14 +17,14 @@ metadata:
 kind: BuildConfig
 apiVersion: build.openshift.io/v1
 metadata:
-  name: kafka.dev
+  name: cp-kafka.dev
   annotations:
     description: Build image from Dockerfile in git repo.
   labels:
-    name: kafka
+    name: cp-kafka
     part-of: tno
     version: 1.0.0
-    component: kafka
+    component: cp-kafka
     managed-by: kustomize
     created-by: jeremy.foster
     branch: dev
@@ -47,7 +47,7 @@ spec:
   output:
     to:
       kind: ImageStreamTag
-      name: kafka:latest
+      name: cp-kafka:latest
   resources:
     limits:
       cpu: 2000m
