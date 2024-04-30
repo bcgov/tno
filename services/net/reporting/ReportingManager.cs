@@ -349,6 +349,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
         var sectionContent = new Dictionary<string, ReportSectionModel>();
         var reportInstanceModel = await this.Api.GetCurrentReportInstanceAsync(report.Id, request.RequestorId);
+        var instanceUpdateRequired = false;
 
         if (reportInstanceModel == null || reportInstanceModel.SentOn.HasValue)
         {
@@ -432,7 +433,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             reportInstanceContents = sectionContent.SelectMany(s => s.Value.Content.Where(c => c.Id > 0).Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
             var reportInstanceContentsBad = sectionContent.SelectMany(s => s.Value.Content.Where(c => c.Id == 0).Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
             if (reportInstanceContentsBad.Any())
-                this.Logger.LogWarning($"Report [{report.Name}] {request.GenerateInstance}has malformed content. It will be generated, but may not match expectations.");
+                this.Logger.LogWarning($"Report [{report.Name}] {request.GenerateInstance} has malformed content. It will be generated, but may not match expectations.");
 
             // Update instance
             instanceModel.Subject = subject;
@@ -441,7 +442,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             {
                 InstanceId = instanceModel.Id
             });
-            instanceModel = await this.Api.UpdateReportInstanceAsync(instanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+            instanceUpdateRequired = true;
         }
 
         if (request.SendToSubscribers || !String.IsNullOrEmpty(request.To))
@@ -490,9 +491,12 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 if (request.SendToSubscribers)
                     instanceModel.SentOn = instanceModel.Status == ReportStatus.Accepted ? DateTime.UtcNow : null;
                 if (instanceModel.PublishedOn == null) instanceModel.PublishedOn = DateTime.UtcNow;
-                await this.Api.UpdateReportInstanceAsync(instanceModel);
+                instanceUpdateRequired = true;
             }
         }
+
+        if (instanceModel != null && instanceUpdateRequired)
+            instanceModel = await this.Api.UpdateReportInstanceAsync(instanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
 
         if (report.Settings.Content.ClearFolders && request.SendToSubscribers)
         {
