@@ -69,7 +69,7 @@ export interface IAdvancedSearchProps {
  */
 export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => {
   const navigate = useNavigate();
-  const [, { addFilter, updateFilter }] = useFilters();
+  const [{ myFilters }, { addFilter, updateFilter }] = useFilters();
   const [
     {
       search: { filter: search },
@@ -124,6 +124,14 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
       : { ...defaultFilter, name: searchName, query, settings };
 
     if (!filter.id) {
+      if (!searchName) {
+        toast.error('Please enter a name for your search.');
+        return;
+      }
+      if (myFilters.some((f) => f.name === searchName)) {
+        toast.error('A filter with this name already exists.');
+        return;
+      }
       await addFilter(filter)
         .then((data) => {
           toast.success(`${data.name} has successfully been saved.`);
@@ -150,6 +158,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     storeSearchFilter,
     navigate,
     updateFilter,
+    myFilters,
   ]);
 
   return (
