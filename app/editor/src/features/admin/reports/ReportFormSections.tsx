@@ -146,10 +146,19 @@ export const ReportFormSections = () => {
             />
             <Checkbox
               name={`settings.content.copyPriorInstance`}
-              label="Empty report when starting next report"
-              checked={!values.settings.content.copyPriorInstance}
+              label="Copy prior report when starting new report"
+              checked={values.settings.content.copyPriorInstance}
               onChange={(e) => {
-                setFieldValue('settings.content.copyPriorInstance', !e.target.checked);
+                setFieldValue('settings.content.copyPriorInstance', e.target.checked);
+              }}
+            />
+            <Checkbox
+              name={`settings.content.clearOnStartNewReport`}
+              label="Empty report when starting next report"
+              tooltip="If this is off an auto report will not generate a new report if an active one already exists."
+              checked={values.settings.content.clearOnStartNewReport}
+              onChange={(e) => {
+                setFieldValue('settings.content.clearOnStartNewReport', e.target.checked);
               }}
             />
           </Col>

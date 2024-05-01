@@ -92,11 +92,37 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
             <p>
               An Auto Report is created for you on a schedule, but sent manually. If the report is
               not sent before the next scheduled run, it will <strong>not</strong> generate a new
-              report.
+              report unless you select 'Empty report when staring next report'.
             </p>
+            <Show
+              visible={
+                kind === ReportKindName.Auto &&
+                !instance?.sentOn &&
+                !values.settings.content.clearOnStartNewReport
+              }
+            >
+              <p className="error">
+                There is active report. The next time this auto report runs it will use the existing
+                active report. If you want it to generate a new report you must send this active
+                report, or select 'Empty report when starting next report'.
+              </p>
+            </Show>
           </Col>
           <Col className="info" flex="1">
             <p>An Auto Send Report is created for you on a schedule and sent at the same time.</p>
+            <Show
+              visible={
+                kind === ReportKindName.AutoSend &&
+                !instance?.sentOn &&
+                !values.settings.content.clearOnStartNewReport
+              }
+            >
+              <p className="error">
+                You have already manually started a report. The next time this auto report runs it
+                will use the existing active report. If you want it to generate a new report you
+                must send this active report, or select 'Empty report when starting next report'.
+              </p>
+            </Show>
           </Col>
         </Row>
       </div>
@@ -111,7 +137,11 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
             ...values,
             settings: {
               ...values.settings,
-              content: { ...values.settings.content, copyPriorInstance: false },
+              content: {
+                ...values.settings.content,
+                copyPriorInstance: auto ? false : values.settings.content.copyPriorInstance,
+                clearOnStartNewReport: auto,
+              },
             },
             events: values.events.map((e) => ({
               ...e,
@@ -126,15 +156,19 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
           <ReportSchedule index={0} label="Schedule 1" />
           <ReportSchedule index={1} label="Schedule 2" />
         </div>
-        <Col className="info" flex="1">
-          <p>
-            A schedule that has already populated a report in a given day, will not attempt to do so
-            again unless you allow it to 'Run again today'.
-          </p>
-        </Col>
       </Show>
-      <Show visible={kind === ReportKindName.Manual}>
-        <div className="schedule-actions">
+      <div className="schedule-actions">
+        <Show visible={kind !== ReportKindName.Manual}>
+          <Checkbox
+            name={`settings.content.clearOnStartNewReport`}
+            label="Empty report when starting next report"
+            checked={values.settings.content.clearOnStartNewReport}
+            onChange={(e) => {
+              setFieldValue('settings.content.clearOnStartNewReport', e.target.checked);
+            }}
+          />
+        </Show>
+        <Show visible={kind === ReportKindName.Manual}>
           <Checkbox
             name={`settings.content.copyPriorInstance`}
             label="Empty report when starting next report"
@@ -151,8 +185,8 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
               </Button>
             </Row>
           </Show>
-        </div>
-      </Show>
+        </Show>
+      </div>
     </styled.ReportEditSendForm>
   );
 };

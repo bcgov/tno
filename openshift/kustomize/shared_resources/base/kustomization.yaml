@@ -8,6 +8,7 @@ resources:
   - ches-config-map.yaml
   - reporting-shared-config-map.yaml
   - pvc.yaml
+  - service-account.yaml
 
 generatorOptions:
   disableNameSuffixHash: true
