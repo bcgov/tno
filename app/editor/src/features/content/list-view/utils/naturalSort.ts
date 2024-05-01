@@ -14,8 +14,6 @@ function getSourceValue(row: IContentSearchResult): string {
 
 export function naturalSortValue(row: IContentSearchResult) {
   const pageSectionValue = getPageSectionValue(row);
-  const source = getSourceValue(row);
-
   // Replace each segment of digits and non-digits with formatted strings
   // Digits are padded with zeros to the left to ensure correct natural sorting
   // Non-digits are left as is
@@ -25,5 +23,5 @@ export function naturalSortValue(row: IContentSearchResult) {
     $1 ? Number($1).toString().padStart(10, '0') : $2,
   );
   // we do consider source as the primary key for sorting
-  return `${source}:${formattedPageSectionValue}`;
+  return formattedPageSectionValue;
 }
