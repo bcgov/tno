@@ -92,7 +92,7 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
             <p>
               An Auto Report is created for you on a schedule, but sent manually. If the report is
               not sent before the next scheduled run, it will <strong>not</strong> generate a new
-              report unless you select 'Empty report when staring next report'.
+              report unless you select 'Empty report when starting next report'.
             </p>
             <Show
               visible={

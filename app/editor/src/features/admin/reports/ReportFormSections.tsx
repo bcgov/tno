@@ -155,7 +155,7 @@ export const ReportFormSections = () => {
             <Checkbox
               name={`settings.content.clearOnStartNewReport`}
               label="Empty report when starting next report"
-              tooltip="If this is off an auto report will not generate a new report if an active one already exists."
+              tooltip="If this is not set an auto report will not generate a new report if an active one already exists."
               checked={values.settings.content.clearOnStartNewReport}
               onChange={(e) => {
                 setFieldValue('settings.content.clearOnStartNewReport', e.target.checked);

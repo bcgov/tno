@@ -64,7 +64,7 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ index, label })
 
         <Col className="info">
           <p>
-            A schedule that has already populated a report in a given day, will not attempt to do so
+            A schedule that has already populated a report in a given day will not attempt to do so
             again unless you allow it to 'Run again today'.
           </p>
         </Col>
