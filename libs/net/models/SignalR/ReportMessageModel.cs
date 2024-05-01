@@ -14,6 +14,11 @@ public class ReportMessageModel : AuditColumnsModel
     public long Id { get; set; }
 
     /// <summary>
+    /// get/set - Primary key
+    /// </summary>
+    public int ReportId { get; set; }
+
+    /// <summary>
     /// get/set - A subject to identify the report.
     /// </summary>
     public string Subject { get; set; } = "";
@@ -42,6 +47,7 @@ public class ReportMessageModel : AuditColumnsModel
     public ReportMessageModel(ReportInstance entity) : base(entity)
     {
         this.Id = entity.Id;
+        this.ReportId = entity.ReportId;
         this.Subject = entity.Subject;
         this.Status = entity.Status;
         this.OwnerId = entity.OwnerId;
