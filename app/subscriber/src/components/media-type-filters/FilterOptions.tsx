@@ -7,11 +7,14 @@ import {
   FaTowerCell,
 } from 'react-icons/fa6';
 import { useContent, useLookup } from 'store/hooks';
+import { useUsers } from 'store/hooks';
+import { useAppStore } from 'store/slices';
 import {
   Button,
   ButtonHeight,
   ContentTypeName,
   IFilterSettingsModel,
+  ISubscriberUserModel,
   useWindowSize,
 } from 'tno-core';
 
@@ -37,8 +40,24 @@ export interface IMediaTypeFiltersProps {
  * @param filterStoreName - name of the filter in redux context
  */
 export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreName }) => {
+  const [{ userInfo }, store] = useAppStore();
   const [active, setActive] = useState<FilterOptionTypes>(FilterOptionTypes.Papers);
   const filterStoreMethod = determineStore(filterStoreName);
+  const api = useUsers();
+
+  const savePreferences = async (filterPreference: FilterOptionTypes) => {
+    if (userInfo) {
+      try {
+        const user = {
+          ...userInfo,
+          preferences: { ...userInfo.preferences, filterPreference },
+        } as ISubscriberUserModel;
+        await api.updateUser(user, userInfo.id);
+        store.storeUserInfo({ ...userInfo, preferences: user.preferences });
+      } catch {}
+    }
+  };
+
   const [
     {
       [filterStoreName]: { filter },
@@ -92,7 +111,11 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
 
   useEffect(() => {
     if (!filter.contentTypes?.length && !filter.mediaTypeIds?.length) {
-      setActive(FilterOptionTypes.All);
+      if (userInfo && userInfo.preferences && userInfo.preferences.filterPreference) {
+        setActive(userInfo.preferences.filterPreference);
+      } else {
+        setActive(FilterOptionTypes.All);
+      }
     } else if (
       filter.mediaTypeIds?.includes(mediaTypes.find((s) => s.name === 'Events')?.id ?? 0)
     ) {
@@ -120,7 +143,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
         }
       }
     }
-  }, [filter, mediaTypes]);
+  }, [filter, mediaTypes, userInfo]);
 
   const filters = [
     { type: FilterOptionTypes.Papers, label: 'PAPERS', icon: <FaNewspaper /> },
@@ -139,7 +162,10 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
           rounded
           height={ButtonHeight.Small}
           className={getClassName(filter.type)}
-          onClick={() => handleFilterClick(filter.type)}
+          onClick={() => {
+            handleFilterClick(filter.type);
+            savePreferences(filter.type);
+          }}
         >
           {width && width < 768 ? filter.icon ?? 'All' : filter.label}
         </Button>
