@@ -703,7 +703,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         await HandleChesEmailOverrideAsync(request.RequestorId);
 
         var contexts = new List<EmailContextModel>();
-        if (!String.IsNullOrWhiteSpace(request.To))
+        if (!String.IsNullOrWhiteSpace(request.To) && request.To.IsValidEmail())
         {
             // Add a context for the requested list of users.
             var another = request.To.Split(",").Select(v => v.Trim());
@@ -714,7 +714,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         }
         else
         {
-            contexts.AddRange(to.Select(v => new EmailContextModel(new[] { v }, new Dictionary<string, object>(), DateTime.Now)
+            contexts.AddRange(to.Where(v => v.IsValidEmail()).Select(v => new EmailContextModel(new[] { v }, new Dictionary<string, object>(), DateTime.Now)
             {
                 Tag = tag,
             }).ToList());

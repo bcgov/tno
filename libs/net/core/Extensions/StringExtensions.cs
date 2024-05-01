@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net.Mail;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -290,7 +291,9 @@ public static class StringExtensions
                     // found at least one paragraph placeholder
                     sanitizedString = $"<p>{result.Replace(PARAGRAPH_MARKER, "</p><p>")}</p>";
                 }
-            } else {
+            }
+            else
+            {
                 // this is markup, so remove excess carriage returns and line feeds if found
                 string result = Regex.Replace(sanitizedString, @"\r\n?|\n", PARAGRAPH_MARKER);
                 if (!result.Equals(sanitizedString, StringComparison.CurrentCultureIgnoreCase))
@@ -382,5 +385,23 @@ public static class StringExtensions
     public static string Escape(this string value)
     {
         return Regex.Replace(value, @"[^a-zA-Z\d\s:]", "\\$0");
+    }
+
+    /// <summary>
+    /// Determines if the email address is valid.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static bool IsValidEmail(this string value)
+    {
+        try
+        {
+            var email = new MailAddress(value);
+        }
+        catch
+        {
+            return false;
+        }
+        return true;
     }
 }
