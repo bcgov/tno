@@ -18,6 +18,7 @@ public class TemplateEngine<T> : ITemplateEngine<T>
             "System",
             "System.Collections",
             "System.Private.Uri",
+            "System.Text.Json",
             "System.Web.HttpUtility",
             "TNO.Core",
             "TNO.Entities",

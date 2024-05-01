@@ -601,7 +601,11 @@ public class ReportService : BaseService<Report, int>, IReportService
             query = query.Where(ri => ri.OwnerId == ownerId);
 
         if (includeContent)
-            query = query.Include(i => i.ContentManyToMany).ThenInclude(c => c.Content);
+            query = query
+                .Include(i => i.ContentManyToMany)
+                    .ThenInclude(c => c.Content).ThenInclude(c => c!.TonePoolsManyToMany).ThenInclude(ct => ct.TonePool)
+                .Include(i => i.ContentManyToMany)
+                    .ThenInclude(c => c.Content).ThenInclude(c => c!.MediaType);
         else
             query = query.Include(i => i.ContentManyToMany);
 
