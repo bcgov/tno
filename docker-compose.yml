@@ -438,7 +438,6 @@ services:
       - utility
       - init
       - service
-      - main
     restart: "no"
     container_name: tno-corenlp
     build:
