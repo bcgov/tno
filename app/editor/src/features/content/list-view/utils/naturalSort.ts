@@ -7,10 +7,6 @@ function getPageSectionValue(row: IContentSearchResult) {
   }`.toLowerCase();
   return value;
 }
-function getSourceValue(row: IContentSearchResult): string {
-  // get source code for sorting
-  return row.original.source ? row.original.source.code.toLowerCase() : '';
-}
 
 export function naturalSortValue(row: IContentSearchResult) {
   const pageSectionValue = getPageSectionValue(row);
