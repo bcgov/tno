@@ -634,7 +634,20 @@ public class ContentController : ControllerBase
 
             if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
 
-            return new JsonResult(new ContentModel(content));
+            var updatedContent = new ContentModel(content);
+
+            if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
+            {
+                var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+                var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+                if (updatedContent.Status == ContentStatus.Publish || updatedContent.Status == ContentStatus.Published)
+                    await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Publish));
+                else
+                    await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Index));
+            }
+            else
+                _logger.LogWarning("Kafka indexing topic not configured.");
+            return new JsonResult(updatedContent);
         }
         else if (dataLocation?.Connection == null)
         {
@@ -648,7 +661,21 @@ public class ContentController : ControllerBase
 
             if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
 
-            return new JsonResult(new ContentModel(content));
+            var updatedContent = new ContentModel(content);
+
+            if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
+            {
+                var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+                var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+                if (updatedContent.Status == ContentStatus.Publish || updatedContent.Status == ContentStatus.Published)
+                    await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Publish));
+                else
+                    await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Index));
+            }
+            else
+                _logger.LogWarning("Kafka indexing topic not configured.");
+
+            return new JsonResult(updatedContent);
         }
         throw new NotImplementedException($"Data location type '{dataLocation?.Connection?.ConnectionType}' has not been configured");
     }
