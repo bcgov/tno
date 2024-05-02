@@ -141,8 +141,10 @@ export const MyMinister: React.FC = () => {
             });
           }
         });
-        setUserMinisters(ministerModels);
         setContent(contentList);
+        setTimeout(() => {
+          setUserMinisters(ministerModels);
+        }, 100);
       }
     }
   }, [userInfo?.preferences?.myMinisters, ministers, fetchResults, filter]);
