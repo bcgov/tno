@@ -268,12 +268,17 @@ public static class ReportExtensions
     /// <param name="contentList"></param>
     /// <returns></returns>
     public static Dictionary<string, int> GetTotalScoresByTopicType(this IEnumerable<ContentModel> contentList) {
+        
         return contentList
-            .Where(x => x.Topics.All(a => a.Name != "Not Applicable"))
+            .Where(a => 
+                a.Topics.Any() // must have at least ONE Topic set
+                && a.Topics.All(a => a.Name != "Not Applicable" && !string.IsNullOrEmpty(a.Name)) // Name must not "Not Applicable" OR be empty
+                && a.Topics.All(t => t.Score > 0) // must have a Topic Score > ZERO
+            )
             .GroupBy(g => g.GetContentGroupByPropertyValue("topicType"))
             .ToDictionary(
                 g => g.Key,
-                g => g.ToList().Sum(s => s.Topics.FirstOrDefault()?.Score ?? 0)
+                g => g.Sum(s => s.Topics.First().Score)
             );
     }
 
@@ -284,7 +289,11 @@ public static class ReportExtensions
     /// <returns></returns>
     public static Dictionary<string, Dictionary<string,int>> GetTopicScoresByTopicTypeAndName(this IEnumerable<ContentModel> contentList) {
         return contentList
-            .Where(x => x.Topics.All(a => a.Name != "Not Applicable"))
+            .Where(a => 
+                a.Topics.Any() // must have at least ONE Topic set
+                && a.Topics.All(a => a.Name != "Not Applicable" && !string.IsNullOrEmpty(a.Name)) // Name must not "Not Applicable" OR be empty
+                && a.Topics.All(t => t.Score > 0) // must have a Topic Score > ZERO
+            )
             .GroupBy(g => g.GetContentGroupByPropertyValue("topicType"))
             .ToDictionary(
                 g => g.Key,
