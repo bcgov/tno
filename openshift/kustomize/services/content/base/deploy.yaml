@@ -146,23 +146,11 @@ spec:
                 configMapKeyRef:
                   name: content-service
                   key: CHES_EMAIL_AUTHORIZED
-            - name: Service__UnpublishedIndex
-              valueFrom:
-                configMapKeyRef:
-                  name: content-service
-                  key: UNPUBLISHED_INDEX
-            - name: Service__PublishedIndex
-              valueFrom:
-                configMapKeyRef:
-                  name: content-service
-                  key: PUBLISHED_INDEX
-            - name: Service__NotificationTopic
-              valueFrom:
-                configMapKeyRef:
-                  name: content-service
-                  key: NOTIFICATION_TOPIC
             - name: Service__MigrationOptions__AllowSourceContentOverwrite
-              value: "True"
+              valueFrom:
+                configMapKeyRef:
+                  name: content-historic-service
+                  key: ALLOW_SOURCE_CONTENT_OVERWRITE
 
             - name: CHES__AuthUrl
               valueFrom:

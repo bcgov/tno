@@ -13,17 +13,11 @@ public class ContentOptions : ServiceOptions
     /// get/set - A comma separated list of topics to consume.
     /// </summary>
     public string ContentTopics { get; set; } = "";
-    
+
     /// <summary>
     /// get/set - A comma separated list of topics to NOT consume.
     /// </summary>
     public string ContentTopicsToExclude { get; set; } = "";
-
-    /// <summary>
-    /// get/set - A topic that the Transcription Service subscribes to.
-    /// Leave blank if it should not publish messages to the Transcription Service.
-    /// </summary>
-    public string TranscriptionTopic { get; set; } = "";
 
     /// <summary>
     /// get/set - The path to files stored on the local volume.

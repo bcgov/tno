@@ -32,8 +32,3 @@ patches:
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: content-service:test
-      - op: add
-        path: /spec/template/spec/containers/0/env/-
-        value:
-          name: Service__MigrationOptions__AllowSourceContentOverwrite
-          value: "true"

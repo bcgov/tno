@@ -90,7 +90,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         DateTime offsetFromNow = DateTime.MaxValue;
         if (importOffsetInHours > 0)
         {
-            // create an artificial buffer so that the migration isnt using most recent updates
+            // create an artificial buffer so that the migration isn't using most recent updates
             offsetFromNow = DateTime.Now.AddMinutes(-1 * 60 * importOffsetInHours);
         }
 
@@ -106,7 +106,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             }
             if (offsetFromNow != DateTime.MaxValue)
             {
-                // apply an artificial buffer so that the migration isnt using most recent updates
+                // apply an artificial buffer so that the migration isn't using most recent updates
                 predicate = predicate.And(ni => (ni.UpdatedOn >= dateFilter) && (ni.UpdatedOn <= offsetFromNow));
             }
             else
@@ -256,14 +256,20 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 
         if ((importMigrationType == ImportMigrationType.Historic) || (importMigrationType == ImportMigrationType.Recent))
         {
-            try {
+            try
+            {
                 importDateStart = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateStart")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateStart") : null;
-            } catch (TNO.Core.Exceptions.ConfigurationException) {
+            }
+            catch (TNO.Core.Exceptions.ConfigurationException)
+            {
                 importDateStart = null;
             }
-            try {
+            try
+            {
                 importDateEnd = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateEnd")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateEnd") : null;
-            } catch (TNO.Core.Exceptions.ConfigurationException) {
+            }
+            catch (TNO.Core.Exceptions.ConfigurationException)
+            {
                 importDateEnd = null;
             }
             try

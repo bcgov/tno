@@ -129,6 +129,11 @@ spec:
                 configMapKeyRef:
                   name: content-historic-service
                   key: CONTENT_TOPICS_OVERRIDE
+            - name: Service__MigrationOptions__AllowSourceContentOverwrite
+              valueFrom:
+                configMapKeyRef:
+                  name: content-historic-service
+                  key: ALLOW_SOURCE_CONTENT_OVERWRITE
 
             # CHES Configuration
             - name: CHES__From
