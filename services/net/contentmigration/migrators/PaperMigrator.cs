@@ -75,9 +75,7 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         };
 
         if (string.IsNullOrEmpty(this.Options.DefaultUserNameForAudit)) throw new System.Configuration.ConfigurationErrorsException("Default Username for ContentMigration has not been configured");
-        var auditUser = lookups.Users.FirstOrDefault(u => u.Username == this.Options.DefaultUserNameForAudit);
-        if (auditUser == null) throw new System.Configuration.ConfigurationErrorsException($"Default User for ContentMigration not found : {this.Options.DefaultUserNameForAudit}");
-
+        var auditUser = lookups.Users.FirstOrDefault(u => u.Username == this.Options.DefaultUserNameForAudit) ?? throw new System.Configuration.ConfigurationErrorsException($"Default User for ContentMigration not found : {this.Options.DefaultUserNameForAudit}");
         if (newsItem.Tones?.Any() == true)
         {
             // TODO: replace the USER_RSN value on UserIdentifier with something that can be mapped by the Content Service to an MMI user

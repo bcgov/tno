@@ -35,10 +35,6 @@ export const Settings = {
   FrontPageImageMediaType: 'FrontPageImageMediaTypeId',
   /** Media types that displays a new window on search results */
   SearchPageResultsNewWindow: 'SearchPageResultsNewWindow',
-  /** Media types that display the page number on search results */
-  SearchPageResultsShowPage: 'SearchPageResultsShowPage',
-  /** Media types that hide the Source on search results */
-  SearchPageResultsHideSource: 'SearchPageResultsHideSource',
   /** The action id for featured content */
   FeaturedAction: 'FeaturedActionId',
   /** The action id for top story content */
