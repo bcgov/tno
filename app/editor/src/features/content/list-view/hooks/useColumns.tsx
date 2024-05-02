@@ -20,6 +20,8 @@ import {
   WorkOrderStatusName,
 } from 'tno-core';
 
+import { naturalSortValue } from '../utils/naturalSort';
+
 export interface IColumnProps {
   fetch: (
     filter: IContentListFilter & Partial<IContentListAdvancedFilter>,
@@ -67,11 +69,7 @@ export const useColumns = ({ fetch }: IColumnProps): ITableHookColumn<IContentSe
     },
     {
       accessor: 'section',
-      sort: (row) => {
-        return `${row.original.page ? row.original.page : ''}:${
-          row.original.section ? row.original.section : ''
-        }`;
-      },
+      sort: (row) => naturalSortValue(row.original),
       label: (
         <Row nowrap>
           Page:Section

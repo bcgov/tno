@@ -4,7 +4,7 @@ import { Container } from '../container';
 import { Text } from '../form';
 import { getSortId, ITableProps, SortFlag, TablePager, useTable } from '.';
 import * as styled from './styled';
-
+import { determineSortValue } from './utils/determineSort';
 export const FlexboxTable = <T extends object>({
   rowId,
   columns,
@@ -109,10 +109,7 @@ export const FlexboxTable = <T extends object>({
                           {
                             id: getSortId(col, index),
                             index: index,
-                            sort:
-                              col.sort ?? typeof col.accessor === 'function'
-                                ? undefined
-                                : col.accessor,
+                            sort: determineSortValue(col),
                             isSorted: !col.isSorted ? true : col.isSortedDesc ? false : true,
                             isSortedDesc: col.isSorted ? !col.isSortedDesc : col.isSortedDesc,
                           },
