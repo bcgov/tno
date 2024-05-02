@@ -6,4 +6,5 @@ export interface IReportContentSettingsModel {
   showLinkToStory: boolean;
   highlightKeywords: boolean;
   copyPriorInstance: boolean;
+  clearOnStartNewReport: boolean;
 }

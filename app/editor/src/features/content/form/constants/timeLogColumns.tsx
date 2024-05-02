@@ -5,7 +5,7 @@ import { Column } from 'react-table';
 import { ITimeTrackingForm } from '../components/time-log/interfaces';
 import { IContentForm } from '../interfaces';
 
-const colWidth = window.innerWidth > 1500 ? 140 : 100;
+const colWidth = window.innerWidth > 1500 ? 140 : window.innerWidth > 1450 ? 100 : 80;
 /** columns located within file for state manipulation */
 export const timeLogColumns = (
   setFieldValue: Function,

@@ -25,7 +25,7 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ index, label })
   const schedule = values.events.length > index ? values.events[index] : undefined;
 
   return (
-    <Row gap="1rem" className="schedule">
+    <Row gap="1rem" className="schedule" nowrap>
       <Col gap="0.25rem" className="frm-in">
         <label>{label}</label>
         <FormikCheckbox name={`events.${index}.isEnabled`} label="Enabled" value={true} />
@@ -61,6 +61,13 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ index, label })
             }
           }}
         />
+
+        <Col className="info">
+          <p>
+            A schedule that has already populated a report in a given day will not attempt to do so
+            again unless you allow it to 'Run again today'.
+          </p>
+        </Col>
       </Col>
       <Col className="frm-in">
         <label>Run On</label>

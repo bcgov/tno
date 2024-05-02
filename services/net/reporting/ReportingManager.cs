@@ -400,6 +400,49 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             instanceModel = request.GenerateInstance ? (await this.Api.AddReportInstanceAsync(new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions))
                 ?? throw new InvalidOperationException("Report instance failed to be returned by API")) : null;
         }
+        else if (report.Settings.Content.ClearOnStartNewReport)
+        {
+            // Must regenerate the active report instance.
+            // Fetch content for every section within the report.  This will include folders and filters.
+            var searchResults = await this.Api.FindContentForReportIdAsync(report.Id, request.RequestorId);
+            var sortOrder = 0;
+            sectionContent = sections.ToDictionary(s => s.Name, section =>
+            {
+                if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
+                {
+                    var sortOrder = 0;
+                    section.Content = ReportEngine.OrderBySectionField(results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).OrderBy(c => c.SortOrder).ToArray(), section.Settings.SortBy, section.Settings.SortDirection);
+                    if (results.Aggregations != null)
+                    {
+                        section.Aggregations = new Dictionary<string, TNO.TemplateEngine.Models.Reports.AggregationRootModel>();
+                        foreach (var aggregation in results.Aggregations)
+                        {
+                            section.Aggregations.Add(aggregation.Key, aggregation.Value.Convert());
+                        }
+                    }
+                }
+                return section;
+            });
+
+            // Fetch all image data.  Need to do this in a separate step because of async+await.
+            // TODO: Review this implementation due to performance issues.
+            foreach (var section in sectionContent)
+            {
+                foreach (var content in section.Value.Content.Where(c => c.ContentType == Entities.ContentType.Image))
+                {
+                    content.ImageContent = await this.Api.GetImageFile(content.Id);
+                }
+            }
+
+            instanceModel = new API.Areas.Services.Models.ReportInstance.ReportInstanceModel((Entities.ReportInstance)reportInstanceModel, _serializationOptions);
+            instanceModel.OwnerId = request.RequestorId ?? report.OwnerId;
+            instanceModel.PublishedOn = DateTime.UtcNow;
+            instanceModel.Content = searchResults
+                .SelectMany((section) => section.Value.Hits.Hits
+                    .Select(hit => new API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel(0, hit.Source.Id, section.Key, sortOrder++)))
+                    ?? Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>();
+            instanceUpdateRequired = true;
+        }
         else
         {
             // Extract the section content from the current instance.
@@ -473,7 +516,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
             catch (ChesException ex)
             {
-                if (responseModel.LinkOnlyFormatResponse == null)
+                if (responseModel.LinkOnlyFormatResponse != null)
                     responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
                 else
                     responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
@@ -581,7 +624,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
             catch (ChesException ex)
             {
-                if (responseModel.LinkOnlyFormatResponse == null)
+                if (responseModel.LinkOnlyFormatResponse != null)
                     responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
                 else
                     responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
@@ -660,7 +703,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         await HandleChesEmailOverrideAsync(request.RequestorId);
 
         var contexts = new List<EmailContextModel>();
-        if (!String.IsNullOrWhiteSpace(request.To))
+        if (!String.IsNullOrWhiteSpace(request.To) && request.To.IsValidEmail())
         {
             // Add a context for the requested list of users.
             var another = request.To.Split(",").Select(v => v.Trim());
@@ -671,7 +714,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         }
         else
         {
-            contexts.AddRange(to.Select(v => new EmailContextModel(new[] { v }, new Dictionary<string, object>(), DateTime.Now)
+            contexts.AddRange(to.Where(v => v.IsValidEmail()).Select(v => new EmailContextModel(new[] { v }, new Dictionary<string, object>(), DateTime.Now)
             {
                 Tag = tag,
             }).ToList());

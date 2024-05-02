@@ -247,17 +247,11 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
       </Show>
       <Row id="summary" className="summary">
         <Col>
-          <Show
-            visible={
-              content?.contentType === ContentTypeName.PrintContent ||
-              content?.contentType === ContentTypeName.Internet
-            }
-          >
+          {!!content?.body?.length ? (
             <div>{parse(content?.body?.replace(/\n+/g, '<br><br>') ?? '')}</div>
-          </Show>
-          <Show visible={isAV || content?.contentType === ContentTypeName.Image}>
+          ) : (
             <span>{parse(content?.summary?.replace(/\n+/g, '<br><br>') ?? '')}</span>
-          </Show>
+          )}
           <Show visible={!!content?.sourceUrl}>
             <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
               More...

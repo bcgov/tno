@@ -26,6 +26,11 @@ export const ReportEditSendForm = styled.div`
     flex-direction: row;
     gap: 1rem;
     justify-content: space-evenly;
+
+    .schedule {
+      padding: 0.5rem 2rem;
+      border: solid 1px ${(props) => props.theme.css.bkQuaternary};
+    }
   }
 
   .schedule-actions {
