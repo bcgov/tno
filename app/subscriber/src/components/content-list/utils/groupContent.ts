@@ -40,7 +40,25 @@ export const groupContent = (groupBy: IGroupByState, content: IContentSearchResu
     .sort(sortFunc(firstSort))
     .sort(sortFunc(secondSort))
     .reduce((acc, item) => {
-      if (!item?.source?.name) return acc; // skip if no source
+      if (!item?.source?.name) {
+        item.source = {
+          id: 0,
+          name: item.otherSource,
+          description: item.otherSource,
+          sortOrder: 0,
+          isEnabled: true,
+          code: item.otherSource,
+          shortName: item.otherSource,
+          licenseId: 0,
+          mediaTypeSearchMappings: [],
+          autoTranscribe: false,
+          disableTranscribe: false,
+          useInTopics: false,
+          configuration: {},
+          actions: [],
+          metrics: [],
+        };
+      } // fill with other source name if source does not exist for grouping purposes
       let key = item.source?.name; // default to source
       switch (groupBy) {
         case 'time':
