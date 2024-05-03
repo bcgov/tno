@@ -17,13 +17,14 @@ export const settingsSlice = createSlice({
     storeSettingsValues(state: ISettingsState, action: PayloadAction<ISettingsState>) {
       state.isReady = action.payload.isReady;
       state.loadingState = action.payload.loadingState;
+      state.featuredStoryActionId = action.payload.featuredStoryActionId;
       state.commentaryActionId = action.payload.commentaryActionId;
       state.topStoryActionId = action.payload.topStoryActionId;
-      state.featuredStoryActionId = action.payload.featuredStoryActionId;
       state.alertActionId = action.payload.alertActionId;
       state.editorUrl = action.payload.editorUrl;
       state.subscriberUrl = action.payload.subscriberUrl;
       state.defaultReportTemplateId = action.payload.defaultReportTemplateId;
+      state.frontpageFilterId = action.payload.frontpageFilterId;
     },
   },
 });

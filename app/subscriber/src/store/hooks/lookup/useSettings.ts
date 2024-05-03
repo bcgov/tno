@@ -25,6 +25,7 @@ export const useSettings = (validate?: boolean) => {
       const defaultReportTemplateId = settings.find(
         (s) => s.name === Settings.DefaultReportTemplate,
       )?.value;
+      const frontpageFilterId = settings.find((s) => s.name === Settings.FrontpageFilter)?.value;
       storeValues({
         loadingState: 1,
         isReady,
@@ -35,6 +36,7 @@ export const useSettings = (validate?: boolean) => {
         editorUrl: editorUrl ? editorUrl : undefined,
         subscriberUrl: subscriberUrl ? subscriberUrl : undefined,
         defaultReportTemplateId: defaultReportTemplateId ? +defaultReportTemplateId : undefined,
+        frontpageFilterId: frontpageFilterId ? +frontpageFilterId : undefined,
       });
     }
   }, [values.loadingState, isReady, settings, storeValues]);
@@ -61,6 +63,9 @@ export const useSettings = (validate?: boolean) => {
 
       if (!values.defaultReportTemplateId)
         toast.error(`Configuration "${Settings.DefaultReportTemplate}" is missing from settings.`);
+
+      if (!values.frontpageFilterId)
+        toast.error(`Configuration "${Settings.FrontpageFilter}" is missing from settings.`);
       storeLoading(2);
     }
   }, [
@@ -74,6 +79,7 @@ export const useSettings = (validate?: boolean) => {
     values.editorUrl,
     values.subscriberUrl,
     values.defaultReportTemplateId,
+    values.frontpageFilterId,
   ]);
 
   return values;
