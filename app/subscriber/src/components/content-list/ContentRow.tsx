@@ -91,7 +91,8 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           visible={
             !!item.fileReferences.length &&
             !activeStream?.source &&
-            !item.fileReferences[0].contentType.includes('image')
+            (item.fileReferences[0].contentType.includes('video') ||
+              item.fileReferences[0].contentType.includes('audio'))
           }
         >
           <FaPlayCircle
