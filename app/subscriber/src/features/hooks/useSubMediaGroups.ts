@@ -32,11 +32,8 @@ export const useSubMediaGroups = (
   mediaTypes: IMediaTypeModel[],
 ): {
   subMediaGroups: ISubMediaGroupItem[];
-  mediaGroupExpanded: ISubMediaGroupExpanded;
-  setMediaGroupExpanded: (groupExpanded: ISubMediaGroupExpanded) => void;
 } => {
   const [subMediaGroups, setSubMediaGroups] = useState<ISubMediaGroupItem[]>([]);
-  const [mediaGroupExpanded, setMediaGroupExpanded] = useState<ISubMediaGroupExpanded>({});
 
   // Determine mediaTypeSourceLookup only when sources or mediaTypes change
   const mediaTypeSourceLookup = useMemo(() => {
@@ -146,12 +143,9 @@ export const useSubMediaGroups = (
     );
 
     setSubMediaGroups(subGroups.sort((a, b) => a.sortOrder - b.sortOrder));
-    setMediaGroupExpanded(expandedStates);
   }, [mediaTypeSeriesLookup, mediaTypeSourceLookup, mediaTypes, series, sources]);
 
   return {
     subMediaGroups,
-    mediaGroupExpanded,
-    setMediaGroupExpanded,
   };
 };

@@ -15,6 +15,7 @@ import {
   Show,
 } from 'tno-core';
 
+import { ISubMediaGroupExpanded } from '../../interfaces';
 import { IFilterDisplayProps } from './IFilterDisplayProps';
 import { determineSelectedMedia, sortableMediaOptions } from './utils';
 
@@ -31,11 +32,8 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
   series,
   mediaTypes,
 }) => {
-  const { subMediaGroups, setMediaGroupExpanded, mediaGroupExpanded } = useSubMediaGroups(
-    sources,
-    series,
-    mediaTypes,
-  );
+  const { subMediaGroups } = useSubMediaGroups(sources, series, mediaTypes);
+  const [mediaGroupExpanded, setMediaGroupExpanded] = React.useState<ISubMediaGroupExpanded>({});
 
   const [
     {
@@ -71,12 +69,12 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
             ) : (
               <IoIosArrowDropdownCircle
                 className="drop-icon"
-                onClick={() =>
+                onClick={() => {
                   setMediaGroupExpanded({
                     ...mediaGroupExpanded,
                     [mediaGroup.key]: false,
-                  })
-                }
+                  });
+                }}
               />
             )}
           </Row>
