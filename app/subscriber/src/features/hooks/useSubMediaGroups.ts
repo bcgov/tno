@@ -134,14 +134,6 @@ export const useSubMediaGroups = (
       });
     });
 
-    const expandedStates: ISubMediaGroupExpanded = subGroups.reduce(
-      (acc: ISubMediaGroupExpanded, { key }) => {
-        acc[key] = false; // Default all groups to not expanded
-        return acc;
-      },
-      {},
-    );
-
     setSubMediaGroups(subGroups.sort((a, b) => a.sortOrder - b.sortOrder));
   }, [mediaTypeSeriesLookup, mediaTypeSourceLookup, mediaTypes, series, sources]);
 
