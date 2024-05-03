@@ -2,11 +2,9 @@ import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { FrontPageGallery } from 'components/front-page-gallery';
-import moment from 'moment';
 import React from 'react';
-import { toast } from 'react-toastify';
-import { useContent, useFilters, useLookup } from 'store/hooks';
-import { IContentModel, IFilterModel, Settings } from 'tno-core';
+import { useContent, useFilters, useSettings } from 'store/hooks';
+import { generateFilterQuery, IContentModel, IFilterModel, IFilterSettingsModel } from 'tno-core';
 
 import { defaultFilter } from './constants';
 import * as styled from './styled';
@@ -19,12 +17,15 @@ export const TodaysFrontPages: React.FC = () => {
     },
     { findContentWithElasticsearch, storeFrontPageFilter: storeFilter },
   ] = useContent();
-  const [{ settings }] = useLookup();
   const [, { getFilter }] = useFilters();
+  const { frontpageFilterId } = useSettings(true);
 
   const [frontpages, setFrontPages] = React.useState<IContentModel[]>([]);
   const [selected] = React.useState<IContentModel[]>([]);
-  const [filter, setFilter] = React.useState<IFilterModel>(defaultFilter);
+  const [filter, setFilter] = React.useState<IFilterModel>({
+    ...defaultFilter,
+    settings: frontPageFilter,
+  });
 
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
@@ -50,52 +51,44 @@ export const TodaysFrontPages: React.FC = () => {
   );
 
   React.useEffect(() => {
-    if (!!filter.query.query) {
-      const calendarStartDate = moment(frontPageFilter.startDate).toISOString();
-      const filterStartDate = filter.query.query.bool.must[0].range.publishedOn.gte;
-      if (calendarStartDate !== filterStartDate) {
-        const range = {
-          range: {
-            publishedOn: {
-              gte: moment(frontPageFilter.startDate).toISOString(),
-              lte: moment(frontPageFilter.endDate).toISOString(),
-              time_zone: 'US/Pacific',
-            },
-          },
-        };
-        const newFilter = { ...filter };
-        newFilter.query.query.bool.must[0] = range;
-        setFilter(newFilter);
-        fetchResults(newFilter.query);
-      }
+    if (frontPageFilter.startDate !== filter.settings.startDate) {
+      const settings: IFilterSettingsModel = { ...frontPageFilter, dateOffset: undefined };
+      setFilter((filter) => ({
+        ...filter,
+        settings: settings,
+        query: generateFilterQuery(settings, filter.query),
+      }));
+    } else {
+      setFilter((filter) => ({ ...filter, settings: frontPageFilter }));
     }
-  }, [fetchResults, filter, frontPageFilter]);
+    // Only update the local filter when the front page filter changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [frontPageFilter]);
 
   React.useEffect(() => {
-    const range = {
-      range: {
-        publishedOn: {
-          gte: moment(frontPageFilter.startDate).toISOString(),
-          lte: moment(frontPageFilter.endDate).toISOString(),
-          time_zone: 'US/Pacific',
-        },
-      },
-    };
-    const filterId = settings.find((s) => s.name === Settings.FrontpageFilter)?.value;
-    if (filterId) {
-      const id: number = parseInt(filterId);
-      if (filter?.id !== id) {
-        setFilter({ ...defaultFilter, id }); // Do this to stop double fetch.
-        getFilter(id).then((data) => {
-          data.query.query.bool.must[0] = range;
-          setFilter(data);
-          fetchResults(data.query);
-        });
-      }
-    } else if (!!settings.length) {
-      toast.error(`${Settings.FrontpageFilter} setting needs to be configured.`);
+    if (filter.query.query) {
+      fetchResults(filter.query).catch(() => {});
     }
-  }, [fetchResults, filter?.id, getFilter, settings, frontPageFilter, filter]);
+  }, [fetchResults, filter]);
+
+  React.useEffect(() => {
+    if (frontpageFilterId && filter.id !== frontpageFilterId) {
+      setFilter({ ...defaultFilter, id: frontpageFilterId }); // Do this to stop double fetch.
+      getFilter(frontpageFilterId)
+        .then((data) => {
+          setFilter(data);
+        })
+        .catch(() => {});
+    }
+  }, [
+    fetchResults,
+    filter.id,
+    frontPageFilter.endDate,
+    frontPageFilter.startDate,
+    frontpageFilterId,
+    getFilter,
+    storeFilter,
+  ]);
 
   return (
     <styled.TodaysFrontPages>
