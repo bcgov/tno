@@ -51,6 +51,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           rows={1}
           disabled={disabled}
           onChange={(e) => {
+            const summary = content.versions?.[userId]?.summary ?? content.summary;
+            const body = content.versions?.[userId]?.body ?? content.body;
             const values = {
               ...content,
               versions: {
@@ -58,6 +60,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 [userId]: {
                   ...content.versions?.[userId],
                   headline: e.target.value,
+                  summary: summary,
+                  body: body,
                 },
               },
             };
@@ -73,13 +77,17 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           value={content.versions?.[userId]?.summary ?? ''}
           disabled={disabled}
           onChange={(text) => {
+            const headline = content.versions?.[userId]?.headline ?? content.headline;
+            const body = content.versions?.[userId]?.body ?? content.body;
             const values = {
               ...content,
               versions: {
                 ...content.versions,
                 [userId]: {
                   ...content.versions?.[userId],
+                  headline: headline,
                   summary: text,
+                  body: body,
                 },
               },
             };
@@ -101,12 +109,16 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           }
           disabled={disabled}
           onChange={(text) => {
+            const headline = content.versions?.[userId]?.headline ?? content.headline;
+            const summary = content.versions?.[userId]?.summary ?? content.summary;
             const values = {
               ...content,
               versions: {
                 ...content.versions,
                 [userId]: {
                   ...content.versions?.[userId],
+                  headline: headline,
+                  summary: summary,
                   body: text,
                 },
               },
