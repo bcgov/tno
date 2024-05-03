@@ -77,9 +77,6 @@ export const ContentActions = ({
           View
           <FaArrowUpRightFromSquare />
         </Button>
-        <Show visible={!content?.isPrivate}>
-          <Action variant="undo" title="Revert" onClick={() => handleUndo(content)} />
-        </Show>
         <Button
           onClick={() => onUpdate?.()}
           disabled={isSubmitting || disabled || instance?.status === ReportStatusName.Submitted}
@@ -87,6 +84,9 @@ export const ContentActions = ({
           Save story
           <FaSave />
         </Button>
+        <Show visible={!content?.isPrivate}>
+          <Action variant="undo" title="Revert" onClick={() => handleUndo(content)} />
+        </Show>
         <Action
           icon={<FaArrowLeft size="20" />}
           title="Previous"
