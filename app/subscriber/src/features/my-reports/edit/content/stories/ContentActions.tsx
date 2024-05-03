@@ -1,7 +1,9 @@
 import { Action } from 'components/action';
 import { Button } from 'components/button';
+import React from 'react';
 import { FaArrowLeft, FaArrowRight, FaSave } from 'react-icons/fa';
 import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
+import { useApp } from 'store/hooks';
 import { IContentModel, ReportStatusName, Show } from 'tno-core';
 
 import { useReportEditContext } from '../../ReportEditContext';
@@ -18,6 +20,8 @@ export interface IContentActionsProps {
   onUpdate?: () => void;
   /** Event fires when user clicks previous/next buttons */
   onNavigate?: (action: 'previous' | 'next') => void;
+  /** Event fires when content properties are changed. */
+  onContentChange?: (content: IContentModel) => void;
 }
 
 /**
@@ -31,10 +35,32 @@ export const ContentActions = ({
   onCancel,
   onUpdate,
   onNavigate,
+  onContentChange,
 }: IContentActionsProps) => {
+  const [{ userInfo }] = useApp();
   const { values, isSubmitting } = useReportEditContext();
 
+  const userId = userInfo?.id ?? 0;
   const instance = values.instances.length ? values.instances[0] : undefined;
+
+  const handleUndo = React.useCallback(
+    (content?: IContentModel) => {
+      if (!content) return;
+
+      onContentChange?.({
+        ...content,
+        versions: {
+          ...content.versions,
+          [userId]: {
+            ...content.versions[userId],
+            headline: content.headline,
+            body: content.body,
+          },
+        },
+      });
+    },
+    [onContentChange, userId],
+  );
 
   return (
     <styled.ContentActions>
@@ -58,6 +84,9 @@ export const ContentActions = ({
           Save story
           <FaSave />
         </Button>
+        <Show visible={!content?.isPrivate}>
+          <Action variant="undo" title="Revert" onClick={() => handleUndo(content)} />
+        </Show>
         <Action
           icon={<FaArrowLeft size="20" />}
           title="Previous"
