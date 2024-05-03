@@ -1,3 +1,4 @@
+import { Action } from 'components/action';
 import { ContentList } from 'components/content-list';
 import { reorderDragItems } from 'components/content-list/utils';
 import { PageSection } from 'components/section';
@@ -7,7 +8,6 @@ import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import React from 'react';
 import { DropResult } from 'react-beautiful-dnd';
-import { FaX } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
@@ -128,12 +128,11 @@ export const ManageFolder: React.FC = () => {
           <Col className="header-col">
             <Row className="header-row">
               <h1 className="title">{`Manage Folder: ${folder?.name}`}</h1>
-              <FaX
+              <Action
+                variant="close"
                 className="close-button"
-                title="Hide Panel"
-                onClick={() => {
-                  navigate(`/folders`);
-                }}
+                title="Revert"
+                onClick={() => navigate(`/folders`)}
               />
             </Row>
           </Col>
