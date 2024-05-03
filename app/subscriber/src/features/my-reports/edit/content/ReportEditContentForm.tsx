@@ -2,6 +2,7 @@ import { Action } from 'components/action';
 import { Modal } from 'components/modal';
 import { StartNextReportInfo } from 'features/my-reports/components';
 import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
+import React from 'react';
 import { FaArrowsSpin } from 'react-icons/fa6';
 import { FaAngleDown, FaMinus } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
@@ -27,18 +28,16 @@ export interface IReportEditContentFormProps {
  * @param param0 Component properties.
  * @returns Component.
  */
-export const ReportEditContentForm = ({
-  disabled,
-  showAdd,
-  activeRow,
-  onContentClick,
-}: IReportEditContentFormProps) => {
+export const ReportEditContentForm = React.forwardRef<
+  HTMLDivElement | null,
+  IReportEditContentFormProps
+>(({ disabled, showAdd, activeRow, onContentClick }, ref) => {
   const { values, isSubmitting, setFieldValue, onExport, onGenerate } = useReportEditContext();
   const { path1 } = useParams();
   const { isShowing, toggle } = useModal();
 
   return (
-    <styled.ReportEditContentForm className="report-edit-section">
+    <styled.ReportEditContentForm className="report-edit-section" ref={ref}>
       <StartNextReportInfo />
       <div className="section-actions">
         <div></div>
@@ -121,4 +120,4 @@ export const ReportEditContentForm = ({
       />
     </styled.ReportEditContentForm>
   );
-};
+});

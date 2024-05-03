@@ -39,6 +39,9 @@ export const ReportEditPage = () => {
   const [{ getReportTemplate }] = useReportTemplates();
   const { defaultReportTemplateId } = useSettings();
 
+  const editRef = React.useRef<HTMLDivElement>(null);
+  const contentRef = React.useRef<HTMLDivElement>(null);
+
   const [report, setReport] = React.useState<IReportForm>(
     defaultReport(userInfo?.id ?? 0, defaultReportTemplateId ?? 0),
   );
@@ -257,8 +260,21 @@ export const ReportEditPage = () => {
           }}
         >
           <ReportEditContextProvider>
-            <ReportEditForm disabled={!canEdit} updateForm={(form) => setReport(form)} />
-            <ContentEditForm disabled={!canEdit} />
+            <ReportEditForm
+              ref={editRef}
+              disabled={!canEdit}
+              updateForm={(form) => setReport(form)}
+              onContentClick={(content) => {
+                if (contentRef.current)
+                  contentRef.current.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                    inline: 'nearest',
+                  });
+                else if (editRef.current) editRef.current.scrollIntoView();
+              }}
+            />
+            <ContentEditForm disabled={!canEdit} ref={contentRef} />
             <ReportHistoryView />
           </ReportEditContextProvider>
         </FormikForm>
