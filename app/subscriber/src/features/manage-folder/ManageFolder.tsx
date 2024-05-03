@@ -1,3 +1,4 @@
+import { Action } from 'components/action';
 import { ContentList } from 'components/content-list';
 import { reorderDragItems } from 'components/content-list/utils';
 import { PageSection } from 'components/section';
@@ -7,10 +8,10 @@ import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import React from 'react';
 import { DropResult } from 'react-beautiful-dnd';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { generateQuery, IContentModel, IFolderModel } from 'tno-core';
+import { Col, generateQuery, IContentModel, IFolderModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -25,6 +26,7 @@ export const ManageFolder: React.FC = () => {
   const [folder, setFolder] = React.useState<IFolderModel>();
   const [items, setItems] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const navigate = useNavigate();
 
   /** TODO: Folder content only contains contentId and sortOrder so we have to make an additional call based off of the contentIds to get the headline/summary etc..
    * assuming we want this to differ eventually.
@@ -121,7 +123,21 @@ export const ManageFolder: React.FC = () => {
 
   return (
     <styled.ManageFolder>
-      <PageSection header={`Manage Folder: ${folder?.name}`}>
+      <PageSection
+        header={
+          <Col className="header-col">
+            <Row className="header-row">
+              <h1 className="title">{`Manage Folder: ${folder?.name}`}</h1>
+              <Action
+                variant="close"
+                className="close-button"
+                title="Revert"
+                onClick={() => navigate(`/folders`)}
+              />
+            </Row>
+          </Col>
+        }
+      >
         <div className="main-manage">
           <ContentListActionBar
             content={selected}
