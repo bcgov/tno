@@ -40,26 +40,10 @@ export const groupContent = (groupBy: IGroupByState, content: IContentSearchResu
     .sort(sortFunc(firstSort))
     .sort(sortFunc(secondSort))
     .reduce((acc, item) => {
-      if (!item?.source?.name) {
-        item.source = {
-          id: 0,
-          name: item.otherSource,
-          description: item.otherSource,
-          sortOrder: 0,
-          isEnabled: true,
-          code: item.otherSource,
-          shortName: item.otherSource,
-          licenseId: 0,
-          mediaTypeSearchMappings: [],
-          autoTranscribe: false,
-          disableTranscribe: false,
-          useInTopics: false,
-          configuration: {},
-          actions: [],
-          metrics: [],
-        };
-      } // fill with other source name if source does not exist for grouping purposes
       let key = item.source?.name; // default to source
+      if (!item?.source?.name) {
+        key = item.otherSource;
+      }
       switch (groupBy) {
         case 'time':
           const date = new Date(item.publishedOn);
@@ -68,7 +52,11 @@ export const groupContent = (groupBy: IGroupByState, content: IContentSearchResu
           key = `${moment(date).format('DD/MM/YY')} (${hours}:${minutes})`;
           break;
         case 'source':
-          key = item.source.name;
+          if (!item?.source?.name) {
+            key = item.otherSource;
+          } else {
+            key = item.source.name;
+          }
           break;
       }
       if (!acc[key]) {
