@@ -44,12 +44,12 @@ export const Action = styled.div<IActionProps>`
 
   svg {
     flex-shrink: 0;
-    height: 20px;
-    max-height: 20px;
-    min-height: 20px;
-    width: 20px;
-    max-width: 20px;
-    min-width: 20px;
+    height: ${(props) => props.size};
+    max-height: ${(props) => props.size};
+    min-height: ${(props) => props.size};
+    width: ${(props) => props.size};
+    max-width: ${(props) => props.size};
+    min-width: ${(props) => props.size};
     color: ${(props) =>
       !props.disabled ? props.theme.css.iconPrimaryColor : props.theme.css.iconGrayColor};
   }

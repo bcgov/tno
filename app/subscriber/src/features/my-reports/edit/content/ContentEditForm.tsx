@@ -1,12 +1,11 @@
+import { Action } from 'components/action';
 import { Bar } from 'components/bar';
-import { Button } from 'components/button';
 import { Sentiment } from 'components/sentiment';
 import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { IContentValidationErrors } from 'features/my-reports/interfaces/IContentValidationErrors';
 import { toForm } from 'features/my-reports/utils';
 import { formatDate } from 'features/utils';
 import React from 'react';
-import { FaX } from 'react-icons/fa6';
 import { useApp, useContent, useReports } from 'store/hooks';
 import { Col, ContentTypeName, IContentModel } from 'tno-core';
 
@@ -176,15 +175,14 @@ export const ContentEditForm = ({ disabled }: IContentEditFormProps) => {
     <styled.ContentEditForm>
       <div>
         <h1>Edit story</h1>
-        <Button
-          variant="info"
+        <Action
+          variant="close"
+          size="14px"
           onClick={() => {
             setForm(undefined);
             setActiveRow(undefined);
           }}
-        >
-          <FaX />
-        </Button>
+        />
       </div>
       {form && !!form.content.id && (
         <Bar className="content-bar">
@@ -242,6 +240,7 @@ export const ContentEditForm = ({ disabled }: IContentEditFormProps) => {
         }}
         onUpdate={() => handleAddUpdateContent(values, form)}
         onNavigate={(action) => onNavigate(instance, action)}
+        onContentChange={(content) => setForm({ ...form, content })}
       />
     </styled.ContentEditForm>
   );
