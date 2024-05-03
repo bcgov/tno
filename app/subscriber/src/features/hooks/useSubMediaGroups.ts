@@ -1,7 +1,4 @@
-import {
-  ISubMediaGroupExpanded,
-  ISubMediaGroupItem,
-} from 'features/search-page/components/advanced-search/interfaces';
+import { ISubMediaGroupItem } from 'features/search-page/components/advanced-search/interfaces';
 import { IGroupOption } from 'features/search-page/components/advanced-search/interfaces/IGroupOption';
 import { useEffect, useMemo, useState } from 'react';
 import { IMediaTypeModel, ISeriesModel, ISourceModel, ListOptionName } from 'tno-core';
