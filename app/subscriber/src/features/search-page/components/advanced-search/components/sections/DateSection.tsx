@@ -16,28 +16,10 @@ export const DateSection: React.FC = () => {
     { storeSearchFilter: storeFilter },
   ] = useContent();
 
-  // disable quick picker when user selects a date on react-date-picker
-  const [disableQuickPick, setDisableQuickPick] = React.useState(
-    filter?.startDate || filter?.endDate ? true : false,
-  );
-
-  // ensure quick pick is disabled if there's a start or end date
-  React.useEffect(() => {
-    if (filter?.startDate || filter?.endDate) {
-      setDisableQuickPick(true);
-    } else {
-      setDisableQuickPick(false);
-    }
-    // only run when flag changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter?.startDate, filter?.endDate]);
-
-  // ensure that date offset is cleared when using the custom date picker
-  React.useEffect(() => {
-    disableQuickPick && storeFilter({ ...filter, dateOffset: undefined });
-    // only run when flag changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [disableQuickPick]);
+  const offset =
+    filter?.startDate || filter?.endDate
+      ? undefined
+      : determineActivePicker(filter.dateOffset ?? 0);
 
   return (
     <Row className="expanded date-range">
@@ -55,7 +37,6 @@ export const DateSection: React.FC = () => {
               ...filter,
               startDate: date ? moment(date)?.startOf('day').toISOString() : '',
             });
-            setDisableQuickPick(true);
           }}
         />
         <p>to</p>
@@ -70,7 +51,6 @@ export const DateSection: React.FC = () => {
           selectsEnd
           endDate={filter?.endDate ? new Date(filter.endDate) : null}
           onChange={(date) => {
-            setDisableQuickPick(true);
             storeFilter({
               ...filter,
               endDate: date ? moment(date)?.endOf('day').toISOString() : '',
@@ -81,32 +61,32 @@ export const DateSection: React.FC = () => {
           className="clear"
           onClick={() => {
             storeFilter({ ...filter, endDate: '', startDate: '' });
-            setDisableQuickPick(false);
           }}
         />
       </Row>
       <ToggleGroup
         className="date-range-toggle"
-        disabled={disableQuickPick}
-        defaultSelected={
-          disableQuickPick ? undefined : determineActivePicker(filter.dateOffset ?? 0)
-        }
+        defaultSelected={offset}
         options={[
           {
             label: QuickPickerNames.Today,
-            onClick: () => storeFilter({ ...filter, dateOffset: 0 }),
+            onClick: () =>
+              storeFilter({ ...filter, dateOffset: 0, startDate: undefined, endDate: undefined }),
           },
           {
             label: QuickPickerNames.TwentyFourHours,
-            onClick: () => storeFilter({ ...filter, dateOffset: 1 }),
+            onClick: () =>
+              storeFilter({ ...filter, dateOffset: 1, startDate: undefined, endDate: undefined }),
           },
           {
             label: QuickPickerNames.FortyEightHours,
-            onClick: () => storeFilter({ ...filter, dateOffset: 2 }),
+            onClick: () =>
+              storeFilter({ ...filter, dateOffset: 2, startDate: undefined, endDate: undefined }),
           },
           {
             label: QuickPickerNames.SevenDays,
-            onClick: () => storeFilter({ ...filter, dateOffset: 7 }),
+            onClick: () =>
+              storeFilter({ ...filter, dateOffset: 7, startDate: undefined, endDate: undefined }),
           },
         ]}
         activeColor="#6750a4"
