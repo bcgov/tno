@@ -5,7 +5,7 @@ import React from 'react';
 import { FaSave, FaTelegramPlane } from 'react-icons/fa';
 import { FaCaretRight, FaFileCirclePlus, FaTrash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
-import { Col, getReportKind, ReportKindName, ReportStatusName, Show, useModal } from 'tno-core';
+import { Col, ReportStatusName, Show, useModal } from 'tno-core';
 
 import {
   ReportContentMenuOption,
@@ -93,13 +93,7 @@ export const ReportEditActions = ({ disabled, onGenerate, onPublish }: IReportEd
           <FaSave />
         </Button>
       </Show>
-      <Show
-        visible={
-          !!instance?.sentOn &&
-          !active?.startsWith(ReportMainMenuOption.Settings) &&
-          getReportKind(values) === ReportKindName.Manual
-        }
-      >
+      <Show visible={!!instance?.sentOn && !active?.startsWith(ReportMainMenuOption.Settings)}>
         <Button disabled={isSubmitting} onClick={() => onGenerate()} variant="success">
           Start next report
           <FaFileCirclePlus />

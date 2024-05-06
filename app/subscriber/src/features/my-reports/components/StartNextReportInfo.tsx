@@ -1,5 +1,5 @@
 import { FaInfoCircle } from 'react-icons/fa';
-import { formatDate, Row, Show } from 'tno-core';
+import { formatDate, getReportKind, ReportKindName, Row, Show } from 'tno-core';
 
 import { useReportEditContext } from '../edit/ReportEditContext';
 
@@ -13,17 +13,32 @@ export const StartNextReportInfo = () => {
   const instance = values.instances.length ? values.instances[0] : undefined;
 
   return (
-    <Show visible={!!instance && !!instance.sentOn}>
-      <div className="report-info">
-        <Row alignItems="center" gap="1rem">
-          <FaInfoCircle />
-          <p>
-            This report was sent to subscribers on{' '}
-            {`${formatDate(instance?.sentOn?.toLocaleString(), 'YYYY-MM-DD hh:mm:ss a')}`}. This
-            report is <strong>readonly</strong> until the next report is started.
-          </p>
-        </Row>
-      </div>
-    </Show>
+    <>
+      <Show visible={!!instance && !!instance.sentOn}>
+        <div className="report-info">
+          <Row alignItems="center" gap="1rem">
+            <FaInfoCircle />
+            <p>
+              This report was sent to subscribers on{' '}
+              {`${formatDate(instance?.sentOn?.toLocaleString(), 'YYYY-MM-DD hh:mm:ss a')}`}. This
+              report is <strong>readonly</strong> until the next report is started.
+            </p>
+          </Row>
+        </div>
+      </Show>
+      <Show
+        visible={
+          [ReportKindName.Auto, ReportKindName.AutoSend].includes(getReportKind(values)) &&
+          values.settings.content.clearOnStartNewReport &&
+          !instance?.sentOn
+        }
+      >
+        <div className="report-info">
+          This is an Auto Report and has been configured to clear all content when generating the
+          next report. Any changes you make will be lost if the next scheduled run is executed
+          before you send it to subscribers.
+        </div>
+      </Show>
+    </>
   );
 };

@@ -14,7 +14,7 @@ metadata:
     component: event-handler-service
     managed-by: kustomize
 data:
-  KAFKA_CLIENT_ID: Reporting
+  KAFKA_CLIENT_ID: Event-Scheduler
   MAX_FAIL_LIMIT: "5"
   TOPICS: event-schedule
   CHES_EMAIL_ENABLED: "true"
