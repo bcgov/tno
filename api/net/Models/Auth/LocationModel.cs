@@ -37,17 +37,17 @@ public class LocationModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public string City { get; set; } = "";
+    public string? City { get; set; } = "";
 
     /// <summary>
     /// get/set -
     /// </summary>
-    public string State { get; set; } = "";
+    public string? State { get; set; } = "";
 
     /// <summary>
     /// get/set -
     /// </summary>
-    public string Postal { get; set; } = "";
+    public string? Postal { get; set; } = "";
 
     /// <summary>
     /// get/set -

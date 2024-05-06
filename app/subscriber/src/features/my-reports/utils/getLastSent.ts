@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { formatDate } from 'features/utils';
 import { IReportModel } from 'tno-core';
 
 /**
@@ -9,5 +9,5 @@ import { IReportModel } from 'tno-core';
 export const getLastSent = (report: IReportModel) => {
   const sentOn = report.instances.find((i) => i.sentOn !== undefined)?.sentOn;
   if (!report.instances.length || !sentOn) return '';
-  return moment(sentOn).format('yyyy-MM-DD hh:mm:ssA');
+  return formatDate(sentOn, true);
 };

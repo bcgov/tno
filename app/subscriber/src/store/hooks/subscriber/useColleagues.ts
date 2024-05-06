@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
+import { useProfileStore } from 'store/slices';
 import {
   INotificationModel,
   IResponseErrorModel,
@@ -26,6 +27,7 @@ interface IColleagueController {
 export const useColleagues = (): [IColleagueController] => {
   const api = useApiSubscriberColleagues();
   const dispatch = useAjaxWrapper();
+  const [, { storeMyColleagues }] = useProfileStore();
 
   const controller = React.useMemo(
     () => ({
@@ -33,17 +35,28 @@ export const useColleagues = (): [IColleagueController] => {
         const response = await dispatch<IUserColleagueModel[]>('get-colleagues', () =>
           api.getColleagues(),
         );
+        storeMyColleagues(response.data);
         return response.data;
       },
       addColleague: async (email: string) => {
         const response = await dispatch<IUserColleagueModel>('add-colleague', () =>
           api.addColleague(email),
         );
+        storeMyColleagues((colleagues) =>
+          [response.data, ...colleagues].sort((a, b) => {
+            const aName = a.colleague?.displayName ?? '';
+            const bName = a.colleague?.displayName ?? '';
+            return aName < bName ? -1 : aName > bName ? 1 : 0;
+          }),
+        );
         return response.data;
       },
       deleteColleague: async (model: IUserColleagueModel) => {
         const response = await dispatch<IUserColleagueModel>('delete-colleague', () =>
           api.deleteColleague(model),
+        );
+        storeMyColleagues((colleagues) =>
+          colleagues.filter((c) => c.colleagueId !== model.colleagueId),
         );
         return response.data;
       },
@@ -60,7 +73,7 @@ export const useColleagues = (): [IColleagueController] => {
         return response.data;
       },
     }),
-    [api, dispatch],
+    [api, dispatch, storeMyColleagues],
   );
 
   return [controller];

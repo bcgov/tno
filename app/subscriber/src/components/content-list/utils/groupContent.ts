@@ -40,8 +40,10 @@ export const groupContent = (groupBy: IGroupByState, content: IContentSearchResu
     .sort(sortFunc(firstSort))
     .sort(sortFunc(secondSort))
     .reduce((acc, item) => {
-      if (!item?.source?.name) return acc; // skip if no source
       let key = item.source?.name; // default to source
+      if (!item?.source?.name) {
+        key = item.otherSource;
+      }
       switch (groupBy) {
         case 'time':
           const date = new Date(item.publishedOn);
@@ -50,7 +52,11 @@ export const groupContent = (groupBy: IGroupByState, content: IContentSearchResu
           key = `${moment(date).format('DD/MM/YY')} (${hours}:${minutes})`;
           break;
         case 'source':
-          key = item.source.name;
+          if (!item?.source?.name) {
+            key = item.otherSource;
+          } else {
+            key = item.source.name;
+          }
           break;
       }
       if (!acc[key]) {

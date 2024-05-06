@@ -1,7 +1,4 @@
-import {
-  ISubMediaGroupExpanded,
-  ISubMediaGroupItem,
-} from 'features/search-page/components/advanced-search/interfaces';
+import { ISubMediaGroupItem } from 'features/search-page/components/advanced-search/interfaces';
 import { IGroupOption } from 'features/search-page/components/advanced-search/interfaces/IGroupOption';
 import { useEffect, useMemo, useState } from 'react';
 import { IMediaTypeModel, ISeriesModel, ISourceModel, ListOptionName } from 'tno-core';
@@ -32,11 +29,8 @@ export const useSubMediaGroups = (
   mediaTypes: IMediaTypeModel[],
 ): {
   subMediaGroups: ISubMediaGroupItem[];
-  mediaGroupExpanded: ISubMediaGroupExpanded;
-  setMediaGroupExpanded: (groupExpanded: ISubMediaGroupExpanded) => void;
 } => {
   const [subMediaGroups, setSubMediaGroups] = useState<ISubMediaGroupItem[]>([]);
-  const [mediaGroupExpanded, setMediaGroupExpanded] = useState<ISubMediaGroupExpanded>({});
 
   // Determine mediaTypeSourceLookup only when sources or mediaTypes change
   const mediaTypeSourceLookup = useMemo(() => {
@@ -137,21 +131,10 @@ export const useSubMediaGroups = (
       });
     });
 
-    const expandedStates: ISubMediaGroupExpanded = subGroups.reduce(
-      (acc: ISubMediaGroupExpanded, { key }) => {
-        acc[key] = false; // Default all groups to not expanded
-        return acc;
-      },
-      {},
-    );
-
     setSubMediaGroups(subGroups.sort((a, b) => a.sortOrder - b.sortOrder));
-    setMediaGroupExpanded(expandedStates);
   }, [mediaTypeSeriesLookup, mediaTypeSourceLookup, mediaTypes, series, sources]);
 
   return {
     subMediaGroups,
-    mediaGroupExpanded,
-    setMediaGroupExpanded,
   };
 };

@@ -5,7 +5,9 @@ export const Loading = styled.div`
   left: 0;
   top: 0;
   width: 100%;
+  max-width: 100vw;
   height: 100%;
+  max-height: 100vh;
   background-color: rgba(${(props) => props.theme.css?.primaryRgb}, 0.25);
   display: flex;
   align-items: center;

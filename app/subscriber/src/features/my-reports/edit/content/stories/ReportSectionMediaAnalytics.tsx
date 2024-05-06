@@ -13,6 +13,7 @@ import {
   IReportInstanceModel,
   OptionItem,
   ReportSectionTypeName,
+  Row,
   Show,
   useModal,
 } from 'tno-core';
@@ -121,10 +122,9 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
           disabled={disabled}
         />
       </Show>
-      {!!section.id &&
-        !disabled &&
-        (section.filterId || section.folderId || section.linkedReportId) && (
-          <Col flex="1">
+      {!!section.id && !disabled && (section.filterId || section.folderId) && (
+        <Col flex="1">
+          <Row justifyContent="flex-end">
             <Action
               icon={<FaArrowsSpin />}
               label="Regenerate section"
@@ -132,8 +132,9 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
               onClick={(e) => toggle()}
               direction="row-reverse"
             />
-          </Col>
-        )}
+          </Row>
+        </Col>
+      )}
       <Show visible={!!instance.content.length}>
         <Droppable droppableId={section.name} isDropDisabled={disabled}>
           {(droppableProvided) => (

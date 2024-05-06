@@ -33,7 +33,7 @@ export const Commentary: React.FC = () => {
   const [, { findContentWithElasticsearch }] = useContent();
   const [commentary, setCommentary] = React.useState<IContentSearchResult[]>([]);
   const navigateAndScroll = useNavigateAndScroll();
-  const { commentaryActionId, isReady } = useSettings();
+  const { commentaryActionId } = useSettings();
   const getActionFilters = useActionFilters();
   const hub = useApiHub();
 
@@ -66,10 +66,10 @@ export const Commentary: React.FC = () => {
   );
 
   React.useEffect(() => {
-    if (isReady && commentaryActionId) {
+    if (commentaryActionId) {
       fetchCommentary(commentaryActionId).catch(() => {});
     }
-  }, [commentaryActionId, fetchCommentary, isReady]);
+  }, [commentaryActionId, fetchCommentary]);
 
   const onContentReceived = React.useCallback(
     async (message: IContentMessageModel) => {

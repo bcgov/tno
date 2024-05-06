@@ -7,9 +7,8 @@ import { createFilterSettings, getBooleanActionValue } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { toast } from 'react-toastify';
-import { useContent, useLookup } from 'store/hooks';
-import { generateQuery, IContentModel, Row, Settings } from 'tno-core';
+import { useContent, useSettings } from 'store/hooks';
+import { generateQuery, IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -24,9 +23,9 @@ export const Home: React.FC = () => {
     { findContentWithElasticsearch, storeHomeFilter: storeFilter },
   ] = useContent();
 
-  const [{ settings: appSettings }] = useLookup();
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const { featuredStoryActionId } = useSettings(true);
 
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
@@ -42,18 +41,9 @@ export const Home: React.FC = () => {
     [findContentWithElasticsearch],
   );
 
-  const featuredItemId = React.useMemo(() => {
-    const value = appSettings?.find((s) => s.name === Settings.FeaturedAction)?.value;
-    if (!value && !!appSettings?.length)
-      toast.error(
-        'No FeaturedActionId found in settings. Please contact your administrator to update.',
-      );
-    return value;
-  }, [appSettings]);
-
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
-    if (!!featuredItemId && !!filter.startDate) {
+    if (!!featuredStoryActionId) {
       fetchResults(
         generateQuery(
           filterFormat({
@@ -61,7 +51,7 @@ export const Home: React.FC = () => {
               filter.startDate ?? moment().startOf('day').toISOString(),
               filter.endDate ?? moment().endOf('day').toISOString(),
             ),
-            actions: [getBooleanActionValue(featuredItemId)],
+            actions: [getBooleanActionValue(featuredStoryActionId)],
             contentTypes: filter.contentTypes ?? [],
             mediaTypeIds: filter.mediaTypeIds ?? [],
             sourceIds: filter.sourceIds ?? [],
@@ -69,7 +59,7 @@ export const Home: React.FC = () => {
         ),
       );
     }
-  }, [filter, fetchResults, featuredItemId]);
+  }, [filter, fetchResults, featuredStoryActionId]);
 
   return (
     <styled.Home>

@@ -1,6 +1,6 @@
-export const getBooleanActionValue = (actionId: string) => {
+export const getBooleanActionValue = (actionId: number) => {
   const action = {
-    id: +actionId,
+    id: actionId,
     value: String(true),
     valueType: 'Boolean',
   };

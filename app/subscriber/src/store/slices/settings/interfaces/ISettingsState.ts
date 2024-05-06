@@ -8,4 +8,5 @@ export interface ISettingsState {
   editorUrl?: string;
   subscriberUrl?: string;
   defaultReportTemplateId?: number;
+  frontpageFilterId?: number;
 }

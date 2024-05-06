@@ -90,7 +90,7 @@ export const ReportCard: React.FC<IReportCardProps> = ({
               <h3 className="upper">Status</h3>
               <Row>
                 <Col>Last sent:</Col>
-                <Col flex="1">{formatDate(getLastSent(report), true)}</Col>
+                <Col flex="1">{getLastSent(report)}</Col>
               </Row>
               {report.instances.length > 0 && (
                 <Row>

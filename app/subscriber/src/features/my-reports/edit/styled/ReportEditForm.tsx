@@ -69,13 +69,19 @@ export const ReportEditForm = styled.div`
     flex-direction: column;
     align-items: center;
     padding: 1rem;
-    border: solid 1px ${(props) => props.theme.css.lineTertiaryColor};
+    border: solid 1px ${(props) => props.theme.css.lineErrorColor};
     border-radius: 0.5rem;
-    background: ${(props) => props.theme.css.bkInfo};
-    color: ${(props) => props.theme.css.fInfo};
+    background: ${(props) => props.theme.css.bkError};
+    color: ${(props) => props.theme.css.fPrimaryColor};
   }
 
   .report-edit-section {
     flex: 1;
+    position: relative;
+
+    > div.loading {
+      background: ${(props) => props.theme.css.bkPrimary25};
+      max-height: 100vh;
+    }
   }
 `;
