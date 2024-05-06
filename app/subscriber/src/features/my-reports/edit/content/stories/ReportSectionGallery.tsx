@@ -124,13 +124,15 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
       </Show>
       {!!section.id && !disabled && (section.filterId || section.folderId) && (
         <Col flex="1">
-          <Action
-            icon={<FaArrowsSpin />}
-            label="Regenerate section"
-            disabled={isSubmitting}
-            onClick={(e) => toggle()}
-            direction="row-reverse"
-          />
+          <Row justifyContent="flex-end">
+            <Action
+              icon={<FaArrowsSpin />}
+              label="Regenerate section"
+              disabled={isSubmitting}
+              onClick={(e) => toggle()}
+              direction="row-reverse"
+            />
+          </Row>
         </Col>
       )}
       <Droppable droppableId={section.name} isDropDisabled={disabled}>

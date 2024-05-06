@@ -5,9 +5,10 @@ import { FaArrowsSpin, FaLock } from 'react-icons/fa6';
 import { FaCaretRight, FaRightToBracket } from 'react-icons/fa6';
 import { useReportInstances } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Row, Show } from 'tno-core';
+import { Col, Row, Show } from 'tno-core';
 
 import { ReportKindIcon } from '../components';
+import { getLastSent } from '../utils';
 import {
   ReportContentMenuOption,
   ReportMainMenuOption,
@@ -27,6 +28,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
   const [{ viewReportInstance }] = useReportInstances();
 
   const instance = values.instances.length ? values.instances[0] : undefined;
+  const lastSent = getLastSent(values);
 
   const handleViewReport = React.useCallback(
     async (instanceId: number, regenerate?: boolean | undefined) => {
@@ -94,6 +96,12 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
         </div>
       </div>
       <div className="report-secondary-menu">
+        <Col flex="1">
+          <Row nowrap gap="0.5rem">
+            <label>Last Sent:</label>
+            <span>{lastSent ? lastSent : 'Never'}</span>
+          </Row>
+        </Col>
         <Show visible={active?.startsWith(ReportMainMenuOption.Settings)}>
           <div>
             <MenuButton
