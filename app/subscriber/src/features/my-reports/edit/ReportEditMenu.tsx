@@ -1,10 +1,7 @@
 import { Action } from 'components/action';
 import { MenuButton } from 'components/button';
-import React from 'react';
-import { FaArrowsSpin, FaLock } from 'react-icons/fa6';
+import { FaLock } from 'react-icons/fa6';
 import { FaCaretRight, FaRightToBracket } from 'react-icons/fa6';
-import { useReportInstances } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
 import { Col, Row, Show } from 'tno-core';
 
 import { ReportKindIcon } from '../components';
@@ -24,21 +21,9 @@ export interface IReportEditMenuProps {
 
 export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
   const { active, values, errors, isValid } = useReportEditContext();
-  const [, { storeReportOutput }] = useProfileStore();
-  const [{ viewReportInstance }] = useReportInstances();
 
   const instance = values.instances.length ? values.instances[0] : undefined;
   const lastSent = getLastSent(values);
-
-  const handleViewReport = React.useCallback(
-    async (instanceId: number, regenerate?: boolean | undefined) => {
-      try {
-        const response = await viewReportInstance(instanceId, regenerate);
-        storeReportOutput({ ...response, instanceId });
-      } catch {}
-    },
-    [viewReportInstance, storeReportOutput],
-  );
 
   return (
     <styled.ReportEditMenu className="report-menu">
@@ -208,13 +193,6 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
         </Show>
         {/* Preview secondary menu */}
         <Show visible={active?.startsWith(ReportMainMenuOption.View)}>
-          <Show visible={!instance?.sentOn}>
-            <Action
-              icon={<FaArrowsSpin className="icon-green" />}
-              label="Refresh Preview"
-              onClick={() => instance && handleViewReport(instance.id, true)}
-            />
-          </Show>
           <MenuButton
             label="View"
             active={active === ReportMainMenuOption.View}

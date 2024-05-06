@@ -77,5 +77,11 @@ export const ReportEditForm = styled.div`
 
   .report-edit-section {
     flex: 1;
+    position: relative;
+
+    > div.loading {
+      background: ${(props) => props.theme.css.bkPrimary25};
+      max-height: 100vh;
+    }
   }
 `;

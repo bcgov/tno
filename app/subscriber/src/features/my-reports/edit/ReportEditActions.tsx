@@ -3,8 +3,10 @@ import { Button } from 'components/button';
 import { Modal } from 'components/modal';
 import React from 'react';
 import { FaSave, FaTelegramPlane } from 'react-icons/fa';
-import { FaCaretRight, FaFileCirclePlus, FaTrash } from 'react-icons/fa6';
+import { FaArrowsSpin, FaCaretRight, FaFileCirclePlus, FaTrash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
+import { useReportInstances } from 'store/hooks';
+import { useProfileStore } from 'store/slices';
 import { Col, ReportStatusName, Show, useModal } from 'tno-core';
 
 import {
@@ -34,6 +36,8 @@ export interface IReportEditActionsProps {
  */
 export const ReportEditActions = ({ disabled, onGenerate, onPublish }: IReportEditActionsProps) => {
   const { values, isSubmitting, submitForm, setValues, active } = useReportEditContext();
+  const [{ viewReportInstance }] = useReportInstances();
+  const [, { storeReportOutput }] = useProfileStore();
   const navigate = useNavigate();
   const { toggle: toggleRemove, isShowing: isShowingRemove } = useModal();
 
@@ -48,6 +52,16 @@ export const ReportEditActions = ({ disabled, onGenerate, onPublish }: IReportEd
     });
     submitForm();
   }, [instance, setValues, submitForm, values]);
+
+  const handleViewReport = React.useCallback(
+    async (instanceId: number, regenerate?: boolean | undefined) => {
+      try {
+        const response = await viewReportInstance(instanceId, regenerate);
+        storeReportOutput({ ...response, instanceId });
+      } catch {}
+    },
+    [viewReportInstance, storeReportOutput],
+  );
 
   return (
     <styled.ReportEditActions className="report-edit-actions">
@@ -71,11 +85,19 @@ export const ReportEditActions = ({ disabled, onGenerate, onPublish }: IReportEd
         <Col flex="1" alignItems="flex-start">
           <Action icon={<FaTrash />} label="Remove all stories" onClick={() => toggleRemove()} />
         </Col>
+      </Show>{' '}
+      <Show visible={!instance?.sentOn && active?.startsWith(ReportMainMenuOption.View)}>
+        <Col flex="1" alignItems="flex-start">
+          <Action
+            icon={<FaArrowsSpin className="icon-green" />}
+            label="Refresh Preview"
+            onClick={() => instance && handleViewReport(instance.id, true)}
+          />
+        </Col>
       </Show>
       <Button variant="secondary" onClick={() => navigate('/reports')}>
         Cancel
       </Button>
-
       {/* Show save during submitted to handle scenario when email fails */}
       <Show
         visible={

@@ -148,31 +148,37 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
                     type="number"
                     width="10ch"
                   />
-                  <FormikCheckbox
-                    label="Is Horizontal"
-                    name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.isHorizontal`}
-                    checked={ct.sectionSettings.isHorizontal ?? true}
-                  />
-                  <FormikCheckbox
-                    label="Show Legend"
-                    name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.showLegend`}
-                    checked={ct.sectionSettings.showLegend ?? true}
-                  />
-                  <FormikCheckbox
-                    label="Show Legend Title"
-                    name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.showLegendTitle`}
-                    checked={ct.sectionSettings.showLegendTitle ?? false}
-                  />
-                  <FormikCheckbox
-                    label="Show Data Labels"
-                    name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.showDataLabels`}
-                    checked={ct.sectionSettings.showDataLabels ?? false}
-                  />
-                  <FormikCheckbox
-                    label="Show Axis"
-                    name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.showAxis`}
-                    checked={ct.sectionSettings.showAxis ?? true}
-                  />
+                  <Col>
+                    <FormikCheckbox
+                      label="Switch X and Y axis"
+                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.isHorizontal`}
+                      checked={ct.sectionSettings.isHorizontal ?? true}
+                    />
+                    <FormikCheckbox
+                      label="Show axis information"
+                      tooltip="Display the X and Y axis values"
+                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.showAxis`}
+                      checked={ct.sectionSettings.showAxis ?? true}
+                    />
+                    <FormikCheckbox
+                      label="Show values inside chart"
+                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.showDataLabels`}
+                      checked={ct.sectionSettings.showDataLabels ?? false}
+                    />
+                  </Col>
+                  <Col>
+                    <FormikCheckbox
+                      label="Show Legend"
+                      tooltip="Display the legend information"
+                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.showLegend`}
+                      checked={ct.sectionSettings.showLegend ?? true}
+                    />
+                    <FormikCheckbox
+                      label="Show Legend Title"
+                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.showLegendTitle`}
+                      checked={ct.sectionSettings.showLegendTitle ?? false}
+                    />
+                  </Col>
                 </Row>
               </Col>
             ))}

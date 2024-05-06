@@ -11,13 +11,13 @@ export const ReportView = () => {
   const [{ reportOutput }, { storeReportOutput }] = useProfileStore();
   const [{ viewReportInstance }] = useReportInstances();
 
-  const isLoading = requests.some((r) => r.group.includes('view-report'));
   const instanceId = values.instances.length ? values.instances[0].id : undefined;
+  const isLoading = requests.some((r) => r.group.includes('view-report'));
 
   const handleViewReport = React.useCallback(
     async (instanceId: number) => {
       try {
-        const response = await viewReportInstance(instanceId);
+        const response = await viewReportInstance(instanceId, true);
         storeReportOutput({ ...response, instanceId });
       } catch {}
     },
@@ -25,15 +25,15 @@ export const ReportView = () => {
   );
 
   React.useEffect(() => {
-    if (instanceId && reportOutput?.instanceId !== instanceId) {
+    if (instanceId) {
       handleViewReport(instanceId);
     }
-    // The functions will result in infinite loop.
+    // Initialize every time this component is displayed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instanceId, reportOutput]);
+  }, []);
 
   return (
-    <div className="preview-section report-edit-section">
+    <div className="report-edit-section">
       <Show visible={isLoading}>
         <Loading />
       </Show>
