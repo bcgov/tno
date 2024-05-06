@@ -431,6 +431,7 @@ public class ReportController : ControllerBase
 
         var instances = _reportService.GetLatestInstances(id, user.Id);
         var currentInstance = instances.FirstOrDefault() ?? throw new InvalidOperationException("Unable to add content to a report without an instance");
+        currentInstance.ContentManyToMany.Clear();
         currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
         result.Instances.Clear();
         result.Instances.AddRange(instances);
