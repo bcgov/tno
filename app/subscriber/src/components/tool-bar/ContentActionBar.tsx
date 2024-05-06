@@ -26,7 +26,7 @@ export interface IContentActionBarProps {
   onSelectAll?: React.ChangeEventHandler<HTMLInputElement>;
   /** Whether to show remove from folder button */
   removeFolderItem?: Function;
-  /** whether to disable AddtoFolderMenu */
+  /** whether to disable AddToFolderMenu */
   disableAddToFolder?: boolean;
   /** Event to fire when selection should be cleared */
   onClear?: () => void;

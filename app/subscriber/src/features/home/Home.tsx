@@ -43,7 +43,7 @@ export const Home: React.FC = () => {
 
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
-    if (!!featuredStoryActionId && !!filter.startDate) {
+    if (!!featuredStoryActionId) {
       fetchResults(
         generateQuery(
           filterFormat({

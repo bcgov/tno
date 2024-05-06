@@ -3,6 +3,7 @@ import { FaEnvelope } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { useColleagues, useLookup } from 'store/hooks';
+import { useProfileStore } from 'store/slices';
 import {
   Button,
   IContentModel,
@@ -28,9 +29,9 @@ export interface IShareSubMenuProps {
  */
 export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
   const [{ settings }] = useLookup();
+  const [{ myColleagues, init }] = useProfileStore();
   const { toggle, isShowing } = useModal();
   const [{ getColleagues, share, shareEmail }] = useColleagues();
-  const [options, setOptions] = React.useState<IUserColleagueModel[]>([]);
   const [user, setUser] = React.useState<IUserColleagueModel | null>(null);
   const [emailAddress, setEmailAddress] = React.useState<string>('');
 
@@ -69,12 +70,10 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
   };
 
   React.useEffect(() => {
-    if (!options.length) {
-      getColleagues().then((data) => {
-        setOptions(data);
-      });
+    if (!init.myColleagues) {
+      getColleagues().catch(() => {});
     }
-  }, [options.length, getColleagues]);
+  }, [getColleagues, init.myColleagues]);
 
   const message =
     content.length > 0
@@ -105,7 +104,7 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
       >
         <FaEnvelope /> SHARE WITH A COLLEAGUE:
         <ul>
-          {options.map((o) => {
+          {myColleagues.map((o) => {
             return (
               <li
                 key={

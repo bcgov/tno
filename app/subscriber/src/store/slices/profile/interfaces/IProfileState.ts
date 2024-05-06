@@ -7,6 +7,7 @@ import {
   IReportModel,
   ISubscriberUserModel,
   ISystemMessageModel,
+  IUserColleagueModel,
 } from 'tno-core';
 
 export interface IProfileState {
@@ -16,6 +17,14 @@ export interface IProfileState {
   myFolders: IFolderModel[];
   myMinisters: IMinisterModel[];
   myReports: IReportModel[];
+  init: {
+    myFilters: boolean;
+    myFolders: boolean;
+    myMinisters: boolean;
+    myReports: boolean;
+    myColleagues: boolean;
+  };
+  myColleagues: IUserColleagueModel[];
   reportsFilter: string;
   reportOutput?: IReportResultForm;
   reportContent: { [reportId: number]: number[] };

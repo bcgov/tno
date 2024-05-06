@@ -5,6 +5,7 @@ import { useActionFilters } from 'features/search-page/hooks';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
+import moment from 'moment';
 import React from 'react';
 import { useContent, useSettings } from 'store/hooks';
 import { generateQuery, IContentModel } from 'tno-core';
@@ -35,6 +36,8 @@ export const TopStories: React.FC = () => {
         generateQuery(
           filterFormat({
             ...filter,
+            startDate: filter.startDate ?? moment().startOf('day').toISOString(),
+            endDate: filter.endDate ?? moment().endOf('day').toISOString(),
             actions: topStoryAction ? [topStoryAction] : [],
           }),
         ),
