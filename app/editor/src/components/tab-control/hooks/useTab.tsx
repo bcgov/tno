@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
+import { toQueryString } from 'tno-core';
 
 import { NavigateOptions } from '../constants';
 
@@ -32,7 +33,13 @@ export const useTab = (props?: ITabProps) => {
 
   const navigateTab = React.useCallback(
     (id: number, path: string = '/contents', open?: NavigateOptions) => {
-      const url = `${path}/${id}${values?.showNav ? `?showNav=${values.showNav}` : ''}`;
+      const urlParams = { showNav: values?.showNav };
+      const queryString = toQueryString(urlParams, {
+        includeUndefined: false,
+        includeEmpty: false,
+      });
+
+      const url = `${path}/${id}?${queryString}`;
       const nav = open ?? values?.open ?? NavigateOptions.NewTab;
       if (nav === NavigateOptions.NewTab) {
         window.open(url, '_blank');
