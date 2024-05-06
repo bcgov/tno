@@ -21,7 +21,7 @@ export const TodaysCommentary: React.FC = () => {
     { findContentWithElasticsearch, storeTodaysCommentaryFilter: storeFilter },
   ] = useContent();
   const getActionFilters = useActionFilters();
-  const { commentaryActionId, isReady } = useSettings();
+  const { commentaryActionId } = useSettings();
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
@@ -31,7 +31,7 @@ export const TodaysCommentary: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    if (isReady) {
+    if (commentaryActionId) {
       let actionFilters = getActionFilters();
       const commentaryAction = actionFilters.find((a) => a.id === commentaryActionId);
 
@@ -40,8 +40,8 @@ export const TodaysCommentary: React.FC = () => {
           filterFormat({
             ...filter,
             actions: commentaryAction ? [commentaryAction] : [],
-            startDate: moment(filter.startDate).toISOString(),
-            endDate: moment(filter.endDate).toISOString(),
+            startDate: filter.startDate ?? moment().startOf('day').toISOString(),
+            endDate: filter.endDate ?? moment().endOf('day').toISOString(),
             searchUnpublished: false,
             size: 500,
           }),
@@ -58,7 +58,7 @@ export const TodaysCommentary: React.FC = () => {
         })
         .catch();
     }
-  }, [commentaryActionId, filter, findContentWithElasticsearch, getActionFilters, isReady]);
+  }, [commentaryActionId, filter, findContentWithElasticsearch, getActionFilters]);
 
   return (
     <styled.TodaysCommentary>
