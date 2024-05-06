@@ -1,10 +1,11 @@
+import { Button } from 'components/button';
 import { FormikForm } from 'components/formik';
 import { PageSection } from 'components/section';
 import React from 'react';
 import { FaSave } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useColleagues } from 'store/hooks';
-import { Button, ButtonVariant, Col, Container, FormikText, Row } from 'tno-core';
+import { Col, FormikText, validateEmail } from 'tno-core';
 
 import { defaultColleague } from './constants/defaultColleague';
 import { IColleagueForm } from './interfaces/IColleagueForm';
@@ -36,31 +37,25 @@ export const ColleagueEdit: React.FC = () => {
             setSubmitting(false);
           }}
         >
-          {({ isSubmitting, setFieldValue, submitForm }) => (
+          {({ values, isSubmitting, setFieldValue, submitForm }) => (
             <>
-              <Row gap="1rem">
-                <Col className="edit">
-                  <Container>
-                    <FormikText
-                      name={`colleagueEmail`}
-                      label="Colleague Email"
-                      onChange={(e) => {
-                        setFieldValue(`colleagueEmail`, e.target.value);
-                      }}
-                    />
-                  </Container>
-                </Col>
-              </Row>
-              <Row justifyContent="flex-end">
-                <Button
-                  variant={ButtonVariant.success}
-                  disabled={isSubmitting}
-                  title="Save changes"
-                  onClick={() => submitForm()}
+              <Col className="edit">
+                <FormikText
+                  name={`colleagueEmail`}
+                  label="Colleague Email"
+                  onChange={(e) => {
+                    setFieldValue(`colleagueEmail`, e.target.value);
+                  }}
                 >
-                  <FaSave />
-                </Button>
-              </Row>
+                  <Button
+                    variant="primary"
+                    disabled={isSubmitting || !validateEmail(values.colleagueEmail)}
+                    onClick={() => submitForm()}
+                  >
+                    <FaSave />
+                  </Button>
+                </FormikText>
+              </Col>
             </>
           )}
         </FormikForm>

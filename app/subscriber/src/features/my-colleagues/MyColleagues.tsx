@@ -6,40 +6,35 @@ import { FaClipboard } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useColleagues } from 'store/hooks';
+import { useProfileStore } from 'store/slices';
 import { IUserColleagueModel, Modal, Row, useModal } from 'tno-core';
 
 import { ColleagueCard } from './ColleagueCard';
 import * as styled from './styled/MyColleagues';
 
 export const MyColleagues: React.FC = () => {
+  const [{ myColleagues, init }] = useProfileStore();
   const [{ getColleagues, deleteColleague }] = useColleagues();
   const { toggle, isShowing } = useModal();
-  const [colleagues, setColleagues] = React.useState<IUserColleagueModel[]>([]);
   const [colleague, setColleague] = React.useState<IUserColleagueModel>();
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    if (!colleagues.length) {
-      getColleagues().then((data) => {
-        setColleagues(data);
-      });
+    if (!init.myColleagues) {
+      getColleagues().catch(() => {});
     }
-  }, [colleagues.length, getColleagues]);
+  }, [getColleagues, init.myColleagues]);
 
   const handleDelete = React.useCallback(
-    (model: IUserColleagueModel) => {
+    async (model: IUserColleagueModel) => {
       if (!!model) {
-        deleteColleague(model)
-          .then((dataDeleted) => {
-            getColleagues().then((data) => {
-              setColleagues(data);
-            });
-            toast.success(`Successfully deleted '${dataDeleted.colleague?.email}' as colleague.`);
-          })
-          .catch(() => {});
+        try {
+          await deleteColleague(model);
+          toast.success(`Successfully deleted '${model.colleague?.email}' as colleague.`);
+        } catch {}
       }
     },
-    [deleteColleague, getColleagues],
+    [deleteColleague],
   );
 
   return (
@@ -55,7 +50,7 @@ export const MyColleagues: React.FC = () => {
           </Row>
         </Bar>
         <div>
-          {colleagues.map((colleague, index) => {
+          {myColleagues.map((colleague, index) => {
             return (
               <ColleagueCard
                 key={index}

@@ -9,11 +9,13 @@ import {
   IReportModel,
   ISubscriberUserModel,
   ISystemMessageModel,
+  IUserColleagueModel,
 } from 'tno-core';
 
 import { storeContributors } from '../lookup';
 import {
   storeFilter,
+  storeMyColleagues,
   storeMyFilters,
   storeMyFolders,
   storeMyMinisters,
@@ -38,6 +40,9 @@ export interface IProfileStore {
   ) => void;
   storeMyMinisters: (ministers: IMinisterModel[] | ActionDelegate<IMinisterModel[]>) => void;
   storeMyReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => void;
+  storeMyColleagues: (
+    reports: IUserColleagueModel[] | ActionDelegate<IUserColleagueModel[]>,
+  ) => void;
   storeReportsFilter: (filter: string | ActionDelegate<string>) => void;
   storeReportOutput: (
     output: IReportResultForm | undefined | ActionDelegate<IReportResultForm | undefined>,
@@ -88,6 +93,13 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
           dispatch(storeMyReports(reports(state.myReports)));
         } else dispatch(storeMyReports(reports));
       },
+      storeMyColleagues: (
+        colleagues: IUserColleagueModel[] | ActionDelegate<IUserColleagueModel[]>,
+      ) => {
+        if (typeof colleagues === 'function') {
+          dispatch(storeMyColleagues(colleagues(state.myColleagues)));
+        } else dispatch(storeMyColleagues(colleagues));
+      },
       storeReportsFilter: (filter: string | ActionDelegate<string>) => {
         if (typeof filter === 'function') {
           dispatch(storeReportsFilter(filter(state.reportsFilter)));
@@ -132,6 +144,7 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
       state.myFolders,
       state.myMinisters,
       state.myReports,
+      state.myColleagues,
       state.reportsFilter,
       state.reportOutput,
       state.reportContent,

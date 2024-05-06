@@ -1,7 +1,6 @@
 import { Action } from 'components/action';
 import { Section } from 'components/section';
 import React from 'react';
-import { FaTrashCan } from 'react-icons/fa6';
 import { IUserColleagueModel } from 'tno-core';
 
 export interface IColleagueCardProps {
@@ -27,7 +26,8 @@ export const ColleagueCard: React.FC<IColleagueCardProps> = ({ model, onDelete }
       actions={
         <>
           <Action
-            icon={<FaTrashCan />}
+            variant="trash"
+            title="Remove colleague"
             onClick={() => {
               onDelete?.(model);
             }}

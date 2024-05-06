@@ -8,6 +8,7 @@ import {
   IReportModel,
   ISubscriberUserModel,
   ISystemMessageModel,
+  IUserColleagueModel,
 } from 'tno-core';
 
 import { IProfileState } from './interfaces';
@@ -18,9 +19,17 @@ export const initialProfileState: IProfileState = {
   myFolders: [],
   myMinisters: [],
   myReports: [],
+  myColleagues: [],
   reportsFilter: '',
   reportContent: {},
   systemMessages: [],
+  init: {
+    myFilters: false,
+    myFolders: false,
+    myMinisters: false,
+    myReports: false,
+    myColleagues: false,
+  },
 };
 
 export const profileSlice = createSlice({
@@ -35,15 +44,23 @@ export const profileSlice = createSlice({
     },
     storeMyFilters(state: IProfileState, action: PayloadAction<IFilterModel[]>) {
       state.myFilters = action.payload;
+      state.init.myFilters = true;
     },
     storeMyFolders(state: IProfileState, action: PayloadAction<IFolderModel[]>) {
       state.myFolders = action.payload;
+      state.init.myFolders = true;
     },
     storeMyMinisters(state: IProfileState, action: PayloadAction<IMinisterModel[]>) {
       state.myMinisters = action.payload;
+      state.init.myMinisters = true;
     },
     storeMyReports(state: IProfileState, action: PayloadAction<IReportModel[]>) {
       state.myReports = action.payload;
+      state.init.myReports = true;
+    },
+    storeMyColleagues(state: IProfileState, action: PayloadAction<IUserColleagueModel[]>) {
+      state.myColleagues = action.payload;
+      state.init.myColleagues = true;
     },
     storeReportsFilter(state: IProfileState, action: PayloadAction<string>) {
       state.reportsFilter = action.payload;
@@ -73,6 +90,7 @@ export const {
   storeMyFolders,
   storeMyMinisters,
   storeMyReports,
+  storeMyColleagues,
   storeReportsFilter,
   storeReportOutput,
   storeReportContent,
