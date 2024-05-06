@@ -108,45 +108,49 @@ export const MyMinister: React.FC = () => {
       return mentions;
     };
 
-    const contentList: IContentSearchResult[] = [];
-    if (userInfo?.preferences?.myMinisters?.length > 0 && ministers.length > 0) {
-      let ministerModels = ministers
-        .filter((m) => userInfo?.preferences?.myMinisters?.includes(m.id))
-        .map((m) => {
-          return { ...m, contentCount: 0 };
-        })
-        .sort((a: IMinisterModel, b: IMinisterModel) => (`${a.name}` > `${b.name}` ? 1 : -1));
-      if (ministerModels) {
-        ministerModels.forEach(async (m) => {
-          const res = await fetchResults(
-            generateQuery(
-              filterFormat({
-                ...filter,
-                search: makeSimpleQueryString([...m.aliases.split(','), m.name]),
-                startDate: filter.startDate,
-                endDate: filter.endDate,
-                inByline: true,
-                inHeadline: true,
-                inStory: true,
-                defaultSearchOperator: 'or',
-              }),
-            ),
-          );
-          if (!!res && res.length > 0) {
-            res.forEach((r) => {
-              r.ministerName = m.name;
-              r.ministerMentions = fillMentions(r, m.name);
-              m.contentCount += 1;
-              contentList.push(r);
-            });
+    const displayData = async () => {
+      const contentList: IContentSearchResult[] = [];
+      if (userInfo?.preferences?.myMinisters?.length > 0 && ministers.length > 0) {
+        let ministerModels = ministers
+          .filter((m) => userInfo?.preferences?.myMinisters?.includes(m.id))
+          .map((m) => {
+            return { ...m, contentCount: 0 };
+          })
+          .sort((a: IMinisterModel, b: IMinisterModel) => (`${a.name}` > `${b.name}` ? 1 : -1));
+        if (ministerModels) {
+          for (let j = 0; j < ministerModels.length; j++) {
+            const res = await fetchResults(
+              generateQuery(
+                filterFormat({
+                  ...filter,
+                  search: makeSimpleQueryString([
+                    ...ministerModels[j].aliases.split(','),
+                    ministerModels[j].name,
+                  ]),
+                  startDate: filter.startDate,
+                  endDate: filter.endDate,
+                  inByline: true,
+                  inHeadline: true,
+                  inStory: true,
+                  defaultSearchOperator: 'or',
+                }),
+              ),
+            );
+            if (!!res && res.length > 0) {
+              for (let i = 0; i < res.length; i++) {
+                res[i].ministerName = ministerModels[j].name;
+                res[i].ministerMentions = await fillMentions(res[i], ministerModels[j].name);
+                ministerModels[j].contentCount += 1;
+                contentList.push(res[i]);
+              }
+            }
           }
-        });
-        setContent(contentList);
-        setTimeout(() => {
+          setContent(contentList);
           setUserMinisters(ministerModels);
-        }, 100);
+        }
       }
-    }
+    };
+    displayData().catch(() => {});
   }, [userInfo?.preferences?.myMinisters, ministers, fetchResults, filter]);
 
   React.useEffect(() => {
