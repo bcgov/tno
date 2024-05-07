@@ -71,6 +71,9 @@ export const ContentForm = styled.div`
       max-height: 12em;
     }
   }
+  .checkbox-byline {
+    padding-right: 0.5em;
+  }
 
   .content-properties {
     flex-grow: 1;

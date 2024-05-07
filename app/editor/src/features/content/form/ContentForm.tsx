@@ -118,6 +118,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const [cursorStyle, setCursorStyle] = React.useState('text');
   const [savePressed, setSavePressed] = React.useState(false);
   const [parsedTags, setParsedTags] = React.useState<string[]>([]);
+  const [useTitleCase, setUseTitleCase] = React.useState(true);
 
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOtherOptions, setSeriesOtherOptions] = React.useState<IOptionItem[]>([]);
@@ -274,14 +275,29 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       </Show>
                       <Show visible={props.values.contentType === ContentTypeName.PrintContent}>
                         <Row>
-                          <FormikText
-                            name="byline"
-                            label="Byline"
-                            width="50ch"
-                            onChange={(e) => {
-                              props.setFieldValue('byline', toTitleCase(e.target.value));
-                            }}
-                          />
+                          <Row alignItems="center">
+                            <FormikText
+                              name="byline"
+                              label="Byline"
+                              width="50ch"
+                              onChange={(e) => {
+                                if (useTitleCase) {
+                                  props.setFieldValue('byline', toTitleCase(e.target.value));
+                                } else {
+                                  props.setFieldValue('byline', e.target.value);
+                                }
+                              }}
+                            />
+                            <Checkbox
+                              label="Title Case"
+                              name="useTitleCase"
+                              checked={useTitleCase}
+                              onChange={(e) => {
+                                setUseTitleCase(e.target.checked);
+                              }}
+                              className="checkbox-byline"
+                            />
+                          </Row>
                           <FormikSelect
                             name="contributorId"
                             value={
@@ -305,13 +321,28 @@ const ContentForm: React.FC<IContentFormProps> = ({
                         }
                       >
                         <Row>
-                          <FormikText
-                            name="byline"
-                            label="Byline"
-                            onChange={(e) => {
-                              props.setFieldValue('byline', toTitleCase(e.target.value));
-                            }}
-                          />
+                          <Row alignItems="center">
+                            <FormikText
+                              name="byline"
+                              label="Byline"
+                              onChange={(e) => {
+                                if (useTitleCase) {
+                                  props.setFieldValue('byline', toTitleCase(e.target.value));
+                                } else {
+                                  props.setFieldValue('byline', e.target.value);
+                                }
+                              }}
+                            />
+                            <Checkbox
+                              label="Title Case"
+                              name="useTitleCase"
+                              checked={useTitleCase}
+                              onChange={(e) => {
+                                setUseTitleCase(e.target.checked);
+                              }}
+                              className="checkbox-byline"
+                            />
+                          </Row>
                           <FormikSelect
                             name="contributorId"
                             value={
