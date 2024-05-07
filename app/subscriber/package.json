@@ -35,6 +35,7 @@
     "rc-slider": "10.2.1",
     "react": "18.2.0",
     "react-beautiful-dnd": "13.1.1",
+    "react-color": "2.19.3",
     "react-datepicker": "4.10.0",
     "react-device-detect": "2.2.3",
     "react-dom": "18.2.0",
@@ -54,7 +55,7 @@
     "redux-logger": "3.0.6",
     "sheetjs": "file:packages/xlsx-0.20.1.tgz",
     "styled-components": "5.3.9",
-    "tno-core": "0.1.59"
+    "tno-core": "./tno-core-0.1.59.tgz"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "5.16.5",
@@ -70,6 +71,7 @@
     "@types/quill": "2.0.10",
     "@types/react": "18.0.28",
     "@types/react-beautiful-dnd": "13.1.4",
+    "@types/react-color": "3.0.12",
     "@types/react-datepicker": "4.10.0",
     "@types/react-dom": "18.0.11",
     "@types/react-redux": "7.1.25",

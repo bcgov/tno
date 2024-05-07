@@ -6,7 +6,9 @@ import {
   FaChevronDown,
   FaChevronUp,
   FaFloppyDisk,
+  FaMinus,
   FaPen,
+  FaPlus,
   FaTrash,
   FaX,
 } from 'react-icons/fa6';
@@ -34,7 +36,9 @@ export interface IActionProps extends React.HTMLAttributes<HTMLDivElement> {
     | 'chevron-down'
     | 'chevron-up'
     | 'undo'
-    | 'redo';
+    | 'redo'
+    | 'plus'
+    | 'minus';
   /** Size of icon */
   size?: string;
 }
@@ -65,6 +69,8 @@ export const Action: React.FC<IActionProps> = ({
   else if (variant === 'chevron-down') variantIcon = <FaChevronDown />;
   else if (variant === 'undo') variantIcon = <FaArrowRotateLeft />;
   else if (variant === 'redo') variantIcon = <FaArrowRotateRight />;
+  else if (variant === 'plus') variantIcon = <FaPlus />;
+  else if (variant === 'minus') variantIcon = <FaMinus />;
 
   return (
     <styled.Action

@@ -346,142 +346,39 @@ public class ReportEngine : IReportEngine
     /// <returns></returns>
     private JsonDocument MergeChartOptions(API.Models.Settings.ChartTemplateSettingsModel chartTemplateSettings, API.Models.Settings.ChartSectionSettingsModel sectionSettings)
     {
-        var json = JsonNode.Parse(chartTemplateSettings.Options.ToJson())?.AsObject();
-        if (json == null) return chartTemplateSettings.Options;
+        var defaultJsonText = chartTemplateSettings.Options.ToJson();
+        var defaultJson = JsonNode.Parse(defaultJsonText)?.AsObject();
+        if (defaultJson == null || defaultJsonText == "{}") return sectionSettings.Options;
+
+        var sectionJsonText = sectionSettings.Options.ToJson();
+        var sectionJson = JsonNode.Parse(sectionJsonText)?.AsObject();
+        if (sectionJson == null || sectionJsonText == "{}") return chartTemplateSettings.Options;
 
         try
         {
-
-            if (sectionSettings.IsHorizontal.HasValue)
+            // There appears to be no way to modify a value...
+            if (sectionJson.TryGetPropertyValue("indexAxis", out JsonNode? sectionIndexAxis))
             {
-                // There appears to be no way to modify a value...
-                if (json.ContainsKey("indexAxis"))
-                    json.Remove("indexAxis");
-                json.Add("indexAxis", sectionSettings.IsHorizontal.Value ? "y" : "x");
+                if (defaultJson.ContainsKey("indexAxis"))
+                    defaultJson.Remove("indexAxis");
+                defaultJson.Add("indexAxis", sectionIndexAxis.CopyNode());
             }
 
-            if (sectionSettings.ShowAxis.HasValue)
+            if (sectionJson.TryGetPropertyValue("scales", out JsonNode? sectionScales))
             {
-                if (json.TryGetPropertyValue("scales", out JsonNode? scales))
-                {
-                    if (scales?.AsObject().TryGetPropertyValue("x", out JsonNode? scalesX) == true)
-                    {
-                        if (scalesX?.AsObject().ContainsKey("display") == true)
-                            scalesX.AsObject().Remove("display");
-                        scalesX?.AsObject().Add("display", sectionSettings.ShowAxis);
-                    }
-                    else
-                    {
-                        scales?.AsObject().Add("x", JsonNode.Parse($"{{ \"display\": {sectionSettings.ShowAxis} }}"));
-                    }
-
-                    if (scales?.AsObject().TryGetPropertyValue("y", out JsonNode? scalesY) == true)
-                    {
-                        if (scalesY?.AsObject().ContainsKey("display") == true)
-                            scalesY.AsObject().Remove("display");
-                        scalesY?.AsObject().Add("display", sectionSettings.ShowAxis);
-                    }
-                    else
-                    {
-                        scales?.AsObject().Add("y", JsonNode.Parse($"{{ \"display\": {sectionSettings.ShowAxis} }}"));
-                    }
-                }
-                else
-                {
-                    scales = JsonNode.Parse($"{{ \"scales\": {{}} }}");
-                    scales?.AsObject().Add("x", JsonNode.Parse($"{{ \"display\": {sectionSettings.ShowAxis} }}"));
-                    scales?.AsObject().Add("y", JsonNode.Parse($"{{ \"display\": {sectionSettings.ShowAxis} }}"));
-                }
+                if (defaultJson.TryGetPropertyValue("scales", out JsonNode? scales))
+                    defaultJson.Remove("scales");
+                defaultJson.Add("scales", sectionScales.CopyNode());
             }
 
-            if (sectionSettings.ShowLegend.HasValue || sectionSettings.ShowLegendTitle.HasValue || !String.IsNullOrWhiteSpace(sectionSettings.Title))
+            if (sectionJson.TryGetPropertyValue("plugins", out JsonNode? sectionPlugins))
             {
-                if (json.TryGetPropertyValue("plugins", out JsonNode? plugins))
-                {
-                    if (plugins?.AsObject().TryGetPropertyValue("legend", out JsonNode? legend) == true)
-                    {
-                        if (legend?.AsObject().ContainsKey("display") == true)
-                            legend.AsObject().Remove("display");
-                        legend?.AsObject().Add("display", sectionSettings.ShowLegend ?? true);
-
-                        if (sectionSettings.ShowLegendTitle.HasValue || !String.IsNullOrWhiteSpace(sectionSettings.Title))
-                        {
-                            if (legend?.AsObject().TryGetPropertyValue("title", out JsonNode? title) == true)
-                            {
-                                if (title?.AsObject().ContainsKey("display") == true)
-                                    title.AsObject().Remove("display");
-                                title?.AsObject().Add("display", sectionSettings.ShowLegendTitle ?? true);
-
-                                if (!String.IsNullOrWhiteSpace(sectionSettings.Title))
-                                {
-                                    if (title?.AsObject().ContainsKey("text") == true)
-                                        title.AsObject().Remove("text");
-                                    title?.AsObject().Add("text", sectionSettings.Title ?? "");
-                                }
-                            }
-                            else
-                            {
-                                if (!String.IsNullOrWhiteSpace(sectionSettings.Title))
-                                {
-                                    title = JsonNode.Parse($"{{ \"title\": {{ \"text\": \"{sectionSettings.Title ?? ""}\", \"display\": {sectionSettings.ShowLegendTitle ?? true} }} }}");
-                                    legend?.AsObject().Add("title", title);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        legend = JsonNode.Parse($"{{ \"display\": {sectionSettings.ShowLegend}, \"title\": {{ \"text\": \"{sectionSettings.Title ?? ""}\", \"display\": {sectionSettings.ShowLegendTitle ?? true} }} }}");
-                        plugins?.AsObject().Add("legend", legend);
-                    }
-                }
-                else
-                {
-                    plugins = JsonNode.Parse($"{{ \"legend\": {{ \"display\": {sectionSettings.ShowLegend}, \"title\": {{ \"text\": \"{sectionSettings.Title ?? ""}\", \"display\": {sectionSettings.ShowLegendTitle ?? true} }} }} }}");
-                    json.Add("plugins", plugins);
-                }
+                if (defaultJson.TryGetPropertyValue("plugins", out JsonNode? plugins))
+                    defaultJson.Remove("plugins");
+                defaultJson.Add("plugins", sectionPlugins.CopyNode());
             }
 
-            if (sectionSettings.ShowDataLabels.HasValue)
-            {
-                if (json.TryGetPropertyValue("plugins", out JsonNode? plugins))
-                {
-                    if (plugins?.AsObject().TryGetPropertyValue("datalabels", out JsonNode? datalabels) == true)
-                    {
-                        if (datalabels?.AsObject().TryGetPropertyValue("labels", out JsonNode? labels) == true)
-                        {
-                            if (labels?.AsObject().TryGetPropertyValue("title", out JsonNode? title) == true)
-                            {
-                                if (title?.AsObject().ContainsKey("display") == true)
-                                    title?.AsObject().Remove("display");
-                                title?.AsObject().Add("display", sectionSettings.ShowDataLabels.Value);
-                            }
-                            else
-                            {
-                                title = JsonNode.Parse($"{{ \"display\": {sectionSettings.ShowDataLabels.Value} }}");
-                                labels?.AsObject().Add("title", title);
-                            }
-                        }
-                        else
-                        {
-                            labels = JsonNode.Parse($"{{ \"title\": {{ \"display\": {sectionSettings.ShowDataLabels.Value} }} }}");
-                            datalabels?.AsObject().Add("labels", labels);
-                        }
-                    }
-                    else
-                    {
-                        datalabels = JsonNode.Parse($"{{ \"anchor\": \"center\", \"labels\": {{ \"title\": {{ \"display\": {sectionSettings.ShowDataLabels.Value} }} }} }}");
-                        plugins?.AsObject().Add("datalabels", datalabels);
-                    }
-                }
-                else
-                {
-                    plugins = JsonNode.Parse($"{{ \"datalabels\": {{ \"anchor\": \"center\", \"labels\": {{ \"title\": {{ \"display\": {sectionSettings.ShowLegendTitle ?? true} }} }} }} }}");
-                    json.Add("plugins", plugins);
-                }
-            }
-
-            return JsonDocument.Parse(json.ToJsonString());
+            return JsonDocument.Parse(defaultJson.ToJsonString());
         }
         catch (Exception ex)
         {

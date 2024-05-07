@@ -22,6 +22,7 @@ export const defaultChartJSOptions = {
       anchor: 'center',
       labels: {
         title: null,
+        color: ['white'],
       },
     },
   },
@@ -53,6 +54,7 @@ export const defaultChartJSStackedOptions = {
       anchor: 'center',
       labels: {
         title: null,
+        color: ['white'],
       },
     },
   },

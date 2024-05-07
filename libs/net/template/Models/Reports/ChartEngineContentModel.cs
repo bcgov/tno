@@ -169,4 +169,5 @@ public class ChartEngineContentModel : RazorEngineTemplateBase
         })).AppendRange(content ?? Array.Empty<ContentModel>());
     }
     #endregion
+
 }
