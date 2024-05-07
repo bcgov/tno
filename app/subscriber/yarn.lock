@@ -10569,7 +10569,7 @@ __metadata:
     sass-extract-loader: 1.1.0
     sheetjs: "file:packages/xlsx-0.20.1.tgz"
     styled-components: 5.3.9
-    tno-core: ./tno-core-0.1.56.tgz
+    tno-core: ./tno-core-0.1.57.tgz
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -14614,9 +14614,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@file:./tno-core-0.1.56.tgz::locator=mmi-subscriber-app%40workspace%3A.":
-  version: 0.1.56
-  resolution: "tno-core@file:./tno-core-0.1.56.tgz::locator=mmi-subscriber-app%40workspace%3A."
+"tno-core@file:./tno-core-0.1.57.tgz::locator=mmi-subscriber-app%40workspace%3A.":
+  version: 0.1.57
+  resolution: "tno-core@file:./tno-core-0.1.57.tgz::locator=mmi-subscriber-app%40workspace%3A."
   dependencies:
     "@elastic/elasticsearch": ^8.10.0
     "@fortawesome/free-solid-svg-icons": ^6.4.2
@@ -14649,7 +14649,7 @@ __metadata:
     styled-components: ^5.3.9
     tno-core: 0.1.44
     yup: ^1.1.1
-  checksum: 174c30e4539cd0d4a680057bc4c42329624deccd0ba3a0de11e0e8768f4405c6fb0a76d237ba9075b2217823dfb649a44ce30d9ee02b5344394c03c5c7bd1d3f
+  checksum: fa3eeae65e3ea92143212c39aeba3406e1634bcf81863294e15232fd1fc108ad4fa7d85f6fe7ff31887457d283f5ae89d8bd5773c09c91bd1a9affcb368fa6c0
   languageName: node
   linkType: hard
 
