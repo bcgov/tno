@@ -86,6 +86,11 @@ public class PrincipalModel
     /// </summary>
     public AccountAuthState AuthState { get; set; }
 
+    /// <summary>
+    /// get/set - An array of media types not accessible to this user.
+    /// </summary>
+    public IEnumerable<int> MediaTypes { get; set; } = Array.Empty<int>();
+
     #endregion
 
     #region Constructors
@@ -121,6 +126,7 @@ public class PrincipalModel
             .Where(s => !String.IsNullOrWhiteSpace(s))
             .Select(r => r[1..^1])
             .Distinct() ?? principal.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value);
+        this.MediaTypes = user.MediaTypesManyToMany.Select(s => s.MediaTypeId).ToArray();
     }
     #endregion
 }
