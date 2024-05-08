@@ -97,23 +97,7 @@ export const useSubMediaGroups = (
   }, [series, mediaTypes]);
 
   useEffect(() => {
-    const sourceOptions: IGroupOption[] = sources.map((x) => {
-      return {
-        id: x.id,
-        name: getSourceName(x),
-        listOption: ListOptionName.Source,
-        sortOrder: x.sortOrder,
-      };
-    });
-
     const subGroups: ISubMediaGroupItem[] = [];
-    // Add 'All' option
-    subGroups.push({
-      sortOrder: 0,
-      key: 0,
-      label: 'All',
-      options: sourceOptions,
-    });
     mediaTypeSourceLookup.forEach((x) => {
       subGroups.push({
         key: x.id,
