@@ -45,7 +45,7 @@ export const Header: React.FC<IHeaderProps> = ({
         )}
         {children}
       </Row>
-      <Show visible={!window.location.pathname.includes('search') && !!width && width > 900}>
+      <Show visible={!window.location.pathname.includes('/search') && !!width && width > 900}>
         <BasicSearch inHeader />
       </Show>
       {showProfile && <UserProfile />}
