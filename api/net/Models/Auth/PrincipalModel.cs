@@ -91,6 +91,11 @@ public class PrincipalModel
     /// </summary>
     public IEnumerable<int> MediaTypes { get; set; } = Array.Empty<int>();
 
+    /// <summary>
+    /// get/set - An array of sources not accessible to this user.
+    /// </summary>
+    public IEnumerable<int> Sources { get; set; } = Array.Empty<int>();
+
     #endregion
 
     #region Constructors
@@ -127,6 +132,7 @@ public class PrincipalModel
             .Select(r => r[1..^1])
             .Distinct() ?? principal.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value);
         this.MediaTypes = user.MediaTypesManyToMany.Select(s => s.MediaTypeId).ToArray();
+        this.Sources = entity.SourcesManyToMany.Select(s => s.SourceId).ToArray();
     }
     #endregion
 }
