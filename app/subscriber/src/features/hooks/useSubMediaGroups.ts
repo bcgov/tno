@@ -1,6 +1,5 @@
 import { ISubMediaGroupItem } from 'features/search-page/components/advanced-search/interfaces';
 import { IGroupOption } from 'features/search-page/components/advanced-search/interfaces/IGroupOption';
-import { userInfo } from 'os';
 import { useEffect, useMemo, useState } from 'react';
 import { useApp } from 'store/hooks';
 import { IMediaTypeModel, ISeriesModel, ISourceModel, ListOptionName } from 'tno-core';
@@ -123,7 +122,14 @@ export const useSubMediaGroups = (
         .sort((a, b) => a.sortOrder - b.sortOrder)
         .filter((sg) => !userInfo?.mediaTypes.includes(sg.key)),
     );
-  }, [mediaTypeSeriesLookup, mediaTypeSourceLookup, mediaTypes, series, sources]);
+  }, [
+    mediaTypeSeriesLookup,
+    mediaTypeSourceLookup,
+    mediaTypes,
+    series,
+    sources,
+    userInfo?.mediaTypes,
+  ]);
 
   return {
     subMediaGroups,
