@@ -1,6 +1,7 @@
 import { ISubMediaGroupItem } from 'features/search-page/components/advanced-search/interfaces';
 import { IGroupOption } from 'features/search-page/components/advanced-search/interfaces/IGroupOption';
 import { useEffect, useMemo, useState } from 'react';
+import { useApp } from 'store/hooks';
 import { IMediaTypeModel, ISeriesModel, ISourceModel, ListOptionName } from 'tno-core';
 
 interface ILookup {
@@ -31,6 +32,7 @@ export const useSubMediaGroups = (
   subMediaGroups: ISubMediaGroupItem[];
 } => {
   const [subMediaGroups, setSubMediaGroups] = useState<ISubMediaGroupItem[]>([]);
+  const [{ userInfo }] = useApp();
 
   // Determine mediaTypeSourceLookup only when sources or mediaTypes change
   const mediaTypeSourceLookup = useMemo(() => {
@@ -115,8 +117,19 @@ export const useSubMediaGroups = (
       });
     });
 
-    setSubMediaGroups(subGroups.sort((a, b) => a.sortOrder - b.sortOrder));
-  }, [mediaTypeSeriesLookup, mediaTypeSourceLookup, mediaTypes, series, sources]);
+    setSubMediaGroups(
+      subGroups
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .filter((sg) => !userInfo?.mediaTypes.includes(sg.key)),
+    );
+  }, [
+    mediaTypeSeriesLookup,
+    mediaTypeSourceLookup,
+    mediaTypes,
+    series,
+    sources,
+    userInfo?.mediaTypes,
+  ]);
 
   return {
     subMediaGroups,

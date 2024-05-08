@@ -29,6 +29,8 @@ let userInfo: IUserInfoModel = {
   isEnabled: false,
   roles: [],
   authState: AccountAuthStateName.Authorized,
+  mediaTypes: [],
+  sources: [],
 };
 
 let initialized = false;

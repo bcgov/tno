@@ -13,6 +13,8 @@ export interface IUserInfoModel {
   lastLoginOn?: Date;
   isEnabled: boolean;
   status: UserStatusName;
+  mediaTypes: number[];
+  sources: number[];
   authState: AccountAuthStateName;
   preferences?: IUserPreferencesModel;
   note?: string;
