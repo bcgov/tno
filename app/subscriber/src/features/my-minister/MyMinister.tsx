@@ -4,6 +4,7 @@ import { ContentListActionBar } from 'components/tool-bar';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
+import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp, useContent } from 'store/hooks';
@@ -117,6 +118,12 @@ export const MyMinister: React.FC = () => {
             return { ...m, contentCount: 0 };
           })
           .sort((a: IMinisterModel, b: IMinisterModel) => (`${a.name}` > `${b.name}` ? 1 : -1));
+        const startDate = filter.startDate
+          ? filter.startDate
+          : moment(new Date()).startOf('day').toISOString();
+        const endDate = filter.endDate
+          ? filter.endDate
+          : moment(new Date()).endOf('day').toISOString();
         if (ministerModels) {
           for (let j = 0; j < ministerModels.length; j++) {
             const res = await fetchResults(
@@ -127,8 +134,8 @@ export const MyMinister: React.FC = () => {
                     ...ministerModels[j].aliases.split(','),
                     ministerModels[j].name,
                   ]),
-                  startDate: filter.startDate,
-                  endDate: filter.endDate,
+                  startDate,
+                  endDate,
                   inByline: true,
                   inHeadline: true,
                   inStory: true,
