@@ -5,4 +5,5 @@ export interface IGroupOption {
   name: string;
   listOption: ListOptionName;
   sortOrder: number;
+  selected: boolean;
 }

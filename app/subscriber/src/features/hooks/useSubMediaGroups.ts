@@ -59,6 +59,7 @@ export const useSubMediaGroups = (
               listOption: ListOptionName.Source,
               name: getSourceName(s),
               sortOrder: s.sortOrder,
+              selected: false,
             });
           });
         lookup.push(l);
@@ -91,6 +92,7 @@ export const useSubMediaGroups = (
               listOption: ListOptionName.Series,
               name: s.name,
               sortOrder: s.sortOrder,
+              selected: false,
             });
           });
         lookup.push(l);
@@ -106,6 +108,7 @@ export const useSubMediaGroups = (
         label: x.label,
         sortOrder: x.sortOrder,
         options: x.options,
+        listOption: ListOptionName.Source,
       });
     });
     mediaTypeSeriesLookup.forEach((x) => {
@@ -114,6 +117,7 @@ export const useSubMediaGroups = (
         label: x.label,
         sortOrder: x.sortOrder,
         options: x.options,
+        listOption: ListOptionName.Series,
       });
     });
 
