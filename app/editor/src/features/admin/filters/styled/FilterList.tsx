@@ -27,4 +27,20 @@ export const FilterList = styled.div`
     max-height: calc(100% - 120px);
     min-height: 200px;
   }
+  .keyword-cell {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    .clipboard-icon {
+      opacity: 0;
+      transition: opacity 0.1s ease;
+      cursor: pointer;
+      margin-left: 0.5rem;
+    }
+
+    &:hover .clipboard-icon {
+      opacity: 1;
+    }
+  }
 `;
