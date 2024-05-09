@@ -1,4 +1,8 @@
+import { FaRegClipboard } from 'react-icons/fa';
 import { CellCheckbox, CellEllipsis, IFilterModel, ITableHookColumn } from 'tno-core';
+
+import { handleCopyKeyWords } from '../utils/handleCopyKeyWords';
+import { truncateString } from '../utils/truncateString';
 
 export const filterColumns: ITableHookColumn<IFilterModel>[] = [
   {
@@ -18,6 +22,28 @@ export const filterColumns: ITableHookColumn<IFilterModel>[] = [
     accessor: 'ownerId',
     width: 2,
     cell: (cell) => <CellEllipsis>{cell.original.owner?.username}</CellEllipsis>,
+  },
+  {
+    label: 'Keywords',
+    accessor: 'keywords',
+    width: 2,
+    cell: (cell) => {
+      return (
+        <div className="keyword-cell">
+          <CellEllipsis>{truncateString(cell.original.settings?.search)}</CellEllipsis>
+          {cell.original.settings?.search ? (
+            <FaRegClipboard
+              className="clipboard-icon"
+              title="Copy keywords to clipboard"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCopyKeyWords(e, cell);
+              }}
+            />
+          ) : null}
+        </div>
+      );
+    },
   },
   {
     label: 'Enabled',
