@@ -1,13 +1,8 @@
 import { FaRegClipboard } from 'react-icons/fa';
 import { CellCheckbox, CellEllipsis, IFilterModel, ITableHookColumn } from 'tno-core';
-const handleCopyKeyWords = (event: any, cell: any) => {
-  navigator.clipboard.writeText(cell.original.settings!.search);
-  // animate the clipboar icon to show something happened
-  event.target.classList.toggle('animate');
-  setTimeout(() => {
-    event.target.classList.toggle('animate');
-  }, 200);
-};
+
+import { handleCopyKeyWords } from '../utils/handleCopyKeyWords';
+import { truncateString } from '../utils/truncateString';
 
 export const filterColumns: ITableHookColumn<IFilterModel>[] = [
   {
@@ -35,7 +30,7 @@ export const filterColumns: ITableHookColumn<IFilterModel>[] = [
     cell: (cell) => {
       return (
         <div className="keyword-cell">
-          <CellEllipsis>{cell.original.settings?.search}</CellEllipsis>
+          <CellEllipsis>{truncateString(cell.original.settings?.search)}</CellEllipsis>
           {cell.original.settings?.search ? (
             <FaRegClipboard
               className="clipboard-icon"
