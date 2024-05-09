@@ -120,12 +120,11 @@ export const useSubMediaGroups = (
         listOption: ListOptionName.Series,
       });
     });
-
-    setSubMediaGroups(
-      subGroups
-        .sort((a, b) => a.sortOrder - b.sortOrder)
-        .filter((sg) => !userInfo?.mediaTypes.includes(sg.key)),
-    );
+    let newSubGroups = subGroups.sort((a, b) => a.sortOrder - b.sortOrder);
+    if (userInfo?.mediaTypes) {
+      newSubGroups = newSubGroups.filter((sg) => !userInfo?.mediaTypes.includes(sg.key));
+    }
+    setSubMediaGroups(newSubGroups);
   }, [
     mediaTypeSeriesLookup,
     mediaTypeSourceLookup,
