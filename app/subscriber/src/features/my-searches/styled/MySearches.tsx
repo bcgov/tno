@@ -35,6 +35,8 @@ export const MySearches = styled(Col)`
     padding: 0.5rem;
   }
   .copy-icon {
+    opacity: 0;
+    transition: opacity 0.1s ease;
     margin-left: 1rem;
     cursor: pointer;
   }
