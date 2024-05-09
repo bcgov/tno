@@ -2,13 +2,14 @@ import { Action } from 'components/action';
 import { SubscriberTableContainer } from 'components/table';
 import React from 'react';
 import { FaCheck, FaSave } from 'react-icons/fa';
-import { FaBookmark, FaGear, FaPen, FaTrash } from 'react-icons/fa6';
+import { FaBookmark, FaGear, FaPen, FaRegClipboard, FaTrash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import { Col, IFilterModel, Modal, Row, Text, useModal } from 'tno-core';
 
+import { truncateTeaser } from '../../components/content-list/utils/truncateTeaser';
 import * as styled from './styled';
 
 /** contains a list of the user's filters, allows for edit and viewing */
@@ -52,7 +53,10 @@ export const MySearches = () => {
     },
     [editing?.id, navigate, storeFilter, storeSearchFilter],
   );
-
+  const handleCopyKeywords = (keywords: any) => {
+    navigator.clipboard.writeText(keywords);
+    toast.success('Keywords copied to clipboard');
+  };
   return (
     <styled.MySearches>
       <SubscriberTableContainer>
@@ -60,6 +64,8 @@ export const MySearches = () => {
           <span className="label">Search Name</span>
         </Row>
         {myFilters.map((filter, index) => {
+          const keywords = filter.settings?.search ? filter.settings.search : '';
+          const truncatedKeywords = truncateTeaser(keywords, 20);
           return (
             <Row key={filter.id} className="row">
               <FaBookmark className="darker-icon link" onClick={() => handleClick(filter)} />
@@ -77,6 +83,18 @@ export const MySearches = () => {
                 ) : (
                   filter.name
                 )}
+              </Col>
+              <Col flex="1">
+                {truncatedKeywords ? (
+                  <Row className="keywords-row">
+                    {truncatedKeywords}
+                    <FaRegClipboard
+                      className="copy-icon"
+                      onClick={() => handleCopyKeywords(filter.settings?.search)}
+                      title="Copy Keywords"
+                    />
+                  </Row>
+                ) : null}
               </Col>
               {editing?.id === filter.id ? (
                 <FaCheck onClick={() => setEditing(undefined)} />
