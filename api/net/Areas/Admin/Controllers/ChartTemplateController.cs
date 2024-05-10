@@ -128,7 +128,7 @@ public class ChartTemplateController : ControllerBase
     public IActionResult Delete(ChartTemplateModel model)
     {
         // Do not allow deleting a chart template that is used by a chart.
-        if (_chartTemplateService.IsInUse(model.Id)) throw new InvalidOperationException("Cannot delete a template in use by a chart.");
+        if (_chartTemplateService.IsInUse(model.Id)) throw new InvalidOperationException("Cannot delete a template in use by a report.");
         _chartTemplateService.DeleteAndSave((ChartTemplate)model);
         return new JsonResult(model);
     }

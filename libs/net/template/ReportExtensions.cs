@@ -484,7 +484,7 @@ public static class ReportExtensions
     /// <returns></returns>
     public static string GetSourceUrl(this ContentModel content, ReportEngineContentModel context)
     {
-        return context.OwnerId.HasValue && content.Versions.ContainsKey(context.OwnerId.Value) ? content.Versions[context.OwnerId.Value].SourceUrl : content.SourceUrl;
+        return context.OwnerId.HasValue && content.Versions.TryGetValue(context.OwnerId.Value, out Entities.Models.ContentVersion? value) ? value.SourceUrl : content.SourceUrl;
     }
 
     /// <summary>
@@ -494,7 +494,7 @@ public static class ReportExtensions
     /// <returns></returns>
     public static bool IsPrivate(this ContentModel content, ReportEngineContentModel context)
     {
-        return context.OwnerId.HasValue && content.Versions.ContainsKey(context.OwnerId.Value) ? content.Versions[context.OwnerId.Value].IsPrivate : content.IsPrivate;
+        return context.OwnerId.HasValue && content.Versions.TryGetValue(context.OwnerId.Value, out Entities.Models.ContentVersion? value) ? value.IsPrivate : content.IsPrivate;
     }
 
     /// Group the content to separate it for the chart.
