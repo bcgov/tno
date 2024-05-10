@@ -148,80 +148,86 @@ export const FilterMediaLanding: React.FC = () => {
     return false;
   };
 
-  const handleGroupClick = (mediaGroup: ISubMediaGroupItem) => {
-    if (mediaGroup.label === 'Weekly Print') setActiveLetter('A');
-    else if (mediaGroup.label === 'Online') setActiveLetter('B');
-    else setActiveLetter('All');
-    checkAllOptions(mediaGroup, true);
-    let sourceIds = mediaGroup.options
-      .filter((x) => x.listOption === ListOptionName.Source && x.selected === true)
-      .map((x) => x.id);
-    let seriesIds = mediaGroup.options
-      .filter((x) => x.listOption === ListOptionName.Series && x.selected === true)
-      .map((x) => x.id);
-    let emptyArrayTerms: string[] = [];
-    if (mediaGroup?.listOption === ListOptionName.Series) {
-      emptyArrayTerms = ['seriesId'];
-    }
-    if (mediaGroup?.listOption === ListOptionName.Source) {
-      emptyArrayTerms = ['sourceId'];
-    }
-    storeFilter({
-      ...filter,
-      sourceIds,
-      seriesIds,
-      emptyArrayTerms,
-      mediaTypeIds: [mediaGroup.key],
-    });
-    setActiveFilter(mediaGroup);
-    setParentClicked(true);
-  };
-
-  const handleClickAll = (e: any) => {
-    let emptyArrayTerms: string[] = [];
-    setActiveSource(null);
-    // if changing to unchecked, remove all sourceIds and seriesIds (toggle)
-    if (!e.target.checked) {
-      if (activeFilter?.listOption === ListOptionName.Series) {
+  const handleGroupClick = React.useCallback(
+    (mediaGroup: ISubMediaGroupItem) => {
+      if (mediaGroup.label === 'Weekly Print') setActiveLetter('A');
+      else if (mediaGroup.label === 'Online') setActiveLetter('B');
+      else setActiveLetter('All');
+      checkAllOptions(mediaGroup, true);
+      let sourceIds = mediaGroup.options
+        .filter((x) => x.listOption === ListOptionName.Source && x.selected === true)
+        .map((x) => x.id);
+      let seriesIds = mediaGroup.options
+        .filter((x) => x.listOption === ListOptionName.Series && x.selected === true)
+        .map((x) => x.id);
+      let emptyArrayTerms: string[] = [];
+      if (mediaGroup?.listOption === ListOptionName.Series) {
         emptyArrayTerms = ['seriesId'];
       }
-      if (activeFilter?.listOption === ListOptionName.Source) {
-        emptyArrayTerms = ['sourceId'];
-      }
-      if (activeFilter) {
-        checkAllOptions(activeFilter, false);
-      }
-      storeFilter({
-        ...filter,
-        sourceIds: [],
-        seriesIds: [],
-        emptyArrayTerms,
-      });
-    } else {
-      // need to iterate through and check the options to their corresponding source or series id
-      if (activeFilter) {
-        checkAllOptions(activeFilter, true);
-      }
-      const sourceIds = activeFilter?.options
-        .filter((x) => x.listOption === ListOptionName.Source)
-        .map((c) => c.id);
-      const seriesIds = activeFilter?.options
-        .filter((x) => x.listOption === ListOptionName.Series)
-        .map((c) => c.id);
-      if (activeFilter?.listOption === ListOptionName.Series) {
-        emptyArrayTerms = ['seriesId'];
-      }
-      if (activeFilter?.listOption === ListOptionName.Source) {
+      if (mediaGroup?.listOption === ListOptionName.Source) {
         emptyArrayTerms = ['sourceId'];
       }
       storeFilter({
         ...filter,
-        emptyArrayTerms,
         sourceIds,
         seriesIds,
+        emptyArrayTerms,
+        mediaTypeIds: [mediaGroup.key],
       });
-    }
-  };
+      setActiveFilter(mediaGroup);
+      setParentClicked(true);
+    },
+    [filter, storeFilter],
+  );
+
+  const handleClickAll = React.useCallback(
+    (e: any) => {
+      let emptyArrayTerms: string[] = [];
+      setActiveSource(null);
+      // if changing to unchecked, remove all sourceIds and seriesIds (toggle)
+      if (!e.target.checked) {
+        if (activeFilter?.listOption === ListOptionName.Series) {
+          emptyArrayTerms = ['seriesId'];
+        }
+        if (activeFilter?.listOption === ListOptionName.Source) {
+          emptyArrayTerms = ['sourceId'];
+        }
+        if (activeFilter) {
+          checkAllOptions(activeFilter, false);
+        }
+        storeFilter({
+          ...filter,
+          sourceIds: [],
+          seriesIds: [],
+          emptyArrayTerms,
+        });
+      } else {
+        // need to iterate through and check the options to their corresponding source or series id
+        if (activeFilter) {
+          checkAllOptions(activeFilter, true);
+        }
+        const sourceIds = activeFilter?.options
+          .filter((x) => x.listOption === ListOptionName.Source)
+          .map((c) => c.id);
+        const seriesIds = activeFilter?.options
+          .filter((x) => x.listOption === ListOptionName.Series)
+          .map((c) => c.id);
+        if (activeFilter?.listOption === ListOptionName.Series) {
+          emptyArrayTerms = ['seriesId'];
+        }
+        if (activeFilter?.listOption === ListOptionName.Source) {
+          emptyArrayTerms = ['sourceId'];
+        }
+        storeFilter({
+          ...filter,
+          emptyArrayTerms,
+          sourceIds,
+          seriesIds,
+        });
+      }
+    },
+    [activeFilter, filter, storeFilter],
+  );
 
   return (
     <styled.FilterMediaLanding>
