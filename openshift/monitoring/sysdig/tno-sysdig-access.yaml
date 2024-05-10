@@ -9,15 +9,9 @@ spec:
     users:
       - name: ckayfish@gmail.com
         role: ROLE_TEAM_EDIT
-      - name: curtis.kayfish@gov.bc.ca
-        role: ROLE_TEAM_EDIT
       - name: jeremy.foster@fosol.ca
         role: ROLE_TEAM_EDIT
       - name: Jeremy.1.Foster@gov.bc.ca
         role: ROLE_TEAM_EDIT
-      - name: kyle.morris@gov.bc.ca
-        role: ROLE_TEAM_EDIT
-      - name: cello.liu@gov.bc.ca
-        role: ROLE_TEAM_STANDARD
       - name: Carolynn.Hunter@gov.bc.ca
         role: ROLE_TEAM_READ

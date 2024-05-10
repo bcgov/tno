@@ -98,7 +98,7 @@ export const ReportForm = styled(FormPage)`
 
   .charts {
     padding: 0.5rem;
-    border: solid 1px ${(props) => props.theme.css.tableEvenRowColor};
+    border: solid 1px ${(props) => props.theme.css.tableColor};
     border-radius: 0.25rem;
     gap: 0.25rem;
 
@@ -106,13 +106,25 @@ export const ReportForm = styled(FormPage)`
       border-radius: 0.25rem;
       align-items: center;
       padding: 0.25rem;
+      border: solid 1px ${(props) => props.theme.css.tableColor};
+
+      > div:first-child > div:first-child {
+        background-color: ${(props) => props.theme.css.tableColor};
+        padding: 0 1rem;
+        align-items: center;
+      }
     }
 
-    > div[direction='row']:nth-child(odd) {
-      background-color: ${(props) => props.theme.css.tableOddRowColor};
-    }
-    > div[direction='row']:nth-child(even) {
-      background-color: ${(props) => props.theme.css.tableEvenRowColor};
+    .chart-settings {
+      gap: 0.25rem;
+      justify-content: space-between;
+      padding: 0 0.5rem;
+
+      > div {
+        margin: 0.15rem;
+        padding: 0.5rem;
+        border: solid 1px ${(props) => props.theme.css.tableColor};
+      }
     }
   }
 

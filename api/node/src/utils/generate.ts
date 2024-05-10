@@ -3,10 +3,12 @@ import { ChartCanvas, ChartTypes } from '../charts';
 import {
   convertBase64ConfigToChartJsConfig,
   convertChartJsConfigToBase64String,
+  evalScripts,
   getInt,
   getString,
 } from '.';
-import { ChartConfiguration } from 'chart.js';
+import { ChartConfiguration, ScriptableContext } from 'chart.js';
+import { AnyObject } from 'chart.js/dist/types/basic';
 
 /**
  * Generate a chart on a canvas.
@@ -29,7 +31,7 @@ export function generateCanvas(type: ChartTypes, req: Request) {
   const base64Options = getString(req, 'options') ?? convertChartJsConfigToBase64String({});
   const options = convertBase64ConfigToChartJsConfig(base64Options);
 
-  const config = { type, data, options } as ChartConfiguration;
+  const config = { type, data: evalScripts(data), options } as ChartConfiguration;
 
   const canvas = new ChartCanvas(width, height);
   canvas.applyChart(config);

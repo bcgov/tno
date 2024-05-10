@@ -53,6 +53,7 @@ export const defaultChartJSStackedOptions = {
       anchor: 'center',
       labels: {
         title: null,
+        color: ['white'],
       },
     },
   },

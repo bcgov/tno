@@ -39,7 +39,6 @@ const ChartTemplateForm: React.FC = () => {
   const [chartTemplate, setChartTemplate] = React.useState<IChartTemplateModel>({
     ...defaultChartTemplate,
   });
-  const [filter, setFilter] = React.useState('');
 
   const chartTemplateId = Number(id);
 
@@ -143,7 +142,7 @@ const ChartTemplateForm: React.FC = () => {
                   <ChartTemplateFormOptions />
                 </Show>
                 <Show visible={active === 'preview'}>
-                  <ChartTemplateFormPreview filter={filter} setFilter={setFilter} />
+                  <ChartTemplateFormPreview />
                 </Show>
                 <Row justifyContent="center" className="form-inputs">
                   <Button type="submit" disabled={isSubmitting}>

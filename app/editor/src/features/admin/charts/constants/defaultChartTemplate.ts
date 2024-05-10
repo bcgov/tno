@@ -13,6 +13,8 @@ export const defaultChartTemplate: IChartTemplateModel = {
   settings: {
     chartTypes: [],
     groupBy: [],
+    dataset: [],
+    datasetValue: [],
     options: defaultChartJSOptions,
   },
 };

@@ -131,8 +131,8 @@ public class PrincipalModel
             .Where(s => !String.IsNullOrWhiteSpace(s))
             .Select(r => r[1..^1])
             .Distinct() ?? principal.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value);
-        this.MediaTypes = user.MediaTypesManyToMany.Select(s => s.MediaTypeId).ToArray();
-        this.Sources = entity.SourcesManyToMany.Select(s => s.SourceId).ToArray();
+        this.MediaTypes = user?.MediaTypesManyToMany.Select(s => s.MediaTypeId).ToArray() ?? Array.Empty<int>();
+        this.Sources = user?.SourcesManyToMany.Select(s => s.SourceId).ToArray() ?? Array.Empty<int>();
     }
     #endregion
 }

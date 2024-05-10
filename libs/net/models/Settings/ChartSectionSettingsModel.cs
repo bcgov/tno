@@ -25,9 +25,29 @@ public class ChartSectionSettingsModel
     public string ChartType { get; set; } = "bar";
 
     /// <summary>
-    /// get/set - Which property to group by [contentType|otherSource|mediaType|series|byline].
+    /// get/set - Which property to group by [contentType|otherSource|mediaType|series|byline|sentiment|sentimentSimple].
     /// </summary>
-    public string GroupBy { get; set; } = "mediaType";
+    public string GroupBy { get; set; } = "otherSource";
+
+    /// <summary>
+    /// get/set - Which property to separate datasets by [contentType|otherSource|mediaType|series|byline|section].
+    /// </summary>
+    public string Dataset { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The value used for the dataset [count|sentiment|sentimentSimple].
+    /// </summary>
+    public string DatasetValue { get; set; } = "count";
+
+    /// <summary>
+    /// get/set - An array of colour to use for this chart datasets.
+    /// </summary>
+    public string[] DatasetColors { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// get/set - An array of colour to use for this chart data labels.
+    /// </summary>
+    public string[] DataLabelColors { get; set; } = Array.Empty<string>();
 
     /// <summary>
     /// get/set - Override whether the chart is horizontal.
@@ -35,19 +55,44 @@ public class ChartSectionSettingsModel
     public bool? IsHorizontal { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - Chart title
+    /// </summary>
+    public string? Title { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Chart subtitle
+    /// </summary>
+    public string? Subtitle { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Whether to display the legend
     /// </summary>
     public bool? ShowLegend { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - Legend title
     /// </summary>
-    public bool? ShowLegendTitle { get; set; }
+    public string? LegendTitle { get; set; }
 
     /// <summary>
-    /// get/set - An override title to include with the chart.
+    /// get/set - Legend position ['top' | 'left' | 'bottom' | 'right' | 'chartArea']
     /// </summary>
-    public string? Title { get; set; } = "";
+    public string? LegendPosition { get; set; }
+
+    /// <summary>
+    /// get/set - Legend align ['start' | 'center' | 'end']
+    /// </summary>
+    public string? LegendAlign { get; set; }
+
+    /// <summary>
+    /// get/set - X axis legend title
+    /// </summary>
+    public string? xLegend { get; set; }
+
+    /// <summary>
+    /// get/set - Y axis legend title
+    /// </summary>
+    public string? yLegend { get; set; }
 
     /// <summary>
     /// get/set -
@@ -58,6 +103,31 @@ public class ChartSectionSettingsModel
     /// get/set -
     /// </summary>
     public bool? ShowAxis { get; set; }
+
+    /// <summary>
+    /// get/set - Whether to stack datasets (only works on some charts).
+    /// </summary>
+    public bool? Stacked { get; set; }
+
+    /// <summary>
+    /// get/set - Scale suggested minimum value.
+    /// </summary>
+    public int? ScaleSuggestedMin { get; set; }
+
+    /// <summary>
+    /// get/set - Scale suggested maximum value.
+    /// </summary>
+    public int? ScaleSuggestedMax { get; set; }
+
+    /// <summary>
+    /// get/set - Scale tick step size.
+    /// </summary>
+    public int? ScaleTicksStepSize { get; set; }
+
+    /// <summary>
+    /// get/set - Minimum width in pixels a bar must be.
+    /// </summary>
+    public int? MinBarLength { get; set; }
 
     /// <summary>
     /// get/set - Chart.JS options.

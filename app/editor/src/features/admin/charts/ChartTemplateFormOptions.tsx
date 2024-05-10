@@ -6,7 +6,7 @@ import 'prismjs/components/prism-json';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
-import { Button, ButtonVariant, Checkbox, Col, Row } from 'tno-core';
+import { Button, ButtonVariant, Checkbox, Col, mergeChartSettings, Row } from 'tno-core';
 
 import { useChartTemplateContext } from './ChartTemplateContext';
 import {
@@ -22,7 +22,7 @@ export interface IChartTemplateFormOptionsProps {}
  * @returns Component.
  */
 export const ChartTemplateFormOptions: React.FC<IChartTemplateFormOptionsProps> = () => {
-  const { values, setFieldValue } = useChartTemplateContext();
+  const { values, setFieldValue, setValues } = useChartTemplateContext();
 
   const [chartOptions, setChartOptions] = React.useState(
     JSON.stringify(values.settings?.options ?? '{}', null, 2),
@@ -42,9 +42,12 @@ export const ChartTemplateFormOptions: React.FC<IChartTemplateFormOptionsProps> 
         <Row>
           <Col flex="1">
             <label htmlFor="txa-template" className="required">
-              Chart JS Options
+              Chart JS Configuration
             </label>
-            <p>Editing these options will change all reports that use this template.</p>
+            <p>
+              Editing this configuration will provide the default for all reports that use this
+              template.
+            </p>
           </Col>
           <Button
             variant={ButtonVariant.secondary}
@@ -68,81 +71,62 @@ export const ChartTemplateFormOptions: React.FC<IChartTemplateFormOptionsProps> 
         <Row gap="1rem">
           <Checkbox
             name="horizontal"
-            label="Horizontal Graph"
+            label="Flip X and Y axis"
             checked={values.settings.options?.indexAxis === 'y'}
             onChange={(e) => {
-              const options = {
-                ...values.settings.options,
-                indexAxis: e.currentTarget.checked ? 'y' : 'x',
-              };
-              setChartOptions(JSON.stringify(options, null, 2));
-              setFieldValue('settings.options', options);
+              var sectionSettings = mergeChartSettings(
+                values.settings.options,
+                values.sectionSettings,
+                {
+                  isHorizontal: e.target.checked,
+                },
+              );
+              setChartOptions(JSON.stringify(sectionSettings.options, null, 2));
+              setValues({
+                ...values,
+                settings: { ...values.settings, options: sectionSettings.options },
+                sectionSettings,
+              });
             }}
           />
           <Checkbox
             name="showLegend"
             label="Show Legend"
-            checked={values.settings.options?.plugins?.legend?.display}
+            checked={values.settings.options?.plugins?.legend?.display ?? ''}
             onChange={(e) => {
-              const options = {
-                ...values.settings.options,
-                plugins: {
-                  ...values.settings.options?.plugins,
-                  legend: {
-                    ...values.settings.options?.plugins?.legend,
-                    display: e.currentTarget.checked,
-                  },
+              var sectionSettings = mergeChartSettings(
+                values.settings.options,
+                values.sectionSettings,
+                {
+                  showLegend: e.target.checked,
                 },
-              };
-              setChartOptions(JSON.stringify(options, null, 2));
-              setFieldValue('settings.options', options);
-            }}
-          />
-          <Checkbox
-            name="showLegendTitle"
-            label="Show Legend Title"
-            checked={values.settings.options?.plugins?.legend?.title?.display}
-            onChange={(e) => {
-              const options = {
-                ...values.settings.options,
-                plugins: {
-                  ...values.settings.options?.plugins,
-                  legend: {
-                    ...values.settings.options?.plugins?.legend,
-                    title: {
-                      ...values.settings.options?.plugins?.legend.title,
-                      display: e.currentTarget.checked,
-                    },
-                  },
-                },
-              };
-              setChartOptions(JSON.stringify(options, null, 2));
-              setFieldValue('settings.options', options);
+              );
+              setChartOptions(JSON.stringify(sectionSettings.options, null, 2));
+              setValues({
+                ...values,
+                settings: { ...values.settings, options: sectionSettings.options },
+                sectionSettings,
+              });
             }}
           />
           <Checkbox
             name="showDataValues"
             label="Show Data Labels"
-            checked={values.settings.options?.plugins?.datalabels?.labels?.title?.display}
+            checked={values.settings.options?.plugins?.datalabels?.labels?.title?.display ?? ''}
             onChange={(e) => {
-              const options = {
-                ...values.settings.options,
-                plugins: {
-                  ...values.settings.options?.plugins,
-                  datalabels: {
-                    ...values.settings.options?.plugins?.datalabels,
-                    labels: {
-                      ...values.settings.options?.plugins?.datalabels?.labels,
-                      title: {
-                        ...values.settings.options?.plugins?.datalabels?.labels?.title,
-                        display: e.currentTarget.checked,
-                      },
-                    },
-                  },
+              var sectionSettings = mergeChartSettings(
+                values.settings.options,
+                values.sectionSettings,
+                {
+                  showDataLabels: e.target.checked,
                 },
-              };
-              setChartOptions(JSON.stringify(options, null, 2));
-              setFieldValue('settings.options', options);
+              );
+              setChartOptions(JSON.stringify(sectionSettings.options, null, 2));
+              setValues({
+                ...values,
+                settings: { ...values.settings, options: sectionSettings.options },
+                sectionSettings,
+              });
             }}
           />
         </Row>

@@ -2072,6 +2072,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@icons/material@npm:^0.2.4":
+  version: 0.2.4
+  resolution: "@icons/material@npm:0.2.4"
+  peerDependencies:
+    react: "*"
+  checksum: 24baa360cb83f7e1a9e6784ac11185d57eb895b0efd3070ec915693378330f35ff9feb248f650b9649fa3e1045601286585dc05795a4c734d4849b33900351ee
+  languageName: node
+  linkType: hard
+
 "@isaacs/cliui@npm:^8.0.2":
   version: 8.0.2
   resolution: "@isaacs/cliui@npm:8.0.2"
@@ -3353,6 +3362,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-color@npm:3.0.12":
+  version: 3.0.12
+  resolution: "@types/react-color@npm:3.0.12"
+  dependencies:
+    "@types/react": "*"
+    "@types/reactcss": "*"
+  checksum: 2b3baffa6d293ee98a66ccb8c47d47700a7139c42589f8acc7713c7b5ae1dd61e7b4ceeebdb4f2d1b3c54466a1d3f351c3126929ebb9c6e1fe460b7400a857c2
+  languageName: node
+  linkType: hard
+
 "@types/react-datepicker@npm:4.10.0":
   version: 4.10.0
   resolution: "@types/react-datepicker@npm:4.10.0"
@@ -3474,6 +3493,15 @@ __metadata:
     "@types/scheduler": "*"
     csstype: ^3.0.2
   checksum: e752df961105e5127652460504785897ca6e77259e0da8f233f694f9e8f451cde7fa0709d4456ade0ff600c8ce909cfe29f9b08b9c247fa9b734e126ec53edd7
+  languageName: node
+  linkType: hard
+
+"@types/reactcss@npm:*":
+  version: 1.2.12
+  resolution: "@types/reactcss@npm:1.2.12"
+  dependencies:
+    "@types/react": "*"
+  checksum: d04c087376daa503e187b390e416530904152046a7ac79a1c94e43cb4855fc8078ba8947792b88f3aff953defd9cae331c44fba717ebd650f40556e8f4bbb2a2
   languageName: node
   linkType: hard
 
@@ -10013,7 +10041,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash-es@npm:^4.17.21":
+"lodash-es@npm:^4.17.15, lodash-es@npm:^4.17.21":
   version: 4.17.21
   resolution: "lodash-es@npm:4.17.21"
   checksum: 05cbffad6e2adbb331a4e16fbd826e7faee403a1a04873b82b42c0f22090f280839f85b95393f487c1303c8a3d2a010048bf06151a6cbe03eee4d388fb0a12d2
@@ -10076,7 +10104,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.21, lodash@npm:^4.17.11, lodash@npm:^4.17.15, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4, lodash@npm:^4.7.0":
+"lodash@npm:4.17.21, lodash@npm:^4.0.1, lodash@npm:^4.17.11, lodash@npm:^4.17.15, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4, lodash@npm:^4.7.0":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -10202,6 +10230,13 @@ __metadata:
   dependencies:
     tmpl: 1.0.5
   checksum: b38a025a12c8146d6eeea5a7f2bf27d51d8ad6064da8ca9405fcf7bf9b54acd43e3b30ddd7abb9b1bfa4ddb266019133313482570ddb207de568f71ecfcf6060
+  languageName: node
+  linkType: hard
+
+"material-colors@npm:^1.2.1":
+  version: 1.2.6
+  resolution: "material-colors@npm:1.2.6"
+  checksum: 72d005ccccb82bab68eef3cd757e802668634fc86976dedb9fc564ce994f2d3258273766b7efecb7404a0031969e2d72201a1b74169763f0a53c0dd8d649209f
   languageName: node
   linkType: hard
 
@@ -10510,6 +10545,7 @@ __metadata:
     "@types/quill": 2.0.10
     "@types/react": 18.0.28
     "@types/react-beautiful-dnd": 13.1.4
+    "@types/react-color": 3.0.12
     "@types/react-datepicker": 4.10.0
     "@types/react-dom": 18.0.11
     "@types/react-redux": 7.1.25
@@ -10546,6 +10582,7 @@ __metadata:
     rc-slider: 10.2.1
     react: 18.2.0
     react-beautiful-dnd: 13.1.1
+    react-color: 2.19.3
     react-datepicker: 4.10.0
     react-device-detect: 2.2.3
     react-dom: 18.2.0
@@ -10569,7 +10606,7 @@ __metadata:
     sass-extract-loader: 1.1.0
     sheetjs: "file:packages/xlsx-0.20.1.tgz"
     styled-components: 5.3.9
-    tno-core: 0.1.59
+    tno-core: 0.1.60
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -12283,7 +12320,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:^15.5.6, prop-types@npm:^15.5.8, prop-types@npm:^15.6.0, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
+"prop-types@npm:^15.5.10, prop-types@npm:^15.5.6, prop-types@npm:^15.5.8, prop-types@npm:^15.6.0, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -12538,6 +12575,23 @@ __metadata:
     react: ^16.8.5 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.5 || ^17.0.0 || ^18.0.0
   checksum: 5f90f7c0ab77a14dfcd496cbd94bbde457612f380c6fc815f3bba7b52effd75132948fcaa661a902a184bb1e6ae5896dcf5b0c77c4ddf809a2c65288f3eed5a7
+  languageName: node
+  linkType: hard
+
+"react-color@npm:2.19.3":
+  version: 2.19.3
+  resolution: "react-color@npm:2.19.3"
+  dependencies:
+    "@icons/material": ^0.2.4
+    lodash: ^4.17.15
+    lodash-es: ^4.17.15
+    material-colors: ^1.2.1
+    prop-types: ^15.5.10
+    reactcss: ^1.2.0
+    tinycolor2: ^1.4.1
+  peerDependencies:
+    react: "*"
+  checksum: 40b49e1aa2ab27a099cc37a3fa2d5bb906b8def4dbe2d922c0e42365e386d82b03f9b06a2b29a44a51f1e114cef72e61c0ba0740581a128d951936ea4617429b
   languageName: node
   linkType: hard
 
@@ -13030,6 +13084,15 @@ __metadata:
   dependencies:
     loose-envify: ^1.1.0
   checksum: 88e38092da8839b830cda6feef2e8505dec8ace60579e46aa5490fc3dc9bba0bd50336507dc166f43e3afc1c42939c09fe33b25fae889d6f402721dcd78fca1b
+  languageName: node
+  linkType: hard
+
+"reactcss@npm:^1.2.0":
+  version: 1.2.3
+  resolution: "reactcss@npm:1.2.3"
+  dependencies:
+    lodash: ^4.0.1
+  checksum: c53e386a0881f1477e1cff661f6a6ad4c662230941f3827862193ac30f9b75cdf7bc7b4c7e5ca543d3e4e80fee1a3e9fa0056c206b1c0423726c41773ab3fe45
   languageName: node
   linkType: hard
 
@@ -14607,6 +14670,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tinycolor2@npm:^1.4.1":
+  version: 1.6.0
+  resolution: "tinycolor2@npm:1.6.0"
+  checksum: 6df4d07fceeedc0a878d7bac47e2cd47c1ceeb1078340a9eb8a295bc0651e17c750f73d47b3028d829f30b85c15e0572c0fd4142083e4c21a30a597e47f47230
+  languageName: node
+  linkType: hard
+
 "tmpl@npm:1.0.5":
   version: 1.0.5
   resolution: "tmpl@npm:1.0.5"
@@ -14652,9 +14722,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.1.59":
-  version: 0.1.59
-  resolution: "tno-core@npm:0.1.59"
+"tno-core@npm:0.1.60":
+  version: 0.1.60
+  resolution: "tno-core@npm:0.1.60"
   dependencies:
     "@elastic/elasticsearch": ^8.10.0
     "@fortawesome/free-solid-svg-icons": ^6.4.2
@@ -14687,7 +14757,7 @@ __metadata:
     styled-components: ^5.3.9
     tno-core: 0.1.44
     yup: ^1.1.1
-  checksum: 1312e3872526a8f5419905421b44c4fc08ac1193072495b20243d88ab9321f56f67e8219a69a300d9e53a6d62820797162c4c89c446118e4aafab79508b72a75
+  checksum: 87c9bfdd4d7f82b69d6aebabbc9bb4691399ea28ffe409c6b09b823d7f87201f9b9d0026d10335cd48f8b85156303083b58383c45b74f87eb6abe6515516b70b
   languageName: node
   linkType: hard
 

@@ -29,6 +29,7 @@ export const ReportEditTemplateForm = () => {
   const [sortOrders, setSortOrders] = React.useState<number[]>(
     values.sections.map((s) => s.sortOrder),
   );
+  const [disableDrag, setDisableDrag] = React.useState(false);
 
   React.useEffect(() => {
     setSortOrders(values.sections.map((s) => s.sortOrder));
@@ -104,7 +105,12 @@ export const ReportEditTemplateForm = () => {
               <div {...provided.droppableProps} ref={provided.innerRef}>
                 {values.sections.map((section, index) => {
                   return (
-                    <Draggable key={index} draggableId={index.toString()} index={index}>
+                    <Draggable
+                      key={index}
+                      draggableId={index.toString()}
+                      index={index}
+                      isDragDisabled={disableDrag}
+                    >
                       {(provided) => (
                         <div
                           key={`${section.id}-${index}`}
@@ -180,7 +186,10 @@ export const ReportEditTemplateForm = () => {
                             <Show
                               visible={section.sectionType === ReportSectionTypeName.MediaAnalytics}
                             >
-                              <ReportSectionMediaAnalytics index={index} />
+                              <ReportSectionMediaAnalytics
+                                index={index}
+                                onDisableDrag={(disable) => setDisableDrag(disable)}
+                              />
                             </Show>
                             {/* FRONT PAGE IMAGES */}
                             <Show visible={section.sectionType === ReportSectionTypeName.Gallery}>

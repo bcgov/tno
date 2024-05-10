@@ -1,8 +1,6 @@
-import { chartTypeOptions, groupByOptions } from 'features/admin/charts/constants';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaArrowAltCircleRight } from 'react-icons/fa';
-import { FaTrash } from 'react-icons/fa6';
 import { useFilters, useFolders, useReports } from 'store/hooks/admin';
 import {
   Button,
@@ -23,6 +21,7 @@ import {
 } from 'tno-core';
 
 import { getSortableItems } from '../utils';
+import { ReportSectionMediaAnalyticsChart } from './ReportSectionMediaAnalyticsChart';
 
 export interface IReportSectionMediaAnalyticsProps {
   index: number;
@@ -220,6 +219,10 @@ export const ReportSectionMediaAnalytics = ({ index }: IReportSectionMediaAnalyt
                         ? chart.settings.chartTypes[0]
                         : '',
                       groupBy: chart.settings?.groupBy.length ? chart.settings.groupBy[0] : '',
+                      dataset: chart.settings?.dataset.length ? chart.settings.dataset[0] : '',
+                      datasetValue: chart.settings?.datasetValue.length
+                        ? chart.settings.datasetValue[0]
+                        : '',
                       isHorizontal: false,
                       showDataLabels: false,
                       width: 500,
@@ -241,89 +244,11 @@ export const ReportSectionMediaAnalytics = ({ index }: IReportSectionMediaAnalyt
           </Row>
           <Col className="charts">
             {section.chartTemplates.map((ct, ctIndex) => (
-              <Row key={ct.id}>
-                <Col flex="1">
-                  <Row>
-                    <Col flex="1">
-                      <b>{ct.name}</b>
-                    </Col>
-                    <Col flex="2">{ct.description}</Col>
-                    <Col>
-                      <Button
-                        variant={ButtonVariant.danger}
-                        onClick={() => {
-                          let items = [...section.chartTemplates];
-                          items.splice(ctIndex, 1);
-                          setFieldValue(`sections.${index}.chartTemplates`, items);
-                        }}
-                      >
-                        <FaTrash />
-                      </Button>
-                    </Col>
-                  </Row>
-                  <Row className="chart-settings" alignItems="center">
-                    <FormikSelect
-                      label="Chart Type"
-                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.chartType`}
-                      value={
-                        chartTypeOptions.find((o) => o.value === ct.sectionSettings.chartType) ?? ''
-                      }
-                      options={chartTypeOptions.filter((o) =>
-                        ct.settings.chartTypes.includes(o.value),
-                      )}
-                      isClearable={false}
-                    />
-                    <FormikSelect
-                      label="Group By"
-                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.groupBy`}
-                      value={
-                        groupByOptions.find((o) => o.value === ct.sectionSettings.groupBy) ?? ''
-                      }
-                      options={groupByOptions.filter((o) => ct.settings.groupBy.includes(o.value))}
-                      isClearable={false}
-                    />
-                    <FormikText
-                      label="Width"
-                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.width`}
-                      value={ct.sectionSettings.width ?? 500}
-                      type="number"
-                      width="10ch"
-                    />
-                    <FormikText
-                      label="Height"
-                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.height`}
-                      value={ct.sectionSettings.height ?? 500}
-                      type="number"
-                      width="10ch"
-                    />
-                    <FormikCheckbox
-                      label="Is Horizontal"
-                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.isHorizontal`}
-                      checked={ct.sectionSettings.isHorizontal ?? true}
-                    />
-                    <FormikCheckbox
-                      label="Show Legend"
-                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.showLegend`}
-                      checked={ct.sectionSettings.showLegend ?? true}
-                    />
-                    <FormikCheckbox
-                      label="Show Legend Title"
-                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.showLegendTitle`}
-                      checked={ct.sectionSettings.showLegendTitle ?? false}
-                    />
-                    <FormikCheckbox
-                      label="Show Data Labels"
-                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.showDataLabels`}
-                      checked={ct.sectionSettings.showDataLabels ?? false}
-                    />
-                    <FormikCheckbox
-                      label="Show Axis"
-                      name={`sections.${index}.chartTemplates.${ctIndex}.sectionSettings.showAxis`}
-                      checked={ct.sectionSettings.showAxis ?? true}
-                    />
-                  </Row>
-                </Col>
-              </Row>
+              <ReportSectionMediaAnalyticsChart
+                key={ct.id}
+                sectionIndex={index}
+                chartIndex={ctIndex}
+              />
             ))}
           </Col>
         </Show>

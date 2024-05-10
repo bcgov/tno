@@ -1,4 +1,3 @@
-import { groupByOptions } from 'features/admin/charts/constants';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaArrowAltCircleRight } from 'react-icons/fa';
@@ -12,6 +11,7 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
+  groupByOptions,
   IOptionItem,
   IReportModel,
   OptionItem,
