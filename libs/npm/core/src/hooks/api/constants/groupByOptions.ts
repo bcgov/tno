@@ -1,6 +1,7 @@
 import { OptionItem } from '../../../components';
 
 export const groupByOptions = [
+  new OptionItem('--NA--', ''),
   new OptionItem('Media Type', 'mediaType'),
   new OptionItem('Source', 'source'),
   new OptionItem('Show/Program', 'series'),

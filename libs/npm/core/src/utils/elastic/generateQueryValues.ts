@@ -65,6 +65,6 @@ export const generateQueryValues = (
           moment(settings.updatedOn).endOf('day'),
         )
       : undefined,
-  ].filter((v) => v !== undefined);
+  ].filter((v) => (v !== undefined && !Array.isArray(v)) || (Array.isArray(v) && v.length > 0));
   return values;
 };
