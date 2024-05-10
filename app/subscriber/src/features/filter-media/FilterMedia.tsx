@@ -33,7 +33,6 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
       const currStartDate = new Date(filter.startDate);
       const prevStartDate = new Date(currStartDate.getTime() - 5 * dayInMillis);
       const currEndDate = new Date(currStartDate.getTime() + dayInMillis - 1);
-      console.log('mediaFilterTest', 'filter', filter);
       const query = generateQuery({
         ...filter,
         mediaTypeIds: filter.mediaTypeIds ?? [],
@@ -41,7 +40,6 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
         startDate: prevStartDate.toISOString(),
         endDate: currEndDate.toISOString(),
       });
-      console.log('mediaFilterTest', 'query', query);
       try {
         const res: any = await findContentWithElasticsearch(query, false);
         const currDateResults: IContentSearchResult[] = [],

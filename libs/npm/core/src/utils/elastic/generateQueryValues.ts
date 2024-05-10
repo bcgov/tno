@@ -25,11 +25,23 @@ export const generateQueryValues = (
   const values = [
     generatePublishedOnQuery(settings),
     generatePostedOnQuery(settings),
-    generateTerms('sourceId', settings.sourceIds),
-    generateTerms('mediaTypeId', settings.mediaTypeIds),
-    generateTerms('seriesId', settings.seriesIds),
-    generateTerms('contributorId', settings.contributorIds),
-    generateTerms('contentType', settings.contentTypes),
+    generateTerms('sourceId', settings.sourceIds, settings.emptyArrayTerms?.includes('sourceId')),
+    generateTerms(
+      'mediaTypeId',
+      settings.mediaTypeIds,
+      settings.emptyArrayTerms?.includes('mediaTypeId'),
+    ),
+    generateTerms('seriesId', settings.seriesIds, settings.emptyArrayTerms?.includes('seriesId')),
+    generateTerms(
+      'contributorId',
+      settings.contributorIds,
+      settings.emptyArrayTerms?.includes('contributorId'),
+    ),
+    generateTerms(
+      'contentType',
+      settings.contentTypes,
+      settings.emptyArrayTerms?.includes('contentType'),
+    ),
     generateTerms('id', settings.contentIds),
     generateTermsForArrayField('tags.code', settings.tags),
     generateRangeForArrayField('tonePools.value', settings.sentiment),

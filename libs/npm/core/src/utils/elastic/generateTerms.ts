@@ -4,9 +4,15 @@
  * @param values An array of values to search for.
  * @returns An Elasticsearch query.
  */
-export const generateTerms = (field: string, values?: any[]) => {
+export const generateTerms = (field: string, values?: any[], sendEmptyArray: boolean = false) => {
   if (values === undefined || values === null) return undefined;
   const fieldValues = values.filter((x) => !!x);
+  if (sendEmptyArray) {
+    return {
+      terms: { [field]: fieldValues },
+    };
+  }
+
   return fieldValues.length > 0
     ? {
         terms: { [field]: fieldValues },
