@@ -34,6 +34,15 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
 
   const section = values.sections[sectionIndex];
   const chart = section.chartTemplates[chartIndex];
+  const [allowedChartTypeOptions] = React.useState(
+    chartTypeOptions.filter((o) => chart.settings.chartTypes.includes(o.value)),
+  );
+  const [allowedDatasetOptions] = React.useState(
+    datasetOptions.filter((o) => chart.settings.dataset.includes(o.value)),
+  );
+  const [allowedDatasetValueOptions] = React.useState(
+    datasetValueOptions.filter((o) => chart.settings.datasetValue.includes(o.value)),
+  );
 
   return (
     <Col key={chart.id} className="chart">
@@ -59,7 +68,7 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
             label="Chart Type"
             name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.chartType`}
             value={chartTypeOptions.find((o) => o.value === chart.sectionSettings.chartType) ?? ''}
-            options={chartTypeOptions.filter((o) => chart.settings.chartTypes.includes(o.value))}
+            options={allowedChartTypeOptions}
             isClearable={false}
             required
           />
@@ -85,7 +94,7 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
             label="Dataset"
             name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataset`}
             value={datasetOptions.find((o) => o.value === chart.sectionSettings.dataset) ?? ''}
-            options={datasetOptions.filter((o) => chart.settings.dataset.includes(o.value))}
+            options={allowedDatasetOptions}
             isClearable={false}
             required
           />
@@ -95,9 +104,7 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
             value={
               datasetValueOptions.find((o) => o.value === chart.sectionSettings.datasetValue) ?? ''
             }
-            options={datasetValueOptions.filter((o) =>
-              chart.settings.datasetValue.includes(o.value),
-            )}
+            options={allowedDatasetValueOptions}
             isClearable={false}
             required
             onChange={(newValue) => {

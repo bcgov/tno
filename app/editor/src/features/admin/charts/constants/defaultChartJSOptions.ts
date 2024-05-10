@@ -22,7 +22,6 @@ export const defaultChartJSOptions = {
       anchor: 'center',
       labels: {
         title: null,
-        color: ['white'],
       },
     },
   },
