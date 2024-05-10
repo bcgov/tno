@@ -45,6 +45,18 @@ public class ContentVersion
     /// get/set - Story body text.
     /// </summary>
     public string Body { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The source URL in the content.
+    /// </summary>
+    public string SourceUrl { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Defines if content is private.
+    /// </summary>
+    public bool IsPrivate { get; set; } = false;
+
+
     #endregion
 
     #region Constructors
@@ -68,6 +80,8 @@ public class ContentVersion
         this.Page = content.Page;
         this.Summary = content.Summary;
         this.Body = content.Body;
+        this.SourceUrl = content.SourceUrl;
+        this.IsPrivate = content.IsPrivate;
     }
 
     /// <summary>
