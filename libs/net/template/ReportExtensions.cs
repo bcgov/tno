@@ -471,5 +471,27 @@ public static class ReportExtensions
 
         return returnVal;
     }
+
+    /// <summary>
+    /// Get the Source URL for the specified content item.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public static string GetSourceUrl(this ContentModel content, ReportEngineContentModel context)
+    {
+        return context.OwnerId.HasValue && content.Versions.ContainsKey(context.OwnerId.Value) ? content.Versions[context.OwnerId.Value].SourceUrl : content.SourceUrl;
+    }
+
+    /// <summary>
+    /// Determine if the specified 'content' is private.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    public static bool IsPrivate(this ContentModel content, ReportEngineContentModel context)
+    {
+        return context.OwnerId.HasValue && content.Versions.ContainsKey(context.OwnerId.Value) ? content.Versions[context.OwnerId.Value].IsPrivate : content.IsPrivate;
+
+    }
     #endregion
 }

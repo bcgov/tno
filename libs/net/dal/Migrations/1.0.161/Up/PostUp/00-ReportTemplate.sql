@@ -1,4 +1,9 @@
-@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
+DO $$
+BEGIN
+
+-- Update custom report with latest template.
+UPDATE public."report_template" SET
+    "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
 @using System
 @using System.Linq
 @using TNO.Entities
@@ -238,13 +243,13 @@
                 </span>
               </div>
             }
-	          else if (Settings.Content.ShowLinkToStory)
+			else if (Settings.Content.ShowLinkToStory)
             {
-		          <div>
+			  <div>
                 <span style="font-size: .85em; text-transform:uppercase; vertical-align: middle; background-color:#FFF; border:#ccc 1px solid; margin:20 auto; padding:6px 10px;">
-	                <a rel="noreferrer" href="@($"{sourceUrl}")" target="_blank" style="color: #6750a4; text-decoration: none;">View Article (external site)<img height="14" valign="absmiddle" src="@($"{SubscriberAppUrl}assets/reports/follow_link.png")"></a>
-		            </span>
-		          </div>
+	              <a rel="noreferrer" href="@($"{sourceUrl}")" target="_blank" style="color: #6750a4; text-decoration: none;">View Article (external site)<img height="14" valign="absmiddle" src="@($"{SubscriberAppUrl}assets/reports/follow_link.png")"></a>
+		        </span>
+		      </div>
             }
           }
         }
@@ -324,4 +329,7 @@
       <b>Copying, retransmitting, archiving, redistributing, selling, licensing, or emailing the material to any third party or any employee of the Province who is not authorized to access the material is prohibited.</b>
     </p>
   </div>
-</div>
+</div>'
+WHERE "name" = 'Custom Report';
+
+END $$;
