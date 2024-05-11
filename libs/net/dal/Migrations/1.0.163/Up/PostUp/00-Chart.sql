@@ -1,4 +1,8 @@
-@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.ChartEngineContentModel>
+DO $$
+BEGIN
+
+UPDATE public."chart_template"
+SET "template" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.ChartEngineContentModel>
 @using System
 @using TNO.Entities
 @using TNO.TemplateEngine
@@ -19,4 +23,8 @@
     $"\"borderWidth\": 2, " +
     $"\"minBarLength\": {SectionSettings.MinBarLength?.ToString() ?? "null"}, " +
     $"\"borderColor\": \"{ReportExtensions.GetColor(SectionSettings.DatasetColors, datasetIndex++, SectionSettings.Dataset, ds.Key, SectionSettings.DatasetValue)}\" }}"))]
-}
+}'
+  , "settings" = '{"dataset": ["", "mediaType", "source", "series", "byline", "contentType", "topicType", "topicName", "sentiment", "sentimentSimple", "dayMonthYear", "monthYear", "year", "reportSection"], "groupBy": ["mediaType", "source", "series", "byline", "contentType", "topicType", "topicName", "sentiment", "sentimentSimple", "dayMonthYear", "monthYear", "year", "reportSection", ""], "options": {"scales": {"x": {"ticks": {}, "title": {"display": false}}, "y": {"ticks": {}, "title": {"display": false}}}, "plugins": {"title": {"display": false}, "colors": {}, "legend": {"title": {"display": false}, "display": true}, "subtitle": {"display": false}, "datalabels": {"anchor": "center", "labels": {"title": {}}}}, "indexAxis": "x"}, "chartTypes": ["bar", "line", "pie", "doughnut", "scatter", "bubble", "polarArea", "radar"], "datasetValue": ["count", "sentiment"]}'
+WHERE "name" = 'Custom';
+
+END $$;

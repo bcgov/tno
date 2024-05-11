@@ -172,9 +172,8 @@ export const ChartTemplatePreviewOptions = () => {
               value={
                 datasetOptions.find((o) => o.value === chartRequestForm.settings.dataset) ?? ''
               }
-              isClearable
-              clearValue={''}
               width="200px"
+              isClearable={false}
               required
               onChange={(newValue) => {
                 const option = newValue as OptionItem;
@@ -196,9 +195,8 @@ export const ChartTemplatePreviewOptions = () => {
                   (o) => o.value === chartRequestForm.settings.datasetValue,
                 ) ?? ''
               }
-              isClearable
-              clearValue={''}
               width="200px"
+              isClearable={false}
               required
               onChange={(newValue) => {
                 const option = newValue as OptionItem;

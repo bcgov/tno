@@ -654,14 +654,30 @@ public static class ReportExtensions
     /// Extract the labels for each grouping for the chart.
     /// Use the GroupContent() method to group first.
     /// </summary>
-    /// <param name="groupBy"></param>
-    /// <param name="groups"></param>
+    /// <param name="datasets"></param>
+    /// <param name="settings"></param>
     /// <param name="sections"></param>
     /// <returns></returns>
-    public static string[] GetLabels(string groupBy, IEnumerable<IGrouping<string, TNO.TemplateEngine.Models.ContentModel>> groups, Dictionary<string, TNO.TemplateEngine.Models.Reports.ReportSectionModel> sections)
+    public static string[] GetLabels(IEnumerable<IGrouping<string, TNO.TemplateEngine.Models.ContentModel>> datasets, API.Models.Settings.ChartSectionSettingsModel settings, Dictionary<string, TNO.TemplateEngine.Models.Reports.ReportSectionModel> sections)
     {
-        var labels = groupBy != "reportSection" ? groups.Select(c => c.Key) : groups.Select(c => sections.TryGetValue(c.Key, out TNO.TemplateEngine.Models.Reports.ReportSectionModel? value) ? value.Settings.Label : "Other");
-        return labels.ToArray();
+        return datasets.Select(ds => GetLabel(ds, settings, sections)).ToArray();
+    }
+
+    /// <summary>
+    /// Extract the label for the specified dataset.
+    /// Use the GroupContent() method to group first.
+    /// </summary>
+    /// <param name="dataset"></param>
+    /// <param name="settings"></param>
+    /// <param name="sections"></param>
+    /// <returns></returns>
+    public static string GetLabel(IGrouping<string, TNO.TemplateEngine.Models.ContentModel> dataset, API.Models.Settings.ChartSectionSettingsModel settings, Dictionary<string, TNO.TemplateEngine.Models.Reports.ReportSectionModel> sections)
+    {
+        var hasSection = sections.TryGetValue(dataset.Key, out TNO.TemplateEngine.Models.Reports.ReportSectionModel? section);
+        if (hasSection && section != null && (settings.Dataset == "reportSection" || settings.GroupBy == "reportSection"))
+            return section.Settings.Label ?? "Other";
+
+        return dataset.Key;
     }
 
     /// <summary>
