@@ -2,9 +2,10 @@ import { PageSection } from 'components/section';
 import { useSubMediaGroups } from 'features/hooks';
 import { ISubMediaGroupItem } from 'features/search-page/components/advanced-search/interfaces';
 import { IGroupOption } from 'features/search-page/components/advanced-search/interfaces/IGroupOption';
+import moment from 'moment';
 import React from 'react';
 import { useContent, useLookup } from 'store/hooks';
-import { Checkbox, Col, ListOptionName, Row, Show } from 'tno-core';
+import { Checkbox, Col, IFilterSettingsModel, ListOptionName, Row, Show } from 'tno-core';
 
 import { FilterMedia } from './FilterMedia';
 import * as styled from './styled';
@@ -33,18 +34,36 @@ export const FilterMediaLanding: React.FC = () => {
   React.useEffect(() => {
     if (subMediaGroups && subMediaGroups.length > 0) {
       setLoaded(true);
-
-      // remove all option from the subMediaGroups
-      setMediaGroups(subMediaGroups?.filter((sg) => sg.label !== 'All'));
+      setMediaGroups(subMediaGroups);
     }
   }, [subMediaGroups]);
 
   // init
   React.useEffect(() => {
     if (loaded && mediaGroups && !activeFilter) {
-      const dailyPrintMediaGroup = mediaGroups.find((sg) => sg.label === 'Daily Print');
+      const dailyPrintMediaGroup = subMediaGroups.find((sg) => sg.label === 'Daily Print');
       if (dailyPrintMediaGroup) {
         setActiveFilter(dailyPrintMediaGroup);
+        setActiveSource(null);
+        setNarrowedOptions(dailyPrintMediaGroup?.options ?? []);
+        checkAllOptions(dailyPrintMediaGroup, true);
+        let seriesIds: number[] = [];
+        let sourceIds: number[] = [];
+        if (dailyPrintMediaGroup?.listOption === ListOptionName.Series) {
+          seriesIds = dailyPrintMediaGroup.options.map((x) => x.id);
+        }
+        if (dailyPrintMediaGroup?.listOption === ListOptionName.Source) {
+          sourceIds = dailyPrintMediaGroup.options.map((x) => x.id);
+        }
+        const newFilter: IFilterSettingsModel = {
+          ...filter,
+          startDate: moment(new Date()).startOf('day').toISOString(),
+          endDate: moment(new Date()).endOf('day').toISOString(),
+          mediaTypeIds: [dailyPrintMediaGroup.key],
+          seriesIds,
+          sourceIds,
+        };
+        storeFilter(newFilter);
       }
     }
     // only when media groups / relevant data is loaded & ready
@@ -56,29 +75,35 @@ export const FilterMediaLanding: React.FC = () => {
       setActiveSource(opt);
       // if checkboxed is checked or if there is no checkbox (meaning the user clicked the row)
       if (!!checkbox?.checked || !checkbox) {
-        if (opt.listOption === ListOptionName.Source) {
-          storeFilter({
-            ...filter,
-            seriesIds: [],
-            sourceIds: [...(filter.sourceIds ?? []), opt.id],
-          });
-        } else if (opt.listOption === ListOptionName.Series) {
-          storeFilter({
-            ...filter,
-            seriesIds: [...(filter.seriesIds ?? []), opt.id],
-            sourceIds: [],
-          });
-        }
+        opt.selected = true;
       } else {
-        // filter out unchecked options depending on the listOption
-        if (opt.listOption === ListOptionName.Source) {
-          storeFilter({ ...filter, sourceIds: filter.sourceIds?.filter((id) => id !== opt.id) });
-        } else if (opt.listOption === ListOptionName.Series) {
-          storeFilter({ ...filter, seriesIds: filter.seriesIds?.filter((id) => id !== opt.id) });
-        }
+        opt.selected = false;
+      }
+      const sourceIds = activeFilter
+        ? activeFilter?.options
+            .filter((x) => x.selected && x.listOption === ListOptionName.Source)
+            .map((c) => c.id)
+        : [];
+      const seriesIds = activeFilter
+        ? activeFilter?.options
+            .filter((x) => x.selected && x.listOption === ListOptionName.Series)
+            .map((c) => c.id)
+        : [];
+      if (opt.listOption === ListOptionName.Source) {
+        storeFilter({
+          ...filter,
+          seriesIds: [],
+          sourceIds: sourceIds.length > 0 ? sourceIds : [9999],
+        });
+      } else if (opt.listOption === ListOptionName.Series) {
+        storeFilter({
+          ...filter,
+          seriesIds: seriesIds.length > 0 ? seriesIds : [],
+          sourceIds: [],
+        });
       }
     },
-    [filter, storeFilter],
+    [activeFilter, filter, storeFilter],
   );
 
   /** When the parent group is clicked, we want to set the sourceIds to the sources of the parent group
@@ -106,15 +131,76 @@ export const FilterMediaLanding: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLetter, activeFilter, filter]);
 
-  // a little bit funky, but needed to keep track if the select all option is checked to maintain checked state
-  const allSelected = {
-    sourceIds: narrowedOptions
-      .filter((opt) => opt.listOption === ListOptionName.Source)
-      .map((opt) => opt.id),
-    seriesIds: narrowedOptions
-      .filter((opt) => opt.listOption === ListOptionName.Series)
-      .map((opt) => opt.id),
+  const checkAllOptions = (filter: ISubMediaGroupItem, value: boolean) => {
+    filter?.options.forEach((x) => {
+      x.selected = value;
+    });
   };
+
+  const isFullSelected = (filter: ISubMediaGroupItem | undefined) => {
+    if (filter) {
+      return filter?.options.filter((x) => x.selected === false).length === 0;
+    }
+    return false;
+  };
+
+  const handleGroupClick = React.useCallback(
+    (mediaGroup: ISubMediaGroupItem) => {
+      if (mediaGroup.label === 'Weekly Print') setActiveLetter('A');
+      else if (mediaGroup.label === 'Online') setActiveLetter('B');
+      else setActiveLetter('All');
+      checkAllOptions(mediaGroup, true);
+      let sourceIds = mediaGroup.options
+        .filter((x) => x.listOption === ListOptionName.Source && x.selected === true)
+        .map((x) => x.id);
+      let seriesIds = mediaGroup.options
+        .filter((x) => x.listOption === ListOptionName.Series && x.selected === true)
+        .map((x) => x.id);
+      storeFilter({
+        ...filter,
+        sourceIds,
+        seriesIds,
+        mediaTypeIds: [mediaGroup.key],
+      });
+      setActiveFilter(mediaGroup);
+      setParentClicked(true);
+    },
+    [filter, storeFilter],
+  );
+
+  const handleClickAll = React.useCallback(
+    (e: any) => {
+      setActiveSource(null);
+      // if changing to unchecked, remove all sourceIds and seriesIds (toggle)
+      if (!e.target.checked) {
+        if (activeFilter) {
+          checkAllOptions(activeFilter, false);
+        }
+        storeFilter({
+          ...filter,
+          sourceIds: [],
+          seriesIds: [],
+        });
+      } else {
+        // need to iterate through and check the options to their corresponding source or series id
+        if (activeFilter) {
+          checkAllOptions(activeFilter, true);
+        }
+        const sourceIds = activeFilter?.options
+          .filter((x) => x.listOption === ListOptionName.Source)
+          .map((c) => c.id);
+        const seriesIds = activeFilter?.options
+          .filter((x) => x.listOption === ListOptionName.Series)
+          .map((c) => c.id);
+        storeFilter({
+          ...filter,
+          sourceIds,
+          seriesIds,
+        });
+      }
+    },
+    [activeFilter, filter, storeFilter],
+  );
 
   return (
     <styled.FilterMediaLanding>
@@ -126,17 +212,7 @@ export const FilterMediaLanding: React.FC = () => {
                 <div
                   key={`${mediaGroup.key}`}
                   onClick={() => {
-                    if (mediaGroup.label === 'Weekly Print') setActiveLetter('A');
-                    else if (mediaGroup.label === 'Online') setActiveLetter('B');
-                    else setActiveLetter('All');
-                    storeFilter({
-                      ...filter,
-                      sourceIds: [],
-                      seriesIds: [],
-                      mediaTypeIds: [mediaGroup.key],
-                    });
-                    setActiveFilter(mediaGroup);
-                    setParentClicked(true);
+                    handleGroupClick(mediaGroup);
                   }}
                   className={`${
                     activeFilter?.label === mediaGroup.label ? 'active' : 'inactive'
@@ -178,27 +254,9 @@ export const FilterMediaLanding: React.FC = () => {
                   <Checkbox
                     className="opt-chk"
                     id="all-chk"
-                    checked={
-                      allSelected.seriesIds.length === filter.seriesIds?.length &&
-                      allSelected.sourceIds.length === filter.sourceIds?.length
-                    }
+                    checked={isFullSelected(activeFilter)}
                     onChange={(e) => {
-                      setActiveSource(null);
-                      // if changing to unchecked, remove all sourceIds and seriesIds (toggle)
-                      if (!e.target.checked) {
-                        storeFilter({
-                          ...filter,
-                          sourceIds: [],
-                          seriesIds: [],
-                        });
-                      } else {
-                        // need to iterate through and check the options to their corresponding source or series id
-                        storeFilter({
-                          ...filter,
-                          sourceIds: allSelected.sourceIds,
-                          seriesIds: allSelected.seriesIds,
-                        });
-                      }
+                      handleClickAll(e);
                     }}
                   />
                 </Row>
@@ -215,9 +273,7 @@ export const FilterMediaLanding: React.FC = () => {
                         {opt.name}
                         <Checkbox
                           className="opt-chk"
-                          checked={
-                            filter.seriesIds?.includes(opt.id) || filter.sourceIds?.includes(opt.id)
-                          }
+                          checked={opt.selected}
                           onChange={(e) => {
                             handleClick(opt, e.target);
                           }}

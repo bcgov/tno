@@ -59,6 +59,7 @@ export const useSubMediaGroups = (
               listOption: ListOptionName.Source,
               name: getSourceName(s),
               sortOrder: s.sortOrder,
+              selected: false,
             });
           });
         lookup.push(l);
@@ -91,6 +92,7 @@ export const useSubMediaGroups = (
               listOption: ListOptionName.Series,
               name: s.name,
               sortOrder: s.sortOrder,
+              selected: false,
             });
           });
         lookup.push(l);
@@ -106,6 +108,7 @@ export const useSubMediaGroups = (
         label: x.label,
         sortOrder: x.sortOrder,
         options: x.options,
+        listOption: ListOptionName.Source,
       });
     });
     mediaTypeSeriesLookup.forEach((x) => {
@@ -114,14 +117,14 @@ export const useSubMediaGroups = (
         label: x.label,
         sortOrder: x.sortOrder,
         options: x.options,
+        listOption: ListOptionName.Series,
       });
     });
-
-    setSubMediaGroups(
-      subGroups
-        .sort((a, b) => a.sortOrder - b.sortOrder)
-        .filter((sg) => !userInfo?.mediaTypes.includes(sg.key)),
-    );
+    let newSubGroups = subGroups.sort((a, b) => a.sortOrder - b.sortOrder);
+    if (userInfo?.mediaTypes) {
+      newSubGroups = newSubGroups.filter((sg) => !userInfo?.mediaTypes.includes(sg.key));
+    }
+    setSubMediaGroups(newSubGroups);
   }, [
     mediaTypeSeriesLookup,
     mediaTypeSourceLookup,
