@@ -37,10 +37,17 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
         ...filter,
         mediaTypeIds: filter.mediaTypeIds ?? [],
         sourceIds: filter.sourceIds ?? [],
+        seriesIds: filter.seriesIds ?? [],
         startDate: prevStartDate.toISOString(),
         endDate: currEndDate.toISOString(),
       });
       try {
+        const emptyFilters = filter.sourceIds?.length === 0 && filter.seriesIds?.length === 0;
+        if (emptyFilters) {
+          setCurrDateResults([]);
+          setPrevDateResults([]);
+          return;
+        }
         const res: any = await findContentWithElasticsearch(query, false);
         const currDateResults: IContentSearchResult[] = [],
           prevDateResults: IContentSearchResult[] = [];

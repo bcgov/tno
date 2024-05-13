@@ -41,7 +41,6 @@ export const FilterMediaLanding: React.FC = () => {
   // init
   React.useEffect(() => {
     if (loaded && mediaGroups && !activeFilter) {
-      let emptyArrayTerms: string[] = [];
       const dailyPrintMediaGroup = subMediaGroups.find((sg) => sg.label === 'Daily Print');
       if (dailyPrintMediaGroup) {
         setActiveFilter(dailyPrintMediaGroup);
@@ -51,16 +50,13 @@ export const FilterMediaLanding: React.FC = () => {
         let seriesIds: number[] = [];
         let sourceIds: number[] = [];
         if (dailyPrintMediaGroup?.listOption === ListOptionName.Series) {
-          emptyArrayTerms = ['seriesId'];
           seriesIds = dailyPrintMediaGroup.options.map((x) => x.id);
         }
         if (dailyPrintMediaGroup?.listOption === ListOptionName.Source) {
-          emptyArrayTerms = ['sourceId'];
           sourceIds = dailyPrintMediaGroup.options.map((x) => x.id);
         }
         const newFilter: IFilterSettingsModel = {
           ...filter,
-          emptyArrayTerms,
           startDate: moment(new Date()).startOf('day').toISOString(),
           endDate: moment(new Date()).endOf('day').toISOString(),
           mediaTypeIds: [dailyPrintMediaGroup.key],
@@ -160,18 +156,10 @@ export const FilterMediaLanding: React.FC = () => {
       let seriesIds = mediaGroup.options
         .filter((x) => x.listOption === ListOptionName.Series && x.selected === true)
         .map((x) => x.id);
-      let emptyArrayTerms: string[] = [];
-      if (mediaGroup?.listOption === ListOptionName.Series) {
-        emptyArrayTerms = ['seriesId'];
-      }
-      if (mediaGroup?.listOption === ListOptionName.Source) {
-        emptyArrayTerms = ['sourceId'];
-      }
       storeFilter({
         ...filter,
         sourceIds,
         seriesIds,
-        emptyArrayTerms,
         mediaTypeIds: [mediaGroup.key],
       });
       setActiveFilter(mediaGroup);
@@ -182,16 +170,9 @@ export const FilterMediaLanding: React.FC = () => {
 
   const handleClickAll = React.useCallback(
     (e: any) => {
-      let emptyArrayTerms: string[] = [];
       setActiveSource(null);
       // if changing to unchecked, remove all sourceIds and seriesIds (toggle)
       if (!e.target.checked) {
-        if (activeFilter?.listOption === ListOptionName.Series) {
-          emptyArrayTerms = ['seriesId'];
-        }
-        if (activeFilter?.listOption === ListOptionName.Source) {
-          emptyArrayTerms = ['sourceId'];
-        }
         if (activeFilter) {
           checkAllOptions(activeFilter, false);
         }
@@ -199,7 +180,6 @@ export const FilterMediaLanding: React.FC = () => {
           ...filter,
           sourceIds: [],
           seriesIds: [],
-          emptyArrayTerms,
         });
       } else {
         // need to iterate through and check the options to their corresponding source or series id
@@ -212,15 +192,8 @@ export const FilterMediaLanding: React.FC = () => {
         const seriesIds = activeFilter?.options
           .filter((x) => x.listOption === ListOptionName.Series)
           .map((c) => c.id);
-        if (activeFilter?.listOption === ListOptionName.Series) {
-          emptyArrayTerms = ['seriesId'];
-        }
-        if (activeFilter?.listOption === ListOptionName.Source) {
-          emptyArrayTerms = ['sourceId'];
-        }
         storeFilter({
           ...filter,
-          emptyArrayTerms,
           sourceIds,
           seriesIds,
         });

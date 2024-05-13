@@ -44,5 +44,4 @@ export interface IFilterSettingsModel {
   status?: ContentStatusName;
   userId?: number;
   sort?: ISortField[];
-  emptyArrayTerms?: string[];
 }
