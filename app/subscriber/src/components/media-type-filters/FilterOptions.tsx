@@ -41,10 +41,10 @@ export interface IMediaTypeFiltersProps {
  */
 export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreName }) => {
   const [{ userInfo }, store] = useAppStore();
-  const [active, setActive] = useState<FilterOptionTypes>(FilterOptionTypes.Papers);
+  const [active, setActive] = useState<FilterOptionTypes | undefined>(undefined);
   const filterStoreMethod = determineStore(filterStoreName);
   const api = useUsers();
-
+  const [prefIsSet, setPrefIsSet] = useState(false);
   const savePreferences = async (filterPreference: FilterOptionTypes) => {
     if (userInfo) {
       try {
@@ -110,11 +110,23 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
   const getClassName = (type: FilterOptionTypes) => (type === active ? 'active' : 'inactive');
 
   useEffect(() => {
+    // Function to execute if prefIsSet is false for 1 second
+    const fallbackPlan = () => {
+      setActive(FilterOptionTypes.All);
+    };
+
+    if (!prefIsSet) {
+      const timeoutId = setTimeout(fallbackPlan, 1000); // Set timeout
+
+      return () => clearTimeout(timeoutId); // Clear timeout
+    }
+  }, [prefIsSet]);
+
+  useEffect(() => {
     if (!filter.contentTypes?.length && !filter.mediaTypeIds?.length) {
       if (userInfo && userInfo.preferences && userInfo.preferences.filterPreference) {
         setActive(userInfo.preferences.filterPreference);
-      } else {
-        setActive(FilterOptionTypes.All);
+        setPrefIsSet(true);
       }
     } else if (
       filter.mediaTypeIds?.includes(mediaTypes.find((s) => s.name === 'Events')?.id ?? 0)
