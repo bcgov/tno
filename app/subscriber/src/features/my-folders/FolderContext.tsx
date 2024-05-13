@@ -6,10 +6,8 @@ interface IFolderContext {
   setFolder: (folder: IFolderModel) => void;
 }
 
-// Create the context with a default value
 const FolderContext = createContext<IFolderContext | undefined>(undefined);
 
-// Create a provider component
 interface IFolderProviderProps {
   children: ReactNode;
 }
