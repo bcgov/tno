@@ -3,7 +3,6 @@ export * from './button';
 export * from './cell';
 export * from './container';
 export * from './content';
-export * from './dialog';
 export * from './flex';
 export * from './footer';
 export * from './form';

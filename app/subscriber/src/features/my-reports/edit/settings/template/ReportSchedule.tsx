@@ -1,7 +1,5 @@
-import { Toggle } from 'components/form';
 import { TimeInput } from 'components/form/timeinput';
 import { getIn } from 'formik';
-import moment from 'moment';
 import {
   Col,
   FieldSize,
@@ -39,33 +37,10 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ index, label })
           }}
           error={getIn(errors, `events.${index}.startAt`)}
         />
-        <Toggle
-          name="reset"
-          label="Run again today"
-          value={!schedule?.requestSentOn}
-          disabled={!schedule?.startAt}
-          options={[
-            {
-              label: 'No',
-              value: false,
-            },
-            { label: 'Yes', value: true },
-          ]}
-          onChange={(value) => {
-            if (value) setFieldValue(`events.${index}.requestSentOn`, undefined);
-            else {
-              const now = new Date();
-              const dateStr = now.toISOString().split('T').shift();
-              const sentOn = moment(`${dateStr} ${schedule?.startAt ?? '00:00'}`);
-              setFieldValue(`events.${index}.requestSentOn`, sentOn.toISOString());
-            }
-          }}
-        />
-
         <Col className="info">
           <p>
             A schedule that has already populated a report in a given day will not attempt to do so
-            again unless you allow it to 'Run again today'.
+            again.
           </p>
         </Col>
       </Col>

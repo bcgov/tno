@@ -852,7 +852,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                 {
                     Source = new API.Areas.Services.Models.Content.ContentModel(c.Content!, _serializerOptions)
                 });
-            searchResults.Add(section.Name, folderContent);
+            searchResults[section.Name] = folderContent;
         }
         else if (section.FilterId.HasValue)
         {

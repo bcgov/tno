@@ -1,5 +1,6 @@
+import { formatDate } from 'features/utils';
 import { FaInfoCircle } from 'react-icons/fa';
-import { formatDate, getReportKind, ReportKindName, Row, Show } from 'tno-core';
+import { getReportKind, ReportKindName, Row, Show } from 'tno-core';
 
 import { useReportEditContext } from '../edit/ReportEditContext';
 
@@ -20,8 +21,8 @@ export const StartNextReportInfo = () => {
             <FaInfoCircle />
             <p>
               This report was sent to subscribers on{' '}
-              {`${formatDate(instance?.sentOn?.toLocaleString(), 'YYYY-MM-DD hh:mm:ss a')}`}. This
-              report is <strong>readonly</strong> until the next report is started.
+              {`${formatDate(instance?.sentOn?.toLocaleString(), true)}`}. This report is{' '}
+              <strong>readonly</strong> until the next report is started.
             </p>
           </Row>
         </div>

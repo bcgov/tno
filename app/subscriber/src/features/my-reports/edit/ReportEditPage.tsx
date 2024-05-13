@@ -69,7 +69,7 @@ export const ReportEditPage = () => {
 
   React.useEffect(() => {
     // Only fetch the template for new reports.
-    if (defaultReportTemplateId && report.templateId !== defaultReportTemplateId) {
+    if (userInfo && defaultReportTemplateId && report.templateId !== defaultReportTemplateId) {
       getReportTemplate(defaultReportTemplateId)
         .then((template) => {
           if (template) {
@@ -82,7 +82,7 @@ export const ReportEditPage = () => {
         })
         .catch(() => {});
     }
-  }, [defaultReportTemplateId, getReportTemplate, report.id, report.templateId]);
+  }, [userInfo, defaultReportTemplateId, getReportTemplate, report.id, report.templateId]);
 
   React.useEffect(() => {
     // When the page loads the first time the user info will change.
@@ -110,7 +110,7 @@ export const ReportEditPage = () => {
   React.useEffect(() => {
     const reportId = parseInt(id ?? '0');
     const originalReportSections = report.sections;
-    if (!!reportId && myReports?.length) {
+    if (userInfo && !!reportId && myReports?.length) {
       const existingReport = myReports.find((r) => r.id === reportId);
       const hasFetchedContent = existingReport?.instances.some((r) => r.content?.length);
       if (existingReport && hasFetchedContent) {
@@ -147,7 +147,7 @@ export const ReportEditPage = () => {
     }
     // Only make a request when 'id' changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, myReports.length]);
+  }, [id, myReports.length, userInfo]);
 
   hub.useHubEffect(MessageTargetName.ReportStatus, async (message: IReportMessageModel) => {
     // Report has been updated, go fetch latest.
@@ -156,9 +156,13 @@ export const ReportEditPage = () => {
       if (message.reportId === report.id) {
         const instance = await getReportInstance(message.id, true);
         if (instance) {
+          // If there is a new instance, prepend it.
+          const add = !report.instances.some((i) => i.id === message.id);
           setReport({
             ...report,
-            instances: report.instances.map((i) => (i.id === message.id ? instance : i)),
+            instances: add
+              ? [instance, ...report.instances]
+              : report.instances.map((i) => (i.id === message.id ? instance : i)),
           });
           navigate(`/reports/${report.id}/content`);
         }

@@ -3,6 +3,7 @@
 // Background
 $bk-primary: linear-gradient(179.77deg, #f0eeee 15.35%, #d9d9d9 101.64%);
 $bk-primary-25: linear-gradient(179.77deg, rgb(240, 238, 238, 0.25) 15.35%, rgb(217, 217, 217, 0.25) 101.64%);
+$bk-primary-75: linear-gradient(179.77deg, rgb(240, 238, 238, 0.75) 15.35%, rgb(217, 217, 217, 0.75) 101.64%);
 
 $bk-secondary: linear-gradient(0deg, #ffffff, #ffffff),
 linear-gradient(0deg, #f0eeee, #f0eeee);
@@ -95,6 +96,10 @@ $input-grey: #ece7eb;
 $icon-button-border-color: #ded9da;
 $btn-bk-success: #19754C;
 $btn-success-color: #fff;
+$btn-bk-warn: #ffc107;
+$btn-warn-color: #000;
+$btn-bk-error: #dc3545;
+$btn-error-color: #fff;
 $btn-edit-color: #fff7e1;
 $btn-edit-border-color: #dcc797;
 $btn-edit-hover-color: #ffebb3;

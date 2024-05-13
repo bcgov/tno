@@ -95,8 +95,15 @@ public abstract class ServiceManager<TOption> : IServiceManager
             try
             {
                 var emailToList = this.Options.EmailTo?.Split(',').Where(v => !String.IsNullOrWhiteSpace(v)).Select(v => v.Trim()).ToArray() ?? Array.Empty<string>();
-                var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, emailToList, subject, message);
-                await this.Ches.SendEmailAsync(email);
+                if (emailToList.Any())
+                {
+                    var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, emailToList, subject, message);
+                    await this.Ches.SendEmailAsync(email);
+                }
+                else
+                {
+                    this.Logger.LogDebug("No email addresses configured to receive errors");
+                }
             }
             catch (ChesException ex)
             {
@@ -119,7 +126,7 @@ public abstract class ServiceManager<TOption> : IServiceManager
     {
         string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
         string? serviceName = GetType().FullName ?? "Service";
-        string errorMsg = $"<div>An error occured while executing the {serviceName} service.</div>{Environment.NewLine}" +
+        string errorMsg = $"<div>An error occurred while executing the {serviceName} service.</div>{Environment.NewLine}" +
         $"<div>Environment: {env}</div>{Environment.NewLine}" +
         $"<div>Error Message:</div>{Environment.NewLine}" +
         $"<div>{ex.Message}</div>{Environment.NewLine}" +

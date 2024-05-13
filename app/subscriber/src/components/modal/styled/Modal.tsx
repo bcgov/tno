@@ -11,7 +11,7 @@ export const Modal = styled(Col)<IModalProps>`
     z-index: 1040;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.9);
+    background: ${(props) => props.theme.css.bkPrimary75};
   }
 
   .modal-wrapper {
@@ -26,14 +26,10 @@ export const Modal = styled(Col)<IModalProps>`
     outline: 0;
   }
 
-  .button-row {
-    margin-top: 0.2rem;
-    button {
-      margin-right: 2%;
-    }
-  }
-
   .modal {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
     z-index: 100;
     background: white;
     position: relative;
@@ -44,6 +40,17 @@ export const Modal = styled(Col)<IModalProps>`
     padding: 2rem;
     background-color: rgba(255, 255, 255, 1);
     height: ${(props) => props.hasHeight && '-webkit-fill-available'};
+
+    .modal-body {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .button-row {
+      margin-top: 1rem;
+      gap: 1rem;
+      justify-content: space-between;
+    }
   }
 
   .modal-header {

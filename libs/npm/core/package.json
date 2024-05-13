@@ -1,7 +1,7 @@
 {
   "name": "tno-core",
   "description": "TNO shared library",
-  "version": "0.1.62",
+  "version": "0.1.64",
   "homepage": "https://github.com/bcgov/tno",
   "license": "Apache-2.0",
   "files": [
@@ -96,7 +96,7 @@
     "prebuild": "rm -rf dist/",
     "build": "tsc --build",
     "prepack": "yarn run copy-files",
-    "copy-files": "cp -R ./src/assets ./dist; cp -R ./src/@types ./dist; cp -R ./src/css ./dist; cp ./src/components/dialog/*.scss ./dist/components/dialog;",
+    "copy-files": "cp -R ./src/assets ./dist; cp -R ./src/@types ./dist; cp -R ./src/css ./dist;",
     "clean": "rm -rf dist/; find ./src -type f -name '*.d.ts' ! -path './src/@types/*' -delete;",
     "pretty-quick": "pretty-quick",
     "lint": "eslint src/ --ext .jsx,.js,.ts,.tsx --max-warnings 0",
