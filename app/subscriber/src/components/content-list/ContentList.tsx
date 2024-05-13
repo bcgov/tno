@@ -37,7 +37,6 @@ export const ContentList: React.FC<IContentListProps> = ({
   content,
   onContentSelected,
   selected,
-  styleOnSettings = false,
   showDate = false,
   handleDrop,
   scrollWithin = false,
@@ -103,6 +102,8 @@ export const ContentList: React.FC<IContentListProps> = ({
     return settings.find((setting) => setting.name === Settings.SearchPageResultsNewWindow)?.value;
   }, [settings]);
 
+  console.log(popOutIds);
+
   return (
     <styled.ContentList scrollWithin={scrollWithin}>
       <Show visible={!handleDrop}>
@@ -121,7 +122,6 @@ export const ContentList: React.FC<IContentListProps> = ({
                   showSeries={showSeries}
                   showDate={showDate}
                   showTime={showTime}
-                  styleOnSettings={styleOnSettings}
                   item={item}
                   onCheckboxChange={handleCheckboxChange}
                 />
@@ -152,7 +152,6 @@ export const ContentList: React.FC<IContentListProps> = ({
                           }`}
                           popOutIds={popOutIds}
                           showDate={showDate}
-                          styleOnSettings={styleOnSettings}
                           onClick={(e) => {
                             // Ensure the target is an Element and use .closest to check if the click was inside a checkbox (see comment below)
                             if (!(e.target instanceof Element) || !e.target.closest('.checkbox')) {
