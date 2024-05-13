@@ -67,6 +67,8 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
         ...currentFolder,
         events: [createSchedule(currentFolder.name, currentFolder.description)],
       });
+    // only run when currentFolder changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentFolder]);
 
   React.useEffect(() => {
@@ -82,6 +84,8 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
         })
         .catch(() => {});
     }
+    // do not want to run with setCurrentFolder
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentFolder, id, init, getFolder, myFolders]);
 
   const handleRun = React.useCallback(

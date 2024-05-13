@@ -2,7 +2,7 @@ import { PageSection } from 'components/section';
 import { ManageFolder } from 'features/manage-folder';
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Col, IFolderModel, Show } from 'tno-core';
+import { Col, Show } from 'tno-core';
 
 import { ConfigureFolder } from './ConfigureFolder';
 import { FolderProvider } from './FolderContext';

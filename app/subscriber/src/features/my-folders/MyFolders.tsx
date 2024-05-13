@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
 import { useProfileStore } from 'store/slices';
-import { FlexboxTable, IFolderModel, Row, Text } from 'tno-core';
+import { FlexboxTable, Row, Text } from 'tno-core';
 
 import { columns } from './constants/columns';
 import { useFolderContext } from './FolderContext';
@@ -20,7 +20,7 @@ export const MyFolders: React.FC<IMyFoldersProps> = () => {
   const { id } = useParams();
   const [newFolderName, setNewFolderName] = React.useState<string>('');
   const [, { storeMyFolders }] = useProfileStore();
-  const { folder, setFolder } = useFolderContext();
+  const { setFolder } = useFolderContext();
 
   React.useEffect(() => {
     if (!myFolders.length) findMyFolders().catch(() => {});
