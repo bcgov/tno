@@ -102,8 +102,6 @@ export const ContentList: React.FC<IContentListProps> = ({
     return settings.find((setting) => setting.name === Settings.SearchPageResultsNewWindow)?.value;
   }, [settings]);
 
-  console.log(popOutIds);
-
   return (
     <styled.ContentList scrollWithin={scrollWithin}>
       <Show visible={!handleDrop}>
