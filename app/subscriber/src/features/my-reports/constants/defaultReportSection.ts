@@ -35,9 +35,11 @@ export const defaultReportSection = (
       type === ReportSectionTypeName.Gallery
         ? false
         : hideEmpty,
-    groupBy: '',
+    groupBy: 'otherSource',
     sortBy: '',
     sortDirection: '',
+    datasetColors: [],
+    dataLabelColors: [],
   },
   chartTemplates: [],
 });

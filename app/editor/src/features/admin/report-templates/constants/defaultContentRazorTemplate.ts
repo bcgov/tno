@@ -175,6 +175,8 @@ export const defaultContentBodyRazorTemplate = `@inherits RazorEngineCore.RazorE
             var hasNext = (contentCount  + 1) < allContent.Length;
             var next = hasNext ? contentCount + 1 : 0;
             var itemPosition = contentCount;
+            var sourceUrl = ReportExtensions.GetSourceUrl(content, Model);
+            var isPrivate = ReportExtensions.isPrivate(content, Model);
             contentCount++;
             <div style="display: flex; align-items: center;">
               <a id="item-@itemPosition" name="item-@itemPosition"></a>

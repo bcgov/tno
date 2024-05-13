@@ -6,15 +6,24 @@ import 'prismjs/components/prism-json';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
-import { Button, ButtonVariant, Col, FormikSelect, OptionItem, Row } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  chartTypeOptions,
+  Col,
+  datasetOptions,
+  datasetValueOptions,
+  FormikSelect,
+  groupByOptions,
+  OptionItem,
+  Row,
+} from 'tno-core';
 
 import { useChartTemplateContext } from './ChartTemplateContext';
 import {
-  chartTypeOptions,
   defaultChartTemplate,
   defaultCountRazorTemplate,
   defaultDateRazorTemplate,
-  groupByOptions,
 } from './constants';
 
 export interface IChartTemplateFormTemplateProps {}
@@ -51,6 +60,40 @@ export const ChartTemplateFormTemplate: React.FC<IChartTemplateFormTemplateProps
             const values = newValue as OptionItem[];
             setFieldValue(
               'settings.chartTypes',
+              values.map((o) => o.value),
+            );
+          }}
+        />
+        <FormikSelect
+          label="Supported Datasets"
+          name="settings.dataset"
+          options={datasetOptions}
+          isMulti
+          value={
+            values.settings?.dataset?.map((ct) => datasetOptions.find((o) => o.value === ct)) ?? []
+          }
+          onChange={(newValue) => {
+            const values = newValue as OptionItem[];
+            setFieldValue(
+              'settings.dataset',
+              values.map((o) => o.value),
+            );
+          }}
+        />
+        <FormikSelect
+          label="Supported Dataset Value"
+          name="settings.datasetValue"
+          options={datasetValueOptions}
+          isMulti
+          value={
+            values.settings?.datasetValue?.map((ct) =>
+              datasetValueOptions.find((o) => o.value === ct),
+            ) ?? []
+          }
+          onChange={(newValue) => {
+            const values = newValue as OptionItem[];
+            setFieldValue(
+              'settings.datasetValue',
               values.map((o) => o.value),
             );
           }}

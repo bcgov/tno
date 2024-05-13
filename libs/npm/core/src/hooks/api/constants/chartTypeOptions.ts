@@ -1,4 +1,4 @@
-import { OptionItem } from 'tno-core';
+import { OptionItem } from '../../../components';
 
 export const chartTypeOptions = [
   new OptionItem('Bar', 'bar'),

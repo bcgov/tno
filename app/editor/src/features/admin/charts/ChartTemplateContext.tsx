@@ -13,24 +13,44 @@ import { IChartRequestForm } from './interfaces';
  * IChartTemplateContext interface for the context.
  */
 export interface IChartTemplateContext {
-  /** Preview state. */
-  preview: IChartRequestForm;
-  /** Mutate preview state. */
-  setPreview: React.Dispatch<React.SetStateAction<IChartRequestForm>>;
+  /** ChartRequestForm state. */
+  chartRequestForm: IChartRequestForm;
+  /** Mutate chartRequestForm state. */
+  setChartRequestForm: React.Dispatch<React.SetStateAction<IChartRequestForm>>;
   /** Formik values. */
   values: IChartTemplateModel;
   /** Formik setFieldValue function */
   setFieldValue: (field: string, value: any, shouldValidate?: boolean | undefined) => void;
+  /** Formik setValues function */
+  setValues: (
+    values: React.SetStateAction<IChartTemplateModel>,
+    shouldValidate?: boolean | undefined,
+  ) => void;
+  /** Chart data to be sent to chartRequestForm. */
+  chartData?: string;
+  /** Change chart data. */
+  setChartData: React.Dispatch<React.SetStateAction<string | undefined>>;
+  /** Filter to fetch data. */
+  filter: string;
+  /** Set the filter value. */
+  setFilter: React.Dispatch<React.SetStateAction<string>>;
 }
 
 /**
  * ChartTemplateContext provides a shared context for chart template components.
  */
 export const ChartTemplateContext = React.createContext<IChartTemplateContext>({
-  preview: defaultChartRequestForm,
-  setPreview: (value: React.SetStateAction<IChartRequestForm>) => {},
+  chartRequestForm: defaultChartRequestForm,
+  setChartRequestForm: (value: React.SetStateAction<IChartRequestForm>) => {},
   values: defaultChartTemplate,
   setFieldValue: (field: string, value: any, shouldValidate?: boolean | undefined) => {},
+  setValues: (
+    values: React.SetStateAction<IChartTemplateModel>,
+    shouldValidate?: boolean | undefined,
+  ) => {},
+  setChartData: (value: React.SetStateAction<string | undefined>) => {},
+  filter: '',
+  setFilter: (value: React.SetStateAction<string>) => {},
 });
 
 /**
@@ -60,23 +80,48 @@ export const ChartTemplateContextProvider: React.FC<IChartTemplateContextProvide
   value = defaultChartRequestForm,
   children,
 }) => {
-  const { values, setFieldValue } = useFormikContext<IChartTemplateModel>();
+  const { values, setFieldValue, setValues } = useFormikContext<IChartTemplateModel>();
 
-  const [preview, setPreview] = React.useState<IChartRequestForm>(value);
+  const [filter, setFilter] = React.useState('');
+  const [chartRequestForm, setChartRequestForm] = React.useState<IChartRequestForm>(value);
+  const [chartData, setChartData] = React.useState(
+    chartRequestForm.chartData ? JSON.stringify(chartRequestForm.chartData, null, 2) : undefined,
+  );
 
   React.useEffect(() => {
-    setPreview((preview) => ({ ...preview, template: values.template }));
+    setChartRequestForm((chartRequestForm) => ({ ...chartRequestForm, template: values.template }));
   }, [values.template]);
 
   React.useEffect(() => {
-    setPreview((preview) => ({
-      ...preview,
-      settings: { ...preview.settings, options: values.settings.options },
+    setChartRequestForm((chartRequestForm) => ({
+      ...chartRequestForm,
+      settings: { ...chartRequestForm.settings, options: values.settings.options },
     }));
   }, [values.settings.options]);
 
+  React.useEffect(() => {
+    if (chartData) {
+      try {
+        const data = JSON.parse(chartData);
+        setChartRequestForm((chartRequestForm) => ({ ...chartRequestForm, chartData: data }));
+      } catch {}
+    }
+  }, [chartData, setChartRequestForm]);
+
   return (
-    <ChartTemplateContext.Provider value={{ preview, setPreview, values, setFieldValue }}>
+    <ChartTemplateContext.Provider
+      value={{
+        chartRequestForm,
+        setChartRequestForm,
+        values,
+        setFieldValue,
+        setValues,
+        filter,
+        setFilter,
+        chartData,
+        setChartData,
+      }}
+    >
       {children}
     </ChartTemplateContext.Provider>
   );

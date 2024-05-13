@@ -25,7 +25,9 @@ export const createReportSection = (
         type === ReportSectionTypeName.Gallery || type === ReportSectionTypeName.MediaAnalytics
           ? 'row'
           : 'column',
-      groupBy: '',
+      groupBy: 'otherSource',
+      datasetColors: [],
+      dataLabelColors: [],
       sortBy: '',
       sortDirection: '',
     },

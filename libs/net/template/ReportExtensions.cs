@@ -263,14 +263,15 @@ public static class ReportExtensions
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="contentList"></param>
     /// <returns></returns>
-    public static Dictionary<string, int> GetTotalScoresByTopicType(this IEnumerable<ContentModel> contentList) {
-        
+    public static Dictionary<string, int> GetTotalScoresByTopicType(this IEnumerable<ContentModel> contentList)
+    {
+
         return contentList
-            .Where(a => 
+            .Where(a =>
                 a.Topics.Any() // must have at least ONE Topic set
                 && a.Topics.All(a => a.Name != "Not Applicable" && !string.IsNullOrEmpty(a.Name)) // Name must not "Not Applicable" OR be empty
                 && a.Topics.All(t => t.Score > 0) // must have a Topic Score > ZERO
@@ -283,13 +284,14 @@ public static class ReportExtensions
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="contentList"></param>
     /// <returns></returns>
-    public static Dictionary<string, Dictionary<string,int>> GetTopicScoresByTopicTypeAndName(this IEnumerable<ContentModel> contentList) {
+    public static Dictionary<string, Dictionary<string, int>> GetTopicScoresByTopicTypeAndName(this IEnumerable<ContentModel> contentList)
+    {
         return contentList
-            .Where(a => 
+            .Where(a =>
                 a.Topics.Any() // must have at least ONE Topic set
                 && a.Topics.All(a => a.Name != "Not Applicable" && !string.IsNullOrEmpty(a.Name)) // Name must not "Not Applicable" OR be empty
                 && a.Topics.All(t => t.Score > 0) // must have a Topic Score > ZERO
@@ -305,11 +307,12 @@ public static class ReportExtensions
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="aggregations"></param>
     /// <returns></returns>
-    public static Dictionary<string, int> GetTotalScoresByTopicType(this Dictionary<string, AggregationRootModel> aggregations) {
+    public static Dictionary<string, int> GetTotalScoresByTopicType(this Dictionary<string, AggregationRootModel> aggregations)
+    {
         return aggregations.First().Value.ChildAggregation.Buckets
             .ToDictionary(
                 g => g.Key,
@@ -322,7 +325,8 @@ public static class ReportExtensions
     /// </summary>
     /// <param name="aggregations"></param>
     /// <returns></returns>
-    public static Dictionary<string, Dictionary<string,int>> GetTopicScoresByTopicTypeAndName(this Dictionary<string, AggregationRootModel> aggregations) {
+    public static Dictionary<string, Dictionary<string, int>> GetTopicScoresByTopicTypeAndName(this Dictionary<string, AggregationRootModel> aggregations)
+    {
         return aggregations.First().Value.ChildAggregation.Buckets
             .ToDictionary(
                 g => g.Key,
@@ -470,6 +474,277 @@ public static class ReportExtensions
         }
 
         return returnVal;
+    }
+
+    /// <summary>
+    /// Get the Source URL for the specified content item.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public static string GetSourceUrl(this ContentModel content, ReportEngineContentModel context)
+    {
+        return context.OwnerId.HasValue && content.Versions.TryGetValue(context.OwnerId.Value, out Entities.Models.ContentVersion? value) ? value.SourceUrl : content.SourceUrl;
+    }
+
+    /// <summary>
+    /// Determine if the specified 'content' is private.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    public static bool IsPrivate(this ContentModel content, ReportEngineContentModel context)
+    {
+        return context.OwnerId.HasValue && content.Versions.TryGetValue(context.OwnerId.Value, out Entities.Models.ContentVersion? value) ? value.IsPrivate : content.IsPrivate;
+    }
+
+    /// Group the content to separate it for the chart.
+    /// This is used to separate datasets and to identify labels.
+    /// </summary>
+    /// <param name="groupBy"></param>
+    /// <param name="content"></param>
+    /// <param name="sections"></param>
+    /// <returns></returns>
+    public static IEnumerable<IGrouping<string, TNO.TemplateEngine.Models.ContentModel>> GroupContent(
+        string groupBy,
+        IEnumerable<TNO.TemplateEngine.Models.ContentModel> content,
+        Dictionary<string, TNO.TemplateEngine.Models.Reports.ReportSectionModel> sections)
+    {
+        if (groupBy == "topicType")
+        {
+            // Extract all topic types from content.
+            var topicTypes = content.SelectMany(c => c.Topics.Select(t => t.TopicType)).Distinct();
+            var topicTypesDict = new Dictionary<string, IEnumerable<TNO.TemplateEngine.Models.ContentModel>>();
+            foreach (var type in topicTypes.OrderBy(t => t))
+            {
+                topicTypesDict.Add(type.ToString(), content.Where(c => c.Topics.Any(t => t.TopicType == type)));
+            }
+            var spread = topicTypesDict.SelectMany(d => d.Value.Select(v => new KeyValuePair<string, ContentModel>(d.Key, v)));
+            return spread.GroupBy(s => s.Key, s => s.Value);
+        }
+        else if (groupBy == "topicName")
+        {
+            // Extract all topic names from content.
+            var topicNames = content.SelectMany(c => c.Topics.Select(t => t.Name)).Distinct();
+            var topicNamesDict = new Dictionary<string, IEnumerable<TNO.TemplateEngine.Models.ContentModel>>();
+            foreach (var name in topicNames.OrderBy(t => t))
+            {
+                topicNamesDict.Add(name.ToString(), content.Where(c => c.Topics.Any(t => t.Name == name)));
+            }
+            var spread = topicNamesDict.SelectMany(d => d.Value.Select(v => new KeyValuePair<string, ContentModel>(d.Key, v)));
+            return spread.GroupBy(s => s.Key, s => s.Value);
+        }
+        else if (groupBy == "reportSection")
+        {
+            // Extract report sections and then group content into the sections.
+            var sectionsKeys = sections.OrderBy(s => s.Value.SortOrder).Select(s => (s.Value.Name, s.Value.Settings.Label));
+            var sectionDict = new Dictionary<string, IEnumerable<TNO.TemplateEngine.Models.ContentModel>>();
+            foreach (var section in sectionsKeys)
+            {
+                sectionDict.Add(section.Name, content.Where(c => c.SectionName == section.Name));
+            }
+            var spread = sectionDict.SelectMany(d => d.Value.Select(v => new KeyValuePair<string, ContentModel>(d.Key, v)));
+            return spread.GroupBy(s => s.Key, s => s.Value);
+        }
+
+        var groups = groupBy switch
+        {
+            "mediaType" => content.GroupBy(c => c.MediaType?.Name ?? "Other").OrderBy(group => group.Key),
+            "contentType" => content.GroupBy(c => c.ContentType.ToString()).OrderBy(group => group.Key),
+            "byline" => content.GroupBy(c => String.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline).OrderBy(group => group.Key),
+            "series" => content.GroupBy(c => c.SeriesId?.ToString() ?? "NA").OrderBy(group => group.Key),
+            "sentiment" => content.GroupBy(c => GetSentimentValue(c)?.ToString() ?? "0").OrderByDescending(group => group.Key),
+            "sentimentSimple" => content.GroupBy(c => GetSentimentRating(c)).OrderBy(group => group.Key),
+            "source" => content.GroupBy(c => c.OtherSource).OrderBy(group => group.Key),
+            "dayMonthYear" => content.GroupBy(c => $"{c.PublishedOn:dd-MM-yyyy}").OrderBy(group => group.Key),
+            "monthYear" => content.GroupBy(c => $"{c.PublishedOn:MM-yyyy}").OrderBy(group => group.Key),
+            "year" => content.GroupBy(c => $"{c.PublishedOn:yyyy}").OrderBy(group => group.Key),
+            _ => content.GroupBy(c => "Totals"),
+        };
+
+        return groups;
+    }
+
+    /// <summary>
+    /// Determine the sentiment value based on the 'datasetName'.
+    /// This is used to determine the minBarLength.
+    /// </summary>
+    /// <param name="datasetName"></param>
+    /// <returns></returns>
+    public static int? GetSentimentSwitch(string datasetName)
+    {
+        if (Int32.TryParse(datasetName, out int value))
+            return value;
+        else
+        {
+            return datasetName switch
+            {
+                "Positive" => 1,
+                "Neutral" => 0,
+                "Negative" => -1,
+                _ => null,
+            };
+        }
+    }
+
+    /// <summary>
+    /// Provides a javascript lambda function that will apply the correct colour in the sequence based on the value in the dataset.
+    /// </summary>
+    /// <param name="colors"></param>
+    /// <returns></returns>
+    public static string GetSentimentColorScript(string[] colors)
+    {
+        return "(ctx,options) => {{ " +
+            "const index = ctx.dataIndex; " +
+            "const value = ctx.dataset.data[index]; " +
+            $"if (typeof value === 'number') return value === null ? null : value > 0 ? '{colors[0]}' : value === 0 ? '{colors[1]}' : '{colors[2]}'; " +
+            "}}";
+    }
+
+    /// <summary>
+    /// Extract the color for the specified dataset, or base the color the sentiment value.
+    /// </summary>
+    /// <param name="colors"></param>
+    /// <param name="index"></param>
+    /// <param name="dataset"></param>
+    /// <param name="datasetName"></param>
+    /// <param name="datasetValueProp"></param>
+    /// <returns></returns>
+    public static string GetColor(string[] colors, int index, string dataset, string datasetName, string datasetValueProp)
+    {
+        var defaultColors = new[] { "#36A2EB", "#FF6384", "#4BC0C0", "#FF9F40", "#9966FF", "#FFCD56", "#C9CBCF", "#AA0DFE", "#3283FE", "#85660D", "#782AB6", "#565656", "#1C8356", "#16FF32", "#F7E1A0", "#1CBE4F", "#C4451C", "#DEA0FD", "#FE00FA", "#325A9B", "#FEAF16", "#F8A19F", "#90AD1C", "#F6222E", "#1CFFCE", "#2ED9FF", "#FBE426" };
+        colors = colors.Length > 0 ? colors : defaultColors;
+
+        if (dataset == "" && datasetValueProp == "sentiment")
+        {
+            // A chart using sentiment for the values needs to apply the correct color based on the value.
+            if (colors.Length < 3)
+                colors = new[] { "green", "gold", "red" };
+
+            return GetSentimentColorScript(colors);
+        }
+
+        if (dataset == "sentiment" || dataset == "sentimentSimple")
+        {
+            // A chart with a dataset for each sentiment should choose the color associated with the sentiment value.
+            if (colors.Length < 3)
+                colors = new[] { "green", "gold", "red" };
+
+            if (Int32.TryParse(datasetName, out int value))
+                return value > 0 ? colors[0] : value == 0 ? colors[1] : colors[2];
+            else
+            {
+                return datasetName switch
+                {
+                    "Positive" => colors[0],
+                    "Neutral" => colors[1],
+                    "Negative" => colors[2],
+                    _ => colors[0],
+                };
+            }
+        }
+
+        // Use the index of the dataset to pick the colour.
+        index = index >= 0 ? index : 0;
+        var length = colors.Length;
+        var position = index < length ? index : (index % length);
+        return colors[position];
+    }
+
+    /// <summary>
+    /// Extract the labels for each grouping for the chart.
+    /// Use the GroupContent() method to group first.
+    /// </summary>
+    /// <param name="datasets"></param>
+    /// <param name="settings"></param>
+    /// <param name="sections"></param>
+    /// <returns></returns>
+    public static string[] GetLabels(IEnumerable<IGrouping<string, TNO.TemplateEngine.Models.ContentModel>> datasets, API.Models.Settings.ChartSectionSettingsModel settings, Dictionary<string, TNO.TemplateEngine.Models.Reports.ReportSectionModel> sections)
+    {
+        return datasets.Select(ds => GetLabel(ds, settings, sections)).ToArray();
+    }
+
+    /// <summary>
+    /// Extract the label for the specified dataset.
+    /// Use the GroupContent() method to group first.
+    /// </summary>
+    /// <param name="dataset"></param>
+    /// <param name="settings"></param>
+    /// <param name="sections"></param>
+    /// <returns></returns>
+    public static string GetLabel(IGrouping<string, TNO.TemplateEngine.Models.ContentModel> dataset, API.Models.Settings.ChartSectionSettingsModel settings, Dictionary<string, TNO.TemplateEngine.Models.Reports.ReportSectionModel> sections)
+    {
+        var hasSection = sections.TryGetValue(dataset.Key, out TNO.TemplateEngine.Models.Reports.ReportSectionModel? section);
+        if (hasSection && section != null && (settings.Dataset == "reportSection" || settings.GroupBy == "reportSection"))
+            return section.Settings.Label ?? "Other";
+
+        return dataset.Key;
+    }
+
+    /// <summary>
+    /// Get the sentiment value for the specified 'content'.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    public static int? GetSentimentValue(TNO.TemplateEngine.Models.ContentModel content)
+    {
+        return content.TonePools.FirstOrDefault()?.Value;
+    }
+
+    /// <summary>
+    /// Get the sentiment rating for the specified 'content'.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    public static string GetSentimentRating(TNO.TemplateEngine.Models.ContentModel content)
+    {
+        var value = GetSentimentValue(content);
+        if (value < 0) return "Negative";
+        if (value > 0) return "Positive";
+        return "Neutral";
+    }
+
+    /// <summary>
+    /// Align the content with the labels array so that each label has a value assigned to it.
+    /// </summary>
+    /// <param name="datasetValue"></param>
+    /// <param name="groupBy"></param>
+    /// <param name="content"></param>
+    /// <param name="labels"></param>
+    /// <returns></returns>
+    public static int?[] ExtractDatasetValues(string datasetValue, string groupBy, IEnumerable<TNO.TemplateEngine.Models.ContentModel> content, string[] labels)
+    {
+        var values = new List<int?>();
+        foreach (var label in labels)
+        {
+            var items = groupBy switch
+            {
+                "mediaType" => content.Where(c => (c.MediaType?.Name ?? "Other") == label),
+                "contentType" => content.Where(c => c.ContentType.ToString() == label),
+                "byline" => content.Where(c => (String.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline) == label),
+                "series" => content.Where(c => (c.SeriesId?.ToString() ?? "NA") == label),
+                "sentiment" => content.Where(c => (GetSentimentValue(c)?.ToString() ?? "0") == label),
+                "sentimentSimple" => content.Where(c => GetSentimentRating(c) == label),
+                "source" => content.Where(c => c.OtherSource == label),
+                "dayMonthYear" => content.Where(c => $"{c.PublishedOn:dd-MM-yyyy}" == label),
+                "monthYear" => content.Where(c => $"{c.PublishedOn:MM-yyyy}" == label),
+                "year" => content.Where(c => $"{c.PublishedOn:yyyy}" == label),
+                "reportSection" => content.Where(c => c.SectionLabel == label),
+                _ => content,
+            };
+
+            if (datasetValue == "sentiment")
+            {
+                var avg = items.Any() ? items.Average(item => GetSentimentValue(item) ?? null) : null;
+                if (avg.HasValue)
+                    values.Add((int)Math.Round(avg.Value, MidpointRounding.AwayFromZero));
+                else values.Add(null);
+            }
+            else
+            {
+                values.Add(items.Count());
+            }
+        }
+        return values.ToArray();
     }
     #endregion
 }

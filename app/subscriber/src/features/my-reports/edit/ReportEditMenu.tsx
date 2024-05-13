@@ -43,7 +43,10 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
           <MenuButton
             label="Settings"
             active={!active || active?.startsWith(ReportMainMenuOption.Settings)}
-            onClick={() => onChange?.(`/reports/${values.id}/${ReportMainMenuOption.Settings}`)}
+            onClick={() => {
+              if (!values.id) onChange?.(`/reports/${values.id}/${ReportMainMenuOption.Settings}`);
+              else onChange?.(`/reports/${values.id}/${ReportSettingsMenuOption.Sections}`);
+            }}
             className={
               !isValid && !active?.startsWith(ReportMainMenuOption.Settings) ? 'error' : ''
             }

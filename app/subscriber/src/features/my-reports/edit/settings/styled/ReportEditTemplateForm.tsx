@@ -36,6 +36,8 @@ export const ReportEditTemplateForm = styled.div`
   }
 
   .section {
+    position: relative;
+
     .section-header {
       background: ${(props) => props.theme.css.sectionHeader};
       color: ${(props) => props.theme.css.sectionHeaderText};
@@ -100,6 +102,20 @@ export const ReportEditTemplateForm = styled.div`
       .chart-settings {
         padding: 1rem;
         gap: 1rem;
+      }
+
+      .chart {
+        > div:nth-child(2) {
+          display: flex;
+          flex-direction: row;
+          align-items: stretch;
+
+          > div {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            border: solid 1px ${(props) => props.theme.css.tableHoverRow};
+          }
+        }
       }
     }
   }

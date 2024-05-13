@@ -20,11 +20,7 @@ spec:
     users:
     - name: Jeremy.1.Foster@gov.bc.ca
       role: ROLE_TEAM_STANDARD
-    - name: cello.liu@gov.bc.ca
-      role: ROLE_TEAM_READ
     - name: Carolynn.Hunter@gov.bc.ca
-      role: ROLE_TEAM_READ
-    - name: kyle.morris@gov.bc.ca
       role: ROLE_TEAM_READ
     - name: Bobbi.Bjornholt@gov.bc.ca
       role: ROLE_TEAM_READ
