@@ -1,5 +1,5 @@
 import { ScreenSizes } from 'components/layout/constants';
-import React, { useState } from 'react';
+import React from 'react';
 import { BiLogOut } from 'react-icons/bi';
 import { FaChevronCircleDown, FaUserCircle } from 'react-icons/fa';
 import { Tooltip } from 'react-tooltip';
