@@ -44,7 +44,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
   const [active, setActive] = useState<FilterOptionTypes | undefined>(undefined);
   const filterStoreMethod = determineStore(filterStoreName);
   const api = useUsers();
-  const [prefIsSet, setPrefIsSet] = useState(false);
+  const [hasProcessedInitialPreference, setHasProcessedInitialPreference] = useState(false);
   const savePreferences = async (filterPreference: FilterOptionTypes) => {
     if (userInfo) {
       try {
@@ -57,6 +57,20 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
       } catch {}
     }
   };
+
+  useEffect(() => {
+    // if the user has a preference set, set the active filter to that preference
+    // otherwise set the active filter to all
+    // then set hasProcessedInitialPreference to true which will prevent this from running again
+    if (userInfo && !hasProcessedInitialPreference) {
+      if (userInfo.preferences && userInfo.preferences.filterPreference) {
+        setActive(userInfo.preferences.filterPreference);
+      } else {
+        setActive(FilterOptionTypes.All);
+      }
+      setHasProcessedInitialPreference(true);
+    }
+  }, [userInfo]);
 
   const [
     {
@@ -109,53 +123,56 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
 
   const getClassName = (type: FilterOptionTypes) => (type === active ? 'active' : 'inactive');
 
+  /**
+   * React useEffect hook that sets the active filter option based on the current filter and media types.
+   *
+   * The hook performs the following checks in order:
+   * 1. Checks if the initial preferences have been processed.
+   * 2. If there are no content types and media type IDs in the filter, it sets the active filter to 'All'.
+   * 3. If the media type IDs in the filter include 'Events', it sets the active filter to 'Events'.
+   * 4. If there is at least one content type in the filter, it sets the active filter based on the first content type:
+   *    - 'PrintContent' sets the active filter to 'Papers'.
+   *    - 'AudioVideo' sets the active filter to 'RadioTV'.
+   *    - 'Internet' sets the active filter to 'CPNews' if there is exactly one source ID, otherwise it sets the active filter to 'Internet'.
+   * 5. If none of the above conditions are met, it sets the active filter to 'All'.
+   *
+   * @param {Object} filter - The current filter object.
+   * @param {Array} mediaTypes - The current array of media types.
+   */
   useEffect(() => {
-    // Function to execute if prefIsSet is false for 1 second
-    const fallbackPlan = () => {
-      setActive(FilterOptionTypes.All);
-    };
-
-    if (!prefIsSet) {
-      const timeoutId = setTimeout(fallbackPlan, 1000); // Set timeout
-
-      return () => clearTimeout(timeoutId); // Clear timeout
-    }
-  }, [prefIsSet]);
-
-  useEffect(() => {
-    if (!filter.contentTypes?.length && !filter.mediaTypeIds?.length) {
-      if (userInfo && userInfo.preferences && userInfo.preferences.filterPreference) {
-        setActive(userInfo.preferences.filterPreference);
-        setPrefIsSet(true);
-      }
-    } else if (
-      filter.mediaTypeIds?.includes(mediaTypes.find((s) => s.name === 'Events')?.id ?? 0)
-    ) {
-      setActive(FilterOptionTypes.Events);
-    } else {
-      // currently only support one content type at a time (with the exception of the all filter)
-      if (!!filter?.contentTypes?.length) {
-        switch (filter.contentTypes[0]) {
-          case ContentTypeName.PrintContent:
-            setActive(FilterOptionTypes.Papers);
-            break;
-          case ContentTypeName.AudioVideo:
-            setActive(FilterOptionTypes.RadioTV);
-            break;
-          case ContentTypeName.Internet:
-            if (filter.sourceIds?.length === 1) {
-              setActive(FilterOptionTypes.CPNews);
+    // Initial Check: Ensure initial preferences have been processed before proceeding
+    if (hasProcessedInitialPreference) {
+      if (!filter.contentTypes?.length && !filter.mediaTypeIds?.length) {
+        setActive(FilterOptionTypes.All);
+      } else if (
+        filter.mediaTypeIds?.includes(mediaTypes.find((s) => s.name === 'Events')?.id ?? 0)
+      ) {
+        setActive(FilterOptionTypes.Events);
+      } else {
+        // currently only support one content type at a time (with the exception of the all filter)
+        if (!!filter?.contentTypes?.length) {
+          switch (filter.contentTypes[0]) {
+            case ContentTypeName.PrintContent:
+              setActive(FilterOptionTypes.Papers);
               break;
-            } else {
-              setActive(FilterOptionTypes.Internet);
+            case ContentTypeName.AudioVideo:
+              setActive(FilterOptionTypes.RadioTV);
               break;
-            }
-          default:
-            setActive(FilterOptionTypes.All);
+            case ContentTypeName.Internet:
+              if (filter.sourceIds?.length === 1) {
+                setActive(FilterOptionTypes.CPNews);
+                break;
+              } else {
+                setActive(FilterOptionTypes.Internet);
+                break;
+              }
+            default:
+              setActive(FilterOptionTypes.All);
+          }
         }
       }
     }
-  }, [filter, mediaTypes, userInfo]);
+  }, [filter, mediaTypes]);
 
   const filters = [
     { type: FilterOptionTypes.Papers, label: 'PAPERS', icon: <FaNewspaper /> },
