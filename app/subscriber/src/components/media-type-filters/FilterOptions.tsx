@@ -174,7 +174,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
       }
     }
     // hasProcessedInitialPreference is intentionally omitted from the dependencies.
-    // Beacuse we only want to run this effect once, and we don't want to run it again if hasProcessedInitialPreference changes.
+    // Beacuse we only want to run this effect if hasProcessedInitialPreference as true.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, mediaTypes]);
 
