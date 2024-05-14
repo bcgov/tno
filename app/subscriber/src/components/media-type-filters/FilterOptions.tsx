@@ -52,7 +52,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
           ...userInfo,
           preferences: { ...userInfo.preferences, filterPreference },
         } as ISubscriberUserModel;
-        await api.updateUser(user, userInfo.id);
+        await api.updateUser(user);
         store.storeUserInfo({ ...userInfo, preferences: user.preferences });
       } catch {}
     }

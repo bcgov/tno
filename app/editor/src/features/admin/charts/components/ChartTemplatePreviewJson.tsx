@@ -4,13 +4,12 @@ import 'prismjs/components/prism-cshtml';
 import 'prismjs/components/prism-json';
 
 import { AxiosError } from 'axios';
-import { ToggleButton } from 'components/buttons';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import { FaAngleDown, FaEraser, FaMinus, FaPlay } from 'react-icons/fa6';
 import Editor from 'react-simple-code-editor';
 import { useChartTemplates } from 'store/hooks/admin';
-import { Col, IChartPreviewRequestModel, Row } from 'tno-core';
+import { Col, IChartPreviewRequestModel, Row, ToggleButton } from 'tno-core';
 
 import { useChartTemplateContext } from '../ChartTemplateContext';
 import { defaultChartTemplate } from '../constants';

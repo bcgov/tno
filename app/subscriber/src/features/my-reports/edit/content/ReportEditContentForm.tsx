@@ -3,10 +3,12 @@ import { Modal } from 'components/modal';
 import { StartNextReportInfo } from 'features/my-reports/components';
 import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import React from 'react';
-import { FaArrowsSpin } from 'react-icons/fa6';
+import { FaArrowsSpin, FaToggleOff, FaToggleOn } from 'react-icons/fa6';
 import { FaAngleDown, FaMinus } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
-import { Show, useModal } from 'tno-core';
+import { useUsers } from 'store/hooks';
+import { useProfileStore } from 'store/slices';
+import { Show, ToggleButton, useModal } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
 import { ReportSections } from './stories';
@@ -35,12 +37,37 @@ export const ReportEditContentForm = React.forwardRef<
   const { values, isSubmitting, setFieldValue, onExport, onGenerate } = useReportEditContext();
   const { path1 } = useParams();
   const { isShowing, toggle } = useModal();
+  const [{ profile }] = useProfileStore();
+  const { updateUser } = useUsers();
+
+  const showFolders = !!profile?.preferences?.showReportFolderSections;
 
   return (
     <styled.ReportEditContentForm className="report-edit-section" ref={ref}>
       <StartNextReportInfo />
       <div className="section-actions">
-        <div></div>
+        <div>
+          <ToggleButton
+            on={<FaToggleOn />}
+            off={<FaToggleOff />}
+            onClick={async (e) => {
+              try {
+                if (profile)
+                  await updateUser({
+                    ...profile,
+                    preferences: {
+                      ...profile?.preferences,
+                      showReportFolderSections: !showFolders,
+                    },
+                  });
+              } catch {}
+            }}
+            value={showFolders}
+            width="25px"
+            height="25px"
+            label="Show folder sections"
+          />
+        </div>
         <div>
           {values.sections.some((s) => s.open) ? (
             <Action
@@ -92,6 +119,7 @@ export const ReportEditContentForm = React.forwardRef<
         disabled={disabled}
         showAdd={showAdd}
         form={path1 === 'content' ? 'stories' : 'sections'}
+        showFolderSections={showFolders}
         activeRow={activeRow}
         onContentClick={onContentClick}
       />
