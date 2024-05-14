@@ -1,9 +1,10 @@
 import axios from 'axios';
 import React from 'react';
-import { IAppState, IErrorModel, useAppStore } from 'store/slices';
+import { IAppState, IErrorModel, useAppStore, useProfileStore } from 'store/slices';
 import {
   AccountAuthStateName,
   IRegisterModel,
+  ISubscriberUserModel,
   IUserInfoModel,
   IUserLocationModel,
   IUserModel,
@@ -70,7 +71,8 @@ interface IAppController {
  */
 export const useApp = (): [IAppState, IAppController] => {
   const keycloak = useKeycloakWrapper();
-  const [state, store] = useAppStore();
+  const [state, { storeUserInfo, addError, removeError, clearErrors }] = useAppStore();
+  const [{ profile }, { storeMyProfile }] = useProfileStore();
   const [, { init }] = useLookup();
   const dispatch = useAjaxWrapper();
   const api = useApiAuth();
@@ -110,7 +112,9 @@ export const useApp = (): [IAppState, IAppController] => {
         }
         const response = await dispatch('get-user-info', () => api.getUserInfo(location));
         userInfo = response.data;
-        store.storeUserInfo(userInfo);
+        storeUserInfo(userInfo);
+        storeMyProfile({ ...profile, ...(userInfo as ISubscriberUserModel) });
+
         if ((!keycloak.hasClaim() || refresh) && !!response.data.roles.length)
           await keycloak.instance.updateToken(86400);
         return userInfo;
@@ -122,13 +126,23 @@ export const useApp = (): [IAppState, IAppController] => {
         return (await dispatch<IUserModel>('request-approval', () => api.requestApproval(model)))
           .data;
       },
-      addError: store.addError,
-      removeError: store.removeError,
-      clearErrors: store.clearErrors,
+      addError: addError,
+      removeError: removeError,
+      clearErrors: clearErrors,
       initialized,
       authenticated: keycloak.authenticated ?? false,
     }),
-    [api, dispatch, store, keycloak],
+    [
+      addError,
+      api,
+      clearErrors,
+      dispatch,
+      keycloak,
+      profile,
+      removeError,
+      storeMyProfile,
+      storeUserInfo,
+    ],
   );
 
   return [state, controller];

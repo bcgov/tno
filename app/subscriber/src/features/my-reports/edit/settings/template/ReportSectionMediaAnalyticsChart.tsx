@@ -1,17 +1,18 @@
 import { Action } from 'components/action';
 import { Colours } from 'components/colours';
-import { chartTypeOptions, groupByOptions } from 'features/my-reports/constants';
 import { IReportForm } from 'features/my-reports/interfaces';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaTrash } from 'react-icons/fa6';
 import {
+  chartTypeOptions,
   Col,
   datasetOptions,
   datasetValueOptions,
   FormikCheckbox,
   FormikSelect,
   FormikText,
+  groupByOptions,
   IOptionItem,
   legendAlignOptions,
   legendPositionOptions,

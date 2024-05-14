@@ -1,16 +1,17 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+import { useAppStore, useProfileStore } from 'store/slices';
 import { ISubscriberUserModel, useApiSubscriberUsers } from 'tno-core';
 
 interface IUserController {
-  updateUser: (model: ISubscriberUserModel, requestorId: number) => Promise<ISubscriberUserModel>;
+  updateUser: (model: ISubscriberUserModel) => Promise<ISubscriberUserModel>;
 }
 
 export const useUsers = (): IUserController => {
   const api = useApiSubscriberUsers();
   const dispatch = useAjaxWrapper();
-  const [, store] = useProfileStore();
+  const [, { storeMyProfile }] = useProfileStore();
+  const [{ userInfo }, { storeUserInfo }] = useAppStore();
 
   const controller = React.useMemo(
     () => ({
@@ -18,11 +19,12 @@ export const useUsers = (): IUserController => {
         const response = await dispatch<ISubscriberUserModel>('update-user', () =>
           api.updateUser(model),
         );
-        store.storeMyProfile(response.data);
+        storeMyProfile(response.data);
+        if (userInfo) storeUserInfo({ ...userInfo, preferences: response.data.preferences });
         return response.data;
       },
     }),
-    [api, dispatch, store],
+    [api, dispatch, storeMyProfile, storeUserInfo, userInfo],
   );
 
   return controller;

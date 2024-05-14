@@ -28,9 +28,8 @@ export const MyMinisterSettings: React.FC = () => {
         ...userInfo,
         preferences: { ...userInfo.preferences, myMinisters: values },
       } as ISubscriberUserModel;
-      user = await api.updateUser(user, userInfo.id);
+      await api.updateUser(user);
       toast.success(`Your minister(s) have successfully been updated.`);
-      store.storeUserInfo({ ...userInfo, preferences: user.preferences });
     } catch {}
   };
 
@@ -60,13 +59,12 @@ export const MyMinisterSettings: React.FC = () => {
           uniqueLogins: 0,
         } as IUserModel;
         api
-          .updateUser(user, userInfo.id)
+          .updateUser(user)
           .then((user) => {
             toast.success(
               'One of more of your selected ministers are no longer enabled. ' +
                 'Your selection has been updated automatically: ',
             );
-            store.storeUserInfo({ ...userInfo, preferences: user.preferences });
           })
           .catch(() => {});
       }

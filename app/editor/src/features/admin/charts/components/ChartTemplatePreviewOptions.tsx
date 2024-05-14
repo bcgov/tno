@@ -1,4 +1,3 @@
-import { ToggleButton } from 'components/buttons';
 import React from 'react';
 import { FaAngleDown, FaMinus } from 'react-icons/fa6';
 import {
@@ -15,6 +14,7 @@ import {
   Row,
   Select,
   Text,
+  ToggleButton,
 } from 'tno-core';
 
 import { useChartTemplateContext } from '../ChartTemplateContext';

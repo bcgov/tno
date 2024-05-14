@@ -22,6 +22,8 @@ export interface IReportSectionsProps {
   showAdd?: boolean;
   /** Which type of form to display */
   form?: 'stories' | 'sections';
+  /** Whether to show folder sections */
+  showFolderSections?: boolean;
   /** The active row. */
   activeRow?: IReportInstanceContentForm;
   /** Event fires when the content headline is clicked. */
@@ -37,6 +39,7 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({
   disabled,
   showAdd,
   form = 'stories',
+  showFolderSections = true,
   activeRow,
   onContentClick,
 }) => {
@@ -61,12 +64,13 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({
         {values.sections.map((section, index) => {
           // Only display content and gallery sections if it's the stories tab.
           if (
-            form === 'stories' &&
-            ![
-              ReportSectionTypeName.Content,
-              ReportSectionTypeName.Gallery,
-              ReportSectionTypeName.MediaAnalytics,
-            ].includes(section.sectionType)
+            (form === 'stories' &&
+              ![
+                ReportSectionTypeName.Content,
+                ReportSectionTypeName.Gallery,
+                ReportSectionTypeName.MediaAnalytics,
+              ].includes(section.sectionType)) ||
+            (!showFolderSections && section.folderId)
           ) {
             return <React.Fragment key={section.id}></React.Fragment>;
           }

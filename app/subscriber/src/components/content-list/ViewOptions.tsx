@@ -11,7 +11,7 @@ import * as styled from './styled';
 
 export const ViewOptions: React.FC = () => {
   const { viewOptions, setGroupBy, setViewOptions, groupBy } = React.useContext(ContentListContext);
-  const [{ userInfo }, store] = useAppStore();
+  const [{ userInfo }] = useAppStore();
   const [loadShowOptions, setLoadShowOptions] = React.useState(true);
   const api = useUsers();
 
@@ -24,8 +24,7 @@ export const ViewOptions: React.FC = () => {
           ...userInfo,
           preferences: { ...userInfo.preferences, viewOptions, groupBy },
         } as ISubscriberUserModel;
-        await api.updateUser(user, userInfo.id);
-        store.storeUserInfo({ ...userInfo, preferences: user.preferences });
+        await api.updateUser(user);
       } catch {}
     }
   };

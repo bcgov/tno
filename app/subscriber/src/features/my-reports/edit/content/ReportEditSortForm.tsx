@@ -9,7 +9,16 @@ import {
   DropResult,
   ResponderProvided,
 } from 'react-beautiful-dnd';
-import { getDistinct, IReportInstanceModel, OptionItem, ReportSectionTypeName } from 'tno-core';
+import { FaToggleOff, FaToggleOn } from 'react-icons/fa6';
+import { useUsers } from 'store/hooks';
+import { useProfileStore } from 'store/slices';
+import {
+  getDistinct,
+  IReportInstanceModel,
+  OptionItem,
+  ReportSectionTypeName,
+  ToggleButton,
+} from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
 import { ReportContentSectionRow } from './sort';
@@ -27,7 +36,10 @@ export interface IReportEditSortFormProps {
 export const ReportEditSortForm = React.forwardRef<HTMLDivElement | null, IReportEditSortFormProps>(
   ({ disabled, activeRow, onContentClick }, ref) => {
     const { values, setFieldValue } = useReportEditContext();
+    const [{ profile }] = useProfileStore();
+    const { updateUser } = useUsers();
 
+    const showFolders = !!profile?.preferences?.showReportFolderSections;
     const instance = values.instances.length ? values.instances[0] : undefined;
 
     const handleRemoveContent = React.useCallback(
@@ -84,14 +96,37 @@ export const ReportEditSortForm = React.forwardRef<HTMLDivElement | null, IRepor
     return (
       <styled.ReportEditSortForm className="report-edit-section" ref={ref}>
         <StartNextReportInfo />
+        <div>
+          <ToggleButton
+            on={<FaToggleOn />}
+            off={<FaToggleOff />}
+            onClick={async (e) => {
+              try {
+                if (profile)
+                  await updateUser({
+                    ...profile,
+                    preferences: {
+                      ...profile?.preferences,
+                      showReportFolderSections: !showFolders,
+                    },
+                  });
+              } catch {}
+            }}
+            value={showFolders}
+            width="25px"
+            height="25px"
+            label="Show folder sections"
+          />
+        </div>
         <DragDropContext onDragEnd={handleDrop}>
           {values.sections
-            .filter((section) =>
-              [
-                ReportSectionTypeName.Content,
-                ReportSectionTypeName.Gallery,
-                ReportSectionTypeName.MediaAnalytics,
-              ].includes(section.sectionType),
+            .filter(
+              (section) =>
+                [
+                  ReportSectionTypeName.Content,
+                  ReportSectionTypeName.Gallery,
+                  ReportSectionTypeName.MediaAnalytics,
+                ].includes(section.sectionType) && !(!showFolders && section.folderId),
             )
             .map((section) => {
               const sectionContent =

@@ -2,6 +2,13 @@
 @import './_fonts';
 
 :export {
+
+  // Links
+  linkPrimaryColor: $link-primary-color;
+  linkPrimaryHoverColor: $link-primary-hover-color;
+  linkPrimaryActiveColor: $link-primary-active-color;
+  linkGrayColor: $link-gray-color;
+
   actionButtonColor: $action-button-color;
   backgroundColor: $background-color;
   primaryColor: $primary-color;
