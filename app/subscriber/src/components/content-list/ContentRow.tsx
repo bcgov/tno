@@ -18,7 +18,6 @@ export interface IContentRowProps extends IColProps {
   canDrag?: boolean;
   showDate?: boolean;
   popOutIds?: string;
-  styleOnSettings?: boolean;
   showSeries?: boolean;
   showTime?: boolean;
 }
@@ -27,7 +26,6 @@ export const ContentRow: React.FC<IContentRowProps> = ({
   selected,
   item,
   onCheckboxChange,
-  styleOnSettings,
   canDrag,
   showDate,
   showSeries,
@@ -78,12 +76,16 @@ export const ContentRow: React.FC<IContentRowProps> = ({
         <Show visible={showSeries}>
           {item.series && <div className="series">{item.series.name}</div>}
         </Show>
-        <Show visible={styleOnSettings && popOutIds?.includes(String(item.mediaTypeId))}>
+        <Show visible={popOutIds?.includes(String(item.mediaTypeId))}>
           <FaSquareUpRight
             className={`new-tab ${!item.section && 'no-section'}`}
             onClick={(e) => {
               e.stopPropagation();
-              window.open(`/view/${item.id}`, '_blank');
+              window.open(
+                `/view/${item.id}`,
+                '_blank',
+                'toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=600,width=600,height=465',
+              );
             }}
           />
         </Show>

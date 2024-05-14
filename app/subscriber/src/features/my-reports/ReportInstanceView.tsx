@@ -18,7 +18,7 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({ instanc
   const handleViewReport = React.useCallback(
     async (instanceId: number) => {
       try {
-        const response = await viewReportInstance(instanceId);
+        const response = await viewReportInstance(instanceId, true);
         storeReportOutput({ ...response, instanceId });
       } catch {}
     },

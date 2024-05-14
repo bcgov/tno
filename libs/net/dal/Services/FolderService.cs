@@ -110,6 +110,30 @@ public class FolderService : BaseService<Folder, int>, IFolderService
         original.UpdatedBy = entity.UpdatedBy;
         original.UpdatedOn = entity.UpdatedOn;
         original.Version = entity.Version;
+        if (entity.Events.Any())
+        {
+			foreach (var folderEvent in entity.Events)
+            {
+                folderEvent.FolderId = entity.Id;
+                if (folderEvent.Id == 0)
+                {
+					if (folderEvent.ScheduleId == 0 && folderEvent.Schedule != null)
+                    {
+                        this.Context.Add(folderEvent.Schedule);
+                    }
+                    this.Context.Add(folderEvent);
+                }
+                else
+                {
+                    if (folderEvent.Schedule != null)
+                    {
+                        this.Context.Update(folderEvent.Schedule);
+                    }
+                    this.Context.Update(folderEvent);
+                }
+            }
+        }
+
 
         if (updateContent)
         {
@@ -133,30 +157,6 @@ public class FolderService : BaseService<Folder, int>, IFolderService
                     this.Context.Update(originalContent);
                 }
             });
-
-            if (entity.Events.Any())
-            {
-                foreach (var folderEvent in entity.Events)
-                {
-                    folderEvent.FolderId = entity.Id;
-                    if (folderEvent.Id == 0)
-                    {
-                        if (folderEvent.ScheduleId == 0 && folderEvent.Schedule != null)
-                        {
-                            this.Context.Add(folderEvent.Schedule);
-                        }
-                        this.Context.Add(folderEvent);
-                    }
-                    else
-                    {
-                        if (folderEvent.Schedule != null)
-                        {
-                            this.Context.Update(folderEvent.Schedule);
-                        }
-                        this.Context.Update(folderEvent);
-                    }
-                }
-            }
 
             // Update all report instances that have not been sent, and that reference this folder.
             var sections = this.Context.ReportSections

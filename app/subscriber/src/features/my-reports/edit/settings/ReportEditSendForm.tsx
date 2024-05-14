@@ -73,14 +73,11 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
 
       <h2>Scheduling</h2>
       <Col className="info" flex="1">
-        <div>
-          <FaInfoCircle /> Scheduling info...
-        </div>
         <p>
-          Scheduling an 'Auto Report' will automatically populate it at the specified day and time.
-          An 'Auto Send Report' will also send to its subscribers automatically. Each report can
-          have up to two schedules. The second schedule may be used for sending out reports at a
-          different time on certain days.
+          <FaInfoCircle /> Scheduling an 'Auto Report' will automatically populate it at the
+          specified day and time. An 'Auto Send Report' will also send to its subscribers
+          automatically. Each report can have up to two schedules. The second schedule may be used
+          for sending out reports at a different time on certain days.
         </p>
       </Col>
       <div>
@@ -89,40 +86,10 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
             <p>A Manual Report is created and sent manually.</p>
           </Col>
           <Col className="info" flex="1">
-            <p>
-              An Auto Report is created for you on a schedule, but sent manually. If the report is
-              not sent before the next scheduled run, it will <strong>not</strong> generate a new
-              report unless you select 'Empty report when starting next report'.
-            </p>
-            <Show
-              visible={
-                kind === ReportKindName.Auto &&
-                !instance?.sentOn &&
-                !values.settings.content.clearOnStartNewReport
-              }
-            >
-              <p className="error">
-                There is active report. The next time this auto report runs it will use the existing
-                active report. If you want it to generate a new report you must send this active
-                report, or select 'Empty report when starting next report'.
-              </p>
-            </Show>
+            <p>An Auto Report is created for you on a schedule, but sent manually.</p>
           </Col>
           <Col className="info" flex="1">
             <p>An Auto Send Report is created for you on a schedule and sent at the same time.</p>
-            <Show
-              visible={
-                kind === ReportKindName.AutoSend &&
-                !instance?.sentOn &&
-                !values.settings.content.clearOnStartNewReport
-              }
-            >
-              <p className="error">
-                You have already manually started a report. The next time this auto report runs it
-                will use the existing active report. If you want it to generate a new report you
-                must send this active report, or select 'Empty report when starting next report'.
-              </p>
-            </Show>
           </Col>
         </Row>
       </div>
@@ -157,26 +124,88 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
           <ReportSchedule index={1} label="Schedule 2" />
         </div>
       </Show>
+
+      <h2>Report generation options</h2>
+      <Col className="info" flex="1">
+        <p>
+          <FaInfoCircle /> Control how each new report is generated. Build on the previous, or begin
+          fresh with an empty report.
+        </p>
+      </Col>
       <div className="schedule-actions">
         <Show visible={kind !== ReportKindName.Manual}>
-          <Checkbox
-            name={`settings.content.clearOnStartNewReport`}
-            label="Empty report when starting next report"
-            checked={values.settings.content.clearOnStartNewReport}
-            onChange={(e) => {
-              setFieldValue('settings.content.clearOnStartNewReport', e.target.checked);
-            }}
-          />
+          <Col flex="1" alignContent="center">
+            <Checkbox
+              name={`settings.content.clearOnStartNewReport`}
+              label="Empty report when starting next report"
+              checked={values.settings.content.clearOnStartNewReport}
+              onChange={(e) => {
+                setFieldValue('settings.content', {
+                  ...values.settings.content,
+                  clearOnStartNewReport: e.target.checked,
+                  copyPriorInstance: e.target.checked ? !e.target.checked : false,
+                });
+              }}
+            />
+            <Checkbox
+              name={`settings.content.copyPriorInstance`}
+              label="Accumulate content on each run until sent"
+              checked={values.settings.content.copyPriorInstance}
+              onChange={(e) => {
+                setFieldValue('settings.content', {
+                  ...values.settings.content,
+                  clearOnStartNewReport: e.target.checked ? !e.target.checked : false,
+                  copyPriorInstance: e.target.checked,
+                });
+              }}
+            />
+          </Col>
+          <Col flex="1">
+            <Show visible={values.settings.content.clearOnStartNewReport}>
+              <p className="info">
+                The next time this report auto runs it will start empty and then populate based on
+                the section data sources.
+              </p>
+            </Show>
+            <Show visible={values.settings.content.copyPriorInstance}>
+              <p className="info">
+                The next time this report auto runs it will accumulate new content based on the
+                section data sources.
+              </p>
+            </Show>
+            <Show
+              visible={
+                !values.settings.content.clearOnStartNewReport &&
+                !values.settings.content.copyPriorInstance
+              }
+            >
+              <p className="info">The next time this report auto runs it will not change.</p>
+            </Show>
+          </Col>
         </Show>
         <Show visible={kind === ReportKindName.Manual}>
-          <Checkbox
-            name={`settings.content.copyPriorInstance`}
-            label="Empty report when starting next report"
-            checked={!values.settings.content.copyPriorInstance}
-            onChange={(e) => {
-              setFieldValue('settings.content.copyPriorInstance', !e.target.checked);
-            }}
-          />
+          <Col flex="1" alignContent="center">
+            <Checkbox
+              name={`settings.content.copyPriorInstance`}
+              label="Empty report when starting next report"
+              checked={!values.settings.content.copyPriorInstance}
+              onChange={(e) => {
+                setFieldValue('settings.content.copyPriorInstance', !e.target.checked);
+              }}
+            />
+          </Col>
+          <Col flex="1">
+            <Show visible={values.settings.content.copyPriorInstance}>
+              <p className="info">
+                When you generate the next report it will copy the content from the prior report.
+              </p>
+            </Show>
+            <Show visible={!values.settings.content.copyPriorInstance}>
+              <p className="info">
+                When you generate the next report it will empty out any content.
+              </p>
+            </Show>
+          </Col>
           <Show visible={!instance || !!instance?.sentOn}>
             <Row gap="1rem">
               <p>The current report has already been sent to subscribers. Start the next report.</p>

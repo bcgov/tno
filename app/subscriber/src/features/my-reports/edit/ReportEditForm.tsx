@@ -1,11 +1,21 @@
 import { Modal } from 'components/modal';
+import { formatDate } from 'features/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useReportInstances } from 'store/hooks';
-import { formatDate, getReportKind, ReportKindName, Show, useModal } from 'tno-core';
+import { useReportInstances, useReports } from 'store/hooks';
+import {
+  Checkbox,
+  Col,
+  getReportKind,
+  ReportKindName,
+  ReportStatusName,
+  Show,
+  useModal,
+} from 'tno-core';
 
 import { IReportForm, IReportInstanceContentForm } from '../interfaces';
+import { toForm } from '../utils';
 import {
   ReportContentMenuOption,
   ReportMainMenuOption,
@@ -44,9 +54,20 @@ export interface IReportEditFormProps {
 export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEditFormProps>(
   ({ disabled, updateForm, onContentClick }, ref) => {
     const navigate = useNavigate();
-    const { values, active, activeRow, setActiveRow, setFieldValue, onNavigate, onGenerate } =
-      useReportEditContext();
-    const [{ publishReportInstance }] = useReportInstances();
+    const {
+      values,
+      active,
+      activeRow,
+      setActiveRow,
+      setFieldValue,
+      onNavigate,
+      onGenerate,
+      isSubmitting,
+      setSubmitting,
+    } = useReportEditContext();
+    const [, { updateReport }] = useReports();
+    const [{ updateReportInstance, publishReportInstance }] = useReportInstances();
+    const { toggle: toggleUnlockReport, isShowing: isShowingUnlockReport } = useModal();
     const { toggle: toggleStartNewReport, isShowing: isShowingStartNewReport } = useModal();
     const { toggle: toggleSend, isShowing: isShowingSend } = useModal();
 
@@ -80,6 +101,7 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
     const handlePublish = React.useCallback(
       async (id: number) => {
         try {
+          setSubmitting(true);
           const updatedInstance = await publishReportInstance(id);
           setFieldValue(
             'instances',
@@ -90,19 +112,27 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
           toast.success(
             'Report has been submitted.  You will be notified when it is emailed to subscribers.',
           );
-        } catch {}
+        } catch {
+        } finally {
+          setSubmitting(false);
+        }
       },
-      [instance?.content, publishReportInstance, setFieldValue, values.instances],
+      [instance?.content, publishReportInstance, setFieldValue, setSubmitting, values.instances],
     );
 
     const handleStartNewReport = React.useCallback(
       async (values: IReportForm) => {
         try {
-          const form = await onGenerate(values, true);
+          setSubmitting(true);
+          const result = await updateReport(values);
+          const form = await onGenerate(toForm({ ...result, instances: values.instances }), true);
           if (form) updateForm(form);
-        } catch {}
+        } catch {
+        } finally {
+          setSubmitting(false);
+        }
       },
-      [onGenerate, updateForm],
+      [onGenerate, setSubmitting, updateForm, updateReport],
     );
 
     return (
@@ -179,6 +209,7 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
         <ReportEditActions
           disabled={disabled}
           onPublish={() => toggleSend()}
+          onUnlock={() => toggleUnlockReport()}
           onGenerate={() => toggleStartNewReport()}
         />
         <Modal
@@ -199,15 +230,64 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
           }}
         />
         <Modal
-          headerText="Start Next Report"
+          headerText="Unlock Report"
           body={
-            <>
-              <p>{`The current report was sent to subscribers on ${formatDate(
-                instance?.sentOn?.toLocaleString(),
-                'YYYY-MM-DD hh:mm:ss a',
-              )}.`}</p>
+            <Col>
+              <p>
+                {`The current report was sent to subscribers on `}
+                <strong>{`${formatDate(instance?.sentOn?.toLocaleString(), true)}`}</strong>.
+              </p>
+              <p>
+                It is almost always preferable to start the next report rather than unlocking the
+                current report.
+              </p>
+              <p>If you unlock the report you will lose the history of the report being sent.</p>
+            </Col>
+          }
+          isShowing={isShowingUnlockReport}
+          hide={toggleUnlockReport}
+          type="default"
+          confirmText="Yes, unlock this report"
+          onConfirm={async () => {
+            try {
+              if (instance) {
+                const result = await updateReportInstance({
+                  ...instance,
+                  sentOn: undefined,
+                  status: ReportStatusName.Pending,
+                });
+                const updatedInstance = { ...result, content: instance.content };
+                updateForm({
+                  ...values,
+                  instances: values.instances.map((i) =>
+                    i.id === result.id ? updatedInstance : i,
+                  ),
+                });
+              }
+            } finally {
+              toggleUnlockReport();
+            }
+          }}
+        />
+        <Modal
+          headerText="Start Next Report"
+          isSubmitting={isSubmitting}
+          body={
+            <Col>
+              <p>
+                {`The current report was sent to subscribers on `}
+                <strong>{`${formatDate(instance?.sentOn?.toLocaleString(), true)}`}</strong>.
+              </p>
+              <Checkbox
+                name={`settings.content.copyPriorInstance`}
+                label="Empty report when starting next report"
+                checked={!values.settings.content.copyPriorInstance}
+                onChange={(e) => {
+                  setFieldValue('settings.content.copyPriorInstance', !e.target.checked);
+                }}
+              />
               <p>Would you like to start the next report?</p>
-            </>
+            </Col>
           }
           isShowing={isShowingStartNewReport}
           hide={toggleStartNewReport}

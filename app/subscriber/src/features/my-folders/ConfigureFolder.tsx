@@ -23,15 +23,14 @@ import {
 } from 'tno-core';
 
 import { getFilterOptions } from './constants';
+import { useFolderContext } from './FolderContext';
 import { Schedule } from './Schedule';
 import * as styled from './styled';
 import { createSchedule } from './utils';
 
-export interface IConfigureFolderProps {
-  folder?: IFolderModel;
-}
+export interface IConfigureFolderProps {}
 
-export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ folder: initFolder }) => {
+export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
   const [{ myFilters }, { findMyFilters }] = useFilters();
   const [, { findContentWithElasticsearch }] = useContent();
   const [{ myFolders }, { findMyFolders, getFolder, updateFolder, deleteFolder }] = useFolders();
@@ -39,21 +38,17 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ folder: initF
   const { toggle, isShowing } = useModal();
   const navigate = useNavigate();
 
-  const [currentFolder, setCurrentFolder] = React.useState(initFolder);
   const [activeFilter, setActiveFilter] = React.useState<IFilterModel>();
   const [actionName, setActionName] = React.useState<'delete' | 'empty'>();
   const [filterOptions, setFilterOptions] = React.useState<IOptionItem[]>(
     getFilterOptions(myFilters, activeFilter?.id ?? 0),
   );
+  const { folder: currentFolder, setFolder: setCurrentFolder } = useFolderContext();
   const [init, setInit] = React.useState(false);
 
   React.useEffect(() => {
     if (myFolders.length) setInit(true);
   }, [myFolders.length]);
-
-  React.useEffect(() => {
-    setCurrentFolder(initFolder);
-  }, [initFolder]);
 
   React.useEffect(() => {
     if (!myFilters.length) {
@@ -72,6 +67,8 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ folder: initF
         ...currentFolder,
         events: [createSchedule(currentFolder.name, currentFolder.description)],
       });
+    // only run when currentFolder changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentFolder]);
 
   React.useEffect(() => {
@@ -87,6 +84,8 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = ({ folder: initF
         })
         .catch(() => {});
     }
+    // do not want to run with setCurrentFolder
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentFolder, id, init, getFolder, myFolders]);
 
   const handleRun = React.useCallback(

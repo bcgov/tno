@@ -332,6 +332,117 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     }
 
     /// <summary>
+    /// Fetch the current report instance content if it should be copied into the next report instance.
+    /// If the next report instance
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="report"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private async Task<(API.Areas.Services.Models.ReportInstance.ReportInstanceModel?, Dictionary<string, ReportSectionModel>)> PopulateReportInstance(ReportRequestModel request, API.Areas.Services.Models.Report.ReportModel report)
+    {
+        API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instanceModel;
+        var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
+        var sectionContent = new Dictionary<string, ReportSectionModel>();
+        var reportInstanceModel = await this.Api.GetCurrentReportInstanceAsync(report.Id, request.RequestorId);
+
+        // If we don't clear the prior report we must append new content to it.
+        var currentSectionContent = new Dictionary<string, ReportSectionModel>();
+        if (reportInstanceModel != null && !report.Settings.Content.ClearOnStartNewReport)
+        {
+            // Extract the section content from the current instance.
+            currentSectionContent = sections.ToDictionary(s => s.Name, section =>
+            {
+                section.Content = reportInstanceModel.Content.Where(ric => ric.SectionName == section.Name && ric.Content != null).Select(ric => new ContentModel(ric.Content!, ric.SortOrder, ric.SectionName));
+                return section;
+            });
+        }
+
+        // Generate a new instance, or accumulate new content each time the report is run.
+        if (reportInstanceModel == null || !(!report.Settings.Content.ClearOnStartNewReport && !report.Settings.Content.CopyPriorInstance))
+        {
+            // Fetch content for every section within the report.  This will include folders and filters.
+            var searchResults = await this.Api.FindContentForReportIdAsync(report.Id, request.RequestorId);
+            sectionContent = sections.ToDictionary(section => section.Name, section =>
+            {
+                if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
+                {
+                    var sortOrder = 0;
+                    var newContent = results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).OrderBy(c => c.SortOrder).ToArray();
+                    var distinctContent = (currentSectionContent.TryGetValue(section.Name, out ReportSectionModel? currentSection) ? currentSection?.Content.ToArray().AppendRange(newContent).DistinctBy(c => c.Id) : newContent) ?? Array.Empty<ContentModel>();
+                    section.Content = ReportEngine.OrderBySectionField(distinctContent, section.Settings.SortBy, section.Settings.SortDirection);
+                    if (results.Aggregations != null)
+                    {
+                        section.Aggregations = new Dictionary<string, TNO.TemplateEngine.Models.Reports.AggregationRootModel>();
+                        foreach (var aggregation in results.Aggregations)
+                        {
+                            section.Aggregations.Add(aggregation.Key, aggregation.Value.Convert());
+                        }
+                    }
+                }
+                return section;
+            });
+        }
+        else
+        {
+            // Copy the prior report content into the new instance.
+            sectionContent = currentSectionContent;
+        }
+
+        // Fetch all image data.  Need to do this in a separate step because of async+await.
+        // TODO: Review this implementation due to performance issues.
+        foreach (var section in sectionContent)
+        {
+            foreach (var content in section.Value.Content.Where(c => c.ContentType == Entities.ContentType.Image))
+            {
+                content.ImageContent = await this.Api.GetImageFile(content.Id);
+            }
+        }
+
+        // KGM: this logic should be removed once the underlying problem of malformed data for report content is found
+        // filter out Content with no valid ContentId
+        var reportInstanceContents = sectionContent.SelectMany(s => s.Value.Content.Where(c => c.Id > 0).Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
+        var reportInstanceContentsBad = sectionContent.SelectMany(s => s.Value.Content.Where(c => c.Id == 0).Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
+        if (reportInstanceContentsBad.Any())
+        {
+            this.Logger.LogWarning($"Report [{report.Name}] {request.GenerateInstance} has malformed content. It will be generated, but may not match expectations.");
+            foreach (var section in sectionContent)
+            {
+                sectionContent[section.Key].Content = section.Value.Content.Where(c => c.Id > 0);
+            }
+        }
+
+        if (reportInstanceModel == null || reportInstanceModel.SentOn.HasValue)
+        {
+            // A new report instance will need to be created.
+            var instanceContent = sectionContent.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)));
+            var instance = new ReportInstance(
+                report.Id,
+                request.RequestorId,
+                instanceContent
+                )
+            {
+                OwnerId = request.RequestorId ?? report.OwnerId,
+                PublishedOn = DateTime.UtcNow,
+            };
+            instanceModel = request.GenerateInstance ? (await this.Api.AddReportInstanceAsync(new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions))
+                ?? throw new InvalidOperationException("Report instance failed to be returned by API")) : null;
+        }
+        else
+        {
+            var instanceContent = sectionContent.SelectMany(s => s.Value.Content.Select(c => new API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel(reportInstanceModel.Id, c.Id, s.Key, c.SortOrder)));
+            instanceModel = new API.Areas.Services.Models.ReportInstance.ReportInstanceModel((Entities.ReportInstance)reportInstanceModel, _serializationOptions)
+            {
+                OwnerId = request.RequestorId ?? report.OwnerId,
+                PublishedOn = DateTime.UtcNow,
+                Content = instanceContent
+            };
+        }
+
+        return (instanceModel, sectionContent);
+    }
+
+    /// <summary>
     /// Send out an email for the specified report.
     /// Generate a report instance for this email.
     /// If an unsent report instance exists, use it instead.
@@ -344,115 +455,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <exception cref="ArgumentException"></exception>
     private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.Report.ReportModel report)
     {
-        // Check if there is an unsent report instance.
-        API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instanceModel;
-        var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
-        var sectionContent = new Dictionary<string, ReportSectionModel>();
-        var reportInstanceModel = await this.Api.GetCurrentReportInstanceAsync(report.Id, request.RequestorId);
-        var instanceUpdateRequired = false;
-
-        if (reportInstanceModel == null || reportInstanceModel.SentOn.HasValue)
-        {
-            // Fetch content for every section within the report.  This will include folders and filters.
-            var searchResults = await this.Api.FindContentForReportIdAsync(report.Id, request.RequestorId);
-            var sortOrder = 0;
-            var instanceContent = searchResults.SelectMany((section) => section.Value.Hits.Hits.Select(hit => new ReportInstanceContent(0, hit.Source.Id, section.Key, sortOrder++))) ?? Array.Empty<ReportInstanceContent>();
-            sectionContent = sections.ToDictionary(s => s.Name, section =>
-            {
-                if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
-                {
-                    var sortOrder = 0;
-                    section.Content = ReportEngine.OrderBySectionField(results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).OrderBy(c => c.SortOrder).ToArray(), section.Settings.SortBy, section.Settings.SortDirection);
-                    if (results.Aggregations != null)
-                    {
-                        section.Aggregations = new Dictionary<string, TNO.TemplateEngine.Models.Reports.AggregationRootModel>();
-                        foreach (var aggregation in results.Aggregations)
-                        {
-                            section.Aggregations.Add(aggregation.Key, aggregation.Value.Convert());
-                        }
-                    }
-                }
-                return section;
-            });
-
-            // Fetch all image data.  Need to do this in a separate step because of async+await.
-            // TODO: Review this implementation due to performance issues.
-            foreach (var section in sectionContent)
-            {
-                foreach (var content in section.Value.Content.Where(c => c.ContentType == Entities.ContentType.Image))
-                {
-                    content.ImageContent = await this.Api.GetImageFile(content.Id);
-                }
-            }
-
-            // Save the report instance.
-            // Group content by the section name.
-            var instance = new ReportInstance(
-                report.Id,
-                request.RequestorId,
-                instanceContent
-                )
-            {
-                OwnerId = request.RequestorId ?? report.OwnerId,
-                PublishedOn = DateTime.UtcNow,
-            };
-
-            instanceModel = request.GenerateInstance ? (await this.Api.AddReportInstanceAsync(new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions))
-                ?? throw new InvalidOperationException("Report instance failed to be returned by API")) : null;
-        }
-        else if (report.Settings.Content.ClearOnStartNewReport)
-        {
-            // Must regenerate the active report instance.
-            // Fetch content for every section within the report.  This will include folders and filters.
-            var searchResults = await this.Api.FindContentForReportIdAsync(report.Id, request.RequestorId);
-            var sortOrder = 0;
-            sectionContent = sections.ToDictionary(s => s.Name, section =>
-            {
-                if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
-                {
-                    var sortOrder = 0;
-                    section.Content = ReportEngine.OrderBySectionField(results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).OrderBy(c => c.SortOrder).ToArray(), section.Settings.SortBy, section.Settings.SortDirection);
-                    if (results.Aggregations != null)
-                    {
-                        section.Aggregations = new Dictionary<string, TNO.TemplateEngine.Models.Reports.AggregationRootModel>();
-                        foreach (var aggregation in results.Aggregations)
-                        {
-                            section.Aggregations.Add(aggregation.Key, aggregation.Value.Convert());
-                        }
-                    }
-                }
-                return section;
-            });
-
-            // Fetch all image data.  Need to do this in a separate step because of async+await.
-            // TODO: Review this implementation due to performance issues.
-            foreach (var section in sectionContent)
-            {
-                foreach (var content in section.Value.Content.Where(c => c.ContentType == Entities.ContentType.Image))
-                {
-                    content.ImageContent = await this.Api.GetImageFile(content.Id);
-                }
-            }
-
-            instanceModel = new API.Areas.Services.Models.ReportInstance.ReportInstanceModel((Entities.ReportInstance)reportInstanceModel, _serializationOptions);
-            instanceModel.OwnerId = request.RequestorId ?? report.OwnerId;
-            instanceModel.PublishedOn = DateTime.UtcNow;
-            instanceModel.Content = searchResults
-                .SelectMany((section) => section.Value.Hits.Hits
-                    .Select(hit => new API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel(0, hit.Source.Id, section.Key, sortOrder++)))
-                    ?? Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>();
-            instanceUpdateRequired = true;
-        }
-        else
-        {
-            // Extract the section content from the current instance.
-            instanceModel = new API.Areas.Services.Models.ReportInstance.ReportInstanceModel((Entities.ReportInstance)reportInstanceModel, _serializationOptions);
-            sectionContent = sections.ToDictionary(s => s.Name, section =>
-            {
-                section.Content = instanceModel.Content.Where(ric => ric.SectionName == section.Name && ric.Content != null).Select(ric => new ContentModel(ric.Content!, ric.SortOrder, ric.SectionName));
-                return section;
-            });
-        }
+        (var instanceModel, var sectionContent) = await PopulateReportInstance(request, report);
 
         var subject = await this.ReportEngine.GenerateReportSubjectAsync(report, instanceModel, sectionContent, false, false);
 
@@ -466,27 +469,6 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.GetEmail())).ToArray();
         var fullTextFormatBody = await this.ReportEngine.GenerateReportBodyAsync(report, instanceModel, sectionContent, GetLinkedReportAsync, null, false, false);
         var fullTextFormatTo = fullTextFormatSubscribers.Select(s => s.User!.GetEmail()).ToArray();
-
-        var reportInstanceContents = sectionContent.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
-
-        if (instanceModel != null && request.GenerateInstance)
-        {
-            // KGM: this logic should be removed once the underlying problem of malformed data for report content is found
-            // filter out Content with no valid ContentId
-            reportInstanceContents = sectionContent.SelectMany(s => s.Value.Content.Where(c => c.Id > 0).Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
-            var reportInstanceContentsBad = sectionContent.SelectMany(s => s.Value.Content.Where(c => c.Id == 0).Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
-            if (reportInstanceContentsBad.Any())
-                this.Logger.LogWarning($"Report [{report.Name}] {request.GenerateInstance} has malformed content. It will be generated, but may not match expectations.");
-
-            // Update instance
-            instanceModel.Subject = subject;
-            instanceModel.Body = fullTextFormatBody;
-            instanceModel.Content = reportInstanceContents.Select((ric) => new API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel(ric)
-            {
-                InstanceId = instanceModel.Id
-            });
-            instanceUpdateRequired = true;
-        }
 
         if (request.SendToSubscribers || !String.IsNullOrEmpty(request.To))
         {
@@ -530,15 +512,16 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
             if (instanceModel != null && request.GenerateInstance)
             {
+                instanceModel.Subject = subject;
+                instanceModel.Body = fullTextFormatBody;
                 // Update the report instance.
                 if (request.SendToSubscribers)
                     instanceModel.SentOn = instanceModel.Status == ReportStatus.Accepted ? DateTime.UtcNow : null;
                 if (instanceModel.PublishedOn == null) instanceModel.PublishedOn = DateTime.UtcNow;
-                instanceUpdateRequired = true;
             }
         }
 
-        if (instanceModel != null && instanceUpdateRequired)
+        if (instanceModel != null && request.GenerateInstance)
             instanceModel = await this.Api.UpdateReportInstanceAsync(instanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
 
         if (report.Settings.Content.ClearFolders && request.SendToSubscribers)

@@ -3,7 +3,7 @@ import { Button } from 'components/button';
 import { Modal } from 'components/modal';
 import React from 'react';
 import { FaSave, FaTelegramPlane } from 'react-icons/fa';
-import { FaArrowsSpin, FaCaretRight, FaFileCirclePlus, FaTrash } from 'react-icons/fa6';
+import { FaArrowsSpin, FaCaretRight, FaFileCirclePlus, FaLockOpen, FaTrash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { useReportInstances } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
@@ -25,6 +25,8 @@ export interface IReportEditActionsProps {
   disabled?: boolean;
   /** event to publish the report and send to subscribers. */
   onPublish: () => void;
+  /** Event to request unlocking report. */
+  onUnlock: () => void;
   /** Event to request starting next report. */
   onGenerate: () => void;
 }
@@ -34,24 +36,33 @@ export interface IReportEditActionsProps {
  * @param param0 Component properties.
  * @returns Component.
  */
-export const ReportEditActions = ({ disabled, onGenerate, onPublish }: IReportEditActionsProps) => {
-  const { values, isSubmitting, submitForm, setValues, active } = useReportEditContext();
+export const ReportEditActions = ({
+  disabled,
+  onUnlock,
+  onGenerate,
+  onPublish,
+}: IReportEditActionsProps) => {
+  const { values, isSubmitting, submitForm, setValues, active, setSubmitting } =
+    useReportEditContext();
   const [{ viewReportInstance }] = useReportInstances();
   const [, { storeReportOutput }] = useProfileStore();
   const navigate = useNavigate();
   const { toggle: toggleRemove, isShowing: isShowingRemove } = useModal();
 
+  const [clearContent, setClearContent] = React.useState(false);
+
   const instance = values.instances.length ? values.instances[0] : undefined;
 
   const handleRemoveContent = React.useCallback(() => {
+    setSubmitting(true);
     setValues({
       ...values,
       instances: values.instances.map((i) =>
         i.id === instance?.id ? { ...instance, content: [] } : i,
       ),
     });
-    submitForm();
-  }, [instance, setValues, submitForm, values]);
+    setClearContent(true);
+  }, [instance, setSubmitting, setValues, values]);
 
   const handleViewReport = React.useCallback(
     async (instanceId: number, regenerate?: boolean | undefined) => {
@@ -62,6 +73,15 @@ export const ReportEditActions = ({ disabled, onGenerate, onPublish }: IReportEd
     },
     [viewReportInstance, storeReportOutput],
   );
+
+  React.useEffect(() => {
+    if (clearContent) {
+      // Stupid logic required because React doesn't support a callback.
+      setSubmitting(false);
+      setClearContent(false);
+      submitForm().catch(() => {});
+    }
+  }, [clearContent, setSubmitting, submitForm]);
 
   return (
     <styled.ReportEditActions className="report-edit-actions">
@@ -116,6 +136,10 @@ export const ReportEditActions = ({ disabled, onGenerate, onPublish }: IReportEd
         </Button>
       </Show>
       <Show visible={!!instance?.sentOn && !active?.startsWith(ReportMainMenuOption.Settings)}>
+        <Button disabled={isSubmitting} onClick={() => onUnlock()} variant="warn">
+          Unlock report
+          <FaLockOpen />
+        </Button>
         <Button disabled={isSubmitting} onClick={() => onGenerate()} variant="success">
           Start next report
           <FaFileCirclePlus />
@@ -170,6 +194,7 @@ export const ReportEditActions = ({ disabled, onGenerate, onPublish }: IReportEd
         hide={toggleRemove}
         type="delete"
         confirmText="Yes, remove content"
+        isSubmitting={isSubmitting}
         onConfirm={() => {
           handleRemoveContent();
           toggleRemove();
