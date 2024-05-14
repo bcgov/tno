@@ -70,7 +70,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
       }
       setHasProcessedInitialPreference(true);
     }
-  }, [userInfo]);
+  }, [userInfo, hasProcessedInitialPreference]);
 
   const [
     {
@@ -139,6 +139,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
    * @param {Object} filter - The current filter object.
    * @param {Array} mediaTypes - The current array of media types.
    */
+
   useEffect(() => {
     // Initial Check: Ensure initial preferences have been processed before proceeding
     if (hasProcessedInitialPreference) {
@@ -172,6 +173,9 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
         }
       }
     }
+    // hasProcessedInitialPreference is intentionally omitted from the dependencies.
+    // Beacuse we only want to run this effect once, and we don't want to run it again if hasProcessedInitialPreference changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, mediaTypes]);
 
   const filters = [
