@@ -10,7 +10,7 @@ import {
   ResponderProvided,
 } from 'react-beautiful-dnd';
 import { FaAngleDown, FaGripVertical, FaMinus, FaTrash } from 'react-icons/fa6';
-import { Col, FormikCheckbox, ReportSectionTypeName, Row, Show, Text } from 'tno-core';
+import { Col, ReportSectionTypeName, Row, Show, Text } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';
@@ -155,10 +155,6 @@ export const ReportEditTemplateForm = () => {
                                         ),
                                     });
                                   }}
-                                />
-                                <FormikCheckbox
-                                  name={`sections.${index}.isEnabled`}
-                                  label="Enabled"
                                 />
                                 <Action>
                                   <FaTrash onClick={() => removeSection(index)} />

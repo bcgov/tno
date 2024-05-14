@@ -658,11 +658,21 @@ public class ReportService : BaseService<Report, int>, IReportService
         var reportSettings = JsonSerializer.Deserialize<ReportSettingsModel>(report.Settings.ToJson(), _serializerOptions) ?? new();
 
         var ownerId = requestorId ?? report.OwnerId; // TODO: Handle users generating instances for a report they do not own.
-        var currentInstance = !instanceId.HasValue ? GetCurrentReportInstance(report.Id, ownerId) : null;
+        var currentInstance = instanceId.HasValue ?
+            this.Context.ReportInstances
+                .AsNoTracking()
+                .Include(ri => ri.ContentManyToMany)
+                .Where(ri => ri.OwnerId == ownerId)
+                .FirstOrDefault(ri => ri.Id == instanceId) :
+            GetCurrentReportInstance(report.Id, ownerId);
         var previousInstance = currentInstance?.SentOn.HasValue == true ? currentInstance : GetPreviousReportInstance(report.Id, instanceId ?? (currentInstance?.Id), ownerId);
 
         // Create an array of content from the previous instance to exclude.
         var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical ? previousInstance?.ContentManyToMany.Select((c) => c.ContentId).ToArray() ?? Array.Empty<long>() : Array.Empty<long>();
+
+        // When an auto report runs it may need to exclude content in the currently unsent report.
+        if (currentInstance != null && currentInstance.SentOn.HasValue == false && reportSettings.Content.ExcludeContentInUnsentReport)
+            excludeHistoricalContentIds = excludeHistoricalContentIds.AppendRange(currentInstance.ContentManyToMany.Select(c => c.ContentId)).Distinct().ToArray();
 
         // Fetch other reports to exclude any content within them.
         var excludeReportContentIds = reportSettings.Content.ExcludeReports.Any()

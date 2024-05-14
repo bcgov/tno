@@ -33,13 +33,15 @@ export const Modal = styled(Col)<IModalProps>`
     z-index: 100;
     background: white;
     position: relative;
-    margin: ${(props) => (props.hasHeight ? '2%' : '10%')};
+    padding: 2rem;
     border-radius: 3px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: fit-content;
     min-width: fit-content;
     max-width: 93%;
-    padding: 2rem;
     background-color: rgba(255, 255, 255, 1);
-    height: ${(props) => props.hasHeight && '-webkit-fill-available'};
 
     .modal-body {
       flex: 1;

@@ -168,6 +168,7 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
             disabled={disabled}
             activeRow={activeRow}
             showAdd={!activeRow}
+            updateForm={updateForm}
             onContentClick={(content, action) => {
               if (action) {
                 onNavigate(instance, action);

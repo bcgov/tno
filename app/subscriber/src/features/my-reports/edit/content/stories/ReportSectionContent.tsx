@@ -1,6 +1,6 @@
 import { Action } from 'components/action';
 import { Modal } from 'components/modal';
-import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
+import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import {
   createReportInstanceContent,
   sortContent,
@@ -45,6 +45,8 @@ export interface IReportSectionContentProps extends React.AllHTMLAttributes<HTML
   activeRow?: IReportInstanceContentForm;
   /** Event fires when the row is clicked. */
   onContentClick?: (content: IReportInstanceContentForm) => void;
+  /** Event to update the original report. */
+  updateForm: (values: IReportForm) => void;
 }
 
 /**
@@ -60,9 +62,11 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
   disabled,
   activeRow,
   onContentClick,
+  updateForm,
 }) => {
   const [{ userInfo }] = useApp();
-  const { values, isSubmitting, setFieldValue, onRegenerateSection } = useReportEditContext();
+  const { values, isSubmitting, setFieldValue, onRegenerateSection, setSubmitting } =
+    useReportEditContext();
   const [{ isReady, settings }] = useLookup();
   const { isShowing, toggle } = useModal();
 
@@ -301,11 +305,15 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
         isShowing={isShowing}
         hide={toggle}
         type="default"
+        isSubmitting={isSubmitting}
         confirmText="Yes, Regenerate It"
         onConfirm={async () => {
           try {
-            await onRegenerateSection(values, section.id);
+            setSubmitting(true);
+            const form = await onRegenerateSection(values, section.id);
+            if (form) updateForm(form);
           } finally {
+            setSubmitting(false);
             toggle();
           }
         }}

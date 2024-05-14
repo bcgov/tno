@@ -224,6 +224,7 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
         isShowing={isShowing}
         hide={toggle}
         type="default"
+        isSubmitting={isSubmitting}
         confirmText="Yes, Regenerate It"
         onConfirm={async () => {
           try {

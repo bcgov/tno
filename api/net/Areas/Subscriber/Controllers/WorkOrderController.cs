@@ -182,6 +182,7 @@ public class WorkOrderController : ControllerBase
         if (content.IsApproved || content.ContentType != Entities.ContentType.AudioVideo || !content.FileReferences.Any())
         {
             // The transcript has already been approved, do not allow new requests.
+            // TODO: Respond differently depending on whether the transcript has already been completed.
             return new OkResult();
         }
         else
@@ -191,18 +192,20 @@ public class WorkOrderController : ControllerBase
 
             // Send email to requestor to confirm we have receive their request for a transcript.
             var settingValue = _settingService.FindByName(_apiOptions.TranscriptRequestConfirmationKey)?.Value ?? "";
-            if (workOrder.RequestorId.HasValue && int.TryParse(settingValue, out int notificationId))
+            if ((workOrder.Status == WorkOrderStatus.Submitted || workOrder.Status == WorkOrderStatus.InProgress) &&
+                int.TryParse(settingValue, out int notificationId))
             {
                 var request = new TNO.Kafka.Models.NotificationRequestModel(TNO.Kafka.Models.NotificationDestination.NotificationService, new { })
                 {
                     NotificationId = notificationId,
                     ContentId = contentId,
-                    RequestorId = workOrder.RequestorId,
+                    RequestorId = user.Id,
                     To = !String.IsNullOrWhiteSpace(user.PreferredEmail) ? user.PreferredEmail : user.Email,
                 };
                 await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, request);
             }
 
+            // TODO: Respond differently depending on whether the transcript has already been completed.
             return new OkResult();
         }
     }

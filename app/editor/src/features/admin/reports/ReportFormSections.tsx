@@ -161,6 +161,15 @@ export const ReportFormSections = () => {
                 setFieldValue('settings.content.clearOnStartNewReport', e.target.checked);
               }}
             />
+            <Checkbox
+              name={`settings.content.excludeContentInUnsentReport`}
+              label="Exclude content found in unsent report"
+              tooltip="Excluding content in the current unsent report ensures each time the report is generated it will only have new content."
+              checked={values.settings.content.excludeContentInUnsentReport}
+              onChange={(e) => {
+                setFieldValue('settings.content.excludeContentInUnsentReport', e.target.checked);
+              }}
+            />
           </Col>
         </Col>
       </Row>

@@ -14,6 +14,7 @@ public class ReportContentSettingsModel
     public bool HighlightKeywords { get; set; }
     public bool CopyPriorInstance { get; set; }
     public bool ClearOnStartNewReport { get; set; }
+    public bool ExcludeContentInUnsentReport { get; set; }
     #endregion
 
     #region Constructors
@@ -29,6 +30,7 @@ public class ReportContentSettingsModel
         this.HighlightKeywords = settings.GetDictionaryJsonValue("highlightKeywords", false, options)!;
         this.CopyPriorInstance = settings.GetDictionaryJsonValue("copyPriorInstance", false, options)!;
         this.ClearOnStartNewReport = settings.GetDictionaryJsonValue("clearOnStartNewReport", false, options)!;
+        this.ExcludeContentInUnsentReport = settings.GetDictionaryJsonValue("excludeContentInUnsentReport", true, options)!;
     }
     #endregion
 }

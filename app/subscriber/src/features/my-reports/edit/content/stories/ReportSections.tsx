@@ -28,6 +28,8 @@ export interface IReportSectionsProps {
   activeRow?: IReportInstanceContentForm;
   /** Event fires when the content headline is clicked. */
   onContentClick?: (content: IReportInstanceContentForm) => void;
+  /** Event to update the original report. */
+  updateForm: (values: IReportForm) => void;
 }
 
 /**
@@ -42,6 +44,7 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({
   showFolderSections = true,
   activeRow,
   onContentClick,
+  updateForm,
 }) => {
   const { values, setFieldValue } = useFormikContext<IReportForm>();
 
@@ -104,6 +107,7 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({
                   disabled={disabled}
                   activeRow={activeRow}
                   onContentClick={onContentClick}
+                  updateForm={updateForm}
                 />
               </Show>
               <Show visible={section.sectionType === ReportSectionTypeName.MediaAnalytics}>
@@ -120,6 +124,7 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({
                   showForm={form === 'sections'}
                   disabled={disabled}
                   onContentClick={onContentClick}
+                  updateForm={updateForm}
                 />
               </Show>
             </Section>

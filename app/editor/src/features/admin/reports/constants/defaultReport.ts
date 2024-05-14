@@ -30,7 +30,8 @@ export const defaultReport: IReportModel = {
       clearFolders: false,
       onlyNewContent: false,
       copyPriorInstance: false,
-      clearOnStartNewReport: false,
+      clearOnStartNewReport: true,
+      excludeContentInUnsentReport: false,
     },
     sections: {
       usePageBreaks: false,
