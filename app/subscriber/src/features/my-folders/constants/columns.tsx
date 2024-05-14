@@ -3,7 +3,7 @@ import { FaFolderClosed, FaFolderOpen } from 'react-icons/fa6';
 import { CellEllipsis, IFolderModel, ITableHookColumn, Row } from 'tno-core';
 
 export const columns = (
-  setActive: React.Dispatch<React.SetStateAction<IFolderModel | undefined>>,
+  setActive: (folder: IFolderModel) => void,
   activeId?: number,
   navigate?: (path: string) => void,
 ): ITableHookColumn<IFolderModel>[] => [
