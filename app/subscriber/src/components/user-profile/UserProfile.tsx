@@ -1,6 +1,7 @@
 import { ScreenSizes } from 'components/layout/constants';
+import React, { useState } from 'react';
 import { BiLogOut } from 'react-icons/bi';
-import { FaUserCircle } from 'react-icons/fa';
+import { FaChevronCircleDown, FaUserCircle } from 'react-icons/fa';
 import { Tooltip } from 'react-tooltip';
 import { Row, Show, useKeycloakWrapper, useWindowSize } from 'tno-core';
 
@@ -15,13 +16,18 @@ export const UserProfile: React.FC = () => {
 
   return (
     <styled.UserProfile>
-      <div data-tooltip-id="my-info">{keycloak.getDisplayName()}</div>
+      <Row direction="row" className="username-info">
+        <Show visible={!!width && width > ScreenSizes.Mobile}>
+          <FaChevronCircleDown size={15} />
+        </Show>
+        <div data-tooltip-id="my-info">{keycloak.getDisplayName()}</div>
+      </Row>
       <Tooltip
         clickable
         variant="light"
         className="folder-menu"
         place="bottom"
-        openOnClick
+        openOnClick={false}
         style={{ opacity: '1', boxShadow: '0 0 8px #464545', zIndex: '999' }}
         id="my-info"
       >
