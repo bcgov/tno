@@ -164,7 +164,6 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
               content={content}
               selected={selected}
               showDate
-              styleOnSettings
               scrollWithin
             />
             {isLoading && <Loading />}
