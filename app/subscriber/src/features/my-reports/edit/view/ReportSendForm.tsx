@@ -79,8 +79,6 @@ export const ReportSendForm: React.FC = () => {
     [findUsers, setFieldValue, values.id, values.subscribers],
   );
 
-  console.debug(instance);
-
   return (
     <styled.ReportSendForm className="report-send report-edit-section">
       <Row>

@@ -28,6 +28,10 @@ export const Button = styled.button<IButtonProps>`
         return !props.disabled ? props.theme.css.bkWhite : props.theme.css.btnGrayColor;
       case 'success':
         return !props.disabled ? props.theme.css.btnBkSuccess : props.theme.css.btnGrayColor;
+      case 'warn':
+        return !props.disabled ? props.theme.css.btnBkWarn : props.theme.css.btnGrayColor;
+      case 'error':
+        return !props.disabled ? props.theme.css.btnBkError : props.theme.css.btnGrayColor;
       case 'primary':
       default:
         return !props.disabled ? props.theme.css.btnBkPrimary : props.theme.css.btnGrayColor;
@@ -41,6 +45,10 @@ export const Button = styled.button<IButtonProps>`
         return props.theme.css.btnBkPrimary;
       case 'success':
         return props.theme.css.btnSuccessColor;
+      case 'warn':
+        return props.theme.css.btnWarnColor;
+      case 'error':
+        return props.theme.css.btnErrorColor;
       case 'primary':
       default:
         return props.theme.css.btnPrimaryColor;
@@ -50,6 +58,10 @@ export const Button = styled.button<IButtonProps>`
     switch (props.variant) {
       case 'secondary':
         return `solid 1px ${props.theme.css.btnBkPrimary}`;
+      case 'warn':
+        return props.theme.css.btnBkWarn;
+      case 'error':
+        return props.theme.css.btnBkError;
       case 'success':
         return props.theme.css.btnBkSuccess;
       case 'info':
@@ -74,6 +86,10 @@ export const Button = styled.button<IButtonProps>`
         case 'info':
         case 'link':
           return props.theme.css.btnBkPrimary;
+        case 'warn':
+          return props.theme.css.btnWarnColor;
+        case 'error':
+          return props.theme.css.btnErrorColor;
         case 'primary':
         default:
           return props.theme.css.btnPrimaryColor;

@@ -1,6 +1,6 @@
+import { Button } from 'components/button';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Button, ButtonVariant } from 'tno-core';
 import { Col, Row } from 'tno-core/dist/components/flex';
 
 import * as styled from './styled';
@@ -25,6 +25,8 @@ export interface IModalProps {
   /** preset stylings for the modal */
   type?: 'delete' | 'default' | 'custom';
   hasHeight?: boolean;
+  /** Form is submitting and buttons should be disabled. */
+  isSubmitting?: boolean;
 }
 
 /**
@@ -42,7 +44,14 @@ export const Modal: React.FC<IModalProps> = ({
   customButtons,
   type,
   hasHeight,
+  isSubmitting: initIsSubmitting,
 }) => {
+  const [isSubmitting, setIsSubmitting] = React.useState(initIsSubmitting);
+
+  React.useEffect(() => {
+    setIsSubmitting(initIsSubmitting);
+  }, [initIsSubmitting]);
+
   return isShowing
     ? ReactDOM.createPortal(
         <styled.Modal hasHeight={hasHeight}>
@@ -54,24 +63,27 @@ export const Modal: React.FC<IModalProps> = ({
                     <h1>{headerText}</h1>
                   </Row>
                 )}
-                <Col alignItems="flex-start">{body}</Col>
-                {!!!customButtons && (
-                  <Row className="button-row">
-                    <Button
-                      variant={type === 'delete' ? ButtonVariant.danger : ButtonVariant.secondary}
-                      onClick={onConfirm}
-                    >
-                      {confirmText ?? 'Continue'}
-                    </Button>
-                    <Button
-                      variant={type === 'delete' ? ButtonVariant.secondary : ButtonVariant.danger}
-                      onClick={hide}
-                    >
-                      {cancelText ?? 'Cancel'}
-                    </Button>
-                  </Row>
-                )}
-                {!!customButtons && <Row className="button-row"> {customButtons} </Row>}
+                <Col alignItems="flex-start" className="modal-body">
+                  {body}
+                </Col>
+                <Row className="button-row">
+                  {!customButtons ? (
+                    <>
+                      <Button
+                        variant={type === 'delete' ? 'error' : 'primary'}
+                        onClick={onConfirm}
+                        disabled={isSubmitting}
+                      >
+                        {confirmText ?? 'Continue'}
+                      </Button>
+                      <Button variant={'secondary'} onClick={hide} disabled={isSubmitting}>
+                        {cancelText ?? 'Cancel'}
+                      </Button>
+                    </>
+                  ) : (
+                    customButtons
+                  )}
+                </Row>
               </div>
             </div>
           </div>

@@ -28,7 +28,7 @@ export const MyReports: React.FC = () => {
   const [{ getReportInstance }] = useReportInstances();
   const { toggle, isShowing } = useModal();
   const navigate = useNavigate();
-  const [{ requests }] = useApp();
+  const [{ requests, userInfo }] = useApp();
   const hub = useApiHub();
 
   const [report, setReport] = React.useState<IReportModel>();
@@ -38,12 +38,12 @@ export const MyReports: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    if (!myReports.length) {
+    if (userInfo && !myReports.length) {
       findMyReports().catch(() => {});
     }
     // Only do this on init.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [userInfo]);
 
   hub.useHubEffect(MessageTargetName.ReportStatus, async (message: IReportMessageModel) => {
     if (report) {

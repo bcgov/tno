@@ -201,7 +201,6 @@ export const ChartTemplatePreviewOptions = () => {
               onChange={(newValue) => {
                 const option = newValue as OptionItem;
                 const isSentiment = option.value === 'sentiment';
-                console.debug(chartRequestForm);
                 setChartRequestForm({
                   ...chartRequestForm,
                   settings: mergeChartSettings(values.settings.options, chartRequestForm.settings, {
