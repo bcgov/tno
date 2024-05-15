@@ -55,7 +55,11 @@ export const groupContent = (groupBy: IGroupByState, content: IContentSearchResu
           if (!item?.source?.name) {
             key = item.otherSource;
           } else {
-            key = item.source.name;
+            const shortName =
+              item.source.shortName && item.source.shortName !== ''
+                ? ` (${item.source.shortName})`
+                : '';
+            key = `${item.source.name}${shortName}`;
           }
           break;
       }
