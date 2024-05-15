@@ -16,18 +16,18 @@ export const UserProfile: React.FC = () => {
 
   return (
     <styled.UserProfile>
-      <Row direction="row" className="username-info">
+      <Row data-tooltip-id="my-info" direction="row" className="username-info">
         <Show visible={!!width && width > ScreenSizes.Mobile}>
           <FaChevronCircleDown size={15} />
         </Show>
-        <div data-tooltip-id="my-info">{keycloak.getDisplayName()}</div>
+        <div>{keycloak.getDisplayName()}</div>
       </Row>
       <Tooltip
         clickable
         variant="light"
         className="folder-menu"
         place="bottom"
-        openOnClick={false}
+        openOnClick
         style={{ opacity: '1', boxShadow: '0 0 8px #464545', zIndex: '999' }}
         id="my-info"
       >
