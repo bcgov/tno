@@ -36,6 +36,7 @@ public class FilterService : BaseService<Filter, int>, IFilterService
     {
         return this.Context.Filters
             .Where(f => f.OwnerId == userId)
+            .OrderBy(a => a.Name)
             .ToArray();
     }
     #endregion

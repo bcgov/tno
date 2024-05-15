@@ -40,7 +40,11 @@ export const useFilters = (): [IProfileState, IFilterController] => {
       },
       addFilter: async (model: IFilterModel) => {
         const response = await dispatch<IFilterModel>('add-filter', () => api.addFilter(model));
-        store.storeMyFilters((filters) => [...filters, response.data]);
+        store.storeMyFilters((filters) => {
+          const updatedFilters = [...filters, response.data];
+          updatedFilters.sort((a, b) => a.name.localeCompare(b.name));
+          return updatedFilters;
+        });
         store.storeFilter((state) => (state?.id === model.id ? response.data : state));
         return response.data;
       },
