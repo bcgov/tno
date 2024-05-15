@@ -1,6 +1,6 @@
 import { Action } from 'components/action';
 import { Modal } from 'components/modal';
-import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
+import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { sortContent, sortReportContent } from 'features/my-reports/utils';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
@@ -32,6 +32,8 @@ export interface IReportSectionGalleryProps extends React.AllHTMLAttributes<HTML
   disabled?: boolean;
   /** Event fires when the row is clicked. */
   onContentClick?: (content: IReportInstanceContentForm) => void;
+  /** Event to update the original report. */
+  updateForm: (values: IReportForm) => void;
 }
 
 /**
@@ -44,9 +46,11 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
   showForm,
   disabled,
   onContentClick,
+  updateForm,
   ...rest
 }) => {
-  const { values, isSubmitting, setFieldValue, onRegenerateSection } = useReportEditContext();
+  const { values, isSubmitting, setFieldValue, onRegenerateSection, setSubmitting } =
+    useReportEditContext();
   const { isShowing, toggle } = useModal();
 
   const section = values.sections[sectionIndex];
@@ -213,11 +217,15 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
         isShowing={isShowing}
         hide={toggle}
         type="default"
+        isSubmitting={isSubmitting}
         confirmText="Yes, Regenerate It"
         onConfirm={async () => {
           try {
-            await onRegenerateSection(values, section.id);
+            setSubmitting(true);
+            const form = await onRegenerateSection(values, section.id);
+            if (form) updateForm(form);
           } finally {
+            setSubmitting(false);
             toggle();
           }
         }}

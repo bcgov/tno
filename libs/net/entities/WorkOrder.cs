@@ -192,14 +192,14 @@ public class WorkOrder : AuditColumns
     public WorkOrder(WorkOrderType type, User? requestor, string description, Content content, JsonDocument? configuration = null)
         : this(type, description, content)
     {
-        if (requestor != null) {
+        if (requestor != null)
+        {
             this.RequestorId = requestor.Id;
             this.Requestor = requestor;
         }
         this.ContentId = content.Id;
         this.Content = content;
-        if (configuration != null)
-            this.Configuration = configuration;
+        this.Configuration = configuration ?? JsonDocument.Parse("{}");
     }
 
     /// <summary>
@@ -215,8 +215,7 @@ public class WorkOrder : AuditColumns
         : this(type, description, contentId, headline)
     {
         this.RequestorId = requestorId;
-        if (configuration != null)
-            this.Configuration = configuration;
+        this.Configuration = configuration ?? JsonDocument.Parse("{}");
     }
     #endregion
 }

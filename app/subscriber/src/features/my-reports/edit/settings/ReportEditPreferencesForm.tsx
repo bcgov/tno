@@ -5,11 +5,15 @@ import { FaInfoCircle, FaSyncAlt } from 'react-icons/fa';
 import { useReports } from 'store/hooks';
 import {
   Checkbox,
+  Col,
   FormikCheckbox,
   FormikSelect,
+  getReportKind,
   getSortableOptions,
   IOptionItem,
+  ReportKindName,
   Row,
+  Show,
 } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
@@ -17,12 +21,14 @@ import * as styled from './styled';
 
 export const ReportEditPreferencesForm = () => {
   const { setFieldValue, values, setValues } = useReportEditContext();
-  const [, { findMyReports }] = useReports();
+  const [{ myReports }, { findMyReports }] = useReports();
 
   const [reportOptions, setReportOptions] = React.useState<IOptionItem[]>([]);
   const [excludeContentInReports, setExcludeContentInReports] = React.useState(
     !!values.settings.content.excludeReports.length,
   );
+
+  const kind = getReportKind(values);
 
   const fetchMyReports = async () => {
     try {
@@ -32,6 +38,10 @@ export const ReportEditPreferencesForm = () => {
       throw error;
     }
   };
+
+  React.useEffect(() => {
+    setReportOptions(getSortableOptions(myReports));
+  }, [myReports]);
 
   return (
     <styled.ReportEditPreferencesForm className="report-edit-section">
@@ -130,6 +140,92 @@ export const ReportEditPreferencesForm = () => {
           name="settings.content.clearFolders"
           label="Clear all folders included in this report after this report runs"
         />
+      </div>
+      <div className="frm-in">
+        <label>Report Generation Options:</label>
+        <Row gap="1rem">
+          <Col>
+            <Show visible={kind === ReportKindName.Manual}>
+              <Checkbox
+                name={`settings.content.copyPriorInstance`}
+                label="Empty report when starting next report"
+                checked={!values.settings.content.copyPriorInstance}
+                onChange={(e) => {
+                  setFieldValue('settings.content', {
+                    ...values.settings.content,
+                    copyPriorInstance: !e.target.checked,
+                    clearOnStartNewReport: e.target.checked ? !e.target.checked : false,
+                  });
+                }}
+              />
+            </Show>
+            <Show visible={kind !== ReportKindName.Manual}>
+              <Checkbox
+                name={`settings.content.clearOnStartNewReport`}
+                label="Empty report when starting next report"
+                checked={!!values.settings.content.clearOnStartNewReport}
+                onChange={(e) => {
+                  setFieldValue('settings.content', {
+                    ...values.settings.content,
+                    clearOnStartNewReport: e.target.checked,
+                    excludeContentInUnsentReport: e.target.checked,
+                    copyPriorInstance: e.target.checked ? !e.target.checked : false,
+                  });
+                }}
+              />
+              <Checkbox
+                name={`settings.content.copyPriorInstance`}
+                label="Accumulate content on each run until sent"
+                checked={!!values.settings.content.copyPriorInstance}
+                onChange={(e) => {
+                  setFieldValue('settings.content', {
+                    ...values.settings.content,
+                    clearOnStartNewReport: e.target.checked ? !e.target.checked : false,
+                    excludeContentInUnsentReport: false,
+                    copyPriorInstance: e.target.checked,
+                  });
+                }}
+              />
+              <Checkbox
+                name={`settings.content.excludeContentInUnsentReport`}
+                label="Exclude content found in unsent report"
+                checked={!!values.settings.content.excludeContentInUnsentReport}
+                onChange={(e) => {
+                  setFieldValue('settings.content.excludeContentInUnsentReport', e.target.checked);
+                }}
+              />
+            </Show>
+          </Col>
+          <Col>
+            <Show visible={values.settings.content.clearOnStartNewReport}>
+              <p className="info">
+                The next time this report auto runs it will start empty and then populate based on
+                the section data sources.
+              </p>
+            </Show>
+            <Show visible={values.settings.content.copyPriorInstance}>
+              <p className="info">
+                The next time this report auto runs it will accumulate new content based on the
+                section data sources.
+              </p>
+            </Show>
+            <Show visible={values.settings.content.excludeContentInUnsentReport}>
+              <p className="info">
+                Excluding content in the current unsent report ensures each time the report is
+                generated it will only have new content.
+              </p>
+            </Show>
+            <Show
+              visible={
+                !values.settings.content.clearOnStartNewReport &&
+                !values.settings.content.copyPriorInstance &&
+                !values.settings.content.excludeContentInUnsentReport
+              }
+            >
+              <p className="info">The next time this report auto runs it will not change.</p>
+            </Show>
+          </Col>
+        </Row>
       </div>
     </styled.ReportEditPreferencesForm>
   );

@@ -44,6 +44,7 @@ public class ReportController : ControllerBase
     private readonly KafkaOptions _kafkaOptions;
     private readonly KafkaHubConfig _kafkaHubOptions;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly ILogger<ReportController> _logger;
     #endregion
 
     #region Constructors
@@ -58,6 +59,7 @@ public class ReportController : ControllerBase
     /// <param name="kafkaOptions"></param>
     /// <param name="kafkaHubOptions"></param>
     /// <param name="serializerOptions"></param>
+    /// <param name="logger"></param>
     public ReportController(
         IReportService reportService,
         IReportInstanceService reportInstanceService,
@@ -66,7 +68,8 @@ public class ReportController : ControllerBase
         IKafkaMessenger kafkaProducer,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<KafkaHubConfig> kafkaHubOptions,
-        IOptions<JsonSerializerOptions> serializerOptions)
+        IOptions<JsonSerializerOptions> serializerOptions,
+        ILogger<ReportController> logger)
     {
         _reportService = reportService;
         _reportInstanceService = reportInstanceService;
@@ -76,6 +79,7 @@ public class ReportController : ControllerBase
         _kafkaOptions = kafkaOptions.Value;
         _kafkaHubOptions = kafkaHubOptions.Value;
         _serializerOptions = serializerOptions.Value;
+        _logger = logger;
     }
     #endregion
 
@@ -397,8 +401,10 @@ public class ReportController : ControllerBase
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to review this report"); // Report is not public
 
         var instance = await _reportService.RegenerateReportInstanceSectionAsync(id, sectionId, user.Id);
+        _logger.LogInformation("Regenerate section {count}:{content}", instance.ContentManyToMany.Count(), String.Join(",", instance.ContentManyToMany.Select(c => $"{c.SectionName}:{c.ContentId}")));
         _reportInstanceService.ClearChangeTracker();
         instance = _reportInstanceService.UpdateAndSave(instance, true);
+        _logger.LogInformation("After save section {count}:{content}", instance.ContentManyToMany.Count(), String.Join(",", instance.ContentManyToMany.Select(c => $"{c.SectionName}:{c.ContentId}")));
         instance.ContentManyToMany.Clear();
         instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(instance.Id));
 

@@ -151,7 +151,7 @@ namespace TNO.API.Middleware
                 code = HttpStatusCode.BadRequest;
                 message = ex.Message;
 
-                _logger.LogError(ex, "Middleware caught unhandled exception. {error}", ex.Message);
+                _logger.LogWarning(ex, "Middleware caught unhandled exception. {error}", ex.Message);
             }
             else if (ex is BadRequestException || ex is InvalidOperationException)
             {

@@ -4,7 +4,7 @@ import React from 'react';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';
-import { useReports, useReportTemplates } from 'store/hooks/admin';
+import { useReportTemplates } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -30,7 +30,6 @@ import { getReportTemplateOptions } from './utils';
 export const ReportFormTemplate: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IReportModel>();
   const [{ reportTemplates }, { findAllReportTemplates }] = useReportTemplates();
-  const [, { primeReportCache }] = useReports();
   const [{ isReady, settings }] = useLookup();
   const [, { getReportTemplate }] = useReportTemplates();
 
@@ -103,8 +102,6 @@ export const ReportFormTemplate: React.FC = () => {
                 if (template) {
                   setFieldValue('templateId', template.id);
                   setFieldValue('template', template);
-                  // trigger caching of a compiled template
-                  primeReportCache(values);
                 }
               } else {
                 setFieldValue('templateId', defaultReportTemplate.id);

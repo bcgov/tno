@@ -7,4 +7,5 @@ export interface IReportContentSettingsModel {
   highlightKeywords: boolean;
   copyPriorInstance: boolean;
   clearOnStartNewReport: boolean;
+  excludeContentInUnsentReport: boolean;
 }

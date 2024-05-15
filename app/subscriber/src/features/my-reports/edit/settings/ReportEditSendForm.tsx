@@ -107,6 +107,7 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
               content: {
                 ...values.settings.content,
                 copyPriorInstance: auto ? false : values.settings.content.copyPriorInstance,
+                excludeContentInUnsentReport: auto ? true : false,
                 clearOnStartNewReport: auto,
               },
             },
@@ -129,7 +130,7 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
       <Col className="info" flex="1">
         <p>
           <FaInfoCircle /> Control how each new report is generated. Build on the previous, or begin
-          fresh with an empty report.
+          fresh with an empty report. Some options are exclusive and cannot be mixed.
         </p>
       </Col>
       <div className="schedule-actions">
@@ -138,11 +139,12 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
             <Checkbox
               name={`settings.content.clearOnStartNewReport`}
               label="Empty report when starting next report"
-              checked={values.settings.content.clearOnStartNewReport}
+              checked={!!values.settings.content.clearOnStartNewReport}
               onChange={(e) => {
                 setFieldValue('settings.content', {
                   ...values.settings.content,
                   clearOnStartNewReport: e.target.checked,
+                  excludeContentInUnsentReport: e.target.checked,
                   copyPriorInstance: e.target.checked ? !e.target.checked : false,
                 });
               }}
@@ -150,12 +152,24 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
             <Checkbox
               name={`settings.content.copyPriorInstance`}
               label="Accumulate content on each run until sent"
-              checked={values.settings.content.copyPriorInstance}
+              checked={!!values.settings.content.copyPriorInstance}
               onChange={(e) => {
                 setFieldValue('settings.content', {
                   ...values.settings.content,
-                  clearOnStartNewReport: e.target.checked ? !e.target.checked : false,
+                  clearOnStartNewReport: false,
+                  excludeContentInUnsentReport: false,
                   copyPriorInstance: e.target.checked,
+                });
+              }}
+            />
+            <Checkbox
+              name={`settings.content.excludeContentInUnsentReport`}
+              label="Exclude content in current unsent report"
+              checked={!!values.settings.content.excludeContentInUnsentReport}
+              onChange={(e) => {
+                setFieldValue('settings.content', {
+                  ...values.settings.content,
+                  excludeContentInUnsentReport: e.target.checked,
                 });
               }}
             />
@@ -173,10 +187,17 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
                 section data sources.
               </p>
             </Show>
+            <Show visible={values.settings.content.excludeContentInUnsentReport}>
+              <p className="info">
+                Excluding content in the current unsent report ensures each time the report is
+                generated it will only have new content.
+              </p>
+            </Show>
             <Show
               visible={
                 !values.settings.content.clearOnStartNewReport &&
-                !values.settings.content.copyPriorInstance
+                !values.settings.content.copyPriorInstance &&
+                !values.settings.content.excludeContentInUnsentReport
               }
             >
               <p className="info">The next time this report auto runs it will not change.</p>
