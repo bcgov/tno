@@ -7,6 +7,19 @@ export const UserProfile = styled.div`
   align-items: center;
   margin-left: auto;
 
+  .username-info {
+    display: flex;
+    align-items: center;
+    flex-flow: nowrap;
+    font-size: 1rem;
+    &:hover {
+      cursor: pointer;
+    }
+    svg {
+      margin-right: 0.5em;
+      margin-top: 0.25em;
+    }
+  }
   .logout {
     display: flex;
     flex-flow: nowrap;
