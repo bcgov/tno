@@ -133,9 +133,18 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
   };
 
   const modules = React.useMemo(() => {
+    // toolbar configuration
+    // https://quilljs.com/docs/modules/toolbar/
+    // why we have matchVisual: false:
+    // it will prevent the editor reate clicked bullet list button in full screen modal.
+    // There is a bug in quilljs 2.0, in this situation, it will create a new line after refresh,
+    // and it will inpact useEffect related to value change, and it causes infinite loop to create a new line.
     const config = {
       toolbar: {
         container: toolBarNode,
+      },
+      clipboard: {
+        matchVisual: false,
       },
     };
 
