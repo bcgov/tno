@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Subscriber.Models.Filter;
+using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
-using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -32,6 +32,7 @@ public class FilterController : ControllerBase
     private readonly IFilterService _filterService;
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly IUserService _userService;
+    private readonly IImpersonationHelper _impersonate;
 
     #endregion
 
@@ -42,14 +43,17 @@ public class FilterController : ControllerBase
     /// <param name="filterService"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="userService"></param>
+    /// <param name="impersonateHelper"></param>
     public FilterController(
         IFilterService filterService,
         IUserService userService,
+        IImpersonationHelper impersonateHelper,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _filterService = filterService;
         _serializerOptions = serializerOptions.Value;
         _userService = userService;
+        _impersonate = impersonateHelper;
     }
     #endregion
 
@@ -79,8 +83,7 @@ public class FilterController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Filter" })]
     public IActionResult FindMyFilters()
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         return new JsonResult(_filterService.FindMyFilters(user.Id).Select(ds => new FilterModel(ds, _serializerOptions)));
     }
 
@@ -96,8 +99,7 @@ public class FilterController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Filter" })]
     public IActionResult Add(FilterModel model)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         model.OwnerId = user.Id;
         var result = _filterService.AddAndSave(model.ToEntity(_serializerOptions));
         var filter = _filterService.FindById(result.Id) ?? throw new NoContentException("Filter does not exist");
@@ -116,8 +118,7 @@ public class FilterController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Filter" })]
     public IActionResult Update(FilterModel model)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var filter = _filterService.FindById(model.Id) ?? throw new NoContentException("Filter does not exist");
         if (filter.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to delete filter");
         var result = _filterService.UpdateAndSave(model.ToEntity(_serializerOptions));
@@ -137,8 +138,7 @@ public class FilterController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Filter" })]
     public IActionResult Delete(FilterModel model)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var filter = _filterService.FindById(model.Id) ?? throw new NoContentException("Filter does not exist");
         if (filter.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to delete filter");
         _filterService.DeleteAndSave(filter);

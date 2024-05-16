@@ -19,9 +19,6 @@ export const useApiSubscriberFolders = (
   const api = useApi(options);
 
   return React.useRef({
-    findAllFolders: () => {
-      return api.get<IFolderModel[], AxiosResponse<IFolderModel[]>, any>(`/subscriber/folders`);
-    },
     findMyFolders: () => {
       return api.get<IFolderModel[], AxiosResponse<IFolderModel[]>, any>(
         `/subscriber/folders/my-folders`,

@@ -11,7 +11,6 @@ using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
-using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Entities.Models;
@@ -41,6 +40,7 @@ public class WorkOrderController : ControllerBase
     private readonly IWorkOrderService _workOrderService;
     private readonly ISettingService _settingService;
     private readonly IUserService _userService;
+    private readonly IImpersonationHelper _impersonate;
     private readonly TNO.Kafka.IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
     private readonly JsonSerializerOptions _serializerOptions;
@@ -56,6 +56,7 @@ public class WorkOrderController : ControllerBase
     /// <param name="workOrderHelper"></param>
     /// <param name="settingService"></param>
     /// <param name="userService"></param>
+    /// <param name="impersonateHelper"></param>
     /// <param name="kafkaProducer"></param>
     /// <param name="kafkaOptions"></param>
     /// <param name="apiOptions"></param>
@@ -66,6 +67,7 @@ public class WorkOrderController : ControllerBase
         IWorkOrderHelper workOrderHelper,
         ISettingService settingService,
         IUserService userService,
+        IImpersonationHelper impersonateHelper,
         TNO.Kafka.IKafkaMessenger kafkaProducer,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<ApiOptions> apiOptions,
@@ -76,6 +78,7 @@ public class WorkOrderController : ControllerBase
         _workOrderHelper = workOrderHelper;
         _settingService = settingService;
         _userService = userService;
+        _impersonate = impersonateHelper;
         _kafkaProducer = kafkaProducer;
         _kafkaOptions = kafkaOptions.Value;
         _apiOptions = apiOptions.Value;
@@ -117,8 +120,7 @@ public class WorkOrderController : ControllerBase
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public async Task<IActionResult> RequestTranscriptionAsync(long contentId)
     {
-        string username = this.User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User is missing");
+        var user = _impersonate.GetCurrentUser();
 
         var content = _contentService.FindById(contentId, true) ?? throw new NoContentException();
         if (content.Source?.DisableTranscribe == true) return BadRequest("Cannot request transcription");

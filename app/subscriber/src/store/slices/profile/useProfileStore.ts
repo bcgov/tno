@@ -15,6 +15,7 @@ import {
 import { storeContributors } from '../lookup';
 import {
   storeFilter,
+  storeImpersonate,
   storeMyColleagues,
   storeMyFilters,
   storeMyFolders,
@@ -30,6 +31,9 @@ import { IProfileState } from './interfaces';
 
 export interface IProfileStore {
   storeMyProfile: (
+    user: ISubscriberUserModel | ActionDelegate<ISubscriberUserModel | undefined> | undefined,
+  ) => void;
+  storeImpersonate: (
     user: ISubscriberUserModel | ActionDelegate<ISubscriberUserModel | undefined> | undefined,
   ) => void;
   storeFilter: (filter: IFilterModel | ActionDelegate<IFilterModel | undefined>) => void;
@@ -67,6 +71,13 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
         if (typeof user === 'function') {
           dispatch(storeMyProfile(user(state.profile)));
         } else dispatch(storeMyProfile(user));
+      },
+      storeImpersonate: (
+        user: ISubscriberUserModel | ActionDelegate<ISubscriberUserModel | undefined> | undefined,
+      ) => {
+        if (typeof user === 'function') {
+          dispatch(storeImpersonate(user(state.impersonate)));
+        } else dispatch(storeImpersonate(user));
       },
       storeFilter: (filter: IFilterModel | ActionDelegate<IFilterModel | undefined>) => {
         if (typeof filter === 'function') {
@@ -139,6 +150,7 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
     [
       dispatch,
       state.profile,
+      state.impersonate,
       state.filter,
       state.myFilters,
       state.myFolders,

@@ -28,7 +28,9 @@ export const useApiAdminFolders = (
       );
     },
     getFolder: (id: number, includeContent: boolean = false) => {
-      return api.get<never, AxiosResponse<IFolderModel>, any>(`/admin/folders/${id}?includeContent=${includeContent}`);
+      return api.get<never, AxiosResponse<IFolderModel>, any>(
+        `/admin/folders/${id}?includeContent=${includeContent}`,
+      );
     },
     addFolder: (model: IFolderModel) => {
       return api.post<IFolderModel, AxiosResponse<IFolderModel>, any>(`/admin/folders`, model);

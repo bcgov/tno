@@ -1,6 +1,7 @@
 import { DefaultLayout } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
 import { FilterMediaLanding } from 'features/filter-media';
+import { Impersonation } from 'features/impersonation';
 import { Landing } from 'features/landing';
 import { Login } from 'features/login';
 import { MyColleagues } from 'features/my-colleagues';
@@ -146,6 +147,12 @@ export const AppRouter: React.FC<IAppRouter> = () => {
         <Route
           path="report/instances/:id/view"
           element={<PrivateRoute claims={Claim.subscriber} element={<ReportView />}></PrivateRoute>}
+        />
+        <Route
+          path="/impersonation"
+          element={
+            <PrivateRoute claims={Claim.administrator} element={<Impersonation />}></PrivateRoute>
+          }
         />
         <Route path="error" element={<InternalServerError />} />
         <Route path="*" element={<NotFound />} />

@@ -66,11 +66,16 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
             name={`sections.${index}.settings.hideEmpty`}
             label="Hide this section in the report when empty"
           />
-          <FormikCheckbox
-            name={`sections.${index}.settings.removeDuplicates`}
-            label="Remove duplicate stories"
-            tooltip="Remove content from this section that is in above sections"
-          />
+          <Row>
+            <FormikCheckbox
+              name={`sections.${index}.settings.removeDuplicates`}
+              label="Remove duplicate stories"
+            />
+            <span className="info">
+              Do not include in this section content that already exists in the above sections (does
+              not apply to charts that link to other reports)
+            </span>
+          </Row>
           <FormikCheckbox
             name={`sections.${index}.settings.showFullStory`}
             label="Show Full Story"

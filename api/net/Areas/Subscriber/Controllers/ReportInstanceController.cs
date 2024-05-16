@@ -9,7 +9,6 @@ using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
-using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Kafka;
 using TNO.Kafka.Models;
@@ -39,6 +38,7 @@ public class ReportInstanceController : ControllerBase
     private readonly IReportInstanceService _reportInstanceService;
     private readonly IUserService _userService;
     private readonly IReportHelper _reportHelper;
+    private readonly IImpersonationHelper _impersonate;
     private readonly IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
     private readonly JsonSerializerOptions _serializerOptions;
@@ -51,6 +51,7 @@ public class ReportInstanceController : ControllerBase
     /// <param name="reportService"></param>
     /// <param name="reportInstanceService"></param>
     /// <param name="userService"></param>
+    /// <param name="impersonateHelper"></param>
     /// <param name="reportHelper"></param>
     /// <param name="kafkaProducer"></param>
     /// <param name="kafkaOptions"></param>
@@ -59,6 +60,7 @@ public class ReportInstanceController : ControllerBase
         IReportService reportService,
         IReportInstanceService reportInstanceService,
         IUserService userService,
+        IImpersonationHelper impersonateHelper,
         IReportHelper reportHelper,
         IKafkaMessenger kafkaProducer,
         IOptions<KafkaOptions> kafkaOptions,
@@ -67,6 +69,7 @@ public class ReportInstanceController : ControllerBase
         _reportService = reportService;
         _reportInstanceService = reportInstanceService;
         _userService = userService;
+        _impersonate = impersonateHelper;
         _reportHelper = reportHelper;
         _kafkaProducer = kafkaProducer;
         _kafkaOptions = kafkaOptions.Value;
@@ -88,8 +91,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult FindById(long id, bool includeContent = false)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException();
         var report = instance.Report ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id && // User does not own the report instance
@@ -114,8 +116,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult Add(ReportInstanceModel model)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var report = _reportService.FindById(model.ReportId) ?? throw new NoContentException("Report does not exist");
         if (report.OwnerId != user.Id && // User does not own the report instance
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
@@ -136,8 +137,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult Update(ReportInstanceModel model)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var instance = _reportInstanceService.FindByKey(model.Id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to update this report"); // Report is not public
         _reportInstanceService.ClearChangeTracker();
@@ -157,8 +157,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult Delete(ReportInstanceModel model)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var instance = _reportInstanceService.FindByKey(model.Id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to delete this report"); // Report is not public
         _reportInstanceService.DeleteAndSave(instance);
@@ -178,8 +177,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> ViewAsync(int id, bool regenerate = false)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
 
         if (regenerate || String.IsNullOrWhiteSpace(instance.Body))
@@ -209,8 +207,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> SendToAsync(int id, string to)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to send this report"); // User does not own the report
 
@@ -238,8 +235,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> PublishAsync(int id)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to publish this report"); // User does not own the report
 
@@ -265,8 +261,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public FileResult GenerateExcel(int id)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("User does not have permission to export this report");
         var content = _reportInstanceService.GetContentForInstance(id);

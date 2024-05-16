@@ -20,6 +20,9 @@ export const useApiSubscriberUsers = (
   const api = useApi(options);
 
   return React.useRef({
+    getUser: () => {
+      return api.get<never, AxiosResponse<ISubscriberUserModel>, any>(`/subscriber/users`);
+    },
     updateUser: (model: ISubscriberUserModel) => {
       return api.put<ISubscriberUserModel, AxiosResponse<ISubscriberUserModel>, any>(
         `/subscriber/users/${model.id}`,
