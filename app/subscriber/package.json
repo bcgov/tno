@@ -71,7 +71,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "pretty-quick": "pretty-quick",
-    "lint": "eslint src/ --ext .jsx,.js,.ts,.tsx --max-warnings 0",
+    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --max-warnings 0",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss}\"",
     "check": "prettier --check \"./src/**/*.{js,jsx,ts,tsx,css,scss}\""
