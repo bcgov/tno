@@ -2,7 +2,7 @@ import { DataSources } from 'features/my-reports/components';
 import { IReportForm } from 'features/my-reports/interfaces';
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { Col, FormikCheckbox, Show } from 'tno-core';
+import { Col, FormikCheckbox, Row, Show } from 'tno-core';
 
 export interface IReportSectionMediaAnalyticsProps {
   index: number;
@@ -38,11 +38,16 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
       <Col className="frm-in">
         <label>Report Section Options</label>
         <Show visible={!section.settings.useAllContent}>
-          <FormikCheckbox
-            name={`sections.${index}.settings.removeDuplicates`}
-            label="Remove duplicate stories"
-            tooltip="Remove content from this section that is in above sections"
-          />
+          <Row>
+            <FormikCheckbox
+              name={`sections.${index}.settings.removeDuplicates`}
+              label="Remove duplicate stories"
+            />
+            <span className="info">
+              Do not include in this section content that already exists in the above sections (does
+              not apply to charts that link to other reports)
+            </span>
+          </Row>
         </Show>
         <FormikCheckbox
           name={`sections.${index}.settings.hideEmpty`}

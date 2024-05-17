@@ -676,7 +676,7 @@ public class ReportService : BaseService<Report, int>, IReportService
 
         // Fetch other reports to exclude any content within them.
         var excludeReportContentIds = reportSettings.Content.ExcludeReports.Any()
-            ? reportSettings.Content.ExcludeReports.SelectMany((reportId) => this.GetReportInstanceContentToExclude(reportId, ownerId)).Distinct()
+            ? reportSettings.Content.ExcludeReports.SelectMany((reportId) => this.GetReportInstanceContentToExclude(reportId, ownerId)).Distinct().ToArray()
             : Array.Empty<long>();
 
         var excludeContentIds = excludeHistoricalContentIds.AppendRange(excludeReportContentIds).Distinct();
@@ -798,7 +798,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             var sectionResults = new Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>();
             if (s.Name != section.Name)
             {
-                var sectionContent = currentInstanceContent.Where(c => c.SectionName == s.Name);
+                var sectionContent = currentInstanceContent.Where(c => c.SectionName == s.Name).ToArray();
                 if (s.SortOrder < section.SortOrder) contentAbove.AddRange(sectionContent);
 
                 sectionResults.Hits.Hits = sectionContent
@@ -811,14 +811,16 @@ public class ReportService : BaseService<Report, int>, IReportService
         });
 
         // Create an array of content from the previous instance to exclude from the report.
-        var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical && previousInstance != null ? previousInstance?.ContentManyToMany.Select((c) => c.ContentId).ToArray() ?? Array.Empty<long>() : Array.Empty<long>();
+        var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical && previousInstance != null
+            ? previousInstance?.ContentManyToMany.Select((c) => c.ContentId).ToArray() ?? Array.Empty<long>()
+            : Array.Empty<long>();
 
         // Fetch other reports to exclude any content within them.
         var excludeReportContentIds = reportSettings.Content.ExcludeReports.Any()
-            ? reportSettings.Content.ExcludeReports.SelectMany((reportId) => this.GetReportInstanceContentToExclude(reportId, ownerId)).Distinct()
+            ? reportSettings.Content.ExcludeReports.SelectMany((reportId) => this.GetReportInstanceContentToExclude(reportId, ownerId)).Distinct().ToArray()
             : Array.Empty<long>();
 
-        var excludeContentIds = excludeHistoricalContentIds.AppendRange(excludeReportContentIds).Distinct();
+        var excludeContentIds = excludeHistoricalContentIds.AppendRange(excludeReportContentIds).Distinct().ToArray();
         var excludeAboveSectionContentIds = new List<long>();
 
         // Identify any content above that may need to be excluded.
@@ -871,7 +873,9 @@ public class ReportService : BaseService<Report, int>, IReportService
             // Modify the query to exclude content.
             var excludeAboveAndHistorical = excludeContentIds.AppendRange(excludeAboveSectionContentIds);
             var query = excludeContentIds.Any() ||
-                (sectionSettings.RemoveDuplicates && excludeAboveSectionContentIds.Any()) ? section.Filter.Query.AddExcludeContent(excludeAboveAndHistorical) : section.Filter.Query;
+                (sectionSettings.RemoveDuplicates && excludeAboveSectionContentIds.Any())
+                ? section.Filter.Query.AddExcludeContent(excludeAboveAndHistorical)
+                : section.Filter.Query;
 
             // Exclude sources and media types that the user cannot see.
             var excludeSources = this.Context.UserSources.Where(us => us.UserId == ownerId).Select(us => us.SourceId).ToArray();

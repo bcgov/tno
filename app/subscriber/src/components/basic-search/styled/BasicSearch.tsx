@@ -10,7 +10,7 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
   ${(props) =>
     props.inHeader &&
     `
-      width: 100%;
+      width: unset;
     `}
   ${(props) =>
     !props.inHeader &&
@@ -28,6 +28,7 @@ export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
  }
   `}
   align-items: center;
+  flex: 1;
 
   /** SEARCH FOR TEXT */
   label {

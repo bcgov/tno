@@ -198,6 +198,7 @@ builder.Services
     .AddScoped<IReportHelper, ReportHelper>()
     .AddScoped<IWorkOrderHelper, WorkOrderHelper>()
     .AddScoped<ITopicScoreHelper, TopicScoreHelper>()
+    .AddScoped<IImpersonationHelper, ImpersonationHelper>()
     .AddChesService(config.GetSection("CHES"))
     .AddTNOServices(config, env)
     .AddTemplateEngine(config)

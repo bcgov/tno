@@ -14,6 +14,11 @@ public class UserModel
     public int Id { get; set; }
 
     /// <summary>
+    /// get/set - Unique key to identify user.
+    /// </summary>
+    public string Key { get; set; } = "";
+
+    /// <summary>
     /// get/set - Unique username to identify user.
     /// </summary>
     public string Username { get; set; } = "";
@@ -62,6 +67,7 @@ public class UserModel
     public UserModel(Entities.User entity)
     {
         this.Id = entity.Id;
+        this.Key = entity.Key;
         this.Username = entity.Username;
         this.Email = entity.Email;
         this.PreferredEmail = entity.PreferredEmail;
@@ -79,7 +85,7 @@ public class UserModel
     /// <param name="model"></param>
     public static explicit operator Entities.User(UserModel model)
     {
-        var entity = new Entities.User(model.Username, model.Email)
+        var entity = new Entities.User(model.Username, model.Email, model.Key)
         {
             Id = model.Id,
             FirstName = model.FirstName,

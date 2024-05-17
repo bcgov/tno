@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Subscriber.Models.Product;
+using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Ches;
 using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
-using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Keycloak;
@@ -36,6 +36,7 @@ public class ProductController : ControllerBase
     private readonly IProductService _productService;
     private readonly IUserService _userService;
     private readonly ISettingService _settingService;
+    private readonly IImpersonationHelper _impersonate;
     private readonly IChesService _ches;
     private readonly ChesOptions _chesOptions;
     private readonly ILogger<ProductController> _logger;
@@ -47,6 +48,7 @@ public class ProductController : ControllerBase
     /// </summary>
     /// <param name="productService"></param>
     /// <param name="userService"></param>
+    /// <param name="impersonateHelper"></param>
     /// <param name="settingService"></param>
     /// <param name="ches"></param>
     /// <param name="chesOptions"></param>
@@ -54,6 +56,7 @@ public class ProductController : ControllerBase
     public ProductController(
         IProductService productService,
         IUserService userService,
+        IImpersonationHelper impersonateHelper,
         ISettingService settingService,
         IChesService ches,
         IOptions<ChesOptions> chesOptions,
@@ -61,6 +64,7 @@ public class ProductController : ControllerBase
     {
         _productService = productService;
         _userService = userService;
+        _impersonate = impersonateHelper;
         _settingService = settingService;
         _ches = ches;
         _chesOptions = chesOptions.Value;
@@ -81,8 +85,7 @@ public class ProductController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Product" })]
     public IActionResult GetProducts()
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
 
         var publicFilter = new ProductFilter
         {
@@ -113,8 +116,7 @@ public class ProductController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Product" })]
     public async Task<IActionResult> ToggleSubscriptionForCurrentUser(ProductModel model)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var result = _productService.FindById(model.Id) ?? throw new NoContentException("Product does not exist");
 
         var userProductSubscription = result.SubscribersManyToMany.FirstOrDefault(s => s.UserId == user.Id);
@@ -140,7 +142,8 @@ public class ProductController : ControllerBase
 
                 subject = $"MMI: Product Subscription request - [{result.Name}]";
                 message.AppendLine($"<p><strong>Action</strong>: SUBSCRIBE</p>");
-            } else if (userProductSubscription.IsSubscribed)
+            }
+            else if (userProductSubscription.IsSubscribed)
             {
                 await _productService.RequestUnsubscribe(user.Id, result.Id);
 
@@ -154,11 +157,14 @@ public class ProductController : ControllerBase
             try
             {
                 var productSubscriptionManagerEmail = _settingService.FindByName(AdminConfigurableSettingNames.ProductSubscriptionManagerEmail.ToString());
-                if (productSubscriptionManagerEmail != null) {
+                if (productSubscriptionManagerEmail != null)
+                {
                     var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, productSubscriptionManagerEmail.Value, subject, message.ToString());
                     var emailRequest = await _ches.SendEmailAsync(email);
                     _logger.LogInformation($"Product subscription request email to [${productSubscriptionManagerEmail.Value}] queued: ${emailRequest.TransactionId}");
-                } else {
+                }
+                else
+                {
                     _logger.LogError("Couldn't send product subscription request email: [ProductSubscriptionManagerEmail] not set.");
                 }
             }
