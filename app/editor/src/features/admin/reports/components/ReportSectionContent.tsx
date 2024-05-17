@@ -17,6 +17,7 @@ import {
   OptionItem,
   ReportSectionOrderByOptions,
   Row,
+  Show,
 } from 'tno-core';
 
 import { getSortableItems } from '../utils';
@@ -63,6 +64,21 @@ export const ReportSectionContent = ({ index }: IReportSectionContentProps) => {
       <Col>
         <label>Options</label>
         <FormikCheckbox
+          name={`sections.${index}.settings.removeDuplicates`}
+          label="Remove Duplicate Content"
+          tooltip="Remove content from this section that is in above sections"
+        />
+        <Show visible={!!section.folderId || !!section.linkedReportId}>
+          <FormikCheckbox
+            name={`sections.${index}.settings.overrideExcludeHistorical`}
+            label={`Include all content from linked ${
+              section.folderId ? 'folder' : 'report'
+            } even if in prior report`}
+            tooltip="This overrides the report option 'Exclude stories that have been sent out in
+            previous report' for this section only."
+          />
+        </Show>
+        <FormikCheckbox
           name={`sections.${index}.settings.hideEmpty`}
           label="Hide section if empty"
         />
@@ -75,11 +91,6 @@ export const ReportSectionContent = ({ index }: IReportSectionContentProps) => {
           name={`sections.${index}.settings.showFullStory`}
           label="Show Full Story"
           tooltip="Display the full story for each content item in this section"
-        />
-        <FormikCheckbox
-          name={`sections.${index}.settings.removeDuplicates`}
-          label="Remove Duplicate Content"
-          tooltip="Remove content from this section that is in above sections"
         />
         <FormikCheckbox
           name={`sections.${index}.settings.showImage`}

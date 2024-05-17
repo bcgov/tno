@@ -148,6 +148,7 @@ export const DataSources = ({
             folderId: undefined,
             linkedReport: undefined,
             linkedReportId: undefined,
+            settings: { ...section.settings, overrideExcludeHistorical: false },
           });
           setDataSource(value as any);
           onChange?.(value);
@@ -183,7 +184,7 @@ export const DataSources = ({
       </Show>
       <Show visible={dataSource === 'folder'}>
         <Row className="frm-in">
-          <label>My folder:</label>
+          <label>My folder:{section.folderId}</label>
           <Col flex="1" className="description">
             <FormikSelect
               name={`sections.${index}.folderId`}
@@ -192,7 +193,12 @@ export const DataSources = ({
               onChange={(newValue: any) => {
                 const option = newValue as OptionItem;
                 const folder = myFolders.find((f) => f.id === option?.value);
-                if (folder) setFieldValue(`sections.${index}.folder`, folder);
+                setFieldValue(`sections.${index}`, {
+                  ...section,
+                  folder,
+                  folderId: folder?.id,
+                  settings: { ...section.settings, overrideExcludeHistorical: !!folder?.id },
+                });
               }}
             >
               <Button
@@ -218,7 +224,12 @@ export const DataSources = ({
               onChange={(newValue: any) => {
                 const option = newValue as OptionItem;
                 const report = myReports.find((r) => r.id === option?.value);
-                if (report) setFieldValue(`sections.${index}.linkedReport`, report);
+                setFieldValue(`sections.${index}`, {
+                  ...section,
+                  linkedReport: report,
+                  linkedReportId: report?.id,
+                  settings: { ...section.settings, overrideExcludeHistorical: !!report?.id },
+                });
               }}
             >
               <Button

@@ -668,7 +668,9 @@ public class ReportService : BaseService<Report, int>, IReportService
         var previousInstance = currentInstance?.SentOn.HasValue == true ? currentInstance : GetPreviousReportInstance(report.Id, instanceId ?? (currentInstance?.Id), ownerId);
 
         // Create an array of content from the previous instance to exclude.
-        var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical ? previousInstance?.ContentManyToMany.Select((c) => c.ContentId).ToArray() ?? Array.Empty<long>() : Array.Empty<long>();
+        var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical
+            ? previousInstance?.ContentManyToMany.Select((c) => c.ContentId).ToArray() ?? Array.Empty<long>()
+            : Array.Empty<long>();
 
         // When an auto report runs it may need to exclude content in the currently unsent report.
         if (currentInstance != null && currentInstance.SentOn.HasValue == false && reportSettings.Content.ExcludeContentInUnsentReport)
@@ -679,7 +681,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             ? reportSettings.Content.ExcludeReports.SelectMany((reportId) => this.GetReportInstanceContentToExclude(reportId, ownerId)).Distinct().ToArray()
             : Array.Empty<long>();
 
-        var excludeContentIds = excludeHistoricalContentIds.AppendRange(excludeReportContentIds).Distinct();
+        var excludeContentIds = excludeHistoricalContentIds.AppendRange(excludeReportContentIds).Distinct().ToArray();
         var excludeAboveSectionContentIds = new List<long>();
 
         foreach (var section in report.Sections.OrderBy(s => s.SortOrder))
@@ -709,7 +711,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                 if (sectionSettings.RemoveDuplicates)
                     query = query.Where(fc => !excludeAboveSectionContentIds.Contains(fc.ContentId));
 
-                if (excludeContentIds.Any())
+                if (excludeContentIds.Any() && !sectionSettings.OverrideExcludeHistorical)
                     query = query.Where(fc => !excludeContentIds.Contains(fc.ContentId));
 
                 var content = query
@@ -728,9 +730,16 @@ public class ReportService : BaseService<Report, int>, IReportService
             else if (section.FilterId.HasValue)
             {
                 if (section.Filter == null) throw new InvalidOperationException($"Section '{section.Name}' filter is missing from report object.");
+                var filterSettings = JsonSerializer.Deserialize<FilterSettingsModel>(section.Filter.Settings.ToJson(), _serializerOptions) ?? new();
 
                 // Modify the query to exclude content.
-                var query = excludeContentIds.Any() ? section.Filter.Query.AddExcludeContent(excludeContentIds) : section.Filter.Query;
+                var excludeOnlyTheseContentIds = excludeContentIds.Any() && !sectionSettings.OverrideExcludeHistorical ? excludeContentIds : Array.Empty<long>();
+                var excludeAboveAndHistorical = sectionSettings.RemoveDuplicates
+                    ? excludeOnlyTheseContentIds.AppendRange(excludeAboveSectionContentIds).Distinct().ToArray()
+                    : Array.Empty<long>();
+                var query = excludeAboveAndHistorical.Any()
+                    ? section.Filter.Query.AddExcludeContent(excludeAboveAndHistorical)
+                    : section.Filter.Query;
 
                 // Exclude sources and media types that the user cannot see.
                 var excludeSources = this.Context.UserSources.Where(us => us.UserId == ownerId).Select(us => us.SourceId).ToArray();
@@ -743,17 +752,9 @@ public class ReportService : BaseService<Report, int>, IReportService
                     query = query.IncludeOnlyLatestPosted(previousInstance?.PublishedOn);
 
                 // Determine index.
-                var searchUnpublished = section.Filter.Settings.GetElementValue(".searchUnpublished", false);
-                var defaultIndex = searchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
-
+                var defaultIndex = filterSettings.SearchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
                 var content = await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
                 var contentHits = content.Hits.Hits.ToArray();
-
-                if (sectionSettings.RemoveDuplicates)
-                    content.Hits.Hits = contentHits.Where(c => !excludeAboveSectionContentIds.Contains(c.Source.Id)).ToArray();
-
-                if (excludeContentIds.Any())
-                    content.Hits.Hits = contentHits.Where(c => !excludeContentIds.Contains(c.Source.Id)).ToArray();
 
                 // Fetch custom content versions for the requestor.
                 var contentIds = content.Hits.Hits.Select(h => h.Source.Id).Distinct().ToArray();
@@ -851,7 +852,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             if (sectionSettings.RemoveDuplicates)
                 query = query.Where(fc => !excludeAboveSectionContentIds.Contains(fc.ContentId));
 
-            if (excludeContentIds.Any())
+            if (excludeContentIds.Any() && !sectionSettings.OverrideExcludeHistorical)
                 query = query.Where(fc => !excludeContentIds.Contains(fc.ContentId));
 
             var content = query
@@ -869,11 +870,14 @@ public class ReportService : BaseService<Report, int>, IReportService
         else if (section.FilterId.HasValue)
         {
             if (section.Filter == null) throw new InvalidOperationException($"Section '{section.Name}' filter is missing from report object.");
+            var filterSettings = JsonSerializer.Deserialize<FilterSettingsModel>(section.Filter.Settings.ToJson(), _serializerOptions) ?? new();
 
             // Modify the query to exclude content.
-            var excludeAboveAndHistorical = excludeContentIds.AppendRange(excludeAboveSectionContentIds);
-            var query = excludeContentIds.Any() ||
-                (sectionSettings.RemoveDuplicates && excludeAboveSectionContentIds.Any())
+            var excludeOnlyTheseContentIds = excludeContentIds.Any() && !sectionSettings.OverrideExcludeHistorical ? excludeContentIds : Array.Empty<long>();
+            var excludeAboveAndHistorical = sectionSettings.RemoveDuplicates
+                ? excludeOnlyTheseContentIds.AppendRange(excludeAboveSectionContentIds).Distinct().ToArray()
+                : Array.Empty<long>();
+            var query = excludeAboveAndHistorical.Any()
                 ? section.Filter.Query.AddExcludeContent(excludeAboveAndHistorical)
                 : section.Filter.Query;
 
@@ -884,21 +888,13 @@ public class ReportService : BaseService<Report, int>, IReportService
             query = query.AddExcludeMediaTypes(excludeMediaTypes);
 
             // Only include content that has been posted since the last report instance.
-            if (reportSettings.Content.OnlyNewContent)
-                query = query.IncludeOnlyLatestPosted(previousInstance?.PublishedOn);
+            if (reportSettings.Content.OnlyNewContent && previousInstance?.PublishedOn.HasValue == true)
+                query = query.IncludeOnlyLatestPosted(previousInstance.PublishedOn);
 
             // Determine index.
-            var searchUnpublished = section.Filter.Settings.GetElementValue(".searchUnpublished", false);
-            var defaultIndex = searchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
-
+            var defaultIndex = filterSettings.SearchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
             var content = await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
             var contentHits = content.Hits.Hits.ToArray();
-
-            if (sectionSettings.RemoveDuplicates && excludeAboveSectionContentIds.Any())
-                content.Hits.Hits = contentHits.Where(c => !excludeAboveSectionContentIds.Contains(c.Source.Id)).ToArray();
-
-            if (excludeContentIds.Any())
-                content.Hits.Hits = contentHits.Where(c => !excludeContentIds.Contains(c.Source.Id)).ToArray();
 
             // Fetch custom content versions for the requestor.
             var contentIds = content.Hits.Hits.Select(h => h.Source.Id).Distinct().ToArray();

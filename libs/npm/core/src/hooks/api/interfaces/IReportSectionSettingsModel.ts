@@ -6,6 +6,7 @@ export interface IReportSectionSettingsModel {
   showImage: boolean;
   direction: 'row' | 'column';
   removeDuplicates: boolean;
+  overrideExcludeHistorical: boolean;
   hideEmpty: boolean;
   groupBy: string;
   sortBy: string;

@@ -72,11 +72,6 @@ export const ReportSectionMediaAnalytics = ({ index }: IReportSectionMediaAnalyt
       <Col>
         <label>Options</label>
         <Row>
-          <FormikCheckbox
-            name={`sections.${index}.settings.useAllContent`}
-            label="Generate charts with content in this report"
-            tooltip="When checked this will generate the charts with all the content in the report"
-          />
           <Show visible={!section.settings.useAllContent}>
             <FormikCheckbox
               name={`sections.${index}.settings.removeDuplicates`}
@@ -84,6 +79,21 @@ export const ReportSectionMediaAnalytics = ({ index }: IReportSectionMediaAnalyt
               tooltip="Remove content from this section that is in above sections"
             />
           </Show>
+          <Show visible={!!section.folderId || !!section.linkedReportId}>
+            <FormikCheckbox
+              name={`sections.${index}.settings.overrideExcludeHistorical`}
+              label={`Include all content from linked ${
+                section.folderId ? 'folder' : 'report'
+              } even if in prior report`}
+              tooltip="This overrides the report option 'Exclude stories that have been sent out in
+              previous report' for this section only."
+            />
+          </Show>
+          <FormikCheckbox
+            name={`sections.${index}.settings.useAllContent`}
+            label="Generate charts with content in this report"
+            tooltip="When checked this will generate the charts with all the content in the report"
+          />
           <FormikCheckbox
             name={`sections.${index}.settings.direction`}
             label="Horizontally align the next media analytic chart"

@@ -396,10 +396,8 @@ public class ReportController : ControllerBase
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to review this report"); // Report is not public
 
         var instance = await _reportService.RegenerateReportInstanceSectionAsync(id, sectionId, user.Id);
-        _logger.LogInformation("Regenerate section {count}:{content}", instance.ContentManyToMany.Count, String.Join(",", instance.ContentManyToMany.Select(c => $"{c.SectionName}:{c.ContentId}")));
         _reportInstanceService.ClearChangeTracker();
         instance = _reportInstanceService.UpdateAndSave(instance, true);
-        _logger.LogInformation("After save section {count}:{content}", instance.ContentManyToMany.Count, String.Join(",", instance.ContentManyToMany.Select(c => $"{c.SectionName}:{c.ContentId}")));
         instance.ContentManyToMany.Clear();
         instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(instance.Id));
 

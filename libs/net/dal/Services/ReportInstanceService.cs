@@ -120,11 +120,11 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         if (updateChildren)
         {
             // Fetch all content currently belonging to this report instance.
-            var original = this.Context.ReportInstances.FirstOrDefault(ri => ri.Id == entity.Id) ?? throw new InvalidOperationException("Report instance does not exist");
-            var originalInstanceContents = this.Context.ReportInstanceContents
-                .AsNoTracking()
-                .Include(ic => ic.Content)
-                .Where(ric => ric.InstanceId == entity.Id).ToArray();
+            var original = this.Context.ReportInstances
+                .Include(ri => ri.ContentManyToMany)
+                .ThenInclude(ric => ric.Content)
+                .FirstOrDefault(ri => ri.Id == entity.Id) ?? throw new InvalidOperationException("Report instance does not exist");
+            var originalInstanceContents = original.ContentManyToMany.ToArray();
 
             var updatedContent = new Dictionary<long, Content>();
             // Delete removed content and add new content.
@@ -190,10 +190,12 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
                     // Add new content to the report.
                     ric.Instance = null;
                     ric.InstanceId = entity.Id;
-                    this.Context.ReportInstanceContents.Add(ric);
+                    this.Context.Entry(ric).State = EntityState.Added;
+                    original.ContentManyToMany.Add(ric);
                 }
                 else
                 {
+                    // Content was already in the report instance, now updated it.
                     if (ric.Content != null &&
                         originalContent != null &&
                         entity.OwnerId.HasValue)
@@ -216,6 +218,7 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
                                 return ntp?.Value != tp.Value;
                             })))
                         {
+                            // If the content belongs to the user and has changed, update it.
                             if (ric.Content.GuaranteeUid() && originalContent.Uid != ric.Content.Uid) originalContent.Uid = ric.Content.Uid;
                             this.Context.UpdateContext(originalContent, ric.Content);
                             this.Context.Update(originalContent);
