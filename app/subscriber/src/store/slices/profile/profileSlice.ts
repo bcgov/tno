@@ -39,6 +39,12 @@ export const profileSlice = createSlice({
     storeMyProfile(state: IProfileState, action: PayloadAction<ISubscriberUserModel | undefined>) {
       state.profile = action.payload;
     },
+    storeImpersonate(
+      state: IProfileState,
+      action: PayloadAction<ISubscriberUserModel | undefined>,
+    ) {
+      state.impersonate = action.payload;
+    },
     storeFilter(state: IProfileState, action: PayloadAction<IFilterModel | undefined>) {
       state.filter = action.payload;
     },
@@ -85,6 +91,7 @@ export const profileSlice = createSlice({
 
 export const {
   storeMyProfile,
+  storeImpersonate,
   storeFilter,
   storeMyFilters,
   storeMyFolders,

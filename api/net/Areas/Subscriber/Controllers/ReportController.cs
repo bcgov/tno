@@ -11,7 +11,6 @@ using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.API.Models.SignalR;
 using TNO.Core.Exceptions;
-using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Kafka;
 using TNO.Kafka.SignalR;
@@ -43,6 +42,7 @@ public class ReportController : ControllerBase
     private readonly IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
     private readonly KafkaHubConfig _kafkaHubOptions;
+    private readonly IImpersonationHelper _impersonate;
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly ILogger<ReportController> _logger;
     #endregion
@@ -58,6 +58,7 @@ public class ReportController : ControllerBase
     /// <param name="kafkaProducer"></param>
     /// <param name="kafkaOptions"></param>
     /// <param name="kafkaHubOptions"></param>
+    /// <param name="impersonateHelper"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
     public ReportController(
@@ -68,6 +69,7 @@ public class ReportController : ControllerBase
         IKafkaMessenger kafkaProducer,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<KafkaHubConfig> kafkaHubOptions,
+        IImpersonationHelper impersonateHelper,
         IOptions<JsonSerializerOptions> serializerOptions,
         ILogger<ReportController> logger)
     {
@@ -78,6 +80,7 @@ public class ReportController : ControllerBase
         _kafkaProducer = kafkaProducer;
         _kafkaOptions = kafkaOptions.Value;
         _kafkaHubOptions = kafkaHubOptions.Value;
+        _impersonate = impersonateHelper;
         _serializerOptions = serializerOptions.Value;
         _logger = logger;
     }
@@ -96,8 +99,7 @@ public class ReportController : ControllerBase
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
 
         var filter = new ReportFilter(query)
         {
@@ -141,8 +143,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult FindById(int id, bool includeContent = false)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
 
         var report = _reportService.FindById(id) ?? throw new NoContentException();
         if (report.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to view this report");
@@ -192,8 +193,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult Add(ReportModel model)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         model.OwnerId = user.Id;
 
         // If there are no subscribers, add the owner as a subscriber.
@@ -220,8 +220,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> UpdateAsync(ReportModel model, [FromQuery] bool updateInstances = false)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var result = _reportService.FindById(model.Id) ?? throw new NoContentException("Report does not exist");
         if (result?.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to update this report");
         result = _reportService.Update(model.ToEntity(_serializerOptions));
@@ -269,8 +268,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult Delete(ReportModel model)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var result = _reportService.FindById(model.Id) ?? throw new NoContentException("Report does not exist");
         if (result?.OwnerId != user?.Id) throw new NotAuthorizedException("Not authorized to delete this report");
         _reportService.ClearChangeTracker(); // Remove the report from context.
@@ -291,8 +289,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> Preview(int id)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (report.OwnerId != user.Id && // User does not own the report
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
@@ -316,8 +313,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> Generate(int id, [FromQuery] bool regenerate = false)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (report.OwnerId != user.Id && // User does not own the report
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
@@ -393,18 +389,17 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> RegenerateSection(int id, int sectionId)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (report.OwnerId != user.Id && // User does not own the report
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to review this report"); // Report is not public
 
         var instance = await _reportService.RegenerateReportInstanceSectionAsync(id, sectionId, user.Id);
-        _logger.LogInformation("Regenerate section {count}:{content}", instance.ContentManyToMany.Count(), String.Join(",", instance.ContentManyToMany.Select(c => $"{c.SectionName}:{c.ContentId}")));
+        _logger.LogInformation("Regenerate section {count}:{content}", instance.ContentManyToMany.Count, String.Join(",", instance.ContentManyToMany.Select(c => $"{c.SectionName}:{c.ContentId}")));
         _reportInstanceService.ClearChangeTracker();
         instance = _reportInstanceService.UpdateAndSave(instance, true);
-        _logger.LogInformation("After save section {count}:{content}", instance.ContentManyToMany.Count(), String.Join(",", instance.ContentManyToMany.Select(c => $"{c.SectionName}:{c.ContentId}")));
+        _logger.LogInformation("After save section {count}:{content}", instance.ContentManyToMany.Count, String.Join(",", instance.ContentManyToMany.Select(c => $"{c.SectionName}:{c.ContentId}")));
         instance.ContentManyToMany.Clear();
         instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(instance.Id));
 
@@ -426,8 +421,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> AddContentToReportAsync(int id, [FromBody] IEnumerable<ReportInstanceContentModel> content)
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var user = _impersonate.GetCurrentUser();
         var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (report.OwnerId != user.Id && // User does not own the report
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
@@ -456,9 +450,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult GetAllContentInMyReports()
     {
-        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
-
+        var user = _impersonate.GetCurrentUser();
         var result = _reportService.GetAllContentInMyReports(user.Id);
         return new JsonResult(result);
     }

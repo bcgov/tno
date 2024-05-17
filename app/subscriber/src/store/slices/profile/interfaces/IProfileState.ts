@@ -11,6 +11,7 @@ import {
 } from 'tno-core';
 
 export interface IProfileState {
+  impersonate?: ISubscriberUserModel;
   profile?: ISubscriberUserModel;
   filter?: IFilterModel;
   myFilters: IFilterModel[];

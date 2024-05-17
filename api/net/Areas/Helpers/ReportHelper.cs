@@ -91,7 +91,7 @@ public class ReportHelper : IReportHelper
         var instance = _reportService.GetCurrentReportInstance(reportId, ownerId, true);
         var sections = report.Sections.ToDictionary(s => s.Name, s =>
         {
-            var content = instance?.ContentManyToMany.Where(c => c.Content != null && c.SectionName == s.Name) ?? Array.Empty<Entities.ReportInstanceContent>();
+            var content = instance?.ContentManyToMany.Where(c => c.Content != null && c.SectionName == s.Name).ToArray() ?? Array.Empty<Entities.ReportInstanceContent>();
             var section = new ReportSectionModel(s, content, _serializerOptions);
             return section;
         });

@@ -5,7 +5,6 @@ import { IProfileState, useProfileStore } from 'store/slices';
 import { IFolderModel, useApiSubscriberFolders } from 'tno-core';
 
 interface IFolderController {
-  findAllFolders: () => Promise<IFolderModel[]>;
   findMyFolders: () => Promise<IFolderModel[]>;
   getFolder: (id: number, includeContent: boolean) => Promise<IFolderModel>;
   addFolder: (model: IFolderModel) => Promise<IFolderModel>;
@@ -20,13 +19,6 @@ export const useFolders = (): [IProfileState, IFolderController] => {
 
   const controller = React.useMemo(
     () => ({
-      findAllFolders: async () => {
-        const response = await dispatch<IFolderModel[]>('find-all-folders', () =>
-          api.findAllFolders(),
-        );
-        storeMyFolders(response.data);
-        return response.data;
-      },
       findMyFolders: async () => {
         const response = await dispatch<IFolderModel[]>('find-my-folders', () =>
           api.findMyFolders(),

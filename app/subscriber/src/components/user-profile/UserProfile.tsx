@@ -2,8 +2,11 @@ import { ScreenSizes } from 'components/layout/constants';
 import React from 'react';
 import { BiLogOut } from 'react-icons/bi';
 import { FaChevronCircleDown, FaUserCircle } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
-import { Row, Show, useKeycloakWrapper, useWindowSize } from 'tno-core';
+import { useUsers } from 'store/hooks';
+import { useProfileStore } from 'store/slices';
+import { Claim, Row, Show, useKeycloakWrapper, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -13,14 +16,43 @@ import * as styled from './styled';
 export const UserProfile: React.FC = () => {
   const keycloak = useKeycloakWrapper();
   const { width } = useWindowSize();
+  const [{ profile, impersonate }, { storeImpersonate }] = useProfileStore();
+  const { getUser } = useUsers();
+
+  const [profileMenu, setProfileMenu] = React.useState(false);
+
+  const isAdmin = keycloak.hasClaim(Claim.administrator);
+
+  React.useEffect(() => {
+    if (
+      profile?.preferences?.impersonate &&
+      profile?.preferences?.impersonate !== impersonate?.key
+    ) {
+      getUser()
+        .then((user) => {
+          storeImpersonate(user);
+        })
+        .catch(() => {});
+    } else if (!profile?.preferences?.impersonate) {
+      storeImpersonate(undefined);
+    }
+    // getUser will cause a double request.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.preferences?.impersonate, impersonate, storeImpersonate]);
 
   return (
     <styled.UserProfile>
-      <Row data-tooltip-id="my-info" direction="row" className="username-info">
-        <Show visible={!!width && width > ScreenSizes.Mobile}>
-          <FaChevronCircleDown size={15} />
-        </Show>
-        <div>{keycloak.getDisplayName()}</div>
+      <Row
+        data-tooltip-id="my-info"
+        direction="row"
+        className={`username-info${impersonate ? ' impersonate' : ''}`}
+      >
+        <div>
+          <Show visible={!!width && width > ScreenSizes.Mobile}>
+            <FaChevronCircleDown size={15} />
+          </Show>
+          <div>{impersonate ? impersonate.displayName : keycloak.getDisplayName()}</div>
+        </div>
       </Row>
       <Tooltip
         clickable
@@ -28,6 +60,9 @@ export const UserProfile: React.FC = () => {
         className="folder-menu"
         place="bottom"
         openOnClick
+        closeOnEsc
+        isOpen={profileMenu}
+        setIsOpen={setProfileMenu}
         style={{ opacity: '1', boxShadow: '0 0 8px #464545', zIndex: '999' }}
         id="my-info"
       >
@@ -35,8 +70,17 @@ export const UserProfile: React.FC = () => {
         <hr />
         <ul>
           <li>
-            <a href="/colleagues">Colleagues</a>
+            <Link to="/colleagues" onClick={(e) => setProfileMenu(false)}>
+              Colleagues
+            </Link>
           </li>
+          {isAdmin && (
+            <li>
+              <Link to="/impersonation" onClick={(e) => setProfileMenu(false)}>
+                Impersonation
+              </Link>
+            </li>
+          )}
         </ul>
       </Tooltip>
       <Row onClick={() => keycloak.instance.logout()} className="logout">
