@@ -61,12 +61,16 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
   }, []);
 
   React.useEffect(() => {
-    currentFolder &&
-      !currentFolder.events.length &&
+    if (currentFolder && !currentFolder.events.length) {
       setCurrentFolder({
         ...currentFolder,
         events: [createSchedule(currentFolder.name, currentFolder.description)],
       });
+      if (currentFolder.filterId) {
+        const selectedFilter = myFilters.find((f) => f.id === currentFolder.filterId);
+        setActiveFilter(selectedFilter);
+      }
+    }
     // only run when currentFolder changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentFolder]);
@@ -77,12 +81,21 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
       getFolder(Number(id), false)
         .then((folder) => {
           setCurrentFolder(folder);
-          if (folder.filter) setActiveFilter(folder.filter);
-          else {
+          if (folder.filterId) {
+            const selectedFilter = myFilters.find((f) => f.id === folder.filterId);
+            setActiveFilter(selectedFilter);
+          } else {
             setActiveFilter(undefined);
           }
         })
         .catch(() => {});
+    } else {
+      if (currentFolder && currentFolder.filterId) {
+        const selectedFilter = myFilters.find((f) => f.id === currentFolder.filterId);
+        setActiveFilter(selectedFilter);
+      } else {
+        setActiveFilter(undefined);
+      }
     }
     // do not want to run with setCurrentFolder
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -111,7 +124,8 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
             ],
             (item) => item.content.id,
           ).map((item, index) => ({ ...item, sortOrder: index }));
-          await updateFolder({ ...currentFolder, content }, true);
+          const result = await updateFolder({ ...currentFolder, content }, true);
+          setCurrentFolder(result);
           await findMyFolders();
           toast.success(`Filter found and added ${results.hits.hits.length} content items.`);
         } else {
@@ -119,7 +133,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
         }
       } catch {}
     },
-    [findContentWithElasticsearch, currentFolder, updateFolder, findMyFolders],
+    [currentFolder, findContentWithElasticsearch, updateFolder, setCurrentFolder, findMyFolders],
   );
 
   const handleSaveFolder = React.useCallback(
