@@ -62,7 +62,6 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
 
   React.useEffect(() => {
     if (currentFolder && !currentFolder.events.length) {
-      console.log('initFolders', currentFolder);
       setCurrentFolder({
         ...currentFolder,
         events: [createSchedule(currentFolder.name, currentFolder.description)],
