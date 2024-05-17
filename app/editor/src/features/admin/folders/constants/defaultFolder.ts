@@ -12,6 +12,7 @@ export const defaultFolder: IFolderForm = {
     searchUnpublished: false,
     addAgeLimit: 0,
     keepAgeLimit: 0,
+    autoPopulate: false,
   },
   content: [],
   reports: [],

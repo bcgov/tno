@@ -163,7 +163,20 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
             Searches. Choose your Saved Search first and then setup your preferred scheduling
             options.
           </p>
-          <Checkbox name="auto-pop" label="Auto-populate this folder" defaultChecked />
+          <Checkbox
+            name="auto-pop"
+            label="Auto-populate this folder"
+            checked={currentFolder?.settings.autoPopulate}
+            onChange={(e) => {
+              setCurrentFolder({
+                ...currentFolder,
+                settings: {
+                  autoPopulate: e.target.checked,
+                  keepAgeLimit: currentFolder?.settings.keepAgeLimit,
+                },
+              } as IFolderModel);
+            }}
+          />
           <label>Choose one of your Saved Searches to apply to this folder</label>
           <Row className="choose-filter">
             <Select
@@ -171,7 +184,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
               name="filters"
               isClearable
               className="filter-select"
-              value={filterOptions.find((option) => option.value === activeFilter?.id ?? '')}
+              value={filterOptions.find((option) => option.value === currentFolder?.filterId ?? '')}
               onChange={(newValue) => {
                 if (!newValue) {
                   setActiveFilter(undefined);

@@ -43,6 +43,7 @@ export const FolderMenu: React.FC<IFolderMenuProps> = ({ content, onClear }) => 
         description: '',
         settings: {
           keepAgeLimit: 0,
+          autoPopulate: false,
         },
         isEnabled: true,
         sortOrder: 0,
