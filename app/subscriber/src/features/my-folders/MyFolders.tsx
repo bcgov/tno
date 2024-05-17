@@ -34,6 +34,7 @@ export const MyFolders: React.FC<IMyFoldersProps> = () => {
         description: '',
         settings: {
           keepAgeLimit: 0,
+          autoPopulate: false,
         },
         isEnabled: true,
         sortOrder: 0,

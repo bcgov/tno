@@ -4,4 +4,9 @@ export interface IFolderSettingsModel extends Record<string, any> {
   /// 0 days will clean out the folder entirely when schedule runs.
   /// </summary>
   keepAgeLimit: number;
+
+  /// <summary>
+  /// get/set - If the folder auto populates.
+  /// </summary>
+  autoPopulate: boolean;
 }

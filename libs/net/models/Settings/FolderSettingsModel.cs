@@ -8,5 +8,10 @@ public class FolderSettingsModel
     /// 0 days will clean out the folder entirely when schedule runs.
     /// </summary>
     public int KeepAgeLimit { get; set; }
+
+    /// <summary>
+    /// get/set - If the folder auto populates.
+    /// </summary>
+    public bool AutoPopulate { get; set; } = false;
     #endregion
 }
