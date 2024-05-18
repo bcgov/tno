@@ -16,6 +16,7 @@ import {
   OptionItem,
   ReportSectionOrderByOptions,
   Row,
+  Show,
 } from 'tno-core';
 
 import { directionOptions } from '../constants';
@@ -69,6 +70,16 @@ export const ReportSectionGallery = ({ index }: IReportSectionGalleryProps) => {
               label="Remove Duplicate Content"
               tooltip="Remove content from this section that is in above sections"
             />
+            <Show visible={!!section.folderId || !!section.linkedReportId}>
+              <FormikCheckbox
+                name={`sections.${index}.settings.overrideExcludeHistorical`}
+                label={`Include all content from linked ${
+                  section.folderId ? 'folder' : 'report'
+                } even if in prior report`}
+                tooltip="This overrides the report option 'Exclude stories that have been sent out in
+                previous report' for this section only."
+              />
+            </Show>
             <FormikCheckbox
               name={`sections.${index}.settings.showImage`}
               label="Show Image"

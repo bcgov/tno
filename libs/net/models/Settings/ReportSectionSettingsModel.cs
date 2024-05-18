@@ -14,6 +14,7 @@ public class ReportSectionSettingsModel
     public bool ShowImage { get; set; }
     public string Direction { get; set; } = "";
     public bool RemoveDuplicates { get; set; }
+    public bool OverrideExcludeHistorical { get; set; }
     public bool HideEmpty { get; set; }
     public string GroupBy { get; set; } = "";
     public string SortBy { get; set; } = "";
@@ -34,13 +35,13 @@ public class ReportSectionSettingsModel
         this.ShowImage = settings.GetDictionaryJsonValue("showImage", false, options);
         this.Direction = settings.GetDictionaryJsonValue("direction", "", options)!;
         this.RemoveDuplicates = settings.GetDictionaryJsonValue("removeDuplicates", false, options)!;
+        this.OverrideExcludeHistorical = settings.GetDictionaryJsonValue("overrideExcludeHistorical", false, options)!;
         this.HideEmpty = settings.GetDictionaryJsonValue("hideEmpty", false, options)!;
         this.GroupBy = settings.GetDictionaryJsonValue("groupBy", "", options)!;
         this.SortBy = settings.GetDictionaryJsonValue("sortBy", "", options)!;
         this.SortDirection = settings.GetDictionaryJsonValue("sortDirection", "", options)!;
         this.DatasetColors = settings.GetDictionaryJsonValue("datasetColors", Array.Empty<string>(), options)!;
         this.DataLabelColors = settings.GetDictionaryJsonValue("dataLabelColors", Array.Empty<string>(), options)!;
-
     }
 
     public ReportSectionSettingsModel(JsonDocument settings, JsonSerializerOptions options)
@@ -52,13 +53,13 @@ public class ReportSectionSettingsModel
         this.ShowImage = settings.GetElementValue("showImage", false, options);
         this.Direction = settings.GetElementValue("direction", "", options)!;
         this.RemoveDuplicates = settings.GetElementValue("removeDuplicates", false, options)!;
+        this.OverrideExcludeHistorical = settings.GetElementValue("overrideExcludeHistorical", false, options)!;
         this.HideEmpty = settings.GetElementValue("hideEmpty", false, options)!;
         this.GroupBy = settings.GetElementValue("groupBy", "", options)!;
         this.SortBy = settings.GetElementValue("sortBy", "", options)!;
         this.SortDirection = settings.GetElementValue("sortDirection", "", options)!;
         this.DatasetColors = settings.GetElementValue("datasetColors", Array.Empty<string>(), options)!;
         this.DataLabelColors = settings.GetElementValue("dataLabelColors", Array.Empty<string>(), options)!;
-
     }
     #endregion
 }

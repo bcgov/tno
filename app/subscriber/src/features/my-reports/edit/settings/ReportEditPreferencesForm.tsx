@@ -95,8 +95,8 @@ export const ReportEditPreferencesForm = () => {
             label="Include only new content posted after previous report"
           />
           <span className="info">
-            Only include content that has been 'posted' after the report has been 'created'. Posted
-            content is any content that an MMI Editor publishes.
+            Only include content that has been 'posted' after the report has been 'created'. The
+            posted date is when an Editor saves the content in MMI.
           </span>
         </Row>
         <FormikCheckbox

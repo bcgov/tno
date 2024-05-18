@@ -1,8 +1,8 @@
 import { DataSources } from 'features/my-reports/components';
-import { IReportForm } from 'features/my-reports/interfaces';
-import { useFormikContext } from 'formik';
 import React from 'react';
 import { Col, FormikCheckbox, Row, Show } from 'tno-core';
+
+import { useReportEditContext } from '../../ReportEditContext';
 
 export interface IReportSectionMediaAnalyticsProps {
   index: number;
@@ -17,7 +17,7 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
   HTMLDivElement,
   IReportSectionMediaAnalyticsProps
 >(({ index, ...rest }, ref) => {
-  const { values, setFieldValue } = useFormikContext<IReportForm>();
+  const { values, setFieldValue } = useReportEditContext();
 
   const section = values.sections[index];
 
@@ -46,6 +46,20 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
             <span className="info">
               Do not include in this section content that already exists in the above sections (does
               not apply to charts that link to other reports)
+            </span>
+          </Row>
+        </Show>
+        <Show visible={!!section.folderId || !!section.linkedReportId}>
+          <Row>
+            <FormikCheckbox
+              name={`sections.${index}.settings.overrideExcludeHistorical`}
+              label={`Include all content from linked ${
+                section.folderId ? 'folder' : 'report'
+              } even if in prior report`}
+            />
+            <span className="info">
+              This overrides the report option "Exclude stories that have been sent out in previous
+              report" for this section only.
             </span>
           </Row>
         </Show>

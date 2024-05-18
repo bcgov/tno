@@ -1,7 +1,10 @@
 import React from 'react';
-import { Col, FormikCheckbox, FormikText, Row } from 'tno-core';
+import { Col, FormikCheckbox, FormikText, Row, Show } from 'tno-core';
+
+import { useReportEditContext } from '../../ReportEditContext';
 
 export interface IReportSectionContentProps {
+  /** Section index position */
   index: number;
 }
 
@@ -12,15 +15,15 @@ export interface IReportSectionContentProps {
  */
 export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSectionContentProps>(
   ({ index, ...rest }, ref) => {
+    const { values } = useReportEditContext();
+
+    const section = values.sections[index];
+
     return (
       <Col gap="0.5rem">
         <FormikText name={`sections.${index}.settings.label`} label="Section heading:" />
         <Col className="frm-in">
           <label>Report Section Options</label>
-          <FormikCheckbox
-            name={`sections.${index}.settings.hideEmpty`}
-            label="Hide this section in the report when empty"
-          />
           <Row>
             <FormikCheckbox
               name={`sections.${index}.settings.removeDuplicates`}
@@ -31,6 +34,24 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
               not apply to charts that link to other reports)
             </span>
           </Row>
+          <Show visible={!!section.folderId || !!section.linkedReportId}>
+            <Row>
+              <FormikCheckbox
+                name={`sections.${index}.settings.overrideExcludeHistorical`}
+                label={`Include all content from linked ${
+                  section.folderId ? 'folder' : 'report'
+                } even if in prior report`}
+              />
+              <span className="info">
+                This overrides the report option "Exclude stories that have been sent out in
+                previous report" for this section only.
+              </span>
+            </Row>
+          </Show>
+          <FormikCheckbox
+            name={`sections.${index}.settings.hideEmpty`}
+            label="Hide this section in the report when empty"
+          />
           <FormikCheckbox
             name={`sections.${index}.settings.showFullStory`}
             label="Show Full Story"

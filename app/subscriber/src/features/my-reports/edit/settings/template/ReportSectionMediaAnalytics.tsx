@@ -1,6 +1,4 @@
 import { Button } from 'components/button';
-import { IReportForm } from 'features/my-reports/interfaces';
-import { useFormikContext } from 'formik';
 import React from 'react';
 import {
   Col,
@@ -15,6 +13,7 @@ import {
   Show,
 } from 'tno-core';
 
+import { useReportEditContext } from '../../ReportEditContext';
 import { ReportSectionMediaAnalyticsChart } from './ReportSectionMediaAnalyticsChart';
 
 export interface IReportSectionMediaAnalyticsProps {
@@ -31,7 +30,7 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
   HTMLDivElement,
   IReportSectionMediaAnalyticsProps
 >(({ index, onDisableDrag, ...rest }, ref) => {
-  const { values, setFieldValue } = useFormikContext<IReportForm>();
+  const { values, setFieldValue } = useReportEditContext();
 
   const [chartOptions] = React.useState(getSortableOptions(values.template?.chartTemplates ?? []));
   const [chart, setChart] = React.useState<IChartTemplateModel>();
@@ -122,6 +121,20 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
             <span className="info">
               Do not include in this section content that already exists in the above sections (does
               not apply to charts that link to other reports)
+            </span>
+          </Row>
+        </Show>
+        <Show visible={!!section.folderId || !!section.linkedReportId}>
+          <Row>
+            <FormikCheckbox
+              name={`sections.${index}.settings.overrideExcludeHistorical`}
+              label={`Include all content from linked ${
+                section.folderId ? 'folder' : 'report'
+              } even if in prior report`}
+            />
+            <span className="info">
+              This overrides the report option "Exclude stories that have been sent out in previous
+              report" for this section only.
             </span>
           </Row>
         </Show>
