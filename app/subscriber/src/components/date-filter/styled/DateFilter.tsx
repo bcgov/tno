@@ -28,12 +28,12 @@ export const DateFilter = styled(Row)`
       &:focus {
         outline: none;
       }
-      max-width: 6.5em;
+      max-width: 6.8em;
       font-weight: bold;
       background-color: transparent;
       border: none;
     }
-    max-width: 6.5em;
+    max-width: 6.8em;
   }
 
   .react-datepicker__day--keyboard-selected,
