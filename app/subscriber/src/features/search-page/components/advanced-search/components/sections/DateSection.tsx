@@ -36,6 +36,7 @@ export const DateSection: React.FC = () => {
             storeFilter({
               ...filter,
               startDate: date ? moment(date)?.startOf('day').toISOString() : '',
+              dateOffset: undefined,
             });
           }}
         />
@@ -54,13 +55,14 @@ export const DateSection: React.FC = () => {
             storeFilter({
               ...filter,
               endDate: date ? moment(date)?.endOf('day').toISOString() : '',
+              dateOffset: undefined,
             });
           }}
         />
         <FaX
           className="clear"
           onClick={() => {
-            storeFilter({ ...filter, endDate: '', startDate: '' });
+            storeFilter({ ...filter, endDate: '', startDate: '', dateOffset: 0 });
           }}
         />
       </Row>

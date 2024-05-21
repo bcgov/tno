@@ -10,7 +10,7 @@ export interface IDateFilterProps {
   loaded?: boolean;
   filter: IFilterSettingsModel;
   storeFilter: (filter: IFilterSettingsModel) => void;
-  onChangeDate?: () => void;
+  onChangeDate?: (filter: IFilterSettingsModel) => void;
 }
 
 /** Custom date filter for the subscriber home page. Control the calendar state with custom button, custom styling also applied. Also allows user to navigate a day at a time via arrow buttons. */
@@ -37,12 +37,14 @@ export const DateFilter: React.FC<IDateFilterProps> = ({
         newDate = new Date(startDate);
         newDate.setDate(newDate.getDate() + dateOffset);
       }
-      storeFilter({
+      const search = {
         ...filter,
         startDate: moment(newDate).startOf('day').toISOString(),
         endDate: moment(newDate).endOf('day').toISOString(),
-      });
-      onChangeDate?.();
+        dateOffset: undefined,
+      };
+      storeFilter(search);
+      onChangeDate?.(search);
     },
     [filter, onChangeDate, storeFilter],
   );

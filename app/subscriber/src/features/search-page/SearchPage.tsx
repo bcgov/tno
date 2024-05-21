@@ -12,7 +12,15 @@ import { useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useLookup } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, IContentModel, Loading, Row, Show, useWindowSize } from 'tno-core';
+import {
+  Col,
+  IContentModel,
+  IFilterSettingsModel,
+  Loading,
+  Row,
+  Show,
+  useWindowSize,
+} from 'tno-core';
 
 import { AdvancedSearch } from './components';
 import { useSearchPageContext } from './SearchPageContext';
@@ -104,11 +112,14 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     fetchResults(query, filter.searchUnpublished);
   }, [fetchResults, filter, genQuery]);
 
-  const executeSearch = React.useCallback(async () => {
-    const settings = filterFormat(filter);
-    const query = genQuery(settings);
-    fetchResults(query, filter.searchUnpublished);
-  }, [fetchResults, filter, genQuery]);
+  const executeSearch = React.useCallback(
+    async (filter: IFilterSettingsModel) => {
+      const settings = filterFormat(filter);
+      const query = genQuery(settings);
+      fetchResults(query, filter.searchUnpublished);
+    },
+    [fetchResults, genQuery],
+  );
 
   return (
     <styled.SearchPage expanded={expanded}>
