@@ -162,12 +162,16 @@ public class WorkOrderHelper : IWorkOrderHelper
 
         if (force || !workOrders.Any(o => o.WorkType == Entities.WorkOrderType.Transcription || !WorkLimiterStatus.Contains(o.Status)))
         {
+            var headlineString = $"{{ \"headline\": \"{this.Content.Headline}\" }}";
+            var configuration = JsonDocument.Parse(headlineString);
             var workOrder = _workOrderService.AddAndSave(
                 new Entities.WorkOrder(
                     Entities.WorkOrderType.Transcription,
                     requestor,
                     "",
-                    this.Content));
+                    this.Content,
+                    configuration
+                    ));
 
             await _kafkaMessenger.SendMessageAsync(_kafkaOptions.TranscriptionTopic, new TNO.Kafka.Models.TranscriptRequestModel(workOrder));
             return workOrder;
