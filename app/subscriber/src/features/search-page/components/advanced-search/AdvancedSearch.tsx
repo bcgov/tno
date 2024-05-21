@@ -9,6 +9,7 @@ import { FaCaretSquareDown, FaCheckSquare, FaPlay, FaRegSmile } from 'react-icon
 import { FaSave } from 'react-icons/fa';
 import {
   FaBookmark,
+  FaCheck,
   FaDownLeftAndUpRightToCenter,
   FaIcons,
   FaNewspaper,
@@ -107,6 +108,13 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
 
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
   const [{ sources, series, mediaTypes }] = useLookup();
+  const [initialState, setInitialState] = React.useState<IFilterSettingsModel | null>(null);
+  const [isFirstLoad, setIsFirstLoad] = React.useState<boolean>(false);
+
+  const isDiff = React.useMemo(
+    () => JSON.stringify(initialState) !== JSON.stringify(search),
+    [initialState, search],
+  );
 
   React.useEffect(() => {
     if (activeFilter) {
@@ -115,6 +123,15 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
       setOriginalFilterSettings(activeFilter.settings);
     } else setSearchName('');
   }, [activeFilter, setOriginalFilterSettings]);
+
+  React.useEffect(() => {
+    if (initialState === null && search?.search) {
+      setInitialState(search);
+      setIsFirstLoad(true);
+    } else if (isDiff) {
+      setIsFirstLoad(false);
+    }
+  }, [initialState, isDiff, search]);
 
   const saveSearch = React.useCallback(async () => {
     const settings = filterFormat(search);
@@ -145,6 +162,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
         .then((data) => {
           toast.success(`${data.name} has successfully been saved.`);
           storeSearchFilter(data.settings);
+          setInitialState(data.settings);
         })
         .catch(() => {});
     }
@@ -212,6 +230,22 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
               <div className="viewed-name">
                 <FaBookmark />
                 <div className="filter-name">{activeFilter?.name}</div>
+                <div className="status">
+                  {isFirstLoad ? (
+                    ''
+                  ) : !isFirstLoad && !isDiff ? (
+                    <>
+                      <FaCheck className="status_check_mark" />
+                      <span className="status_saved">Saved</span>
+                    </>
+                  ) : isDiff && !isFirstLoad ? (
+                    <button className="status_save_changes" onClick={() => saveSearch()}>
+                      Save Changes
+                    </button>
+                  ) : (
+                    'Empty'
+                  )}
+                </div>
               </div>
             </Show>
             {/* SEARCH FOR: */}
