@@ -180,7 +180,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
           <Checkbox
             name="auto-pop"
             label="Auto-populate this folder"
-            checked={currentFolder?.settings.autoPopulate}
+            checked={currentFolder?.settings.autoPopulate ?? false}
             onChange={(e) => {
               setCurrentFolder({
                 ...currentFolder,
