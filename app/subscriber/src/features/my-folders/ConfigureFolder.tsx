@@ -1,11 +1,14 @@
 import { Button } from 'components/button';
+import { Modal } from 'components/modal';
 import * as React from 'react';
+import { FaArrowAltCircleRight } from 'react-icons/fa';
 import { FaGear, FaTrash } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useFilters, useFolders } from 'store/hooks';
 import {
   Checkbox,
+  Col,
   FieldSize,
   getDistinct,
   IContentModel,
@@ -14,7 +17,6 @@ import {
   IFolderModel,
   IFolderScheduleModel,
   IOptionItem,
-  Modal,
   Row,
   Select,
   sortObject,
@@ -122,12 +124,18 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
                 selected: false,
               })),
             ],
-            (item) => item.content.id,
+            (item) => item.contentId,
           ).map((item, index) => ({ ...item, sortOrder: index }));
-          const result = await updateFolder({ ...currentFolder, content }, true);
-          setCurrentFolder(result);
-          await findMyFolders();
-          toast.success(`Filter found and added ${results.hits.hits.length} content items.`);
+
+          // Only update the folder if a change in content has occurred.
+          if (currentFolder.content.length !== content.length) {
+            const result = await updateFolder({ ...currentFolder, content }, true);
+            setCurrentFolder(result);
+            await findMyFolders();
+            toast.success(`Filter found and added ${results.hits.hits.length} content items.`);
+          } else {
+            toast.info(`Filter found ${results.hits.hits.length} content items.`);
+          }
         } else {
           toast.warning('No content found for this filter.');
         }
@@ -192,31 +200,46 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
             }}
           />
           <label>Choose one of your Saved Searches to apply to this folder</label>
-          <Row className="choose-filter">
-            <Select
-              options={filterOptions}
-              name="filters"
-              isClearable
-              className="filter-select"
-              value={filterOptions.find((option) => option.value === currentFolder?.filterId ?? '')}
-              onChange={(newValue) => {
-                if (!newValue) {
-                  setActiveFilter(undefined);
-                  setCurrentFolder({ ...currentFolder, filterId: undefined } as IFolderModel);
-                  return;
-                }
-                const option = newValue as IOptionItem;
-                const targetFilter = myFilters.find((f) => f.id === option.value);
-                setActiveFilter(targetFilter);
-                setCurrentFolder({ ...currentFolder, filterId: targetFilter?.id } as IFolderModel);
-              }}
-            />
+          <Row className="choose-filter" nowrap gap="0.5rem">
+            <Col flex="1">
+              <Select
+                options={filterOptions}
+                name="filters"
+                isClearable
+                className="filter-select"
+                value={filterOptions.find(
+                  (option) => option.value === currentFolder?.filterId ?? '',
+                )}
+                onChange={(newValue) => {
+                  if (!newValue) {
+                    setActiveFilter(undefined);
+                    setCurrentFolder({ ...currentFolder, filterId: undefined } as IFolderModel);
+                    return;
+                  }
+                  const option = newValue as IOptionItem;
+                  const targetFilter = myFilters.find((f) => f.id === option.value);
+                  setActiveFilter(targetFilter);
+                  setCurrentFolder({
+                    ...currentFolder,
+                    filterId: targetFilter?.id,
+                  } as IFolderModel);
+                }}
+              />
+            </Col>
             <Button
-              className="run"
               disabled={!activeFilter}
+              title="Populate the folder by running the filter now"
               onClick={() => !!activeFilter && handleRun(activeFilter)}
             >
-              Run Filter
+              Run
+            </Button>
+            <Button
+              disabled={!activeFilter}
+              variant="secondary"
+              title="View Filter"
+              onClick={() => window.open(`/search/advanced/${activeFilter?.id}`, '_blank')}
+            >
+              <FaArrowAltCircleRight />
             </Button>
           </Row>
         </div>
@@ -280,7 +303,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
         isShowing={isShowing}
         hide={toggle}
         type="delete"
-        confirmText="Yes, Remove It"
+        confirmText="Yes, Empty Folder"
         onConfirm={() => {
           try {
             if (actionName === 'empty' && currentFolder) {
