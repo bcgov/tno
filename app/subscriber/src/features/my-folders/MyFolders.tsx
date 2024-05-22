@@ -1,26 +1,23 @@
 import { SubscriberTableContainer } from 'components/table';
 import React from 'react';
 import { FaFolderPlus, FaWandMagicSparkles } from 'react-icons/fa6';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { useProfileStore } from 'store/slices';
 import { FlexboxTable, Row, Text } from 'tno-core';
 
-import { columns } from './constants/columns';
-import { useFolderContext } from './FolderContext';
+import { useColumns } from './hooks';
 import * as styled from './styled';
 
 export interface IMyFoldersProps {}
 
 /** contains a list of the user's folders, allows for edit and viewing */
 export const MyFolders: React.FC<IMyFoldersProps> = () => {
-  const [{ myFolders }, { findMyFolders, addFolder }] = useFolders();
   const navigate = useNavigate();
-  const { id } = useParams();
+  const [{ myFolders }, { findMyFolders, addFolder }] = useFolders();
+  const columns = useColumns();
+
   const [newFolderName, setNewFolderName] = React.useState<string>('');
-  const [, { storeMyFolders }] = useProfileStore();
-  const { setFolder } = useFolderContext();
 
   React.useEffect(() => {
     if (!myFolders.length) findMyFolders().catch(() => {});
@@ -43,9 +40,8 @@ export const MyFolders: React.FC<IMyFoldersProps> = () => {
         reports: [],
         events: [],
       }).then((data) => {
-        toast.success(`${data.name} created successfully`);
         setNewFolderName('');
-        storeMyFolders([...myFolders, data]);
+        toast.success(`${data.name} created successfully`);
       });
     else toast.warning(`Folder name is required.`);
   };
@@ -76,11 +72,10 @@ export const MyFolders: React.FC<IMyFoldersProps> = () => {
         <SubscriberTableContainer>
           <FlexboxTable
             pagingEnabled={false}
-            columns={columns(setFolder, Number(id), navigate)}
+            columns={columns}
             rowId={'id'}
             disableZebraStriping
             onRowClick={(e) => {
-              setFolder(e.original);
               navigate(`/folders/view/${e.original.id}`);
             }}
             data={myFolders}

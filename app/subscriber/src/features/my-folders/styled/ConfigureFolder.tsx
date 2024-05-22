@@ -92,10 +92,10 @@ export const ConfigureFolder = styled(PageSection)`
       margin-left: 0.5rem;
       width: 4rem;
     }
-    svg {
-      color: ${(props) => props.theme.css.btnBkPrimary};
-      margin-left: 0.5rem;
-    }
+  }
+  .info {
+    color: ${(props) => props.theme.css.btnBkPrimary};
+    margin-left: 0.5rem;
   }
   .action-buttons {
     width: 100%;

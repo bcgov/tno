@@ -33,24 +33,20 @@ import { createSchedule } from './utils';
 export interface IConfigureFolderProps {}
 
 export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
-  const [{ myFilters }, { findMyFilters }] = useFilters();
   const [, { findContentWithElasticsearch }] = useContent();
+  const [{ myFilters }, { findMyFilters }] = useFilters();
   const [{ myFolders }, { findMyFolders, getFolder, updateFolder, deleteFolder }] = useFolders();
   const { id } = useParams();
-  const { toggle, isShowing } = useModal();
+  const { toggle: toggleEmpty, isShowing: isShowingEmpty } = useModal();
+  const { toggle: toggleDelete, isShowing: isShowingDelete } = useModal();
   const navigate = useNavigate();
+  const { folder: currentFolder, setFolder: setCurrentFolder } = useFolderContext();
 
   const [activeFilter, setActiveFilter] = React.useState<IFilterModel>();
-  const [actionName, setActionName] = React.useState<'delete' | 'empty'>();
   const [filterOptions, setFilterOptions] = React.useState<IOptionItem[]>(
     getFilterOptions(myFilters, activeFilter?.id ?? 0),
   );
-  const { folder: currentFolder, setFolder: setCurrentFolder } = useFolderContext();
-  const [init, setInit] = React.useState(false);
-
-  React.useEffect(() => {
-    if (myFolders.length) setInit(true);
-  }, [myFolders.length]);
+  const [init, setInit] = React.useState(true);
 
   React.useEffect(() => {
     if (!myFilters.length) {
@@ -63,22 +59,11 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
   }, []);
 
   React.useEffect(() => {
-    if (currentFolder && !currentFolder.events.length) {
-      setCurrentFolder({
-        ...currentFolder,
-        events: [createSchedule(currentFolder.name, currentFolder.description)],
-      });
-      if (currentFolder.filterId) {
-        const selectedFilter = myFilters.find((f) => f.id === currentFolder.filterId);
-        setActiveFilter(selectedFilter);
-      }
-    }
-    // only run when currentFolder changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentFolder]);
+    setInit(true);
+  }, [id]);
 
   React.useEffect(() => {
-    if (init && ((!currentFolder && id) || currentFolder?.id !== Number(id))) {
+    if (init && myFolders.length && currentFolder?.id !== Number(id)) {
       setInit(false);
       getFolder(Number(id), true)
         .then((folder) => {
@@ -90,7 +75,8 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
             setActiveFilter(undefined);
           }
         })
-        .catch(() => {});
+        .catch(() => {})
+        .finally(() => setInit(true));
     } else {
       if (currentFolder && currentFolder.filterId) {
         const selectedFilter = myFilters.find((f) => f.id === currentFolder.filterId);
@@ -101,7 +87,28 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
     }
     // do not want to run with setCurrentFolder
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentFolder, id, init, getFolder, myFolders]);
+  }, [currentFolder, id, getFolder, myFolders, init]);
+
+  React.useEffect(() => {
+    if (currentFolder && !currentFolder.events.length) {
+      setCurrentFolder({
+        ...currentFolder,
+        events: [createSchedule(currentFolder.name, currentFolder.description)],
+      });
+      if (currentFolder.filterId) {
+        const selectedFilter = myFilters.find((f) => f.id === currentFolder.filterId);
+        setActiveFilter(selectedFilter);
+      }
+    } else if (currentFolder && currentFolder.events.length > 1) {
+      // Remove extra scheduled events that might have been created due to a bug.
+      setCurrentFolder({
+        ...currentFolder,
+        events: [currentFolder.events[0]],
+      });
+    }
+    // only run when currentFolder changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentFolder]);
 
   const handleRun = React.useCallback(
     async (filter: IFilterModel) => {
@@ -171,9 +178,9 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
           name="name"
           label="Folder name:"
           value={currentFolder?.name ?? ''}
-          onChange={(e) =>
-            setCurrentFolder({ ...currentFolder, name: e.target.value } as IFolderModel)
-          }
+          onChange={(e) => {
+            setCurrentFolder({ ...currentFolder, name: e.target.value } as IFolderModel);
+          }}
         />
         <h2>Folder automation settings</h2>
         <Row>
@@ -182,8 +189,8 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
         <div className="add-filter">
           <p>
             A folder can be set up here to populate stories automatically based on one of your Saved
-            Searches. Choose your Saved Search first and then setup your preferred scheduling
-            options.
+            Searches. If you select a saved search any content that matches will be added to your
+            folder.
           </p>
           <Checkbox
             name="auto-pop"
@@ -214,15 +221,15 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
                   if (!newValue) {
                     setActiveFilter(undefined);
                     setCurrentFolder({ ...currentFolder, filterId: undefined } as IFolderModel);
-                    return;
+                  } else {
+                    const option = newValue as IOptionItem;
+                    const targetFilter = myFilters.find((f) => f.id === option.value);
+                    setActiveFilter(targetFilter);
+                    setCurrentFolder({
+                      ...currentFolder,
+                      filterId: targetFilter?.id,
+                    } as IFolderModel);
                   }
-                  const option = newValue as IOptionItem;
-                  const targetFilter = myFilters.find((f) => f.id === option.value);
-                  setActiveFilter(targetFilter);
-                  setCurrentFolder({
-                    ...currentFolder,
-                    filterId: targetFilter?.id,
-                  } as IFolderModel);
                 }}
               />
             </Col>
@@ -276,8 +283,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
               <Button
                 className="warning"
                 onClick={() => {
-                  setActionName('empty');
-                  toggle();
+                  toggleEmpty();
                 }}
               >
                 Empty folder
@@ -285,8 +291,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
               <Button
                 className="danger"
                 onClick={() => {
-                  setActionName('delete');
-                  toggle();
+                  toggleDelete();
                 }}
               >
                 Delete folder
@@ -298,15 +303,15 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
       </div>
 
       <Modal
-        headerText="Confirm Removal"
-        body={`Are you sure you wish to ${actionName} this folder?`}
-        isShowing={isShowing}
-        hide={toggle}
+        headerText="Confirm Empty"
+        body={`Are you sure you wish to empty this folder?`}
+        isShowing={isShowingEmpty}
+        hide={toggleEmpty}
         type="delete"
         confirmText="Yes, Empty Folder"
         onConfirm={() => {
           try {
-            if (actionName === 'empty' && currentFolder) {
+            if (currentFolder) {
               updateFolder({ ...currentFolder, content: [] }, true)
                 .then((data) => {
                   // need to clear state managed content as well
@@ -314,7 +319,22 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
                   toast.success(`${currentFolder.name} updated successfully`);
                 })
                 .catch(() => {});
-            } else if (actionName === 'delete' && !!currentFolder) {
+            }
+          } finally {
+            toggleEmpty();
+          }
+        }}
+      />
+      <Modal
+        headerText="Confirm Removal"
+        body={`Are you sure you wish to delete this folder?`}
+        isShowing={isShowingDelete}
+        hide={toggleDelete}
+        type="delete"
+        confirmText="Yes, Delete Folder"
+        onConfirm={() => {
+          try {
+            if (currentFolder) {
               deleteFolder(currentFolder)
                 .then(() => {
                   toast.success(`${currentFolder.name} deleted successfully`);
@@ -322,7 +342,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
                 .catch(() => {});
             }
           } finally {
-            toggle();
+            toggleDelete();
           }
         }}
       />
