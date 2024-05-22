@@ -33,14 +33,18 @@ export const PageSection = styled.div<{ $ignoreMinWidth?: boolean; $ignoreLastCh
     max-height: 26px;
   }
 
-  ${(props) =>
-    !props.$ignoreLastChildGap &&
-    `
-  > div:last-child {
+  .page-content {
     display: flex;
     flex-direction: column;
     padding: 1rem;
     gap: 0.25rem;
+  }
+
+  ${(props) =>
+    !props.$ignoreLastChildGap &&
+    `
+  > div:last-child {
+    @extend .page-content;
   }
 
   `}
