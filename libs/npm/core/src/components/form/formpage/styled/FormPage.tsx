@@ -6,7 +6,7 @@ export const FormPage = styled.div<IFormPageProps>`
   flex: 1 1 100%;
   background-color: white;
 
-  :not(.no-padding) {
+  &:not(.no-padding) {
     padding: 0.5em 2em 2em 2em;
   }
 
