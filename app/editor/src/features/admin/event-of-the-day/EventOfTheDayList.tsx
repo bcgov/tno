@@ -41,6 +41,7 @@ const EventOfTheDayList: React.FC = () => {
   const [eventOfTheDayReportId, setEventOfTheDayReportId] = React.useState(0);
   const [items, setItems] = React.useState<IFolderContentModel[]>([]);
   const [allTopics, setAllTopics] = React.useState<ITopicModel[]>([]);
+  const [isSent, setIsSent] = React.useState(false);
 
   React.useEffect(() => {
     if (isReady) {
@@ -59,7 +60,7 @@ const EventOfTheDayList: React.FC = () => {
 
   const sortBySourceSortOrderAndPage = (data: IFolderContentModel[]) => {
     data = data.sort((a, b) => {
-      // apply some default sortOrder and page values where neccesary for comparison
+      // apply some default sortOrder and page values where necessary for comparison
       const firstItemSourceSortOrder = a.content?.source?.sortOrder ?? 99999;
       const firstItemPage = a.content?.page ?? 'ZZZ';
       const secondItemSourceSortOrder = b.content?.source?.sortOrder ?? 99999;
@@ -165,7 +166,7 @@ const EventOfTheDayList: React.FC = () => {
             >
               Preview <FaBinoculars className="icon" />
             </Button>
-            <Button onClick={() => toggle()}>
+            <Button onClick={() => toggle()} disabled={isShowing || isSent}>
               Send <FaPaperPlane className="icon" />
             </Button>
           </div>
@@ -199,7 +200,7 @@ const EventOfTheDayList: React.FC = () => {
             >
               Preview <FaBinoculars className="icon" />
             </Button>
-            <Button onClick={() => toggle()}>
+            <Button onClick={() => toggle()} disabled={isShowing || isSent}>
               Send <FaPaperPlane className="icon" />
             </Button>
           </div>
@@ -215,8 +216,10 @@ const EventOfTheDayList: React.FC = () => {
         onConfirm={async () => {
           try {
             await handlePublish();
+            setIsSent(true);
           } catch {
             // Globally handled
+            setIsSent(false);
           } finally {
             toggle();
           }

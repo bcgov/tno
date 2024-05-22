@@ -1,11 +1,11 @@
-using Microsoft.Extensions.DependencyInjection;
-using TNO.Services.ContentMigration.Config;
-using TNO.Services.Runners;
-using TNO.Services.ContentMigration.Sources.Oracle.Services;
-using TNO.Services.ContentMigration.Sources.Oracle;
-using Oracle.ManagedDataAccess.Client;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Oracle.ManagedDataAccess.Client;
+using TNO.Services.ContentMigration.Config;
 using TNO.Services.ContentMigration.Migrators;
+using TNO.Services.ContentMigration.Sources.Oracle;
+using TNO.Services.ContentMigration.Sources.Oracle.Services;
+using TNO.Services.Runners;
 
 namespace TNO.Services.ContentMigration;
 
@@ -45,7 +45,7 @@ public class ContentMigrationService : KafkaProducerService
             .AddMigrationSourceContext(this.Configuration.GetSection("Service:OracleConnection").Get<OracleConnectionSettings>())
             .AddTransient<IIngestAction<ContentMigrationOptions>, ContentMigrationAction>()
             .AddTransient<IngestManagerFactory<ContentMigrationIngestActionManager, ContentMigrationOptions>>()
-            .AddScoped<IServiceManager, ContentMigrationManager>();
+            .AddSingleton<IServiceManager, ContentMigrationManager>();
 
         services.AddSourceMigrators(this.Configuration);
 

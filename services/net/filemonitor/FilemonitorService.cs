@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using TNO.Services.Runners;
 using TNO.Services.FileMonitor.Config;
+using TNO.Services.Runners;
 
 namespace TNO.Services.FileMonitor;
 
@@ -38,7 +38,7 @@ public class FileMonitorService : IngestService
             .Configure<FileMonitorOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IIngestAction<FileMonitorOptions>, FileMonitorAction>()
             .AddTransient<IngestManagerFactory<FileMonitorIngestActionManager, FileMonitorOptions>>()
-            .AddScoped<IServiceManager, FileMonitorManager>();
+            .AddSingleton<IServiceManager, FileMonitorManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<SyndicationOptions>()

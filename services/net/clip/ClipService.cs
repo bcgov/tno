@@ -38,7 +38,7 @@ public class ClipService : CommandService
             .Configure<ClipOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IIngestAction<ClipOptions>, ClipAction>()
             .AddTransient<IngestManagerFactory<ClipIngestActionManager, ClipOptions>>()
-            .AddScoped<IServiceManager, ClipManager>();
+            .AddSingleton<IServiceManager, ClipManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<ClipOptions>()

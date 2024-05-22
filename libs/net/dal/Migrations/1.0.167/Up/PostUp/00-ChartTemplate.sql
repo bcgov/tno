@@ -1,0 +1,57 @@
+DO $$
+BEGIN
+
+-- Update name field in report template to match all environments:
+UPDATE public."chart_template"
+SET "template" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.ChartEngineContentModel>
+@using System
+@using System.Linq
+@using System.Text.Json
+@using TNO.Entities
+@{
+  Content = Content.Where(x => x.Topics.All(a => a.Name != "Not Applicable"));
+  var group = SectionSettings.GroupBy switch
+  {
+    "topicType" => Content.GroupBy(c => c.Topics.FirstOrDefault()?.TopicType.ToString() ?? "").OrderByDescending(group => group.Key),
+    "topicName" => Content.GroupBy(c => c.Topics.FirstOrDefault()?.Name.ToString() ?? "").OrderBy(group => group.Key),
+    _ =>  Content.GroupBy(c => c.OtherSource).OrderBy(group => group.Key),
+  };
+  decimal sumOfAllScores = Content.Sum(c => c.Topics.FirstOrDefault()?.Score ?? 0);
+
+  var labels = new List<string>();
+  var data = new List<decimal>();
+
+  if (SectionSettings.GroupBy == "topicType")
+  {
+    var dict = group.ToDictionary(c => c.Key, c => c);
+    decimal proactiveScore = dict.TryGetValue(TopicType.Proactive.ToString(), out IGrouping<string, TNO.TemplateEngine.Models.ContentModel>? proactiveContent) ? proactiveContent.Sum(c => c.Topics.FirstOrDefault()?.Score ?? 0) : 0;
+    decimal issuesScore = dict.TryGetValue(TopicType.Issues.ToString(), out IGrouping<string, TNO.TemplateEngine.Models.ContentModel>? issuesContent) ? issuesContent.Sum(c => c.Topics.FirstOrDefault()?.Score ?? 0) : 0;
+    var proactivePercent = sumOfAllScores > 0 ? proactiveScore / sumOfAllScores : 0;
+    var issuesPercent = sumOfAllScores > 0 ? issuesScore / sumOfAllScores : 0;
+    labels.AddRange(new [] {TopicType.Proactive.ToString(), TopicType.Issues.ToString()});
+    data.AddRange(new [] {proactivePercent, issuesPercent});
+  }
+  else
+  {
+    labels.AddRange(group.Select(g => g.Key));
+    var values = group.Select(g => g.Sum(c => c.Topics.FirstOrDefault()?.Score ?? 0));
+    data.AddRange(values.Select(v => sumOfAllScores > 0 ? (decimal)v / sumOfAllScores : 0));
+  }
+
+  // Use this to output the raw data.
+  // @(JsonSerializer.Serialize(Content))
+}
+{
+  "labels": [@String.Join(",", labels.Select(v => $"\"{v}\""))],
+  "datasets": [
+    {
+      "label": "Totals",
+      "data":  [@String.Join(",", data.Select(v => String.Format("{0:F2}", v)))],
+      "backgroundColor": ["#006600","#BB1111"]
+    }
+   ],
+   "Count": @sumOfAllScores
+}'
+WHERE "name" = 'Topic Analysis - Topic Score';
+
+END $$;

@@ -63,7 +63,7 @@ public class ContentTopicModel
         this.Id = model.Id;
         this.Name = model.Name ?? "";
         this.TopicType = model.TopicType;
-        this.Score = model.Score;
+        this.Score = model.Score ?? 0;
     }
 
     /// <summary>

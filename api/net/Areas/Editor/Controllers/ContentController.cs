@@ -262,8 +262,8 @@ public class ContentController : ControllerBase
         if (!updateContent.PostedOn.HasValue)
             updateContent.PostedOn = DateTime.UtcNow;
 
-        // only assign a default score to content which has a source relevant to Event of the Day
-        if (updateContent.SourceId.HasValue)
+        // Only assign a value if the score has not been set.
+        if (updateContent.SourceId.HasValue && model.Topics.Any(t => !t.Score.HasValue))
         {
             var source = _sourceService.FindById(updateContent.SourceId.Value);
             if (source != null && source.UseInTopics)

@@ -36,7 +36,7 @@ public class SchedulerService : BaseService
         base.ConfigureServices(services);
         services
             .Configure<SchedulerOptions>(this.Configuration.GetSection("Service"))
-            .AddScoped<IServiceManager, SchedulerManager>();
+            .AddSingleton<IServiceManager, SchedulerManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<SchedulerOptions>()

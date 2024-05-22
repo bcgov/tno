@@ -227,10 +227,6 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             {
                 await ProcessReportAsync(result);
 
-                // Inform Kafka this message is completed.
-                this.Listener.Commit(result);
-                this.Listener.Resume();
-
                 // Successful run clears any errors.
                 this.State.ResetFailures();
                 _retries = 0;
@@ -252,7 +248,13 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         }
         finally
         {
-            if (State.Status == ServiceStatus.Running) Listener.Resume();
+            if (State.Status == ServiceStatus.Running)
+            {
+                // Inform Kafka this message is completed.
+                // We do this regardless of whether it failed or succeeded.
+                this.Listener.Commit(result);
+                this.Listener.Resume();
+            }
         }
     }
 

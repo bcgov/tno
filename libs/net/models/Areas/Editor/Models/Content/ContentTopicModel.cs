@@ -26,8 +26,9 @@ public class ContentTopicModel : AuditColumnsModel
 
     /// <summary>
     /// get/set - The value of the topic.
+    /// This will never be null from the API, but can be null from the client.
     /// </summary>
-    public int Score { get; set; }
+    public int? Score { get; set; }
 
     /// <summary>
     /// get/set - The type of topic (issue, proactive).
@@ -74,7 +75,7 @@ public class ContentTopicModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.ContentTopic(ContentTopicModel model)
     {
-        return new Entities.ContentTopic(model.ContentId, model.Id, model.Score)
+        return new Entities.ContentTopic(model.ContentId, model.Id, model.Score ?? 0)
         {
             Version = model.Version ?? 0,
         };

@@ -30,9 +30,19 @@ public class ChartPreviewRequestModel
     public JsonDocument? Filter { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to a filter that will be used to populate the content for this chart.
+    /// </summary>
+    public int? FilterId { get; set; }
+
+    /// <summary>
     /// get/set - Foreign key to a linked report that will be used to populate the content for this chart.
     /// </summary>
     public int? LinkedReportId { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to a folder that will be used to populate the content for this chart.
+    /// </summary>
+    public int? FolderId { get; set; }
 
     /// <summary>
     /// get/set - An array of content to be used to generate the JSON Data.

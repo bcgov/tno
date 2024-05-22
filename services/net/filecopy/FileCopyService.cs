@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
+using TNO.Kafka;
+using TNO.Kafka.Models;
 using TNO.Services.FileCopy.Config;
 using TNO.Services.Runners;
-using TNO.Kafka.Models;
-using TNO.Kafka;
 
 namespace TNO.Services.FileCopy;
 
@@ -40,7 +40,7 @@ public class FileCopyService : KafkaConsumerService
         services
             .Configure<FileCopyOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IKafkaListener<string, FileRequestModel>, KafkaListener<string, FileRequestModel>>()
-            .AddScoped<IServiceManager, FileCopyManager>();
+            .AddSingleton<IServiceManager, FileCopyManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<FileCopyOptions>()

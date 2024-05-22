@@ -210,6 +210,7 @@ else
 echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8080
+TZ=America/Los_Angeles
 
 ConnectionStrings__TNO=Host=host.docker.internal:$portDatabase;Database=$dbName;Include Error Detail=true;Log Parameters=true;
 
@@ -693,7 +694,11 @@ CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/o
 CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
 CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}" >> ./services/net/notification/.env
+CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}
+
+# Elastic__Url=host.docker.internal:$portElastic
+ELASTIC_USERNAME=$elasticUser
+ELASTIC_PASSWORD=$password"" >> ./services/net/notification/.env
     echo "./services/net/notification/.env created"
 fi
 

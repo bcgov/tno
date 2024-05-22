@@ -2,15 +2,16 @@ import { Topic } from 'features/content';
 import React from 'react';
 import { FaRegClipboard } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import Select from 'react-select';
 import {
   CellDate,
   CellEllipsis,
   IContentTopicModel,
   IFolderContentModel,
   ITableHookColumn,
+  ITableInternalCell,
   ITopicModel,
   OptionItem,
+  Select,
   Show,
   Spinner,
 } from 'tno-core';
@@ -44,11 +45,15 @@ export const useColumns = (
     return isContentUpdating.findIndex((el: number) => el === contentId) > -1;
   };
 
-  const handleTopicChange = async (topic: ITopicModel, cell: any) => {
+  const handleTopicChange = async (
+    topic: ITopicModel,
+    cell: ITableInternalCell<IFolderContentModel>,
+  ) => {
     if (
-      (topic && cell.original.content.topics.length === 0) ||
-      (!topic && cell.original.content.topics.length > 0) ||
-      topic?.id !== cell.original.content.topics[0].id
+      cell.original.content &&
+      ((topic && cell.original.content.topics.length === 0) ||
+        (!topic && cell.original.content.topics.length > 0) ||
+        topic?.id !== cell.original.content?.topics[0].id)
     ) {
       const updatedFolderContent = {
         ...cell.original,
@@ -73,13 +78,16 @@ export const useColumns = (
     }
   };
 
-  const handleScoreChange = async (event: any, cell: any) => {
-    let newScore = (event as OptionItem).value;
-    if (newScore) {
+  const handleScoreChange = async (
+    newValue: any,
+    cell: ITableInternalCell<IFolderContentModel>,
+  ) => {
+    if (cell.original.content) {
+      let newScore = (newValue as OptionItem).value;
       const updatedFolderContent = {
         ...cell.original,
       } as IFolderContentModel;
-      updatedFolderContent.content!.topics![0].score = +newScore;
+      updatedFolderContent.content!.topics[0].score = newScore ? +newScore : 0;
       toggleContentUpdatingStatus(cell.original.contentId);
       await handleSubmit(updatedFolderContent).then(() => {
         toggleContentUpdatingStatus(cell.original.contentId);
@@ -87,9 +95,9 @@ export const useColumns = (
     }
   };
 
-  const handleCopyTitle = (event: any, cell: any) => {
+  const handleCopyTitle = (event: any, cell: ITableInternalCell<IFolderContentModel>) => {
     navigator.clipboard.writeText(cell.original.content!.headline);
-    // animate the clipboar icon to show something happened
+    // animate the clipboard icon to show something happened
     event.target.classList.toggle('animate');
     setTimeout(() => {
       event.target.classList.toggle('animate');
@@ -185,6 +193,7 @@ export const useColumns = (
                   cell.original.content!.topics![0].id === topicIdNotApplicable)
               }
               isClearable={false}
+              clearValue={''}
               className={
                 'score-select ' +
                 (isRowContentUpdating(cell.original.contentId) ? 'lock-control' : '')
@@ -200,7 +209,9 @@ export const useColumns = (
                     ? cell.original.content!.topics![0].score
                     : 0),
               )}
-              onChange={async (e: any) => await handleScoreChange(e, cell)}
+              onChange={(newValue) => {
+                handleScoreChange(newValue, cell);
+              }}
             />
             <div className="maxScore">
               &nbsp;&le;&nbsp;

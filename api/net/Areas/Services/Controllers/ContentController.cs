@@ -235,7 +235,6 @@ public class ContentController : ControllerBase
 
         // TODO: Figure out how to return a 201 for a route in a different controller.
         // return CreatedAtRoute("EditorContentFindById", new { id = content.Id }, new ContentModel(content));
-        // return CreatedAtRoute("EditorContentFindById", new { id = content.Id }, new ContentModel(content));
     }
 
     /// <summary>
