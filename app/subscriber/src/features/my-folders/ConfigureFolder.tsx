@@ -78,7 +78,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
   React.useEffect(() => {
     if (init && ((!currentFolder && id) || currentFolder?.id !== Number(id))) {
       setInit(false);
-      getFolder(Number(id), false)
+      getFolder(Number(id), true)
         .then((folder) => {
           setCurrentFolder(folder);
           if (folder.filterId) {
@@ -180,7 +180,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
           <Checkbox
             name="auto-pop"
             label="Auto-populate this folder"
-            checked={currentFolder?.settings.autoPopulate}
+            checked={currentFolder?.settings.autoPopulate ?? false}
             onChange={(e) => {
               setCurrentFolder({
                 ...currentFolder,

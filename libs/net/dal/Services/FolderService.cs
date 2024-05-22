@@ -51,6 +51,8 @@ public class FolderService : BaseService<Folder, int>, IFolderService
         return this.Context.Folders
             .Include(f => f.Owner)
             .Include(f => f.ContentManyToMany)
+            .Include(f => f.Filter)
+            .Include(f => f.Events).ThenInclude(f => f.Schedule)
             .Where(f => f.OwnerId == userId)
             .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
