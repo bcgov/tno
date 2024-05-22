@@ -162,7 +162,7 @@ public class WorkOrderHelper : IWorkOrderHelper
 
         if (force || !workOrders.Any(o => o.WorkType == Entities.WorkOrderType.Transcription || !WorkLimiterStatus.Contains(o.Status)))
         {
-            var headlineString = $"{{ \"headline\": \"{this.Content.Headline}\" }}";
+            var headlineString = $"{{ \"headline\": \"{this.Content.Headline.Replace("\n", "")}\" }}";
             var configuration = JsonDocument.Parse(headlineString);
             var workOrder = _workOrderService.AddAndSave(
                 new Entities.WorkOrder(
